@@ -80,8 +80,8 @@ export default function NombrePagina() {
 - [x] Tailwind desinstalado
 
 ### Etapa 2 — Backend Node.js + Express (2-3 semanas)
-- [ ] Crear servidor Express
-- [ ] Organizar módulos: órdenes, clientes, documentos, pagos, notificaciones
+- [ x] Crear servidor Express
+- [ x] Organizar módulos: órdenes, clientes, documentos, pagos, notificaciones
 - [ ] Conectar formulario al backend
 - [ ] Variables de entorno (.env)
 - [ ] Subir a Railway.app
