@@ -3,44 +3,43 @@
 ## Qué es el proyecto
 Plataforma de formación de empresas (LLC y Corporaciones) en Florida, estilo LegalZoom/Bizee.
 Web: mybusinessformation.com
-Socios: Ethan (dev frontend) + socio (completa el HTML)
+Socios: Ethan (dev backend/frontend Next.js) + socio (diseño y terminación HTML)
 
-## Estructura del repositorio en GitHub
-mybusinessformation/
-  mybusinessformation-web/
-    backend/          ← proyecto Next.js (TypeScript)
-      app/
-        globals.css
-        layout.tsx
-        page.tsx
-        about/page.tsx
-        legal/page.tsx
-        servicios/page.tsx
-        paquetes/page.tsx
-        privacy/page.tsx
-        terms/page.tsx
-      node_modules/
-      prisma/
-      public/
-    about.html        ← HTMLs originales aquí (fuera de backend)
-    legal.html
-    mybusinessformation.html
-    paquetes.html
-    privacy.html
-    servicios.html
-    terms.html
+## Repositorio GitHub
+https://github.com/aneudysoto1823-collab/mybusinessformation-web
 
-## Cómo funciona el sistema (Etapa 1)
-Cada page.tsx lee su HTML original y lo renderiza en Next.js.
-El page.tsx correcto extrae TANTO el style como el body del HTML:
+## Estructura del repositorio
+mybusinessformation-web/
+  backend/          ← proyecto Next.js (TypeScript) — NO TOCAR si eres el socio HTML
+    app/
+      globals.css   ← vacío, cada página carga su propio CSS
+      layout.tsx    ← carga fuentes Google (Fraunces + Plus Jakarta Sans)
+      page.tsx
+      about/page.tsx
+      legal/page.tsx
+      servicios/page.tsx
+      paquetes/page.tsx
+      privacy/page.tsx
+      terms/page.tsx
+  about.html        ← HTMLs aquí en la raíz — solo el socio los edita
+  legal.html
+  mybusinessformation.html
+  paquetes.html
+  privacy.html
+  servicios.html
+  terms.html
+  CONTEXTO.md
+
+## Cómo funciona el sistema
+Cada page.tsx lee su HTML original y extrae el CSS y el body:
 
 import fs from 'fs'
 import path from 'path'
-export default function About() {
-  const htmlPath = path.join(process.cwd(), '..', 'about.html')
+export default function NombrePagina() {
+  const htmlPath = path.join(process.cwd(), '..', 'nombre.html')
   const rawHtml = fs.readFileSync(htmlPath, 'utf-8')
-  const styleMatch = rawHtml.match(/<style[^>]*>([\s\S]*?)<\/style>/i)
-  const styleContent = styleMatch ? styleContent = styleMatch ? `<style>${styleMatch[1]}</style>` : ''
+  const styleMatches = rawHtml.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/gi)
+  const styleContent = [...styleMatches].map(m => `<style>${m[1]}</style>`).join('')
   const bodyMatch = rawHtml.match(/<body[^>]*>([\s\S]*)<\/body>/i)
   const bodyContent = bodyMatch ? bodyMatch[1] : ''
   return (
@@ -48,32 +47,90 @@ export default function About() {
   )
 }
 
-## Estado actual — Etapa 1 (Frontend HTML a Next.js)
-- [x] Paso 1: Next.js instalado y corriendo
-- [x] Paso 2: layout.tsx con Google Fonts (Fraunces + Plus Jakarta Sans)
-- [x] Paso 3: pendiente (socio termina el HTML completo)
-- [x] page.tsx de mybusinessformation.html — FUNCIONA OK
-- [ ] about/page.tsx — style faltaba, aplicando fix
-- [ ] legal/page.tsx — style faltaba, aplicando fix
-- [ ] servicios/page.tsx — style faltaba, aplicando fix
-- [ ] paquetes/page.tsx — style faltaba, aplicando fix
-- [ ] privacy/page.tsx — style faltaba, aplicando fix
-- [ ] terms/page.tsx — style faltaba, aplicando fix
-
 ## Cómo trabajamos con Claude
 - Compartir pantalla con capturas cuando hay problemas visuales
-- Claude no genera archivos para descargar — pega el código directo en el chat
+- Claude pega el código directo en el chat — no genera archivos para descargar
 - Trabajar paso a paso, un problema a la vez
-- Al inicio de cada sesión nueva pegar este archivo de contexto
+- Al inicio de cada sesión nueva pegar este archivo CONTEXTO.md completo
+- Actualizar este archivo al terminar cada etapa
+
+## Reglas del repositorio
+- Ethan trabaja dentro de la carpeta backend/
+- El socio trabaja SOLO en los archivos HTML de la raíz
+- Antes de empezar siempre: git pull
+- Al terminar siempre: git add . → git commit -m "descripcion" → git push
 
 ## Stack tecnológico
-- Next.js (TypeScript) — frontend
+- Next.js 16 (TypeScript) — frontend
 - Node.js v24.14.0 / npm 11.9.0
-- PostgreSQL + Prisma — base de datos (etapa 3)
+- PostgreSQL + Prisma — base de datos (Etapa 3)
+- Supabase — hosting base de datos
 - Railway.app — hosting backend
-- Stripe — pagos (etapa 4)
-- Resend — emails (etapa 7)
+- Stripe — pagos (Etapa 4)
+- Resend — emails (Etapa 7)
 
-## Roadmap — 10 Etapas
-Ver archivo: MyBusinessFormation_Roadmap_v2.pdf
-Punto de lanzamiento: Etapas 1, 2, 3, 4, 5 y 7
+## ROADMAP COMPLETO — 10 Etapas
+
+### Etapa 1 — Frontend HTML a Next.js (1-2 semanas)
+- [x] Instalar Node.js y crear proyecto Next.js
+- [x] layout.tsx con Google Fonts
+- [ ] Socio termina HTML completo (EN PROGRESO)
+- [x] Conectar todas las páginas — COMPLETADO
+- [x] globals.css vaciado — cada página carga su propio CSS
+- [x] Tailwind desinstalado
+
+### Etapa 2 — Backend Node.js + Express (2-3 semanas)
+- [ ] Crear servidor Express
+- [ ] Organizar módulos: órdenes, clientes, documentos, pagos, notificaciones
+- [ ] Conectar formulario al backend
+- [ ] Variables de entorno (.env)
+- [ ] Subir a Railway.app
+
+### Etapa 3 — Base de Datos PostgreSQL (1-2 semanas)
+- [ ] Instalar PostgreSQL
+- [ ] Crear tablas: clientes, órdenes, documentos, pagos, estados
+- [ ] Conectar con Prisma ORM
+- [ ] Backups automáticos diarios
+
+### Etapa 4 — Pagos con Stripe (1 semana)
+- [ ] Crear cuenta Stripe y obtener claves API
+- [ ] Integrar Stripe Elements
+- [ ] Guardar transacciones en base de datos
+- [ ] Probar con tarjetas de prueba
+
+### Etapa 5 — Búsqueda de Nombres Sunbiz Florida (2 semanas) ⚠️ CRÍTICA
+- [ ] Descargar base de datos trimestral de Florida vía FTP
+- [ ] Importar a PostgreSQL (~3.5 millones de registros)
+- [ ] Buscador en tiempo real con detección de nombres similares
+- [ ] Actualización automática nocturna
+
+### Etapa 7 — Comunicación Automática (1 semana)
+- [ ] Email confirmación al pagar
+- [ ] Email con contrato PDF adjunto
+- [ ] Email de actualización de estado
+- [ ] Email final con Certificate of Formation
+- [ ] WhatsApp Business API opcional
+
+### PUNTO DE LANZAMIENTO = Etapas 1+2+3+4+5+7 completas (~3 meses)
+
+### Etapa 6 — Contratos y Documentos Automáticos (post-lanzamiento)
+- [ ] Plantillas con marcadores de posición
+- [ ] Generación automática de PDF
+- [ ] Almacenamiento en AWS S3
+- [ ] Articles of Organization automáticos
+
+### Etapa 8 — Panel de Administración (post-lanzamiento)
+- [ ] Tablero Kanban con órdenes
+- [ ] Vista detallada por cliente
+- [ ] Alertas y notificaciones
+
+### Etapa 9 — Portal del Cliente (post-lanzamiento)
+- [ ] Login seguro con JWT
+- [ ] Estado de orden en tiempo real
+- [ ] Descarga de documentos
+
+### Etapa 10 — Seguridad y Lanzamiento Oficial (post-lanzamiento)
+- [ ] Cloudflare activo
+- [ ] Revisión de seguridad
+- [ ] Pruebas completas con 10 clientes simulados
+- [ ] Apuntar dominio mybusinessformation.com
