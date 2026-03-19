@@ -1,0 +1,79 @@
+# CONTEXTO DEL PROYECTO — MyBusinessFormation.com
+
+## Qué es el proyecto
+Plataforma de formación de empresas (LLC y Corporaciones) en Florida, estilo LegalZoom/Bizee.
+Web: mybusinessformation.com
+Socios: Ethan (dev frontend) + socio (completa el HTML)
+
+## Estructura del repositorio en GitHub
+mybusinessformation/
+  mybusinessformation-web/
+    backend/          ← proyecto Next.js (TypeScript)
+      app/
+        globals.css
+        layout.tsx
+        page.tsx
+        about/page.tsx
+        legal/page.tsx
+        servicios/page.tsx
+        paquetes/page.tsx
+        privacy/page.tsx
+        terms/page.tsx
+      node_modules/
+      prisma/
+      public/
+    about.html        ← HTMLs originales aquí (fuera de backend)
+    legal.html
+    mybusinessformation.html
+    paquetes.html
+    privacy.html
+    servicios.html
+    terms.html
+
+## Cómo funciona el sistema (Etapa 1)
+Cada page.tsx lee su HTML original y lo renderiza en Next.js.
+El page.tsx correcto extrae TANTO el style como el body del HTML:
+
+import fs from 'fs'
+import path from 'path'
+export default function About() {
+  const htmlPath = path.join(process.cwd(), '..', 'about.html')
+  const rawHtml = fs.readFileSync(htmlPath, 'utf-8')
+  const styleMatch = rawHtml.match(/<style[^>]*>([\s\S]*?)<\/style>/i)
+  const styleContent = styleMatch ? styleContent = styleMatch ? `<style>${styleMatch[1]}</style>` : ''
+  const bodyMatch = rawHtml.match(/<body[^>]*>([\s\S]*)<\/body>/i)
+  const bodyContent = bodyMatch ? bodyMatch[1] : ''
+  return (
+    <main dangerouslySetInnerHTML={{ __html: styleContent + bodyContent }} />
+  )
+}
+
+## Estado actual — Etapa 1 (Frontend HTML a Next.js)
+- [x] Paso 1: Next.js instalado y corriendo
+- [x] Paso 2: layout.tsx con Google Fonts (Fraunces + Plus Jakarta Sans)
+- [x] Paso 3: pendiente (socio termina el HTML completo)
+- [x] page.tsx de mybusinessformation.html — FUNCIONA OK
+- [ ] about/page.tsx — style faltaba, aplicando fix
+- [ ] legal/page.tsx — style faltaba, aplicando fix
+- [ ] servicios/page.tsx — style faltaba, aplicando fix
+- [ ] paquetes/page.tsx — style faltaba, aplicando fix
+- [ ] privacy/page.tsx — style faltaba, aplicando fix
+- [ ] terms/page.tsx — style faltaba, aplicando fix
+
+## Cómo trabajamos con Claude
+- Compartir pantalla con capturas cuando hay problemas visuales
+- Claude no genera archivos para descargar — pega el código directo en el chat
+- Trabajar paso a paso, un problema a la vez
+- Al inicio de cada sesión nueva pegar este archivo de contexto
+
+## Stack tecnológico
+- Next.js (TypeScript) — frontend
+- Node.js v24.14.0 / npm 11.9.0
+- PostgreSQL + Prisma — base de datos (etapa 3)
+- Railway.app — hosting backend
+- Stripe — pagos (etapa 4)
+- Resend — emails (etapa 7)
+
+## Roadmap — 10 Etapas
+Ver archivo: MyBusinessFormation_Roadmap_v2.pdf
+Punto de lanzamiento: Etapas 1, 2, 3, 4, 5 y 7
