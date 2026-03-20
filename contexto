@@ -84,7 +84,7 @@ export default function NombrePagina() {
 - [ x] Organizar módulos: órdenes, clientes, documentos, pagos, notificaciones
 - [x ] Conectar formulario al backend
 - [ x] Variables de entorno (.env)
-- [ ] Subir a Railway.app
+- [x ] Subir a Railway.app  Subir a Railway.app — https://mybusinessformation-web-production.up.railway.app
 
 ### Etapa 3 — Base de Datos PostgreSQL (1-2 semanas)
 - [ ] Instalar PostgreSQL
