@@ -91,7 +91,7 @@ export default function NombrePagina() {
 - [x] Crear tablas: modelo Order completo en Supabase
 - [x] Conectar con Prisma ORM — db push exitoso
 - [x] orders.service.ts — saveOrder y getOrders funcionando
-- [ ] Backups automáticos diarios
+- [ ] Backups automáticos diarios — requiere Supabase Pro (pendiente)
 
 ### Etapa 4 — Pagos con Stripe (1 semana)
 - [ ] Crear cuenta Stripe y obtener claves API
