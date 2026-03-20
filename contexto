@@ -82,7 +82,7 @@ export default function NombrePagina() {
 ### Etapa 2 — Backend Node.js + Express (2-3 semanas)
 - [ x] Crear servidor Express
 - [ x] Organizar módulos: órdenes, clientes, documentos, pagos, notificaciones
-- [ ] Conectar formulario al backend
+- [x ] Conectar formulario al backend
 - [ ] Variables de entorno (.env)
 - [ ] Subir a Railway.app
 

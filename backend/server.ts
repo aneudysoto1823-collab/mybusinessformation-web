@@ -19,6 +19,15 @@ app.get('/', (req, res) => {
   res.json({ message: 'MyBusinessFormation API corriendo correctamente' })
 })
 
+app.get('/health', (req, res) => {
+  res.json({
+    status: 'ok',
+    database: process.env.DATABASE_URL ? 'configurada' : 'no configurada',
+    stripe: process.env.STRIPE_SECRET_KEY ? 'configurado' : 'pendiente',
+    email: process.env.EMAIL_HOST ? 'configurado' : 'pendiente'
+  })
+})
+
 app.use('/api/orders', ordersRouter)
 app.use('/api/clients', clientsRouter)
 app.use('/api/payments', paymentsRouter)
