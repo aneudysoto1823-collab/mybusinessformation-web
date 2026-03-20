@@ -87,9 +87,10 @@ export default function NombrePagina() {
 - [x ] Subir a Railway.app  Subir a Railway.app — https://mybusinessformation-web-production.up.railway.app
 
 ### Etapa 3 — Base de Datos PostgreSQL (1-2 semanas)
-- [ ] Instalar PostgreSQL
-- [ ] Crear tablas: clientes, órdenes, documentos, pagos, estados
-- [ ] Conectar con Prisma ORM
+- [x] Instalar PostgreSQL — usando Supabase como hosting
+- [x] Crear tablas: modelo Order completo en Supabase
+- [x] Conectar con Prisma ORM — db push exitoso
+- [x] orders.service.ts — saveOrder y getOrders funcionando
 - [ ] Backups automáticos diarios
 
 ### Etapa 4 — Pagos con Stripe (1 semana)
