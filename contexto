@@ -83,7 +83,7 @@ export default function NombrePagina() {
 - [ x] Crear servidor Express
 - [ x] Organizar módulos: órdenes, clientes, documentos, pagos, notificaciones
 - [x ] Conectar formulario al backend
-- [ ] Variables de entorno (.env)
+- [ x] Variables de entorno (.env)
 - [ ] Subir a Railway.app
 
 ### Etapa 3 — Base de Datos PostgreSQL (1-2 semanas)
