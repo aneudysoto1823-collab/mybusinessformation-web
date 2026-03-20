@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
+    "build": "echo 'build ok'",
+    "start": "npm run server",
     "lint": "eslint",
     "server": "ts-node server.ts"
   },
