@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 export default function Paquetes() {
-  const htmlPath = path.join(process.cwd(), '..', 'paquetes.html')
+  const htmlPath = path.join(process.cwd(), 'public', 'paquetes.html')
   const rawHtml = fs.readFileSync(htmlPath, 'utf-8')
   const styleMatches = rawHtml.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/gi)
   const styleContent = [...styleMatches].map(m => `<style>${m[1]}</style>`).join('')

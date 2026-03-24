@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 export default function Privacy() {
-  const htmlPath = path.join(process.cwd(), '..', 'privacy.html')
+  const htmlPath = path.join(process.cwd(), 'public', 'privacy.html')
   const rawHtml = fs.readFileSync(htmlPath, 'utf-8')
   const styleMatches = rawHtml.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/gi)
   const styleContent = [...styleMatches].map(m => `<style>${m[1]}</style>`).join('')
