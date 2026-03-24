@@ -74,10 +74,14 @@ export default function NombrePagina() {
 ### Etapa 1 — Frontend HTML a Next.js (1-2 semanas)
 - [x] Instalar Node.js y crear proyecto Next.js
 - [x] layout.tsx con Google Fonts
-- [ ] Socio termina HTML completo (EN PROGRESO)
-- [x] Conectar todas las páginas — COMPLETADO
+- [ ] Paso 3 — Socio termina HTML completo (EN PROGRESO)
+      - Cuando esté listo: convertir cada HTML a componente React
+      - Esto hará que Vercel funcione correctamente
+      - Cada página será un componente React limpio sin leer archivos externos
+- [x] Conectar todas las páginas — COMPLETADO (leyendo HTML con fs)
 - [x] globals.css vaciado — cada página carga su propio CSS
 - [x] Tailwind desinstalado
+- [x] HTML movidos a backend/public
 
 ### Etapa 2 — Backend Node.js + Express (2-3 semanas)
 - [ x] Crear servidor Express
