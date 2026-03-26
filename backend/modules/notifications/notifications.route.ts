@@ -37,13 +37,70 @@ router.post('/test-names-taken', async (req: Request, res: Response) => {
     await sendAllNamesTaken({
       id: 'TEST-002',
       firstName: 'Test',
+      lastName: 'User',
       email: req.body.email || 'aneudysoto1823@gmail.com',
       names: ['Florida Tech Solutions LLC', 'Sunshine Digital LLC', 'Coastal Business Group LLC']
     })
-    res.json({ success: true, message: 'Email de nombres tomados enviado' })
+    res.json({ success: true, message: 'Email de nombres tomados enviado (cliente + admin)' })
   } catch (error: any) {
     res.status(500).json({ success: false, error: error.message })
   }
+})
+
+// POST /api/notifications/test-full-flow — simula el flujo completo (4 emails de una vez)
+router.post('/test-full-flow', async (req: Request, res: Response) => {
+  const clientEmail = req.body.clientEmail || 'aneudysoto1823@gmail.com'
+  const order = {
+    id: 'TEST-FULL-001',
+    firstName: 'Ana',
+    lastName: 'Garcia',
+    email: clientEmail,
+    companyName: 'Sunshine Ventures LLC',
+    package: 'Standard',
+    amount: 149,
+    phone: '+1 305-000-0000'
+  }
+
+  const results: Record<string, string> = {}
+
+  try {
+    // Email 1 — Confirmación al cliente
+    await sendOrderConfirmation(order)
+    results['email_1_confirmation'] = 'enviado'
+  } catch (e: any) {
+    results['email_1_confirmation'] = `error: ${e.message}`
+  }
+
+  try {
+    // Email 2 — Nombres tomados (cliente + alerta admin)
+    await sendAllNamesTaken({
+      id: order.id,
+      firstName: order.firstName,
+      lastName: order.lastName,
+      email: order.email,
+      names: ['Florida Tech Solutions LLC', 'Sunshine Digital LLC', 'Coastal Business Group LLC']
+    })
+    results['email_2_names_taken_client'] = 'enviado'
+    results['email_2_names_taken_admin'] = 'enviado'
+  } catch (e: any) {
+    results['email_2_names_taken_client'] = `error: ${e.message}`
+    results['email_2_names_taken_admin'] = `error: ${e.message}`
+  }
+
+  try {
+    // Email 3 — Certificate of Formation al cliente
+    await sendCertificateDelivery(order)
+    results['email_3_certificate'] = 'enviado'
+  } catch (e: any) {
+    results['email_3_certificate'] = `error: ${e.message}`
+  }
+
+  const allOk = Object.values(results).every(v => v === 'enviado')
+  res.status(allOk ? 200 : 207).json({
+    success: allOk,
+    clientEmail,
+    results
+  })
 })
 
 // POST /api/notifications/status-update — actualizar estado y notificar cliente
