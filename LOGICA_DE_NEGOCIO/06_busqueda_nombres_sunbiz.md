@@ -27,24 +27,24 @@ El cliente provee hasta 3 opciones en caso de que la primera no esté disponible
 - Debe terminar en: `Inc.`, `Corp.`, `Corporation`, `Incorporated`
 - Mismas restricciones de unicidad y palabras reservadas
 
-## Proceso de búsqueda (manual)
+## Proceso de verificación (manual, paso a paso)
 1. Recibir orden con los 3 nombres propuestos
 2. Ir a [sunbiz.org](https://search.sunbiz.org/Inquiry/CorporationSearch/ByName)
-3. Buscar cada nombre propuesto
-4. Si hay coincidencia exacta o muy similar → ese nombre no está disponible
-5. Confirmar el primer nombre disponible de las 3 opciones
-6. Proceder con ese nombre al registrar
+3. Buscar Nombre 1 → si disponible: continuar con ese nombre
+4. Si Nombre 1 tomado → buscar Nombre 2 → si disponible: continuar
+5. Si Nombre 2 tomado → buscar Nombre 3 → si disponible: continuar
+6. Si los 3 están tomados → disparar `POST /api/notifications/names-taken`
+   - Cliente recibe email pidiendo nuevas opciones
+   - Admin recibe alerta para hacer seguimiento
+   - Orden permanece en `in_review` hasta que el cliente responda
 
-## Automatización futura (opcional)
+## Automatización futura (Etapa 5)
 Sunbiz no tiene una API oficial. Opciones para automatizar:
-- Web scraping de sunbiz.org (frágil, puede romper con cambios del sitio)
-- Servicio de terceros que consulta disponibilidad de nombres en Florida
-
-## Impacto en el flujo
-- Si el único nombre disponible es el 2do o 3ro → informar al cliente antes de proceder
-- Si ninguno está disponible → contactar al cliente para nuevas opciones (esto retrasa la orden)
-- El estado de la orden permanece `in_review` mientras se resuelve el nombre
+- Descargar base de datos trimestral de Florida vía FTP (~3.5 millones de registros)
+- Importar a PostgreSQL y hacer búsqueda local en tiempo real
+- Actualización automática nocturna con los nuevos registros
 
 ## Archivos clave
 - `backend/prisma/schema.prisma` — campos `companyName`, `companyName2`, `companyName3`
 - `backend/public/mybusinessformation.html` — campos de nombre en el formulario (no modificar)
+- `backend/modules/notifications/notifications.service.ts` — `sendAllNamesTaken()` para cuando los 3 están tomados

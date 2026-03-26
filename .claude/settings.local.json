@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(curl -s http://localhost:4000/api/notifications)",
+      "Bash(curl -s -X POST http://localhost:4000/api/notifications/status-update -H \"Content-Type: application/json\" -d '{\"\"orderId\"\":\"\"TEST-003\"\",\"\"firstName\"\":\"\"Test\"\",\"\"email\"\":\"\"aneudysoto1823@gmail.com\"\",\"\"companyName\"\":\"\"Test Company LLC\"\",\"\"status\"\":\"\"in_review\"\"}')",
+      "Bash(curl -s -X POST http://localhost:4000/api/notifications/certificate -H \"Content-Type: application/json\" -d '{\"\"orderId\"\":\"\"TEST-004\"\",\"\"firstName\"\":\"\"Test\"\",\"\"email\"\":\"\"aneudysoto1823@gmail.com\"\",\"\"companyName\"\":\"\"Test Company LLC\"\"}')",
+      "Bash(python -m json.tool)",
+      "Bash(curl -s -X POST http://localhost:4000/api/notifications/test-full-flow -H 'Content-Type: application/json' -d '{\"\"\"\"clientEmail\"\"\"\": \"\"\"\"aneudysoto1823@gmail.com\"\"\"\"}')",
+      "Bash(taskkill /F /PID 21816)",
+      "Bash(netstat -ano)",
+      "Bash(cmd /c \"taskkill /F /PID 21816\")",
+      "Bash(curl -s -X POST http://localhost:4000/api/notifications/test-full-flow -H \"Content-Type: application/json\" -d '{\"\"clientEmail\"\": \"\"aneudysoto1823@gmail.com\"\"}')"
+    ]
+  }
+}

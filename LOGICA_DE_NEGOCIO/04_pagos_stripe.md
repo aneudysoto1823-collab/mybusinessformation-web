@@ -36,7 +36,7 @@ El sistema usa Stripe para procesar pagos de los clientes. La integración está
 - Stripe firma el evento (verificar con `STRIPE_WEBHOOK_SECRET`)
 - Sistema actualiza `paymentStatus` a `paid`
 - Sistema actualiza `status` de `pending` a `in_review`
-- Sistema dispara emails automáticos (Etapa 7)
+- Sistema dispara Email 1 — confirmación al cliente (Etapa 7)
 
 ## Variables de entorno necesarias (Etapa 4)
 ```

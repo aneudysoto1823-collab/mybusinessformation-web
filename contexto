@@ -110,10 +110,13 @@ export default function NombrePagina() {
 - [ ] Actualización automática nocturna
 
 ### Etapa 7 — Comunicación Automática (1 semana)
-- [ ] Email confirmación al pagar
-- [ ] Email con contrato PDF adjunto
-- [ ] Email de actualización de estado
-- [ ] Email final con Certificate of Formation
+- [x] Email confirmación al pagar
+- [x] Email nombres tomados — cliente + alerta admin
+- [x] Email de actualización de estado
+- [x] Email final con Certificate of Formation
+- [x] Motor de emails probado y funcionando con Resend
+- [ ] Email con contrato PDF adjunto — pendiente hasta Etapa 6 (generación de documentos)
+- [ ] Verificar dominio mybusinessformation.com en Resend — para enviar a cualquier email
 - [ ] WhatsApp Business API opcional
 
 ### PUNTO DE LANZAMIENTO = Etapas 1+2+3+4+5+7 completas (~3 meses)
