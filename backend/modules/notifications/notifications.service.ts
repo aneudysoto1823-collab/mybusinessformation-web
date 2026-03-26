@@ -150,7 +150,55 @@ export const sendStatusUpdate = async (order: {
   })
 }
 
-// ── 4. Entrega del Certificate of Formation ─────────────────────────────────
+// ── 4. Todos los nombres tomados — cliente debe proponer nuevas opciones ─────
+export const sendAllNamesTaken = async (order: {
+  firstName: string
+  email: string
+  names: [string, string, string]
+  id: string
+}) => {
+  await resend.emails.send({
+    from: FROM_EMAIL,
+    to: order.email,
+    subject: `⚠️ Action required — all 3 name options are taken`,
+    html: `
+      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#1e293b">
+        <div style="background:#1C2E44;padding:24px 32px;border-radius:10px 10px 0 0">
+          <h1 style="color:#fff;font-size:22px;margin:0">Florida Business Formation Center</h1>
+        </div>
+        <div style="background:#fff;padding:32px;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 10px 10px">
+          <h2 style="color:#b45309;font-size:20px">Hi ${order.firstName}, we need your help ⚠️</h2>
+          <p style="color:#475569;line-height:1.7">
+            We checked the <strong>Florida Division of Corporations</strong> and unfortunately all three company
+            names you submitted are already registered:
+          </p>
+          <div style="background:#fefce8;border:1px solid #fde68a;border-radius:8px;padding:20px;margin:20px 0">
+            <p style="margin:6px 0;font-size:14px;color:#92400e">❌ &nbsp;<strong>${order.names[0]}</strong> — already taken</p>
+            <p style="margin:6px 0;font-size:14px;color:#92400e">❌ &nbsp;<strong>${order.names[1]}</strong> — already taken</p>
+            <p style="margin:6px 0;font-size:14px;color:#92400e">❌ &nbsp;<strong>${order.names[2]}</strong> — already taken</p>
+          </div>
+          <p style="color:#475569;line-height:1.7">
+            Please reply to this email with <strong>3 new name options</strong> as soon as possible so we can
+            continue processing your order. You can verify name availability yourself at
+            <a href="https://search.sunbiz.org" style="color:#059669">search.sunbiz.org</a>.
+          </p>
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin:20px 0;font-size:14px">
+            <strong>Order:</strong> ${order.id}
+          </div>
+          <p style="color:#475569;line-height:1.7">
+            Need help choosing a name? <a href="https://wa.me/1XXXXXXXXXX" style="color:#059669">Chat with us on WhatsApp</a>
+          </p>
+          <p style="margin-top:32px;color:#94a3b8;font-size:12px">
+            Florida Business Formation Center · mybusinessformation.com<br/>
+            This is a transactional email. We are a document preparation service, not a law firm.
+          </p>
+        </div>
+      </div>
+    `
+  })
+}
+
+// ── 5. Entrega del Certificate of Formation ─────────────────────────────────
 export const sendCertificateDelivery = async (order: {
   firstName: string
   email: string

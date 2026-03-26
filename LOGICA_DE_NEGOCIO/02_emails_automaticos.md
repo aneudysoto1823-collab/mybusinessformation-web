@@ -9,7 +9,7 @@ El sistema envía 4 tipos de emails usando la plataforma Resend. Los emails son 
 - **Remitente futuro:** `noreply@mybusinessformation.com` (cuando se verifique el dominio)
 - **Variable de entorno:** `RESEND_API_KEY` en el archivo `.env`
 
-## Los 4 tipos de email
+## Los 5 tipos de email
 
 ### Email 1 — Confirmación de Orden (automático)
 - **Cuándo se envía:** Inmediatamente cuando se guarda una orden nueva en la base de datos
@@ -30,7 +30,15 @@ El sistema envía 4 tipos de emails usando la plataforma Resend. Los emails son 
 - **Estados que activan email:** `in_review`, `filed`, `approved`, `completed`
 - **Cómo dispararlo:** POST `/api/notifications/status-update`
 
-### Email 4 — Certificate of Formation (manual)
+### Email 4 — Nombres Tomados (manual)
+- **Cuándo se envía:** Cuando el equipo verifica en Sunbiz y los 3 nombres propuestos están registrados
+- **Destinatario:** El cliente
+- **Función:** `sendAllNamesTaken(order)` en `notifications.service.ts`
+- **Parámetros:** `firstName`, `email`, `names: [string, string, string]`, `id`
+- **Contenido:** Lista los 3 nombres rechazados con ❌, pide 3 nuevas opciones, enlaza a search.sunbiz.org
+- **Cómo dispararlo:** POST `/api/notifications/certificate` *(o prueba: `/test-names-taken`)*
+
+### Email 5 — Certificate of Formation (manual)
 - **Cuándo se envía:** Cuando el negocio es aprobado por el Estado de Florida
 - **Destinatario:** El cliente
 - **Función:** `sendCertificateDelivery(order)` en `notifications.service.ts`
@@ -52,9 +60,10 @@ El sistema envía 4 tipos de emails usando la plataforma Resend. Los emails son 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
 | GET  | `/api/notifications` | Health check |
-| POST | `/api/notifications/test-confirmation` | Prueba manual de email |
-| POST | `/api/notifications/status-update` | Notificar cambio de estado |
-| POST | `/api/notifications/certificate` | Enviar Certificate al cliente |
+| POST | `/api/notifications/test-confirmation` | Prueba Email 1 — confirmación de orden |
+| POST | `/api/notifications/test-names-taken` | Prueba Email 4 — nombres tomados |
+| POST | `/api/notifications/status-update` | Email 3 — notificar cambio de estado |
+| POST | `/api/notifications/certificate` | Email 5 — enviar Certificate al cliente |
 
 ## TODO futuro
 - [ ] Verificar dominio `mybusinessformation.com` en Resend → cambiar FROM_EMAIL

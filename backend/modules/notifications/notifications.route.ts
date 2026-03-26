@@ -2,6 +2,7 @@ import { Router } from 'express'
 import type { Request, Response } from 'express'
 import {
   sendOrderConfirmation,
+  sendAllNamesTaken,
   sendStatusUpdate,
   sendCertificateDelivery
 } from './notifications.service.ts'
@@ -25,6 +26,21 @@ router.post('/test-confirmation', async (req: Request, res: Response) => {
       package: 'Standard'
     })
     res.json({ success: true, message: 'Email de confirmación enviado' })
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message })
+  }
+})
+
+// POST /api/notifications/test-names-taken — prueba email de nombres tomados
+router.post('/test-names-taken', async (req: Request, res: Response) => {
+  try {
+    await sendAllNamesTaken({
+      id: 'TEST-002',
+      firstName: 'Test',
+      email: req.body.email || 'aneudysoto1823@gmail.com',
+      names: ['Florida Tech Solutions LLC', 'Sunshine Digital LLC', 'Coastal Business Group LLC']
+    })
+    res.json({ success: true, message: 'Email de nombres tomados enviado' })
   } catch (error: any) {
     res.status(500).json({ success: false, error: error.message })
   }

@@ -24,6 +24,8 @@ Una orden es el registro central del negocio. Representa a un cliente que quiere
 ### 4. Equipo procesa la orden
 - Estado avanza: `pending` → `in_review` → `filed` → `approved` → `completed`
 - Cada cambio de estado envía email al cliente
+- **Caso especial — nombres tomados:** Si los 3 nombres propuestos están registrados en Sunbiz,
+  el equipo envía `sendAllNamesTaken()` al cliente pidiéndole nuevas opciones antes de continuar
 
 ### 5. Entrega de documentos
 - Certificate of Formation llega al cliente por email (con PDF adjunto)
