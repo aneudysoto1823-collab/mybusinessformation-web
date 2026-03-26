@@ -27,9 +27,12 @@ El sistema usa Stripe para procesar pagos de los clientes. La integración está
 - Devuelve `clientSecret` al frontend
 - Frontend usa Stripe.js para mostrar formulario de pago
 
-### 3. Cliente completa el pago
-- Stripe procesa la tarjeta
-- Redirige al cliente de vuelta al sitio
+### 3. Cliente completa el pago con Stripe Elements
+- El formulario de tarjeta está embebido en nuestra página (Stripe Elements)
+- El cliente nunca sale del sitio — todo ocurre en la misma página
+- Stripe procesa la tarjeta de forma segura en el iframe de Stripe Elements
+- Al confirmar el pago, el cliente ve un mensaje de confirmación en la misma página
+- El email de confirmación se envía automáticamente (Etapa 7)
 
 ### 4. Webhook de Stripe confirma el pago
 - `POST /api/payments/webhook`
