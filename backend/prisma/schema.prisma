@@ -21,19 +21,22 @@ model Order {
   companyName     String
   companyName2    String?
   companyName3    String?
-  businessType    String?
+  entityType      String?   // 'llc' or 'corp'
   businessAddress String?
 
+  speed           String    @default("standard") // 'standard' or 'expedited'
   package         String
   amount          Float
-  currency        String   @default("USD")
+  currency        String    @default("USD")
+
+  members         Json?     // array of {type, fname, lname, own, title, ...}
+  registeredAgent String    @default("us") // 'us' or 'own'
+  addons          Json?     // {ein, oa, itin, ar}
+  orgSignature    String?
 
   stripePaymentId String?
-  paymentStatus   String   @default("pending")
+  paymentStatus   String    @default("pending")
 
-  status          String   @default("pending")
+  status          String    @default("pending")
   notes           String?
-
-  bankAssistance   Boolean  @default(false)
-  stripeAssistance Boolean  @default(false)
 }

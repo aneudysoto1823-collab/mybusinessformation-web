@@ -4415,57 +4415,110 @@ function fmToggleAcc(btn) {
 // SUBMIT
 // ═══════════════════════════════════════════════════════
 async function fmSubmit() {
-  var isEsS = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
-  if(!document.getElementById('chk-agree').checked) {
+  var isEsS = !!(document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active'));
+
+  if(!document.getElementById('chk-agree') || !document.getElementById('chk-agree').checked) {
     alert(isEsS
-      ? 'Por favor acepta los T\\u00e9rminos de Servicio antes de continuar.'
+      ? 'Por favor acepta los T\u00e9rminos de Servicio antes de continuar.'
       : 'Please agree to the Terms of Service before submitting.');
     return;
   }
+
   var btn = document.querySelector('.btn-submit-fm');
   if(btn) { btn.disabled = true; btn.textContent = isEsS ? 'Procesando...' : 'Processing...'; }
 
-  var fname    = (document.getElementById('inp-fname')         || {value:''}).value || '';
-  var lname    = (document.getElementById('inp-lname')         || {value:''}).value || '';
-  var email    = (document.getElementById('inp-email')         || {value:''}).value || '';
-  var phone    = (document.getElementById('inp-phone')         || {value:''}).value || '';
-  var country  = (document.getElementById('inp-phone-country') || {value:'US'}).value || 'US';
-  var bizname  = (document.getElementById('inp-bizname')       || {value:''}).value || '';
-  var desig    = (document.getElementById('inp-designator')    || {value:''}).value || '';
-  var biz2     = (document.getElementById('inp-bizname2')      || {value:''}).value || '';
-  var biz3     = (document.getElementById('inp-bizname3')      || {value:''}).value || '';
-  var addr     = (document.getElementById('inp-addr')          || {value:''}).value || '';
-  var city     = (document.getElementById('inp-city')          || {value:''}).value || '';
-  var zip      = (document.getElementById('inp-zip')           || {value:''}).value || '';
+  // ── Helper: leer campo por ID ─────────────────────────────────────────────
+  function val(id) {
+    var el = document.getElementById(id);
+    return (el && el.value) ? el.value.trim() : '';
+  }
 
-  var companyName     = (bizname + (desig ? ' ' + desig : '')).trim();
-  var businessAddress = [addr, city, zip].filter(function(x){ return x; }).join(', ');
-  var pkg             = (typeof fmData !== 'undefined' && fmData.package) ? fmData.package : 'basic';
-  var entity          = (typeof fmData !== 'undefined' && fmData.entity)  ? fmData.entity  : null;
-  var total           = (typeof fmData !== 'undefined' && fmData.total)   ? fmData.total   : 0;
-  var bankHelp        = (typeof fmData !== 'undefined' && fmData.addons && fmData.addons.bank)   ? true : false;
-  var stripeHelp      = (typeof fmData !== 'undefined' && fmData.addons && fmData.addons.stripe) ? true : false;
+  // ── Datos de contacto ─────────────────────────────────────────────────────
+  var fname   = val('inp-fname');
+  var lname   = val('inp-lname');
+  var email   = val('inp-email');
+  var phone   = val('inp-phone');
+  var country = val('inp-phone-country') || 'US';
+
+  // ── Nombres propuestos de empresa ─────────────────────────────────────────
+  var biz1 = val('inp-bizname');
+  var des1 = val('inp-designator');
+  var biz2 = val('inp-bizname2');
+  var des2 = val('inp-designator2');
+  var biz3 = val('inp-bizname3');
+  var des3 = val('inp-designator3');
+
+  function buildName(b, d) { return b ? (d ? b + ' ' + d : b).trim() : null; }
+  var companyName  = buildName(biz1, des1);
+  var companyName2 = buildName(biz2, des2);
+  var companyName3 = buildName(biz3, des3);
+
+  // ── Direcci\u00f3n del negocio ─────────────────────────────────────────────────
+  var addrParts = [val('inp-addr'), val('inp-street2'), val('inp-city'), val('inp-state'), val('inp-zip')]
+    .filter(function(x){ return !!x; });
+  var businessAddress = addrParts.length ? addrParts.join(', ') : null;
+
+  // ── Firma del organizador ─────────────────────────────────────────────────
+  var orgSignature = val('inp-org-sig') || null;
+
+  // ── Estado global fmData ──────────────────────────────────────────────────
+  var fd      = (typeof fmData !== 'undefined') ? fmData : {};
+  var entity  = fd.entity  || 'llc';
+  var pkg     = fd.package || 'basic';
+  var speed   = fd.speed   || 'standard';
+  var members = (fd.members && fd.members.length) ? fd.members : null;
+  var ra      = fd.ra      || 'us';
+  var addons  = fd.addons  || {};
+
+  // ── Calcular monto total (igual que el formulario) ────────────────────────
+  var pkgPrices = { basic: 49, standard: 149, premium: 249 };
+  var stateFee  = entity === 'corp' ? 70 : 125;
+  var extras    = 0;
+  if(addons.ein)  extras += 49;
+  if(addons.oa)   extras += 79;
+  if(addons.itin) extras += 69;
+  if(speed === 'expedited' && pkg !== 'premium') extras += 99;
+  var amount = (pkgPrices[pkg] || 49) + stateFee + extras;
+
+  // ── Agente registrado (si es propio, capturar sus datos) ──────────────────
+  var raInfo = null;
+  if(ra === 'own') {
+    raInfo = {
+      name:    val('inp-ra-name'),
+      street:  val('inp-ra-street'),
+      street2: val('inp-ra-street2'),
+      city:    val('inp-ra-city'),
+      state:   val('inp-ra-state'),
+      zip:     val('inp-ra-zip')
+    };
+  }
+
+  // ── Payload completo ──────────────────────────────────────────────────────
+  var payload = {
+    firstName:       fname,
+    lastName:        lname,
+    email:           email,
+    phone:           phone || null,
+    country:         country,
+    companyName:     companyName,
+    companyName2:    companyName2,
+    companyName3:    companyName3,
+    entityType:      entity,
+    businessAddress: businessAddress,
+    speed:           speed,
+    package:         pkg,
+    amount:          amount,
+    members:         members,
+    registeredAgent: ra,
+    addons:          { ein: !!addons.ein, oa: !!addons.oa, itin: !!addons.itin, ar: !!addons.ar, raInfo: raInfo },
+    orgSignature:    orgSignature
+  };
 
   try {
     var res = await fetch('/api/orders', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        firstName:       fname,
-        lastName:        lname,
-        email:           email,
-        phone:           phone || null,
-        country:         country,
-        companyName:     companyName,
-        companyName2:    biz2 || null,
-        companyName3:    biz3 || null,
-        businessType:    entity,
-        businessAddress: businessAddress || null,
-        package:         pkg,
-        amount:          total,
-        bankAssistance:  bankHelp,
-        stripeAssistance: stripeHelp
-      })
+      body: JSON.stringify(payload)
     });
     var data = await res.json();
     if(res.ok && data.success) {
@@ -4479,12 +4532,12 @@ async function fmSubmit() {
       if(pct) pct.textContent = 'Complete!';
       window.scrollTo(0, 0);
     } else {
-      throw new Error((data && data.error) ? data.error : 'Unknown error');
+      throw new Error((data && data.error) ? data.error : 'Error desconocido');
     }
   } catch(err) {
     console.error('fmSubmit error:', err);
     alert(isEsS
-      ? 'Hubo un error procesando tu orden. Por favor int\\u00e9ntalo de nuevo.'
+      ? 'Hubo un error procesando tu orden. Por favor int\u00e9ntalo de nuevo.'
       : 'There was an error processing your order. Please try again.');
     if(btn) { btn.disabled = false; btn.textContent = isEsS ? 'Procesar Orden' : 'Submit Order'; }
   }

@@ -12,26 +12,38 @@ export async function POST(request: NextRequest) {
 
     const order = await prisma.order.create({
       data: {
-        firstName: body.firstName,
-        lastName: body.lastName,
-        email: body.email,
-        phone: body.phone || null,
-        country: body.country,
-        companyName: body.companyName,
-        companyName2: body.companyName2 || null,
-        companyName3: body.companyName3 || null,
-        businessType: body.businessType || null,
+        // Contacto
+        firstName:       body.firstName,
+        lastName:        body.lastName,
+        email:           body.email,
+        phone:           body.phone   || null,
+        country:         body.country || 'US',
+
+        // Empresa
+        companyName:     body.companyName,
+        companyName2:    body.companyName2 || null,
+        companyName3:    body.companyName3 || null,
+        entityType:      body.entityType   || null,
         businessAddress: body.businessAddress || null,
-        package: body.package,
-        amount: body.amount,
-        bankAssistance: body.bankAssistance || false,
-        stripeAssistance: body.stripeAssistance || false,
+
+        // Configuración
+        speed:           body.speed   || 'standard',
+        package:         body.package || 'basic',
+        amount:          body.amount  || 0,
+
+        // Datos adicionales
+        members:         body.members         || undefined,
+        registeredAgent: body.registeredAgent || 'us',
+        addons:          body.addons          || undefined,
+        orgSignature:    body.orgSignature     || null,
+
+        // Estado inicial
         paymentStatus: 'pending',
-        status: 'pending',
+        status:        'pending',
       },
     })
 
-    // Enviar email de confirmación (no-bloqueo: si falla el email, la orden ya fue guardada)
+    // Email de confirmación — non-blocking
     getResend().emails.send({
       from: FROM_EMAIL,
       to: order.email,
@@ -48,7 +60,9 @@ export async function POST(request: NextRequest) {
             </p>
             <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:20px;margin:20px 0">
               <p style="margin:6px 0;font-size:14px"><strong>Company Name:</strong> ${order.companyName}</p>
+              <p style="margin:6px 0;font-size:14px"><strong>Entity Type:</strong> ${order.entityType?.toUpperCase() || 'LLC'}</p>
               <p style="margin:6px 0;font-size:14px"><strong>Package:</strong> ${order.package}</p>
+              <p style="margin:6px 0;font-size:14px"><strong>Filing Speed:</strong> ${order.speed}</p>
               <p style="margin:6px 0;font-size:14px"><strong>Order Number:</strong> ${order.id}</p>
             </div>
             <p style="color:#475569;line-height:1.7">
