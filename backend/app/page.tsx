@@ -4414,61 +4414,80 @@ function fmToggleAcc(btn) {
 // ═══════════════════════════════════════════════════════
 // SUBMIT
 // ═══════════════════════════════════════════════════════
-function fmSubmit() {
+async function fmSubmit() {
   var isEsS = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
-  // Validate payment method selected
-  var cardFields = document.getElementById('card-fields-wrap');
-  var cardSelected = cardFields && cardFields.style.display !== 'none';
-  var zelleSelected = document.getElementById('pay-zelle') && document.getElementById('pay-zelle').classList.contains('selected');
-  var appleSelected = document.getElementById('pay-apple') && document.getElementById('pay-apple').classList.contains('selected');
-  if (!cardSelected && !zelleSelected && !appleSelected) {
-    alert(isEsS
-      ? 'Por favor selecciona un m\\u00e9todo de pago antes de procesar tu orden.'
-      : 'Please select a payment method before processing your order.');
-    return;
-  }
-  // Validate card fields if card is selected
-  if (cardSelected) {
-    var cardName = document.getElementById('inp-card-name');
-    var cardNum  = document.getElementById('inp-card-num');
-    var cardExp  = document.getElementById('inp-card-exp');
-    var cardCvv  = document.getElementById('inp-card-cvv');
-    if (!cardName || !cardName.value.trim()) {
-      if(cardName) cardName.style.borderColor='#ef4444';
-      alert(isEsS ? 'Por favor ingresa el nombre en la tarjeta.' : 'Please enter the name on the card.');
-      return;
-    }
-    if (!cardNum || cardNum.value.replace(/\\s/g,'').length < 15) {
-      if(cardNum) cardNum.style.borderColor='#ef4444';
-      alert(isEsS ? 'Por favor ingresa un n\\u00famero de tarjeta v\\u00e1lido.' : 'Please enter a valid card number.');
-      return;
-    }
-    if (!cardExp || cardExp.value.length < 4) {
-      if(cardExp) cardExp.style.borderColor='#ef4444';
-      alert(isEsS ? 'Por favor ingresa la fecha de vencimiento.' : 'Please enter the expiry date.');
-      return;
-    }
-    if (!cardCvv || cardCvv.value.length < 3) {
-      if(cardCvv) cardCvv.style.borderColor='#ef4444';
-      alert(isEsS ? 'Por favor ingresa el CVV.' : 'Please enter the CVV.');
-      return;
-    }
-  }
   if(!document.getElementById('chk-agree').checked) {
     alert(isEsS
       ? 'Por favor acepta los T\\u00e9rminos de Servicio antes de continuar.'
       : 'Please agree to the Terms of Service before submitting.');
     return;
   }
-  generateOrderNumber();
-  document.querySelectorAll('.fm-step').forEach(function(s){ s.classList.remove('active'); });
-  var suc = document.getElementById('fms-success');
-  if(suc) suc.classList.add('active');
-  var fill = document.getElementById('fp-fill');
-  if(fill) fill.style.width = '100%';
-  var pct = document.getElementById('fp-pct');
-  if(pct) pct.textContent = 'Complete!';
-  window.scrollTo(0, 0);
+  var btn = document.querySelector('.btn-submit-fm');
+  if(btn) { btn.disabled = true; btn.textContent = isEsS ? 'Procesando...' : 'Processing...'; }
+
+  var fname    = (document.getElementById('inp-fname')         || {value:''}).value || '';
+  var lname    = (document.getElementById('inp-lname')         || {value:''}).value || '';
+  var email    = (document.getElementById('inp-email')         || {value:''}).value || '';
+  var phone    = (document.getElementById('inp-phone')         || {value:''}).value || '';
+  var country  = (document.getElementById('inp-phone-country') || {value:'US'}).value || 'US';
+  var bizname  = (document.getElementById('inp-bizname')       || {value:''}).value || '';
+  var desig    = (document.getElementById('inp-designator')    || {value:''}).value || '';
+  var biz2     = (document.getElementById('inp-bizname2')      || {value:''}).value || '';
+  var biz3     = (document.getElementById('inp-bizname3')      || {value:''}).value || '';
+  var addr     = (document.getElementById('inp-addr')          || {value:''}).value || '';
+  var city     = (document.getElementById('inp-city')          || {value:''}).value || '';
+  var zip      = (document.getElementById('inp-zip')           || {value:''}).value || '';
+
+  var companyName     = (bizname + (desig ? ' ' + desig : '')).trim();
+  var businessAddress = [addr, city, zip].filter(function(x){ return x; }).join(', ');
+  var pkg             = (typeof fmData !== 'undefined' && fmData.package) ? fmData.package : 'basic';
+  var entity          = (typeof fmData !== 'undefined' && fmData.entity)  ? fmData.entity  : null;
+  var total           = (typeof fmData !== 'undefined' && fmData.total)   ? fmData.total   : 0;
+  var bankHelp        = (typeof fmData !== 'undefined' && fmData.addons && fmData.addons.bank)   ? true : false;
+  var stripeHelp      = (typeof fmData !== 'undefined' && fmData.addons && fmData.addons.stripe) ? true : false;
+
+  try {
+    var res = await fetch('/api/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        firstName:       fname,
+        lastName:        lname,
+        email:           email,
+        phone:           phone || null,
+        country:         country,
+        companyName:     companyName,
+        companyName2:    biz2 || null,
+        companyName3:    biz3 || null,
+        businessType:    entity,
+        businessAddress: businessAddress || null,
+        package:         pkg,
+        amount:          total,
+        bankAssistance:  bankHelp,
+        stripeAssistance: stripeHelp
+      })
+    });
+    var data = await res.json();
+    if(res.ok && data.success) {
+      generateOrderNumber();
+      document.querySelectorAll('.fm-step').forEach(function(s){ s.classList.remove('active'); });
+      var suc = document.getElementById('fms-success');
+      if(suc) suc.classList.add('active');
+      var fill = document.getElementById('fp-fill');
+      if(fill) fill.style.width = '100%';
+      var pct = document.getElementById('fp-pct');
+      if(pct) pct.textContent = 'Complete!';
+      window.scrollTo(0, 0);
+    } else {
+      throw new Error((data && data.error) ? data.error : 'Unknown error');
+    }
+  } catch(err) {
+    console.error('fmSubmit error:', err);
+    alert(isEsS
+      ? 'Hubo un error procesando tu orden. Por favor int\\u00e9ntalo de nuevo.'
+      : 'There was an error processing your order. Please try again.');
+    if(btn) { btn.disabled = false; btn.textContent = isEsS ? 'Procesar Orden' : 'Submit Order'; }
+  }
 }
 
 // ═══════════════════════════════════════════════════════
