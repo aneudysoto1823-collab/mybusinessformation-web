@@ -1,6 +1,6 @@
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+const resend = new Resend('re_Ff49asDD_MzA5uWD7ZihUmWFPxJmKpzXB')
 
 const FROM_EMAIL = 'onboarding@resend.dev'
 const INTERNAL_EMAIL = 'aneudysoto1823@gmail.com'
