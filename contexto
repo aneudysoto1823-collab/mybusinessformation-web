@@ -74,10 +74,10 @@ export default function NombrePagina() {
 ### Etapa 1 — Frontend HTML a Next.js (1-2 semanas)
 - [x] Instalar Node.js y crear proyecto Next.js
 - [x] layout.tsx con Google Fonts
-- [ ] Paso 3 — Socio termina HTML completo (EN PROGRESO)
-      - Cuando esté listo: convertir cada HTML a componente React
-      - Esto hará que Vercel funcione correctamente
-      - Cada página será un componente React limpio sin leer archivos externos
+- ### Etapa 1 — Frontend HTML a Next.js
+- [x] Sitio en vivo en Vercel — https://mybusinessformation-web.vercel.app/
+- [x] Deploy automático con cada git push
+- [x] HTML convertidos a componentes React
 - [x] Conectar todas las páginas — COMPLETADO (leyendo HTML con fs)
 - [x] globals.css vaciado — cada página carga su propio CSS
 - [x] Tailwind desinstalado
@@ -130,7 +130,7 @@ export default function NombrePagina() {
 ### Etapa 8 — Panel de Administración (post-lanzamiento)
 - [ ] Tablero Kanban con órdenes
 - [ ] Vista detallada por cliente
-- [ ] Alertas y notificaciones
+- [ ] Alertas y notificaciones.
 
 ### Etapa 9 — Portal del Cliente (post-lanzamiento)
 - [ ] Login seguro con JWT
