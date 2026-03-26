@@ -4,12 +4,13 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "npm run server",
     "lint": "eslint",
     "server": "ts-node --project tsconfig.server.json server.ts"
   },
   "dependencies": {
+    "@prisma/client": "^5.22.0",
     "@supabase/ssr": "^0.9.0",
     "@supabase/supabase-js": "^2.99.2",
     "cors": "^2.8.6",
@@ -23,7 +24,6 @@
     "stripe": "^20.4.1"
   },
   "devDependencies": {
-    "@prisma/client": "^5.22.0",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/node": "^20.19.37",
