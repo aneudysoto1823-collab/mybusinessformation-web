@@ -86,9 +86,7 @@ export const sendAllNamesTaken = async (order: {
               <p style="margin:6px 0;font-size:14px;color:#92400e">❌ &nbsp;<strong>${order.names[2]}</strong> — already taken</p>
             </div>
             <p style="color:#475569;line-height:1.7">
-              Please <strong>reply to this email</strong> with 3 new name options as soon as possible
-              so we can continue processing your order. You can check name availability at
-              <a href="https://search.sunbiz.org" style="color:#059669">search.sunbiz.org</a>.
+              Please contact us as soon as possible so we can help you choose new available names for your business.
             </p>
             <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin:20px 0;font-size:14px">
               <strong>Order:</strong> ${order.id}
