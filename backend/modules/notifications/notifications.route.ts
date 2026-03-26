@@ -3,7 +3,6 @@ import type { Request, Response } from 'express'
 import {
   sendOrderConfirmation,
   sendAllNamesTaken,
-  sendStatusUpdate,
   sendCertificateDelivery
 } from './notifications.service.ts'
 
@@ -11,68 +10,40 @@ const router = Router()
 
 // GET /api/notifications — health check
 router.get('/', (_req: Request, res: Response) => {
-  res.json({ message: 'Notifications module OK', resend: process.env.RESEND_API_KEY ? 'configured' : 'missing key' })
+  res.json({
+    message: 'Notifications module OK',
+    resend: process.env.RESEND_API_KEY ? 'configured' : 'missing key'
+  })
 })
 
-// POST /api/notifications/test-confirmation — envía email de prueba
-router.post('/test-confirmation', async (req: Request, res: Response) => {
-  try {
-    await sendOrderConfirmation({
-      id: 'TEST-001',
-      firstName: 'Test',
-      lastName: 'User',
-      email: req.body.email || 'aneudysoto1823@gmail.com',
-      companyName: 'Test Company LLC',
-      package: 'Standard'
-    })
-    res.json({ success: true, message: 'Email de confirmación enviado' })
-  } catch (error: any) {
-    res.status(500).json({ success: false, error: error.message })
-  }
-})
-
-// POST /api/notifications/test-names-taken — prueba email de nombres tomados
-router.post('/test-names-taken', async (req: Request, res: Response) => {
-  try {
-    await sendAllNamesTaken({
-      id: 'TEST-002',
-      firstName: 'Test',
-      lastName: 'User',
-      email: req.body.email || 'aneudysoto1823@gmail.com',
-      names: ['Florida Tech Solutions LLC', 'Sunshine Digital LLC', 'Coastal Business Group LLC']
-    })
-    res.json({ success: true, message: 'Email de nombres tomados enviado (cliente + admin)' })
-  } catch (error: any) {
-    res.status(500).json({ success: false, error: error.message })
-  }
-})
-
-// POST /api/notifications/test-full-flow — simula el flujo completo (4 emails de una vez)
+// POST /api/notifications/test-full-flow
+// Simula el flujo completo: envía los 4 emails de una vez
+//   - Cliente recibe: confirmación + nombres tomados + certificate (3 emails)
+//   - Admin  recibe: alerta nombres tomados (1 email)
 router.post('/test-full-flow', async (req: Request, res: Response) => {
   const clientEmail = req.body.clientEmail || 'aneudysoto1823@gmail.com'
+
   const order = {
     id: 'TEST-FULL-001',
     firstName: 'Ana',
     lastName: 'Garcia',
     email: clientEmail,
     companyName: 'Sunshine Ventures LLC',
-    package: 'Standard',
-    amount: 149,
-    phone: '+1 305-000-0000'
+    package: 'Standard'
   }
 
   const results: Record<string, string> = {}
 
+  // Email 1 — Confirmación de orden al cliente
   try {
-    // Email 1 — Confirmación al cliente
     await sendOrderConfirmation(order)
-    results['email_1_confirmation'] = 'enviado'
+    results['1_confirmacion_cliente'] = 'enviado'
   } catch (e: any) {
-    results['email_1_confirmation'] = `error: ${e.message}`
+    results['1_confirmacion_cliente'] = `error: ${e.message}`
   }
 
+  // Emails 2 y 3 — Nombres tomados: cliente + admin
   try {
-    // Email 2 — Nombres tomados (cliente + alerta admin)
     await sendAllNamesTaken({
       id: order.id,
       firstName: order.firstName,
@@ -80,52 +51,75 @@ router.post('/test-full-flow', async (req: Request, res: Response) => {
       email: order.email,
       names: ['Florida Tech Solutions LLC', 'Sunshine Digital LLC', 'Coastal Business Group LLC']
     })
-    results['email_2_names_taken_client'] = 'enviado'
-    results['email_2_names_taken_admin'] = 'enviado'
+    results['2_nombres_tomados_cliente'] = 'enviado'
+    results['3_nombres_tomados_admin'] = 'enviado'
   } catch (e: any) {
-    results['email_2_names_taken_client'] = `error: ${e.message}`
-    results['email_2_names_taken_admin'] = `error: ${e.message}`
+    results['2_nombres_tomados_cliente'] = `error: ${e.message}`
+    results['3_nombres_tomados_admin'] = `error: ${e.message}`
   }
 
+  // Email 4 — Certificate of Formation al cliente
   try {
-    // Email 3 — Certificate of Formation al cliente
     await sendCertificateDelivery(order)
-    results['email_3_certificate'] = 'enviado'
+    results['4_certificate_cliente'] = 'enviado'
   } catch (e: any) {
-    results['email_3_certificate'] = `error: ${e.message}`
+    results['4_certificate_cliente'] = `error: ${e.message}`
   }
 
   const allOk = Object.values(results).every(v => v === 'enviado')
+
   res.status(allOk ? 200 : 207).json({
     success: allOk,
-    clientEmail,
-    results
+    destinatarios: {
+      cliente: `${clientEmail} (3 emails)`,
+      admin: 'aneurysoto@gmail.com (1 email)'
+    },
+    resultados: results
   })
 })
 
-// POST /api/notifications/status-update — actualizar estado y notificar cliente
-router.post('/status-update', async (req: Request, res: Response) => {
+// ── Endpoints de producción ──────────────────────────────────────────────────
+
+// POST /api/notifications/order-confirmation
+// Dispara al guardar una orden nueva (desde orders.controller.ts)
+router.post('/order-confirmation', async (req: Request, res: Response) => {
   try {
-    const { orderId, firstName, email, companyName, status } = req.body
-    if (!orderId || !email || !status) {
-      return res.status(400).json({ success: false, message: 'Faltan campos requeridos: orderId, email, status' })
+    const { id, firstName, lastName, email, companyName, package: pkg } = req.body
+    if (!id || !email) {
+      return res.status(400).json({ success: false, message: 'Faltan campos: id, email' })
     }
-    await sendStatusUpdate({ id: orderId, firstName, email, companyName, status })
-    res.json({ success: true, message: `Email de estado "${status}" enviado a ${email}` })
+    await sendOrderConfirmation({ id, firstName, lastName, email, companyName, package: pkg })
+    res.json({ success: true, message: `Confirmación enviada a ${email}` })
   } catch (error: any) {
     res.status(500).json({ success: false, error: error.message })
   }
 })
 
-// POST /api/notifications/certificate — enviar Certificate of Formation
+// POST /api/notifications/names-taken
+// Dispara cuando el equipo verifica en Sunbiz y los 3 nombres están tomados
+router.post('/names-taken', async (req: Request, res: Response) => {
+  try {
+    const { id, firstName, lastName, email, names } = req.body
+    if (!id || !email || !Array.isArray(names) || names.length !== 3) {
+      return res.status(400).json({ success: false, message: 'Faltan campos: id, email, names (array de 3)' })
+    }
+    await sendAllNamesTaken({ id, firstName, lastName, email, names: names as [string, string, string] })
+    res.json({ success: true, message: `Aviso enviado a ${email} y alerta a admin` })
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message })
+  }
+})
+
+// POST /api/notifications/certificate
+// Dispara cuando el negocio es aprobado por el Estado de Florida
 router.post('/certificate', async (req: Request, res: Response) => {
   try {
-    const { orderId, firstName, email, companyName } = req.body
-    if (!orderId || !email) {
-      return res.status(400).json({ success: false, message: 'Faltan campos requeridos: orderId, email' })
+    const { id, firstName, email, companyName } = req.body
+    if (!id || !email) {
+      return res.status(400).json({ success: false, message: 'Faltan campos: id, email' })
     }
-    await sendCertificateDelivery({ id: orderId, firstName, email, companyName })
-    res.json({ success: true, message: `Email de Certificate enviado a ${email}` })
+    await sendCertificateDelivery({ id, firstName, email, companyName })
+    res.json({ success: true, message: `Certificate enviado a ${email}` })
   } catch (error: any) {
     res.status(500).json({ success: false, error: error.message })
   }
