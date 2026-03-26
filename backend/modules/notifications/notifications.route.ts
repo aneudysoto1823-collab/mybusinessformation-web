@@ -78,6 +78,22 @@ router.post('/test-full-flow', async (req: Request, res: Response) => {
   })
 })
 
+// POST /api/notifications/test-names-taken — prueba rápida del email de nombres tomados
+router.post('/test-names-taken', async (req: Request, res: Response) => {
+  try {
+    await sendAllNamesTaken({
+      id: 'TEST-002',
+      firstName: 'Test',
+      lastName: 'User',
+      email: req.body.email || 'aneudysoto1823@gmail.com',
+      names: ['Florida Tech Solutions LLC', 'Sunshine Digital LLC', 'Coastal Business Group LLC']
+    })
+    res.json({ success: true, message: 'Email de nombres tomados enviado (cliente + admin)' })
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message })
+  }
+})
+
 // ── Endpoints de producción ──────────────────────────────────────────────────
 
 // POST /api/notifications/order-confirmation
