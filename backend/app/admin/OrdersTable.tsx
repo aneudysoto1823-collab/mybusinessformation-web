@@ -163,7 +163,7 @@ export default function OrdersTable({ orders }: { orders: Order[] }) {
             <table>
               <thead>
                 <tr>
-                  <th>ID</th>
+                  <th># Orden</th>
                   <th>Cliente</th>
                   <th>Empresa</th>
                   <th>Paquete</th>
@@ -177,8 +177,8 @@ export default function OrdersTable({ orders }: { orders: Order[] }) {
               <tbody>
                 {visible.map(order => (
                   <tr key={order.id}>
-                    <td style={{ fontFamily: 'monospace', fontSize: '11px', color: '#9ca3af' }}>
-                      {order.id.slice(0, 8)}…
+                    <td style={{ fontFamily: 'monospace', fontSize: '12px', fontWeight: 700, color: '#4f46e5' }}>
+                      {'FBFC-' + order.id.replace(/-/g, '').substring(0, 8).toUpperCase()}
                     </td>
                     <td>
                       <div style={{ fontWeight: 600 }}>{order.firstName} {order.lastName}</div>
