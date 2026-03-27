@@ -137,10 +137,19 @@ export default function NombrePagina() {
 - [ ] Almacenamiento en AWS S3
 - [ ] Articles of Organization automáticos
 
-### Etapa 8 — Panel de Administración (post-lanzamiento)
-- [ ] Tablero Kanban con órdenes
-- [ ] Vista detallada por cliente
-- [ ] Alertas y notificaciones.
+### Etapa 8 — Panel de Administración (COMPLETADA 2026-03-27)
+- [x] Login con usuario y contraseña (variables de entorno ADMIN_USER y ADMIN_PASSWORD)
+- [x] Middleware de protección en todas las rutas /admin
+- [x] Dashboard principal con 4 tarjetas de estadísticas
+- [x] Tabla de órdenes con tabs por estado y conteos en tiempo real
+- [x] Vista detallada de cada orden con todos los campos
+- [x] Gestión de estado — botones para avanzar al siguiente estado lógico
+- [x] Cambio de estado forzado con dropdown
+- [x] Botones de email — Nombres Tomados y Certificate
+- [x] Buscador de nombres alternativos (mock hasta que Etapa 5 esté lista)
+- [x] Notas internas por orden
+- [x] Railway conectado a Supabase — pooler aws-1-us-east-1 puerto 6543
+- [x] Panel en producción: https://mybusinessformation-web.vercel.app/admin
 
 ### Etapa 9 — Portal del Cliente (post-lanzamiento)
 - [ ] Login seguro con JWT
