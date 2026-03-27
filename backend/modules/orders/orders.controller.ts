@@ -31,10 +31,12 @@ export const getAllOrders = async (_req: Request, res: Response) => {
       success: true,
       data: orders
     })
-  } catch (error) {
+  } catch (error: any) {
+    console.error('[getAllOrders] DB error:', error?.message ?? error)
     res.status(500).json({
       success: false,
-      message: 'Error al obtener las órdenes'
+      message: 'Error al obtener las órdenes',
+      detail: error?.message
     })
   }
 }
