@@ -24,7 +24,7 @@ async function getOrder(id: string): Promise<Order | null> {
     const res = await fetch(`${BACKEND_URL}/api/orders/${id}`, { cache: 'no-store' })
     if (!res.ok) return null
     const data = await res.json()
-    return data.order ?? data ?? null
+    return data.order ?? data.data ?? null
   } catch {
     return null
   }

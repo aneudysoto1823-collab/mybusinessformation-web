@@ -2922,8 +2922,10 @@ function submitMgmtForm() {
   document.getElementById('mgmt-annual').style.display = 'none';
   document.getElementById('mgmt-success').style.display = 'block';
 }
-function generateOrderNumber() {
-  if(!orderNumber) {
+function generateOrderNumber(id) {
+  if(id) {
+    orderNumber = 'FBFC-' + id.replace(/-/g, '').substring(0, 8).toUpperCase();
+  } else if(!orderNumber) {
     orderNumber = 'FBFC-' + Math.floor(10000 + Math.random() * 90000);
   }
 }
@@ -4523,7 +4525,10 @@ async function fmSubmit() {
     });
     var data = await res.json();
     if(res.ok && data.success) {
-      generateOrderNumber();
+      var orderId = (data.data && data.data.id) ? data.data.id : null;
+      generateOrderNumber(orderId);
+      var numEl = document.getElementById('finalOrderNum');
+      if(numEl) numEl.textContent = orderNumber;
       document.querySelectorAll('.fm-step').forEach(function(s){ s.classList.remove('active'); });
       var suc = document.getElementById('fms-success');
       if(suc) suc.classList.add('active');
