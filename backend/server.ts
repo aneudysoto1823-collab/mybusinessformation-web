@@ -6,6 +6,7 @@ import clientsRouter from './modules/clients/clients.route.ts'
 import paymentsRouter from './modules/payments/payments.route.ts'
 import documentsRouter from './modules/documents/documents.route.ts'
 import notificationsRouter from './modules/notifications/notifications.route.ts'
+import namesRouter from './modules/names/names.route.ts'
 
 dotenv.config()
 
@@ -33,6 +34,7 @@ app.use('/api/clients', clientsRouter)
 app.use('/api/payments', paymentsRouter)
 app.use('/api/documents', documentsRouter)
 app.use('/api/notifications', notificationsRouter)
+app.use('/api/names', namesRouter)
 
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en puerto ${PORT}`)

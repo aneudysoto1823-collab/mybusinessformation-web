@@ -36,14 +36,16 @@ interface Order {
   notes: string
 }
 
-const STATUS_OPTIONS = ['pending', 'in_review', 'filed', 'approved', 'completed']
+const STATUS_OPTIONS = ['pending', 'in_review', 'names_taken', 'ready_to_file', 'filed', 'approved', 'completed']
 
 const STATUS_BADGE: Record<string, { label: string; bg: string; color: string }> = {
-  pending:   { label: 'Pendiente',   bg: '#f3f4f6', color: '#6b7280' },
-  in_review: { label: 'En revisión', bg: '#fef9c3', color: '#92400e' },
-  filed:     { label: 'Enviado',     bg: '#dbeafe', color: '#1d4ed8' },
-  approved:  { label: 'Aprobado',    bg: '#dcfce7', color: '#16a34a' },
-  completed: { label: 'Completado',  bg: '#14532d', color: '#f0fdf4' },
+  pending:        { label: 'Pending',        bg: '#f3f4f6', color: '#6b7280' },
+  in_review:      { label: 'In review',      bg: '#fef9c3', color: '#92400e' },
+  names_taken:    { label: 'Names taken',    bg: '#fee2e2', color: '#b91c1c' },
+  ready_to_file:  { label: 'Ready to file',  bg: '#ede9fe', color: '#6d28d9' },
+  filed:          { label: 'Filed',          bg: '#dbeafe', color: '#1d4ed8' },
+  approved:       { label: 'Approved',       bg: '#dcfce7', color: '#16a34a' },
+  completed:      { label: 'Completed',      bg: '#14532d', color: '#f0fdf4' },
 }
 
 const PAYMENT_BADGE: Record<string, { label: string; bg: string; color: string }> = {
@@ -102,6 +104,13 @@ export default function OrderDetailPage() {
   const [emailLoading, setEmailLoading] = useState<string | null>(null)
   const [emailMsg, setEmailMsg] = useState('')
 
+  // Buscador de nombres alternativos
+  const [namesInput, setNamesInput] = useState('')
+  const [checkLoading, setCheckLoading] = useState(false)
+  const [checkResults, setCheckResults] = useState<{ name: string; available: boolean }[]>([])
+  const [suggestLoading, setSuggestLoading] = useState(false)
+  const [suggestMsg, setSuggestMsg] = useState('')
+
   useEffect(() => {
     fetch(`${BACKEND_URL}/api/orders/${id}`)
       .then(r => {
@@ -147,6 +156,37 @@ export default function OrderDetailPage() {
     setEmailLoading(null)
     setEmailMsg(res.ok ? 'Email enviado correctamente.' : 'Error al enviar el email.')
     setTimeout(() => setEmailMsg(''), 4000)
+  }
+
+  async function handleCheckNames() {
+    const names = namesInput.split('\n').map(n => n.trim()).filter(n => n.length > 0).slice(0, 10)
+    if (names.length === 0) return
+    setCheckLoading(true)
+    setCheckResults([])
+    setSuggestMsg('')
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/names/check?names=${encodeURIComponent(names.join(','))}`)
+      const data = await res.json()
+      setCheckResults(data.results ?? [])
+    } catch {
+      setCheckResults([])
+    }
+    setCheckLoading(false)
+  }
+
+  async function handleSuggestNames() {
+    const available = checkResults.filter(r => r.available).map(r => r.name)
+    if (available.length === 0 || !order) return
+    setSuggestLoading(true)
+    setSuggestMsg('')
+    const res = await fetch(`${BACKEND_URL}/api/notifications/suggest-names`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ orderId: order.id, availableNames: available }),
+    })
+    setSuggestLoading(false)
+    setSuggestMsg(res.ok ? 'Email enviado al cliente con los nombres disponibles.' : 'Error al enviar el email.')
+    setTimeout(() => setSuggestMsg(''), 5000)
   }
 
   if (loading) return (
@@ -274,6 +314,71 @@ export default function OrderDetailPage() {
             <Field label="Fecha de creación" value={new Date(order.createdAt).toLocaleString('en-US')} />
           </div>
         </Section>
+
+        {/* Buscador de nombres alternativos — solo visible cuando status === names_taken */}
+        {order.status === 'names_taken' && (
+          <Section title="🔍 Buscador de Nombres Alternativos">
+            <p style={{ fontSize: '13px', color: '#6b7280', marginBottom: '14px', lineHeight: 1.6 }}>
+              Escribe hasta 10 nombres (uno por línea). El sistema verificará cuáles están disponibles
+              en la base de datos de Sunbiz.
+            </p>
+            <textarea
+              rows={6}
+              value={namesInput}
+              onChange={e => {
+                const lines = e.target.value.split('\n')
+                if (lines.length <= 10) setNamesInput(e.target.value)
+              }}
+              placeholder={`Sunshine Digital Solutions LLC\nCoastal Ventures Group LLC\nMiami Tech Hub Inc\n...`}
+            />
+            <div style={{ marginTop: '10px', display: 'flex', gap: '10px', alignItems: 'center' }}>
+              <button className="btn btn-primary" onClick={handleCheckNames} disabled={checkLoading || namesInput.trim() === ''}>
+                {checkLoading ? 'Verificando…' : 'Verificar disponibilidad'}
+              </button>
+            </div>
+
+            {checkResults.length > 0 && (
+              <div style={{ marginTop: '20px' }}>
+                <div style={{ fontSize: '12px', fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: '10px' }}>
+                  Resultados
+                </div>
+                <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 16px' }}>
+                  {checkResults.map(r => (
+                    <li key={r.name} style={{
+                      display: 'flex', alignItems: 'center', gap: '10px',
+                      padding: '9px 14px', borderRadius: '8px', marginBottom: '6px',
+                      background: r.available ? '#f0fdf4' : '#fef2f2',
+                      border: `1px solid ${r.available ? '#86efac' : '#fecaca'}`,
+                      fontSize: '14px', fontWeight: 500,
+                      color: r.available ? '#166534' : '#b91c1c',
+                    }}>
+                      <span style={{ fontSize: '16px' }}>{r.available ? '✅' : '❌'}</span>
+                      <span>{r.name}</span>
+                      <span style={{ marginLeft: 'auto', fontSize: '12px', fontWeight: 600 }}>
+                        {r.available ? 'Disponible' : 'Tomado'}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+                  <button
+                    className="btn btn-green"
+                    onClick={handleSuggestNames}
+                    disabled={suggestLoading || checkResults.filter(r => r.available).length === 0}
+                  >
+                    {suggestLoading ? 'Enviando…' : `✉️ Enviar sugerencias al cliente (${checkResults.filter(r => r.available).length} disponibles)`}
+                  </button>
+                  {suggestMsg && (
+                    <span style={{ fontSize: '13px', color: suggestMsg.startsWith('Error') ? '#b91c1c' : '#16a34a', fontWeight: 600 }}>
+                      {suggestMsg}
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+          </Section>
+        )}
 
         {/* Acciones */}
         <Section title="Acciones">

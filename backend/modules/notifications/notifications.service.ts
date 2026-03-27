@@ -151,7 +151,62 @@ export const sendAllNamesTaken = async (order: {
   ])
 }
 
-// ── 3. Certificate of Formation — entrega final al cliente ───────────────────
+// ── 3. Nombres sugeridos disponibles — el equipo encontró alternativas ───────
+export const sendSuggestNames = async (order: {
+  firstName: string
+  email: string
+  companyName: string
+  id: string
+}, availableNames: string[]) => {
+  const nameList = availableNames
+    .map(n => `<li style="margin:8px 0;font-size:14px;color:#166534"><strong>✅ ${n}</strong></li>`)
+    .join('')
+
+  await getResend().emails.send({
+    from: FROM_EMAIL,
+    to: order.email,
+    subject: `✅ Good news! We found available names for your business`,
+    html: `
+      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#1e293b">
+        <div style="background:#1C2E44;padding:24px 32px;border-radius:10px 10px 0 0">
+          <h1 style="color:#fff;font-size:22px;margin:0">Florida Business Formation Center</h1>
+        </div>
+        <div style="background:#fff;padding:32px;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 10px 10px">
+          <h2 style="color:#1C2E44;font-size:20px">Hi ${order.firstName}, we found available names! 🎉</h2>
+          <p style="color:#475569;line-height:1.7">
+            Our team searched the Florida Division of Corporations database and found the following
+            names that are <strong>currently available</strong> for registration:
+          </p>
+          <div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:10px;padding:20px;margin:20px 0">
+            <p style="color:#166534;font-weight:700;margin:0 0 10px;font-size:14px">Available names:</p>
+            <ul style="margin:0;padding-left:20px">
+              ${nameList}
+            </ul>
+          </div>
+          <p style="color:#475569;line-height:1.7">
+            Please <strong>reply to this email</strong> and let us know which name you'd like to use
+            for your business. Once we hear back from you, we'll move forward with the registration
+            right away.
+          </p>
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin:20px 0;font-size:14px">
+            <strong>Your original company name:</strong> ${order.companyName}<br/>
+            <strong>Order:</strong> ${order.id}
+          </div>
+          <p style="color:#475569;line-height:1.7">
+            If you have questions or need help deciding,
+            <a href="https://wa.me/1XXXXXXXXXX" style="color:#059669">chat with us on WhatsApp</a>.
+          </p>
+          <p style="margin-top:32px;color:#94a3b8;font-size:12px">
+            Florida Business Formation Center · mybusinessformation.com<br/>
+            This is a transactional email. We are a document preparation service, not a law firm.
+          </p>
+        </div>
+      </div>
+    `
+  })
+}
+
+// ── 4. Certificate of Formation — entrega final al cliente ───────────────────
 export const sendCertificateDelivery = async (order: {
   firstName: string
   email: string

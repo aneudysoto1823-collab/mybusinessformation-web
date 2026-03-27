@@ -3,8 +3,10 @@ import type { Request, Response } from 'express'
 import {
   sendOrderConfirmation,
   sendAllNamesTaken,
-  sendCertificateDelivery
+  sendCertificateDelivery,
+  sendSuggestNames
 } from './notifications.service.ts'
+import { getOrderById } from '../orders/orders.service.ts'
 
 const router = Router()
 
@@ -136,6 +138,28 @@ router.post('/certificate', async (req: Request, res: Response) => {
     }
     await sendCertificateDelivery({ id, firstName, email, companyName })
     res.json({ success: true, message: `Certificate enviado a ${email}` })
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message })
+  }
+})
+
+// POST /api/notifications/suggest-names
+// El equipo encontró nombres alternativos disponibles — los envía al cliente
+router.post('/suggest-names', async (req: Request, res: Response) => {
+  try {
+    const { orderId, availableNames } = req.body
+    if (!orderId || !Array.isArray(availableNames) || availableNames.length === 0) {
+      return res.status(400).json({ success: false, message: 'Faltan campos: orderId, availableNames (array no vacío)' })
+    }
+    const order = await getOrderById(orderId)
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Orden no encontrada' })
+    }
+    await sendSuggestNames(
+      { id: order.id, firstName: order.firstName, email: order.email, companyName: order.companyName },
+      availableNames
+    )
+    res.json({ success: true, message: `Sugerencias enviadas a ${order.email}` })
   } catch (error: any) {
     res.status(500).json({ success: false, error: error.message })
   }
