@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
+import { prisma } from '@/lib/prisma'
 import { Resend } from 'resend'
 
-const prisma = new PrismaClient()
 const getResend = () => new Resend(process.env.RESEND_API_KEY)
 const FROM_EMAIL = 'onboarding@resend.dev'
 
@@ -10,31 +9,44 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
 
+    // ── Validar campos requeridos ─────────────────────────────────────────────
+    const missing: string[] = []
+    if (!body.firstName)   missing.push('firstName')
+    if (!body.lastName)    missing.push('lastName')
+    if (!body.email)       missing.push('email')
+    if (!body.companyName) missing.push('companyName')
+    if (missing.length > 0) {
+      return NextResponse.json(
+        { success: false, error: 'Campos requeridos faltantes: ' + missing.join(', ') },
+        { status: 400 }
+      )
+    }
+
     const order = await prisma.order.create({
       data: {
         // Contacto
-        firstName:       body.firstName,
-        lastName:        body.lastName,
-        email:           body.email,
-        phone:           body.phone   || null,
-        country:         body.country || 'US',
+        firstName:       String(body.firstName),
+        lastName:        String(body.lastName),
+        email:           String(body.email),
+        phone:           body.phone           || null,
+        country:         body.country         || 'US',
 
         // Empresa
-        companyName:     body.companyName,
-        companyName2:    body.companyName2 || null,
-        companyName3:    body.companyName3 || null,
-        entityType:      body.entityType   || null,
+        companyName:     String(body.companyName),
+        companyName2:    body.companyName2    || null,
+        companyName3:    body.companyName3    || null,
+        entityType:      body.entityType      || 'llc',
         businessAddress: body.businessAddress || null,
 
-        // Configuración
-        speed:           body.speed   || 'standard',
-        package:         body.package || 'basic',
-        amount:          body.amount  || 0,
+        // Configuración del trámite
+        speed:           body.speed           || 'standard',
+        package:         body.package         || 'basic',
+        amount:          Number(body.amount)  || 0,
 
-        // Datos adicionales
-        members:         body.members         || undefined,
+        // Datos adicionales (Json)
+        members:         body.members         ?? null,
         registeredAgent: body.registeredAgent || 'us',
-        addons:          body.addons          || undefined,
+        addons:          body.addons          ?? null,
         orgSignature:    body.orgSignature     || null,
 
         // Estado inicial
@@ -60,7 +72,7 @@ export async function POST(request: NextRequest) {
             </p>
             <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:20px;margin:20px 0">
               <p style="margin:6px 0;font-size:14px"><strong>Company Name:</strong> ${order.companyName}</p>
-              <p style="margin:6px 0;font-size:14px"><strong>Entity Type:</strong> ${order.entityType?.toUpperCase() || 'LLC'}</p>
+              <p style="margin:6px 0;font-size:14px"><strong>Entity Type:</strong> ${(order.entityType ?? 'llc').toUpperCase()}</p>
               <p style="margin:6px 0;font-size:14px"><strong>Package:</strong> ${order.package}</p>
               <p style="margin:6px 0;font-size:14px"><strong>Filing Speed:</strong> ${order.speed}</p>
               <p style="margin:6px 0;font-size:14px"><strong>Order Number:</strong> ${order.id}</p>
@@ -85,8 +97,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true, orderId: order.id }, { status: 201 })
 
   } catch (error) {
-    console.error('Error creating order:', error)
-    return NextResponse.json({ success: false, error: 'Error processing order' }, { status: 500 })
+    // Loguear error completo en Vercel Functions logs
+    console.error('[/api/orders POST] Error:', error)
+
+    const message = error instanceof Error ? error.message : String(error)
+    return NextResponse.json(
+      { success: false, error: 'Error processing order', detail: message },
+      { status: 500 }
+    )
   }
 }
 
@@ -97,6 +115,7 @@ export async function GET() {
     })
     return NextResponse.json(orders)
   } catch (error) {
-    return NextResponse.json({ error: 'Error fetching orders' }, { status: 500 })
+    const message = error instanceof Error ? error.message : String(error)
+    return NextResponse.json({ error: 'Error fetching orders', detail: message }, { status: 500 })
   }
 }
