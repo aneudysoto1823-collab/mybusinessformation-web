@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { supabaseAdmin } from '@/lib/supabase'
 import { Resend } from 'resend'
 
 const getResend = () => new Resend(process.env.RESEND_API_KEY)
@@ -22,8 +22,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const order = await prisma.order.create({
-      data: {
+    // ── Insertar orden en Supabase (HTTP, sin conexión directa a PostgreSQL) ──
+    const { data: order, error } = await supabaseAdmin
+      .from('Order')
+      .insert({
         // Contacto
         firstName:       String(body.firstName),
         lastName:        String(body.lastName),
@@ -42,6 +44,7 @@ export async function POST(request: NextRequest) {
         speed:           body.speed           || 'standard',
         package:         body.package         || 'basic',
         amount:          Number(body.amount)  || 0,
+        currency:        'USD',
 
         // Datos adicionales (Json)
         members:         body.members         ?? null,
@@ -52,10 +55,19 @@ export async function POST(request: NextRequest) {
         // Estado inicial
         paymentStatus: 'pending',
         status:        'pending',
-      },
-    })
+      })
+      .select()
+      .single()
 
-    // Email de confirmación — non-blocking
+    if (error) {
+      console.error('[/api/orders] Supabase insert error:', error)
+      return NextResponse.json(
+        { success: false, error: 'Error saving order', detail: error.message },
+        { status: 500 }
+      )
+    }
+
+    // ── Email de confirmación — non-blocking ──────────────────────────────────
     getResend().emails.send({
       from: FROM_EMAIL,
       to: order.email,
@@ -97,9 +109,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true, orderId: order.id }, { status: 201 })
 
   } catch (error) {
-    // Loguear error completo en Vercel Functions logs
-    console.error('[/api/orders POST] Error:', error)
-
+    console.error('[/api/orders POST] Error inesperado:', error)
     const message = error instanceof Error ? error.message : String(error)
     return NextResponse.json(
       { success: false, error: 'Error processing order', detail: message },
@@ -110,9 +120,12 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
-    const orders = await prisma.order.findMany({
-      orderBy: { createdAt: 'desc' }
-    })
+    const { data: orders, error } = await supabaseAdmin
+      .from('Order')
+      .select('*')
+      .order('createdAt', { ascending: false })
+
+    if (error) throw error
     return NextResponse.json(orders)
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error)
