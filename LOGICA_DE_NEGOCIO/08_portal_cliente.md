@@ -83,8 +83,6 @@ if (pathname.startsWith('/client-portal/dashboard')) {
 - `BACKEND_URL` — URL del servidor Railway (ya configurada)
 - `NEXT_PUBLIC_BASE_URL` — URL base de Vercel (para redirect de logout)
 
-## Pendiente
-- Botón "Log In" en el header del HTML principal — lo agrega el socio del proyecto en mybusinessformation.html, apuntando a `/client-portal`
-
 ## Historial
 - 2026-03-27: Etapa 9 construida — portal del cliente con login y dashboard de estado en tiempo real
+- 2026-03-27: Etapa 9 completada — portal del cliente funcionando en producción. Login con email + número FBFC. Dashboard con timeline de 7 estados.
