@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useEffect, useRef, useState } from 'react'
+import { useParams } from 'next/navigation'
 import Link from 'next/link'
 
 const BACKEND_URL =
@@ -90,26 +90,41 @@ function Field({ label, value }: { label: string; value?: string | number | null
 
 export default function OrderDetailPage() {
   const { id } = useParams<{ id: string }>()
-  const router = useRouter()
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [order, setOrder] = useState<Order | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
+  // Notas internas (Func 6)
   const [notes, setNotes] = useState('')
-  const [selectedStatus, setSelectedStatus] = useState('')
-  const [saving, setSaving] = useState(false)
-  const [saveMsg, setSaveMsg] = useState('')
+  const [notesSaving, setNotesSaving] = useState(false)
+  const [notesMsg, setNotesMsg] = useState('')
 
+  // Cambio manual de estado (selector)
+  const [selectedStatus, setSelectedStatus] = useState('')
+  const [manualSaving, setManualSaving] = useState(false)
+  const [manualMsg, setManualMsg] = useState('')
+
+  // Emails manuales
   const [emailLoading, setEmailLoading] = useState<string | null>(null)
   const [emailMsg, setEmailMsg] = useState('')
 
-  // Buscador de nombres alternativos
+  // Buscador de nombres (Func 2)
   const [namesInput, setNamesInput] = useState('')
   const [checkLoading, setCheckLoading] = useState(false)
   const [checkResults, setCheckResults] = useState<{ name: string; available: boolean }[]>([])
   const [suggestLoading, setSuggestLoading] = useState(false)
   const [suggestMsg, setSuggestMsg] = useState('')
+
+  // Subida de Certificate (Func 4)
+  const [certFile, setCertFile] = useState<File | null>(null)
+  const [certLoading, setCertLoading] = useState(false)
+  const [certMsg, setCertMsg] = useState('')
+
+  // Botones de avance de estado (Func 5)
+  const [statusLoading, setStatusLoading] = useState(false)
+  const [statusMsg, setStatusMsg] = useState('')
 
   useEffect(() => {
     fetch(`${BACKEND_URL}/api/orders/${id}`)
@@ -118,7 +133,7 @@ export default function OrderDetailPage() {
         return r.json()
       })
       .then(data => {
-        const o = data.order ?? data
+        const o = data.order ?? data.data ?? data
         setOrder(o)
         setNotes(o.notes ?? '')
         setSelectedStatus(o.status)
@@ -127,24 +142,41 @@ export default function OrderDetailPage() {
       .finally(() => setLoading(false))
   }, [id])
 
-  async function handleSave() {
-    setSaving(true)
-    setSaveMsg('')
+  // ── Guardar notas (Func 6) ───────────────────────────────────────────────
+  async function handleSaveNotes() {
+    setNotesSaving(true)
+    setNotesMsg('')
     const res = await fetch(`${BACKEND_URL}/api/orders/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: selectedStatus, notes }),
+      body: JSON.stringify({ notes }),
     })
-    setSaving(false)
-    if (res.ok) {
-      setSaveMsg('Guardado correctamente.')
-      setOrder(prev => prev ? { ...prev, status: selectedStatus, notes } : prev)
-    } else {
-      setSaveMsg('Error al guardar.')
-    }
-    setTimeout(() => setSaveMsg(''), 3000)
+    setNotesSaving(false)
+    setNotesMsg(res.ok ? 'Nota guardada.' : 'Error al guardar.')
+    if (res.ok) setOrder(prev => prev ? { ...prev, notes } : prev)
+    setTimeout(() => setNotesMsg(''), 3000)
   }
 
+  // ── Cambio manual de estado (selector) ──────────────────────────────────
+  async function handleManualStatusSave() {
+    setManualSaving(true)
+    setManualMsg('')
+    const res = await fetch(`${BACKEND_URL}/api/orders/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: selectedStatus }),
+    })
+    setManualSaving(false)
+    if (res.ok) {
+      setManualMsg('Estado actualizado.')
+      setOrder(prev => prev ? { ...prev, status: selectedStatus } : prev)
+    } else {
+      setManualMsg('Error al actualizar.')
+    }
+    setTimeout(() => setManualMsg(''), 3000)
+  }
+
+  // ── Emails manuales ───────────────────────────────────────────────────────
   async function triggerEmail(type: 'names-taken' | 'certificate') {
     setEmailLoading(type)
     setEmailMsg('')
@@ -158,6 +190,7 @@ export default function OrderDetailPage() {
     setTimeout(() => setEmailMsg(''), 4000)
   }
 
+  // ── Buscador de nombres (Func 2) ─────────────────────────────────────────
   async function handleCheckNames() {
     const names = namesInput.split('\n').map(n => n.trim()).filter(n => n.length > 0).slice(0, 10)
     if (names.length === 0) return
@@ -189,6 +222,52 @@ export default function OrderDetailPage() {
     setTimeout(() => setSuggestMsg(''), 5000)
   }
 
+  // ── Subida de Certificate PDF (Func 4) ───────────────────────────────────
+  async function handleUploadCertificate() {
+    if (!certFile || !order) return
+    setCertLoading(true)
+    setCertMsg('')
+    const formData = new FormData()
+    formData.append('file', certFile)
+    formData.append('orderId', order.id)
+    const res = await fetch('/api/admin/upload-certificate', {
+      method: 'POST',
+      body: formData,
+    })
+    const data = await res.json()
+    setCertLoading(false)
+    if (res.ok) {
+      setCertMsg('✅ Certificate subido y enviado al cliente. Orden marcada como completed.')
+      setOrder(prev => prev ? { ...prev, status: 'completed' } : prev)
+      setSelectedStatus('completed')
+      setCertFile(null)
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    } else {
+      setCertMsg(`Error: ${data.error ?? 'No se pudo completar la operación.'}`)
+    }
+    setTimeout(() => setCertMsg(''), 6000)
+  }
+
+  // ── Avance de estado (Func 5) ────────────────────────────────────────────
+  async function advanceStatus(newStatus: string) {
+    setStatusLoading(true)
+    setStatusMsg('')
+    const res = await fetch(`${BACKEND_URL}/api/orders/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: newStatus }),
+    })
+    setStatusLoading(false)
+    if (res.ok) {
+      setOrder(prev => prev ? { ...prev, status: newStatus } : prev)
+      setSelectedStatus(newStatus)
+      setStatusMsg(`Estado actualizado a "${newStatus}".`)
+    } else {
+      setStatusMsg('Error al actualizar el estado.')
+    }
+    setTimeout(() => setStatusMsg(''), 4000)
+  }
+
   if (loading) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Plus Jakarta Sans, sans-serif', color: '#6b7280' }}>
       Cargando orden…
@@ -202,62 +281,67 @@ export default function OrderDetailPage() {
     </div>
   )
 
+  const availableCount = checkResults.filter(r => r.available).length
+
   return (
     <>
       <style>{`
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background: #f4f6f9; font-family: 'Plus Jakarta Sans', sans-serif; }
-
         .wrapper { max-width: 860px; margin: 0 auto; padding: 32px 24px; }
-
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
         @media (max-width: 600px) { .grid-2 { grid-template-columns: 1fr; } }
 
         textarea {
-          width: 100%;
-          padding: 10px 14px;
-          border: 1.5px solid #e5e7eb;
-          border-radius: 8px;
-          font-size: 14px;
-          font-family: inherit;
-          resize: vertical;
-          outline: none;
-          color: #111827;
+          width: 100%; padding: 10px 14px;
+          border: 1.5px solid #e5e7eb; border-radius: 8px;
+          font-size: 14px; font-family: inherit; resize: vertical;
+          outline: none; color: #111827;
         }
         textarea:focus { border-color: #4f46e5; }
 
         select {
-          padding: 9px 14px;
-          border: 1.5px solid #e5e7eb;
-          border-radius: 8px;
-          font-size: 14px;
-          font-family: inherit;
-          color: #111827;
-          outline: none;
-          background: #fff;
-          cursor: pointer;
+          padding: 9px 14px; border: 1.5px solid #e5e7eb; border-radius: 8px;
+          font-size: 14px; font-family: inherit; color: #111827;
+          outline: none; background: #fff; cursor: pointer;
         }
         select:focus { border-color: #4f46e5; }
 
-        .btn {
-          padding: 9px 18px;
-          border: none;
-          border-radius: 8px;
-          font-size: 14px;
-          font-weight: 600;
-          cursor: pointer;
-          transition: opacity 0.15s;
+        input[type="file"] {
+          width: 100%; padding: 10px 14px;
+          border: 1.5px dashed #d1d5db; border-radius: 8px;
+          font-size: 14px; font-family: inherit; color: #6b7280;
+          background: #f9fafb; cursor: pointer; outline: none;
         }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .btn-primary  { background: #4f46e5; color: #fff; }
-        .btn-primary:hover:not(:disabled)  { background: #4338ca; }
-        .btn-yellow   { background: #fbbf24; color: #1a1a2e; }
-        .btn-yellow:hover:not(:disabled)   { background: #f59e0b; }
-        .btn-green    { background: #16a34a; color: #fff; }
-        .btn-green:hover:not(:disabled)    { background: #15803d; }
+        input[type="file"]:hover { border-color: #4f46e5; background: #f5f3ff; }
 
-        .save-msg { font-size: 13px; color: #16a34a; font-weight: 600; }
-        .email-msg { font-size: 13px; color: #4f46e5; font-weight: 600; }
+        .btn {
+          padding: 9px 18px; border: none; border-radius: 8px;
+          font-size: 14px; font-weight: 600; cursor: pointer;
+          transition: opacity 0.15s; font-family: inherit;
+        }
+        .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+        .btn-primary { background: #4f46e5; color: #fff; }
+        .btn-primary:hover:not(:disabled) { background: #4338ca; }
+        .btn-yellow  { background: #fbbf24; color: #1a1a2e; }
+        .btn-yellow:hover:not(:disabled)  { background: #f59e0b; }
+        .btn-green   { background: #16a34a; color: #fff; }
+        .btn-green:hover:not(:disabled)   { background: #15803d; }
+        .btn-blue    { background: #1d4ed8; color: #fff; }
+        .btn-blue:hover:not(:disabled)    { background: #1e40af; }
+        .btn-red     { background: #b91c1c; color: #fff; }
+        .btn-red:hover:not(:disabled)     { background: #991b1b; }
+        .btn-purple  { background: #6d28d9; color: #fff; }
+        .btn-purple:hover:not(:disabled)  { background: #5b21b6; }
+
+        .msg-ok  { font-size: 13px; color: #16a34a; font-weight: 600; }
+        .msg-err { font-size: 13px; color: #b91c1c; font-weight: 600; }
+        .msg-inf { font-size: 13px; color: #4f46e5; font-weight: 600; }
+
+        .sublabel {
+          font-size: 11px; font-weight: 700; color: #9ca3af;
+          text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 8px;
+        }
       `}</style>
 
       <div className="wrapper">
@@ -274,7 +358,7 @@ export default function OrderDetailPage() {
               {order.id}
             </div>
           </div>
-          <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'flex-end' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'flex-end' }}>
             <Badge map={PAYMENT_BADGE} value={order.paymentStatus} />
             <Badge map={STATUS_BADGE} value={order.status} />
           </div>
@@ -315,21 +399,89 @@ export default function OrderDetailPage() {
           </div>
         </Section>
 
-        {/* Buscador de nombres alternativos — solo visible cuando status === names_taken */}
+        {/* ── FUNC 5 — Gestión de Estado ─────────────────────────────────── */}
+        <Section title="⚡ Gestión de Estado">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+            <span style={{ fontSize: '13px', color: '#6b7280' }}>Estado actual:</span>
+            <Badge map={STATUS_BADGE} value={order.status} />
+          </div>
+
+          <div className="sublabel">Avanzar al siguiente estado</div>
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
+
+            {order.status === 'pending' && (
+              <button
+                className="btn btn-primary"
+                onClick={() => advanceStatus('in_review')}
+                disabled={statusLoading || order.paymentStatus !== 'paid'}
+                title={order.paymentStatus !== 'paid' ? 'Requiere pago confirmado' : ''}
+              >
+                → In review
+                {order.paymentStatus !== 'paid' && <span style={{ fontSize: '11px', marginLeft: '6px', opacity: 0.7 }}>(requiere pago)</span>}
+              </button>
+            )}
+
+            {order.status === 'in_review' && (
+              <>
+                <button className="btn btn-purple" onClick={() => advanceStatus('ready_to_file')} disabled={statusLoading}>
+                  ✓ Nombre disponible → Ready to file
+                </button>
+                <button className="btn btn-red" onClick={() => advanceStatus('names_taken')} disabled={statusLoading}>
+                  ✗ Nombres tomados → Names taken
+                </button>
+              </>
+            )}
+
+            {order.status === 'names_taken' && (
+              <button className="btn btn-primary" onClick={() => advanceStatus('in_review')} disabled={statusLoading}>
+                ↩ Cliente respondió → In review
+              </button>
+            )}
+
+            {order.status === 'ready_to_file' && (
+              <button className="btn btn-blue" onClick={() => advanceStatus('filed')} disabled={statusLoading}>
+                → Filed (enviado al Estado de Florida)
+              </button>
+            )}
+
+            {order.status === 'filed' && (
+              <button className="btn btn-green" onClick={() => advanceStatus('approved')} disabled={statusLoading}>
+                → Approved (Florida aprobó)
+              </button>
+            )}
+
+            {order.status === 'approved' && (
+              <span style={{ fontSize: '13px', color: '#6b7280' }}>
+                Sube el Certificate PDF abajo para marcar como completed.
+              </span>
+            )}
+
+            {order.status === 'completed' && (
+              <span style={{ fontSize: '13px', color: '#16a34a', fontWeight: 600 }}>
+                ✅ Orden cerrada — Certificate entregado al cliente.
+              </span>
+            )}
+
+            {statusLoading && <span style={{ fontSize: '13px', color: '#6b7280' }}>Actualizando…</span>}
+            {statusMsg && (
+              <span className={statusMsg.startsWith('Error') ? 'msg-err' : 'msg-ok'}>{statusMsg}</span>
+            )}
+          </div>
+        </Section>
+
+        {/* ── FUNC 2 — Buscador de nombres (solo cuando names_taken) ─────── */}
         {order.status === 'names_taken' && (
           <Section title="🔍 Buscador de Nombres Alternativos">
             <p style={{ fontSize: '13px', color: '#6b7280', marginBottom: '14px', lineHeight: 1.6 }}>
-              Escribe hasta 10 nombres (uno por línea). El sistema verificará cuáles están disponibles
-              en la base de datos de Sunbiz.
+              Escribe hasta 10 nombres (uno por línea). El sistema verificará cuáles están disponibles en Sunbiz.
             </p>
             <textarea
               rows={6}
               value={namesInput}
               onChange={e => {
-                const lines = e.target.value.split('\n')
-                if (lines.length <= 10) setNamesInput(e.target.value)
+                if (e.target.value.split('\n').length <= 10) setNamesInput(e.target.value)
               }}
-              placeholder={`Sunshine Digital Solutions LLC\nCoastal Ventures Group LLC\nMiami Tech Hub Inc\n...`}
+              placeholder={'Sunshine Digital Solutions LLC\nCoastal Ventures Group LLC\nMiami Tech Hub Inc\n...'}
             />
             <div style={{ marginTop: '10px', display: 'flex', gap: '10px', alignItems: 'center' }}>
               <button className="btn btn-primary" onClick={handleCheckNames} disabled={checkLoading || namesInput.trim() === ''}>
@@ -339,9 +491,7 @@ export default function OrderDetailPage() {
 
             {checkResults.length > 0 && (
               <div style={{ marginTop: '20px' }}>
-                <div style={{ fontSize: '12px', fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: '10px' }}>
-                  Resultados
-                </div>
+                <div className="sublabel">Resultados</div>
                 <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 16px' }}>
                   {checkResults.map(r => (
                     <li key={r.name} style={{
@@ -360,19 +510,16 @@ export default function OrderDetailPage() {
                     </li>
                   ))}
                 </ul>
-
                 <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
                   <button
                     className="btn btn-green"
                     onClick={handleSuggestNames}
-                    disabled={suggestLoading || checkResults.filter(r => r.available).length === 0}
+                    disabled={suggestLoading || availableCount === 0}
                   >
-                    {suggestLoading ? 'Enviando…' : `✉️ Enviar sugerencias al cliente (${checkResults.filter(r => r.available).length} disponibles)`}
+                    {suggestLoading ? 'Enviando…' : `✉️ Enviar sugerencias al cliente (${availableCount} disponibles)`}
                   </button>
                   {suggestMsg && (
-                    <span style={{ fontSize: '13px', color: suggestMsg.startsWith('Error') ? '#b91c1c' : '#16a34a', fontWeight: 600 }}>
-                      {suggestMsg}
-                    </span>
+                    <span className={suggestMsg.startsWith('Error') ? 'msg-err' : 'msg-ok'}>{suggestMsg}</span>
                   )}
                 </div>
               </div>
@@ -380,53 +527,75 @@ export default function OrderDetailPage() {
           </Section>
         )}
 
-        {/* Acciones */}
-        <Section title="Acciones">
-          {/* Cambiar estado */}
-          <div style={{ marginBottom: '24px' }}>
-            <div style={{ fontSize: '12px', fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: '8px' }}>
-              Cambiar Estado
+        {/* ── FUNC 4 — Subida de Certificate PDF (solo cuando approved) ───── */}
+        {order.status === 'approved' && (
+          <Section title="📄 Certificate of Formation">
+            <p style={{ fontSize: '13px', color: '#6b7280', marginBottom: '16px', lineHeight: 1.6 }}>
+              Sube el PDF aprobado por el Estado de Florida. Al subir, el sistema lo guardará en Supabase Storage,
+              enviará el email al cliente y marcará la orden como <strong>completed</strong> automáticamente.
+            </p>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".pdf,application/pdf"
+              onChange={e => setCertFile(e.target.files?.[0] ?? null)}
+            />
+            {certFile && (
+              <div style={{ marginTop: '8px', fontSize: '13px', color: '#4f46e5', fontWeight: 500 }}>
+                Archivo seleccionado: {certFile.name} ({(certFile.size / 1024).toFixed(1)} KB)
+              </div>
+            )}
+            <div style={{ marginTop: '14px', display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+              <button
+                className="btn btn-green"
+                onClick={handleUploadCertificate}
+                disabled={!certFile || certLoading}
+              >
+                {certLoading ? 'Subiendo y enviando…' : '🚀 Subir y enviar al cliente'}
+              </button>
+              {certMsg && (
+                <span className={certMsg.startsWith('Error') ? 'msg-err' : 'msg-ok'}>{certMsg}</span>
+              )}
             </div>
+          </Section>
+        )}
+
+        {/* ── Acciones manuales ─────────────────────────────────────────────── */}
+        <Section title="Acciones Manuales">
+          <div style={{ marginBottom: '24px' }}>
+            <div className="sublabel">Cambiar Estado (forzar)</div>
             <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
               <select value={selectedStatus} onChange={e => setSelectedStatus(e.target.value)}>
                 {STATUS_OPTIONS.map(s => (
                   <option key={s} value={s}>{s}</option>
                 ))}
               </select>
-              <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
-                {saving ? 'Guardando…' : 'Guardar cambios'}
+              <button className="btn btn-primary" onClick={handleManualStatusSave} disabled={manualSaving}>
+                {manualSaving ? 'Guardando…' : 'Guardar'}
               </button>
-              {saveMsg && <span className="save-msg">{saveMsg}</span>}
+              {manualMsg && <span className="msg-ok">{manualMsg}</span>}
             </div>
           </div>
 
-          {/* Emails */}
           <div>
-            <div style={{ fontSize: '12px', fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: '8px' }}>
-              Enviar Emails
-            </div>
+            <div className="sublabel">Enviar Emails</div>
             <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
-              <button
-                className="btn btn-yellow"
-                onClick={() => triggerEmail('names-taken')}
-                disabled={emailLoading !== null}
-              >
-                {emailLoading === 'names-taken' ? 'Enviando…' : '⚠️ Nombres Tomados'}
+              <button className="btn btn-yellow" onClick={() => triggerEmail('names-taken')} disabled={emailLoading !== null}>
+                {emailLoading === 'names-taken' ? 'Enviando…' : '⚠️ Email: Nombres Tomados'}
               </button>
-              <button
-                className="btn btn-green"
-                onClick={() => triggerEmail('certificate')}
-                disabled={emailLoading !== null}
-              >
-                {emailLoading === 'certificate' ? 'Enviando…' : '🎉 Enviar Certificate'}
+              <button className="btn btn-green" onClick={() => triggerEmail('certificate')} disabled={emailLoading !== null}>
+                {emailLoading === 'certificate' ? 'Enviando…' : '🎉 Email: Certificate'}
               </button>
-              {emailMsg && <span className="email-msg">{emailMsg}</span>}
+              {emailMsg && <span className="msg-inf">{emailMsg}</span>}
             </div>
           </div>
         </Section>
 
-        {/* Notas internas */}
-        <Section title="Notas Internas">
+        {/* ── FUNC 6 — Notas Internas ──────────────────────────────────────── */}
+        <Section title="📝 Notas Internas">
+          <p style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '10px' }}>
+            Solo visibles para el equipo. No se muestran al cliente.
+          </p>
           <textarea
             rows={5}
             value={notes}
@@ -434,10 +603,10 @@ export default function OrderDetailPage() {
             placeholder="Escribe notas internas sobre esta orden…"
           />
           <div style={{ marginTop: '10px', display: 'flex', gap: '10px', alignItems: 'center' }}>
-            <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
-              {saving ? 'Guardando…' : 'Guardar notas'}
+            <button className="btn btn-primary" onClick={handleSaveNotes} disabled={notesSaving}>
+              {notesSaving ? 'Guardando…' : 'Guardar nota'}
             </button>
-            {saveMsg && <span className="save-msg">{saveMsg}</span>}
+            {notesMsg && <span className="msg-ok">{notesMsg}</span>}
           </div>
         </Section>
       </div>
