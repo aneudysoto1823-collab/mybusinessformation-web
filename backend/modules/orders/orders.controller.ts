@@ -41,7 +41,7 @@ export const getAllOrders = async (_req: Request, res: Response) => {
 
 export const getOrderByIdController = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params
+    const id = req.params.id as string
     const order = await getOrderById(id)
     if (!order) {
       res.status(404).json({ success: false, message: 'Orden no encontrada' })
@@ -55,7 +55,7 @@ export const getOrderByIdController = async (req: Request, res: Response) => {
 
 export const updateOrderController = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params
+    const id = req.params.id as string
     const { status, notes } = req.body
     const order = await updateOrder(id, { status, notes })
     res.status(200).json({ success: true, data: order })
