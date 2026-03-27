@@ -27,6 +27,8 @@ export async function POST(request: NextRequest) {
       .from('Order')
       .insert({
         id:              crypto.randomUUID(),
+        createdAt:       new Date().toISOString(),
+        updatedAt:       new Date().toISOString(),
         // Contacto
         firstName:       String(body.firstName),
         lastName:        String(body.lastName),
