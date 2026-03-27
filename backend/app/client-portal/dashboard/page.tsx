@@ -356,7 +356,6 @@ export default async function ClientDashboardPage() {
             {STEPS.map((step, i) => {
               const isDone = i < currentStep
               const isCurrent = i === currentStep
-              const isPending = i > currentStep
               const className = isDone ? 'done' : isCurrent ? 'current' : 'pending'
               return (
                 <div key={step.key} className={`timeline-item ${className}`}>
@@ -380,7 +379,7 @@ export default async function ClientDashboardPage() {
         <div className="cp-card">
           <h2>What&apos;s Next</h2>
           <div className={`status-pill ${order.status}`}>
-            {order.status.replace(/_/g, ' ')}
+            {(order.status ?? '').replace(/_/g, ' ')}
           </div>
           <p className="whats-next-text">{whatsNext}</p>
         </div>
