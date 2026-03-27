@@ -54,7 +54,7 @@ ADMIN_PASSWORD=tuPasswordSeguro
 - El buscador del panel admin también usa esa misma base de datos para buscar nombres alternativos
 - Mientras la Etapa 5 no esté lista, el buscador del panel mostrará un mensaje de "base de datos no disponible aún"
 
-## Funcionalidades pendientes de construir en el panel
+## Funcionalidades construidas en el panel
 
 1. Filtro de órdenes por estado (tabs o sidebar)
 2. Buscador de nombres — ingresar hasta 10 nombres, ver cuáles están disponibles en Sunbiz local
@@ -64,13 +64,14 @@ ADMIN_PASSWORD=tuPasswordSeguro
 6. Notas internas por orden
 
 ## Estado
-- [ ] Estructura de archivos creada
-- [ ] Login funcional
-- [ ] Middleware de protección activo
-- [ ] Dashboard con estadísticas
-- [ ] Tabla de órdenes
-- [ ] Vista detallada por orden
-- [ ] Botones de acción funcionando
+- [x] Estructura de archivos creada
+- [x] Login funcional
+- [x] Middleware de protección activo
+- [x] Dashboard con estadísticas
+- [x] Tabla de órdenes
+- [x] Vista detallada por orden
+- [x] Botones de acción funcionando
 
 ## Historial
 - 2026-03-27: Inicio construcción del panel de admin
+- 2026-03-27: Etapa 8 completada — panel de admin funcionando en producción. Railway conectado a Supabase usando pooler aws-1-us-east-1 puerto 6543. URL del panel: https://mybusinessformation-web.vercel.app/admin
