@@ -6,8 +6,6 @@ const getResend = () => new Resend(process.env.RESEND_API_KEY)
 const FROM_EMAIL = 'onboarding@resend.dev'
 
 export async function POST(request: NextRequest) {
-  console.log('[DEBUG] SUPABASE_URL:', process.env.SUPABASE_URL ? 'SET ✓' : 'MISSING ✗')
-  console.log('[DEBUG] SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'SET ✓' : 'MISSING ✗')
   try {
     const body = await request.json()
 
@@ -28,6 +26,7 @@ export async function POST(request: NextRequest) {
     const { data: order, error } = await getSupabaseAdmin()
       .from('Order')
       .insert({
+        id:              crypto.randomUUID(),
         // Contacto
         firstName:       String(body.firstName),
         lastName:        String(body.lastName),
