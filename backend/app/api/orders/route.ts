@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabaseAdmin } from '@/lib/supabase'
+import { getSupabaseAdmin } from '@/lib/supabase'
 import { Resend } from 'resend'
 
 const getResend = () => new Resend(process.env.RESEND_API_KEY)
@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     }
 
     // ── Insertar orden en Supabase (HTTP, sin conexión directa a PostgreSQL) ──
-    const { data: order, error } = await supabaseAdmin
+    const { data: order, error } = await getSupabaseAdmin()
       .from('Order')
       .insert({
         // Contacto
@@ -120,7 +120,7 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
-    const { data: orders, error } = await supabaseAdmin
+    const { data: orders, error } = await getSupabaseAdmin()
       .from('Order')
       .select('*')
       .order('createdAt', { ascending: false })

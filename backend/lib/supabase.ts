@@ -1,7 +1,8 @@
 import { createClient } from '@supabase/supabase-js'
 
-// Cliente admin con service_role — bypasa RLS, solo usar en server-side
-export const supabaseAdmin = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+// Lazy init: se crea al primer uso (runtime), no al importar (build time)
+export const getSupabaseAdmin = () =>
+  createClient(
+    process.env.SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
