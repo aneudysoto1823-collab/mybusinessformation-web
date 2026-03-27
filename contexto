@@ -151,10 +151,22 @@ export default function NombrePagina() {
 - [x] Railway conectado a Supabase — pooler aws-1-us-east-1 puerto 6543
 - [x] Panel en producción: https://mybusinessformation-web.vercel.app/admin
 
-### Etapa 9 — Portal del Cliente (post-lanzamiento)
-- [ ] Login seguro con JWT
-- [ ] Estado de orden en tiempo real
-- [ ] Descarga de documentos
+### Etapa 9 — Portal del Cliente (COMPLETADA 2026-03-27)
+- [x] Botón "Log In" discreto en el navbar del sitio principal
+- [x] Página de login del cliente (/client-portal) con email + número de confirmación
+- [x] Endpoint de autenticación — busca orden por email y número FBFC
+- [x] Cookie client_session para mantener sesión del cliente
+- [x] Dashboard del cliente (/client-portal/dashboard) con:
+  - [x] Saludo personalizado con nombre del cliente
+  - [x] Número de confirmación FBFC visible
+  - [x] Timeline visual de 7 pasos con estado actual resaltado
+  - [x] Sección "What's Next" explicando el estado actual
+  - [x] Sección "Your Company Details" con datos de la empresa
+  - [x] Botón Log Out
+- [x] Middleware protege /client-portal/dashboard sin sesión
+- [x] Número de confirmación FBFC basado en UUID real de la orden
+- [x] Panel de admin muestra número FBFC en tabla y vista detallada
+- [x] Portal en producción: https://mybusinessformation-web.vercel.app/client-portal
 
 ### Etapa 10 — Seguridad y Lanzamiento Oficial (post-lanzamiento)
 - [ ] Cloudflare activo
