@@ -11,7 +11,12 @@
       "Bash(taskkill /F /PID 21816)",
       "Bash(netstat -ano)",
       "Bash(cmd /c \"taskkill /F /PID 21816\")",
-      "Bash(curl -s -X POST http://localhost:4000/api/notifications/test-full-flow -H \"Content-Type: application/json\" -d '{\"\"clientEmail\"\": \"\"aneudysoto1823@gmail.com\"\"}')"
+      "Bash(curl -s -X POST http://localhost:4000/api/notifications/test-full-flow -H \"Content-Type: application/json\" -d '{\"\"clientEmail\"\": \"\"aneudysoto1823@gmail.com\"\"}')",
+      "Bash(grep -n \"const body\\\\|let body\\\\|var body\\\\|body =\\\\|body=\\\\`\" /c/Users/ethan/mybusinessformation-web/backend/app/page.tsx)",
+      "Bash(npx prisma:*)",
+      "Bash(git push:*)",
+      "Bash(npx vercel:*)",
+      "Bash(vercel --version)"
     ]
   }
 }

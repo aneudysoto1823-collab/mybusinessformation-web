@@ -82,6 +82,10 @@ export default function NombrePagina() {
 - [x] globals.css vaciado — cada página carga su propio CSS
 - [x] Tailwind desinstalado
 - [x] HTML movidos a backend/public
+- [x] Sitio en vivo en Vercel — https://mybusinessformation-web.vercel.app/
+- [x] Deploy automático con cada git push
+- [x] HTML convertidos a componentes React
+
 
 ### Etapa 2 — Backend Node.js + Express (2-3 semanas)
 - [ x] Crear servidor Express
@@ -89,6 +93,8 @@ export default function NombrePagina() {
 - [x ] Conectar formulario al backend
 - [ x] Variables de entorno (.env)
 - [x ] Subir a Railway.app  Subir a Railway.app — https://mybusinessformation-web-production.up.railway.app
+- [x] Servidor Express en Railway — https://mybusinessformation-web-production.up.railway.app
+- [x] Formulario conectado al backend
 
 ### Etapa 3 — Base de Datos PostgreSQL (1-2 semanas)
 - [x] Instalar PostgreSQL — usando Supabase como hosting
@@ -96,6 +102,8 @@ export default function NombrePagina() {
 - [x] Conectar con Prisma ORM — db push exitoso
 - [x] orders.service.ts — saveOrder y getOrders funcionando
 - [ ] Backups automáticos diarios — requiere Supabase Pro (pendiente)
+- [x] Supabase conectado a Vercel con cliente HTTP
+- [x] Órdenes guardándose en Supabase al hacer submit
 
 ### Etapa 4 — Pagos con Stripe (1 semana)
 - [ ] Crear cuenta Stripe y obtener claves API
@@ -118,6 +126,8 @@ export default function NombrePagina() {
 - [ ] Email con contrato PDF adjunto — pendiente hasta Etapa 6 (generación de documentos)
 - [ ] Verificar dominio mybusinessformation.com en Resend — para enviar a cualquier email
 - [ ] WhatsApp Business API opcional
+[x] Email de confirmación enviado automáticamente al cliente
+- [x] Motor de emails Resend funcionando en producción
 
 ### PUNTO DE LANZAMIENTO = Etapas 1+2+3+4+5+7 completas (~3 meses)
 
