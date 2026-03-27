@@ -4525,7 +4525,7 @@ async function fmSubmit() {
     });
     var data = await res.json();
     if(res.ok && data.success) {
-      var orderId = (data.data && data.data.id) ? data.data.id : null;
+      var orderId = data.orderId || null;
       generateOrderNumber(orderId);
       var numEl = document.getElementById('finalOrderNum');
       if(numEl) numEl.textContent = orderNumber;

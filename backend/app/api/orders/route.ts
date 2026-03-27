@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
               <p style="margin:6px 0;font-size:14px"><strong>Entity Type:</strong> ${(order.entityType ?? 'llc').toUpperCase()}</p>
               <p style="margin:6px 0;font-size:14px"><strong>Package:</strong> ${order.package}</p>
               <p style="margin:6px 0;font-size:14px"><strong>Filing Speed:</strong> ${order.speed}</p>
-              <p style="margin:6px 0;font-size:14px"><strong>Order Number:</strong> ${order.id}</p>
+              <p style="margin:6px 0;font-size:14px"><strong>Confirmation Number:</strong> FBFC-${order.id.replace(/-/g, '').substring(0, 8).toUpperCase()}</p>
             </div>
             <p style="color:#475569;line-height:1.7">
               Our team is now reviewing your information and will verify name availability with the
