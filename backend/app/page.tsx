@@ -4762,7 +4762,7 @@ function fmResumeStartOver() {
   _fmPendingResume = null;
 }
 
-window.addEventListener('DOMContentLoaded', function() {
+(function() {
   try {
     var raw = localStorage.getItem(FM_STORAGE_KEY);
     if(!raw) return;
@@ -4772,7 +4772,7 @@ window.addEventListener('DOMContentLoaded', function() {
       fmShowResumeBanner(progress);
     }
   } catch(e) {}
-});
+})();
 
 var _fmRestoring = false;
 window.addEventListener('popstate', function(e) {
