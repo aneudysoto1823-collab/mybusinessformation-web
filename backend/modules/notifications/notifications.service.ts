@@ -34,6 +34,15 @@ export const sendOrderConfirmation = async (order: {
             <p style="margin:6px 0;font-size:14px"><strong>Package:</strong> ${order.package}</p>
             <p style="margin:6px 0;font-size:14px"><strong>Confirmation Number:</strong> FBFC-${order.id.replace(/-/g, '').substring(0, 8).toUpperCase()}</p>
           </div>
+          <div style="text-align:center;margin:28px 0">
+            <a href="https://mybusinessformation-web.vercel.app/client-portal?email=${encodeURIComponent(order.email)}&order=FBFC-${order.id.replace(/-/g, '').substring(0, 8).toUpperCase()}"
+               style="display:inline-block;background:#4f46e5;color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:8px;font-size:15px;font-weight:700;letter-spacing:0.2px">
+              Track Your Order →
+            </a>
+            <p style="color:#94a3b8;font-size:12px;margin-top:10px">
+              View your order status in real time at any time
+            </p>
+          </div>
           <p style="color:#475569;line-height:1.7">
             Our team is now reviewing your information and will verify name availability with the
             Florida Division of Corporations. We'll be in touch within <strong>1 business day</strong>.

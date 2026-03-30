@@ -1,5 +1,6 @@
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
+import { getSupabaseAdmin } from '@/lib/supabase'
 
 const BACKEND_URL =
   process.env.BACKEND_URL ||
@@ -61,6 +62,72 @@ function parseAddons(raw: unknown): Record<string, unknown> {
   if (typeof raw === 'string') { try { return JSON.parse(raw) } catch { return {} } }
   if (typeof raw === 'object' && !Array.isArray(raw)) return raw as Record<string, unknown>
   return {}
+}
+
+interface DocumentItem {
+  key: string
+  label: string
+  url: string | null
+  pending: string
+}
+
+async function getDocuments(orderId: string, order: Order): Promise<DocumentItem[]> {
+  const supabase = getSupabaseAdmin()
+  const bucket = 'certificates'
+  const addons = parseAddons(order.addons)
+  const pkgKey = (order.package ?? '').toLowerCase()
+
+  async function signedUrl(path: string): Promise<string | null> {
+    const { data, error } = await supabase.storage
+      .from(bucket)
+      .createSignedUrl(path, 3600)
+    if (error || !data?.signedUrl) return null
+    return data.signedUrl
+  }
+
+  const docs: DocumentItem[] = []
+
+  // Certificate of Formation — always shown
+  docs.push({
+    key: 'certificate',
+    label: 'Certificate of Formation',
+    url: order.status === 'completed'
+      ? await signedUrl(`orders/${orderId}/certificate.pdf`)
+      : null,
+    pending: 'Pending — will be available once your business is approved',
+  })
+
+  // Operating Agreement
+  if (addons.oa || pkgKey === 'premium') {
+    docs.push({
+      key: 'operating-agreement',
+      label: 'Operating Agreement',
+      url: await signedUrl(`orders/${orderId}/operating-agreement.pdf`),
+      pending: 'Pending — being prepared by our team',
+    })
+  }
+
+  // EIN / Tax ID Letter
+  if (addons.ein || pkgKey === 'standard' || pkgKey === 'premium') {
+    docs.push({
+      key: 'ein-letter',
+      label: 'EIN / Tax ID Letter',
+      url: await signedUrl(`orders/${orderId}/ein-letter.pdf`),
+      pending: 'Pending — will be sent by IRS after formation',
+    })
+  }
+
+  // ITIN Application
+  if (addons.itin || pkgKey === 'premium') {
+    docs.push({
+      key: 'itin-application',
+      label: 'ITIN Application',
+      url: await signedUrl(`orders/${orderId}/itin-application.pdf`),
+      pending: 'Pending',
+    })
+  }
+
+  return docs
 }
 
 async function getOrder(id: string): Promise<Order | null> {
@@ -135,6 +202,7 @@ export default async function ClientDashboardPage() {
   const currentStep = getCurrentStepIndex(order.status)
   const confirmationNumber = getConfirmationNumber(order.id)
   const whatsNext = getWhatsNext(order.status)
+  const documents = await getDocuments(orderId, order)
 
   return (
     <>
@@ -446,6 +514,52 @@ export default async function ClientDashboardPage() {
           border-radius: 999px;
           margin-left: 4px;
         }
+
+        /* My Documents */
+        .doc-item {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          padding: 14px 0;
+          border-bottom: 1px solid #f1f5f9;
+        }
+        .doc-item:last-child { border-bottom: none; }
+        .doc-icon {
+          width: 36px;
+          height: 36px;
+          background: #eef2ff;
+          border-radius: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 18px;
+          flex-shrink: 0;
+        }
+        .doc-info { flex: 1; min-width: 0; }
+        .doc-name {
+          font-size: 14px;
+          font-weight: 600;
+          color: #1a1a2e;
+        }
+        .doc-status {
+          font-size: 12px;
+          color: #9ca3af;
+          margin-top: 2px;
+        }
+        .btn-download {
+          display: inline-block;
+          background: #16a34a;
+          color: #fff;
+          text-decoration: none;
+          padding: 7px 16px;
+          border-radius: 8px;
+          font-size: 13px;
+          font-weight: 600;
+          white-space: nowrap;
+          flex-shrink: 0;
+        }
+        .btn-download:hover { background: #15803d; }
       `}</style>
 
       <div className="cp-wrapper">
@@ -585,6 +699,29 @@ export default async function ClientDashboardPage() {
             </div>
           )
         })()}
+
+        {/* My Documents */}
+        <div className="cp-card">
+          <h2>My Documents</h2>
+          {documents.map(doc => (
+            <div key={doc.key} className="doc-item">
+              <div className="doc-icon">📄</div>
+              <div className="doc-info">
+                <div className="doc-name">{doc.label}</div>
+                {!doc.url && (
+                  <div className="doc-status">{doc.pending}</div>
+                )}
+              </div>
+              {doc.url ? (
+                <a href={doc.url} className="btn-download" target="_blank" rel="noopener noreferrer">
+                  Download PDF
+                </a>
+              ) : (
+                <span style={{ fontSize: '12px', color: '#d1d5db', fontWeight: 500, flexShrink: 0 }}>Pending</span>
+              )}
+            </div>
+          ))}
+        </div>
       </div>
     </>
   )

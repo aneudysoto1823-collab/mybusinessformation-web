@@ -1,12 +1,13 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { Suspense, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 
-export default function ClientPortalPage() {
+function LoginForm() {
   const router = useRouter()
-  const [email, setEmail] = useState('')
-  const [confirmationNumber, setConfirmationNumber] = useState('')
+  const searchParams = useSearchParams()
+  const [email, setEmail] = useState(searchParams.get('email') ?? '')
+  const [confirmationNumber, setConfirmationNumber] = useState(searchParams.get('order') ?? '')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -226,5 +227,13 @@ export default function ClientPortalPage() {
         </div>
       </div>
     </>
+  )
+}
+
+export default function ClientPortalPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
   )
 }
