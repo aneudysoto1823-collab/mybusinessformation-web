@@ -38,6 +38,41 @@ interface Order {
 
 const STATUS_OPTIONS = ['pending', 'in_review', 'names_taken', 'ready_to_file', 'filed', 'approved', 'completed']
 
+const PACKAGE_INFO: Record<string, { name: string; price: string; popular?: boolean }> = {
+  basic:    { name: 'Basic',    price: '$49 + state fee' },
+  standard: { name: 'Standard', price: '$149 + state fee', popular: true },
+  premium:  { name: 'Premium',  price: '$249 + state fee' },
+}
+
+const PACKAGE_SERVICES: Record<string, string[]> = {
+  basic: [
+    'Business Formation Filing',
+    'Name Availability Search',
+    'Florida Certificate of Formation',
+  ],
+  standard: [
+    'Business Formation Filing',
+    'Name Availability Search',
+    'Florida Certificate of Formation',
+    'EIN / Tax ID Number',
+    'Bank Account Guide',
+    'Registered Agent (1st year free)',
+  ],
+  premium: [
+    'Business Formation Filing',
+    'Name Availability Search',
+    'Florida Certificate of Formation',
+    'EIN / Tax ID Number',
+    'Bank Account Guide',
+    'Registered Agent (1st year free)',
+    'Operating Agreement',
+    'Expedited Filing (1–3 days)',
+    'ITIN Application',
+    'DBA / Fictitious Name',
+    'Articles of Amendment',
+  ],
+}
+
 const STATUS_BADGE: Record<string, { label: string; bg: string; color: string }> = {
   pending:        { label: 'Pending',        bg: '#f3f4f6', color: '#6b7280' },
   in_review:      { label: 'In review',      bg: '#fef9c3', color: '#92400e' },
@@ -406,13 +441,79 @@ export default function OrderDetailPage() {
 
         {/* Paquete y Pago */}
         <Section title="Paquete y Pago">
-          <div className="grid-2">
-            <Field label="Paquete" value={order.package ? order.package.charAt(0).toUpperCase() + order.package.slice(1) : undefined} />
-            <Field label="Monto" value={order.amount ? `$${order.amount.toFixed(2)} ${order.currency ?? 'USD'}` : undefined} />
-            <Field label="Tramitación" value={order.speed} />
-            <Field label="Estado del pago" value={order.paymentStatus} />
-            <Field label="Stripe Payment ID" value={order.stripePaymentId} />
-          </div>
+          {(() => {
+            const pkgKey = (order.package ?? '').toLowerCase()
+            const pkgInfo = PACKAGE_INFO[pkgKey]
+            const services = PACKAGE_SERVICES[pkgKey] ?? []
+            let addons: Record<string, unknown> = {}
+            try { addons = JSON.parse(order.addons as string) } catch { /* noop */ }
+            if (order.addons && typeof order.addons === 'object' && !Array.isArray(order.addons)) {
+              addons = order.addons as Record<string, unknown>
+            }
+            const addonItems = [
+              { key: 'ein',  label: 'EIN / Tax ID' },
+              { key: 'oa',   label: 'Operating Agreement' },
+              { key: 'itin', label: 'ITIN Application' },
+              { key: 'ar',   label: 'Annual Report Filing' },
+            ]
+            const activeAddons = addonItems.filter(a => addons[a.key])
+            return (
+              <>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
+                  <span style={{ fontSize: '20px', fontWeight: 800, color: '#1a1a2e' }}>
+                    {pkgInfo?.name ?? order.package}
+                  </span>
+                  {pkgInfo?.popular && (
+                    <span style={{ background: '#4f46e5', color: '#fff', fontSize: '11px', fontWeight: 700, padding: '2px 8px', borderRadius: '999px' }}>Most Popular</span>
+                  )}
+                </div>
+                <div style={{ fontSize: '14px', color: '#6b7280', fontWeight: 600, marginBottom: '16px' }}>{pkgInfo?.price}</div>
+
+                {order.speed === 'expedited' && (
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#dcfce7', color: '#16a34a', borderRadius: '8px', padding: '6px 12px', fontSize: '13px', fontWeight: 700, marginBottom: '16px' }}>
+                    ⚡ Priority Processing (1–3 days)
+                  </div>
+                )}
+
+                {services.length > 0 && (
+                  <div style={{ marginBottom: '16px' }}>
+                    <div style={{ fontSize: '11px', fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: '10px' }}>Services Included</div>
+                    <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      {services.map(s => (
+                        <li key={s} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#374151' }}>
+                          <span style={{ color: '#16a34a', fontWeight: 700 }}>✓</span>
+                          {s}
+                          {s === 'Expedited Filing (1–3 days)' && order.speed === 'expedited' && (
+                            <span style={{ background: '#dcfce7', color: '#16a34a', fontSize: '11px', fontWeight: 700, padding: '1px 7px', borderRadius: '999px' }}>ACTIVE</span>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {activeAddons.length > 0 && (
+                  <div style={{ marginBottom: '16px' }}>
+                    <div style={{ fontSize: '11px', fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: '10px' }}>Add-ons</div>
+                    <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      {activeAddons.map(a => (
+                        <li key={a.key} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#374151' }}>
+                          <span style={{ color: '#6d28d9', fontWeight: 700 }}>✓</span> {a.label}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                <div className="grid-2" style={{ paddingTop: '16px', borderTop: '1px solid #f1f5f9' }}>
+                  <Field label="Monto total" value={order.amount ? `$${order.amount.toFixed(2)} ${order.currency ?? 'USD'}` : undefined} />
+                  <Field label="Tramitación" value={order.speed} />
+                  <Field label="Estado del pago" value={order.paymentStatus} />
+                  <Field label="Stripe Payment ID" value={order.stripePaymentId} />
+                </div>
+              </>
+            )
+          })()}
         </Section>
 
         {/* Agente Registrado */}

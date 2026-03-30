@@ -14,9 +14,53 @@ interface Order {
   companyName: string
   entityType: string
   package: string
+  speed: string
   amount: number
   paymentStatus: string
   status: string
+  addons: unknown
+}
+
+const PACKAGE_INFO: Record<string, { name: string; price: string; popular?: boolean }> = {
+  basic:    { name: 'Basic',    price: '$49 + state fee' },
+  standard: { name: 'Standard', price: '$149 + state fee', popular: true },
+  premium:  { name: 'Premium',  price: '$249 + state fee' },
+}
+
+const PACKAGE_SERVICES: Record<string, string[]> = {
+  basic: [
+    'Business Formation Filing',
+    'Name Availability Search',
+    'Florida Certificate of Formation',
+  ],
+  standard: [
+    'Business Formation Filing',
+    'Name Availability Search',
+    'Florida Certificate of Formation',
+    'EIN / Tax ID Number',
+    'Bank Account Guide',
+    'Registered Agent (1st year free)',
+  ],
+  premium: [
+    'Business Formation Filing',
+    'Name Availability Search',
+    'Florida Certificate of Formation',
+    'EIN / Tax ID Number',
+    'Bank Account Guide',
+    'Registered Agent (1st year free)',
+    'Operating Agreement',
+    'Expedited Filing (1–3 days)',
+    'ITIN Application',
+    'DBA / Fictitious Name',
+    'Articles of Amendment',
+  ],
+}
+
+function parseAddons(raw: unknown): Record<string, unknown> {
+  if (!raw) return {}
+  if (typeof raw === 'string') { try { return JSON.parse(raw) } catch { return {} } }
+  if (typeof raw === 'object' && !Array.isArray(raw)) return raw as Record<string, unknown>
+  return {}
 }
 
 async function getOrder(id: string): Promise<Order | null> {
@@ -331,6 +375,77 @@ export default async function ClientDashboardPage() {
         .status-pill.filed         { background: #dbeafe; color: #1e40af; }
         .status-pill.approved      { background: #d1fae5; color: #065f46; }
         .status-pill.completed     { background: #d1fae5; color: #065f46; }
+
+        /* Package & Services */
+        .pkg-name {
+          font-size: 22px;
+          font-weight: 800;
+          color: #1a1a2e;
+        }
+        .pkg-price {
+          font-size: 14px;
+          color: #6b7280;
+          font-weight: 600;
+          margin-top: 2px;
+          margin-bottom: 16px;
+        }
+        .pkg-popular {
+          display: inline-block;
+          background: #4f46e5;
+          color: #fff;
+          font-size: 11px;
+          font-weight: 700;
+          padding: 2px 9px;
+          border-radius: 999px;
+          margin-left: 10px;
+          vertical-align: middle;
+        }
+        .pkg-speed-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          background: #dcfce7;
+          color: #16a34a;
+          border-radius: 8px;
+          padding: 7px 14px;
+          font-size: 13px;
+          font-weight: 700;
+          margin-bottom: 18px;
+        }
+        .pkg-sublabel {
+          font-size: 11px;
+          font-weight: 700;
+          color: #9ca3af;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          margin-bottom: 10px;
+        }
+        .pkg-services {
+          list-style: none;
+          padding: 0;
+          margin: 0 0 18px;
+          display: flex;
+          flex-direction: column;
+          gap: 7px;
+        }
+        .pkg-services li {
+          display: flex;
+          align-items: center;
+          gap: 9px;
+          font-size: 14px;
+          color: #374151;
+        }
+        .pkg-services li .chk { color: #16a34a; font-weight: 700; }
+        .pkg-services li .addon-chk { color: #6d28d9; font-weight: 700; }
+        .pkg-active-badge {
+          background: #dcfce7;
+          color: #16a34a;
+          font-size: 11px;
+          font-weight: 700;
+          padding: 1px 8px;
+          border-radius: 999px;
+          margin-left: 4px;
+        }
       `}</style>
 
       <div className="cp-wrapper">
@@ -397,16 +512,6 @@ export default async function ClientDashboardPage() {
               <div className="detail-value">{order.entityType || 'LLC'}</div>
             </div>
             <div className="detail-item">
-              <div className="detail-label">Package</div>
-              <div className="detail-value">{order.package || '—'}</div>
-            </div>
-            <div className="detail-item">
-              <div className="detail-label">Amount</div>
-              <div className="detail-value">
-                ${(order.amount ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
-              </div>
-            </div>
-            <div className="detail-item">
               <div className="detail-label">Order Date</div>
               <div className="detail-value">
                 {new Date(order.createdAt).toLocaleDateString('en-US', {
@@ -420,6 +525,66 @@ export default async function ClientDashboardPage() {
             </div>
           </div>
         </div>
+
+        {/* Package & Services */}
+        {(() => {
+          const pkgKey = (order.package ?? '').toLowerCase()
+          const pkgInfo = PACKAGE_INFO[pkgKey]
+          const services = PACKAGE_SERVICES[pkgKey] ?? []
+          const addons = parseAddons(order.addons)
+          const addonItems: { key: string; label: string }[] = [
+            { key: 'ein',  label: 'EIN / Tax ID' },
+            { key: 'oa',   label: 'Operating Agreement' },
+            { key: 'itin', label: 'ITIN Application' },
+            { key: 'ar',   label: 'Annual Report Filing' },
+          ]
+          const activeAddons = addonItems.filter(a => addons[a.key])
+          return (
+            <div className="cp-card">
+              <h2>Your Package &amp; Services</h2>
+              <div>
+                <span className="pkg-name">{pkgInfo?.name ?? order.package}</span>
+                {pkgInfo?.popular && <span className="pkg-popular">Most Popular</span>}
+              </div>
+              <div className="pkg-price">{pkgInfo?.price}</div>
+
+              {order.speed === 'expedited' && (
+                <div className="pkg-speed-badge">⚡ Priority Processing (1–3 days)</div>
+              )}
+
+              {services.length > 0 && (
+                <>
+                  <div className="pkg-sublabel">Included Services</div>
+                  <ul className="pkg-services">
+                    {services.map(s => (
+                      <li key={s}>
+                        <span className="chk">✓</span>
+                        {s}
+                        {s === 'Expedited Filing (1–3 days)' && order.speed === 'expedited' && (
+                          <span className="pkg-active-badge">ACTIVE</span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
+
+              {activeAddons.length > 0 && (
+                <>
+                  <div className="pkg-sublabel">Add-ons</div>
+                  <ul className="pkg-services">
+                    {activeAddons.map(a => (
+                      <li key={a.key}>
+                        <span className="addon-chk">✓</span>
+                        {a.label}
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
+            </div>
+          )
+        })()}
       </div>
     </>
   )
