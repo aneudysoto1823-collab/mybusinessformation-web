@@ -499,9 +499,9 @@ export default function OrderDetailPage() {
                   </div>
                 ))}
               </div>
-              {addons.raInfo && (
+              {typeof addons.raInfo === 'string' && addons.raInfo && (
                 <div style={{ marginTop: '14px' }}>
-                  <Field label="Info RA / ITIN" value={addons.raInfo as string} />
+                  <Field label="Info RA / ITIN" value={addons.raInfo} />
                 </div>
               )}
             </Section>
