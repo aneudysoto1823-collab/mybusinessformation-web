@@ -3894,9 +3894,10 @@ function fmGoToStep(n) {
   fmUpdateProgress();
   fmUpdateSummary();
   if(n === 4) fmBuildUpgradeCards();
-  
+
   if(n === 7) fmFilterAddons();
   if(n === 8) fmBuildReview();
+  history.pushState({ fmStep: n }, '', window.location.pathname);
   window.scrollTo(0, 0);
   var overlay = document.getElementById('formOverlay');
   if(overlay) overlay.scrollTo(0, 0);
@@ -4643,6 +4644,7 @@ function openForm() {
   var overlay = document.getElementById('formOverlay');
   if(overlay) overlay.classList.add('active');
   document.body.style.overflow = 'hidden';
+  history.pushState({ fmStep: 1 }, '', window.location.pathname);
   fmGoToStep(1);
   fmUpdateSummary();
   // Initialize dynamic address fields with default country (US)
@@ -4667,6 +4669,20 @@ function closeForm() {
   if(overlay) overlay.classList.remove('active');
   document.body.style.overflow = '';
 }
+
+window.addEventListener('popstate', function(e) {
+  var overlay = document.getElementById('formOverlay');
+  var isOpen = overlay && overlay.classList.contains('active');
+  if(e.state && typeof e.state.fmStep === 'number') {
+    if(!isOpen) {
+      overlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    fmGoToStep(e.state.fmStep);
+  } else if(isOpen) {
+    closeForm();
+  }
+});
 
 // ═══════════════════════════════════════════════════════
 // TRANSLATIONS (basic form content)
