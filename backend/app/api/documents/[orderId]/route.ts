@@ -13,9 +13,9 @@ const VALID_FILES: Record<string, string> = {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { orderId: string } }
+  { params }: { params: Promise<{ orderId: string }> }
 ) {
-  const { orderId } = params
+  const { orderId } = await params
 
   // Verify client session belongs to this order
   const cookieStore = await cookies()
