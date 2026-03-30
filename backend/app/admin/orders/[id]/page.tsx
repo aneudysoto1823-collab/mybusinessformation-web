@@ -401,21 +401,126 @@ export default function OrderDetailPage() {
             <Field label="Nombre 2" value={order.companyName2} />
             <Field label="Nombre 3" value={order.companyName3} />
             <Field label="Tipo de entidad" value={order.entityType} />
-            <Field label="Paquete" value={order.package} />
-            <Field label="Monto" value={order.amount ? `$${order.amount.toFixed(2)} ${order.currency}` : undefined} />
+          </div>
+        </Section>
+
+        {/* Paquete y Pago */}
+        <Section title="Paquete y Pago">
+          <div className="grid-2">
+            <Field label="Paquete" value={order.package ? order.package.charAt(0).toUpperCase() + order.package.slice(1) : undefined} />
+            <Field label="Monto" value={order.amount ? `$${order.amount.toFixed(2)} ${order.currency ?? 'USD'}` : undefined} />
             <Field label="Tramitación" value={order.speed} />
-            <Field label="Agente Registrado" value={order.registeredAgent} />
+            <Field label="Estado del pago" value={order.paymentStatus} />
+            <Field label="Stripe Payment ID" value={order.stripePaymentId} />
+          </div>
+        </Section>
+
+        {/* Agente Registrado */}
+        <Section title="Agente Registrado">
+          <div className="grid-2">
+            <Field
+              label="Agente"
+              value={
+                order.registeredAgent === 'us' ? 'Nuestro servicio (incluido)' :
+                order.registeredAgent === 'own' ? 'Agente propio' :
+                order.registeredAgent
+              }
+            />
             <Field label="Dirección comercial" value={order.businessAddress} />
           </div>
         </Section>
+
+        {/* Miembros / Organizers */}
+        {(() => {
+          let members: Array<{
+            type?: string
+            firstName?: string
+            lastName?: string
+            title?: string
+            ownership?: number
+            useCompanyAddress?: boolean
+            address?: string
+          }> = []
+          try { members = JSON.parse(order.members as string) } catch { /* noop */ }
+          if (!Array.isArray(members) && order.members && typeof order.members === 'object') {
+            members = order.members as typeof members
+          }
+          return Array.isArray(members) && members.length > 0 ? (
+            <Section title="Miembros / Organizers">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                {members.map((m, i) => (
+                  <div key={i} style={{
+                    background: '#f8fafc', border: '1px solid #e5e7eb',
+                    borderRadius: '8px', padding: '14px 18px',
+                  }}>
+                    <div style={{ fontSize: '12px', fontWeight: 700, color: '#6d28d9', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: '10px' }}>
+                      {m.type === 'organizer' ? 'Organizer' : 'Member'} #{i + 1}
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                      <Field label="Nombre" value={`${m.firstName ?? ''} ${m.lastName ?? ''}`.trim() || undefined} />
+                      <Field label="Título" value={m.title} />
+                      {m.ownership != null && (
+                        <Field label="% de propiedad" value={`${m.ownership}%`} />
+                      )}
+                      <Field
+                        label="Dirección"
+                        value={m.useCompanyAddress ? 'Usa dirección de la empresa' : m.address}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Section>
+          ) : null
+        })()}
+
+        {/* Add-ons */}
+        {(() => {
+          let addons: Record<string, unknown> = {}
+          try { addons = JSON.parse(order.addons as string) } catch { /* noop */ }
+          if (order.addons && typeof order.addons === 'object' && !Array.isArray(order.addons)) {
+            addons = order.addons as Record<string, unknown>
+          }
+          const addonList: { key: string; label: string }[] = [
+            { key: 'ein',  label: 'EIN / Tax ID' },
+            { key: 'oa',   label: 'Operating Agreement' },
+            { key: 'itin', label: 'ITIN Application' },
+            { key: 'ar',   label: 'Annual Report' },
+          ]
+          return (
+            <Section title="Add-ons">
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: addons.raInfo ? '16px' : '0' }}>
+                {addonList.map(({ key, label }) => (
+                  <div key={key} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <span style={{ fontSize: '16px' }}>{addons[key] ? '✅' : '—'}</span>
+                    <span style={{ fontSize: '14px', color: addons[key] ? '#111827' : '#9ca3af', fontWeight: addons[key] ? 600 : 400 }}>
+                      {label}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              {addons.raInfo && (
+                <div style={{ marginTop: '14px' }}>
+                  <Field label="Info RA / ITIN" value={addons.raInfo as string} />
+                </div>
+              )}
+            </Section>
+          )
+        })()}
+
+        {/* Firma */}
+        {order.orgSignature && (
+          <Section title="Firma">
+            <Field label="Firma del Organizador" value={order.orgSignature} />
+          </Section>
+        )}
 
         {/* Estado y pago */}
         <Section title="Estado y Pago">
           <div className="grid-2">
             <Field label="Estado de la orden" value={order.status} />
-            <Field label="Estado del pago" value={order.paymentStatus} />
-            <Field label="Stripe Payment ID" value={order.stripePaymentId} />
             <Field label="Fecha de creación" value={new Date(order.createdAt).toLocaleString('en-US')} />
+            <Field label="Última actualización" value={order.updatedAt ? new Date(order.updatedAt).toLocaleString('en-US') : undefined} />
           </div>
         </Section>
 
