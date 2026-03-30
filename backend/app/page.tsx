@@ -3897,7 +3897,7 @@ function fmGoToStep(n) {
 
   if(n === 7) fmFilterAddons();
   if(n === 8) fmBuildReview();
-  history.pushState({ fmStep: n }, '', window.location.pathname);
+  if(!_fmRestoring) history.pushState({ fmStep: n }, '', window.location.pathname);
   window.scrollTo(0, 0);
   var overlay = document.getElementById('formOverlay');
   if(overlay) overlay.scrollTo(0, 0);
@@ -4670,6 +4670,7 @@ function closeForm() {
   document.body.style.overflow = '';
 }
 
+var _fmRestoring = false;
 window.addEventListener('popstate', function(e) {
   var overlay = document.getElementById('formOverlay');
   var isOpen = overlay && overlay.classList.contains('active');
@@ -4678,7 +4679,9 @@ window.addEventListener('popstate', function(e) {
       overlay.classList.add('active');
       document.body.style.overflow = 'hidden';
     }
+    _fmRestoring = true;
     fmGoToStep(e.state.fmStep);
+    _fmRestoring = false;
   } else if(isOpen) {
     closeForm();
   }
