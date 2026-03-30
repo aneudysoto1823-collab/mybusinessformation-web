@@ -6,6 +6,7 @@ import Link from 'next/link'
 export interface Order {
   id: string
   createdAt: string
+  updatedAt: string
   firstName: string
   lastName: string
   email: string
@@ -44,6 +45,8 @@ const PAYMENT_BADGE: Record<string, { label: string; bg: string; color: string }
   refunded: { label: 'Reembolso', bg: '#ffedd5', color: '#c2410c' },
 }
 
+const PKG_ORDER: Record<string, number> = { basic: 0, standard: 1, premium: 2 }
+
 function Badge({ map, value }: { map: Record<string, { label: string; bg: string; color: string }>; value: string }) {
   const b = map[value] ?? { label: value, bg: '#f3f4f6', color: '#374151' }
   return (
@@ -57,27 +60,69 @@ function Badge({ map, value }: { map: Record<string, { label: string; bg: string
   )
 }
 
+function isStale(order: Order): boolean {
+  if (order.status === 'completed' || order.status === 'approved') return false
+  if (!order.updatedAt) return false
+  return Date.now() - new Date(order.updatedAt).getTime() > 24 * 60 * 60 * 1000
+}
+
 export default function OrdersTable({ orders }: { orders: Order[] }) {
   const [activeTab, setActiveTab] = useState('all')
+  const [sortBy, setSortBy] = useState('newest')
+  const [pkgFilter, setPkgFilter] = useState('all')
 
   const countFor = (key: string) =>
     key === 'all' ? orders.length : orders.filter(o => o.status === key).length
 
-  const visible = activeTab === 'all'
-    ? orders
+  let visible = activeTab === 'all'
+    ? [...orders]
     : orders.filter(o => o.status === activeTab)
+
+  if (pkgFilter !== 'all') {
+    visible = visible.filter(o => o.package === pkgFilter)
+  }
+
+  visible.sort((a, b) => {
+    switch (sortBy) {
+      case 'oldest':  return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      case 'amount_desc': return (b.amount ?? 0) - (a.amount ?? 0)
+      case 'amount_asc':  return (a.amount ?? 0) - (b.amount ?? 0)
+      case 'package': return (PKG_ORDER[a.package] ?? 0) - (PKG_ORDER[b.package] ?? 0)
+      default:        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    }
+  })
 
   return (
     <>
       <style>{`
+        .controls-bar {
+          display: flex;
+          gap: 10px;
+          padding: 16px 24px 12px;
+          background: #fff;
+          border-bottom: 1px solid #f1f5f9;
+          flex-wrap: wrap;
+        }
+        .ctrl-select {
+          padding: 7px 12px;
+          border: 1.5px solid #e5e7eb;
+          border-radius: 7px;
+          font-size: 13px;
+          font-family: inherit;
+          color: #374151;
+          background: #fff;
+          cursor: pointer;
+          outline: none;
+          transition: border-color 0.15s;
+        }
+        .ctrl-select:focus { border-color: #4f46e5; }
+
         .tabs {
           display: flex;
           flex-wrap: wrap;
           gap: 4px;
-          margin-bottom: 0;
-          padding: 16px 24px 0;
+          padding: 12px 24px 0;
           background: #fff;
-          border-radius: 10px 10px 0 0;
           border-bottom: 1px solid #f1f5f9;
         }
         .tab-btn {
@@ -137,12 +182,55 @@ export default function OrdersTable({ orders }: { orders: Order[] }) {
           white-space: nowrap;
         }
         tr:hover td { background: #f8fafc; }
+        .link-fbfc {
+          color: #4f46e5; font-weight: 700; text-decoration: none;
+          font-size: 12px; font-family: monospace; cursor: pointer;
+        }
+        .link-fbfc:hover { text-decoration: underline; }
         .link-ver { color: #4f46e5; font-weight: 600; text-decoration: none; font-size: 13px; }
         .link-ver:hover { text-decoration: underline; }
+        .badge-stale {
+          display: inline-block;
+          background: #fef2f2;
+          color: #b91c1c;
+          border: 1px solid #fecaca;
+          border-radius: 6px;
+          font-size: 11px;
+          font-weight: 700;
+          padding: 2px 6px;
+          margin-left: 6px;
+          white-space: nowrap;
+        }
         .empty { padding: 40px; text-align: center; color: #9ca3af; font-size: 14px; background: #fff; border-radius: 0 0 10px 10px; }
       `}</style>
 
       <div>
+        {/* Controles de ordenamiento y filtro */}
+        <div className="controls-bar">
+          <select
+            className="ctrl-select"
+            value={sortBy}
+            onChange={e => setSortBy(e.target.value)}
+          >
+            <option value="newest">Más recientes primero</option>
+            <option value="oldest">Más antiguas primero</option>
+            <option value="amount_desc">Mayor monto</option>
+            <option value="amount_asc">Menor monto</option>
+            <option value="package">Por paquete (Basic → Premium)</option>
+          </select>
+          <select
+            className="ctrl-select"
+            value={pkgFilter}
+            onChange={e => setPkgFilter(e.target.value)}
+          >
+            <option value="all">Todos los paquetes</option>
+            <option value="basic">Basic</option>
+            <option value="standard">Standard</option>
+            <option value="premium">Premium</option>
+          </select>
+        </div>
+
+        {/* Tabs de estado */}
         <div className="tabs">
           {TABS.map(tab => (
             <button
@@ -177,8 +265,10 @@ export default function OrdersTable({ orders }: { orders: Order[] }) {
               <tbody>
                 {visible.map(order => (
                   <tr key={order.id}>
-                    <td style={{ fontFamily: 'monospace', fontSize: '12px', fontWeight: 700, color: '#4f46e5' }}>
-                      {'FBFC-' + order.id.replace(/-/g, '').substring(0, 8).toUpperCase()}
+                    <td>
+                      <Link href={`/admin/orders/${order.id}`} className="link-fbfc">
+                        {'FBFC-' + order.id.replace(/-/g, '').substring(0, 8).toUpperCase()}
+                      </Link>
                     </td>
                     <td>
                       <div style={{ fontWeight: 600 }}>{order.firstName} {order.lastName}</div>
@@ -188,7 +278,10 @@ export default function OrdersTable({ orders }: { orders: Order[] }) {
                     <td style={{ textTransform: 'capitalize' }}>{order.package}</td>
                     <td>${(order.amount ?? 0).toFixed(2)}</td>
                     <td><Badge map={PAYMENT_BADGE} value={order.paymentStatus} /></td>
-                    <td><Badge map={STATUS_BADGE} value={order.status} /></td>
+                    <td>
+                      <Badge map={STATUS_BADGE} value={order.status} />
+                      {isStale(order) && <span className="badge-stale">⚠️ +24h</span>}
+                    </td>
                     <td style={{ color: '#9ca3af' }}>
                       {new Date(order.createdAt).toLocaleDateString('en-US')}
                     </td>

@@ -75,3 +75,4 @@ ADMIN_PASSWORD=tuPasswordSeguro
 ## Historial
 - 2026-03-27: Inicio construcción del panel de admin
 - 2026-03-27: Etapa 8 completada — panel de admin funcionando en producción. Railway conectado a Supabase usando pooler aws-1-us-east-1 puerto 6543. URL del panel: https://mybusinessformation-web.vercel.app/admin
+- 2026-03-30: Mejoras al panel — (1) número FBFC clickeable en tabla, (2) dropdowns de ordenamiento (más recientes, más antiguas, mayor/menor monto, por paquete) y filtro por paquete (Basic/Standard/Premium), (3) badge ⚠️ +24h en tabla y aviso en detalle cuando una orden activa lleva más de 24h sin actualizar

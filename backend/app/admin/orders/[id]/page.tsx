@@ -283,6 +283,11 @@ export default function OrderDetailPage() {
 
   const availableCount = checkResults.filter(r => r.available).length
 
+  const isStale = order.updatedAt
+    && order.status !== 'completed'
+    && order.status !== 'approved'
+    && Date.now() - new Date(order.updatedAt).getTime() > 24 * 60 * 60 * 1000
+
   return (
     <>
       <style>{`
@@ -345,6 +350,18 @@ export default function OrderDetailPage() {
       `}</style>
 
       <div className="wrapper">
+        {/* Alerta de inactividad +24h */}
+        {isStale && (
+          <div style={{
+            background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '10px',
+            padding: '12px 20px', marginBottom: '20px',
+            fontSize: '13px', fontWeight: 600, color: '#b91c1c',
+            display: 'flex', alignItems: 'center', gap: '8px',
+          }}>
+            ⚠️ This order has not been updated in more than 24 hours.
+          </div>
+        )}
+
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '28px' }}>
           <div>
