@@ -7,6 +7,7 @@ const BACKEND_URL =
 interface Order {
   id: string
   createdAt: string
+  updatedAt: string
   firstName: string
   lastName: string
   email: string
