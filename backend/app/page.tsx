@@ -3897,7 +3897,10 @@ function fmGoToStep(n) {
 
   if(n === 7) fmFilterAddons();
   if(n === 8) fmBuildReview();
-  if(!_fmRestoring) history.pushState({ fmStep: n }, '', window.location.pathname);
+  if(!_fmRestoring) {
+    history.pushState({ fmStep: n }, '', window.location.pathname);
+    fmSaveProgress();
+  }
   window.scrollTo(0, 0);
   var overlay = document.getElementById('formOverlay');
   if(overlay) overlay.scrollTo(0, 0);
@@ -4526,6 +4529,7 @@ async function fmSubmit() {
     });
     var data = await res.json();
     if(res.ok && data.success) {
+      fmClearProgress();
       var orderId = data.orderId || null;
       generateOrderNumber(orderId);
       var numEl = document.getElementById('finalOrderNum');
@@ -4669,6 +4673,106 @@ function closeForm() {
   if(overlay) overlay.classList.remove('active');
   document.body.style.overflow = '';
 }
+
+// ═══════════════════════════════════════════════════════
+// LOCAL STORAGE — guardar y restaurar progreso del formulario
+// ═══════════════════════════════════════════════════════
+var FM_STORAGE_KEY = 'mbf_form_progress';
+
+var FM_FIELD_IDS = [
+  'inp-bizname','inp-designator','inp-bizname2','inp-designator2','inp-bizname3','inp-designator3',
+  'inp-fname','inp-lname','inp-email','inp-email-confirm','inp-phone','inp-phone-country',
+  'inp-addr','inp-street2','inp-city','inp-state','inp-zip','inp-biz-country',
+  'inp-org-sig','inp-ra-name','inp-ra-street','inp-ra-street2','inp-ra-city','inp-ra-state','inp-ra-zip','inp-ra-sig'
+];
+
+function fmSaveProgress() {
+  if(fmCurrentStep < 2) return; // nothing meaningful to save at step 1
+  var values = {};
+  FM_FIELD_IDS.forEach(function(id) {
+    var el = document.getElementById(id);
+    if(el) values[id] = el.value;
+  });
+  try {
+    localStorage.setItem(FM_STORAGE_KEY, JSON.stringify({
+      step: fmCurrentStep,
+      fmData: JSON.parse(JSON.stringify(fmData)),
+      values: values
+    }));
+  } catch(e) {}
+}
+
+function fmClearProgress() {
+  try { localStorage.removeItem(FM_STORAGE_KEY); } catch(e) {}
+}
+
+function fmRestoreProgress(progress) {
+  if(progress.fmData) Object.assign(fmData, progress.fmData);
+  var overlay = document.getElementById('formOverlay');
+  if(overlay) overlay.classList.add('active');
+  document.body.style.overflow = 'hidden';
+  _fmRestoring = true;
+  fmGoToStep(progress.step || 1);
+  _fmRestoring = false;
+  setTimeout(function() {
+    if(progress.values) {
+      Object.keys(progress.values).forEach(function(id) {
+        var el = document.getElementById(id);
+        if(el) el.value = progress.values[id];
+      });
+    }
+    fmUpdateSummary();
+  }, 50);
+}
+
+function fmShowResumeBanner(progress) {
+  if(document.getElementById('fm-resume-banner')) return;
+  var banner = document.createElement('div');
+  banner.id = 'fm-resume-banner';
+  banner.style.cssText = [
+    'position:fixed','top:0','left:0','right:0','z-index:9999',
+    'background:#1C2E44','color:#fff','padding:14px 24px',
+    'display:flex','align-items:center','justify-content:center',
+    'gap:16px','flex-wrap:wrap','font-family:Plus Jakarta Sans,sans-serif',
+    'font-size:14px','box-shadow:0 2px 12px rgba(0,0,0,0.25)'
+  ].join(';');
+  var stepName = (fmStepTitles && fmStepTitles[progress.step - 1]) ? fmStepTitles[progress.step - 1] : ('Step ' + progress.step);
+  banner.innerHTML =
+    '<span style="font-weight:500">📋 You have an unfinished application <strong style="color:#F59E0B">(' + stepName + ')</strong>. Continue where you left off?</span>' +
+    '<div style="display:flex;gap:8px">' +
+      '<button onclick="fmResumeContinue()" style="background:#059669;color:#fff;border:none;border-radius:7px;padding:8px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Continue</button>' +
+      '<button onclick="fmResumeStartOver()" style="background:transparent;color:#94a3b8;border:1px solid #475569;border-radius:7px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Start Over</button>' +
+    '</div>';
+  document.body.appendChild(banner);
+}
+
+var _fmPendingResume = null;
+
+function fmResumeContinue() {
+  var banner = document.getElementById('fm-resume-banner');
+  if(banner) banner.remove();
+  if(_fmPendingResume) fmRestoreProgress(_fmPendingResume);
+  _fmPendingResume = null;
+}
+
+function fmResumeStartOver() {
+  var banner = document.getElementById('fm-resume-banner');
+  if(banner) banner.remove();
+  fmClearProgress();
+  _fmPendingResume = null;
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  try {
+    var raw = localStorage.getItem(FM_STORAGE_KEY);
+    if(!raw) return;
+    var progress = JSON.parse(raw);
+    if(progress && progress.step >= 2) {
+      _fmPendingResume = progress;
+      fmShowResumeBanner(progress);
+    }
+  } catch(e) {}
+});
 
 var _fmRestoring = false;
 window.addEventListener('popstate', function(e) {
