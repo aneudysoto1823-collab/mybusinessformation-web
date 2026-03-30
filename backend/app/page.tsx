@@ -4762,7 +4762,7 @@ function fmResumeStartOver() {
   _fmPendingResume = null;
 }
 
-(function() {
+function fmCheckProgress() {
   try {
     var raw = localStorage.getItem(FM_STORAGE_KEY);
     if(!raw) return;
@@ -4772,7 +4772,8 @@ function fmResumeStartOver() {
       fmShowResumeBanner(progress);
     }
   } catch(e) {}
-})();
+}
+fmCheckProgress();
 
 var _fmRestoring = false;
 window.addEventListener('popstate', function(e) {
