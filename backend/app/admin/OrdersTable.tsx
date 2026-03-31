@@ -70,6 +70,7 @@ export default function OrdersTable({ orders }: { orders: Order[] }) {
   const [activeTab, setActiveTab] = useState('all')
   const [sortBy, setSortBy] = useState('newest')
   const [pkgFilter, setPkgFilter] = useState('all')
+  const [search, setSearch] = useState('')
 
   const countFor = (key: string) =>
     key === 'all' ? orders.length : orders.filter(o => o.status === key).length
@@ -80,6 +81,16 @@ export default function OrdersTable({ orders }: { orders: Order[] }) {
 
   if (pkgFilter !== 'all') {
     visible = visible.filter(o => o.package === pkgFilter)
+  }
+
+  if (search.trim()) {
+    const q = search.trim().toLowerCase()
+    visible = visible.filter(o => {
+      const fbfc = ('FBFC-' + o.id.replace(/-/g, '').substring(0, 8)).toLowerCase()
+      const name = `${o.firstName} ${o.lastName}`.toLowerCase()
+      const email = (o.email ?? '').toLowerCase()
+      return fbfc.includes(q) || name.includes(q) || email.includes(q)
+    })
   }
 
   visible.sort((a, b) => {
@@ -202,6 +213,59 @@ export default function OrdersTable({ orders }: { orders: Order[] }) {
           white-space: nowrap;
         }
         .empty { padding: 40px; text-align: center; color: #9ca3af; font-size: 14px; background: #fff; border-radius: 0 0 10px 10px; }
+
+        .search-bar {
+          padding: 14px 24px;
+          background: #fff;
+          border-bottom: 1px solid #f1f5f9;
+        }
+        .search-wrap {
+          position: relative;
+          max-width: 420px;
+        }
+        .search-input {
+          width: 100%;
+          padding: 9px 36px 9px 36px;
+          border: 1.5px solid #e5e7eb;
+          border-radius: 8px;
+          font-size: 14px;
+          font-family: inherit;
+          color: #111827;
+          background: #f9fafb;
+          outline: none;
+          transition: border-color 0.15s, background 0.15s;
+          box-sizing: border-box;
+        }
+        .search-input:focus { border-color: #4f46e5; background: #fff; }
+        .search-icon {
+          position: absolute;
+          left: 11px;
+          top: 50%;
+          transform: translateY(-50%);
+          color: #9ca3af;
+          font-size: 15px;
+          pointer-events: none;
+        }
+        .search-clear {
+          position: absolute;
+          right: 8px;
+          top: 50%;
+          transform: translateY(-50%);
+          background: #e5e7eb;
+          border: none;
+          border-radius: 999px;
+          width: 20px;
+          height: 20px;
+          font-size: 12px;
+          cursor: pointer;
+          color: #6b7280;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-family: inherit;
+          line-height: 1;
+        }
+        .search-clear:hover { background: #d1d5db; color: #111827; }
       `}</style>
 
       <div>
@@ -230,6 +294,23 @@ export default function OrdersTable({ orders }: { orders: Order[] }) {
           </select>
         </div>
 
+        {/* Buscador */}
+        <div className="search-bar">
+          <div className="search-wrap">
+            <span className="search-icon">🔍</span>
+            <input
+              className="search-input"
+              type="text"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Search by order number, client name or email..."
+            />
+            {search && (
+              <button className="search-clear" onClick={() => setSearch('')}>✕</button>
+            )}
+          </div>
+        </div>
+
         {/* Tabs de estado */}
         <div className="tabs">
           {TABS.map(tab => (
@@ -245,7 +326,12 @@ export default function OrdersTable({ orders }: { orders: Order[] }) {
         </div>
 
         {visible.length === 0 ? (
-          <div className="empty">No hay órdenes en este estado.</div>
+          <div className="empty">
+            {search.trim()
+              ? `No orders found matching your search "${search.trim()}"`
+              : 'No hay órdenes en este estado.'
+            }
+          </div>
         ) : (
           <div className="table-wrap">
             <table>
