@@ -69,6 +69,36 @@ El sistema envía 4 emails en total: 3 al cliente y 1 al administrador. Los emai
 - `backend/modules/notifications/notifications.route.ts` — rutas Express
 - `backend/modules/orders/orders.controller.ts` — donde se dispara Email 1 al crear orden
 
+## Sistema de Unsubscribe
+
+### Página de unsubscribe
+- **URL:** `/unsubscribe?email={email}`
+- **Archivo:** `backend/app/unsubscribe/page.tsx`
+- Muestra el email del cliente y pide confirmación
+- Botón "Yes, unsubscribe me" → hace POST a `/api/unsubscribe`
+- Botón "Keep receiving updates" → regresa al home
+- Muestra confirmación al completar o mensaje de error
+
+### Endpoint de unsubscribe
+- **Ruta:** `POST /api/unsubscribe`
+- **Archivo:** `backend/app/api/unsubscribe/route.ts`
+- Recibe `{ email }` y marca `unsubscribed = true` en todas las órdenes con ese email
+- Usa `prisma.order.updateMany` para cubrir clientes con múltiples órdenes
+
+### Campo en base de datos
+- `unsubscribed Boolean @default(false)` en el modelo `Order`
+
+### Lógica de envío
+- `sendOrderConfirmation` → **SIEMPRE** se envía (confirmación transaccional crítica)
+- `sendAllNamesTaken` → verifica `order.unsubscribed` antes de enviar; si es `true` retorna `{ success: false, reason: 'unsubscribed' }`
+- `sendCertificateDelivery` → verifica `order.unsubscribed` antes de enviar; si es `true` retorna `{ success: false, reason: 'unsubscribed' }`
+
+### Footer en todos los emails
+Todos los emails al cliente incluyen al pie:
+- Texto: "This is a transactional email related to your order with MyBusinessFormation.com"
+- Contacto: support@mybusinessformation.com
+- Link de unsubscribe con el email del cliente pre-llenado via `encodeURIComponent`
+
 ## TODO futuro
 - [ ] Verificar dominio `mybusinessformation.com` en Resend → cambiar `FROM_EMAIL`
 - [ ] Adjuntar PDF del Certificate en Email 4

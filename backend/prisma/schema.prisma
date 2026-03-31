@@ -41,4 +41,6 @@ model Order {
   // Estados válidos: pending | in_review | names_taken | ready_to_file | filed | approved | completed
   status          String    @default("pending")
   notes           String?
+
+  unsubscribed    Boolean   @default(false)
 }

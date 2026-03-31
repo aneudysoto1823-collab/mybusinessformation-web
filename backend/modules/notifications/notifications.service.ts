@@ -6,7 +6,19 @@ const getResend = () => new Resend(process.env.RESEND_API_KEY)
 const FROM_EMAIL = 'onboarding@resend.dev'
 const INTERNAL_EMAIL = 'aneurysoto@gmail.com'
 
+function unsubscribeFooter(email: string): string {
+  return `
+    <hr style="border: none; border-top: 1px solid #eee; margin: 32px 0;">
+    <p style="font-size: 12px; color: #888; text-align: center; margin: 0;">
+      This is a transactional email related to your order with MyBusinessFormation.com.<br>
+      If you have questions contact us at support@mybusinessformation.com<br>
+      <a href="https://mybusinessformation-web.vercel.app/unsubscribe?email=${encodeURIComponent(email)}" style="color: #888;">Unsubscribe</a>
+    </p>
+  `
+}
+
 // ── 1. Confirmación al cliente cuando su orden es recibida ───────────────────
+//    SIEMPRE se envía — es una confirmación transaccional crítica (no verifica unsubscribed)
 export const sendOrderConfirmation = async (order: {
   firstName: string
   lastName: string
@@ -51,10 +63,7 @@ export const sendOrderConfirmation = async (order: {
             Questions? Reach us on <a href="https://wa.me/1XXXXXXXXXX" style="color:#059669">WhatsApp</a> or
             reply to this email.
           </p>
-          <p style="margin-top:32px;color:#94a3b8;font-size:12px">
-            Florida Business Formation Center · mybusinessformation.com<br/>
-            This is a transactional email. We are a document preparation service, not a law firm.
-          </p>
+          ${unsubscribeFooter(order.email)}
         </div>
       </div>
     `
@@ -71,7 +80,12 @@ export const sendAllNamesTaken = async (order: {
   email: string
   names: [string, string, string]
   id: string
+  unsubscribed?: boolean
 }) => {
+  if (order.unsubscribed) {
+    return { success: false, reason: 'unsubscribed' }
+  }
+
   await Promise.all([
     // Email al cliente
     getResend().emails.send({
@@ -104,10 +118,7 @@ export const sendAllNamesTaken = async (order: {
               Need help choosing a name?
               <a href="https://wa.me/1XXXXXXXXXX" style="color:#059669">Chat with us on WhatsApp</a>
             </p>
-            <p style="margin-top:32px;color:#94a3b8;font-size:12px">
-              Florida Business Formation Center · mybusinessformation.com<br/>
-              This is a transactional email. We are a document preparation service, not a law firm.
-            </p>
+            ${unsubscribeFooter(order.email)}
           </div>
         </div>
       `
@@ -205,10 +216,7 @@ export const sendSuggestNames = async (order: {
             If you have questions or need help deciding,
             <a href="https://wa.me/1XXXXXXXXXX" style="color:#059669">chat with us on WhatsApp</a>.
           </p>
-          <p style="margin-top:32px;color:#94a3b8;font-size:12px">
-            Florida Business Formation Center · mybusinessformation.com<br/>
-            This is a transactional email. We are a document preparation service, not a law firm.
-          </p>
+          ${unsubscribeFooter(order.email)}
         </div>
       </div>
     `
@@ -221,7 +229,12 @@ export const sendCertificateDelivery = async (order: {
   email: string
   companyName: string
   id: string
+  unsubscribed?: boolean
 }) => {
+  if (order.unsubscribed) {
+    return { success: false, reason: 'unsubscribed' }
+  }
+
   await getResend().emails.send({
     from: FROM_EMAIL,
     to: order.email,
@@ -253,10 +266,7 @@ export const sendCertificateDelivery = async (order: {
           <p style="color:#475569;line-height:1.7">
             Thank you for trusting us with your business formation. We wish you great success!
           </p>
-          <p style="margin-top:32px;color:#94a3b8;font-size:12px">
-            Florida Business Formation Center · mybusinessformation.com<br/>
-            Order ID: ${order.id}
-          </p>
+          ${unsubscribeFooter(order.email)}
         </div>
       </div>
     `
