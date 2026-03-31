@@ -3,6 +3,41 @@
 ## Descripción
 Generación de documentos legales usando los datos que el cliente ya ingresó en el formulario de formación. El sistema es semi-manual: los documentos se pre-llenan automáticamente con los datos del cliente, y el equipo los revisa, envía al estado/IRS, y sube los finales aprobados.
 
+## Flujo de trabajo paso a paso
+
+**PASO 1 — Cliente llena el formulario y paga**
+El cliente ingresa todos sus datos: nombre, empresa, miembros, dirección, paquete, etc. Al pagar el sistema guarda todo en la base de datos automáticamente.
+
+**PASO 2 — Sistema crea la orden en el panel de admin**
+La orden aparece en el panel con status pending o in_review. El sistema ya tiene todos los datos del cliente guardados.
+
+**PASO 3 — Admin abre la orden en el panel**
+El admin entra al panel, busca la orden y la abre. Ve todos los datos del cliente y una sección llamada "Pre-filled Documents".
+
+**PASO 4 — Admin descarga los documentos pre-llenados**
+Según el paquete que compró el cliente, el sistema ya generó los documentos con los datos del cliente. El admin hace clic en el botón de descarga:
+- Basic → Articles of Organization + BOI Filing
+- Standard → todo lo anterior + EIN SS-4 + Operating Agreement
+- Premium → todo lo anterior + DBA + ITIN
+
+**PASO 5 — Admin revisa y envía al estado o IRS**
+El admin descarga el PDF, lo revisa, lo firma si es necesario y lo envía:
+- Articles of Organization → sunbiz.org (Estado de Florida)
+- EIN SS-4 → IRS por fax o online
+- BOI Filing → FinCEN online
+
+**PASO 6 — Admin recibe la respuesta del estado**
+Florida envía el Certificate of Formation aprobado. El IRS envía el EIN letter. El admin los recibe.
+
+**PASO 7 — Admin sube los documentos finales al sistema**
+El admin entra al panel, abre la orden y sube los PDFs aprobados a Supabase Storage. El sistema cambia el status a approved o completed.
+
+**PASO 8 — Sistema notifica al cliente**
+El sistema envía un email automático al cliente diciéndole que sus documentos están listos.
+
+**PASO 9 — Cliente descarga sus documentos**
+El cliente entra a su portal en /client-portal/dashboard, va a la sección "My Documents" y descarga sus documentos finales: Certificate of Formation, Operating Agreement, EIN Letter, etc.
+
 ## Flujo real de trabajo (semi-manual)
 
 ### Automático (sistema solo):
