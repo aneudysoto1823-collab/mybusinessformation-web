@@ -625,6 +625,71 @@ export default function OrderDetailPage() {
           </div>
         </Section>
 
+        {/* ── Pre-filled Documents ─────────────────────────────────────────── */}
+        {(() => {
+          let addons: Record<string, unknown> = {}
+          try { addons = JSON.parse(order.addons as string) } catch { /* noop */ }
+          if (order.addons && typeof order.addons === 'object' && !Array.isArray(order.addons)) {
+            addons = order.addons as Record<string, unknown>
+          }
+          const pkg = (order.package ?? '').toLowerCase()
+          const isStandard = pkg === 'standard' || pkg === 'premium'
+          const isPremium = pkg === 'premium'
+
+          const docs: { label: string; endpoint: string; color: string }[] = []
+
+          // Todos los paquetes
+          docs.push({ label: 'Articles of Organization', endpoint: 'articles-of-organization', color: '#4f46e5' })
+          docs.push({ label: 'BOI Filing (FinCEN)', endpoint: 'boi-filing', color: '#0f766e' })
+
+          // Standard y Premium
+          if (isStandard) {
+            docs.push({ label: 'EIN SS-4 (IRS)', endpoint: 'ein-ss4', color: '#1d4ed8' })
+            docs.push({ label: 'Operating Agreement', endpoint: 'operating-agreement', color: '#7c3aed' })
+          } else {
+            // Basic con add-ons
+            if (addons.ein) docs.push({ label: 'EIN SS-4 (IRS)', endpoint: 'ein-ss4', color: '#1d4ed8' })
+            if (addons.oa)  docs.push({ label: 'Operating Agreement', endpoint: 'operating-agreement', color: '#7c3aed' })
+          }
+
+          // Solo Premium
+          if (isPremium) {
+            docs.push({ label: 'DBA / Fictitious Name', endpoint: 'dba', color: '#b45309' })
+          }
+
+          return (
+            <Section title="📥 Pre-filled Documents">
+              <p style={{ fontSize: '13px', color: '#6b7280', marginBottom: '16px', lineHeight: 1.6 }}>
+                Documents pre-filled with client data. Download, review, and submit to the appropriate agency.
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {docs.map(({ label, endpoint, color }) => (
+                  <a
+                    key={endpoint}
+                    href={`${BACKEND_URL}/api/documents/${order.id}/${endpoint}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      padding: '11px 16px', borderRadius: '8px', textDecoration: 'none',
+                      background: '#f8fafc', border: '1.5px solid #e5e7eb',
+                      color: color, fontWeight: 600, fontSize: '14px',
+                    }}
+                  >
+                    <span>📄 {label}</span>
+                    <span style={{
+                      fontSize: '12px', background: color, color: '#fff',
+                      padding: '3px 10px', borderRadius: '999px',
+                    }}>
+                      ↓ Download PDF
+                    </span>
+                  </a>
+                ))}
+              </div>
+            </Section>
+          )
+        })()}
+
         {/* ── FUNC 5 — Gestión de Estado ─────────────────────────────────── */}
         <Section title="⚡ Gestión de Estado">
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>

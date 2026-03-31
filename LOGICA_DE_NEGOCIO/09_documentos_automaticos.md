@@ -85,21 +85,21 @@ En backend/app/client-portal/dashboard/page.tsx sección "My Documents":
 
 ## Estado
 - [x] Flujo real de trabajo documentado
-- [ ] Plantillas PDF base creadas para cada documento
-- [ ] Motor de generación con pdf-lib implementado
-- [ ] Sección "Documentos Pre-llenados" en panel de admin
-- [ ] Botones Download Pre-filled PDF por documento
-- [ ] Sección "My Documents" en portal del cliente
-- [ ] BOI Filing pre-llenado
-- [ ] Articles of Organization pre-llenado
-- [ ] EIN SS-4 pre-llenado
-- [ ] Operating Agreement pre-llenado
-- [ ] ITIN W-7 pre-llenado
-- [ ] DBA / Fictitious Name pre-llenado
+- [x] Motor de generación de PDFs implementado con pdf-lib
+- [x] Sección "Pre-filled Documents" en panel de admin
+- [x] Botones Download Pre-filled PDF por documento
+- [x] Articles of Organization pre-llenado
+- [x] BOI Filing pre-llenado
+- [x] EIN SS-4 pre-llenado
+- [x] Operating Agreement pre-llenado
+- [x] DBA / Fictitious Name pre-llenado
+- [ ] ITIN W-7 pre-llenado (pendiente — requiere formulario W-7 del IRS)
 - [ ] Annual Report pre-llenado
 - [ ] Upload de documentos finales por admin
 - [ ] Descarga de documentos finales por cliente
+- [ ] Sección "My Documents" en portal del cliente
 
 ## Historial
 - 2026-03-30: Documentación inicial de la etapa creada
 - 2026-03-31: Flujo real de trabajo documentado — sistema semi-manual con pre-llenado desde panel de admin
+- 2026-03-31: Motor de generación implementado con pdf-lib — 5 documentos operativos (Articles of Org, BOI, EIN SS-4, Operating Agreement, DBA)
