@@ -121,7 +121,16 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const session = request.cookies.get('admin_session')
+  if (!session?.value) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+  const { verifyAdminToken } = await import('@/lib/session')
+  if (!(await verifyAdminToken(session.value))) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   try {
     const { data: orders, error } = await getSupabaseAdmin()
       .from('Order')
@@ -130,8 +139,7 @@ export async function GET() {
 
     if (error) throw error
     return NextResponse.json(orders)
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error)
-    return NextResponse.json({ error: 'Error fetching orders', detail: message }, { status: 500 })
+  } catch {
+    return NextResponse.json({ error: 'Error fetching orders' }, { status: 500 })
   }
 }
