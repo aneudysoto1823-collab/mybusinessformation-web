@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { verifyAdminToken } from '@/lib/session'
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   if (pathname.startsWith('/admin')) {
     const session = request.cookies.get('admin_session')
-    if (!session) return NextResponse.redirect(new URL('/login', request.url))
+    if (!session?.value || !(await verifyAdminToken(session.value))) {
+      return NextResponse.redirect(new URL('/login', request.url))
+    }
   }
 
   if (pathname.startsWith('/client-portal/dashboard')) {
