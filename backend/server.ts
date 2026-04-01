@@ -1,4 +1,4 @@
-import express from 'express'
+import express, { Request, Response, NextFunction } from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
 import ordersRouter from './modules/orders/orders.route.ts'
@@ -13,21 +13,32 @@ dotenv.config()
 const app = express()
 const PORT = process.env.PORT || 4000
 
-app.use(cors())
+const ALLOWED_ORIGINS = [
+  'https://mybusinessformation-web.vercel.app',
+  ...(process.env.NODE_ENV !== 'production' ? ['http://localhost:3000'] : []),
+]
+
+app.use(cors({ origin: ALLOWED_ORIGINS, credentials: true }))
 app.use(express.json())
 
-app.get('/', (req, res) => {
+const requireApiKey = (req: Request, res: Response, next: NextFunction) => {
+  const apiKey = req.headers['x-api-key']
+  if (!apiKey || apiKey !== process.env.INTERNAL_API_KEY) {
+    res.status(401).json({ error: 'Unauthorized' })
+    return
+  }
+  next()
+}
+
+app.get('/', (_req, res) => {
   res.json({ message: 'MyBusinessFormation API corriendo correctamente' })
 })
 
-app.get('/health', (req, res) => {
-  res.json({
-    status: 'ok',
-    database: process.env.DATABASE_URL ? 'configurada' : 'no configurada',
-    stripe: process.env.STRIPE_SECRET_KEY ? 'configurado' : 'pendiente',
-    email: process.env.EMAIL_HOST ? 'configurado' : 'pendiente'
-  })
+app.get('/health', (_req, res) => {
+  res.json({ status: 'ok' })
 })
+
+app.use('/api', requireApiKey)
 
 app.use('/api/orders', ordersRouter)
 app.use('/api/clients', clientsRouter)

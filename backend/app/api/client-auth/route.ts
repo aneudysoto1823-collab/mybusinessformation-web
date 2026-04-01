@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-
-const BACKEND_URL =
-  process.env.BACKEND_URL ||
-  'https://mybusinessformation-web-production.up.railway.app'
+import { backendFetch } from '@/lib/backend'
 
 export async function POST(request: NextRequest) {
   const { email, confirmationNumber } = await request.json()
@@ -19,7 +16,7 @@ export async function POST(request: NextRequest) {
   const idPrefix = match[1].toLowerCase()
 
   try {
-    const res = await fetch(`${BACKEND_URL}/api/orders`, { cache: 'no-store' })
+    const res = await backendFetch('/api/orders', { cache: 'no-store' })
     if (!res.ok) {
       return NextResponse.json({ error: 'Service unavailable' }, { status: 503 })
     }

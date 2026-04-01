@@ -1,10 +1,7 @@
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { getSupabaseAdmin } from '@/lib/supabase'
-
-const BACKEND_URL =
-  process.env.BACKEND_URL ||
-  'https://mybusinessformation-web-production.up.railway.app'
+import { backendFetch } from '@/lib/backend'
 
 interface Order {
   id: string
@@ -132,7 +129,7 @@ async function getDocuments(orderId: string, order: Order): Promise<DocumentItem
 
 async function getOrder(id: string): Promise<Order | null> {
   try {
-    const res = await fetch(`${BACKEND_URL}/api/orders/${id}`, { cache: 'no-store' })
+    const res = await backendFetch(`/api/orders/${id}`, { cache: 'no-store' })
     if (!res.ok) return null
     const data = await res.json()
     return data.order ?? data.data ?? null

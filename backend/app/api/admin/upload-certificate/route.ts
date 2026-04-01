@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-
-const BACKEND_URL =
-  process.env.BACKEND_URL ||
-  'https://mybusinessformation-web-production.up.railway.app'
+import { backendFetch } from '@/lib/backend'
 
 export async function POST(request: NextRequest) {
   try {
@@ -34,7 +31,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 2. Obtener datos de la orden para el email
-    const orderRes = await fetch(`${BACKEND_URL}/api/orders/${orderId}`)
+    const orderRes = await backendFetch(`/api/orders/${orderId}`)
     if (!orderRes.ok) {
       return NextResponse.json({ error: 'Orden no encontrada en el backend' }, { status: 404 })
     }
@@ -42,7 +39,7 @@ export async function POST(request: NextRequest) {
     const order = orderData.order ?? orderData.data ?? orderData
 
     // 3. Enviar email de certificate al cliente
-    const emailRes = await fetch(`${BACKEND_URL}/api/notifications/certificate`, {
+    const emailRes = await backendFetch('/api/notifications/certificate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -58,7 +55,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 4. Actualizar orden a completed
-    await fetch(`${BACKEND_URL}/api/orders/${orderId}`, {
+    await backendFetch(`/api/orders/${orderId}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: 'completed' }),

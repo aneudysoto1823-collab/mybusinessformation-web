@@ -4,9 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 
-const BACKEND_URL =
-  process.env.NEXT_PUBLIC_BACKEND_URL ||
-  'https://mybusinessformation-web-production.up.railway.app'
+const PROXY = '/api/proxy'
 
 interface Order {
   id: string
@@ -162,7 +160,7 @@ export default function OrderDetailPage() {
   const [statusMsg, setStatusMsg] = useState('')
 
   useEffect(() => {
-    fetch(`${BACKEND_URL}/api/orders/${id}`)
+    fetch(`${PROXY}/orders/${id}`)
       .then(r => {
         if (!r.ok) throw new Error('No encontrada')
         return r.json()
@@ -181,7 +179,7 @@ export default function OrderDetailPage() {
   async function handleSaveNotes() {
     setNotesSaving(true)
     setNotesMsg('')
-    const res = await fetch(`${BACKEND_URL}/api/orders/${id}`, {
+    const res = await fetch(`${PROXY}/orders/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ notes }),
@@ -196,7 +194,7 @@ export default function OrderDetailPage() {
   async function handleManualStatusSave() {
     setManualSaving(true)
     setManualMsg('')
-    const res = await fetch(`${BACKEND_URL}/api/orders/${id}`, {
+    const res = await fetch(`${PROXY}/orders/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: selectedStatus }),
@@ -215,7 +213,7 @@ export default function OrderDetailPage() {
   async function triggerEmail(type: 'names-taken' | 'certificate') {
     setEmailLoading(type)
     setEmailMsg('')
-    const res = await fetch(`${BACKEND_URL}/api/notifications/${type}`, {
+    const res = await fetch(`${PROXY}/notifications/${type}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ orderId: id }),
@@ -233,7 +231,7 @@ export default function OrderDetailPage() {
     setCheckResults([])
     setSuggestMsg('')
     try {
-      const res = await fetch(`${BACKEND_URL}/api/names/check?names=${encodeURIComponent(names.join(','))}`)
+      const res = await fetch(`${PROXY}/names/check?names=${encodeURIComponent(names.join(','))}`)
       const data = await res.json()
       setCheckResults(data.results ?? [])
     } catch {
@@ -247,7 +245,7 @@ export default function OrderDetailPage() {
     if (available.length === 0 || !order) return
     setSuggestLoading(true)
     setSuggestMsg('')
-    const res = await fetch(`${BACKEND_URL}/api/notifications/suggest-names`, {
+    const res = await fetch(`${PROXY}/notifications/suggest-names`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ orderId: order.id, availableNames: available }),
@@ -287,7 +285,7 @@ export default function OrderDetailPage() {
   async function advanceStatus(newStatus: string) {
     setStatusLoading(true)
     setStatusMsg('')
-    const res = await fetch(`${BACKEND_URL}/api/orders/${id}`, {
+    const res = await fetch(`${PROXY}/orders/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: newStatus }),
@@ -666,7 +664,7 @@ export default function OrderDetailPage() {
                 {docs.map(({ label, endpoint, color }) => (
                   <a
                     key={endpoint}
-                    href={`${BACKEND_URL}/api/documents/${order.id}/${endpoint}`}
+                    href={`${PROXY}/documents/${order.id}/${endpoint}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{

@@ -1,8 +1,5 @@
 import OrdersTable from './OrdersTable'
-
-const BACKEND_URL =
-  process.env.BACKEND_URL ||
-  'https://mybusinessformation-web-production.up.railway.app'
+import { backendFetch } from '@/lib/backend'
 
 interface Order {
   id: string
@@ -20,7 +17,7 @@ interface Order {
 
 async function getOrders(): Promise<Order[]> {
   try {
-    const res = await fetch(`${BACKEND_URL}/api/orders`, { cache: 'no-store' })
+    const res = await backendFetch('/api/orders', { cache: 'no-store' })
     if (!res.ok) return []
     const data = await res.json()
     return data.orders ?? data.data ?? data ?? []
