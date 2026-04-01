@@ -2,13 +2,14 @@
 
 export const dynamic = 'force-dynamic'
 
+import { Suspense } from 'react'
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
 type State = 'confirm' | 'loading' | 'done' | 'error'
 
-export default function UnsubscribePage() {
+function UnsubscribeContent() {
   const params = useSearchParams()
   const email = params.get('email') ?? ''
 
@@ -153,5 +154,13 @@ export default function UnsubscribePage() {
         </div>
       </div>
     </>
+  )
+}
+
+export default function UnsubscribePage() {
+  return (
+    <Suspense>
+      <UnsubscribeContent />
+    </Suspense>
   )
 }
