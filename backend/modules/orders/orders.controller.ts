@@ -4,8 +4,16 @@ import { sendOrderConfirmation } from '../notifications/notifications.service.ts
 
 export const createOrder = async (req: Request, res: Response) => {
   try {
-    const orderData = req.body
-    const order = await saveOrder(orderData)
+    const { firstName, lastName, email, phone, country, companyName,
+            companyName2, companyName3, entityType, businessAddress,
+            speed, package: pkg, amount, currency, members,
+            registeredAgent, addons, orgSignature, stripePaymentId } = req.body
+    const order = await saveOrder({
+      firstName, lastName, email, phone, country, companyName,
+      companyName2, companyName3, entityType, businessAddress,
+      speed, package: pkg, amount, currency, members,
+      registeredAgent, addons, orgSignature, stripePaymentId,
+    })
 
     res.status(201).json({
       success: true,
