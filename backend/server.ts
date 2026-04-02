@@ -23,7 +23,11 @@ app.use(express.json())
 
 const requireApiKey = (req: Request, res: Response, next: NextFunction) => {
   const apiKey = req.headers['x-api-key']
-  if (!apiKey || apiKey !== process.env.INTERNAL_API_KEY) {
+  const expected = process.env.INTERNAL_API_KEY
+  const received = Array.isArray(apiKey) ? apiKey[0] : apiKey
+  console.log(`[requireApiKey] received: "${received?.substring(0, 8)}...${received?.slice(-4)}" len=${received?.length}`)
+  console.log(`[requireApiKey] expected: "${expected?.substring(0, 8)}...${expected?.slice(-4)}" len=${expected?.length}`)
+  if (!received || received !== expected) {
     res.status(401).json({ error: 'Unauthorized' })
     return
   }
