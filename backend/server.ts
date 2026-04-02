@@ -10,6 +10,8 @@ import namesRouter from './modules/names/names.route.ts'
 
 dotenv.config()
 
+console.log('INTERNAL_API_KEY loaded:', !!process.env.INTERNAL_API_KEY)
+
 const app = express()
 const PORT = process.env.PORT || 4000
 
