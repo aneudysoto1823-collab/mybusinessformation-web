@@ -16,7 +16,8 @@ Panel interno para que el equipo de MyBusinessFormation gestione órdenes, clien
 ## Autenticación
 - Variables de entorno: ADMIN_USER y ADMIN_PASSWORD
 - Middleware de Next.js protege todas las rutas /admin
-- Sesión manejada con cookie admin_session
+- Sesión manejada con cookie admin_session firmada con JWT (jose, HS256, expira 8h)
+- Variable de entorno requerida: SESSION_SECRET
 
 ## Estadísticas del dashboard
 - Total órdenes
@@ -31,9 +32,43 @@ Panel interno para que el equipo de MyBusinessFormation gestione órdenes, clien
 - Disparar email "Nombres Tomados" → POST /api/notifications/names-taken
 - Disparar email "Certificate of Formation" → POST /api/notifications/certificate
 
+## Arquitectura de datos del dashboard
+
+### Carga de órdenes en /admin (dashboard principal)
+`app/admin/page.tsx` usa `getSupabaseAdmin()` directamente para leer las órdenes.
+
+```
+Browser → Vercel (admin/page.tsx Server Component)
+              ↓ getSupabaseAdmin().from('Order').select(...)
+          Supabase (PostgreSQL)
+```
+
+**Nota (2026-04-02):** Originalmente este Server Component llamaba al Express en Railway
+vía `backendFetch()`. Se migró a Supabase directo después de diagnosticar que el
+prerenderizado estático de Next.js capturaba un resultado vacío en tiempo de build
+antes de que `INTERNAL_API_KEY` estuviera configurada en Vercel. El cambio no afecta
+la seguridad — el código sigue corriendo server-side y la página está protegida por
+el middleware JWT.
+
+### Operaciones del panel de detalle (/admin/orders/[id])
+Las acciones del panel de detalle (cliente) siguen pasando por el Express en Railway
+a través de rutas proxy en `/api/proxy/`. Todas estas operaciones requieren `INTERNAL_API_KEY`:
+
+| Acción | Proxy Next.js | Destino Express |
+|--------|--------------|-----------------|
+| Ver detalle de orden | `/api/proxy/orders/[id]` GET | `GET /api/orders/:id` |
+| Cambiar estado / notas | `/api/proxy/orders/[id]` PATCH | `PATCH /api/orders/:id` |
+| Disparar email | `/api/proxy/notifications/[type]` POST | `POST /api/notifications/:type` |
+| Buscar nombres | `/api/proxy/names/check` GET | `GET /api/names/check` |
+| Descargar documentos | `/api/proxy/documents/[orderId]/[endpoint]` GET | `GET /api/documents/:id/:endpoint` |
+
+Cada proxy verifica la sesión admin antes de reenviar la petición al Express.
+
 ## Variables de entorno necesarias
 ADMIN_USER=admin
 ADMIN_PASSWORD=tuPasswordSeguro
+SESSION_SECRET=                  # 32+ chars aleatorios — firma el JWT de sesión admin
+INTERNAL_API_KEY=                # protege el Express en Railway (requerida para proxies)
 
 ## Flujo de estados de una orden
 
@@ -65,14 +100,17 @@ ADMIN_PASSWORD=tuPasswordSeguro
 
 ## Estado
 - [x] Estructura de archivos creada
-- [x] Login funcional
+- [x] Login funcional con JWT firmado (SESSION_SECRET)
 - [x] Middleware de protección activo
 - [x] Dashboard con estadísticas
-- [x] Tabla de órdenes
+- [x] Tabla de órdenes con filtros (estado, paquete, búsqueda, fechas)
 - [x] Vista detallada por orden
 - [x] Botones de acción funcionando
+- [x] Rutas proxy protegidas con verificación de sesión admin
 
 ## Historial
 - 2026-03-27: Inicio construcción del panel de admin
 - 2026-03-27: Etapa 8 completada — panel de admin funcionando en producción. Railway conectado a Supabase usando pooler aws-1-us-east-1 puerto 6543. URL del panel: https://mybusinessformation-web.vercel.app/admin
 - 2026-03-30: Mejoras al panel — (1) número FBFC clickeable en tabla, (2) dropdowns de ordenamiento (más recientes, más antiguas, mayor/menor monto, por paquete) y filtro por paquete (Basic/Standard/Premium), (3) badge ⚠️ +24h en tabla y aviso en detalle cuando una orden activa lleva más de 24h sin actualizar
+- 2026-04-01: Auditoría de seguridad — cookie admin reemplazada por JWT firmado (jose), rutas proxy creadas para el panel de detalle, CORS del Express restringido
+- 2026-04-02: `getOrders()` en dashboard migrado de Express (`backendFetch`) a Supabase directo (`getSupabaseAdmin()`). Motivo: prerenderizado estático de Next.js capturaba resultado vacío en build. `INTERNAL_API_KEY` sigue siendo requerida para todas las operaciones del panel de detalle. Filtro de fechas Desde/Hasta añadido a la tabla de órdenes.
