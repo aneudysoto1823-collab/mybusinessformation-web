@@ -18,10 +18,14 @@ interface Order {
 async function getOrders(): Promise<Order[]> {
   try {
     const res = await backendFetch('/api/orders', { cache: 'no-store' })
-    if (!res.ok) return []
+    if (!res.ok) {
+      console.error('[admin/getOrders] Express responded:', res.status, res.statusText)
+      return []
+    }
     const data = await res.json()
     return data.orders ?? data.data ?? data ?? []
-  } catch {
+  } catch (err) {
+    console.error('[admin/getOrders]', err)
     return []
   }
 }
