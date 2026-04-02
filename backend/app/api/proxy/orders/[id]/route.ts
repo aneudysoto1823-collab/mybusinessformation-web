@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdminToken } from '@/lib/session'
 import { backendFetch } from '@/lib/backend'
+import { getSupabaseAdmin } from '@/lib/supabase'
 
 async function verifyAdmin(request: NextRequest): Promise<boolean> {
   const session = request.cookies.get('admin_session')
@@ -16,9 +17,15 @@ export async function GET(
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
   const { id } = await params
-  const res = await backendFetch(`/api/orders/${id}`)
-  const data = await res.json()
-  return NextResponse.json(data, { status: res.status })
+  const { data, error } = await getSupabaseAdmin()
+    .from('Order')
+    .select('*')
+    .eq('id', id)
+    .single()
+  if (error || !data) {
+    return NextResponse.json({ error: 'Order not found' }, { status: 404 })
+  }
+  return NextResponse.json({ order: data })
 }
 
 export async function PATCH(
