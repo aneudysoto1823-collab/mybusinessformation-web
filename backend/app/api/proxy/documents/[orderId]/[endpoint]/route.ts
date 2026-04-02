@@ -16,16 +16,20 @@ export async function GET(
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
   const { orderId, endpoint } = await params
+  const inline = request.nextUrl.searchParams.get('view') === '1'
   const res = await backendFetch(`/api/documents/${orderId}/${endpoint}`)
   if (!res.ok) {
     return NextResponse.json({ error: 'Document not found' }, { status: res.status })
   }
   const buffer = await res.arrayBuffer()
+  const disposition = inline
+    ? `inline; filename="${endpoint}.pdf"`
+    : `attachment; filename="${endpoint}.pdf"`
   return new NextResponse(buffer, {
     status: 200,
     headers: {
       'Content-Type': 'application/pdf',
-      'Content-Disposition': `attachment; filename="${endpoint}.pdf"`,
+      'Content-Disposition': disposition,
       'Cache-Control': 'no-store',
     },
   })

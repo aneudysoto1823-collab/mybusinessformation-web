@@ -661,28 +661,48 @@ export default function OrderDetailPage() {
                 Documents pre-filled with client data. Download, review, and submit to the appropriate agency.
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {docs.map(({ label, endpoint, color }) => (
-                  <a
-                    key={endpoint}
-                    href={`${PROXY}/documents/${order.id}/${endpoint}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                      padding: '11px 16px', borderRadius: '8px', textDecoration: 'none',
-                      background: '#f8fafc', border: '1.5px solid #e5e7eb',
-                      color: color, fontWeight: 600, fontSize: '14px',
-                    }}
-                  >
-                    <span>📄 {label}</span>
-                    <span style={{
-                      fontSize: '12px', background: color, color: '#fff',
-                      padding: '3px 10px', borderRadius: '999px',
-                    }}>
-                      ↓ Download PDF
-                    </span>
-                  </a>
-                ))}
+                {docs.map(({ label, endpoint, color }) => {
+                  const baseUrl = `${PROXY}/documents/${order.id}/${endpoint}`
+                  return (
+                    <div
+                      key={endpoint}
+                      style={{
+                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                        padding: '11px 16px', borderRadius: '8px',
+                        background: '#f8fafc', border: '1.5px solid #e5e7eb',
+                      }}
+                    >
+                      <span style={{ color: color, fontWeight: 600, fontSize: '14px' }}>
+                        📄 {label}
+                      </span>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <a
+                          href={`${baseUrl}?view=1`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{
+                            fontSize: '12px', background: '#f1f5f9', color: color,
+                            border: `1.5px solid ${color}`, padding: '4px 12px',
+                            borderRadius: '999px', textDecoration: 'none', fontWeight: 600,
+                          }}
+                        >
+                          👁 Ver PDF
+                        </a>
+                        <a
+                          href={baseUrl}
+                          download
+                          style={{
+                            fontSize: '12px', background: color, color: '#fff',
+                            padding: '4px 12px', borderRadius: '999px',
+                            textDecoration: 'none', fontWeight: 600,
+                          }}
+                        >
+                          ↓ Descargar
+                        </a>
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
             </Section>
           )
