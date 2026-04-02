@@ -71,6 +71,8 @@ export default function OrdersTable({ orders }: { orders: Order[] }) {
   const [sortBy, setSortBy] = useState('newest')
   const [pkgFilter, setPkgFilter] = useState('all')
   const [search, setSearch] = useState('')
+  const [dateFrom, setDateFrom] = useState('')
+  const [dateTo, setDateTo] = useState('')
 
   const countFor = (key: string) =>
     key === 'all' ? orders.length : orders.filter(o => o.status === key).length
@@ -81,6 +83,18 @@ export default function OrdersTable({ orders }: { orders: Order[] }) {
 
   if (pkgFilter !== 'all') {
     visible = visible.filter(o => o.package === pkgFilter)
+  }
+
+  if (dateFrom) {
+    const from = new Date(dateFrom)
+    from.setHours(0, 0, 0, 0)
+    visible = visible.filter(o => new Date(o.createdAt) >= from)
+  }
+
+  if (dateTo) {
+    const to = new Date(dateTo)
+    to.setHours(23, 59, 59, 999)
+    visible = visible.filter(o => new Date(o.createdAt) <= to)
   }
 
   if (search.trim()) {
@@ -266,6 +280,44 @@ export default function OrdersTable({ orders }: { orders: Order[] }) {
           line-height: 1;
         }
         .search-clear:hover { background: #d1d5db; color: #111827; }
+
+        .date-group {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          flex-wrap: wrap;
+        }
+        .date-label {
+          font-size: 12px;
+          font-weight: 600;
+          color: #6b7280;
+          white-space: nowrap;
+        }
+        .ctrl-date {
+          padding: 7px 10px;
+          border: 1.5px solid #e5e7eb;
+          border-radius: 7px;
+          font-size: 13px;
+          font-family: inherit;
+          color: #374151;
+          background: #fff;
+          outline: none;
+          cursor: pointer;
+          transition: border-color 0.15s;
+        }
+        .ctrl-date:focus { border-color: #4f46e5; }
+        .ctrl-date::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.6; }
+        .date-clear {
+          background: none;
+          border: none;
+          font-size: 12px;
+          color: #9ca3af;
+          cursor: pointer;
+          padding: 0 2px;
+          font-family: inherit;
+          line-height: 1;
+        }
+        .date-clear:hover { color: #374151; }
       `}</style>
 
       <div>
@@ -292,6 +344,31 @@ export default function OrdersTable({ orders }: { orders: Order[] }) {
             <option value="standard">Standard</option>
             <option value="premium">Premium</option>
           </select>
+
+          <div className="date-group">
+            <span className="date-label">Desde</span>
+            <input
+              type="date"
+              className="ctrl-date"
+              value={dateFrom}
+              max={dateTo || undefined}
+              onChange={e => setDateFrom(e.target.value)}
+            />
+            {dateFrom && (
+              <button className="date-clear" onClick={() => setDateFrom('')} title="Limpiar">✕</button>
+            )}
+            <span className="date-label">Hasta</span>
+            <input
+              type="date"
+              className="ctrl-date"
+              value={dateTo}
+              min={dateFrom || undefined}
+              onChange={e => setDateTo(e.target.value)}
+            />
+            {dateTo && (
+              <button className="date-clear" onClick={() => setDateTo('')} title="Limpiar">✕</button>
+            )}
+          </div>
         </div>
 
         {/* Buscador */}
@@ -328,7 +405,9 @@ export default function OrdersTable({ orders }: { orders: Order[] }) {
         {visible.length === 0 ? (
           <div className="empty">
             {search.trim()
-              ? `No orders found matching your search "${search.trim()}"`
+              ? `No orders found matching "${search.trim()}"`
+              : (dateFrom || dateTo)
+              ? 'No hay órdenes en el rango de fechas seleccionado.'
               : 'No hay órdenes en este estado.'
             }
           </div>
