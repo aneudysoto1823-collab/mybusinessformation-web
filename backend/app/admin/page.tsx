@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic'
 
 import OrdersTable from './OrdersTable'
+import LogoutButton from './LogoutButton'
 import { getSupabaseAdmin } from '@/lib/supabase'
 
 interface Order {
@@ -88,6 +89,7 @@ export default async function AdminDashboard() {
             <h1>Panel de Administración</h1>
             <p>MyBusinessFormation.com</p>
           </div>
+          <LogoutButton />
         </div>
 
         <div className="stats-grid">
