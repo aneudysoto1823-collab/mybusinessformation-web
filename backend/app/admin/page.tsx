@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic'
 
 import OrdersTable from './OrdersTable'
-import { backendFetch } from '@/lib/backend'
+import { getSupabaseAdmin } from '@/lib/supabase'
 
 interface Order {
   id: string
@@ -18,18 +18,15 @@ interface Order {
 }
 
 async function getOrders(): Promise<Order[]> {
-  try {
-    const res = await backendFetch('/api/orders', { cache: 'no-store' })
-    if (!res.ok) {
-      console.error('[admin/getOrders] Express responded:', res.status, res.statusText)
-      return []
-    }
-    const data = await res.json()
-    return data.orders ?? data.data ?? data ?? []
-  } catch (err) {
-    console.error('[admin/getOrders]', err)
+  const { data, error } = await getSupabaseAdmin()
+    .from('Order')
+    .select('id, createdAt, updatedAt, firstName, lastName, email, companyName, package, amount, paymentStatus, status')
+    .order('createdAt', { ascending: false })
+  if (error) {
+    console.error('[admin/getOrders] Supabase error:', error.message)
     return []
   }
+  return data ?? []
 }
 
 export default async function AdminDashboard() {
