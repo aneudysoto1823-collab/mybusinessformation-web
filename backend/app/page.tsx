@@ -36,14 +36,14 @@ nav a:hover{color:var(--navy);background:var(--gray100)}
 .btn-start:hover{background:var(--green-dark);transform:translateY(-1px)}
 
 /* ── HERO ── */
-.hero{background:var(--white);padding:16px 32px 28px;text-align:center}
+.hero{background:var(--white);padding:36px 32px 28px;text-align:center}
 .hero-inner{max-width:760px;margin:0 auto}
-.hero h1{font-size:1.15rem;color:var(--navy);font-weight:700;margin-bottom:4px;letter-spacing:0}
+.hero h1{font-size:clamp(1.5rem,3vw,2rem);color:var(--navy);font-weight:700;margin-bottom:4px;letter-spacing:0}
 .hero h1 em{color:var(--blue);font-style:normal}
 .hero p{font-size:.8rem;color:var(--gray600);max-width:700px;margin:0 auto;font-weight:400;line-height:1.5}
 .btn-hero{background:var(--green);color:#fff;padding:15px 36px;border-radius:10px;font-size:1rem;font-weight:600;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;animation:pulse 2.5s infinite;transition:all 0.25s;box-shadow:0 4px 20px rgba(5,150,105,0.35)}
 .btn-hero:hover{background:var(--green-dark);transform:translateY(-2px);box-shadow:0 8px 28px rgba(5,150,105,0.45);animation:none}
-.hero-btns{display:flex;gap:12px;justify-content:center;margin-top:52px;flex-wrap:wrap}
+.hero-btns{display:flex;gap:12px;justify-content:center;margin-top:24px;flex-wrap:wrap}
 .btn-hero-new{padding:10px 22px;border-radius:9px;font-size:.85rem;font-weight:600;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .25s;display:flex;align-items:center;gap:7px;background:#fff;color:var(--navy);border:2px solid var(--gray200);box-shadow:0 2px 12px rgba(28,46,68,0.08)}
 .btn-hero-new:hover{border-color:var(--blue);color:var(--blue);transform:translateY(-1px);box-shadow:0 4px 14px rgba(37,99,235,0.15)}
 .et-toggle-btn{padding:10px 0;width:140px;text-align:center;border-radius:9px;font-size:.88rem;font-weight:600;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;transition:all .25s;background:#fff;color:var(--navy);border:2px solid var(--gray200);box-shadow:0 2px 8px rgba(28,46,68,0.06)}
@@ -585,6 +585,8 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
       <a href="#pricing" data-en="Pricing" data-es="Precios">Pricing</a>
       <a href="#faq" data-en="FAQ" data-es="Preguntas">FAQ</a>
       <a href="#contact" data-en="Contact" data-es="Contacto">Contact</a>
+      <a href="servicios.html" data-en="Services" data-es="Servicios">Services</a>
+      <a href="#" style="padding:6px 14px;border-radius:6px;border:1.5px solid #e2e8f0;background:#fff;font-size:0.85rem;font-weight:500;color:#475569;cursor:pointer;transition:all 0.2s;" data-en="Login" data-es="Login">Login</a>
     </nav>
     <div style="display:flex;align-items:center;gap:12px">
       <div class="lang-toggle">
@@ -592,7 +594,6 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
         <button class="lang-btn" id="btn-es" onclick="setLang('es')">ES</button>
       </div>
       <a href="/client-portal" style="color: #1a1a2e; text-decoration: none; margin-right: 16px; font-weight: 500; font-size: 15px;">Log In</a>
-      <button class="btn-start" onclick="openForm()" data-en="Start My Business →" data-es="Iniciar Mi Negocio →">Start My Business →</button>
     </div>
   </div>
 </header>
@@ -600,8 +601,8 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 <!-- HERO -->
 <section class="hero">
   <div class="hero-inner">
-    <h1 id="hero-title">Launch Your <em>Florida Business</em> the Right Way</h1>
-    <p id="hero-sub">Professional LLC &amp; Corporation formation handled by experts. We file everything with the State of Florida.</p>
+    <h1 id="hero-title">Create Your <em>Florida Business</em> — fast and easy</h1>
+    <p id="hero-sub"></p>
     <div class="hero-btns">
       <button class="btn-hero-new btn-hero-start" onclick="openForm()" id="btn-new-app">
         &#x1F680; <span id="lbl-new-app">Start New Application</span>
@@ -1889,8 +1890,8 @@ var orderNumber = '';
 var translations = {
   en: {
     topbar: "🌟 Florida's trusted business formation experts — <strong>LLC & Corporation</strong> filing made simple. Start today from <strong>$49 + state fee.</strong>",
-    heroTitle: 'Launch Your <em>Florida Business</em> the Right Way',
-    heroSub: "Professional LLC & Corporation formation handled by experts. We file everything with the State of Florida so you can focus on what matters — building your business.",
+    heroTitle: 'Create Your <em>Florida Business</em> — fast and easy',
+    heroSub: "",
     heroBadge: "Trusted by Entrepreneurs Across Florida",
     heroBtn1: "Start My Business Today →", heroBtn2: "See How It Works",
     stat1:"Businesses Formed", stat2:"Processing Time", stat4:"Starting Price",
@@ -1919,8 +1920,8 @@ var translations = {
     faqTitle:"Answers to Your Most Important Questions",
   es: {
     topbar: "🌟 Expertos de confianza en formación de negocios en Florida — <strong>LLC y Corporación</strong> de manera simple. Desde <strong>$49 + cargo estatal.</strong>",
-    heroTitle: 'Lanza Tu <em>Negocio en Florida</em> Correctamente',
-    heroSub: 'Formación profesional de LLC y Corporación manejada por expertos. Nosotros tramitamos todo ante el Estado de Florida.',
+    heroTitle: 'Crea Tu <em>Negocio en Florida</em> — rápido y fácil',
+    heroSub: '',
     heroBadge: "La confianza de cientos de emprendedores en Florida",
     heroBtn1: "Iniciar Mi Negocio Hoy →", heroBtn2: "Cómo Funciona",
     stat1:"Negocios Formados", stat2:"Tiempo de Procesamiento", stat4:"Precio desde",
