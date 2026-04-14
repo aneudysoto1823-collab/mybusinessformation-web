@@ -601,7 +601,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 <!-- HERO -->
 <section class="hero">
   <div class="hero-inner">
-    <h1 id="hero-title">Create Your <em>Florida Business</em> — fast and easy</h1>
+    <h1 id="hero-title">Create Your <em>Florida Business</em>, fast and easy</h1>
     <p id="hero-sub"></p>
     <div class="hero-btns">
       <button class="btn-hero-new btn-hero-start" onclick="openForm()" id="btn-new-app">
@@ -1890,7 +1890,7 @@ var orderNumber = '';
 var translations = {
   en: {
     topbar: "🌟 Florida's trusted business formation experts — <strong>LLC & Corporation</strong> filing made simple. Start today from <strong>$49 + state fee.</strong>",
-    heroTitle: 'Create Your <em>Florida Business</em> — fast and easy',
+    heroTitle: 'Create Your <em>Florida Business</em>, fast and easy',
     heroSub: "",
     heroBadge: "Trusted by Entrepreneurs Across Florida",
     heroBtn1: "Start My Business Today →", heroBtn2: "See How It Works",
@@ -1920,7 +1920,7 @@ var translations = {
     faqTitle:"Answers to Your Most Important Questions",
   es: {
     topbar: "🌟 Expertos de confianza en formación de negocios en Florida — <strong>LLC y Corporación</strong> de manera simple. Desde <strong>$49 + cargo estatal.</strong>",
-    heroTitle: 'Crea Tu <em>Negocio en Florida</em> — rápido y fácil',
+    heroTitle: 'Crea Tu <em>Negocio en Florida</em>, rápido y fácil',
     heroSub: '',
     heroBadge: "La confianza de cientos de emprendedores en Florida",
     heroBtn1: "Iniciar Mi Negocio Hoy →", heroBtn2: "Cómo Funciona",
