@@ -57,19 +57,15 @@ nav a:hover{color:var(--navy);background:var(--gray100)}
 @media(max-width:640px){.services-grid{grid-template-columns:1fr}}
 /* SERVICE CARDS */
 .svc-card{border:1.5px solid var(--gray200);border-radius:16px;overflow:hidden;transition:all .25s;display:flex;flex-direction:column;background:var(--white)}
-.svc-card:hover{transform:translateY(-4px);box-shadow:0 16px 48px rgba(28,46,68,.12);border-color:var(--blue)}
-.svc-card-header{padding:24px 22px 18px}
-.svc-card-header.blue{background:linear-gradient(135deg,var(--navy),#1e4db7)}
-.svc-card-header.green{background:linear-gradient(135deg,#047857,#059669)}
-.svc-card-header.gold{background:linear-gradient(135deg,#B45309,var(--gold))}
-.svc-card-header.purple{background:linear-gradient(135deg,#5b21b6,#7c3aed)}
-.svc-card-header.teal{background:linear-gradient(135deg,#0e7490,#0891b2)}
-.svc-card-header.orange{background:linear-gradient(135deg,#c2410c,#ea580c)}
-.svc-card-header.slate{background:linear-gradient(135deg,#334155,#475569)}
-.svc-icon{font-size:2rem;margin-bottom:12px}
-.svc-name{font-family:'Fraunces',serif;font-size:1.15rem;font-weight:700;color:#fff;margin-bottom:5px}
-.svc-price{font-size:.88rem;color:rgba(255,255,255,.65);font-weight:500}
-.svc-price strong{color:#fff;font-size:1.1rem;font-family:'Fraunces',serif}
+.svc-card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(28,46,68,.10);border-color:var(--blue)}
+.svc-card-header{padding:24px 22px 18px;background:var(--white);border-bottom:1px solid var(--gray100)}
+.svc-card-header.blue,.svc-card-header.green,.svc-card-header.gold,.svc-card-header.purple,.svc-card-header.teal,.svc-card-header.orange,.svc-card-header.slate{background:var(--white)}
+.svc-icon-wrap{width:44px;height:44px;background:var(--blue-light);border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+.svc-icon{font-size:1.4rem}
+.svc-name{font-family:'Fraunces',serif;font-size:1.1rem;font-weight:700;color:var(--navy);margin-bottom:8px}
+.svc-price{display:flex;align-items:baseline;gap:4px;margin-bottom:2px}
+.svc-price strong{font-family:'Fraunces',serif;font-size:1.7rem;font-weight:900;color:var(--navy);line-height:1}
+.svc-price-sub{font-size:.75rem;color:var(--gray400);margin-top:2px}
 .svc-body{padding:18px 22px;flex:1;display:flex;flex-direction:column;gap:0}
 .svc-desc{font-size:.83rem;color:var(--gray600);line-height:1.75;margin-bottom:14px}
 .svc-includes{margin-bottom:16px}
@@ -77,10 +73,10 @@ nav a:hover{color:var(--navy);background:var(--gray100)}
 .svc-incl-item{display:flex;align-items:flex-start;gap:7px;font-size:.79rem;color:var(--gray800);margin-bottom:5px}
 .svc-incl-icon{color:var(--green);margin-top:2px;font-size:.85rem;flex-shrink:0}
 .svc-time{display:flex;align-items:center;gap:6px;font-size:.73rem;color:var(--gray500);margin-bottom:14px;padding:7px 10px;background:var(--gray50);border-radius:7px}
-.btn-svc-order{background:var(--blue);color:#fff;padding:11px;border-radius:9px;font-size:.87rem;font-weight:600;border:none;cursor:pointer;font-family:inherit;transition:all .2s;width:100%;margin-top:auto}
-.btn-svc-order:hover{background:var(--navy)}
-.btn-svc-order.green{background:var(--green)}.btn-svc-order.green:hover{background:var(--green-dark)}
-.btn-svc-order.gold{background:var(--gold);color:var(--navy)}.btn-svc-order.gold:hover{background:#d97706}
+.btn-svc-order{background:#fff;color:var(--navy);padding:11px;border-radius:9px;font-size:.87rem;font-weight:600;border:1.5px solid var(--gray200);cursor:pointer;font-family:inherit;transition:all .2s;width:100%;margin-top:auto}
+.btn-svc-order:hover{border-color:var(--blue);color:var(--blue);transform:translateY(-1px)}
+.btn-svc-order.green,.btn-svc-order.gold{background:#fff;color:var(--navy);border:1.5px solid var(--gray200)}
+.btn-svc-order.green:hover,.btn-svc-order.gold:hover{border-color:var(--blue);color:var(--blue)}
 /* BUNDLE BANNER */
 .bundle-section{background:linear-gradient(135deg,var(--navy),#1a3a6b);padding:56px 32px;text-align:center;color:#fff}
 .bundle-inner{max-width:900px;margin:0 auto}
@@ -260,9 +256,10 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
       <!-- REGISTERED AGENT -->
       <div class="svc-card" id="registered-agent">
         <div class="svc-card-header blue">
-          <div class="svc-icon">&#127968;</div>
+          <div class="svc-icon-wrap"><div class="svc-icon">&#127968;</div></div>
           <div class="svc-name">Registered Agent</div>
-          <div class="svc-price"><strong>Annual Fee</strong> &nbsp;&middot;&nbsp; Required by FL law</div>
+          <div class="svc-price"><strong>Annual Fee</strong></div>
+          <div class="svc-price-sub">Required by FL law</div>
         </div>
         <div class="svc-body">
           <p class="svc-desc">Every Florida LLC and Corporation must have a Registered Agent with a physical FL street address. We receive your legal documents, tax notices, and official mail on your behalf.</p>
@@ -281,9 +278,10 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
       <!-- EIN -->
       <div class="svc-card" id="ein">
         <div class="svc-card-header green">
-          <div class="svc-icon">&#127981;</div>
+          <div class="svc-icon-wrap"><div class="svc-icon">&#127981;</div></div>
           <div class="svc-name">EIN / Tax ID Number</div>
-          <div class="svc-price"><strong>$49</strong> &nbsp;&middot;&nbsp; One-time fee</div>
+          <div class="svc-price"><strong>$49</strong></div>
+          <div class="svc-price-sub">One-time fee</div>
         </div>
         <div class="svc-body">
           <p class="svc-desc">Your federal Employer Identification Number (EIN) is a 9-digit IRS number required to open a business bank account, hire employees, and file federal taxes.</p>
@@ -302,9 +300,10 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
       <!-- OPERATING AGREEMENT -->
       <div class="svc-card" id="operating-agreement">
         <div class="svc-card-header gold">
-          <div class="svc-icon">&#128196;</div>
+          <div class="svc-icon-wrap"><div class="svc-icon">&#128196;</div></div>
           <div class="svc-name">Operating Agreement</div>
-          <div class="svc-price"><strong>$79</strong> &nbsp;&middot;&nbsp; One-time fee</div>
+          <div class="svc-price"><strong>$79</strong></div>
+          <div class="svc-price-sub">One-time fee</div>
         </div>
         <div class="svc-body">
           <p class="svc-desc">The Operating Agreement is your LLC's internal governing document — it defines ownership percentages, management roles, profit distribution, and decision-making rules.</p>
@@ -323,9 +322,10 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
       <!-- ITIN -->
       <div class="svc-card" id="itin">
         <div class="svc-card-header purple">
-          <div class="svc-icon">&#127760;</div>
+          <div class="svc-icon-wrap"><div class="svc-icon">&#127760;</div></div>
           <div class="svc-name">ITIN Application</div>
-          <div class="svc-price"><strong>$69</strong> &nbsp;&middot;&nbsp; One-time fee</div>
+          <div class="svc-price"><strong>$135</strong></div>
+          <div class="svc-price-sub">One-time fee</div>
         </div>
         <div class="svc-body">
           <p class="svc-desc">An ITIN (Individual Taxpayer Identification Number) is issued by the IRS to individuals who need to file US taxes but are not eligible for a Social Security Number.</p>
@@ -337,16 +337,17 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
             <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> For foreign nationals, non-resident aliens</div>
           </div>
           <div class="svc-time">&#128338; Processing: 6–10 weeks (IRS processing time)</div>
-          <button class="btn-svc-order" onclick="openServiceForm('itin')">Order ITIN Application — $69 &#8594;</button>
+          <button class="btn-svc-order" onclick="openServiceForm('itin')">Order ITIN Application — $135 &#8594;</button>
         </div>
       </div>
 
       <!-- DBA -->
       <div class="svc-card" id="dba">
         <div class="svc-card-header teal">
-          <div class="svc-icon">&#127991;</div>
+          <div class="svc-icon-wrap"><div class="svc-icon">&#127991;</div></div>
           <div class="svc-name">DBA / Fictitious Name</div>
-          <div class="svc-price"><strong>$49</strong> + FL state fee</div>
+          <div class="svc-price"><strong>$49</strong></div>
+          <div class="svc-price-sub">+ FL state fee</div>
         </div>
         <div class="svc-body">
           <p class="svc-desc">A DBA (Doing Business As) or Fictitious Name lets your business operate under a different name from its registered legal name. Required for branding under an alternate name in Florida.</p>
@@ -365,9 +366,10 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
       <!-- VIRTUAL ADDRESS -->
       <div class="svc-card" id="virtual-address">
         <div class="svc-card-header orange">
-          <div class="svc-icon">&#128205;</div>
+          <div class="svc-icon-wrap"><div class="svc-icon">&#128205;</div></div>
           <div class="svc-name">Virtual Mailing Address</div>
-          <div class="svc-price"><strong>$29/month</strong> &nbsp;&middot;&nbsp; Cancel anytime</div>
+          <div class="svc-price"><strong>$29/month</strong></div>
+          <div class="svc-price-sub">Cancel anytime</div>
         </div>
         <div class="svc-body">
           <p class="svc-desc">Get a professional Florida business address. Your home address stays private on all public Florida Division of Corporations records.</p>
@@ -386,9 +388,10 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
       <!-- ANNUAL REPORT -->
       <div class="svc-card" id="annual-report">
         <div class="svc-card-header slate">
-          <div class="svc-icon">&#128197;</div>
+          <div class="svc-icon-wrap"><div class="svc-icon">&#128197;</div></div>
           <div class="svc-name">Annual Report Filing</div>
-          <div class="svc-price"><strong>Annual Service</strong> &nbsp;&middot;&nbsp; FL Deadline: May 1</div>
+          <div class="svc-price"><strong>Annual Service</strong></div>
+          <div class="svc-price-sub">FL Deadline: May 1</div>
         </div>
         <div class="svc-body">
           <p class="svc-desc">Every Florida LLC and Corporation must file an Annual Report between January 1 and May 1. Missing this deadline results in a $400 late fee and potential administrative dissolution.</p>
@@ -407,9 +410,10 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
       <!-- ARTICLES OF AMENDMENT -->
       <div class="svc-card" id="amendment">
         <div class="svc-card-header blue">
-          <div class="svc-icon">&#9998;</div>
+          <div class="svc-icon-wrap"><div class="svc-icon">&#9998;</div></div>
           <div class="svc-name">Articles of Amendment</div>
-          <div class="svc-price"><strong>$59</strong> + FL state fee</div>
+          <div class="svc-price"><strong>$59</strong></div>
+          <div class="svc-price-sub">+ FL state fee</div>
         </div>
         <div class="svc-body">
           <p class="svc-desc">Need to change your business name, address, registered agent, or officers? We prepare and file Articles of Amendment with the Florida Division of Corporations on your behalf.</p>
@@ -422,6 +426,226 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
           </div>
           <div class="svc-time">&#9889; Processing: 5–10 business days after submission</div>
           <button class="btn-svc-order" onclick="openServiceForm('amendment')">Order Articles of Amendment — $59 &#8594;</button>
+        </div>
+      </div>
+
+      <!-- BANKING RESOLUTION -->
+      <div class="svc-card" id="banking-resolution">
+        <div class="svc-card-header teal">
+          <div class="svc-icon-wrap"><div class="svc-icon">&#127968;</div></div>
+          <div class="svc-name">Banking Resolution</div>
+          <div class="svc-price"><strong>$49</strong></div>
+          <div class="svc-price-sub">One-time fee</div>
+        </div>
+        <div class="svc-body">
+          <p class="svc-desc">A Banking Resolution authorizes a member or officer to open a business bank account on behalf of your LLC or Corporation. Most banks require this document before opening your account.</p>
+          <div class="svc-includes">
+            <div class="svc-includes-title">What's included</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Custom Banking Resolution document</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Authorizes account opening on behalf of LLC</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Accepted by most U.S. banks</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Delivered by email (PDF)</div>
+          </div>
+          <div class="svc-time">&#9889; Processing: 1–2 business days</div>
+          <button class="btn-svc-order" onclick="openServiceForm('banking-resolution')">Order Banking Resolution — $49 &#8594;</button>
+        </div>
+      </div>
+
+      <!-- BUSINESS TAX RECEIPT -->
+      <div class="svc-card" id="business-tax-receipt">
+        <div class="svc-card-header orange">
+          <div class="svc-icon-wrap"><div class="svc-icon">&#128203;</div></div>
+          <div class="svc-name">Business Tax Receipt</div>
+          <div class="svc-price"><strong>$79</strong></div>
+          <div class="svc-price-sub">+ county fee</div>
+        </div>
+        <div class="svc-body">
+          <p class="svc-desc">A Business Tax Receipt (formerly Occupational License) is required to legally operate your business in most Florida counties. We handle the application and filing with your local county.</p>
+          <div class="svc-includes">
+            <div class="svc-includes-title">What's included</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> County-specific BTR application preparation</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Filing with your local Florida county</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Required to legally operate in FL counties</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Business Tax Receipt certificate delivered</div>
+          </div>
+          <div class="svc-time">&#9889; Processing: 3–7 business days</div>
+          <button class="btn-svc-order" onclick="openServiceForm('business-tax-receipt')">Order Business Tax Receipt — $79 &#8594;</button>
+        </div>
+      </div>
+
+      <!-- SALES TAX REGISTRATION -->
+      <div class="svc-card" id="sales-tax-registration">
+        <div class="svc-card-header green">
+          <div class="svc-icon-wrap"><div class="svc-icon">&#128200;</div></div>
+          <div class="svc-name">Sales Tax Registration</div>
+          <div class="svc-price"><strong>$79</strong></div>
+          <div class="svc-price-sub">One-time fee</div>
+        </div>
+        <div class="svc-body">
+          <p class="svc-desc">Any Florida business that sells products or taxable services must register with the Florida Department of Revenue to collect and remit sales tax. We handle the registration on your behalf.</p>
+          <div class="svc-includes">
+            <div class="svc-includes-title">What's included</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> FL Department of Revenue registration</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Sales tax certificate (DR-11)</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Required for businesses selling taxable goods</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Filing instructions included</div>
+          </div>
+          <div class="svc-time">&#9889; Processing: 2–5 business days</div>
+          <button class="btn-svc-order green" onclick="openServiceForm('sales-tax-registration')">Order Sales Tax Registration — $79 &#8594;</button>
+        </div>
+      </div>
+
+      <!-- EXCLUSIVE FORMATION GUIDE -->
+      <div class="svc-card" id="exclusive-guide">
+        <div class="svc-card-header gold">
+          <div class="svc-icon-wrap"><div class="svc-icon">&#128218;</div></div>
+          <div class="svc-name">Exclusive Formation Guide</div>
+          <div class="svc-price"><strong>$49</strong></div>
+          <div class="svc-price-sub">One-time fee</div>
+        </div>
+        <div class="svc-body">
+          <p class="svc-desc">Our Exclusive Formation Guide gives you everything you need to get your Florida business off to the best possible start — from banking requirements to compliance checklists.</p>
+          <div class="svc-includes">
+            <div class="svc-includes-title">What's included</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Step-by-step post-formation checklist</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Banking requirements &amp; account opening tips</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Florida compliance calendar &amp; deadlines</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Delivered by email (PDF)</div>
+          </div>
+          <div class="svc-time">&#9889; Delivery: Same business day</div>
+          <button class="btn-svc-order gold" onclick="openServiceForm('exclusive-guide')">Order Exclusive Guide — $49 &#8594;</button>
+        </div>
+      </div>
+
+      <!-- CERTIFICATE OF GOOD STANDING -->
+      <div class="svc-card" id="good-standing">
+        <div class="svc-card-header blue">
+          <div class="svc-icon-wrap"><div class="svc-icon">&#127894;</div></div>
+          <div class="svc-name">Certificate of Good Standing</div>
+          <div class="svc-price"><strong>$49</strong></div>
+          <div class="svc-price-sub">+ FL state fee</div>
+        </div>
+        <div class="svc-body">
+          <p class="svc-desc">A Certificate of Good Standing proves your business is active and compliant with the State of Florida. Required by banks, investors, and government agencies before entering contracts.</p>
+          <div class="svc-includes">
+            <div class="svc-includes-title">What's included</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Official certificate from FL Division of Corps</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Certified digital &amp; physical copy</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Accepted by banks, investors &amp; agencies</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Apostille available upon request</div>
+          </div>
+          <div class="svc-time">&#9889; Processing: 1–3 business days</div>
+          <button class="btn-svc-order" onclick="openServiceForm('good-standing')">Order Certificate — $49 &#8594;</button>
+        </div>
+      </div>
+
+      <!-- S-CORP ELECTION -->
+      <div class="svc-card" id="scorp-election">
+        <div class="svc-card-header purple">
+          <div class="svc-icon-wrap"><div class="svc-icon">&#11088;</div></div>
+          <div class="svc-name">S-Corp Election (Form 2553)</div>
+          <div class="svc-price"><strong>$79</strong></div>
+          <div class="svc-price-sub">One-time fee</div>
+        </div>
+        <div class="svc-body">
+          <p class="svc-desc">Elect S-Corporation tax status with the IRS to save on self-employment taxes. Available for existing LLCs and C-Corps. Must be filed within 75 days of formation or by March 15.</p>
+          <div class="svc-includes">
+            <div class="svc-includes-title">What's included</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> IRS Form 2553 preparation &amp; submission</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> IRS acceptance confirmation letter</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Deadline guidance &amp; tax year advisory</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Only for U.S. citizens &amp; permanent residents</div>
+          </div>
+          <div class="svc-time">&#9889; Processing: 2–4 weeks (IRS processing)</div>
+          <button class="btn-svc-order" onclick="openServiceForm('scorp-election')">Order S-Corp Election — $79 &#8594;</button>
+        </div>
+      </div>
+
+      <!-- FOREIGN LLC REGISTRATION -->
+      <div class="svc-card" id="foreign-llc">
+        <div class="svc-card-header teal">
+          <div class="svc-icon-wrap"><div class="svc-icon">&#127758;</div></div>
+          <div class="svc-name">Foreign LLC / Corp Registration</div>
+          <div class="svc-price"><strong>$99</strong></div>
+          <div class="svc-price-sub">+ state filing fee</div>
+        </div>
+        <div class="svc-body">
+          <p class="svc-desc">If your Florida LLC or Corporation operates in another U.S. state, you must register as a Foreign Entity in that state. We handle the filing so your business stays legally compliant.</p>
+          <div class="svc-includes">
+            <div class="svc-includes-title">What's included</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Foreign qualification filing in target state</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Certificate of Authority from FL Division of Corps</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Registered Agent in target state included</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Available for all 50 U.S. states</div>
+          </div>
+          <div class="svc-time">&#9889; Processing: 5–10 business days</div>
+          <button class="btn-svc-order" onclick="openServiceForm('foreign-llc')">Order Foreign Registration — $99 &#8594;</button>
+        </div>
+      </div>
+
+      <!-- BUSINESS LICENSE -->
+      <div class="svc-card" id="business-license">
+        <div class="svc-card-header orange">
+          <div class="svc-icon-wrap"><div class="svc-icon">&#128203;</div></div>
+          <div class="svc-name">Business License</div>
+          <div class="svc-price"><strong>$99</strong></div>
+          <div class="svc-price-sub">One-time fee</div>
+        </div>
+        <div class="svc-body">
+          <p class="svc-desc">We handle the application for your Florida business license — identifying exactly which federal, state, and local licenses your business needs and filing them on your behalf.</p>
+          <div class="svc-includes">
+            <div class="svc-includes-title">What's included</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Federal, state &amp; local license application</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Industry-specific &amp; location-based filing</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Step-by-step application process</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Confirmation delivered by email</div>
+          </div>
+          <div class="svc-time">&#9889; Processing: 2–3 business days</div>
+          <button class="btn-svc-order" onclick="openServiceForm('business-license')">Order Business License — $99 &#8594;</button>
+        </div>
+      </div>
+
+      <!-- BUSINESS DISSOLUTION -->
+      <div class="svc-card" id="dissolution">
+        <div class="svc-card-header slate">
+          <div class="svc-icon-wrap"><div class="svc-icon">&#128230;</div></div>
+          <div class="svc-name">Business Dissolution</div>
+          <div class="svc-price"><strong>$79</strong></div>
+          <div class="svc-price-sub">+ FL state fee</div>
+        </div>
+        <div class="svc-body">
+          <p class="svc-desc">Closing your business? We properly dissolve your Florida LLC or Corporation with the state so you stop accumulating annual fees and avoid future liability.</p>
+          <div class="svc-includes">
+            <div class="svc-includes-title">What's included</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Articles of Dissolution prepared &amp; filed</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> FL Division of Corporations submission</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Dissolution confirmation from the state</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Stops annual report obligations</div>
+          </div>
+          <div class="svc-time">&#9889; Processing: 3–7 business days</div>
+          <button class="btn-svc-order" onclick="openServiceForm('dissolution')">Order Dissolution — $79 &#8594;</button>
+        </div>
+      </div>
+
+      <!-- TAX ACCOUNT CLOSURE -->
+      <div class="svc-card" id="cierre-fiscal">
+        <div class="svc-card-header slate">
+          <div class="svc-icon-wrap"><div class="svc-icon">&#128274;</div></div>
+          <div class="svc-name">Tax Account Closure</div>
+          <div class="svc-price"><strong>$79</strong></div>
+          <div class="svc-price-sub">One-time fee</div>
+        </div>
+        <div class="svc-body">
+          <p class="svc-desc">Closing your business? We handle the proper closure of your tax accounts with the IRS and Florida Department of Revenue so you avoid future tax obligations and penalties.</p>
+          <div class="svc-includes">
+            <div class="svc-includes-title">What's included</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> IRS EIN account closure letter preparation</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> FL Department of Revenue account closure</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Guidance on final tax return obligations</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Confirmation documents delivered by email</div>
+          </div>
+          <div class="svc-time">&#9889; Processing: 5–10 business days</div>
+          <button class="btn-svc-order" onclick="openServiceForm('cierre-fiscal')">Order Tax Account Closure — $79 &#8594;</button>
         </div>
       </div>
 
@@ -618,10 +842,10 @@ var serviceForms={
     <div class="disclaimer">We prepare your custom Operating Agreement within 2–5 business days.</div>`
 },
 'itin':{
-  title:'ITIN Application — $69',
-  title_es:'Solicitud de ITIN — $69',
+  title:'ITIN Application — $135',
+  title_es:'Solicitud de ITIN — $135',
   sub:'IRS Form W-7 preparation for foreign nationals who need a US taxpayer identification number.',
-  price:'$69',
+  price:'$135',
   html:`
     <div class="info-box">&#127760; <strong>Who needs an ITIN?</strong> Foreign nationals, non-resident aliens, and individuals who must file US taxes but are not eligible for a Social Security Number (SSN).</div>
     <div class="warn-box">&#9888; ITIN processing by the IRS typically takes 6–10 weeks. Our service fee covers preparation and submission assistance only — the IRS issues the ITIN directly.</div>
@@ -644,8 +868,8 @@ var serviceForms={
     <div class="form-group"><label class="form-label">Email *</label><input type="email" class="form-input" placeholder="For status updates and ITIN delivery"/></div>
     <div class="form-group"><label class="form-label">WhatsApp / Phone</label><input type="tel" class="form-input" placeholder="+1 (XXX) XXX-XXXX or international number"/></div>
     <div class="form-group"><label class="form-label">Electronic Signature *</label><input type="text" class="form-input" placeholder="Type full legal name"/></div>
-    <div class="summary-box"><div class="summary-row"><span>ITIN Application Service</span><span>$69</span></div><div class="summary-row"><span>IRS Application Fee</span><span>FREE</span></div><div class="summary-row"><span style="font-weight:700">Total Today</span><span>$69</span></div></div>
-    <button class="btn-submit-svc" onclick="submitService()">&#x1F680; Order ITIN Application — $69 &#8594;</button>
+    <div class="summary-box"><div class="summary-row"><span>ITIN Application Service</span><span>$135</span></div><div class="summary-row"><span>IRS Application Fee</span><span>FREE</span></div><div class="summary-row"><span style="font-weight:700">Total Today</span><span>$135</span></div></div>
+    <button class="btn-submit-svc" onclick="submitService()">&#x1F680; Order ITIN Application — $135 &#8594;</button>
     <div class="disclaimer">ITIN is issued by the IRS. Processing takes 6–10 weeks. We are not a law firm and do not provide tax advice.</div>`
 },
 'dba':{
@@ -820,7 +1044,7 @@ function setLang(lang){
   var st=document.querySelector('.section-title'); if(st)st.textContent=isEs?'Todo lo que tu Negocio Necesita':'Everything Your Business Needs';
   var ss=document.querySelector('.section-sub'); if(ss)ss.innerHTML=isEs?'Ordena cualquier servicio a continuación, o ahorra con un <a href="paquetes.html" style="color:var(--blue);font-weight:600">paquete de formación</a>.':'Order any individual service below, or save with a <a href="paquetes.html" style="color:var(--blue);font-weight:600">formation package</a>.';
   document.querySelectorAll('.svc-includes-title').forEach(function(el){el.textContent=isEs?'Qué incluye':"What's included";});
-  var prM={'registered-agent':isEs?'<strong>Tarifa Anual</strong> &nbsp;&middot;&nbsp; Requerido por ley en FL':'<strong>Annual Fee</strong> &nbsp;&middot;&nbsp; Required by FL law','ein':isEs?'<strong>$49</strong> &nbsp;&middot;&nbsp; Pago único':'<strong>$49</strong> &nbsp;&middot;&nbsp; One-time fee','operating-agreement':isEs?'<strong>$79</strong> &nbsp;&middot;&nbsp; Pago único':'<strong>$79</strong> &nbsp;&middot;&nbsp; One-time fee','itin':isEs?'<strong>$69</strong> &nbsp;&middot;&nbsp; Pago único':'<strong>$69</strong> &nbsp;&middot;&nbsp; One-time fee','dba':isEs?'<strong>$49 + tarifa estatal FL</strong>':'<strong>$49 + FL state fee</strong>','virtual-address':isEs?'<strong>$29/mes</strong> &nbsp;&middot;&nbsp; Cancela cuando quieras':'<strong>$29/month</strong> &nbsp;&middot;&nbsp; Cancel anytime','annual-report':isEs?'<strong>Servicio Anual</strong> &nbsp;&middot;&nbsp; Fecha Límite FL: 1 de mayo':'<strong>Annual Service</strong> &nbsp;&middot;&nbsp; FL Deadline: May 1','amendment':isEs?'<strong>$59 + tarifa estatal FL</strong>':'<strong>$59 + FL state fee</strong>'};
+  var prM={'registered-agent':isEs?'<strong>Tarifa Anual</strong> &nbsp;&middot;&nbsp; Requerido por ley en FL':'<strong>Annual Fee</strong> &nbsp;&middot;&nbsp; Required by FL law','ein':isEs?'<strong>$49</strong> &nbsp;&middot;&nbsp; Pago único':'<strong>$49</strong> &nbsp;&middot;&nbsp; One-time fee','operating-agreement':isEs?'<strong>$79</strong> &nbsp;&middot;&nbsp; Pago único':'<strong>$79</strong> &nbsp;&middot;&nbsp; One-time fee','itin':isEs?'<strong>$135</strong> &nbsp;&middot;&nbsp; Pago único':'<strong>$135</strong> &nbsp;&middot;&nbsp; One-time fee','dba':isEs?'<strong>$49 + tarifa estatal FL</strong>':'<strong>$49 + FL state fee</strong>','virtual-address':isEs?'<strong>$29/mes</strong> &nbsp;&middot;&nbsp; Cancela cuando quieras':'<strong>$29/month</strong> &nbsp;&middot;&nbsp; Cancel anytime','annual-report':isEs?'<strong>Servicio Anual</strong> &nbsp;&middot;&nbsp; Fecha Límite FL: 1 de mayo':'<strong>Annual Service</strong> &nbsp;&middot;&nbsp; FL Deadline: May 1','amendment':isEs?'<strong>$59 + tarifa estatal FL</strong>':'<strong>$59 + FL state fee</strong>'};
   Object.keys(prM).forEach(function(sid){var card=document.getElementById(sid);if(!card)return;var pd=card.querySelector('.svc-price');if(pd)pd.innerHTML=prM[sid];});
   var iE={'registered-agent':['Dirección oficial en FL para tu negocio','Acepta notificaciones y documentos legales','Cambio de Agente Registrado tramitado ante el estado','Reenvío de documentos y notificación por correo'],'ein':['Preparación y envío de la solicitud de EIN ante el IRS','Verificación del nombre del negocio','Entrega del EIN en 1-3 días hábiles','Soporte durante todo el proceso'],'operating-agreement':['Acuerdo Operativo personalizado para tu LLC','Cubre estructura de propiedad, gestión y finanzas','Entrega digital en 2-5 días hábiles','Listo para bancos e instituciones financieras'],'itin':['Preparación del Formulario W-7 del IRS','Guía sobre documentos requeridos','Presentación ante el IRS en tu nombre','El ITIN llega en 6-10 semanas (procesamiento IRS)'],'dba':['Registro del Nombre Ficticio ante la División de Corporaciones FL','Validez por 5 años','Publicación en periódico si aplica','Entrega en 1-3 días hábiles'],'virtual-address':['Dirección postal profesional en Florida','Recepción y escaneo de correspondencia','Notificación digital cuando llega correo','Tu dirección personal no aparece en registros públicos'],'annual-report':['Preparación y envío de la Declaración Anual ante Sunbiz','Verificación de datos registrados','Confirmación de presentación exitosa','Protección contra multas y disolución'],'amendment':['Preparación del documento de enmienda','Tramitación ante la División de Corporaciones FL','Verificación de registros actuales','Confirmación y entrega en 1-3 días hábiles']};
   var iEn={'registered-agent':['Official FL street address for your business','Accepts service of process &amp; legal documents','Change of Registered Agent filed with state','Document forwarding &amp; email notifications'],'ein':['IRS EIN application preparation and submission','Business name verification','EIN delivered within 1-3 business days','Full support throughout the process'],'operating-agreement':['Custom Operating Agreement for your LLC','Covers ownership, management &amp; finances','Digital delivery in 2-5 business days','Ready for banks and financial institutions'],'itin':['IRS Form W-7 preparation','Guidance on required documents','Filing with the IRS on your behalf','ITIN arrives in 6-10 weeks (IRS processing)'],'dba':['Fictitious Name registration with FL Division of Corporations','Valid for 5 years','Newspaper publication if required','Delivered in 1-3 business days'],'virtual-address':['Professional FL mailing address','Mail receipt and scanning','Digital notification when mail arrives','Your personal address stays off public records'],'annual-report':['Annual Report preparation and submission to Sunbiz','Verification of current registered data','Confirmation of successful filing','Protection against late fees and dissolution'],'amendment':['Amendment document preparation','Filed with FL Division of Corporations','Verification of current records','Confirmation and delivery in 1-3 business days']};
@@ -895,8 +1119,8 @@ function openServiceForm(svcId){
   document.getElementById('svcFormSub').textContent=isEs&&svc.sub_es?svc.sub_es:svc.sub;
   document.getElementById('svcFormBody').innerHTML=svc.html;
   if(isEs){translateFormLabels();}
-  var prEn={'registered-agent':'Annual Fee', 'ein':'$49 — One-time fee', 'operating-agreement':'$79 — One-time fee', 'itin':'$69 — One-time fee', 'dba':'$49 + FL state fee', 'virtual-address':'$29/month — Cancel anytime', 'annual-report':'Annual Service', 'amendment':'$59 + FL state fee'};
-  var prEs={'registered-agent':'Tarifa Anual', 'ein':'$49 — Pago único', 'operating-agreement':'$79 — Pago único', 'itin':'$69 — Pago único', 'dba':'$49 + tarifa estatal FL', 'virtual-address':'$29/mes — Cancela cuando quieras', 'annual-report':'Servicio Anual', 'amendment':'$59 + tarifa estatal FL'};
+  var prEn={'registered-agent':'Annual Fee', 'ein':'$49 — One-time fee', 'operating-agreement':'$79 — One-time fee', 'itin':'$135 — One-time fee', 'dba':'$49 + FL state fee', 'virtual-address':'$29/month — Cancel anytime', 'annual-report':'Annual Service', 'amendment':'$59 + FL state fee'};
+  var prEs={'registered-agent':'Tarifa Anual', 'ein':'$49 — Pago único', 'operating-agreement':'$79 — Pago único', 'itin':'$135 — Pago único', 'dba':'$49 + tarifa estatal FL', 'virtual-address':'$29/mes — Cancela cuando quieras', 'annual-report':'Servicio Anual', 'amendment':'$59 + tarifa estatal FL'};
   var bgEn={'registered-agent':'Required by FL Law', 'ein':'Federal Requirement', 'operating-agreement':'Bank Required', 'itin':'IRS Issued', 'dba':'FL State Filing', 'virtual-address':'Privacy Protection', 'annual-report':'Deadline: May 1', 'amendment':'FL State Filing'};
   var bgEs={'registered-agent':'Requerido por Ley en FL', 'ein':'Requisito Federal', 'operating-agreement':'Requerido por el Banco', 'itin':'Emitido por el IRS', 'dba':'Trámite Estatal FL', 'virtual-address':'Protección de Privacidad', 'annual-report':'Fecha Límite: 1 de mayo', 'amendment':'Trámite Estatal FL'};
   var tmEn={'registered-agent':'Same business day filing', 'ein':'1-3 business days', 'operating-agreement':'2-5 business days', 'itin':'6-10 weeks (IRS processing)', 'dba':'1-3 business days', 'virtual-address':'Active same business day', 'annual-report':'Filed within 24 hours', 'amendment':'1-3 business days'};
