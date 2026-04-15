@@ -319,7 +319,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
         <div class="svc-card-header purple">
           <div class="svc-icon">&#127760;</div>
           <div class="svc-name">ITIN Application</div>
-          <div class="svc-price"><strong>$69</strong> &nbsp;&middot;&nbsp; One-time fee</div>
+          <div class="svc-price"><strong>$135</strong> &nbsp;&middot;&nbsp; One-time fee</div>
         </div>
         <div class="svc-body">
           <p class="svc-desc">An ITIN (Individual Taxpayer Identification Number) is issued by the IRS to individuals who need to file US taxes but are not eligible for a Social Security Number.</p>
@@ -331,7 +331,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
             <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> For foreign nationals, non-resident aliens</div>
           </div>
           <div class="svc-time">&#128338; Processing: 6–10 weeks (IRS processing time)</div>
-          <button class="btn-svc-order" onclick="openServiceForm('itin')">Order ITIN Application — $69 &#8594;</button>
+          <button class="btn-svc-order" onclick="openServiceForm('itin')">Order ITIN Application — $135 &#8594;</button>
         </div>
       </div>
 
@@ -416,6 +416,48 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
           </div>
           <div class="svc-time">&#9889; Processing: 5–10 business days after submission</div>
           <button class="btn-svc-order" onclick="openServiceForm('amendment')">Order Articles of Amendment — $59 &#8594;</button>
+        </div>
+      </div>
+
+      <!-- BANKING RESOLUTION -->
+      <div class="svc-card" id="banking-resolution">
+        <div class="svc-card-header teal">
+          <div class="svc-icon">&#127968;</div>
+          <div class="svc-name">Banking Resolution</div>
+          <div class="svc-price"><strong>$49</strong> &nbsp;&middot;&nbsp; One-time fee</div>
+        </div>
+        <div class="svc-body">
+          <p class="svc-desc">A Banking Resolution authorizes a member or officer to open a business bank account on behalf of your LLC or Corporation. Most banks require this document before opening your account.</p>
+          <div class="svc-includes">
+            <div class="svc-includes-title">What's included</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Custom Banking Resolution document</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Authorizes account opening on behalf of LLC</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Accepted by most U.S. banks</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Delivered by email (PDF)</div>
+          </div>
+          <div class="svc-time">&#9889; Processing: 1–2 business days</div>
+          <button class="btn-svc-order" onclick="openServiceForm('banking-resolution')">Order Banking Resolution — $49 &#8594;</button>
+        </div>
+      </div>
+
+      <!-- BUSINESS TAX RECEIPT -->
+      <div class="svc-card" id="business-tax-receipt">
+        <div class="svc-card-header orange">
+          <div class="svc-icon">&#128203;</div>
+          <div class="svc-name">Business Tax Receipt</div>
+          <div class="svc-price"><strong>$79</strong> + county fee</div>
+        </div>
+        <div class="svc-body">
+          <p class="svc-desc">A Business Tax Receipt (formerly Occupational License) is required to legally operate your business in most Florida counties. We handle the application and filing with your local county.</p>
+          <div class="svc-includes">
+            <div class="svc-includes-title">What's included</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> County-specific BTR application preparation</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Filing with your local Florida county</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Required to legally operate in FL counties</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Business Tax Receipt certificate delivered</div>
+          </div>
+          <div class="svc-time">&#9889; Processing: 3–7 business days</div>
+          <button class="btn-svc-order" onclick="openServiceForm('business-tax-receipt')">Order Business Tax Receipt — $79 &#8594;</button>
         </div>
       </div>
 
@@ -612,10 +654,10 @@ var serviceForms={
     <div class="disclaimer">We prepare your custom Operating Agreement within 2–5 business days.</div>\`
 },
 'itin':{
-  title:'ITIN Application — $69',
-  title_es:'Solicitud de ITIN — $69',
+  title:'ITIN Application — $135',
+  title_es:'Solicitud de ITIN — $135',
   sub:'IRS Form W-7 preparation for foreign nationals who need a US taxpayer identification number.',
-  price:'$69',
+  price:'$135',
   html:\`
     <div class="info-box">&#127760; <strong>Who needs an ITIN?</strong> Foreign nationals, non-resident aliens, and individuals who must file US taxes but are not eligible for a Social Security Number (SSN).</div>
     <div class="warn-box">&#9888; ITIN processing by the IRS typically takes 6–10 weeks. Our service fee covers preparation and submission assistance only — the IRS issues the ITIN directly.</div>
@@ -638,8 +680,8 @@ var serviceForms={
     <div class="form-group"><label class="form-label">Email *</label><input type="email" class="form-input" placeholder="For status updates and ITIN delivery"/></div>
     <div class="form-group"><label class="form-label">WhatsApp / Phone</label><input type="tel" class="form-input" placeholder="+1 (XXX) XXX-XXXX or international number"/></div>
     <div class="form-group"><label class="form-label">Electronic Signature *</label><input type="text" class="form-input" placeholder="Type full legal name"/></div>
-    <div class="summary-box"><div class="summary-row"><span>ITIN Application Service</span><span>$69</span></div><div class="summary-row"><span>IRS Application Fee</span><span>FREE</span></div><div class="summary-row"><span style="font-weight:700">Total Today</span><span>$69</span></div></div>
-    <button class="btn-submit-svc" onclick="submitService()">&#x1F680; Order ITIN Application — $69 &#8594;</button>
+    <div class="summary-box"><div class="summary-row"><span>ITIN Application Service</span><span>$135</span></div><div class="summary-row"><span>IRS Application Fee</span><span>FREE</span></div><div class="summary-row"><span style="font-weight:700">Total Today</span><span>$135</span></div></div>
+    <button class="btn-submit-svc" onclick="submitService()">&#x1F680; Order ITIN Application — $135 &#8594;</button>
     <div class="disclaimer">ITIN is issued by the IRS. Processing takes 6–10 weeks. We are not a law firm and do not provide tax advice.</div>\`
 },
 'dba':{
@@ -814,7 +856,7 @@ function setLang(lang){
   var st=document.querySelector('.section-title'); if(st)st.textContent=isEs?'Todo lo que tu Negocio Necesita':'Everything Your Business Needs';
   var ss=document.querySelector('.section-sub'); if(ss)ss.innerHTML=isEs?'Ordena cualquier servicio a continuación, o ahorra con un <a href="paquetes.html" style="color:var(--blue);font-weight:600">paquete de formación</a>.':'Order any individual service below, or save with a <a href="paquetes.html" style="color:var(--blue);font-weight:600">formation package</a>.';
   document.querySelectorAll('.svc-includes-title').forEach(function(el){el.textContent=isEs?'Qué incluye':"What's included";});
-  var prM={'registered-agent':isEs?'<strong>Tarifa Anual</strong> &nbsp;&middot;&nbsp; Requerido por ley en FL':'<strong>Annual Fee</strong> &nbsp;&middot;&nbsp; Required by FL law','ein':isEs?'<strong>$49</strong> &nbsp;&middot;&nbsp; Pago único':'<strong>$49</strong> &nbsp;&middot;&nbsp; One-time fee','operating-agreement':isEs?'<strong>$79</strong> &nbsp;&middot;&nbsp; Pago único':'<strong>$79</strong> &nbsp;&middot;&nbsp; One-time fee','itin':isEs?'<strong>$69</strong> &nbsp;&middot;&nbsp; Pago único':'<strong>$69</strong> &nbsp;&middot;&nbsp; One-time fee','dba':isEs?'<strong>$49 + tarifa estatal FL</strong>':'<strong>$49 + FL state fee</strong>','virtual-address':isEs?'<strong>$29/mes</strong> &nbsp;&middot;&nbsp; Cancela cuando quieras':'<strong>$29/month</strong> &nbsp;&middot;&nbsp; Cancel anytime','annual-report':isEs?'<strong>Servicio Anual</strong> &nbsp;&middot;&nbsp; Fecha Límite FL: 1 de mayo':'<strong>Annual Service</strong> &nbsp;&middot;&nbsp; FL Deadline: May 1','amendment':isEs?'<strong>$59 + tarifa estatal FL</strong>':'<strong>$59 + FL state fee</strong>'};
+  var prM={'registered-agent':isEs?'<strong>Tarifa Anual</strong> &nbsp;&middot;&nbsp; Requerido por ley en FL':'<strong>Annual Fee</strong> &nbsp;&middot;&nbsp; Required by FL law','ein':isEs?'<strong>$49</strong> &nbsp;&middot;&nbsp; Pago único':'<strong>$49</strong> &nbsp;&middot;&nbsp; One-time fee','operating-agreement':isEs?'<strong>$79</strong> &nbsp;&middot;&nbsp; Pago único':'<strong>$79</strong> &nbsp;&middot;&nbsp; One-time fee','itin':isEs?'<strong>$135</strong> &nbsp;&middot;&nbsp; Pago único':'<strong>$135</strong> &nbsp;&middot;&nbsp; One-time fee','dba':isEs?'<strong>$49 + tarifa estatal FL</strong>':'<strong>$49 + FL state fee</strong>','virtual-address':isEs?'<strong>$29/mes</strong> &nbsp;&middot;&nbsp; Cancela cuando quieras':'<strong>$29/month</strong> &nbsp;&middot;&nbsp; Cancel anytime','annual-report':isEs?'<strong>Servicio Anual</strong> &nbsp;&middot;&nbsp; Fecha Límite FL: 1 de mayo':'<strong>Annual Service</strong> &nbsp;&middot;&nbsp; FL Deadline: May 1','amendment':isEs?'<strong>$59 + tarifa estatal FL</strong>':'<strong>$59 + FL state fee</strong>'};
   Object.keys(prM).forEach(function(sid){var card=document.getElementById(sid);if(!card)return;var pd=card.querySelector('.svc-price');if(pd)pd.innerHTML=prM[sid];});
   var iE={'registered-agent':['Dirección oficial en FL para tu negocio','Acepta notificaciones y documentos legales','Cambio de Agente Registrado tramitado ante el estado','Reenvío de documentos y notificación por correo'],'ein':['Preparación y envío de la solicitud de EIN ante el IRS','Verificación del nombre del negocio','Entrega del EIN en 1-3 días hábiles','Soporte durante todo el proceso'],'operating-agreement':['Acuerdo Operativo personalizado para tu LLC','Cubre estructura de propiedad, gestión y finanzas','Entrega digital en 2-5 días hábiles','Listo para bancos e instituciones financieras'],'itin':['Preparación del Formulario W-7 del IRS','Guía sobre documentos requeridos','Presentación ante el IRS en tu nombre','El ITIN llega en 6-10 semanas (procesamiento IRS)'],'dba':['Registro del Nombre Ficticio ante la División de Corporaciones FL','Validez por 5 años','Publicación en periódico si aplica','Entrega en 1-3 días hábiles'],'virtual-address':['Dirección postal profesional en Florida','Recepción y escaneo de correspondencia','Notificación digital cuando llega correo','Tu dirección personal no aparece en registros públicos'],'annual-report':['Preparación y envío de la Declaración Anual ante Sunbiz','Verificación de datos registrados','Confirmación de presentación exitosa','Protección contra multas y disolución'],'amendment':['Preparación del documento de enmienda','Tramitación ante la División de Corporaciones FL','Verificación de registros actuales','Confirmación y entrega en 1-3 días hábiles']};
   var iEn={'registered-agent':['Official FL street address for your business','Accepts service of process &amp; legal documents','Change of Registered Agent filed with state','Document forwarding &amp; email notifications'],'ein':['IRS EIN application preparation and submission','Business name verification','EIN delivered within 1-3 business days','Full support throughout the process'],'operating-agreement':['Custom Operating Agreement for your LLC','Covers ownership, management &amp; finances','Digital delivery in 2-5 business days','Ready for banks and financial institutions'],'itin':['IRS Form W-7 preparation','Guidance on required documents','Filing with the IRS on your behalf','ITIN arrives in 6-10 weeks (IRS processing)'],'dba':['Fictitious Name registration with FL Division of Corporations','Valid for 5 years','Newspaper publication if required','Delivered in 1-3 business days'],'virtual-address':['Professional FL mailing address','Mail receipt and scanning','Digital notification when mail arrives','Your personal address stays off public records'],'annual-report':['Annual Report preparation and submission to Sunbiz','Verification of current registered data','Confirmation of successful filing','Protection against late fees and dissolution'],'amendment':['Amendment document preparation','Filed with FL Division of Corporations','Verification of current records','Confirmation and delivery in 1-3 business days']};
@@ -889,8 +931,8 @@ function openServiceForm(svcId){
   document.getElementById('svcFormSub').textContent=isEs&&svc.sub_es?svc.sub_es:svc.sub;
   document.getElementById('svcFormBody').innerHTML=svc.html;
   if(isEs){translateFormLabels();}
-  var prEn={'registered-agent':'Annual Fee', 'ein':'$49 — One-time fee', 'operating-agreement':'$79 — One-time fee', 'itin':'$69 — One-time fee', 'dba':'$49 + FL state fee', 'virtual-address':'$29/month — Cancel anytime', 'annual-report':'Annual Service', 'amendment':'$59 + FL state fee'};
-  var prEs={'registered-agent':'Tarifa Anual', 'ein':'$49 — Pago único', 'operating-agreement':'$79 — Pago único', 'itin':'$69 — Pago único', 'dba':'$49 + tarifa estatal FL', 'virtual-address':'$29/mes — Cancela cuando quieras', 'annual-report':'Servicio Anual', 'amendment':'$59 + tarifa estatal FL'};
+  var prEn={'registered-agent':'Annual Fee', 'ein':'$49 — One-time fee', 'operating-agreement':'$79 — One-time fee', 'itin':'$135 — One-time fee', 'dba':'$49 + FL state fee', 'virtual-address':'$29/month — Cancel anytime', 'annual-report':'Annual Service', 'amendment':'$59 + FL state fee'};
+  var prEs={'registered-agent':'Tarifa Anual', 'ein':'$49 — Pago único', 'operating-agreement':'$79 — Pago único', 'itin':'$135 — Pago único', 'dba':'$49 + tarifa estatal FL', 'virtual-address':'$29/mes — Cancela cuando quieras', 'annual-report':'Servicio Anual', 'amendment':'$59 + tarifa estatal FL'};
   var bgEn={'registered-agent':'Required by FL Law', 'ein':'Federal Requirement', 'operating-agreement':'Bank Required', 'itin':'IRS Issued', 'dba':'FL State Filing', 'virtual-address':'Privacy Protection', 'annual-report':'Deadline: May 1', 'amendment':'FL State Filing'};
   var bgEs={'registered-agent':'Requerido por Ley en FL', 'ein':'Requisito Federal', 'operating-agreement':'Requerido por el Banco', 'itin':'Emitido por el IRS', 'dba':'Trámite Estatal FL', 'virtual-address':'Protección de Privacidad', 'annual-report':'Fecha Límite: 1 de mayo', 'amendment':'Trámite Estatal FL'};
   var tmEn={'registered-agent':'Same business day filing', 'ein':'1-3 business days', 'operating-agreement':'2-5 business days', 'itin':'6-10 weeks (IRS processing)', 'dba':'1-3 business days', 'virtual-address':'Active same business day', 'annual-report':'Filed within 24 hours', 'amendment':'1-3 business days'};
