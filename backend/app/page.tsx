@@ -650,7 +650,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
       <div class="pkg-card" onclick="openFormFromPkg('basic')" onmouseenter="pkgHighlight(this)" onmouseleave="pkgUnhighlight(this)">
         <div class="pkg-head">
           <div class="pkg-name">Basic</div>
-          <div class="pkg-price-row"><span class="pkg-price">$49</span></div>
+          <div class="pkg-price-row"><span class="pkg-price">$0</span></div>
           <div class="pkg-state-fee">+ Florida state fee*</div>
           <button class="pkg-cta pkg-cta-basic" onclick="openFormFromPkg('basic')">Get Started</button>
         </div>
@@ -659,13 +659,16 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           <div class="svc-row"><span class="svc-name">LLC or Corporation Formation</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name">FL Certificate of Formation</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name">Name Availability Search</span><span class="svc-status s-check">✓</span></div>
+          <div class="svc-row"><span class="svc-name">Guía Exclusiva de Formación</span><span class="svc-status s-check">✓</span></div>
+          <div class="svc-row"><span class="svc-name">BOI Filing (FinCEN)</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name">EIN / Tax ID Number</span><span class="svc-status s-add">+ $49</span></div>
+          <div class="svc-row"><span class="svc-name">Banking Resolution</span><span class="svc-status s-add">+ $49</span></div>
+          <div class="svc-row"><span class="svc-name">Business Tax Receipt</span><span class="svc-status s-add">+ $79</span></div>
+          <div class="svc-row"><span class="svc-name">Sales Tax Registration</span><span class="svc-status s-add">+ $79</span></div>
           <div class="svc-row"><span class="svc-name">Operating Agreement</span><span class="svc-status s-add">+ $79</span></div>
-          <div class="svc-row"><span class="svc-name" style="color:#2563EB;font-weight:600">⚡ Expedited Filing available at checkout</span><span class="svc-status" style="font-size:.7rem;color:#2563EB">+ $99</span></div>
-          <div class="svc-row"><span class="svc-name">Bank Account Guide</span><span class="svc-status s-add">+ $29</span></div>
-          <div class="svc-row"><span class="svc-name">ITIN Application</span><span class="svc-status s-add">+ $69</span></div>
           <div class="svc-row"><span class="svc-name">DBA / Fictitious Name</span><span class="svc-status s-add">+ $49</span></div>
           <div class="svc-row"><span class="svc-name">Articles of Amendment</span><span class="svc-status s-add">+ $59</span></div>
+          <div class="svc-row"><span class="svc-name">Registered Agent</span><span class="svc-status" style="font-size:.68rem;color:#94a3b8">🕐 Coming Soon</span></div>
         </div>
       </div>
 
@@ -674,7 +677,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
         <div class="pkg-head">
           <div class="popular-tag">⭐ Most Popular</div>
           <div class="pkg-name">Standard</div>
-          <div class="pkg-price-row"><span class="pkg-price">$149</span></div>
+          <div class="pkg-price-row"><span class="pkg-price">$199</span></div>
           <div class="pkg-state-fee">+ Florida state fee*</div>
           <button class="pkg-cta pkg-cta-featured" onclick="openFormFromPkg('standard')">Get Started</button>
         </div>
@@ -683,13 +686,16 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           <div class="svc-row"><span class="svc-name">LLC or Corporation Formation</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name">FL Certificate of Formation</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name">Name Availability Search</span><span class="svc-status s-check">✓</span></div>
+          <div class="svc-row"><span class="svc-name">Guía Exclusiva de Formación</span><span class="svc-status s-check">✓</span></div>
+          <div class="svc-row"><span class="svc-name">BOI Filing (FinCEN)</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name">EIN / Tax ID Number</span><span class="svc-status s-check">✓</span></div>
+          <div class="svc-row"><span class="svc-name">Banking Resolution</span><span class="svc-status s-check">✓</span></div>
+          <div class="svc-row"><span class="svc-name">DBA / Fictitious Name</span><span class="svc-status s-check">✓</span></div>
+          <div class="svc-row"><span class="svc-name">Business Tax Receipt</span><span class="svc-status s-add">+ $79</span></div>
+          <div class="svc-row"><span class="svc-name">Sales Tax Registration</span><span class="svc-status s-add">+ $79</span></div>
           <div class="svc-row"><span class="svc-name">Operating Agreement</span><span class="svc-status s-add">+ $79</span></div>
-          <div class="svc-row"><span class="svc-name" style="color:#2563EB;font-weight:600">⚡ Expedited Filing available at checkout</span><span class="svc-status" style="font-size:.7rem;color:#2563EB">+ $99</span></div>
-          <div class="svc-row"><span class="svc-name">Bank Account Guide</span><span class="svc-status s-check">✓</span></div>
-          <div class="svc-row"><span class="svc-name">ITIN Application</span><span class="svc-status s-add">+ $69</span></div>
-          <div class="svc-row"><span class="svc-name">DBA / Fictitious Name</span><span class="svc-status s-add">+ $49</span></div>
           <div class="svc-row"><span class="svc-name">Articles of Amendment</span><span class="svc-status s-add">+ $59</span></div>
+          <div class="svc-row"><span class="svc-name">Registered Agent</span><span class="svc-status" style="font-size:.68rem;color:#94a3b8">🕐 Coming Soon</span></div>
         </div>
       </div>
 
@@ -697,7 +703,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
       <div class="pkg-card" onclick="openFormFromPkg('premium')" onmouseenter="pkgHighlight(this)" onmouseleave="pkgUnhighlight(this)">
         <div class="pkg-head">
           <div class="pkg-name">Premium</div>
-          <div class="pkg-price-row"><span class="pkg-price">$249</span></div>
+          <div class="pkg-price-row"><span class="pkg-price">$299</span></div>
           <div class="pkg-state-fee">+ Florida state fee*</div>
           <button class="pkg-cta pkg-cta-premium" onclick="openFormFromPkg('premium')">Get Started</button>
         </div>
@@ -706,13 +712,16 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           <div class="svc-row"><span class="svc-name">LLC or Corporation Formation</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name">FL Certificate of Formation</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name">Name Availability Search</span><span class="svc-status s-check">✓</span></div>
+          <div class="svc-row"><span class="svc-name">Guía Exclusiva de Formación</span><span class="svc-status s-check">✓</span></div>
+          <div class="svc-row"><span class="svc-name">BOI Filing (FinCEN)</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name">EIN / Tax ID Number</span><span class="svc-status s-check">✓</span></div>
-          <div class="svc-row"><span class="svc-name">Operating Agreement</span><span class="svc-status s-check">✓</span></div>
-          <div class="svc-row"><span class="svc-name">Expedited Filing</span><span class="svc-status s-check">&#10003;</span></div>
-          <div class="svc-row"><span class="svc-name">Bank Account Guide</span><span class="svc-status s-check">✓</span></div>
-          <div class="svc-row"><span class="svc-name">ITIN Application</span><span class="svc-status s-check">✓</span></div>
+          <div class="svc-row"><span class="svc-name">Banking Resolution</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name">DBA / Fictitious Name</span><span class="svc-status s-check">✓</span></div>
+          <div class="svc-row"><span class="svc-name">Operating Agreement</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name">Articles of Amendment</span><span class="svc-status s-check">✓</span></div>
+          <div class="svc-row"><span class="svc-name">Business Tax Receipt</span><span class="svc-status s-add">+ $79</span></div>
+          <div class="svc-row"><span class="svc-name">Sales Tax Registration</span><span class="svc-status s-add">+ $79</span></div>
+          <div class="svc-row"><span class="svc-name">Registered Agent</span><span class="svc-status" style="font-size:.68rem;color:#94a3b8">🕐 Coming Soon</span></div>
         </div>
       </div>
     </div>
