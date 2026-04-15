@@ -636,9 +636,21 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 
         </div>
       </div>
-        <button class="btn-hero-new btn-hero-continue" onclick="openContinueModal()" id="btn-continue-app">
-          &#x1F50D; <span id="lbl-continue-app">Continue My Application</span>
+      <div style="position:relative;display:inline-block">
+        <button class="btn-hero-new btn-hero-continue" onclick="toggleContinueDropdown()" id="btn-continue-app" style="display:flex;align-items:center;gap:8px">
+          &#x1F50D; <span id="lbl-continue-app">Continue My Application</span> <span id="continue-arrow" style="font-size:.7rem;transition:transform .2s">▼</span>
         </button>
+        <div id="continueDropdown" style="display:none;position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#fff;border-radius:12px;box-shadow:0 8px 32px rgba(28,46,68,0.18);border:1px solid #e2e8f0;overflow:hidden;min-width:280px;z-index:500;padding:20px">
+          <div style="font-size:.82rem;font-weight:600;color:#1C2E44;margin-bottom:10px" id="cont-drop-title">Order Number</div>
+          <input type="text" id="inp-continue-order-drop" placeholder="E.G. FBFC-12345" style="width:100%;padding:10px 14px;border:1.5px solid #e5e7eb;border-radius:9px;font-size:.88rem;font-family:inherit;color:#1e293b;box-sizing:border-box;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter')findOrderDrop()"/>
+          <div style="font-size:.72rem;color:#9ca3af;margin-bottom:12px" id="cont-drop-hint">Your order number starts with <strong>FBFC-</strong></div>
+          <div id="cont-drop-error" style="display:none;color:#ef4444;font-size:.75rem;margin-bottom:10px;padding:7px 10px;background:#fef2f2;border-radius:7px"></div>
+          <button onclick="findOrderDrop()" style="width:100%;background:#2563eb;color:#fff;padding:11px;border-radius:9px;font-size:.85rem;font-weight:700;border:none;cursor:pointer;font-family:inherit" id="cont-drop-btn">&#x1F50D; Find My Application</button>
+          <div style="text-align:center;margin-top:12px;font-size:.75rem;color:#9ca3af">
+            <button onclick="closeContinueDropdown();openEntityModal();" style="background:none;border:none;color:#2563eb;font-size:.75rem;font-weight:600;cursor:pointer;font-family:inherit;text-decoration:underline" id="cont-drop-new-lbl">Start a new application</button>
+          </div>
+        </div>
+      </div>
       </div>
       <span class="section-label" id="price-label">Our Packages</span>
       <h2 class="section-title" id="price-title">Choose Your Formation Package</h2>
@@ -5569,6 +5581,61 @@ document.addEventListener('click', function(e) {
   if(dd && btn && !btn.contains(e.target)) {
     dd.style.display = 'none';
     var arrow = document.getElementById('entity-arrow');
+    if(arrow) arrow.style.transform = 'rotate(0deg)';
+  }
+});
+
+function toggleContinueDropdown() {
+  var dd = document.getElementById('continueDropdown');
+  var arrow = document.getElementById('continue-arrow');
+  var isEs = currentLang === 'es';
+  var title = document.getElementById('cont-drop-title');
+  var hint = document.getElementById('cont-drop-hint');
+  var btn = document.getElementById('cont-drop-btn');
+  var newLbl = document.getElementById('cont-drop-new-lbl');
+  var inp = document.getElementById('inp-continue-order-drop');
+  if(title) title.textContent = isEs ? 'Número de Orden' : 'Order Number';
+  if(hint) hint.innerHTML = isEs ? 'Tu número de orden empieza con <strong>FBFC-</strong>' : 'Your order number starts with <strong>FBFC-</strong>';
+  if(btn) btn.innerHTML = isEs ? '&#x1F50D; Buscar Mi Aplicación' : '&#x1F50D; Find My Application';
+  if(newLbl) newLbl.textContent = isEs ? 'Iniciar una nueva aplicación' : 'Start a new application';
+  if(inp) inp.placeholder = 'E.G. FBFC-12345';
+  if(dd) {
+    var isOpen = dd.style.display === 'block';
+    dd.style.display = isOpen ? 'none' : 'block';
+    if(arrow) arrow.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+  }
+}
+
+function closeContinueDropdown() {
+  var dd = document.getElementById('continueDropdown');
+  var arrow = document.getElementById('continue-arrow');
+  if(dd) dd.style.display = 'none';
+  if(arrow) arrow.style.transform = 'rotate(0deg)';
+}
+
+function findOrderDrop() {
+  var inp = document.getElementById('inp-continue-order-drop');
+  var errEl = document.getElementById('cont-drop-error');
+  var isEs = currentLang === 'es';
+  if(!inp || !inp.value.trim()) {
+    if(errEl) { errEl.textContent = isEs ? 'Por favor ingresa tu número de orden.' : 'Please enter your order number.'; errEl.style.display = 'block'; }
+    return;
+  }
+  if(errEl) errEl.style.display = 'none';
+  var orderNum = inp.value.trim().toUpperCase();
+  inp.value = orderNum;
+  closeContinueDropdown();
+  var existingInp = document.getElementById('inp-continue-order');
+  if(existingInp) existingInp.value = orderNum;
+  findOrder();
+}
+
+document.addEventListener('click', function(e) {
+  var dd = document.getElementById('continueDropdown');
+  var btn = document.getElementById('btn-continue-app');
+  if(dd && btn && !btn.parentNode.contains(e.target)) {
+    dd.style.display = 'none';
+    var arrow = document.getElementById('continue-arrow');
     if(arrow) arrow.style.transform = 'rotate(0deg)';
   }
 });
