@@ -598,6 +598,34 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
   </div>
 </header>
 
+<!-- ENTITY SELECTION MODAL -->
+<div id="entityModal" style="display:none;position:fixed;inset:0;z-index:3000;background:rgba(7,19,54,0.75);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:18px;padding:36px 32px;max-width:520px;width:100%;box-shadow:0 24px 64px rgba(28,46,68,0.22);position:relative">
+    <button onclick="closeEntityModal()" style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:1.4rem;cursor:pointer;color:#94a3b8">&#x2715;</button>
+    <h3 id="entity-modal-title" style="font-family:'Fraunces',serif;font-size:1.4rem;color:#1C2E44;font-weight:700;margin-bottom:8px;text-align:center">What type of business do you want to form?</h3>
+    <p id="entity-modal-sub" style="font-size:.85rem;color:#475569;text-align:center;margin-bottom:28px">Choose the structure that best fits your needs</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+
+      <!-- LLC -->
+      <div onclick="selectEntity('llc')" style="border:2px solid #e2e8f0;border-radius:12px;padding:24px 16px;cursor:pointer;text-align:center;transition:all .2s;position:relative" onmouseover="this.style.borderColor='#2563EB';this.style.background='#EFF6FF'" onmouseout="this.style.borderColor='#e2e8f0';this.style.background='#fff'">
+        <div style="font-size:2rem;margin-bottom:10px">🏢</div>
+        <div style="font-family:'Fraunces',serif;font-size:1.1rem;font-weight:700;color:#1C2E44;margin-bottom:6px">LLC</div>
+        <div style="font-size:.78rem;color:#475569;line-height:1.5" id="llc-desc">Limited Liability Company</div>
+        <div class="entity-tooltip" style="display:none;position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#1C2E44;color:#fff;font-size:.75rem;padding:10px 14px;border-radius:8px;width:200px;line-height:1.5;z-index:10" id="llc-tooltip">Flexible structure, fewer formal requirements, ideal for small businesses and entrepreneurs</div>
+      </div>
+
+      <!-- Corporation -->
+      <div onclick="selectEntity('corp')" style="border:2px solid #e2e8f0;border-radius:12px;padding:24px 16px;cursor:pointer;text-align:center;transition:all .2s;position:relative" onmouseover="this.style.borderColor='#2563EB';this.style.background='#EFF6FF'" onmouseout="this.style.borderColor='#e2e8f0';this.style.background='#fff'">
+        <div style="font-size:2rem;margin-bottom:10px">📊</div>
+        <div style="font-family:'Fraunces',serif;font-size:1.1rem;font-weight:700;color:#1C2E44;margin-bottom:6px">Corporation</div>
+        <div style="font-size:.78rem;color:#475569;line-height:1.5" id="corp-desc">C-Corp or S-Corp</div>
+        <div class="entity-tooltip" style="display:none;position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#1C2E44;color:#fff;font-size:.75rem;padding:10px 14px;border-radius:8px;width:200px;line-height:1.5;z-index:10" id="corp-tooltip">Formal structure, ideal for businesses seeking investors or planning to issue stock</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 <!-- HERO -->
 <section class="hero">
   <div class="hero-inner">
@@ -612,7 +640,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
   <div class="section-inner">
     <div class="text-center">
       <div class="hero-btns" style="margin-top:0;margin-bottom:20px">
-        <button class="btn-hero-new btn-hero-start" onclick="openForm()" id="btn-new-app">
+        <button class="btn-hero-new btn-hero-start" onclick="openEntityModal()" id="btn-new-app">
           &#x1F680; <span id="lbl-new-app">Start New Application</span>
         </button>
         <button class="btn-hero-new btn-hero-continue" onclick="openContinueModal()" id="btn-continue-app">
@@ -640,7 +668,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           <div class="svc-row"><span class="svc-name">Name Availability Search</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name">EIN / Tax ID Number</span><span class="svc-status s-add">+ $49</span></div>
           <div class="svc-row"><span class="svc-name">Operating Agreement</span><span class="svc-status s-add">+ $79</span></div>
-          <div class="svc-row"><span class="svc-name">Expedited Filing</span><span class="svc-status s-add">+ $99</span></div>
+          <div class="svc-row"><span class="svc-name" style="color:#2563EB;font-weight:600">⚡ Expedited Filing available at checkout</span><span class="svc-status" style="font-size:.7rem;color:#2563EB">+ $99</span></div>
           <div class="svc-row"><span class="svc-name">Bank Account Guide</span><span class="svc-status s-add">+ $29</span></div>
           <div class="svc-row"><span class="svc-name">ITIN Application</span><span class="svc-status s-add">+ $69</span></div>
           <div class="svc-row"><span class="svc-name">DBA / Fictitious Name</span><span class="svc-status s-add">+ $49</span></div>
@@ -664,7 +692,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           <div class="svc-row"><span class="svc-name">Name Availability Search</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name">EIN / Tax ID Number</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name">Operating Agreement</span><span class="svc-status s-add">+ $79</span></div>
-          <div class="svc-row"><span class="svc-name">Expedited Filing</span><span class="svc-status s-add">+ $99</span></div>
+          <div class="svc-row"><span class="svc-name" style="color:#2563EB;font-weight:600">⚡ Expedited Filing available at checkout</span><span class="svc-status" style="font-size:.7rem;color:#2563EB">+ $99</span></div>
           <div class="svc-row"><span class="svc-name">Bank Account Guide</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name">ITIN Application</span><span class="svc-status s-add">+ $69</span></div>
           <div class="svc-row"><span class="svc-name">DBA / Fictitious Name</span><span class="svc-status s-add">+ $49</span></div>
@@ -5505,7 +5533,42 @@ fmSetEntity=function(type,el){
 };
 
 
+function openEntityModal() {
+  var isEs = currentLang === 'es';
+  var modal = document.getElementById('entityModal');
+  var title = document.getElementById('entity-modal-title');
+  var sub = document.getElementById('entity-modal-sub');
+  var llcDesc = document.getElementById('llc-desc');
+  var corpDesc = document.getElementById('corp-desc');
+  var llcTooltip = document.getElementById('llc-tooltip');
+  var corpTooltip = document.getElementById('corp-tooltip');
+  if(title) title.textContent = isEs ? '¿Qué tipo de empresa quieres formar?' : 'What type of business do you want to form?';
+  if(sub) sub.textContent = isEs ? 'Elige la estructura que mejor se adapte a tus necesidades' : 'Choose the structure that best fits your needs';
+  if(llcDesc) llcDesc.textContent = isEs ? 'Compañía de Responsabilidad Limitada' : 'Limited Liability Company';
+  if(corpDesc) corpDesc.textContent = isEs ? 'C-Corp o S-Corp' : 'C-Corp or S-Corp';
+  if(llcTooltip) llcTooltip.textContent = isEs ? 'Estructura flexible, menos requisitos formales, ideal para pequeños negocios y emprendedores' : 'Flexible structure, fewer formal requirements, ideal for small businesses and entrepreneurs';
+  if(corpTooltip) corpTooltip.textContent = isEs ? 'Estructura formal, ideal para negocios que buscan inversores o emitir acciones' : 'Formal structure, ideal for businesses seeking investors or planning to issue stock';
+  if(modal) { modal.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+}
 
+function closeEntityModal() {
+  var modal = document.getElementById('entityModal');
+  if(modal) { modal.style.display = 'none'; document.body.style.overflow = ''; }
+}
+
+function selectEntity(type) {
+  closeEntityModal();
+  var pricing = document.getElementById('pricing');
+  if(pricing) pricing.scrollIntoView({behavior:'smooth'});
+  setTimeout(function() {
+    var btn = type === 'llc' ? document.getElementById('fms-et-llc') : document.getElementById('fms-et-corp');
+    if(btn) btn.click();
+  }, 800);
+}
+
+document.getElementById('entityModal').addEventListener('click', function(e) {
+  if(e.target === this) closeEntityModal();
+});
 </script>
 `
   return (
