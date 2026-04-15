@@ -1920,7 +1920,7 @@ var translations = {
     faqTitle:"Answers to Your Most Important Questions",
   es: {
     topbar: "🌟 Expertos de confianza en formación de negocios en Florida — <strong>LLC y Corporación</strong> de manera simple. Desde <strong>$49 + cargo estatal.</strong>",
-    heroTitle: 'Crea Tu <em>Negocio en Florida</em>, rápido y fácil',
+    heroTitle: 'Crea Tu <em>Negocio en Florida</em> rápido y fácil',
     heroSub: '',
     heroBadge: "La confianza de cientos de emprendedores en Florida",
     heroBtn1: "Iniciar Mi Negocio Hoy →", heroBtn2: "Cómo Funciona",
