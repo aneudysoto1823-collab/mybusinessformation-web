@@ -250,9 +250,10 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
       <!-- REGISTERED AGENT -->
       <div class="svc-card" id="registered-agent">
         <div class="svc-card-header blue">
-          <div class="svc-icon">&#127968;</div>
+          <div class="svc-icon-wrap"><div class="svc-icon">&#127968;</div></div>
           <div class="svc-name">Registered Agent</div>
-          <div class="svc-price"><strong>Annual Fee</strong> &nbsp;&middot;&nbsp; Required by FL law</div>
+          <div class="svc-price"><strong>Annual Fee</strong></div>
+          <div class="svc-price-sub">Required by FL law</div>
         </div>
         <div class="svc-body">
           <p class="svc-desc">Every Florida LLC and Corporation must have a Registered Agent with a physical FL street address. We receive your legal documents, tax notices, and official mail on your behalf.</p>
@@ -271,9 +272,10 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
       <!-- EIN -->
       <div class="svc-card" id="ein">
         <div class="svc-card-header green">
-          <div class="svc-icon">&#127981;</div>
+          <div class="svc-icon-wrap"><div class="svc-icon">&#127981;</div></div>
           <div class="svc-name">EIN / Tax ID Number</div>
-          <div class="svc-price"><strong>$49</strong> &nbsp;&middot;&nbsp; One-time fee</div>
+          <div class="svc-price"><strong>$49</strong></div>
+          <div class="svc-price-sub">One-time fee</div>
         </div>
         <div class="svc-body">
           <p class="svc-desc">Your federal Employer Identification Number (EIN) is a 9-digit IRS number required to open a business bank account, hire employees, and file federal taxes.</p>
@@ -292,9 +294,10 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
       <!-- OPERATING AGREEMENT -->
       <div class="svc-card" id="operating-agreement">
         <div class="svc-card-header gold">
-          <div class="svc-icon">&#128196;</div>
+          <div class="svc-icon-wrap"><div class="svc-icon">&#128196;</div></div>
           <div class="svc-name">Operating Agreement</div>
-          <div class="svc-price"><strong>$79</strong> &nbsp;&middot;&nbsp; One-time fee</div>
+          <div class="svc-price"><strong>$79</strong></div>
+          <div class="svc-price-sub">One-time fee</div>
         </div>
         <div class="svc-body">
           <p class="svc-desc">The Operating Agreement is your LLC's internal governing document — it defines ownership percentages, management roles, profit distribution, and decision-making rules.</p>
@@ -313,9 +316,10 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
       <!-- ITIN -->
       <div class="svc-card" id="itin">
         <div class="svc-card-header purple">
-          <div class="svc-icon">&#127760;</div>
+          <div class="svc-icon-wrap"><div class="svc-icon">&#127760;</div></div>
           <div class="svc-name">ITIN Application</div>
-          <div class="svc-price"><strong>$135</strong> &nbsp;&middot;&nbsp; One-time fee</div>
+          <div class="svc-price"><strong>$135</strong></div>
+          <div class="svc-price-sub">One-time fee</div>
         </div>
         <div class="svc-body">
           <p class="svc-desc">An ITIN (Individual Taxpayer Identification Number) is issued by the IRS to individuals who need to file US taxes but are not eligible for a Social Security Number.</p>
@@ -334,9 +338,10 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
       <!-- DBA -->
       <div class="svc-card" id="dba">
         <div class="svc-card-header teal">
-          <div class="svc-icon">&#127991;</div>
+          <div class="svc-icon-wrap"><div class="svc-icon">&#127991;</div></div>
           <div class="svc-name">DBA / Fictitious Name</div>
-          <div class="svc-price"><strong>$49</strong> + FL state fee</div>
+          <div class="svc-price"><strong>$49</strong></div>
+          <div class="svc-price-sub">+ FL state fee</div>
         </div>
         <div class="svc-body">
           <p class="svc-desc">A DBA (Doing Business As) or Fictitious Name lets your business operate under a different name from its registered legal name. Required for branding under an alternate name in Florida.</p>
@@ -355,9 +360,10 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
       <!-- VIRTUAL ADDRESS -->
       <div class="svc-card" id="virtual-address">
         <div class="svc-card-header orange">
-          <div class="svc-icon">&#128205;</div>
+          <div class="svc-icon-wrap"><div class="svc-icon">&#128205;</div></div>
           <div class="svc-name">Virtual Mailing Address</div>
-          <div class="svc-price"><strong>$29/month</strong> &nbsp;&middot;&nbsp; Cancel anytime</div>
+          <div class="svc-price"><strong>$29/month</strong></div>
+          <div class="svc-price-sub">Cancel anytime</div>
         </div>
         <div class="svc-body">
           <p class="svc-desc">Get a professional Florida business address. Your home address stays private on all public Florida Division of Corporations records.</p>
@@ -376,9 +382,10 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
       <!-- ANNUAL REPORT -->
       <div class="svc-card" id="annual-report">
         <div class="svc-card-header slate">
-          <div class="svc-icon">&#128197;</div>
+          <div class="svc-icon-wrap"><div class="svc-icon">&#128197;</div></div>
           <div class="svc-name">Annual Report Filing</div>
-          <div class="svc-price"><strong>Annual Service</strong> &nbsp;&middot;&nbsp; FL Deadline: May 1</div>
+          <div class="svc-price"><strong>Annual Service</strong></div>
+          <div class="svc-price-sub">FL Deadline: May 1</div>
         </div>
         <div class="svc-body">
           <p class="svc-desc">Every Florida LLC and Corporation must file an Annual Report between January 1 and May 1. Missing this deadline results in a $400 late fee and potential administrative dissolution.</p>
@@ -397,9 +404,10 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
       <!-- ARTICLES OF AMENDMENT -->
       <div class="svc-card" id="amendment">
         <div class="svc-card-header blue">
-          <div class="svc-icon">&#9998;</div>
+          <div class="svc-icon-wrap"><div class="svc-icon">&#9998;</div></div>
           <div class="svc-name">Articles of Amendment</div>
-          <div class="svc-price"><strong>$59</strong> + FL state fee</div>
+          <div class="svc-price"><strong>$59</strong></div>
+          <div class="svc-price-sub">+ FL state fee</div>
         </div>
         <div class="svc-body">
           <p class="svc-desc">Need to change your business name, address, registered agent, or officers? We prepare and file Articles of Amendment with the Florida Division of Corporations on your behalf.</p>
@@ -418,9 +426,10 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
       <!-- BANKING RESOLUTION -->
       <div class="svc-card" id="banking-resolution">
         <div class="svc-card-header teal">
-          <div class="svc-icon">&#127968;</div>
+          <div class="svc-icon-wrap"><div class="svc-icon">&#127968;</div></div>
           <div class="svc-name">Banking Resolution</div>
-          <div class="svc-price"><strong>$49</strong> &nbsp;&middot;&nbsp; One-time fee</div>
+          <div class="svc-price"><strong>$49</strong></div>
+          <div class="svc-price-sub">One-time fee</div>
         </div>
         <div class="svc-body">
           <p class="svc-desc">A Banking Resolution authorizes a member or officer to open a business bank account on behalf of your LLC or Corporation. Most banks require this document before opening your account.</p>
@@ -439,9 +448,10 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
       <!-- BUSINESS TAX RECEIPT -->
       <div class="svc-card" id="business-tax-receipt">
         <div class="svc-card-header orange">
-          <div class="svc-icon">&#128203;</div>
+          <div class="svc-icon-wrap"><div class="svc-icon">&#128203;</div></div>
           <div class="svc-name">Business Tax Receipt</div>
-          <div class="svc-price"><strong>$79</strong> + county fee</div>
+          <div class="svc-price"><strong>$79</strong></div>
+          <div class="svc-price-sub">+ county fee</div>
         </div>
         <div class="svc-body">
           <p class="svc-desc">A Business Tax Receipt (formerly Occupational License) is required to legally operate your business in most Florida counties. We handle the application and filing with your local county.</p>
@@ -460,9 +470,10 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
       <!-- SALES TAX REGISTRATION -->
       <div class="svc-card" id="sales-tax-registration">
         <div class="svc-card-header green">
-          <div class="svc-icon">&#128200;</div>
+          <div class="svc-icon-wrap"><div class="svc-icon">&#128200;</div></div>
           <div class="svc-name">Sales Tax Registration</div>
-          <div class="svc-price"><strong>$79</strong> &nbsp;&middot;&nbsp; One-time fee</div>
+          <div class="svc-price"><strong>$79</strong></div>
+          <div class="svc-price-sub">One-time fee</div>
         </div>
         <div class="svc-body">
           <p class="svc-desc">Any Florida business that sells products or taxable services must register with the Florida Department of Revenue to collect and remit sales tax. We handle the registration on your behalf.</p>
@@ -481,9 +492,10 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
       <!-- GUÍA EXCLUSIVA DE FORMACIÓN -->
       <div class="svc-card" id="exclusive-guide">
         <div class="svc-card-header gold">
-          <div class="svc-icon">&#128218;</div>
+          <div class="svc-icon-wrap"><div class="svc-icon">&#128218;</div></div>
           <div class="svc-name">Exclusive Formation Guide</div>
-          <div class="svc-price"><strong>$49</strong> &nbsp;&middot;&nbsp; One-time fee</div>
+          <div class="svc-price"><strong>$49</strong></div>
+          <div class="svc-price-sub">One-time fee</div>
         </div>
         <div class="svc-body">
           <p class="svc-desc">Our Exclusive Formation Guide gives you everything you need to get your Florida business off to the best possible start — from banking requirements to compliance checklists.</p>
@@ -502,9 +514,10 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
       <!-- CERTIFICATE OF GOOD STANDING -->
       <div class="svc-card" id="good-standing">
         <div class="svc-card-header blue">
-          <div class="svc-icon">&#127894;</div>
+          <div class="svc-icon-wrap"><div class="svc-icon">&#127894;</div></div>
           <div class="svc-name">Certificate of Good Standing</div>
-          <div class="svc-price"><strong>$49</strong> + FL state fee</div>
+          <div class="svc-price"><strong>$49</strong></div>
+          <div class="svc-price-sub">+ FL state fee</div>
         </div>
         <div class="svc-body">
           <p class="svc-desc">A Certificate of Good Standing proves your business is active and compliant with the State of Florida. Required by banks, investors, and government agencies before entering contracts.</p>
@@ -523,9 +536,10 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
       <!-- S-CORP ELECTION -->
       <div class="svc-card" id="scorp-election">
         <div class="svc-card-header purple">
-          <div class="svc-icon">&#11088;</div>
+          <div class="svc-icon-wrap"><div class="svc-icon">&#11088;</div></div>
           <div class="svc-name">S-Corp Election (Form 2553)</div>
-          <div class="svc-price"><strong>$79</strong> &nbsp;&middot;&nbsp; One-time fee</div>
+          <div class="svc-price"><strong>$79</strong></div>
+          <div class="svc-price-sub">One-time fee</div>
         </div>
         <div class="svc-body">
           <p class="svc-desc">Elect S-Corporation tax status with the IRS to save on self-employment taxes. Available for existing LLCs and C-Corps. Must be filed within 75 days of formation or by March 15.</p>
@@ -544,9 +558,10 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
       <!-- FOREIGN LLC REGISTRATION -->
       <div class="svc-card" id="foreign-llc">
         <div class="svc-card-header teal">
-          <div class="svc-icon">&#127758;</div>
+          <div class="svc-icon-wrap"><div class="svc-icon">&#127758;</div></div>
           <div class="svc-name">Foreign LLC / Corp Registration</div>
-          <div class="svc-price"><strong>$99</strong> + state filing fee</div>
+          <div class="svc-price"><strong>$99</strong></div>
+          <div class="svc-price-sub">+ state filing fee</div>
         </div>
         <div class="svc-body">
           <p class="svc-desc">If your Florida LLC or Corporation operates in another U.S. state, you must register as a Foreign Entity in that state. We handle the filing so your business stays legally compliant.</p>
@@ -565,9 +580,10 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
       <!-- BUSINESS LICENSE -->
       <div class="svc-card" id="business-license">
         <div class="svc-card-header orange">
-          <div class="svc-icon">&#128203;</div>
+          <div class="svc-icon-wrap"><div class="svc-icon">&#128203;</div></div>
           <div class="svc-name">Business License</div>
-          <div class="svc-price"><strong>$99</strong> &nbsp;&middot;&nbsp; One-time fee</div>
+          <div class="svc-price"><strong>$99</strong></div>
+          <div class="svc-price-sub">One-time fee</div>
         </div>
         <div class="svc-body">
           <p class="svc-desc">We handle the application for your Florida business license — identifying exactly which federal, state, and local licenses your business needs and filing them on your behalf.</p>
@@ -586,9 +602,10 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
       <!-- BUSINESS DISSOLUTION -->
       <div class="svc-card" id="dissolution">
         <div class="svc-card-header slate">
-          <div class="svc-icon">&#128230;</div>
+          <div class="svc-icon-wrap"><div class="svc-icon">&#128230;</div></div>
           <div class="svc-name">Business Dissolution</div>
-          <div class="svc-price"><strong>$79</strong> + FL state fee</div>
+          <div class="svc-price"><strong>$79</strong></div>
+          <div class="svc-price-sub">+ FL state fee</div>
         </div>
         <div class="svc-body">
           <p class="svc-desc">Closing your business? We properly dissolve your Florida LLC or Corporation with the state so you stop accumulating annual fees and avoid future liability.</p>
@@ -607,9 +624,10 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
       <!-- TAX ACCOUNT CLOSURE -->
       <div class="svc-card" id="cierre-fiscal">
         <div class="svc-card-header slate">
-          <div class="svc-icon">&#128274;</div>
+          <div class="svc-icon-wrap"><div class="svc-icon">&#128274;</div></div>
           <div class="svc-name">Tax Account Closure</div>
-          <div class="svc-price"><strong>$79</strong> &nbsp;&middot;&nbsp; One-time fee</div>
+          <div class="svc-price"><strong>$79</strong></div>
+          <div class="svc-price-sub">One-time fee</div>
         </div>
         <div class="svc-body">
           <p class="svc-desc">Closing your business? We handle the proper closure of your tax accounts with the IRS and Florida Department of Revenue so you avoid future tax obligations and penalties.</p>
