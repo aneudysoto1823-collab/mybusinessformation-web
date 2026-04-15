@@ -598,34 +598,6 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
   </div>
 </header>
 
-<!-- ENTITY SELECTION MODAL -->
-<div id="entityModal" style="display:none;position:fixed;inset:0;z-index:3000;background:rgba(7,19,54,0.75);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px">
-  <div style="background:#fff;border-radius:18px;padding:36px 32px;max-width:520px;width:100%;box-shadow:0 24px 64px rgba(28,46,68,0.22);position:relative">
-    <button onclick="closeEntityModal()" style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:1.4rem;cursor:pointer;color:#94a3b8">&#x2715;</button>
-    <h3 id="entity-modal-title" style="font-family:'Fraunces',serif;font-size:1.4rem;color:#1C2E44;font-weight:700;margin-bottom:8px;text-align:center">What type of business do you want to form?</h3>
-    <p id="entity-modal-sub" style="font-size:.85rem;color:#475569;text-align:center;margin-bottom:28px">Choose the structure that best fits your needs</p>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-
-      <!-- LLC -->
-      <div onclick="selectEntity('llc')" style="border:2px solid #e2e8f0;border-radius:12px;padding:24px 16px;cursor:pointer;text-align:center;transition:all .2s;position:relative" onmouseover="this.style.borderColor='#2563EB';this.style.background='#EFF6FF'" onmouseout="this.style.borderColor='#e2e8f0';this.style.background='#fff'">
-        <div style="font-size:2rem;margin-bottom:10px">🏢</div>
-        <div style="font-family:'Fraunces',serif;font-size:1.1rem;font-weight:700;color:#1C2E44;margin-bottom:6px">LLC</div>
-        <div style="font-size:.78rem;color:#475569;line-height:1.5" id="llc-desc">Limited Liability Company</div>
-        <div class="entity-tooltip" style="display:none;position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#1C2E44;color:#fff;font-size:.75rem;padding:10px 14px;border-radius:8px;width:200px;line-height:1.5;z-index:10" id="llc-tooltip">Flexible structure, fewer formal requirements, ideal for small businesses and entrepreneurs</div>
-      </div>
-
-      <!-- Corporation -->
-      <div onclick="selectEntity('corp')" style="border:2px solid #e2e8f0;border-radius:12px;padding:24px 16px;cursor:pointer;text-align:center;transition:all .2s;position:relative" onmouseover="this.style.borderColor='#2563EB';this.style.background='#EFF6FF'" onmouseout="this.style.borderColor='#e2e8f0';this.style.background='#fff'">
-        <div style="font-size:2rem;margin-bottom:10px">📊</div>
-        <div style="font-family:'Fraunces',serif;font-size:1.1rem;font-weight:700;color:#1C2E44;margin-bottom:6px">Corporation</div>
-        <div style="font-size:.78rem;color:#475569;line-height:1.5" id="corp-desc">C-Corp or S-Corp</div>
-        <div class="entity-tooltip" style="display:none;position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#1C2E44;color:#fff;font-size:.75rem;padding:10px 14px;border-radius:8px;width:200px;line-height:1.5;z-index:10" id="corp-tooltip">Formal structure, ideal for businesses seeking investors or planning to issue stock</div>
-      </div>
-
-    </div>
-  </div>
-</div>
-
 <!-- HERO -->
 <section class="hero">
   <div class="hero-inner">
@@ -640,9 +612,30 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
   <div class="section-inner">
     <div class="text-center">
       <div class="hero-btns" style="margin-top:0;margin-bottom:20px">
-        <button class="btn-hero-new btn-hero-start" onclick="openEntityModal()" id="btn-new-app">
-          &#x1F680; <span id="lbl-new-app">Start New Application</span>
+      <div style="position:relative;display:inline-block">
+        <button class="btn-hero-new btn-hero-start" onclick="toggleEntityDropdown()" id="btn-new-app" style="display:flex;align-items:center;gap:8px">
+          &#x1F680; <span id="lbl-new-app">Start New Application</span> <span id="entity-arrow" style="font-size:.7rem;transition:transform .2s">▼</span>
         </button>
+        <div id="entityDropdown" style="display:none;position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#fff;border-radius:12px;box-shadow:0 8px 32px rgba(28,46,68,0.18);border:1px solid #e2e8f0;overflow:hidden;min-width:240px;z-index:500">
+
+          <div onclick="selectEntity('llc')" style="padding:14px 20px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:background .2s;border-bottom:1px solid #f1f5f9" onmouseover="this.style.background='#EFF6FF'" onmouseout="this.style.background='#fff'">
+            <span style="font-size:1.4rem">🏢</span>
+            <div>
+              <div style="font-weight:700;color:#1C2E44;font-size:.9rem" id="llc-drop-label">LLC</div>
+              <div style="font-size:.75rem;color:#64748b" id="llc-drop-desc">Flexible · Ideal for small businesses</div>
+            </div>
+          </div>
+
+          <div onclick="selectEntity('corp')" style="padding:14px 20px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:background .2s" onmouseover="this.style.background='#EFF6FF'" onmouseout="this.style.background='#fff'">
+            <span style="font-size:1.4rem">📊</span>
+            <div>
+              <div style="font-weight:700;color:#1C2E44;font-size:.9rem" id="corp-drop-label">Corporation</div>
+              <div style="font-size:.75rem;color:#64748b" id="corp-drop-desc">Formal · Ideal for investors &amp; stock</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
         <button class="btn-hero-new btn-hero-continue" onclick="openContinueModal()" id="btn-continue-app">
           &#x1F50D; <span id="lbl-continue-app">Continue My Application</span>
         </button>
@@ -5533,31 +5526,26 @@ fmSetEntity=function(type,el){
 };
 
 
-function openEntityModal() {
+function toggleEntityDropdown() {
+  var dd = document.getElementById('entityDropdown');
+  var arrow = document.getElementById('entity-arrow');
   var isEs = currentLang === 'es';
-  var modal = document.getElementById('entityModal');
-  var title = document.getElementById('entity-modal-title');
-  var sub = document.getElementById('entity-modal-sub');
-  var llcDesc = document.getElementById('llc-desc');
-  var corpDesc = document.getElementById('corp-desc');
-  var llcTooltip = document.getElementById('llc-tooltip');
-  var corpTooltip = document.getElementById('corp-tooltip');
-  if(title) title.textContent = isEs ? '¿Qué tipo de empresa quieres formar?' : 'What type of business do you want to form?';
-  if(sub) sub.textContent = isEs ? 'Elige la estructura que mejor se adapte a tus necesidades' : 'Choose the structure that best fits your needs';
-  if(llcDesc) llcDesc.textContent = isEs ? 'Compañía de Responsabilidad Limitada' : 'Limited Liability Company';
-  if(corpDesc) corpDesc.textContent = isEs ? 'C-Corp o S-Corp' : 'C-Corp or S-Corp';
-  if(llcTooltip) llcTooltip.textContent = isEs ? 'Estructura flexible, menos requisitos formales, ideal para pequeños negocios y emprendedores' : 'Flexible structure, fewer formal requirements, ideal for small businesses and entrepreneurs';
-  if(corpTooltip) corpTooltip.textContent = isEs ? 'Estructura formal, ideal para negocios que buscan inversores o emitir acciones' : 'Formal structure, ideal for businesses seeking investors or planning to issue stock';
-  if(modal) { modal.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
-}
-
-function closeEntityModal() {
-  var modal = document.getElementById('entityModal');
-  if(modal) { modal.style.display = 'none'; document.body.style.overflow = ''; }
+  var llcDesc = document.getElementById('llc-drop-desc');
+  var corpDesc = document.getElementById('corp-drop-desc');
+  if(llcDesc) llcDesc.textContent = isEs ? 'Flexible · Ideal para pequeños negocios' : 'Flexible · Ideal for small businesses';
+  if(corpDesc) corpDesc.textContent = isEs ? 'Formal · Ideal para inversores y acciones' : 'Formal · Ideal for investors & stock';
+  if(dd) {
+    var isOpen = dd.style.display === 'block';
+    dd.style.display = isOpen ? 'none' : 'block';
+    if(arrow) arrow.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+  }
 }
 
 function selectEntity(type) {
-  closeEntityModal();
+  var dd = document.getElementById('entityDropdown');
+  var arrow = document.getElementById('entity-arrow');
+  if(dd) dd.style.display = 'none';
+  if(arrow) arrow.style.transform = 'rotate(0deg)';
   var pricing = document.getElementById('pricing');
   if(pricing) pricing.scrollIntoView({behavior:'smooth'});
   setTimeout(function() {
@@ -5566,8 +5554,14 @@ function selectEntity(type) {
   }, 800);
 }
 
-document.getElementById('entityModal').addEventListener('click', function(e) {
-  if(e.target === this) closeEntityModal();
+document.addEventListener('click', function(e) {
+  var dd = document.getElementById('entityDropdown');
+  var btn = document.getElementById('btn-new-app');
+  if(dd && btn && !btn.contains(e.target)) {
+    dd.style.display = 'none';
+    var arrow = document.getElementById('entity-arrow');
+    if(arrow) arrow.style.transform = 'rotate(0deg)';
+  }
 });
 </script>
 `
