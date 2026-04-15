@@ -36,9 +36,9 @@ nav a:hover{color:var(--navy);background:var(--gray100)}
 .btn-start:hover{background:var(--green-dark);transform:translateY(-1px)}
 
 /* ── HERO ── */
-.hero{background:var(--white);padding:36px 32px 28px;text-align:center}
-.hero-inner{max-width:760px;margin:0 auto}
-.hero h1{font-size:clamp(1.5rem,3vw,2rem);color:var(--navy);font-weight:700;margin-bottom:4px;letter-spacing:0}
+.hero{background:var(--white);padding:48px 32px 48px;text-align:center}
+.hero-inner{max-width:760px;margin:0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.hero h1{font-size:clamp(1.5rem,3vw,2rem);color:var(--navy);font-weight:700;margin-bottom:24px;letter-spacing:0}
 .hero h1 em{color:var(--blue);font-style:normal}
 .hero p{font-size:.8rem;color:var(--gray600);max-width:700px;margin:0 auto;font-weight:400;line-height:1.5}
 .btn-hero{background:var(--green);color:#fff;padding:15px 36px;border-radius:10px;font-size:1rem;font-weight:600;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;animation:pulse 2.5s infinite;transition:all 0.25s;box-shadow:0 4px 20px rgba(5,150,105,0.35)}
@@ -2745,8 +2745,8 @@ function setLang(lang) {
     var phStrong = phP.querySelector('strong');
     if(phStrong) {
       phStrong.nextSibling && (phStrong.nextSibling.textContent = isEs
-        ? ' La mayoría de nuestros clientes elige Standard — incluye EIN y Guía Bancaria, que los bancos normalmente requieren.'
-        : ' Most clients go with Standard — it covers EIN and Bank Account Guide, which banks typically require to open your business account.');
+        ? ' La mayoría de nuestros clientes elige Standard, incluye EIN y nuestra Guía Exclusiva de Formación, diseñada para darte el mejor arranque posible.'
+        : ' Most of our clients choose Standard, it includes EIN and our Exclusive Formation Guide, designed to give you the best possible start.');
     }
   }
 
