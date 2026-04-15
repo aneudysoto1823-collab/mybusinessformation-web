@@ -603,14 +603,6 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
   <div class="hero-inner">
     <h1 id="hero-title">Create Your <em>Florida Business</em>, fast and easy</h1>
     <p id="hero-sub"></p>
-    <div class="hero-btns">
-      <button class="btn-hero-new btn-hero-start" onclick="openForm()" id="btn-new-app">
-        &#x1F680; <span id="lbl-new-app">Start New Application</span>
-      </button>
-      <button class="btn-hero-new btn-hero-continue" onclick="openContinueModal()" id="btn-continue-app">
-        &#x1F50D; <span id="lbl-continue-app">Continue My Application</span>
-      </button>
-    </div>
   </div>
 </section>
 
@@ -619,6 +611,14 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 <section class="section" id="pricing" style="padding:52px 32px">
   <div class="section-inner">
     <div class="text-center">
+      <div class="hero-btns" style="margin-top:0;margin-bottom:20px">
+        <button class="btn-hero-new btn-hero-start" onclick="openForm()" id="btn-new-app">
+          &#x1F680; <span id="lbl-new-app">Start New Application</span>
+        </button>
+        <button class="btn-hero-new btn-hero-continue" onclick="openContinueModal()" id="btn-continue-app">
+          &#x1F50D; <span id="lbl-continue-app">Continue My Application</span>
+        </button>
+      </div>
       <span class="section-label" id="price-label">Our Packages</span>
       <h2 class="section-title" id="price-title">Choose Your Formation Package</h2>
     </div>
