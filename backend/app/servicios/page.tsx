@@ -52,19 +52,15 @@ nav a:hover{color:var(--navy);background:var(--gray100)}
 @media(max-width:640px){.services-grid{grid-template-columns:1fr}}
 /* SERVICE CARDS */
 .svc-card{border:1.5px solid var(--gray200);border-radius:16px;overflow:hidden;transition:all .25s;display:flex;flex-direction:column;background:var(--white)}
-.svc-card:hover{transform:translateY(-4px);box-shadow:0 16px 48px rgba(28,46,68,.12);border-color:var(--blue)}
-.svc-card-header{padding:24px 22px 18px}
-.svc-card-header.blue{background:linear-gradient(135deg,var(--navy),#1e4db7)}
-.svc-card-header.green{background:linear-gradient(135deg,#047857,#059669)}
-.svc-card-header.gold{background:linear-gradient(135deg,#B45309,var(--gold))}
-.svc-card-header.purple{background:linear-gradient(135deg,#5b21b6,#7c3aed)}
-.svc-card-header.teal{background:linear-gradient(135deg,#0e7490,#0891b2)}
-.svc-card-header.orange{background:linear-gradient(135deg,#c2410c,#ea580c)}
-.svc-card-header.slate{background:linear-gradient(135deg,#334155,#475569)}
-.svc-icon{font-size:2rem;margin-bottom:12px}
-.svc-name{font-family:'Fraunces',serif;font-size:1.15rem;font-weight:700;color:#fff;margin-bottom:5px}
-.svc-price{font-size:.88rem;color:rgba(255,255,255,.65);font-weight:500}
-.svc-price strong{color:#fff;font-size:1.1rem;font-family:'Fraunces',serif}
+.svc-card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(28,46,68,.10);border-color:var(--blue)}
+.svc-card-header{padding:24px 22px 18px;background:var(--white);border-bottom:1px solid var(--gray100)}
+.svc-card-header.blue,.svc-card-header.green,.svc-card-header.gold,.svc-card-header.purple,.svc-card-header.teal,.svc-card-header.orange,.svc-card-header.slate{background:var(--white)}
+.svc-icon-wrap{width:44px;height:44px;background:var(--blue-light);border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+.svc-icon{font-size:1.4rem}
+.svc-name{font-family:'Fraunces',serif;font-size:1.1rem;font-weight:700;color:var(--navy);margin-bottom:8px}
+.svc-price{display:flex;align-items:baseline;gap:4px;margin-bottom:2px}
+.svc-price strong{font-family:'Fraunces',serif;font-size:1.7rem;font-weight:900;color:var(--navy);line-height:1}
+.svc-price-sub{font-size:.75rem;color:var(--gray400);margin-top:2px}
 .svc-body{padding:18px 22px;flex:1;display:flex;flex-direction:column;gap:0}
 .svc-desc{font-size:.83rem;color:var(--gray600);line-height:1.75;margin-bottom:14px}
 .svc-includes{margin-bottom:16px}
@@ -72,10 +68,10 @@ nav a:hover{color:var(--navy);background:var(--gray100)}
 .svc-incl-item{display:flex;align-items:flex-start;gap:7px;font-size:.79rem;color:var(--gray800);margin-bottom:5px}
 .svc-incl-icon{color:var(--green);margin-top:2px;font-size:.85rem;flex-shrink:0}
 .svc-time{display:flex;align-items:center;gap:6px;font-size:.73rem;color:var(--gray500);margin-bottom:14px;padding:7px 10px;background:var(--gray50);border-radius:7px}
-.btn-svc-order{background:var(--blue);color:#fff;padding:11px;border-radius:9px;font-size:.87rem;font-weight:600;border:none;cursor:pointer;font-family:inherit;transition:all .2s;width:100%;margin-top:auto}
-.btn-svc-order:hover{background:var(--navy)}
-.btn-svc-order.green{background:var(--green)}.btn-svc-order.green:hover{background:var(--green-dark)}
-.btn-svc-order.gold{background:var(--gold);color:var(--navy)}.btn-svc-order.gold:hover{background:#d97706}
+.btn-svc-order{background:#fff;color:var(--navy);padding:11px;border-radius:9px;font-size:.87rem;font-weight:600;border:1.5px solid var(--gray200);cursor:pointer;font-family:inherit;transition:all .2s;width:100%;margin-top:auto}
+.btn-svc-order:hover{border-color:var(--blue);color:var(--blue);transform:translateY(-1px)}
+.btn-svc-order.green,.btn-svc-order.gold{background:#fff;color:var(--navy);border:1.5px solid var(--gray200)}
+.btn-svc-order.green:hover,.btn-svc-order.gold:hover{border-color:var(--blue);color:var(--blue)}
 /* BUNDLE BANNER */
 .bundle-section{background:linear-gradient(135deg,var(--navy),#1a3a6b);padding:56px 32px;text-align:center;color:#fff}
 .bundle-inner{max-width:900px;margin:0 auto}
@@ -458,6 +454,174 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
           </div>
           <div class="svc-time">&#9889; Processing: 3–7 business days</div>
           <button class="btn-svc-order" onclick="openServiceForm('business-tax-receipt')">Order Business Tax Receipt — $79 &#8594;</button>
+        </div>
+      </div>
+
+      <!-- SALES TAX REGISTRATION -->
+      <div class="svc-card" id="sales-tax-registration">
+        <div class="svc-card-header green">
+          <div class="svc-icon">&#128200;</div>
+          <div class="svc-name">Sales Tax Registration</div>
+          <div class="svc-price"><strong>$79</strong> &nbsp;&middot;&nbsp; One-time fee</div>
+        </div>
+        <div class="svc-body">
+          <p class="svc-desc">Any Florida business that sells products or taxable services must register with the Florida Department of Revenue to collect and remit sales tax. We handle the registration on your behalf.</p>
+          <div class="svc-includes">
+            <div class="svc-includes-title">What's included</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> FL Department of Revenue registration</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Sales tax certificate (DR-11)</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Required for businesses selling taxable goods</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Filing instructions included</div>
+          </div>
+          <div class="svc-time">&#9889; Processing: 2–5 business days</div>
+          <button class="btn-svc-order green" onclick="openServiceForm('sales-tax-registration')">Order Sales Tax Registration — $79 &#8594;</button>
+        </div>
+      </div>
+
+      <!-- GUÍA EXCLUSIVA DE FORMACIÓN -->
+      <div class="svc-card" id="exclusive-guide">
+        <div class="svc-card-header gold">
+          <div class="svc-icon">&#128218;</div>
+          <div class="svc-name">Exclusive Formation Guide</div>
+          <div class="svc-price"><strong>$49</strong> &nbsp;&middot;&nbsp; One-time fee</div>
+        </div>
+        <div class="svc-body">
+          <p class="svc-desc">Our Exclusive Formation Guide gives you everything you need to get your Florida business off to the best possible start — from banking requirements to compliance checklists.</p>
+          <div class="svc-includes">
+            <div class="svc-includes-title">What's included</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Step-by-step post-formation checklist</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Banking requirements &amp; account opening tips</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Florida compliance calendar &amp; deadlines</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Delivered by email (PDF)</div>
+          </div>
+          <div class="svc-time">&#9889; Delivery: Same business day</div>
+          <button class="btn-svc-order gold" onclick="openServiceForm('exclusive-guide')">Order Exclusive Guide — $49 &#8594;</button>
+        </div>
+      </div>
+
+      <!-- CERTIFICATE OF GOOD STANDING -->
+      <div class="svc-card" id="good-standing">
+        <div class="svc-card-header blue">
+          <div class="svc-icon">&#127894;</div>
+          <div class="svc-name">Certificate of Good Standing</div>
+          <div class="svc-price"><strong>$49</strong> + FL state fee</div>
+        </div>
+        <div class="svc-body">
+          <p class="svc-desc">A Certificate of Good Standing proves your business is active and compliant with the State of Florida. Required by banks, investors, and government agencies before entering contracts.</p>
+          <div class="svc-includes">
+            <div class="svc-includes-title">What's included</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Official certificate from FL Division of Corps</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Certified digital &amp; physical copy</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Accepted by banks, investors &amp; agencies</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Apostille available upon request</div>
+          </div>
+          <div class="svc-time">&#9889; Processing: 1–3 business days</div>
+          <button class="btn-svc-order" onclick="openServiceForm('good-standing')">Order Certificate — $49 &#8594;</button>
+        </div>
+      </div>
+
+      <!-- S-CORP ELECTION -->
+      <div class="svc-card" id="scorp-election">
+        <div class="svc-card-header purple">
+          <div class="svc-icon">&#11088;</div>
+          <div class="svc-name">S-Corp Election (Form 2553)</div>
+          <div class="svc-price"><strong>$79</strong> &nbsp;&middot;&nbsp; One-time fee</div>
+        </div>
+        <div class="svc-body">
+          <p class="svc-desc">Elect S-Corporation tax status with the IRS to save on self-employment taxes. Available for existing LLCs and C-Corps. Must be filed within 75 days of formation or by March 15.</p>
+          <div class="svc-includes">
+            <div class="svc-includes-title">What's included</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> IRS Form 2553 preparation &amp; submission</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> IRS acceptance confirmation letter</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Deadline guidance &amp; tax year advisory</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Only for U.S. citizens &amp; permanent residents</div>
+          </div>
+          <div class="svc-time">&#9889; Processing: 2–4 weeks (IRS processing)</div>
+          <button class="btn-svc-order" onclick="openServiceForm('scorp-election')">Order S-Corp Election — $79 &#8594;</button>
+        </div>
+      </div>
+
+      <!-- FOREIGN LLC REGISTRATION -->
+      <div class="svc-card" id="foreign-llc">
+        <div class="svc-card-header teal">
+          <div class="svc-icon">&#127758;</div>
+          <div class="svc-name">Foreign LLC / Corp Registration</div>
+          <div class="svc-price"><strong>$99</strong> + state filing fee</div>
+        </div>
+        <div class="svc-body">
+          <p class="svc-desc">If your Florida LLC or Corporation operates in another U.S. state, you must register as a Foreign Entity in that state. We handle the filing so your business stays legally compliant.</p>
+          <div class="svc-includes">
+            <div class="svc-includes-title">What's included</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Foreign qualification filing in target state</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Certificate of Authority from FL Division of Corps</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Registered Agent in target state included</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Available for all 50 U.S. states</div>
+          </div>
+          <div class="svc-time">&#9889; Processing: 5–10 business days</div>
+          <button class="btn-svc-order" onclick="openServiceForm('foreign-llc')">Order Foreign Registration — $99 &#8594;</button>
+        </div>
+      </div>
+
+      <!-- BUSINESS LICENSE -->
+      <div class="svc-card" id="business-license">
+        <div class="svc-card-header orange">
+          <div class="svc-icon">&#128203;</div>
+          <div class="svc-name">Business License</div>
+          <div class="svc-price"><strong>$99</strong> &nbsp;&middot;&nbsp; One-time fee</div>
+        </div>
+        <div class="svc-body">
+          <p class="svc-desc">We handle the application for your Florida business license — identifying exactly which federal, state, and local licenses your business needs and filing them on your behalf.</p>
+          <div class="svc-includes">
+            <div class="svc-includes-title">What's included</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Federal, state &amp; local license application</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Industry-specific &amp; location-based filing</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Step-by-step application process</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Confirmation delivered by email</div>
+          </div>
+          <div class="svc-time">&#9889; Processing: 2–3 business days</div>
+          <button class="btn-svc-order" onclick="openServiceForm('business-license')">Order Business License — $99 &#8594;</button>
+        </div>
+      </div>
+
+      <!-- BUSINESS DISSOLUTION -->
+      <div class="svc-card" id="dissolution">
+        <div class="svc-card-header slate">
+          <div class="svc-icon">&#128230;</div>
+          <div class="svc-name">Business Dissolution</div>
+          <div class="svc-price"><strong>$79</strong> + FL state fee</div>
+        </div>
+        <div class="svc-body">
+          <p class="svc-desc">Closing your business? We properly dissolve your Florida LLC or Corporation with the state so you stop accumulating annual fees and avoid future liability.</p>
+          <div class="svc-includes">
+            <div class="svc-includes-title">What's included</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Articles of Dissolution prepared &amp; filed</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> FL Division of Corporations submission</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Dissolution confirmation from the state</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Stops annual report obligations</div>
+          </div>
+          <div class="svc-time">&#9889; Processing: 3–7 business days</div>
+          <button class="btn-svc-order" onclick="openServiceForm('dissolution')">Order Dissolution — $79 &#8594;</button>
+        </div>
+      </div>
+
+      <!-- TAX ACCOUNT CLOSURE -->
+      <div class="svc-card" id="cierre-fiscal">
+        <div class="svc-card-header slate">
+          <div class="svc-icon">&#128274;</div>
+          <div class="svc-name">Tax Account Closure</div>
+          <div class="svc-price"><strong>$79</strong> &nbsp;&middot;&nbsp; One-time fee</div>
+        </div>
+        <div class="svc-body">
+          <p class="svc-desc">Closing your business? We handle the proper closure of your tax accounts with the IRS and Florida Department of Revenue so you avoid future tax obligations and penalties.</p>
+          <div class="svc-includes">
+            <div class="svc-includes-title">What's included</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> IRS EIN account closure letter preparation</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> FL Department of Revenue account closure</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Guidance on final tax return obligations</div>
+            <div class="svc-incl-item"><span class="svc-incl-icon">&#10003;</span> Confirmation documents delivered by email</div>
+          </div>
+          <div class="svc-time">&#9889; Processing: 5–10 business days</div>
+          <button class="btn-svc-order" onclick="openServiceForm('cierre-fiscal')">Order Tax Account Closure — $79 &#8594;</button>
         </div>
       </div>
 
