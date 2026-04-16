@@ -38,7 +38,7 @@ nav a:hover{color:var(--navy);background:var(--gray100)}
 /* ── HERO ── */
 .hero{background:var(--white);padding:48px 32px 48px;text-align:center}
 .hero-inner{max-width:760px;margin:0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.hero h1{font-size:clamp(1.5rem,3vw,2rem);color:var(--navy);font-weight:700;margin-bottom:24px;letter-spacing:0}
+.hero h1{font-size:clamp(1.15rem,2.2vw,1.55rem);color:var(--navy);font-weight:700;margin-bottom:20px;letter-spacing:0}
 .hero h1 em{color:var(--blue);font-style:normal}
 .hero p{font-size:.8rem;color:var(--gray600);max-width:700px;margin:0 auto;font-weight:400;line-height:1.5}
 .btn-hero{background:var(--green);color:#fff;padding:15px 36px;border-radius:10px;font-size:1rem;font-weight:600;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;animation:pulse 2.5s infinite;transition:all 0.25s;box-shadow:0 4px 20px rgba(5,150,105,0.35)}
@@ -629,23 +629,23 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
         <button class="btn-hero-new btn-hero-start" onclick="toggleEntityDropdown()" id="btn-new-app" style="display:flex;align-items:center;gap:8px">
           &#x1F680; <span id="lbl-new-app">Start New Application</span> <span id="entity-arrow" style="font-size:.7rem;transition:transform .2s">▼</span>
         </button>
-        <div id="entityDropdown" style="display:none;position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#fff;border-radius:12px;box-shadow:0 8px 32px rgba(28,46,68,0.18);border:1px solid #e2e8f0;overflow:hidden;min-width:240px;z-index:500">
+        <div id="entityDropdown" style="display:none;position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#fff;border-radius:12px;box-shadow:0 8px 32px rgba(28,46,68,0.18);border:1px solid #e2e8f0;overflow:hidden;min-width:240px;z-index:500;padding:8px;display:flex;flex-direction:column;gap:6px">
 
-          <div onclick="selectEntity('llc')" style="padding:14px 20px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:background .2s;border-bottom:1px solid #f1f5f9" onmouseover="this.style.background='#EFF6FF'" onmouseout="this.style.background='#fff'">
+          <button onclick="selectEntity('llc')" style="width:100%;background:#fff;border:2px solid #e2e8f0;border-radius:9px;padding:12px 16px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:all .2s;font-family:inherit;text-align:left" onmouseover="this.style.borderColor='#2563eb';this.style.background='#EFF6FF'" onmouseout="this.style.borderColor='#e2e8f0';this.style.background='#fff'">
             <span style="font-size:1.4rem">🏢</span>
             <div>
               <div style="font-weight:700;color:#1C2E44;font-size:.9rem" id="llc-drop-label">LLC</div>
               <div style="font-size:.75rem;color:#64748b" id="llc-drop-desc">Flexible · Ideal for small businesses</div>
             </div>
-          </div>
+          </button>
 
-          <div onclick="selectEntity('corp')" style="padding:14px 20px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:background .2s" onmouseover="this.style.background='#EFF6FF'" onmouseout="this.style.background='#fff'">
+          <button onclick="selectEntity('corp')" style="width:100%;background:#fff;border:2px solid #e2e8f0;border-radius:9px;padding:12px 16px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:all .2s;font-family:inherit;text-align:left" onmouseover="this.style.borderColor='#2563eb';this.style.background='#EFF6FF'" onmouseout="this.style.borderColor='#e2e8f0';this.style.background='#fff'">
             <span style="font-size:1.4rem">📊</span>
             <div>
               <div style="font-weight:700;color:#1C2E44;font-size:.9rem" id="corp-drop-label">Corporation</div>
               <div style="font-size:.75rem;color:#64748b" id="corp-drop-desc">Formal · Ideal for investors &amp; stock</div>
             </div>
-          </div>
+          </button>
 
         </div>
       </div>
@@ -657,14 +657,14 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           <div style="font-size:.82rem;font-weight:600;color:#1C2E44;margin-bottom:10px" id="cont-drop-title">Order Number</div>
           <input type="text" id="inp-continue-order-drop" placeholder="E.G. FBFC-12345" style="width:100%;padding:10px 14px;border:1.5px solid #e5e7eb;border-radius:9px;font-size:.88rem;font-family:inherit;color:#1e293b;box-sizing:border-box;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter')findOrderDrop()"/>
           <div id="cont-drop-error" style="display:none;color:#ef4444;font-size:.75rem;margin-bottom:10px;padding:7px 10px;background:#fef2f2;border-radius:7px"></div>
-          <button onclick="findOrderDrop()" class="btn-hero-new" style="width:100%;justify-content:center;background:#fff;color:var(--navy);border:2px solid var(--gray200)" id="cont-drop-btn">&#x1F50D; <span id="cont-drop-btn-lbl">Continue</span> &#8594;</button>
+          <button onclick="findOrderDrop()" class="btn-hero-new" style="width:100%;justify-content:center" id="cont-drop-btn"><span id="cont-drop-btn-lbl">Continue</span> &#8594;</button>
         </div>
       </div>
       </div>
       <span class="section-label" id="price-label">Our Packages</span>
       <h2 class="section-title" id="price-title">Choose Your Formation Package</h2>
     </div>
-    <p id="pkg-advice" style="font-size:0.83rem;color:var(--gray600);text-align:center;margin-bottom:24px;padding:10px 16px;background:var(--blue-light);border-radius:8px;max-width:560px;margin-left:auto;margin-right:auto"><strong style="color:var(--navy)" id="pkg-advice-title">Not sure which to choose?</strong> <span id="pkg-advice-body">Most clients go with Standard — it covers EIN and Bank Account Guide, which banks typically require to open your business account.</span></p>
+    <p id="pkg-advice" style="font-size:0.83rem;color:var(--gray600);text-align:center;margin-bottom:24px;padding:10px 16px;background:var(--blue-light);border-radius:8px;max-width:560px;margin-left:auto;margin-right:auto"><strong style="color:var(--navy)" id="pkg-advice-title">Not sure which to choose?</strong> <span id="pkg-advice-body">Most of our clients choose Standard — it includes EIN and our Exclusive Formation Guide, designed to give you the best possible start.</span></p>
     <div class="pricing-grid">
 
       <!-- BASIC -->
@@ -843,15 +843,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
   </div>
 </section>
 
-<!-- SERVICES GRID -->
-<section class="section services-bg" id="services">
-  <div class="section-inner">
-    <div class="text-center">
-      <span class="section-label" id="svc-label" data-en="Add-On Services" data-es="Servicios Adicionales">Add-On Services</span>
-      <h2 class="section-title" id="svc-title">Everything Your Business <em>Needs</em></h2>
-      <p class="section-sub" id="svc-sub" style="margin:0 auto">Individual services for every business need — order any service individually or save with a formation package.</p>
-    </div>
-    <div class="mini-svc-grid">
+<!-- FAQ --><section style="display:none"><div class="mini-svc-grid">
       <a class="mini-svc-card" href="servicios.html#registered-agent">
         <div class="mini-svc-top"><span class="mini-svc-icon">&#127968;</span><span class="mini-svc-name" data-en="Registered Agent" data-es="Agente Registrado">Registered Agent</span></div>
         <div class="mini-svc-price" data-en="Annual Fee" data-es="Tarifa Anual">Annual Fee</div>
@@ -961,11 +953,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
         <div class="mini-svc-arrow">Ver servicio &#8594;</div>
       </a>
     </div>
-    <div style="text-align:center;margin-top:40px">
-      <a href="servicios.html" style="display:inline-flex;align-items:center;gap:8px;background:var(--navy);color:#fff;padding:14px 32px;border-radius:10px;font-size:.92rem;font-weight:600;transition:all .22s" onmouseover="this.style.background='var(--blue)'" onmouseout="this.style.background='var(--navy)'"><span id="svc-view-all-btn" data-en="View All Services &rarr;" data-es="Ver Todos los Servicios &rarr;">View All Services &#8594;</span></a>
-    </div>
-  </div>
-</section>
+  </div></section>
 
 <!-- FAQ -->
 <section class="section" id="faq">
@@ -1042,23 +1030,28 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
         <p>Professional business formation services for entrepreneurs and investors. We file your LLC or Corporation with the State of Florida — accurately, efficiently, and with personal attention.</p>
         <p style="margin-top:10px;color:rgba(255,255,255,0.4);font-size:0.75rem">📧 <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="86efe8e0e9c6ebffe4f3f5efe8e3f5f5e0e9f4ebe7f2efe9e8a8e5e9eb">[email&#160;protected]</a></p>
       </div>
-      <div class="footer-col">
-        <h5 data-en="Services" data-es="Servicios">Services</h5>
-        <a href="servicios.html" data-en="LLC Formation" data-es="Formación de LLC">LLC Formation</a>
-        <a href="servicios.html" data-en="Corporation Formation" data-es="Formación de Corporación">Corporation Formation</a>
-        <a href="servicios.html#registered-agent" data-en="Registered Agent" data-es="Agente Registrado">Registered Agent</a>
-        <a href="servicios.html#ein" data-en="EIN / Tax ID" data-es="EIN / ID Fiscal">EIN / Tax ID</a>
-        <a href="servicios.html#operating-agreement" data-en="Operating Agreement" data-es="Acuerdo Operativo">Operating Agreement</a>
-        <a href="servicios.html#annual-report" data-en="Annual Report Filing" data-es="Declaración Anual">Annual Report Filing</a>
-      </div>
-      <div class="footer-col">
-        <h5 data-en="Add-On Services" data-es="Servicios Adicionales">Add-On Services</h5>
-        <a href="servicios.html#itin" data-en="ITIN Application" data-es="Solicitud de ITIN">ITIN Application</a>
-        <a href="servicios.html#dba" data-en="DBA / Fictitious Name" data-es="DBA / Nombre Ficticio">DBA / Fictitious Name</a>
-        <a href="servicios.html#amendment" data-en="Articles of Amendment" data-es="Artículos de Enmienda">Articles of Amendment</a>
-        <a href="servicios.html#virtual-address" data-en="Virtual Mailing Address" data-es="Dirección Postal Virtual">Virtual Mailing Address</a>
-        <a href="servicios.html" data-en="Business Phone Number" data-es="Teléfono Empresarial">Business Phone Number</a>
-        <a href="servicios.html" data-en="Professional Website" data-es="Sitio Web Profesional">Professional Website</a>
+      <div class="footer-col" style="grid-column:span 2">
+        <h5 data-en="Business Formation Services" data-es="Servicios de Formación Empresarial">Business Formation Services</h5>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 16px">
+          <a href="servicios.html#registered-agent" data-en="Registered Agent" data-es="Agente Registrado">Registered Agent</a>
+          <a href="servicios.html#ein" data-en="EIN / Tax ID" data-es="EIN / ID Fiscal">EIN / Tax ID</a>
+          <a href="servicios.html#operating-agreement" data-en="Operating Agreement" data-es="Acuerdo Operativo">Operating Agreement</a>
+          <a href="servicios.html#annual-report" data-en="Annual Report Filing" data-es="Declaración Anual">Annual Report Filing</a>
+          <a href="servicios.html#itin" data-en="ITIN Application" data-es="Solicitud de ITIN">ITIN Application</a>
+          <a href="servicios.html#dba" data-en="DBA / Fictitious Name" data-es="DBA / Nombre Ficticio">DBA / Fictitious Name</a>
+          <a href="servicios.html#amendment" data-en="Articles of Amendment" data-es="Artículos de Enmienda">Articles of Amendment</a>
+          <a href="servicios.html#virtual-address" data-en="Virtual Mailing Address" data-es="Dirección Postal Virtual">Virtual Mailing Address</a>
+          <a href="servicios.html#banking-resolution" data-en="Banking Resolution" data-es="Resolución Bancaria">Banking Resolution</a>
+          <a href="servicios.html#business-tax-receipt" data-en="Business Tax Receipt" data-es="Recibo de Impuesto Empresarial">Business Tax Receipt</a>
+          <a href="servicios.html#sales-tax-registration" data-en="Sales Tax Registration" data-es="Registro de Impuesto sobre Ventas">Sales Tax Registration</a>
+          <a href="servicios.html#exclusive-guide" data-en="Exclusive Formation Guide" data-es="Guía Exclusiva de Formación">Exclusive Formation Guide</a>
+          <a href="servicios.html#good-standing" data-en="Certificate of Good Standing" data-es="Certificado de Buena Fe">Certificate of Good Standing</a>
+          <a href="servicios.html#scorp-election" data-en="S-Corp Election" data-es="Elección S-Corp">S-Corp Election</a>
+          <a href="servicios.html#foreign-llc" data-en="Foreign LLC / Corp Registration" data-es="Registro LLC / Corp Extranjera">Foreign LLC / Corp Registration</a>
+          <a href="servicios.html#business-license" data-en="Business License" data-es="Licencia de Negocio">Business License</a>
+          <a href="servicios.html#dissolution" data-en="Business Dissolution" data-es="Disolución de Negocio">Business Dissolution</a>
+          <a href="servicios.html#cierre-fiscal" data-en="Tax Account Closure" data-es="Cierre de Cuenta Fiscal">Tax Account Closure</a>
+        </div>
       </div>
       <div class="footer-col">
         <h5 data-en="Company" data-es="Empresa">Company</h5>
@@ -2899,7 +2892,7 @@ function setLang(lang) {
   // Footer headers
   document.querySelectorAll('.footer-col h5[data-en]').forEach(function(h){h.textContent=isEs?h.getAttribute('data-es'):h.getAttribute('data-en');});
   el=document.getElementById('pkg-advice-title'); if(el) el.textContent = isEs ? '¿No sabes cuál elegir?' : 'Not sure which to choose?';
-  el=document.getElementById('pkg-advice-body');  if(el) el.textContent = isEs ? 'La mayoría de clientes eligen Standard — incluye EIN y Guía Bancaria, que los bancos suelen requerir para abrir tu cuenta empresarial.' : 'Most clients go with Standard — it covers EIN and Bank Account Guide, which banks typically require to open your business account.';
+  el=document.getElementById('pkg-advice-body');  if(el) el.textContent = isEs ? 'La mayoría de nuestros clientes eligen Standard — incluye EIN y nuestra Guía Exclusiva de Formación, diseñada para darte el mejor comienzo posible.' : 'Most of our clients choose Standard — it includes EIN and our Exclusive Formation Guide, designed to give you the best possible start.';
   el=document.getElementById('price-label');
         if(el) el.textContent = t.priceLabel;
   el=document.getElementById('price-title');        if(el) el.textContent = t.priceTitle;
