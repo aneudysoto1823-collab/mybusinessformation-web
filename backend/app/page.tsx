@@ -36,9 +36,9 @@ nav a:hover{color:var(--navy);background:var(--gray100)}
 .btn-start:hover{background:var(--green-dark);transform:translateY(-1px)}
 
 /* ── HERO ── */
-.hero{background:var(--white);padding:48px 32px 48px;text-align:center}
+.hero{background:var(--white);padding:64px 32px 32px;text-align:center}
 .hero-inner{max-width:760px;margin:0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.hero h1{font-size:clamp(1.15rem,2.2vw,1.55rem);color:var(--navy);font-weight:700;margin-bottom:20px;letter-spacing:0}
+.hero h1{font-size:clamp(1.5rem,3vw,2rem);color:var(--navy);font-weight:700;margin-bottom:24px;letter-spacing:0}
 .hero h1 em{color:var(--blue);font-style:normal}
 .hero p{font-size:.8rem;color:var(--gray600);max-width:700px;margin:0 auto;font-weight:400;line-height:1.5}
 .btn-hero{background:var(--green);color:#fff;padding:15px 36px;border-radius:10px;font-size:1rem;font-weight:600;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;animation:pulse 2.5s infinite;transition:all 0.25s;box-shadow:0 4px 20px rgba(5,150,105,0.35)}
@@ -629,9 +629,9 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
         <button class="btn-hero-new btn-hero-start" onclick="toggleEntityDropdown()" id="btn-new-app" style="display:flex;align-items:center;gap:8px">
           &#x1F680; <span id="lbl-new-app">Start New Application</span> <span id="entity-arrow" style="font-size:.7rem;transition:transform .2s">▼</span>
         </button>
-        <div id="entityDropdown" style="display:none;position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#fff;border-radius:12px;box-shadow:0 8px 32px rgba(28,46,68,0.18);border:1px solid #e2e8f0;overflow:hidden;min-width:240px;z-index:500;padding:8px;display:flex;flex-direction:column;gap:6px">
+        <div id="entityDropdown" style="display:none;position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#fff;border-radius:12px;box-shadow:0 8px 32px rgba(28,46,68,0.18);border:1px solid #e2e8f0;overflow:hidden;min-width:240px;z-index:500;padding:8px">
 
-          <button onclick="selectEntity('llc')" style="width:100%;background:#fff;border:2px solid #e2e8f0;border-radius:9px;padding:12px 16px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:all .2s;font-family:inherit;text-align:left" onmouseover="this.style.borderColor='#2563eb';this.style.background='#EFF6FF'" onmouseout="this.style.borderColor='#e2e8f0';this.style.background='#fff'">
+          <button onclick="selectEntity('llc')" style="width:100%;background:#fff;border:2px solid #e2e8f0;border-radius:9px;padding:12px 16px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:all .2s;font-family:inherit;text-align:left;margin-bottom:6px" onmouseover="this.style.borderColor='#2563eb';this.style.background='#EFF6FF'" onmouseout="this.style.borderColor='#e2e8f0';this.style.background='#fff'">
             <span style="font-size:1.4rem">🏢</span>
             <div>
               <div style="font-weight:700;color:#1C2E44;font-size:.9rem" id="llc-drop-label">LLC</div>
@@ -664,7 +664,6 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
       <span class="section-label" id="price-label">Our Packages</span>
       <h2 class="section-title" id="price-title">Choose Your Formation Package</h2>
     </div>
-    <p id="pkg-advice" style="font-size:0.83rem;color:var(--gray600);text-align:center;margin-bottom:24px;padding:10px 16px;background:var(--blue-light);border-radius:8px;max-width:560px;margin-left:auto;margin-right:auto"><strong style="color:var(--navy)" id="pkg-advice-title">Not sure which to choose?</strong> <span id="pkg-advice-body">Most of our clients choose Standard — it includes EIN and our Exclusive Formation Guide, designed to give you the best possible start.</span></p>
     <div class="pricing-grid">
 
       <!-- BASIC -->
@@ -1027,7 +1026,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
       <div class="footer-brand">
         <div class="logo-mark" style="display:inline-flex;margin-bottom:14px">FL</div>
         <div style="font-family:'Fraunces',serif;color:#fff;font-size:1rem;font-weight:600;margin-bottom:8px">Florida Business Formation Center</div>
-        <p>Professional business formation services for entrepreneurs and investors. We file your LLC or Corporation with the State of Florida — accurately, efficiently, and with personal attention.</p>
+        <p id="footer-brand-desc">Professional business formation services for entrepreneurs and investors. We file your LLC or Corporation with the State of Florida — accurately, efficiently, and with personal attention.</p>
         <p style="margin-top:10px;color:rgba(255,255,255,0.4);font-size:0.75rem">📧 <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="86efe8e0e9c6ebffe4f3f5efe8e3f5f5e0e9f4ebe7f2efe9e8a8e5e9eb">[email&#160;protected]</a></p>
       </div>
       <div class="footer-col" style="grid-column:span 2">
@@ -2997,6 +2996,10 @@ function setLang(lang) {
     if(role) role.textContent = isEs ? testiData[i][2] : testiData[i][3];
   });
 
+  // Footer brand description
+  el=document.getElementById('footer-brand-desc'); if(el) el.textContent = isEs
+    ? 'Servicios profesionales de formación empresarial para emprendedores e inversionistas. Tramitamos tu LLC o Corporación ante el Estado de Florida — con precisión, eficiencia y atención personalizada.'
+    : 'Professional business formation services for entrepreneurs and investors. We file your LLC or Corporation with the State of Florida — accurately, efficiently, and with personal attention.';
   // Footer disclaimer
   var fd = document.querySelector('.footer-disclaimer');
   if(fd){
