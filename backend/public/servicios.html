@@ -83,8 +83,8 @@ nav a:hover{color:var(--navy);background:var(--gray100)}
 .bundle-inner h2{font-size:clamp(1.8rem,3.5vw,2.5rem);font-weight:900;margin-bottom:12px}
 .bundle-inner p{font-size:.95rem;color:rgba(255,255,255,.7);line-height:1.75;margin-bottom:28px;max-width:560px;margin-left:auto;margin-right:auto}
 .bundle-btns{display:flex;justify-content:center;gap:14px;flex-wrap:wrap}
-.btn-bundle-primary{background:var(--green);color:#fff;padding:14px 32px;border-radius:10px;font-size:.95rem;font-weight:600;border:none;cursor:pointer;font-family:inherit;transition:all .2s}
-.btn-bundle-primary:hover{background:var(--green-dark)}
+.btn-bundle-primary{background:var(--blue);color:#fff;padding:14px 32px;border-radius:10px;font-size:.95rem;font-weight:600;border:none;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-bundle-primary:hover{background:#1d4ed8;transform:translateY(-1px)}
 .btn-bundle-sec{background:rgba(255,255,255,.1);color:#fff;padding:14px 24px;border-radius:10px;font-size:.92rem;font-weight:600;border:1.5px solid rgba(255,255,255,.2);cursor:pointer;font-family:inherit;transition:all .2s}
 .btn-bundle-sec:hover{background:rgba(255,255,255,.18)}
 /* FOOTER */
@@ -194,7 +194,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
 </head>
 <body>
 
-<div class="topbar">&#127775; Florida's trusted business formation experts — <strong>LLC &amp; Corporation</strong> filing made simple.</div>
+<div class="topbar" id="topbar-svc">&#127775; Florida's trusted business formation experts — <strong>LLC &amp; Corporation</strong> filing made simple.</div>
 
 <header id="mainHeader">
   <div class="header-inner">
@@ -204,7 +204,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
     </a>
     <nav>
       <a href="/">Home</a>
-      <a href="paquetes.html">Formation Packages</a>
+      <a href="/#pricing">Formation Packages</a>
       <a href="/#faq">FAQ</a>
       <a href="/#contact">Contact</a>
     </nav>
@@ -232,7 +232,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
 <section class="services-section">
   <div class="services-inner">
     <div>
-      <p class="section-sub">Order any individual service below, or save with a <a href="paquetes.html" style="color:var(--blue);font-weight:600">formation package</a> that bundles multiple services.</p>
+      <p class="section-sub">Order any individual service below, or save with a <a href="/#pricing" style="color:var(--blue);font-weight:600">formation package</a> that bundles multiple services.</p>
     </div>
     <div class="services-grid">
 
@@ -639,11 +639,11 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
 <!-- BUNDLE BANNER -->
 <section class="bundle-section">
   <div class="bundle-inner">
-    <h2>Save with a Formation Package</h2>
-    <p>Our Standard and Premium packages bundle multiple services together — you'll pay less than ordering each service individually, and everything gets done at once.</p>
+    <h2 id="bundle-title">Save with a Formation Package</h2>
+    <p id="bundle-sub">Our Standard and Premium packages bundle multiple services together — you'll pay less than ordering each service individually, and everything gets done at once.</p>
     <div class="bundle-btns">
-      <a href="paquetes.html"><button class="btn-bundle-primary">&#128197; View Formation Packages &#8594;</button></a>
-      <button class="btn-bundle-sec" onclick="window.open('https://wa.me/1XXXXXXXXXX','_blank')">&#x1F4AC; Ask Us Which Is Best</button>
+      <a href="/#pricing"><button id="bundle-btn-main" class="btn-bundle-primary">&#128197; View Formation Packages &#8594;</button></a>
+      <button id="bundle-btn-sec" class="btn-bundle-sec" onclick="window.open('https://wa.me/1XXXXXXXXXX','_blank')">&#x1F4AC; Ask Us Which Is Best</button>
     </div>
   </div>
 </section>
@@ -660,8 +660,8 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
       </div>
       <div class="footer-col">
         <h5>Formation</h5>
-        <a href="paquetes.html?entity=llc">LLC Formation</a>
-        <a href="paquetes.html?entity=corp">Corporation Formation</a>
+        <a href="/#pricing?entity=llc">LLC Formation</a>
+        <a href="/#pricing?entity=corp">Corporation Formation</a>
         <a href="#registered-agent" onclick="openServiceForm('registered-agent')">Registered Agent</a>
         <a href="#ein" onclick="openServiceForm('ein')">EIN / Tax ID</a>
         <a href="#operating-agreement" onclick="openServiceForm('operating-agreement')">Operating Agreement</a>
@@ -677,7 +677,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
       <div class="footer-col">
         <h5>Company</h5>
         <a href="/">Home</a>
-        <a href="paquetes.html">Formation Packages</a>
+        <a href="/#pricing">Formation Packages</a>
         <a href="/#faq">FAQ</a>
         <a href="/#contact">Contact</a>
       </div>
@@ -1022,10 +1022,11 @@ function setLang(lang){
   document.querySelectorAll('[data-en][data-es]').forEach(function(el){el.innerHTML=isEs?el.getAttribute('data-es'):el.getAttribute('data-en');});
   var hb=document.querySelector('.hero-badge'); if(hb)hb.textContent=isEs?'Servicios Adicionales':'Add-On Services';
   var h1=document.querySelector('.page-hero h1'); if(h1)h1.innerHTML=isEs?'Todo lo que tu Negocio <em>Necesita</em>':'Everything Your Business <em>Needs</em>';
+  var tb=document.getElementById('topbar-svc'); if(tb)tb.innerHTML=isEs?'&#127775; Expertos de confianza en formación de negocios en Florida — <strong>LLC y Corporación</strong> de manera simple.':'&#127775; Florida\'s trusted business formation experts — <strong>LLC &amp; Corporation</strong> filing made simple.';
   var hp=document.querySelector('.page-hero p'); if(hp)hp.textContent=isEs?'Servicios individuales para cada necesidad de tu negocio.':'Individual services for every business need.';
   var sl=document.querySelector('.section-label'); if(sl)sl.textContent=isEs?'Todos los Servicios':'All Services';
   var st=document.querySelector('.section-title'); if(st)st.textContent=isEs?'Todo lo que tu Negocio Necesita':'Everything Your Business Needs';
-  var ss=document.querySelector('.section-sub'); if(ss)ss.innerHTML=isEs?'Ordena cualquier servicio a continuación, o ahorra con un <a href="paquetes.html" style="color:var(--blue);font-weight:600">paquete de formación</a>.':'Order any individual service below, or save with a <a href="paquetes.html" style="color:var(--blue);font-weight:600">formation package</a>.';
+  var ss=document.querySelector('.section-sub'); if(ss)ss.innerHTML=isEs?'Ordena cualquier servicio a continuación, o ahorra con un <a href="/#pricing" style="color:var(--blue);font-weight:600">paquete de formación</a>.':'Order any individual service below, or save with a <a href="/#pricing" style="color:var(--blue);font-weight:600">formation package</a>.';
   document.querySelectorAll('.svc-includes-title').forEach(function(el){el.textContent=isEs?'Qué incluye':"What's included";});
   var prM={'registered-agent':isEs?'<strong>Tarifa Anual</strong> &nbsp;&middot;&nbsp; Requerido por ley en FL':'<strong>Annual Fee</strong> &nbsp;&middot;&nbsp; Required by FL law','ein':isEs?'<strong>$49</strong> &nbsp;&middot;&nbsp; Pago único':'<strong>$49</strong> &nbsp;&middot;&nbsp; One-time fee','operating-agreement':isEs?'<strong>$79</strong> &nbsp;&middot;&nbsp; Pago único':'<strong>$79</strong> &nbsp;&middot;&nbsp; One-time fee','itin':isEs?'<strong>$135</strong> &nbsp;&middot;&nbsp; Pago único':'<strong>$135</strong> &nbsp;&middot;&nbsp; One-time fee','dba':isEs?'<strong>$49 + tarifa estatal FL</strong>':'<strong>$49 + FL state fee</strong>','virtual-address':isEs?'<strong>$29/mes</strong> &nbsp;&middot;&nbsp; Cancela cuando quieras':'<strong>$29/month</strong> &nbsp;&middot;&nbsp; Cancel anytime','annual-report':isEs?'<strong>Servicio Anual</strong> &nbsp;&middot;&nbsp; Fecha Límite FL: 1 de mayo':'<strong>Annual Service</strong> &nbsp;&middot;&nbsp; FL Deadline: May 1','amendment':isEs?'<strong>$59 + tarifa estatal FL</strong>':'<strong>$59 + FL state fee</strong>'};
   Object.keys(prM).forEach(function(sid){var card=document.getElementById(sid);if(!card)return;var pd=card.querySelector('.svc-price');if(pd)pd.innerHTML=prM[sid];});
