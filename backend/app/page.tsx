@@ -655,20 +655,16 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
         </button>
         <div id="continueDropdown" style="display:none;position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#fff;border-radius:12px;box-shadow:0 8px 32px rgba(28,46,68,0.18);border:1px solid #e2e8f0;overflow:hidden;min-width:280px;z-index:500;padding:20px">
           <div style="font-size:.82rem;font-weight:600;color:#1C2E44;margin-bottom:10px" id="cont-drop-title">Order Number</div>
-          <input type="text" id="inp-continue-order-drop" placeholder="E.G. FBFC-12345" style="width:100%;padding:10px 14px;border:1.5px solid #e5e7eb;border-radius:9px;font-size:.88rem;font-family:inherit;color:#1e293b;box-sizing:border-box;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter')findOrderDrop()"/>
-          <div style="font-size:.72rem;color:#9ca3af;margin-bottom:12px" id="cont-drop-hint">Your order number starts with <strong>FBFC-</strong></div>
+          <input type="text" id="inp-continue-order-drop" placeholder="E.G. FBFC-12345" style="width:100%;padding:10px 14px;border:1.5px solid #e5e7eb;border-radius:9px;font-size:.88rem;font-family:inherit;color:#1e293b;box-sizing:border-box;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter')findOrderDrop()"/>
           <div id="cont-drop-error" style="display:none;color:#ef4444;font-size:.75rem;margin-bottom:10px;padding:7px 10px;background:#fef2f2;border-radius:7px"></div>
-          <button onclick="findOrderDrop()" style="width:100%;background:#2563eb;color:#fff;padding:11px;border-radius:9px;font-size:.85rem;font-weight:700;border:none;cursor:pointer;font-family:inherit" id="cont-drop-btn">&#x1F50D; Find My Application</button>
-          <div style="text-align:center;margin-top:12px;font-size:.75rem;color:#9ca3af">
-            <button onclick="closeContinueDropdown();openEntityModal();" style="background:none;border:none;color:#2563eb;font-size:.75rem;font-weight:600;cursor:pointer;font-family:inherit;text-decoration:underline" id="cont-drop-new-lbl">Start a new application</button>
-          </div>
+          <button onclick="findOrderDrop()" class="btn-hero-new" style="width:100%;justify-content:center;background:#fff;color:var(--navy);border:2px solid var(--gray200)" id="cont-drop-btn">&#x1F50D; <span id="cont-drop-btn-lbl">Continue</span> &#8594;</button>
         </div>
       </div>
       </div>
       <span class="section-label" id="price-label">Our Packages</span>
       <h2 class="section-title" id="price-title">Choose Your Formation Package</h2>
     </div>
-    <p style="font-size:0.83rem;color:var(--gray600);text-align:center;margin-bottom:24px;padding:10px 16px;background:var(--blue-light);border-radius:8px;max-width:560px;margin-left:auto;margin-right:auto"><strong style="color:var(--navy)">Not sure which to choose?</strong> Most clients go with Standard — it covers EIN and Bank Account Guide, which banks typically require to open your business account.</p>
+    <p id="pkg-advice" style="font-size:0.83rem;color:var(--gray600);text-align:center;margin-bottom:24px;padding:10px 16px;background:var(--blue-light);border-radius:8px;max-width:560px;margin-left:auto;margin-right:auto"><strong style="color:var(--navy)" id="pkg-advice-title">Not sure which to choose?</strong> <span id="pkg-advice-body">Most clients go with Standard — it covers EIN and Bank Account Guide, which banks typically require to open your business account.</span></p>
     <div class="pricing-grid">
 
       <!-- BASIC -->
@@ -676,51 +672,51 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
         <div class="pkg-head">
           <div class="pkg-name">Basic</div>
           <div class="pkg-price-row"><span class="pkg-price">$0</span></div>
-          <div class="pkg-state-fee">+ Florida state fee*</div>
-          <button class="pkg-cta pkg-cta-basic" onclick="openFormFromPkg('basic')">Get Started</button>
+          <div class="pkg-state-fee" data-en="+ Florida state fee*" data-es="+ tarifa estatal de Florida*">+ Florida state fee*</div>
+          <button class="pkg-cta pkg-cta-basic" onclick="openFormFromPkg('basic')" data-en="Get Started" data-es="Comenzar">Get Started</button>
         </div>
         <hr class="pkg-divider"/>
         <div class="pkg-services">
-          <div class="svc-row"><span class="svc-name">LLC or Corporation Formation</span><span class="svc-status s-check">✓</span></div>
-          <div class="svc-row"><span class="svc-name">FL Certificate of Formation</span><span class="svc-status s-check">✓</span></div>
-          <div class="svc-row"><span class="svc-name">Name Availability Search</span><span class="svc-status s-check">✓</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="LLC or Corporation Formation" data-es="Formación de LLC o Corporación">LLC or Corporation Formation</span><span class="svc-status s-check">✓</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="FL Certificate of Formation" data-es="Certificado de Formación FL">FL Certificate of Formation</span><span class="svc-status s-check">✓</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="Name Availability Search" data-es="Búsqueda de Nombre Disponible">Name Availability Search</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name">Guía Exclusiva de Formación</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name">BOI Filing (FinCEN)</span><span class="svc-status s-check">✓</span></div>
-          <div class="svc-row"><span class="svc-name">EIN / Tax ID Number</span><span class="svc-status s-add">+ $49</span></div>
-          <div class="svc-row"><span class="svc-name">Banking Resolution</span><span class="svc-status s-add">+ $49</span></div>
-          <div class="svc-row"><span class="svc-name">Business Tax Receipt</span><span class="svc-status s-add">+ $79</span></div>
-          <div class="svc-row"><span class="svc-name">Sales Tax Registration</span><span class="svc-status s-add">+ $79</span></div>
-          <div class="svc-row"><span class="svc-name">Operating Agreement</span><span class="svc-status s-add">+ $79</span></div>
-          <div class="svc-row"><span class="svc-name">DBA / Fictitious Name</span><span class="svc-status s-add">+ $49</span></div>
-          <div class="svc-row"><span class="svc-name">Articles of Amendment</span><span class="svc-status s-add">+ $59</span></div>
-          <div class="svc-row"><span class="svc-name">Registered Agent</span><span class="svc-status" style="font-size:.68rem;color:#94a3b8">🕐 Coming Soon</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="EIN / Tax ID Number" data-es="EIN / Número de ID Fiscal">EIN / Tax ID Number</span><span class="svc-status s-add">+ $49</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="Banking Resolution" data-es="Resolución Bancaria">Banking Resolution</span><span class="svc-status s-add">+ $49</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="Business Tax Receipt" data-es="Recibo de Impuesto Empresarial">Business Tax Receipt</span><span class="svc-status s-add">+ $79</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="Sales Tax Registration" data-es="Registro de Impuesto sobre Ventas">Sales Tax Registration</span><span class="svc-status s-add">+ $79</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="Operating Agreement" data-es="Acuerdo Operativo">Operating Agreement</span><span class="svc-status s-add">+ $79</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="DBA / Fictitious Name" data-es="DBA / Nombre Ficticio">DBA / Fictitious Name</span><span class="svc-status s-add">+ $49</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="Articles of Amendment" data-es="Artículos de Enmienda">Articles of Amendment</span><span class="svc-status s-add">+ $59</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="Registered Agent" data-es="Agente Registrado">Registered Agent</span><span class="svc-status" style="font-size:.68rem;color:#94a3b8" data-en="🕐 Coming Soon" data-es="🕐 Próximamente">🕐 Coming Soon</span></div>
         </div>
       </div>
 
       <!-- STANDARD -->
       <div class="pkg-card featured pkg-active" id="pkg-card-standard" onclick="openFormFromPkg('standard')" onmouseenter="pkgHighlight(this)" onmouseleave="pkgUnhighlight(this)">
         <div class="pkg-head">
-          <div class="popular-tag">⭐ Most Popular</div>
+          <div class="popular-tag" data-en="⭐ Most Popular" data-es="⭐ Más Popular">⭐ Most Popular</div>
           <div class="pkg-name">Standard</div>
           <div class="pkg-price-row"><span class="pkg-price">$199</span></div>
-          <div class="pkg-state-fee">+ Florida state fee*</div>
-          <button class="pkg-cta pkg-cta-featured" onclick="openFormFromPkg('standard')">Get Started</button>
+          <div class="pkg-state-fee" data-en="+ Florida state fee*" data-es="+ tarifa estatal de Florida*">+ Florida state fee*</div>
+          <button class="pkg-cta pkg-cta-featured" onclick="openFormFromPkg('standard')" data-en="Get Started" data-es="Comenzar">Get Started</button>
         </div>
         <hr class="pkg-divider"/>
         <div class="pkg-services">
-          <div class="svc-row"><span class="svc-name">LLC or Corporation Formation</span><span class="svc-status s-check">✓</span></div>
-          <div class="svc-row"><span class="svc-name">FL Certificate of Formation</span><span class="svc-status s-check">✓</span></div>
-          <div class="svc-row"><span class="svc-name">Name Availability Search</span><span class="svc-status s-check">✓</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="LLC or Corporation Formation" data-es="Formación de LLC o Corporación">LLC or Corporation Formation</span><span class="svc-status s-check">✓</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="FL Certificate of Formation" data-es="Certificado de Formación FL">FL Certificate of Formation</span><span class="svc-status s-check">✓</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="Name Availability Search" data-es="Búsqueda de Nombre Disponible">Name Availability Search</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name">Guía Exclusiva de Formación</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name">BOI Filing (FinCEN)</span><span class="svc-status s-check">✓</span></div>
-          <div class="svc-row"><span class="svc-name">EIN / Tax ID Number</span><span class="svc-status s-check">✓</span></div>
-          <div class="svc-row"><span class="svc-name">Banking Resolution</span><span class="svc-status s-check">✓</span></div>
-          <div class="svc-row"><span class="svc-name">DBA / Fictitious Name</span><span class="svc-status s-check">✓</span></div>
-          <div class="svc-row"><span class="svc-name">Business Tax Receipt</span><span class="svc-status s-add">+ $79</span></div>
-          <div class="svc-row"><span class="svc-name">Sales Tax Registration</span><span class="svc-status s-add">+ $79</span></div>
-          <div class="svc-row"><span class="svc-name">Operating Agreement</span><span class="svc-status s-add">+ $79</span></div>
-          <div class="svc-row"><span class="svc-name">Articles of Amendment</span><span class="svc-status s-add">+ $59</span></div>
-          <div class="svc-row"><span class="svc-name">Registered Agent</span><span class="svc-status" style="font-size:.68rem;color:#94a3b8">🕐 Coming Soon</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="EIN / Tax ID Number" data-es="EIN / Número de ID Fiscal">EIN / Tax ID Number</span><span class="svc-status s-check">✓</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="Banking Resolution" data-es="Resolución Bancaria">Banking Resolution</span><span class="svc-status s-check">✓</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="DBA / Fictitious Name" data-es="DBA / Nombre Ficticio">DBA / Fictitious Name</span><span class="svc-status s-check">✓</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="Business Tax Receipt" data-es="Recibo de Impuesto Empresarial">Business Tax Receipt</span><span class="svc-status s-add">+ $79</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="Sales Tax Registration" data-es="Registro de Impuesto sobre Ventas">Sales Tax Registration</span><span class="svc-status s-add">+ $79</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="Operating Agreement" data-es="Acuerdo Operativo">Operating Agreement</span><span class="svc-status s-add">+ $79</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="Articles of Amendment" data-es="Artículos de Enmienda">Articles of Amendment</span><span class="svc-status s-add">+ $59</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="Registered Agent" data-es="Agente Registrado">Registered Agent</span><span class="svc-status" style="font-size:.68rem;color:#94a3b8" data-en="🕐 Coming Soon" data-es="🕐 Próximamente">🕐 Coming Soon</span></div>
         </div>
       </div>
 
@@ -729,24 +725,24 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
         <div class="pkg-head">
           <div class="pkg-name">Premium</div>
           <div class="pkg-price-row"><span class="pkg-price">$299</span></div>
-          <div class="pkg-state-fee">+ Florida state fee*</div>
-          <button class="pkg-cta pkg-cta-premium" onclick="openFormFromPkg('premium')">Get Started</button>
+          <div class="pkg-state-fee" data-en="+ Florida state fee*" data-es="+ tarifa estatal de Florida*">+ Florida state fee*</div>
+          <button class="pkg-cta pkg-cta-premium" onclick="openFormFromPkg('premium')" data-en="Get Started" data-es="Comenzar">Get Started</button>
         </div>
         <hr class="pkg-divider"/>
         <div class="pkg-services">
-          <div class="svc-row"><span class="svc-name">LLC or Corporation Formation</span><span class="svc-status s-check">✓</span></div>
-          <div class="svc-row"><span class="svc-name">FL Certificate of Formation</span><span class="svc-status s-check">✓</span></div>
-          <div class="svc-row"><span class="svc-name">Name Availability Search</span><span class="svc-status s-check">✓</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="LLC or Corporation Formation" data-es="Formación de LLC o Corporación">LLC or Corporation Formation</span><span class="svc-status s-check">✓</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="FL Certificate of Formation" data-es="Certificado de Formación FL">FL Certificate of Formation</span><span class="svc-status s-check">✓</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="Name Availability Search" data-es="Búsqueda de Nombre Disponible">Name Availability Search</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name">Guía Exclusiva de Formación</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name">BOI Filing (FinCEN)</span><span class="svc-status s-check">✓</span></div>
-          <div class="svc-row"><span class="svc-name">EIN / Tax ID Number</span><span class="svc-status s-check">✓</span></div>
-          <div class="svc-row"><span class="svc-name">Banking Resolution</span><span class="svc-status s-check">✓</span></div>
-          <div class="svc-row"><span class="svc-name">DBA / Fictitious Name</span><span class="svc-status s-check">✓</span></div>
-          <div class="svc-row"><span class="svc-name">Operating Agreement</span><span class="svc-status s-check">✓</span></div>
-          <div class="svc-row"><span class="svc-name">Articles of Amendment</span><span class="svc-status s-check">✓</span></div>
-          <div class="svc-row"><span class="svc-name">Business Tax Receipt</span><span class="svc-status s-add">+ $79</span></div>
-          <div class="svc-row"><span class="svc-name">Sales Tax Registration</span><span class="svc-status s-add">+ $79</span></div>
-          <div class="svc-row"><span class="svc-name">Registered Agent</span><span class="svc-status" style="font-size:.68rem;color:#94a3b8">🕐 Coming Soon</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="EIN / Tax ID Number" data-es="EIN / Número de ID Fiscal">EIN / Tax ID Number</span><span class="svc-status s-check">✓</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="Banking Resolution" data-es="Resolución Bancaria">Banking Resolution</span><span class="svc-status s-check">✓</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="DBA / Fictitious Name" data-es="DBA / Nombre Ficticio">DBA / Fictitious Name</span><span class="svc-status s-check">✓</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="Operating Agreement" data-es="Acuerdo Operativo">Operating Agreement</span><span class="svc-status s-check">✓</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="Articles of Amendment" data-es="Artículos de Enmienda">Articles of Amendment</span><span class="svc-status s-check">✓</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="Business Tax Receipt" data-es="Recibo de Impuesto Empresarial">Business Tax Receipt</span><span class="svc-status s-add">+ $79</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="Sales Tax Registration" data-es="Registro de Impuesto sobre Ventas">Sales Tax Registration</span><span class="svc-status s-add">+ $79</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="Registered Agent" data-es="Agente Registrado">Registered Agent</span><span class="svc-status" style="font-size:.68rem;color:#94a3b8" data-en="🕐 Coming Soon" data-es="🕐 Próximamente">🕐 Coming Soon</span></div>
         </div>
       </div>
     </div>
@@ -2902,6 +2898,8 @@ function setLang(lang) {
   document.querySelectorAll('.faq-item').forEach(function(item){var q=item.querySelector('.faq-q span');var a=item.querySelector('.faq-a');if(q&&q.getAttribute('data-es'))q.textContent=isEs?q.getAttribute('data-es'):q.getAttribute('data-en');if(a&&a.getAttribute('data-es'))a.innerHTML=isEs?a.getAttribute('data-es'):a.getAttribute('data-en');});
   // Footer headers
   document.querySelectorAll('.footer-col h5[data-en]').forEach(function(h){h.textContent=isEs?h.getAttribute('data-es'):h.getAttribute('data-en');});
+  el=document.getElementById('pkg-advice-title'); if(el) el.textContent = isEs ? '¿No sabes cuál elegir?' : 'Not sure which to choose?';
+  el=document.getElementById('pkg-advice-body');  if(el) el.textContent = isEs ? 'La mayoría de clientes eligen Standard — incluye EIN y Guía Bancaria, que los bancos suelen requerir para abrir tu cuenta empresarial.' : 'Most clients go with Standard — it covers EIN and Bank Account Guide, which banks typically require to open your business account.';
   el=document.getElementById('price-label');
         if(el) el.textContent = t.priceLabel;
   el=document.getElementById('price-title');        if(el) el.textContent = t.priceTitle;
@@ -5738,14 +5736,10 @@ function toggleContinueDropdown() {
   var arrow = document.getElementById('continue-arrow');
   var isEs = currentLang === 'es';
   var title = document.getElementById('cont-drop-title');
-  var hint = document.getElementById('cont-drop-hint');
-  var btn = document.getElementById('cont-drop-btn');
-  var newLbl = document.getElementById('cont-drop-new-lbl');
+  var btnLbl = document.getElementById('cont-drop-btn-lbl');
   var inp = document.getElementById('inp-continue-order-drop');
   if(title) title.textContent = isEs ? 'Número de Orden' : 'Order Number';
-  if(hint) hint.innerHTML = isEs ? 'Tu número de orden empieza con <strong>FBFC-</strong>' : 'Your order number starts with <strong>FBFC-</strong>';
-  if(btn) btn.innerHTML = isEs ? '&#x1F50D; Buscar Mi Aplicación' : '&#x1F50D; Find My Application';
-  if(newLbl) newLbl.textContent = isEs ? 'Iniciar una nueva aplicación' : 'Start a new application';
+  if(btnLbl) btnLbl.textContent = isEs ? 'Continuar' : 'Continue';
   if(inp) inp.placeholder = 'E.G. FBFC-12345';
   if(dd) {
     var isOpen = dd.style.display === 'block';
