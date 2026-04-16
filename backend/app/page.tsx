@@ -599,7 +599,6 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
       <a href="#faq" data-en="FAQ" data-es="Preguntas">FAQ</a>
       <a href="#contact" data-en="Contact" data-es="Contacto">Contact</a>
       <a href="servicios.html" data-en="Services" data-es="Servicios">Services</a>
-      <a href="#" style="padding:6px 14px;border-radius:6px;border:1.5px solid #e2e8f0;background:#fff;font-size:0.85rem;font-weight:500;color:#475569;cursor:pointer;transition:all 0.2s;" data-en="Login" data-es="Login">Login</a>
     </nav>
     <div style="display:flex;align-items:center;gap:12px">
       <div class="lang-toggle">

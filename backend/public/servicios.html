@@ -28,14 +28,14 @@ nav a:hover{color:var(--navy);background:var(--gray100)}
 .btn-start{background:var(--green);color:#fff;padding:9px 18px;border-radius:8px;font-size:.85rem;font-weight:600;border:none;cursor:pointer;font-family:inherit;transition:all .2s}
 .btn-start:hover{background:var(--green-dark)}
 /* PAGE HERO */
-.page-hero{background:var(--white);padding:20px 32px 18px;text-align:center;border-bottom:1px solid var(--gray100)}
+.page-hero{background:var(--white);padding:64px 32px 32px;text-align:center;border-bottom:1px solid var(--gray100)}
 
 .page-hero-inner{max-width:1280px;margin:0 auto;position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
 @media(max-width:768px){.page-hero-inner{grid-template-columns:1fr}}
-.hero-badge{display:inline-block;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.9);font-size:.7rem;font-weight:600;padding:5px 14px;border-radius:20px;letter-spacing:1px;text-transform:uppercase;margin-bottom:18px}
-.page-hero h1{font-size:1.1rem;color:var(--navy);font-weight:700;margin-bottom:4px;letter-spacing:0}
+.hero-badge{display:inline-block;background:#EFF6FF;border:1px solid #BFDBFE;color:var(--blue);font-size:.72rem;font-weight:600;padding:5px 14px;border-radius:20px;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:18px}
+.page-hero h1{font-size:clamp(1.5rem,3vw,2rem);color:var(--navy);font-weight:700;margin-bottom:16px;letter-spacing:0}
 .page-hero h1 em{color:var(--blue);font-style:normal}
-.page-hero p{font-size:.8rem;color:var(--gray600);line-height:1.5;margin:0}
+.page-hero p{font-size:.85rem;color:var(--gray600);line-height:1.6;margin:0 auto;max-width:660px}
 .hero-services-list{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:4px}
 .hs-item{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:9px 13px;cursor:pointer;transition:all .2s;font-size:.82rem;color:rgba(255,255,255,.85)}
 .hs-item:hover{background:rgba(255,255,255,.14);color:#fff}
@@ -83,8 +83,8 @@ nav a:hover{color:var(--navy);background:var(--gray100)}
 .bundle-inner h2{font-size:clamp(1.8rem,3.5vw,2.5rem);font-weight:900;margin-bottom:12px}
 .bundle-inner p{font-size:.95rem;color:rgba(255,255,255,.7);line-height:1.75;margin-bottom:28px;max-width:560px;margin-left:auto;margin-right:auto}
 .bundle-btns{display:flex;justify-content:center;gap:14px;flex-wrap:wrap}
-.btn-bundle-primary{background:var(--blue);color:#fff;padding:14px 32px;border-radius:10px;font-size:.95rem;font-weight:600;border:none;cursor:pointer;font-family:inherit;transition:all .2s}
-.btn-bundle-primary:hover{background:#1d4ed8;transform:translateY(-1px)}
+.btn-bundle-primary{background:#fff;color:var(--blue);padding:14px 32px;border-radius:10px;font-size:.95rem;font-weight:600;border:2px solid var(--blue);cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-bundle-primary:hover{background:#EFF6FF;transform:translateY(-1px)}
 .btn-bundle-sec{background:rgba(255,255,255,.1);color:#fff;padding:14px 24px;border-radius:10px;font-size:.92rem;font-weight:600;border:1.5px solid rgba(255,255,255,.2);cursor:pointer;font-family:inherit;transition:all .2s}
 .btn-bundle-sec:hover{background:rgba(255,255,255,.18)}
 /* FOOTER */
@@ -219,7 +219,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
 
 <!-- PAGE HERO -->
 <section class="page-hero">
-  <div style="max-width:1280px;margin:0 auto">
+  <div style="max-width:760px;margin:0 auto">
     <div class="hero-badge">Add-On Services</div>
     <h1>Everything Your Business <em>Needs</em></h1>
     <p>Individual services for every business need — EIN, Registered Agent, DBA, ITIN, Virtual Address, and more.</p>
@@ -640,10 +640,9 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
 <section class="bundle-section">
   <div class="bundle-inner">
     <h2 id="bundle-title">Save with a Formation Package</h2>
-    <p id="bundle-sub">Our Standard and Premium packages bundle multiple services together — you'll pay less than ordering each service individually, and everything gets done at once.</p>
-    <div class="bundle-btns">
-      <a href="/#pricing"><button id="bundle-btn-main" class="btn-bundle-primary">&#128197; View Formation Packages &#8594;</button></a>
-      <button id="bundle-btn-sec" class="btn-bundle-sec" onclick="window.open('https://wa.me/1XXXXXXXXXX','_blank')">&#x1F4AC; Ask Us Which Is Best</button>
+    <p id="bundle-sub">Our Basic, Standard and Premium packages bundle multiple services together — you'll pay less than ordering each service individually, and everything gets done at once.</p>
+    <div class="bundle-btns" style="justify-content:center">
+      <a href="/#pricing"><button id="bundle-btn-main" class="btn-bundle-primary">View Formation Packages &#8594;</button></a>
     </div>
   </div>
 </section>
@@ -1045,13 +1044,12 @@ function setLang(lang){
   Object.keys(svcTrans).forEach(function(sid){var card=document.getElementById(sid);if(!card)return;var t=svcTrans[sid];var nm=card.querySelector('.svc-name');if(nm)nm.textContent=t.name;var dc=card.querySelector('.svc-desc');if(dc)dc.textContent=t.desc;var tm=card.querySelector('.svc-time');if(tm)tm.innerHTML=t.time;var bn=card.querySelector('.btn-svc-order');if(bn)bn.innerHTML=t.btn;});
   var e;
   e=document.getElementById('bundle-title');    if(e)e.textContent=isEs?'Ahorra con un Paquete de Formación':'Save with a Formation Package';
-  e=document.getElementById('bundle-sub');      if(e)e.textContent=isEs?'Nuestros paquetes Standard y Premium combinan varios servicios — pagas menos que ordenándolos individualmente.':'Our Standard and Premium packages bundle multiple services — pay less than ordering individually.';
-  e=document.getElementById('bundle-btn-main'); if(e)e.innerHTML=isEs?'&#128197; Ver Paquetes de Formación &#8594;':'&#128197; View Formation Packages &#8594;';
-  e=document.getElementById('bundle-btn-sec');  if(e)e.innerHTML=isEs?'&#x1F4AC; Pregúntanos cuál es mejor':'&#x1F4AC; Ask Us Which Is Best';
+  e=document.getElementById('bundle-sub');      if(e)e.textContent=isEs?'Nuestros paquetes Basic, Standard y Premium combinan varios servicios — pagas menos que ordenándolos individualmente.':'Our Basic, Standard and Premium packages bundle multiple services — pay less than ordering individually.';
+  e=document.getElementById('bundle-btn-main'); if(e)e.innerHTML=isEs?'Ver Paquetes de Formación &#8594;':'View Formation Packages &#8594;';
   var fbrand=document.querySelector('.footer-brand p'); if(fbrand)fbrand.textContent=isEs?'Servicios profesionales de formación empresarial para emprendedores e inversionistas en toda Florida.':'Professional business formation services for entrepreneurs and investors throughout Florida.';
   var fd=document.querySelector('.footer-disclaimer'); if(fd)fd.innerHTML=isEs?'<strong>Aviso Importante:</strong> Florida Business Formation Center es un servicio de preparación de documentos. No somos una firma legal.':'<strong>Important Notice:</strong> Florida Business Formation Center is a document preparation service. We are not a law firm.';
   var copy=document.querySelector('.footer-copy'); if(copy)copy.innerHTML=isEs?'&#169; 2025 Florida Business Formation Center &middot; Todos los Derechos Reservados.':'&#169; 2025 Florida Business Formation Center &middot; All Rights Reserved.';
-  var navM={'How It Works':isEs?'Cómo Funciona':'How It Works','Packages':isEs?'Paquetes':'Packages','Services':isEs?'Servicios':'Services','FAQ':isEs?'Preguntas':'FAQ','Contact':isEs?'Contacto':'Contact','Home':isEs?'Inicio':'Home'};
+  var navM={'How It Works':isEs?'Cómo Funciona':'How It Works','Packages':isEs?'Paquetes':'Packages','Formation Packages':isEs?'Paquetes de Formación':'Formation Packages','Services':isEs?'Servicios':'Services','FAQ':isEs?'Preguntas':'FAQ','Contact':isEs?'Contacto':'Contact','Home':isEs?'Inicio':'Home'};
   document.querySelectorAll('nav a').forEach(function(a){var t=a.textContent.trim();if(navM[t])a.textContent=navM[t];});
   if(document.getElementById('svcOverlay')&&document.getElementById('svcOverlay').classList.contains('active')){translateFormLabels();}
 }
