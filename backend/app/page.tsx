@@ -115,6 +115,19 @@ nav a:hover{color:var(--navy);background:var(--gray100)}
 .testi-info strong{display:block;font-size:0.84rem;color:var(--navy);font-weight:600}
 .testi-info span{font-size:0.73rem;color:var(--gray400)}
 
+/* ── SERVICES GRID ── */
+.services-bg{background:var(--white)}
+.mini-svc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-top:44px}
+.mini-svc-card{background:var(--white);border:1.5px solid var(--gray200);border-radius:var(--radius);padding:20px;display:flex;flex-direction:column;gap:10px;transition:all .22s;text-decoration:none;color:inherit}
+.mini-svc-card:hover{border-color:var(--blue);transform:translateY(-3px);box-shadow:0 8px 28px rgba(28,46,68,.10)}
+.mini-svc-top{display:flex;align-items:center;gap:10px}
+.mini-svc-icon{font-size:1.5rem;line-height:1}
+.mini-svc-name{font-family:'Fraunces',serif;font-size:.92rem;font-weight:700;color:var(--navy);line-height:1.25}
+.mini-svc-price{font-family:'Fraunces',serif;font-size:1.1rem;font-weight:900;color:var(--navy)}
+.mini-svc-sub{font-size:.72rem;color:var(--gray400);margin-top:-6px}
+.mini-svc-arrow{font-size:.8rem;color:var(--blue);font-weight:700;margin-top:auto;padding-top:4px}
+@media(max-width:600px){.mini-svc-grid{grid-template-columns:repeat(2,1fr)}}
+
 /* ── FAQ ── */
 .faq-list{max-width:760px;margin:48px auto 0}
 .faq-item{border-bottom:1px solid var(--gray200)}
@@ -830,6 +843,130 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           <div class="testi-info"><strong>Roberto García</strong><span>Import/Export Business · Hialeah, FL</span></div>
         </div>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES GRID -->
+<section class="section services-bg" id="services">
+  <div class="section-inner">
+    <div class="text-center">
+      <span class="section-label" id="svc-label" data-en="Add-On Services" data-es="Servicios Adicionales">Add-On Services</span>
+      <h2 class="section-title" id="svc-title">Everything Your Business <em>Needs</em></h2>
+      <p class="section-sub" id="svc-sub" style="margin:0 auto">Individual services for every business need — order any service individually or save with a formation package.</p>
+    </div>
+    <div class="mini-svc-grid">
+      <a class="mini-svc-card" href="servicios.html#registered-agent">
+        <div class="mini-svc-top"><span class="mini-svc-icon">&#127968;</span><span class="mini-svc-name" data-en="Registered Agent" data-es="Agente Registrado">Registered Agent</span></div>
+        <div class="mini-svc-price" data-en="Annual Fee" data-es="Tarifa Anual">Annual Fee</div>
+        <div class="mini-svc-sub" data-en="Required by FL law" data-es="Requerido por ley en FL">Required by FL law</div>
+        <div class="mini-svc-arrow">Ver servicio &#8594;</div>
+      </a>
+      <a class="mini-svc-card" href="servicios.html#ein">
+        <div class="mini-svc-top"><span class="mini-svc-icon">&#127981;</span><span class="mini-svc-name" data-en="EIN / Tax ID Number" data-es="EIN / Número de ID Fiscal">EIN / Tax ID Number</span></div>
+        <div class="mini-svc-price">$49</div>
+        <div class="mini-svc-sub" data-en="One-time fee" data-es="Pago único">One-time fee</div>
+        <div class="mini-svc-arrow">Ver servicio &#8594;</div>
+      </a>
+      <a class="mini-svc-card" href="servicios.html#operating-agreement">
+        <div class="mini-svc-top"><span class="mini-svc-icon">&#128196;</span><span class="mini-svc-name" data-en="Operating Agreement" data-es="Acuerdo Operativo">Operating Agreement</span></div>
+        <div class="mini-svc-price">$79</div>
+        <div class="mini-svc-sub" data-en="One-time fee" data-es="Pago único">One-time fee</div>
+        <div class="mini-svc-arrow">Ver servicio &#8594;</div>
+      </a>
+      <a class="mini-svc-card" href="servicios.html#itin">
+        <div class="mini-svc-top"><span class="mini-svc-icon">&#127760;</span><span class="mini-svc-name" data-en="ITIN Application" data-es="Solicitud de ITIN">ITIN Application</span></div>
+        <div class="mini-svc-price">$135</div>
+        <div class="mini-svc-sub" data-en="One-time fee" data-es="Pago único">One-time fee</div>
+        <div class="mini-svc-arrow">Ver servicio &#8594;</div>
+      </a>
+      <a class="mini-svc-card" href="servicios.html#dba">
+        <div class="mini-svc-top"><span class="mini-svc-icon">&#127991;</span><span class="mini-svc-name" data-en="DBA / Fictitious Name" data-es="DBA / Nombre Ficticio">DBA / Fictitious Name</span></div>
+        <div class="mini-svc-price">$49</div>
+        <div class="mini-svc-sub" data-en="+ FL state fee" data-es="+ tarifa estatal FL">+ FL state fee</div>
+        <div class="mini-svc-arrow">Ver servicio &#8594;</div>
+      </a>
+      <a class="mini-svc-card" href="servicios.html#virtual-address">
+        <div class="mini-svc-top"><span class="mini-svc-icon">&#128205;</span><span class="mini-svc-name" data-en="Virtual Mailing Address" data-es="Dirección Postal Virtual">Virtual Mailing Address</span></div>
+        <div class="mini-svc-price">$29<span style="font-size:.75rem;font-weight:400">/mo</span></div>
+        <div class="mini-svc-sub" data-en="Cancel anytime" data-es="Cancela cuando quieras">Cancel anytime</div>
+        <div class="mini-svc-arrow">Ver servicio &#8594;</div>
+      </a>
+      <a class="mini-svc-card" href="servicios.html#annual-report">
+        <div class="mini-svc-top"><span class="mini-svc-icon">&#128197;</span><span class="mini-svc-name" data-en="Annual Report Filing" data-es="Declaración Anual">Annual Report Filing</span></div>
+        <div class="mini-svc-price" data-en="Annual Service" data-es="Servicio Anual">Annual Service</div>
+        <div class="mini-svc-sub" data-en="FL Deadline: May 1" data-es="Fecha Límite FL: 1 mayo">FL Deadline: May 1</div>
+        <div class="mini-svc-arrow">Ver servicio &#8594;</div>
+      </a>
+      <a class="mini-svc-card" href="servicios.html#amendment">
+        <div class="mini-svc-top"><span class="mini-svc-icon">&#9998;</span><span class="mini-svc-name" data-en="Articles of Amendment" data-es="Artículos de Enmienda">Articles of Amendment</span></div>
+        <div class="mini-svc-price">$59</div>
+        <div class="mini-svc-sub" data-en="+ FL state fee" data-es="+ tarifa estatal FL">+ FL state fee</div>
+        <div class="mini-svc-arrow">Ver servicio &#8594;</div>
+      </a>
+      <a class="mini-svc-card" href="servicios.html#banking-resolution">
+        <div class="mini-svc-top"><span class="mini-svc-icon">&#127968;</span><span class="mini-svc-name" data-en="Banking Resolution" data-es="Resolución Bancaria">Banking Resolution</span></div>
+        <div class="mini-svc-price">$49</div>
+        <div class="mini-svc-sub" data-en="One-time fee" data-es="Pago único">One-time fee</div>
+        <div class="mini-svc-arrow">Ver servicio &#8594;</div>
+      </a>
+      <a class="mini-svc-card" href="servicios.html#business-tax-receipt">
+        <div class="mini-svc-top"><span class="mini-svc-icon">&#128203;</span><span class="mini-svc-name" data-en="Business Tax Receipt" data-es="Recibo de Impuesto Empresarial">Business Tax Receipt</span></div>
+        <div class="mini-svc-price">$79</div>
+        <div class="mini-svc-sub" data-en="+ county fee" data-es="+ tarifa del condado">+ county fee</div>
+        <div class="mini-svc-arrow">Ver servicio &#8594;</div>
+      </a>
+      <a class="mini-svc-card" href="servicios.html#sales-tax-registration">
+        <div class="mini-svc-top"><span class="mini-svc-icon">&#128200;</span><span class="mini-svc-name" data-en="Sales Tax Registration" data-es="Registro de Impuesto sobre Ventas">Sales Tax Registration</span></div>
+        <div class="mini-svc-price">$79</div>
+        <div class="mini-svc-sub" data-en="One-time fee" data-es="Pago único">One-time fee</div>
+        <div class="mini-svc-arrow">Ver servicio &#8594;</div>
+      </a>
+      <a class="mini-svc-card" href="servicios.html#exclusive-guide">
+        <div class="mini-svc-top"><span class="mini-svc-icon">&#128218;</span><span class="mini-svc-name" data-en="Exclusive Formation Guide" data-es="Guía Exclusiva de Formación">Exclusive Formation Guide</span></div>
+        <div class="mini-svc-price">$49</div>
+        <div class="mini-svc-sub" data-en="One-time fee" data-es="Pago único">One-time fee</div>
+        <div class="mini-svc-arrow">Ver servicio &#8594;</div>
+      </a>
+      <a class="mini-svc-card" href="servicios.html#good-standing">
+        <div class="mini-svc-top"><span class="mini-svc-icon">&#127894;</span><span class="mini-svc-name" data-en="Certificate of Good Standing" data-es="Certificado de Buena Fe">Certificate of Good Standing</span></div>
+        <div class="mini-svc-price">$49</div>
+        <div class="mini-svc-sub" data-en="+ FL state fee" data-es="+ tarifa estatal FL">+ FL state fee</div>
+        <div class="mini-svc-arrow">Ver servicio &#8594;</div>
+      </a>
+      <a class="mini-svc-card" href="servicios.html#scorp-election">
+        <div class="mini-svc-top"><span class="mini-svc-icon">&#11088;</span><span class="mini-svc-name" data-en="S-Corp Election (Form 2553)" data-es="Elección S-Corp (Form 2553)">S-Corp Election (Form 2553)</span></div>
+        <div class="mini-svc-price">$79</div>
+        <div class="mini-svc-sub" data-en="One-time fee" data-es="Pago único">One-time fee</div>
+        <div class="mini-svc-arrow">Ver servicio &#8594;</div>
+      </a>
+      <a class="mini-svc-card" href="servicios.html#foreign-llc">
+        <div class="mini-svc-top"><span class="mini-svc-icon">&#127758;</span><span class="mini-svc-name" data-en="Foreign LLC / Corp Registration" data-es="Registro LLC / Corp Extranjera">Foreign LLC / Corp Registration</span></div>
+        <div class="mini-svc-price">$99</div>
+        <div class="mini-svc-sub" data-en="+ state filing fee" data-es="+ tarifa estatal">+ state filing fee</div>
+        <div class="mini-svc-arrow">Ver servicio &#8594;</div>
+      </a>
+      <a class="mini-svc-card" href="servicios.html#business-license">
+        <div class="mini-svc-top"><span class="mini-svc-icon">&#128203;</span><span class="mini-svc-name" data-en="Business License" data-es="Licencia de Negocio">Business License</span></div>
+        <div class="mini-svc-price">$99</div>
+        <div class="mini-svc-sub" data-en="One-time fee" data-es="Pago único">One-time fee</div>
+        <div class="mini-svc-arrow">Ver servicio &#8594;</div>
+      </a>
+      <a class="mini-svc-card" href="servicios.html#dissolution">
+        <div class="mini-svc-top"><span class="mini-svc-icon">&#128230;</span><span class="mini-svc-name" data-en="Business Dissolution" data-es="Disolución de Negocio">Business Dissolution</span></div>
+        <div class="mini-svc-price">$79</div>
+        <div class="mini-svc-sub" data-en="+ FL state fee" data-es="+ tarifa estatal FL">+ FL state fee</div>
+        <div class="mini-svc-arrow">Ver servicio &#8594;</div>
+      </a>
+      <a class="mini-svc-card" href="servicios.html#cierre-fiscal">
+        <div class="mini-svc-top"><span class="mini-svc-icon">&#128274;</span><span class="mini-svc-name" data-en="Tax Account Closure" data-es="Cierre de Cuenta Fiscal">Tax Account Closure</span></div>
+        <div class="mini-svc-price">$79</div>
+        <div class="mini-svc-sub" data-en="One-time fee" data-es="Pago único">One-time fee</div>
+        <div class="mini-svc-arrow">Ver servicio &#8594;</div>
+      </a>
+    </div>
+    <div style="text-align:center;margin-top:40px">
+      <a href="servicios.html" style="display:inline-flex;align-items:center;gap:8px;background:var(--navy);color:#fff;padding:14px 32px;border-radius:10px;font-size:.92rem;font-weight:600;transition:all .22s" onmouseover="this.style.background='var(--blue)'" onmouseout="this.style.background='var(--navy)'"><span id="svc-view-all-btn" data-en="View All Services &rarr;" data-es="Ver Todos los Servicios &rarr;">View All Services &#8594;</span></a>
     </div>
   </div>
 </section>
@@ -1947,6 +2084,9 @@ var translations = {
     priceSub:"Every package includes expert handling of your State of Florida filing.",
     testiLabel:"Client Stories", testiTitle:"Real Entrepreneurs.<br/>Real Results.",
     testiSub:"From first-time founders to seasoned investors — we help every business get started right.",
+    svcLabel:"Add-On Services", svcTitle:"Everything Your Business <em>Needs</em>",
+    svcSub:"Individual services for every business need — order any service individually or save with a formation package.",
+    svcViewAll:"View All Services &rarr;",
     faqLabel:"FAQ", faqTitle:"Answers to Your Most<br/>Important Questions",
     helpTitle:"Not sure where to start? We're here for you.",
     helpSub:"Our formation experts are ready to answer your questions at no extra cost.",
@@ -1977,6 +2117,9 @@ var translations = {
     priceSub:"Cada paquete incluye el manejo experto de tu trámite ante el Estado de Florida.",
     testiLabel:"Historias de Clientes", testiTitle:"Emprendedores Reales.<br/>Resultados Reales.",
     testiSub:"Desde fundadores primerizos hasta inversionistas experimentados — ayudamos a cada negocio a comenzar bien.",
+    svcLabel:"Servicios Adicionales", svcTitle:"Todo lo que tu Negocio <em>Necesita</em>",
+    svcSub:"Servicios individuales para cada necesidad de tu negocio — ordena cualquier servicio individualmente o ahorra con un paquete de formación.",
+    svcViewAll:"Ver Todos los Servicios &rarr;",
     faqLabel:"Preguntas Frecuentes", faqTitle:"Respuestas a Tus Preguntas<br/>Más Importantes",
     helpTitle:"¿No sabes por dónde empezar? Estamos aquí para ayudarte.",
     helpSub:"Nuestros expertos están listos para responder tus preguntas sin costo adicional.",
@@ -2765,6 +2908,11 @@ function setLang(lang) {
   el=document.getElementById('testi-label');        if(el) el.textContent = t.testiLabel;
   el=document.getElementById('testi-title');        if(el) el.innerHTML   = t.testiTitle;
   el=document.getElementById('testi-sub');          if(el) el.textContent = t.testiSub;
+  el=document.getElementById('svc-label');          if(el) el.textContent = t.svcLabel;
+  el=document.getElementById('svc-title');          if(el) el.innerHTML   = t.svcTitle;
+  el=document.getElementById('svc-sub');            if(el) el.textContent = t.svcSub;
+  el=document.getElementById('svc-view-all-btn');   if(el) el.innerHTML   = t.svcViewAll;
+  document.querySelectorAll('.mini-svc-arrow').forEach(function(a){a.innerHTML=isEs?'Ver servicio &#8594;':'View service &#8594;';});
   el=document.getElementById('faq-label');          if(el) el.textContent = t.faqLabel;
   el=document.getElementById('faq-title');          if(el) el.innerHTML   = t.faqTitle;
   el=document.getElementById('help-title');         if(el) el.textContent = t.helpTitle;
