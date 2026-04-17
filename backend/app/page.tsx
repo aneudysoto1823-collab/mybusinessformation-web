@@ -583,7 +583,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 
 <!-- TOPBAR -->
 <div class="topbar">
-  <span id="topbar-text">🌟 Florida's trusted business formation experts — <strong>LLC &amp; Corporation</strong> filing made simple. Start today from <strong>$49 + state fee.</strong></span>
+  <span id="topbar-text">🌟 Florida's trusted business formation experts — <strong>LLC &amp; Corporation</strong> filing made simple. Start today for <strong>FREE + state fee.</strong></span>
 </div>
 
 <!-- HEADER -->
@@ -598,14 +598,14 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
       <a href="#pricing" data-en="Pricing" data-es="Precios">Pricing</a>
       <a href="#faq" data-en="FAQ" data-es="Preguntas">FAQ</a>
       <a href="#contact" data-en="Contact" data-es="Contacto">Contact</a>
-      <a href="servicios.html" data-en="Services" data-es="Servicios">Services</a>
+      <a href="/servicios" data-en="Services" data-es="Servicios">Services</a>
     </nav>
     <div style="display:flex;align-items:center;gap:12px">
       <div class="lang-toggle">
         <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
         <button class="lang-btn" id="btn-es" onclick="setLang('es')">ES</button>
       </div>
-      <a href="/client-portal" style="color: #1a1a2e; text-decoration: none; margin-right: 16px; font-weight: 500; font-size: 15px;">Log In</a>
+      <a href="/client-portal" style="padding:6px 14px;border-radius:6px;border:1.5px solid #e2e8f0;background:#fff;font-size:0.85rem;font-weight:500;color:#475569;text-decoration:none;transition:all 0.2s;">Login</a>
     </div>
   </div>
 </header>
@@ -808,7 +808,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
       </div>
       <div class="testi-card">
         <div class="stars">★★★★★</div>
-        <p class="testi-text">"I chose the Premium package and it covered absolutely everything — EIN, Operating Agreement, Registered Agent. My business was up and running faster than I expected. Highly recommend!"</p>
+        <p class="testi-text">"I chose the Premium package and it covered absolutely everything — EIN, Operating Agreement, BOI Filing and our Exclusive Formation Guide. My business was up and running faster than I expected. Highly recommend!"</p>
         <div class="testi-author">
           <div class="testi-avatar" style="background:#059669">AL</div>
           <div class="testi-info"><strong>Ana Lucía Torres</strong><span>Boutique Owner · Tampa, FL</span></div>
@@ -2090,7 +2090,7 @@ var translations = {
     faqTitle:"Answers to Your Most Important Questions",
   es: {
     topbar: "🌟 Expertos de confianza en formación de negocios en Florida — <strong>LLC y Corporación</strong> de manera simple. Desde <strong>$49 + cargo estatal.</strong>",
-    heroTitle: 'Crea Tu <em>Negocio en Florida</em> rápido y fácil',
+    heroTitle: 'Crea Tu <em>Negocio en Florida</em>, rápido y fácil',
     heroSub: '',
     heroBadge: "La confianza de cientos de emprendedores en Florida",
     heroBtn1: "Iniciar Mi Negocio Hoy →", heroBtn2: "Cómo Funciona",
@@ -2374,7 +2374,6 @@ function fmBuildUpgradeCards() {
       'Bank Account Guide',
       'Operating Agreement',
       'Expedited Filing FREE (1-3 days)',
-      'ITIN Application',
       'DBA / Fictitious Name',
       'Articles of Amendment'
     ]
@@ -2493,7 +2492,7 @@ function fmFilterAddons() {
   var subEl = document.getElementById('s7-sub');
   if(pkg === 'premium') {
     if(titleEl) titleEl.textContent = isEs ? 'Protege Tu Negocio' : 'Protect Your Business';
-    if(subEl) subEl.textContent = isEs ? 'Tu paquete Premium ya incluye EIN, Acuerdo Operativo e ITIN. Solo queda la Declaración Anual.' : 'Your Premium package already includes EIN, Operating Agreement and ITIN. Only the Annual Report remains.';
+    if(subEl) subEl.textContent = isEs ? 'Tu paquete Premium ya incluye EIN, Acuerdo Operativo y Guía Exclusiva. Solo queda la Declaración Anual.' : 'Your Premium package already includes EIN, Operating Agreement and Exclusive Guide. Only the Annual Report remains.';
   } else if(pkg === 'standard') {
     if(titleEl) titleEl.textContent = isEs ? 'Mejora Tu Formación' : 'Boost Your Formation';
     if(subEl) subEl.textContent = isEs ? 'Tu paquete Standard ya incluye EIN. Agrega lo que necesites.' : 'Your Standard package already includes EIN. Add what makes sense now or order anytime.';
