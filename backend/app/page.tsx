@@ -36,7 +36,7 @@ nav a:hover{color:var(--navy);background:var(--gray100)}
 .btn-start:hover{background:var(--green-dark);transform:translateY(-1px)}
 
 /* ── HERO ── */
-.hero{background:var(--white);padding:64px 32px 32px;text-align:center}
+.hero{background:var(--white);padding:64px 32px 64px;text-align:center}
 .hero-inner{max-width:760px;margin:0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .hero h1{font-size:clamp(1.5rem,3vw,2rem);color:var(--navy);font-weight:700;margin-bottom:24px;letter-spacing:0}
 .hero h1 em{color:var(--blue);font-style:normal}
@@ -615,15 +615,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
   <div class="hero-inner">
     <h1 id="hero-title">Create Your <em>Florida Business</em>, fast and easy</h1>
     <p id="hero-sub"></p>
-  </div>
-</section>
-
-
-<!-- PRICING -->
-<section class="section" id="pricing" style="padding:52px 32px">
-  <div class="section-inner">
-    <div class="text-center">
-      <div class="hero-btns" style="margin-top:0;margin-bottom:20px">
+    <div class="hero-btns">
       <div style="position:relative;display:inline-block">
         <button class="btn-hero-new btn-hero-start" onclick="toggleEntityDropdown()" id="btn-new-app" style="display:flex;align-items:center;gap:8px">
           &#x1F680; <span id="lbl-new-app">Start New Application</span> <span id="entity-arrow" style="font-size:.7rem;transition:transform .2s">▼</span>
@@ -659,9 +651,18 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           <button onclick="findOrderDrop()" class="btn-hero-new" style="width:100%;justify-content:center" id="cont-drop-btn"><span id="cont-drop-btn-lbl">Continue</span> &#8594;</button>
         </div>
       </div>
-      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- PRICING -->
+<section class="section" id="pricing" style="padding:48px 32px">
+  <div class="section-inner">
+    <div class="text-center">
       <span class="section-label" id="price-label">Our Packages</span>
       <h2 class="section-title" id="price-title">Choose Your Formation Package</h2>
+      <p id="pkg-advice" style="font-size:.82rem;color:#475569;max-width:560px;margin:8px auto 0;line-height:1.6">Not sure which to choose? Most of our clients choose <strong>Standard</strong> — it includes EIN and our Exclusive Formation Guide, designed to give you the best possible start.</p>
     </div>
     <div class="pricing-grid">
 
@@ -2889,11 +2890,10 @@ function setLang(lang) {
   document.querySelectorAll('.faq-item').forEach(function(item){var q=item.querySelector('.faq-q span');var a=item.querySelector('.faq-a');if(q&&q.getAttribute('data-es'))q.textContent=isEs?q.getAttribute('data-es'):q.getAttribute('data-en');if(a&&a.getAttribute('data-es'))a.innerHTML=isEs?a.getAttribute('data-es'):a.getAttribute('data-en');});
   // Footer headers
   document.querySelectorAll('.footer-col h5[data-en]').forEach(function(h){h.textContent=isEs?h.getAttribute('data-es'):h.getAttribute('data-en');});
-  el=document.getElementById('pkg-advice-title'); if(el) el.textContent = isEs ? '¿No sabes cuál elegir?' : 'Not sure which to choose?';
-  el=document.getElementById('pkg-advice-body');  if(el) el.textContent = isEs ? 'La mayoría de nuestros clientes eligen Standard — incluye EIN y nuestra Guía Exclusiva de Formación, diseñada para darte el mejor comienzo posible.' : 'Most of our clients choose Standard — it includes EIN and our Exclusive Formation Guide, designed to give you the best possible start.';
   el=document.getElementById('price-label');
         if(el) el.textContent = t.priceLabel;
   el=document.getElementById('price-title');        if(el) el.textContent = t.priceTitle;
+  el=document.getElementById('pkg-advice');         if(el) el.innerHTML   = isEs ? '¿No sabes cuál elegir? La mayoría de nuestros clientes eligen <strong>Standard</strong> — incluye EIN y nuestra Guía Exclusiva de Formación, diseñada para darte el mejor comienzo posible.' : 'Not sure which to choose? Most of our clients choose <strong>Standard</strong> — it includes EIN and our Exclusive Formation Guide, designed to give you the best possible start.';
   el=document.getElementById('testi-label');        if(el) el.textContent = t.testiLabel;
   el=document.getElementById('testi-title');        if(el) el.innerHTML   = t.testiTitle;
   el=document.getElementById('testi-sub');          if(el) el.textContent = t.testiSub;
