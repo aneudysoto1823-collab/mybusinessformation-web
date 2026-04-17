@@ -964,7 +964,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
     <div class="faq-list">
       <div class="faq-item">
         <button class="faq-q" onclick="toggleFaq(this)"><span data-en="What is the difference between an LLC and a Corporation?" data-es="¿Cuál es la diferencia entre una LLC y una Corporación?">What is the difference between an LLC and a Corporation?</span><span class="faq-icon">+</span></button>
-        <div class="faq-a" data-en="An LLC offers flexible management and pass-through taxation, ideal for small businesses. A Corporation is suited for businesses seeking investors or planning to issue stock. Both protect your personal assets." data-es="Una LLC ofrece gestión flexible e impuestos pass-through, ideal para pequeños negocios. Una Corporación es más formal y adecuada para negocios que buscan inversores o emitir acciones. Ambas protegen tus activos personales.">An LLC offers flexible management and pass-through taxation, ideal for small businesses. A Corporation is suited for businesses seeking investors or planning to issue stock. Both protect your personal assets.</div>
+        <div class="faq-a" data-en="An LLC offers flexible management and pass-through taxation, ideal for small businesses. A Corporation is suited for businesses seeking investors or planning to issue stock. Both protect your personal assets." data-es="Una LLC ofrece gestión flexible e impuestos directos al propietario, ideal para pequeños negocios. Una Corporación es más formal y adecuada para negocios que buscan inversores o emitir acciones. Ambas protegen tus activos personales.">An LLC offers flexible management and pass-through taxation, ideal for small businesses. A Corporation is suited for businesses seeking investors or planning to issue stock. Both protect your personal assets.</div>
       </div>
       <div class="faq-item">
         <button class="faq-q" onclick="toggleFaq(this)"><span data-en="How long does it take to form my business in Florida?" data-es="¿Cuánto tiempo tarda en formarse mi negocio en Florida?">How long does it take to form my business in Florida?</span><span class="faq-icon">+</span></button>
@@ -1053,7 +1053,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
         </div>
       </div>
       <div class="footer-col">
-        <h5 data-en="Company" data-es="Empresa">Company</h5>
+        <h5 data-en="My Business Formation" data-es="My Business Formation">My Business Formation</h5>
         <a href="#" data-en="About Us" data-es="Nosotros">About Us</a>
         <a href="#" data-en="How It Works" data-es="Cómo Funciona">How It Works</a>
         <a href="#" data-en="FAQ" data-es="Preguntas">FAQ</a>
@@ -2931,7 +2931,7 @@ function setLang(lang) {
   // FAQ questions and answers
   var faqData = [
     ['¿Cuál es la diferencia entre una LLC y una Corporación?',
-     'Una LLC ofrece gestión flexible e impuestos pass-through — ideal para pequeños negocios. Una Corporación es una estructura más formal, adecuada para negocios que buscan inversionistas o emitir acciones. Ambas protegen tus bienes personales de las deudas del negocio.',
+     'Una LLC ofrece gestión flexible e impuestos directos al propietario — ideal para pequeños negocios. Una Corporación es una estructura más formal, adecuada para negocios que buscan inversionistas o emitir acciones. Ambas protegen tus bienes personales de las deudas del negocio.',
      'What is the difference between an LLC and a Corporation?',
      'An LLC offers flexible management and pass-through taxation — ideal for small businesses. A Corporation is a more formal structure suited for businesses seeking investors or planning to issue stock. Both protect your personal assets from business liabilities.'],
     ['¿Cuánto tiempo tarda la formación de mi negocio en Florida?',
