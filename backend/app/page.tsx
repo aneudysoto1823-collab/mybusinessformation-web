@@ -36,7 +36,7 @@ nav a:hover{color:var(--navy);background:var(--gray100)}
 .btn-start:hover{background:var(--green-dark);transform:translateY(-1px)}
 
 /* ── HERO ── */
-.hero{background:var(--white);padding:64px 32px 64px;text-align:center}
+.hero{background:var(--white);padding:96px 32px 20px;text-align:center}
 .hero-inner{max-width:760px;margin:0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .hero h1{font-size:clamp(1.5rem,3vw,2rem);color:var(--navy);font-weight:700;margin-bottom:24px;letter-spacing:0}
 .hero h1 em{color:var(--blue);font-style:normal}
@@ -615,7 +615,15 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
   <div class="hero-inner">
     <h1 id="hero-title">Create Your <em>Florida Business</em>, fast and easy</h1>
     <p id="hero-sub"></p>
-    <div class="hero-btns">
+  </div>
+</section>
+
+
+<!-- PRICING -->
+<section class="section" id="pricing" style="padding:36px 32px 52px">
+  <div class="section-inner">
+    <div class="text-center">
+      <div class="hero-btns" style="margin-top:0;margin-bottom:28px">
       <div style="position:relative;display:inline-block">
         <button class="btn-hero-new btn-hero-start" onclick="toggleEntityDropdown()" id="btn-new-app" style="display:flex;align-items:center;gap:8px">
           &#x1F680; <span id="lbl-new-app">Start New Application</span> <span id="entity-arrow" style="font-size:.7rem;transition:transform .2s">▼</span>
@@ -651,15 +659,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           <button onclick="findOrderDrop()" class="btn-hero-new" style="width:100%;justify-content:center" id="cont-drop-btn"><span id="cont-drop-btn-lbl">Continue</span> &#8594;</button>
         </div>
       </div>
-    </div>
-  </div>
-</section>
-
-
-<!-- PRICING -->
-<section class="section" id="pricing" style="padding:48px 32px">
-  <div class="section-inner">
-    <div class="text-center">
+      </div>
       <span class="section-label" id="price-label">Our Packages</span>
       <h2 class="section-title" id="price-title">Choose Your Formation Package</h2>
       <p id="pkg-advice" style="font-size:.82rem;color:#475569;max-width:560px;margin:8px auto 0;line-height:1.6">Not sure which to choose? Most of our clients choose <strong>Standard</strong> — it includes EIN and our Exclusive Formation Guide, designed to give you the best possible start.</p>
@@ -972,7 +972,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
       </div>
       <div class="faq-item">
         <button class="faq-q" onclick="toggleFaq(this)"><span data-en="What is a Registered Agent and do I really need one?" data-es="¿Qué es un Agente Registrado y realmente lo necesito?">What is a Registered Agent and do I really need one?</span><span class="faq-icon">+</span></button>
-        <div class="faq-a" data-en="Yes. Every LLC and Corporation in Florida is legally required to have a Registered Agent with a physical Florida street address in the state." data-es="Sí. Toda LLC y Corporación en Florida está legalmente obligada a tener un Agente Registrado con dirección física en el estado.">Yes. Every LLC and Corporation in Florida is legally required to have a Registered Agent with a physical Florida street address in the state.</div>
+        <div class="faq-a" data-en="Yes. Every LLC and Corporation in Florida is legally required to have a Registered Agent with a physical Florida street address in the state, available Monday through Friday from 9:00 a.m. to 5:00 p.m. to receive legal documents." data-es="Sí. Toda LLC y Corporación en Florida está legalmente obligada a tener un Agente Registrado con dirección física en el estado, disponible de lunes a viernes de 9:00 a.m. a 5:00 p.m. para recibir documentos legales.">Yes. Every LLC and Corporation in Florida is legally required to have a Registered Agent with a physical Florida street address in the state, available Monday through Friday from 9:00 a.m. to 5:00 p.m. to receive legal documents.</div>
       </div>
       <div class="faq-item">
         <button class="faq-q" onclick="toggleFaq(this)"><span data-en="Do I need an EIN if I'm a single-member LLC?" data-es="¿Necesito un EIN si tengo una LLC de un solo miembro?">Do I need an EIN if I'm a single-member LLC?</span><span class="faq-icon">+</span></button>
@@ -1012,7 +1012,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           Chat on WhatsApp
         </button>
         <button id="hero-cal-btn" class="btn-cal" onclick="window.open('https://calendly.com/PLACEHOLDER','_blank')">
-          📅 Schedule Free Consultation
+          📅 Schedule Free Consultation →
         </button>
       </div>
     </div>
@@ -1058,9 +1058,9 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
         <a href="#" data-en="How It Works" data-es="Cómo Funciona">How It Works</a>
         <a href="#" data-en="FAQ" data-es="Preguntas">FAQ</a>
         <a href="#" data-en="Contact Us" data-es="Contáctanos">Contact Us</a>
-        <a href="terms.html" style="margin-top:12px;opacity:0.5" data-en="Terms &amp; Conditions" data-es="Términos y Condiciones">Terms &amp; Conditions</a>
-        <a href="privacy.html" style="opacity:0.5" data-en="Privacy Policy" data-es="Política de Privacidad">Privacy Policy</a>
-        <a href="legal.html" style="opacity:0.5" data-en="Legal Disclaimer" data-es="Aviso Legal">Legal Disclaimer</a>
+        <a href="terms.html" style="margin-top:12px" data-en="Terms &amp; Conditions" data-es="Términos y Condiciones">Terms &amp; Conditions</a>
+        <a href="privacy.html" data-en="Privacy Policy" data-es="Política de Privacidad">Privacy Policy</a>
+        <a href="legal.html" data-en="Legal Disclaimer" data-es="Aviso Legal">Legal Disclaimer</a>
       </div>
     </div>
     <hr class="footer-divider"/>
@@ -2995,7 +2995,7 @@ function setLang(lang) {
     if(role) role.textContent = isEs ? testiData[i][2] : testiData[i][3];
   });
 
-  el=document.getElementById('hero-cal-btn'); if(el) el.innerHTML = isEs ? '&#128197; Consulta Gratuita' : '&#128197; Schedule Free Consultation';
+  el=document.getElementById('hero-cal-btn'); if(el) el.innerHTML = isEs ? '&#128197; Programar Consulta Gratuita &rarr;' : '&#128197; Schedule Free Consultation &rarr;';
   // Footer brand description
   el=document.getElementById('footer-brand-desc'); if(el) el.textContent = isEs
     ? 'Servicios profesionales de formación empresarial para emprendedores e inversionistas. Tramitamos tu LLC o Corporación ante el Estado de Florida — con precisión, eficiencia y atención personalizada.'
