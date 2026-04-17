@@ -2020,7 +2020,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
       </div>
       <div class="fm-sum-body">
         <div class="fm-sum-line"><span class="fm-sum-lbl" id="sum-lbl-entity">Entity</span><span class="fm-sum-val sum-entity-val">LLC</span></div>
-        <div class="fm-sum-line"><span class="fm-sum-lbl" id="sum-lbl-pkg">Package</span><span class="fm-sum-val sum-pkg-val">Standard &#8212; $149</span></div>
+        <div class="fm-sum-line"><span class="fm-sum-lbl" id="sum-lbl-pkg">Package</span><span class="fm-sum-val sum-pkg-val">Standard &#8212; $199</span></div>
         <div class="fm-sum-line"><span class="fm-sum-lbl sum-state-lbl" id="sum-lbl-state">FL State Fee</span><span class="fm-sum-val sum-state-val">$125</span></div>
         <div class="fm-sum-line sum-exp-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-exp">Expedited Filing</span><span class="fm-sum-val">$99</span></div>
         <div class="fm-sum-line sum-vma-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-vma">Virtual Address</span><span class="fm-sum-val free">1st Month Free</span></div>
@@ -2461,15 +2461,15 @@ function fmBuildUpgradeCards() {
     container.style.alignItems = 'stretch';
     container.style.maxWidth = '';
     container.style.margin = '0 0 20px';
-    container.appendChild(makeCard('Standard', '$149', allFeatures.standard,
+    container.appendChild(makeCard('Standard', '$199', allFeatures.standard,
       isEs ? 'Mejorar a Standard →' : 'Upgrade to Standard →', 'standard', false));
-    container.appendChild(makeCard('Premium',  '$249', allFeatures.premium,
+    container.appendChild(makeCard('Premium',  '$299', allFeatures.premium,
       isEs ? 'Mejorar a Premium →' : 'Upgrade to Premium →', 'premium', true));
   } else if(pkg === 'standard') {
     container.style.gridTemplateColumns = '1fr';
     container.style.maxWidth = '420px';
     container.style.margin = '0 auto 20px';
-    container.appendChild(makeCard('Premium', '$249', allFeatures.premium,
+    container.appendChild(makeCard('Premium', '$299', allFeatures.premium,
       isEs ? 'Mejorar a Premium →' : 'Upgrade to Premium →', 'premium', true));
   }
 }
