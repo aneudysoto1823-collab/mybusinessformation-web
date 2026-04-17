@@ -775,7 +775,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
       <div class="step-card">
         <div class="step-num">4</div>
         <h4 id="s4h">Your Business Is Official</h4>
-        <p id="s4p">Receive your Certificate of Formation, your documents, and everything you need to open your bank account and start operating — fully protected and legally compliant.</p>
+        <p id="s4p">Receive your Certificate of Formation and our Exclusive Expert-Crafted Guide, with the key steps to keep your business active and compliant with the state.</p>
       </div>
     </div>
   </div>
@@ -2067,7 +2067,7 @@ var translations = {
     s1h:"Choose Your Package", s1p:"Select the formation package that fits your needs and budget.",
     s2h:"Complete Your Order", s2p:"Fill out our guided form in minutes. Your information is encrypted and secure.",
     s3h:"We File With the State", s3p:"Our experts review your documents and submit everything to the Florida Division of Corporations.",
-    s4h:"Your Business Is Official", s4p:"Receive your Certificate of Formation and everything you need to open your bank account.",
+    s4h:"Your Business Is Official", s4p:"Receive your Certificate of Formation and our Exclusive Expert-Crafted Guide, with the key steps to keep your business active and compliant with the state.",
     priceLabel:"Our Packages", priceTitle:"Choose Your Formation Package",
     priceSub:"Every package includes expert handling of your State of Florida filing.",
     testiLabel:"Client Stories", testiTitle:"Real Entrepreneurs.<br/>Real Results.",
@@ -2084,7 +2084,7 @@ var translations = {
     s1p:"Select the formation package that fits your needs and budget.",
     s2p:"Fill out our guided form in minutes. Your information is encrypted and secure.",
     s3p:"Our experts review your documents and file with the Florida Division of Corporations.",
-    s4p:"Receive your Certificate of Formation and everything you need to open your bank account.",
+    s4p:"Receive your Certificate of Formation and our Exclusive Expert-Crafted Guide, with the key steps to keep your business active and compliant with the state.",
     priceTitle:"Choose Your Formation Package",
     testiTitle:"Real Entrepreneurs. Real Results.",
     faqTitle:"Answers to Your Most Important Questions",
@@ -2100,7 +2100,7 @@ var translations = {
     s1h:"Elige Tu Paquete", s1p:"Selecciona el paquete de formación que se adapte a tus necesidades y presupuesto.",
     s2h:"Completa Tu Orden", s2p:"Llena nuestro formulario guiado en minutos. Tu información está cifrada y segura.",
     s3h:"Nosotros Tramitamos", s3p:"Nuestros expertos revisan tus documentos y los envían a la División de Corporaciones de Florida.",
-    s4h:"Tu Negocio es Oficial", s4p:"Recibe tu Certificado de Formación y todo lo necesario para abrir tu cuenta bancaria.",
+    s4h:"Tu Negocio Es Oficial", s4p:"Recibe tu Certificado de Formación y nuestra Guía Exclusiva, creada por expertos, con los pasos clave para mantener tu negocio activo y en regla ante el estado.",
     priceLabel:"Nuestros Paquetes", priceTitle:"Elige Tu Paquete de Formación",
     priceSub:"Cada paquete incluye el manejo experto de tu trámite ante el Estado de Florida.",
     testiLabel:"Historias de Clientes", testiTitle:"Emprendedores Reales.<br/>Resultados Reales.",
@@ -2117,7 +2117,7 @@ var translations = {
     s1p:"Selecciona el paquete de formación que se adapte a tus necesidades y presupuesto.",
     s2p:"Llena nuestro formulario guiado en minutos. Tu información está cifrada y segura.",
     s3p:"Nuestros expertos revisan tus documentos y los envían a la División de Corporaciones de Florida.",
-    s4p:"Recibe tu Certificado de Formación y todo lo necesario para abrir tu cuenta bancaria.",
+    s4p:"Recibe tu Certificado de Formación y nuestra Guía Exclusiva, creada por expertos, con los pasos clave para mantener tu negocio activo y en regla ante el estado.",
     priceTitle:"Elige Tu Paquete de Formación",
     testiTitle:"Emprendedores Reales. Resultados Reales.",
     faqTitle:"Respuestas a Tus Preguntas Más Importantes"
@@ -2884,7 +2884,7 @@ function setLang(lang) {
   el=document.getElementById('lbl-continue-app');  if(el) el.textContent = isEs ? 'Continuar Mi Aplicación' : 'Continue My Application';
   var bsBtn=document.querySelector('.btn-start');   if(bsBtn) bsBtn.innerHTML=isEs?'Iniciar Mi Negocio &rarr;':'Start My Business &rarr;';
   // How it works steps
-  var hSteps=[{id:'s1h',en:'Choose Your Package',es:'Elige Tu Paquete'},{id:'s1p',en:'Select the formation package that fits your needs.',es:'Selecciona el paquete de formación que se adapte a tus necesidades.'},{id:'s2h',en:'Complete Your Order',es:'Completa Tu Orden'},{id:'s2p',en:'Fill out our guided form in minutes.',es:'Completa nuestro formulario guiado en minutos.'},{id:'s3h',en:'We File With the State',es:'Tramitamos Ante el Estado'},{id:'s3p',en:'Our experts submit everything to the Florida Division of Corporations.',es:'Nuestros expertos presentan todo ante la División de Corporaciones de Florida.'},{id:'s4h',en:'Your Business Is Official',es:'Tu Negocio Es Oficial'},{id:'s4p',en:'Receive your Certificate of Formation and everything to open your bank account.',es:'Recibe tu Certificado de Formación y todo lo necesario para abrir tu cuenta bancaria.'}];
+  var hSteps=[{id:'s1h',en:'Choose Your Package',es:'Elige Tu Paquete'},{id:'s1p',en:'Select the formation package that fits your needs.',es:'Selecciona el paquete de formación que se adapte a tus necesidades.'},{id:'s2h',en:'Complete Your Order',es:'Completa Tu Orden'},{id:'s2p',en:'Fill out our guided form in minutes.',es:'Completa nuestro formulario guiado en minutos.'},{id:'s3h',en:'We File With the State',es:'Tramitamos Ante el Estado'},{id:'s3p',en:'Our experts submit everything to the Florida Division of Corporations.',es:'Nuestros expertos presentan todo ante la División de Corporaciones de Florida.'},{id:'s4h',en:'Your Business Is Official',es:'Tu Negocio Es Oficial'},{id:'s4p',en:'Receive your Certificate of Formation and our Exclusive Expert-Crafted Guide, with the key steps to keep your business active and compliant with the state.',es:'Recibe tu Certificado de Formación y nuestra Guía Exclusiva, creada por expertos, con los pasos clave para mantener tu negocio activo y en regla ante el estado.'}];
   hSteps.forEach(function(s){var e2=document.getElementById(s.id);if(e2)e2.textContent=isEs?s.es:s.en;});
   // FAQ
   document.querySelectorAll('.faq-item').forEach(function(item){var q=item.querySelector('.faq-q span');var a=item.querySelector('.faq-a');if(q&&q.getAttribute('data-es'))q.textContent=isEs?q.getAttribute('data-es'):q.getAttribute('data-en');if(a&&a.getAttribute('data-es'))a.innerHTML=isEs?a.getAttribute('data-es'):a.getAttribute('data-en');});
