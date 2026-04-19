@@ -2574,6 +2574,23 @@ function fmSetAgentChoice(type, el) {
     }
   }
 }
+// Re-evaluate step 3 RA state whenever step 3 is entered (handles back navigation from step 2)
+function fmSyncRaState() {
+  if(fmData.agentType !== 'own') return;
+  var stateEl = document.getElementById('inp-state');
+  var isFL = stateEl && stateEl.value === 'FL';
+  var sameBizOpt = document.getElementById('ra-same-biz-opt');
+  var raAddrFields = document.getElementById('ra-addr-fields');
+  var chk = document.getElementById('chk-ra-same-biz');
+  if(sameBizOpt) sameBizOpt.style.display = isFL ? 'block' : 'none';
+  if(isFL) {
+    if(chk) chk.checked = true;
+    fmFillRaFromBiz();
+    if(raAddrFields) raAddrFields.style.display = 'none';
+  } else {
+    if(raAddrFields) raAddrFields.style.display = 'block';
+  }
+}
 function fmFillRaFromBiz() {
   var s=document.getElementById('inp-addr'),s2=document.getElementById('inp-street2'),c=document.getElementById('inp-city'),z=document.getElementById('inp-zip');
   var rs=document.getElementById('inp-ra-street'),rs2=document.getElementById('inp-ra-street2'),rc=document.getElementById('inp-ra-city'),rz=document.getElementById('inp-ra-zip');
@@ -4009,6 +4026,7 @@ function fmGoToStep(n) {
   if(el) { el.classList.add('active'); fmCurrentStep = n; }
   fmUpdateProgress();
   fmUpdateSummary();
+  if(n === 3) fmSyncRaState();
   if(n === 7) fmFilterAddons();
   if(n === 8) fmBuildReview();
   if(!_fmRestoring) {
