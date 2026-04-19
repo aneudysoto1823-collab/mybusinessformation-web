@@ -1387,25 +1387,6 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           </div>
         </div>
       </div>
-      <div class="fm-step" id="fms4">
-        <div class="fm-card">
-          <div class="fm-card-body">
-            <h2 class="fm-title" id="s4-title">&#x1F680; You&#39;re Almost There &mdash; Unlock More Power</h2>
-            <p class="fm-sub" id="s4-sub">Most clients upgrade before filing &mdash; it saves time, money, and the hassle of ordering services separately later.</p>
-            <div id="upgrade-cards-container" style="display:grid;gap:14px;margin-bottom:20px"></div>
-            <div style="text-align:center;margin-top:6px">
-              <button onclick="fmSkipUpgrade()" style="background:none;border:none;color:#9ca3af;font-size:.78rem;cursor:pointer;font-family:inherit;text-decoration:underline;padding:4px" id="s4-skip-lbl">No thanks, I&#39;m good with my current package</button>
-            </div>
-          </div>
-          <div class="fm-card-footer">
-            <button class="btn-back-fm" onclick="fmBack()">&#8592; <span id="s4-back">Back</span></button>
-            <div style="display:flex;align-items:center;gap:10px">
-              <button class="save-btn" onclick="saveOrder()">&#x1F4BE; <span id="s4-save">Save</span></button>
-              <button class="btn-next-fm" onclick="fmNext()" style="min-width:160px"><span id="s4-next">Continue</span> &#8594;</button>
-            </div>
-          </div>
-        </div>
-      </div>
       <div class="fm-step" id="fms5">
         <div class="fm-card">
           <div class="fm-card-body">
@@ -1527,71 +1508,6 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
             <div style="display:flex;align-items:center;gap:10px">
               <button class="save-btn" onclick="saveOrder()">&#x1F4BE; <span id="s5-save">Save</span></button>
               <button class="btn-next-fm" onclick="fmNext()"><span id="s5-next">Continue</span> &#8594;</button>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="fm-step" id="fms6">
-        <div class="fm-card">
-          <div class="fm-card-body">
-            <h2 class="fm-title" id="s6-title">Registered Agent</h2>
-            <p class="fm-sub" id="s6-sub">Florida law requires every LLC and Corporation to designate a Registered Agent to receive official legal and government documents on behalf of your business.</p>
-
-            <!-- What is a Registered Agent -->
-            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px 16px;margin-bottom:16px">
-              <div style="font-size:.82rem;color:#374151;line-height:1.8">
-                <div style="margin-bottom:4px"><span style="color:#2563eb;font-weight:700">&#10003;</span> <span id="s6-b1">Receives lawsuits, court orders, and official state documents</span></div>
-                <div style="margin-bottom:4px"><span style="color:#2563eb;font-weight:700">&#10003;</span> <span id="s6-b2">Must have a physical Florida address — no PO Boxes</span></div>
-                <div><span style="color:#2563eb;font-weight:700">&#10003;</span> <span id="s6-b3">Must be available during normal business hours</span></div>
-              </div>
-            </div>
-
-            <!-- Options -->
-            <div class="fm-choices">
-              <div class="fm-choice selected" id="ra-us" onclick="fmSetRA('us',this)">
-                <div class="fm-choice-radio"></div>
-                <div class="fm-choice-content">
-                  <strong id="ra-us-lbl">&#127968; Use Our Registered Agent Service</strong>
-                  <p id="ra-us-desc">We act as your Registered Agent and handle all official documents on your behalf.</p>
-                </div>
-              </div>
-              <div class="fm-choice" id="ra-own" onclick="fmSetRA('own',this)">
-                <div class="fm-choice-radio"></div>
-                <div class="fm-choice-content">
-                  <strong id="ra-own-lbl">I Will Be My Own Agent</strong>
-                  <p id="ra-own-desc">You need a physical FL address and must be reachable during business hours.</p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Own RA fields -->
-            <div id="ra-own-fields" style="display:none;margin-top:14px">
-              <div class="fm-group">
-                <label class="fm-label" id="lbl-ra-name">Registered Agent Full Name *</label>
-                <input type="text" class="fm-input" id="inp-ra-name" placeholder="Full legal name" oninput="fmTitleCase(this)"/>
-              </div>
-              <div class="fm-group">
-                <label class="fm-label" id="lbl-ra-street">Florida Street Address *</label>
-                <input type="text" class="fm-input" id="inp-ra-street" placeholder="Physical FL address — no PO Box"/>
-              </div>
-              <div class="fm-row-3">
-                <div class="fm-group"><label class="fm-label">City *</label><input type="text" class="fm-input" id="inp-ra-city" placeholder="City"/></div>
-                <div class="fm-group"><label class="fm-label">State</label><input type="text" class="fm-input" value="FL" readonly style="background:#f9fafb;color:#6b7280"/></div>
-                <div class="fm-group"><label class="fm-label">ZIP *</label><input type="text" class="fm-input" id="inp-ra-zip" placeholder="ZIP"/></div>
-              </div>
-            </div>
-
-            <!-- Info note -->
-            <div class="fm-info" style="margin-top:14px">
-              <span class="fm-info-icon">&#8505;</span>
-              <span id="s6-info-note">Your Registered Agent&rsquo;s address will appear on the public Florida Division of Corporations record &mdash; not your personal address. This helps protect your privacy.</span>
-            </div>
-          </div>
-          <div class="fm-card-footer">
-            <button class="btn-back-fm" onclick="fmBack()">&#8592; <span id="s6-back">Back</span></button>
-            <div style="display:flex;align-items:center;gap:10px">
-              <button class="save-btn" onclick="saveOrder()">&#x1F4BE; <span id="s6-save">Save</span></button>
-              <button class="btn-next-fm" onclick="fmNext()"><span id="s6-next">Continue</span> &#8594;</button>
             </div>
           </div>
         </div>
@@ -2624,6 +2540,16 @@ function fmSetBizAddr(type, el) {
   var form = document.getElementById('biz-own-form');
   if(note) note.style.display = type === 'virtual' ? 'flex' : 'none';
   if(form) form.style.display = type === 'own' ? 'block' : 'none';
+  // Update mailing address checkbox label based on address type
+  var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
+  var mailLbl = document.getElementById('lbl-same-mail');
+  if(mailLbl) {
+    if(type === 'virtual') {
+      mailLbl.textContent = isEs ? 'Igual que la dirección de arriba (dirección del agente)' : 'Same as above (agent address)';
+    } else {
+      mailLbl.textContent = isEs ? 'Igual que la dirección del negocio' : 'Same as business address';
+    }
+  }
   fmUpdateSummary();
 }
 function fmSetAgentChoice(type, el) {
@@ -5135,7 +5061,7 @@ function fmTranslate(lang) {
     's3-mail-divider':isEs?'Dirección Postal de la LLC':'LLC Mailing Address',
     's3-mail-opt':isEs?'(Opcional — separada de tu dirección de Agente Registrado)':'(Optional — separate from your Registered Agent address)',
     's3-mail-info-sub':isEs?'<span style=\\"display:block\\"><strong style=\\"color:#374151\\">Dirección del Agente Registrado</strong> recibe <em>documentos legales y críticos</em> — demandas, órdenes judiciales, citaciones. Debe ser física en Florida.</span><span style=\\"display:block;margin-top:4px\\"><strong style=\\"color:#374151\\">Dirección Postal</strong> recibe <em>correspondencia general</em> — recordatorios del Reporte Anual, confirmaciones de trámites, avisos del Estado. <strong>Se acepta PO Box. Puede ser cualquier dirección del mundo.</strong></span>':'<span style=\\"display:block\\"><strong style=\\"color:#374151\\">Registered Agent address</strong> receives <em>legal &amp; critical documents</em> — lawsuits, court orders, government summons. Must be a physical Florida address.</span><span style=\\"display:block;margin-top:4px\\"><strong style=\\"color:#374151\\">Mailing Address</strong> receives <em>general correspondence</em> — Annual Report reminders, filing confirmations, state notices. <strong>A PO Box is accepted. Any address worldwide is valid.</strong></span>',
-    'lbl-same-mail':isEs?'Igual que la dirección del negocio':'Same as business address',
+    'lbl-same-mail':isEs?(fmData.bizAddrType==='virtual'?'Igual que la dirección de arriba (dirección del agente)':'Igual que la dirección del negocio'):(fmData.bizAddrType==='virtual'?'Same as above (agent address)':'Same as business address'),
     's4-skip-lbl':isEs?'No gracias, me quedo con mi paquete actual':'No thanks, keep my current package',
     'exp-upsell-title':isEs?'Un Último Detalle Antes de Pagar':'One Last Thing Before You Pay',
     'exp-upsell-sub':isEs?'Tu formación está en buenas manos.':'Your formation is in good hands. Want to make it official faster?',
