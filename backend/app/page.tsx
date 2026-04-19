@@ -1334,6 +1334,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
             <div id="agent-own-form" style="display:none;margin-top:14px">
               <div class="fm-group"><label class="fm-label" id="lbl-ra-name">Full Name *</label><input type="text" class="fm-input" id="inp-ra-name" placeholder="Full legal name" oninput="fmTitleCase(this)"/></div>
               <div id="ra-same-biz-opt" style="display:none;margin-bottom:14px">
+                <div style="font-size:.72rem;font-weight:700;color:#1e293b;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px" id="ra-fl-addr-lbl">Florida Address</div>
                 <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px 14px;background:#fff;border:1.5px solid #e2e8f0;border-radius:9px">
                   <input type="checkbox" id="chk-ra-same-biz" checked onchange="fmToggleRaSameBiz(this)" style="width:17px;height:17px;cursor:pointer;accent-color:#2563eb"/>
                   <span id="ra-same-biz-lbl" style="font-size:.83rem;font-weight:600;color:#374151">Same as Physical Business Address</span>
@@ -1350,14 +1351,11 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
                 <div class="fm-group"><label class="fm-label" id="lbl-ra-zip">ZIP Code *</label><input type="text" class="fm-input" id="inp-ra-zip" placeholder="e.g. 33101" maxlength="5"/></div>
               </div>
               </div>
-              <div class="fm-group"><label class="fm-label" id="lbl-ra-sig">Electronic Signature *</label><input type="text" class="fm-input" id="inp-ra-sig" placeholder="Type your full legal name to confirm" oninput="fmTitleCase(this)" as Registered Agent"/></div>
-              <div style="margin-top:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding-bottom:12px">
-                <div>
-                  <div style="font-size:.7rem;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:1px" id="s3-mail-divider"><span id="s3-mail-divider-entity">LLC</span> Mailing Address</div>
-                  <div style="font-size:.68rem;color:#9ca3af;margin-top:2px" id="s3-mail-opt">Optional — separate from your Registered Agent address</div>
-                </div>
-                <div style="display:flex;align-items:center;gap:8px">
-                  <input type="checkbox" id="chk-same-mail" checked onchange="fmToggleMailAddr(this)" style="width:16px;height:16px;cursor:pointer"/>
+              <div style="margin-top:20px;padding-bottom:12px">
+                <div style="font-size:.7rem;font-weight:700;color:#1e293b;text-transform:uppercase;letter-spacing:1px" id="s3-mail-divider"><span id="s3-mail-divider-entity">LLC</span> Mailing Address</div>
+                <div style="font-size:.68rem;color:#9ca3af;margin-top:2px" id="s3-mail-opt">Optional — separate from your Registered Agent address</div>
+                <div style="display:flex;align-items:center;gap:8px;margin-top:8px">
+                  <input type="checkbox" id="chk-same-mail" checked onchange="fmToggleMailAddr(this)" style="width:16px;height:16px;cursor:pointer;accent-color:#2563eb"/>
                   <label for="chk-same-mail" style="cursor:pointer;font-size:.82rem;font-weight:500;color:#374151" id="lbl-same-mail">Same as business address</label>
                 </div>
               </div>
@@ -4189,7 +4187,6 @@ function fmNext() {
         {id:'inp-ra-street',msg:isEs?'Por favor ingresa la dirección del agente.':'Please enter the Registered Agent address.'},
         {id:'inp-ra-city',msg:isEs?'Por favor ingresa la ciudad.':'Please enter the city.'},
         {id:'inp-ra-zip',msg:isEs?'Por favor ingresa el ZIP.':'Please enter the ZIP.'},
-        {id:'inp-ra-sig',msg:isEs?'Por favor ingresa tu firma electrónica.':'Please enter your electronic signature.'},
       ];
       for(var ri=0;ri<agReq.length;ri++){
         var re3=document.getElementById(agReq[ri].id);
@@ -4881,7 +4878,7 @@ var FM_FIELD_IDS = [
   'inp-bizname','inp-designator','inp-bizname2','inp-designator2','inp-bizname3','inp-designator3',
   'inp-fname','inp-lname','inp-email','inp-email-confirm','inp-phone','inp-phone-country',
   'inp-addr','inp-street2','inp-city','inp-state','inp-zip','inp-biz-country',
-  'inp-org-sig','inp-ra-name','inp-ra-street','inp-ra-street2','inp-ra-city','inp-ra-state','inp-ra-zip','inp-ra-sig'
+  'inp-org-sig','inp-ra-name','inp-ra-street','inp-ra-street2','inp-ra-city','inp-ra-state','inp-ra-zip'
 ];
 
 function fmSaveProgress() {
@@ -5160,7 +5157,6 @@ function fmTranslate(lang) {
     'lbl-mail-zip':isEs?'ZIP / Código Postal *':'ZIP / Postal Code *',
     'lbl-ra-city':isEs?'Ciudad *':'City *',
     'lbl-ra-zip':isEs?'ZIP *':'ZIP *',
-    'lbl-ra-sig':isEs?'Firma Electrónica *':'Electronic Signature *',
     'lbl-region':isEs?'Estado / Región *':'State / Region *',
     'suc-title':isEs?'Tu Aplicación Está Confirmada':'Your Application Is Confirmed!',
     'suc-wa-lbl':isEs?'Chatear por WhatsApp':'Chat with Us on WhatsApp',
