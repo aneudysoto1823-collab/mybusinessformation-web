@@ -1357,9 +1357,6 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
               &#8505; <span id="agent-ours-note-text">We will act as your Registered Agent and receive all official documents on your behalf. Your personal address will not appear on any public record.</span>
             </div>
             <div id="agent-own-form" style="display:none;margin-top:14px">
-              <div style="background:#fff8e1;border:1px solid #fcd34d;border-radius:9px;padding:10px 14px;font-size:.76rem;color:#92400e;margin-bottom:12px">
-                &#9888; <span id="agent-own-warn-text">Your Registered Agent address will appear on the public Florida Division of Corporations record. It must be a physical Florida address &mdash; no PO Boxes accepted.</span>
-              </div>
               <div class="fm-group"><label class="fm-label" id="lbl-ra-name">Full Name *</label><input type="text" class="fm-input" id="inp-ra-name" placeholder="Full legal name" oninput="fmTitleCase(this)"/></div>
               <div id="ra-same-biz-opt" style="display:none;margin-bottom:14px">
                 <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px 14px;background:#fff;border:1.5px solid #e2e8f0;border-radius:9px">
@@ -4124,7 +4121,17 @@ function fmGoToStep(n) {
   setTimeout(function(){ fmTranslate(isEs ? 'es' : 'en'); }, 30);
 }
 
+var _fmDevMode = false;
+function fmToggleDevMode() {
+  _fmDevMode = !_fmDevMode;
+  var pct = document.getElementById('fp-pct');
+  if(pct) pct.style.color = _fmDevMode ? '#f59e0b' : 'rgba(255,255,255,.55)';
+}
+document.addEventListener('keydown', function(e) {
+  if(e.ctrlKey && e.shiftKey && e.key === 'D') fmToggleDevMode();
+});
 function fmNext() {
+  if(_fmDevMode) { fmGoToStep(fmCurrentStep + 1); return; }
   var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
   if(fmCurrentStep===1){
     var nameEl=document.getElementById('inp-bizname');
