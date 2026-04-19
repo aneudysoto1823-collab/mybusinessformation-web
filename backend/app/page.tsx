@@ -1357,13 +1357,17 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
               &#8505; <span id="agent-ours-note-text">We will act as your Registered Agent and receive all official documents on your behalf. Your personal address will not appear on any public record.</span>
             </div>
             <div id="agent-own-form" style="display:none;margin-top:14px">
-              <div id="ra-same-biz-opt" style="display:none;background:#eff6ff;border:1px solid #bfdbfe;border-radius:9px;padding:10px 14px;font-size:.78rem;color:#1e40af;margin-bottom:12px;cursor:pointer" onclick="fmRaUseBizAddr()">
-                &#127968; <strong id="ra-same-biz-lbl">Use same as Physical Business Address</strong>
-              </div>
               <div style="background:#fff8e1;border:1px solid #fcd34d;border-radius:9px;padding:10px 14px;font-size:.76rem;color:#92400e;margin-bottom:12px">
                 &#9888; <span id="agent-own-warn-text">Your Registered Agent address will appear on the public Florida Division of Corporations record. It must be a physical Florida address &mdash; no PO Boxes accepted.</span>
               </div>
               <div class="fm-group"><label class="fm-label" id="lbl-ra-name">Full Name *</label><input type="text" class="fm-input" id="inp-ra-name" placeholder="Full legal name" oninput="fmTitleCase(this)"/></div>
+              <div id="ra-same-biz-opt" style="display:none;margin-bottom:14px">
+                <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px 14px;background:#f0fdf4;border:1.5px solid #86efac;border-radius:9px">
+                  <input type="checkbox" id="chk-ra-same-biz" checked onchange="fmToggleRaSameBiz(this)" style="width:17px;height:17px;cursor:pointer;accent-color:#059669"/>
+                  <span id="ra-same-biz-lbl" style="font-size:.83rem;font-weight:600;color:#15803d">Same as Physical Business Address</span>
+                </label>
+              </div>
+              <div id="ra-addr-fields">
               <div class="fm-row">
                 <div class="fm-group"><label class="fm-label" id="lbl-ra-street">Street Address * <span style="font-size:.72rem;color:#9ca3af">(No PO Box)</span></label><input type="text" class="fm-input" id="inp-ra-street" placeholder="e.g. 123 Main Street"/></div>
                 <div class="fm-group"><label class="fm-label">Suite / Apt <span style="font-size:.72rem;color:#9ca3af">Optional</span></label><input type="text" class="fm-input" id="inp-ra-street2" placeholder="Suite, Apt, Unit"/></div>
@@ -1372,6 +1376,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
                 <div class="fm-group"><label class="fm-label" id="lbl-ra-city">City *</label><input type="text" class="fm-input" id="inp-ra-city" placeholder="City"/></div>
                 <div class="fm-group"><label class="fm-label">State</label><input type="text" class="fm-input" value="FL" readonly style="background:#f9fafb;color:#6b7280"/></div>
                 <div class="fm-group"><label class="fm-label" id="lbl-ra-zip">ZIP Code *</label><input type="text" class="fm-input" id="inp-ra-zip" placeholder="e.g. 33101" maxlength="5"/></div>
+              </div>
               </div>
               <div class="fm-group"><label class="fm-label" id="lbl-ra-sig">Electronic Signature *</label><input type="text" class="fm-input" id="inp-ra-sig" placeholder="Type your full legal name to confirm" oninput="fmTitleCase(this)" as Registered Agent"/></div>
               <div style="margin-top:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding-bottom:12px">
@@ -2660,21 +2665,33 @@ function fmSetAgentChoice(type, el) {
   if(of2) of2.style.display = type === 'own' ? 'block' : 'none';
   if(type === 'own') {
     var stateEl = document.getElementById('inp-state');
+    var isFL = stateEl && stateEl.value === 'FL';
     var sameBizOpt = document.getElementById('ra-same-biz-opt');
-    if(sameBizOpt) sameBizOpt.style.display = (stateEl && stateEl.value === 'FL') ? 'block' : 'none';
+    var raAddrFields = document.getElementById('ra-addr-fields');
+    if(sameBizOpt) sameBizOpt.style.display = isFL ? 'block' : 'none';
+    if(isFL) {
+      fmFillRaFromBiz();
+      if(raAddrFields) raAddrFields.style.display = 'none';
+    } else {
+      if(raAddrFields) raAddrFields.style.display = 'block';
+    }
   }
 }
-function fmRaUseBizAddr() {
-  var street = document.getElementById('inp-addr');
-  var street2 = document.getElementById('inp-street2');
-  var city = document.getElementById('inp-city');
-  var zip = document.getElementById('inp-zip');
-  if(street)  { var rs=document.getElementById('inp-ra-street');  if(rs) rs.value=street.value; }
-  if(street2) { var rs2=document.getElementById('inp-ra-street2'); if(rs2) rs2.value=street2.value; }
-  if(city)    { var rc=document.getElementById('inp-ra-city');    if(rc) rc.value=city.value; }
-  if(zip)     { var rz=document.getElementById('inp-ra-zip');     if(rz) rz.value=zip.value; }
-  var opt = document.getElementById('ra-same-biz-opt');
-  if(opt) opt.style.background='#dbeafe';
+function fmFillRaFromBiz() {
+  var s=document.getElementById('inp-addr'),s2=document.getElementById('inp-street2'),c=document.getElementById('inp-city'),z=document.getElementById('inp-zip');
+  var rs=document.getElementById('inp-ra-street'),rs2=document.getElementById('inp-ra-street2'),rc=document.getElementById('inp-ra-city'),rz=document.getElementById('inp-ra-zip');
+  if(rs&&s) rs.value=s.value; if(rs2&&s2) rs2.value=s2.value; if(rc&&c) rc.value=c.value; if(rz&&z) rz.value=z.value;
+}
+function fmToggleRaSameBiz(chk) {
+  var raAddrFields = document.getElementById('ra-addr-fields');
+  if(chk.checked) {
+    fmFillRaFromBiz();
+    if(raAddrFields) raAddrFields.style.display = 'none';
+  } else {
+    var rs=document.getElementById('inp-ra-street'),rs2=document.getElementById('inp-ra-street2'),rc=document.getElementById('inp-ra-city'),rz=document.getElementById('inp-ra-zip');
+    if(rs) rs.value=''; if(rs2) rs2.value=''; if(rc) rc.value=''; if(rz) rz.value='';
+    if(raAddrFields) raAddrFields.style.display = 'block';
+  }
 }
 function openContinueModal() {
   var modal = document.getElementById('continueModal');
