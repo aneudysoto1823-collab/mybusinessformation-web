@@ -1210,17 +1210,6 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
             </div>
           </div>
 
-          <!-- Effective Date — Optional for both -->
-          <div style="margin-top:14px">
-            <div class="fm-divider" id="s1-effdate-divider">Effective Date <span style="font-size:.68rem;font-weight:400;color:#9ca3af;text-transform:none;letter-spacing:0" id="s1-effdate-opt">(Optional)</span></div>
-            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:9px;padding:10px 14px;font-size:.76rem;color:#475569;line-height:1.65;margin-bottom:12px" id="s1-effdate-info">
-              &#128197; <span id="s1-effdate-info-text">Leave blank to use the date Florida approves your filing. You may request a date up to 5 business days before submission or up to 90 days after.</span>
-            </div>
-            <div class="fm-group">
-              <label class="fm-label"><span class="tt-wrap"><span id="lbl-effdate">Requested Effective Date</span><span class="tt-icon">?<span class="tt-box" id="tt-effdate">This is the official date your business comes to life in Florida's records. If you leave it blank, we use the day Florida approves your filing — which works perfectly for most people. You'd only change this if you need your business to start on a specific date, like January 1st for tax reasons.</span></span></span></label>
-              <input type="date" class="fm-input" id="inp-effdate" style="max-width:220px"/>
-            </div>
-          </div>
 
           </div>
           <div class="fm-card-footer">
@@ -1283,12 +1272,9 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
                 </div>
               </div>
             </div>
-            <div id="biz-virtual-note" style="margin-top:10px;background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1px solid #86efac;border-radius:10px;padding:14px 16px;display:flex;gap:12px;align-items:flex-start">
-              <span style="font-size:1.2rem;flex-shrink:0">&#127881;</span>
-              <div>
-                <div style="font-size:.84rem;font-weight:700;color:#15803d;margin-bottom:3px" id="biz-virtual-confirm-title">You are all set &mdash; no address needed from you.</div>
-                <p style="font-size:.78rem;color:#166534;line-height:1.65" id="biz-virtual-confirm-text">Once your order is confirmed, we will assign your dedicated Florida virtual address and deliver it to your email. Your business will have a professional address from day one.</p>
-              </div>
+            <div id="biz-virtual-note" style="margin-top:10px;background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;padding:14px 16px">
+              <div style="font-size:.84rem;font-weight:700;color:#1e293b;margin-bottom:3px" id="biz-virtual-confirm-title">You are all set &mdash; no address needed from you.</div>
+              <p style="font-size:.78rem;color:#475569;line-height:1.65;margin:0" id="biz-virtual-confirm-text">Once your order is confirmed, we will assign your dedicated Florida virtual address and deliver it to your email. Your business will have a professional address from day one.</p>
             </div>
             <div id="biz-own-form" style="display:none;margin-top:10px">
               <div class="fm-group"><label class="fm-label" id="lbl-biz-country">Country *</label>
@@ -1306,17 +1292,6 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
               </div>
             </div>
 
-            <!-- Organizer / Incorporator Electronic Signature -->
-            <div style="margin-top:18px">
-              <div class="fm-divider" id="s2-sig-divider">Electronic Signature</div>
-              <div style="background:#fff8e1;border:1px solid #fcd34d;border-radius:9px;padding:10px 14px;font-size:.76rem;color:#92400e;line-height:1.65;margin-bottom:12px" id="s2-sig-info">
-                &#9998; <span id="s2-sig-info-text">Florida law requires the Organizer (LLC) or Incorporator (Corporation) to sign the formation document. By typing your full legal name below you are electronically signing the Articles of Organization / Incorporation under penalty of perjury.</span>
-              </div>
-              <div class="fm-group">
-                <label class="fm-label"><span class="tt-wrap"><span id="lbl-org-sig">Electronic Signature — Organizer / Incorporator *</span><span class="tt-icon">?<span class="tt-box" id="tt-org-sig">Florida law requires the person forming the business to sign the official document. By typing your full legal name here, you are electronically signing the Articles of Organization (LLC) or Articles of Incorporation (Corporation) — this has the same legal value as a handwritten signature.</span></span></span></label>
-                <input type="text" class="fm-input" id="inp-org-sig" placeholder="Type your full legal name to sign" oninput="fmTitleCase(this)"/>
-              </div>
-            </div>
 
           </div>
           <div class="fm-card-footer">
@@ -5153,7 +5128,7 @@ function fmTranslate(lang) {
     'biz-virtual-desc':isEs?'Te asignamos una dirección profesional en Florida. Tu dirección personal se mantiene completamente privada.':'We assign you a professional Florida address. Your personal address stays completely private.',
     'biz-own-lbl':isEs?'Usaré mi propia dirección':'I will use my own address',
     'biz-own-desc':isEs?'Tu dirección formará parte del registro público de la División de Corporaciones de Florida.':'Your address will be part of the public Florida Division of Corporations record.',
-    'biz-virtual-confirm-title':isEs?'Todo listo, no necesitamos tu dirección.':'You are all set, no address needed from you.',
+    'biz-virtual-confirm-title':isEs?'Todo listo — no necesitamos tu dirección.':'You are all set &mdash; no address needed from you.',
     'biz-virtual-confirm-text':isEs?'Una vez confirmada tu orden, te asignaremos tu dirección virtual y la enviaremos a tu correo. Tu negocio tendrá una dirección profesional desde el primer día.':'Once your order is confirmed, we will assign your Florida virtual address and deliver it to your email. Your business will have a professional address from day one.',
     'biz-virtual-badge':isEs?'1er Mes GRATIS':'1st Month FREE',
     's3-agent-info-title':isEs?'¿Qué es un Agente Registrado?':'What is a Registered Agent?',
