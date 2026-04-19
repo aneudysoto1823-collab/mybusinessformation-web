@@ -1269,6 +1269,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
                 <div class="fm-choice-radio"></div>
                 <div class="fm-choice-content">
                   <strong id="biz-own-lbl">&#127968; I will use my own address</strong>
+                  <p id="biz-own-desc" style="margin:4px 0 0;font-size:.75rem;color:#64748b;line-height:1.5">Your address will be on the Florida public record. If you prefer privacy, our virtual address keeps your personal information protected.</p>
                 </div>
               </div>
             </div>
@@ -1354,10 +1355,10 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
               <div style="margin-top:20px;padding-bottom:12px">
                 <div style="font-size:.7rem;font-weight:700;color:#1e293b;text-transform:uppercase;letter-spacing:1px" id="s3-mail-divider"><span id="s3-mail-divider-entity">LLC</span> Mailing Address</div>
                 <div style="font-size:.68rem;color:#9ca3af;margin-top:2px" id="s3-mail-opt">Optional — separate from your Registered Agent address</div>
-                <div style="display:flex;align-items:center;gap:8px;margin-top:8px">
-                  <input type="checkbox" id="chk-same-mail" checked onchange="fmToggleMailAddr(this)" style="width:16px;height:16px;cursor:pointer;accent-color:#2563eb"/>
-                  <label for="chk-same-mail" style="cursor:pointer;font-size:.82rem;font-weight:500;color:#374151" id="lbl-same-mail">Same as business address</label>
-                </div>
+                <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px 14px;background:#fff;border:1.5px solid #e2e8f0;border-radius:9px;margin-top:8px">
+                  <input type="checkbox" id="chk-same-mail" checked onchange="fmToggleMailAddr(this)" style="width:17px;height:17px;cursor:pointer;accent-color:#2563eb"/>
+                  <span id="lbl-same-mail" style="font-size:.83rem;font-weight:600;color:#374151">Same as business address</span>
+                </label>
               </div>
               <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:9px;padding:10px 14px;font-size:.76rem;color:#475569;line-height:1.6;margin-bottom:12px">
                 <div id="s3-mail-info-sub" style="font-size:.75rem;color:#475569;line-height:1.7">
@@ -5124,7 +5125,7 @@ function fmTranslate(lang) {
     'biz-virtual-lbl':isEs?'Usar Dirección Virtual':'Use Virtual Address',
     'biz-virtual-desc':isEs?'Te asignamos una dirección profesional en Florida. Tu dirección personal se mantiene completamente privada.':'We assign you a professional Florida address. Your personal address stays completely private.',
     'biz-own-lbl':isEs?'Usaré mi propia dirección':'I will use my own address',
-    'biz-own-desc':isEs?'Tu dirección formará parte del registro público de la División de Corporaciones de Florida.':'Your address will be part of the public Florida Division of Corporations record.',
+    'biz-own-desc':isEs?'Tu dirección quedará en el registro público de Florida. Si prefieres mantener tu privacidad, nuestra dirección virtual protege tus datos personales.':'Your address will be on the Florida public record. If you prefer privacy, our virtual address keeps your personal information protected.',
     'biz-virtual-confirm-title':isEs?'Todo listo — no necesitamos tu dirección.':'You are all set &mdash; no address needed from you.',
     'biz-virtual-confirm-text':isEs?'Una vez confirmada tu orden, te asignaremos tu dirección virtual y la enviaremos a tu correo. Tu negocio tendrá una dirección profesional desde el primer día.':'Once your order is confirmed, we will assign your Florida virtual address and deliver it to your email. Your business will have a professional address from day one.',
     'biz-virtual-badge':isEs?'1er Mes GRATIS':'1st Month FREE',
