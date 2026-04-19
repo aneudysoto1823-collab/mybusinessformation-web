@@ -1263,7 +1263,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
               <input type="checkbox" id="chk-sms" checked style="width:16px;height:16px;cursor:pointer"/>
               <label for="chk-sms" style="cursor:pointer" id="lbl-sms">I agree to receive order updates by text and phone. <span style="font-size:.7rem;color:#9ca3af;font-weight:400" id="lbl-sms-opt">(Optional)</span></label>
             </div>
-            <div class="fm-divider" id="s2-biz-addr-divider" style="margin-top:12px">Business Address</div>
+            <div class="fm-divider" id="s2-biz-addr-divider" style="margin-top:12px;color:#1e293b;font-size:.85rem;letter-spacing:0;text-transform:none;font-weight:700">Business Address</div>
             <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:9px;padding:11px 14px;font-size:.77rem;color:#475569;line-height:1.65;margin-bottom:14px">
               &#128204; <strong id="s2-biz-addr-info-title">What is the Business Address?</strong><br/>
               <span id="s2-biz-addr-info-text">This is the official address of your LLC or Corporation filed with the State of Florida.</span>
@@ -1336,7 +1336,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
             <p class="fm-sub" id="s3-sub">Choose who will receive official documents for your business.</p>
             <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:9px;padding:11px 14px;font-size:.77rem;color:#475569;line-height:1.65;margin-bottom:14px">
               &#128204; <strong id="s3-agent-info-title">What is a Registered Agent? <span class="tt-wrap" style="vertical-align:middle"><span class="tt-icon">?<span class="tt-box" id="tt-ra" style="left:0;transform:none">A Registered Agent is the official point of contact between your business and the State of Florida. They receive legal notices, lawsuits, and government mail on your behalf. Every Florida LLC and Corporation is required by law to have one at all times.</span></span></span></strong><br/>
-              <span id="s3-agent-info-text">Florida law requires every LLC and Corporation to have a Registered Agent &mdash; a person or company with a physical Florida address available during business hours to receive official legal documents and government notices on behalf of your business.</span>
+              <span id="s3-agent-info-text">The Registered Agent is the person or entity designated with the State of Florida to receive legal documents, government notices, and official communications on behalf of your business. Florida law requires a physical address in the state and availability Monday through Friday from 9am to 5pm.</span>
             </div>
             <div class="fm-choices">
               <div class="fm-choice selected" id="agent-use-ours" onclick="fmSetAgentChoice('ours',this)">
@@ -1350,7 +1350,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
                 <div class="fm-choice-radio"></div>
                 <div class="fm-choice-content">
                   <strong id="agent-own-lbl">&#128100; I will be my own Registered Agent</strong>
-                  <p id="agent-own-desc">You need a physical Florida address and must be available during normal business hours.</p>
+                  <p id="agent-own-desc">Your address will be publicly registered with the State of Florida and you must be available at that address Monday through Friday from 9am to 5pm to receive official legal documents.</p>
                 </div>
               </div>
             </div>
@@ -5005,7 +5005,7 @@ var fmTranslations = {
     s1_sub: 'Ingresa el nombre de tu negocio. El nombre debe terminar con LLC, Corp o Inc.',
     s2_title: 'Tu Información',
     s2_sub: 'El tiempo típico de tramitación en Florida es <strong>7–10 días hábiles</strong>. ¿Con prisa? Selecciona tramitación expedita.',
-    s3_title: 'Dirección del Negocio',
+    s3_title: 'Nombre y Dirección Agente Registrado',
     s3_sub: 'Por favor provee el nombre de la persona responsable de esta orden a quien podemos contactar si necesitamos información adicional.',
     s4_title: 'Tu Paquete de Formación',
     s5_title: 'Propiedad y Gestión',
@@ -5088,7 +5088,7 @@ function fmTranslate(lang) {
     'ra-us-lbl':isEs?'&#127968; Usar Nuestro Servicio de Agente Registrado':'&#127968; Use Our Registered Agent Service',
     'ra-us-desc':isEs?'Actuamos como tu Agente Registrado y manejamos todos los documentos oficiales en tu nombre.':'We act as your Registered Agent and handle all official documents on your behalf.',
     'ra-own-lbl':isEs?'Yo Seré Mi Propio Agente':'I Will Be My Own Agent',
-    'ra-own-desc':isEs?'Necesitas una dirección física en Florida y debes estar disponible en horario laboral.':'You need a physical FL address and must be reachable during business hours.',
+    'ra-own-desc':isEs?'Tu dirección quedará registrada públicamente ante el Estado de Florida y deberás estar disponible en esa dirección de lunes a viernes de 9am a 5pm para recibir documentos legales oficiales.':'Your address will be publicly registered with the State of Florida and you must be available at that address Monday through Friday from 9am to 5pm to receive official legal documents.',
     's6-info-note':isEs?'La dirección de tu Agente Registrado aparece en los registros de Florida, no la tuya personal. Esto protege tu privacidad.':'Your Registered Agent address appears on Florida public records, not your personal address. This protects your privacy.',
     'lbl-ra-name':isEs?'Nombre Completo *':'Full Name *',
     'lbl-ra-street':isEs?'Dirección en Florida *':'Florida Street Address *',
@@ -5107,8 +5107,8 @@ function fmTranslate(lang) {
     'sum-sec-nofees':isEs?'&#10003; Sin Cargos Ocultos':'&#10003; No Hidden Fees',
     'sum-sec-email':isEs?'&#128196; Recibo por Correo':'&#128196; Receipt by Email',
     's2-sub':isEs?'Cuéntanos cómo contactarte y dónde estará ubicado tu negocio.':'Tell us how to reach you and where your business will be located.',
-    's2-biz-addr-divider':isEs?'Dirección del Negocio':'Business Address',
-    's2-biz-addr-info-title':isEs?'¿Qué es la Dirección del Negocio?':'What is the Business Address?',
+    's2-biz-addr-divider':isEs?'Dirección Física del Negocio':'Physical Business Address',
+    's2-biz-addr-info-title':isEs?'¿Qué es la Dirección Física del Negocio?':'What is the Physical Business Address?',
     's2-biz-addr-info-text':isEs?'Esta es la dirección oficial de tu LLC o Corporación presentada ante el Estado de Florida. Puede estar en cualquier parte del mundo.':'This is the official address of your LLC or Corporation filed with the State of Florida. It can be located anywhere in the world.',
     'biz-virtual-lbl':isEs?'Usar Dirección Virtual':'Use Virtual Address',
     'biz-virtual-desc':isEs?'Te asignamos una dirección profesional en Florida. Tu dirección personal se mantiene completamente privada.':'We assign you a professional Florida address. Your personal address stays completely private.',
@@ -5118,11 +5118,11 @@ function fmTranslate(lang) {
     'biz-virtual-confirm-text':isEs?'Una vez confirmada tu orden, te asignaremos tu dirección virtual y la enviaremos a tu correo. Tu negocio tendrá una dirección profesional desde el primer día.':'Once your order is confirmed, we will assign your Florida virtual address and deliver it to your email. Your business will have a professional address from day one.',
     'biz-virtual-badge':isEs?'1er Mes GRATIS':'1st Month FREE',
     's3-agent-info-title':isEs?'¿Qué es un Agente Registrado?':'What is a Registered Agent?',
-    's3-agent-info-text':isEs?'La ley de Florida exige que toda LLC y Corporación tenga un Agente Registrado con dirección física en Florida disponible en horario laboral para recibir documentos legales oficiales.':'Florida law requires every LLC and Corporation to have a Registered Agent with a physical Florida address to receive official legal documents.',
+    's3-agent-info-text':isEs?'El Agente Registrado es la persona o entidad designada ante el Estado de Florida para recibir documentos legales, notificaciones gubernamentales y avisos oficiales en nombre de tu negocio. La ley de Florida exige que tenga una dirección física en el estado y esté disponible de lunes a viernes de 9am a 5pm.':'The Registered Agent is the person or entity designated with the State of Florida to receive legal documents, government notices, and official communications on behalf of your business. Florida law requires a physical address in the state and availability Monday through Friday from 9am to 5pm.',
     'agent-ours-lbl':isEs?'Usar Nuestro Servicio de Agente Registrado':'Use Our Registered Agent Service',
     'agent-ours-desc':isEs?'Actuamos como tu Agente Registrado oficial. Tu dirección personal se mantiene completamente privada.':'We act as your official Registered Agent. Your personal address stays completely private.',
     'agent-own-lbl':isEs?'Seré mi propio Agente Registrado':'I will be my own Registered Agent',
-    'agent-own-desc':isEs?'Necesitas una dirección física en Florida y debes estar disponible en horario laboral.':'You need a physical Florida address and must be available during normal business hours.',
+    'agent-own-desc':isEs?'Tu dirección quedará registrada públicamente ante el Estado de Florida y deberás estar disponible en esa dirección de lunes a viernes de 9am a 5pm para recibir documentos legales oficiales.':'Your address will be publicly registered with the State of Florida and you must be available at that address Monday through Friday from 9am to 5pm to receive official legal documents.',
     'agent-ours-note-text':isEs?'Actuaremos como tu Agente Registrado y recibiremos todos los documentos en tu nombre. Tu dirección personal no aparecerá en ningún registro público.':'We will act as your Registered Agent and receive all official documents. Your personal address will not appear on any public record.',
     'agent-own-warn-text':isEs?'La dirección de tu Agente Registrado aparecerá en el registro público. Debe ser una dirección física en Florida.':'Your Registered Agent address will appear on the public record. It must be a physical Florida address, no PO Boxes.',
     's3-mail-divider':isEs?'Dirección Postal de la LLC':'LLC Mailing Address',
