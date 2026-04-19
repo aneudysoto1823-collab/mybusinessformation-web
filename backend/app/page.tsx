@@ -1280,7 +1280,6 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
                 <div class="fm-choice-radio"></div>
                 <div class="fm-choice-content">
                   <strong id="biz-own-lbl">&#127968; I will use my own address</strong>
-                  <p id="biz-own-desc">Your address will be part of the public Florida Division of Corporations record.</p>
                 </div>
               </div>
             </div>
@@ -1358,6 +1357,9 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
               &#8505; <span id="agent-ours-note-text">We will act as your Registered Agent and receive all official documents on your behalf. Your personal address will not appear on any public record.</span>
             </div>
             <div id="agent-own-form" style="display:none;margin-top:14px">
+              <div id="ra-same-biz-opt" style="display:none;background:#eff6ff;border:1px solid #bfdbfe;border-radius:9px;padding:10px 14px;font-size:.78rem;color:#1e40af;margin-bottom:12px;cursor:pointer" onclick="fmRaUseBizAddr()">
+                &#127968; <strong id="ra-same-biz-lbl">Use same as Physical Business Address</strong>
+              </div>
               <div style="background:#fff8e1;border:1px solid #fcd34d;border-radius:9px;padding:10px 14px;font-size:.76rem;color:#92400e;margin-bottom:12px">
                 &#9888; <span id="agent-own-warn-text">Your Registered Agent address will appear on the public Florida Division of Corporations record. It must be a physical Florida address &mdash; no PO Boxes accepted.</span>
               </div>
@@ -1383,13 +1385,9 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
                 </div>
               </div>
               <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:9px;padding:10px 14px;font-size:.76rem;color:#475569;line-height:1.6;margin-bottom:12px">
-                <div style="display:flex;flex-direction:column;gap:8px">
-                  <div style="font-size:.77rem;font-weight:600;color:#374151" id="s3-mail-info-text">&#9993; Where should the State send your LLC's general mail?</div>
-                  <div style="font-size:.75rem;color:#475569;line-height:1.7" id="s3-mail-info-sub">
-                    This address is <strong>different</strong> from your Registered Agent address above. Here's the key difference:<br/>
-                    <span style="display:block;margin-top:6px">&#x2716; <strong style="color:#dc2626">Registered Agent address</strong> receives <em>legal &amp; critical documents</em> — lawsuits, court orders, government summons. Must be a physical Florida address.</span>
-                    <span style="display:block;margin-top:4px">&#x2714; <strong style="color:#059669">This mailing address</strong> receives <em>general correspondence</em> — Annual Report reminders, filing confirmations, state notices. <strong>A PO Box is accepted. Any address worldwide is valid.</strong></span>
-                  </div>
+                <div id="s3-mail-info-sub" style="font-size:.75rem;color:#475569;line-height:1.7">
+                  <span style="display:block"><strong style="color:#374151">Registered Agent address</strong> receives <em>legal &amp; critical documents</em> — lawsuits, court orders, government summons. Must be a physical Florida address.</span>
+                  <span style="display:block;margin-top:4px"><strong style="color:#374151">Mailing Address</strong> receives <em>general correspondence</em> — Annual Report reminders, filing confirmations, state notices. <strong>A PO Box is accepted. Any address worldwide is valid.</strong></span>
                 </div>
               </div>
               <div id="mail-addr-fields" style="display:none">
@@ -2660,6 +2658,23 @@ function fmSetAgentChoice(type, el) {
   var of2 = document.getElementById('agent-own-form');
   if(on) on.style.display = type === 'ours' ? 'block' : 'none';
   if(of2) of2.style.display = type === 'own' ? 'block' : 'none';
+  if(type === 'own') {
+    var stateEl = document.getElementById('inp-state');
+    var sameBizOpt = document.getElementById('ra-same-biz-opt');
+    if(sameBizOpt) sameBizOpt.style.display = (stateEl && stateEl.value === 'FL') ? 'block' : 'none';
+  }
+}
+function fmRaUseBizAddr() {
+  var street = document.getElementById('inp-addr');
+  var street2 = document.getElementById('inp-street2');
+  var city = document.getElementById('inp-city');
+  var zip = document.getElementById('inp-zip');
+  if(street)  { var rs=document.getElementById('inp-ra-street');  if(rs) rs.value=street.value; }
+  if(street2) { var rs2=document.getElementById('inp-ra-street2'); if(rs2) rs2.value=street2.value; }
+  if(city)    { var rc=document.getElementById('inp-ra-city');    if(rc) rc.value=city.value; }
+  if(zip)     { var rz=document.getElementById('inp-ra-zip');     if(rz) rz.value=zip.value; }
+  var opt = document.getElementById('ra-same-biz-opt');
+  if(opt) opt.style.background='#dbeafe';
 }
 function openContinueModal() {
   var modal = document.getElementById('continueModal');
@@ -5124,11 +5139,11 @@ function fmTranslate(lang) {
     'agent-own-lbl':isEs?'Seré mi propio Agente Registrado':'I will be my own Registered Agent',
     'agent-own-desc':isEs?'Tu dirección quedará registrada públicamente ante el Estado de Florida y la ley exige que deberas estar presente en esa dirección de lunes a viernes de 9am a 5pm para recibir documentos legales oficiales.':'Your address will be publicly registered with the State of Florida and the law requires you to be present at that address Monday through Friday from 9am to 5pm to receive official legal documents.',
     'agent-ours-note-text':isEs?'Actuaremos como tu Agente Registrado y recibiremos todos los documentos en tu nombre. Tu dirección personal no aparecerá en ningún registro público.':'We will act as your Registered Agent and receive all official documents. Your personal address will not appear on any public record.',
+    'ra-same-biz-lbl':isEs?'Usar misma dirección que Dirección Física del Negocio':'Use same as Physical Business Address',
     'agent-own-warn-text':isEs?'La dirección de tu Agente Registrado aparecerá en el registro público. Debe ser una dirección física en Florida.':'Your Registered Agent address will appear on the public record. It must be a physical Florida address, no PO Boxes.',
     's3-mail-divider':isEs?'Dirección Postal de la LLC':'LLC Mailing Address',
     's3-mail-opt':isEs?'(Opcional — separada de tu dirección de Agente Registrado)':'(Optional — separate from your Registered Agent address)',
-    's3-mail-info-text':isEs?'¿A dónde enviamos el correo general de tu LLC?':'Where should the State send your LLC\\'s general mail?',
-    's3-mail-info-sub':isEs?'Esta dirección es <strong>diferente</strong> a la de tu Agente Registrado. Esta es la diferencia clave:<br/><span style=\\"display:block;margin-top:6px\\">&#x2716; <strong style=\\"color:#dc2626\\">Dirección del Agente Registrado</strong> recibe <em>documentos legales y críticos</em> — demandas, órdenes judiciales, citaciones. Debe ser física en Florida.</span><span style=\\"display:block;margin-top:4px\\">&#x2714; <strong style=\\"color:#059669\\">Esta dirección postal</strong> recibe <em>correspondencia general</em> — recordatorios del Reporte Anual, confirmaciones de trámites, avisos del Estado. <strong>Se acepta PO Box. Puede ser cualquier dirección del mundo.</strong></span>':'This address is <strong>different</strong> from your Registered Agent address above. Here\\'s the key difference:<br/><span style=\\"display:block;margin-top:6px\\">&#x2716; <strong style=\\"color:#dc2626\\">Registered Agent address</strong> receives <em>legal &amp; critical documents</em> — lawsuits, court orders, government summons. Must be a physical Florida address.</span><span style=\\"display:block;margin-top:4px\\">&#x2714; <strong style=\\"color:#059669\\">This mailing address</strong> receives <em>general correspondence</em> — Annual Report reminders, filing confirmations, state notices. <strong>A PO Box is accepted. Any address worldwide is valid.</strong></span>',
+    's3-mail-info-sub':isEs?'<span style=\\"display:block\\"><strong style=\\"color:#374151\\">Dirección del Agente Registrado</strong> recibe <em>documentos legales y críticos</em> — demandas, órdenes judiciales, citaciones. Debe ser física en Florida.</span><span style=\\"display:block;margin-top:4px\\"><strong style=\\"color:#374151\\">Dirección Postal</strong> recibe <em>correspondencia general</em> — recordatorios del Reporte Anual, confirmaciones de trámites, avisos del Estado. <strong>Se acepta PO Box. Puede ser cualquier dirección del mundo.</strong></span>':'<span style=\\"display:block\\"><strong style=\\"color:#374151\\">Registered Agent address</strong> receives <em>legal &amp; critical documents</em> — lawsuits, court orders, government summons. Must be a physical Florida address.</span><span style=\\"display:block;margin-top:4px\\"><strong style=\\"color:#374151\\">Mailing Address</strong> receives <em>general correspondence</em> — Annual Report reminders, filing confirmations, state notices. <strong>A PO Box is accepted. Any address worldwide is valid.</strong></span>',
     'lbl-same-mail':isEs?'Igual que la dirección del negocio':'Same as business address',
     's4-skip-lbl':isEs?'No gracias, me quedo con mi paquete actual':'No thanks, keep my current package',
     'exp-upsell-title':isEs?'Un Último Detalle Antes de Pagar':'One Last Thing Before You Pay',
