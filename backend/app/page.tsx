@@ -1116,11 +1116,11 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 
 <div class="form-overlay" id="formOverlay">
   <div style="background:var(--navy);padding:10px 24px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(28,46,68,.25)">
-    <a href="mybusinessformation.html" onclick="closeForm();return false;" style="display:flex;align-items:center;gap:8px;text-decoration:none;flex-shrink:0">
+    <a href="/" onclick="closeForm();return false;" style="display:flex;align-items:center;gap:8px;text-decoration:none;flex-shrink:0">
       <div style="width:28px;height:28px;background:var(--blue);border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;font-size:.85rem">FL</div>
     </a>
-    <a href="mybusinessformation.html" onclick="closeForm();return false;" id="fp-home-btn" style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.9);padding:5px 12px;border-radius:7px;font-size:.76rem;font-weight:600;text-decoration:none;white-space:nowrap;flex-shrink:0">
-      &#8592; <span id="fp-home-lbl">Back to Home</span>
+    <a href="/" onclick="closeForm();return false;" id="fp-home-btn" style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.9);padding:6px 14px;border-radius:7px;font-size:1rem;font-weight:600;text-decoration:none;white-space:nowrap;flex-shrink:0;line-height:1" title="Back to Home">
+      &#127968;
     </a>
     <span id="fp-step-title" style="font-size:.8rem;font-weight:600;color:rgba(255,255,255,.65);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Business Setup</span>
     <div style="width:180px;height:5px;background:rgba(255,255,255,.2);border-radius:3px;overflow:hidden;flex-shrink:0">
@@ -4957,7 +4957,7 @@ function fmCheckProgress() {
     }
   } catch(e) {}
 }
-fmCheckProgress();
+// fmCheckProgress(); // resume banner disabled
 
 var _fmRestoring = false;
 window.addEventListener('popstate', function(e) {
