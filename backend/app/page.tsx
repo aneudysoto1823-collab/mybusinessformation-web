@@ -1362,9 +1362,9 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
               </div>
               <div class="fm-group"><label class="fm-label" id="lbl-ra-name">Full Name *</label><input type="text" class="fm-input" id="inp-ra-name" placeholder="Full legal name" oninput="fmTitleCase(this)"/></div>
               <div id="ra-same-biz-opt" style="display:none;margin-bottom:14px">
-                <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px 14px;background:#f0fdf4;border:1.5px solid #86efac;border-radius:9px">
-                  <input type="checkbox" id="chk-ra-same-biz" checked onchange="fmToggleRaSameBiz(this)" style="width:17px;height:17px;cursor:pointer;accent-color:#059669"/>
-                  <span id="ra-same-biz-lbl" style="font-size:.83rem;font-weight:600;color:#15803d">Same as Physical Business Address</span>
+                <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px 14px;background:#fff;border:1.5px solid #e2e8f0;border-radius:9px">
+                  <input type="checkbox" id="chk-ra-same-biz" checked onchange="fmToggleRaSameBiz(this)" style="width:17px;height:17px;cursor:pointer;accent-color:#2563eb"/>
+                  <span id="ra-same-biz-lbl" style="font-size:.83rem;font-weight:600;color:#374151">Same as Physical Business Address</span>
                 </label>
               </div>
               <div id="ra-addr-fields">
