@@ -4043,7 +4043,7 @@ function setFilerForm(type, el) {
 (function(){var l=localStorage.getItem('flbc_lang');if(l&&l!=='en')setLang(l);})();
 
 var fmCurrentStep = 1;
-var fmTotalSteps  = 9;
+var fmTotalSteps  = 7;
 var fmData = {
   entity: 'llc', bizAddrType: 'virtual', agentType: 'ours',
   bizName: '',
@@ -4062,14 +4062,17 @@ var fmData = {
 var fmStepTitles = [
   'Business Setup',
   'Processing Speed & Contact Info',
-  'Business Address',
-  'Your Formation Package',
+  'Registered Agent & Mailing Address',
   'Ownership & Management',
-  'Registered Agent',
   'Boost Your Formation',
   'Review Your Order',
   'Secure Payment'
 ];
+// Map actual step IDs (1,2,3,5,7,8,9) to visual step numbers (1-7)
+function fmVisualStep(step) {
+  var m = {1:1,2:2,3:3,5:4,7:5,8:6,9:7};
+  return m[step] || step;
+}
 
 // ═══════════════════════════════════════════════════════
 // NAVIGATION
@@ -4080,8 +4083,6 @@ function fmGoToStep(n) {
   if(el) { el.classList.add('active'); fmCurrentStep = n; }
   fmUpdateProgress();
   fmUpdateSummary();
-  if(n === 4) fmBuildUpgradeCards();
-
   if(n === 7) fmFilterAddons();
   if(n === 8) fmBuildReview();
   if(!_fmRestoring) {
@@ -4173,13 +4174,6 @@ function fmNext() {
       var bc=document.getElementById('inp-biz-country');
       if(bc&&bc.value==='US'){var st=document.getElementById('inp-state');if(!st||!st.value){if(st){st.style.borderColor='#ef4444';st.focus();}alert(isEs?'Por favor selecciona el estado.':'Please select your state.');return;}if(st)st.style.borderColor='';}
     }
-    // Validate organizer / incorporator signature
-    var orgSigEl=document.getElementById('inp-org-sig');
-    if(!orgSigEl||!orgSigEl.value.trim()){
-      if(orgSigEl){orgSigEl.style.borderColor='#ef4444';orgSigEl.focus();}
-      alert(isEs?'Por favor ingresa tu firma electrónica como Organizador/Incorporador.':'Please enter your electronic signature as Organizer / Incorporator.');return;
-    }
-    if(orgSigEl){orgSigEl.style.borderColor='';fmData.orgSignature=orgSigEl.value.trim();}
   }
   if(fmCurrentStep===3){
     if(fmData.agentType==='own'){
@@ -4299,28 +4293,28 @@ function fmNext() {
     }
   }
   var next=fmCurrentStep+1;
-  // Skip step 4 if Premium
-  if(next===4&&fmData.package==='premium'){next=5;}
-  // Skip step 6 (registered agent now in step 3)
+  // Skip step 4 (upsell removed) and step 6 (RA now in step 3)
+  if(next===4){next=5;}
   if(next===6){next=7;}
-  if(next<=fmTotalSteps){fmGoToStep(next);}else{fmSubmit();}
+  if(fmVisualStep(next)<=fmTotalSteps){fmGoToStep(next);}else{fmSubmit();}
 }
 
 function fmBack() {
   var prev = fmCurrentStep - 1;
   if(prev === 6) prev = 5;
-  if(prev === 4 && fmData.package === 'premium') prev = 3;
+  if(prev === 4) prev = 3;
   if(prev >= 1) fmGoToStep(prev);
 }
 
 function fmUpdateProgress() {
-  var pct = Math.round((fmCurrentStep / fmTotalSteps) * 100);
+  var vis = fmVisualStep(fmCurrentStep);
+  var pct = Math.round((vis / fmTotalSteps) * 100);
   var fill = document.getElementById('fp-fill');
   if(fill) fill.style.width = pct + '%';
   var pctEl = document.getElementById('fp-pct');
-  if(pctEl) pctEl.textContent = 'Step ' + fmCurrentStep + ' of ' + fmTotalSteps;
+  if(pctEl) pctEl.textContent = 'Step ' + vis + ' of ' + fmTotalSteps;
   var titleEl = document.getElementById('fp-step-title');
-  if(titleEl) titleEl.textContent = fmStepTitles[fmCurrentStep - 1] || 'Complete Your Order';
+  if(titleEl) titleEl.textContent = fmStepTitles[vis - 1] || 'Complete Your Order';
 }
 
 // ═══════════════════════════════════════════════════════
