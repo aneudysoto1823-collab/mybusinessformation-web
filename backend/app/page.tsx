@@ -2103,16 +2103,23 @@ function fmInitStep5Ownership() {
   var extra = document.getElementById('s5-extra-members');
   var hasExtra = extra && extra.children.length > 0;
   if(!hasExtra) {
-    var ind = document.getElementById('s5-m1-own');
-    var co = document.getElementById('s5-m1-coown');
-    if(ind && !ind.value) { ind.value = '100'; ind.style.borderColor = ''; }
-    if(co && !co.value) { co.value = '100'; co.style.borderColor = ''; }
+    // Only fill the active type's field (individual is default)
+    var isInd = document.getElementById('s5-m1-ind') && document.getElementById('s5-m1-ind').classList.contains('selected');
+    if(isInd) {
+      var ind = document.getElementById('s5-m1-own');
+      if(ind && !ind.value) { ind.value = '100'; ind.style.borderColor = ''; }
+    } else {
+      var co = document.getElementById('s5-m1-coown');
+      if(co && !co.value) { co.value = '100'; co.style.borderColor = ''; }
+    }
     fmUpdateOwnership();
   }
 }
 function fmUpdateOwnership() {
   var total = 0;
+  // Only count fields whose parent section is visible (not hidden)
   document.querySelectorAll('[id^="s5-m"][id$="-own"],[id^="s5-m"][id$="-coown"]').forEach(function(inp) {
+    if(inp.offsetParent === null) return; // skip hidden fields
     var v = parseFloat(inp.value);
     if(!isNaN(v)) total += v;
   });
