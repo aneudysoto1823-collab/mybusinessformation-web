@@ -605,7 +605,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
         <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
         <button class="lang-btn" id="btn-es" onclick="setLang('es')">ES</button>
       </div>
-      <a href="/client-portal" style="padding:6px 14px;border-radius:6px;border:1.5px solid #e2e8f0;background:#fff;font-size:0.85rem;font-weight:500;color:#475569;text-decoration:none;transition:all 0.2s;">Login</a>
+      <a href="/client-portal" style="padding:6px 14px;border-radius:6px;border:1.5px solid #e2e8f0;background:#fff;font-size:0.85rem;font-weight:500;color:#475569;text-decoration:none;transition:all 0.2s;" onmouseover="this.style.borderColor='#2563eb';this.style.color='#2563eb'" onmouseout="this.style.borderColor='#e2e8f0';this.style.color='#475569'">Login</a>
     </div>
   </div>
 </header>
@@ -4011,6 +4011,15 @@ var fmStepTitles = [
   'Review Your Order',
   'Secure Payment'
 ];
+var fmStepTitlesEs = [
+  'Configuración del Negocio',
+  'Velocidad y Datos de Contacto',
+  'Agente Registrado y Dirección Postal',
+  'Propiedad y Gestión',
+  'Mejora Tu Formación',
+  'Revisa Tu Orden',
+  'Pago Seguro'
+];
 // Map actual step IDs (1,2,3,5,7,8,9) to visual step numbers (1-7)
 function fmVisualStep(step) {
   var m = {1:1,2:2,3:3,5:4,7:5,8:6,9:7};
@@ -4258,7 +4267,9 @@ function fmUpdateProgress() {
   var pctEl = document.getElementById('fp-pct');
   if(pctEl) pctEl.textContent = 'Step ' + vis + ' of ' + fmTotalSteps;
   var titleEl = document.getElementById('fp-step-title');
-  if(titleEl) titleEl.textContent = fmStepTitles[vis - 1] || 'Complete Your Order';
+  var isEsP = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
+  var titles = isEsP ? fmStepTitlesEs : fmStepTitles;
+  if(titleEl) titleEl.textContent = titles[vis - 1] || (isEsP ? 'Completar Orden' : 'Complete Your Order');
 }
 
 // ═══════════════════════════════════════════════════════

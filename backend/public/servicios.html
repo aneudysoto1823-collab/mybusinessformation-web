@@ -1145,6 +1145,28 @@ function openServiceForm(svcId){
   document.getElementById('svcOverlay').scrollTop=0;
 }
 
+// Highlight service card if navigated via hash from footer
+(function(){
+  function highlightFromHash(){
+    var hash = window.location.hash.replace('#','');
+    if(!hash) return;
+    var card = document.getElementById(hash);
+    if(!card) return;
+    card.style.border = '2px solid #2563eb';
+    card.style.boxShadow = '0 0 0 4px rgba(37,99,235,0.12)';
+    setTimeout(function(){ card.scrollIntoView({behavior:'smooth', block:'center'}); }, 150);
+    setTimeout(function(){
+      card.style.transition = 'border 0.8s, box-shadow 0.8s';
+      card.style.border = '1.5px solid #e2e8f0';
+      card.style.boxShadow = '';
+    }, 3000);
+  }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', highlightFromHash);
+  } else {
+    highlightFromHash();
+  }
+})();
 </script>
 </body>
 </html>
