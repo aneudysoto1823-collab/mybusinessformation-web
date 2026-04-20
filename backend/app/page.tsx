@@ -5243,7 +5243,7 @@ function fmTranslate(lang) {
     'rev-name-lbl':isEs?'Nombre Completo':'Full Name',
     'rev-phone-lbl':isEs?'Teléfono':'Phone',
     'rev-email-lbl':isEs?'Correo Electrónico':'Email',
-    'rev-addr-lbl':isEs?'Dirección':'Address',
+    'rev-addr-lbl':isEs?'Dirección de Negocio':'Business Address',
     'rev-agent-title':isEs?'Agente Registrado':'Registered Agent',
     'rev-ra-lbl':isEs?'Agente Registrado':'Registered Agent',
     'rev-members-title':isEs?'Miembros / Dueños':'Members / Owners',
