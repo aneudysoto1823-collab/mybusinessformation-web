@@ -258,8 +258,8 @@ nav a:hover{color:var(--navy);background:var(--gray100)}
 .services-section{padding:64px 32px;background:var(--white)}
 .services-inner{max-width:1280px;margin:0 auto}
 .section-label{display:inline-block;font-size:.7rem;font-weight:600;color:var(--blue);text-transform:uppercase;letter-spacing:1.3px;margin-bottom:12px}
-.section-title{font-size:clamp(1.8rem,3vw,2.4rem);color:var(--navy);font-weight:700;margin-bottom:8px}
-.section-sub{font-size:.9rem;color:var(--gray600);max-width:580px}
+.section-title{font-size:clamp(1.8rem,3.5vw,2.6rem);color:var(--navy);font-weight:700;margin-bottom:16px}
+.section-sub{font-size:1rem;color:var(--gray600);max-width:560px;font-weight:300}
 .services-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:40px}
 @media(max-width:1100px){.services-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:640px){.services-grid{grid-template-columns:1fr}}
@@ -461,28 +461,13 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
 </section>
 
 
-<!-- TRUST BAR -->
-<div class="trust-bar">
-  <div class="trust-inner">
-    <div class="trust-item"><span class="trust-check">&#10003;</span> Florida Division of Corporations</div>
-    <div class="trust-sep"></div>
-    <div class="trust-item"><span class="trust-check">&#10003;</span> IRS Authorized</div>
-    <div class="trust-sep"></div>
-    <div class="trust-item"><span class="trust-check">&#10003;</span> SSL Secured</div>
-    <div class="trust-sep"></div>
-    <div class="trust-item"><span class="trust-check">&#10003;</span> Same-Day Processing</div>
-    <div class="trust-sep"></div>
-    <div class="trust-item"><span class="trust-check">&#10003;</span> Bilingual EN/ES</div>
-  </div>
-</div>
-
 <!-- SERVICES GRID -->
 <section class="services-section">
   <div class="services-inner">
-    <div>
+    <div style="text-align:center;margin-bottom:40px">
       <span class="section-label">All Services</span>
       <h2 class="section-title">Everything Your Business Needs</h2>
-      <p class="section-sub">Order any individual service below, or save with a <a href="/paquetes" style="color:var(--blue);font-weight:600">formation package</a> that bundles multiple services.</p>
+      <p class="section-sub" style="margin:0 auto">Order any individual service below, or save with a <a href="/paquetes" style="color:var(--blue);font-weight:600">formation package</a> that bundles multiple services.</p>
     </div>
     <div class="services-accordion">${servicesAccordionHtml}</div>
   </div>
