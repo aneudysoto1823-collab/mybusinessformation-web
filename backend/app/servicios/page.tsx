@@ -451,23 +451,13 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
   </div>
 </header>
 
-<!-- PAGE HERO -->
-<section class="page-hero">
-  <div style="max-width:1280px;margin:0 auto">
-    <div class="hero-badge">Add-On Services</div>
-    <h1>Everything Your Business <em>Needs</em></h1>
-    <p>Individual services for every business need — EIN, Registered Agent, DBA, ITIN, Virtual Address, and more.</p>
-  </div>
-</section>
-
-
 <!-- SERVICES GRID -->
-<section class="services-section">
+<section class="services-section" style="padding-top:80px">
   <div class="services-inner">
     <div style="text-align:center;margin-bottom:40px">
-      <span class="section-label">All Services</span>
-      <h2 class="section-title">Everything Your Business Needs</h2>
-      <p class="section-sub" style="margin:0 auto">Order any individual service below, or save with a <a href="/paquetes" style="color:var(--blue);font-weight:600">formation package</a> that bundles multiple services.</p>
+      <span class="section-label" id="svc-section-label">All Services</span>
+      <h2 class="section-title" id="svc-section-title">Everything Your Business Needs</h2>
+      <p class="section-sub" style="margin:0 auto" id="svc-section-sub">Individual services for every business need.</p>
     </div>
     <div class="services-accordion">${servicesAccordionHtml}</div>
   </div>
@@ -857,12 +847,9 @@ function setLang(lang){
   document.getElementById('btn-en').classList.toggle('active',lang==='en');
   document.getElementById('btn-es').classList.toggle('active',lang==='es');
   document.querySelectorAll('[data-en][data-es]').forEach(function(el){el.innerHTML=isEs?el.getAttribute('data-es'):el.getAttribute('data-en');});
-  var hb=document.querySelector('.hero-badge'); if(hb)hb.textContent=isEs?'Servicios Adicionales':'Add-On Services';
-  var h1=document.querySelector('.page-hero h1'); if(h1)h1.innerHTML=isEs?'Todo lo que tu Negocio <em>Necesita</em>':'Everything Your Business <em>Needs</em>';
-  var hp=document.querySelector('.page-hero p'); if(hp)hp.textContent=isEs?'Servicios individuales para cada necesidad de tu negocio.':'Individual services for every business need.';
-  var sl=document.querySelector('.section-label'); if(sl)sl.textContent=isEs?'Todos los Servicios':'All Services';
-  var st=document.querySelector('.section-title'); if(st)st.textContent=isEs?'Todo lo que tu Negocio Necesita':'Everything Your Business Needs';
-  var ss=document.querySelector('.section-sub'); if(ss)ss.innerHTML=isEs?'Ordena cualquier servicio a continuación, o ahorra con un <a href="/paquetes" style="color:var(--blue);font-weight:600">paquete de formación</a>.':'Order any individual service below, or save with a <a href="/paquetes" style="color:var(--blue);font-weight:600">formation package</a>.';
+  var sl=document.getElementById('svc-section-label'); if(sl)sl.textContent=isEs?'Todos los Servicios':'All Services';
+  var st=document.getElementById('svc-section-title'); if(st)st.textContent=isEs?'Todo lo que tu Negocio Necesita':'Everything Your Business Needs';
+  var ss=document.getElementById('svc-section-sub'); if(ss)ss.textContent=isEs?'Servicios individuales para cada necesidad de tu negocio.':'Individual services for every business need.';
   document.querySelectorAll('.svc-includes-title').forEach(function(el){el.textContent=isEs?'Qué incluye':"What's included";});
   var prM={'registered-agent':isEs?'<strong>Tarifa Anual</strong> &nbsp;&middot;&nbsp; Requerido por ley en FL':'<strong>Annual Fee</strong> &nbsp;&middot;&nbsp; Required by FL law','ein':isEs?'<strong>$49</strong> &nbsp;&middot;&nbsp; Pago único':'<strong>$49</strong> &nbsp;&middot;&nbsp; One-time fee','operating-agreement':isEs?'<strong>$79</strong> &nbsp;&middot;&nbsp; Pago único':'<strong>$79</strong> &nbsp;&middot;&nbsp; One-time fee','itin':isEs?'<strong>$135</strong> &nbsp;&middot;&nbsp; Pago único':'<strong>$135</strong> &nbsp;&middot;&nbsp; One-time fee','dba':isEs?'<strong>$49 + tarifa estatal FL</strong>':'<strong>$49 + FL state fee</strong>','virtual-address':isEs?'<strong>$29/mes</strong> &nbsp;&middot;&nbsp; Cancela cuando quieras':'<strong>$29/month</strong> &nbsp;&middot;&nbsp; Cancel anytime','annual-report':isEs?'<strong>Servicio Anual</strong> &nbsp;&middot;&nbsp; Fecha Límite FL: 1 de mayo':'<strong>Annual Service</strong> &nbsp;&middot;&nbsp; FL Deadline: May 1','amendment':isEs?'<strong>$59 + tarifa estatal FL</strong>':'<strong>$59 + FL state fee</strong>'};
   Object.keys(prM).forEach(function(sid){var card=document.getElementById(sid);if(!card)return;var pd=card.querySelector('.svc-price');if(pd)pd.innerHTML=prM[sid];});
