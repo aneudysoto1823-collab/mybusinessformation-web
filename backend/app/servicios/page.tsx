@@ -258,7 +258,7 @@ nav a:hover{color:var(--navy);background:var(--gray100)}
 .services-section{padding:64px 32px;background:var(--white)}
 .services-inner{max-width:1280px;margin:0 auto}
 .section-label{display:inline-block;font-size:.7rem;font-weight:600;color:var(--blue);text-transform:uppercase;letter-spacing:1.3px;margin-bottom:12px}
-.section-title{font-size:clamp(1.8rem,3.5vw,2.6rem);color:var(--navy);font-weight:700;margin-bottom:16px}
+.section-title{font-size:clamp(1.8rem,3.5vw,2.6rem);color:var(--navy);font-weight:700;margin-bottom:8px}
 .section-sub{font-size:1rem;color:var(--gray600);max-width:560px;font-weight:300}
 .services-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:40px}
 @media(max-width:1100px){.services-grid{grid-template-columns:1fr 1fr}}
@@ -399,7 +399,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
 .form-secure-note{display:flex;align-items:center;justify-content:center;gap:5px;font-size:.71rem;color:var(--gray400);margin-top:9px}
 .form-disclaimer{font-size:.69rem;color:var(--gray400);text-align:center;margin-top:14px;line-height:1.6;border-top:1px solid var(--gray100);padding-top:14px}
 /* ACCORDION SERVICES LIST */
-.services-accordion{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:36px}
+.services-accordion{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
 @media(max-width:860px){.services-accordion{grid-template-columns:1fr}}
 .svc-acc-item{border:1.5px solid var(--gray200);border-radius:12px;overflow:hidden;background:#fff;transition:border-color .2s,box-shadow .25s}
 .svc-acc-item:hover{border-color:#cbd5e1}
@@ -452,9 +452,9 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
 </header>
 
 <!-- SERVICES GRID -->
-<section class="services-section" style="padding-top:80px">
+<section class="services-section" style="padding-top:36px">
   <div class="services-inner">
-    <div style="text-align:center;margin-bottom:40px">
+    <div style="text-align:center;margin-bottom:20px">
       <span class="section-label" id="svc-section-label">All Services</span>
       <h2 class="section-title" id="svc-section-title">Everything Your Business Needs</h2>
       <p class="section-sub" style="margin:0 auto" id="svc-section-sub">Individual services for every business need.</p>
