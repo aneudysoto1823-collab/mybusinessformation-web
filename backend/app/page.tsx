@@ -605,7 +605,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
         <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
         <button class="lang-btn" id="btn-es" onclick="setLang('es')">ES</button>
       </div>
-      <a href="/client-portal" style="padding:6px 14px;border-radius:6px;border:1.5px solid #e2e8f0;background:#fff;font-size:0.85rem;font-weight:500;color:#475569;text-decoration:none;transition:all 0.2s;" onmouseover="this.style.borderColor='#2563eb';this.style.color='#2563eb'" onmouseout="this.style.borderColor='#e2e8f0';this.style.color='#475569'">Login</a>
+      <a href="/client-portal" id="header-login-btn" style="padding:6px 14px;border-radius:6px;border:1.5px solid #e2e8f0;background:#fff;font-size:0.85rem;font-weight:500;color:#475569;text-decoration:none;transition:all 0.2s;" onmouseover="this.style.borderColor='#2563eb';this.style.color='#2563eb'" onmouseout="this.style.borderColor='#e2e8f0';this.style.color='#475569'">Login</a>
     </div>
   </div>
 </header>
@@ -2857,6 +2857,7 @@ function setLang(lang) {
   el=document.getElementById('s3p');                if(el) el.textContent = t.s3p;
   el=document.getElementById('s4h');                if(el) el.textContent = t.s4h;
   el=document.getElementById('s4p');                if(el) el.textContent = t.s4p;
+  el=document.getElementById('header-login-btn');  if(el) el.textContent = isEs ? 'Iniciar sesión' : 'Login';
   el=document.getElementById('lbl-new-app');       if(el) el.textContent = isEs ? 'Nueva Aplicación' : 'Start New Application';
   el=document.getElementById('lbl-continue-app');  if(el) el.textContent = isEs ? 'Continuar Mi Aplicación' : 'Continue My Application';
   var bsBtn=document.querySelector('.btn-start');   if(bsBtn) bsBtn.innerHTML=isEs?'Iniciar Mi Negocio &rarr;':'Start My Business &rarr;';
@@ -4355,7 +4356,8 @@ function fmUpdateProgress() {
   var fill = document.getElementById('fp-fill');
   if(fill) fill.style.width = pct + '%';
   var pctEl = document.getElementById('fp-pct');
-  if(pctEl) pctEl.textContent = 'Step ' + vis + ' of ' + fmTotalSteps;
+  var isEsPct = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
+  if(pctEl) pctEl.textContent = isEsPct ? 'Paso ' + vis + ' de ' + fmTotalSteps : 'Step ' + vis + ' of ' + fmTotalSteps;
   var titleEl = document.getElementById('fp-step-title');
   var isEsP = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
   var titles = isEsP ? fmStepTitlesEs : fmStepTitles;
@@ -5200,6 +5202,8 @@ function fmTranslate(lang) {
     'lbl-card-cvv':isEs?'CVV / CVC *':'CVV / CVC *',
     's10-div-billing':isEs?'Direcci\\u00f3n de Facturaci\\u00f3n':'Billing Address',
     'lbl-same-addr':isEs?'Misma que la direcci\\u00f3n del negocio':'Same as company address',
+    'rev-contact-title':isEs?'Información de Contacto':'Contact Info',
+    'rev-addons-title':isEs?'Servicios Adicionales':'Additional Services',
     's10-warn-title':isEs?'\\u26a0\\ufe0f No Reembolsable:':'\\u26a0\\ufe0f Non-Refundable:',
     's10-warn-text':isEs?'Los cargos estatales no son reembolsables una vez iniciado el proceso. Nuestra tarifa de servicio es reembolsable dentro de las 24 horas si el tr\\u00e1mite no ha comenzado. \\u00bfPreguntas? Cont\\u00e1ctanos por WhatsApp antes de enviar.':'State fees cannot be refunded once processing begins. Our service fee is refundable within 24 hours if filing has not started. Questions? Contact us via WhatsApp before submitting.',
     // Step 6 - Registered Agent
