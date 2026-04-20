@@ -4004,7 +4004,7 @@ var fmData = {
 
 var fmStepTitles = [
   'Business Setup',
-  'Processing Speed & Contact Info',
+  'Business Address',
   'Registered Agent & Mailing Address',
   'Ownership & Management',
   'Boost Your Formation',
@@ -4013,7 +4013,7 @@ var fmStepTitles = [
 ];
 var fmStepTitlesEs = [
   'Configuración del Negocio',
-  'Velocidad y Datos de Contacto',
+  'Dirección de Negocio',
   'Agente Registrado y Dirección Postal',
   'Propiedad y Gestión',
   'Mejora Tu Formación',
