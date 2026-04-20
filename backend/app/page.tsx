@@ -2225,6 +2225,14 @@ function fmAddMember() {
 function fmRemoveMember(n) {
   var el = document.getElementById('s5-member-' + n);
   if(el) el.remove();
+  // If back to single member, reset fields and auto-fill 100%
+  var extra = document.getElementById('s5-extra-members');
+  if(extra && extra.children.length === 0) {
+    var ind = document.getElementById('s5-m1-own');
+    var co = document.getElementById('s5-m1-coown');
+    if(ind) { ind.value = '100'; ind.style.borderColor = ''; }
+    if(co) { co.value = '100'; co.style.borderColor = ''; }
+  }
   fmUpdateOwnership();
 }
 
