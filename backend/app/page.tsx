@@ -1690,6 +1690,32 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
             </div>
             <div class="fm-addon-price" id="addon-itin-price">$69</div>
           </div>
+          <!-- Business Tax Receipt -->
+          <div class="fm-addon" id="addon-btr" onclick="fmToggleAddon('btr',this)">
+            <div class="fm-addon-left">
+              <div class="fm-addon-check" id="btr-check"></div>
+              <div class="fm-addon-icon">&#127981;</div>
+              <div>
+                <div class="fm-addon-name"><span id="addon-btr-name">Business Tax Receipt (BTR)</span> <span class="tt-wrap" style="vertical-align:middle"><span class="tt-icon">?<span class="tt-box" id="tt-btr">A Business Tax Receipt (formerly known as an Occupational License) is required by most Florida counties and cities to legally operate a business. It must be renewed annually and is separate from your state formation filing.</span></span></span></div>
+                <div class="fm-addon-desc" id="addon-btr-desc">Required by most FL counties to operate legally</div>
+              </div>
+            </div>
+            <div class="fm-addon-price" id="addon-btr-price">$79</div>
+          </div>
+
+          <!-- Sales Tax Registration -->
+          <div class="fm-addon" id="addon-str" onclick="fmToggleAddon('str',this)">
+            <div class="fm-addon-left">
+              <div class="fm-addon-check" id="str-check"></div>
+              <div class="fm-addon-icon">&#128203;</div>
+              <div>
+                <div class="fm-addon-name"><span id="addon-str-name">Sales Tax Registration</span> <span class="tt-wrap" style="vertical-align:middle"><span class="tt-icon">?<span class="tt-box" id="tt-str">If your business sells taxable goods or services in Florida, you are required to register with the Florida Department of Revenue to collect and remit sales tax. Businesses that sell without registering may face penalties and back taxes.</span></span></span></div>
+                <div class="fm-addon-desc" id="addon-str-desc">Required if your business sells taxable goods or services in FL</div>
+              </div>
+            </div>
+            <div class="fm-addon-price" id="addon-str-price">$79</div>
+          </div>
+
           <!-- Annual Report -->
           <div class="fm-addon" id="addon-ar" onclick="fmToggleAddon('ar',this)">
             <div class="fm-addon-left">
@@ -2398,9 +2424,9 @@ function fmBuildUpgradeCards() {
 function fmFilterAddons() {
   var pkg = fmData.package;
   var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
-  var included = { basic:[], standard:['ein'], premium:['ein','oa','itin'] };
+  var included = { basic:[], standard:['ein'], premium:['ein','oa'] };
   var pkgIncludes = included[pkg] || [];
-  ['ein','oa','itin','ar'].forEach(function(key) {
+  ['ein','oa','itin','ar','btr','str'].forEach(function(key) {
     var el = document.getElementById('addon-' + key);
     if(!el) return;
     if(pkgIncludes.indexOf(key) !== -1) {
@@ -2413,8 +2439,8 @@ function fmFilterAddons() {
   var titleEl = document.getElementById('s7-title');
   var subEl = document.getElementById('s7-sub');
   if(pkg === 'premium') {
-    if(titleEl) titleEl.textContent = isEs ? 'Protege Tu Negocio' : 'Protect Your Business';
-    if(subEl) subEl.textContent = isEs ? 'Tu paquete Premium ya incluye EIN, Acuerdo Operativo y Guía Exclusiva. Solo queda la Declaración Anual.' : 'Your Premium package already includes EIN, Operating Agreement and Exclusive Guide. Only the Annual Report remains.';
+    if(titleEl) titleEl.textContent = isEs ? 'Completa Tu Paquete' : 'Complete Your Package';
+    if(subEl) subEl.textContent = isEs ? 'Tu paquete Premium ya incluye EIN y Acuerdo Operativo. Agrega los servicios adicionales que necesites.' : 'Your Premium package already includes EIN and Operating Agreement. Add any additional services you need.';
   } else if(pkg === 'standard') {
     if(titleEl) titleEl.textContent = isEs ? 'Mejora Tu Formación' : 'Boost Your Formation';
     if(subEl) subEl.textContent = isEs ? 'Tu paquete Standard ya incluye EIN. Agrega lo que necesites.' : 'Your Standard package already includes EIN. Add what makes sense now or order anytime.';
@@ -4031,7 +4057,7 @@ var fmData = {
   package: 'standard',
   members: [{ type:'individual', fname:'', lname:'', own:100, title:'', useCompanyAddr:true }],
   ra: 'us',
-  addons: { ein:false, oa:false, itin:false, ar:false },
+  addons: { ein:false, oa:false, itin:false, ar:false, btr:false, str:false },
   payment: 'card'
 };
 
@@ -4565,6 +4591,8 @@ function fmUpdateSummary() {
   if(fmData.addons.ein)  extras += 49;
   if(fmData.addons.oa)   extras += 79;
   if(fmData.addons.itin) extras += 69;
+  if(fmData.addons.btr)  extras += 79;
+  if(fmData.addons.str)  extras += 79;
   var expFree = pkg === 'premium';
   if(fmData.speed === 'expedited' && !expFree) extras += 99;
   var total = base + state + extras;
@@ -4693,7 +4721,7 @@ function fmBuildReview() {
   }
 
   // Add-ons
-  var anyAddon = fmData.addons.ein||fmData.addons.oa||fmData.addons.itin||fmData.addons.ar;
+  var anyAddon = fmData.addons.ein||fmData.addons.oa||fmData.addons.itin||fmData.addons.ar||fmData.addons.btr||fmData.addons.str;
   var addSec = document.getElementById('rev-addons-section'); if(addSec) addSec.style.display = anyAddon?'block':'none';
   var addBody = document.getElementById('rev-addons-body');
   if(addBody && anyAddon) {
@@ -4701,7 +4729,9 @@ function fmBuildReview() {
     if(fmData.addons.ein)  items.push('<div class="fm-review-field"><label>EIN / Tax ID</label><span>$49</span></div>');
     if(fmData.addons.oa)   items.push('<div class="fm-review-field"><label>Operating Agreement</label><span>$79</span></div>');
     if(fmData.addons.itin) items.push('<div class="fm-review-field"><label>ITIN Application</label><span>$69</span></div>');
-    if(fmData.addons.ar)   items.push('<div class="fm-review-field"><label>Annual Report Service</label><span>'+( isEs?'Anual':'Annual')+'</span></div>');
+    if(fmData.addons.btr)  items.push('<div class="fm-review-field"><label>'+(isEs?'Recibo de Impuesto Empresarial':'Business Tax Receipt')+'</label><span>$79</span></div>');
+    if(fmData.addons.str)  items.push('<div class="fm-review-field"><label>'+(isEs?'Registro de Impuesto sobre Ventas':'Sales Tax Registration')+'</label><span>$79</span></div>');
+    if(fmData.addons.ar)   items.push('<div class="fm-review-field"><label>'+(isEs?'Declaración Anual':'Annual Report Service')+'</label><span>'+(isEs?'Anual':'Annual')+'</span></div>');
     addBody.innerHTML='<div class="fm-review-grid">'+items.join('')+'</div>';
   }
 }
@@ -4825,7 +4855,7 @@ async function fmSubmit() {
     amount:          amount,
     members:         members,
     registeredAgent: ra,
-    addons:          { ein: !!addons.ein, oa: !!addons.oa, itin: !!addons.itin, ar: !!addons.ar, raInfo: raInfo },
+    addons:          { ein: !!addons.ein, oa: !!addons.oa, itin: !!addons.itin, ar: !!addons.ar, btr: !!addons.btr, str: !!addons.str, raInfo: raInfo },
     orgSignature:    orgSignature
   };
 
@@ -5386,6 +5416,10 @@ function fmTranslate(lang) {
     'addon-oa-desc':   isEs?'Requerido por los bancos para abrir una cuenta corriente empresarial':'Required by banks to open a business checking account',
     'addon-itin-name': isEs?'Solicitud de ITIN':'ITIN Application',
     'addon-itin-desc': isEs?'Para extranjeros sin Número de Seguro Social':'For foreign nationals without a Social Security Number',
+    'addon-btr-name':  isEs?'Recibo de Impuesto Empresarial (BTR)':'Business Tax Receipt (BTR)',
+    'addon-btr-desc':  isEs?'Requerido por la mayoría de condados de FL para operar legalmente':'Required by most FL counties to operate legally',
+    'addon-str-name':  isEs?'Registro de Impuesto sobre Ventas':'Sales Tax Registration',
+    'addon-str-desc':  isEs?'Requerido si tu negocio vende bienes o servicios gravables en FL':'Required if your business sells taxable goods or services in FL',
     'addon-ar-name':   isEs?'Servicio de Declaración Anual':'Annual Report Filing Service',
     'addon-ar-desc':   isEs?'Presentamos tu Declaración Anual de FL cada año — fecha límite 1 de mayo':'We file your FL Annual Report each year — deadline May 1st',
   };
