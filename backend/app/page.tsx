@@ -5234,6 +5234,28 @@ function fmTranslate(lang) {
     'lbl-same-addr':isEs?'Misma que la direcci\\u00f3n del negocio':'Same as company address',
     'rev-contact-title':isEs?'Información de Contacto':'Contact Info',
     'rev-addons-title':isEs?'Servicios Adicionales':'Additional Services',
+    // Review step labels
+    'rev-formation-title':isEs?'Información de Formación':'Formation Info',
+    'rev-state-lbl':isEs?'Estado de Formación':'State of Formation',
+    'rev-entity-lbl':isEs?'Tipo de Entidad':'Entity Type',
+    'rev-pkg-lbl':isEs?'Paquete':'Package',
+    'rev-speed-lbl':isEs?'Velocidad de Tramitación':'Filing Speed',
+    'rev-name-lbl':isEs?'Nombre Completo':'Full Name',
+    'rev-phone-lbl':isEs?'Teléfono':'Phone',
+    'rev-email-lbl':isEs?'Correo Electrónico':'Email',
+    'rev-addr-lbl':isEs?'Dirección':'Address',
+    'rev-agent-title':isEs?'Agente Registrado':'Registered Agent',
+    'rev-ra-lbl':isEs?'Agente Registrado':'Registered Agent',
+    'rev-members-title':isEs?'Miembros / Dueños':'Members / Owners',
+    // Billing address labels
+    'lbl-bill-country':isEs?'País':'Country',
+    'lbl-bill-street':isEs?'Dirección *':'Street Address *',
+    'lbl-bill-street2':isEs?'Dirección (Cont) <span>Opcional</span>':'Address (Cont) <span>Optional</span>',
+    'lbl-bill-city':isEs?'Ciudad *':'City *',
+    'lbl-bill-state':isEs?'Estado *':'State *',
+    'lbl-bill-zip':isEs?'ZIP *':'ZIP *',
+    // Terms checkbox
+    'lbl-agree':isEs?'Acepto el <a href="/legal" target="_blank" style="color:#2563eb">Aviso Legal</a> y los <a href="/terms" target="_blank" style="color:#2563eb">Términos de Servicio</a>.':'I agree to the <a href="/legal" target="_blank" style="color:#2563eb">Legal Statement</a> and <a href="/terms" target="_blank" style="color:#2563eb">Terms of Service</a>.',
     's10-warn-title':isEs?'\\u26a0\\ufe0f No Reembolsable:':'\\u26a0\\ufe0f Non-Refundable:',
     's10-warn-text':isEs?'Los cargos estatales no son reembolsables una vez iniciado el proceso. Nuestra tarifa de servicio es reembolsable dentro de las 24 horas si el tr\\u00e1mite no ha comenzado. \\u00bfPreguntas? Cont\\u00e1ctanos por WhatsApp antes de enviar.':'State fees cannot be refunded once processing begins. Our service fee is refundable within 24 hours if filing has not started. Questions? Contact us via WhatsApp before submitting.',
     // Step 6 - Registered Agent
@@ -5352,6 +5374,7 @@ function fmTranslate(lang) {
   document.querySelectorAll('[id$="-save"]').forEach(function(e){if(e.tagName==='SPAN')e.textContent=isEs?'Guardar':'Save';});
   document.querySelectorAll('[id$="-back"]').forEach(function(e){e.textContent=isEs?'Volver':'Back';});
   document.querySelectorAll('[id$="-next"]').forEach(function(e){e.textContent=isEs?'Continuar':'Continue';});
+  document.querySelectorAll('.fm-review-edit').forEach(function(e){e.textContent=isEs?'Editar':'Edit';});
   document.querySelectorAll('.fm-sum-title').forEach(function(e){e.textContent=isEs?'Tu Orden':'Your Order';});
   var t = fmTranslations[lang] || fmTranslations.en;
   var isEs = lang === 'es';
