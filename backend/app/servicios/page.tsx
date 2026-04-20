@@ -431,22 +431,22 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
 
 <header id="mainHeader">
   <div class="header-inner">
-    <a href="mybusinessformation.html" class="logo">
+    <a href="/" class="logo">
       <div class="logo-mark">FL</div>
       <div class="logo-text">Florida Business Formation Center<span>mybusinessformation.com</span></div>
     </a>
     <nav>
-      <a href="mybusinessformation.html">Home</a>
-      <a href="paquetes.html">Formation Packages</a>
-      <a href="mybusinessformation.html#faq">FAQ</a>
-      <a href="mybusinessformation.html#contact">Contact</a>
+      <a href="/">Home</a>
+      <a href="/paquetes">Formation Packages</a>
+      <a href="/#faq">FAQ</a>
+      <a href="/#contact">Contact</a>
     </nav>
     <div style="display:flex;align-items:center;gap:11px">
       <div class="lang-toggle">
         <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
         <button class="lang-btn" id="btn-es" onclick="setLang('es')">ES</button>
       </div>
-      <a href="paquetes.html"><button class="btn-start">Form My Business &#8594;</button></a>
+      <a href="/paquetes"><button class="btn-start">Form My Business &#8594;</button></a>
     </div>
   </div>
 </header>
@@ -482,7 +482,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
     <div>
       <span class="section-label">All Services</span>
       <h2 class="section-title">Everything Your Business Needs</h2>
-      <p class="section-sub">Order any individual service below, or save with a <a href="paquetes.html" style="color:var(--blue);font-weight:600">formation package</a> that bundles multiple services.</p>
+      <p class="section-sub">Order any individual service below, or save with a <a href="/paquetes" style="color:var(--blue);font-weight:600">formation package</a> that bundles multiple services.</p>
     </div>
     <div class="services-accordion">${servicesAccordionHtml}</div>
   </div>
@@ -494,7 +494,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
     <h2>Save with a Formation Package</h2>
     <p>Our Standard and Premium packages bundle multiple services together — you'll pay less than ordering each service individually, and everything gets done at once.</p>
     <div class="bundle-btns">
-      <a href="paquetes.html"><button class="btn-bundle-primary">&#128197; View Formation Packages &#8594;</button></a>
+      <a href="/paquetes"><button class="btn-bundle-primary">&#128197; View Formation Packages &#8594;</button></a>
       <button class="btn-bundle-sec" onclick="window.open('https://wa.me/1XXXXXXXXXX','_blank')">&#x1F4AC; Ask Us Which Is Best</button>
     </div>
   </div>
@@ -512,8 +512,8 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
       </div>
       <div class="footer-col">
         <h5>Formation</h5>
-        <a href="paquetes.html?entity=llc">LLC Formation</a>
-        <a href="paquetes.html?entity=corp">Corporation Formation</a>
+        <a href="/paquetes?entity=llc">LLC Formation</a>
+        <a href="/paquetes?entity=corp">Corporation Formation</a>
         <a href="#registered-agent" onclick="openServiceForm('registered-agent')">Registered Agent</a>
         <a href="#ein" onclick="openServiceForm('ein')">EIN / Tax ID</a>
         <a href="#operating-agreement" onclick="openServiceForm('operating-agreement')">Operating Agreement</a>
@@ -528,10 +528,10 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
       </div>
       <div class="footer-col">
         <h5>Company</h5>
-        <a href="mybusinessformation.html">Home</a>
-        <a href="paquetes.html">Formation Packages</a>
-        <a href="mybusinessformation.html#faq">FAQ</a>
-        <a href="mybusinessformation.html#contact">Contact</a>
+        <a href="/">Home</a>
+        <a href="/paquetes">Formation Packages</a>
+        <a href="/#faq">FAQ</a>
+        <a href="/#contact">Contact</a>
       </div>
     </div>
     <hr class="footer-divider"/>
@@ -877,7 +877,7 @@ function setLang(lang){
   var hp=document.querySelector('.page-hero p'); if(hp)hp.textContent=isEs?'Servicios individuales para cada necesidad de tu negocio.':'Individual services for every business need.';
   var sl=document.querySelector('.section-label'); if(sl)sl.textContent=isEs?'Todos los Servicios':'All Services';
   var st=document.querySelector('.section-title'); if(st)st.textContent=isEs?'Todo lo que tu Negocio Necesita':'Everything Your Business Needs';
-  var ss=document.querySelector('.section-sub'); if(ss)ss.innerHTML=isEs?'Ordena cualquier servicio a continuación, o ahorra con un <a href="paquetes.html" style="color:var(--blue);font-weight:600">paquete de formación</a>.':'Order any individual service below, or save with a <a href="paquetes.html" style="color:var(--blue);font-weight:600">formation package</a>.';
+  var ss=document.querySelector('.section-sub'); if(ss)ss.innerHTML=isEs?'Ordena cualquier servicio a continuación, o ahorra con un <a href="/paquetes" style="color:var(--blue);font-weight:600">paquete de formación</a>.':'Order any individual service below, or save with a <a href="/paquetes" style="color:var(--blue);font-weight:600">formation package</a>.';
   document.querySelectorAll('.svc-includes-title').forEach(function(el){el.textContent=isEs?'Qué incluye':"What's included";});
   var prM={'registered-agent':isEs?'<strong>Tarifa Anual</strong> &nbsp;&middot;&nbsp; Requerido por ley en FL':'<strong>Annual Fee</strong> &nbsp;&middot;&nbsp; Required by FL law','ein':isEs?'<strong>$49</strong> &nbsp;&middot;&nbsp; Pago único':'<strong>$49</strong> &nbsp;&middot;&nbsp; One-time fee','operating-agreement':isEs?'<strong>$79</strong> &nbsp;&middot;&nbsp; Pago único':'<strong>$79</strong> &nbsp;&middot;&nbsp; One-time fee','itin':isEs?'<strong>$135</strong> &nbsp;&middot;&nbsp; Pago único':'<strong>$135</strong> &nbsp;&middot;&nbsp; One-time fee','dba':isEs?'<strong>$49 + tarifa estatal FL</strong>':'<strong>$49 + FL state fee</strong>','virtual-address':isEs?'<strong>$29/mes</strong> &nbsp;&middot;&nbsp; Cancela cuando quieras':'<strong>$29/month</strong> &nbsp;&middot;&nbsp; Cancel anytime','annual-report':isEs?'<strong>Servicio Anual</strong> &nbsp;&middot;&nbsp; Fecha Límite FL: 1 de mayo':'<strong>Annual Service</strong> &nbsp;&middot;&nbsp; FL Deadline: May 1','amendment':isEs?'<strong>$59 + tarifa estatal FL</strong>':'<strong>$59 + FL state fee</strong>'};
   Object.keys(prM).forEach(function(sid){var card=document.getElementById(sid);if(!card)return;var pd=card.querySelector('.svc-price');if(pd)pd.innerHTML=prM[sid];});

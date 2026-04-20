@@ -78,29 +78,29 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
 <div class="topbar">&#127775; Florida's trusted business formation experts &mdash; <strong>LLC &amp; Corporation</strong> filing made simple.</div>
 <header id="mainHeader">
   <div class="header-inner">
-    <a href="mybusinessformation.html" class="logo">
+    <a href="/" class="logo">
       <div class="logo-mark">FL</div>
       <div class="logo-text">Florida Business Formation Center<span>mybusinessformation.com</span></div>
     </a>
     <nav>
-      <a href="mybusinessformation.html" data-en="Home" data-es="Inicio">Home</a>
-      <a href="paquetes.html" data-en="Packages" data-es="Paquetes">Packages</a>
-      <a href="servicios.html" data-en="Services" data-es="Servicios">Services</a>
-      <a href="mybusinessformation.html#faq" data-en="FAQ" data-es="Preguntas">FAQ</a>
-      <a href="mybusinessformation.html#contact" data-en="Contact" data-es="Contacto">Contact</a>
+      <a href="/" data-en="Home" data-es="Inicio">Home</a>
+      <a href="/paquetes" data-en="Packages" data-es="Paquetes">Packages</a>
+      <a href="/servicios" data-en="Services" data-es="Servicios">Services</a>
+      <a href="/#faq" data-en="FAQ" data-es="Preguntas">FAQ</a>
+      <a href="/#contact" data-en="Contact" data-es="Contacto">Contact</a>
     </nav>
     <div style="display:flex;align-items:center;gap:11px">
       <div class="lang-toggle">
         <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
         <button class="lang-btn" id="btn-es" onclick="setLang('es')">ES</button>
       </div>
-      <a href="mybusinessformation.html"><button class="btn-start">Start My Business &#8594;</button></a>
+      <a href="/"><button class="btn-start">Start My Business &#8594;</button></a>
     </div>
   </div>
 </header>
 <section class="page-hero">
   <div class="page-hero-inner">
-    <div class="breadcrumb"><a href="mybusinessformation.html">Home</a> <span>/</span> <span class="en-inline">Legal Disclaimer</span><span class="es-inline" style="display:none">Aviso Legal</span></div>
+    <div class="breadcrumb"><a href="/">Home</a> <span>/</span> <span class="en-inline">Legal Disclaimer</span><span class="es-inline" style="display:none">Aviso Legal</span></div>
     <div class="hero-badge">Legal</div>
     <h1 class="en">Legal Disclaimer</h1><h1 class="es" style="display:none">Aviso Legal</h1>
     <p class="en">Important information about the nature of our services and the limits of our role as a document preparation service.</p>
@@ -184,10 +184,10 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
       <div>
         <div class="footer-copy">&#169; 2025 Florida Business Formation Center &middot; mybusinessformation.com &middot; All Rights Reserved.</div>
         <div class="footer-links" style="margin-top:6px">
-          <a href="terms.html" data-en="Terms &amp; Conditions" data-es="Términos y Condiciones">Terms &amp; Conditions</a>
-          <a href="privacy.html" data-en="Privacy Policy" data-es="Política de Privacidad">Privacy Policy</a>
-          <a href="legal.html" data-en="Legal Disclaimer" data-es="Aviso Legal">Legal Disclaimer</a>
-          <a href="about.html" data-en="About Us" data-es="Nosotros">About Us</a>
+          <a href="/terms" data-en="Terms &amp; Conditions" data-es="Términos y Condiciones">Terms &amp; Conditions</a>
+          <a href="/privacy" data-en="Privacy Policy" data-es="Política de Privacidad">Privacy Policy</a>
+          <a href="/legal" data-en="Legal Disclaimer" data-es="Aviso Legal">Legal Disclaimer</a>
+          <a href="/about" data-en="About Us" data-es="Nosotros">About Us</a>
         </div>
       </div>
       <div class="footer-disclaimer">

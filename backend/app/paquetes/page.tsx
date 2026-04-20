@@ -229,16 +229,16 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
 
 <header id="mainHeader">
   <div class="header-inner">
-    <a href="mybusinessformation.html" class="logo">
+    <a href="/" class="logo">
       <div class="logo-mark">FL</div>
       <div class="logo-text">Florida Business Formation Center<span>mybusinessformation.com</span></div>
     </a>
     <nav>
-      <a href="mybusinessformation.html">Home</a>
-      <a href="mybusinessformation.html#how">How It Works</a>
-      <a href="servicios.html">Add-On Services</a>
-      <a href="mybusinessformation.html#faq">FAQ</a>
-      <a href="mybusinessformation.html#contact">Contact</a>
+      <a href="/">Home</a>
+      <a href="/#how">How It Works</a>
+      <a href="/servicios">Add-On Services</a>
+      <a href="/#faq">FAQ</a>
+      <a href="/#contact">Contact</a>
     </nav>
     <div style="display:flex;align-items:center;gap:11px">
       <div class="lang-toggle">
@@ -448,26 +448,26 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
       </div>
       <div class="footer-col">
         <h5>Formation</h5>
-        <a href="paquetes.html?entity=llc">LLC Formation</a>
-        <a href="paquetes.html?entity=corp">Corporation Formation</a>
-        <a href="servicios.html#registered-agent">Registered Agent</a>
-        <a href="servicios.html#ein">EIN / Tax ID</a>
-        <a href="servicios.html#operating-agreement">Operating Agreement</a>
+        <a href="/paquetes?entity=llc">LLC Formation</a>
+        <a href="/paquetes?entity=corp">Corporation Formation</a>
+        <a href="/servicios#registered-agent">Registered Agent</a>
+        <a href="/servicios#ein">EIN / Tax ID</a>
+        <a href="/servicios#operating-agreement">Operating Agreement</a>
       </div>
       <div class="footer-col">
         <h5>Add-On Services</h5>
-        <a href="servicios.html#itin">ITIN Application</a>
-        <a href="servicios.html#dba">DBA / Fictitious Name</a>
-        <a href="servicios.html#amendment">Articles of Amendment</a>
-        <a href="servicios.html#virtual-address">Virtual Mailing Address</a>
-        <a href="servicios.html#annual-report">Annual Report Filing</a>
+        <a href="/servicios#itin">ITIN Application</a>
+        <a href="/servicios#dba">DBA / Fictitious Name</a>
+        <a href="/servicios#amendment">Articles of Amendment</a>
+        <a href="/servicios#virtual-address">Virtual Mailing Address</a>
+        <a href="/servicios#annual-report">Annual Report Filing</a>
       </div>
       <div class="footer-col">
         <h5>Company</h5>
-        <a href="mybusinessformation.html">Home</a>
-        <a href="mybusinessformation.html#how">How It Works</a>
-        <a href="mybusinessformation.html#faq">FAQ</a>
-        <a href="mybusinessformation.html#contact">Contact</a>
+        <a href="/">Home</a>
+        <a href="/#how">How It Works</a>
+        <a href="/#faq">FAQ</a>
+        <a href="/#contact">Contact</a>
       </div>
     </div>
     <hr class="footer-divider"/>
@@ -475,10 +475,10 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
       <div>
         <div class="footer-copy">&#169; 2025 Florida Business Formation Center &middot; mybusinessformation.com &middot; All Rights Reserved.</div>
         <div class="footer-links" style="margin-top:6px">
-          <a href="terms.html">Terms &amp; Conditions</a>
-          <a href="privacy.html">Privacy Policy</a>
-          <a href="legal.html">Legal Disclaimer</a>
-          <a href="about.html">About Us</a>
+          <a href="/terms">Terms &amp; Conditions</a>
+          <a href="/privacy">Privacy Policy</a>
+          <a href="/legal">Legal Disclaimer</a>
+          <a href="/about">About Us</a>
         </div>
       </div>
       <div class="footer-disclaimer">

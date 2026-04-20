@@ -78,29 +78,29 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
 <div class="topbar">&#127775; Florida's trusted business formation experts &mdash; <strong>LLC &amp; Corporation</strong> filing made simple.</div>
 <header id="mainHeader">
   <div class="header-inner">
-    <a href="mybusinessformation.html" class="logo">
+    <a href="/" class="logo">
       <div class="logo-mark">FL</div>
       <div class="logo-text">Florida Business Formation Center<span>mybusinessformation.com</span></div>
     </a>
     <nav>
-      <a href="mybusinessformation.html" data-en="Home" data-es="Inicio">Home</a>
-      <a href="paquetes.html" data-en="Packages" data-es="Paquetes">Packages</a>
-      <a href="servicios.html" data-en="Services" data-es="Servicios">Services</a>
-      <a href="mybusinessformation.html#faq" data-en="FAQ" data-es="Preguntas">FAQ</a>
-      <a href="mybusinessformation.html#contact" data-en="Contact" data-es="Contacto">Contact</a>
+      <a href="/" data-en="Home" data-es="Inicio">Home</a>
+      <a href="/paquetes" data-en="Packages" data-es="Paquetes">Packages</a>
+      <a href="/servicios" data-en="Services" data-es="Servicios">Services</a>
+      <a href="/#faq" data-en="FAQ" data-es="Preguntas">FAQ</a>
+      <a href="/#contact" data-en="Contact" data-es="Contacto">Contact</a>
     </nav>
     <div style="display:flex;align-items:center;gap:11px">
       <div class="lang-toggle">
         <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
         <button class="lang-btn" id="btn-es" onclick="setLang('es')">ES</button>
       </div>
-      <a href="mybusinessformation.html"><button class="btn-start">Start My Business &#8594;</button></a>
+      <a href="/"><button class="btn-start">Start My Business &#8594;</button></a>
     </div>
   </div>
 </header>
 <section class="page-hero">
   <div class="page-hero-inner">
-    <div class="breadcrumb"><a href="mybusinessformation.html">Home</a> <span>/</span> <span class="en-inline">About Us</span><span class="es-inline" style="display:none">Qui&eacute;nes Somos</span></div>
+    <div class="breadcrumb"><a href="/">Home</a> <span>/</span> <span class="en-inline">About Us</span><span class="es-inline" style="display:none">Qui&eacute;nes Somos</span></div>
     <div class="hero-badge en">About Us</div><div class="hero-badge es" style="display:none">Qui&eacute;nes Somos</div>
     <h1 class="en">We Help Entrepreneurs <br/>Build Their Dream</h1>
     <h1 class="es" style="display:none">Ayudamos a Emprendedores <br/>a Construir Su Sue&ntilde;o</h1>
@@ -123,7 +123,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
       <h4 class="en">Ready to Start?</h4><h4 class="es" style="display:none">&iquest;Listo para Empezar?</h4>
       <p class="en">Form your LLC or Corporation today from $49 + state fee.</p>
       <p class="es" style="display:none">Forma tu LLC o Corporaci&oacute;n hoy desde $49 + cargo estatal.</p>
-      <a href="paquetes.html" style="display:block;background:var(--green);color:#fff;padding:9px 14px;border-radius:7px;font-size:.83rem;font-weight:600;text-align:center;margin-top:8px">Start My Business &#8594;</a>
+      <a href="/paquetes" style="display:block;background:var(--green);color:#fff;padding:9px 14px;border-radius:7px;font-size:.83rem;font-weight:600;text-align:center;margin-top:8px">Start My Business &#8594;</a>
     </div>
   </aside>
 
@@ -212,7 +212,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
           <svg viewBox="0 0 24 24" width="16" height="16" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
           <span class="en-inline">Chat on WhatsApp</span><span class="es-inline" style="display:none">Chatea por WhatsApp</span>
         </a>
-        <a href="paquetes.html" style="background:var(--navy);color:#fff;padding:11px 22px;border-radius:8px;font-size:.88rem;font-weight:600;display:inline-flex;align-items:center;gap:7px">
+        <a href="/paquetes" style="background:var(--navy);color:#fff;padding:11px 22px;border-radius:8px;font-size:.88rem;font-weight:600;display:inline-flex;align-items:center;gap:7px">
           <span class="en-inline">View Our Packages &#8594;</span><span class="es-inline" style="display:none">Ver Nuestros Paquetes &#8594;</span>
         </a>
       </div>
@@ -227,10 +227,10 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
       <div>
         <div class="footer-copy">&#169; 2025 Florida Business Formation Center &middot; mybusinessformation.com &middot; All Rights Reserved.</div>
         <div class="footer-links" style="margin-top:6px">
-          <a href="terms.html" data-en="Terms &amp; Conditions" data-es="Términos y Condiciones">Terms &amp; Conditions</a>
-          <a href="privacy.html" data-en="Privacy Policy" data-es="Política de Privacidad">Privacy Policy</a>
-          <a href="legal.html" data-en="Legal Disclaimer" data-es="Aviso Legal">Legal Disclaimer</a>
-          <a href="about.html" data-en="About Us" data-es="Nosotros">About Us</a>
+          <a href="/terms" data-en="Terms &amp; Conditions" data-es="Términos y Condiciones">Terms &amp; Conditions</a>
+          <a href="/privacy" data-en="Privacy Policy" data-es="Política de Privacidad">Privacy Policy</a>
+          <a href="/legal" data-en="Legal Disclaimer" data-es="Aviso Legal">Legal Disclaimer</a>
+          <a href="/about" data-en="About Us" data-es="Nosotros">About Us</a>
         </div>
       </div>
       <div class="footer-disclaimer">
