@@ -4059,6 +4059,62 @@ function fmVisualStep(step) {
 }
 
 // ═══════════════════════════════════════════════════════
+// STEP ENTRY SYNC — re-applied every time a step is entered
+// ═══════════════════════════════════════════════════════
+function fmSyncStep2() {
+  // Re-apply address type UI from fmData (handles back-nav)
+  var type = fmData.bizAddrType || 'virtual';
+  var virtBtn = document.getElementById('biz-addr-virtual');
+  var ownBtn  = document.getElementById('biz-addr-own');
+  var note    = document.getElementById('biz-virtual-note');
+  var form    = document.getElementById('biz-own-form');
+  if(virtBtn) virtBtn.classList.toggle('selected', type === 'virtual');
+  if(ownBtn)  ownBtn.classList.toggle('selected',  type === 'own');
+  if(note) note.style.display = type === 'virtual' ? 'flex' : 'none';
+  if(form) form.style.display = type === 'own'     ? 'block' : 'none';
+}
+function fmSyncStep3() {
+  var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
+  // Sync RA choice UI
+  var agentType = fmData.agentType || 'ours';
+  var oursBtn  = document.getElementById('agent-use-ours');
+  var ownBtn   = document.getElementById('agent-use-own');
+  var oursNote = document.getElementById('agent-ours-note');
+  var ownForm  = document.getElementById('agent-own-form');
+  if(oursBtn)  oursBtn.classList.toggle('selected',  agentType === 'ours');
+  if(ownBtn)   ownBtn.classList.toggle('selected',   agentType === 'own');
+  if(oursNote) oursNote.style.display = agentType === 'ours' ? 'block' : 'none';
+  if(ownForm)  ownForm.style.display  = agentType === 'own'  ? 'block' : 'none';
+  // Sync mailing address label based on address type chosen in step 2
+  var mailLbl = document.getElementById('lbl-same-mail');
+  if(mailLbl) {
+    var addrType = fmData.bizAddrType || 'virtual';
+    mailLbl.textContent = addrType === 'virtual'
+      ? (isEs ? 'Igual que la dirección de arriba (dirección del agente)' : 'Same as above (agent address)')
+      : (isEs ? 'Igual que la dirección del negocio' : 'Same as business address');
+  }
+  // Sync mailing divider entity label
+  var mailEnt = document.getElementById('s3-mail-divider-entity');
+  if(mailEnt) mailEnt.textContent = fmData.entity === 'corp' ? 'Corporation' : 'LLC';
+  // RA address fields & same-biz checkbox
+  fmSyncRaState();
+}
+function fmSyncStep5() {
+  // Show/hide Company member type based on entity
+  var coBtn = document.getElementById('s5-m1-co');
+  if(coBtn) {
+    var isCorp = fmData.entity === 'corp';
+    coBtn.style.display = isCorp ? 'none' : '';
+    if(isCorp && coBtn.classList.contains('selected')) {
+      var indBtn = document.getElementById('s5-m1-ind');
+      fmSetMemberType(1, 'individual', indBtn);
+    }
+  }
+  // Auto-fill ownership % if single member and field empty
+  fmInitStep5Ownership();
+}
+
+// ═══════════════════════════════════════════════════════
 // NAVIGATION
 // ═══════════════════════════════════════════════════════
 function fmGoToStep(n) {
@@ -4067,8 +4123,9 @@ function fmGoToStep(n) {
   if(el) { el.classList.add('active'); fmCurrentStep = n; }
   fmUpdateProgress();
   fmUpdateSummary();
-  if(n === 3) fmSyncRaState();
-  if(n === 5) fmInitStep5Ownership();
+  if(n === 2) fmSyncStep2();
+  if(n === 3) fmSyncStep3();
+  if(n === 5) fmSyncStep5();
   if(n === 7) fmFilterAddons();
   if(n === 8) fmBuildReview();
   if(!_fmRestoring) {
