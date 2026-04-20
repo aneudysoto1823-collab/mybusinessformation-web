@@ -10,42 +10,41 @@ https://github.com/aneudysoto1823-collab/mybusinessformation-web
 
 ## Estructura del repositorio
 mybusinessformation-web/
-  backend/          ← proyecto Next.js (TypeScript) — NO TOCAR si eres el socio HTML
+  backend/                  ← proyecto Next.js (TypeScript) — único lugar de trabajo real
     app/
-      globals.css   ← vacío, cada página carga su propio CSS
-      layout.tsx    ← carga fuentes Google (Fraunces + Plus Jakarta Sans)
-      page.tsx
+      globals.css           ← vacío, cada página carga su propio CSS
+      layout.tsx            ← carga fuentes Google (Fraunces + Plus Jakarta Sans)
+      page.tsx              ← home
       about/page.tsx
       legal/page.tsx
       servicios/page.tsx
       paquetes/page.tsx
       privacy/page.tsx
       terms/page.tsx
-  about.html        ← HTMLs aquí en la raíz — solo el socio los edita
-  legal.html
-  mybusinessformation.html
-  paquetes.html
-  privacy.html
-  servicios.html
-  terms.html
-  CONTEXTO.md
+      admin/                ← Panel de Administración (Etapa 8)
+      client-portal/        ← Portal del Cliente (Etapa 9)
+      login/
+      unsubscribe/
+      api/                  ← rutas API (órdenes, emails, auth)
+  LOGICA_DE_NEGOCIO/        ← documentación de reglas de negocio
+  security/                 ← auditorías (ignorada en git)
+  contexto                  ← este archivo
+  README.md
+  railway.json              ← config de deploy (Railway)
+
+NOTA: Los archivos HTML (about.html, legal.html, etc.) fueron ELIMINADOS del repo
+el 2026-04-20. Ya no existen ni en la raíz ni dentro de backend/. El sitio corre
+100% desde los componentes .tsx de Next.js.
 
 ## Cómo funciona el sistema
-Cada page.tsx lee su HTML original y extrae el CSS y el body:
+Cada page.tsx es un componente React de Next.js con su propio JSX y estilos.
+El flujo anterior (leer HTML con `fs.readFileSync`) quedó OBSOLETO cuando se
+eliminaron los archivos HTML el 2026-04-20.
 
-import fs from 'fs'
-import path from 'path'
-export default function NombrePagina() {
-  const htmlPath = path.join(process.cwd(), '..', 'nombre.html')
-  const rawHtml = fs.readFileSync(htmlPath, 'utf-8')
-  const styleMatches = rawHtml.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/gi)
-  const styleContent = [...styleMatches].map(m => `<style>${m[1]}</style>`).join('')
-  const bodyMatch = rawHtml.match(/<body[^>]*>([\s\S]*)<\/body>/i)
-  const bodyContent = bodyMatch ? bodyMatch[1] : ''
-  return (
-    <main dangerouslySetInnerHTML={{ __html: styleContent + bodyContent }} />
-  )
-}
+Si necesitas cambiar el diseño de una página:
+1. Editas el archivo .tsx correspondiente en backend/app/<pagina>/page.tsx
+2. Pruebas localmente con `npm run dev` dentro de backend/
+3. Commit + push → Vercel redeploy automático
 
 ## Cómo trabajamos con Claude
 - Compartir pantalla con capturas cuando hay problemas visuales
@@ -55,10 +54,12 @@ export default function NombrePagina() {
 - Actualizar este archivo al terminar cada etapa
 
 ## Reglas del repositorio
-- Ethan trabaja dentro de la carpeta backend/
-- El socio trabaja SOLO en los archivos HTML de la raíz
+- Ethan y Fabián son administradores totales del proyecto — ambos pueden
+  trabajar en cualquier parte del repositorio (backend, configuración, docs, etc.)
+- YA NO existen archivos HTML en el proyecto — todo cambio de diseño se hace en .tsx
 - Antes de empezar siempre: git pull
-- Al terminar siempre: git add . → git commit -m "descripcion" → git push
+- Al terminar siempre: git add . → git commit -m "descripcion en español" → git push
+- Commits SIEMPRE en español
 
 ## Stack tecnológico
 - Next.js 16 (TypeScript) — frontend
@@ -71,20 +72,15 @@ export default function NombrePagina() {
 
 ## ROADMAP COMPLETO — 10 Etapas
 
-### Etapa 1 — Frontend HTML a Next.js (1-2 semanas)
+### Etapa 1 — Frontend HTML a Next.js (COMPLETADA)
 - [x] Instalar Node.js y crear proyecto Next.js
 - [x] layout.tsx con Google Fonts
-- ### Etapa 1 — Frontend HTML a Next.js
-- [x] Sitio en vivo en Vercel — https://mybusinessformation-web.vercel.app/
-- [x] Deploy automático con cada git push
-- [x] HTML convertidos a componentes React
-- [x] Conectar todas las páginas — COMPLETADO (leyendo HTML con fs)
+- [x] HTML convertidos a componentes React .tsx puros
 - [x] globals.css vaciado — cada página carga su propio CSS
 - [x] Tailwind desinstalado
-- [x] HTML movidos a backend/public
+- [x] Archivos HTML eliminados del repo (2026-04-20) — ya no son necesarios
 - [x] Sitio en vivo en Vercel — https://mybusinessformation-web.vercel.app/
 - [x] Deploy automático con cada git push
-- [x] HTML convertidos a componentes React
 
 
 ### Etapa 2 — Backend Node.js + Express (2-3 semanas)
