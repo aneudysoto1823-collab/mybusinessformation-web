@@ -1740,7 +1740,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           <div class="fm-review-section">
             <div class="fm-review-section-head">
               <span class="fm-review-section-title" id="rev-contact-title">Contact Info</span>
-              <button class="fm-review-edit" onclick="fmGoToStep(3)" id="rev-edit-3">Edit</button>
+              <button class="fm-review-edit" onclick="fmGoToStep(2)" id="rev-edit-2">Edit</button>
             </div>
             <div class="fm-review-body">
               <div class="fm-review-grid">
@@ -1755,7 +1755,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           <div class="fm-review-section">
             <div class="fm-review-section-head">
               <span class="fm-review-section-title" id="rev-agent-title">Registered Agent</span>
-              <button class="fm-review-edit" onclick="fmGoToStep(7)" id="rev-edit-7">Edit</button>
+              <button class="fm-review-edit" onclick="fmGoToStep(3)" id="rev-edit-3">Edit</button>
             </div>
             <div class="fm-review-body">
               <div class="fm-review-field"><label id="rev-ra-lbl">Registered Agent</label><span id="rev-ra-val">Florida Business Formation Center — First Year Free</span></div>
@@ -1765,7 +1765,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           <div class="fm-review-section">
             <div class="fm-review-section-head">
               <span class="fm-review-section-title" id="rev-members-title">Members / Owners</span>
-              <button class="fm-review-edit" onclick="fmGoToStep(6)" id="rev-edit-6">Edit</button>
+              <button class="fm-review-edit" onclick="fmGoToStep(5)" id="rev-edit-5">Edit</button>
             </div>
             <div class="fm-review-body" id="rev-members-body">
               <div class="fm-review-field"><label id="rev-m1-lbl">Member 1</label><span id="rev-m1-val">—</span></div>
@@ -1775,7 +1775,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           <div class="fm-review-section" id="rev-addons-section" style="display:none">
             <div class="fm-review-section-head">
               <span class="fm-review-section-title" id="rev-addons-title">Additional Services</span>
-              <button class="fm-review-edit" onclick="fmGoToStep(8)" id="rev-edit-8">Edit</button>
+              <button class="fm-review-edit" onclick="fmGoToStep(7)" id="rev-edit-7b">Edit</button>
             </div>
             <div class="fm-review-body" id="rev-addons-body"></div>
           </div>
@@ -4588,48 +4588,119 @@ function fmUpdateSummary() {
 // ORDER REVIEW BUILD
 // ═══════════════════════════════════════════════════════
 function fmBuildReview() {
-  var fn = document.getElementById('inp-fname');
-  var ln = document.getElementById('inp-lname');
-  var em = document.getElementById('inp-email');
-  var ph = document.getElementById('inp-phone');
-  var st = document.getElementById('inp-street');
-  var ci = document.getElementById('inp-city');
-  var sp = document.getElementById('inp-state');
-  var zp = document.getElementById('inp-zip');
-  var m1fn = document.getElementById('inp-m1-fname');
-  var m1ln = document.getElementById('inp-m1-lname');
-  var m1own = document.getElementById('inp-m1-own');
+  var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
+
+  // Business name
   var bizEl = document.getElementById('inp-bizname');
   var desEl = document.getElementById('inp-designator');
   var fullBiz = bizEl ? (bizEl.value.trim() + ' ' + (desEl?desEl.value:'LLC')) : '—';
-  
-  var rv = document.getElementById('review-biz-name');
-  if(rv) rv.textContent = fullBiz;
-  var bn = document.getElementById('sum-biz-name');
-  if(bn) { bn.textContent = fullBiz; bn.style.display='block'; }
-  
+  var rv = document.getElementById('review-biz-name'); if(rv) rv.textContent = fullBiz;
+  var bn = document.getElementById('sum-biz-name'); if(bn){ bn.textContent=fullBiz; bn.style.display='block'; }
+
   var el;
+  // Formation info
   el = document.getElementById('rev-entity-val'); if(el) el.textContent = fmData.entity==='corp'?'Corporation':'LLC';
-  el = document.getElementById('rev-pkg-val');    if(el) el.textContent = fmData.package.charAt(0).toUpperCase()+fmData.package.slice(1);
-  el = document.getElementById('rev-speed-val');  if(el) el.textContent = fmData.speed==='expedited'?'Expedited (1-3 days)':'Standard (7-10 days)';
-  el = document.getElementById('rev-name-val');   if(el) el.textContent = (fn?fn.value:'') + ' ' + (ln?ln.value:'');
-  el = document.getElementById('rev-email-val');  if(el) el.textContent = em?em.value:'—';
-  el = document.getElementById('rev-phone-val');  if(el) el.textContent = ph?ph.value:'—';
-  el = document.getElementById('rev-addr-val');   if(el) el.textContent = (st?st.value:'') + ', ' + (ci?ci.value:'') + ', ' + (sp?sp.value:'') + ' ' + (zp?zp.value:'');
-  el = document.getElementById('rev-m1-val');     if(el) el.textContent = (m1fn?m1fn.value:'') + ' ' + (m1ln?m1ln.value:'') + (m1own?' ('+m1own.value+'%)':'');
-  
-  // Show addons section if any selected
-  var anyAddon = fmData.addons.ein || fmData.addons.oa || fmData.addons.itin || fmData.addons.ar;
-  var addSec = document.getElementById('rev-addons-section');
-  if(addSec) addSec.style.display = anyAddon ? 'block' : 'none';
+  el = document.getElementById('rev-pkg-val');    if(el) el.textContent = (fmData.package||'standard').charAt(0).toUpperCase()+(fmData.package||'standard').slice(1);
+  el = document.getElementById('rev-speed-val');  if(el) el.textContent = fmData.speed==='expedited'?(isEs?'Acelerado (1-3 días)':'Expedited (1-3 days)'):(isEs?'Estándar (7-10 días)':'Standard (7-10 days)');
+
+  // Contact info — correct field IDs
+  var fn   = document.getElementById('inp-fname');
+  var ln   = document.getElementById('inp-lname');
+  var em   = document.getElementById('inp-email');
+  var ph   = document.getElementById('inp-phone');
+  var addr = document.getElementById('inp-addr');
+  var city = document.getElementById('inp-city');
+  var state= document.getElementById('inp-state');
+  var zip  = document.getElementById('inp-zip');
+  el = document.getElementById('rev-name-val');  if(el) el.textContent = [(fn?fn.value:''),(ln?ln.value:'')].filter(Boolean).join(' ')||'—';
+  el = document.getElementById('rev-email-val'); if(el) el.textContent = em&&em.value?em.value:'—';
+  el = document.getElementById('rev-phone-val'); if(el) el.textContent = ph&&ph.value?ph.value:'—';
+  el = document.getElementById('rev-addr-val');
+  if(el) {
+    if(fmData.bizAddrType==='virtual') {
+      el.textContent = isEs?'Dirección virtual (asignada al confirmar orden)':'Virtual address (assigned upon order confirmation)';
+    } else {
+      var ap = [addr?addr.value:'',city?city.value:'',state?state.value:'',zip?zip.value:''].filter(Boolean);
+      el.textContent = ap.join(', ')||'—';
+    }
+  }
+
+  // Registered Agent
+  el = document.getElementById('rev-ra-val');
+  if(el) {
+    if(fmData.agentType==='own') {
+      var raName   = document.getElementById('inp-ra-name');
+      var raStreet = document.getElementById('inp-ra-street');
+      var raCity   = document.getElementById('inp-ra-city');
+      var raZip    = document.getElementById('inp-ra-zip');
+      var raNameVal = raName&&raName.value ? raName.value : '';
+      var raAddr = [raStreet?raStreet.value:'',raCity?raCity.value:'','FL',raZip?raZip.value:''].filter(Boolean).join(', ');
+      el.textContent = [raNameVal,raAddr].filter(Boolean).join(' — ')||'—';
+    } else {
+      el.textContent = isEs?'Florida Business Formation Center — Primer Año Gratis':'Florida Business Formation Center — First Year Free';
+    }
+  }
+
+  // Members / Owners — dynamic build
+  var membersBody = document.getElementById('rev-members-body');
+  if(membersBody) {
+    var mHtml = '';
+    function memberRow(label, val) {
+      return '<div class="fm-review-field"><label style="font-weight:600">'+label+'</label><span>'+val+'</span></div>';
+    }
+    function buildMemberVal(fname, lname, role, pct, coname) {
+      if(coname) {
+        return (coname||'—') + (role?' · '+role:'') + (pct?' ('+pct+'%)':'');
+      }
+      var name = [(fname||''),(lname||'')].filter(Boolean).join(' ');
+      return (name||'—') + (role?' · '+role:'') + (pct?' ('+pct+'%)':'');
+    }
+    // Member 1
+    var m1isInd = document.getElementById('s5-m1-ind') && document.getElementById('s5-m1-ind').classList.contains('selected');
+    var m1lbl = isEs?'Miembro / Propietario 1':'Member / Owner 1';
+    if(m1isInd) {
+      var f=document.getElementById('s5-m1-fname'), l=document.getElementById('s5-m1-lname'),
+          r=document.getElementById('s5-m1-role'), o=document.getElementById('s5-m1-own');
+      mHtml += memberRow(m1lbl, buildMemberVal(f?f.value:'',l?l.value:'',r?r.value:'',o?o.value:'',null));
+    } else {
+      var c=document.getElementById('s5-m1-coname'),cr=document.getElementById('s5-m1-corole'),co=document.getElementById('s5-m1-coown');
+      mHtml += memberRow(m1lbl, buildMemberVal('','',cr?cr.value:'',co?co.value:'',c?c.value:''));
+    }
+    // Extra members
+    var extras = document.getElementById('s5-extra-members');
+    if(extras) {
+      var blocks = extras.querySelectorAll('[id^="s5-member-"]');
+      blocks.forEach(function(block, i) {
+        var n = i+2;
+        var mlbl = (isEs?'Miembro / Propietario ':'Member / Owner ')+n;
+        var indBtn = block.querySelector('[class*="fm-choice"][id$="-ind"]');
+        var isInd = !indBtn || indBtn.classList.contains('selected');
+        var mval;
+        if(isInd) {
+          var mf=block.querySelector('input[id$="-fname"]'), ml=block.querySelector('input[id$="-lname"]'),
+              mr=block.querySelector('select[id$="-role"]'), mo=block.querySelector('input[id$="-own"]');
+          mval = buildMemberVal(mf?mf.value:'',ml?ml.value:'',mr?mr.value:'',mo?mo.value:'',null);
+        } else {
+          var mc=block.querySelector('input[id$="-coname"]'),mcr=block.querySelector('select[id$="-corole"]'),mco=block.querySelector('input[id$="-coown"]');
+          mval = buildMemberVal('','',mcr?mcr.value:'',mco?mco.value:'',mc?mc.value:'');
+        }
+        mHtml += memberRow(mlbl, mval);
+      });
+    }
+    membersBody.innerHTML = '<div class="fm-review-grid">'+mHtml+'</div>';
+  }
+
+  // Add-ons
+  var anyAddon = fmData.addons.ein||fmData.addons.oa||fmData.addons.itin||fmData.addons.ar;
+  var addSec = document.getElementById('rev-addons-section'); if(addSec) addSec.style.display = anyAddon?'block':'none';
   var addBody = document.getElementById('rev-addons-body');
   if(addBody && anyAddon) {
-    var items = [];
+    var items=[];
     if(fmData.addons.ein)  items.push('<div class="fm-review-field"><label>EIN / Tax ID</label><span>$49</span></div>');
     if(fmData.addons.oa)   items.push('<div class="fm-review-field"><label>Operating Agreement</label><span>$79</span></div>');
     if(fmData.addons.itin) items.push('<div class="fm-review-field"><label>ITIN Application</label><span>$69</span></div>');
-    if(fmData.addons.ar)   items.push('<div class="fm-review-field"><label>Annual Report Service</label><span>Annual</span></div>');
-    addBody.innerHTML = '<div class="fm-review-grid">' + items.join('') + '</div>';
+    if(fmData.addons.ar)   items.push('<div class="fm-review-field"><label>Annual Report Service</label><span>'+( isEs?'Anual':'Annual')+'</span></div>');
+    addBody.innerHTML='<div class="fm-review-grid">'+items.join('')+'</div>';
   }
 }
 
