@@ -21,9 +21,9 @@ export default function ServiciosPage() {
     chevron: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>'
   }
 
-  type Service = { id: string; icon: string; name: string; price: string; sub_en: string; sub_es: string; desc_en: string; desc_es: string; includes_en: string[]; includes_es: string[]; time_en: string; time_es: string; btn_en: string; btn_es: string }
+  type Service = { id: string; icon: string; name: string; name_es: string; price: string; sub_en: string; sub_es: string; desc_en: string; desc_es: string; includes_en: string[]; includes_es: string[]; time_en: string; time_es: string; btn_en: string; btn_es: string }
   const services: Service[] = [
-    { id: 'registered-agent', icon: 'home', name: 'Registered Agent', price: 'Annual',
+    { id: 'registered-agent', icon: 'home', name: 'Registered Agent', name_es: 'Agente Registrado', price: 'Annual',
       sub_en: 'Required by FL law', sub_es: 'Requerido por ley en FL',
       desc_en: 'Every Florida LLC and Corporation must have a Registered Agent with a physical FL street address. We receive your legal documents, tax notices, and official mail on your behalf.',
       desc_es: 'Toda LLC y Corporación de Florida debe tener un Agente Registrado con dirección física en FL. Nosotros recibimos tus documentos legales, notificaciones fiscales y correspondencia oficial en tu nombre.',
@@ -32,7 +32,7 @@ export default function ServiciosPage() {
       time_en: '&#9889; Processing: Same business day filing with FL Division of Corporations',
       time_es: '&#9889; Procesamiento: Presentación el mismo día hábil ante la División de Corporaciones FL',
       btn_en: 'Order Registered Agent Service &#8594;', btn_es: 'Ordenar servicio de Agente Registrado &#8594;' },
-    { id: 'ein', icon: 'hash', name: 'EIN / Tax ID Number', price: '$49',
+    { id: 'ein', icon: 'hash', name: 'EIN / Tax ID Number', name_es: 'EIN / Número de Identificación Fiscal', price: '$49',
       sub_en: 'One-time fee', sub_es: 'Pago único',
       desc_en: 'Your federal Employer Identification Number (EIN) is a 9-digit IRS number required to open a business bank account, hire employees, and file federal taxes.',
       desc_es: 'Tu Número de Identificación Fiscal federal (EIN) es un número de 9 dígitos del IRS necesario para abrir cuenta bancaria de negocios, contratar empleados y presentar impuestos federales.',
@@ -41,7 +41,7 @@ export default function ServiciosPage() {
       time_en: '&#9889; Processing: Typically 1–3 business days via IRS',
       time_es: '&#9889; Procesamiento: Típicamente 1-3 días hábiles vía IRS',
       btn_en: 'Order EIN — $49 &#8594;', btn_es: 'Ordenar EIN — $49 &#8594;' },
-    { id: 'operating-agreement', icon: 'file-text', name: 'Operating Agreement', price: '$79',
+    { id: 'operating-agreement', icon: 'file-text', name: 'Operating Agreement', name_es: 'Acuerdo Operativo', price: '$79',
       sub_en: 'One-time fee', sub_es: 'Pago único',
       desc_en: "The Operating Agreement is your LLC's internal governing document — it defines ownership percentages, management roles, profit distribution, and decision-making rules.",
       desc_es: 'El Acuerdo Operativo es el documento interno de gobierno de tu LLC — define porcentajes de propiedad, roles de gestión, distribución de ganancias y reglas para la toma de decisiones.',
@@ -50,7 +50,7 @@ export default function ServiciosPage() {
       time_en: '&#9889; Processing: 2–5 business days',
       time_es: '&#9889; Procesamiento: 2-5 días hábiles',
       btn_en: 'Order Operating Agreement — $79 &#8594;', btn_es: 'Ordenar Acuerdo Operativo — $79 &#8594;' },
-    { id: 'itin', icon: 'globe', name: 'ITIN Application', price: '$135',
+    { id: 'itin', icon: 'globe', name: 'ITIN Application', name_es: 'Solicitud de ITIN', price: '$135',
       sub_en: 'One-time fee', sub_es: 'Pago único',
       desc_en: 'An ITIN (Individual Taxpayer Identification Number) is issued by the IRS to individuals who need to file US taxes but are not eligible for a Social Security Number.',
       desc_es: 'Un ITIN (Número de Identificación Fiscal Individual) es emitido por el IRS a personas que necesitan presentar impuestos en USA pero no califican para un Social Security Number.',
@@ -59,7 +59,7 @@ export default function ServiciosPage() {
       time_en: '&#128338; Processing: 6–10 weeks (IRS processing time)',
       time_es: '&#128338; Procesamiento: 6-10 semanas (tiempo del IRS)',
       btn_en: 'Order ITIN Application — $135 &#8594;', btn_es: 'Ordenar solicitud de ITIN — $135 &#8594;' },
-    { id: 'dba', icon: 'tag', name: 'DBA / Fictitious Name', price: '$49',
+    { id: 'dba', icon: 'tag', name: 'DBA / Fictitious Name', name_es: 'DBA / Nombre Ficticio', price: '$49',
       sub_en: '+ FL state fee', sub_es: '+ tarifa estatal de FL',
       desc_en: 'A DBA (Doing Business As) or Fictitious Name lets your business operate under a different name from its registered legal name. Required for branding under an alternate name in Florida.',
       desc_es: 'Un DBA (Doing Business As) o Nombre Ficticio permite que tu negocio opere bajo un nombre distinto al nombre legal registrado. Requerido para operar con un nombre alterno en Florida.',
@@ -68,7 +68,7 @@ export default function ServiciosPage() {
       time_en: '&#9889; Processing: 3–7 business days',
       time_es: '&#9889; Procesamiento: 3-7 días hábiles',
       btn_en: 'Order DBA Filing — $49 &#8594;', btn_es: 'Ordenar registro de DBA — $49 &#8594;' },
-    { id: 'virtual-address', icon: 'map-pin', name: 'Virtual Mailing Address', price: '$29/mo',
+    { id: 'virtual-address', icon: 'map-pin', name: 'Virtual Mailing Address', name_es: 'Dirección Virtual de Correo', price: '$29/mo',
       sub_en: 'Cancel anytime', sub_es: 'Cancela cuando quieras',
       desc_en: 'Get a professional Florida business address. Your home address stays private on all public Florida Division of Corporations records.',
       desc_es: 'Obtén una dirección profesional de negocios en Florida. Tu dirección personal se mantiene privada en los registros públicos de la División de Corporaciones.',
@@ -77,7 +77,7 @@ export default function ServiciosPage() {
       time_en: '&#9889; Activation: Same business day',
       time_es: '&#9889; Activación: El mismo día hábil',
       btn_en: 'Order Virtual Address — $29/mo &#8594;', btn_es: 'Ordenar Dirección Virtual — $29/mes &#8594;' },
-    { id: 'annual-report', icon: 'calendar', name: 'Annual Report Filing', price: 'Annual',
+    { id: 'annual-report', icon: 'calendar', name: 'Annual Report Filing', name_es: 'Presentación de Reporte Anual', price: 'Annual',
       sub_en: 'FL Deadline: May 1', sub_es: 'Fecha Límite FL: 1 de mayo',
       desc_en: 'Every Florida LLC and Corporation must file an Annual Report between January 1 and May 1. Missing this deadline results in a $400 late fee and potential administrative dissolution.',
       desc_es: 'Toda LLC y Corporación de Florida debe presentar un Reporte Anual entre el 1 de enero y el 1 de mayo. Perder la fecha límite resulta en multa de $400 y posible disolución administrativa.',
@@ -86,7 +86,7 @@ export default function ServiciosPage() {
       time_en: '&#9888; FL Deadline: Jan 1 – May 1 each year ($400 late fee after May 1)',
       time_es: '&#9888; Fecha Límite FL: 1 ene – 1 may cada año (multa de $400 después del 1 de mayo)',
       btn_en: 'Order Annual Report Filing &#8594;', btn_es: 'Ordenar presentación de Reporte Anual &#8594;' },
-    { id: 'amendment', icon: 'pencil', name: 'Articles of Amendment', price: '$59',
+    { id: 'amendment', icon: 'pencil', name: 'Articles of Amendment', name_es: 'Artículos de Enmienda', price: '$59',
       sub_en: '+ FL state fee', sub_es: '+ tarifa estatal de FL',
       desc_en: 'Need to change your business name, address, registered agent, or officers? We prepare and file Articles of Amendment with the Florida Division of Corporations on your behalf.',
       desc_es: '¿Necesitas cambiar el nombre de tu negocio, dirección, agente registrado u oficiales? Preparamos y presentamos los Artículos de Enmienda ante la División de Corporaciones de Florida por ti.',
@@ -95,7 +95,7 @@ export default function ServiciosPage() {
       time_en: '&#9889; Processing: 5–10 business days after submission',
       time_es: '&#9889; Procesamiento: 5-10 días hábiles después del envío',
       btn_en: 'Order Articles of Amendment — $59 &#8594;', btn_es: 'Ordenar Artículos de Enmienda — $59 &#8594;' },
-    { id: 'banking-resolution', icon: 'landmark', name: 'Banking Resolution', price: '$49',
+    { id: 'banking-resolution', icon: 'landmark', name: 'Banking Resolution', name_es: 'Resolución Bancaria', price: '$49',
       sub_en: 'One-time fee', sub_es: 'Pago único',
       desc_en: 'A Banking Resolution authorizes a member or officer to open a business bank account on behalf of your LLC or Corporation. Most banks require this document before opening your account.',
       desc_es: 'Una Resolución Bancaria autoriza a un miembro u oficial a abrir una cuenta bancaria de negocios en nombre de tu LLC o Corporación. La mayoría de los bancos exigen este documento antes de abrirte la cuenta.',
@@ -104,7 +104,7 @@ export default function ServiciosPage() {
       time_en: '&#9889; Processing: 1–2 business days',
       time_es: '&#9889; Procesamiento: 1-2 días hábiles',
       btn_en: 'Order Banking Resolution — $49 &#8594;', btn_es: 'Ordenar Resolución Bancaria — $49 &#8594;' },
-    { id: 'business-tax-receipt', icon: 'receipt', name: 'Business Tax Receipt', price: '$79',
+    { id: 'business-tax-receipt', icon: 'receipt', name: 'Business Tax Receipt', name_es: 'Recibo de Impuesto Empresarial', price: '$79',
       sub_en: '+ county fee', sub_es: '+ tarifa del condado',
       desc_en: 'A Business Tax Receipt (formerly Occupational License) is required to legally operate your business in most Florida counties. We handle the application and filing with your local county.',
       desc_es: 'Un Business Tax Receipt (antes Licencia Ocupacional) es requerido para operar legalmente tu negocio en la mayoría de condados de Florida. Nosotros manejamos la solicitud y presentación ante tu condado local.',
@@ -113,7 +113,7 @@ export default function ServiciosPage() {
       time_en: '&#9889; Processing: 3–7 business days',
       time_es: '&#9889; Procesamiento: 3-7 días hábiles',
       btn_en: 'Order Business Tax Receipt — $79 &#8594;', btn_es: 'Ordenar Business Tax Receipt — $79 &#8594;' },
-    { id: 'sales-tax-registration', icon: 'trending-up', name: 'Sales Tax Registration', price: '$79',
+    { id: 'sales-tax-registration', icon: 'trending-up', name: 'Sales Tax Registration', name_es: 'Registro de Impuesto sobre Ventas', price: '$79',
       sub_en: 'One-time fee', sub_es: 'Pago único',
       desc_en: 'Any Florida business that sells products or taxable services must register with the Florida Department of Revenue to collect and remit sales tax. We handle the registration on your behalf.',
       desc_es: 'Todo negocio en Florida que vende productos o servicios gravables debe registrarse con el Departamento de Ingresos de Florida para cobrar y remitir el impuesto sobre ventas. Manejamos el registro por ti.',
@@ -122,7 +122,7 @@ export default function ServiciosPage() {
       time_en: '&#9889; Processing: 2–5 business days',
       time_es: '&#9889; Procesamiento: 2-5 días hábiles',
       btn_en: 'Order Sales Tax Registration — $79 &#8594;', btn_es: 'Ordenar Registro de Impuesto sobre Ventas — $79 &#8594;' },
-    { id: 'exclusive-guide', icon: 'book-open', name: 'Exclusive Formation Guide', price: '$49',
+    { id: 'exclusive-guide', icon: 'book-open', name: 'Exclusive Formation Guide', name_es: 'Guía Exclusiva de Formación', price: '$49',
       sub_en: 'One-time fee', sub_es: 'Pago único',
       desc_en: 'Our Exclusive Formation Guide gives you everything you need to get your Florida business off to the best possible start — from banking requirements to compliance checklists.',
       desc_es: 'Nuestra Guía Exclusiva de Formación te da todo lo que necesitas para que tu negocio en Florida arranque de la mejor forma — desde requisitos bancarios hasta listas de cumplimiento legal.',
@@ -131,7 +131,7 @@ export default function ServiciosPage() {
       time_en: '&#9889; Delivery: Same business day',
       time_es: '&#9889; Entrega: El mismo día hábil',
       btn_en: 'Order Exclusive Guide — $49 &#8594;', btn_es: 'Ordenar Guía Exclusiva — $49 &#8594;' },
-    { id: 'good-standing', icon: 'award', name: 'Certificate of Good Standing', price: '$49',
+    { id: 'good-standing', icon: 'award', name: 'Certificate of Good Standing', name_es: 'Certificado de Buena Reputación', price: '$49',
       sub_en: '+ FL state fee', sub_es: '+ tarifa estatal de FL',
       desc_en: 'A Certificate of Good Standing proves your business is active and compliant with the State of Florida. Required by banks, investors, and government agencies before entering contracts.',
       desc_es: 'Un Certificado de Buena Reputación prueba que tu negocio está activo y en cumplimiento con el Estado de Florida. Requerido por bancos, inversionistas y agencias gubernamentales antes de firmar contratos.',
@@ -140,7 +140,7 @@ export default function ServiciosPage() {
       time_en: '&#9889; Processing: 1–3 business days',
       time_es: '&#9889; Procesamiento: 1-3 días hábiles',
       btn_en: 'Order Certificate — $49 &#8594;', btn_es: 'Ordenar Certificado — $49 &#8594;' },
-    { id: 'scorp-election', icon: 'star', name: 'S-Corp Election (Form 2553)', price: '$79',
+    { id: 'scorp-election', icon: 'star', name: 'S-Corp Election (Form 2553)', name_es: 'Elección de S-Corp (Formulario 2553)', price: '$79',
       sub_en: 'One-time fee', sub_es: 'Pago único',
       desc_en: 'Elect S-Corporation tax status with the IRS to save on self-employment taxes. Available for existing LLCs and C-Corps. Must be filed within 75 days of formation or by March 15.',
       desc_es: 'Elige el estatus fiscal de Corporación S con el IRS para ahorrar en impuestos de trabajo por cuenta propia. Disponible para LLCs y Corporaciones C existentes. Debe presentarse dentro de 75 días tras la formación o antes del 15 de marzo.',
@@ -149,7 +149,7 @@ export default function ServiciosPage() {
       time_en: '&#9889; Processing: 2–4 weeks (IRS processing)',
       time_es: '&#9889; Procesamiento: 2-4 semanas (procesamiento del IRS)',
       btn_en: 'Order S-Corp Election — $79 &#8594;', btn_es: 'Ordenar Elección de S-Corp — $79 &#8594;' },
-    { id: 'foreign-llc', icon: 'globe-2', name: 'Foreign LLC / Corp Registration', price: '$99',
+    { id: 'foreign-llc', icon: 'globe-2', name: 'Foreign LLC / Corp Registration', name_es: 'Registro de LLC / Corp Extranjera', price: '$99',
       sub_en: '+ state filing fee', sub_es: '+ tarifa estatal de presentación',
       desc_en: 'If your Florida LLC or Corporation operates in another U.S. state, you must register as a Foreign Entity in that state. We handle the filing so your business stays legally compliant.',
       desc_es: 'Si tu LLC o Corporación de Florida opera en otro estado de USA, debes registrarte como Entidad Extranjera en ese estado. Manejamos la presentación para que tu negocio cumpla la ley.',
@@ -158,7 +158,7 @@ export default function ServiciosPage() {
       time_en: '&#9889; Processing: 5–10 business days',
       time_es: '&#9889; Procesamiento: 5-10 días hábiles',
       btn_en: 'Order Foreign Registration — $99 &#8594;', btn_es: 'Ordenar Registro de Entidad Extranjera — $99 &#8594;' },
-    { id: 'business-license', icon: 'clipboard-list', name: 'Business License', price: '$99',
+    { id: 'business-license', icon: 'clipboard-list', name: 'Business License', name_es: 'Licencia de Negocios', price: '$99',
       sub_en: 'One-time fee', sub_es: 'Pago único',
       desc_en: 'We handle the application for your Florida business license — identifying exactly which federal, state, and local licenses your business needs and filing them on your behalf.',
       desc_es: 'Manejamos la solicitud de tu licencia de negocios de Florida — identificamos qué licencias federales, estatales y locales necesita tu negocio, y las presentamos en tu nombre.',
@@ -167,7 +167,7 @@ export default function ServiciosPage() {
       time_en: '&#9889; Processing: 2–3 business days',
       time_es: '&#9889; Procesamiento: 2-3 días hábiles',
       btn_en: 'Order Business License — $99 &#8594;', btn_es: 'Ordenar Licencia de Negocios — $99 &#8594;' },
-    { id: 'dissolution', icon: 'archive', name: 'Business Dissolution', price: '$79',
+    { id: 'dissolution', icon: 'archive', name: 'Business Dissolution', name_es: 'Disolución del Negocio', price: '$79',
       sub_en: '+ FL state fee', sub_es: '+ tarifa estatal de FL',
       desc_en: 'Closing your business? We properly dissolve your Florida LLC or Corporation with the state so you stop accumulating annual fees and avoid future liability.',
       desc_es: '¿Cerrando tu negocio? Disolvemos correctamente tu LLC o Corporación de Florida ante el estado para que dejes de acumular tarifas anuales y evites responsabilidades futuras.',
@@ -176,7 +176,7 @@ export default function ServiciosPage() {
       time_en: '&#9889; Processing: 3–7 business days',
       time_es: '&#9889; Procesamiento: 3-7 días hábiles',
       btn_en: 'Order Dissolution — $79 &#8594;', btn_es: 'Ordenar Disolución — $79 &#8594;' },
-    { id: 'cierre-fiscal', icon: 'lock', name: 'Tax Account Closure', price: '$79',
+    { id: 'cierre-fiscal', icon: 'lock', name: 'Tax Account Closure', name_es: 'Cierre de Cuentas Fiscales', price: '$79',
       sub_en: 'One-time fee', sub_es: 'Pago único',
       desc_en: 'Closing your business? We handle the proper closure of your tax accounts with the IRS and Florida Department of Revenue so you avoid future tax obligations and penalties.',
       desc_es: '¿Cerrando tu negocio? Manejamos el cierre correcto de tus cuentas fiscales con el IRS y el Departamento de Ingresos de Florida para que evites obligaciones fiscales y multas futuras.',
@@ -192,7 +192,7 @@ export default function ServiciosPage() {
       <div class="svc-acc-header" onclick="toggleSvc(this)">
         <div class="svc-acc-icon">${svgIcons[s.icon] || svgIcons['file-text']}</div>
         <div class="svc-acc-title-wrap">
-          <div class="svc-acc-title">${s.name}</div>
+          <div class="svc-acc-title" data-en="${s.name}" data-es="${s.name_es}">${s.name}</div>
           <div class="svc-acc-sub" data-en="${s.sub_en}" data-es="${s.sub_es}">${s.sub_en}</div>
         </div>
         <div class="svc-acc-price">${s.price}</div>
@@ -427,7 +427,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
 `
   const body = `
 
-<div class="topbar">&#127775; Florida's trusted business formation experts — <strong>LLC &amp; Corporation</strong> filing made simple.</div>
+<div class="topbar" id="topbar-svc">&#127775; Florida's trusted business formation experts — <strong>LLC &amp; Corporation</strong> filing made simple.</div>
 
 <header id="mainHeader">
   <div class="header-inner">
@@ -863,7 +863,8 @@ function setLang(lang){
   var fbrand=document.querySelector('.footer-brand p'); if(fbrand)fbrand.textContent=isEs?'Servicios profesionales de formación empresarial para emprendedores e inversionistas en toda Florida.':'Professional business formation services for entrepreneurs and investors throughout Florida.';
   var fd=document.querySelector('.footer-disclaimer'); if(fd)fd.innerHTML=isEs?'<strong>Aviso Importante:</strong> Florida Business Formation Center es un servicio de preparación de documentos. No somos una firma legal.':'<strong>Important Notice:</strong> Florida Business Formation Center is a document preparation service. We are not a law firm.';
   var copy=document.querySelector('.footer-copy'); if(copy)copy.innerHTML=isEs?'&#169; 2025 Florida Business Formation Center &middot; Todos los Derechos Reservados.':'&#169; 2025 Florida Business Formation Center &middot; All Rights Reserved.';
-  var navM={'How It Works':isEs?'Cómo Funciona':'How It Works','Packages':isEs?'Paquetes':'Packages','Services':isEs?'Servicios':'Services','FAQ':isEs?'Preguntas':'FAQ','Contact':isEs?'Contacto':'Contact','Home':isEs?'Inicio':'Home'};
+  var tb=document.getElementById('topbar-svc'); if(tb)tb.innerHTML=isEs?'&#127775; Expertos en formación empresarial en Florida — <strong>LLC &amp; Corporación</strong> fácil y rápido.':'&#127775; Florida\'s trusted business formation experts — <strong>LLC &amp; Corporation</strong> filing made simple.';
+  var navM={'How It Works':isEs?'Cómo Funciona':'How It Works','Packages':isEs?'Paquetes':'Packages','Formation Packages':isEs?'Paquetes de Formación':'Formation Packages','Services':isEs?'Servicios':'Services','FAQ':isEs?'Preguntas':'FAQ','Contact':isEs?'Contacto':'Contact','Home':isEs?'Inicio':'Home'};
   document.querySelectorAll('nav a').forEach(function(a){var t=a.textContent.trim();if(navM[t])a.textContent=navM[t];});
   if(document.getElementById('svcOverlay')&&document.getElementById('svcOverlay').classList.contains('active')){translateFormLabels();}
 }
