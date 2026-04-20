@@ -1213,7 +1213,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 
           </div>
           <div class="fm-card-footer">
-            <div></div>
+            <button class="btn-back-fm" onclick="closeForm();return false;" id="s1-back-btn">&#8592; <span id="s1-back">Back</span></button>
             <div style="display:flex;align-items:center;gap:10px">
               <button class="save-btn" onclick="saveOrder()">&#x1F4BE; <span id="s1-save">Save</span></button>
               <button class="btn-next-fm" onclick="fmNext()"><span id="s1-next">Continue</span> &#8594;</button>
@@ -2098,6 +2098,18 @@ function fmSetMemberTypeEl(el) {
   fmSetMemberType(n, type, el);
 }
 
+function fmInitStep5Ownership() {
+  // Auto-fill 100% when only one member (no extra members added yet)
+  var extra = document.getElementById('s5-extra-members');
+  var hasExtra = extra && extra.children.length > 0;
+  if(!hasExtra) {
+    var ind = document.getElementById('s5-m1-own');
+    var co = document.getElementById('s5-m1-coown');
+    if(ind && !ind.value) { ind.value = '100'; ind.style.borderColor = ''; }
+    if(co && !co.value) { co.value = '100'; co.style.borderColor = ''; }
+    fmUpdateOwnership();
+  }
+}
 function fmUpdateOwnership() {
   var total = 0;
   document.querySelectorAll('[id^="s5-m"][id$="-own"],[id^="s5-m"][id$="-coown"]').forEach(function(inp) {
@@ -2139,6 +2151,11 @@ function fmUpdateOwnership() {
 var fmMemberCount = 1;
 
 function fmAddMember() {
+  // When adding a new member, clear and highlight existing ownership % fields in red
+  document.querySelectorAll('[id$="-own"],[id$="-coown"]').forEach(function(inp) {
+    if(inp.id.startsWith('s5-')) { inp.value = ''; inp.style.borderColor = '#ef4444'; }
+  });
+  fmUpdateOwnership();
   fmMemberCount++;
   var n = fmMemberCount;
   var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
@@ -4036,6 +4053,7 @@ function fmGoToStep(n) {
   fmUpdateProgress();
   fmUpdateSummary();
   if(n === 3) fmSyncRaState();
+  if(n === 5) fmInitStep5Ownership();
   if(n === 7) fmFilterAddons();
   if(n === 8) fmBuildReview();
   if(!_fmRestoring) {
