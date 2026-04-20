@@ -446,7 +446,6 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
         <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
         <button class="lang-btn" id="btn-es" onclick="setLang('es')">ES</button>
       </div>
-      <a href="/paquetes"><button class="btn-start">Form My Business &#8594;</button></a>
     </div>
   </div>
 </header>
