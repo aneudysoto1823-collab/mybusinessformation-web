@@ -4050,7 +4050,7 @@ document.addEventListener('keydown', function(e) {
   if(e.ctrlKey && e.shiftKey && e.key === 'D') fmToggleDevMode();
 });
 function fmNext() {
-  if(_fmDevMode) { fmGoToStep(fmCurrentStep + 1); return; }
+  if(_fmDevMode) { var dn=fmCurrentStep+1; if(dn===4)dn=5; if(dn===6)dn=7; fmGoToStep(dn); return; }
   var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
   if(fmCurrentStep===1){
     var nameEl=document.getElementById('inp-bizname');
