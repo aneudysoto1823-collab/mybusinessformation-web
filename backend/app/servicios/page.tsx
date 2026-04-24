@@ -465,11 +465,11 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
 <!-- BUNDLE BANNER -->
 <section class="bundle-section">
   <div class="bundle-inner">
-    <h2>Save with a Formation Package</h2>
-    <p>Our Standard and Premium packages bundle multiple services together — you'll pay less than ordering each service individually, and everything gets done at once.</p>
+    <h2 id="bundle-title">Ahorra con un Paquete de Formación</h2>
+    <p id="bundle-sub">Nuestros paquetes Standard y Premium combinan varios servicios — pagas menos que ordenándolos individualmente.</p>
     <div class="bundle-btns">
-      <a href="/paquetes"><button class="btn-bundle-primary">&#128197; View Formation Packages &#8594;</button></a>
-      <button class="btn-bundle-sec" onclick="window.open('https://wa.me/1XXXXXXXXXX','_blank')">&#x1F4AC; Ask Us Which Is Best</button>
+      <a href="/paquetes"><button id="bundle-btn-main" class="btn-bundle-primary">&#128197; Ver Paquetes de Formación &#8594;</button></a>
+      <button id="bundle-btn-sec" class="btn-bundle-sec" onclick="window.open('https://wa.me/1XXXXXXXXXX','_blank')">&#x1F4AC; Pregúntanos cuál es mejor</button>
     </div>
   </div>
 </section>
@@ -883,7 +883,7 @@ function highlightCard(svcId){
   setTimeout(function(){card.classList.remove('highlighted');},5000);
 }
 
-(function(){var l=localStorage.getItem('flbc_lang');if(l&&l!=='en')setLang(l);})();
+(function(){var l=localStorage.getItem('flbc_lang')||'es';if(l!=='en')setLang(l);})();
 window.addEventListener('scroll',function(){var h=document.getElementById('mainHeader');if(h)h.classList.toggle('scrolled',window.scrollY>30);});
 
 
