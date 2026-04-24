@@ -198,7 +198,7 @@ export default function ServiciosPage() {
         <div class="svc-acc-price">${s.price}</div>
         <div class="svc-acc-chevron">${svgIcons.chevron}</div>
       </div>
-      <div class="svc-popup">
+      <div class="svc-popup" onmouseenter="clearTimeout(_svcTimer)" onmouseleave="deactivateSvc()">
         <div class="svc-popup-head">
           <div class="svc-popup-icon">${svgIcons[s.icon] || svgIcons['file-text']}</div>
           <div class="svc-popup-title-wrap">
@@ -428,7 +428,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
 /* POPUP PANEL — horizontal layout, absolute inside card */
 .svc-popup{position:absolute;left:calc(100% + 14px);top:0;width:560px;background:#fff;border-radius:16px;border:1.5px solid var(--gray200);box-shadow:0 20px 60px rgba(28,46,68,.18),0 4px 14px rgba(37,99,235,.08);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;transform:translateX(8px);z-index:600}
 .services-accordion .svc-acc-item:nth-child(even) .svc-popup{left:auto;right:calc(100% + 14px);transform:translateX(-8px)}
-.svc-acc-item:hover .svc-popup,.svc-acc-item.active .svc-popup{opacity:1;pointer-events:auto;transform:translateX(0)}
+.svc-acc-item.active .svc-popup{opacity:1;pointer-events:auto;transform:translateX(0)}
 @media(max-width:1100px){.svc-popup{display:none}}
 .svc-popup-head{padding:14px 18px 12px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--gray100)}
 .svc-popup-icon{width:40px;height:40px;border-radius:10px;background:var(--blue);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;box-shadow:0 4px 12px rgba(37,99,235,.28)}
@@ -985,24 +985,39 @@ function openServiceForm(svcId){
   document.getElementById('svcOverlay').scrollTop=0;
 }
 
-function touchSvc(item){
-  var wasActive=item.classList.contains('active');
-  document.querySelectorAll('.svc-acc-item.active').forEach(function(a){a.classList.remove('active');});
-  if(!wasActive)item.classList.add('active');
-}
-document.querySelectorAll('.svc-acc-item').forEach(function(item){
-  item.addEventListener('mouseenter',function(){
-    var popup=item.querySelector('.svc-popup');
-    if(!popup)return;
-    var rect=item.getBoundingClientRect();
-    if(rect.top+300>window.innerHeight-16){
-      popup.style.top='auto';
-      popup.style.bottom='0';
-    } else {
-      popup.style.top='0';
-      popup.style.bottom='auto';
-    }
+var _svcTimer=null,_activeItem=null;
+
+function activateSvc(item){
+  clearTimeout(_svcTimer);
+  if(_activeItem&&_activeItem!==item)_activeItem.classList.remove('active');
+  _activeItem=item;
+  item.classList.add('active');
+  document.querySelectorAll('.svc-acc-item').forEach(function(a){
+    if(a!==item)a.style.pointerEvents='none';
   });
+  var popup=item.querySelector('.svc-popup');
+  if(popup){
+    var rect=item.getBoundingClientRect();
+    if(rect.top+300>window.innerHeight-16){popup.style.top='auto';popup.style.bottom='0';}
+    else{popup.style.top='0';popup.style.bottom='auto';}
+  }
+}
+
+function deactivateSvc(){
+  _svcTimer=setTimeout(function(){
+    if(_activeItem){_activeItem.classList.remove('active');_activeItem=null;}
+    document.querySelectorAll('.svc-acc-item').forEach(function(a){a.style.pointerEvents='';});
+  },300);
+}
+
+function touchSvc(item){
+  if(_activeItem===item&&item.classList.contains('active')){deactivateSvc();}
+  else{activateSvc(item);}
+}
+
+document.querySelectorAll('.svc-acc-item').forEach(function(item){
+  item.addEventListener('mouseenter',function(){activateSvc(item);});
+  item.addEventListener('mouseleave',function(){deactivateSvc();});
 });
 </script>
 `
