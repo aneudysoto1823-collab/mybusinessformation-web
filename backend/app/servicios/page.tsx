@@ -188,8 +188,8 @@ export default function ServiciosPage() {
   ]
 
   const servicesAccordionHtml = services.map(s => `
-    <div class="svc-acc-item" data-svc="${s.id}" id="${s.id}">
-      <div class="svc-acc-header" onclick="toggleSvc(this)">
+    <div class="svc-acc-item" data-svc="${s.id}" id="${s.id}" onmouseenter="hoverSvc(this)" onmouseleave="leaveSvc(this)" onclick="touchSvc(this)">
+      <div class="svc-acc-header">
         <div class="svc-acc-icon">${svgIcons[s.icon] || svgIcons['file-text']}</div>
         <div class="svc-acc-title-wrap">
           <div class="svc-acc-title" data-en="${s.name}" data-es="${s.name_es}">${s.name}</div>
@@ -399,31 +399,35 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
 .form-secure-note{display:flex;align-items:center;justify-content:center;gap:5px;font-size:.71rem;color:var(--gray400);margin-top:9px}
 .form-disclaimer{font-size:.69rem;color:var(--gray400);text-align:center;margin-top:14px;line-height:1.6;border-top:1px solid var(--gray100);padding-top:14px}
 /* ACCORDION SERVICES LIST */
-.services-accordion{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+.services-accordion{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px;align-items:start}
 @media(max-width:860px){.services-accordion{grid-template-columns:1fr}}
-.svc-acc-item{border:1.5px solid var(--gray200);border-radius:12px;overflow:hidden;background:#fff;transition:border-color .2s,box-shadow .25s}
-.svc-acc-item:hover{border-color:#cbd5e1}
-.svc-acc-item.active{border-color:var(--blue);box-shadow:0 8px 28px rgba(37,99,235,.08);grid-column:1/-1}
-@media(max-width:860px){.svc-acc-item.active{grid-column:auto}}
-.svc-acc-header{padding:13px 16px;display:flex;align-items:center;gap:13px;cursor:pointer;background:#fff;user-select:none;transition:background .15s}
-.svc-acc-header:hover{background:var(--gray50)}
-.svc-acc-icon{width:38px;height:38px;border-radius:9px;background:var(--blue-light);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--blue)}
-.svc-acc-icon svg{width:19px;height:19px}
-.svc-acc-item.active .svc-acc-icon{background:var(--blue);color:#fff}
+.svc-acc-item{border:2px solid var(--gray200);border-radius:16px;overflow:hidden;background:#fff;transition:border-color .22s,box-shadow .28s,transform .22s;cursor:pointer}
+.svc-acc-item:hover{border-color:#bfcde0;box-shadow:0 4px 18px rgba(28,46,68,.07);transform:translateY(-2px)}
+.svc-acc-item.active{border-color:var(--blue);box-shadow:0 12px 40px rgba(37,99,235,.13);transform:translateY(-3px)}
+.svc-acc-header{padding:18px 20px;display:flex;align-items:center;gap:14px;background:#fff;user-select:none;transition:background .18s}
+.svc-acc-item.active .svc-acc-header{background:linear-gradient(to bottom,var(--blue-light) 0%,#fff 100%)}
+.svc-acc-icon{width:46px;height:46px;border-radius:12px;background:var(--blue-light);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--blue);transition:background .22s,color .22s,box-shadow .22s}
+.svc-acc-icon svg{width:22px;height:22px}
+.svc-acc-item.active .svc-acc-icon{background:var(--blue);color:#fff;box-shadow:0 4px 14px rgba(37,99,235,.35)}
 .svc-acc-title-wrap{flex:1;min-width:0}
-.svc-acc-title{font-family:'Fraunces',serif;font-size:.95rem;font-weight:700;color:var(--navy);line-height:1.25;margin-bottom:2px}
-.svc-acc-sub{font-size:.71rem;color:var(--gray500);line-height:1.3}
-.svc-acc-price{font-family:'Fraunces',serif;font-size:.95rem;font-weight:700;color:var(--navy);flex-shrink:0;white-space:nowrap}
-.svc-acc-chevron{width:22px;height:22px;color:var(--gray400);flex-shrink:0;transition:transform .25s,color .2s;display:flex;align-items:center;justify-content:center}
+.svc-acc-title{font-family:'Fraunces',serif;font-size:1rem;font-weight:700;color:var(--navy);line-height:1.25;margin-bottom:3px}
+.svc-acc-sub{font-size:.72rem;color:var(--gray500);line-height:1.35}
+.svc-acc-price{font-family:'Fraunces',serif;font-size:.95rem;font-weight:700;color:var(--navy);flex-shrink:0;white-space:nowrap;background:var(--gray50);padding:5px 11px;border-radius:20px;border:1px solid var(--gray200);transition:background .2s,border-color .2s,color .2s}
+.svc-acc-item.active .svc-acc-price{background:var(--blue-light);border-color:#bfdbfe;color:var(--blue)}
+.svc-acc-chevron{width:22px;height:22px;color:var(--gray400);flex-shrink:0;transition:transform .28s,color .22s;display:flex;align-items:center;justify-content:center}
 .svc-acc-chevron svg{width:16px;height:16px}
 .svc-acc-item.active .svc-acc-chevron{transform:rotate(180deg);color:var(--blue)}
-.svc-acc-content{max-height:0;overflow:hidden;transition:max-height .35s ease}
-.svc-acc-item.active .svc-acc-content{max-height:1200px}
-.svc-acc-inner{padding:4px 18px 20px;border-top:1px solid var(--gray100)}
-.svc-acc-desc{font-size:.83rem;color:var(--gray600);line-height:1.7;margin:14px 0 16px}
-.svc-acc-inner .svc-includes{margin-bottom:14px}
-.svc-acc-inner .btn-svc-order{background:var(--green);color:#fff;padding:11px;border-radius:9px;font-size:.88rem;font-weight:600;border:none;cursor:pointer;font-family:inherit;transition:all .2s;width:100%;margin-top:4px}
-.svc-acc-inner .btn-svc-order:hover{background:var(--green-dark);transform:translateY(-1px)}
+.svc-acc-content{max-height:0;overflow:hidden;transition:max-height .42s cubic-bezier(0.4,0,0.2,1)}
+.svc-acc-item.active .svc-acc-content{max-height:900px}
+.svc-acc-inner{padding:6px 22px 24px;border-top:1.5px solid var(--blue-light)}
+.svc-acc-desc{font-size:.85rem;color:var(--gray600);line-height:1.78;margin:16px 0 18px}
+.svc-acc-inner .svc-includes{margin-bottom:16px;background:var(--gray50);border-radius:10px;padding:14px 16px}
+.svc-includes-title{font-size:.7rem;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.9px;margin-bottom:10px}
+.svc-incl-item{font-size:.83rem;color:var(--gray800);padding:5px 0;display:flex;align-items:flex-start;gap:9px;border-bottom:1px solid var(--gray100)}
+.svc-incl-item:last-child{border-bottom:none}
+.svc-incl-icon{color:var(--green);font-weight:700;flex-shrink:0;margin-top:1px}
+.svc-acc-inner .btn-svc-order{background:var(--green);color:#fff;padding:13px;border-radius:10px;font-size:.9rem;font-weight:700;border:none;cursor:pointer;font-family:inherit;transition:all .22s;width:100%;margin-top:8px;letter-spacing:.01em}
+.svc-acc-inner .btn-svc-order:hover{background:var(--green-dark);transform:translateY(-1px);box-shadow:0 6px 20px rgba(5,150,105,.28)}
 `
   const body = `
 
@@ -960,34 +964,27 @@ function openServiceForm(svcId){
   document.getElementById('svcOverlay').scrollTop=0;
 }
 
-function toggleSvc(headerEl){
-  var item=headerEl.parentElement;
+var _svcEnterTimer=null,_svcLeaveTimer=null;
+function hoverSvc(item){
+  clearTimeout(_svcLeaveTimer);
+  _svcEnterTimer=setTimeout(function(){
+    var actives=document.querySelectorAll('.svc-acc-item.active');
+    for(var i=0;i<actives.length;i++){if(actives[i]!==item)actives[i].classList.remove('active');}
+    item.classList.add('active');
+  },100);
+}
+function leaveSvc(item){
+  clearTimeout(_svcEnterTimer);
+  _svcLeaveTimer=setTimeout(function(){item.classList.remove('active');},180);
+}
+function touchSvc(item){
+  if(!('ontouchstart' in window))return;
+  clearTimeout(_svcEnterTimer);clearTimeout(_svcLeaveTimer);
   var wasActive=item.classList.contains('active');
   var actives=document.querySelectorAll('.svc-acc-item.active');
   for(var i=0;i<actives.length;i++)actives[i].classList.remove('active');
-  if(!wasActive){
-    item.classList.add('active');
-    var id=item.getAttribute('data-svc');
-    try{window.history.pushState({svcOpen:id},'','#'+id);}catch(e){}
-    setTimeout(function(){item.scrollIntoView({behavior:'smooth',block:'nearest'});},200);
-  } else {
-    if(window.history.state && window.history.state.svcOpen){
-      try{window.history.back();}catch(e){}
-    }
-  }
+  if(!wasActive)item.classList.add('active');
 }
-
-window.addEventListener('popstate',function(e){
-  var actives=document.querySelectorAll('.svc-acc-item.active');
-  for(var i=0;i<actives.length;i++)actives[i].classList.remove('active');
-  if(e.state && e.state.svcOpen){
-    var item=document.querySelector('.svc-acc-item[data-svc="'+e.state.svcOpen+'"]');
-    if(item){
-      item.classList.add('active');
-      setTimeout(function(){item.scrollIntoView({behavior:'smooth',block:'nearest'});},100);
-    }
-  }
-});
 </script>
 `
   return (
