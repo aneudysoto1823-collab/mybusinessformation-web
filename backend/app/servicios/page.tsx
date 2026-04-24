@@ -1026,10 +1026,9 @@ function showSvcPopup(item){
   popup.classList.remove('pop-left');
   if(toRight){left=rect.right+gap;}
   else{left=rect.left-gap-popupW;popup.classList.add('pop-left');}
-  var top=rect.top+window.scrollY;
-  var maxTop=window.scrollY+vh-440;
-  if(top>maxTop)top=maxTop;
-  if(top<window.scrollY+8)top=window.scrollY+8;
+  var top=rect.top;
+  if(top+440>vh-8)top=vh-448;
+  if(top<8)top=8;
   popup.style.left=left+'px';
   popup.style.top=top+'px';
   popup.classList.add('visible');
