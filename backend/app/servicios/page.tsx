@@ -207,14 +207,18 @@ export default function ServiciosPage() {
           </div>
           <div class="svc-popup-price">${s.price}</div>
         </div>
-        <div class="svc-popup-body">
-          <p class="svc-popup-desc" data-en="${s.desc_en}" data-es="${s.desc_es}">${s.desc_es}</p>
-          <div class="svc-popup-includes">
-            <div class="svc-popup-includes-title" data-en="What's included" data-es="Qué incluye">Qué incluye</div>
-            ${s.includes_es.map((inc, idx) => `<div class="svc-popup-incl-item" data-en="${s.includes_en[idx]}" data-es="${inc}"><span class="svc-popup-incl-icon">&#10003;</span>${inc}</div>`).join('')}
+        <div class="svc-popup-content">
+          <div class="svc-popup-left">
+            <p class="svc-popup-desc" data-en="${s.desc_en}" data-es="${s.desc_es}">${s.desc_es}</p>
+            <div class="svc-popup-time" data-en="${s.time_en}" data-es="${s.time_es}">${s.time_es}</div>
           </div>
-          <div class="svc-popup-time" data-en="${s.time_en}" data-es="${s.time_es}">${s.time_es}</div>
-          <button class="svc-popup-btn" onclick="openServiceForm('${s.id}')" data-en="${s.btn_en}" data-es="${s.btn_es}">${s.btn_es}</button>
+          <div class="svc-popup-right">
+            <div class="svc-popup-includes">
+              <div class="svc-popup-includes-title" data-en="What's included" data-es="Qué incluye">Qué incluye</div>
+              ${s.includes_es.map((inc, idx) => `<div class="svc-popup-incl-item" data-en="${s.includes_en[idx]}" data-es="${inc}"><span class="svc-popup-incl-icon">&#10003;</span>${inc}</div>`).join('')}
+            </div>
+            <button class="svc-popup-btn" onclick="openServiceForm('${s.id}')" data-en="${s.btn_en}" data-es="${s.btn_es}">${s.btn_es}</button>
+          </div>
         </div>
       </div>
     </div>
@@ -421,27 +425,29 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
 .svc-acc-price{font-family:'Fraunces',serif;font-size:.93rem;font-weight:700;color:var(--navy);flex-shrink:0;white-space:nowrap}
 .svc-acc-chevron{width:20px;height:20px;color:var(--gray400);flex-shrink:0;display:flex;align-items:center;justify-content:center}
 .svc-acc-chevron svg{width:15px;height:15px}
-/* POPUP PANEL — absolute inside card, shown on CSS hover */
-.svc-popup{position:absolute;left:calc(100% + 14px);top:0;width:320px;background:#fff;border-radius:16px;border:1.5px solid var(--gray200);box-shadow:0 20px 60px rgba(28,46,68,.18),0 4px 14px rgba(37,99,235,.08);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;transform:translateX(8px);z-index:600;max-height:80vh;overflow-y:auto}
+/* POPUP PANEL — horizontal layout, absolute inside card */
+.svc-popup{position:absolute;left:calc(100% + 14px);top:0;width:560px;background:#fff;border-radius:16px;border:1.5px solid var(--gray200);box-shadow:0 20px 60px rgba(28,46,68,.18),0 4px 14px rgba(37,99,235,.08);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;transform:translateX(8px);z-index:600}
 .services-accordion .svc-acc-item:nth-child(even) .svc-popup{left:auto;right:calc(100% + 14px);transform:translateX(-8px)}
 .svc-acc-item:hover .svc-popup,.svc-acc-item.active .svc-popup{opacity:1;pointer-events:auto;transform:translateX(0)}
-@media(max-width:860px){.svc-popup{display:none}}
-.svc-popup-head{padding:16px 18px 12px;display:flex;align-items:flex-start;gap:12px;border-bottom:1px solid var(--gray100)}
-.svc-popup-icon{width:42px;height:42px;border-radius:11px;background:var(--blue);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;box-shadow:0 4px 12px rgba(37,99,235,.28)}
-.svc-popup-icon svg{width:20px;height:20px}
+@media(max-width:1100px){.svc-popup{display:none}}
+.svc-popup-head{padding:14px 18px 12px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--gray100)}
+.svc-popup-icon{width:40px;height:40px;border-radius:10px;background:var(--blue);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;box-shadow:0 4px 12px rgba(37,99,235,.28)}
+.svc-popup-icon svg{width:19px;height:19px}
 .svc-popup-title-wrap{flex:1;min-width:0}
-.svc-popup-name{font-family:'Fraunces',serif;font-size:1rem;font-weight:700;color:var(--navy);line-height:1.2;margin-bottom:3px}
-.svc-popup-sub{font-size:.71rem;color:var(--gray500)}
-.svc-popup-price{font-family:'Fraunces',serif;font-size:1rem;font-weight:800;color:var(--blue);white-space:nowrap;padding-left:6px;padding-top:2px}
-.svc-popup-body{padding:14px 18px 18px}
-.svc-popup-desc{font-size:.82rem;color:var(--gray600);line-height:1.75;margin-bottom:13px}
-.svc-popup-includes{background:var(--gray50);border-radius:9px;padding:11px 13px;margin-bottom:11px}
-.svc-popup-includes-title{font-size:.67rem;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.9px;margin-bottom:9px}
-.svc-popup-incl-item{font-size:.8rem;color:var(--gray800);padding:3.5px 0;display:flex;align-items:flex-start;gap:8px;border-bottom:1px solid var(--gray100)}
+.svc-popup-name{font-family:'Fraunces',serif;font-size:.97rem;font-weight:700;color:var(--navy);line-height:1.2;margin-bottom:2px}
+.svc-popup-sub{font-size:.7rem;color:var(--gray500)}
+.svc-popup-price{font-family:'Fraunces',serif;font-size:1rem;font-weight:800;color:var(--blue);white-space:nowrap;padding-left:8px}
+.svc-popup-content{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.svc-popup-left{padding:14px 16px 16px;border-right:1px solid var(--gray100);display:flex;flex-direction:column;gap:10px}
+.svc-popup-right{padding:14px 16px 16px;display:flex;flex-direction:column;gap:10px}
+.svc-popup-desc{font-size:.8rem;color:var(--gray600);line-height:1.72;margin:0;flex:1}
+.svc-popup-includes{background:var(--gray50);border-radius:9px;padding:10px 12px;flex:1}
+.svc-popup-includes-title{font-size:.65rem;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.9px;margin-bottom:8px}
+.svc-popup-incl-item{font-size:.78rem;color:var(--gray800);padding:3px 0;display:flex;align-items:flex-start;gap:7px;border-bottom:1px solid var(--gray100)}
 .svc-popup-incl-item:last-child{border-bottom:none}
 .svc-popup-incl-icon{color:var(--green);font-weight:700;flex-shrink:0}
-.svc-popup-time{font-size:.73rem;color:var(--gray500);padding:7px 10px;background:var(--gray50);border-radius:7px;margin-bottom:13px}
-.svc-popup-btn{background:#fff;color:var(--blue);padding:12px;border-radius:10px;font-size:.88rem;font-weight:700;border:2px solid var(--blue);cursor:pointer;font-family:inherit;transition:all .2s;width:100%}
+.svc-popup-time{font-size:.71rem;color:var(--gray500);padding:6px 10px;background:var(--gray50);border-radius:7px}
+.svc-popup-btn{background:#fff;color:var(--blue);padding:11px;border-radius:10px;font-size:.86rem;font-weight:700;border:2px solid var(--blue);cursor:pointer;font-family:inherit;transition:all .2s;width:100%}
 .svc-popup-btn:hover{background:var(--blue);color:#fff;transform:translateY(-1px);box-shadow:0 6px 18px rgba(37,99,235,.28)}
 `
   const body = `
@@ -989,7 +995,7 @@ document.querySelectorAll('.svc-acc-item').forEach(function(item){
     var popup=item.querySelector('.svc-popup');
     if(!popup)return;
     var rect=item.getBoundingClientRect();
-    if(rect.top+500>window.innerHeight-16){
+    if(rect.top+300>window.innerHeight-16){
       popup.style.top='auto';
       popup.style.bottom='0';
     } else {
