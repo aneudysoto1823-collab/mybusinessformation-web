@@ -436,10 +436,10 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
       <div class="logo-text">Florida Business Formation Center<span>mybusinessformation.com</span></div>
     </a>
     <nav>
-      <a href="/">Home</a>
-      <a href="/paquetes">Formation Packages</a>
-      <a href="/#faq">FAQ</a>
-      <a href="/#contact">Contact</a>
+      <a href="/" data-en="Home" data-es="Inicio">Inicio</a>
+      <a href="/paquetes" data-en="Formation Packages" data-es="Paquetes de Formación">Paquetes de Formación</a>
+      <a href="/#faq" data-en="FAQ" data-es="Preguntas Frecuentes">Preguntas Frecuentes</a>
+      <a href="/#contact" data-en="Contact" data-es="Contacto">Contacto</a>
     </nav>
     <div style="display:flex;align-items:center;gap:11px">
       <div class="lang-toggle">
@@ -485,27 +485,27 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
         <p style="margin-top:9px;color:rgba(255,255,255,.35);font-size:.72rem">&#128231; info@mybusinessformation.com</p>
       </div>
       <div class="footer-col">
-        <h5>Formation</h5>
-        <a href="/paquetes?entity=llc">LLC Formation</a>
-        <a href="/paquetes?entity=corp">Corporation Formation</a>
-        <a href="#registered-agent" onclick="openServiceForm('registered-agent')">Registered Agent</a>
-        <a href="#ein" onclick="openServiceForm('ein')">EIN / Tax ID</a>
-        <a href="#operating-agreement" onclick="openServiceForm('operating-agreement')">Operating Agreement</a>
+        <h5 data-en="Formation" data-es="Formación">Formación</h5>
+        <a href="/paquetes?entity=llc" data-en="LLC Formation" data-es="Formación de LLC">Formación de LLC</a>
+        <a href="/paquetes?entity=corp" data-en="Corporation Formation" data-es="Formación de Corporación">Formación de Corporación</a>
+        <a href="#registered-agent" onclick="openServiceForm('registered-agent')" data-en="Registered Agent" data-es="Agente Registrado">Agente Registrado</a>
+        <a href="#ein" onclick="openServiceForm('ein')" data-en="EIN / Tax ID" data-es="EIN / ID Fiscal">EIN / ID Fiscal</a>
+        <a href="#operating-agreement" onclick="openServiceForm('operating-agreement')" data-en="Operating Agreement" data-es="Acuerdo Operativo">Acuerdo Operativo</a>
       </div>
       <div class="footer-col">
-        <h5>Add-On Services</h5>
-        <a href="#itin" onclick="openServiceForm('itin')">ITIN Application</a>
-        <a href="#dba" onclick="openServiceForm('dba')">DBA / Fictitious Name</a>
-        <a href="#amendment" onclick="openServiceForm('amendment')">Articles of Amendment</a>
-        <a href="#virtual-address" onclick="openServiceForm('virtual-address')">Virtual Mailing Address</a>
-        <a href="#annual-report" onclick="openServiceForm('annual-report')">Annual Report Filing</a>
+        <h5 data-en="Add-On Services" data-es="Servicios Adicionales">Servicios Adicionales</h5>
+        <a href="#itin" onclick="openServiceForm('itin')" data-en="ITIN Application" data-es="Solicitud de ITIN">Solicitud de ITIN</a>
+        <a href="#dba" onclick="openServiceForm('dba')" data-en="DBA / Fictitious Name" data-es="DBA / Nombre Ficticio">DBA / Nombre Ficticio</a>
+        <a href="#amendment" onclick="openServiceForm('amendment')" data-en="Articles of Amendment" data-es="Artículos de Enmienda">Artículos de Enmienda</a>
+        <a href="#virtual-address" onclick="openServiceForm('virtual-address')" data-en="Virtual Mailing Address" data-es="Dirección Virtual de Correo">Dirección Virtual de Correo</a>
+        <a href="#annual-report" onclick="openServiceForm('annual-report')" data-en="Annual Report Filing" data-es="Presentación de Reporte Anual">Presentación de Reporte Anual</a>
       </div>
       <div class="footer-col">
-        <h5>Company</h5>
-        <a href="/">Home</a>
-        <a href="/paquetes">Formation Packages</a>
-        <a href="/#faq">FAQ</a>
-        <a href="/#contact">Contact</a>
+        <h5 data-en="Company" data-es="Compañía">Compañía</h5>
+        <a href="/" data-en="Home" data-es="Inicio">Inicio</a>
+        <a href="/paquetes" data-en="Formation Packages" data-es="Paquetes de Formación">Paquetes de Formación</a>
+        <a href="/#faq" data-en="FAQ" data-es="Preguntas Frecuentes">Preguntas Frecuentes</a>
+        <a href="/#contact" data-en="Contact" data-es="Contacto">Contacto</a>
       </div>
     </div>
     <hr class="footer-divider"/>
