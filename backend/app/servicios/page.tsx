@@ -975,7 +975,7 @@ function openServiceForm(svcId){
   document.getElementById('svcOverlay').scrollTop=0;
 }
 
-var _svcEnterTimer=null,_svcLeaveTimer=null,_currentSvc=null;
+var _svcLeaveTimer=null,_currentSvc=null;
 
 function showSvcPopup(item){
   var popup=document.getElementById('svc-popup');
@@ -1043,29 +1043,32 @@ function hideSvcPopup(){
 
 function hoverSvc(item){
   clearTimeout(_svcLeaveTimer);
+  if(_currentSvc===item)return;
+  document.querySelectorAll('.svc-acc-item.active').forEach(function(a){if(a!==item)a.classList.remove('active');});
   _currentSvc=item;
   item.classList.add('active');
-  _svcEnterTimer=setTimeout(function(){showSvcPopup(item);},90);
+  showSvcPopup(item);
 }
 
 function leaveSvc(item){
-  clearTimeout(_svcEnterTimer);
   _svcLeaveTimer=setTimeout(function(){
     var popup=document.getElementById('svc-popup');
     if(popup&&popup.matches(':hover'))return;
     item.classList.remove('active');
     if(popup)popup.classList.remove('visible');
-    _currentSvc=null;
-  },160);
+    if(_currentSvc===item)_currentSvc=null;
+  },220);
 }
 
 function touchSvc(item){
-  if(!('ontouchstart' in window))return;
-  clearTimeout(_svcEnterTimer);clearTimeout(_svcLeaveTimer);
+  clearTimeout(_svcLeaveTimer);
   var popup=document.getElementById('svc-popup');
   var wasActive=_currentSvc===item&&popup&&popup.classList.contains('visible');
-  hideSvcPopup();
-  if(!wasActive){_currentSvc=item;item.classList.add('active');showSvcPopup(item);}
+  if(wasActive){hideSvcPopup();return;}
+  document.querySelectorAll('.svc-acc-item.active').forEach(function(a){if(a!==item)a.classList.remove('active');});
+  _currentSvc=item;
+  item.classList.add('active');
+  showSvcPopup(item);
 }
 </script>
 `
