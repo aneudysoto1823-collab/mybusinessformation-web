@@ -101,6 +101,51 @@ IMPORTANT RULES
 - Always invite the client to take the next step: visit /paquetes to start, or ask if they have more questions.
 
 ═══════════════════════════════════════
+ASSISTED FORM FILLING VIA CHAT
+═══════════════════════════════════════
+When a client says they want to form an LLC or Corporation and asks for help filling the form, guide them through the following questions ONE AT A TIME in a warm, conversational tone. Do NOT ask multiple questions at once. Collect each answer before moving to the next.
+
+COLLECTION FLOW (ask in this order):
+1. Entity type: LLC or Corporation? (briefly explain the difference if unsure)
+2. Filer type: Will they own the business as an individual, or will another company be the owner?
+3. Package recommendation: Based on their needs, recommend Basic/Standard/Premium and confirm their choice.
+4. Business name: What name do they want? Remind it must end in LLC / Corp / Inc. Ask for 1-2 backup names.
+5. Business address: Street address, city, ZIP. Remind: NO PO Box — must be a physical address. If they work from home, suggest our Virtual Mailing Address for privacy.
+6. Industry: What sector/industry are they in?
+7. Business purpose: Brief description. Suggest the generic text if unsure: "To engage in any lawful business activity permitted under Florida law."
+8. Owners/members: Full name(s), ownership percentage(s) (must total 100%), and home/business address for each owner.
+9. Management type: Member-managed (owners run it directly — most common) or Manager-managed?
+10. Registered agent: Use our service (recommended, required by FL law) or do they have their own FL agent?
+11. Add-ons confirmation: Based on their package, confirm any additional services (EIN, Operating Agreement, ITIN, Virtual Address, Annual Report).
+12. Filing speed: Standard (7–10 days, included) or Expedited (1–3 days, +$99 — free in Premium)?
+13. Email: Where should we send confirmation and documents?
+
+After collecting ALL fields above, call the create_form_session tool with this exact JSON structure:
+{
+  "entityType": "llc" or "corp",
+  "filerType": "individual" or "company",
+  "owningCompanyName": "(if company filer)",
+  "authorizedRepName": "(if company filer)",
+  "package": "basic" or "standard" or "premium",
+  "businessName": "Full name with LLC/Corp suffix",
+  "altName1": "First backup name",
+  "altName2": "Second backup name",
+  "address": { "street": "", "city": "", "zip": "" },
+  "industry": "Industry name",
+  "businessPurpose": "Business purpose text",
+  "managementType": "member" or "manager",
+  "members": [{ "firstName": "", "lastName": "", "address": "", "role": "Manager (MGR)", "ownership": "100" }],
+  "registeredAgent": "us" or "own",
+  "addons": { "ein": true/false, "oa": true/false, "itin": false, "vma": false, "ar": false },
+  "filingSpeed": "standard" or "expedited",
+  "email": "client@email.com"
+}
+
+After the tool returns successfully, share the link with the client like this (adjust for their language):
+- Spanish: "¡Listo! 🎉 Preparé tu formulario con toda la información. Solo entra al siguiente enlace, revisa que todo esté correcto, firma y paga: [LINK]"
+- English: "All done! 🎉 Your form is ready with all your information. Just open the link below, review everything, sign and pay: [LINK]"
+
+═══════════════════════════════════════
 NAME AVAILABILITY CHECKS
 ═══════════════════════════════════════
 - When a client asks if a business name is available, use the check_name_availability tool immediately.
@@ -234,6 +279,20 @@ DBA / FICTITIOUS NAME FORM
 
 const TOOLS: Anthropic.Tool[] = [
   {
+    name: 'create_form_session',
+    description: 'Save all form data collected from the client and generate a pre-filled form link. Call this ONLY when you have collected all required fields: entityType, filerType, package, businessName, address (street+city+zip), industry, businessPurpose, managementType, at least one member (firstName, lastName, address, ownership), registeredAgent, addons, filingSpeed, and email.',
+    input_schema: {
+      type: 'object' as const,
+      properties: {
+        form_data: {
+          type: 'object',
+          description: 'Structured form data collected from the conversation',
+        },
+      },
+      required: ['form_data'],
+    },
+  },
+  {
     name: 'check_name_availability',
     description: 'Check if a business name is available for registration in Florida. Use this whenever the client asks whether a name is available or wants to verify a business name.',
     input_schema: {
@@ -248,6 +307,25 @@ const TOOLS: Anthropic.Tool[] = [
     },
   },
 ]
+
+async function createFormSession(formData: object, chatSessionId: string, req: NextRequest): Promise<string> {
+  try {
+    const { getSupabaseAdmin } = await import('@/lib/supabase')
+    const token = crypto.randomUUID()
+    const supabase = getSupabaseAdmin()
+    const { error } = await supabase
+      .from('form_sessions')
+      .insert({ token, chat_session_id: chatSessionId, form_data: formData })
+
+    if (error) return JSON.stringify({ error: 'Could not save session: ' + error.message })
+
+    const origin = req.headers.get('origin') || 'https://mybusinessformation.com'
+    const link = `${origin}/paquetes?session=${token}`
+    return JSON.stringify({ success: true, link })
+  } catch (err) {
+    return JSON.stringify({ error: 'Failed to create session' })
+  }
+}
 
 async function checkNameAvailability(name: string): Promise<string> {
   try {
@@ -340,7 +418,10 @@ export async function POST(req: NextRequest) {
       if (!toolUseBlock) break
 
       let toolResult = ''
-      if (toolUseBlock.name === 'check_name_availability') {
+      if (toolUseBlock.name === 'create_form_session') {
+        const input = toolUseBlock.input as { form_data: object }
+        toolResult = await createFormSession(input.form_data, session_id || '', req)
+      } else if (toolUseBlock.name === 'check_name_availability') {
         const input = toolUseBlock.input as { name: string }
         toolResult = await checkNameAvailability(input.name)
       }

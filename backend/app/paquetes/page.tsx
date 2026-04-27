@@ -1359,6 +1359,143 @@ function translateFormContent(lang){
   if(fst && t.steps[currentStep-1]) fst.textContent = t.steps[currentStep-1];
 }
 
+// ── CLAUDIA PRE-FILL ──────────────────────────────────────────
+(function(){
+  var p=new URLSearchParams(window.location.search);
+  var session=p.get('session');
+  if(!session)return;
+  fetch('/api/form-session/'+session)
+    .then(function(r){return r.ok?r.json():null;})
+    .then(function(res){
+      if(!res||!res.form_data)return;
+      openFormFromPkg(res.form_data.package||'standard');
+      setTimeout(function(){claudiaPrefill(res.form_data);},250);
+    })
+    .catch(function(e){console.error('[claudia prefill]',e);});
+})();
+
+function claudiaPrefill(d){
+  // Entity type
+  if(d.entityType)setEntity(d.entityType);
+
+  // Step 1 — filer type
+  var s1=document.getElementById('step1');
+  if(s1&&d.filerType){
+    var s1cards=s1.querySelectorAll('.choice-card');
+    if(d.filerType==='individual'&&s1cards[0])s1cards[0].click();
+    else if(d.filerType==='company'&&s1cards[1])s1cards[1].click();
+    if(d.filerType==='company'){
+      var s1inp=s1.querySelectorAll('input.form-input');
+      if(s1inp[0])s1inp[0].value=d.owningCompanyName||'';
+      if(s1inp[1])s1inp[1].value=d.authorizedRepName||'';
+    }
+  }
+
+  // Step 2 — package
+  var s2=document.getElementById('step2');
+  if(s2&&d.package){
+    var pkgMap={basic:0,standard:1,premium:2};
+    var pkgCards=s2.querySelectorAll('.pkg-choice');
+    var pi=pkgMap[d.package];
+    if(pi!==undefined&&pkgCards[pi])pkgCards[pi].click();
+  }
+
+  // Step 3 — business name
+  var s3=document.getElementById('step3');
+  if(s3){
+    var n3=s3.querySelectorAll('input.form-input');
+    if(n3[0])n3[0].value=d.businessName||'';
+    if(n3[1])n3[1].value=d.altName1||'';
+    if(n3[2])n3[2].value=d.altName2||'';
+  }
+
+  // Step 4 — address
+  var s4=document.getElementById('step4');
+  if(s4&&d.address){
+    var n4=s4.querySelectorAll('input.form-input');
+    if(n4[0])n4[0].value=d.address.street||'';
+    if(n4[1])n4[1].value=d.address.city||'';
+    if(n4[2])n4[2].value=d.address.zip||'';
+  }
+
+  // Step 5 — industry + purpose
+  var s5=document.getElementById('step5');
+  if(s5){
+    if(d.industry){
+      var sel5=s5.querySelector('select');
+      if(sel5){for(var i=0;i<sel5.options.length;i++){if(sel5.options[i].text.toLowerCase().indexOf(d.industry.toLowerCase().split('&')[0].trim())>-1){sel5.selectedIndex=i;break;}}}
+    }
+    if(d.businessPurpose){var ta=s5.querySelector('textarea');if(ta)ta.value=d.businessPurpose;}
+  }
+
+  // Step 6 — management + members
+  var s6=document.getElementById('step6');
+  if(s6){
+    var mgmtCards=s6.querySelectorAll('.choice-grid .choice-card');
+    if(d.managementType==='member'&&mgmtCards[0])mgmtCards[0].click();
+    else if(d.managementType==='manager'&&mgmtCards[1])mgmtCards[1].click();
+    if(d.members&&d.members[0]){
+      var m1=document.getElementById('member-1');
+      if(m1){
+        var m1i=m1.querySelectorAll('input.form-input');
+        if(m1i[0])m1i[0].value=d.members[0].firstName||'';
+        if(m1i[1])m1i[1].value=d.members[0].lastName||'';
+        if(m1i[2])m1i[2].value=d.members[0].address||'';
+        var own=m1.querySelector('.ownership-input');
+        if(own){own.value=d.members[0].ownership||'100';if(typeof updateOwnership==='function')updateOwnership();}
+        var rs=m1.querySelector('select');
+        if(rs&&d.members[0].role){for(var j=0;j<rs.options.length;j++){if(rs.options[j].text.toLowerCase().indexOf(d.members[0].role.toLowerCase().split('(')[0].trim())>-1){rs.selectedIndex=j;break;}}}
+      }
+    }
+  }
+
+  // Step 7 — registered agent
+  var s7=document.getElementById('step7');
+  if(s7&&d.registeredAgent){
+    var raBtns=s7.querySelectorAll('.addon-btns button');
+    if(d.registeredAgent==='us'&&raBtns[0])raBtns[0].click();
+    else if(raBtns[1])raBtns[1].click();
+  }
+
+  // Steps 8-11 — addons
+  if(d.addons){
+    var addonSteps={ein:'step8',oa:'step9',itin:'step10'};
+    Object.keys(addonSteps).forEach(function(key){
+      var el=document.getElementById(addonSteps[key]);
+      if(!el)return;
+      var btns=el.querySelectorAll('.addon-btns button');
+      if(d.addons[key]&&btns[0])btns[0].click();
+      else if(btns[1])btns[1].click();
+    });
+    var s11=document.getElementById('step11');
+    if(s11){
+      var s11c=s11.querySelectorAll('.addon-card');
+      if(s11c[0]){var vb=s11c[0].querySelectorAll('.addon-btns button');if(d.addons.vma&&vb[0])vb[0].click();else if(vb[1])vb[1].click();}
+      if(s11c[1]){var ab=s11c[1].querySelectorAll('.addon-btns button');if(d.addons.ar&&ab[0])ab[0].click();else if(ab[1])ab[1].click();}
+    }
+  }
+
+  // Step 13 — filing speed + email
+  var s13=document.getElementById('step13');
+  if(s13){
+    var dc=s13.querySelectorAll('.delivery-card');
+    if(d.filingSpeed==='expedited'&&dc[1])dc[1].click();else if(dc[0])dc[0].click();
+    var em=s13.querySelector('input[type="email"]');
+    if(em&&d.email)em.value=d.email;
+  }
+
+  // Banner
+  var modal=document.querySelector('.form-modal');
+  if(modal&&!document.getElementById('claudia-banner')){
+    var banner=document.createElement('div');
+    banner.id='claudia-banner';
+    banner.style.cssText='background:linear-gradient(135deg,#EFF6FF,#DBEAFE);color:#1e40af;padding:12px 18px;border-radius:10px;margin-bottom:16px;font-size:.83rem;border:1.5px solid #BFDBFE;display:flex;align-items:center;gap:10px;';
+    banner.innerHTML='<span style="font-size:1.3rem">✓</span><div><strong>Claudia pre-llenó tu formulario.</strong><br><span style="opacity:.8">Revisa cada paso, firma y paga.</span></div>';
+    var firstStep=document.getElementById('step1');
+    if(firstStep)firstStep.insertBefore(banner,firstStep.firstChild);
+  }
+  goToStep(1);
+}
 </script>
 `
   return (
