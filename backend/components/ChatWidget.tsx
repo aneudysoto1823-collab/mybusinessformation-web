@@ -14,26 +14,37 @@ function ClaudiaAvatar({ size = 42, uid = 'a' }: { size?: number; uid?: string }
           <stop offset="100%" stopColor="#2563EB" />
         </linearGradient>
       </defs>
-      {/* Background circle */}
+
+      {/* Background */}
       <circle cx="24" cy="24" r="24" fill={`url(#${gid})`} />
-      {/* Head */}
-      <circle cx="24" cy="17" r="7" fill="white" fillOpacity="0.93" />
-      {/* Shoulders */}
-      <path d="M7 44 C7 32 13 27 24 27 C35 27 41 32 41 44" fill="white" fillOpacity="0.93" />
-      {/* Headset arc */}
-      <path d="M13 17 C13 6 35 6 35 17" stroke="white" strokeWidth="2.5" fill="none" strokeOpacity="0.93" strokeLinecap="round" />
+
+      {/* ── Headset rendered BEHIND face so band hides under face naturally ── */}
+      {/* Band arc over head */}
+      <path d="M9 23 C9 6 39 6 39 23" stroke="white" strokeWidth="3.5" fill="none" strokeLinecap="round" />
       {/* Left ear cup */}
-      <ellipse cx="13" cy="18.5" rx="3" ry="3.5" fill="white" fillOpacity="0.93" />
+      <rect x="6" y="20" width="7" height="11" rx="3.5" fill="white" />
       {/* Right ear cup */}
-      <ellipse cx="35" cy="18.5" rx="3" ry="3.5" fill="white" fillOpacity="0.93" />
-      {/* Mic boom arm */}
-      <path d="M13 21.5 C10.5 24.5 10.5 27 12 28.5" stroke="white" strokeWidth="2" fill="none" strokeOpacity="0.85" strokeLinecap="round" />
-      {/* Mic capsule */}
-      <circle cx="12" cy="29.5" r="2" fill="white" fillOpacity="0.85" />
-      {/* Sound wave dots — animated via CSS */}
-      <circle cx="17" cy="30" r="1.2" fill="white" fillOpacity="0.5" className="cwave cwave1" />
-      <circle cx="20.5" cy="30" r="1.2" fill="white" fillOpacity="0.5" className="cwave cwave2" />
-      <circle cx="24" cy="30" r="1.2" fill="white" fillOpacity="0.5" className="cwave cwave3" />
+      <rect x="35" y="20" width="7" height="11" rx="3.5" fill="white" />
+
+      {/* ── Face (sits on top of headset band, covers it naturally) ── */}
+      <circle cx="24" cy="25" r="13" fill="white" fillOpacity="0.97" />
+
+      {/* Hair — rounded dark cap on top of face */}
+      <path d="M12 22 C12 12 36 12 36 22 C36 17 12 17 12 22 Z" fill="rgba(28,46,68,0.22)" />
+
+      {/* Eyes */}
+      <circle cx="19.5" cy="24" r="2" fill="rgba(28,46,68,0.7)" />
+      <circle cx="28.5" cy="24" r="2" fill="rgba(28,46,68,0.7)" />
+      {/* Eye shine */}
+      <circle cx="20.3" cy="23.2" r="0.7" fill="white" />
+      <circle cx="29.3" cy="23.2" r="0.7" fill="white" />
+
+      {/* Smile */}
+      <path d="M18.5 29.5 Q24 34 29.5 29.5" stroke="rgba(28,46,68,0.55)" strokeWidth="1.8" fill="none" strokeLinecap="round" />
+
+      {/* ── Mic arm + capsule (in front of everything) ── */}
+      <path d="M9 27 Q6.5 32 8 36" stroke="white" strokeWidth="2.2" fill="none" strokeLinecap="round" />
+      <circle cx="8.2" cy="37" r="2.5" fill="white" />
     </svg>
   )
 }
@@ -359,10 +370,6 @@ export default function ChatWidget() {
           0% { transform: scale(1); opacity: 0.55; }
           100% { transform: scale(2); opacity: 0; }
         }
-        @keyframes cwave-bounce {
-          0%,100% { transform: translateY(0); opacity: 0.45; }
-          50% { transform: translateY(-3px); opacity: 1; }
-        }
         .claudia-ring {
           position: absolute;
           inset: 0;
@@ -372,10 +379,6 @@ export default function ChatWidget() {
           pointer-events: none;
         }
         .claudia-ring2 { animation-delay: 0.8s; }
-        .cwave { animation: cwave-bounce 1.4s ease-in-out infinite; }
-        .cwave1 { animation-delay: 0s; }
-        .cwave2 { animation-delay: 0.2s; }
-        .cwave3 { animation-delay: 0.4s; }
       `}</style>
     </>
   )
