@@ -113,13 +113,6 @@ export default function ChatWidget() {
     <>
       {/* Floating button */}
       <div style={{ position: 'fixed', bottom: '28px', right: '28px', zIndex: 900, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
-        {/* Pulse rings — visible only when closed */}
-        {!open && (
-          <>
-            <span className="claudia-ring claudia-ring1" />
-            <span className="claudia-ring claudia-ring2" />
-          </>
-        )}
         <button
           onClick={() => setOpen((v) => !v)}
           aria-label="Open chat assistant"
@@ -385,19 +378,6 @@ export default function ChatWidget() {
           0%,80%,100% { transform: scale(0.7); opacity: 0.4; }
           40% { transform: scale(1); opacity: 1; }
         }
-        @keyframes claudia-pulse {
-          0% { transform: scale(1); opacity: 0.55; }
-          100% { transform: scale(2); opacity: 0; }
-        }
-        .claudia-ring {
-          position: absolute;
-          inset: 0;
-          border-radius: 50%;
-          background: rgba(37,99,235,0.45);
-          animation: claudia-pulse 2s ease-out infinite;
-          pointer-events: none;
-        }
-        .claudia-ring2 { animation-delay: 0.8s; }
       `}</style>
     </>
   )
