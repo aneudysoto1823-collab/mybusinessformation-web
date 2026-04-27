@@ -4,6 +4,40 @@ import { useState, useRef, useEffect } from 'react'
 
 type Message = { role: 'user' | 'assistant'; content: string }
 
+function ClaudiaAvatar({ size = 42, uid = 'a' }: { size?: number; uid?: string }) {
+  const gid = `cg-${uid}`
+  return (
+    <svg width={size} height={size} viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id={gid} x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#1C2E44" />
+          <stop offset="100%" stopColor="#2563EB" />
+        </linearGradient>
+      </defs>
+      {/* Background circle */}
+      <circle cx="24" cy="24" r="24" fill={`url(#${gid})`} />
+      {/* Head */}
+      <circle cx="24" cy="17" r="7" fill="white" fillOpacity="0.93" />
+      {/* Shoulders */}
+      <path d="M7 44 C7 32 13 27 24 27 C35 27 41 32 41 44" fill="white" fillOpacity="0.93" />
+      {/* Headset arc */}
+      <path d="M13 17 C13 6 35 6 35 17" stroke="white" strokeWidth="2.5" fill="none" strokeOpacity="0.93" strokeLinecap="round" />
+      {/* Left ear cup */}
+      <ellipse cx="13" cy="18.5" rx="3" ry="3.5" fill="white" fillOpacity="0.93" />
+      {/* Right ear cup */}
+      <ellipse cx="35" cy="18.5" rx="3" ry="3.5" fill="white" fillOpacity="0.93" />
+      {/* Mic boom arm */}
+      <path d="M13 21.5 C10.5 24.5 10.5 27 12 28.5" stroke="white" strokeWidth="2" fill="none" strokeOpacity="0.85" strokeLinecap="round" />
+      {/* Mic capsule */}
+      <circle cx="12" cy="29.5" r="2" fill="white" fillOpacity="0.85" />
+      {/* Sound wave dots — animated via CSS */}
+      <circle cx="17" cy="30" r="1.2" fill="white" fillOpacity="0.5" className="cwave cwave1" />
+      <circle cx="20.5" cy="30" r="1.2" fill="white" fillOpacity="0.5" className="cwave cwave2" />
+      <circle cx="24" cy="30" r="1.2" fill="white" fillOpacity="0.5" className="cwave cwave3" />
+    </svg>
+  )
+}
+
 export default function ChatWidget() {
   const [open, setOpen] = useState(false)
   const [messages, setMessages] = useState<Message[]>([])
@@ -67,48 +101,60 @@ export default function ChatWidget() {
   return (
     <>
       {/* Floating button */}
-      <button
-        onClick={() => setOpen((v) => !v)}
-        aria-label="Open chat assistant"
-        style={{
-          position: 'fixed',
-          bottom: '28px',
-          right: '28px',
-          zIndex: 900,
-          width: '58px',
-          height: '58px',
-          borderRadius: '50%',
-          background: 'linear-gradient(135deg,#1C2E44,#2563EB)',
-          border: 'none',
-          cursor: 'pointer',
-          boxShadow: '0 6px 24px rgba(37,99,235,0.45)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          transition: 'transform 0.2s,box-shadow 0.2s',
-        }}
-        onMouseEnter={(e) => {
-          ;(e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-2px)'
-          ;(e.currentTarget as HTMLButtonElement).style.boxShadow = '0 10px 32px rgba(37,99,235,0.55)'
-        }}
-        onMouseLeave={(e) => {
-          ;(e.currentTarget as HTMLButtonElement).style.transform = ''
-          ;(e.currentTarget as HTMLButtonElement).style.boxShadow = '0 6px 24px rgba(37,99,235,0.45)'
-        }}
-      >
-        {open ? (
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-          </svg>
-        ) : (
-          <img
-            src="/claudia.jpg"
-            alt="Claudia"
-            style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
-          />
+      <div style={{ position: 'fixed', bottom: '28px', right: '28px', zIndex: 900 }}>
+        {/* Pulse rings — visible only when closed */}
+        {!open && (
+          <>
+            <span className="claudia-ring claudia-ring1" />
+            <span className="claudia-ring claudia-ring2" />
+          </>
         )}
-      </button>
+        <button
+          onClick={() => setOpen((v) => !v)}
+          aria-label="Open chat assistant"
+          style={{
+            position: 'relative',
+            width: '58px',
+            height: '58px',
+            borderRadius: '50%',
+            background: 'linear-gradient(135deg,#1C2E44,#2563EB)',
+            border: 'none',
+            cursor: 'pointer',
+            boxShadow: '0 6px 24px rgba(37,99,235,0.45)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transition: 'transform 0.2s,box-shadow 0.2s',
+            padding: 0,
+            overflow: 'hidden',
+          }}
+          onMouseEnter={(e) => {
+            ;(e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-2px)'
+            ;(e.currentTarget as HTMLButtonElement).style.boxShadow = '0 10px 32px rgba(37,99,235,0.55)'
+          }}
+          onMouseLeave={(e) => {
+            ;(e.currentTarget as HTMLButtonElement).style.transform = ''
+            ;(e.currentTarget as HTMLButtonElement).style.boxShadow = '0 6px 24px rgba(37,99,235,0.45)'
+          }}
+        >
+          {open ? (
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          ) : (
+            <ClaudiaAvatar size={58} uid="btn" />
+          )}
+          {/* Green online dot */}
+          {!open && (
+            <span style={{
+              position: 'absolute', bottom: '3px', right: '3px',
+              width: '12px', height: '12px', borderRadius: '50%',
+              background: '#4ade80', border: '2px solid #fff',
+            }} />
+          )}
+        </button>
+      </div>
 
       {/* Chat window */}
       {open && (
@@ -143,21 +189,8 @@ export default function ChatWidget() {
               flexShrink: 0,
             }}
           >
-            <div
-              style={{
-                width: '42px',
-                height: '42px',
-                borderRadius: '50%',
-                overflow: 'hidden',
-                flexShrink: 0,
-                border: '2px solid rgba(255,255,255,0.3)',
-              }}
-            >
-              <img
-                src="/claudia.jpg"
-                alt="Claudia"
-                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-              />
+            <div style={{ flexShrink: 0, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.3)', lineHeight: 0 }}>
+              <ClaudiaAvatar size={42} uid="hdr" />
             </div>
             <div>
               <div style={{ color: '#fff', fontWeight: 700, fontSize: '0.92rem', lineHeight: 1.2 }}>Claudia</div>
@@ -322,6 +355,27 @@ export default function ChatWidget() {
           0%,80%,100% { transform: scale(0.7); opacity: 0.4; }
           40% { transform: scale(1); opacity: 1; }
         }
+        @keyframes claudia-pulse {
+          0% { transform: scale(1); opacity: 0.55; }
+          100% { transform: scale(2); opacity: 0; }
+        }
+        @keyframes cwave-bounce {
+          0%,100% { transform: translateY(0); opacity: 0.45; }
+          50% { transform: translateY(-3px); opacity: 1; }
+        }
+        .claudia-ring {
+          position: absolute;
+          inset: 0;
+          border-radius: 50%;
+          background: rgba(37,99,235,0.45);
+          animation: claudia-pulse 2s ease-out infinite;
+          pointer-events: none;
+        }
+        .claudia-ring2 { animation-delay: 0.8s; }
+        .cwave { animation: cwave-bounce 1.4s ease-in-out infinite; }
+        .cwave1 { animation-delay: 0s; }
+        .cwave2 { animation-delay: 0.2s; }
+        .cwave3 { animation-delay: 0.4s; }
       `}</style>
     </>
   )
