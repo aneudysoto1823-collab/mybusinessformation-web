@@ -112,7 +112,7 @@ export default function ChatWidget() {
   return (
     <>
       {/* Floating button */}
-      <div style={{ position: 'fixed', bottom: '28px', right: '28px', zIndex: 900 }}>
+      <div style={{ position: 'fixed', bottom: '28px', right: '28px', zIndex: 900, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
         {/* Pulse rings — visible only when closed */}
         {!open && (
           <>
@@ -165,6 +165,25 @@ export default function ChatWidget() {
             }} />
           )}
         </button>
+        {!open && (
+          <div style={{
+            background: 'linear-gradient(135deg,#1C2E44,#2563EB)',
+            color: '#fff',
+            fontSize: '0.65rem',
+            fontWeight: 600,
+            letterSpacing: '0.4px',
+            padding: '3px 10px',
+            borderRadius: '20px',
+            whiteSpace: 'nowrap',
+            boxShadow: '0 2px 8px rgba(37,99,235,0.35)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '5px',
+          }}>
+            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#4ade80', flexShrink: 0, display: 'inline-block' }} />
+            Asistencia online
+          </div>
+        )}
       </div>
 
       {/* Chat window */}
