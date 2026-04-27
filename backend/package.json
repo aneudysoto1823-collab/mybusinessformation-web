@@ -10,6 +10,7 @@
     "server": "ts-node --project tsconfig.server.json server.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.36.3",
     "@prisma/client": "^5.22.0",
     "@supabase/ssr": "^0.9.0",
     "@supabase/supabase-js": "^2.99.2",

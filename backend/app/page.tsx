@@ -1,3 +1,5 @@
+import ChatWidget from '@/components/ChatWidget'
+
 export default function HomePage() {
   const styles = `
 :root {
@@ -5961,6 +5963,9 @@ document.addEventListener('click', function(e) {
 </script>
 `
   return (
-    <main dangerouslySetInnerHTML={{ __html: `<style>${styles}</style>${body}` }} />
+    <>
+      <main dangerouslySetInnerHTML={{ __html: `<style>${styles}</style>${body}` }} />
+      <ChatWidget />
+    </>
   )
 }
