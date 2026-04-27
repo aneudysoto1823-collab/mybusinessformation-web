@@ -12,6 +12,9 @@ export default function ChatWidget() {
   const [error, setError] = useState('')
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const sessionId = useRef<string>(
+    typeof crypto !== 'undefined' ? crypto.randomUUID() : Math.random().toString(36).slice(2)
+  )
 
   useEffect(() => {
     if (open && messages.length === 0) {
@@ -42,7 +45,7 @@ export default function ChatWidget() {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: next }),
+        body: JSON.stringify({ messages: next, session_id: sessionId.current }),
       })
       if (!res.ok) throw new Error('Error de servidor')
       const data = await res.json()

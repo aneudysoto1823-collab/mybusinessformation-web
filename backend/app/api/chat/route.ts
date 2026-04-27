@@ -1,5 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { NextRequest, NextResponse } from 'next/server'
+import { getSupabaseAdmin } from '@/lib/supabase'
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
@@ -35,7 +36,7 @@ Your role:
 
 export async function POST(req: NextRequest) {
   try {
-    const { messages } = await req.json()
+    const { messages, session_id } = await req.json()
 
     if (!Array.isArray(messages) || messages.length === 0) {
       return NextResponse.json({ error: 'Invalid messages' }, { status: 400 })
@@ -54,8 +55,25 @@ export async function POST(req: NextRequest) {
       messages: filtered,
     })
 
-    const text = response.content[0]?.type === 'text' ? response.content[0].text : ''
-    return NextResponse.json({ reply: text })
+    const reply = response.content[0]?.type === 'text' ? response.content[0].text : ''
+
+    // Save to Supabase (fire and forget — don't block the response)
+    if (session_id && typeof session_id === 'string') {
+      const sid = session_id.slice(0, 128)
+      const userMessage = filtered[filtered.length - 1]
+      const supabase = getSupabaseAdmin()
+      supabase
+        .from('chat_messages')
+        .insert([
+          { session_id: sid, role: 'user', content: userMessage.content },
+          { session_id: sid, role: 'assistant', content: reply },
+        ])
+        .then(({ error }) => {
+          if (error) console.error('[chat/route] supabase insert error:', error.message)
+        })
+    }
+
+    return NextResponse.json({ reply })
   } catch (err) {
     console.error('[chat/route] error:', err)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
