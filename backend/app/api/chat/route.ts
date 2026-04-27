@@ -410,7 +410,7 @@ export async function POST(req: NextRequest) {
     }))
 
     let response = await client.messages.create({
-      model: 'claude-opus-4-5',
+      model: 'claude-sonnet-4-6',
       max_tokens: 1024,
       system: SYSTEM_PROMPT,
       tools: TOOLS,
@@ -441,7 +441,7 @@ export async function POST(req: NextRequest) {
       ]
 
       response = await client.messages.create({
-        model: 'claude-opus-4-5',
+        model: 'claude-sonnet-4-6',
         max_tokens: 1024,
         system: SYSTEM_PROMPT,
         tools: TOOLS,
@@ -469,7 +469,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ reply })
   } catch (err) {
-    console.error('[chat/route] error:', err)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error('[chat/route] error:', msg)
+    return NextResponse.json({ error: 'Internal server error', detail: msg }, { status: 500 })
   }
 }
