@@ -22,7 +22,7 @@ export default function ChatWidget() {
         {
           role: 'assistant',
           content:
-            'Hi! I\'m your MyBusinessFormation assistant. How can I help you today? / ¡Hola! Soy el asistente de MyBusinessFormation. ¿En qué puedo ayudarte hoy?',
+            '¡Hola! Soy Claudia, tu asistente de MyBusinessFormation. ¿En qué puedo ayudarte hoy? / Hi! I\'m Claudia, your MyBusinessFormation assistant. How can I help you today?',
         },
       ])
     }
@@ -102,9 +102,11 @@ export default function ChatWidget() {
             <line x1="6" y1="6" x2="18" y2="18" />
           </svg>
         ) : (
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-          </svg>
+          <img
+            src="/claudia.jpg"
+            alt="Claudia"
+            style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
+          />
         )}
       </button>
 
@@ -143,25 +145,25 @@ export default function ChatWidget() {
           >
             <div
               style={{
-                width: '38px',
-                height: '38px',
+                width: '42px',
+                height: '42px',
                 borderRadius: '50%',
-                background: 'rgba(255,255,255,0.15)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+                overflow: 'hidden',
                 flexShrink: 0,
+                border: '2px solid rgba(255,255,255,0.3)',
               }}
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-              </svg>
+              <img
+                src="/claudia.jpg"
+                alt="Claudia"
+                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+              />
             </div>
             <div>
-              <div style={{ color: '#fff', fontWeight: 700, fontSize: '0.92rem', lineHeight: 1.2 }}>MyBusinessFormation</div>
+              <div style={{ color: '#fff', fontWeight: 700, fontSize: '0.92rem', lineHeight: 1.2 }}>Claudia</div>
               <div style={{ color: 'rgba(255,255,255,0.65)', fontSize: '0.72rem', display: 'flex', alignItems: 'center', gap: '5px' }}>
                 <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#4ade80', display: 'inline-block' }} />
-                Virtual Assistant
+                MyBusinessFormation · Virtual Assistant
               </div>
             </div>
           </div>
