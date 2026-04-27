@@ -67,7 +67,7 @@ export default function ChatWidget() {
         {
           role: 'assistant',
           content:
-            '¡Hola! Soy Claudia, tu asistente de MyBusinessFormation. ¿En qué puedo ayudarte hoy? / Hi! I\'m Claudia, your MyBusinessFormation assistant. How can I help you today?',
+            '¡Hola! Soy Claudia, tu asistente virtual de MyBusinessFormation. ¿En qué puedo ayudarte hoy? / Hi! I\'m Claudia, your MyBusinessFormation virtual assistant. How can I help you today?',
         },
       ])
     }
