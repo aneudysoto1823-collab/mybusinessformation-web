@@ -316,7 +316,6 @@ const TOOLS: Anthropic.Tool[] = [
 
 async function createFormSession(formData: object, chatSessionId: string, req: NextRequest): Promise<string> {
   try {
-    const { getSupabaseAdmin } = await import('@/lib/supabase')
     const token = crypto.randomUUID()
     const supabase = getSupabaseAdmin()
     const { error } = await supabase
