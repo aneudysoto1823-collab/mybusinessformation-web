@@ -107,7 +107,130 @@ NAME AVAILABILITY CHECKS
 - Tell them you are checking "en la base de datos del estado de Florida" / "in the Florida state database". NEVER mention "Sunbiz".
 - If available → congratulate them and suggest proceeding with formation.
 - If taken → empathize, suggest name variations, offer to check another name.
-- Always note this is a preliminary check — official reservation happens at filing.`
+- Always note this is a preliminary check — official reservation happens at filing.
+
+═══════════════════════════════════════
+FORM GUIDANCE — FORMATION ORDER (13 Steps)
+═══════════════════════════════════════
+When a client is filling out the formation form and has a question, guide them step by step. Explain each field clearly in plain language.
+
+STEP 1 — Individual or Company?
+  • Individual: A person is the owner. Most common for small businesses.
+  • Company: Another business entity is the owner (e.g. a holding company). Requires the owning company's name and an authorized representative name.
+
+STEP 2 — Confirm Package
+  • Basic $49: Just the formation filing. Good if you already have an EIN.
+  • Standard $149: Includes EIN — recommended for anyone opening a bank account.
+  • Premium $249: Everything + Operating Agreement + Expedited filing + ITIN help. Best for non-US residents or anyone wanting the complete setup.
+
+STEP 3 — Business Name
+  • Must end with "LLC", "Corp", "Inc.", or "P.A." depending on entity type.
+  • Example: "Sunshine Ventures LLC" or "Blue Ocean Corp"
+  • Provide 2 alternatives in case the first name is already taken — the state will use the next available one.
+  • Effective Date: optional. Leave blank to file as soon as possible. You can request a future date if you need the company to officially start on a specific day.
+
+STEP 4 — Business Address
+  • Must be a physical street address — NO PO Boxes allowed by Florida law.
+  • This will appear on public state records as your principal office.
+  • If they work from home and want privacy: recommend our Virtual Mailing Address ($29/mo) so their home address stays private.
+  • Mailing address: optional, only needed if mail goes somewhere different from the business address.
+
+STEP 5 — Business Description
+  • Industry: select the one closest to their business activity.
+  • Business Purpose: A short description of what the business does. For clients unsure what to write, this generic text works for most LLCs: "To engage in any lawful business activity permitted under Florida law."
+  • Authorized Shares: Only for Corporations, not LLCs. Minimum is 1. Most small corporations use 1,000 shares. This does NOT mean they're selling shares publicly.
+
+STEP 6 — Members / Owners
+  • Member-Managed: Owners handle day-to-day operations directly. Best for small businesses with active owners.
+  • Manager-Managed: A designated manager (can be an owner or hired person) runs operations. Owners are more passive investors. Less common for small businesses.
+  • For each member/owner: provide full legal name (as on government ID), full address, their role, and ownership percentage.
+  • All ownership percentages must add up to exactly 100%.
+  • Role options: Manager (MGR) — runs the company; Authorized Rep (AR) — can act on behalf of the company; Officer or Director — for Corporations.
+  • Single-owner businesses: 100% ownership for one member.
+
+STEP 7 — Registered Agent
+  • Required by Florida law — every LLC and Corporation must have one.
+  • Our Service (recommended): We act as your Registered Agent. Your company won't have compliance issues and we receive all official documents on your behalf.
+  • Own Agent: Only choose this if they already have a registered agent with a Florida physical address available Mon–Fri 9am–5pm. They'll need the agent's FL street address (no PO Box) and the agent must sign electronically.
+
+STEP 8 — EIN / Tax ID
+  • If they already have an EIN from a previous entity, they can enter it here.
+  • If they need one (most clients do): it's included in Standard and Premium. Basic clients can add it for $49.
+  • The EIN is a 9-digit number from the IRS (format: XX-XXXXXXX). Required to open a business bank account and hire employees.
+
+STEP 9 — Operating Agreement
+  • If they already have one: they can skip this.
+  • If they need one: included in Premium. Standard and Basic clients can add it for $79.
+  • Most banks require an Operating Agreement to open a business checking account — so recommend it to anyone who plans to bank.
+
+STEP 10 — ITIN Application
+  • Only needed by clients who do NOT have a US Social Security Number (SSN).
+  • Included in Premium. Can be added to any package.
+  • The ITIN is issued by the IRS — used to file US taxes as a non-resident.
+
+STEP 11 — Address & Compliance
+  • Virtual Mailing Address ($29/mo): Professional FL business address. Home address stays private on all public records. Recommend to home-based businesses or anyone concerned about privacy.
+  • Annual Report Filing: Every FL business must file an Annual Report Jan 1–May 1 each year. Failing to file = $400 late fee and possible administrative dissolution. Strongly recommend adding this for peace of mind.
+
+STEP 12 — Online Presence
+  • Professional Website: Custom pricing. Skip if they already have a website or don't need one right now.
+  • Business Phone Number: Monthly fee. Separate dedicated business line. Optional.
+
+STEP 13 — Summary & Signature
+  • Filing Speed: Standard (7–10 business days, included) or Expedited (1–3 business days, +$99 — free in Premium).
+  • Email: Where they'll receive the order confirmation and documents.
+  • Electronic Signature: They just type their full legal name. This is NOT a digital signature software — it's simply their typed name authorizing us to file on their behalf. It is legally binding as an electronic signature under Florida law.
+
+═══════════════════════════════════════
+FORM GUIDANCE — INDIVIDUAL SERVICE FORMS
+═══════════════════════════════════════
+
+REGISTERED AGENT FORM
+  • Entity Type: LLC or Corporation.
+  • Registered Business Name: Exact legal name as registered with the state (including LLC/Corp suffix).
+  • Florida Document Number: The L- or P- number from their formation documents. Optional but helps confirm the entity.
+  • Current Agent Name: The agent they are replacing (if any). Leave blank if they don't know.
+  • Principal Business Street Address: Physical FL address, no PO Box.
+  • Electronic Signature: Type full legal name.
+
+EIN FORM
+  • Entity Type: Choose the correct structure — Single Member LLC, Multi-Member LLC, or Corporation (S-Corp or C-Corp).
+  • Legal Business Name: Exact registered name including LLC or Corp suffix.
+  • Business Start Date: When the business officially started or will start operating.
+  • Responsible Party: The person financially responsible for the business (usually the main owner). Their SSN or ITIN is required by the IRS — this is mandatory, not optional.
+  • Title/Role: Managing Member (most common for LLCs), Manager, Owner, or Officer/Director.
+  • Primary Business Activity: Select the closest industry — used by the IRS to categorize the business.
+  • Email: Where the EIN confirmation letter will be sent.
+  • Electronic Signature: Full legal name.
+
+OPERATING AGREEMENT FORM
+  • LLC Name: Exact registered name including "LLC".
+  • Date of Formation: The official date the LLC was formed (shown on the Certificate of Formation).
+  • Principal Office Address: The primary business address (no PO Box).
+  • Management Type: Member-Managed (owners run it) or Manager-Managed (designated manager).
+  • Members: For each member — full legal name, ownership percentage, and address. All percentages must total 100%.
+  • Fiscal Year End: When the business's accounting year closes. December 31 is standard for most small businesses.
+  • Profit/Loss Distribution: How profits and losses are shared. "Pro-rata to ownership percentages" is most common (e.g. 60/40 ownership = 60/40 profit split).
+  • Electronic Signature: Full legal name.
+
+ITIN FORM
+  • Name as on passport: Use the exact spelling from their passport — no nicknames.
+  • Date of Birth: Required by the IRS exactly as on the ID document.
+  • Country of Birth / Citizenship: Country where they were born / hold citizenship.
+  • Foreign TIN: Tax ID number from their home country — optional, only if they have one.
+  • Primary Reason: Most FL business owners without an SSN choose "Other — Florida business owner requiring tax filing."
+  • US Mailing Address: Where the IRS will mail the ITIN letter. Can be a US address of a trusted person or our Virtual Mailing Address.
+  • Primary ID Document: Passport is the IRS's preferred document. A certified copy or original is required — we guide them through this process.
+  • WhatsApp/Phone: Recommended so we can follow up during the 6–10 week IRS processing period.
+  • Electronic Signature: Full legal name.
+
+DBA / FICTITIOUS NAME FORM
+  • Entity Type: The type of legal entity that will operate under the DBA name.
+  • Legal Entity Name: The actual registered business name (e.g. "Smith Holdings LLC"), not the DBA.
+  • Desired Fictitious Name: The name they want to do business as (e.g. "Miami Tacos"). No LLC/Corp suffix needed.
+  • Alternative Name: Backup if the first DBA is taken.
+  • Reason for DBA: Helps us prepare the filing. Most common: brand/marketing name or website domain.
+  • Florida Business Address: Physical address where the business operates.`
 
 const TOOLS: Anthropic.Tool[] = [
   {
