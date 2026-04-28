@@ -464,7 +464,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
     </a>
     <nav>
       <a href="/" data-en="Home" data-es="Inicio">Inicio</a>
-      <a href="/paquetes" data-en="Formation Packages" data-es="Paquetes de Formación">Paquetes de Formación</a>
+      <a href="/#pricing" data-en="Formation Packages" data-es="Paquetes de Formación">Paquetes de Formación</a>
       <a href="/#faq" data-en="FAQ" data-es="Preguntas Frecuentes">Preguntas Frecuentes</a>
       <a href="/#contact" data-en="Contact" data-es="Contacto">Contacto</a>
     </nav>
@@ -495,7 +495,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
     <h2 id="bundle-title">Ahorra con un Paquete de Formación</h2>
     <p id="bundle-sub">Nuestros paquetes Standard y Premium combinan varios servicios — pagas menos que ordenándolos individualmente.</p>
     <div class="bundle-btns">
-      <a href="/paquetes"><button id="bundle-btn-main" class="btn-bundle-primary">&#128197; Ver Paquetes de Formación &#8594;</button></a>
+      <a href="/#pricing"><button id="bundle-btn-main" class="btn-bundle-primary">&#128197; Ver Paquetes de Formación &#8594;</button></a>
       <button id="bundle-btn-sec" class="btn-bundle-sec" onclick="window.open('https://calendly.com/PLACEHOLDER','_blank')">&#128197; Programar cita de consulta</button>
     </div>
   </div>
@@ -513,8 +513,8 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
       </div>
       <div class="footer-col">
         <h5 data-en="Formation" data-es="Formación">Formación</h5>
-        <a href="/paquetes?entity=llc" data-en="LLC Formation" data-es="Formación de LLC">Formación de LLC</a>
-        <a href="/paquetes?entity=corp" data-en="Corporation Formation" data-es="Formación de Corporación">Formación de Corporación</a>
+        <a href="/#pricing" data-en="LLC Formation" data-es="Formación de LLC">Formación de LLC</a>
+        <a href="/#pricing" data-en="Corporation Formation" data-es="Formación de Corporación">Formación de Corporación</a>
         <a href="#registered-agent" onclick="openServiceForm('registered-agent')" data-en="Registered Agent" data-es="Agente Registrado">Agente Registrado</a>
         <a href="#ein" onclick="openServiceForm('ein')" data-en="EIN / Tax ID" data-es="EIN / ID Fiscal">EIN / ID Fiscal</a>
         <a href="#operating-agreement" onclick="openServiceForm('operating-agreement')" data-en="Operating Agreement" data-es="Acuerdo Operativo">Acuerdo Operativo</a>
@@ -530,7 +530,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
       <div class="footer-col">
         <h5 data-en="Company" data-es="Compañía">Compañía</h5>
         <a href="/" data-en="Home" data-es="Inicio">Inicio</a>
-        <a href="/paquetes" data-en="Formation Packages" data-es="Paquetes de Formación">Paquetes de Formación</a>
+        <a href="/#pricing" data-en="Formation Packages" data-es="Paquetes de Formación">Paquetes de Formación</a>
         <a href="/#faq" data-en="FAQ" data-es="Preguntas Frecuentes">Preguntas Frecuentes</a>
         <a href="/#contact" data-en="Contact" data-es="Contacto">Contacto</a>
       </div>

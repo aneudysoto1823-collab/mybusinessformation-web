@@ -84,7 +84,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
     </a>
     <nav>
       <a href="/" data-en="Home" data-es="Inicio">Home</a>
-      <a href="/paquetes" data-en="Packages" data-es="Paquetes">Packages</a>
+      <a href="/#pricing" data-en="Packages" data-es="Paquetes">Packages</a>
       <a href="/servicios" data-en="Services" data-es="Servicios">Services</a>
       <a href="/#faq" data-en="FAQ" data-es="Preguntas">FAQ</a>
       <a href="/#contact" data-en="Contact" data-es="Contacto">Contact</a>

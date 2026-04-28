@@ -36,6 +36,23 @@ NOTA: Los archivos HTML (about.html, legal.html, etc.) fueron ELIMINADOS del rep
 el 2026-04-20. Ya no existen ni en la raíz ni dentro de backend/. El sitio corre
 100% desde los componentes .tsx de Next.js.
 
+NOTA (2026-04-28): La página `/paquetes` (backend/app/paquetes/page.tsx) quedó
+huérfana de la navegación pública. Toda la navegación que antes iba a `/paquetes`
+ahora apunta a `/#pricing` (la sección de paquetes que vive en el home). Sin
+embargo `/paquetes` SIGUE VIVA porque el bot del chat AI la usa como deep-link
+con token de sesión (`/paquetes?session=<token>` en backend/app/api/chat/route.ts).
+
+[ TAREA PENDIENTE — eliminar /paquetes ]
+Para poder eliminar definitivamente backend/app/paquetes/page.tsx hay que primero:
+  1. Reescribir el flujo del bot AI en backend/app/api/chat/route.ts para que el
+     deep-link con token apunte a otra ruta (ej. al home o a una nueva ruta dedicada).
+  2. Migrar el manejo del query param `?session=<token>` a esa ruta destino.
+  3. Recién entonces borrar backend/app/paquetes/page.tsx.
+La página actual está desactualizada: hero por defecto en inglés, contiene un
+botón "Start My Business / Iniciar Mi Negocio" que ya fue eliminado del resto del
+sitio, y usa `overflow-x:hidden` (regla del proyecto: no usar overflow-x:hidden).
+Ver LOGICA_DE_NEGOCIO/03_paquetes_y_precios.md para detalles de la decisión.
+
 ## Cómo funciona el sistema
 Cada page.tsx es un componente React de Next.js con su propio JSX y estilos.
 El flujo anterior (leer HTML con `fs.readFileSync`) quedó OBSOLETO cuando se
