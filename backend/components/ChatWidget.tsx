@@ -85,10 +85,10 @@ export default function ChatWidget() {
   const formContextRef = useRef<string>('')
 
   useEffect(() => {
-    if (open && messages.length === 0) {
+    if (open) {
       const ctx = readFormContext()
 
-      // Build form context string for the API
+      // Always update form context so Claudia knows the current step
       const parts: string[] = []
       if (ctx.lang === 'es') parts.push('El cliente está usando el sitio en español.')
       if (ctx.firstName) parts.push(`Nombre del cliente: ${ctx.firstName}.`)
@@ -97,22 +97,27 @@ export default function ChatWidget() {
       if (ctx.step && ctx.step !== '' && !isNaN(Number(ctx.step))) parts.push(`El cliente está en el paso ${ctx.step} del formulario.`)
       formContextRef.current = parts.join(' ')
 
-      // Personalized greeting
-      const es = ctx.lang === 'es'
-      let greeting: string
-      if (ctx.firstName && es) {
-        greeting = `¡Hola ${ctx.firstName}! Soy Claudia, tu asistente virtual de MyBusinessFormation. ¿En qué puedo ayudarte?`
-      } else if (ctx.firstName) {
-        greeting = `Hi ${ctx.firstName}! I'm Claudia, your MyBusinessFormation virtual assistant. How can I help you?`
-      } else if (es) {
-        greeting = `¡Hola! Soy Claudia, tu asistente virtual de MyBusinessFormation. ¿En qué puedo ayudarte hoy?`
+      if (messages.length === 0) {
+        // Personalized greeting only on first open
+        const es = ctx.lang === 'es'
+        let greeting: string
+        if (ctx.firstName && es) {
+          greeting = `¡Hola ${ctx.firstName}! Soy Claudia, tu asistente virtual de MyBusinessFormation. ¿En qué puedo ayudarte?`
+        } else if (ctx.firstName) {
+          greeting = `Hi ${ctx.firstName}! I'm Claudia, your MyBusinessFormation virtual assistant. How can I help you?`
+        } else if (es) {
+          greeting = `¡Hola! Soy Claudia, tu asistente virtual de MyBusinessFormation. ¿En qué puedo ayudarte hoy?`
+        } else {
+          greeting = `Hi! I'm Claudia, your MyBusinessFormation virtual assistant. How can I help you today?`
+        }
+        setMessages([{ role: 'assistant', content: greeting }])
       } else {
-        greeting = `Hi! I'm Claudia, your MyBusinessFormation virtual assistant. How can I help you today?`
+        // Scroll to bottom so user sees latest messages, not old ones
+        setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'instant' }), 50)
       }
 
-      setMessages([{ role: 'assistant', content: greeting }])
+      setTimeout(() => inputRef.current?.focus(), 100)
     }
-    if (open) setTimeout(() => inputRef.current?.focus(), 100)
   }, [open])
 
   useEffect(() => {
