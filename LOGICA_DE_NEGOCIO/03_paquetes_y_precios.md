@@ -94,3 +94,39 @@ La ruta `/paquetes` aún es usada por el **bot del chat AI**
 
 Mientras tanto, `/paquetes` queda huérfana de la navegación pública pero viva
 para el bot.
+
+---
+
+## Cierre 2026-04-29 — `/paquetes` eliminada
+
+### Migración del flujo de Claudia (Fabián, commit `3725f61`)
+- `backend/app/api/chat/route.ts:369` — el deep-link cambió de
+  `${origin}/paquetes?session=${token}` a `${origin}/?session=${token}`.
+- `backend/app/api/chat/route.ts:101, 110` — los prompts del bot ya no mencionan
+  `/paquetes`, ahora dicen "visit the homepage".
+- `backend/app/page.tsx` — se agregaron ~94 líneas con:
+  - Listener IIFE que detecta `?session=TOKEN` en la URL.
+  - Fetch a `/api/form-session/<token>` para recuperar `form_data`.
+  - Función `claudiaPrefill()` que pre-llena: tipo de entidad, nombre del negocio
+    (separando sufijo LLC/Corp), nombres alternativos, contacto, miembros,
+    agente registrado.
+  - Banner azul "✓ Claudia pre-llenó tu formulario" con i18n EN/ES,
+    auto-eliminado a los 7s.
+- Endpoint `backend/app/api/form-session/[token]/route.ts` ya existía y resuelve
+  el token contra Supabase.
+
+### Eliminación final (2026-04-29)
+- Verificación previa al borrado:
+  - Cero referencias a `/paquetes` en código de navegación pública.
+  - Cero referencias a `/paquetes` en `chat/route.ts`.
+  - Endpoint `/api/form-session/[token]` operativo.
+  - Claudia respondió correctamente en `localhost:3000` con la API key cargada
+    desde `.env.local`.
+- `backend/app/paquetes/page.tsx` eliminada del repo (1502 líneas).
+
+### Trade-offs aceptados
+- Los query params antiguos `?entity=llc` y `?entity=corp` siguen sin soporte
+  en el home. Un click desde el dropdown "Formación de LLC / Corporación" en el
+  navbar de servicios lleva a `/#pricing` plano sin preseleccionar la entidad.
+  Si en el futuro se quiere recuperar esa preselección, hay que agregar lógica
+  en el home para leer el query param y activar el toggle LLC/Corp al cargar.

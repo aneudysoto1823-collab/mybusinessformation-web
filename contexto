@@ -18,7 +18,6 @@ mybusinessformation-web/
       about/page.tsx
       legal/page.tsx
       servicios/page.tsx
-      paquetes/page.tsx
       privacy/page.tsx
       terms/page.tsx
       admin/                ← Panel de Administración (Etapa 8)
@@ -36,22 +35,18 @@ NOTA: Los archivos HTML (about.html, legal.html, etc.) fueron ELIMINADOS del rep
 el 2026-04-20. Ya no existen ni en la raíz ni dentro de backend/. El sitio corre
 100% desde los componentes .tsx de Next.js.
 
-NOTA (2026-04-28): La página `/paquetes` (backend/app/paquetes/page.tsx) quedó
-huérfana de la navegación pública. Toda la navegación que antes iba a `/paquetes`
-ahora apunta a `/#pricing` (la sección de paquetes que vive en el home). Sin
-embargo `/paquetes` SIGUE VIVA porque el bot del chat AI la usa como deep-link
-con token de sesión (`/paquetes?session=<token>` en backend/app/api/chat/route.ts).
-
-[ TAREA PENDIENTE — eliminar /paquetes ]
-Para poder eliminar definitivamente backend/app/paquetes/page.tsx hay que primero:
-  1. Reescribir el flujo del bot AI en backend/app/api/chat/route.ts para que el
-     deep-link con token apunte a otra ruta (ej. al home o a una nueva ruta dedicada).
-  2. Migrar el manejo del query param `?session=<token>` a esa ruta destino.
-  3. Recién entonces borrar backend/app/paquetes/page.tsx.
-La página actual está desactualizada: hero por defecto en inglés, contiene un
-botón "Start My Business / Iniciar Mi Negocio" que ya fue eliminado del resto del
-sitio, y usa `overflow-x:hidden` (regla del proyecto: no usar overflow-x:hidden).
-Ver LOGICA_DE_NEGOCIO/03_paquetes_y_precios.md para detalles de la decisión.
+NOTA (2026-04-29): La página `/paquetes` fue ELIMINADA del repo. Todo el flujo
+fue migrado al home:
+  - Navegación pública apunta a `/#pricing` (commit b561987 del 2026-04-28).
+  - Deep-link de Claudia con token de sesión apunta a `${origin}/?session=${token}`
+    (commit 3725f61 del 2026-04-29 por Fabián).
+  - El home (`backend/app/page.tsx`) contiene el listener de `?session=` y la
+    función `claudiaPrefill()` que pre-llena el formulario con los datos del cliente.
+  - El endpoint `backend/app/api/form-session/[token]/route.ts` resuelve el token
+    y devuelve `form_data` desde Supabase.
+  - El archivo `backend/app/paquetes/page.tsx` fue borrado (commit del 2026-04-29).
+Tarea cerrada. Ver LOGICA_DE_NEGOCIO/03_paquetes_y_precios.md para el historial
+completo de la decisión.
 
 ## Cómo funciona el sistema
 Cada page.tsx es un componente React de Next.js con su propio JSX y estilos.
