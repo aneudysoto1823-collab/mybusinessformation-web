@@ -128,13 +128,12 @@ export default function ChatWidget() {
     prevMsgCount.current = newCount
 
     if (loading) {
-      // While waiting, scroll to bottom to show typing dots
       bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
     } else if (isNewMessage && messages[messages.length - 1]?.role === 'assistant') {
-      // New assistant message — scroll to its START so client reads from top
       lastMsgRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      // Re-focus input after Claudia responds
+      setTimeout(() => inputRef.current?.focus(), 50)
     } else if (isNewMessage) {
-      // User message — scroll to bottom
       bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
     }
   }, [messages, loading])
