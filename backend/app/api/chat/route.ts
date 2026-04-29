@@ -391,7 +391,7 @@ async function checkNameAvailability(name: string): Promise<string> {
 
 export async function POST(req: NextRequest) {
   try {
-    const { messages, session_id } = await req.json()
+    const { messages, session_id, form_context } = await req.json()
 
     if (!Array.isArray(messages) || messages.length === 0) {
       return NextResponse.json({ error: 'Invalid messages' }, { status: 400 })
@@ -401,6 +401,11 @@ export async function POST(req: NextRequest) {
       (m: { role: string; content: string }) =>
         (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string'
     )
+
+    // Append live form context to system prompt when available
+    const systemPrompt = form_context && typeof form_context === 'string' && form_context.trim()
+      ? `${SYSTEM_PROMPT}\n\n═══════════════════════════════════════\nCLIENT FORM CONTEXT (live data read from the form right now)\n═══════════════════════════════════════\n${form_context.trim()}\nUse this to personalize your responses. Greet by name if available. Match the detected language exactly.`
+      : SYSTEM_PROMPT
 
     // Tool-use agentic loop
     type MsgParam = Anthropic.MessageParam
@@ -412,7 +417,7 @@ export async function POST(req: NextRequest) {
     let response = await client.messages.create({
       model: 'claude-sonnet-4-6',
       max_tokens: 1024,
-      system: SYSTEM_PROMPT,
+      system: systemPrompt,
       tools: TOOLS,
       messages: apiMessages,
     })
@@ -443,7 +448,7 @@ export async function POST(req: NextRequest) {
       response = await client.messages.create({
         model: 'claude-sonnet-4-6',
         max_tokens: 1024,
-        system: SYSTEM_PROMPT,
+        system: systemPrompt,
         tools: TOOLS,
         messages: apiMessages,
       })

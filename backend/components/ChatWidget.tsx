@@ -49,6 +49,31 @@ function ClaudiaAvatar({ size = 42, uid = 'a' }: { size?: number; uid?: string }
   )
 }
 
+function readFormContext(): { lang: string; firstName: string; businessName: string; email: string; step: string } {
+  const lang = localStorage.getItem('flbc_lang') || 'en'
+
+  // Member first name — first text input inside #member-1
+  const memberBlock = document.getElementById('member-1')
+  const nameInputs = memberBlock?.querySelectorAll('input[type="text"]')
+  const firstName = ((nameInputs?.[0] as HTMLInputElement)?.value || '').trim()
+  const lastName = ((nameInputs?.[1] as HTMLInputElement)?.value || '').trim()
+  const fullFirstName = firstName ? (lastName ? `${firstName} ${lastName}` : firstName) : ''
+
+  // Business name — first text input inside #step3
+  const step3 = document.getElementById('step3')
+  const businessName = ((step3?.querySelector('input[type="text"]') as HTMLInputElement)?.value || '').trim()
+
+  // Email — email input in the form
+  const emailInput = document.querySelector('#formOverlay input[type="email"]') as HTMLInputElement
+  const email = (emailInput?.value || '').trim()
+
+  // Current step
+  const activeStep = document.querySelector('.form-step.active') as HTMLElement
+  const step = activeStep?.id?.replace('step', '') || ''
+
+  return { lang, firstName: fullFirstName, businessName, email, step }
+}
+
 export default function ChatWidget() {
   const [open, setOpen] = useState(false)
   const [messages, setMessages] = useState<Message[]>([])
@@ -60,16 +85,35 @@ export default function ChatWidget() {
   const sessionId = useRef<string>(
     typeof crypto !== 'undefined' ? crypto.randomUUID() : Math.random().toString(36).slice(2)
   )
+  const formContextRef = useRef<string>('')
 
   useEffect(() => {
     if (open && messages.length === 0) {
-      setMessages([
-        {
-          role: 'assistant',
-          content:
-            '¡Hola! Soy Claudia, tu asistente virtual de MyBusinessFormation. ¿En qué puedo ayudarte hoy? / Hi! I\'m Claudia, your MyBusinessFormation virtual assistant. How can I help you today?',
-        },
-      ])
+      const ctx = readFormContext()
+
+      // Build form context string for the API
+      const parts: string[] = []
+      if (ctx.lang === 'es') parts.push('El cliente está usando el sitio en español.')
+      if (ctx.firstName) parts.push(`Nombre del cliente: ${ctx.firstName}.`)
+      if (ctx.businessName) parts.push(`Nombre de negocio ingresado: "${ctx.businessName}".`)
+      if (ctx.email) parts.push(`Email del cliente: ${ctx.email}.`)
+      if (ctx.step && ctx.step !== '' && !isNaN(Number(ctx.step))) parts.push(`El cliente está en el paso ${ctx.step} del formulario.`)
+      formContextRef.current = parts.join(' ')
+
+      // Personalized greeting
+      const es = ctx.lang === 'es'
+      let greeting: string
+      if (ctx.firstName && es) {
+        greeting = `¡Hola ${ctx.firstName}! Soy Claudia, tu asistente virtual de MyBusinessFormation. ¿En qué puedo ayudarte?`
+      } else if (ctx.firstName) {
+        greeting = `Hi ${ctx.firstName}! I'm Claudia, your MyBusinessFormation virtual assistant. How can I help you?`
+      } else if (es) {
+        greeting = `¡Hola! Soy Claudia, tu asistente virtual de MyBusinessFormation. ¿En qué puedo ayudarte hoy?`
+      } else {
+        greeting = `Hi! I'm Claudia, your MyBusinessFormation virtual assistant. How can I help you today?`
+      }
+
+      setMessages([{ role: 'assistant', content: greeting }])
     }
     if (open) setTimeout(() => inputRef.current?.focus(), 100)
   }, [open])
@@ -90,7 +134,7 @@ export default function ChatWidget() {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: next, session_id: sessionId.current }),
+        body: JSON.stringify({ messages: next, session_id: sessionId.current, form_context: formContextRef.current }),
       })
       if (!res.ok) throw new Error('Error de servidor')
       const data = await res.json()
