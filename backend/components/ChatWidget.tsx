@@ -78,7 +78,9 @@ export default function ChatWidget() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const bottomRef = useRef<HTMLDivElement>(null)
+  const lastMsgRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const prevMsgCount = useRef(0)
   const sessionId = useRef<string>(
     typeof crypto !== 'undefined' ? crypto.randomUUID() : Math.random().toString(36).slice(2)
   )
@@ -121,7 +123,20 @@ export default function ChatWidget() {
   }, [open])
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    const newCount = messages.length
+    const isNewMessage = newCount > prevMsgCount.current
+    prevMsgCount.current = newCount
+
+    if (loading) {
+      // While waiting, scroll to bottom to show typing dots
+      bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    } else if (isNewMessage && messages[messages.length - 1]?.role === 'assistant') {
+      // New assistant message — scroll to its START so client reads from top
+      lastMsgRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    } else if (isNewMessage) {
+      // User message — scroll to bottom
+      bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }
   }, [messages, loading])
 
   async function send() {
@@ -285,6 +300,7 @@ export default function ChatWidget() {
             {messages.map((m, i) => (
               <div
                 key={i}
+                ref={i === messages.length - 1 ? lastMsgRef : undefined}
                 style={{
                   display: 'flex',
                   justifyContent: m.role === 'user' ? 'flex-end' : 'flex-start',
