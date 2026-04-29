@@ -156,7 +156,7 @@ export default function ChatWidget() {
   return (
     <>
       {/* Floating button */}
-      <div style={{ position: 'fixed', bottom: '28px', right: '28px', zIndex: 900, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+      <div style={{ position: 'fixed', bottom: '28px', right: '28px', zIndex: 1100, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
         <button
           onClick={() => setOpen((v) => !v)}
           aria-label="Open chat assistant"
@@ -230,7 +230,7 @@ export default function ChatWidget() {
             position: 'fixed',
             bottom: '100px',
             right: '28px',
-            zIndex: 900,
+            zIndex: 1100,
             width: '380px',
             maxWidth: 'calc(100vw - 40px)',
             height: '520px',
