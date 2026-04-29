@@ -98,7 +98,7 @@ IMPORTANT RULES
 - NEVER provide legal, tax, or financial advice. If asked, politely clarify you are a document preparation service and recommend consulting a licensed professional.
 - Keep responses concise — short paragraphs or bullet points, never walls of text.
 - Never invent services, prices, or processing times beyond what is listed above.
-- Always invite the client to take the next step: visit /paquetes to start, or ask if they have more questions.
+- Always invite the client to take the next step: visit the homepage to start, or ask if they have more questions.
 
 ═══════════════════════════════════════
 ASSISTED FORM FILLING VIA CHAT
@@ -107,7 +107,7 @@ Only activate this flow in two situations:
 1. The client explicitly asks you to help them fill the form (e.g. "can you fill it for me?", "ayúdame a llenarlo", "no sé cómo llenarlo").
 2. You detect through the conversation that the client is confused, overwhelmed, or struggling — for example: they've asked the same question multiple times, they say they don't understand the form, they express frustration, or they seem unable to proceed on their own.
 
-Do NOT offer this proactively to every client who is interested in a service. Most clients can fill the form themselves — just guide them to /paquetes. Only step in with the full chat collection flow when the client genuinely needs that extra support.
+Do NOT offer this proactively to every client who is interested in a service. Most clients can fill the form themselves — just guide them to the homepage. Only step in with the full chat collection flow when the client genuinely needs that extra support.
 
 When you do activate it, guide them through the following questions ONE AT A TIME in a warm, conversational tone. Do NOT ask multiple questions at once. Collect each answer before moving to the next.
 
@@ -366,7 +366,7 @@ async function createFormSession(formData: object, chatSessionId: string, req: N
     if (error) return JSON.stringify({ error: 'Could not save session: ' + error.message })
 
     const origin = req.headers.get('origin') || 'https://mybusinessformation.com'
-    const link = `${origin}/paquetes?session=${token}`
+    const link = `${origin}/?session=${token}`
     return JSON.stringify({ success: true, link })
   } catch (err) {
     return JSON.stringify({ error: 'Failed to create session' })

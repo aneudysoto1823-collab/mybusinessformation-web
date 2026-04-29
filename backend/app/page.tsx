@@ -5956,6 +5956,100 @@ document.addEventListener('click', function(e) {
     if(arrow) arrow.style.transform = 'rotate(0deg)';
   }
 });
+
+// ── Claudia pre-fill via ?session=TOKEN ──────────────────────────
+(function(){
+  var p = new URLSearchParams(window.location.search);
+  var session = p.get('session');
+  if(!session) return;
+  fetch('/api/form-session/'+session)
+    .then(function(r){return r.ok?r.json():null;})
+    .then(function(res){
+      if(!res||!res.form_data) return;
+      openFormFromPkg(res.form_data.package||'standard');
+      setTimeout(function(){claudiaPrefill(res.form_data);},300);
+    })
+    .catch(function(){});
+})();
+
+function claudiaPrefill(d){
+  function setVal(id,val){
+    var el=document.getElementById(id);
+    if(el&&val!==undefined&&val!==null&&val!==''){el.value=val;el.dispatchEvent(new Event('input'));}
+  }
+  function setSelect(id,val){
+    var el=document.getElementById(id);
+    if(el&&val){el.value=val;el.dispatchEvent(new Event('change'));}
+  }
+  function clickEl(id){
+    var el=document.getElementById(id);
+    if(el)el.click();
+  }
+
+  // Entity type
+  if(d.entityType){
+    var etEl=document.getElementById('fms-et-'+(d.entityType==='corp'?'corp':'llc'));
+    if(etEl&&typeof fmSetEntity==='function') fmSetEntity(d.entityType==='corp'?'corp':'llc',etEl);
+  }
+
+  // Business name — split suffix from name
+  if(d.businessName){
+    var suffixes=['Limited Liability Company','L.L.C.','LLC','Corporation','Incorporated','Inc'];
+    var baseName=d.businessName;
+    var suffix='LLC';
+    for(var i=0;i<suffixes.length;i++){
+      if(d.businessName.endsWith(' '+suffixes[i])){
+        baseName=d.businessName.slice(0,-(suffixes[i].length+1)).trim();
+        suffix=suffixes[i];
+        break;
+      }
+    }
+    setVal('inp-bizname',baseName);
+    setSelect('inp-designator',suffix);
+    if(typeof fmUpdateBizName==='function') fmUpdateBizName(baseName);
+  }
+  if(d.altName1) setVal('inp-bizname2',d.altName1.replace(/\s*(LLC|Corp|Inc|L\.L\.C\.|Corporation|Incorporated)$/,'').trim());
+  if(d.altName2) setVal('inp-bizname3',d.altName2.replace(/\s*(LLC|Corp|Inc|L\.L\.C\.|Corporation|Incorporated)$/,'').trim());
+
+  // Contact info (step 2)
+  if(d.members&&d.members[0]){
+    var m=d.members[0];
+    setVal('inp-fname',m.firstName||'');
+    setVal('inp-lname',m.lastName||'');
+  }
+  if(d.email){setVal('inp-email',d.email);setVal('inp-email-confirm',d.email);}
+
+  // Member / owner fields (step 5)
+  if(d.members&&d.members[0]){
+    var m0=d.members[0];
+    setVal('s5-m1-fname',m0.firstName||'');
+    setVal('s5-m1-lname',m0.lastName||'');
+    if(m0.ownership) setVal('s5-m1-own',String(m0.ownership));
+    if(m0.address) setVal('s5-m1-addr',m0.address);
+    if(typeof fmUpdateOwnership==='function') fmUpdateOwnership();
+  }
+
+  // Registered agent (step 3)
+  if(d.registeredAgent){
+    var raChoice=d.registeredAgent==='us'?'ours':'own';
+    var raEl=document.getElementById('agent-use-'+raChoice);
+    if(raEl&&typeof fmSetAgentChoice==='function') fmSetAgentChoice(raChoice,raEl);
+  }
+
+  // Show banner
+  var existing=document.getElementById('claudia-prefill-banner');
+  if(!existing){
+    var banner=document.createElement('div');
+    banner.id='claudia-prefill-banner';
+    banner.style.cssText='position:fixed;top:0;left:0;right:0;z-index:2000;background:#2563EB;color:#fff;text-align:center;padding:10px 20px;font-size:.84rem;font-weight:600;font-family:inherit;';
+    var lang=localStorage.getItem('flbc_lang');
+    banner.textContent=lang==='es'
+      ?'✓ Claudia pre-llenó tu formulario. Revisa cada paso, confirma y paga.'
+      :'✓ Claudia pre-filled your form. Review each step, confirm and pay.';
+    document.body.prepend(banner);
+    setTimeout(function(){if(banner.parentNode)banner.parentNode.removeChild(banner);},7000);
+  }
+}
 </script>
 `
   return (

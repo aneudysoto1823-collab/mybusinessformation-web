@@ -52,24 +52,21 @@ function ClaudiaAvatar({ size = 42, uid = 'a' }: { size?: number; uid?: string }
 function readFormContext(): { lang: string; firstName: string; businessName: string; email: string; step: string } {
   const lang = localStorage.getItem('flbc_lang') || 'en'
 
-  // Member first name — first text input inside #member-1
-  const memberBlock = document.getElementById('member-1')
-  const nameInputs = memberBlock?.querySelectorAll('input[type="text"]')
-  const firstName = ((nameInputs?.[0] as HTMLInputElement)?.value || '').trim()
-  const lastName = ((nameInputs?.[1] as HTMLInputElement)?.value || '').trim()
+  // First/last name — step 2 of new 7-step form
+  const firstName = ((document.getElementById('inp-fname') as HTMLInputElement)?.value || '').trim()
+  const lastName = ((document.getElementById('inp-lname') as HTMLInputElement)?.value || '').trim()
   const fullFirstName = firstName ? (lastName ? `${firstName} ${lastName}` : firstName) : ''
 
-  // Business name — first text input inside #step3
-  const step3 = document.getElementById('step3')
-  const businessName = ((step3?.querySelector('input[type="text"]') as HTMLInputElement)?.value || '').trim()
+  // Business name — step 1 of new 7-step form
+  const businessName = ((document.getElementById('inp-bizname') as HTMLInputElement)?.value || '').trim()
 
-  // Email — email input in the form
-  const emailInput = document.querySelector('#formOverlay input[type="email"]') as HTMLInputElement
-  const email = (emailInput?.value || '').trim()
+  // Email — step 2
+  const email = ((document.getElementById('inp-email') as HTMLInputElement)?.value || '').trim()
 
-  // Current step
-  const activeStep = document.querySelector('.form-step.active') as HTMLElement
-  const step = activeStep?.id?.replace('step', '') || ''
+  // Current step — read from progress indicator
+  const pct = (document.getElementById('fp-pct') as HTMLElement)?.textContent || ''
+  const stepMatch = pct.match(/(\d+)/)
+  const step = stepMatch ? stepMatch[1] : ''
 
   return { lang, firstName: fullFirstName, businessName, email, step }
 }
