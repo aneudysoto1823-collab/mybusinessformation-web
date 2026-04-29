@@ -1,3 +1,5 @@
+import ChatWidget from '@/components/ChatWidget'
+
 export default function PaquetesPage() {
   const styles = `
 :root{--navy:#1C2E44;--navy2:#22364E;--blue:#2563EB;--blue-light:#EFF6FF;--blue-mid:#DBEAFE;--green:#059669;--green-dark:#047857;--green-light:#ECFDF5;--gold:#F59E0B;--white:#fff;--gray50:#F8FAFC;--gray100:#F1F5F9;--gray200:#E2E8F0;--gray400:#94A3B8;--gray600:#475569;--gray800:#1E293B;}
@@ -1499,6 +1501,6 @@ function claudiaPrefill(d){
 </script>
 `
   return (
-    <main dangerouslySetInnerHTML={{ __html: `<style>${styles}</style>${body}` }} />
+    <><main dangerouslySetInnerHTML={{ __html: `<style>${styles}</style>${body}` }} /><ChatWidget /></>
   )
 }
