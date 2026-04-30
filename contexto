@@ -82,7 +82,7 @@ Si necesitas cambiar el diseño de una página:
 - Stripe — pagos (Etapa 4)
 - Resend — emails (Etapa 7)
 
-## ROADMAP COMPLETO — 10 Etapas
+## ROADMAP COMPLETO — 15 Etapas
 
 ### Etapa 1 — Frontend HTML a Next.js (COMPLETADA)
 - [x] Instalar Node.js y crear proyecto Next.js
@@ -181,3 +181,184 @@ Si necesitas cambiar el diseño de una página:
 - [ ] Revisión de seguridad
 - [ ] Pruebas completas con 10 clientes simulados
 - [ ] Apuntar dominio mybusinessformation.com
+
+### Etapa 11 — SEO Técnico y de Contenido (1-2 semanas)
+
+```diff
++ Qué es: configurar todas las señales que Google y otros motores de búsqueda
++ usan para entender, indexar y rankear el sitio. Cubre dos frentes: (a) SEO
++ técnico — metadata global, sitemap.xml dinámico, robots.txt, Open Graph,
++ Schema.org, hreflang ES/EN, Core Web Vitals; y (b) SEO de contenido — dos
++ páginas nuevas accesibles desde el footer (/guia, /wiki) que alojan los 30
++ artículos en .md que el founder pasa, con cross-links entre ellos y las
++ páginas principales del producto.
++ Qué resuelve: hoy el sitio es prácticamente invisible para buscadores. Esta
++ etapa lo deja indexable, compartible en redes con preview rico, y con
++ contenido editorial que captura tráfico orgánico antes y después del launch.
+```
+
+Pre-requisito: dominio mybusinessformation.com apuntando a Vercel (Etapa 10).
+
+SEO Técnico:
+- [ ] Metadata global completa en backend/app/layout.tsx — Open Graph defaults, Twitter Cards (summary_large_image), canonical, metadataBase apuntando a https://mybusinessformation.com, alternates.languages con hreflang ES/EN explícito (sitio bilingüe)
+- [ ] backend/app/sitemap.ts dinámico con todas las páginas públicas indexables (home, servicios, about, legal, privacy, terms, login, client-portal, guía, wiki y artículos) — NO incluir /admin ni rutas internas
+- [ ] backend/app/robots.ts con Disallow: /admin/, /api/, /client-portal/dashboard + referencia al sitemap
+- [ ] backend/app/opengraph-image.tsx — autogenera 1200×630 PNG con logo "FL" + wordmark + tagline (Next.js ImageResponse)
+- [ ] Schema.org JSON-LD en home y páginas clave: Organization, WebSite, Service (LLC formation, Corporation formation), FAQPage (preguntas existentes), BreadcrumbList
+- [ ] Favicon set completo: 16×16, 32×32, 192×192, 512×512, apple-touch-icon
+- [ ] Meta titles únicos + meta descriptions únicas por página (cada page.tsx exporta su propio metadata)
+- [ ] Audit de alt text en todas las imágenes
+- [ ] Core Web Vitals: font preconnect a fonts.gstatic.com, lazy loading de imágenes below-fold, width/height explícitos para evitar CLS
+- [ ] Validación final: Rich Results Test (search.google.com/test/rich-results), Mobile-Friendly Test, PageSpeed Insights ≥ 85 mobile
+
+SEO de Contenido:
+- [ ] Crear 2 páginas nuevas accesibles desde el footer: /guia y /wiki (hub que lista los artículos por categoría)
+- [ ] Formatear e integrar 30 artículos .md que pasa el usuario (división guía/wiki por definir al recibirlos)
+- [ ] Frontmatter en cada .md con date y lastUpdated (string ISO YYYY-MM-DD entre comillas) — Article + BreadcrumbList por artículo se generan automáticamente desde el frontmatter
+- [ ] Cross-links module (backend/lib/cross-links.ts) — relaciones entre artículos y páginas principales (servicios, paquetes, FAQ)
+- [ ] Sitemap.ts incluye automáticamente todos los artículos publicados
+
+Documentación:
+- [ ] LOGICA_DE_NEGOCIO/11_seo_tecnico_y_contenido.md con inventario completo, archivos modificados y decisiones embutidas
+
+### Etapa 12 — Google Search Console (GSC) (2 días)
+
+```diff
++ Qué es: registrar el dominio mybusinessformation.com como propiedad en
++ Google Search Console (y en Bing Webmaster Tools en paralelo), verificar
++ ownership con un archivo HTML permanente en /public, submitear el sitemap
++ generado en la Etapa 11, y dejar activo el monitoreo de Coverage,
++ Performance y Manual Actions con notificaciones por email.
++ Qué resuelve: visibilidad real sobre cómo Google rastrea e indexa el sitio,
++ alertas tempranas si algo se rompe (URLs no indexadas, penalizaciones
++ manuales, errores de cobertura), y la herramienta Change of Address lista
++ por si en el futuro hay migración de dominio o de host.
+```
+
+Depende de Etapa 11 — sin sitemap.xml no hay nada que submitear.
+
+- [ ] Crear propiedad en https://search.google.com/search-console para mybusinessformation.com (propiedad de dominio cubre todos los subdominios)
+- [ ] Verificar ownership con archivo HTML en backend/public/google<hash>.html — NO BORRAR jamás del repo, Google lo requiere permanente
+- [ ] Submit del sitemap: https://mybusinessformation.com/sitemap.xml
+- [ ] Crear propiedad y submit del mismo sitemap en Bing Webmaster Tools (paralelo)
+- [ ] Validar Coverage (Indexing → Pages): meta de 90%+ URLs como "Indexed" en 4 semanas post-submit
+- [ ] Validar Performance (Search results): empieza a recibir clicks/impressions
+- [ ] Validar Manual Actions (Security & Manual Actions): cero issues
+- [ ] Setup de notificaciones por email cuando GSC detecta problemas
+- [ ] Si en el futuro hay migración de dominio (ej. cambio de host): usar Change of Address tool (Settings → Change of Address) ANTES de mover el DNS, sino los rankings no se transfieren limpio
+- [ ] Documentar en LOGICA_DE_NEGOCIO/12_google_search_console.md + plantilla de troubleshooting en TROUBLESHOOTING/
+
+### Etapa 13 — Google Analytics 4 (GA4) (3-4 días)
+
+```diff
++ Qué es: instalar Google Analytics 4 con un helper único trackEvent()
++ SSR-safe, los 3 Script tags en orden (consent default + gtag.js + config),
++ y disparar eventos custom en cada paso clave del funnel del producto:
++ formation_start, step_completed, package_selected, payment_started,
++ payment_completed, claudia_message_sent, login_success, lang_toggle, etc.
++ Todo gobernado por Cookie Consent + Google Consent Mode v2 (CCPA/GDPR).
++ Qué resuelve: entender el comportamiento real de los usuarios — dónde
++ entran, dónde se traban, qué paquete eligen, dónde abandonan el wizard,
++ qué conversión tiene Claudia. Sin esto, el negocio vuela a ciegas.
+```
+
+Depende de Etapa 11 — necesita metadata + cookie banner UI.
+
+- [ ] Crear property GA4 en https://analytics.google.com (Account: MyBusinessFormation; Property: mybusinessformation.com)
+- [ ] Configurar NEXT_PUBLIC_GA_ID=G-XXXXXXXX como env var en Vercel (Production + Preview + Development)
+- [ ] Crear helper único backend/lib/tracking.ts con trackEvent(name, params) SSR-safe — chequeo de typeof window === 'undefined', optional chaining window.gtag?.()
+- [ ] En backend/app/layout.tsx agregar 3 Script tags en orden: gtag-consent-default (beforeInteractive, todos denied), googletagmanager.com/gtag/js (afterInteractive), gtag-init (afterInteractive, gtag('config', '<ID>', { send_page_view: true }))
+- [ ] Cookie Banner + Consent Mode v2 — categorías necessary / analytics / marketing mapeando a analytics_storage, ad_storage, ad_user_data, ad_personalization
+- [ ] Implementar eventos custom del funnel MBF (lista a ajustar al implementar): formation_start, step_completed, package_selected, payment_started, payment_completed, claudia_message_sent, claudia_session_link_used, client_login_success, lang_toggle, external_link_click
+- [ ] Registrar custom dimensions en GA4 Admin (Settings → Custom Definitions): package, step_number, idioma — las que apliquen
+- [ ] PII audit: verificar uno por uno que ningún trackEvent envía email, nombre, dirección, teléfono, ITIN, número de tarjeta — la PII vive solo en Supabase
+- [ ] Smoke test protocol en TROUBLESHOOTING/<n>_ga4_smoke_test.md — tabla de check con los eventos custom + Real-Time validation en GA4
+- [ ] Documentar en LOGICA_DE_NEGOCIO/13_analytics_ga4.md — inventario completo de eventos con archivo:línea, params y insight de negocio
+
+### Etapa 14 — Hardening de Seguridad de la App (1-2 semanas)
+
+```diff
++ Qué es: cerrar los gaps de seguridad que faltan a nivel código y config,
++ siguiendo OWASP Top 10. Incluye: 5 security headers globales en
++ next.config.ts (CSP con whitelist explícita, HSTS, X-Frame, Referrer,
++ Permissions, nosniff), Cookie Consent + Consent Mode v2 (CCPA/GDPR),
++ rate limiting con Upstash Redis en endpoints públicos, validación zod,
++ verificación HMAC de webhooks (Stripe), audit trail admin, RLS audit en
++ Supabase, bcrypt para ADMIN_PASSWORD si todavía es plaintext.
++ Qué resuelve: bloquear los vectores reales de ataque — XSS, clickjacking,
++ brute force al admin, mass assignment, webhooks falsos, leaks de PII —
++ ANTES de cobrar dinero real con tarjetas de crédito de clientes.
+```
+
+Pre-requisito: Etapa 4 (Stripe) lista al menos para staging — varias tareas dependen del flujo de pago real para validar.
+
+Auditoría OWASP y proceso:
+- [ ] Reorganizar carpeta `security/` siguiendo el patrón de preenvios: README.md (metodología + cadencia obligatoria pre-launch + cada 90 días + post-incidentes), 01_auditoria_<fecha>.md (numeradas), monitoring.md
+- [ ] Auditoría OWASP Top 10 completa con clasificación 🔴🟡🟢 + commits de fix por hallazgo + bitácora de remediación
+- [ ] Cadencia formal: no se aprueba deploy a producción si la última auditoría tiene 🔴 críticos abiertos
+
+Auth y sesiones:
+- [ ] Verificar `ADMIN_PASSWORD` hasheado con bcrypt factor 12 (`ADMIN_PASSWORD_HASH` env var, sin plaintext) — si todavía es plaintext, migrar
+- [ ] Cookies HttpOnly + Secure + SameSite=Strict (eliminar condicionales por NODE_ENV — secure: true hardcoded post-launch)
+- [ ] Audit trail admin: tabla `admin_audit_log` con admin_email, action, entity, before, after, created_at — insertar en cada PATCH/POST de panel admin
+
+Defensa server:
+- [ ] Rate limiting con Upstash Redis (`@upstash/ratelimit` + `@upstash/redis`, plan free): /api/auth/login (5/15min/IP, slidingWindow), /api/orders (10/h/IP), /api/chat (30/h/IP), /api/contact si existe
+- [ ] Validación zod en TODOS los endpoints POST públicos (length, regex, whitelist de enums, sanitización)
+- [ ] Webhook HMAC verification para Stripe: `stripe.webhooks.constructEvent(payload, sig, STRIPE_WEBHOOK_SECRET)` — sin esto cualquiera puede simular un payment_intent.succeeded
+- [ ] Supabase RLS audit: confirmar `ENABLE ROW LEVEL SECURITY` en todas las tablas con datos de usuario (Order, ClientSession, FormSession, etc.) + políticas apropiadas (read-public, write-service-role)
+- [ ] Service role key audit: verificar que `SUPABASE_SERVICE_ROLE_KEY` NUNCA aparece en bundle cliente — solo server-side
+- [ ] Cero `NEXT_PUBLIC_*SECRET*` en código (regla auditada con grep)
+
+Defensa browser:
+- [ ] 5 security headers globales en backend/next.config.ts: Content-Security-Policy con whitelist explícita (Stripe, Supabase, Resend, GA4, Sentry), Strict-Transport-Security max-age=63072000 includeSubDomains preload, X-Frame-Options DENY, X-Content-Type-Options nosniff, Referrer-Policy strict-origin-when-cross-origin, Permissions-Policy denegando camera/microphone/geolocation/interest-cohort
+- [ ] Cookie Consent banner + Google Consent Mode v2: categorías necessary / analytics / marketing → mapeo a analytics_storage, ad_storage, ad_user_data, ad_personalization. Bilingüe ES/EN. Tono directo, no legalés
+- [ ] Validar headers en producción con `curl -I https://mybusinessformation.com/`
+
+Dependencias y misc:
+- [ ] `npm audit --audit-level=moderate` con 0 vulnerabilidades HIGH/CRITICAL
+- [ ] Activar Dependabot en GitHub (`.github/dependabot.yml`)
+- [ ] Verificar `.gitignore` excluye `.env`, `.env.local`, `.env*.local`
+- [ ] Documentar en LOGICA_DE_NEGOCIO/14_security_headers_y_hardening.md + actualizar TROUBLESHOOTING/ con guías de respuesta a incidentes de seguridad
+
+### Etapa 15 — Monitoreo y Observabilidad (3-4 días)
+
+```diff
++ Qué es: instalar dos sistemas pasivos de detección que avisan cuando algo
++ se rompe en producción. Sentry captura errores de runtime con stack trace
++ completo (server + edge + client) y agrupa por fingerprint para no spamear.
++ BetterStack chequea las URLs públicas críticas cada 30s desde fuera y
++ avisa por email si caen, y publica un status page público.
++ Qué resuelve: que el founder se entere ANTES que el cliente cuando algo
++ rompe — sea un bug nuevo, un deploy roto, Vercel caído, Supabase con
++ problemas, SSL expirado o el sitio entero no responde. Reduce el tiempo
++ de detección de horas a segundos y da una señal pública de uptime para
++ partners y afiliados.
+```
+
+Pre-requisito: dominio mybusinessformation.com apuntando a Vercel (Etapa 10) — los monitores apuntan a URLs finales de producción.
+
+Sentry — error tracking + APM:
+- [ ] Crear cuenta en sentry.io (free tier: 5K eventos/mes, retención 30 días) — proyecto `javascript-nextjs` para Next.js (Vercel) y `node-express` para backend Express (Railway)
+- [ ] Env vars en Vercel + Railway (Production + Preview + Development): SENTRY_DSN, NEXT_PUBLIC_SENTRY_DSN, SENTRY_ORG, SENTRY_PROJECT, SENTRY_AUTH_TOKEN (opcional para sourcemaps)
+- [ ] Instalar `@sentry/nextjs` en backend y `@sentry/node` en Express
+- [ ] Crear `instrumentation.ts`, `instrumentation-client.ts`, `sentry.server.config.ts`, `sentry.edge.config.ts` en backend
+- [ ] Wrap backend/next.config.ts con `withSentryConfig`
+- [ ] Filtrar PII en `beforeSend` — cero email, nombre, teléfono, ITIN, número de tarjeta llegan a Sentry
+- [ ] Smoke test server-side: endpoint temporal `/api/sentry-test` que tira `throw new Error('[sentry-test-<fecha>]')` → verificar que llega a Sentry dashboard en <60s + email a support@ → borrar endpoint post-validación
+- [ ] Smoke test client-side: ruta `/sentry-client-test` gated a preview/dev (404 en producción) con 3 botones (uncaught throw, captureException, captureMessage) — para validación periódica mensual
+- [ ] Alert Rule en Sentry → email a support@mybusinessformation.com en primera ocurrencia de error nuevo
+
+BetterStack — uptime + status page:
+- [ ] Crear cuenta en betterstack.com (free tier: 10 monitores, 30s checks, status page con custom domain, SSL cert monitor)
+- [ ] Crear 4 monitores con SSL/TLS verification activado: Home (https://mybusinessformation.com/, status 2xx/3xx), Admin (https://mybusinessformation.com/admin, status 200 con login form), API health Vercel (https://mybusinessformation.com/api/health, keyword match), Express health Railway (https://...up.railway.app/health, keyword match)
+- [ ] Email alerts a 2 destinatarios para redundancia: aneudysoto1823@gmail.com (personal) + support@mybusinessformation.com
+- [ ] Umbral 2-3 fallos consecutivos antes de alertar (evita falsos positivos por hiccups de red)
+- [ ] Status page pública en `status.mybusinessformation.com` con CNAME en el registrar del dominio + cert SSL Let's Encrypt auto-emitido por BetterStack
+- [ ] Smoke test: pausar un monitor 2-3 min → confirmar email DOWN llega a los 2 destinatarios → reactivar → confirmar email UP
+
+Proceso y runbooks:
+- [ ] Configurar filtros en Gmail/Zoho del founder: subject `[Sentry]` → label rojo + push notification, subject `[BetterStack]` con DOWN → label rojo + push, subject `[BetterStack]` con UP → label verde
+- [ ] Validación periódica mensual: smoke test Sentry server-side (1 endpoint temporal) + Sentry client-side (3 botones de la ruta gated) + BetterStack pause/resume
+- [ ] Runbooks por tipo de alerta en TROUBLESHOOTING/: qué hacer cuando llega `[Sentry] <Error>` (categorizar bug / endpoint downstream caído / regression / spam de bots → hotfix vs sprint vs silenciar) y cuando llega `[BetterStack] DOWN` (verificar desde otra red, identificar causa, rollback Vercel si aplica)
+- [ ] Documentar en LOGICA_DE_NEGOCIO/15_sentry_betterstack_monitoring.md con matriz de qué cubre cada uno + qué NO cubre (gaps deliberados)
