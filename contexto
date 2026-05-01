@@ -435,6 +435,6 @@ Variables de entorno pendientes en Vercel:
 Pendiente:
 - [ ] Agregar STRIPE_SECRET_KEY y STRIPE_WEBHOOK_SECRET en Vercel env vars
 - [ ] Registrar webhook en Stripe dashboard apuntando a /api/webhooks/stripe (evento: checkout.session.completed)
-- [ ] Validar que las 4 tablas Supabase fueron creadas correctamente
+- [x] Validar que las 4 tablas Supabase fueron creadas correctamente — CONFIRMADO 2026-05-01
 - [ ] Probar flujo completo end-to-end con empresa de prueba
 - [ ] Documentar en LOGICA_DE_NEGOCIO/16_marketing_automation_campanas.md
