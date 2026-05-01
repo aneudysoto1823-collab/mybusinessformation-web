@@ -1,4 +1,13 @@
+import type { Metadata } from 'next'
 import ChatWidget from '@/components/ChatWidget'
+
+export const metadata: Metadata = {
+  title: 'Privacy Policy',
+  description: 'Privacy Policy of MyBusinessFormation. Learn how we collect, use, and protect your personal information when you use our Florida business filing services.',
+  alternates: { canonical: 'https://mybusinessformation.com/privacy' },
+  openGraph: { url: 'https://mybusinessformation.com/privacy' },
+  robots: { index: true, follow: false },
+}
 
 export default function PrivacyPage() {
   const styles = `

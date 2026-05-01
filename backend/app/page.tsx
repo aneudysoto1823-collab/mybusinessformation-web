@@ -1,4 +1,74 @@
+import type { Metadata } from 'next'
 import ChatWidget from '@/components/ChatWidget'
+
+export const metadata: Metadata = {
+  title: 'Florida LLC & Corporation Formation — Online, Bilingual',
+  description: 'Form your Florida LLC or Corporation online in minutes. Bilingual service EN/ES. Packages from $0 + state fee. EIN, Operating Agreement, BOI Filing included.',
+  alternates: { canonical: 'https://mybusinessformation.com' },
+  openGraph: { url: 'https://mybusinessformation.com' },
+}
+
+const schemaOrg = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': 'https://mybusinessformation.com/#organization',
+      name: 'MyBusinessFormation',
+      url: 'https://mybusinessformation.com',
+      logo: 'https://mybusinessformation.com/icon.png',
+      email: 'info@mybusinessformation.com',
+      description: 'Florida business filing service specializing in LLC and Corporation formation. Bilingual English/Spanish.',
+      areaServed: 'US-FL',
+      knowsLanguage: ['en', 'es'],
+    },
+    {
+      '@type': 'WebSite',
+      '@id': 'https://mybusinessformation.com/#website',
+      url: 'https://mybusinessformation.com',
+      name: 'MyBusinessFormation',
+      publisher: { '@id': 'https://mybusinessformation.com/#organization' },
+    },
+    {
+      '@type': 'Service',
+      '@id': 'https://mybusinessformation.com/#llc-formation',
+      name: 'Florida LLC Formation',
+      provider: { '@id': 'https://mybusinessformation.com/#organization' },
+      description: 'Online Florida LLC formation service. Includes filing, Certificate of Formation, name availability search, and BOI Filing.',
+      areaServed: 'US-FL',
+      offers: [
+        { '@type': 'Offer', name: 'Basic', price: '0', priceCurrency: 'USD' },
+        { '@type': 'Offer', name: 'Standard', price: '199', priceCurrency: 'USD' },
+        { '@type': 'Offer', name: 'Premium', price: '299', priceCurrency: 'USD' },
+      ],
+    },
+    {
+      '@type': 'FAQPage',
+      mainEntity: [
+        {
+          '@type': 'Question',
+          name: 'How long does Florida LLC formation take?',
+          acceptedAnswer: { '@type': 'Answer', text: 'Standard processing takes 7–10 business days. With Expedited Filing it is reduced to 1–3 business days.' },
+        },
+        {
+          '@type': 'Question',
+          name: 'Do I need an EIN to open a business bank account?',
+          acceptedAnswer: { '@type': 'Answer', text: 'Yes. An EIN (Employer Identification Number) is required by banks to open a business checking account. It is included in our Standard and Premium packages.' },
+        },
+        {
+          '@type': 'Question',
+          name: '¿Puedo formar una LLC en Florida si no vivo en Estados Unidos?',
+          acceptedAnswer: { '@type': 'Answer', text: 'Sí. Cualquier persona, independientemente de su país de residencia, puede formar una LLC en Florida. Nuestro paquete Premium incluye asistencia para la solicitud de ITIN.' },
+        },
+        {
+          '@type': 'Question',
+          name: 'What is the Florida state filing fee for an LLC?',
+          acceptedAnswer: { '@type': 'Answer', text: 'The Florida state filing fee is $125 for an LLC and $70 for a Corporation. This is paid directly to the Florida Division of Corporations and is separate from our service fee.' },
+        },
+      ],
+    },
+  ],
+}
 
 export default function HomePage() {
   const styles = `
@@ -6054,6 +6124,10 @@ function claudiaPrefill(d){
 `
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaOrg) }}
+      />
       <main dangerouslySetInnerHTML={{ __html: `<style>${styles}</style>${body}` }} />
       <ChatWidget />
     </>

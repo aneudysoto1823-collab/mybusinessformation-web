@@ -1,4 +1,12 @@
+import type { Metadata } from 'next'
 import ChatWidget from '@/components/ChatWidget'
+
+export const metadata: Metadata = {
+  title: 'Our Services',
+  description: 'Full catalog of Florida business services: LLC formation, Corporation, EIN, Operating Agreement, Registered Agent, Annual Report, DBA, ITIN, and more.',
+  alternates: { canonical: 'https://mybusinessformation.com/servicios' },
+  openGraph: { url: 'https://mybusinessformation.com/servicios' },
+}
 
 export default function ServiciosPage() {
   const svgIcons: Record<string, string> = {

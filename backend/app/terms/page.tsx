@@ -1,4 +1,13 @@
+import type { Metadata } from 'next'
 import ChatWidget from '@/components/ChatWidget'
+
+export const metadata: Metadata = {
+  title: 'Terms of Service',
+  description: 'Terms of Service for MyBusinessFormation. Review our service agreement, refund policy, and conditions for Florida LLC and Corporation formation services.',
+  alternates: { canonical: 'https://mybusinessformation.com/terms' },
+  openGraph: { url: 'https://mybusinessformation.com/terms' },
+  robots: { index: true, follow: false },
+}
 
 export default function TermsPage() {
   const styles = `

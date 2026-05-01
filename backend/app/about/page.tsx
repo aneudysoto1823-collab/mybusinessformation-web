@@ -1,4 +1,12 @@
+import type { Metadata } from 'next'
 import ChatWidget from '@/components/ChatWidget'
+
+export const metadata: Metadata = {
+  title: 'About Us',
+  description: 'Learn about MyBusinessFormation — a bilingual Florida business filing service dedicated to making LLC and Corporation formation accessible for every entrepreneur.',
+  alternates: { canonical: 'https://mybusinessformation.com/about' },
+  openGraph: { url: 'https://mybusinessformation.com/about' },
+}
 
 export default function AboutPage() {
   const styles = `

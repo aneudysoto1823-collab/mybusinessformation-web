@@ -1,4 +1,13 @@
+import type { Metadata } from 'next'
 import ChatWidget from '@/components/ChatWidget'
+
+export const metadata: Metadata = {
+  title: 'Legal Disclaimer',
+  description: 'Legal disclaimer for MyBusinessFormation. We are a document preparation service, not a law firm. Read our full legal disclosure before using our services.',
+  alternates: { canonical: 'https://mybusinessformation.com/legal' },
+  openGraph: { url: 'https://mybusinessformation.com/legal' },
+  robots: { index: true, follow: false },
+}
 
 export default function LegalPage() {
   const styles = `
