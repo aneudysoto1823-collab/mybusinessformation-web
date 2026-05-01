@@ -200,13 +200,13 @@ Si necesitas cambiar el diseño de una página:
 Pre-requisito: dominio mybusinessformation.com apuntando a Vercel (Etapa 10).
 
 SEO Técnico:
-- [ ] Metadata global completa en backend/app/layout.tsx — Open Graph defaults, Twitter Cards (summary_large_image), canonical, metadataBase apuntando a https://mybusinessformation.com, alternates.languages con hreflang ES/EN explícito (sitio bilingüe)
-- [ ] backend/app/sitemap.ts dinámico con todas las páginas públicas indexables (home, servicios, about, legal, privacy, terms, login, client-portal, guía, wiki y artículos) — NO incluir /admin ni rutas internas
-- [ ] backend/app/robots.ts con Disallow: /admin/, /api/, /client-portal/dashboard + referencia al sitemap
-- [ ] backend/app/opengraph-image.tsx — autogenera 1200×630 PNG con logo "FL" + wordmark + tagline (Next.js ImageResponse)
-- [ ] Schema.org JSON-LD en home y páginas clave: Organization, WebSite, Service (LLC formation, Corporation formation), FAQPage (preguntas existentes), BreadcrumbList
+- [x] Metadata global completa en backend/app/layout.tsx — Open Graph defaults, Twitter Cards (summary_large_image), canonical, metadataBase apuntando a https://mybusinessformation.com, alternates.languages con hreflang ES/EN explícito (sitio bilingüe)
+- [x] backend/app/sitemap.ts dinámico con todas las páginas públicas indexables (home, servicios, about, legal, privacy, terms, login, client-portal, guía, wiki y artículos) — NO incluir /admin ni rutas internas
+- [x] backend/app/robots.ts con Disallow: /admin/, /api/, /client-portal/dashboard + referencia al sitemap
+- [x] backend/app/opengraph-image.tsx — autogenera 1200×630 PNG con logo "FL" + wordmark + tagline (Next.js ImageResponse)
+- [x] Schema.org JSON-LD en home y páginas clave: Organization, WebSite, Service (LLC formation, Corporation formation), FAQPage (preguntas existentes), BreadcrumbList
 - [ ] Favicon set completo: 16×16, 32×32, 192×192, 512×512, apple-touch-icon
-- [ ] Meta titles únicos + meta descriptions únicas por página (cada page.tsx exporta su propio metadata)
+- [x] Meta titles únicos + meta descriptions únicas por página (cada page.tsx exporta su propio metadata)
 - [ ] Audit de alt text en todas las imágenes
 - [ ] Core Web Vitals: font preconnect a fonts.gstatic.com, lazy loading de imágenes below-fold, width/height explícitos para evitar CLS
 - [ ] Validación final: Rich Results Test (search.google.com/test/rich-results), Mobile-Friendly Test, PageSpeed Insights ≥ 85 mobile
