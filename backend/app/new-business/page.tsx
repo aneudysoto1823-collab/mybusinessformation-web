@@ -17,7 +17,7 @@ type Company = {
   id?: string
 }
 
-type ServiceId = 'labor_law_poster' | 'ein' | 'certificate_of_status' | 'bundle'
+type ServiceId = 'labor_law_poster' | 'ein' | 'certificate_of_status'
 
 const SERVICES = {
   labor_law_poster:      { en: 'Labor Law Poster 2026',     es: 'Póster de Leyes Laborales 2026', price: 69.99,  desc_en: 'Required by federal law for all FL businesses', desc_es: 'Requerido por ley federal para todos los negocios en FL' },
