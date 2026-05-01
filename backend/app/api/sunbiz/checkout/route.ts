@@ -31,15 +31,29 @@ export async function POST(req: NextRequest) {
 
     const origin = req.headers.get('origin') || 'https://mybusinessformation.com'
 
+    // Look up company email from DB to pre-fill Stripe checkout
+    let customerEmail: string | undefined
+    if (company_id) {
+      const supabase = getSupabaseAdmin()
+      const { data } = await supabase
+        .from('prospective_companies')
+        .select('email, owner_name')
+        .eq('id', company_id)
+        .single()
+      if (data?.email) customerEmail = data.email
+    }
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: lineItems,
       mode: 'payment',
-      success_url: `${origin}/new-business/success?session_id={CHECKOUT_SESSION_ID}&doc=${document_id}`,
-      cancel_url:  `${origin}/new-business?id=${document_id}`,
+      billing_address_collection: 'auto',
+      customer_email: customerEmail,
+      success_url: `${origin}/new-business/success?session_id={CHECKOUT_SESSION_ID}&doc=${encodeURIComponent(document_id || '')}`,
+      cancel_url:  `${origin}/new-business?id=${encodeURIComponent(document_id || '')}`,
       metadata: {
-        company_id:        company_id || '',
-        document_id:       document_id || '',
+        company_id:        company_id    || '',
+        document_id:       document_id  || '',
         company_name:      company_name || '',
         selected_services: selected_services.join(','),
         lang:              lang || 'en',
