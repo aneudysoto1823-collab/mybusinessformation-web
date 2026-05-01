@@ -437,4 +437,4 @@ Pendiente:
 - [ ] Registrar webhook en Stripe dashboard apuntando a /api/webhooks/stripe (evento: checkout.session.completed)
 - [x] Validar que las 4 tablas Supabase fueron creadas correctamente — CONFIRMADO 2026-05-01
 - [ ] Probar flujo completo end-to-end con empresa de prueba
-- [ ] Documentar en LOGICA_DE_NEGOCIO/16_marketing_automation_campanas.md
+- [x] Documentar en LOGICA_DE_NEGOCIO/12_marketing_automation_campanas.md + TROUBLESHOOTING/12_marketing_automation_campanas.md
