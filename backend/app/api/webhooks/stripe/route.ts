@@ -5,8 +5,8 @@ import { Resend } from 'resend'
 
 export const dynamic = 'force-dynamic'
 
-const stripe  = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2026-02-25.clover' })
-const resend  = new Resend(process.env.RESEND_API_KEY)
+const getStripe = () => new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2026-02-25.clover' })
+const getResend = () => new Resend(process.env.RESEND_API_KEY)
 const FROM    = 'onboarding@resend.dev'
 const PORTAL  = 'https://mybusinessformation.com/login'
 
@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
 
   let event: Stripe.Event
   try {
-    event = stripe.webhooks.constructEvent(body, signature, process.env.STRIPE_WEBHOOK_SECRET!)
+    event = getStripe().webhooks.constructEvent(body, signature, process.env.STRIPE_WEBHOOK_SECRET!)
   } catch (err) {
     console.error('[stripe-webhook] signature check failed:', err)
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
@@ -124,7 +124,7 @@ export async function POST(req: NextRequest) {
     .map(s => `<li style="margin:4px 0">${serviceLabels[s]?.[lang] ?? s}</li>`)
     .join('')
 
-  await resend.emails.send({
+  await getResend().emails.send({
     from: FROM,
     to: email,
     subject: isEs

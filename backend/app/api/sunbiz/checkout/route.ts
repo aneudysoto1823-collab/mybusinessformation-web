@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { getSupabaseAdmin } from '@/lib/supabase'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2026-02-25.clover' })
+const getStripe = () => new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2026-02-25.clover' })
 
 const SERVICES: Record<string, { name: string; amount: number }> = {
   labor_law_poster:      { name: 'Labor Law Poster (2026)',    amount: 6999  }, // $69.99
@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
       if (data?.email) customerEmail = data.email
     }
 
-    const session = await stripe.checkout.sessions.create({
+    const session = await getStripe().checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: lineItems,
       mode: 'payment',
