@@ -21,10 +21,19 @@ mybusinessformation-web/
       privacy/page.tsx
       terms/page.tsx
       admin/                ← Panel de Administración (Etapa 8)
+        campaigns/          ← Panel de Campañas Marketing (Etapa 16)
       client-portal/        ← Portal del Cliente (Etapa 9)
+      new-business/         ← Landing page campañas QR (Etapa 16)
+        success/            ← Página post-pago con link al portal
       login/
       unsubscribe/
-      api/                  ← rutas API (órdenes, emails, auth)
+      api/
+        campaigns/          ← send, track-scan, stats, companies (Etapa 16)
+        sunbiz/             ← lookup Sunbiz + checkout Stripe (Etapa 16)
+        webhooks/stripe/    ← webhook pago → crea Order + envía FBFC (Etapa 16)
+        orders/             ← órdenes formación (Etapas 3, 8)
+        auth/               ← autenticación admin
+        client-auth/        ← autenticación portal cliente
   LOGICA_DE_NEGOCIO/        ← documentación de reglas de negocio
   security/                 ← auditorías (ignorada en git)
   contexto                  ← este archivo
@@ -79,10 +88,11 @@ Si necesitas cambiar el diseño de una página:
 - PostgreSQL + Prisma — base de datos (Etapa 3)
 - Supabase — hosting base de datos
 - Railway.app — hosting backend
-- Stripe — pagos (Etapa 4)
-- Resend — emails (Etapa 7)
+- Stripe — pagos (Etapa 4 y Etapa 16)
+- Resend — emails (Etapa 7 y Etapa 16)
+- qrcode ^1.5.4 — generación de QR para campañas (Etapa 16)
 
-## ROADMAP COMPLETO — 15 Etapas
+## ROADMAP COMPLETO — 16 Etapas
 
 ### Etapa 1 — Frontend HTML a Next.js (COMPLETADA)
 - [x] Instalar Node.js y crear proyecto Next.js
@@ -362,3 +372,69 @@ Proceso y runbooks:
 - [ ] Validación periódica mensual: smoke test Sentry server-side (1 endpoint temporal) + Sentry client-side (3 botones de la ruta gated) + BetterStack pause/resume
 - [ ] Runbooks por tipo de alerta en TROUBLESHOOTING/: qué hacer cuando llega `[Sentry] <Error>` (categorizar bug / endpoint downstream caído / regression / spam de bots → hotfix vs sprint vs silenciar) y cuando llega `[BetterStack] DOWN` (verificar desde otra red, identificar causa, rollback Vercel si aplica)
 - [ ] Documentar en LOGICA_DE_NEGOCIO/15_sentry_betterstack_monitoring.md con matriz de qué cubre cada uno + qué NO cubre (gaps deliberados)
+
+### Etapa 16 — Sistema de Marketing Automation con QR y Campañas de Email (COMPLETADA 2026-05-01)
+
+```diff
++ Qué es: sistema completo de marketing outbound que toma empresas registradas en
++ Sunbiz Florida (scraping + base de datos local prospective_companies), les envía
++ emails personalizados con un QR único por empresa, rastrea cuándo escanean el QR,
++ y los lleva a una landing page (/new-business) donde pueden comprar servicios de
++ cumplimiento empresarial (Labor Law Poster, EIN, Certificate of Status, Bundle).
++ Al confirmar el pago por Stripe, el sistema crea automáticamente un Order en la
++ tabla Order de Supabase con su número FBFC, lo que permite al cliente acceder al
++ Portal de Clientes exactamente igual que si hubiera comprado un paquete de formación.
++ Qué resuelve: abre un canal de ventas completamente nuevo — clientes que ya tienen
++ empresa en Florida y necesitan servicios de cumplimiento. Esto complementa el flujo
++ de formación nueva y genera ingresos recurrentes anuales (Labor Law Poster se renueva
++ cada año). Todo el ciclo es automático: desde importar empresas hasta cobrar y crear
++ la orden en el sistema.
+```
+
+Tablas Supabase (crear en SQL Editor antes de usar):
+- [x] `prospective_companies` — empresas objetivo con campos: document_id, company_name, owner_name, address, city, zip, email, company_type, registration_date, status (new → email_sent → qr_scanned → purchased)
+- [x] `email_campaigns` — registro de cada email enviado: company_id, sent_at, lang, qr_url, email_address, status
+- [x] `qr_scans` — cada vez que alguien escanea el QR: company_id, scanned_at, ip_address, converted
+- [x] `conversions` — cada compra completada: company_id, order_id, email, services, total_amount, converted_at
+
+Flujo del cliente (end-to-end):
+- [x] Admin importa o agrega empresas manualmente en /admin/campaigns
+- [x] Admin hace clic en "Send Email" (individual o "Send to All New" en bulk)
+- [x] Sistema genera QR único por empresa con URL de tracking embebida
+- [x] Email bilingüe EN/ES se envía vía Resend con QR embebido como base64
+- [x] Cliente escanea QR → redirige a /new-business?id=<document_id> registrando el scan
+- [x] Landing page auto-busca la empresa por document_id (DB primero, luego Sunbiz scraping)
+- [x] Cliente selecciona servicios → checkout Stripe (email del cliente recolectado en Stripe)
+- [x] Stripe webhook crea Order en tabla Order, actualiza status a 'purchased', envía email de confirmación con FBFC-XXXXXXXX
+- [x] Cliente accede al Portal de Clientes con email + FBFC igual que cualquier otro cliente
+
+Archivos creados:
+- [x] `backend/app/new-business/page.tsx` — landing page bilingüe con lookup de empresa, selección de servicios y checkout
+- [x] `backend/app/new-business/success/page.tsx` — página de éxito post-pago con instrucciones para acceder al portal
+- [x] `backend/app/admin/campaigns/page.tsx` — panel admin con stats, tabla de empresas, filtros, envío de emails, formulario de alta manual
+- [x] `backend/app/api/sunbiz/route.ts` — GET ?document_id=: busca en DB local primero, fallback a scraping de Sunbiz HTML
+- [x] `backend/app/api/sunbiz/checkout/route.ts` — POST: crea sesión Stripe para servicios seleccionados, pre-llena email del cliente
+- [x] `backend/app/api/campaigns/send/route.ts` — POST: genera QR, construye email HTML bilingüe completo, envía vía Resend, guarda en email_campaigns
+- [x] `backend/app/api/campaigns/track-scan/route.ts` — GET ?doc=&cid=: registra scan en qr_scans, actualiza status empresa, redirige a /new-business
+- [x] `backend/app/api/campaigns/stats/route.ts` — GET: devuelve totalCompanies, emailsToday, emailsMonth, totalScans, scanRate%, conversions, revenue
+- [x] `backend/app/api/campaigns/companies/route.ts` — GET (filtros status/tipo/fecha) + POST (alta manual con validación de duplicados)
+- [x] `backend/app/api/webhooks/stripe/route.ts` — POST: verifica firma Stripe, crea Order, actualiza prospective_companies.status → purchased, marca qr_scans.converted, envía email confirmación bilingüe con FBFC#
+- [x] `backend/package.json` — qrcode ^1.5.4 (dependencies) + @types/qrcode ^1.5.5 (devDependencies)
+- [x] `npm install` ejecutado — dependencias instaladas (Node.js v24.15.0)
+
+Servicios vendidos (precios en centavos en Stripe):
+- Labor Law Poster 2026: $69.99 (se renueva anualmente)
+- EIN / Tax ID Number: $99.99
+- Certificate of Status (FL): $49.99
+- Business Essentials Bundle (los 3): $189.99 (ahorro de $30 vs separados)
+
+Variables de entorno pendientes en Vercel:
+- [ ] `STRIPE_SECRET_KEY` — clave secreta de Stripe (obtener en dashboard.stripe.com → Developers → API Keys)
+- [ ] `STRIPE_WEBHOOK_SECRET` — clave de firma del webhook (obtener al registrar el endpoint en Stripe: https://mybusinessformation.com/api/webhooks/stripe, evento: checkout.session.completed)
+
+Pendiente:
+- [ ] Agregar STRIPE_SECRET_KEY y STRIPE_WEBHOOK_SECRET en Vercel env vars
+- [ ] Registrar webhook en Stripe dashboard apuntando a /api/webhooks/stripe (evento: checkout.session.completed)
+- [ ] Validar que las 4 tablas Supabase fueron creadas correctamente
+- [ ] Probar flujo completo end-to-end con empresa de prueba
+- [ ] Documentar en LOGICA_DE_NEGOCIO/16_marketing_automation_campanas.md
