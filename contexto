@@ -207,8 +207,8 @@ SEO Técnico:
 - [x] Schema.org JSON-LD en home y páginas clave: Organization, WebSite, Service (LLC formation, Corporation formation), FAQPage (preguntas existentes), BreadcrumbList
 - [ ] Favicon set completo: 16×16, 32×32, 192×192, 512×512, apple-touch-icon
 - [x] Meta titles únicos + meta descriptions únicas por página (cada page.tsx exporta su propio metadata)
-- [ ] Audit de alt text en todas las imágenes
-- [ ] Core Web Vitals: font preconnect a fonts.gstatic.com, lazy loading de imágenes below-fold, width/height explícitos para evitar CLS
+- [x] Audit de alt text en todas las imágenes — PASS: el sitio no usa etiquetas <img>, solo SVG inline y CSS
+- [x] Core Web Vitals: font preconnect a fonts.gstatic.com, lazy loading de imágenes below-fold, width/height explícitos para evitar CLS — preconnect implementado; lazy loading y CLS N/A (sin imágenes externas)
 - [ ] Validación final: Rich Results Test (search.google.com/test/rich-results), Mobile-Friendly Test, PageSpeed Insights ≥ 85 mobile
 
 SEO de Contenido:
@@ -219,7 +219,7 @@ SEO de Contenido:
 - [ ] Sitemap.ts incluye automáticamente todos los artículos publicados
 
 Documentación:
-- [ ] LOGICA_DE_NEGOCIO/11_seo_tecnico_y_contenido.md con inventario completo, archivos modificados y decisiones embutidas
+- [x] LOGICA_DE_NEGOCIO/11_seo_tecnico_y_contenido.md con inventario completo, archivos modificados y decisiones embutidas
 
 ### Etapa 12 — Google Search Console (GSC) (2 días)
 
