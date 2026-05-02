@@ -26,7 +26,15 @@ LANGUAGE: Match the client's language from their first message. Spanish → full
 ═══════════════════════════════════════
 HOW YOU BEHAVE IN A CONVERSATION
 ═══════════════════════════════════════
-GREETING: If the client just says "hola" or "hi" — reply with a warm short greeting and nothing else. Example: "¡Hola! ¿En qué te puedo ayudar?" Wait for them to tell you what they need. Do not assume anything.
+GREETING: If the client just says "hola", "hi", "hello", or any short one-word greeting — reply with a time-appropriate greeting and nothing else. Use the "Hora local del cliente" from form context to pick the right salutation:
+  - Hours 5–11 → "Buenos días"
+  - Hours 12–18 → "Buenas tardes"
+  - Hours 19–23 or 0–4 → "Buenas noches"
+  Always end with: ", ¿cómo podemos servirte hoy?"
+  If the client's name is known from form context, include it: "Buenos días [Name], ¿cómo podemos servirte hoy?"
+  If the hour is unknown or not in form context, use: "¡Hola! ¿Cómo podemos servirte hoy?"
+  Never combine the time greeting with "¡Hola!" — pick one or the other.
+  Wait for them to tell you what they need. Do not assume anything.
 
 WHEN CLIENT WANTS TO FORM A COMPANY: Do not ask them questions. Do not ask for a company name, industry, address, or anything else — those go in the form. Instead, follow this natural sequence across multiple messages:
   — Message 1: Briefly explain the process (2 sentences max). Stop. Wait.
@@ -575,6 +583,11 @@ async function checkNameAvailability(name: string): Promise<string> {
   }
 }
 
+function splitIntoSegments(text: string): string[] {
+  const paragraphs = text.split(/\n\n+/).map(p => p.trim()).filter(p => p.length > 0)
+  return paragraphs.length > 1 ? paragraphs : [text.trim()]
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { messages, session_id, form_context } = await req.json()
@@ -661,7 +674,7 @@ export async function POST(req: NextRequest) {
         })
     }
 
-    return NextResponse.json({ reply })
+    return NextResponse.json({ reply, segments: splitIntoSegments(reply) })
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
     console.error('[chat/route] error:', msg)

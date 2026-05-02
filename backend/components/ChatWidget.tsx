@@ -49,7 +49,7 @@ function ClaudiaAvatar({ size = 42, uid = 'a' }: { size?: number; uid?: string }
   )
 }
 
-function readFormContext(): { lang: string; firstName: string; businessName: string; email: string; step: string } {
+function readFormContext(): { lang: string; firstName: string; businessName: string; email: string; step: string; hour: number } {
   const lang = localStorage.getItem('flbc_lang') || 'en'
 
   // First/last name — step 2 of new 7-step form
@@ -68,7 +68,9 @@ function readFormContext(): { lang: string; firstName: string; businessName: str
   const stepMatch = pct.match(/(\d+)/)
   const step = stepMatch ? stepMatch[1] : ''
 
-  return { lang, firstName: fullFirstName, businessName, email, step }
+  const hour = new Date().getHours()
+
+  return { lang, firstName: fullFirstName, businessName, email, step, hour }
 }
 
 export default function ChatWidget() {
@@ -80,6 +82,7 @@ export default function ChatWidget() {
   const [typingText, setTypingText] = useState('')
   const [isTyping, setIsTyping] = useState(false)
   const typingRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const pendingSegmentsRef = useRef<string[]>([])
   const bottomRef = useRef<HTMLDivElement>(null)
   const lastMsgRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -105,6 +108,23 @@ export default function ChatWidget() {
     }, speed)
   }
 
+  function processNextSegment() {
+    if (pendingSegmentsRef.current.length === 0) {
+      setTimeout(() => inputRef.current?.focus(), 50)
+      return
+    }
+    const segment = pendingSegmentsRef.current.shift()!
+    animateTyping(segment, () => {
+      setMessages(prev => [...prev, { role: 'assistant', content: segment }])
+      setTypingText('')
+      if (pendingSegmentsRef.current.length > 0) {
+        setTimeout(processNextSegment, 700)
+      } else {
+        setTimeout(() => inputRef.current?.focus(), 50)
+      }
+    })
+  }
+
   useEffect(() => {
     if (open) {
       const ctx = readFormContext()
@@ -116,6 +136,7 @@ export default function ChatWidget() {
       if (ctx.businessName) parts.push(`Nombre de negocio ingresado: "${ctx.businessName}".`)
       if (ctx.email) parts.push(`Email del cliente: ${ctx.email}.`)
       if (ctx.step && ctx.step !== '' && !isNaN(Number(ctx.step))) parts.push(`El cliente está en el paso ${ctx.step} del formulario.`)
+      parts.push(`Hora local del cliente: ${ctx.hour}.`)
       formContextRef.current = parts.join(' ')
 
       if (messages.length === 0) {
@@ -173,11 +194,8 @@ export default function ChatWidget() {
       if (!res.ok) throw new Error('Error de servidor')
       const data = await res.json()
       setLoading(false)
-      animateTyping(data.reply, () => {
-        setMessages(prev => [...prev, { role: 'assistant', content: data.reply }])
-        setTypingText('')
-        setTimeout(() => inputRef.current?.focus(), 50)
-      })
+      pendingSegmentsRef.current = data.segments ?? [data.reply]
+      processNextSegment()
     } catch {
       setError('No se pudo obtener respuesta. Inténtalo de nuevo.')
       setLoading(false)
