@@ -79,9 +79,7 @@ export default function ChatWidget() {
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [typingText, setTypingText] = useState('')
-  const [isTyping, setIsTyping] = useState(false)
-  const typingRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const [segmentLoading, setSegmentLoading] = useState(false)
   const pendingSegmentsRef = useRef<string[]>([])
   const bottomRef = useRef<HTMLDivElement>(null)
   const lastMsgRef = useRef<HTMLDivElement>(null)
@@ -92,37 +90,26 @@ export default function ChatWidget() {
   )
   const formContextRef = useRef<string>('')
 
-  function animateTyping(fullText: string, onDone: () => void) {
-    setIsTyping(true)
-    setTypingText('')
-    let i = 0
-    const speed = Math.min(22, Math.round(5000 / fullText.length))
-    typingRef.current = setInterval(() => {
-      i++
-      setTypingText(fullText.slice(0, i))
-      if (i >= fullText.length) {
-        clearInterval(typingRef.current!)
-        setIsTyping(false)
-        onDone()
-      }
-    }, speed)
-  }
-
   function processNextSegment() {
     if (pendingSegmentsRef.current.length === 0) {
+      setSegmentLoading(false)
       setTimeout(() => inputRef.current?.focus(), 50)
       return
     }
     const segment = pendingSegmentsRef.current.shift()!
-    animateTyping(segment, () => {
+    // Show typing dots for the time a human would take to write this message
+    // ~40ms per character, capped between 800ms and 5000ms
+    const delay = Math.min(5000, Math.max(800, segment.length * 40))
+    setSegmentLoading(true)
+    setTimeout(() => {
+      setSegmentLoading(false)
       setMessages(prev => [...prev, { role: 'assistant', content: segment }])
-      setTypingText('')
       if (pendingSegmentsRef.current.length > 0) {
-        setTimeout(processNextSegment, 700)
+        setTimeout(processNextSegment, 400)
       } else {
         setTimeout(() => inputRef.current?.focus(), 50)
       }
-    })
+    }, delay)
   }
 
   useEffect(() => {
@@ -167,7 +154,7 @@ export default function ChatWidget() {
     const isNewMessage = newCount > prevMsgCount.current
     prevMsgCount.current = newCount
 
-    if (loading || isTyping) {
+    if (loading || segmentLoading) {
       bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
     } else if (isNewMessage && messages[messages.length - 1]?.role === 'assistant') {
       lastMsgRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -175,11 +162,11 @@ export default function ChatWidget() {
     } else if (isNewMessage) {
       bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
     }
-  }, [messages, loading, isTyping, typingText])
+  }, [messages, loading, segmentLoading])
 
   async function send() {
     const text = input.trim()
-    if (!text || loading || isTyping) return
+    if (!text || loading || segmentLoading) return
     setError('')
     const next: Message[] = [...messages, { role: 'user', content: text }]
     setMessages(next)
@@ -364,21 +351,12 @@ export default function ChatWidget() {
               </div>
             ))}
 
-            {loading && (
+            {(loading || segmentLoading) && (
               <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
                 <div style={{ padding: '10px 16px', borderRadius: '14px 14px 14px 4px', background: '#fff', border: '1px solid #E2E8F0', boxShadow: '0 2px 8px rgba(28,46,68,0.08)', display: 'flex', gap: '5px', alignItems: 'center' }}>
                   {[0, 1, 2].map((n) => (
                     <span key={n} style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#94A3B8', display: 'inline-block', animation: `chatdot 1.2s ease-in-out ${n * 0.2}s infinite` }} />
                   ))}
-                </div>
-              </div>
-            )}
-
-            {isTyping && typingText && (
-              <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-                <div style={{ maxWidth: '82%', padding: '10px 14px', borderRadius: '14px 14px 14px 4px', background: '#fff', color: '#1E293B', fontSize: '0.84rem', lineHeight: 1.55, boxShadow: '0 2px 8px rgba(28,46,68,0.08)', border: '1px solid #E2E8F0', whiteSpace: 'pre-wrap' }}>
-                  {typingText}
-                  <span style={{ display: 'inline-block', width: '2px', height: '14px', background: '#2563EB', marginLeft: '2px', verticalAlign: 'middle', animation: 'chatdot 0.8s ease-in-out infinite' }} />
                 </div>
               </div>
             )}
@@ -420,7 +398,7 @@ export default function ChatWidget() {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKey}
               placeholder="Escribe tu mensaje… / Type your message…"
-              disabled={loading}
+              disabled={loading || segmentLoading}
               style={{
                 flex: 1,
                 border: '1.5px solid #E2E8F0',
@@ -430,7 +408,7 @@ export default function ChatWidget() {
                 fontFamily: 'inherit',
                 color: '#1E293B',
                 outline: 'none',
-                background: loading ? '#F8FAFC' : '#fff',
+                background: (loading || segmentLoading) ? '#F8FAFC' : '#fff',
                 transition: 'border-color 0.2s',
               }}
               onFocus={(e) => (e.target.style.borderColor = '#2563EB')}
@@ -438,14 +416,14 @@ export default function ChatWidget() {
             />
             <button
               onClick={send}
-              disabled={loading || !input.trim()}
+              disabled={loading || segmentLoading || !input.trim()}
               style={{
                 width: '38px',
                 height: '38px',
                 borderRadius: '10px',
-                background: loading || !input.trim() ? '#E2E8F0' : 'linear-gradient(135deg,#2563EB,#1C2E44)',
+                background: loading || segmentLoading || !input.trim() ? '#E2E8F0' : 'linear-gradient(135deg,#2563EB,#1C2E44)',
                 border: 'none',
-                cursor: loading || !input.trim() ? 'default' : 'pointer',
+                cursor: loading || segmentLoading || !input.trim() ? 'default' : 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -453,7 +431,7 @@ export default function ChatWidget() {
                 transition: 'background 0.2s',
               }}
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={loading || !input.trim() ? '#94A3B8' : '#fff'} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={loading || segmentLoading || !input.trim() ? '#94A3B8' : '#fff'} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="22" y1="2" x2="11" y2="13" />
                 <polygon points="22 2 15 22 11 13 2 9 22 2" />
               </svg>
