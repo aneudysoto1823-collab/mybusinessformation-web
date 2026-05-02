@@ -77,6 +77,9 @@ export default function ChatWidget() {
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [typingText, setTypingText] = useState('')
+  const [isTyping, setIsTyping] = useState(false)
+  const typingRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
   const lastMsgRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -85,6 +88,22 @@ export default function ChatWidget() {
     typeof crypto !== 'undefined' ? crypto.randomUUID() : Math.random().toString(36).slice(2)
   )
   const formContextRef = useRef<string>('')
+
+  function animateTyping(fullText: string, onDone: () => void) {
+    setIsTyping(true)
+    setTypingText('')
+    let i = 0
+    const speed = Math.min(22, Math.round(5000 / fullText.length))
+    typingRef.current = setInterval(() => {
+      i++
+      setTypingText(fullText.slice(0, i))
+      if (i >= fullText.length) {
+        clearInterval(typingRef.current!)
+        setIsTyping(false)
+        onDone()
+      }
+    }, speed)
+  }
 
   useEffect(() => {
     if (open) {
@@ -140,7 +159,7 @@ export default function ChatWidget() {
 
   async function send() {
     const text = input.trim()
-    if (!text || loading) return
+    if (!text || loading || isTyping) return
     setError('')
     const next: Message[] = [...messages, { role: 'user', content: text }]
     setMessages(next)
@@ -154,10 +173,14 @@ export default function ChatWidget() {
       })
       if (!res.ok) throw new Error('Error de servidor')
       const data = await res.json()
-      setMessages([...next, { role: 'assistant', content: data.reply }])
+      setLoading(false)
+      animateTyping(data.reply, () => {
+        setMessages(prev => [...prev, { role: 'assistant', content: data.reply }])
+        setTypingText('')
+        setTimeout(() => inputRef.current?.focus(), 50)
+      })
     } catch {
       setError('No se pudo obtener respuesta. Inténtalo de nuevo.')
-    } finally {
       setLoading(false)
     }
   }
@@ -326,31 +349,19 @@ export default function ChatWidget() {
 
             {loading && (
               <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-                <div
-                  style={{
-                    padding: '10px 16px',
-                    borderRadius: '14px 14px 14px 4px',
-                    background: '#fff',
-                    border: '1px solid #E2E8F0',
-                    boxShadow: '0 2px 8px rgba(28,46,68,0.08)',
-                    display: 'flex',
-                    gap: '5px',
-                    alignItems: 'center',
-                  }}
-                >
+                <div style={{ padding: '10px 16px', borderRadius: '14px 14px 14px 4px', background: '#fff', border: '1px solid #E2E8F0', boxShadow: '0 2px 8px rgba(28,46,68,0.08)', display: 'flex', gap: '5px', alignItems: 'center' }}>
                   {[0, 1, 2].map((n) => (
-                    <span
-                      key={n}
-                      style={{
-                        width: '7px',
-                        height: '7px',
-                        borderRadius: '50%',
-                        background: '#94A3B8',
-                        display: 'inline-block',
-                        animation: `chatdot 1.2s ease-in-out ${n * 0.2}s infinite`,
-                      }}
-                    />
+                    <span key={n} style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#94A3B8', display: 'inline-block', animation: `chatdot 1.2s ease-in-out ${n * 0.2}s infinite` }} />
                   ))}
+                </div>
+              </div>
+            )}
+
+            {isTyping && typingText && (
+              <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+                <div style={{ maxWidth: '82%', padding: '10px 14px', borderRadius: '14px 14px 14px 4px', background: '#fff', color: '#1E293B', fontSize: '0.84rem', lineHeight: 1.55, boxShadow: '0 2px 8px rgba(28,46,68,0.08)', border: '1px solid #E2E8F0', whiteSpace: 'pre-wrap' }}>
+                  {typingText}
+                  <span style={{ display: 'inline-block', width: '2px', height: '14px', background: '#2563EB', marginLeft: '2px', verticalAlign: 'middle', animation: 'chatdot 0.8s ease-in-out infinite' }} />
                 </div>
               </div>
             )}
