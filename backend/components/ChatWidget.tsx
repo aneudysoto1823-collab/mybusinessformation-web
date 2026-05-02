@@ -49,7 +49,7 @@ function ClaudiaAvatar({ size = 42, uid = 'a' }: { size?: number; uid?: string }
   )
 }
 
-function readFormContext(): { lang: string; firstName: string; businessName: string; email: string; step: string; hour: number } {
+function readFormContext(): { lang: string; firstName: string; businessName: string; email: string; step: string; hour: number; selectedPackage: string } {
   const lang = localStorage.getItem('flbc_lang') || 'en'
 
   // First/last name — step 2 of new 7-step form
@@ -68,9 +68,17 @@ function readFormContext(): { lang: string; firstName: string; businessName: str
   const stepMatch = pct.match(/(\d+)/)
   const step = stepMatch ? stepMatch[1] : ''
 
+  // Selected package — read from JS global set by the form (only when form is active)
+  let selectedPackage = ''
+  if (step) {
+    const win = window as unknown as { fmData?: { package?: string }; formData?: { package?: string } }
+    const pkg = win.fmData?.package || win.formData?.package || ''
+    if (pkg) selectedPackage = pkg.charAt(0).toUpperCase() + pkg.slice(1)
+  }
+
   const hour = new Date().getHours()
 
-  return { lang, firstName: fullFirstName, businessName, email, step, hour }
+  return { lang, firstName: fullFirstName, businessName, email, step, hour, selectedPackage }
 }
 
 export default function ChatWidget() {
@@ -123,6 +131,7 @@ export default function ChatWidget() {
       if (ctx.businessName) parts.push(`Nombre de negocio ingresado: "${ctx.businessName}".`)
       if (ctx.email) parts.push(`Email del cliente: ${ctx.email}.`)
       if (ctx.step && ctx.step !== '' && !isNaN(Number(ctx.step))) parts.push(`El cliente está en el paso ${ctx.step} del formulario.`)
+      if (ctx.selectedPackage) parts.push(`Paquete seleccionado en el formulario: ${ctx.selectedPackage}.`)
       parts.push(`Hora local del cliente: ${ctx.hour}.`)
       formContextRef.current = parts.join(' ')
 
@@ -172,6 +181,19 @@ export default function ChatWidget() {
     setMessages(next)
     setInput('')
     setLoading(true)
+
+    // Refresh form context on every send so Claudia always has the latest step and package
+    const ctx = readFormContext()
+    const parts: string[] = []
+    if (ctx.lang === 'es') parts.push('El cliente está usando el sitio en español.')
+    if (ctx.firstName) parts.push(`Nombre del cliente: ${ctx.firstName}.`)
+    if (ctx.businessName) parts.push(`Nombre de negocio ingresado: "${ctx.businessName}".`)
+    if (ctx.email) parts.push(`Email del cliente: ${ctx.email}.`)
+    if (ctx.step && ctx.step !== '' && !isNaN(Number(ctx.step))) parts.push(`El cliente está en el paso ${ctx.step} del formulario.`)
+    if (ctx.selectedPackage) parts.push(`Paquete seleccionado en el formulario: ${ctx.selectedPackage}.`)
+    parts.push(`Hora local del cliente: ${ctx.hour}.`)
+    formContextRef.current = parts.join(' ')
+
     try {
       const res = await fetch('/api/chat', {
         method: 'POST',
