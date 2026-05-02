@@ -146,16 +146,15 @@ export default function ChatWidget() {
     const isNewMessage = newCount > prevMsgCount.current
     prevMsgCount.current = newCount
 
-    if (loading) {
+    if (loading || isTyping) {
       bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
     } else if (isNewMessage && messages[messages.length - 1]?.role === 'assistant') {
       lastMsgRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-      // Re-focus input after Claudia responds
       setTimeout(() => inputRef.current?.focus(), 50)
     } else if (isNewMessage) {
       bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
     }
-  }, [messages, loading])
+  }, [messages, loading, isTyping, typingText])
 
   async function send() {
     const text = input.trim()
