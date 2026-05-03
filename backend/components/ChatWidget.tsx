@@ -4,48 +4,15 @@ import { useState, useRef, useEffect } from 'react'
 
 type Message = { role: 'user' | 'assistant'; content: string }
 
-function ClaudiaAvatar({ size = 42, uid = 'a' }: { size?: number; uid?: string }) {
-  const gid = `cg-${uid}`
+function ClaudiaAvatar({ size = 42 }: { size?: number; uid?: string }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id={gid} x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#1C2E44" />
-          <stop offset="100%" stopColor="#2563EB" />
-        </linearGradient>
-      </defs>
-
-      {/* Background */}
-      <circle cx="24" cy="24" r="24" fill={`url(#${gid})`} />
-
-      {/* ── Headset rendered BEHIND face so band hides under face naturally ── */}
-      {/* Band arc over head */}
-      <path d="M9 23 C9 6 39 6 39 23" stroke="white" strokeWidth="3.5" fill="none" strokeLinecap="round" />
-      {/* Left ear cup */}
-      <rect x="6" y="20" width="7" height="11" rx="3.5" fill="white" />
-      {/* Right ear cup */}
-      <rect x="35" y="20" width="7" height="11" rx="3.5" fill="white" />
-
-      {/* ── Face (sits on top of headset band, covers it naturally) ── */}
-      <circle cx="24" cy="25" r="13" fill="white" fillOpacity="0.97" />
-
-      {/* Hair — rounded dark cap on top of face */}
-      <path d="M12 22 C12 12 36 12 36 22 C36 17 12 17 12 22 Z" fill="rgba(28,46,68,0.22)" />
-
-      {/* Eyes */}
-      <circle cx="19.5" cy="24" r="2" fill="rgba(28,46,68,0.7)" />
-      <circle cx="28.5" cy="24" r="2" fill="rgba(28,46,68,0.7)" />
-      {/* Eye shine */}
-      <circle cx="20.3" cy="23.2" r="0.7" fill="white" />
-      <circle cx="29.3" cy="23.2" r="0.7" fill="white" />
-
-      {/* Smile */}
-      <path d="M18.5 29.5 Q24 34 29.5 29.5" stroke="rgba(28,46,68,0.55)" strokeWidth="1.8" fill="none" strokeLinecap="round" />
-
-      {/* ── Mic arm + capsule (in front of everything) ── */}
-      <path d="M9 27 Q6.5 32 8 36" stroke="white" strokeWidth="2.2" fill="none" strokeLinecap="round" />
-      <circle cx="8.2" cy="37" r="2.5" fill="white" />
-    </svg>
+    <img
+      src="/Claudia.jpg"
+      alt="Claudia"
+      width={size}
+      height={size}
+      style={{ borderRadius: '50%', objectFit: 'cover', objectPosition: 'center top', display: 'block' }}
+    />
   )
 }
 
