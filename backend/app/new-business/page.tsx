@@ -171,7 +171,7 @@ function NewBusinessContent() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F8FAFC', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+    <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
         *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -191,11 +191,16 @@ function NewBusinessContent() {
         .btn-guide{width:100%;padding:12px;border-radius:10px;background:var(--white);color:var(--navy);font-size:.9rem;font-weight:600;border:2px solid var(--gray200);cursor:pointer;font-family:inherit;transition:all .2s;text-decoration:none;display:block;text-align:center;margin-top:10px}
         .btn-guide:hover{border-color:var(--blue);color:var(--blue)}
         .field-row{display:flex;gap:8px}
+        .nb-layout{display:flex;min-height:100vh}
+        .nb-image{width:40%;flex-shrink:0;position:sticky;top:0;height:100vh;overflow:hidden}
+        .nb-image img{width:100%;height:100%;object-fit:cover;object-position:center top;display:block}
+        .nb-content{flex:1;padding:32px 36px 60px;background:#F8FAFC;min-height:100vh}
+        @media(max-width:768px){.nb-layout{flex-direction:column}.nb-image{width:100%!important;height:280px!important;position:relative!important;top:auto!important}.nb-content{padding:24px 16px 60px!important;min-height:auto!important}}
         @media(max-width:640px){.field-row{flex-direction:column}.two-col{flex-direction:column!important}}
       `}</style>
 
       {/* Top bar */}
-      <div style={{ background: 'linear-gradient(135deg,#1C2E44,#1e40af)', padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ background: 'linear-gradient(135deg,#1C2E44,#1e40af)', padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 10 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div style={{ width: 34, height: 34, background: '#2563EB', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: '.85rem', fontFamily: 'Fraunces,serif' }}>FL</div>
           <span style={{ color: '#fff', fontWeight: 700, fontSize: '.9rem', fontFamily: 'Fraunces,serif' }}>MyBusinessFormation</span>
@@ -207,7 +212,14 @@ function NewBusinessContent() {
         </div>
       </div>
 
-      <div style={{ maxWidth: 640, margin: '0 auto', padding: '32px 20px 60px' }}>
+      <div className="nb-layout">
+        {/* Image — left 40% */}
+        <div className="nb-image">
+          <img src="/photonewbusiness.jpg" alt="MyBusinessFormation" />
+        </div>
+
+        {/* Content — right 60% */}
+        <div className="nb-content">
 
         {/* Hero */}
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
@@ -324,7 +336,9 @@ function NewBusinessContent() {
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
           {t.footer_note}
         </p>
-      </div>
+
+        </div>{/* end nb-content */}
+      </div>{/* end nb-layout */}
     </div>
   )
 }
