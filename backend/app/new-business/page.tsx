@@ -45,11 +45,65 @@ const SERVICES: Record<ServiceId, { en: string; es: string; price: number; detai
 
 const SERVICE_ORDER: ServiceId[] = ['labor_law_poster', 'certificate_of_status', 'ein']
 
+const REASON_OPTIONS = {
+  en: [
+    { value: 'new_business', label: 'Started a new business' },
+    { value: 'hired_employees', label: 'Hired or will hire employees' },
+    { value: 'banking', label: 'Banking purposes' },
+    { value: 'changed_type', label: 'Changed type of organization' },
+    { value: 'purchased_business', label: 'Purchased a going business' },
+    { value: 'created_trust', label: 'Created a trust' },
+    { value: 'created_pension', label: 'Created a pension plan' },
+    { value: 'other', label: 'Other' },
+  ],
+  es: [
+    { value: 'new_business', label: 'Apertura de nuevo negocio' },
+    { value: 'hired_employees', label: 'Contrató o contratará empleados' },
+    { value: 'banking', label: 'Propósitos bancarios' },
+    { value: 'changed_type', label: 'Cambio de tipo de organización' },
+    { value: 'purchased_business', label: 'Compró un negocio en operación' },
+    { value: 'created_trust', label: 'Creación de un fideicomiso' },
+    { value: 'created_pension', label: 'Creación de plan de pensión' },
+    { value: 'other', label: 'Otro' },
+  ],
+}
+
+const ACTIVITY_OPTIONS = {
+  en: [
+    { value: 'construction', label: 'Construction' },
+    { value: 'real_estate', label: 'Real Estate' },
+    { value: 'rental_leasing', label: 'Rental & Leasing' },
+    { value: 'manufacturing', label: 'Manufacturing' },
+    { value: 'transportation', label: 'Transportation & Warehousing' },
+    { value: 'finance', label: 'Finance & Insurance' },
+    { value: 'healthcare', label: 'Health Care & Social Assistance' },
+    { value: 'food_service', label: 'Accommodation & Food Service' },
+    { value: 'wholesale', label: 'Wholesale' },
+    { value: 'retail', label: 'Retail' },
+    { value: 'professional', label: 'Professional Services' },
+    { value: 'other', label: 'Other' },
+  ],
+  es: [
+    { value: 'construction', label: 'Construcción' },
+    { value: 'real_estate', label: 'Bienes Raíces' },
+    { value: 'rental_leasing', label: 'Alquiler y Arrendamiento' },
+    { value: 'manufacturing', label: 'Manufactura' },
+    { value: 'transportation', label: 'Transporte y Almacenamiento' },
+    { value: 'finance', label: 'Finanzas y Seguros' },
+    { value: 'healthcare', label: 'Salud y Asistencia Social' },
+    { value: 'food_service', label: 'Alojamiento y Servicios de Comida' },
+    { value: 'wholesale', label: 'Mayorista' },
+    { value: 'retail', label: 'Minorista' },
+    { value: 'professional', label: 'Servicios Profesionales' },
+    { value: 'other', label: 'Otro' },
+  ],
+}
+
 const T = {
   en: {
     topbar_name: 'Florida Business Formation Center',
     svc_section: 'Our Services',
-    personal_title: 'Personal Information',
+    personal_title: 'Owner Information',
     form_title: 'Business Information',
     doc_id: 'Document ID',
     doc_placeholder: 'e.g. L26000075446',
@@ -64,6 +118,23 @@ const T = {
     state_lbl: 'State',
     zip: 'Zip Code',
     biz_name: 'Business Name',
+    continue_btn: 'Continue',
+    back_btn: 'Back',
+    ein_title: 'EIN Application Information',
+    responsible_party: 'Responsible Party',
+    responsible_party_hint: 'Full legal name of the individual who controls the entity',
+    ssn_itin: 'SSN or ITIN',
+    ssn_hint: 'Protected under federal privacy law (IRS Form SS-4)',
+    reason_ein: 'Reason for Applying',
+    business_activity: 'Principal Business Activity',
+    exp_employees: 'Expected Employees (next 12 months)',
+    start_date: 'Date Business Started',
+    select_opt: 'Select an option...',
+    step_label: 'Step',
+    step_of: 'of',
+    err_step1: 'Please complete all required fields (First Name, Last Name, Email, Business Name) before continuing.',
+    err_step2: 'Please complete all EIN fields before proceeding to checkout.',
+    err_terms: 'Please accept the Terms of Service.',
     cart_title: 'My Cart',
     select_all: 'Select All',
     price_lbl: 'Price',
@@ -82,7 +153,7 @@ const T = {
   es: {
     topbar_name: 'Florida Business Formation Center',
     svc_section: 'Nuestros Servicios',
-    personal_title: 'Información Personal',
+    personal_title: 'Información del Propietario',
     form_title: 'Información del Negocio',
     doc_id: 'Document ID',
     doc_placeholder: 'ej. L26000075446',
@@ -97,6 +168,23 @@ const T = {
     state_lbl: 'Estado',
     zip: 'Código Postal',
     biz_name: 'Nombre del Negocio',
+    continue_btn: 'Continuar',
+    back_btn: 'Regresar',
+    ein_title: 'Información para el EIN',
+    responsible_party: 'Responsable del Negocio',
+    responsible_party_hint: 'Nombre legal completo del propietario que controla la entidad',
+    ssn_itin: 'SSN o ITIN',
+    ssn_hint: 'Protegido por la ley federal de privacidad (Formulario IRS SS-4)',
+    reason_ein: 'Razón de la Solicitud',
+    business_activity: 'Actividad Principal del Negocio',
+    exp_employees: 'Empleados Esperados (próximos 12 meses)',
+    start_date: 'Fecha de Inicio de Operaciones',
+    select_opt: 'Seleccione una opción...',
+    step_label: 'Paso',
+    step_of: 'de',
+    err_step1: 'Por favor complete todos los campos requeridos (Nombre, Apellido, Correo, Nombre del Negocio) antes de continuar.',
+    err_step2: 'Por favor complete toda la información del EIN antes de proceder al pago.',
+    err_terms: 'Debe aceptar los Términos de Servicio.',
     cart_title: 'Mi Carrito',
     select_all: 'Seleccionar Todo',
     price_lbl: 'Precio',
@@ -119,6 +207,9 @@ function NewBusinessContent() {
   const [lang, setLang] = useState<'en' | 'es'>('en')
   const t = T[lang]
 
+  const [step, setStep] = useState(1)
+  const [stepError, setStepError] = useState('')
+
   const [docInput, setDocInput] = useState('')
   const [lookingUp, setLookingUp] = useState(false)
   const [company, setCompany] = useState<Company | null>(null)
@@ -127,6 +218,15 @@ function NewBusinessContent() {
   const [formFields, setFormFields] = useState({
     firstName: '', lastName: '', email: '', phone: '',
     address1: '', address2: '', city: '', state: 'FL', zip: '', businessName: '',
+  })
+
+  const [einFields, setEinFields] = useState({
+    responsibleParty: '',
+    ssn: '',
+    reasonForEin: '',
+    businessActivity: '',
+    expectedEmployees: '',
+    startDate: '',
   })
 
   const [selected, setSelected] = useState<Set<ServiceId>>(new Set(SERVICE_ORDER))
@@ -140,6 +240,23 @@ function NewBusinessContent() {
   const subtotal = [...selected].reduce((sum, id) => sum + SERVICES[id].price, 0)
   const discount = allSelected ? parseFloat((subtotal * 0.10).toFixed(2)) : 0
   const total = parseFloat((subtotal - discount).toFixed(2))
+
+  function validateStep1() {
+    const { firstName, lastName, email, businessName } = formFields
+    return firstName.trim() && lastName.trim() && email.trim() && businessName.trim()
+  }
+
+  function validateStep2() {
+    const { responsibleParty, ssn, reasonForEin, businessActivity, expectedEmployees, startDate } = einFields
+    return responsibleParty.trim() && ssn.trim() && reasonForEin && businessActivity && expectedEmployees && startDate
+  }
+
+  function handleContinue() {
+    if (!validateStep1()) { setStepError(t.err_step1); return }
+    setStepError('')
+    setStep(2)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
   const lookup = useCallback(async (id: string) => {
     if (!id.trim()) return
@@ -193,7 +310,12 @@ function NewBusinessContent() {
 
   async function handlePay() {
     if (selected.size === 0) { setPayError(t.select_one); return }
-    if (!termsAccepted) { setPayError(lang === 'es' ? 'Debes aceptar los términos de servicio.' : 'Please accept the Terms of Service.'); return }
+    if (step < 2) {
+      setPayError(lang === 'es' ? 'Por favor completa el paso 1 antes de proceder al pago.' : 'Please complete Step 1 before proceeding to checkout.')
+      return
+    }
+    if (!validateStep2()) { setPayError(t.err_step2); return }
+    if (!termsAccepted) { setPayError(t.err_terms); return }
     setPaying(true)
     setPayError('')
     try {
@@ -207,6 +329,7 @@ function NewBusinessContent() {
           company_name: formFields.businessName || company?.company_name || '',
           selected_services: services,
           customer_email: formFields.email || null,
+          ein_info: einFields,
           lang,
         }),
       })
@@ -240,13 +363,26 @@ function NewBusinessContent() {
         .nb-main{display:grid;grid-template-columns:1fr 360px;gap:32px;padding:32px 36px 56px;align-items:start}
 
         .form-section{background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:24px 26px;box-shadow:0 4px 24px rgba(28,46,68,.08)}
+
+        .step-indicator{display:flex;align-items:center;gap:8px;margin-bottom:16px;padding-bottom:14px;border-bottom:1.5px solid #f1f5f9}
+        .step-dot{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:800}
+        .step-dot.active{background:var(--navy);color:#fff}
+        .step-dot.done{background:#dcfce7;color:#166534}
+        .step-dot.pending{background:#f1f5f9;color:#94a3b8}
+        .step-label-txt{font-size:.7rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px}
+        .step-anim{animation:stepIn .18s ease-out}
+        @keyframes stepIn{from{opacity:.5;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+
         .form-title{font-size:.95rem;font-weight:700;color:var(--navy);margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #e2e8f0}
         .form-field{margin-bottom:10px}
         .form-label{display:block;font-size:.68rem;font-weight:700;color:#374151;margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
+        .req{color:#ef4444;margin-left:2px}
         .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
         .form-input{width:100%;padding:8px 11px;border:1.5px solid #d1d5db;border-radius:7px;font-size:.82rem;font-family:inherit;color:#1e293b;outline:none;transition:border-color .2s;background:#fff}
         .form-input:focus{border-color:var(--blue)}
         .form-input.autofilled{background:#f0f9ff;border-color:#bae6fd}
+        select.form-input{cursor:pointer}
+        .form-hint{font-size:.67rem;color:#94a3b8;margin-top:3px;line-height:1.4}
         .autofill-msg{font-size:.72rem;margin-top:4px;padding:5px 9px;border-radius:6px}
         .autofill-msg.success{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0}
         .autofill-msg.error{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
@@ -254,6 +390,12 @@ function NewBusinessContent() {
         .ship-toggle input{width:16px;height:16px;cursor:pointer;accent-color:var(--blue)}
         .ship-section{margin-top:20px;padding-top:20px;border-top:1px dashed #d1d5db}
         .ship-section-title{font-size:.78rem;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.5px;margin-bottom:16px}
+
+        .step-error{font-size:.74rem;color:#ef4444;background:#fef2f2;border:1px solid #fecaca;border-radius:6px;padding:8px 12px;margin-top:12px}
+        .btn-continue{width:100%;padding:11px;border-radius:8px;background:var(--navy);color:#fff;font-size:.88rem;font-weight:700;border:none;cursor:pointer;font-family:inherit;margin-top:16px;transition:background .2s}
+        .btn-continue:hover{background:#243858}
+        .btn-back{display:inline-flex;align-items:center;gap:5px;background:none;border:none;color:#64748b;font-size:.78rem;font-weight:600;cursor:pointer;font-family:inherit;padding:0;margin-bottom:14px;transition:color .15s}
+        .btn-back:hover{color:var(--navy)}
 
         .cart-card{background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:26px;position:sticky;top:20px;box-shadow:0 4px 24px rgba(28,46,68,.10)}
         .cart-title{font-family:'Fraunces',serif;font-size:1.5rem;font-weight:900;color:var(--navy);margin-bottom:20px;padding-bottom:14px;border-bottom:2px solid #e2e8f0}
@@ -277,7 +419,6 @@ function NewBusinessContent() {
         .terms-row{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:.74rem;color:#64748b}
         .terms-row a{color:var(--blue);text-decoration:underline}
         .terms-row input{cursor:pointer;width:15px;height:15px;flex-shrink:0;accent-color:var(--blue)}
-
         .discount-badge{display:inline-block;background:#dcfce7;color:#166534;font-size:.68rem;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:8px;border:1px solid #bbf7d0}
 
         @media(max-width:900px){
@@ -309,7 +450,7 @@ function NewBusinessContent() {
       </div>
 
       <div className="nb-layout">
-        {/* Image — left 35% */}
+        {/* Image — left */}
         <div className="nb-image">
           <img src="/photonewbusiness.jpg" alt="MyBusinessFormation" />
         </div>
@@ -335,104 +476,177 @@ function NewBusinessContent() {
 
             {/* Form column */}
             <div style={{ maxWidth: 520, margin: '0 auto' }}>
-
-            {/* Form card */}
             <div className="form-section">
 
-              {/* Document ID — first field */}
-              <div className="form-field">
-                <label className="form-label">{t.doc_id}</label>
-                <input
-                  className="form-input"
-                  value={docInput}
-                  onChange={e => { setDocInput(e.target.value.toUpperCase()); setAutofillMsg('') }}
-                  onBlur={() => docInput.trim().length >= 5 && lookup(docInput)}
-                  onKeyDown={e => e.key === 'Enter' && lookup(docInput)}
-                  placeholder={t.doc_placeholder}
-                />
-                {lookingUp && <p style={{ fontSize: '.73rem', color: '#2563EB', marginTop: 4 }}>{t.looking_up}</p>}
-                {autofillMsg && (
-                  <div className={`autofill-msg ${autofillMsg === t.autofill_success ? 'success' : 'error'}`}>{autofillMsg}</div>
-                )}
+              {/* Step indicator */}
+              <div className="step-indicator">
+                <div className={`step-dot ${step === 1 ? 'active' : 'done'}`}>
+                  {step === 1 ? '1' : '✓'}
+                </div>
+                <div className={`step-dot ${step === 2 ? 'active' : 'pending'}`} style={{ marginLeft: 2 }}>2</div>
+                <span className="step-label-txt" style={{ marginLeft: 4 }}>
+                  {t.step_label} {step} {t.step_of} 2
+                </span>
               </div>
 
-              {/* Personal Information */}
-              <div className="form-title" style={{ marginTop: 18 }}>{t.personal_title}</div>
-              <div className="form-grid">
-                <div className="form-field">
-                  <label className="form-label">{t.first_name}</label>
-                  <input className="form-input" value={formFields.firstName} onChange={e => setFormFields(p => ({ ...p, firstName: e.target.value }))} />
-                </div>
-                <div className="form-field">
-                  <label className="form-label">{t.last_name}</label>
-                  <input className="form-input" value={formFields.lastName} onChange={e => setFormFields(p => ({ ...p, lastName: e.target.value }))} />
-                </div>
-                <div className="form-field">
-                  <label className="form-label">{t.email}</label>
-                  <input className="form-input" value={formFields.email} onChange={e => setFormFields(p => ({ ...p, email: e.target.value }))} />
-                </div>
-                <div className="form-field">
-                  <label className="form-label">{t.phone}</label>
-                  <input className="form-input" value={formFields.phone} onChange={e => setFormFields(p => ({ ...p, phone: e.target.value }))} />
-                </div>
-              </div>
+              {/* ── STEP 1 ── */}
+              {step === 1 && (
+                <div className="step-anim">
 
-              {/* Business Information */}
-              <div className="form-title" style={{ marginTop: 18 }}>{t.form_title}</div>
+                  {/* Document ID */}
+                  <div className="form-field">
+                    <label className="form-label">{t.doc_id}</label>
+                    <input
+                      className="form-input"
+                      value={docInput}
+                      onChange={e => { setDocInput(e.target.value.toUpperCase()); setAutofillMsg('') }}
+                      onBlur={() => docInput.trim().length >= 5 && lookup(docInput)}
+                      onKeyDown={e => e.key === 'Enter' && lookup(docInput)}
+                      placeholder={t.doc_placeholder}
+                    />
+                    {lookingUp && <p style={{ fontSize: '.73rem', color: '#2563EB', marginTop: 4 }}>{t.looking_up}</p>}
+                    {autofillMsg && (
+                      <div className={`autofill-msg ${autofillMsg === t.autofill_success ? 'success' : 'error'}`}>{autofillMsg}</div>
+                    )}
+                  </div>
 
-              <div className="form-field">
-                <label className="form-label">{t.biz_name}</label>
-                <input className={`form-input${company ? ' autofilled' : ''}`} value={formFields.businessName} onChange={e => setFormFields(p => ({ ...p, businessName: e.target.value }))} />
-              </div>
+                  {/* Owner Information */}
+                  <div className="form-title" style={{ marginTop: 16 }}>{t.personal_title}</div>
+                  <div className="form-grid">
+                    <div className="form-field">
+                      <label className="form-label">{t.first_name}<span className="req">*</span></label>
+                      <input className="form-input" value={formFields.firstName} onChange={e => setFormFields(p => ({ ...p, firstName: e.target.value }))} />
+                    </div>
+                    <div className="form-field">
+                      <label className="form-label">{t.last_name}<span className="req">*</span></label>
+                      <input className="form-input" value={formFields.lastName} onChange={e => setFormFields(p => ({ ...p, lastName: e.target.value }))} />
+                    </div>
+                    <div className="form-field">
+                      <label className="form-label">{t.email}<span className="req">*</span></label>
+                      <input className="form-input" value={formFields.email} onChange={e => setFormFields(p => ({ ...p, email: e.target.value }))} />
+                    </div>
+                    <div className="form-field">
+                      <label className="form-label">{t.phone}</label>
+                      <input className="form-input" value={formFields.phone} onChange={e => setFormFields(p => ({ ...p, phone: e.target.value }))} />
+                    </div>
+                  </div>
 
-              <div className="form-field">
-                <label className="form-label">{t.address1}</label>
-                <input className={`form-input${company ? ' autofilled' : ''}`} value={formFields.address1} onChange={e => setFormFields(p => ({ ...p, address1: e.target.value }))} />
-              </div>
-              <div className="form-field">
-                <label className="form-label">{t.address2}</label>
-                <input className="form-input" value={formFields.address2} onChange={e => setFormFields(p => ({ ...p, address2: e.target.value }))} />
-              </div>
-              <div className="form-grid">
-                <div className="form-field">
-                  <label className="form-label">{t.city}</label>
-                  <input className={`form-input${company ? ' autofilled' : ''}`} value={formFields.city} onChange={e => setFormFields(p => ({ ...p, city: e.target.value }))} />
-                </div>
-                <div className="form-field">
-                  <label className="form-label">{t.zip}</label>
-                  <input className={`form-input${company ? ' autofilled' : ''}`} value={formFields.zip} onChange={e => setFormFields(p => ({ ...p, zip: e.target.value }))} />
-                </div>
-              </div>
-
-              {/* Ship to different address */}
-              <label className="ship-toggle">
-                <input type="checkbox" checked={shipDifferent} onChange={e => setShipDifferent(e.target.checked)} />
-                {lang === 'es' ? '¿Enviar a una dirección diferente?' : 'Shipping to a different address?'}
-              </label>
-
-              {shipDifferent && (
-                <div className="ship-section">
-                  <div className="ship-section-title">{lang === 'es' ? 'Dirección de Envío' : 'Shipping Address'}</div>
+                  {/* Business Information */}
+                  <div className="form-title" style={{ marginTop: 16 }}>{t.form_title}</div>
+                  <div className="form-field">
+                    <label className="form-label">{t.biz_name}<span className="req">*</span></label>
+                    <input className={`form-input${company ? ' autofilled' : ''}`} value={formFields.businessName} onChange={e => setFormFields(p => ({ ...p, businessName: e.target.value }))} />
+                  </div>
                   <div className="form-field">
                     <label className="form-label">{t.address1}</label>
-                    <input className="form-input" value={shipFields.address1} onChange={e => setShipFields(p => ({ ...p, address1: e.target.value }))} />
+                    <input className={`form-input${company ? ' autofilled' : ''}`} value={formFields.address1} onChange={e => setFormFields(p => ({ ...p, address1: e.target.value }))} />
                   </div>
                   <div className="form-field">
                     <label className="form-label">{t.address2}</label>
-                    <input className="form-input" value={shipFields.address2} onChange={e => setShipFields(p => ({ ...p, address2: e.target.value }))} />
+                    <input className="form-input" value={formFields.address2} onChange={e => setFormFields(p => ({ ...p, address2: e.target.value }))} />
                   </div>
                   <div className="form-grid">
                     <div className="form-field">
                       <label className="form-label">{t.city}</label>
-                      <input className="form-input" value={shipFields.city} onChange={e => setShipFields(p => ({ ...p, city: e.target.value }))} />
+                      <input className={`form-input${company ? ' autofilled' : ''}`} value={formFields.city} onChange={e => setFormFields(p => ({ ...p, city: e.target.value }))} />
                     </div>
                     <div className="form-field">
                       <label className="form-label">{t.zip}</label>
-                      <input className="form-input" value={shipFields.zip} onChange={e => setShipFields(p => ({ ...p, zip: e.target.value }))} />
+                      <input className={`form-input${company ? ' autofilled' : ''}`} value={formFields.zip} onChange={e => setFormFields(p => ({ ...p, zip: e.target.value }))} />
+                    </div>
+                  </div>
+
+                  {/* Ship to different address */}
+                  <label className="ship-toggle">
+                    <input type="checkbox" checked={shipDifferent} onChange={e => setShipDifferent(e.target.checked)} />
+                    {lang === 'es' ? '¿Enviar a una dirección diferente?' : 'Shipping to a different address?'}
+                  </label>
+                  {shipDifferent && (
+                    <div className="ship-section">
+                      <div className="ship-section-title">{lang === 'es' ? 'Dirección de Envío' : 'Shipping Address'}</div>
+                      <div className="form-field">
+                        <label className="form-label">{t.address1}</label>
+                        <input className="form-input" value={shipFields.address1} onChange={e => setShipFields(p => ({ ...p, address1: e.target.value }))} />
+                      </div>
+                      <div className="form-field">
+                        <label className="form-label">{t.address2}</label>
+                        <input className="form-input" value={shipFields.address2} onChange={e => setShipFields(p => ({ ...p, address2: e.target.value }))} />
+                      </div>
+                      <div className="form-grid">
+                        <div className="form-field">
+                          <label className="form-label">{t.city}</label>
+                          <input className="form-input" value={shipFields.city} onChange={e => setShipFields(p => ({ ...p, city: e.target.value }))} />
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label">{t.zip}</label>
+                          <input className="form-input" value={shipFields.zip} onChange={e => setShipFields(p => ({ ...p, zip: e.target.value }))} />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {stepError && <div className="step-error">{stepError}</div>}
+                  <button className="btn-continue" onClick={handleContinue}>{t.continue_btn} →</button>
+                </div>
+              )}
+
+              {/* ── STEP 2 ── */}
+              {step === 2 && (
+                <div className="step-anim">
+                  <button className="btn-back" onClick={() => { setStep(1); setStepError('') }}>
+                    ← {t.back_btn}
+                  </button>
+
+                  <div className="form-title">{t.ein_title}</div>
+
+                  <div className="form-field">
+                    <label className="form-label">{t.responsible_party}<span className="req">*</span></label>
+                    <input className="form-input" value={einFields.responsibleParty} onChange={e => setEinFields(p => ({ ...p, responsibleParty: e.target.value }))} />
+                    <p className="form-hint">{t.responsible_party_hint}</p>
+                  </div>
+
+                  <div className="form-field">
+                    <label className="form-label">{t.ssn_itin}<span className="req">*</span></label>
+                    <input className="form-input" value={einFields.ssn} onChange={e => setEinFields(p => ({ ...p, ssn: e.target.value }))} placeholder="XXX-XX-XXXX" />
+                    <p className="form-hint">🔒 {t.ssn_hint}</p>
+                  </div>
+
+                  <div className="form-field">
+                    <label className="form-label">{t.reason_ein}<span className="req">*</span></label>
+                    <select className="form-input" value={einFields.reasonForEin} onChange={e => setEinFields(p => ({ ...p, reasonForEin: e.target.value }))}>
+                      <option value="">{t.select_opt}</option>
+                      {REASON_OPTIONS[lang].map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                    </select>
+                  </div>
+
+                  <div className="form-field">
+                    <label className="form-label">{t.business_activity}<span className="req">*</span></label>
+                    <select className="form-input" value={einFields.businessActivity} onChange={e => setEinFields(p => ({ ...p, businessActivity: e.target.value }))}>
+                      <option value="">{t.select_opt}</option>
+                      {ACTIVITY_OPTIONS[lang].map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                    </select>
+                  </div>
+
+                  <div className="form-grid">
+                    <div className="form-field">
+                      <label className="form-label">{t.exp_employees}<span className="req">*</span></label>
+                      <select className="form-input" value={einFields.expectedEmployees} onChange={e => setEinFields(p => ({ ...p, expectedEmployees: e.target.value }))}>
+                        <option value="">{t.select_opt}</option>
+                        <option value="0">0</option>
+                        <option value="1-4">1 – 4</option>
+                        <option value="5-19">5 – 19</option>
+                        <option value="20-99">20 – 99</option>
+                        <option value="100+">100+</option>
+                      </select>
+                    </div>
+                    <div className="form-field">
+                      <label className="form-label">{t.start_date}<span className="req">*</span></label>
+                      <input type="month" className="form-input" value={einFields.startDate} onChange={e => setEinFields(p => ({ ...p, startDate: e.target.value }))} />
                     </div>
                   </div>
                 </div>
               )}
+
             </div>{/* end form-section */}
             </div>{/* end form column wrapper */}
 
@@ -484,7 +698,7 @@ function NewBusinessContent() {
                 </div>
               </div>
 
-              {payError && <p style={{ color: '#fca5a5', fontSize: '.76rem', marginTop: 10, textAlign: 'center' }}>{payError}</p>}
+              {payError && <p style={{ color: '#ef4444', fontSize: '.76rem', marginTop: 10, textAlign: 'center' }}>{payError}</p>}
 
               <button className="btn-checkout" onClick={handlePay} disabled={paying || selected.size === 0}>
                 {paying ? t.processing : t.checkout_btn}
