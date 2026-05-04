@@ -237,17 +237,17 @@ function NewBusinessContent() {
         .svc-desc-name{font-size:1rem;font-weight:700;color:var(--navy);margin-bottom:10px;font-family:'Fraunces',serif}
         .svc-desc-text{font-size:.84rem;color:#475569;line-height:1.7}
 
-        .nb-main{display:grid;grid-template-columns:1fr 380px;gap:28px;padding:36px 28px 48px;align-items:start}
+        .nb-main{display:grid;grid-template-columns:1fr 380px;gap:24px;padding:24px 24px 40px;align-items:start}
 
         .form-section{padding:0}
-        .form-title{font-size:1.05rem;font-weight:700;color:var(--navy);margin-bottom:24px;padding-bottom:12px;border-bottom:2px solid #e2e8f0}
-        .form-field{margin-bottom:16px}
-        .form-label{display:block;font-size:.72rem;font-weight:700;color:#374151;margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
-        .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-        .form-input{width:100%;padding:10px 13px;border:1.5px solid #d1d5db;border-radius:7px;font-size:.84rem;font-family:inherit;color:#1e293b;outline:none;transition:border-color .2s;background:#fff}
+        .form-title{font-size:.95rem;font-weight:700;color:var(--navy);margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #e2e8f0}
+        .form-field{margin-bottom:10px}
+        .form-label{display:block;font-size:.68rem;font-weight:700;color:#374151;margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
+        .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+        .form-input{width:100%;padding:8px 11px;border:1.5px solid #d1d5db;border-radius:7px;font-size:.82rem;font-family:inherit;color:#1e293b;outline:none;transition:border-color .2s;background:#fff}
         .form-input:focus{border-color:var(--blue)}
         .form-input.autofilled{background:#f0f9ff;border-color:#bae6fd}
-        .autofill-msg{font-size:.74rem;margin-top:6px;padding:6px 10px;border-radius:6px}
+        .autofill-msg{font-size:.72rem;margin-top:4px;padding:5px 9px;border-radius:6px}
         .autofill-msg.success{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0}
         .autofill-msg.error{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
         .ship-toggle{display:flex;align-items:center;gap:8px;margin-top:20px;cursor:pointer;font-size:.82rem;color:#374151;font-weight:600;user-select:none}
@@ -336,8 +336,20 @@ function NewBusinessContent() {
             {/* Form */}
             <div className="form-section">
 
-              {/* Document ID — always first */}
-              <div className="form-field" style={{ marginBottom: 24 }}>
+              {/* Letter banner — only shown when client did NOT come via QR scan */}
+              {!isFromQR && (
+                <div style={{ background: '#eff6ff', border: '1.5px solid #bfdbfe', borderRadius: 10, padding: '12px 16px', marginBottom: 18, display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                  <svg style={{ flexShrink: 0, marginTop: 2 }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="22,4 12,13 2,4"/></svg>
+                  <p style={{ fontSize: '.8rem', color: '#1e40af', lineHeight: 1.55, margin: 0 }}>
+                    {lang === 'es'
+                      ? 'Si recientemente abrió un nuevo negocio y recibió una carta nuestra sobre la obtención de su Certificado de Estado, Póster de Leyes Laborales y EIN, por favor continúe a continuación.'
+                      : 'If you recently opened a new business and received a letter from us about obtaining your Certificate of Status, Labor Law Poster, and EIN, please proceed below.'}
+                  </p>
+                </div>
+              )}
+
+              {/* Document ID — first field */}
+              <div className="form-field">
                 <label className="form-label">{t.doc_id}</label>
                 <input
                   className="form-input"
@@ -353,20 +365,8 @@ function NewBusinessContent() {
                 )}
               </div>
 
-              {/* Letter banner — only shown when client did NOT come via QR scan */}
-              {!isFromQR && (
-                <div style={{ background: '#eff6ff', border: '1.5px solid #bfdbfe', borderRadius: 10, padding: '14px 18px', marginBottom: 24, display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-                  <svg style={{ flexShrink: 0, marginTop: 2 }} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="22,4 12,13 2,4"/></svg>
-                  <p style={{ fontSize: '.83rem', color: '#1e40af', lineHeight: 1.6, margin: 0 }}>
-                    {lang === 'es'
-                      ? 'Si recientemente abrió un nuevo negocio y recibió una carta nuestra sobre la obtención de su Certificado de Estado, Póster de Leyes Laborales y EIN, por favor continúe a continuación.'
-                      : 'If you recently opened a new business and received a letter from us about obtaining your Certificate of Status, Labor Law Poster, and EIN, please proceed below.'}
-                  </p>
-                </div>
-              )}
-
               {/* Personal Information */}
-              <div className="form-title">{t.personal_title}</div>
+              <div className="form-title" style={{ marginTop: 18 }}>{t.personal_title}</div>
               <div className="form-grid">
                 <div className="form-field">
                   <label className="form-label">{t.first_name}</label>
@@ -387,7 +387,7 @@ function NewBusinessContent() {
               </div>
 
               {/* Business Information */}
-              <div className="form-title" style={{ marginTop: 28 }}>{t.form_title}</div>
+              <div className="form-title" style={{ marginTop: 18 }}>{t.form_title}</div>
 
               <div className="form-field">
                 <label className="form-label">{t.biz_name}</label>
