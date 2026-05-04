@@ -228,7 +228,7 @@ function NewBusinessContent() {
         :root{--navy:#1C2E44;--blue:#2563EB;--green:#059669;--gray200:#E2E8F0;--gray400:#94A3B8;--white:#fff}
 
         .nb-layout{display:flex;min-height:100vh}
-        .nb-image{width:28%;flex-shrink:0;position:sticky;top:0;height:100vh;overflow:hidden;background:#f4f6f9}
+        .nb-image{width:33%;flex-shrink:0;position:sticky;top:0;height:100vh;overflow:hidden;background:#f4f6f9}
         .nb-image img{width:100%;height:100%;object-fit:contain;object-position:top left;display:block}
         .nb-image::after{content:'';position:absolute;inset:0;background:linear-gradient(to right,transparent 82%,#f4f6f9 100%),linear-gradient(to bottom,transparent 86%,#f4f6f9 100%);pointer-events:none;z-index:1}
         .nb-content{flex:1;background:#f4f6f9;min-height:100vh}
@@ -240,7 +240,7 @@ function NewBusinessContent() {
 
         .nb-main{display:grid;grid-template-columns:1fr 360px;gap:32px;padding:32px 36px 56px;align-items:start}
 
-        .form-section{background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:24px 26px;box-shadow:0 4px 24px rgba(28,46,68,.08);max-width:520px}
+        .form-section{background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:24px 26px;box-shadow:0 4px 24px rgba(28,46,68,.08);max-width:520px;margin:0 auto}
         .form-title{font-size:.95rem;font-weight:700;color:var(--navy);margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #e2e8f0}
         .form-field{margin-bottom:10px}
         .form-label{display:block;font-size:.68rem;font-weight:700;color:#374151;margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
@@ -339,9 +339,9 @@ function NewBusinessContent() {
 
               {/* Letter banner — only shown when client did NOT come via QR scan */}
               {!isFromQR && (
-                <div style={{ background: '#eff6ff', border: '1.5px solid #bfdbfe', borderRadius: 10, padding: '12px 16px', marginBottom: 18, display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-                  <svg style={{ flexShrink: 0, marginTop: 2 }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="22,4 12,13 2,4"/></svg>
-                  <p style={{ fontSize: '.8rem', color: '#1e40af', lineHeight: 1.55, margin: 0 }}>
+                <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8, padding: '10px 14px', marginBottom: 16, display: 'flex', gap: 9, alignItems: 'flex-start' }}>
+                  <svg style={{ flexShrink: 0, marginTop: 2 }} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="22,4 12,13 2,4"/></svg>
+                  <p style={{ fontSize: '.78rem', color: '#64748b', lineHeight: 1.55, margin: 0 }}>
                     {lang === 'es'
                       ? 'Si recientemente abrió un nuevo negocio y recibió una carta nuestra sobre la obtención de su Certificado de Estado, Póster de Leyes Laborales y EIN, por favor continúe a continuación.'
                       : 'If you recently opened a new business and received a letter from us about obtaining your Certificate of Status, Labor Law Poster, and EIN, please proceed below.'}
