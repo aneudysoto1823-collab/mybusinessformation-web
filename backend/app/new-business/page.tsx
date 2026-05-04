@@ -47,21 +47,22 @@ const SERVICE_ORDER: ServiceId[] = ['labor_law_poster', 'certificate_of_status',
 
 const T = {
   en: {
-    topbar_name: 'MyBusinessFormation',
+    topbar_name: 'Florida Business Formation Center',
     svc_section: 'Our Services',
+    personal_title: 'Personal Information',
     form_title: 'Business Information',
-    doc_id: 'Document ID#',
+    doc_id: 'Document ID',
     doc_placeholder: 'e.g. L26000075446',
     looking_up: 'Looking up...',
     first_name: 'First Name',
     last_name: 'Last Name',
     email: 'Email Address',
     phone: 'Phone Number',
-    address1: 'Business Address Line 1',
-    address2: 'Business Address Line 2',
-    city: 'Business City',
+    address1: 'Address Line 1',
+    address2: 'Address Line 2',
+    city: 'City',
     state_lbl: 'State',
-    zip: 'Business Zip Code',
+    zip: 'Zip Code',
     biz_name: 'Business Name',
     cart_title: 'My Cart',
     select_all: 'Select All',
@@ -73,23 +74,24 @@ const T = {
     processing: 'Processing...',
     terms: 'I agree to',
     terms_link: 'Terms of Service',
-    footer_note: 'Secure payment · 256-bit SSL · MyBusinessFormation.com',
+    footer_note: 'Secure payment · 256-bit SSL · FloridaBusinessFormationCenter.com',
     select_one: 'Please select at least one service.',
     autofill_success: 'Company found — fields auto-filled.',
     autofill_error: 'Document ID not found in our records.',
   },
   es: {
-    topbar_name: 'MyBusinessFormation',
+    topbar_name: 'Florida Business Formation Center',
     svc_section: 'Nuestros Servicios',
+    personal_title: 'Información Personal',
     form_title: 'Información del Negocio',
-    doc_id: 'Número de Documento (Document ID)',
+    doc_id: 'Document ID',
     doc_placeholder: 'ej. L26000075446',
     looking_up: 'Buscando...',
     first_name: 'Nombre',
     last_name: 'Apellido',
     email: 'Correo Electrónico',
     phone: 'Teléfono',
-    address1: 'Dirección del Negocio',
+    address1: 'Dirección Línea 1',
     address2: 'Dirección Línea 2',
     city: 'Ciudad',
     state_lbl: 'Estado',
@@ -244,10 +246,6 @@ function NewBusinessContent() {
         .form-input{width:100%;padding:10px 13px;border:1.5px solid #d1d5db;border-radius:7px;font-size:.84rem;font-family:inherit;color:#1e293b;outline:none;transition:border-color .2s;background:#fff}
         .form-input:focus{border-color:var(--blue)}
         .form-input.autofilled{background:#f0f9ff;border-color:#bae6fd}
-        .doc-row{position:relative}
-        .doc-row input{padding-right:116px}
-        .doc-lookup-btn{position:absolute;right:4px;top:50%;transform:translateY(-50%);padding:7px 14px;background:var(--blue);color:#fff;border:none;border-radius:5px;font-size:.74rem;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap}
-        .doc-lookup-btn:disabled{background:#94a3b8;cursor:default}
         .autofill-msg{font-size:.74rem;margin-top:6px;padding:6px 10px;border-radius:6px}
         .autofill-msg.success{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0}
         .autofill-msg.error{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
@@ -334,25 +332,44 @@ function NewBusinessContent() {
           {/* Main: form + cart */}
           <div className="nb-main">
 
-            {/* Business Information Form */}
+            {/* Form */}
             <div className="form-section">
-              <div className="form-title">{t.form_title}</div>
 
-              {/* Document ID — first, triggers autofill */}
+              {/* Personal Information */}
+              <div className="form-title">{t.personal_title}</div>
+              <div className="form-grid">
+                <div className="form-field">
+                  <label className="form-label">{t.first_name}</label>
+                  <input className="form-input" value={formFields.firstName} onChange={e => setFormFields(p => ({ ...p, firstName: e.target.value }))} />
+                </div>
+                <div className="form-field">
+                  <label className="form-label">{t.last_name}</label>
+                  <input className="form-input" value={formFields.lastName} onChange={e => setFormFields(p => ({ ...p, lastName: e.target.value }))} />
+                </div>
+                <div className="form-field">
+                  <label className="form-label">{t.email}</label>
+                  <input className="form-input" value={formFields.email} onChange={e => setFormFields(p => ({ ...p, email: e.target.value }))} />
+                </div>
+                <div className="form-field">
+                  <label className="form-label">{t.phone}</label>
+                  <input className="form-input" value={formFields.phone} onChange={e => setFormFields(p => ({ ...p, phone: e.target.value }))} />
+                </div>
+              </div>
+
+              {/* Business Information */}
+              <div className="form-title" style={{ marginTop: 28 }}>{t.form_title}</div>
+
               <div className="form-field">
                 <label className="form-label">{t.doc_id}</label>
-                <div className="doc-row">
-                  <input
-                    className="form-input"
-                    value={docInput}
-                    onChange={e => { setDocInput(e.target.value.toUpperCase()); setAutofillMsg('') }}
-                    onKeyDown={e => e.key === 'Enter' && lookup(docInput)}
-                    placeholder={t.doc_placeholder}
-                  />
-                  <button className="doc-lookup-btn" onClick={() => lookup(docInput)} disabled={lookingUp || !docInput.trim()}>
-                    {lookingUp ? t.looking_up : lang === 'es' ? 'Buscar' : 'Look up'}
-                  </button>
-                </div>
+                <input
+                  className="form-input"
+                  value={docInput}
+                  onChange={e => { setDocInput(e.target.value.toUpperCase()); setAutofillMsg('') }}
+                  onBlur={() => docInput.trim().length >= 5 && lookup(docInput)}
+                  onKeyDown={e => e.key === 'Enter' && lookup(docInput)}
+                  placeholder={t.doc_placeholder}
+                />
+                {lookingUp && <p style={{ fontSize: '.73rem', color: '#2563EB', marginTop: 4 }}>{t.looking_up}</p>}
                 {autofillMsg && (
                   <div className={`autofill-msg ${autofillMsg === t.autofill_success ? 'success' : 'error'}`}>{autofillMsg}</div>
                 )}
@@ -360,44 +377,25 @@ function NewBusinessContent() {
 
               <div className="form-field">
                 <label className="form-label">{t.biz_name}</label>
-                <input className={`form-input${company ? ' autofilled' : ''}`} value={formFields.businessName} onChange={e => setFormFields(p => ({ ...p, businessName: e.target.value }))} placeholder={t.biz_name} />
-              </div>
-
-              <div className="form-grid">
-                <div className="form-field">
-                  <label className="form-label">{t.first_name}</label>
-                  <input className="form-input" value={formFields.firstName} onChange={e => setFormFields(p => ({ ...p, firstName: e.target.value }))} placeholder={t.first_name} />
-                </div>
-                <div className="form-field">
-                  <label className="form-label">{t.last_name}</label>
-                  <input className="form-input" value={formFields.lastName} onChange={e => setFormFields(p => ({ ...p, lastName: e.target.value }))} placeholder={t.last_name} />
-                </div>
-                <div className="form-field">
-                  <label className="form-label">{t.email}</label>
-                  <input className="form-input" value={formFields.email} onChange={e => setFormFields(p => ({ ...p, email: e.target.value }))} placeholder={t.email} />
-                </div>
-                <div className="form-field">
-                  <label className="form-label">{t.phone}</label>
-                  <input className="form-input" value={formFields.phone} onChange={e => setFormFields(p => ({ ...p, phone: e.target.value }))} placeholder={t.phone} />
-                </div>
+                <input className={`form-input${company ? ' autofilled' : ''}`} value={formFields.businessName} onChange={e => setFormFields(p => ({ ...p, businessName: e.target.value }))} />
               </div>
 
               <div className="form-field">
                 <label className="form-label">{t.address1}</label>
-                <input className={`form-input${company ? ' autofilled' : ''}`} value={formFields.address1} onChange={e => setFormFields(p => ({ ...p, address1: e.target.value }))} placeholder={t.address1} />
+                <input className={`form-input${company ? ' autofilled' : ''}`} value={formFields.address1} onChange={e => setFormFields(p => ({ ...p, address1: e.target.value }))} />
               </div>
               <div className="form-field">
                 <label className="form-label">{t.address2}</label>
-                <input className="form-input" value={formFields.address2} onChange={e => setFormFields(p => ({ ...p, address2: e.target.value }))} placeholder={t.address2} />
+                <input className="form-input" value={formFields.address2} onChange={e => setFormFields(p => ({ ...p, address2: e.target.value }))} />
               </div>
               <div className="form-grid">
                 <div className="form-field">
                   <label className="form-label">{t.city}</label>
-                  <input className={`form-input${company ? ' autofilled' : ''}`} value={formFields.city} onChange={e => setFormFields(p => ({ ...p, city: e.target.value }))} placeholder={t.city} />
+                  <input className={`form-input${company ? ' autofilled' : ''}`} value={formFields.city} onChange={e => setFormFields(p => ({ ...p, city: e.target.value }))} />
                 </div>
                 <div className="form-field">
                   <label className="form-label">{t.zip}</label>
-                  <input className={`form-input${company ? ' autofilled' : ''}`} value={formFields.zip} onChange={e => setFormFields(p => ({ ...p, zip: e.target.value }))} placeholder={t.zip} />
+                  <input className={`form-input${company ? ' autofilled' : ''}`} value={formFields.zip} onChange={e => setFormFields(p => ({ ...p, zip: e.target.value }))} />
                 </div>
               </div>
 
@@ -412,20 +410,20 @@ function NewBusinessContent() {
                   <div className="ship-section-title">{lang === 'es' ? 'Dirección de Envío' : 'Shipping Address'}</div>
                   <div className="form-field">
                     <label className="form-label">{t.address1}</label>
-                    <input className="form-input" value={shipFields.address1} onChange={e => setShipFields(p => ({ ...p, address1: e.target.value }))} placeholder={t.address1} />
+                    <input className="form-input" value={shipFields.address1} onChange={e => setShipFields(p => ({ ...p, address1: e.target.value }))} />
                   </div>
                   <div className="form-field">
                     <label className="form-label">{t.address2}</label>
-                    <input className="form-input" value={shipFields.address2} onChange={e => setShipFields(p => ({ ...p, address2: e.target.value }))} placeholder={t.address2} />
+                    <input className="form-input" value={shipFields.address2} onChange={e => setShipFields(p => ({ ...p, address2: e.target.value }))} />
                   </div>
                   <div className="form-grid">
                     <div className="form-field">
                       <label className="form-label">{t.city}</label>
-                      <input className="form-input" value={shipFields.city} onChange={e => setShipFields(p => ({ ...p, city: e.target.value }))} placeholder={t.city} />
+                      <input className="form-input" value={shipFields.city} onChange={e => setShipFields(p => ({ ...p, city: e.target.value }))} />
                     </div>
                     <div className="form-field">
                       <label className="form-label">{t.zip}</label>
-                      <input className="form-input" value={shipFields.zip} onChange={e => setShipFields(p => ({ ...p, zip: e.target.value }))} placeholder={t.zip} />
+                      <input className="form-input" value={shipFields.zip} onChange={e => setShipFields(p => ({ ...p, zip: e.target.value }))} />
                     </div>
                   </div>
                 </div>
