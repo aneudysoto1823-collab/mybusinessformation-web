@@ -119,7 +119,6 @@ function NewBusinessContent() {
   const [lang, setLang] = useState<'en' | 'es'>('en')
   const t = T[lang]
 
-  const [isFromQR, setIsFromQR] = useState(false)
   const [docInput, setDocInput] = useState('')
   const [lookingUp, setLookingUp] = useState(false)
   const [company, setCompany] = useState<Company | null>(null)
@@ -175,7 +174,7 @@ function NewBusinessContent() {
 
   useEffect(() => {
     const id = searchParams.get('id')
-    if (id) { setIsFromQR(true); setDocInput(id); lookup(id) }
+    if (id) { setDocInput(id); lookup(id) }
     const l = searchParams.get('lang')
     if (l === 'es') setLang('es')
   }, [searchParams, lookup])
@@ -337,18 +336,6 @@ function NewBusinessContent() {
             {/* Form column */}
             <div style={{ maxWidth: 520, margin: '0 auto' }}>
 
-              {/* Letter banner — outside the white card, only for non-QR visitors */}
-              {!isFromQR && (
-                <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8, padding: '10px 14px', marginBottom: 12, display: 'flex', gap: 9, alignItems: 'flex-start' }}>
-                  <svg style={{ flexShrink: 0, marginTop: 2 }} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="22,4 12,13 2,4"/></svg>
-                  <p style={{ fontSize: '.78rem', color: '#64748b', lineHeight: 1.55, margin: 0 }}>
-                    {lang === 'es'
-                      ? 'Si recientemente abrió un nuevo negocio y recibió una carta nuestra sobre la obtención de su Certificado de Estado, Póster de Leyes Laborales y EIN, por favor continúe a continuación.'
-                      : 'If you recently opened a new business and received a letter from us about obtaining your Certificate of Status, Labor Law Poster, and EIN, please proceed below.'}
-                  </p>
-                </div>
-              )}
-
             {/* Form card */}
             <div className="form-section">
 
@@ -450,7 +437,7 @@ function NewBusinessContent() {
             </div>{/* end form column wrapper */}
 
             {/* Cart */}
-            <div className="cart-card">
+            <div className="cart-card" style={{ marginTop: 40 }}>
               <div className="cart-title">{t.cart_title}</div>
 
               <div className="cart-header-row">
