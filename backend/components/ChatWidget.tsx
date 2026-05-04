@@ -194,8 +194,8 @@ export default function ChatWidget() {
           aria-label="Open chat assistant"
           style={{
             position: 'relative',
-            width: '58px',
-            height: '58px',
+            width: '72px',
+            height: '72px',
             borderRadius: '50%',
             background: 'linear-gradient(135deg,#1C2E44,#2563EB)',
             border: 'none',
@@ -223,7 +223,7 @@ export default function ChatWidget() {
               <line x1="6" y1="6" x2="18" y2="18" />
             </svg>
           ) : (
-            <ClaudiaAvatar size={58} uid="btn" />
+            <ClaudiaAvatar size={72} uid="btn" />
           )}
           {/* Green online dot */}
           {!open && (
