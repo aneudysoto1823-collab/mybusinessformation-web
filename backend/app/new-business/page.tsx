@@ -238,9 +238,9 @@ function NewBusinessContent() {
         .svc-desc-name{font-size:1rem;font-weight:700;color:var(--navy);margin-bottom:10px;font-family:'Fraunces',serif}
         .svc-desc-text{font-size:.84rem;color:#475569;line-height:1.7}
 
-        .nb-main{display:grid;grid-template-columns:1fr 380px;gap:28px;padding:28px 28px 48px;align-items:start}
+        .nb-main{display:grid;grid-template-columns:1fr 360px;gap:32px;padding:32px 36px 56px;align-items:start}
 
-        .form-section{background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:24px 26px;box-shadow:0 4px 24px rgba(28,46,68,.08)}
+        .form-section{background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:24px 26px;box-shadow:0 4px 24px rgba(28,46,68,.08);max-width:520px}
         .form-title{font-size:.95rem;font-weight:700;color:var(--navy);margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #e2e8f0}
         .form-field{margin-bottom:10px}
         .form-label{display:block;font-size:.68rem;font-weight:700;color:#374151;margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
