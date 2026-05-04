@@ -192,8 +192,8 @@ function NewBusinessContent() {
         .btn-guide:hover{border-color:var(--blue);color:var(--blue)}
         .field-row{display:flex;gap:8px}
         .nb-layout{display:flex;min-height:100vh}
-        .nb-image{width:40%;flex-shrink:0;position:sticky;top:0;height:100vh;overflow:hidden}
-        .nb-image img{width:100%;height:100%;object-fit:cover;object-position:center top;display:block}
+        .nb-image{width:35%;flex-shrink:0;position:sticky;top:0;height:100vh;overflow:hidden}
+        .nb-image img{width:100%;height:100%;object-fit:cover;object-position:center center;display:block}
         .nb-content{flex:1;padding:32px 36px 60px;background:#F8FAFC;min-height:100vh}
         @media(max-width:768px){.nb-layout{flex-direction:column}.nb-image{width:100%!important;height:280px!important;position:relative!important;top:auto!important}.nb-content{padding:24px 16px 60px!important;min-height:auto!important}}
         @media(max-width:640px){.field-row{flex-direction:column}.two-col{flex-direction:column!important}}
