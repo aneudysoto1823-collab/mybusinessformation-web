@@ -357,8 +357,8 @@ function NewBusinessContent() {
 
         .svc-descriptions{display:grid;grid-template-columns:repeat(3,1fr);gap:0;background:transparent}
         .svc-desc-item{padding:22px 24px}
-        .svc-desc-name{font-size:1rem;font-weight:700;color:var(--navy);margin-bottom:10px;font-family:'Fraunces',serif}
-        .svc-desc-text{font-size:.84rem;color:#475569;line-height:1.7}
+        .svc-desc-name{font-size:1.05rem;font-weight:700;color:var(--navy);margin-bottom:10px;font-family:'Fraunces',serif}
+        .svc-desc-text{font-size:.88rem;color:#475569;line-height:1.7}
 
         .nb-main{display:grid;grid-template-columns:1fr 360px;gap:32px;padding:32px 36px 56px;align-items:start}
 
@@ -374,7 +374,7 @@ function NewBusinessContent() {
         @keyframes stepIn{from{opacity:.5;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
 
         .form-title{font-size:.95rem;font-weight:700;color:var(--navy);margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #e2e8f0}
-        .form-field{margin-bottom:10px}
+        .form-field{margin-bottom:14px}
         .form-label{display:block;font-size:.68rem;font-weight:700;color:#374151;margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
         .req{color:#ef4444;margin-left:2px}
         .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -394,8 +394,8 @@ function NewBusinessContent() {
         .step-error{font-size:.74rem;color:#ef4444;background:#fef2f2;border:1px solid #fecaca;border-radius:6px;padding:8px 12px;margin-top:12px}
         .btn-continue{width:100%;padding:11px;border-radius:8px;background:var(--navy);color:#fff;font-size:.88rem;font-weight:700;border:none;cursor:pointer;font-family:inherit;margin-top:16px;transition:background .2s}
         .btn-continue:hover{background:#243858}
-        .btn-back{display:inline-flex;align-items:center;gap:5px;background:none;border:none;color:#64748b;font-size:.78rem;font-weight:600;cursor:pointer;font-family:inherit;padding:0;margin-bottom:14px;transition:color .15s}
-        .btn-back:hover{color:var(--navy)}
+        .btn-back{display:inline-flex;align-items:center;gap:6px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:7px;color:#374151;font-size:.78rem;font-weight:600;cursor:pointer;font-family:inherit;padding:6px 14px;margin-bottom:16px;transition:all .15s}
+        .btn-back:hover{background:#f1f5f9;border-color:#cbd5e1;color:var(--navy)}
 
         .cart-card{background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:26px;position:sticky;top:20px;box-shadow:0 4px 24px rgba(28,46,68,.10)}
         .cart-title{font-family:'Fraunces',serif;font-size:1.5rem;font-weight:900;color:var(--navy);margin-bottom:20px;padding-bottom:14px;border-bottom:2px solid #e2e8f0}
@@ -475,7 +475,7 @@ function NewBusinessContent() {
           <div className="nb-main">
 
             {/* Form column */}
-            <div style={{ maxWidth: 520, margin: '0 auto' }}>
+            <div style={{ maxWidth: 520, margin: '0 auto', marginTop: 40 }}>
             <div className="form-section">
 
               {/* Step indicator */}
@@ -710,6 +710,14 @@ function NewBusinessContent() {
               </div>
             </div>
 
+          </div>
+
+          <div style={{ borderTop: '1px solid #e2e8f0', margin: '0 36px 16px', padding: '16px 0 0' }}>
+            <p style={{ fontSize: '.7rem', color: '#94a3b8', lineHeight: 1.6, textAlign: 'center', maxWidth: 720, margin: '0 auto' }}>
+              {lang === 'es'
+                ? 'Florida Business Formation Center es un servicio de preparación y presentación de documentos. No somos una firma de abogados y no brindamos asesoría legal, fiscal ni financiera. La información en este sitio web es solo para fines informativos generales. El uso de nuestros servicios no crea una relación abogado-cliente. Para asesoría legal específica, consulte a un abogado licenciado en Florida.'
+                : 'Florida Business Formation Center is a document preparation and filing service. We are not a law firm and do not provide legal, tax, or financial advice. The information on this website is for general informational purposes only. Use of our services does not create an attorney-client relationship. For legal advice specific to your situation, please consult a licensed Florida attorney.'}
+            </p>
           </div>
 
           <p style={{ textAlign: 'center', fontSize: '.71rem', color: '#94A3B8', padding: '0 0 24px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
