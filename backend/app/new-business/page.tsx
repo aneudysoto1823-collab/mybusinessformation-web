@@ -67,7 +67,7 @@ const T = {
     cart_title: 'My Cart',
     select_all: 'Select All',
     price_lbl: 'Price',
-    discount_lbl: '5% Combo Discount',
+    discount_lbl: '10% Combo Discount',
     subtotal: 'Cart Total',
     total: 'Total',
     checkout_btn: 'Proceed to Checkout',
@@ -100,7 +100,7 @@ const T = {
     cart_title: 'Mi Carrito',
     select_all: 'Seleccionar Todo',
     price_lbl: 'Precio',
-    discount_lbl: 'Descuento 5% Combo',
+    discount_lbl: 'Descuento 10% Combo',
     subtotal: 'Subtotal',
     total: 'Total',
     checkout_btn: 'Proceder al Pago',
@@ -119,6 +119,7 @@ function NewBusinessContent() {
   const [lang, setLang] = useState<'en' | 'es'>('en')
   const t = T[lang]
 
+  const [isFromQR, setIsFromQR] = useState(false)
   const [docInput, setDocInput] = useState('')
   const [lookingUp, setLookingUp] = useState(false)
   const [company, setCompany] = useState<Company | null>(null)
@@ -138,7 +139,7 @@ function NewBusinessContent() {
 
   const allSelected = selected.size === SERVICE_ORDER.length
   const subtotal = [...selected].reduce((sum, id) => sum + SERVICES[id].price, 0)
-  const discount = allSelected ? parseFloat((subtotal * 0.05).toFixed(2)) : 0
+  const discount = allSelected ? parseFloat((subtotal * 0.10).toFixed(2)) : 0
   const total = parseFloat((subtotal - discount).toFixed(2))
 
   const lookup = useCallback(async (id: string) => {
@@ -174,7 +175,7 @@ function NewBusinessContent() {
 
   useEffect(() => {
     const id = searchParams.get('id')
-    if (id) { setDocInput(id); lookup(id) }
+    if (id) { setIsFromQR(true); setDocInput(id); lookup(id) }
     const l = searchParams.get('lang')
     if (l === 'es') setLang('es')
   }, [searchParams, lookup])
@@ -335,6 +336,35 @@ function NewBusinessContent() {
             {/* Form */}
             <div className="form-section">
 
+              {/* Document ID — always first */}
+              <div className="form-field" style={{ marginBottom: 24 }}>
+                <label className="form-label">{t.doc_id}</label>
+                <input
+                  className="form-input"
+                  value={docInput}
+                  onChange={e => { setDocInput(e.target.value.toUpperCase()); setAutofillMsg('') }}
+                  onBlur={() => docInput.trim().length >= 5 && lookup(docInput)}
+                  onKeyDown={e => e.key === 'Enter' && lookup(docInput)}
+                  placeholder={t.doc_placeholder}
+                />
+                {lookingUp && <p style={{ fontSize: '.73rem', color: '#2563EB', marginTop: 4 }}>{t.looking_up}</p>}
+                {autofillMsg && (
+                  <div className={`autofill-msg ${autofillMsg === t.autofill_success ? 'success' : 'error'}`}>{autofillMsg}</div>
+                )}
+              </div>
+
+              {/* Letter banner — only shown when client did NOT come via QR scan */}
+              {!isFromQR && (
+                <div style={{ background: '#eff6ff', border: '1.5px solid #bfdbfe', borderRadius: 10, padding: '14px 18px', marginBottom: 24, display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                  <svg style={{ flexShrink: 0, marginTop: 2 }} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="22,4 12,13 2,4"/></svg>
+                  <p style={{ fontSize: '.83rem', color: '#1e40af', lineHeight: 1.6, margin: 0 }}>
+                    {lang === 'es'
+                      ? 'Si recientemente abrió un nuevo negocio y recibió una carta nuestra sobre la obtención de su Certificado de Estado, Póster de Leyes Laborales y EIN, por favor continúe a continuación.'
+                      : 'If you recently opened a new business and received a letter from us about obtaining your Certificate of Status, Labor Law Poster, and EIN, please proceed below.'}
+                  </p>
+                </div>
+              )}
+
               {/* Personal Information */}
               <div className="form-title">{t.personal_title}</div>
               <div className="form-grid">
@@ -358,22 +388,6 @@ function NewBusinessContent() {
 
               {/* Business Information */}
               <div className="form-title" style={{ marginTop: 28 }}>{t.form_title}</div>
-
-              <div className="form-field">
-                <label className="form-label">{t.doc_id}</label>
-                <input
-                  className="form-input"
-                  value={docInput}
-                  onChange={e => { setDocInput(e.target.value.toUpperCase()); setAutofillMsg('') }}
-                  onBlur={() => docInput.trim().length >= 5 && lookup(docInput)}
-                  onKeyDown={e => e.key === 'Enter' && lookup(docInput)}
-                  placeholder={t.doc_placeholder}
-                />
-                {lookingUp && <p style={{ fontSize: '.73rem', color: '#2563EB', marginTop: 4 }}>{t.looking_up}</p>}
-                {autofillMsg && (
-                  <div className={`autofill-msg ${autofillMsg === t.autofill_success ? 'success' : 'error'}`}>{autofillMsg}</div>
-                )}
-              </div>
 
               <div className="form-field">
                 <label className="form-label">{t.biz_name}</label>
@@ -439,8 +453,8 @@ function NewBusinessContent() {
                   <div className={`cart-checkbox${allSelected ? ' checked' : ''}`} onClick={toggleAll} style={{ cursor: 'pointer' }}>
                     {allSelected && <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
                   </div>
-                  <span style={{ fontSize: '.82rem', color: '#fff', fontWeight: 600 }}>{t.select_all}</span>
-                  {allSelected && <span className="discount-badge">5% OFF</span>}
+                  <span style={{ fontSize: '.82rem', color: '#1e293b', fontWeight: 600 }}>{t.select_all}</span>
+                  {allSelected && <span className="discount-badge">10% OFF</span>}
                 </div>
                 <span className="cart-header-lbl">{t.price_lbl}</span>
               </div>
