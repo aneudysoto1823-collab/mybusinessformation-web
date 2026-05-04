@@ -228,8 +228,9 @@ function NewBusinessContent() {
         :root{--navy:#1C2E44;--blue:#2563EB;--green:#059669;--gray200:#E2E8F0;--gray400:#94A3B8;--white:#fff}
 
         .nb-layout{display:flex;min-height:100vh}
-        .nb-image{width:35%;flex-shrink:0;position:sticky;top:0;height:100vh;overflow:hidden;background:#e8edf2}
+        .nb-image{width:35%;flex-shrink:0;position:sticky;top:0;height:100vh;overflow:hidden;background:#f4f6f9}
         .nb-image img{width:100%;height:100%;object-fit:contain;object-position:top left;display:block}
+        .nb-image::after{content:'';position:absolute;inset:0;background:linear-gradient(to right,transparent 45%,#f4f6f9 100%),linear-gradient(to bottom,transparent 72%,#f4f6f9 100%);pointer-events:none;z-index:1}
         .nb-content{flex:1;background:#f4f6f9;min-height:100vh}
 
         .svc-descriptions{display:grid;grid-template-columns:repeat(3,1fr);gap:0;background:#fff;border-bottom:1px solid #e2e8f0}
