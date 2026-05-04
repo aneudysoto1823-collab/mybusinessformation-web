@@ -129,6 +129,8 @@ function NewBusinessContent() {
 
   const [selected, setSelected] = useState<Set<ServiceId>>(new Set(SERVICE_ORDER))
   const [termsAccepted, setTermsAccepted] = useState(false)
+  const [shipDifferent, setShipDifferent] = useState(false)
+  const [shipFields, setShipFields] = useState({ address1: '', address2: '', city: '', state: 'FL', zip: '' })
   const [paying, setPaying] = useState(false)
   const [payError, setPayError] = useState('')
 
@@ -232,24 +234,29 @@ function NewBusinessContent() {
         .svc-desc-name{font-size:.9rem;font-weight:700;color:var(--navy);margin-bottom:8px;font-family:'Fraunces',serif}
         .svc-desc-text{font-size:.75rem;color:#475569;line-height:1.65}
 
-        .nb-main{display:grid;grid-template-columns:1fr 380px;gap:20px;padding:24px 28px 48px;align-items:start}
+        .nb-main{display:grid;grid-template-columns:1fr 380px;gap:28px;padding:36px 28px 48px;align-items:start}
 
-        .form-card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:24px;box-shadow:0 1px 4px rgba(28,46,68,.06)}
-        .form-title{font-size:1.05rem;font-weight:700;color:var(--navy);margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid #e2e8f0}
-        .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-        .form-grid-full{grid-column:1/-1}
-        .form-input{width:100%;padding:10px 13px;border:1px solid #d1d5db;border-radius:7px;font-size:.83rem;font-family:inherit;color:#1e293b;outline:none;transition:border-color .2s;background:#fff}
+        .form-section{padding:0}
+        .form-title{font-size:1.05rem;font-weight:700;color:var(--navy);margin-bottom:24px;padding-bottom:12px;border-bottom:2px solid #e2e8f0}
+        .form-field{margin-bottom:16px}
+        .form-label{display:block;font-size:.72rem;font-weight:700;color:#374151;margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
+        .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+        .form-input{width:100%;padding:10px 13px;border:1.5px solid #d1d5db;border-radius:7px;font-size:.84rem;font-family:inherit;color:#1e293b;outline:none;transition:border-color .2s;background:#fff}
         .form-input:focus{border-color:var(--blue)}
         .form-input.autofilled{background:#f0f9ff;border-color:#bae6fd}
-        .doc-row{position:relative;margin-bottom:10px}
-        .doc-row input{padding-right:110px}
-        .doc-lookup-btn{position:absolute;right:4px;top:50%;transform:translateY(-50%);padding:6px 14px;background:var(--blue);color:#fff;border:none;border-radius:5px;font-size:.75rem;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap}
+        .doc-row{position:relative}
+        .doc-row input{padding-right:116px}
+        .doc-lookup-btn{position:absolute;right:4px;top:50%;transform:translateY(-50%);padding:7px 14px;background:var(--blue);color:#fff;border:none;border-radius:5px;font-size:.74rem;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap}
         .doc-lookup-btn:disabled{background:#94a3b8;cursor:default}
         .autofill-msg{font-size:.74rem;margin-top:6px;padding:6px 10px;border-radius:6px}
         .autofill-msg.success{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0}
         .autofill-msg.error{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
+        .ship-toggle{display:flex;align-items:center;gap:8px;margin-top:20px;cursor:pointer;font-size:.82rem;color:#374151;font-weight:600;user-select:none}
+        .ship-toggle input{width:16px;height:16px;cursor:pointer;accent-color:var(--blue)}
+        .ship-section{margin-top:20px;padding-top:20px;border-top:1px dashed #d1d5db}
+        .ship-section-title{font-size:.78rem;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.5px;margin-bottom:16px}
 
-        .cart-card{background:linear-gradient(135deg,#1C2E44,#1e40af);border-radius:10px;padding:24px;position:sticky;top:20px;box-shadow:0 8px 32px rgba(28,46,68,.28)}
+        .cart-card{background:linear-gradient(160deg,#1a2c42 0%,#1e3460 100%);border-radius:10px;padding:24px;position:sticky;top:20px;box-shadow:0 8px 32px rgba(28,46,68,.22)}
         .cart-title{font-family:'Fraunces',serif;font-size:1.6rem;font-weight:900;color:#fff;margin-bottom:20px}
         .cart-header-row{display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.15);margin-bottom:4px}
         .cart-header-lbl{font-size:.8rem;font-weight:600;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.5px}
@@ -328,44 +335,101 @@ function NewBusinessContent() {
           <div className="nb-main">
 
             {/* Business Information Form */}
-            <div className="form-card">
+            <div className="form-section">
               <div className="form-title">{t.form_title}</div>
 
               {/* Document ID — first, triggers autofill */}
-              <div className="doc-row">
-                <input
-                  className="form-input"
-                  value={docInput}
-                  onChange={e => { setDocInput(e.target.value.toUpperCase()); setAutofillMsg('') }}
-                  onKeyDown={e => e.key === 'Enter' && lookup(docInput)}
-                  placeholder={t.doc_placeholder}
-                  style={{ marginBottom: 0 }}
-                />
-                <button
-                  className="doc-lookup-btn"
-                  onClick={() => lookup(docInput)}
-                  disabled={lookingUp || !docInput.trim()}
-                >
-                  {lookingUp ? t.looking_up : t.doc_id}
-                </button>
+              <div className="form-field">
+                <label className="form-label">{t.doc_id}</label>
+                <div className="doc-row">
+                  <input
+                    className="form-input"
+                    value={docInput}
+                    onChange={e => { setDocInput(e.target.value.toUpperCase()); setAutofillMsg('') }}
+                    onKeyDown={e => e.key === 'Enter' && lookup(docInput)}
+                    placeholder={t.doc_placeholder}
+                  />
+                  <button className="doc-lookup-btn" onClick={() => lookup(docInput)} disabled={lookingUp || !docInput.trim()}>
+                    {lookingUp ? t.looking_up : lang === 'es' ? 'Buscar' : 'Look up'}
+                  </button>
+                </div>
+                {autofillMsg && (
+                  <div className={`autofill-msg ${autofillMsg === t.autofill_success ? 'success' : 'error'}`}>{autofillMsg}</div>
+                )}
               </div>
-              {autofillMsg && (
-                <div className={`autofill-msg ${autofillMsg === t.autofill_success ? 'success' : 'error'}`}>
-                  {autofillMsg}
+
+              <div className="form-field">
+                <label className="form-label">{t.biz_name}</label>
+                <input className={`form-input${company ? ' autofilled' : ''}`} value={formFields.businessName} onChange={e => setFormFields(p => ({ ...p, businessName: e.target.value }))} placeholder={t.biz_name} />
+              </div>
+
+              <div className="form-grid">
+                <div className="form-field">
+                  <label className="form-label">{t.first_name}</label>
+                  <input className="form-input" value={formFields.firstName} onChange={e => setFormFields(p => ({ ...p, firstName: e.target.value }))} placeholder={t.first_name} />
+                </div>
+                <div className="form-field">
+                  <label className="form-label">{t.last_name}</label>
+                  <input className="form-input" value={formFields.lastName} onChange={e => setFormFields(p => ({ ...p, lastName: e.target.value }))} placeholder={t.last_name} />
+                </div>
+                <div className="form-field">
+                  <label className="form-label">{t.email}</label>
+                  <input className="form-input" value={formFields.email} onChange={e => setFormFields(p => ({ ...p, email: e.target.value }))} placeholder={t.email} />
+                </div>
+                <div className="form-field">
+                  <label className="form-label">{t.phone}</label>
+                  <input className="form-input" value={formFields.phone} onChange={e => setFormFields(p => ({ ...p, phone: e.target.value }))} placeholder={t.phone} />
+                </div>
+              </div>
+
+              <div className="form-field">
+                <label className="form-label">{t.address1}</label>
+                <input className={`form-input${company ? ' autofilled' : ''}`} value={formFields.address1} onChange={e => setFormFields(p => ({ ...p, address1: e.target.value }))} placeholder={t.address1} />
+              </div>
+              <div className="form-field">
+                <label className="form-label">{t.address2}</label>
+                <input className="form-input" value={formFields.address2} onChange={e => setFormFields(p => ({ ...p, address2: e.target.value }))} placeholder={t.address2} />
+              </div>
+              <div className="form-grid">
+                <div className="form-field">
+                  <label className="form-label">{t.city}</label>
+                  <input className={`form-input${company ? ' autofilled' : ''}`} value={formFields.city} onChange={e => setFormFields(p => ({ ...p, city: e.target.value }))} placeholder={t.city} />
+                </div>
+                <div className="form-field">
+                  <label className="form-label">{t.zip}</label>
+                  <input className={`form-input${company ? ' autofilled' : ''}`} value={formFields.zip} onChange={e => setFormFields(p => ({ ...p, zip: e.target.value }))} placeholder={t.zip} />
+                </div>
+              </div>
+
+              {/* Ship to different address */}
+              <label className="ship-toggle">
+                <input type="checkbox" checked={shipDifferent} onChange={e => setShipDifferent(e.target.checked)} />
+                {lang === 'es' ? '¿Enviar a una dirección diferente?' : 'Shipping to a different address?'}
+              </label>
+
+              {shipDifferent && (
+                <div className="ship-section">
+                  <div className="ship-section-title">{lang === 'es' ? 'Dirección de Envío' : 'Shipping Address'}</div>
+                  <div className="form-field">
+                    <label className="form-label">{t.address1}</label>
+                    <input className="form-input" value={shipFields.address1} onChange={e => setShipFields(p => ({ ...p, address1: e.target.value }))} placeholder={t.address1} />
+                  </div>
+                  <div className="form-field">
+                    <label className="form-label">{t.address2}</label>
+                    <input className="form-input" value={shipFields.address2} onChange={e => setShipFields(p => ({ ...p, address2: e.target.value }))} placeholder={t.address2} />
+                  </div>
+                  <div className="form-grid">
+                    <div className="form-field">
+                      <label className="form-label">{t.city}</label>
+                      <input className="form-input" value={shipFields.city} onChange={e => setShipFields(p => ({ ...p, city: e.target.value }))} placeholder={t.city} />
+                    </div>
+                    <div className="form-field">
+                      <label className="form-label">{t.zip}</label>
+                      <input className="form-input" value={shipFields.zip} onChange={e => setShipFields(p => ({ ...p, zip: e.target.value }))} placeholder={t.zip} />
+                    </div>
+                  </div>
                 </div>
               )}
-
-              <div className="form-grid" style={{ marginTop: 12 }}>
-                <input className={`form-input${company ? ' autofilled' : ''}`} placeholder={t.biz_name} value={formFields.businessName} onChange={e => setFormFields(p => ({ ...p, businessName: e.target.value }))} style={{ gridColumn: '1/-1' }} />
-                <input className="form-input" placeholder={t.first_name} value={formFields.firstName} onChange={e => setFormFields(p => ({ ...p, firstName: e.target.value }))} />
-                <input className="form-input" placeholder={t.last_name} value={formFields.lastName} onChange={e => setFormFields(p => ({ ...p, lastName: e.target.value }))} />
-                <input className="form-input" placeholder={t.email} value={formFields.email} onChange={e => setFormFields(p => ({ ...p, email: e.target.value }))} />
-                <input className="form-input" placeholder={t.phone} value={formFields.phone} onChange={e => setFormFields(p => ({ ...p, phone: e.target.value }))} />
-                <input className={`form-input${company ? ' autofilled' : ''}`} placeholder={t.address1} value={formFields.address1} onChange={e => setFormFields(p => ({ ...p, address1: e.target.value }))} style={{ gridColumn: '1/-1' }} />
-                <input className="form-input" placeholder={t.address2} value={formFields.address2} onChange={e => setFormFields(p => ({ ...p, address2: e.target.value }))} style={{ gridColumn: '1/-1' }} />
-                <input className={`form-input${company ? ' autofilled' : ''}`} placeholder={t.city} value={formFields.city} onChange={e => setFormFields(p => ({ ...p, city: e.target.value }))} />
-                <input className="form-input" placeholder={t.zip} value={formFields.zip} onChange={e => setFormFields(p => ({ ...p, zip: e.target.value }))} />
-              </div>
             </div>
 
             {/* Cart */}
