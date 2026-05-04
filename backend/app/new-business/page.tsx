@@ -24,22 +24,22 @@ const SERVICES: Record<ServiceId, { en: string; es: string; price: number; detai
     en: 'Labor Law Poster 2026',
     es: 'Póster de Leyes Laborales 2026',
     price: 120.00,
-    detail_en: 'Displaying the correct labor law posters is a legal requirement under both <strong>Federal & State Law — no exceptions. Avoid fines of up to $17,000 per location</strong> & other costly legal penalties. This poster must be in a visible location of the workplace for businesses with at least one employee.',
-    detail_es: 'Mostrar los pósters de leyes laborales es un requisito legal bajo la ley federal y estatal — <strong>sin excepciones. Evita multas de hasta $17,000 por ubicación</strong> y otras penalidades costosas. Este póster debe estar en un lugar visible del negocio para empresas con al menos un empleado.',
+    detail_en: 'Both Federal and State Law require every business with at least one employee to post current labor law notices in a clearly visible workplace area. This is not optional — non-compliance can lead to fines and legal consequences.',
+    detail_es: 'Tanto la ley federal como la estatal exigen que todo negocio con al menos un empleado publique los avisos laborales vigentes en un área visible del lugar de trabajo. Esto no es opcional — el incumplimiento puede acarrear multas y consecuencias legales.',
   },
   certificate_of_status: {
     en: 'Certificate of Status',
     es: 'Certificado de Estado',
     price: 79.00,
-    detail_en: 'Verifies your company legally exists & is <strong>authorized to conduct business</strong> in the state of Florida. Often required when applying for loans, renewing business licenses, opening a business bank account, or for other business purposes.',
-    detail_es: 'Verifica que tu empresa existe legalmente y está <strong>autorizada para operar</strong> en el estado de Florida. Frecuentemente requerido al solicitar préstamos, renovar licencias, abrir cuentas bancarias o para otros propósitos empresariales.',
+    detail_en: 'Official proof your business is active and authorized to conduct business in the state of Florida. Often required when applying for loans, renewing business licenses, or opening a business bank account.',
+    detail_es: 'Prueba oficial de que tu empresa está activa y autorizada para operar en el estado de Florida. Frecuentemente requerido al solicitar préstamos, renovar licencias o abrir una cuenta bancaria empresarial.',
   },
   ein: {
     en: 'EIN / Tax ID Number',
     es: 'EIN / Número Fiscal',
     price: 161.00,
-    detail_en: 'An EIN is a 9-digit number assigned to your business by the IRS. <strong>Every business must register with the federal government & obtain an EIN.</strong> It is required to identify your business for tax purposes, open a business bank account, hire employees, and file federal tax returns.',
-    detail_es: 'Un EIN es un número de 9 dígitos asignado por el IRS. <strong>Todo negocio debe registrarse con el gobierno federal y obtener un EIN.</strong> Es necesario para abrir una cuenta bancaria, contratar empleados y presentar declaraciones de impuestos.',
+    detail_en: 'An EIN is a 9-digit number issued by the IRS to identify your business. Every business must obtain an EIN to open a bank account, hire employees, file federal tax returns, and conduct business with government agencies.',
+    detail_es: 'Un EIN es un número de 9 dígitos emitido por el IRS para identificar tu negocio. Todo negocio debe obtener un EIN para abrir una cuenta bancaria, contratar empleados, presentar declaraciones federales y realizar trámites con agencias gubernamentales.',
   },
 }
 
@@ -228,11 +228,9 @@ function NewBusinessContent() {
         .nb-content{flex:1;background:#f4f6f9;min-height:100vh}
 
         .svc-descriptions{display:grid;grid-template-columns:repeat(3,1fr);gap:0;background:#fff;border-bottom:1px solid #e2e8f0}
-        .svc-desc-item{padding:22px 24px;border-right:1px solid #e2e8f0}
-        .svc-desc-item:last-child{border-right:none}
+        .svc-desc-item{padding:22px 24px}
         .svc-desc-name{font-size:.9rem;font-weight:700;color:var(--navy);margin-bottom:8px;font-family:'Fraunces',serif}
         .svc-desc-text{font-size:.75rem;color:#475569;line-height:1.65}
-        .svc-desc-text strong{color:#b91c1c;font-weight:600}
 
         .nb-main{display:grid;grid-template-columns:1fr 380px;gap:20px;padding:24px 28px 48px;align-items:start}
 
@@ -251,7 +249,7 @@ function NewBusinessContent() {
         .autofill-msg.success{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0}
         .autofill-msg.error{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
 
-        .cart-card{background:var(--navy);border-radius:10px;padding:24px;position:sticky;top:20px;box-shadow:0 4px 20px rgba(28,46,68,.2)}
+        .cart-card{background:linear-gradient(135deg,#1C2E44,#1e40af);border-radius:10px;padding:24px;position:sticky;top:20px;box-shadow:0 8px 32px rgba(28,46,68,.28)}
         .cart-title{font-family:'Fraunces',serif;font-size:1.6rem;font-weight:900;color:#fff;margin-bottom:20px}
         .cart-header-row{display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.15);margin-bottom:4px}
         .cart-header-lbl{font-size:.8rem;font-weight:600;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.5px}
