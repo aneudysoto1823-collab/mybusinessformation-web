@@ -362,9 +362,9 @@ function NewBusinessContent() {
 
         .nb-main{display:grid;grid-template-columns:1fr 360px;gap:32px;padding:32px 36px 56px;align-items:start}
 
-        .form-section{background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:24px 26px;box-shadow:0 4px 24px rgba(28,46,68,.08)}
+        .form-section{background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:16px 20px;box-shadow:0 4px 24px rgba(28,46,68,.08)}
 
-        .step-indicator{display:flex;align-items:center;gap:8px;margin-bottom:16px;padding-bottom:14px;border-bottom:1.5px solid #f1f5f9}
+        .step-indicator{display:flex;align-items:center;gap:8px;margin-bottom:12px;padding-bottom:10px;border-bottom:1.5px solid #f1f5f9}
         .step-dot{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:800}
         .step-dot.active{background:var(--navy);color:#fff}
         .step-dot.done{background:#dcfce7;color:#166534}
@@ -373,12 +373,13 @@ function NewBusinessContent() {
         .step-anim{animation:stepIn .18s ease-out}
         @keyframes stepIn{from{opacity:.5;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
 
-        .form-title{font-size:.95rem;font-weight:700;color:var(--navy);margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #e2e8f0}
-        .form-field{margin-bottom:14px}
-        .form-label{display:block;font-size:.68rem;font-weight:700;color:#374151;margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
+        .form-title{font-size:.92rem;font-weight:700;color:var(--navy);margin-bottom:8px;padding-bottom:6px;border-bottom:2px solid #e2e8f0}
+        .form-field{margin-bottom:7px}
+        .s2-fields .form-field{margin-bottom:14px}
+        .form-label{display:block;font-size:.66rem;font-weight:700;color:#374151;margin-bottom:3px;text-transform:uppercase;letter-spacing:.5px}
         .req{color:#ef4444;margin-left:2px}
-        .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-        .form-input{width:100%;padding:8px 11px;border:1.5px solid #d1d5db;border-radius:7px;font-size:.82rem;font-family:inherit;color:#1e293b;outline:none;transition:border-color .2s;background:#fff}
+        .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+        .form-input{width:100%;padding:7px 10px;border:1.5px solid #d1d5db;border-radius:7px;font-size:.81rem;font-family:inherit;color:#1e293b;outline:none;transition:border-color .2s;background:#fff}
         .form-input:focus{border-color:var(--blue)}
         .form-input.autofilled{background:#f0f9ff;border-color:#bae6fd}
         select.form-input{cursor:pointer}
@@ -386,16 +387,20 @@ function NewBusinessContent() {
         .autofill-msg{font-size:.72rem;margin-top:4px;padding:5px 9px;border-radius:6px}
         .autofill-msg.success{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0}
         .autofill-msg.error{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
-        .ship-toggle{display:flex;align-items:center;gap:8px;margin-top:20px;cursor:pointer;font-size:.82rem;color:#374151;font-weight:600;user-select:none}
-        .ship-toggle input{width:16px;height:16px;cursor:pointer;accent-color:var(--blue)}
-        .ship-section{margin-top:20px;padding-top:20px;border-top:1px dashed #d1d5db}
-        .ship-section-title{font-size:.78rem;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.5px;margin-bottom:16px}
+        .ship-toggle{display:flex;align-items:center;gap:8px;margin-top:12px;cursor:pointer;font-size:.8rem;color:#374151;font-weight:600;user-select:none}
+        .ship-toggle input{width:15px;height:15px;cursor:pointer;accent-color:var(--blue)}
+        .ship-section{margin-top:12px;padding-top:12px;border-top:1px dashed #d1d5db}
+        .ship-section-title{font-size:.75rem;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
 
-        .step-error{font-size:.74rem;color:#ef4444;background:#fef2f2;border:1px solid #fecaca;border-radius:6px;padding:8px 12px;margin-top:12px}
-        .btn-continue{width:100%;padding:11px;border-radius:8px;background:var(--navy);color:#fff;font-size:.88rem;font-weight:700;border:none;cursor:pointer;font-family:inherit;margin-top:16px;transition:background .2s}
-        .btn-continue:hover{background:#243858}
-        .btn-back{display:inline-flex;align-items:center;gap:6px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:7px;color:#374151;font-size:.78rem;font-weight:600;cursor:pointer;font-family:inherit;padding:6px 14px;margin-bottom:16px;transition:all .15s}
+        .step-error{font-size:.74rem;color:#ef4444;background:#fef2f2;border:1px solid #fecaca;border-radius:6px;padding:7px 11px;margin-top:10px}
+        .btn-continue{width:100%;padding:10px;border-radius:8px;background:#fff;color:var(--blue);font-size:.88rem;font-weight:700;border:2px solid var(--blue);cursor:pointer;font-family:inherit;margin-top:12px;transition:all .2s}
+        .btn-continue:hover{background:#eff6ff}
+        .step-actions{display:flex;gap:10px;margin-top:16px;padding-top:14px;border-top:1.5px solid #f1f5f9}
+        .btn-back{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:7px;color:#374151;font-size:.82rem;font-weight:600;cursor:pointer;font-family:inherit;padding:9px 14px;transition:all .15s}
         .btn-back:hover{background:#f1f5f9;border-color:#cbd5e1;color:var(--navy)}
+        .btn-review{flex:2;padding:9px;border-radius:8px;background:linear-gradient(135deg,#1C2E44,#2563EB);color:#fff;font-size:.86rem;font-weight:700;border:none;cursor:pointer;font-family:inherit;transition:all .2s;box-shadow:0 3px 10px rgba(37,99,235,.25)}
+        .btn-review:hover{transform:translateY(-1px);box-shadow:0 5px 16px rgba(37,99,235,.35)}
+        .btn-review:disabled{opacity:.6;cursor:not-allowed;transform:none}
 
         .cart-card{background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:26px;position:sticky;top:20px;box-shadow:0 4px 24px rgba(28,46,68,.10)}
         .cart-title{font-family:'Fraunces',serif;font-size:1.5rem;font-weight:900;color:var(--navy);margin-bottom:20px;padding-bottom:14px;border-bottom:2px solid #e2e8f0}
@@ -593,56 +598,61 @@ function NewBusinessContent() {
               {/* ── STEP 2 ── */}
               {step === 2 && (
                 <div className="step-anim">
-                  <button className="btn-back" onClick={() => { setStep(1); setStepError('') }}>
-                    ← {t.back_btn}
-                  </button>
-
                   <div className="form-title">{t.ein_title}</div>
 
-                  <div className="form-field">
-                    <label className="form-label">{t.responsible_party}<span className="req">*</span></label>
-                    <input className="form-input" value={einFields.responsibleParty} onChange={e => setEinFields(p => ({ ...p, responsibleParty: e.target.value }))} />
-                    <p className="form-hint">{t.responsible_party_hint}</p>
-                  </div>
-
-                  <div className="form-field">
-                    <label className="form-label">{t.ssn_itin}<span className="req">*</span></label>
-                    <input className="form-input" value={einFields.ssn} onChange={e => setEinFields(p => ({ ...p, ssn: e.target.value }))} placeholder="XXX-XX-XXXX" />
-                    <p className="form-hint">🔒 {t.ssn_hint}</p>
-                  </div>
-
-                  <div className="form-field">
-                    <label className="form-label">{t.reason_ein}<span className="req">*</span></label>
-                    <select className="form-input" value={einFields.reasonForEin} onChange={e => setEinFields(p => ({ ...p, reasonForEin: e.target.value }))}>
-                      <option value="">{t.select_opt}</option>
-                      {REASON_OPTIONS[lang].map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-                    </select>
-                  </div>
-
-                  <div className="form-field">
-                    <label className="form-label">{t.business_activity}<span className="req">*</span></label>
-                    <select className="form-input" value={einFields.businessActivity} onChange={e => setEinFields(p => ({ ...p, businessActivity: e.target.value }))}>
-                      <option value="">{t.select_opt}</option>
-                      {ACTIVITY_OPTIONS[lang].map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-                    </select>
-                  </div>
-
-                  <div className="form-grid">
+                  <div className="s2-fields">
                     <div className="form-field">
-                      <label className="form-label">{t.exp_employees}<span className="req">*</span></label>
-                      <select className="form-input" value={einFields.expectedEmployees} onChange={e => setEinFields(p => ({ ...p, expectedEmployees: e.target.value }))}>
+                      <label className="form-label">{t.responsible_party}<span className="req">*</span></label>
+                      <input className="form-input" value={einFields.responsibleParty} onChange={e => setEinFields(p => ({ ...p, responsibleParty: e.target.value }))} />
+                      <p className="form-hint">{t.responsible_party_hint}</p>
+                    </div>
+
+                    <div className="form-field">
+                      <label className="form-label">{t.ssn_itin}<span className="req">*</span></label>
+                      <input className="form-input" value={einFields.ssn} onChange={e => setEinFields(p => ({ ...p, ssn: e.target.value }))} placeholder="XXX-XX-XXXX" />
+                      <p className="form-hint">🔒 {t.ssn_hint}</p>
+                    </div>
+
+                    <div className="form-field">
+                      <label className="form-label">{t.reason_ein}<span className="req">*</span></label>
+                      <select className="form-input" value={einFields.reasonForEin} onChange={e => setEinFields(p => ({ ...p, reasonForEin: e.target.value }))}>
                         <option value="">{t.select_opt}</option>
-                        <option value="0">0</option>
-                        <option value="1-4">1 – 4</option>
-                        <option value="5-19">5 – 19</option>
-                        <option value="20-99">20 – 99</option>
-                        <option value="100+">100+</option>
+                        {REASON_OPTIONS[lang].map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                       </select>
                     </div>
+
                     <div className="form-field">
-                      <label className="form-label">{t.start_date}<span className="req">*</span></label>
-                      <input type="month" className="form-input" value={einFields.startDate} onChange={e => setEinFields(p => ({ ...p, startDate: e.target.value }))} />
+                      <label className="form-label">{t.business_activity}<span className="req">*</span></label>
+                      <select className="form-input" value={einFields.businessActivity} onChange={e => setEinFields(p => ({ ...p, businessActivity: e.target.value }))}>
+                        <option value="">{t.select_opt}</option>
+                        {ACTIVITY_OPTIONS[lang].map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                      </select>
                     </div>
+
+                    <div className="form-grid">
+                      <div className="form-field">
+                        <label className="form-label">{t.exp_employees}<span className="req">*</span></label>
+                        <select className="form-input" value={einFields.expectedEmployees} onChange={e => setEinFields(p => ({ ...p, expectedEmployees: e.target.value }))}>
+                          <option value="">{t.select_opt}</option>
+                          <option value="0">0</option>
+                          <option value="1-4">1 – 4</option>
+                          <option value="5-19">5 – 19</option>
+                          <option value="20-99">20 – 99</option>
+                          <option value="100+">100+</option>
+                        </select>
+                      </div>
+                      <div className="form-field">
+                        <label className="form-label">{t.start_date}<span className="req">*</span></label>
+                        <input type="month" className="form-input" value={einFields.startDate} onChange={e => setEinFields(p => ({ ...p, startDate: e.target.value }))} />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="step-actions">
+                    <button className="btn-back" onClick={() => { setStep(1); setStepError('') }}>← {t.back_btn}</button>
+                    <button className="btn-review" onClick={handlePay} disabled={paying}>
+                      {paying ? t.processing : (lang === 'es' ? 'Revisar mi Orden →' : 'Review My Order →')}
+                    </button>
                   </div>
                 </div>
               )}
