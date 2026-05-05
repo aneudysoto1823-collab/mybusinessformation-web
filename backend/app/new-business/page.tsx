@@ -124,6 +124,8 @@ const T = {
     responsible_party: 'Responsible Party',
     responsible_party_hint: 'Full legal name of the individual who controls the entity',
     ssn_itin: 'SSN or ITIN',
+    ssn_confirm: 'Confirm SSN or ITIN',
+    ssn_mismatch: 'SSN/ITIN fields do not match. Please re-enter.',
     ssn_hint: 'Protected under federal privacy law (IRS Form SS-4)',
     reason_ein: 'Reason for Applying',
     business_activity: 'Principal Business Activity',
@@ -174,6 +176,8 @@ const T = {
     responsible_party: 'Responsable del Negocio',
     responsible_party_hint: 'Nombre legal completo del propietario que controla la entidad',
     ssn_itin: 'SSN o ITIN',
+    ssn_confirm: 'Confirmar SSN o ITIN',
+    ssn_mismatch: 'Los campos SSN/ITIN no coinciden. Por favor verifique.',
     ssn_hint: 'Protegido por la ley federal de privacidad (Formulario IRS SS-4)',
     reason_ein: 'Razón de la Solicitud',
     business_activity: 'Actividad Principal del Negocio',
@@ -223,11 +227,15 @@ function NewBusinessContent() {
   const [einFields, setEinFields] = useState({
     responsibleParty: '',
     ssn: '',
+    ssnConfirm: '',
     reasonForEin: '',
     businessActivity: '',
     expectedEmployees: '',
     startDate: '',
   })
+  const [showSsn, setShowSsn] = useState(false)
+  const [showSsnConfirm, setShowSsnConfirm] = useState(false)
+  const [ssnMismatch, setSsnMismatch] = useState(false)
 
   const [selected, setSelected] = useState<Set<ServiceId>>(new Set(SERVICE_ORDER))
   const [termsAccepted, setTermsAccepted] = useState(false)
@@ -247,8 +255,10 @@ function NewBusinessContent() {
   }
 
   function validateStep2() {
-    const { responsibleParty, ssn, reasonForEin, businessActivity, expectedEmployees, startDate } = einFields
-    return responsibleParty.trim() && ssn.trim() && reasonForEin && businessActivity && expectedEmployees && startDate
+    const { responsibleParty, ssn, ssnConfirm, reasonForEin, businessActivity, expectedEmployees, startDate } = einFields
+    if (ssn.trim() !== ssnConfirm.trim()) { setSsnMismatch(true); return false }
+    setSsnMismatch(false)
+    return responsibleParty.trim() && ssn.trim() && ssnConfirm.trim() && reasonForEin && businessActivity && expectedEmployees && startDate
   }
 
   function handleContinue() {
@@ -383,6 +393,11 @@ function NewBusinessContent() {
         .form-input:focus{border-color:var(--blue)}
         .form-input.autofilled{background:#f0f9ff;border-color:#bae6fd}
         select.form-input{cursor:pointer}
+        .pwd-wrap{position:relative;display:flex;align-items:center}
+        .pwd-wrap .form-input{padding-right:34px}
+        .eye-btn{position:absolute;right:8px;background:none;border:none;cursor:pointer;padding:2px;color:#94a3b8;display:flex;align-items:center;transition:color .15s}
+        .eye-btn:hover{color:var(--navy)}
+        .ssn-mismatch{font-size:.72rem;color:#ef4444;margin-top:4px}
         .form-hint{font-size:.67rem;color:#94a3b8;margin-top:3px;line-height:1.4}
         .autofill-msg{font-size:.72rem;margin-top:4px;padding:5px 9px;border-radius:6px}
         .autofill-msg.success{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0}
@@ -608,8 +623,45 @@ function NewBusinessContent() {
                     </div>
 
                     <div className="form-field">
-                      <label className="form-label">{t.ssn_itin}<span className="req">*</span></label>
-                      <input className="form-input" value={einFields.ssn} onChange={e => setEinFields(p => ({ ...p, ssn: e.target.value }))} placeholder="XXX-XX-XXXX" />
+                      <div className="form-grid" style={{ gap: 10 }}>
+                        <div>
+                          <label className="form-label">{t.ssn_itin}<span className="req">*</span></label>
+                          <div className="pwd-wrap">
+                            <input
+                              className={`form-input${ssnMismatch ? ' autofill-msg error' : ''}`}
+                              type={showSsn ? 'text' : 'password'}
+                              value={einFields.ssn}
+                              onChange={e => { setEinFields(p => ({ ...p, ssn: e.target.value })); setSsnMismatch(false) }}
+                              placeholder="XXX-XX-XXXX"
+                            />
+                            <button type="button" className="eye-btn" onClick={() => setShowSsn(v => !v)} tabIndex={-1}>
+                              {showSsn
+                                ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                                : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                              }
+                            </button>
+                          </div>
+                        </div>
+                        <div>
+                          <label className="form-label">{t.ssn_confirm}<span className="req">*</span></label>
+                          <div className="pwd-wrap">
+                            <input
+                              className={`form-input${ssnMismatch ? ' autofill-msg error' : ''}`}
+                              type={showSsnConfirm ? 'text' : 'password'}
+                              value={einFields.ssnConfirm}
+                              onChange={e => { setEinFields(p => ({ ...p, ssnConfirm: e.target.value })); setSsnMismatch(false) }}
+                              placeholder="XXX-XX-XXXX"
+                            />
+                            <button type="button" className="eye-btn" onClick={() => setShowSsnConfirm(v => !v)} tabIndex={-1}>
+                              {showSsnConfirm
+                                ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                                : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                              }
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                      {ssnMismatch && <p className="ssn-mismatch">⚠ {t.ssn_mismatch}</p>}
                       <p className="form-hint">🔒 {t.ssn_hint}</p>
                     </div>
 
