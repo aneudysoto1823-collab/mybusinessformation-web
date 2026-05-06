@@ -780,6 +780,14 @@ function NewBusinessContent() {
             <button className="id-btn" onClick={handleIdEntry} disabled={lookingUp}>
               {lookingUp ? t.looking_up : t.entry_btn}
             </button>
+
+            {/* TEMP: skip lookup for testing */}
+            <button
+              onClick={() => { setCompany(null); setLookupError(''); setPageView('landing') }}
+              style={{ display: 'block', width: '100%', marginTop: 10, background: 'none', border: '1px dashed #cbd5e1', borderRadius: 7, padding: '8px', fontSize: '.76rem', color: '#94a3b8', cursor: 'pointer', fontFamily: 'inherit' }}
+            >
+              [TEMP] Preview without Document ID →
+            </button>
           </div>
         </div>
       )}
