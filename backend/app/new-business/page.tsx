@@ -157,8 +157,8 @@ const T = {
     hero_subtitle: 'Your business information has been located successfully. Please',
     hero_subtitle_bold: 'review and complete',
     hero_subtitle_end: 'the required compliance documents below to keep your company protected and in good standing.',
-    action_title: 'ACTION REQUIRED — Keep Your Business Protected and Compliant',
-    action_subtitle: 'As a newly registered business in the State of Florida, there are a few important steps you may need to complete.',
+    action_title: 'Welcome to the Next Step!',
+    action_subtitle: 'Congratulations on registering your business in Florida. Smart entrepreneurs like you know that compliance is the foundation of a successful business. We\'re here to make it simple.',
     select_toggle: 'Select All',
     deselect_toggle: 'Deselect All',
     combo_badge: '10% Combo Discount Applied',
@@ -246,8 +246,8 @@ const T = {
     hero_subtitle: 'La información de tu empresa fue localizada exitosamente. Por favor',
     hero_subtitle_bold: 'revisa y completa',
     hero_subtitle_end: 'los documentos de cumplimiento requeridos para mantener tu empresa protegida y en regla.',
-    action_title: 'ACCIÓN REQUERIDA — Mantén tu Empresa Protegida y en Cumplimiento',
-    action_subtitle: 'Como empresa recién registrada en el Estado de Florida, hay algunos pasos importantes que debes completar.',
+    action_title: '¡Bienvenido al Siguiente Paso!',
+    action_subtitle: 'Felicitaciones por registrar tu empresa en Florida. Los empresarios inteligentes como tú saben que el cumplimiento es la base de un negocio exitoso. Estamos aquí para hacerlo simple.',
     select_toggle: 'Seleccionar Todo',
     deselect_toggle: 'Deseleccionar Todo',
     combo_badge: 'Descuento Combo 10% Aplicado',
@@ -606,19 +606,18 @@ function NewBusinessContent() {
         .nb-action-header{text-align:center;margin-bottom:28px}
         .nb-action-title{font-family:'Fraunces',serif;font-size:1.2rem;font-weight:700;color:#1C2E44;margin-bottom:8px}
         .nb-action-sub{color:#64748b;font-size:.88rem;max-width:580px;margin:0 auto;line-height:1.65}
-        .svc-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-        .svc-card{background:#fff;border:2px solid #e2e8f0;border-radius:12px;padding:20px;cursor:pointer;transition:all .2s;position:relative}
-        .svc-card:hover{border-color:#93c5fd;box-shadow:0 4px 16px rgba(37,99,235,.1)}
-        .svc-card.selected{border-color:#2563EB;background:#eff6ff}
-        .svc-card-check{position:absolute;top:12px;right:12px;width:22px;height:22px;border-radius:50%;border:2px solid #d1d5db;background:#fff;display:flex;align-items:center;justify-content:center;transition:all .15s}
-        .svc-card.selected .svc-card-check{background:#2563EB;border-color:#2563EB}
-        .svc-card-icon{margin-bottom:12px}
-        .svc-card-name{font-weight:700;color:#1C2E44;font-size:.95rem;margin-bottom:4px}
-        .svc-card-price{color:#EA580C;font-weight:700;font-size:1.15rem;margin-bottom:8px}
-        .svc-card-desc{color:#64748b;font-size:.8rem;line-height:1.55}
-        .svc-actions{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:18px}
-        .svc-toggle-btn{background:none;border:none;cursor:pointer;font-family:inherit;font-size:.82rem;font-weight:600;color:#2563EB;text-decoration:underline}
+        .svc-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:0}
+        .svc-card{background:#fff;padding:24px 28px}
+        .svc-card-icon{margin-bottom:14px}
+        .svc-card-name{font-weight:700;color:#1C2E44;font-size:.98rem;margin-bottom:8px}
+        .svc-card-desc{color:#64748b;font-size:.82rem;line-height:1.6}
         .combo-badge{background:#dcfce7;color:#166534;font-size:.74rem;font-weight:700;padding:4px 12px;border-radius:20px;border:1px solid #bbf7d0}
+        .order-svc-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f1f5f9;cursor:pointer}
+        .order-svc-row:last-of-type{border-bottom:none}
+        .order-chk{width:18px;height:18px;border-radius:4px;border:2px solid #d1d5db;background:#fff;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s}
+        .order-chk.on{background:#2563EB;border-color:#2563EB}
+        .order-svc-name{flex:1;font-size:.84rem;color:#1e293b;font-weight:500}
+        .order-svc-price{font-size:.88rem;font-weight:700;color:#1C2E44;white-space:nowrap}
 
         .nb-body{max-width:960px;margin:32px auto;padding:0 32px;display:grid;grid-template-columns:1fr 340px;gap:24px;align-items:start}
 
@@ -825,31 +824,15 @@ function NewBusinessContent() {
               <div className="svc-cards">
                 {SERVICE_ORDER.map(id => {
                   const svc = SERVICES[id]
-                  const isChecked = selected.has(id)
                   const Icon = SERVICE_ICONS[id]
                   return (
-                    <div key={id} className={`svc-card${isChecked ? ' selected' : ''}`} onClick={() => toggleService(id)}>
-                      <div className="svc-card-check">
-                        {isChecked && (
-                          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                            <polyline points="2,6 5,9 10,3" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                        )}
-                      </div>
+                    <div key={id} className="svc-card">
                       <div className="svc-card-icon"><Icon /></div>
                       <div className="svc-card-name">{svc[lang]}</div>
-                      <div className="svc-card-price">${svc.price.toFixed(2)}</div>
                       <div className="svc-card-desc">{svc[`detail_${lang}` as 'detail_en' | 'detail_es']}</div>
                     </div>
                   )
                 })}
-              </div>
-
-              <div className="svc-actions">
-                <button className="svc-toggle-btn" onClick={() => setSelected(allSelected ? new Set() : new Set(SERVICE_ORDER))}>
-                  {allSelected ? t.deselect_toggle : t.select_toggle}
-                </button>
-                {allSelected && <span className="combo-badge">✓ {t.combo_badge}</span>}
               </div>
             </div>
           </section>
@@ -903,26 +886,34 @@ function NewBusinessContent() {
             <div className="order-box">
               <div className="order-title">{t.order_title}</div>
 
-              {selected.size === 0 ? (
-                <div className="order-empty">{t.select_one}</div>
-              ) : (
-                <>
-                  {SERVICE_ORDER.filter(id => selected.has(id)).map(id => (
-                    <div key={id} className="order-row">
-                      <span className="order-row-name">{SERVICES[id][lang]}</span>
-                      <span className="order-row-price">${SERVICES[id].price.toFixed(2)}</span>
+              {/* Service checkboxes */}
+              <div style={{ marginBottom: 4 }}>
+                {SERVICE_ORDER.map(id => {
+                  const isOn = selected.has(id)
+                  return (
+                    <div key={id} className="order-svc-row" onClick={() => toggleService(id)}>
+                      <div className={`order-chk${isOn ? ' on' : ''}`}>
+                        {isOn && <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                      </div>
+                      <span className="order-svc-name">{SERVICES[id][lang]}</span>
+                      <span className="order-svc-price">${SERVICES[id].price.toFixed(2)}</span>
                     </div>
-                  ))}
+                  )
+                })}
+              </div>
+
+              {selected.size > 0 && (
+                <>
                   {discount > 0 && (
-                    <div className="order-row order-discount">
-                      <span className="order-row-name">{t.discount_lbl}:</span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '.84rem', color: '#059669', fontWeight: 600, padding: '6px 0', borderTop: '1px solid #f1f5f9' }}>
+                      <span>{t.discount_lbl}:</span>
                       <span>-${discount.toFixed(2)}</span>
                     </div>
                   )}
                   <hr className="order-divider" />
                   <div className="order-total">
                     <span className="order-total-lbl">{t.total_lbl}:</span>
-                    <span className="order-total-val" style={{ color: '#1C2E44' }}>${total.toFixed(2)}</span>
+                    <span className="order-total-val">${total.toFixed(2)}</span>
                   </div>
                 </>
               )}
