@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, Suspense } from 'react'
+import { useState, useEffect, useCallback, Suspense, Fragment } from 'react'
 import { useSearchParams } from 'next/navigation'
 
 type Company = {
@@ -18,32 +18,44 @@ type Company = {
 }
 
 type ServiceId = 'labor_law_poster' | 'ein' | 'certificate_of_status'
+type PageView = 'id-entry' | 'landing' | 'ein-form'
+type EinStep = 1 | 2 | 'review'
 
-const SERVICES: Record<ServiceId, { en: string; es: string; price: number; detail_en: string; detail_es: string }> = {
+const SERVICES: Record<ServiceId, {
+  en: string; es: string; price: number
+  short_en: string; short_es: string
+  detail_en: string; detail_es: string
+}> = {
   labor_law_poster: {
-    en: 'Labor Law Poster 2026',
-    es: 'Póster de Leyes Laborales 2026',
+    en: 'Labor Law Posters',
+    es: 'Póster de Leyes Laborales',
     price: 120.00,
-    detail_en: 'Both Federal and State Law require every business with at least one employee to post current labor law notices in a clearly visible workplace area. This is not optional — non-compliance can lead to fines and legal consequences.',
-    detail_es: 'Tanto la ley federal como la estatal exigen que todo negocio con al menos un empleado publique los avisos laborales vigentes en un área visible del lugar de trabajo. Esto no es opcional — el incumplimiento puede acarrear multas y consecuencias legales.',
+    short_en: 'Required by law for all workplaces with employees.',
+    short_es: 'Requerido por ley para todo lugar de trabajo con empleados.',
+    detail_en: 'Both Federal and State Law require every business with at least one employee to post current labor law notices in a clearly visible workplace area. Non-compliance can lead to fines and legal consequences.',
+    detail_es: 'La ley federal y estatal exigen que todo negocio con al menos un empleado publique avisos laborales vigentes en un área visible. El incumplimiento puede acarrear multas y consecuencias legales.',
+  },
+  ein: {
+    en: 'EIN (Tax ID)',
+    es: 'EIN (Tax ID)',
+    price: 161.00,
+    short_en: 'Essential for banking, hiring, and taxes.',
+    short_es: 'Esencial para banca, contratación e impuestos.',
+    detail_en: 'An EIN is a 9-digit number issued by the IRS to identify your business. Required to open a bank account, hire employees, file federal taxes, and conduct business with government agencies.',
+    detail_es: 'Un EIN es un número de 9 dígitos emitido por el IRS. Requerido para abrir cuenta bancaria, contratar empleados, presentar declaraciones federales y tramitar con agencias gubernamentales.',
   },
   certificate_of_status: {
     en: 'Certificate of Status',
     es: 'Certificado de Estado',
     price: 79.00,
-    detail_en: 'Official proof your business is active and authorized to conduct business in the state of Florida. Often required when applying for loans, renewing business licenses, or opening a business bank account.',
-    detail_es: 'Prueba oficial de que tu empresa está activa y autorizada para operar en el estado de Florida. Frecuentemente requerido al solicitar préstamos, renovar licencias o abrir una cuenta bancaria empresarial.',
-  },
-  ein: {
-    en: 'EIN / Tax ID Number',
-    es: 'EIN / Número Fiscal',
-    price: 161.00,
-    detail_en: 'An EIN is a 9-digit number issued by the IRS to identify your business. Every business must obtain an EIN to open a bank account, hire employees, file federal tax returns, and conduct business with government agencies.',
-    detail_es: 'Un EIN es un número de 9 dígitos emitido por el IRS para identificar tu negocio. Todo negocio debe obtener un EIN para abrir una cuenta bancaria, contratar empleados, presentar declaraciones federales y realizar trámites con agencias gubernamentales.',
+    short_en: 'Official proof of your business\'s active status.',
+    short_es: 'Prueba oficial del estado activo de tu empresa.',
+    detail_en: 'Official proof your business is active and authorized to operate in Florida. Often required when applying for loans, renewing licenses, or opening a business bank account.',
+    detail_es: 'Prueba oficial de que tu empresa está activa y autorizada en Florida. Frecuentemente requerido al solicitar préstamos, renovar licencias o abrir cuenta bancaria empresarial.',
   },
 }
 
-const SERVICE_ORDER: ServiceId[] = ['labor_law_poster', 'certificate_of_status', 'ein']
+const SERVICE_ORDER: ServiceId[] = ['labor_law_poster', 'ein', 'certificate_of_status']
 
 const REASON_OPTIONS = {
   en: [
@@ -70,230 +82,370 @@ const REASON_OPTIONS = {
 
 const ACTIVITY_OPTIONS = {
   en: [
-    { value: 'construction', label: 'Construction' },
-    { value: 'real_estate', label: 'Real Estate' },
-    { value: 'rental_leasing', label: 'Rental & Leasing' },
-    { value: 'manufacturing', label: 'Manufacturing' },
-    { value: 'transportation', label: 'Transportation & Warehousing' },
-    { value: 'finance', label: 'Finance & Insurance' },
-    { value: 'healthcare', label: 'Health Care & Social Assistance' },
-    { value: 'food_service', label: 'Accommodation & Food Service' },
-    { value: 'wholesale', label: 'Wholesale' },
-    { value: 'retail', label: 'Retail' },
-    { value: 'professional', label: 'Professional Services' },
+    { value: 'accommodations', label: 'Accommodations', desc: 'Casino hotel, hotel, or motel' },
+    { value: 'construction', label: 'Construction', desc: 'Building houses/residential structures, specialty trade contractors' },
+    { value: 'finance', label: 'Finance', desc: 'Banks, mortgage company, securities broker, investment advice' },
+    { value: 'food_service', label: 'Food Service', desc: 'Restaurant, bar, coffee shop, catering, mobile food service' },
+    { value: 'health_care', label: 'Health Care', desc: 'Doctor, mental health specialist, hospital' },
+    { value: 'insurance', label: 'Insurance', desc: 'Insurance company or broker' },
+    { value: 'manufacturing', label: 'Manufacturing', desc: 'Mechanical/physical/chemical transformation of materials' },
+    { value: 'real_estate', label: 'Real Estate', desc: 'Renting/leasing/managing real estate, agent/broker' },
+    { value: 'rental_leasing', label: 'Rental & Leasing', desc: 'Rent/lease automobiles, consumer/commercial/industrial goods' },
+    { value: 'retail', label: 'Retail', desc: 'Retail store, internet sales, direct sales, auction house' },
+    { value: 'social_assistance', label: 'Social Assistance', desc: 'Youth services, residential care, services for disabled' },
+    { value: 'transportation', label: 'Transportation', desc: 'Air/rail/water transportation, trucking, delivery/courier' },
+    { value: 'warehousing', label: 'Warehousing', desc: 'Warehousing/storage facilities for general merchandise' },
+    { value: 'wholesale', label: 'Wholesale', desc: 'Wholesale agent/broker, importer, exporter, distributor' },
+    { value: 'other', label: 'Other', desc: '' },
+  ],
+  es: [
+    { value: 'accommodations', label: 'Alojamiento', desc: 'Hotel casino, hotel o motel' },
+    { value: 'construction', label: 'Construcción', desc: 'Construcción de casas/estructuras residenciales, contratistas' },
+    { value: 'finance', label: 'Finanzas', desc: 'Bancos, hipotecas, corredor de valores, asesoría de inversión' },
+    { value: 'food_service', label: 'Servicio de Alimentos', desc: 'Restaurante, bar, café, catering, servicio de comida móvil' },
+    { value: 'health_care', label: 'Salud', desc: 'Médico, especialista en salud mental, hospital' },
+    { value: 'insurance', label: 'Seguros', desc: 'Compañía o corredor de seguros' },
+    { value: 'manufacturing', label: 'Manufactura', desc: 'Transformación mecánica/física/química de materiales' },
+    { value: 'real_estate', label: 'Bienes Raíces', desc: 'Alquiler/gestión de bienes raíces, agente/corredor' },
+    { value: 'rental_leasing', label: 'Alquiler y Arrendamiento', desc: 'Alquiler de automóviles, bienes de consumo/comerciales' },
+    { value: 'retail', label: 'Minorista', desc: 'Tienda al por menor, ventas por internet, ventas directas' },
+    { value: 'social_assistance', label: 'Asistencia Social', desc: 'Servicios para jóvenes, cuidado residencial, discapacitados' },
+    { value: 'transportation', label: 'Transporte', desc: 'Transporte aéreo/ferroviario/acuático, camionaje, mensajería' },
+    { value: 'warehousing', label: 'Almacenamiento', desc: 'Almacenes/instalaciones de almacenamiento para mercancía' },
+    { value: 'wholesale', label: 'Mayorista', desc: 'Agente/corredor mayorista, importador, exportador, distribuidor' },
+    { value: 'other', label: 'Otro', desc: '' },
+  ],
+}
+
+const TITLE_OPTIONS = {
+  en: [
+    { value: 'owner', label: 'I am one of the owners / members' },
+    { value: 'officer', label: 'I am an officer of the corporation' },
+    { value: 'third_party', label: 'I am a third-party designee' },
     { value: 'other', label: 'Other' },
   ],
   es: [
-    { value: 'construction', label: 'Construcción' },
-    { value: 'real_estate', label: 'Bienes Raíces' },
-    { value: 'rental_leasing', label: 'Alquiler y Arrendamiento' },
-    { value: 'manufacturing', label: 'Manufactura' },
-    { value: 'transportation', label: 'Transporte y Almacenamiento' },
-    { value: 'finance', label: 'Finanzas y Seguros' },
-    { value: 'healthcare', label: 'Salud y Asistencia Social' },
-    { value: 'food_service', label: 'Alojamiento y Servicios de Comida' },
-    { value: 'wholesale', label: 'Mayorista' },
-    { value: 'retail', label: 'Minorista' },
-    { value: 'professional', label: 'Servicios Profesionales' },
+    { value: 'owner', label: 'Soy uno de los propietarios / miembros' },
+    { value: 'officer', label: 'Soy un oficial de la corporación' },
+    { value: 'third_party', label: 'Soy un designado de terceros' },
     { value: 'other', label: 'Otro' },
   ],
 }
 
+const CLOSING_MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+
 const T = {
   en: {
-    topbar_name: 'Florida Business Formation Center',
-    svc_section: 'Our Services',
-    personal_title: 'Owner Information',
-    form_title: 'Business Information',
-    doc_id: 'Document ID',
-    doc_placeholder: 'e.g. L26000075446',
-    looking_up: 'Looking up...',
-    first_name: 'First Name',
-    last_name: 'Last Name',
-    email: 'Email Address',
-    phone: 'Phone Number',
-    address1: 'Address Line 1',
-    address2: 'Address Line 2',
-    city: 'City',
-    state_lbl: 'State',
-    zip: 'Zip Code',
-    biz_name: 'Business Name',
-    continue_btn: 'Continue',
-    back_btn: 'Back',
-    ein_title: 'EIN Application Information',
-    responsible_party: 'Responsible Party',
-    responsible_party_hint: 'Full legal name of the individual who controls the entity',
-    ssn_itin: 'SSN or ITIN',
-    ssn_confirm: 'Confirm SSN or ITIN',
-    ssn_mismatch: 'SSN/ITIN fields do not match. Please re-enter.',
-    ssn_hint: 'Protected under federal privacy law (IRS Form SS-4)',
-    reason_ein: 'Reason for Applying',
-    business_activity: 'Principal Business Activity',
-    exp_employees: 'Expected Employees (next 12 months)',
-    start_date: 'Date Business Started',
-    select_opt: 'Select an option...',
-    step_label: 'Step',
-    step_of: 'of',
-    err_step1: 'Please complete all required fields (First Name, Last Name, Email, Business Name) before continuing.',
-    err_step2: 'Please complete all EIN fields before proceeding to checkout.',
-    err_terms: 'Please accept the Terms of Service.',
-    cart_title: 'My Cart',
-    select_all: 'Select All',
-    price_lbl: 'Price',
-    discount_lbl: '10% Combo Discount',
-    subtotal: 'Cart Total',
-    total: 'Total',
+    phone: '(800) 123-4567',
+    header_name_1: 'Florida Business',
+    header_name_2: 'Formation Center',
+    call_us: 'Call Us:',
+    // ID entry
+    entry_title: 'Complete Your Business Compliance Request',
+    entry_subtitle: 'Enter your Document ID to locate your business information and continue.',
+    entry_why_title: 'Why You Received a Document ID',
+    entry_why_body: 'Your Document ID allows us to securely locate your business information and provide the compliance documents associated with your recent business registration.',
+    entry_doc_label: 'Document ID',
+    entry_doc_placeholder: 'e.g. L26000075446',
+    entry_btn: 'Continue',
+    entry_error: 'Document ID not found. Please verify and try again.',
+    entry_empty: 'Please enter your Document ID.',
+    looking_up: 'Looking up your business...',
+    // Landing
+    welcome: 'Welcome,',
+    welcome_generic: 'Welcome to Florida Business Formation Center',
+    hero_subtitle: 'Your business information has been located successfully. Please',
+    hero_subtitle_bold: 'review and complete',
+    hero_subtitle_end: 'the required compliance documents below to keep your company protected and in good standing.',
+    action_title: 'ACTION REQUIRED — Keep Your Business Protected and Compliant',
+    action_subtitle: 'As a newly registered business in the State of Florida, there are a few important steps you may need to complete.',
+    select_toggle: 'Select All',
+    deselect_toggle: 'Deselect All',
+    combo_badge: '10% Combo Discount Applied',
+    info_title: 'Your Information',
+    info_doc_id: 'Document ID',
+    info_llc_name: 'LLC Name',
+    info_address: 'Business Address',
+    info_notice_date: 'Date of Notice',
+    info_email: 'Contact Email',
+    info_phone: 'Phone Number',
+    info_email_placeholder: 'Enter your email',
+    info_phone_placeholder: 'Enter your phone',
+    order_title: 'Order Summary',
+    discount_lbl: 'Discount',
+    total_lbl: 'Total',
     checkout_btn: 'Proceed to Checkout',
     processing: 'Processing...',
-    terms: 'I agree to',
+    terms: 'I agree to the',
     terms_link: 'Terms of Service',
-    footer_note: 'Secure payment · 256-bit SSL · FloridaBusinessFormationCenter.com',
     select_one: 'Please select at least one service.',
-    autofill_success: 'Company found — fields auto-filled.',
-    autofill_error: 'Document ID not found in our records.',
+    err_terms: 'Please accept the Terms of Service.',
+    // Notice
+    notice_title: 'Important Notice',
+    notice_1: 'Florida Business Formation Center is a privately owned third-party document preparation service and is not affiliated with any government agency, including the IRS, Department of Labor, or Florida Department of State.',
+    notice_2: 'This is a solicitation for services, not an official government notice. Fees include administrative and processing costs. All sales are final and non-refundable.',
+    // EIN Form
+    ein_form_title: 'EIN Application — Additional Information',
+    ein_form_back: '← Back to Order',
+    ein_step_identity: 'Identity',
+    ein_step_llc: 'LLC Details',
+    ein_step_review: 'Review',
+    responsible_party: 'Responsible Party',
+    responsible_party_hint: 'Full legal name of the individual who controls the entity',
+    title_role: 'Your Role',
+    select_role: 'Select your role...',
+    ssn_itin: 'SSN or ITIN',
+    ssn_confirm: 'Confirm SSN or ITIN',
+    ssn_mismatch: 'SSN/ITIN fields do not match.',
+    ssn_hint: 'Protected under federal privacy law (IRS Form SS-4)',
+    reason_ein: 'Reason for Applying',
+    entity_type: 'Entity Type',
+    llc_members: 'Number of Members',
+    start_date: 'Date Business Started',
+    closing_month: 'Fiscal Year Closing Month',
+    has_w2: 'Do you expect W-2 employees in the next 12 months?',
+    q_highway: 'Does your business own a highway motor vehicle with a taxable gross weight of 55,000 lbs or more?',
+    q_gambling: 'Does your business involve gambling or wagering?',
+    q_excise: 'Does your business need to file Form 720 (Quarterly Federal Excise Tax)?',
+    q_atf: 'Does your business sell or manufacture alcohol, tobacco, or firearms?',
+    business_activity: 'Principal Business Activity',
+    business_activity_other: 'Describe your business activity',
+    select_opt: 'Select an option...',
+    continue_btn: 'Continue',
+    back_btn: 'Back',
+    err_step1: 'Please complete all required identity fields.',
+    err_step2: 'Please complete all required entity detail fields.',
+    review_title: 'Review Your Information',
+    review_identity: 'Identity',
+    review_llc: 'Entity Details',
+    review_services: 'Services',
+    review_edit: 'Edit',
+    review_checkout: 'Proceed to Checkout',
+    yes: 'Yes',
+    no: 'No',
   },
   es: {
-    topbar_name: 'Florida Business Formation Center',
-    svc_section: 'Nuestros Servicios',
-    personal_title: 'Información del Propietario',
-    form_title: 'Información del Negocio',
-    doc_id: 'Document ID',
-    doc_placeholder: 'ej. L26000075446',
-    looking_up: 'Buscando...',
-    first_name: 'Nombre',
-    last_name: 'Apellido',
-    email: 'Correo Electrónico',
-    phone: 'Teléfono',
-    address1: 'Dirección Línea 1',
-    address2: 'Dirección Línea 2',
-    city: 'Ciudad',
-    state_lbl: 'Estado',
-    zip: 'Código Postal',
-    biz_name: 'Nombre del Negocio',
-    continue_btn: 'Continuar',
-    back_btn: 'Regresar',
-    ein_title: 'Información para el EIN',
-    responsible_party: 'Responsable del Negocio',
-    responsible_party_hint: 'Nombre legal completo del propietario que controla la entidad',
-    ssn_itin: 'SSN o ITIN',
-    ssn_confirm: 'Confirmar SSN o ITIN',
-    ssn_mismatch: 'Los campos SSN/ITIN no coinciden. Por favor verifique.',
-    ssn_hint: 'Protegido por la ley federal de privacidad (Formulario IRS SS-4)',
-    reason_ein: 'Razón de la Solicitud',
-    business_activity: 'Actividad Principal del Negocio',
-    exp_employees: 'Empleados Esperados (próximos 12 meses)',
-    start_date: 'Fecha de Inicio de Operaciones',
-    select_opt: 'Seleccione una opción...',
-    step_label: 'Paso',
-    step_of: 'de',
-    err_step1: 'Por favor complete todos los campos requeridos (Nombre, Apellido, Correo, Nombre del Negocio) antes de continuar.',
-    err_step2: 'Por favor complete toda la información del EIN antes de proceder al pago.',
-    err_terms: 'Debe aceptar los Términos de Servicio.',
-    cart_title: 'Mi Carrito',
-    select_all: 'Seleccionar Todo',
-    price_lbl: 'Precio',
-    discount_lbl: 'Descuento 10% Combo',
-    subtotal: 'Subtotal',
-    total: 'Total',
+    phone: '(800) 123-4567',
+    header_name_1: 'Florida Business',
+    header_name_2: 'Formation Center',
+    call_us: 'Llámanos:',
+    // ID entry
+    entry_title: 'Completa tu Solicitud de Cumplimiento Empresarial',
+    entry_subtitle: 'Ingresa tu Document ID para localizar la información de tu empresa y continuar.',
+    entry_why_title: 'Por qué recibiste un Document ID',
+    entry_why_body: 'Tu Document ID nos permite localizar de forma segura la información de tu empresa y proporcionarte los documentos de cumplimiento asociados con tu registro empresarial reciente.',
+    entry_doc_label: 'Document ID',
+    entry_doc_placeholder: 'ej. L26000075446',
+    entry_btn: 'Continuar',
+    entry_error: 'Document ID no encontrado. Por favor verifica e intenta de nuevo.',
+    entry_empty: 'Por favor ingresa tu Document ID.',
+    looking_up: 'Buscando tu empresa...',
+    // Landing
+    welcome: 'Bienvenido,',
+    welcome_generic: 'Bienvenido a Florida Business Formation Center',
+    hero_subtitle: 'La información de tu empresa fue localizada exitosamente. Por favor',
+    hero_subtitle_bold: 'revisa y completa',
+    hero_subtitle_end: 'los documentos de cumplimiento requeridos para mantener tu empresa protegida y en regla.',
+    action_title: 'ACCIÓN REQUERIDA — Mantén tu Empresa Protegida y en Cumplimiento',
+    action_subtitle: 'Como empresa recién registrada en el Estado de Florida, hay algunos pasos importantes que debes completar.',
+    select_toggle: 'Seleccionar Todo',
+    deselect_toggle: 'Deseleccionar Todo',
+    combo_badge: 'Descuento Combo 10% Aplicado',
+    info_title: 'Tu Información',
+    info_doc_id: 'Document ID',
+    info_llc_name: 'Nombre de la LLC',
+    info_address: 'Dirección del Negocio',
+    info_notice_date: 'Fecha de Aviso',
+    info_email: 'Correo de Contacto',
+    info_phone: 'Número de Teléfono',
+    info_email_placeholder: 'Ingresa tu correo',
+    info_phone_placeholder: 'Ingresa tu teléfono',
+    order_title: 'Resumen del Pedido',
+    discount_lbl: 'Descuento',
+    total_lbl: 'Total',
     checkout_btn: 'Proceder al Pago',
     processing: 'Procesando...',
     terms: 'Acepto los',
     terms_link: 'Términos de Servicio',
-    footer_note: 'Pago seguro · SSL 256 bits · MyBusinessFormation.com',
     select_one: 'Selecciona al menos un servicio.',
-    autofill_success: 'Empresa encontrada — campos completados automáticamente.',
-    autofill_error: 'Documento no encontrado en nuestros registros.',
+    err_terms: 'Debes aceptar los Términos de Servicio.',
+    // Notice
+    notice_title: 'Aviso Importante',
+    notice_1: 'Florida Business Formation Center es un servicio de preparación de documentos de terceros de propiedad privada y no está afiliado a ninguna agencia gubernamental, incluido el IRS, el Departamento de Trabajo o el Departamento de Estado de Florida.',
+    notice_2: 'Esta es una solicitud de servicios, no un aviso gubernamental oficial. Las tarifas incluyen costos administrativos y de procesamiento. Todas las ventas son finales y no reembolsables.',
+    // EIN Form
+    ein_form_title: 'Solicitud de EIN — Información Adicional',
+    ein_form_back: '← Volver al Pedido',
+    ein_step_identity: 'Identidad',
+    ein_step_llc: 'Detalles LLC',
+    ein_step_review: 'Revisión',
+    responsible_party: 'Responsable del Negocio',
+    responsible_party_hint: 'Nombre legal completo del propietario que controla la entidad',
+    title_role: 'Tu Rol',
+    select_role: 'Selecciona tu rol...',
+    ssn_itin: 'SSN o ITIN',
+    ssn_confirm: 'Confirmar SSN o ITIN',
+    ssn_mismatch: 'Los campos SSN/ITIN no coinciden.',
+    ssn_hint: 'Protegido por la ley federal de privacidad (Formulario IRS SS-4)',
+    reason_ein: 'Razón de la Solicitud',
+    entity_type: 'Tipo de Entidad',
+    llc_members: 'Número de Miembros',
+    start_date: 'Fecha de Inicio de Operaciones',
+    closing_month: 'Mes de Cierre del Año Fiscal',
+    has_w2: '¿Espera tener empleados con W-2 en los próximos 12 meses?',
+    q_highway: '¿Su negocio posee un vehículo de carretera con peso bruto gravable de 55,000 libras o más?',
+    q_gambling: '¿Su negocio implica juegos de azar o apuestas?',
+    q_excise: '¿Su negocio necesita presentar el Formulario 720 (Impuesto Especial Federal Trimestral)?',
+    q_atf: '¿Su negocio vende o fabrica alcohol, tabaco o armas de fuego?',
+    business_activity: 'Actividad Principal del Negocio',
+    business_activity_other: 'Describa la actividad de su negocio',
+    select_opt: 'Seleccione una opción...',
+    continue_btn: 'Continuar',
+    back_btn: 'Regresar',
+    err_step1: 'Por favor complete todos los campos de identidad requeridos.',
+    err_step2: 'Por favor complete todos los campos de detalles de la entidad.',
+    review_title: 'Revisa tu Información',
+    review_identity: 'Identidad',
+    review_llc: 'Detalles de la Entidad',
+    review_services: 'Servicios',
+    review_edit: 'Editar',
+    review_checkout: 'Proceder al Pago',
+    yes: 'Sí',
+    no: 'No',
   },
 }
+
+// SVG icons for service cards
+const IconPoster = () => (
+  <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+    <rect width="36" height="36" rx="8" fill="#FEF3C7"/>
+    <rect x="9" y="7" width="18" height="22" rx="2" fill="#F59E0B" opacity=".3"/>
+    <rect x="9" y="7" width="18" height="22" rx="2" stroke="#D97706" strokeWidth="1.5"/>
+    <rect x="12" y="12" width="12" height="1.5" rx=".75" fill="#D97706"/>
+    <rect x="12" y="15.5" width="9" height="1.5" rx=".75" fill="#D97706"/>
+    <rect x="12" y="19" width="10" height="1.5" rx=".75" fill="#D97706"/>
+    <rect x="12" y="22.5" width="7" height="1.5" rx=".75" fill="#D97706"/>
+  </svg>
+)
+const IconEIN = () => (
+  <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+    <rect width="36" height="36" rx="8" fill="#DBEAFE"/>
+    <rect x="7" y="12" width="22" height="14" rx="2" fill="#2563EB" opacity=".2"/>
+    <rect x="7" y="12" width="22" height="14" rx="2" stroke="#2563EB" strokeWidth="1.5"/>
+    <rect x="10" y="17" width="6" height="1.5" rx=".75" fill="#2563EB"/>
+    <rect x="10" y="20.5" width="9" height="1.5" rx=".75" fill="#2563EB"/>
+    <rect x="19" y="17" width="4" height="5" rx="1" fill="#2563EB" opacity=".4"/>
+    <circle cx="26" cy="10" r="4" fill="#1D4ED8"/>
+    <text x="26" y="13.5" textAnchor="middle" fontSize="6" fill="white" fontWeight="700">$</text>
+  </svg>
+)
+const IconCert = () => (
+  <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+    <rect width="36" height="36" rx="8" fill="#FEF3C7"/>
+    <rect x="8" y="6" width="20" height="24" rx="2" fill="#F59E0B" opacity=".2"/>
+    <rect x="8" y="6" width="20" height="24" rx="2" stroke="#D97706" strokeWidth="1.5"/>
+    <rect x="11" y="11" width="14" height="1.5" rx=".75" fill="#D97706"/>
+    <rect x="11" y="14.5" width="10" height="1.5" rx=".75" fill="#D97706"/>
+    <circle cx="18" cy="22" r="4" fill="#D97706" opacity=".3"/>
+    <circle cx="18" cy="22" r="4" stroke="#D97706" strokeWidth="1.2"/>
+    <text x="18" y="25" textAnchor="middle" fontSize="6" fill="#D97706" fontWeight="800">★</text>
+  </svg>
+)
+
+const SERVICE_ICONS: Record<ServiceId, React.FC> = {
+  labor_law_poster: IconPoster,
+  ein: IconEIN,
+  certificate_of_status: IconCert,
+}
+
+const EyeOpen = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+  </svg>
+)
+const EyeOff = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+    <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+    <line x1="1" y1="1" x2="23" y2="23"/>
+  </svg>
+)
 
 function NewBusinessContent() {
   const searchParams = useSearchParams()
   const [lang, setLang] = useState<'en' | 'es'>('en')
   const t = T[lang]
 
-  const [step, setStep] = useState(1)
-  const [stepError, setStepError] = useState('')
+  const [pageView, setPageView] = useState<PageView>('id-entry')
 
+  // Company data
   const [docInput, setDocInput] = useState('')
   const [lookingUp, setLookingUp] = useState(false)
   const [company, setCompany] = useState<Company | null>(null)
-  const [autofillMsg, setAutofillMsg] = useState('')
+  const [lookupError, setLookupError] = useState('')
 
-  const [formFields, setFormFields] = useState({
-    firstName: '', lastName: '', email: '', phone: '',
-    address1: '', address2: '', city: '', state: 'FL', zip: '', businessName: '',
-  })
+  // Editable contact info
+  const [contactEmail, setContactEmail] = useState('')
+  const [contactPhone, setContactPhone] = useState('')
 
+  // Cart
+  const [selected, setSelected] = useState<Set<ServiceId>>(new Set(SERVICE_ORDER))
+  const [termsAccepted, setTermsAccepted] = useState(false)
+
+  // EIN form state
+  const [einStep, setEinStep] = useState<EinStep>(1)
+  const [stepError, setStepError] = useState('')
   const [einFields, setEinFields] = useState({
-    responsibleParty: '',
-    ssn: '',
-    ssnConfirm: '',
-    reasonForEin: '',
-    businessActivity: '',
-    expectedEmployees: '',
-    startDate: '',
+    responsibleParty: '', title: '', ssn: '', ssnConfirm: '', reasonForEin: '',
   })
   const [showSsn, setShowSsn] = useState(false)
   const [showSsnConfirm, setShowSsnConfirm] = useState(false)
   const [ssnMismatch, setSsnMismatch] = useState(false)
+  const [llcFields, setLlcFields] = useState({
+    entityType: '' as '' | 'LLC' | 'Corporation',
+    llcMembers: '',
+    startDate: '',
+    businessActivity: '',
+    businessActivityOther: '',
+    closingMonth: 'December',
+    hasW2Employees: '' as '' | 'yes' | 'no',
+    highwayVehicle: 'no' as 'yes' | 'no',
+    gambling: 'no' as 'yes' | 'no',
+    exciseTax: 'no' as 'yes' | 'no',
+    alcoholTobaccoFirearms: 'no' as 'yes' | 'no',
+  })
 
-  const [selected, setSelected] = useState<Set<ServiceId>>(new Set(SERVICE_ORDER))
-  const [termsAccepted, setTermsAccepted] = useState(false)
-  const [shipDifferent, setShipDifferent] = useState(false)
-  const [shipFields, setShipFields] = useState({ address1: '', address2: '', city: '', state: 'FL', zip: '' })
+  // Payment
   const [paying, setPaying] = useState(false)
   const [payError, setPayError] = useState('')
 
+  // Computed
+  const einSelected = selected.has('ein')
   const allSelected = selected.size === SERVICE_ORDER.length
   const subtotal = [...selected].reduce((sum, id) => sum + SERVICES[id].price, 0)
   const discount = allSelected ? parseFloat((subtotal * 0.10).toFixed(2)) : 0
   const total = parseFloat((subtotal - discount).toFixed(2))
 
-  function validateStep1() {
-    const { firstName, lastName, email, businessName } = formFields
-    return firstName.trim() && lastName.trim() && email.trim() && businessName.trim()
-  }
+  const today = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
 
-  function validateStep2() {
-    const { responsibleParty, ssn, ssnConfirm, reasonForEin, businessActivity, expectedEmployees, startDate } = einFields
-    if (ssn.trim() !== ssnConfirm.trim()) { setSsnMismatch(true); return false }
-    setSsnMismatch(false)
-    return responsibleParty.trim() && ssn.trim() && ssnConfirm.trim() && reasonForEin && businessActivity && expectedEmployees && startDate
-  }
-
-  function handleContinue() {
-    if (!validateStep1()) { setStepError(t.err_step1); return }
-    setStepError('')
-    setStep(2)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
-
-  const lookup = useCallback(async (id: string) => {
-    if (!id.trim()) return
+  const lookup = useCallback(async (id: string): Promise<boolean> => {
+    if (!id.trim()) return false
     setLookingUp(true)
-    setAutofillMsg('')
-    setCompany(null)
+    setLookupError('')
     try {
       const res = await fetch(`/api/sunbiz?document_id=${encodeURIComponent(id.trim())}`)
       const data = await res.json()
       if (!res.ok || !data.company) {
-        setAutofillMsg(t.autofill_error)
-        return
+        setLookupError(t.entry_error)
+        return false
       }
       const c: Company = data.company
       setCompany(c)
-      setFormFields(prev => ({
-        ...prev,
-        businessName: c.company_name || prev.businessName,
-        address1: c.address || prev.address1,
-        city: c.city || prev.city,
-        state: c.state || 'FL',
-        zip: c.zip || prev.zip,
-        email: c.email || prev.email,
-      }))
-      setAutofillMsg(t.autofill_success)
+      if (c.email) setContactEmail(c.email)
+      return true
     } catch {
-      setAutofillMsg(t.autofill_error)
+      setLookupError(t.entry_error)
+      return false
     } finally {
       setLookingUp(false)
     }
@@ -301,10 +453,23 @@ function NewBusinessContent() {
 
   useEffect(() => {
     const id = searchParams.get('id')
-    if (id) { setDocInput(id); lookup(id) }
     const l = searchParams.get('lang')
     if (l === 'es') setLang('es')
+    if (id) {
+      setDocInput(id)
+      setPageView('landing')
+      lookup(id)
+    }
   }, [searchParams, lookup])
+
+  async function handleIdEntry() {
+    if (!docInput.trim()) { setLookupError(t.entry_empty); return }
+    const found = await lookup(docInput)
+    if (found) {
+      setPageView('landing')
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }
 
   function toggleService(id: ServiceId) {
     setSelected(prev => {
@@ -314,32 +479,35 @@ function NewBusinessContent() {
     })
   }
 
-  function toggleAll() {
-    setSelected(allSelected ? new Set() : new Set(SERVICE_ORDER))
-  }
-
-  async function handlePay() {
+  function handleCheckout() {
     if (selected.size === 0) { setPayError(t.select_one); return }
-    if (step < 2) {
-      setPayError(lang === 'es' ? 'Por favor completa el paso 1 antes de proceder al pago.' : 'Please complete Step 1 before proceeding to checkout.')
+    if (!termsAccepted) { setPayError(t.err_terms); return }
+    setPayError('')
+    if (einSelected) {
+      setPageView('ein-form')
+      setEinStep(1)
+      setStepError('')
+      window.scrollTo({ top: 0, behavior: 'smooth' })
       return
     }
-    if (!validateStep2()) { setPayError(t.err_step2); return }
-    if (!termsAccepted) { setPayError(t.err_terms); return }
+    processPayment()
+  }
+
+  async function processPayment() {
     setPaying(true)
     setPayError('')
     try {
-      const services = [...selected]
       const res = await fetch('/api/sunbiz/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           company_id: company?.id || null,
           document_id: docInput.trim() || company?.document_id || '',
-          company_name: formFields.businessName || company?.company_name || '',
-          selected_services: services,
-          customer_email: formFields.email || null,
-          ein_info: einFields,
+          company_name: company?.company_name || '',
+          selected_services: [...selected],
+          customer_email: contactEmail || null,
+          ein_info: einSelected ? einFields : null,
+          llc_info: einSelected ? llcFields : null,
           lang,
         }),
       })
@@ -352,417 +520,406 @@ function NewBusinessContent() {
     }
   }
 
+  function validateEinStep1(): boolean {
+    const { responsibleParty, title, ssn, ssnConfirm, reasonForEin } = einFields
+    if (ssn.trim() !== ssnConfirm.trim()) { setSsnMismatch(true); return false }
+    setSsnMismatch(false)
+    return !!(responsibleParty.trim() && title && ssn.trim() && reasonForEin)
+  }
+
+  function validateEinStep2(): boolean {
+    const { entityType, startDate, businessActivity, hasW2Employees, businessActivityOther } = llcFields
+    if (!entityType || !startDate || !businessActivity || !hasW2Employees) return false
+    if (businessActivity === 'other' && !businessActivityOther.trim()) return false
+    return true
+  }
+
+  function handleEinContinue() {
+    setStepError('')
+    if (einStep === 1) {
+      if (!validateEinStep1()) { setStepError(t.err_step1); return }
+      setEinStep(2)
+    } else if (einStep === 2) {
+      if (!validateEinStep2()) { setStepError(t.err_step2); return }
+      setEinStep('review')
+    } else if (einStep === 'review') {
+      processPayment()
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  function handleEinBack() {
+    setStepError('')
+    if (einStep === 2) { setEinStep(1); return }
+    if (einStep === 'review') { setEinStep(2); return }
+    setPageView('landing')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const einSteps = [
+    { num: 1, label: t.ein_step_identity },
+    { num: 2, label: t.ein_step_llc },
+  ]
+
   return (
-    <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+    <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", minHeight: '100vh', background: '#f4f6f9' }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
         *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-        :root{--navy:#1C2E44;--blue:#2563EB;--green:#059669;--gray200:#E2E8F0;--gray400:#94A3B8;--white:#fff}
 
-        .nb-layout{display:flex;min-height:100vh}
-        .nb-image{width:33%;flex-shrink:0;position:sticky;top:0;height:100vh;overflow:hidden;background:#f4f6f9}
-        .nb-image img{width:100%;height:100%;object-fit:contain;object-position:top left;display:block}
-        .nb-image::after{content:'';position:absolute;inset:0;background:linear-gradient(to right,transparent 82%,#f4f6f9 100%),linear-gradient(to bottom,transparent 86%,#f4f6f9 100%);pointer-events:none;z-index:1}
-        .nb-content{flex:1;background:#f4f6f9;min-height:100vh}
+        .nb-header{background:#1C2E44;padding:14px 40px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20}
+        .nb-logo{display:flex;align-items:center;gap:10px}
+        .nb-logo-icon{width:38px;height:38px;display:flex;align-items:center;justify-content:center}
+        .nb-logo-text{line-height:1.2}
+        .nb-logo-text .l1{color:#fff;font-weight:700;font-size:.95rem;font-family:'Fraunces',serif}
+        .nb-logo-text .l2{color:#93c5fd;font-weight:600;font-size:.78rem}
+        .nb-header-right{display:flex;align-items:center;gap:18px}
+        .nb-phone{color:#fff;font-size:.84rem;font-weight:600;text-decoration:none;display:flex;align-items:center;gap:6px}
+        .nb-phone:hover{color:#93c5fd}
+        .nb-lang{display:flex;gap:3px;background:rgba(255,255,255,.12);border-radius:20px;padding:3px}
+        .nb-lang button{padding:4px 12px;border-radius:16px;border:none;cursor:pointer;font-size:.73rem;font-weight:600;font-family:inherit;transition:all .15s}
+        .nb-lang button.active{background:#fff;color:#1C2E44}
+        .nb-lang button:not(.active){background:transparent;color:rgba(255,255,255,.7)}
 
-        .svc-descriptions{display:grid;grid-template-columns:repeat(3,1fr);gap:0;background:transparent}
-        .svc-desc-item{padding:22px 24px}
-        .svc-desc-name{font-size:1.05rem;font-weight:700;color:var(--navy);margin-bottom:10px;font-family:'Fraunces',serif}
-        .svc-desc-text{font-size:.88rem;color:#475569;line-height:1.7}
+        .id-entry-wrap{min-height:calc(100vh - 64px);display:flex;align-items:center;justify-content:center;padding:40px 24px}
+        .id-entry-card{background:#fff;border-radius:16px;padding:44px 48px;max-width:500px;width:100%;box-shadow:0 4px 32px rgba(28,46,68,.10);border:1px solid #e2e8f0}
+        .id-entry-title{font-family:'Fraunces',serif;font-size:1.6rem;font-weight:900;color:#1C2E44;margin-bottom:10px;line-height:1.25}
+        .id-entry-subtitle{color:#475569;font-size:.9rem;line-height:1.65;margin-bottom:28px}
+        .id-why-box{background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:14px 16px;margin-bottom:24px}
+        .id-why-title{font-size:.74rem;font-weight:700;color:#0369a1;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+        .id-why-text{font-size:.82rem;color:#0c4a6e;line-height:1.6}
+        .id-label{display:block;font-size:.72rem;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+        .id-input{width:100%;padding:11px 14px;border:1.5px solid #d1d5db;border-radius:8px;font-size:.9rem;font-family:inherit;color:#1e293b;outline:none;transition:border-color .2s}
+        .id-input:focus{border-color:#2563EB}
+        .id-input.err{border-color:#ef4444;background:#fef2f2}
+        .id-btn{width:100%;padding:13px;border-radius:9px;background:linear-gradient(135deg,#1C2E44,#2563EB);color:#fff;font-size:.95rem;font-weight:700;border:none;cursor:pointer;font-family:inherit;margin-top:12px;transition:all .2s;box-shadow:0 4px 14px rgba(37,99,235,.3)}
+        .id-btn:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 20px rgba(37,99,235,.4)}
+        .id-btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+        .id-error{font-size:.76rem;color:#ef4444;margin-top:8px;background:#fef2f2;padding:7px 10px;border-radius:6px;border:1px solid #fecaca}
 
-        .nb-main{display:grid;grid-template-columns:1fr 360px;gap:32px;padding:32px 36px 56px;align-items:start}
+        .nb-hero{background:#fff;border-bottom:1px solid #e2e8f0;padding:44px 40px 36px;text-align:center}
+        .nb-hero h1{font-family:'Fraunces',serif;font-size:2.1rem;font-weight:900;color:#1C2E44;margin-bottom:14px}
+        .nb-hero p{color:#475569;font-size:.95rem;max-width:580px;margin:0 auto;line-height:1.75}
 
-        .form-section{background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:16px 20px;box-shadow:0 4px 24px rgba(28,46,68,.08)}
+        .nb-action{background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:36px 40px}
+        .nb-action-inner{max-width:920px;margin:0 auto}
+        .nb-action-header{text-align:center;margin-bottom:28px}
+        .nb-action-title{font-family:'Fraunces',serif;font-size:1.2rem;font-weight:700;color:#1C2E44;margin-bottom:8px}
+        .nb-action-sub{color:#64748b;font-size:.88rem;max-width:580px;margin:0 auto;line-height:1.65}
+        .svc-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+        .svc-card{background:#fff;border:2px solid #e2e8f0;border-radius:12px;padding:20px;cursor:pointer;transition:all .2s;position:relative}
+        .svc-card:hover{border-color:#93c5fd;box-shadow:0 4px 16px rgba(37,99,235,.1)}
+        .svc-card.selected{border-color:#2563EB;background:#eff6ff}
+        .svc-card-check{position:absolute;top:12px;right:12px;width:22px;height:22px;border-radius:50%;border:2px solid #d1d5db;background:#fff;display:flex;align-items:center;justify-content:center;transition:all .15s}
+        .svc-card.selected .svc-card-check{background:#2563EB;border-color:#2563EB}
+        .svc-card-icon{margin-bottom:12px}
+        .svc-card-name{font-weight:700;color:#1C2E44;font-size:.95rem;margin-bottom:4px}
+        .svc-card-price{color:#EA580C;font-weight:700;font-size:1.15rem;margin-bottom:8px}
+        .svc-card-desc{color:#64748b;font-size:.8rem;line-height:1.55}
+        .svc-actions{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:18px}
+        .svc-toggle-btn{background:none;border:none;cursor:pointer;font-family:inherit;font-size:.82rem;font-weight:600;color:#2563EB;text-decoration:underline}
+        .combo-badge{background:#dcfce7;color:#166534;font-size:.74rem;font-weight:700;padding:4px 12px;border-radius:20px;border:1px solid #bbf7d0}
 
-        .step-indicator{display:flex;align-items:center;gap:8px;margin-bottom:12px;padding-bottom:10px;border-bottom:1.5px solid #f1f5f9}
-        .step-dot{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:800}
-        .step-dot.active{background:var(--navy);color:#fff}
-        .step-dot.done{background:#dcfce7;color:#166534}
-        .step-dot.pending{background:#f1f5f9;color:#94a3b8}
-        .step-label-txt{font-size:.7rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px}
+        .nb-body{max-width:960px;margin:32px auto;padding:0 32px;display:grid;grid-template-columns:1fr 340px;gap:24px;align-items:start}
+
+        .info-box{background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(28,46,68,.06)}
+        .info-box-title{font-weight:700;font-size:1rem;color:#1C2E44;padding:18px 22px;border-bottom:1px solid #e2e8f0;background:#f8fafc}
+        .info-row{display:flex;align-items:baseline;padding:12px 22px;border-bottom:1px solid #f1f5f9;gap:12px}
+        .info-row:last-child{border-bottom:none}
+        .info-row-lbl{font-size:.74rem;font-weight:600;color:#94a3b8;min-width:130px;flex-shrink:0}
+        .info-row-val{font-size:.88rem;color:#1e293b;font-weight:500;flex:1}
+        .info-input{border:1px solid #d1d5db;border-radius:6px;padding:5px 8px;font-size:.84rem;font-family:inherit;color:#1e293b;width:100%;outline:none;transition:border-color .2s}
+        .info-input:focus{border-color:#2563EB}
+
+        .order-box{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:22px;box-shadow:0 2px 12px rgba(28,46,68,.06);position:sticky;top:80px}
+        .order-title{font-weight:700;font-size:1rem;color:#1C2E44;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #e2e8f0}
+        .order-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:.88rem;color:#374151}
+        .order-row-name{flex:1}
+        .order-row-price{font-weight:600;color:#1C2E44}
+        .order-discount{color:#059669;font-weight:600}
+        .order-divider{border:none;border-top:1px solid #e2e8f0;margin:12px 0}
+        .order-total{display:flex;justify-content:space-between;align-items:center;margin-top:4px}
+        .order-total-lbl{font-weight:700;font-size:1rem;color:#1C2E44}
+        .order-total-val{font-weight:900;font-size:1.4rem;color:#1C2E44}
+        .btn-checkout{width:100%;padding:14px;border-radius:9px;background:#16a34a;color:#fff;font-size:.95rem;font-weight:700;border:none;cursor:pointer;font-family:inherit;margin-top:18px;transition:all .2s;box-shadow:0 4px 14px rgba(22,163,74,.3)}
+        .btn-checkout:hover:not(:disabled){background:#15803d;transform:translateY(-1px);box-shadow:0 6px 20px rgba(22,163,74,.4)}
+        .btn-checkout:disabled{opacity:.6;cursor:not-allowed;transform:none}
+        .terms-row{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:.76rem;color:#64748b}
+        .terms-row a{color:#2563EB;text-decoration:underline}
+        .terms-row input{cursor:pointer;width:15px;height:15px;flex-shrink:0;accent-color:#2563EB}
+        .pay-error{color:#ef4444;font-size:.76rem;margin-top:8px;background:#fef2f2;padding:6px 10px;border-radius:6px;border:1px solid #fecaca}
+        .order-empty{color:#94a3b8;font-size:.84rem;padding:16px 0;text-align:center}
+
+        .nb-notice{border-top:1px solid #e2e8f0;padding:36px 40px;text-align:center;margin-top:8px}
+        .nb-notice-inner{max-width:760px;margin:0 auto}
+        .nb-notice-title{font-family:'Fraunces',serif;font-size:1.1rem;font-weight:700;color:#1C2E44;margin-bottom:18px}
+        .nb-notice hr{border:none;border-top:1px solid #e2e8f0;margin-bottom:18px}
+        .nb-notice p{font-size:.8rem;color:#64748b;line-height:1.75;margin-bottom:10px;text-align:left}
+        .nb-notice strong{color:#374151}
+
+        .ein-wrap{max-width:680px;margin:0 auto;padding:32px 32px 64px}
+        .ein-back{background:none;border:none;cursor:pointer;font-family:inherit;font-size:.84rem;font-weight:600;color:#2563EB;padding:0;margin-bottom:24px;display:flex;align-items:center;gap:4px;text-decoration:underline}
+        .ein-card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:28px;box-shadow:0 4px 24px rgba(28,46,68,.08)}
+        .ein-card-title{font-size:1rem;font-weight:700;color:#1C2E44;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid #e2e8f0}
+        .steps-track{display:flex;align-items:flex-start;margin-bottom:20px;padding-bottom:16px;border-bottom:1.5px solid #f1f5f9}
+        .step-item{display:flex;flex-direction:column;align-items:center;flex:0 0 auto}
+        .step-line{flex:1;height:2px;background:#e2e8f0;margin-top:12px;min-width:24px}
+        .step-line.done{background:#1C2E44}
+        .step-circle{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:800;border:2px solid #e2e8f0;background:#fff;color:#9ca3af;transition:all .2s}
+        .step-circle.active{background:#2563EB;border-color:#2563EB;color:#fff}
+        .step-circle.done{background:#1C2E44;border-color:#1C2E44;color:#fff}
+        .step-lbl{font-size:.58rem;font-weight:700;color:#9ca3af;text-align:center;margin-top:4px;text-transform:uppercase;letter-spacing:.3px;max-width:64px;line-height:1.3}
+        .step-lbl.active,.step-lbl.done{color:#1C2E44}
         .step-anim{animation:stepIn .18s ease-out}
         @keyframes stepIn{from{opacity:.5;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
-
-        .form-title{font-size:.92rem;font-weight:700;color:var(--navy);margin-bottom:8px;padding-bottom:6px;border-bottom:2px solid #e2e8f0}
-        .form-field{margin-bottom:7px}
-        .s2-fields .form-field{margin-bottom:14px}
+        .form-field{margin-bottom:12px}
         .form-label{display:block;font-size:.66rem;font-weight:700;color:#374151;margin-bottom:3px;text-transform:uppercase;letter-spacing:.5px}
         .req{color:#ef4444;margin-left:2px}
-        .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-        .form-input{width:100%;padding:7px 10px;border:1.5px solid #d1d5db;border-radius:7px;font-size:.81rem;font-family:inherit;color:#1e293b;outline:none;transition:border-color .2s;background:#fff}
-        .form-input:focus{border-color:var(--blue)}
-        .form-input.autofilled{background:#f0f9ff;border-color:#bae6fd}
+        .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+        .form-input{width:100%;padding:8px 11px;border:1.5px solid #d1d5db;border-radius:7px;font-size:.84rem;font-family:inherit;color:#1e293b;outline:none;transition:border-color .2s;background:#fff}
+        .form-input:focus{border-color:#2563EB}
+        .form-input.err-field{border-color:#ef4444;background:#fef2f2}
         select.form-input{cursor:pointer}
+        .form-hint{font-size:.67rem;color:#94a3b8;margin-top:3px;line-height:1.4}
         .pwd-wrap{position:relative;display:flex;align-items:center}
         .pwd-wrap .form-input{padding-right:34px}
         .eye-btn{position:absolute;right:8px;background:none;border:none;cursor:pointer;padding:2px;color:#94a3b8;display:flex;align-items:center;transition:color .15s}
-        .eye-btn:hover{color:var(--navy)}
+        .eye-btn:hover{color:#1C2E44}
         .ssn-mismatch{font-size:.72rem;color:#ef4444;margin-top:4px}
-        .form-hint{font-size:.67rem;color:#94a3b8;margin-top:3px;line-height:1.4}
-        .autofill-msg{font-size:.72rem;margin-top:4px;padding:5px 9px;border-radius:6px}
-        .autofill-msg.success{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0}
-        .autofill-msg.error{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
-        .ship-toggle{display:flex;align-items:center;gap:8px;margin-top:12px;cursor:pointer;font-size:.8rem;color:#374151;font-weight:600;user-select:none}
-        .ship-toggle input{width:15px;height:15px;cursor:pointer;accent-color:var(--blue)}
-        .ship-section{margin-top:12px;padding-top:12px;border-top:1px dashed #d1d5db}
-        .ship-section-title{font-size:.75rem;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
-
+        .entity-toggle{display:flex;gap:8px;margin-top:4px}
+        .entity-btn{flex:1;padding:9px;border-radius:7px;border:1.5px solid #d1d5db;background:#fff;font-size:.84rem;font-weight:600;cursor:pointer;font-family:inherit;color:#374151;transition:all .15s}
+        .entity-btn.selected{background:#1C2E44;border-color:#1C2E44;color:#fff}
+        .yn-group{display:flex;gap:8px;margin-top:4px}
+        .yn-btn{flex:1;padding:7px;border-radius:6px;border:1.5px solid #d1d5db;background:#fff;font-size:.8rem;font-weight:600;cursor:pointer;font-family:inherit;color:#374151;transition:all .15s}
+        .yn-btn.sel-yes{background:#dcfce7;border-color:#86efac;color:#166534}
+        .yn-btn.sel-no{background:#f1f5f9;border-color:#cbd5e1;color:#475569}
+        .q-block{margin-bottom:10px;padding:10px;border-radius:8px;background:#f8fafc;border:1px solid #f1f5f9}
+        .q-text{font-size:.76rem;color:#374151;font-weight:500;line-height:1.5;margin-bottom:6px}
+        .act-hint{font-size:.67rem;color:#94a3b8;margin-top:2px;line-height:1.4}
         .step-error{font-size:.74rem;color:#ef4444;background:#fef2f2;border:1px solid #fecaca;border-radius:6px;padding:7px 11px;margin-top:10px}
-        .btn-continue{width:100%;padding:10px;border-radius:8px;background:#fff;color:var(--blue);font-size:.88rem;font-weight:700;border:2px solid var(--blue);cursor:pointer;font-family:inherit;margin-top:12px;transition:all .2s}
-        .btn-continue:hover{background:#eff6ff}
         .step-actions{display:flex;gap:10px;margin-top:16px;padding-top:14px;border-top:1.5px solid #f1f5f9}
-        .btn-back{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:7px;color:#374151;font-size:.82rem;font-weight:600;cursor:pointer;font-family:inherit;padding:9px 14px;transition:all .15s}
-        .btn-back:hover{background:#f1f5f9;border-color:#cbd5e1;color:var(--navy)}
-        .btn-review{flex:2;padding:9px;border-radius:8px;background:linear-gradient(135deg,#1C2E44,#2563EB);color:#fff;font-size:.86rem;font-weight:700;border:none;cursor:pointer;font-family:inherit;transition:all .2s;box-shadow:0 3px 10px rgba(37,99,235,.25)}
-        .btn-review:hover{transform:translateY(-1px);box-shadow:0 5px 16px rgba(37,99,235,.35)}
-        .btn-review:disabled{opacity:.6;cursor:not-allowed;transform:none}
+        .btn-back-sm{flex:1;padding:9px 14px;border-radius:7px;background:#f8fafc;border:1.5px solid #e2e8f0;color:#374151;font-size:.82rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s}
+        .btn-back-sm:hover{background:#f1f5f9;color:#1C2E44}
+        .btn-next{flex:2;padding:10px;border-radius:8px;background:linear-gradient(135deg,#1C2E44,#2563EB);color:#fff;font-size:.88rem;font-weight:700;border:none;cursor:pointer;font-family:inherit;transition:all .2s;box-shadow:0 3px 10px rgba(37,99,235,.25)}
+        .btn-next:hover{transform:translateY(-1px);box-shadow:0 5px 16px rgba(37,99,235,.35)}
+        .btn-next:disabled{opacity:.6;cursor:not-allowed;transform:none}
+        .review-section{margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #f1f5f9}
+        .review-section:last-of-type{border-bottom:none;margin-bottom:0}
+        .review-section-title{font-size:.78rem;font-weight:700;color:#1C2E44;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+        .review-edit{font-size:.7rem;font-weight:600;color:#2563EB;cursor:pointer;text-decoration:underline;background:none;border:none;padding:0;font-family:inherit}
+        .review-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px}
+        .review-label{color:#94a3b8;font-size:.64rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+        .review-value{color:#1e293b;font-size:.82rem;font-weight:500;margin-top:1px;word-break:break-word}
 
-        .cart-card{background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:26px;position:sticky;top:20px;box-shadow:0 4px 24px rgba(28,46,68,.10)}
-        .cart-title{font-family:'Fraunces',serif;font-size:1.5rem;font-weight:900;color:var(--navy);margin-bottom:20px;padding-bottom:14px;border-bottom:2px solid #e2e8f0}
-        .cart-header-row{display:flex;justify-content:space-between;align-items:center;padding-bottom:10px;border-bottom:1px solid #e2e8f0;margin-bottom:4px}
-        .cart-header-lbl{font-size:.72rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px}
-        .cart-item{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #f1f5f9}
-        .cart-item:last-of-type{border-bottom:none}
-        .cart-checkbox{width:18px;height:18px;border-radius:4px;border:2px solid #d1d5db;background:#fff;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s}
-        .cart-checkbox.checked{background:var(--blue);border-color:var(--blue)}
-        .cart-item-name{flex:1;font-size:.84rem;color:#1e293b;font-weight:500}
-        .cart-item-price{font-size:.9rem;font-weight:700;color:var(--navy);white-space:nowrap}
-        .cart-totals{margin-top:16px;border-top:1.5px solid #e2e8f0;padding-top:14px}
-        .cart-total-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:.84rem;color:#475569}
-        .cart-discount-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:.84rem;color:#059669;font-weight:600}
-        .cart-grand-total{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:12px;border-top:2px solid #1C2E44;background:#f8fafc;margin-left:-26px;margin-right:-26px;padding-left:26px;padding-right:26px;border-bottom-left-radius:14px;border-bottom-right-radius:14px;margin-bottom:-26px;padding-bottom:16px}
-        .cart-grand-lbl{font-size:1rem;font-weight:700;color:var(--navy)}
-        .cart-grand-val{font-size:1.35rem;font-weight:900;color:var(--navy)}
-        .btn-checkout{width:100%;padding:14px;border-radius:8px;background:linear-gradient(135deg,#1C2E44,#2563EB);color:#fff;font-size:.95rem;font-weight:700;border:none;cursor:pointer;font-family:inherit;transition:all .2s;margin-top:20px;box-shadow:0 4px 14px rgba(37,99,235,.3)}
-        .btn-checkout:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 20px rgba(37,99,235,.4)}
-        .btn-checkout:disabled{opacity:.6;cursor:not-allowed;transform:none}
-        .terms-row{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:.74rem;color:#64748b}
-        .terms-row a{color:var(--blue);text-decoration:underline}
-        .terms-row input{cursor:pointer;width:15px;height:15px;flex-shrink:0;accent-color:var(--blue)}
-        .discount-badge{display:inline-block;background:#dcfce7;color:#166534;font-size:.68rem;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:8px;border:1px solid #bbf7d0}
-
-        @media(max-width:900px){
-          .nb-main{grid-template-columns:1fr}
-          .cart-card{position:static}
+        @media(max-width:860px){
+          .nb-body{grid-template-columns:1fr;padding:0 20px}
+          .order-box{position:static}
+          .svc-cards{grid-template-columns:1fr}
+          .nb-action,.nb-hero{padding-left:20px;padding-right:20px}
+          .nb-notice{padding-left:20px;padding-right:20px}
         }
-        @media(max-width:768px){
-          .nb-layout{flex-direction:column}
-          .nb-image{width:100%!important;height:220px!important;position:relative!important;top:auto!important}
-          .svc-descriptions{grid-template-columns:1fr}
-          .svc-desc-item{border-right:none;border-bottom:1px solid #e2e8f0}
-          .nb-main{padding:16px 14px 40px}
+        @media(max-width:600px){
+          .nb-header{padding:12px 16px}
+          .id-entry-card{padding:28px 20px}
+          .ein-wrap{padding:20px 16px 48px}
           .form-grid{grid-template-columns:1fr}
+          .review-grid{grid-template-columns:1fr}
         }
-        @media(max-width:480px){.form-grid{grid-template-columns:1fr}}
       `}</style>
 
-      {/* Topbar */}
-      <div style={{ background: 'linear-gradient(135deg,#1C2E44,#1e40af)', padding: '13px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 10 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{ width: 32, height: 32, background: '#2563EB', borderRadius: 7, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: '.8rem', fontFamily: 'Fraunces,serif' }}>FL</div>
-          <span style={{ color: '#fff', fontWeight: 700, fontSize: '.9rem', fontFamily: 'Fraunces,serif' }}>{t.topbar_name}</span>
-        </div>
-        <div style={{ display: 'flex', gap: 4, background: 'rgba(255,255,255,.12)', borderRadius: 20, padding: 3 }}>
-          {(['en', 'es'] as const).map(l => (
-            <button key={l} onClick={() => setLang(l)} style={{ padding: '4px 13px', borderRadius: 16, border: 'none', cursor: 'pointer', fontSize: '.74rem', fontWeight: 600, fontFamily: 'inherit', background: lang === l ? '#fff' : 'transparent', color: lang === l ? '#1C2E44' : 'rgba(255,255,255,.7)', transition: 'all .2s' }}>{l.toUpperCase()}</button>
-          ))}
-        </div>
-      </div>
-
-      <div className="nb-layout">
-        {/* Image — left */}
-        <div className="nb-image">
-          <img src="/photonewbusiness.jpg" alt="MyBusinessFormation" />
-        </div>
-
-        {/* Content — right */}
-        <div className="nb-content">
-
-          {/* Service descriptions */}
-          <div className="svc-descriptions">
-            {SERVICE_ORDER.map(id => {
-              const svc = SERVICES[id]
-              return (
-                <div key={id} className="svc-desc-item">
-                  <div className="svc-desc-name">{svc[lang]}</div>
-                  <p className="svc-desc-text" dangerouslySetInnerHTML={{ __html: svc[`detail_${lang}` as 'detail_en' | 'detail_es'] }} />
-                </div>
-              )
-            })}
+      {/* ── HEADER ── */}
+      <header className="nb-header">
+        <div className="nb-logo">
+          <div className="nb-logo-icon">
+            <svg width="38" height="38" viewBox="0 0 38 38" fill="none">
+              <rect width="38" height="38" rx="7" fill="#2563EB"/>
+              <text x="19" y="26" textAnchor="middle" fontSize="15" fill="white" fontWeight="900" fontFamily="serif">FL</text>
+            </svg>
           </div>
+          <div className="nb-logo-text">
+            <div className="l1">{t.header_name_1}</div>
+            <div className="l2">{t.header_name_2}</div>
+          </div>
+        </div>
+        <div className="nb-header-right">
+          <div className="nb-lang">
+            {(['en', 'es'] as const).map(l => (
+              <button key={l} className={lang === l ? 'active' : ''} onClick={() => setLang(l)}>{l.toUpperCase()}</button>
+            ))}
+          </div>
+          <a href={`tel:${t.phone.replace(/\D/g, '')}`} className="nb-phone">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.86 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.77 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            {t.call_us} {t.phone}
+          </a>
+        </div>
+      </header>
 
-          {/* Main: form + cart */}
-          <div className="nb-main">
+      {/* ── ID ENTRY VIEW ── */}
+      {pageView === 'id-entry' && (
+        <div className="id-entry-wrap">
+          <div className="id-entry-card">
+            <h1 className="id-entry-title">{t.entry_title}</h1>
+            <p className="id-entry-subtitle">{t.entry_subtitle}</p>
 
-            {/* Form column */}
-            <div style={{ maxWidth: 520, margin: '0 auto', marginTop: 40 }}>
-            <div className="form-section">
+            <div className="id-why-box">
+              <div className="id-why-title">{t.entry_why_title}</div>
+              <p className="id-why-text">{t.entry_why_body}</p>
+            </div>
 
-              {/* Step indicator */}
-              <div className="step-indicator">
-                <div className={`step-dot ${step === 1 ? 'active' : 'done'}`}>
-                  {step === 1 ? '1' : '✓'}
-                </div>
-                <div className={`step-dot ${step === 2 ? 'active' : 'pending'}`} style={{ marginLeft: 2 }}>2</div>
-                <span className="step-label-txt" style={{ marginLeft: 4 }}>
-                  {t.step_label} {step} {t.step_of} 2
+            <label className="id-label" htmlFor="doc-id-input">{t.entry_doc_label}</label>
+            <input
+              id="doc-id-input"
+              className={`id-input${lookupError ? ' err' : ''}`}
+              value={docInput}
+              onChange={e => { setDocInput(e.target.value.toUpperCase()); setLookupError('') }}
+              onKeyDown={e => e.key === 'Enter' && handleIdEntry()}
+              placeholder={t.entry_doc_placeholder}
+            />
+            {lookupError && <p className="id-error">{lookupError}</p>}
+
+            <button className="id-btn" onClick={handleIdEntry} disabled={lookingUp}>
+              {lookingUp ? t.looking_up : t.entry_btn}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── LANDING VIEW ── */}
+      {pageView === 'landing' && (
+        <>
+          {/* Hero */}
+          <section className="nb-hero">
+            {lookingUp ? (
+              <p style={{ color: '#2563EB', fontWeight: 600 }}>{t.looking_up}</p>
+            ) : company ? (
+              <>
+                <h1>{t.welcome} {company.company_name}</h1>
+                <p>
+                  {t.hero_subtitle} <strong>{t.hero_subtitle_bold}</strong> {t.hero_subtitle_end}
+                </p>
+              </>
+            ) : (
+              <>
+                <h1>{t.welcome_generic}</h1>
+                <p>{t.hero_subtitle} <strong>{t.hero_subtitle_bold}</strong> {t.hero_subtitle_end}</p>
+              </>
+            )}
+          </section>
+
+          {/* Action Required / Services */}
+          <section className="nb-action">
+            <div className="nb-action-inner">
+              <div className="nb-action-header">
+                <h2 className="nb-action-title">{t.action_title}</h2>
+                <p className="nb-action-sub">{t.action_subtitle}</p>
+              </div>
+
+              <div className="svc-cards">
+                {SERVICE_ORDER.map(id => {
+                  const svc = SERVICES[id]
+                  const isChecked = selected.has(id)
+                  const Icon = SERVICE_ICONS[id]
+                  return (
+                    <div key={id} className={`svc-card${isChecked ? ' selected' : ''}`} onClick={() => toggleService(id)}>
+                      <div className="svc-card-check">
+                        {isChecked && (
+                          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                            <polyline points="2,6 5,9 10,3" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        )}
+                      </div>
+                      <div className="svc-card-icon"><Icon /></div>
+                      <div className="svc-card-name">{svc[lang]}</div>
+                      <div className="svc-card-price">${svc.price.toFixed(2)}</div>
+                      <div className="svc-card-desc">{svc[`detail_${lang}` as 'detail_en' | 'detail_es']}</div>
+                    </div>
+                  )
+                })}
+              </div>
+
+              <div className="svc-actions">
+                <button className="svc-toggle-btn" onClick={() => setSelected(allSelected ? new Set() : new Set(SERVICE_ORDER))}>
+                  {allSelected ? t.deselect_toggle : t.select_toggle}
+                </button>
+                {allSelected && <span className="combo-badge">✓ {t.combo_badge}</span>}
+              </div>
+            </div>
+          </section>
+
+          {/* Body: Info + Order Summary */}
+          <div className="nb-body">
+            {/* Your Information */}
+            <div className="info-box">
+              <div className="info-box-title">{t.info_title}</div>
+              <div className="info-row">
+                <span className="info-row-lbl">{t.info_doc_id}</span>
+                <span className="info-row-val">{docInput || company?.document_id || '—'}</span>
+              </div>
+              <div className="info-row">
+                <span className="info-row-lbl">{t.info_llc_name}</span>
+                <span className="info-row-val">{company?.company_name || '—'}</span>
+              </div>
+              <div className="info-row">
+                <span className="info-row-lbl">{t.info_address}</span>
+                <span className="info-row-val">
+                  {[company?.address, company?.city, company?.state, company?.zip].filter(Boolean).join(', ') || '—'}
                 </span>
               </div>
+              <div className="info-row">
+                <span className="info-row-lbl">{t.info_notice_date}</span>
+                <span className="info-row-val">{today}</span>
+              </div>
+              <div className="info-row">
+                <span className="info-row-lbl">{t.info_email}</span>
+                <input
+                  className="info-input"
+                  value={contactEmail}
+                  onChange={e => setContactEmail(e.target.value)}
+                  placeholder={t.info_email_placeholder}
+                  type="email"
+                />
+              </div>
+              <div className="info-row">
+                <span className="info-row-lbl">{t.info_phone}</span>
+                <input
+                  className="info-input"
+                  value={contactPhone}
+                  onChange={e => setContactPhone(e.target.value)}
+                  placeholder={t.info_phone_placeholder}
+                  type="tel"
+                />
+              </div>
+            </div>
 
-              {/* ── STEP 1 ── */}
-              {step === 1 && (
-                <div className="step-anim">
+            {/* Order Summary */}
+            <div className="order-box">
+              <div className="order-title">{t.order_title}</div>
 
-                  {/* Document ID */}
-                  <div className="form-field">
-                    <label className="form-label">{t.doc_id}</label>
-                    <input
-                      className="form-input"
-                      value={docInput}
-                      onChange={e => { setDocInput(e.target.value.toUpperCase()); setAutofillMsg('') }}
-                      onBlur={() => docInput.trim().length >= 5 && lookup(docInput)}
-                      onKeyDown={e => e.key === 'Enter' && lookup(docInput)}
-                      placeholder={t.doc_placeholder}
-                    />
-                    {lookingUp && <p style={{ fontSize: '.73rem', color: '#2563EB', marginTop: 4 }}>{t.looking_up}</p>}
-                    {autofillMsg && (
-                      <div className={`autofill-msg ${autofillMsg === t.autofill_success ? 'success' : 'error'}`}>{autofillMsg}</div>
-                    )}
-                  </div>
-
-                  {/* Owner Information */}
-                  <div className="form-title" style={{ marginTop: 16 }}>{t.personal_title}</div>
-                  <div className="form-grid">
-                    <div className="form-field">
-                      <label className="form-label">{t.first_name}<span className="req">*</span></label>
-                      <input className="form-input" value={formFields.firstName} onChange={e => setFormFields(p => ({ ...p, firstName: e.target.value }))} />
+              {selected.size === 0 ? (
+                <div className="order-empty">{t.select_one}</div>
+              ) : (
+                <>
+                  {SERVICE_ORDER.filter(id => selected.has(id)).map(id => (
+                    <div key={id} className="order-row">
+                      <span className="order-row-name">{SERVICES[id][lang]}</span>
+                      <span className="order-row-price">${SERVICES[id].price.toFixed(2)}</span>
                     </div>
-                    <div className="form-field">
-                      <label className="form-label">{t.last_name}<span className="req">*</span></label>
-                      <input className="form-input" value={formFields.lastName} onChange={e => setFormFields(p => ({ ...p, lastName: e.target.value }))} />
-                    </div>
-                    <div className="form-field">
-                      <label className="form-label">{t.email}<span className="req">*</span></label>
-                      <input className="form-input" value={formFields.email} onChange={e => setFormFields(p => ({ ...p, email: e.target.value }))} />
-                    </div>
-                    <div className="form-field">
-                      <label className="form-label">{t.phone}</label>
-                      <input className="form-input" value={formFields.phone} onChange={e => setFormFields(p => ({ ...p, phone: e.target.value }))} />
-                    </div>
-                  </div>
-
-                  {/* Business Information */}
-                  <div className="form-title" style={{ marginTop: 16 }}>{t.form_title}</div>
-                  <div className="form-field">
-                    <label className="form-label">{t.biz_name}<span className="req">*</span></label>
-                    <input className={`form-input${company ? ' autofilled' : ''}`} value={formFields.businessName} onChange={e => setFormFields(p => ({ ...p, businessName: e.target.value }))} />
-                  </div>
-                  <div className="form-field">
-                    <label className="form-label">{t.address1}</label>
-                    <input className={`form-input${company ? ' autofilled' : ''}`} value={formFields.address1} onChange={e => setFormFields(p => ({ ...p, address1: e.target.value }))} />
-                  </div>
-                  <div className="form-field">
-                    <label className="form-label">{t.address2}</label>
-                    <input className="form-input" value={formFields.address2} onChange={e => setFormFields(p => ({ ...p, address2: e.target.value }))} />
-                  </div>
-                  <div className="form-grid">
-                    <div className="form-field">
-                      <label className="form-label">{t.city}</label>
-                      <input className={`form-input${company ? ' autofilled' : ''}`} value={formFields.city} onChange={e => setFormFields(p => ({ ...p, city: e.target.value }))} />
-                    </div>
-                    <div className="form-field">
-                      <label className="form-label">{t.zip}</label>
-                      <input className={`form-input${company ? ' autofilled' : ''}`} value={formFields.zip} onChange={e => setFormFields(p => ({ ...p, zip: e.target.value }))} />
-                    </div>
-                  </div>
-
-                  {/* Ship to different address */}
-                  <label className="ship-toggle">
-                    <input type="checkbox" checked={shipDifferent} onChange={e => setShipDifferent(e.target.checked)} />
-                    {lang === 'es' ? '¿Enviar a una dirección diferente?' : 'Shipping to a different address?'}
-                  </label>
-                  {shipDifferent && (
-                    <div className="ship-section">
-                      <div className="ship-section-title">{lang === 'es' ? 'Dirección de Envío' : 'Shipping Address'}</div>
-                      <div className="form-field">
-                        <label className="form-label">{t.address1}</label>
-                        <input className="form-input" value={shipFields.address1} onChange={e => setShipFields(p => ({ ...p, address1: e.target.value }))} />
-                      </div>
-                      <div className="form-field">
-                        <label className="form-label">{t.address2}</label>
-                        <input className="form-input" value={shipFields.address2} onChange={e => setShipFields(p => ({ ...p, address2: e.target.value }))} />
-                      </div>
-                      <div className="form-grid">
-                        <div className="form-field">
-                          <label className="form-label">{t.city}</label>
-                          <input className="form-input" value={shipFields.city} onChange={e => setShipFields(p => ({ ...p, city: e.target.value }))} />
-                        </div>
-                        <div className="form-field">
-                          <label className="form-label">{t.zip}</label>
-                          <input className="form-input" value={shipFields.zip} onChange={e => setShipFields(p => ({ ...p, zip: e.target.value }))} />
-                        </div>
-                      </div>
+                  ))}
+                  {discount > 0 && (
+                    <div className="order-row order-discount">
+                      <span className="order-row-name">{t.discount_lbl}:</span>
+                      <span>-${discount.toFixed(2)}</span>
                     </div>
                   )}
-
-                  {stepError && <div className="step-error">{stepError}</div>}
-                  <button className="btn-continue" onClick={handleContinue}>{t.continue_btn} →</button>
-                </div>
+                  <hr className="order-divider" />
+                  <div className="order-total">
+                    <span className="order-total-lbl">{t.total_lbl}:</span>
+                    <span className="order-total-val" style={{ color: '#1C2E44' }}>${total.toFixed(2)}</span>
+                  </div>
+                </>
               )}
 
-              {/* ── STEP 2 ── */}
-              {step === 2 && (
-                <div className="step-anim">
-                  <div className="form-title">{t.ein_title}</div>
-
-                  <div className="s2-fields">
-                    <div className="form-field">
-                      <label className="form-label">{t.responsible_party}<span className="req">*</span></label>
-                      <input className="form-input" value={einFields.responsibleParty} onChange={e => setEinFields(p => ({ ...p, responsibleParty: e.target.value }))} />
-                      <p className="form-hint">{t.responsible_party_hint}</p>
-                    </div>
-
-                    <div className="form-field">
-                      <div className="form-grid" style={{ gap: 10 }}>
-                        <div>
-                          <label className="form-label">{t.ssn_itin}<span className="req">*</span></label>
-                          <div className="pwd-wrap">
-                            <input
-                              className={`form-input${ssnMismatch ? ' autofill-msg error' : ''}`}
-                              type={showSsn ? 'text' : 'password'}
-                              value={einFields.ssn}
-                              onChange={e => { setEinFields(p => ({ ...p, ssn: e.target.value })); setSsnMismatch(false) }}
-                              placeholder="XXX-XX-XXXX"
-                            />
-                            <button type="button" className="eye-btn" onClick={() => setShowSsn(v => !v)} tabIndex={-1}>
-                              {showSsn
-                                ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-                                : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                              }
-                            </button>
-                          </div>
-                        </div>
-                        <div>
-                          <label className="form-label">{t.ssn_confirm}<span className="req">*</span></label>
-                          <div className="pwd-wrap">
-                            <input
-                              className={`form-input${ssnMismatch ? ' autofill-msg error' : ''}`}
-                              type={showSsnConfirm ? 'text' : 'password'}
-                              value={einFields.ssnConfirm}
-                              onChange={e => { setEinFields(p => ({ ...p, ssnConfirm: e.target.value })); setSsnMismatch(false) }}
-                              placeholder="XXX-XX-XXXX"
-                            />
-                            <button type="button" className="eye-btn" onClick={() => setShowSsnConfirm(v => !v)} tabIndex={-1}>
-                              {showSsnConfirm
-                                ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-                                : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                              }
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                      {ssnMismatch && <p className="ssn-mismatch">⚠ {t.ssn_mismatch}</p>}
-                      <p className="form-hint">🔒 {t.ssn_hint}</p>
-                    </div>
-
-                    <div className="form-field">
-                      <label className="form-label">{t.reason_ein}<span className="req">*</span></label>
-                      <select className="form-input" value={einFields.reasonForEin} onChange={e => setEinFields(p => ({ ...p, reasonForEin: e.target.value }))}>
-                        <option value="">{t.select_opt}</option>
-                        {REASON_OPTIONS[lang].map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-                      </select>
-                    </div>
-
-                    <div className="form-field">
-                      <label className="form-label">{t.business_activity}<span className="req">*</span></label>
-                      <select className="form-input" value={einFields.businessActivity} onChange={e => setEinFields(p => ({ ...p, businessActivity: e.target.value }))}>
-                        <option value="">{t.select_opt}</option>
-                        {ACTIVITY_OPTIONS[lang].map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-                      </select>
-                    </div>
-
-                    <div className="form-grid">
-                      <div className="form-field">
-                        <label className="form-label">{t.exp_employees}<span className="req">*</span></label>
-                        <select className="form-input" value={einFields.expectedEmployees} onChange={e => setEinFields(p => ({ ...p, expectedEmployees: e.target.value }))}>
-                          <option value="">{t.select_opt}</option>
-                          <option value="0">0</option>
-                          <option value="1-4">1 – 4</option>
-                          <option value="5-19">5 – 19</option>
-                          <option value="20-99">20 – 99</option>
-                          <option value="100+">100+</option>
-                        </select>
-                      </div>
-                      <div className="form-field">
-                        <label className="form-label">{t.start_date}<span className="req">*</span></label>
-                        <input type="month" className="form-input" value={einFields.startDate} onChange={e => setEinFields(p => ({ ...p, startDate: e.target.value }))} />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="step-actions">
-                    <button className="btn-back" onClick={() => { setStep(1); setStepError('') }}>← {t.back_btn}</button>
-                    <button className="btn-review" onClick={handlePay} disabled={paying}>
-                      {paying ? t.processing : (lang === 'es' ? 'Revisar mi Orden →' : 'Review My Order →')}
-                    </button>
-                  </div>
-                </div>
-              )}
-
-            </div>{/* end form-section */}
-            </div>{/* end form column wrapper */}
-
-            {/* Cart */}
-            <div className="cart-card" style={{ marginTop: 40 }}>
-              <div className="cart-title">{t.cart_title}</div>
-
-              <div className="cart-header-row">
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <div className={`cart-checkbox${allSelected ? ' checked' : ''}`} onClick={toggleAll} style={{ cursor: 'pointer' }}>
-                    {allSelected && <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
-                  </div>
-                  <span style={{ fontSize: '.82rem', color: '#1e293b', fontWeight: 600 }}>{t.select_all}</span>
-                  {allSelected && <span className="discount-badge">10% OFF</span>}
-                </div>
-                <span className="cart-header-lbl">{t.price_lbl}</span>
-              </div>
-
-              {SERVICE_ORDER.map(id => {
-                const svc = SERVICES[id]
-                const isChecked = selected.has(id)
-                return (
-                  <div key={id} className="cart-item" onClick={() => toggleService(id)} style={{ cursor: 'pointer' }}>
-                    <div className={`cart-checkbox${isChecked ? ' checked' : ''}`}>
-                      {isChecked && <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
-                    </div>
-                    <span className="cart-item-name">{svc[lang]}</span>
-                    <span className="cart-item-price">${svc.price.toFixed(2)}</span>
-                  </div>
-                )
-              })}
-
-              <div className="cart-totals">
-                {selected.size > 0 && (
-                  <div className="cart-total-row">
-                    <span>{t.subtotal}</span>
-                    <span>${subtotal.toFixed(2)}</span>
-                  </div>
-                )}
-                {discount > 0 && (
-                  <div className="cart-discount-row">
-                    <span>{t.discount_lbl}</span>
-                    <span>-${discount.toFixed(2)}</span>
-                  </div>
-                )}
-                <div className="cart-grand-total">
-                  <span className="cart-grand-lbl">{t.total}</span>
-                  <span className="cart-grand-val">${total.toFixed(2)}</span>
-                </div>
-              </div>
-
-              {payError && <p style={{ color: '#ef4444', fontSize: '.76rem', marginTop: 10, textAlign: 'center' }}>{payError}</p>}
-
-              <button className="btn-checkout" onClick={handlePay} disabled={paying || selected.size === 0}>
+              <button className="btn-checkout" onClick={handleCheckout} disabled={paying || selected.size === 0}>
                 {paying ? t.processing : t.checkout_btn}
               </button>
 
@@ -770,24 +927,271 @@ function NewBusinessContent() {
                 <input type="checkbox" checked={termsAccepted} onChange={e => setTermsAccepted(e.target.checked)} />
                 <span>{t.terms} <a href="/legal" target="_blank">{t.terms_link}</a></span>
               </div>
+
+              {payError && <p className="pay-error">{payError}</p>}
             </div>
-
           </div>
 
-          <div style={{ borderTop: '1px solid #e2e8f0', margin: '0 36px 16px', padding: '16px 0 0' }}>
-            <p style={{ fontSize: '.7rem', color: '#94a3b8', lineHeight: 1.6, textAlign: 'center', maxWidth: 720, margin: '0 auto' }}>
-              {lang === 'es'
-                ? 'Florida Business Formation Center es un servicio de preparación y presentación de documentos. No somos una firma de abogados y no brindamos asesoría legal, fiscal ni financiera. La información en este sitio web es solo para fines informativos generales. El uso de nuestros servicios no crea una relación abogado-cliente. Para asesoría legal específica, consulte a un abogado licenciado en Florida.'
-                : 'Florida Business Formation Center is a document preparation and filing service. We are not a law firm and do not provide legal, tax, or financial advice. The information on this website is for general informational purposes only. Use of our services does not create an attorney-client relationship. For legal advice specific to your situation, please consult a licensed Florida attorney.'}
-            </p>
-          </div>
+          {/* Important Notice */}
+          <section className="nb-notice">
+            <div className="nb-notice-inner">
+              <h3 className="nb-notice-title">{t.notice_title}</h3>
+              <hr />
+              <p><strong>Florida Business Formation Center</strong> {t.notice_1.replace('Florida Business Formation Center ', '')}</p>
+              <p>{t.notice_2}</p>
+            </div>
+          </section>
+        </>
+      )}
 
-          <p style={{ textAlign: 'center', fontSize: '.71rem', color: '#94A3B8', padding: '0 0 24px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-            {t.footer_note}
-          </p>
+      {/* ── EIN FORM VIEW ── */}
+      {pageView === 'ein-form' && (
+        <div className="ein-wrap">
+          <button className="ein-back" onClick={handleEinBack}>{t.ein_form_back}</button>
+
+          <div className="ein-card">
+            <div className="ein-card-title">{t.ein_form_title}</div>
+
+            {/* Step indicator */}
+            {einStep !== 'review' && (
+              <div className="steps-track">
+                {einSteps.map((s, idx) => {
+                  const numStep = einStep as number
+                  const isDone = numStep > s.num
+                  const isActive = numStep === s.num
+                  return (
+                    <Fragment key={s.num}>
+                      {idx > 0 && <div className={`step-line${numStep >= s.num ? ' done' : ''}`} />}
+                      <div className="step-item">
+                        <div className={`step-circle${isActive ? ' active' : isDone ? ' done' : ''}`}>
+                          {isDone ? '✓' : s.num}
+                        </div>
+                        <div className={`step-lbl${isActive || isDone ? ' active' : ''}`}>{s.label}</div>
+                      </div>
+                    </Fragment>
+                  )
+                })}
+              </div>
+            )}
+
+            {/* Step 1: Identity */}
+            {einStep === 1 && (
+              <div className="step-anim">
+                <div className="form-field">
+                  <label className="form-label">{t.responsible_party}<span className="req">*</span></label>
+                  <input className="form-input" value={einFields.responsibleParty} onChange={e => setEinFields(p => ({ ...p, responsibleParty: e.target.value }))} />
+                  <p className="form-hint">{t.responsible_party_hint}</p>
+                </div>
+
+                <div className="form-field">
+                  <label className="form-label">{t.title_role}<span className="req">*</span></label>
+                  <select className="form-input" value={einFields.title} onChange={e => setEinFields(p => ({ ...p, title: e.target.value }))}>
+                    <option value="">{t.select_role}</option>
+                    {TITLE_OPTIONS[lang].map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                  </select>
+                </div>
+
+                <div className="form-field">
+                  <div className="form-grid" style={{ gap: 10 }}>
+                    <div>
+                      <label className="form-label">{t.ssn_itin}<span className="req">*</span></label>
+                      <div className="pwd-wrap">
+                        <input
+                          className={`form-input${ssnMismatch ? ' err-field' : ''}`}
+                          type={showSsn ? 'text' : 'password'}
+                          value={einFields.ssn}
+                          onChange={e => { setEinFields(p => ({ ...p, ssn: e.target.value })); setSsnMismatch(false) }}
+                          placeholder="XXX-XX-XXXX"
+                        />
+                        <button type="button" className="eye-btn" onClick={() => setShowSsn(v => !v)} tabIndex={-1}>
+                          {showSsn ? <EyeOff /> : <EyeOpen />}
+                        </button>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="form-label">{t.ssn_confirm}<span className="req">*</span></label>
+                      <div className="pwd-wrap">
+                        <input
+                          className={`form-input${ssnMismatch ? ' err-field' : ''}`}
+                          type={showSsnConfirm ? 'text' : 'password'}
+                          value={einFields.ssnConfirm}
+                          onChange={e => { setEinFields(p => ({ ...p, ssnConfirm: e.target.value })); setSsnMismatch(false) }}
+                          placeholder="XXX-XX-XXXX"
+                        />
+                        <button type="button" className="eye-btn" onClick={() => setShowSsnConfirm(v => !v)} tabIndex={-1}>
+                          {showSsnConfirm ? <EyeOff /> : <EyeOpen />}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  {ssnMismatch && <p className="ssn-mismatch">⚠ {t.ssn_mismatch}</p>}
+                  <p className="form-hint">🔒 {t.ssn_hint}</p>
+                </div>
+
+                <div className="form-field">
+                  <label className="form-label">{t.reason_ein}<span className="req">*</span></label>
+                  <select className="form-input" value={einFields.reasonForEin} onChange={e => setEinFields(p => ({ ...p, reasonForEin: e.target.value }))}>
+                    <option value="">{t.select_opt}</option>
+                    {REASON_OPTIONS[lang].map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                  </select>
+                </div>
+
+                {stepError && <div className="step-error">{stepError}</div>}
+                <div className="step-actions">
+                  <button className="btn-back-sm" onClick={handleEinBack}>{t.back_btn}</button>
+                  <button className="btn-next" onClick={handleEinContinue}>{t.continue_btn} →</button>
+                </div>
+              </div>
+            )}
+
+            {/* Step 2: LLC Details */}
+            {einStep === 2 && (
+              <div className="step-anim">
+                <div className="form-field">
+                  <label className="form-label">{t.entity_type}<span className="req">*</span></label>
+                  <div className="entity-toggle">
+                    <button type="button" className={`entity-btn${llcFields.entityType === 'LLC' ? ' selected' : ''}`} onClick={() => setLlcFields(p => ({ ...p, entityType: 'LLC' }))}>LLC</button>
+                    <button type="button" className={`entity-btn${llcFields.entityType === 'Corporation' ? ' selected' : ''}`} onClick={() => setLlcFields(p => ({ ...p, entityType: 'Corporation' }))}>Corporation</button>
+                  </div>
+                </div>
+
+                {llcFields.entityType === 'LLC' && (
+                  <div className="form-field">
+                    <label className="form-label">{t.llc_members}</label>
+                    <select className="form-input" value={llcFields.llcMembers} onChange={e => setLlcFields(p => ({ ...p, llcMembers: e.target.value }))}>
+                      <option value="">{t.select_opt}</option>
+                      {['1','2','3','4'].map(n => <option key={n} value={n}>{n}</option>)}
+                      <option value="5+">5 {lang === 'es' ? 'o más' : 'or more'}</option>
+                    </select>
+                  </div>
+                )}
+
+                <div className="form-field">
+                  <label className="form-label">{t.start_date}<span className="req">*</span></label>
+                  <input type="month" className="form-input" value={llcFields.startDate} onChange={e => setLlcFields(p => ({ ...p, startDate: e.target.value }))} />
+                </div>
+
+                <div style={{ marginBottom: 12 }}>
+                  {[
+                    { key: 'highwayVehicle' as const, q: t.q_highway },
+                    { key: 'gambling' as const, q: t.q_gambling },
+                    { key: 'exciseTax' as const, q: t.q_excise },
+                    { key: 'alcoholTobaccoFirearms' as const, q: t.q_atf },
+                  ].map(({ key, q }) => (
+                    <div key={key} className="q-block">
+                      <div className="q-text">{q}</div>
+                      <div className="yn-group">
+                        <button type="button" className={`yn-btn${llcFields[key] === 'yes' ? ' sel-yes' : ''}`} onClick={() => setLlcFields(p => ({ ...p, [key]: 'yes' }))}>{t.yes}</button>
+                        <button type="button" className={`yn-btn${llcFields[key] === 'no' ? ' sel-no' : ''}`} onClick={() => setLlcFields(p => ({ ...p, [key]: 'no' }))}>{t.no}</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="form-field">
+                  <label className="form-label">{t.business_activity}<span className="req">*</span></label>
+                  <select className="form-input" value={llcFields.businessActivity} onChange={e => setLlcFields(p => ({ ...p, businessActivity: e.target.value, businessActivityOther: '' }))}>
+                    <option value="">{t.select_opt}</option>
+                    {ACTIVITY_OPTIONS[lang].map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                  </select>
+                  {llcFields.businessActivity && llcFields.businessActivity !== 'other' && (
+                    <p className="act-hint">{ACTIVITY_OPTIONS[lang].find(o => o.value === llcFields.businessActivity)?.desc}</p>
+                  )}
+                </div>
+
+                {llcFields.businessActivity === 'other' && (
+                  <div className="form-field">
+                    <label className="form-label">{t.business_activity_other}<span className="req">*</span></label>
+                    <input className="form-input" value={llcFields.businessActivityOther} onChange={e => setLlcFields(p => ({ ...p, businessActivityOther: e.target.value }))} placeholder={lang === 'es' ? 'Describa brevemente...' : 'Briefly describe...'} />
+                  </div>
+                )}
+
+                <div className="form-grid">
+                  <div className="form-field">
+                    <label className="form-label">{t.closing_month}</label>
+                    <select className="form-input" value={llcFields.closingMonth} onChange={e => setLlcFields(p => ({ ...p, closingMonth: e.target.value }))}>
+                      {CLOSING_MONTHS.map(m => <option key={m} value={m}>{m}</option>)}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="form-field">
+                  <label className="form-label">{t.has_w2}<span className="req">*</span></label>
+                  <div className="yn-group">
+                    <button type="button" className={`yn-btn${llcFields.hasW2Employees === 'yes' ? ' sel-yes' : ''}`} onClick={() => setLlcFields(p => ({ ...p, hasW2Employees: 'yes' }))}>{t.yes}</button>
+                    <button type="button" className={`yn-btn${llcFields.hasW2Employees === 'no' ? ' sel-no' : ''}`} onClick={() => setLlcFields(p => ({ ...p, hasW2Employees: 'no' }))}>{t.no}</button>
+                  </div>
+                </div>
+
+                {stepError && <div className="step-error">{stepError}</div>}
+                <div className="step-actions">
+                  <button className="btn-back-sm" onClick={handleEinBack}>{t.back_btn}</button>
+                  <button className="btn-next" onClick={handleEinContinue}>{lang === 'es' ? 'Revisar →' : 'Review →'}</button>
+                </div>
+              </div>
+            )}
+
+            {/* Review */}
+            {einStep === 'review' && (
+              <div className="step-anim">
+                <div style={{ fontSize: '.85rem', fontWeight: 700, color: '#1C2E44', marginBottom: 14 }}>{t.review_title}</div>
+
+                <div className="review-section">
+                  <div className="review-section-title">
+                    {t.review_identity}
+                    <button className="review-edit" onClick={() => setEinStep(1)}>{t.review_edit}</button>
+                  </div>
+                  <div className="review-grid">
+                    <div><div className="review-label">{t.responsible_party}</div><div className="review-value">{einFields.responsibleParty || '—'}</div></div>
+                    <div><div className="review-label">{t.title_role}</div><div className="review-value">{TITLE_OPTIONS[lang].find(o => o.value === einFields.title)?.label || '—'}</div></div>
+                    <div><div className="review-label">{t.ssn_itin}</div><div className="review-value">{'•'.repeat(9)}</div></div>
+                    <div><div className="review-label">{t.reason_ein}</div><div className="review-value">{REASON_OPTIONS[lang].find(o => o.value === einFields.reasonForEin)?.label || '—'}</div></div>
+                  </div>
+                </div>
+
+                <div className="review-section">
+                  <div className="review-section-title">
+                    {t.review_llc}
+                    <button className="review-edit" onClick={() => setEinStep(2)}>{t.review_edit}</button>
+                  </div>
+                  <div className="review-grid">
+                    <div><div className="review-label">{t.entity_type}</div><div className="review-value">{llcFields.entityType || '—'}</div></div>
+                    <div><div className="review-label">{t.start_date}</div><div className="review-value">{llcFields.startDate || '—'}</div></div>
+                    <div><div className="review-label">{t.business_activity}</div><div className="review-value">{llcFields.businessActivity === 'other' ? (llcFields.businessActivityOther || 'Other') : (ACTIVITY_OPTIONS[lang].find(o => o.value === llcFields.businessActivity)?.label || '—')}</div></div>
+                    <div><div className="review-label">{t.has_w2}</div><div className="review-value">{llcFields.hasW2Employees === 'yes' ? t.yes : llcFields.hasW2Employees === 'no' ? t.no : '—'}</div></div>
+                  </div>
+                </div>
+
+                <div className="review-section">
+                  <div className="review-section-title">{t.review_services}</div>
+                  {SERVICE_ORDER.filter(id => selected.has(id)).map(id => (
+                    <div key={id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '.84rem', marginBottom: 6 }}>
+                      <span style={{ color: '#374151' }}>{SERVICES[id][lang]}</span>
+                      <span style={{ fontWeight: 700, color: '#1C2E44' }}>${SERVICES[id].price.toFixed(2)}</span>
+                    </div>
+                  ))}
+                  {discount > 0 && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '.84rem', color: '#059669', fontWeight: 600, marginBottom: 6 }}>
+                      <span>{t.discount_lbl}:</span><span>-${discount.toFixed(2)}</span>
+                    </div>
+                  )}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, fontSize: '.95rem', color: '#1C2E44', paddingTop: 8, borderTop: '1.5px solid #e2e8f0', marginTop: 6 }}>
+                    <span>{t.total_lbl}:</span><span>${total.toFixed(2)}</span>
+                  </div>
+                </div>
+
+                {payError && <p className="pay-error">{payError}</p>}
+                <div className="step-actions">
+                  <button className="btn-back-sm" onClick={handleEinBack}>{t.back_btn}</button>
+                  <button className="btn-next" onClick={handleEinContinue} disabled={paying}>
+                    {paying ? t.processing : t.review_checkout + ' →'}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }
