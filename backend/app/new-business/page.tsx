@@ -1072,7 +1072,8 @@ function NewBusinessContent() {
               <div className="form-body">
                 {/* ── LEFT: STEP FORM ── */}
                 <div className="form-left" ref={formRef}>
-                  {/* Heading */}
+                  {/* Heading — solo en step 1 */}
+                  {step === 1 && (
                   <div className="form-heading">
                     <h2>
                       {lang === 'es'
@@ -1080,6 +1081,7 @@ function NewBusinessContent() {
                         : `Complete your information in ${einSelected ? '3' : '2'} simple steps`}
                     </h2>
                   </div>
+                  )}
 
                   {/* Step indicator */}
                   <div className="steps-bar">
