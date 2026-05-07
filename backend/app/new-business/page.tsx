@@ -496,7 +496,7 @@ const CSS = `
   }
   .step-back:hover { border-color: #94a3b8; color: #374151; }
   .step-next {
-    background: #1B3A6B;
+    background: #2563EB;
     border: none;
     border-radius: 8px;
     padding: 11px 28px;
@@ -506,13 +506,13 @@ const CSS = `
     cursor: pointer;
     font-family: 'Plus Jakarta Sans', sans-serif;
     transition: all .2s;
-    box-shadow: 0 4px 14px rgba(27,58,107,.25);
+    box-shadow: 0 4px 14px rgba(37,99,235,.3);
     display: flex;
     align-items: center;
     gap: 7px;
   }
-  .step-next:hover { background: #153060; transform: translateY(-1px); }
-  .step-next.primary { background: #2563EB; box-shadow: 0 4px 14px rgba(37,99,235,.3); }
+  .step-next:hover { background: #1d4ed8; transform: translateY(-1px); }
+  .step-next.primary { background: #2563EB; }
   .step-next.primary:hover { background: #1d4ed8; }
 
   /* ── CHECKOUT BOX ── */
@@ -737,7 +737,7 @@ const CSS = `
   }
   .yn-btn:hover { border-color: #93c5fd; }
   .yn-btn.yes.active { border-color: #2563EB; background: #EFF6FF; color: #2563EB; }
-  .yn-btn.no.active  { border-color: #64748b; background: #f1f5f9; color: #374151; }
+  .yn-btn.no.active  { border-color: #2563EB; background: #EFF6FF; color: #2563EB; }
 
   /* Textarea */
   .form-textarea {
