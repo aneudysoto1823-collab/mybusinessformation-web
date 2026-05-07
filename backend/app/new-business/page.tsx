@@ -135,38 +135,24 @@ const CSS = `
   /* ── WELCOME ── */
   .nb-welcome {
     background: #fff;
-    padding: 52px 40px 56px;
+    padding: 36px 40px 38px;
     text-align: center;
     border-bottom: 1px solid #e2e8f0;
   }
   .nb-welcome-inner { max-width: 680px; margin: 0 auto; }
-  .nb-welcome-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: #EFF6FF;
-    border: 1px solid #BFDBFE;
-    border-radius: 20px;
-    padding: 5px 14px;
-    font-size: .72rem;
-    font-weight: 700;
-    color: #1d4ed8;
-    letter-spacing: .4px;
-    margin-bottom: 20px;
-  }
   .nb-welcome h1 {
     font-family: 'Fraunces', serif;
-    font-size: clamp(1.3rem, 2.5vw, 1.75rem);
+    font-size: clamp(1.2rem, 2.2vw, 1.55rem);
     font-weight: 700;
     color: #1B3A6B;
     line-height: 1.2;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
   }
   .nb-welcome h1 span { color: #2563EB; }
   .nb-welcome p {
     color: #475569;
-    font-size: .9rem;
-    line-height: 1.8;
+    font-size: .86rem;
+    line-height: 1.75;
     max-width: 560px;
     margin: 0 auto;
   }
@@ -286,26 +272,26 @@ const CSS = `
 
   /* ── SERVICES ── */
   .svc-section {
-    padding: 64px 40px 48px;
+    padding: 44px 40px 36px;
     background: #F1F5F9;
   }
   .svc-inner { max-width: 1100px; margin: 0 auto; }
   .svc-heading {
     text-align: center;
-    margin-bottom: 36px;
+    margin-bottom: 26px;
   }
   .svc-heading h2 {
     font-family: 'Fraunces', serif;
-    font-size: clamp(1.2rem, 2.2vw, 1.55rem);
+    font-size: clamp(1.1rem, 2vw, 1.4rem);
     font-weight: 700;
     color: #1B3A6B;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
   }
   .svc-heading p {
     color: #64748b;
-    font-size: .87rem;
-    line-height: 1.7;
-    max-width: 560px;
+    font-size: .84rem;
+    line-height: 1.65;
+    max-width: 520px;
     margin: 0 auto;
   }
   .svc-grid {
@@ -317,12 +303,12 @@ const CSS = `
     background: #fff;
     border: 1px solid rgba(0,0,0,.06);
     border-radius: 16px;
-    padding: 26px 24px 24px;
+    padding: 22px 20px 20px;
     cursor: pointer;
     transition: all .22s;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
     box-shadow: 0 4px 18px rgba(27,58,107,.07);
   }
   .svc-card:hover {
@@ -371,10 +357,10 @@ const CSS = `
   .form-section {
     background: #fff;
     border-top: 1px solid #e2e8f0;
-    padding: 56px 40px 72px;
+    padding: 40px 40px 60px;
   }
   .form-inner { max-width: 1100px; margin: 0 auto; }
-  .form-heading { margin-bottom: 36px; }
+  .form-heading { margin-bottom: 28px; }
   .form-heading h2 {
     font-family: 'Fraunces', serif;
     font-size: clamp(1.15rem, 2.2vw, 1.5rem);
@@ -565,8 +551,8 @@ const CSS = `
   @media (max-width: 960px) {
     .form-body { flex-direction: column; }
     .co-box { width: 100%; position: static; }
-    .svc-section { padding: 48px 20px 36px; }
-    .form-section { padding: 44px 20px 60px; }
+    .svc-section { padding: 36px 20px 28px; }
+    .form-section { padding: 36px 20px 52px; }
   }
   @media (max-width: 700px) {
     .svc-grid { grid-template-columns: 1fr; }
@@ -575,10 +561,10 @@ const CSS = `
   }
   @media (max-width: 600px) {
     .nb-header { padding: 0 16px; }
-    .nb-welcome { padding: 44px 20px 52px; }
+    .nb-welcome { padding: 28px 20px 30px; }
     .entry-card { padding: 28px 22px; }
-    .svc-section { padding: 40px 16px 32px; }
-    .form-section { padding: 40px 16px 56px; }
+    .svc-section { padding: 32px 16px 24px; }
+    .form-section { padding: 32px 16px 48px; }
   }
 `
 
@@ -772,12 +758,6 @@ function NewBusinessContent() {
           {/* WELCOME */}
           <section className="nb-welcome">
             <div className="nb-welcome-inner">
-              <div className="nb-welcome-badge">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="20 6 9 17 4 12"/>
-                </svg>
-                {lang === 'es' ? 'Registro Confirmado — Florida' : 'Registration Confirmed — Florida'}
-              </div>
               <h1>{welcomeTitle}</h1>
               <p>{welcomeSub}</p>
             </div>
