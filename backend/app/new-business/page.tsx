@@ -993,11 +993,11 @@ function NewBusinessContent() {
 
   function getDesc(id: string) {
     if (id === 'labor_law') return lang === 'es'
-      ? <><span className="svc-hl">La Ley de Florida requiere que todo negocio con al menos un empleado</span> muestre los avisos laborales vigentes. La tarifa mínima de Florida se actualiza cada año, por lo que tu póster debe mantenerse al día. Te entregamos un póster 2026 completamente actualizado — listo para colgar desde el primer día.</>
-      : <><span className="svc-hl">Florida requires every business with at least one employee</span> to display current state and federal labor law notices in a visible location. Florida's minimum wage updates every year, so your poster must stay current to remain compliant. We provide a fully updated 2026 poster — ready to hang from day one.</>
+      ? <><span className="svc-hl">La Ley de Florida requiere que todo negocio con al menos un empleado</span> muestre los avisos laborales vigentes. La tarifa mínima de Florida se actualiza cada año, por lo que tu póster debe mantenerse al día. Te entregamos un póster 2026 completamente actualizado, listo para colgar desde el primer día.</>
+      : <><span className="svc-hl">Florida requires every business with at least one employee</span> to display current state and federal labor law notices in a visible location. Florida's minimum wage updates every year, so your poster must stay current to remain compliant. We provide a fully updated 2026 poster, ready to hang from day one.</>
     if (id === 'ein') return lang === 'es'
-      ? <>Tu EIN es el número de identificación federal de tu negocio — emitido por el IRS y requerido para <span className="svc-hl">abrir una cuenta bancaria, contratar empleados, declarar impuestos y solicitar préstamos.</span> Sin él, la mayoría de los bancos no procesarán tu solicitud. Nosotros gestionamos todo el proceso para que lo recibas rápido y sin trámites.</>
-      : <>Your EIN is your business's federal identification number — issued by the IRS and required to <span className="svc-hl">open a business bank account, hire employees, file taxes, and apply for loans.</span> Without it, most banks won't process your application. We handle the entire process so you receive it quickly and without the paperwork hassle.</>
+      ? <>Tu EIN es el número de identificación federal de tu negocio, emitido por el IRS y requerido para <span className="svc-hl">abrir una cuenta bancaria, contratar empleados, declarar impuestos y solicitar préstamos.</span> Sin él, la mayoría de los bancos no procesarán tu solicitud. Nosotros gestionamos todo el proceso para que lo recibas rápido y sin trámites.</>
+      : <>Your EIN is your business's federal identification number, issued by the IRS and required to <span className="svc-hl">open a business bank account, hire employees, file taxes, and apply for loans.</span> Without it, most banks won't process your application. We handle the entire process so you receive it quickly and without the paperwork hassle.</>
     if (id === 'certificate') return lang === 'es'
       ? <>Este documento oficial del Departamento de Estado de Florida confirma que tu negocio está <span className="svc-hl">activo, autorizado para operar y al corriente con el estado.</span> Bancos, prestamistas y agencias gubernamentales lo solicitan al aplicar para financiamiento o abrir una cuenta comercial. Tenerlo listo significa sin demoras cuando llegue la oportunidad.</>
       : <>This official document from the Florida Department of State confirms that your business is <span className="svc-hl">active, authorized to operate, and in good standing with the state.</span> Banks, lenders, and government agencies commonly request it when you apply for financing or open a business account. Having it ready means no delays when opportunity comes knocking.</>
@@ -1788,14 +1788,6 @@ function NewBusinessContent() {
                       ${total.toFixed(2)}<span>USD</span>
                     </span>
                   </div>
-
-                  <button className="co-btn" disabled={selected.size === 0 || checkingOut} onClick={step === 4 ? handleCheckout : undefined}>
-                    {step === 4
-                      ? (checkingOut ? '...' : (lang === 'es' ? 'Proceder al Pago' : 'Proceed to Checkout'))
-                      : (einSelected ? step < 3 : step < 2)
-                        ? (lang === 'es' ? 'Resumen de Orden' : 'Order Summary')
-                        : (lang === 'es' ? 'Revisar Orden' : 'Review Order')}
-                  </button>
 
                   <div className="co-trust">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
