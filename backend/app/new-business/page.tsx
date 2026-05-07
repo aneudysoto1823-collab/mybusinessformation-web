@@ -807,7 +807,7 @@ function NewBusinessContent() {
                 <h2>{lang === 'es' ? 'Completa tu información' : 'Complete your information'}</h2>
                 <p>{lang === 'es'
                   ? 'Los datos de tu empresa han sido pre-llenados. Completa la información de contacto para procesar tu orden.'
-                  : 'Your business information has been pre-filled. Complete your contact details to process your order.'}</p>
+                  : 'Complete your contact details to process your order.'}</p>
               </div>
 
               <div className="form-body">
@@ -977,26 +977,28 @@ function NewBusinessContent() {
 
                   <div className="co-divider" style={{ marginTop:0 }} />
 
-                  {/* Service lines */}
-                  {selected.size === 0 ? (
-                    <div className="co-empty">{lang === 'es' ? 'Ningún servicio seleccionado.' : 'No services selected.'}</div>
-                  ) : (
-                    SERVICES.filter(s => selected.has(s.id)).map(svc => (
-                      <div key={svc.id} className="co-line" style={{ alignItems:'center', gap:8 }}>
+                  {/* Service lines — always show all, toggle checked state */}
+                  {SERVICES.map(svc => {
+                    const isOn = selected.has(svc.id)
+                    return (
+                      <div key={svc.id} className="co-line" style={{ alignItems:'center', gap:8, opacity: isOn ? 1 : 0.45 }}>
                         <div
                           style={{
-                            width:18, height:18, borderRadius:4, background:'#2563EB',
-                            display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, cursor:'pointer'
+                            width:18, height:18, borderRadius:4,
+                            background: isOn ? '#2563EB' : 'transparent',
+                            border: isOn ? 'none' : '2px solid #cbd5e1',
+                            display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, cursor:'pointer',
+                            transition:'all .2s'
                           }}
                           onClick={() => toggleService(svc.id)}
                         >
-                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                          {isOn && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
                         </div>
-                        <span className="co-line-name">{lang === 'es' ? svc.titleEs : svc.titleEn}</span>
-                        <span className="co-line-price">${svc.price.toFixed(2)}</span>
+                        <span className="co-line-name" style={{ color: isOn ? '#374151' : '#94a3b8' }}>{lang === 'es' ? svc.titleEs : svc.titleEn}</span>
+                        <span className="co-line-price" style={{ color: isOn ? '#1B3A6B' : '#cbd5e1' }}>${svc.price.toFixed(2)}</span>
                       </div>
-                    ))
-                  )}
+                    )
+                  })}
 
                   <div className="co-divider" />
 
