@@ -804,7 +804,7 @@ const CSS = `
     border-bottom: 1px solid #f1f5f9;
   }
   .compliance-row:last-child { border-bottom: none; }
-  .compliance-q { font-size: .76rem; color: #374151; flex: 1; }
+  .compliance-q { font-size: .76rem; color: #374151; flex: 1; display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
 
   @media (max-width: 600px) {
     .nb-header { padding: 0 16px; }
@@ -827,6 +827,7 @@ function NewBusinessContent() {
 
   const [selected, setSelected]   = useState<Set<string>>(new Set(SERVICES.map(s => s.id)))
   const [step, setStep]           = useState(1)
+  const [showSsn, setShowSsn]     = useState(false)
 
   const [form, setForm] = useState({
     // Step 1 — Business
@@ -838,13 +839,11 @@ function NewBusinessContent() {
     // Step 2 — Contact
     firstName: '', middleInitial: '', lastName: '', suffix: '',
     email: '', phone: '',
-    role: '',       // 'owner' | 'third_party'
-    ssnItin: '',
+    ssnItin: '', ssnItinConfirm: '',
     // Step 3 — EIN compliance
     einReason: '',
-    sameResponsible: true,
     einFirstName: '', einLastName: '',
-    hasW2: '',                // 'yes' | 'no'
+    hasW2: 'no',
     hasHighwayVehicle: 'no',
     hasGambling: 'no',
     hasForm720: 'no',
@@ -1388,36 +1387,8 @@ function NewBusinessContent() {
                           />
                         </div>
 
-                        {/* Role */}
-                        <div className="form-field span2">
-                          <label className="form-label">
-                            {lang === 'es' ? 'Tu rol en el negocio' : 'Your role in the business'}
-                            <Tip
-                              en="Select 'Owner / Member' if you are the business owner. Select 'Third Party' if you are filling this out on someone else's behalf."
-                              es="Selecciona 'Propietario / Miembro' si eres el dueño del negocio. Selecciona 'Tercero' si estás completando esto en nombre de otra persona."
-                            />
-                            <span className="req">*</span>
-                          </label>
-                          <RadioGroup
-                            value={form.role}
-                            onChange={v => setField('role', v)}
-                            options={[
-                              {
-                                value: 'owner',
-                                label: lang === 'es' ? 'Propietario / Miembro' : 'Owner / Member',
-                                sub: lang === 'es' ? 'Soy el dueño o miembro del negocio' : 'I am the owner or member of the business',
-                              },
-                              {
-                                value: 'third_party',
-                                label: lang === 'es' ? 'Tercero autorizado' : 'Third Party',
-                                sub: lang === 'es' ? 'Estoy llenando esto en nombre del dueño' : 'I am filling this out on behalf of the owner',
-                              },
-                            ]}
-                          />
-                        </div>
-
-                        {/* SSN / ITIN */}
-                        <div className="form-field span2">
+                        {/* SSN / ITIN — two fields with show/hide */}
+                        <div className="form-field">
                           <label className="form-label">
                             SSN / ITIN
                             <Tip
@@ -1426,12 +1397,69 @@ function NewBusinessContent() {
                             />
                             <span className="req">*</span>
                           </label>
-                          <input
-                            className="form-input"
-                            value={form.ssnItin}
-                            onChange={e => setField('ssnItin', e.target.value)}
-                            placeholder="XXX-XX-XXXX"
-                          />
+                          <div style={{ position:'relative' }}>
+                            <input
+                              className="form-input"
+                              type={showSsn ? 'text' : 'password'}
+                              value={form.ssnItin}
+                              onChange={e => setField('ssnItin', e.target.value)}
+                              placeholder="XXX-XX-XXXX"
+                              style={{ paddingRight: 44 }}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setShowSsn(v => !v)}
+                              style={{ position:'absolute', right:10, top:'50%', transform:'translateY(-50%)', background:'none', border:'none', cursor:'pointer', color:'#64748b', padding:4, lineHeight:1 }}
+                              title={showSsn ? (lang === 'es' ? 'Ocultar' : 'Hide') : (lang === 'es' ? 'Mostrar' : 'Show')}
+                            >
+                              {showSsn
+                                ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                                : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                              }
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="form-field">
+                          <label className="form-label">
+                            {lang === 'es' ? 'Confirmar SSN / ITIN' : 'Confirm SSN / ITIN'}
+                            <span className="req">*</span>
+                          </label>
+                          <div style={{ position:'relative' }}>
+                            <input
+                              className="form-input"
+                              type={showSsn ? 'text' : 'password'}
+                              value={form.ssnItinConfirm}
+                              onChange={e => setField('ssnItinConfirm', e.target.value)}
+                              placeholder="XXX-XX-XXXX"
+                              style={{
+                                paddingRight: 44,
+                                borderColor: form.ssnItinConfirm
+                                  ? (form.ssnItin === form.ssnItinConfirm ? '#22c55e' : '#ef4444')
+                                  : undefined,
+                              }}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setShowSsn(v => !v)}
+                              style={{ position:'absolute', right:10, top:'50%', transform:'translateY(-50%)', background:'none', border:'none', cursor:'pointer', color:'#64748b', padding:4, lineHeight:1 }}
+                            >
+                              {showSsn
+                                ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                                : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                              }
+                            </button>
+                          </div>
+                          {form.ssnItinConfirm && form.ssnItin !== form.ssnItinConfirm && (
+                            <span className="form-hint" style={{ color:'#ef4444' }}>
+                              {lang === 'es' ? 'Los números no coinciden.' : 'Numbers do not match.'}
+                            </span>
+                          )}
+                          {form.ssnItinConfirm && form.ssnItin === form.ssnItinConfirm && (
+                            <span className="form-hint" style={{ color:'#22c55e' }}>
+                              {lang === 'es' ? 'Confirmado.' : 'Confirmed.'}
+                            </span>
+                          )}
                           <span className="form-hint">
                             {lang === 'es'
                               ? 'Requerido por el IRS. Transmitido de forma cifrada.'
@@ -1501,77 +1529,65 @@ function NewBusinessContent() {
                           />
                         </div>
 
-                        {/* Same responsible party as contact? */}
-                        <div className="form-field span2">
-                          <div className="ship-toggle" onClick={() => setField('sameResponsible', !form.sameResponsible)}>
-                            <div className={`ship-check${form.sameResponsible ? ' on' : ''}`}>
-                              {form.sameResponsible && (
-                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                              )}
-                            </div>
-                            {lang === 'es'
-                              ? 'El responsable del EIN es la misma persona del paso anterior'
-                              : 'The responsible party is the same person as in Step 2'}
-                          </div>
-                        </div>
-
-                        {!form.sameResponsible && (
-                          <>
-                            <div className="form-field">
-                              <label className="form-label">
-                                {lang === 'es' ? 'Nombre del responsable' : 'Responsible party first name'}
-                                <span className="req">*</span>
-                              </label>
-                              <input
-                                className="form-input"
-                                value={form.einFirstName}
-                                onChange={e => setField('einFirstName', e.target.value)}
-                                placeholder={lang === 'es' ? 'Juan' : 'John'}
-                              />
-                            </div>
-                            <div className="form-field">
-                              <label className="form-label">
-                                {lang === 'es' ? 'Apellido del responsable' : 'Responsible party last name'}
-                                <span className="req">*</span>
-                              </label>
-                              <input
-                                className="form-input"
-                                value={form.einLastName}
-                                onChange={e => setField('einLastName', e.target.value)}
-                                placeholder={lang === 'es' ? 'García' : 'Smith'}
-                              />
-                            </div>
-                          </>
-                        )}
-
-                        {/* W-2 Employees */}
-                        <div className="form-field span2">
+                        {/* Responsible party name */}
+                        <div className="form-field">
                           <label className="form-label">
-                            {lang === 'es' ? '¿Tiene o tendrá empleados con formulario W-2?' : 'Do you have or expect to have W-2 employees?'}
+                            {lang === 'es' ? 'Nombre del responsable' : 'Responsible party first name'}
                             <Tip
-                              en="W-2 employees are workers on your payroll who receive a W-2 tax form. This does not include contractors (1099)."
-                              es="Los empleados W-2 son trabajadores en tu nómina que reciben el formulario W-2. No incluye contratistas independientes (1099)."
+                              en="The person who controls, manages, or directs the business. For a single-member LLC this is usually the owner."
+                              es="La persona que controla, administra o dirige el negocio. Para una LLC de un solo miembro, generalmente es el dueño."
                             />
                             <span className="req">*</span>
                           </label>
-                          <YesNo value={form.hasW2} onChange={v => setField('hasW2', v)} />
+                          <input
+                            className="form-input"
+                            value={form.einFirstName}
+                            onChange={e => setField('einFirstName', e.target.value)}
+                            placeholder={lang === 'es' ? 'Juan' : 'John'}
+                          />
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label">
+                            {lang === 'es' ? 'Apellido del responsable' : 'Responsible party last name'}
+                            <span className="req">*</span>
+                          </label>
+                          <input
+                            className="form-input"
+                            value={form.einLastName}
+                            onChange={e => setField('einLastName', e.target.value)}
+                            placeholder={lang === 'es' ? 'García' : 'Smith'}
+                          />
                         </div>
 
-                        {/* Compliance questions — pre-answered No */}
+                        {/* IRS compliance questions — W-2 included */}
                         <div className="form-field span2">
                           <label className="form-label" style={{ marginBottom: 8 }}>
                             {lang === 'es' ? 'Preguntas de cumplimiento del IRS' : 'IRS compliance questions'}
                             <Tip
-                              en="These questions are required by the IRS SS-4 form. Most standard businesses answer No to all of them. We have pre-filled them for you."
-                              es="Estas preguntas son requeridas por el formulario IRS SS-4. La mayoría de negocios normales responde No a todas. Las hemos pre-llenado."
+                              en="These questions are required by the IRS SS-4 form. Most standard businesses answer No to all of them. We have pre-filled them for you — adjust only if applicable."
+                              es="Estas preguntas son requeridas por el formulario IRS SS-4. La mayoría de negocios normales responde No a todas. Las hemos pre-llenado — ajusta solo si aplica."
                             />
                           </label>
                           <div className="compliance-block">
                             <div className="compliance-row">
                               <span className="compliance-q">
+                                {lang === 'es' ? '¿Tiene o tendrá empleados con formulario W-2?' : 'Do you have or expect to have W-2 employees?'}
+                                <Tip
+                                  en="W-2 employees are workers on your payroll who receive a W-2 tax form at year-end. This does not include independent contractors (1099)."
+                                  es="Los empleados W-2 son trabajadores en tu nómina que reciben el formulario W-2 al cierre del año. No incluye contratistas independientes (1099)."
+                                />
+                              </span>
+                              <YesNo value={form.hasW2} onChange={v => setField('hasW2', v)} />
+                            </div>
+                            <div className="compliance-row">
+                              <span className="compliance-q">
                                 {lang === 'es'
                                   ? '¿Opera vehículos de carretera con peso bruto de 55,000+ lbs?'
                                   : 'Highway motor vehicles with 55,000+ lbs gross weight?'}
+                                <Tip
+                                  en="Applies if your business operates heavy trucks or commercial vehicles used for interstate transport weighing 55,000 lbs or more."
+                                  es="Aplica si tu negocio opera camiones pesados o vehículos comerciales para transporte interestatal con peso de 55,000 lbs o más."
+                                />
                               </span>
                               <YesNo value={form.hasHighwayVehicle} onChange={v => setField('hasHighwayVehicle', v)} />
                             </div>
@@ -1580,6 +1596,10 @@ function NewBusinessContent() {
                                 {lang === 'es'
                                   ? '¿Involucra el negocio juegos de azar (gambling)?'
                                   : 'Does the business involve gambling or wagering?'}
+                                <Tip
+                                  en="Applies to casinos, sports betting, lottery operations, or any business that accepts wagers from the public."
+                                  es="Aplica a casinos, apuestas deportivas, loterías o cualquier negocio que acepte apuestas del público."
+                                />
                               </span>
                               <YesNo value={form.hasGambling} onChange={v => setField('hasGambling', v)} />
                             </div>
@@ -1588,6 +1608,10 @@ function NewBusinessContent() {
                                 {lang === 'es'
                                   ? '¿Deberá presentar el formulario 720 (impuestos especiales)?'
                                   : 'Required to file Form 720 (federal excise taxes)?'}
+                                <Tip
+                                  en="Form 720 covers federal excise taxes on specific goods/services like fuel, indoor tanning, or certain imported goods. Most businesses are not subject to this."
+                                  es="El formulario 720 cubre impuestos especiales federales sobre bienes/servicios específicos como combustible, bronceado o ciertos productos importados. La mayoría de negocios no aplica."
+                                />
                               </span>
                               <YesNo value={form.hasForm720} onChange={v => setField('hasForm720', v)} />
                             </div>
@@ -1596,6 +1620,10 @@ function NewBusinessContent() {
                                 {lang === 'es'
                                   ? '¿Involucra alcohol, tabaco o armas de fuego?'
                                   : 'Involves alcohol, tobacco, or firearms?'}
+                                <Tip
+                                  en="Applies to businesses that manufacture, sell, or distribute alcohol, tobacco products, or firearms. Requires additional federal licensing."
+                                  es="Aplica a negocios que fabrican, venden o distribuyen alcohol, tabaco o armas de fuego. Requiere licencias federales adicionales."
+                                />
                               </span>
                               <YesNo value={form.hasAlcohol} onChange={v => setField('hasAlcohol', v)} />
                             </div>
