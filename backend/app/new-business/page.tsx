@@ -17,7 +17,6 @@ type Company = {
   id?: string
 }
 
-type PageView = 'id-entry' | 'landing'
 
 const SERVICES = [
   {
@@ -824,7 +823,6 @@ function NewBusinessContent() {
   const sp = useSearchParams()
   const [lang, setLang] = useState<'en' | 'es'>('en')
 
-  const [view, setView]           = useState<PageView>('id-entry')
   const [docInput, setDocInput]   = useState('')
   const [lookingUp, setLookingUp] = useState(false)
   const [company, setCompany]     = useState<Company | null>(null)
@@ -881,7 +879,7 @@ function NewBusinessContent() {
     const id = sp.get('id')
     const l  = sp.get('lang')
     if (l === 'es') setLang('es')
-    if (id) { setDocInput(id); setView('landing'); lookup(id) }
+    if (id) { setDocInput(id); lookup(id) }
   }, [sp, lookup])
 
   useEffect(() => {
@@ -900,8 +898,7 @@ function NewBusinessContent() {
   async function handleIdEntry() {
     const empty = lang === 'es' ? 'Por favor ingresa tu Document ID.' : 'Please enter your Document ID.'
     if (!docInput.trim()) { setLookupErr(empty); return }
-    const found = await lookup(docInput)
-    if (found) { setView('landing'); window.scrollTo({ top: 0, behavior: 'smooth' }) }
+    await lookup(docInput)
   }
 
   function toggleService(id: string) {
@@ -1022,59 +1019,16 @@ function NewBusinessContent() {
         </div>
       </header>
 
-      {/* ── ID ENTRY ── */}
-      {view === 'id-entry' && (
-        <div className="entry-wrap">
-          <div className="entry-card">
-            <span className="entry-tag">
-              {lang === 'es' ? 'Cumplimiento Empresarial' : 'Business Compliance'}
-            </span>
-            <h1 className="entry-title">
-              {lang === 'es' ? 'Completa tu solicitud' : 'Complete your request'}
-            </h1>
-            <p className="entry-sub">
-              {lang === 'es'
-                ? 'Ingresa el Document ID del aviso que recibiste para localizar la información de tu empresa.'
-                : 'Enter the Document ID from the notice you received to locate your business information.'}
-            </p>
-            <label className="entry-label" htmlFor="nb-doc">Document ID</label>
-            <input
-              id="nb-doc"
-              className={`entry-input${lookupErr ? ' err' : ''}`}
-              value={docInput}
-              onChange={e => { setDocInput(e.target.value.toUpperCase()); setLookupErr('') }}
-              onKeyDown={e => e.key === 'Enter' && handleIdEntry()}
-              placeholder={lang === 'es' ? 'ej. L26000098321' : 'e.g. L26000098321'}
-            />
-            {lookupErr && <p className="entry-err">⚠ {lookupErr}</p>}
-            <button className="entry-btn" onClick={handleIdEntry} disabled={lookingUp}>
-              {lookingUp
-                ? (lang === 'es' ? 'Buscando...' : 'Looking up...')
-                : (lang === 'es' ? 'Buscar mi empresa' : 'Find my business')}
-            </button>
-
-            {/* TEMP — remove before launch */}
-            <div className="entry-divider">o</div>
-            <button
-              onClick={() => { setView('landing') }}
-              style={{ width:'100%', background:'none', border:'1px dashed #cbd5e1', borderRadius:8, padding:'9px', fontSize:'.74rem', color:'#94a3b8', cursor:'pointer', fontFamily:'inherit' }}
-            >
-              [TEMP] Ver landing sin Document ID →
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* ── LANDING ── */}
-      {view === 'landing' && (
-        <>
-          {/* WELCOME */}
+      <>
+          {/* WELCOME — solo si se encontró empresa */}
+          {company && (
           <section className="nb-welcome">
             <div className="nb-welcome-inner">
               <h1>{welcomeTitle}</h1>
               <p>{welcomeSub}</p>
             </div>
           </section>
+          )}
 
           {/* ── SERVICES ── */}
           <section className="svc-section">
@@ -1165,12 +1119,53 @@ function NewBusinessContent() {
                         {lang === 'es' ? 'Información del negocio' : 'Business information'}
                       </div>
                       <div className="form-grid">
-                        {/* Business name — readonly, pre-filled */}
+                        {/* Document ID lookup */}
+                        <div className="form-field span2">
+                          <label className="form-label">
+                            Document ID
+                            <Tip
+                              en="Your Florida business Document ID. Found on your state registration notice."
+                              es="El Document ID de tu negocio en Florida. Aparece en tu aviso de registro estatal."
+                            />
+                          </label>
+                          <div style={{ display:'flex', gap:8 }}>
+                            <input
+                              className={`form-input${lookupErr ? ' err' : ''}`}
+                              value={docInput}
+                              onChange={e => { setDocInput(e.target.value.toUpperCase()); setLookupErr('') }}
+                              onKeyDown={e => e.key === 'Enter' && handleIdEntry()}
+                              placeholder="e.g. L26000098321"
+                              readOnly={!!company}
+                              style={company ? { background:'#f1f5f9', color:'#64748b' } : {}}
+                            />
+                            {!company && (
+                              <button
+                                type="button"
+                                onClick={handleIdEntry}
+                                disabled={lookingUp || !docInput.trim()}
+                                style={{ flexShrink:0, padding:'0 18px', background:'#2563EB', color:'#fff', border:'none', borderRadius:8, fontFamily:'inherit', fontWeight:600, fontSize:'.82rem', cursor:'pointer', opacity: (!docInput.trim() || lookingUp) ? .5 : 1 }}
+                              >
+                                {lookingUp ? '...' : (lang === 'es' ? 'Buscar' : 'Find')}
+                              </button>
+                            )}
+                          </div>
+                          {lookupErr && <p style={{ color:'#ef4444', fontSize:'.75rem', marginTop:4 }}>⚠ {lookupErr}</p>}
+                          {company && <p style={{ color:'#16a34a', fontSize:'.75rem', marginTop:4 }}>✓ {company.company_name}</p>}
+                        </div>
+
+                        {/* Business name */}
                         <div className="form-field span2">
                           <label className="form-label">
                             {lang === 'es' ? 'Nombre del negocio' : 'Business name'}
                           </label>
-                          <input className="form-input" value={form.companyName} readOnly style={{ background:'#f1f5f9', color:'#64748b' }} />
+                          <input
+                            className="form-input"
+                            value={form.companyName}
+                            onChange={e => !company && setField('companyName', e.target.value)}
+                            readOnly={!!company}
+                            style={company ? { background:'#f1f5f9', color:'#64748b' } : {}}
+                            placeholder={lang === 'es' ? 'Nombre de tu empresa' : 'Your business name'}
+                          />
                         </div>
 
                         {/* Address */}
@@ -1716,8 +1711,7 @@ function NewBusinessContent() {
               </div>
             </div>
           </section>
-        </>
-      )}
+      </>
     </div>
   )
 }
