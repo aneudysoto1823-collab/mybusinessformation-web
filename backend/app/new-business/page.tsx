@@ -1386,8 +1386,8 @@ function NewBusinessContent() {
                           />
                         </div>
 
-                        {/* SSN / ITIN — two fields with show/hide */}
-                        <div className="form-field">
+                        {/* SSN / ITIN — only needed when EIN is selected */}
+                        {einSelected && <div className="form-field">
                           <label className="form-label">
                             SSN / ITIN
                             <Tip
@@ -1417,9 +1417,9 @@ function NewBusinessContent() {
                               }
                             </button>
                           </div>
-                        </div>
+                        </div>}
 
-                        <div className="form-field">
+                        {einSelected && <div className="form-field">
                           <label className="form-label">
                             {lang === 'es' ? 'Confirmar SSN / ITIN' : 'Confirm SSN / ITIN'}
                             <span className="req">*</span>
@@ -1464,7 +1464,7 @@ function NewBusinessContent() {
                               ? 'Requerido por el IRS. Transmitido de forma cifrada.'
                               : 'Required by the IRS. Transmitted encrypted.'}
                           </span>
-                        </div>
+                        </div>}
                       </div>
 
                       <div className="step-nav">
