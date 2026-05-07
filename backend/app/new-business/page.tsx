@@ -1026,8 +1026,8 @@ function NewBusinessContent() {
       </header>
 
       <>
-          {/* WELCOME — si hay empresa o está buscando */}
-          {(company || lookingUp) && (
+          {/* WELCOME — si llegó con ?id= (QR scan) */}
+          {sp.get('id') && (
           <section className="nb-welcome">
             <div className="nb-welcome-inner">
               {lookingUp
