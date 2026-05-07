@@ -1641,57 +1641,65 @@ function NewBusinessContent() {
                   {/* ── STEP 4: Review ── */}
                   {step === 4 && (
                     <>
-                      <div className="form-block-title">{lang === 'es' ? 'Revisa tu orden' : 'Review your order'}</div>
-
-                      {/* Services */}
-                      <div style={{ marginBottom:16 }}>
-                        <div style={{ fontSize:'.78rem', fontWeight:700, color:'#94a3b8', textTransform:'uppercase', letterSpacing:'.05em', marginBottom:8 }}>{lang === 'es' ? 'Servicios' : 'Services'}</div>
-                        {SERVICES.filter(s => selected.has(s.id)).map(s => (
-                          <div key={s.id} style={{ display:'flex', justifyContent:'space-between', padding:'7px 0', borderBottom:'1px solid #f1f5f9', fontSize:'.85rem' }}>
-                            <span style={{ color:'#1B3A6B', fontWeight:600 }}>{lang === 'es' ? s.titleEs : s.titleEn}</span>
-                            <span style={{ color:'#2563EB', fontWeight:700 }}>${s.price.toFixed(2)}</span>
-                          </div>
-                        ))}
-                        {allSelected && <div style={{ display:'flex', justifyContent:'space-between', padding:'7px 0', fontSize:'.82rem', color:'#16a34a', fontWeight:600 }}><span>10% Bundle Discount</span><span>−${discountAmt.toFixed(2)}</span></div>}
-                        <div style={{ display:'flex', justifyContent:'space-between', padding:'10px 0 4px', fontSize:'1rem', fontWeight:800, color:'#1B3A6B' }}>
-                          <span>Total</span><span>${total.toFixed(2)} USD</span>
-                        </div>
-                      </div>
+                      <div className="form-block-title">{lang === 'es' ? 'Revisa tu información' : 'Review your information'}</div>
 
                       {/* Business info */}
-                      <div style={{ marginBottom:16 }}>
-                        <div style={{ fontSize:'.78rem', fontWeight:700, color:'#94a3b8', textTransform:'uppercase', letterSpacing:'.05em', marginBottom:8 }}>{lang === 'es' ? 'Negocio' : 'Business'}</div>
-                        {[
-                          [lang === 'es' ? 'Nombre' : 'Name', form.companyName],
-                          [lang === 'es' ? 'Dirección' : 'Address', [form.address, form.city, form.zip].filter(Boolean).join(', ')],
-                        ].map(([label, val]) => val ? (
-                          <div key={label} style={{ display:'flex', gap:8, padding:'5px 0', borderBottom:'1px solid #f1f5f9', fontSize:'.83rem' }}>
-                            <span style={{ color:'#94a3b8', minWidth:90 }}>{label}</span>
+                      <div style={{ marginBottom:12, background:'#f8fafc', borderRadius:10, padding:'12px 14px', border:'1px solid #e2e8f0' }}>
+                        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8 }}>
+                          <span style={{ fontSize:'.78rem', fontWeight:700, color:'#94a3b8', textTransform:'uppercase', letterSpacing:'.05em' }}>{lang === 'es' ? 'Negocio' : 'Business'}</span>
+                          <button onClick={() => setStep(1)} style={{ background:'none', border:'1px solid #2563EB', borderRadius:6, color:'#2563EB', fontSize:'.72rem', fontWeight:600, padding:'3px 10px', cursor:'pointer', fontFamily:'inherit' }}>{lang === 'es' ? 'Editar' : 'Edit'}</button>
+                        </div>
+                        {([
+                          [lang === 'es' ? 'Nombre' : 'Business name', form.companyName],
+                          [lang === 'es' ? 'Dirección' : 'Address', form.address],
+                          [lang === 'es' ? 'Ciudad' : 'City', form.city],
+                          ['ZIP', form.zip],
+                          [lang === 'es' ? 'Inicio LLC' : 'LLC start', [form.llcStartMonth, form.llcStartYear].filter(Boolean).join(' / ')],
+                          [lang === 'es' ? 'Descripción' : 'Description', form.businessDescription],
+                        ] as [string,string][]).filter(([,v]) => v).map(([label, val]) => (
+                          <div key={label} style={{ display:'flex', gap:8, padding:'4px 0', borderTop:'1px solid #f1f5f9', fontSize:'.83rem' }}>
+                            <span style={{ color:'#94a3b8', minWidth:100 }}>{label}</span>
                             <span style={{ color:'#1B3A6B', fontWeight:500 }}>{val}</span>
                           </div>
-                        ) : null)}
+                        ))}
                       </div>
 
                       {/* Contact */}
-                      <div style={{ marginBottom:20 }}>
-                        <div style={{ fontSize:'.78rem', fontWeight:700, color:'#94a3b8', textTransform:'uppercase', letterSpacing:'.05em', marginBottom:8 }}>{lang === 'es' ? 'Contacto' : 'Contact'}</div>
-                        {[
-                          [lang === 'es' ? 'Nombre' : 'Name', [form.firstName, form.lastName].filter(Boolean).join(' ')],
+                      <div style={{ marginBottom:12, background:'#f8fafc', borderRadius:10, padding:'12px 14px', border:'1px solid #e2e8f0' }}>
+                        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8 }}>
+                          <span style={{ fontSize:'.78rem', fontWeight:700, color:'#94a3b8', textTransform:'uppercase', letterSpacing:'.05em' }}>{lang === 'es' ? 'Contacto' : 'Contact'}</span>
+                          <button onClick={() => setStep(2)} style={{ background:'none', border:'1px solid #2563EB', borderRadius:6, color:'#2563EB', fontSize:'.72rem', fontWeight:600, padding:'3px 10px', cursor:'pointer', fontFamily:'inherit' }}>{lang === 'es' ? 'Editar' : 'Edit'}</button>
+                        </div>
+                        {([
+                          [lang === 'es' ? 'Nombre' : 'Name', [form.firstName, form.middleInitial, form.lastName, form.suffix].filter(Boolean).join(' ')],
                           ['Email', form.email],
                           [lang === 'es' ? 'Teléfono' : 'Phone', form.phone],
-                        ].map(([label, val]) => val ? (
-                          <div key={label} style={{ display:'flex', gap:8, padding:'5px 0', borderBottom:'1px solid #f1f5f9', fontSize:'.83rem' }}>
-                            <span style={{ color:'#94a3b8', minWidth:90 }}>{label}</span>
+                        ] as [string,string][]).filter(([,v]) => v).map(([label, val]) => (
+                          <div key={label} style={{ display:'flex', gap:8, padding:'4px 0', borderTop:'1px solid #f1f5f9', fontSize:'.83rem' }}>
+                            <span style={{ color:'#94a3b8', minWidth:100 }}>{label}</span>
                             <span style={{ color:'#1B3A6B', fontWeight:500 }}>{val}</span>
                           </div>
-                        ) : null)}
+                        ))}
                       </div>
 
-                      <div className="step-nav">
-                        <button className="step-back" onClick={() => setStep(einSelected ? 3 : 2)}>
-                          ← {lang === 'es' ? 'Atrás' : 'Back'}
-                        </button>
-                        <button className="step-next primary" onClick={handleCheckout} disabled={checkingOut}>
+                      {/* EIN */}
+                      {einSelected && (
+                        <div style={{ marginBottom:12, background:'#f8fafc', borderRadius:10, padding:'12px 14px', border:'1px solid #e2e8f0' }}>
+                          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8 }}>
+                            <span style={{ fontSize:'.78rem', fontWeight:700, color:'#94a3b8', textTransform:'uppercase', letterSpacing:'.05em' }}>EIN / Tax ID</span>
+                            <button onClick={() => setStep(3)} style={{ background:'none', border:'1px solid #2563EB', borderRadius:6, color:'#2563EB', fontSize:'.72rem', fontWeight:600, padding:'3px 10px', cursor:'pointer', fontFamily:'inherit' }}>{lang === 'es' ? 'Editar' : 'Edit'}</button>
+                          </div>
+                          {form.einReason && (
+                            <div style={{ display:'flex', gap:8, padding:'4px 0', borderTop:'1px solid #f1f5f9', fontSize:'.83rem' }}>
+                              <span style={{ color:'#94a3b8', minWidth:100 }}>{lang === 'es' ? 'Razón' : 'Reason'}</span>
+                              <span style={{ color:'#1B3A6B', fontWeight:500 }}>{form.einReason.replace(/_/g,' ')}</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      <div className="step-nav" style={{ marginTop:8 }}>
+                        <button className="step-next primary" onClick={handleCheckout} disabled={checkingOut} style={{ width:'100%', justifyContent:'center' }}>
                           {checkingOut ? '...' : (lang === 'es' ? 'Proceder al Pago' : 'Proceed to Checkout')}
                           {!checkingOut && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>}
                         </button>
