@@ -1110,8 +1110,12 @@ function NewBusinessContent() {
                       <>
                         <div className={`step-connector ${step > 2 ? 'done' : ''}`} />
                         <div className="step-node">
-                          <div className={`step-circle ${step === 3 ? 'active' : 'pending'}`}>3</div>
-                          <span className={`step-lbl ${step === 3 ? 'active' : ''}`}>EIN</span>
+                          <div className={`step-circle ${form.einReason ? 'done' : step === 3 ? 'active' : 'pending'}`}>
+                            {form.einReason
+                              ? <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                              : '3'}
+                          </div>
+                          <span className={`step-lbl ${form.einReason ? 'done' : step === 3 ? 'active' : ''}`}>EIN</span>
                         </div>
                       </>
                     )}
