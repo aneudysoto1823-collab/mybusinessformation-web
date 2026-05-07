@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, Suspense } from 'react'
+import { useState, useEffect, useCallback, useRef, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 
 type Company = {
@@ -826,6 +826,7 @@ function NewBusinessContent() {
   const [selected, setSelected]   = useState<Set<string>>(new Set(SERVICES.map(s => s.id)))
   const [step, setStep]           = useState(1)
   const [showSsn, setShowSsn]     = useState(false)
+  const formRef = useRef<HTMLDivElement>(null)
 
   const [form, setForm] = useState({
     // Step 1 — Business
@@ -1100,7 +1101,7 @@ function NewBusinessContent() {
             <div className="form-inner">
               <div className="form-body">
                 {/* ── LEFT: STEP FORM ── */}
-                <div className="form-left">
+                <div className="form-left" ref={formRef}>
                   {/* Heading */}
                   <div className="form-heading">
                     <h2>
@@ -1471,7 +1472,7 @@ function NewBusinessContent() {
                           ← {lang === 'es' ? 'Atrás' : 'Back'}
                         </button>
                         {einSelected ? (
-                          <button className="step-next" onClick={() => setStep(3)}>
+                          <button className="step-next" onClick={() => { setStep(3); setTimeout(() => formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50) }}>
                             {lang === 'es' ? 'Siguiente' : 'Next'}
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                           </button>
