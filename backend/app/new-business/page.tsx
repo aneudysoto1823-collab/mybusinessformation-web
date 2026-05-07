@@ -902,6 +902,34 @@ function NewBusinessContent() {
   }, [company])
 
 
+  const [checkingOut, setCheckingOut] = useState(false)
+
+  async function handleCheckout() {
+    setCheckingOut(true)
+    try {
+      const svcMap: Record<string, string> = { labor_law: 'labor_law_poster', ein: 'ein', certificate: 'certificate_of_status' }
+      const allThree = SERVICES.every(s => selected.has(s.id))
+      const selected_services = allThree ? ['bundle'] : [...selected].map(id => svcMap[id])
+      const res = await fetch('/api/sunbiz/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          company_id:        company?.id ?? null,
+          document_id:       docInput,
+          company_name:      form.companyName,
+          selected_services,
+          lang,
+        }),
+      })
+      const data = await res.json()
+      if (data.url) window.location.href = data.url
+    } catch {
+      // silent fail — user can retry
+    } finally {
+      setCheckingOut(false)
+    }
+  }
+
   function toggleService(id: string) {
     setSelected(prev => {
       const next = new Set(prev)
@@ -1476,8 +1504,8 @@ function NewBusinessContent() {
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                           </button>
                         ) : (
-                          <button className="step-next primary">
-                            {lang === 'es' ? 'Proceder al Pago' : 'Proceed to Checkout'}
+                          <button className="step-next primary" onClick={() => setStep(4)}>
+                            {lang === 'es' ? 'Revisar Orden' : 'Review Order'}
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                           </button>
                         )}
@@ -1603,9 +1631,69 @@ function NewBusinessContent() {
                         <button className="step-back" onClick={() => setStep(2)}>
                           ← {lang === 'es' ? 'Atrás' : 'Back'}
                         </button>
-                        <button className="step-next primary">
-                          {lang === 'es' ? 'Proceder al Pago' : 'Proceed to Checkout'}
+                        <button className="step-next primary" onClick={() => setStep(4)}>
+                          {lang === 'es' ? 'Revisar Orden' : 'Review Order'}
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                        </button>
+                      </div>
+                    </>
+                  )}
+                  {/* ── STEP 4: Review ── */}
+                  {step === 4 && (
+                    <>
+                      <div className="form-block-title">{lang === 'es' ? 'Revisa tu orden' : 'Review your order'}</div>
+
+                      {/* Services */}
+                      <div style={{ marginBottom:16 }}>
+                        <div style={{ fontSize:'.78rem', fontWeight:700, color:'#94a3b8', textTransform:'uppercase', letterSpacing:'.05em', marginBottom:8 }}>{lang === 'es' ? 'Servicios' : 'Services'}</div>
+                        {SERVICES.filter(s => selected.has(s.id)).map(s => (
+                          <div key={s.id} style={{ display:'flex', justifyContent:'space-between', padding:'7px 0', borderBottom:'1px solid #f1f5f9', fontSize:'.85rem' }}>
+                            <span style={{ color:'#1B3A6B', fontWeight:600 }}>{lang === 'es' ? s.titleEs : s.titleEn}</span>
+                            <span style={{ color:'#2563EB', fontWeight:700 }}>${s.price.toFixed(2)}</span>
+                          </div>
+                        ))}
+                        {allSelected && <div style={{ display:'flex', justifyContent:'space-between', padding:'7px 0', fontSize:'.82rem', color:'#16a34a', fontWeight:600 }}><span>10% Bundle Discount</span><span>−${discountAmt.toFixed(2)}</span></div>}
+                        <div style={{ display:'flex', justifyContent:'space-between', padding:'10px 0 4px', fontSize:'1rem', fontWeight:800, color:'#1B3A6B' }}>
+                          <span>Total</span><span>${total.toFixed(2)} USD</span>
+                        </div>
+                      </div>
+
+                      {/* Business info */}
+                      <div style={{ marginBottom:16 }}>
+                        <div style={{ fontSize:'.78rem', fontWeight:700, color:'#94a3b8', textTransform:'uppercase', letterSpacing:'.05em', marginBottom:8 }}>{lang === 'es' ? 'Negocio' : 'Business'}</div>
+                        {[
+                          [lang === 'es' ? 'Nombre' : 'Name', form.companyName],
+                          [lang === 'es' ? 'Dirección' : 'Address', [form.address, form.city, form.zip].filter(Boolean).join(', ')],
+                        ].map(([label, val]) => val ? (
+                          <div key={label} style={{ display:'flex', gap:8, padding:'5px 0', borderBottom:'1px solid #f1f5f9', fontSize:'.83rem' }}>
+                            <span style={{ color:'#94a3b8', minWidth:90 }}>{label}</span>
+                            <span style={{ color:'#1B3A6B', fontWeight:500 }}>{val}</span>
+                          </div>
+                        ) : null)}
+                      </div>
+
+                      {/* Contact */}
+                      <div style={{ marginBottom:20 }}>
+                        <div style={{ fontSize:'.78rem', fontWeight:700, color:'#94a3b8', textTransform:'uppercase', letterSpacing:'.05em', marginBottom:8 }}>{lang === 'es' ? 'Contacto' : 'Contact'}</div>
+                        {[
+                          [lang === 'es' ? 'Nombre' : 'Name', [form.firstName, form.lastName].filter(Boolean).join(' ')],
+                          ['Email', form.email],
+                          [lang === 'es' ? 'Teléfono' : 'Phone', form.phone],
+                        ].map(([label, val]) => val ? (
+                          <div key={label} style={{ display:'flex', gap:8, padding:'5px 0', borderBottom:'1px solid #f1f5f9', fontSize:'.83rem' }}>
+                            <span style={{ color:'#94a3b8', minWidth:90 }}>{label}</span>
+                            <span style={{ color:'#1B3A6B', fontWeight:500 }}>{val}</span>
+                          </div>
+                        ) : null)}
+                      </div>
+
+                      <div className="step-nav">
+                        <button className="step-back" onClick={() => setStep(einSelected ? 3 : 2)}>
+                          ← {lang === 'es' ? 'Atrás' : 'Back'}
+                        </button>
+                        <button className="step-next primary" onClick={handleCheckout} disabled={checkingOut}>
+                          {checkingOut ? '...' : (lang === 'es' ? 'Proceder al Pago' : 'Proceed to Checkout')}
+                          {!checkingOut && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>}
                         </button>
                       </div>
                     </>
@@ -1688,10 +1776,12 @@ function NewBusinessContent() {
                     </span>
                   </div>
 
-                  <button className="co-btn" disabled={selected.size === 0}>
-                    {(einSelected ? step < 3 : step < 2)
-                      ? (lang === 'es' ? 'Resumen de Orden' : 'Order Summary')
-                      : (lang === 'es' ? 'Proceder al Pago' : 'Proceed to Checkout')}
+                  <button className="co-btn" disabled={selected.size === 0 || checkingOut} onClick={step === 4 ? handleCheckout : undefined}>
+                    {step === 4
+                      ? (checkingOut ? '...' : (lang === 'es' ? 'Proceder al Pago' : 'Proceed to Checkout'))
+                      : (einSelected ? step < 3 : step < 2)
+                        ? (lang === 'es' ? 'Resumen de Orden' : 'Order Summary')
+                        : (lang === 'es' ? 'Revisar Orden' : 'Review Order')}
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                       <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
                     </svg>
