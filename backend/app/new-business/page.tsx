@@ -286,17 +286,17 @@ const CSS = `
 
   /* ── SERVICES ── */
   .svc-section {
-    padding: 60px 24px 40px;
+    padding: 64px 40px 48px;
     background: #F1F5F9;
   }
-  .svc-inner { max-width: 860px; margin: 0 auto; }
+  .svc-inner { max-width: 1100px; margin: 0 auto; }
   .svc-heading {
     text-align: center;
-    margin-bottom: 32px;
+    margin-bottom: 36px;
   }
   .svc-heading h2 {
     font-family: 'Fraunces', serif;
-    font-size: clamp(1.15rem, 2.2vw, 1.5rem);
+    font-size: clamp(1.2rem, 2.2vw, 1.55rem);
     font-weight: 700;
     color: #1B3A6B;
     margin-bottom: 8px;
@@ -305,37 +305,34 @@ const CSS = `
     color: #64748b;
     font-size: .87rem;
     line-height: 1.7;
+    max-width: 560px;
+    margin: 0 auto;
   }
   .svc-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-    margin-bottom: 16px;
+    gap: 20px;
   }
   .svc-card {
     background: #fff;
-    border: 2px solid #2563EB;
-    border-radius: 14px;
-    padding: 22px 20px 20px;
+    border: 1px solid rgba(0,0,0,.06);
+    border-radius: 16px;
+    padding: 26px 24px 24px;
     cursor: pointer;
-    transition: all .2s;
-    position: relative;
+    transition: all .22s;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
+    box-shadow: 0 4px 18px rgba(27,58,107,.07);
   }
-  .svc-card:not(.selected) {
-    border-color: #e2e8f0;
-    background: #fff;
-  }
-  .svc-card:not(.selected):hover {
-    border-color: #93c5fd;
-    box-shadow: 0 4px 20px rgba(37,99,235,.08);
+  .svc-card:hover {
+    box-shadow: 0 8px 32px rgba(27,58,107,.13);
+    transform: translateY(-2px);
   }
   .svc-card.selected {
     border-color: #2563EB;
-    background: #EFF6FF;
-    box-shadow: 0 4px 20px rgba(37,99,235,.12);
+    box-shadow: 0 6px 28px rgba(37,99,235,.16);
+    transform: translateY(-2px);
   }
   .svc-check {
     width: 22px;
@@ -354,15 +351,15 @@ const CSS = `
     border-color: #2563EB;
   }
   .svc-title {
-    font-size: .93rem;
+    font-size: .95rem;
     font-weight: 700;
     color: #1B3A6B;
     line-height: 1.3;
   }
   .svc-desc {
-    font-size: .78rem;
+    font-size: .79rem;
     color: #64748b;
-    line-height: 1.7;
+    line-height: 1.75;
     flex: 1;
   }
   .svc-hl {
@@ -370,48 +367,14 @@ const CSS = `
     font-weight: 600;
   }
 
-  /* ── BUNDLE BANNER ── */
-  .svc-bundle {
-    background: linear-gradient(135deg, #1B3A6B 0%, #2563EB 100%);
-    border-radius: 12px;
-    padding: 16px 22px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    margin-bottom: 0;
-  }
-  .svc-bundle-icon {
-    width: 36px;
-    height: 36px;
-    background: rgba(255,255,255,.15);
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-  }
-  .svc-bundle-text { flex: 1; }
-  .svc-bundle-title {
-    color: #fff;
-    font-weight: 700;
-    font-size: .88rem;
-    margin-bottom: 2px;
-  }
-  .svc-bundle-sub {
-    color: rgba(255,255,255,.72);
-    font-size: .74rem;
-  }
-
-  /* ── FORM ── */
+  /* ── FORM + CHECKOUT ── */
   .form-section {
     background: #fff;
     border-top: 1px solid #e2e8f0;
-    padding: 56px 24px 64px;
+    padding: 56px 40px 72px;
   }
-  .form-inner { max-width: 860px; margin: 0 auto; }
-  .form-heading {
-    margin-bottom: 36px;
-  }
+  .form-inner { max-width: 1100px; margin: 0 auto; }
+  .form-heading { margin-bottom: 36px; }
   .form-heading h2 {
     font-family: 'Fraunces', serif;
     font-size: clamp(1.15rem, 2.2vw, 1.5rem);
@@ -424,37 +387,39 @@ const CSS = `
     font-size: .86rem;
     line-height: 1.7;
   }
-  .form-block {
-    margin-bottom: 36px;
+  .form-body {
+    display: flex;
+    gap: 32px;
+    align-items: flex-start;
   }
+  .form-left { flex: 1; min-width: 0; }
+  .form-block { margin-bottom: 32px; }
   .form-block-title {
-    font-size: .7rem;
+    font-size: .68rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: .7px;
     color: #94a3b8;
-    margin-bottom: 16px;
+    margin-bottom: 14px;
     padding-bottom: 10px;
     border-bottom: 1px solid #f1f5f9;
   }
   .form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 14px;
+    gap: 13px;
   }
-  .form-grid.col3 { grid-template-columns: 1fr 1fr 1fr; }
-  .form-grid.col1 { grid-template-columns: 1fr; }
   .form-field { display: flex; flex-direction: column; gap: 5px; }
   .form-field.span2 { grid-column: span 2; }
   .form-label {
-    font-size: .67rem;
+    font-size: .66rem;
     font-weight: 700;
     color: #374151;
     text-transform: uppercase;
     letter-spacing: .5px;
   }
   .form-label .req { color: #ef4444; margin-left: 2px; }
-  .form-input, .form-select {
+  .form-input {
     padding: 10px 13px;
     border: 1.5px solid #e2e8f0;
     border-radius: 8px;
@@ -466,7 +431,7 @@ const CSS = `
     transition: all .2s;
     width: 100%;
   }
-  .form-input:focus, .form-select:focus {
+  .form-input:focus {
     border-color: #2563EB;
     background: #fff;
     box-shadow: 0 0 0 3px rgba(37,99,235,.08);
@@ -476,21 +441,14 @@ const CSS = `
     color: #64748b;
     cursor: default;
   }
-  .form-input[readOnly]:focus {
-    border-color: #e2e8f0;
-    box-shadow: none;
-  }
-  .form-hint {
-    font-size: .7rem;
-    color: #94a3b8;
-    margin-top: 2px;
-  }
+  .form-input[readOnly]:focus { border-color: #e2e8f0; box-shadow: none; }
+  .form-hint { font-size: .7rem; color: #94a3b8; margin-top: 2px; }
   .form-ein-section {
     background: #EFF6FF;
     border: 1.5px solid #BFDBFE;
     border-radius: 12px;
-    padding: 22px 22px 24px;
-    margin-top: 8px;
+    padding: 20px 20px 22px;
+    margin-top: 4px;
   }
   .form-ein-tag {
     display: inline-block;
@@ -504,48 +462,123 @@ const CSS = `
     border-radius: 20px;
     margin-bottom: 14px;
   }
-  .form-submit-wrap {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 32px;
+
+  /* ── CHECKOUT BOX ── */
+  .co-box {
+    width: 340px;
+    flex-shrink: 0;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 24px rgba(27,58,107,.1);
+    position: sticky;
+    top: 84px;
   }
-  .form-submit-btn {
+  .co-title {
+    font-family: 'Fraunces', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1B3A6B;
+    margin-bottom: 18px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .co-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 10px;
+    font-size: .83rem;
+  }
+  .co-line-name { color: #374151; flex: 1; margin-right: 8px; }
+  .co-line-price { color: #1B3A6B; font-weight: 600; white-space: nowrap; }
+  .co-divider { height: 1px; background: #f1f5f9; margin: 14px 0; }
+  .co-savings {
+    display: flex;
+    justify-content: space-between;
+    font-size: .8rem;
+    color: #16a34a;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+  .co-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 20px;
+  }
+  .co-total-label {
+    font-size: .82rem;
+    font-weight: 700;
+    color: #1B3A6B;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+  }
+  .co-total-amount {
+    font-size: 1.45rem;
+    font-weight: 700;
+    color: #1B3A6B;
+  }
+  .co-total-amount span {
+    font-size: .75rem;
+    font-weight: 500;
+    color: #94a3b8;
+    margin-left: 3px;
+  }
+  .co-btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 10px;
     background: #1B3A6B;
     color: #fff;
-    border: none;
-    border-radius: 10px;
-    padding: 14px 44px;
-    font-size: .95rem;
+    font-size: .92rem;
     font-weight: 700;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    border: none;
     cursor: pointer;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     transition: all .2s;
-    box-shadow: 0 4px 16px rgba(27,58,107,.3);
+    box-shadow: 0 4px 16px rgba(27,58,107,.28);
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
   }
-  .form-submit-btn:hover {
-    background: #153060;
-    transform: translateY(-1px);
-    box-shadow: 0 7px 24px rgba(27,58,107,.38);
+  .co-btn:hover { background: #153060; transform: translateY(-1px); box-shadow: 0 7px 22px rgba(27,58,107,.36); }
+  .co-btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+  .co-trust {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 14px;
+    color: #94a3b8;
+    font-size: .71rem;
+  }
+  .co-empty {
+    text-align: center;
+    color: #94a3b8;
+    font-size: .8rem;
+    padding: 20px 0;
   }
 
+  @media (max-width: 960px) {
+    .form-body { flex-direction: column; }
+    .co-box { width: 100%; position: static; }
+    .svc-section { padding: 48px 20px 36px; }
+    .form-section { padding: 44px 20px 60px; }
+  }
   @media (max-width: 700px) {
     .svc-grid { grid-template-columns: 1fr; }
     .form-grid { grid-template-columns: 1fr; }
-    .form-grid.col3 { grid-template-columns: 1fr; }
     .form-field.span2 { grid-column: span 1; }
-    .form-submit-wrap { justify-content: stretch; }
-    .form-submit-btn { width: 100%; justify-content: center; }
   }
-
   @media (max-width: 600px) {
     .nb-header { padding: 0 16px; }
     .nb-welcome { padding: 44px 20px 52px; }
     .entry-card { padding: 28px 22px; }
-    .svc-section { padding: 44px 16px 32px; }
-    .form-section { padding: 44px 16px 56px; }
+    .svc-section { padding: 40px 16px 32px; }
+    .form-section { padding: 40px 16px 56px; }
   }
 `
 
@@ -639,7 +672,17 @@ function NewBusinessContent() {
     return null
   }
 
-  const einSelected = selected.has('ein')
+  const einSelected   = selected.has('ein')
+  const allSelected   = selected.size === SERVICES.length
+  const subtotal      = SERVICES.filter(s => selected.has(s.id)).reduce((acc, s) => acc + s.price, 0)
+  const discountAmt   = allSelected ? +(subtotal * 0.10).toFixed(2) : 0
+  const total         = +(subtotal - discountAmt).toFixed(2)
+
+  function toggleAll() {
+    if (allSelected) setSelected(new Set())
+    else setSelected(new Set(SERVICES.map(s => s.id)))
+  }
+
   const displayName = company?.company_name ?? 'SUNSHINE GLAZING LLC'
 
   const welcomeTitle = lang === 'es'
@@ -774,29 +817,10 @@ function NewBusinessContent() {
                   )
                 })}
               </div>
-
-              {/* Bundle banner */}
-              <div className="svc-bundle">
-                <div className="svc-bundle-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                  </svg>
-                </div>
-                <div className="svc-bundle-text">
-                  <div className="svc-bundle-title">
-                    {lang === 'es' ? 'Business Essentials Bundle — Recomendado' : 'Business Essentials Bundle — Recommended'}
-                  </div>
-                  <div className="svc-bundle-sub">
-                    {lang === 'es'
-                      ? 'Los 3 servicios juntos al mejor precio — tal como se describe en la carta que recibiste.'
-                      : 'All 3 services together at the best value — as described in the notice you received.'}
-                  </div>
-                </div>
-              </div>
             </div>
           </section>
 
-          {/* ── FORM ── */}
+          {/* ── FORM + CHECKOUT ── */}
           <section className="form-section">
             <div className="form-inner">
               <div className="form-heading">
@@ -806,148 +830,226 @@ function NewBusinessContent() {
                   : 'Your business information has been pre-filled. Complete your contact details to process your order.'}</p>
               </div>
 
-              {/* Business info */}
-              <div className="form-block">
-                <div className="form-block-title">
-                  {lang === 'es' ? 'Información del negocio' : 'Business information'}
-                </div>
-                <div className="form-grid">
-                  <div className="form-field span2">
-                    <label className="form-label">{lang === 'es' ? 'Nombre del negocio' : 'Business name'}</label>
-                    <input className="form-input" value={form.companyName} readOnly />
-                  </div>
-                  <div className="form-field span2">
-                    <label className="form-label">{lang === 'es' ? 'Dirección' : 'Address'}</label>
-                    <input
-                      className="form-input"
-                      value={form.address}
-                      onChange={e => setField('address', e.target.value)}
-                      placeholder={lang === 'es' ? 'Calle y número' : 'Street address'}
-                    />
-                  </div>
-                  <div className="form-field">
-                    <label className="form-label">{lang === 'es' ? 'Ciudad' : 'City'}</label>
-                    <input
-                      className="form-input"
-                      value={form.city}
-                      onChange={e => setField('city', e.target.value)}
-                      placeholder="Miami"
-                    />
-                  </div>
-                  <div className="form-field">
-                    <label className="form-label">ZIP Code</label>
-                    <input
-                      className="form-input"
-                      value={form.zip}
-                      onChange={e => setField('zip', e.target.value)}
-                      placeholder="33101"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Contact info */}
-              <div className="form-block">
-                <div className="form-block-title">
-                  {lang === 'es' ? 'Información de contacto' : 'Contact information'}
-                </div>
-                <div className="form-grid">
-                  <div className="form-field">
-                    <label className="form-label">{lang === 'es' ? 'Nombre' : 'First name'}<span className="req">*</span></label>
-                    <input
-                      className="form-input"
-                      value={form.firstName}
-                      onChange={e => setField('firstName', e.target.value)}
-                      placeholder={lang === 'es' ? 'Juan' : 'John'}
-                    />
-                  </div>
-                  <div className="form-field">
-                    <label className="form-label">{lang === 'es' ? 'Apellido' : 'Last name'}<span className="req">*</span></label>
-                    <input
-                      className="form-input"
-                      value={form.lastName}
-                      onChange={e => setField('lastName', e.target.value)}
-                      placeholder={lang === 'es' ? 'García' : 'Smith'}
-                    />
-                  </div>
-                  <div className="form-field">
-                    <label className="form-label">Email<span className="req">*</span></label>
-                    <input
-                      className="form-input"
-                      type="email"
-                      value={form.email}
-                      onChange={e => setField('email', e.target.value)}
-                      placeholder="email@example.com"
-                    />
-                  </div>
-                  <div className="form-field">
-                    <label className="form-label">{lang === 'es' ? 'Teléfono' : 'Phone'}</label>
-                    <input
-                      className="form-input"
-                      type="tel"
-                      value={form.phone}
-                      onChange={e => setField('phone', e.target.value)}
-                      placeholder="(305) 000-0000"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* EIN section — only when EIN is selected */}
-              {einSelected && (
-                <div className="form-block">
-                  <div className="form-ein-section">
-                    <span className="form-ein-tag">EIN / Tax ID — {lang === 'es' ? 'Información adicional requerida' : 'Additional information required'}</span>
+              <div className="form-body">
+                {/* ── LEFT: FORM ── */}
+                <div className="form-left">
+                  {/* Business info */}
+                  <div className="form-block">
+                    <div className="form-block-title">
+                      {lang === 'es' ? 'Información del negocio' : 'Business information'}
+                    </div>
                     <div className="form-grid">
-                      <div className="form-field">
-                        <label className="form-label">{lang === 'es' ? 'Nombre del responsable' : 'Responsible party first name'}<span className="req">*</span></label>
+                      <div className="form-field span2">
+                        <label className="form-label">{lang === 'es' ? 'Nombre del negocio' : 'Business name'}</label>
+                        <input className="form-input" value={form.companyName} readOnly />
+                      </div>
+                      <div className="form-field span2">
+                        <label className="form-label">{lang === 'es' ? 'Dirección' : 'Address'}</label>
                         <input
                           className="form-input"
-                          value={form.einFirstName}
-                          onChange={e => setField('einFirstName', e.target.value)}
-                          placeholder={lang === 'es' ? 'Juan' : 'John'}
+                          value={form.address}
+                          onChange={e => setField('address', e.target.value)}
+                          placeholder={lang === 'es' ? 'Calle y número' : 'Street address'}
                         />
                       </div>
                       <div className="form-field">
-                        <label className="form-label">{lang === 'es' ? 'Apellido del responsable' : 'Responsible party last name'}<span className="req">*</span></label>
+                        <label className="form-label">{lang === 'es' ? 'Ciudad' : 'City'}</label>
                         <input
                           className="form-input"
-                          value={form.einLastName}
-                          onChange={e => setField('einLastName', e.target.value)}
-                          placeholder={lang === 'es' ? 'García' : 'Smith'}
+                          value={form.city}
+                          onChange={e => setField('city', e.target.value)}
+                          placeholder="Miami"
                         />
                       </div>
                       <div className="form-field">
-                        <label className="form-label">SSN / ITIN<span className="req">*</span></label>
+                        <label className="form-label">ZIP Code</label>
                         <input
                           className="form-input"
-                          value={form.einSsn}
-                          onChange={e => setField('einSsn', e.target.value)}
-                          placeholder="XXX-XX-XXXX"
-                        />
-                        <span className="form-hint">{lang === 'es' ? 'Requerido por el IRS para asignar el EIN.' : 'Required by the IRS to issue your EIN.'}</span>
-                      </div>
-                      <div className="form-field">
-                        <label className="form-label">{lang === 'es' ? 'Cargo / Título' : 'Title / Position'}<span className="req">*</span></label>
-                        <input
-                          className="form-input"
-                          value={form.einTitle}
-                          onChange={e => setField('einTitle', e.target.value)}
-                          placeholder={lang === 'es' ? 'ej. Owner, Member' : 'e.g. Owner, Member'}
+                          value={form.zip}
+                          onChange={e => setField('zip', e.target.value)}
+                          placeholder="33101"
                         />
                       </div>
                     </div>
                   </div>
-                </div>
-              )}
 
-              <div className="form-submit-wrap">
-                <button className="form-submit-btn">
-                  {lang === 'es' ? 'Continuar al pago' : 'Continue to payment'}
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
-                  </svg>
-                </button>
+                  {/* Contact info */}
+                  <div className="form-block">
+                    <div className="form-block-title">
+                      {lang === 'es' ? 'Información de contacto' : 'Contact information'}
+                    </div>
+                    <div className="form-grid">
+                      <div className="form-field">
+                        <label className="form-label">{lang === 'es' ? 'Nombre' : 'First name'}<span className="req">*</span></label>
+                        <input
+                          className="form-input"
+                          value={form.firstName}
+                          onChange={e => setField('firstName', e.target.value)}
+                          placeholder={lang === 'es' ? 'Juan' : 'John'}
+                        />
+                      </div>
+                      <div className="form-field">
+                        <label className="form-label">{lang === 'es' ? 'Apellido' : 'Last name'}<span className="req">*</span></label>
+                        <input
+                          className="form-input"
+                          value={form.lastName}
+                          onChange={e => setField('lastName', e.target.value)}
+                          placeholder={lang === 'es' ? 'García' : 'Smith'}
+                        />
+                      </div>
+                      <div className="form-field">
+                        <label className="form-label">Email<span className="req">*</span></label>
+                        <input
+                          className="form-input"
+                          type="email"
+                          value={form.email}
+                          onChange={e => setField('email', e.target.value)}
+                          placeholder="email@example.com"
+                        />
+                      </div>
+                      <div className="form-field">
+                        <label className="form-label">{lang === 'es' ? 'Teléfono' : 'Phone'}</label>
+                        <input
+                          className="form-input"
+                          type="tel"
+                          value={form.phone}
+                          onChange={e => setField('phone', e.target.value)}
+                          placeholder="(305) 000-0000"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* EIN section */}
+                  {einSelected && (
+                    <div className="form-block">
+                      <div className="form-ein-section">
+                        <span className="form-ein-tag">EIN / Tax ID — {lang === 'es' ? 'Información adicional requerida' : 'Additional information required'}</span>
+                        <div className="form-grid">
+                          <div className="form-field">
+                            <label className="form-label">{lang === 'es' ? 'Nombre del responsable' : 'Responsible party first name'}<span className="req">*</span></label>
+                            <input
+                              className="form-input"
+                              value={form.einFirstName}
+                              onChange={e => setField('einFirstName', e.target.value)}
+                              placeholder={lang === 'es' ? 'Juan' : 'John'}
+                            />
+                          </div>
+                          <div className="form-field">
+                            <label className="form-label">{lang === 'es' ? 'Apellido del responsable' : 'Responsible party last name'}<span className="req">*</span></label>
+                            <input
+                              className="form-input"
+                              value={form.einLastName}
+                              onChange={e => setField('einLastName', e.target.value)}
+                              placeholder={lang === 'es' ? 'García' : 'Smith'}
+                            />
+                          </div>
+                          <div className="form-field">
+                            <label className="form-label">SSN / ITIN<span className="req">*</span></label>
+                            <input
+                              className="form-input"
+                              value={form.einSsn}
+                              onChange={e => setField('einSsn', e.target.value)}
+                              placeholder="XXX-XX-XXXX"
+                            />
+                            <span className="form-hint">{lang === 'es' ? 'Requerido por el IRS para asignar el EIN.' : 'Required by the IRS to issue your EIN.'}</span>
+                          </div>
+                          <div className="form-field">
+                            <label className="form-label">{lang === 'es' ? 'Cargo / Título' : 'Title / Position'}<span className="req">*</span></label>
+                            <input
+                              className="form-input"
+                              value={form.einTitle}
+                              onChange={e => setField('einTitle', e.target.value)}
+                              placeholder={lang === 'es' ? 'ej. Owner, Member' : 'e.g. Owner, Member'}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* ── RIGHT: CHECKOUT BOX ── */}
+                <div className="co-box">
+                  <div className="co-title">{lang === 'es' ? 'Resumen de Orden' : 'Order Summary'}</div>
+
+                  {/* Select All row */}
+                  <div
+                    style={{ display:'flex', alignItems:'center', gap:10, marginBottom:14, cursor:'pointer' }}
+                    onClick={toggleAll}
+                  >
+                    <div style={{
+                      width:20, height:20, borderRadius:5,
+                      border: allSelected ? 'none' : '2px solid #cbd5e1',
+                      background: allSelected ? '#2563EB' : 'transparent',
+                      display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0,
+                      transition:'all .2s'
+                    }}>
+                      {allSelected && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+                    </div>
+                    <span style={{ fontSize:'.82rem', fontWeight:700, color:'#1B3A6B', flex:1 }}>
+                      {lang === 'es' ? 'Seleccionar todo' : 'Select all'}
+                    </span>
+                    <span style={{ fontSize:'.75rem', fontWeight:600, color:'#64748b' }}>
+                      {lang === 'es' ? 'Precio' : 'Price'}
+                    </span>
+                  </div>
+
+                  <div className="co-divider" style={{ marginTop:0 }} />
+
+                  {/* Service lines */}
+                  {selected.size === 0 ? (
+                    <div className="co-empty">{lang === 'es' ? 'Ningún servicio seleccionado.' : 'No services selected.'}</div>
+                  ) : (
+                    SERVICES.filter(s => selected.has(s.id)).map(svc => (
+                      <div key={svc.id} className="co-line" style={{ alignItems:'center', gap:8 }}>
+                        <div
+                          style={{
+                            width:18, height:18, borderRadius:4, background:'#2563EB',
+                            display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, cursor:'pointer'
+                          }}
+                          onClick={() => toggleService(svc.id)}
+                        >
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        </div>
+                        <span className="co-line-name">{lang === 'es' ? svc.titleEs : svc.titleEn}</span>
+                        <span className="co-line-price">${svc.price.toFixed(2)}</span>
+                      </div>
+                    ))
+                  )}
+
+                  <div className="co-divider" />
+
+                  {/* 10% bundle discount */}
+                  {allSelected && (
+                    <div className="co-savings">
+                      <span>🎉 10% {lang === 'es' ? 'Descuento Bundle' : 'Bundle Discount'}</span>
+                      <span>−${discountAmt.toFixed(2)}</span>
+                    </div>
+                  )}
+
+                  {/* Total */}
+                  <div className="co-total">
+                    <span className="co-total-label">Total</span>
+                    <span className="co-total-amount">
+                      ${total.toFixed(2)}<span>USD</span>
+                    </span>
+                  </div>
+
+                  <button className="co-btn" disabled={selected.size === 0}>
+                    {lang === 'es' ? 'Proceder al Pago' : 'Proceed to Checkout'}
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+                    </svg>
+                  </button>
+
+                  <div className="co-trust">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                    {lang === 'es' ? 'Pago 100% seguro con Stripe' : '100% secure payment with Stripe'}
+                  </div>
+                </div>
               </div>
             </div>
           </section>
