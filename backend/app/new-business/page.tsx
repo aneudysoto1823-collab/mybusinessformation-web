@@ -901,11 +901,6 @@ function NewBusinessContent() {
     }
   }, [company])
 
-  async function handleIdEntry() {
-    const empty = lang === 'es' ? 'Por favor ingresa tu Document ID.' : 'Please enter your Document ID.'
-    if (!docInput.trim()) { setLookupErr(empty); return }
-    await lookup(docInput)
-  }
 
   function toggleService(id: string) {
     setSelected(prev => {
@@ -1138,27 +1133,14 @@ function NewBusinessContent() {
                               es="El Document ID de tu negocio en Florida. Aparece en tu aviso de registro estatal."
                             />
                           </label>
-                          <div style={{ display:'flex', gap:8 }}>
-                            <input
-                              className={`form-input${lookupErr ? ' err' : ''}`}
-                              value={docInput}
-                              onChange={e => { setDocInput(e.target.value.toUpperCase()); setLookupErr('') }}
-                              onKeyDown={e => e.key === 'Enter' && handleIdEntry()}
-                              placeholder="e.g. L26000098321"
-                              readOnly={!!company}
-                              style={company ? { background:'#f1f5f9', color:'#64748b' } : {}}
-                            />
-                            {!company && (
-                              <button
-                                type="button"
-                                onClick={handleIdEntry}
-                                disabled={lookingUp || !docInput.trim()}
-                                style={{ flexShrink:0, padding:'0 18px', background:'#2563EB', color:'#fff', border:'none', borderRadius:8, fontFamily:'inherit', fontWeight:600, fontSize:'.82rem', cursor:'pointer', opacity: (!docInput.trim() || lookingUp) ? .5 : 1 }}
-                              >
-                                {lookingUp ? '...' : (lang === 'es' ? 'Buscar' : 'Find')}
-                              </button>
-                            )}
-                          </div>
+                          <input
+                            className={`form-input${lookupErr ? ' err' : ''}`}
+                            value={docInput}
+                            onChange={e => { setDocInput(e.target.value.toUpperCase()); setLookupErr('') }}
+                            placeholder="e.g. L26000098321"
+                            readOnly={!!company}
+                            style={company ? { background:'#f1f5f9', color:'#64748b' } : {}}
+                          />
                           {lookupErr && <p style={{ color:'#ef4444', fontSize:'.75rem', marginTop:4 }}>⚠ {lookupErr}</p>}
                           {company && <p style={{ color:'#16a34a', fontSize:'.75rem', marginTop:4 }}>✓ {company.company_name}</p>}
                         </div>
