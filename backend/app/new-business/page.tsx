@@ -782,15 +782,6 @@ function NewBusinessContent() {
                       className={`svc-card${isSelected ? ' selected' : ''}`}
                       onClick={() => toggleService(svc.id)}
                     >
-                      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                        <div className="svc-check">
-                          {isSelected && (
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                              <polyline points="20 6 9 17 4 12"/>
-                            </svg>
-                          )}
-                        </div>
-                      </div>
                       <div className="svc-title">{lang === 'es' ? svc.titleEs : svc.titleEn}</div>
                       <div className="svc-desc">{getDesc(svc.id)}</div>
                     </div>
@@ -981,7 +972,7 @@ function NewBusinessContent() {
                   {SERVICES.map(svc => {
                     const isOn = selected.has(svc.id)
                     return (
-                      <div key={svc.id} className="co-line" style={{ alignItems:'center', gap:8, opacity: isOn ? 1 : 0.45 }}>
+                      <div key={svc.id} className="co-line" style={{ alignItems:'center', gap:8 }}>
                         <div
                           style={{
                             width:18, height:18, borderRadius:4,
@@ -994,8 +985,8 @@ function NewBusinessContent() {
                         >
                           {isOn && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
                         </div>
-                        <span className="co-line-name" style={{ color: isOn ? '#374151' : '#94a3b8' }}>{lang === 'es' ? svc.titleEs : svc.titleEn}</span>
-                        <span className="co-line-price" style={{ color: isOn ? '#1B3A6B' : '#cbd5e1' }}>${svc.price.toFixed(2)}</span>
+                        <span className="co-line-name">{lang === 'es' ? svc.titleEs : svc.titleEn}</span>
+                        <span className="co-line-price" style={{ color: isOn ? '#1B3A6B' : '#e2e8f0' }}>${svc.price.toFixed(2)}</span>
                       </div>
                     )
                   })}
