@@ -883,7 +883,7 @@ function NewBusinessContent() {
   }, [sp, lookup])
 
   useEffect(() => {
-    if (company || docInput.length < 8) return
+    if (company || docInput.length < 12) return
     const timer = setTimeout(() => { lookup(docInput) }, 600)
     return () => clearTimeout(timer)
   }, [docInput, company, lookup])
