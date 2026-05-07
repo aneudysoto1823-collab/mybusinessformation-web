@@ -316,8 +316,6 @@ const CSS = `
     transform: translateY(-2px);
   }
   .svc-card.selected {
-    border-color: #2563EB;
-    box-shadow: 0 6px 28px rgba(37,99,235,.16);
     transform: translateY(-2px);
   }
   .svc-check {
@@ -739,7 +737,7 @@ const CSS = `
   }
   .yn-btn:hover { border-color: #93c5fd; }
   .yn-btn.yes.active { border-color: #2563EB; background: #EFF6FF; color: #2563EB; }
-  .yn-btn.no.active  { border-color: #475569; background: #e2e8f0; color: #1e293b; }
+  .yn-btn.no.active  { border-color: #64748b; background: #f1f5f9; color: #374151; }
 
   /* Textarea */
   .form-textarea {
@@ -1620,7 +1618,7 @@ function NewBusinessContent() {
 
                   {/* Select All row */}
                   <div
-                    style={{ display:'flex', alignItems:'center', gap:10, marginBottom:14, cursor:'pointer' }}
+                    style={{ display:'flex', alignItems:'center', gap:10, marginBottom:6, cursor:'pointer' }}
                     onClick={toggleAll}
                   >
                     <div style={{
@@ -1632,9 +1630,16 @@ function NewBusinessContent() {
                     }}>
                       {allSelected && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
                     </div>
-                    <span style={{ fontSize:'.82rem', fontWeight:700, color:'#1B3A6B', flex:1 }}>
-                      {lang === 'es' ? 'Seleccionar todo' : 'Select all'}
-                    </span>
+                    <div style={{ flex:1 }}>
+                      <div style={{ fontSize:'.82rem', fontWeight:700, color:'#1B3A6B' }}>
+                        {lang === 'es' ? 'Seleccionar todo' : 'Select all'}
+                      </div>
+                      <div style={{ fontSize:'.7rem', color: allSelected ? '#16a34a' : '#f59e0b', fontWeight:600, marginTop:1 }}>
+                        {allSelected
+                          ? (lang === 'es' ? `Ahorrando $${discountAmt.toFixed(2)} con el bundle` : `Saving $${discountAmt.toFixed(2)} with the bundle`)
+                          : (lang === 'es' ? 'Selecciona los 3 y ahorra un 10%' : 'Select all 3 and save 10%')}
+                      </div>
+                    </div>
                     <span style={{ fontSize:'.75rem', fontWeight:600, color:'#64748b' }}>
                       {lang === 'es' ? 'Precio' : 'Price'}
                     </span>
@@ -1670,7 +1675,7 @@ function NewBusinessContent() {
                   {/* 10% bundle discount */}
                   {allSelected && (
                     <div className="co-savings">
-                      <span>🎉 10% {lang === 'es' ? 'Descuento Bundle' : 'Bundle Discount'}</span>
+                      <span>10% {lang === 'es' ? 'Descuento Bundle' : 'Bundle Discount'}</span>
                       <span>−${discountAmt.toFixed(2)}</span>
                     </div>
                   )}
