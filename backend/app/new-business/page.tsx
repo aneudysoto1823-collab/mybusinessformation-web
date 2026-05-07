@@ -429,25 +429,93 @@ const CSS = `
   }
   .form-input[readOnly]:focus { border-color: #e2e8f0; box-shadow: none; }
   .form-hint { font-size: .7rem; color: #94a3b8; margin-top: 2px; }
-  .form-ein-section {
-    background: #EFF6FF;
-    border: 1.5px solid #BFDBFE;
-    border-radius: 12px;
-    padding: 20px 20px 22px;
-    margin-top: 4px;
+
+  /* ── STEP INDICATOR ── */
+  .steps-bar {
+    display: flex;
+    align-items: center;
+    margin-bottom: 28px;
   }
-  .form-ein-tag {
-    display: inline-block;
-    background: #2563EB;
-    color: #fff;
-    font-size: .62rem;
+  .step-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+  .step-circle {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .72rem;
     font-weight: 700;
-    letter-spacing: .7px;
-    text-transform: uppercase;
-    padding: 3px 10px;
-    border-radius: 20px;
-    margin-bottom: 14px;
+    transition: all .25s;
   }
+  .step-circle.done { background: #2563EB; color: #fff; }
+  .step-circle.active { background: #1B3A6B; color: #fff; box-shadow: 0 0 0 4px rgba(27,58,107,.12); }
+  .step-circle.pending { background: #f1f5f9; color: #94a3b8; border: 2px solid #e2e8f0; }
+  .step-lbl {
+    font-size: .62rem;
+    font-weight: 600;
+    white-space: nowrap;
+    color: #94a3b8;
+    letter-spacing: .2px;
+  }
+  .step-lbl.active { color: #1B3A6B; }
+  .step-lbl.done   { color: #2563EB; }
+  .step-connector {
+    flex: 1;
+    height: 2px;
+    background: #e2e8f0;
+    margin: 0 8px;
+    margin-bottom: 18px;
+    transition: background .25s;
+  }
+  .step-connector.done { background: #2563EB; }
+
+  /* ── STEP NAV BUTTONS ── */
+  .step-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 24px;
+    gap: 12px;
+  }
+  .step-back {
+    background: none;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 10px 22px;
+    font-size: .88rem;
+    font-weight: 600;
+    color: #64748b;
+    cursor: pointer;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    transition: all .2s;
+  }
+  .step-back:hover { border-color: #94a3b8; color: #374151; }
+  .step-next {
+    background: #1B3A6B;
+    border: none;
+    border-radius: 8px;
+    padding: 11px 28px;
+    font-size: .88rem;
+    font-weight: 700;
+    color: #fff;
+    cursor: pointer;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    transition: all .2s;
+    box-shadow: 0 4px 14px rgba(27,58,107,.25);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .step-next:hover { background: #153060; transform: translateY(-1px); }
+  .step-next.primary { background: #2563EB; box-shadow: 0 4px 14px rgba(37,99,235,.3); }
+  .step-next.primary:hover { background: #1d4ed8; }
 
   /* ── CHECKOUT BOX ── */
   .co-box {
@@ -579,6 +647,7 @@ function NewBusinessContent() {
   const [lookupErr, setLookupErr] = useState('')
 
   const [selected, setSelected]   = useState<Set<string>>(new Set(SERVICES.map(s => s.id)))
+  const [step, setStep]           = useState(1)
 
   const [form, setForm] = useState({
     firstName: '', lastName: '', email: '', phone: '',
@@ -795,147 +864,225 @@ function NewBusinessContent() {
           <section className="form-section">
             <div className="form-inner">
               <div className="form-body">
-                {/* ── LEFT: FORM ── */}
+                {/* ── LEFT: STEP FORM ── */}
                 <div className="form-left">
+                  {/* Heading */}
                   <div className="form-heading">
-                    <h2>{lang === 'es' ? 'Completa tu información' : 'Complete your information'}</h2>
-                    <p>{lang === 'es'
-                      ? 'Completa la información de contacto para procesar tu orden.'
-                      : 'Complete your contact details to process your order.'}</p>
-                  </div>
-                  {/* Business info */}
-                  <div className="form-block">
-                    <div className="form-block-title">
-                      {lang === 'es' ? 'Información del negocio' : 'Business information'}
-                    </div>
-                    <div className="form-grid">
-                      <div className="form-field span2">
-                        <label className="form-label">{lang === 'es' ? 'Nombre del negocio' : 'Business name'}</label>
-                        <input className="form-input" value={form.companyName} readOnly />
-                      </div>
-                      <div className="form-field span2">
-                        <label className="form-label">{lang === 'es' ? 'Dirección' : 'Address'}</label>
-                        <input
-                          className="form-input"
-                          value={form.address}
-                          onChange={e => setField('address', e.target.value)}
-                          placeholder={lang === 'es' ? 'Calle y número' : 'Street address'}
-                        />
-                      </div>
-                      <div className="form-field">
-                        <label className="form-label">{lang === 'es' ? 'Ciudad' : 'City'}</label>
-                        <input
-                          className="form-input"
-                          value={form.city}
-                          onChange={e => setField('city', e.target.value)}
-                          placeholder="Miami"
-                        />
-                      </div>
-                      <div className="form-field">
-                        <label className="form-label">ZIP Code</label>
-                        <input
-                          className="form-input"
-                          value={form.zip}
-                          onChange={e => setField('zip', e.target.value)}
-                          placeholder="33101"
-                        />
-                      </div>
-                    </div>
+                    <h2>
+                      {lang === 'es'
+                        ? `Completa tu información en ${einSelected ? '3' : '2'} simples pasos`
+                        : `Complete your information in ${einSelected ? '3' : '2'} simple steps`}
+                    </h2>
                   </div>
 
-                  {/* Contact info */}
-                  <div className="form-block">
-                    <div className="form-block-title">
-                      {lang === 'es' ? 'Información de contacto' : 'Contact information'}
+                  {/* Step indicator */}
+                  <div className="steps-bar">
+                    {/* Step 1 */}
+                    <div className="step-node">
+                      <div className={`step-circle ${step > 1 ? 'done' : step === 1 ? 'active' : 'pending'}`}>
+                        {step > 1
+                          ? <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                          : '1'}
+                      </div>
+                      <span className={`step-lbl ${step === 1 ? 'active' : step > 1 ? 'done' : ''}`}>
+                        {lang === 'es' ? 'Negocio' : 'Business'}
+                      </span>
                     </div>
-                    <div className="form-grid">
-                      <div className="form-field">
-                        <label className="form-label">{lang === 'es' ? 'Nombre' : 'First name'}<span className="req">*</span></label>
-                        <input
-                          className="form-input"
-                          value={form.firstName}
-                          onChange={e => setField('firstName', e.target.value)}
-                          placeholder={lang === 'es' ? 'Juan' : 'John'}
-                        />
+                    <div className={`step-connector ${step > 1 ? 'done' : ''}`} />
+
+                    {/* Step 2 */}
+                    <div className="step-node">
+                      <div className={`step-circle ${step > 2 ? 'done' : step === 2 ? 'active' : 'pending'}`}>
+                        {step > 2
+                          ? <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                          : '2'}
                       </div>
-                      <div className="form-field">
-                        <label className="form-label">{lang === 'es' ? 'Apellido' : 'Last name'}<span className="req">*</span></label>
-                        <input
-                          className="form-input"
-                          value={form.lastName}
-                          onChange={e => setField('lastName', e.target.value)}
-                          placeholder={lang === 'es' ? 'García' : 'Smith'}
-                        />
-                      </div>
-                      <div className="form-field">
-                        <label className="form-label">Email<span className="req">*</span></label>
-                        <input
-                          className="form-input"
-                          type="email"
-                          value={form.email}
-                          onChange={e => setField('email', e.target.value)}
-                          placeholder="email@example.com"
-                        />
-                      </div>
-                      <div className="form-field">
-                        <label className="form-label">{lang === 'es' ? 'Teléfono' : 'Phone'}</label>
-                        <input
-                          className="form-input"
-                          type="tel"
-                          value={form.phone}
-                          onChange={e => setField('phone', e.target.value)}
-                          placeholder="(305) 000-0000"
-                        />
-                      </div>
+                      <span className={`step-lbl ${step === 2 ? 'active' : step > 2 ? 'done' : ''}`}>
+                        {lang === 'es' ? 'Contacto' : 'Contact'}
+                      </span>
                     </div>
+
+                    {/* Step 3 — only if EIN selected */}
+                    {einSelected && (
+                      <>
+                        <div className={`step-connector ${step > 2 ? 'done' : ''}`} />
+                        <div className="step-node">
+                          <div className={`step-circle ${step === 3 ? 'active' : 'pending'}`}>3</div>
+                          <span className={`step-lbl ${step === 3 ? 'active' : ''}`}>EIN</span>
+                        </div>
+                      </>
+                    )}
                   </div>
 
-                  {/* EIN section */}
-                  {einSelected && (
-                    <div className="form-block">
-                      <div className="form-ein-section">
-                        <span className="form-ein-tag">EIN / Tax ID — {lang === 'es' ? 'Información adicional requerida' : 'Additional information required'}</span>
-                        <div className="form-grid">
-                          <div className="form-field">
-                            <label className="form-label">{lang === 'es' ? 'Nombre del responsable' : 'Responsible party first name'}<span className="req">*</span></label>
-                            <input
-                              className="form-input"
-                              value={form.einFirstName}
-                              onChange={e => setField('einFirstName', e.target.value)}
-                              placeholder={lang === 'es' ? 'Juan' : 'John'}
-                            />
-                          </div>
-                          <div className="form-field">
-                            <label className="form-label">{lang === 'es' ? 'Apellido del responsable' : 'Responsible party last name'}<span className="req">*</span></label>
-                            <input
-                              className="form-input"
-                              value={form.einLastName}
-                              onChange={e => setField('einLastName', e.target.value)}
-                              placeholder={lang === 'es' ? 'García' : 'Smith'}
-                            />
-                          </div>
-                          <div className="form-field">
-                            <label className="form-label">SSN / ITIN<span className="req">*</span></label>
-                            <input
-                              className="form-input"
-                              value={form.einSsn}
-                              onChange={e => setField('einSsn', e.target.value)}
-                              placeholder="XXX-XX-XXXX"
-                            />
-                            <span className="form-hint">{lang === 'es' ? 'Requerido por el IRS para asignar el EIN.' : 'Required by the IRS to issue your EIN.'}</span>
-                          </div>
-                          <div className="form-field">
-                            <label className="form-label">{lang === 'es' ? 'Cargo / Título' : 'Title / Position'}<span className="req">*</span></label>
-                            <input
-                              className="form-input"
-                              value={form.einTitle}
-                              onChange={e => setField('einTitle', e.target.value)}
-                              placeholder={lang === 'es' ? 'ej. Owner, Member' : 'e.g. Owner, Member'}
-                            />
-                          </div>
+                  {/* ── STEP 1: Business info ── */}
+                  {step === 1 && (
+                    <>
+                      <div className="form-block-title">
+                        {lang === 'es' ? 'Información del negocio' : 'Business information'}
+                      </div>
+                      <div className="form-grid">
+                        <div className="form-field span2">
+                          <label className="form-label">{lang === 'es' ? 'Nombre del negocio' : 'Business name'}</label>
+                          <input className="form-input" value={form.companyName} readOnly />
+                        </div>
+                        <div className="form-field span2">
+                          <label className="form-label">{lang === 'es' ? 'Dirección' : 'Address'}</label>
+                          <input
+                            className="form-input"
+                            value={form.address}
+                            onChange={e => setField('address', e.target.value)}
+                            placeholder={lang === 'es' ? 'Calle y número' : 'Street address'}
+                          />
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label">{lang === 'es' ? 'Ciudad' : 'City'}</label>
+                          <input
+                            className="form-input"
+                            value={form.city}
+                            onChange={e => setField('city', e.target.value)}
+                            placeholder="Miami"
+                          />
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label">ZIP Code</label>
+                          <input
+                            className="form-input"
+                            value={form.zip}
+                            onChange={e => setField('zip', e.target.value)}
+                            placeholder="33101"
+                          />
                         </div>
                       </div>
-                    </div>
+                      <div className="step-nav">
+                        <span />
+                        <button className="step-next" onClick={() => setStep(2)}>
+                          {lang === 'es' ? 'Siguiente' : 'Next'}
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                        </button>
+                      </div>
+                    </>
+                  )}
+
+                  {/* ── STEP 2: Contact info ── */}
+                  {step === 2 && (
+                    <>
+                      <div className="form-block-title">
+                        {lang === 'es' ? 'Información de contacto' : 'Contact information'}
+                      </div>
+                      <div className="form-grid">
+                        <div className="form-field">
+                          <label className="form-label">{lang === 'es' ? 'Nombre' : 'First name'}<span className="req">*</span></label>
+                          <input
+                            className="form-input"
+                            value={form.firstName}
+                            onChange={e => setField('firstName', e.target.value)}
+                            placeholder={lang === 'es' ? 'Juan' : 'John'}
+                          />
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label">{lang === 'es' ? 'Apellido' : 'Last name'}<span className="req">*</span></label>
+                          <input
+                            className="form-input"
+                            value={form.lastName}
+                            onChange={e => setField('lastName', e.target.value)}
+                            placeholder={lang === 'es' ? 'García' : 'Smith'}
+                          />
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label">Email<span className="req">*</span></label>
+                          <input
+                            className="form-input"
+                            type="email"
+                            value={form.email}
+                            onChange={e => setField('email', e.target.value)}
+                            placeholder="email@example.com"
+                          />
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label">{lang === 'es' ? 'Teléfono' : 'Phone'}</label>
+                          <input
+                            className="form-input"
+                            type="tel"
+                            value={form.phone}
+                            onChange={e => setField('phone', e.target.value)}
+                            placeholder="(305) 000-0000"
+                          />
+                        </div>
+                      </div>
+                      <div className="step-nav">
+                        <button className="step-back" onClick={() => setStep(1)}>
+                          ← {lang === 'es' ? 'Atrás' : 'Back'}
+                        </button>
+                        {einSelected ? (
+                          <button className="step-next" onClick={() => setStep(3)}>
+                            {lang === 'es' ? 'Siguiente' : 'Next'}
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                          </button>
+                        ) : (
+                          <button className="step-next primary">
+                            {lang === 'es' ? 'Proceder al Pago' : 'Proceed to Checkout'}
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                          </button>
+                        )}
+                      </div>
+                    </>
+                  )}
+
+                  {/* ── STEP 3: EIN info (only if EIN selected) ── */}
+                  {step === 3 && einSelected && (
+                    <>
+                      <div className="form-block-title" style={{ color:'#2563EB' }}>
+                        EIN / Tax ID — {lang === 'es' ? 'Información adicional requerida por el IRS' : 'Additional information required by the IRS'}
+                      </div>
+                      <div className="form-grid">
+                        <div className="form-field">
+                          <label className="form-label">{lang === 'es' ? 'Nombre del responsable' : 'Responsible party first name'}<span className="req">*</span></label>
+                          <input
+                            className="form-input"
+                            value={form.einFirstName}
+                            onChange={e => setField('einFirstName', e.target.value)}
+                            placeholder={lang === 'es' ? 'Juan' : 'John'}
+                          />
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label">{lang === 'es' ? 'Apellido del responsable' : 'Responsible party last name'}<span className="req">*</span></label>
+                          <input
+                            className="form-input"
+                            value={form.einLastName}
+                            onChange={e => setField('einLastName', e.target.value)}
+                            placeholder={lang === 'es' ? 'García' : 'Smith'}
+                          />
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label">SSN / ITIN<span className="req">*</span></label>
+                          <input
+                            className="form-input"
+                            value={form.einSsn}
+                            onChange={e => setField('einSsn', e.target.value)}
+                            placeholder="XXX-XX-XXXX"
+                          />
+                          <span className="form-hint">{lang === 'es' ? 'Requerido por el IRS para asignar el EIN.' : 'Required by the IRS to issue your EIN.'}</span>
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label">{lang === 'es' ? 'Cargo / Título' : 'Title / Position'}<span className="req">*</span></label>
+                          <input
+                            className="form-input"
+                            value={form.einTitle}
+                            onChange={e => setField('einTitle', e.target.value)}
+                            placeholder={lang === 'es' ? 'ej. Owner, Member' : 'e.g. Owner, Member'}
+                          />
+                        </div>
+                      </div>
+                      <div className="step-nav">
+                        <button className="step-back" onClick={() => setStep(2)}>
+                          ← {lang === 'es' ? 'Atrás' : 'Back'}
+                        </button>
+                        <button className="step-next primary">
+                          {lang === 'es' ? 'Proceder al Pago' : 'Proceed to Checkout'}
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                        </button>
+                      </div>
+                    </>
                   )}
                 </div>
 
