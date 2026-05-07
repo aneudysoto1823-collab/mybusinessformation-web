@@ -1026,12 +1026,14 @@ function NewBusinessContent() {
       </header>
 
       <>
-          {/* WELCOME — solo si se encontró empresa */}
-          {company && (
+          {/* WELCOME — si hay empresa o está buscando */}
+          {(company || lookingUp) && (
           <section className="nb-welcome">
             <div className="nb-welcome-inner">
-              <h1>{welcomeTitle}</h1>
-              <p>{welcomeSub}</p>
+              {lookingUp
+                ? <h1 style={{ color:'#94a3b8' }}>{lang === 'es' ? 'Buscando tu empresa...' : 'Looking up your business...'}</h1>
+                : <><h1>{welcomeTitle}</h1><p>{welcomeSub}</p></>
+              }
             </div>
           </section>
           )}
