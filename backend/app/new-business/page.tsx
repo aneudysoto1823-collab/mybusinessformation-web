@@ -739,7 +739,7 @@ const CSS = `
   }
   .yn-btn:hover { border-color: #93c5fd; }
   .yn-btn.yes.active { border-color: #2563EB; background: #EFF6FF; color: #2563EB; }
-  .yn-btn.no.active  { border-color: #e2e8f0; background: #f1f5f9; color: #374151; }
+  .yn-btn.no.active  { border-color: #475569; background: #e2e8f0; color: #1e293b; }
 
   /* Textarea */
   .form-textarea {
@@ -1313,7 +1313,7 @@ function NewBusinessContent() {
                   {step === 2 && (
                     <>
                       <div className="form-block-title">
-                        {lang === 'es' ? 'Información de contacto' : 'Contact information'}
+                        {lang === 'es' ? 'Persona Responsable' : 'Responsible Party'}
                       </div>
                       <div className="form-grid">
                         {/* First name */}
@@ -1526,36 +1526,6 @@ function NewBusinessContent() {
                                 label: lang === 'es' ? 'Otra razón' : 'Other reason',
                               },
                             ]}
-                          />
-                        </div>
-
-                        {/* Responsible party name */}
-                        <div className="form-field">
-                          <label className="form-label">
-                            {lang === 'es' ? 'Nombre del responsable' : 'Responsible party first name'}
-                            <Tip
-                              en="The person who controls, manages, or directs the business. For a single-member LLC this is usually the owner."
-                              es="La persona que controla, administra o dirige el negocio. Para una LLC de un solo miembro, generalmente es el dueño."
-                            />
-                            <span className="req">*</span>
-                          </label>
-                          <input
-                            className="form-input"
-                            value={form.einFirstName}
-                            onChange={e => setField('einFirstName', e.target.value)}
-                            placeholder={lang === 'es' ? 'Juan' : 'John'}
-                          />
-                        </div>
-                        <div className="form-field">
-                          <label className="form-label">
-                            {lang === 'es' ? 'Apellido del responsable' : 'Responsible party last name'}
-                            <span className="req">*</span>
-                          </label>
-                          <input
-                            className="form-input"
-                            value={form.einLastName}
-                            onChange={e => setField('einLastName', e.target.value)}
-                            placeholder={lang === 'es' ? 'García' : 'Smith'}
                           />
                         </div>
 
