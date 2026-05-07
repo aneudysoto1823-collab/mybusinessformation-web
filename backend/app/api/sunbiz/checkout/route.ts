@@ -5,10 +5,10 @@ import { getSupabaseAdmin } from '@/lib/supabase'
 const getStripe = () => new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2026-02-25.clover' })
 
 const SERVICES: Record<string, { name: string; amount: number }> = {
-  labor_law_poster:      { name: 'Labor Law Poster (2026)',    amount: 6999  }, // $69.99
-  ein:                   { name: 'EIN / Tax ID Number',         amount: 9999  }, // $99.99
-  certificate_of_status: { name: 'Certificate of Status (FL)', amount: 4999  }, // $49.99
-  bundle:                { name: 'Business Essentials Bundle (3 services)', amount: 18999 }, // $189.99
+  labor_law_poster:      { name: 'Labor Law Poster (2026)',    amount: 12000 }, // $120.00
+  ein:                   { name: 'EIN / Tax ID Number',         amount: 16100 }, // $161.00
+  certificate_of_status: { name: 'Certificate of Status (FL)', amount: 7900  }, // $79.00
+  bundle:                { name: 'Business Essentials Bundle (3 services)', amount: 32400 }, // $324.00
 }
 
 export async function POST(req: NextRequest) {

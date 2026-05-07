@@ -26,7 +26,7 @@ const SERVICES = [
     titleEs: 'Póster de Leyes Laborales 2026',
     descEn: 'Mandatory federal & state poster for all Florida businesses. Avoid fines up to $17,650.',
     descEs: 'Póster obligatorio federal y estatal para todos los negocios en Florida. Evita multas de hasta $17,650.',
-    price: 69.99,
+    price: 120.00,
   },
   {
     id: 'ein',
@@ -34,7 +34,7 @@ const SERVICES = [
     titleEs: 'EIN / Número de Identificación Fiscal',
     descEn: 'Required to open a business bank account, hire employees, and file taxes.',
     descEs: 'Necesario para abrir cuenta bancaria, contratar empleados y declarar impuestos.',
-    price: 99.99,
+    price: 161.00,
   },
   {
     id: 'certificate',
@@ -42,7 +42,7 @@ const SERVICES = [
     titleEs: 'Certificado de Estado (FL)',
     descEn: 'Official document proving your business is active and in good standing with Florida.',
     descEs: 'Documento oficial que acredita que tu negocio está activo y al corriente con Florida.',
-    price: 49.99,
+    price: 79.00,
   },
 ]
 
@@ -349,6 +349,12 @@ const CSS = `
   .svc-hl {
     color: #2563EB;
     font-weight: 600;
+  }
+  .svc-price {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #2563EB;
+    margin-top: 4px;
   }
 
   /* ── FORM + CHECKOUT ── */
