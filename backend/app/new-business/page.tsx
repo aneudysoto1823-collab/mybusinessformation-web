@@ -458,8 +458,8 @@ const CSS = `
     transition: all .25s;
   }
   .step-circle.done { background: #16a34a; color: #fff; }
-  .step-circle.active { background: #1B3A6B; color: #fff; box-shadow: 0 0 0 4px rgba(27,58,107,.12); }
-  .step-circle.pending { background: #f1f5f9; color: #94a3b8; border: 2px solid #e2e8f0; }
+  .step-circle.active { background: #fff; color: #1B3A6B; border: 2px solid #1B3A6B; box-shadow: 0 0 0 4px rgba(27,58,107,.12); }
+  .step-circle.pending { background: #fff; color: #94a3b8; border: 2px solid #e2e8f0; }
   .step-lbl {
     font-size: .62rem;
     font-weight: 600;
