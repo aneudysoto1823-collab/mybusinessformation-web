@@ -830,6 +830,13 @@ function NewBusinessContent() {
 
   const [selected, setSelected]   = useState<Set<string>>(new Set(SERVICES.map(s => s.id)))
   const [step, setStep]           = useState(1)
+  const [doneSteps, setDoneSteps] = useState<Set<number>>(new Set())
+
+  function goToStep(n: number) {
+    setDoneSteps(prev => { const s = new Set(prev); s.add(step); return s })
+    setStep(n)
+    setTimeout(() => formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50)
+  }
   const [showSsn, setShowSsn]     = useState(false)
   const formRef = useRef<HTMLDivElement>(null)
   const shipRef = useRef<HTMLDivElement>(null)
@@ -1110,25 +1117,25 @@ function NewBusinessContent() {
                   <div className="steps-bar">
                     {/* Step 1 */}
                     <div className="step-node">
-                      <div className={`step-circle ${step > 1 ? 'done' : step === 1 ? 'active' : 'pending'}`}>
-                        {step > 1
+                      <div className={`step-circle ${doneSteps.has(1) || step > 1 ? 'done' : step === 1 ? 'active' : 'pending'}`}>
+                        {doneSteps.has(1) || step > 1
                           ? <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                           : '1'}
                       </div>
-                      <span className={`step-lbl ${step === 1 ? 'active' : step > 1 ? 'done' : ''}`}>
+                      <span className={`step-lbl ${step === 1 ? 'active' : doneSteps.has(1) || step > 1 ? 'done' : ''}`}>
                         {lang === 'es' ? 'Negocio' : 'Business'}
                       </span>
                     </div>
-                    <div className={`step-connector ${step > 1 ? 'done' : ''}`} />
+                    <div className={`step-connector ${doneSteps.has(1) || step > 1 ? 'done' : ''}`} />
 
                     {/* Step 2 */}
                     <div className="step-node">
-                      <div className={`step-circle ${step > 2 ? 'done' : step === 2 ? 'active' : 'pending'}`}>
-                        {step > 2
+                      <div className={`step-circle ${doneSteps.has(2) || step > 2 ? 'done' : step === 2 ? 'active' : 'pending'}`}>
+                        {doneSteps.has(2) || step > 2
                           ? <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                           : '2'}
                       </div>
-                      <span className={`step-lbl ${step === 2 ? 'active' : step > 2 ? 'done' : ''}`}>
+                      <span className={`step-lbl ${step === 2 ? 'active' : doneSteps.has(2) || step > 2 ? 'done' : ''}`}>
                         {lang === 'es' ? 'Contacto' : 'Contact'}
                       </span>
                     </div>
@@ -1136,7 +1143,7 @@ function NewBusinessContent() {
                     {/* Step 3 — only if EIN selected */}
                     {einSelected && (
                       <>
-                        <div className={`step-connector ${step > 2 ? 'done' : ''}`} />
+                        <div className={`step-connector ${doneSteps.has(2) || step > 2 ? 'done' : ''}`} />
                         <div className="step-node">
                           <div className={`step-circle ${form.einReason ? 'done' : step === 3 ? 'active' : 'pending'}`}>
                             {form.einReason
@@ -1327,9 +1334,8 @@ function NewBusinessContent() {
 
                       <div className="step-nav">
                         <span />
-                        <button className="step-next" onClick={() => setStep(2)}>
+                        <button className="step-next" onClick={() => goToStep(2)}>
                           {lang === 'es' ? 'Siguiente' : 'Next'}
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                         </button>
                       </div>
                     </>
@@ -1495,18 +1501,16 @@ function NewBusinessContent() {
                       </div>
 
                       <div className="step-nav">
-                        <button className="step-back" onClick={() => setStep(1)}>
+                        <button className="step-back" onClick={() => goToStep(1)}>
                           ← {lang === 'es' ? 'Atrás' : 'Back'}
                         </button>
                         {einSelected ? (
-                          <button className="step-next" onClick={() => { setStep(3); setTimeout(() => formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50) }}>
+                          <button className="step-next" onClick={() => goToStep(3)}>
                             {lang === 'es' ? 'Siguiente' : 'Next'}
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                           </button>
                         ) : (
-                          <button className="step-next primary" onClick={() => setStep(4)}>
+                          <button className="step-next primary" onClick={() => goToStep(4)}>
                             {lang === 'es' ? 'Revisar Orden' : 'Review Order'}
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                           </button>
                         )}
                       </div>
@@ -1628,12 +1632,11 @@ function NewBusinessContent() {
                       </div>
 
                       <div className="step-nav">
-                        <button className="step-back" onClick={() => setStep(2)}>
+                        <button className="step-back" onClick={() => goToStep(2)}>
                           ← {lang === 'es' ? 'Atrás' : 'Back'}
                         </button>
-                        <button className="step-next primary" onClick={() => setStep(4)}>
+                        <button className="step-next primary" onClick={() => goToStep(4)}>
                           {lang === 'es' ? 'Revisar Orden' : 'Review Order'}
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                         </button>
                       </div>
                     </>
@@ -1699,9 +1702,11 @@ function NewBusinessContent() {
                       )}
 
                       <div className="step-nav" style={{ marginTop:8 }}>
-                        <button className="step-next primary" onClick={handleCheckout} disabled={checkingOut} style={{ width:'100%', justifyContent:'center' }}>
+                        <button className="step-back" onClick={() => goToStep(einSelected ? 3 : 2)}>
+                          ← {lang === 'es' ? 'Atrás' : 'Back'}
+                        </button>
+                        <button className="step-next primary" onClick={handleCheckout} disabled={checkingOut}>
                           {checkingOut ? '...' : (lang === 'es' ? 'Proceder al Pago' : 'Proceed to Checkout')}
-                          {!checkingOut && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>}
                         </button>
                       </div>
                     </>
@@ -1790,9 +1795,6 @@ function NewBusinessContent() {
                       : (einSelected ? step < 3 : step < 2)
                         ? (lang === 'es' ? 'Resumen de Orden' : 'Order Summary')
                         : (lang === 'es' ? 'Revisar Orden' : 'Review Order')}
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
-                    </svg>
                   </button>
 
                   <div className="co-trust">
