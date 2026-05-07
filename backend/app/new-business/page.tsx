@@ -627,6 +627,185 @@ const CSS = `
     .form-grid { grid-template-columns: 1fr; }
     .form-field.span2 { grid-column: span 1; }
   }
+  /* ── TOOLTIP ── */
+  .tip-wrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    margin-left: 5px;
+    vertical-align: middle;
+  }
+  .tip-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: #e2e8f0;
+    color: #64748b;
+    font-size: .6rem;
+    font-weight: 700;
+    cursor: help;
+    flex-shrink: 0;
+    transition: background .15s;
+  }
+  .tip-wrap:hover .tip-icon { background: #2563EB; color: #fff; }
+  .tip-box {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1B3A6B;
+    color: #fff;
+    font-size: .72rem;
+    line-height: 1.55;
+    padding: 9px 13px;
+    border-radius: 9px;
+    width: 230px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .18s;
+    z-index: 20;
+    white-space: normal;
+    box-shadow: 0 4px 16px rgba(0,0,0,.18);
+  }
+  .tip-box::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: #1B3A6B;
+  }
+  .tip-wrap:hover .tip-box { opacity: 1; }
+
+  /* ── RADIO / CHECKBOX CUSTOM ── */
+  .form-radio-group { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+  .form-radio-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    cursor: pointer;
+    padding: 9px 12px;
+    border-radius: 8px;
+    border: 1.5px solid #e2e8f0;
+    background: #f8fafc;
+    transition: all .15s;
+  }
+  .form-radio-row:hover { border-color: #93c5fd; background: #f0f7ff; }
+  .form-radio-row.selected { border-color: #2563EB; background: #EFF6FF; }
+  .form-radio-dot {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid #cbd5e1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+    transition: all .15s;
+  }
+  .form-radio-row.selected .form-radio-dot { border-color: #2563EB; }
+  .form-radio-inner {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #2563EB;
+    opacity: 0;
+    transition: opacity .15s;
+  }
+  .form-radio-row.selected .form-radio-inner { opacity: 1; }
+  .form-radio-text { font-size: .82rem; color: #374151; font-weight: 500; line-height: 1.4; }
+  .form-radio-sub { font-size: .72rem; color: #94a3b8; margin-top: 2px; }
+
+  /* Yes/No toggle */
+  .yn-group { display: flex; gap: 10px; margin-top: 4px; }
+  .yn-btn {
+    flex: 1;
+    padding: 9px;
+    border-radius: 8px;
+    border: 1.5px solid #e2e8f0;
+    background: #f8fafc;
+    font-size: .82rem;
+    font-weight: 600;
+    color: #64748b;
+    cursor: pointer;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    transition: all .15s;
+    text-align: center;
+  }
+  .yn-btn:hover { border-color: #93c5fd; }
+  .yn-btn.yes.active { border-color: #2563EB; background: #EFF6FF; color: #2563EB; }
+  .yn-btn.no.active  { border-color: #e2e8f0; background: #f1f5f9; color: #374151; }
+
+  /* Textarea */
+  .form-textarea {
+    width: 100%;
+    padding: 10px 13px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: .88rem;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: #1e293b;
+    outline: none;
+    background: #f8fafc;
+    transition: all .2s;
+    resize: vertical;
+    min-height: 80px;
+  }
+  .form-textarea:focus {
+    border-color: #2563EB;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(37,99,235,.08);
+  }
+
+  /* Shipping toggle */
+  .ship-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    margin-top: 6px;
+    font-size: .82rem;
+    color: #374151;
+    font-weight: 500;
+    user-select: none;
+  }
+  .ship-check {
+    width: 18px;
+    height: 18px;
+    border-radius: 5px;
+    border: 2px solid #cbd5e1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all .15s;
+  }
+  .ship-check.on { background: #2563EB; border-color: #2563EB; }
+
+  /* Compliance pre-filled block */
+  .compliance-block {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-top: 4px;
+  }
+  .compliance-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 7px 0;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .compliance-row:last-child { border-bottom: none; }
+  .compliance-q { font-size: .76rem; color: #374151; flex: 1; }
+
   @media (max-width: 600px) {
     .nb-header { padding: 0 16px; }
     .nb-welcome { padding: 28px 20px 30px; }
@@ -650,9 +829,26 @@ function NewBusinessContent() {
   const [step, setStep]           = useState(1)
 
   const [form, setForm] = useState({
-    firstName: '', lastName: '', email: '', phone: '',
+    // Step 1 — Business
     companyName: '', address: '', city: '', zip: '',
-    einFirstName: '', einLastName: '', einSsn: '', einTitle: '',
+    llcStartMonth: '', llcStartYear: '',
+    businessDescription: '',
+    differentShipping: false,
+    shipAddress: '', shipCity: '', shipZip: '',
+    // Step 2 — Contact
+    firstName: '', middleInitial: '', lastName: '', suffix: '',
+    email: '', phone: '',
+    role: '',       // 'owner' | 'third_party'
+    ssnItin: '',
+    // Step 3 — EIN compliance
+    einReason: '',
+    sameResponsible: true,
+    einFirstName: '', einLastName: '',
+    hasW2: '',                // 'yes' | 'no'
+    hasHighwayVehicle: 'no',
+    hasGambling: 'no',
+    hasForm720: 'no',
+    hasAlcohol: 'no',
   })
 
   const lookup = useCallback(async (id: string): Promise<boolean> => {
@@ -710,8 +906,50 @@ function NewBusinessContent() {
     })
   }
 
-  function setField(key: keyof typeof form, val: string) {
+  function setField(key: keyof typeof form, val: string | boolean) {
     setForm(f => ({ ...f, [key]: val }))
+  }
+
+  function Tip({ en, es }: { en: string; es: string }) {
+    return (
+      <span className="tip-wrap">
+        <span className="tip-icon">?</span>
+        <span className="tip-box">{lang === 'es' ? es : en}</span>
+      </span>
+    )
+  }
+
+  function RadioGroup({ options, value, onChange }: {
+    options: { value: string; label: string; sub?: string }[]
+    value: string
+    onChange: (v: string) => void
+  }) {
+    return (
+      <div className="form-radio-group">
+        {options.map(o => (
+          <div key={o.value} className={`form-radio-row${value === o.value ? ' selected' : ''}`} onClick={() => onChange(o.value)}>
+            <div className="form-radio-dot"><div className="form-radio-inner" /></div>
+            <div>
+              <div className="form-radio-text">{o.label}</div>
+              {o.sub && <div className="form-radio-sub">{o.sub}</div>}
+            </div>
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  function YesNo({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+    return (
+      <div className="yn-group">
+        <button className={`yn-btn yes${value === 'yes' ? ' active' : ''}`} onClick={() => onChange('yes')}>
+          {lang === 'es' ? 'Sí' : 'Yes'}
+        </button>
+        <button className={`yn-btn no${value === 'no' ? ' active' : ''}`} onClick={() => onChange('no')}>
+          No
+        </button>
+      </div>
+    )
   }
 
   function getDesc(id: string) {
@@ -921,12 +1159,17 @@ function NewBusinessContent() {
                         {lang === 'es' ? 'Información del negocio' : 'Business information'}
                       </div>
                       <div className="form-grid">
+                        {/* Business name — readonly, pre-filled */}
                         <div className="form-field span2">
-                          <label className="form-label">{lang === 'es' ? 'Nombre del negocio' : 'Business name'}</label>
-                          <input className="form-input" value={form.companyName} readOnly />
+                          <label className="form-label">
+                            {lang === 'es' ? 'Nombre del negocio' : 'Business name'}
+                          </label>
+                          <input className="form-input" value={form.companyName} readOnly style={{ background:'#f1f5f9', color:'#64748b' }} />
                         </div>
+
+                        {/* Address */}
                         <div className="form-field span2">
-                          <label className="form-label">{lang === 'es' ? 'Dirección' : 'Address'}</label>
+                          <label className="form-label">{lang === 'es' ? 'Dirección' : 'Street address'}<span className="req">*</span></label>
                           <input
                             className="form-input"
                             value={form.address}
@@ -934,8 +1177,10 @@ function NewBusinessContent() {
                             placeholder={lang === 'es' ? 'Calle y número' : 'Street address'}
                           />
                         </div>
+
+                        {/* City */}
                         <div className="form-field">
-                          <label className="form-label">{lang === 'es' ? 'Ciudad' : 'City'}</label>
+                          <label className="form-label">{lang === 'es' ? 'Ciudad' : 'City'}<span className="req">*</span></label>
                           <input
                             className="form-input"
                             value={form.city}
@@ -943,8 +1188,10 @@ function NewBusinessContent() {
                             placeholder="Miami"
                           />
                         </div>
+
+                        {/* ZIP */}
                         <div className="form-field">
-                          <label className="form-label">ZIP Code</label>
+                          <label className="form-label">ZIP Code<span className="req">*</span></label>
                           <input
                             className="form-input"
                             value={form.zip}
@@ -952,7 +1199,107 @@ function NewBusinessContent() {
                             placeholder="33101"
                           />
                         </div>
+
+                        {/* LLC Start Date */}
+                        <div className="form-field">
+                          <label className="form-label">
+                            {lang === 'es' ? 'Mes de inicio de la LLC' : 'LLC start month'}
+                            <Tip
+                              en="The month your LLC became active in Florida. Found on your registration certificate."
+                              es="El mes en que tu LLC quedó activa en Florida. Aparece en tu certificado de registro."
+                            />
+                          </label>
+                          <select
+                            className="form-input"
+                            value={form.llcStartMonth}
+                            onChange={e => setField('llcStartMonth', e.target.value)}
+                          >
+                            <option value="">{lang === 'es' ? 'Selecciona mes' : 'Select month'}</option>
+                            {['January','February','March','April','May','June','July','August','September','October','November','December'].map((m, i) => (
+                              <option key={m} value={String(i + 1).padStart(2,'0')}>{m}</option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div className="form-field">
+                          <label className="form-label">
+                            {lang === 'es' ? 'Año de inicio' : 'LLC start year'}
+                          </label>
+                          <input
+                            className="form-input"
+                            value={form.llcStartYear}
+                            onChange={e => setField('llcStartYear', e.target.value)}
+                            placeholder="2024"
+                            maxLength={4}
+                          />
+                        </div>
+
+                        {/* Business description */}
+                        <div className="form-field span2">
+                          <label className="form-label">
+                            {lang === 'es' ? '¿A qué se dedica el negocio?' : 'What does your business do?'}
+                            <Tip
+                              en="Briefly describe your main business activity. Example: 'Residential painting contractor' or 'Online retail of handmade jewelry'."
+                              es="Describe brevemente la actividad principal del negocio. Ejemplo: 'Contratista de pintura residencial' o 'Venta online de joyería artesanal'."
+                            />
+                            <span className="req">*</span>
+                          </label>
+                          <textarea
+                            className="form-textarea"
+                            value={form.businessDescription}
+                            onChange={e => setField('businessDescription', e.target.value)}
+                            placeholder={lang === 'es'
+                              ? 'ej. Empresa de construcción y remodelación residencial en Miami-Dade'
+                              : 'e.g. Residential construction and remodeling company in Miami-Dade'}
+                            rows={3}
+                          />
+                        </div>
+
+                        {/* Shipping address toggle */}
+                        <div className="form-field span2">
+                          <div className="ship-toggle" onClick={() => setField('differentShipping', !form.differentShipping)}>
+                            <div className={`ship-check${form.differentShipping ? ' on' : ''}`}>
+                              {form.differentShipping && (
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                              )}
+                            </div>
+                            {lang === 'es' ? 'Enviar documentos a una dirección diferente' : 'Ship documents to a different address'}
+                          </div>
+                        </div>
+
+                        {form.differentShipping && (
+                          <>
+                            <div className="form-field span2">
+                              <label className="form-label">{lang === 'es' ? 'Dirección de envío' : 'Shipping address'}</label>
+                              <input
+                                className="form-input"
+                                value={form.shipAddress}
+                                onChange={e => setField('shipAddress', e.target.value)}
+                                placeholder={lang === 'es' ? 'Calle y número' : 'Street address'}
+                              />
+                            </div>
+                            <div className="form-field">
+                              <label className="form-label">{lang === 'es' ? 'Ciudad' : 'City'}</label>
+                              <input
+                                className="form-input"
+                                value={form.shipCity}
+                                onChange={e => setField('shipCity', e.target.value)}
+                                placeholder="Miami"
+                              />
+                            </div>
+                            <div className="form-field">
+                              <label className="form-label">ZIP Code</label>
+                              <input
+                                className="form-input"
+                                value={form.shipZip}
+                                onChange={e => setField('shipZip', e.target.value)}
+                                placeholder="33101"
+                              />
+                            </div>
+                          </>
+                        )}
                       </div>
+
                       <div className="step-nav">
                         <span />
                         <button className="step-next" onClick={() => setStep(2)}>
@@ -970,6 +1317,7 @@ function NewBusinessContent() {
                         {lang === 'es' ? 'Información de contacto' : 'Contact information'}
                       </div>
                       <div className="form-grid">
+                        {/* First name */}
                         <div className="form-field">
                           <label className="form-label">{lang === 'es' ? 'Nombre' : 'First name'}<span className="req">*</span></label>
                           <input
@@ -979,6 +1327,20 @@ function NewBusinessContent() {
                             placeholder={lang === 'es' ? 'Juan' : 'John'}
                           />
                         </div>
+
+                        {/* Middle initial */}
+                        <div className="form-field" style={{ maxWidth: 100 }}>
+                          <label className="form-label">{lang === 'es' ? 'Inicial' : 'M.I.'}</label>
+                          <input
+                            className="form-input"
+                            value={form.middleInitial}
+                            onChange={e => setField('middleInitial', e.target.value.slice(0,1).toUpperCase())}
+                            placeholder="A"
+                            maxLength={1}
+                          />
+                        </div>
+
+                        {/* Last name */}
                         <div className="form-field">
                           <label className="form-label">{lang === 'es' ? 'Apellido' : 'Last name'}<span className="req">*</span></label>
                           <input
@@ -988,6 +1350,21 @@ function NewBusinessContent() {
                             placeholder={lang === 'es' ? 'García' : 'Smith'}
                           />
                         </div>
+
+                        {/* Suffix */}
+                        <div className="form-field" style={{ maxWidth: 130 }}>
+                          <label className="form-label">Suffix</label>
+                          <select className="form-input" value={form.suffix} onChange={e => setField('suffix', e.target.value)}>
+                            <option value="">—</option>
+                            <option>Jr.</option>
+                            <option>Sr.</option>
+                            <option>II</option>
+                            <option>III</option>
+                            <option>IV</option>
+                          </select>
+                        </div>
+
+                        {/* Email */}
                         <div className="form-field">
                           <label className="form-label">Email<span className="req">*</span></label>
                           <input
@@ -998,8 +1375,10 @@ function NewBusinessContent() {
                             placeholder="email@example.com"
                           />
                         </div>
+
+                        {/* Phone */}
                         <div className="form-field">
-                          <label className="form-label">{lang === 'es' ? 'Teléfono' : 'Phone'}</label>
+                          <label className="form-label">{lang === 'es' ? 'Teléfono' : 'Phone'}<span className="req">*</span></label>
                           <input
                             className="form-input"
                             type="tel"
@@ -1008,7 +1387,59 @@ function NewBusinessContent() {
                             placeholder="(305) 000-0000"
                           />
                         </div>
+
+                        {/* Role */}
+                        <div className="form-field span2">
+                          <label className="form-label">
+                            {lang === 'es' ? 'Tu rol en el negocio' : 'Your role in the business'}
+                            <Tip
+                              en="Select 'Owner / Member' if you are the business owner. Select 'Third Party' if you are filling this out on someone else's behalf."
+                              es="Selecciona 'Propietario / Miembro' si eres el dueño del negocio. Selecciona 'Tercero' si estás completando esto en nombre de otra persona."
+                            />
+                            <span className="req">*</span>
+                          </label>
+                          <RadioGroup
+                            value={form.role}
+                            onChange={v => setField('role', v)}
+                            options={[
+                              {
+                                value: 'owner',
+                                label: lang === 'es' ? 'Propietario / Miembro' : 'Owner / Member',
+                                sub: lang === 'es' ? 'Soy el dueño o miembro del negocio' : 'I am the owner or member of the business',
+                              },
+                              {
+                                value: 'third_party',
+                                label: lang === 'es' ? 'Tercero autorizado' : 'Third Party',
+                                sub: lang === 'es' ? 'Estoy llenando esto en nombre del dueño' : 'I am filling this out on behalf of the owner',
+                              },
+                            ]}
+                          />
+                        </div>
+
+                        {/* SSN / ITIN */}
+                        <div className="form-field span2">
+                          <label className="form-label">
+                            SSN / ITIN
+                            <Tip
+                              en="Your Social Security Number (SSN) or Individual Taxpayer Identification Number (ITIN). Required by the IRS to verify identity. Transmitted securely and never stored on our servers."
+                              es="Tu Número de Seguro Social (SSN) o Número de Identificación Personal del Contribuyente (ITIN). Requerido por el IRS para verificar identidad. Se transmite de forma segura y nunca se almacena en nuestros servidores."
+                            />
+                            <span className="req">*</span>
+                          </label>
+                          <input
+                            className="form-input"
+                            value={form.ssnItin}
+                            onChange={e => setField('ssnItin', e.target.value)}
+                            placeholder="XXX-XX-XXXX"
+                          />
+                          <span className="form-hint">
+                            {lang === 'es'
+                              ? 'Requerido por el IRS. Transmitido de forma cifrada.'
+                              : 'Required by the IRS. Transmitted encrypted.'}
+                          </span>
+                        </div>
                       </div>
+
                       <div className="step-nav">
                         <button className="step-back" onClick={() => setStep(1)}>
                           ← {lang === 'es' ? 'Atrás' : 'Back'}
@@ -1035,44 +1466,143 @@ function NewBusinessContent() {
                         EIN / Tax ID — {lang === 'es' ? 'Información adicional requerida por el IRS' : 'Additional information required by the IRS'}
                       </div>
                       <div className="form-grid">
-                        <div className="form-field">
-                          <label className="form-label">{lang === 'es' ? 'Nombre del responsable' : 'Responsible party first name'}<span className="req">*</span></label>
-                          <input
-                            className="form-input"
-                            value={form.einFirstName}
-                            onChange={e => setField('einFirstName', e.target.value)}
-                            placeholder={lang === 'es' ? 'Juan' : 'John'}
+
+                        {/* Reason for applying */}
+                        <div className="form-field span2">
+                          <label className="form-label">
+                            {lang === 'es' ? 'Razón para solicitar el EIN' : 'Reason for applying'}
+                            <Tip
+                              en="Select the reason that best describes why you need an EIN. Most new LLCs select 'Started a new business'."
+                              es="Selecciona la razón que mejor describe por qué necesitas un EIN. La mayoría de LLCs nuevas selecciona 'Inicié un nuevo negocio'."
+                            />
+                            <span className="req">*</span>
+                          </label>
+                          <RadioGroup
+                            value={form.einReason}
+                            onChange={v => setField('einReason', v)}
+                            options={[
+                              {
+                                value: 'started_business',
+                                label: lang === 'es' ? 'Inicié un nuevo negocio' : 'Started a new business',
+                              },
+                              {
+                                value: 'hired_employees',
+                                label: lang === 'es' ? 'Contraté empleados' : 'Hired employees',
+                              },
+                              {
+                                value: 'banking',
+                                label: lang === 'es' ? 'Abrir cuenta bancaria empresarial' : 'Open a business bank account',
+                              },
+                              {
+                                value: 'other',
+                                label: lang === 'es' ? 'Otra razón' : 'Other reason',
+                              },
+                            ]}
                           />
                         </div>
-                        <div className="form-field">
-                          <label className="form-label">{lang === 'es' ? 'Apellido del responsable' : 'Responsible party last name'}<span className="req">*</span></label>
-                          <input
-                            className="form-input"
-                            value={form.einLastName}
-                            onChange={e => setField('einLastName', e.target.value)}
-                            placeholder={lang === 'es' ? 'García' : 'Smith'}
-                          />
+
+                        {/* Same responsible party as contact? */}
+                        <div className="form-field span2">
+                          <div className="ship-toggle" onClick={() => setField('sameResponsible', !form.sameResponsible)}>
+                            <div className={`ship-check${form.sameResponsible ? ' on' : ''}`}>
+                              {form.sameResponsible && (
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                              )}
+                            </div>
+                            {lang === 'es'
+                              ? 'El responsable del EIN es la misma persona del paso anterior'
+                              : 'The responsible party is the same person as in Step 2'}
+                          </div>
                         </div>
-                        <div className="form-field">
-                          <label className="form-label">SSN / ITIN<span className="req">*</span></label>
-                          <input
-                            className="form-input"
-                            value={form.einSsn}
-                            onChange={e => setField('einSsn', e.target.value)}
-                            placeholder="XXX-XX-XXXX"
-                          />
-                          <span className="form-hint">{lang === 'es' ? 'Requerido por el IRS para asignar el EIN.' : 'Required by the IRS to issue your EIN.'}</span>
+
+                        {!form.sameResponsible && (
+                          <>
+                            <div className="form-field">
+                              <label className="form-label">
+                                {lang === 'es' ? 'Nombre del responsable' : 'Responsible party first name'}
+                                <span className="req">*</span>
+                              </label>
+                              <input
+                                className="form-input"
+                                value={form.einFirstName}
+                                onChange={e => setField('einFirstName', e.target.value)}
+                                placeholder={lang === 'es' ? 'Juan' : 'John'}
+                              />
+                            </div>
+                            <div className="form-field">
+                              <label className="form-label">
+                                {lang === 'es' ? 'Apellido del responsable' : 'Responsible party last name'}
+                                <span className="req">*</span>
+                              </label>
+                              <input
+                                className="form-input"
+                                value={form.einLastName}
+                                onChange={e => setField('einLastName', e.target.value)}
+                                placeholder={lang === 'es' ? 'García' : 'Smith'}
+                              />
+                            </div>
+                          </>
+                        )}
+
+                        {/* W-2 Employees */}
+                        <div className="form-field span2">
+                          <label className="form-label">
+                            {lang === 'es' ? '¿Tiene o tendrá empleados con formulario W-2?' : 'Do you have or expect to have W-2 employees?'}
+                            <Tip
+                              en="W-2 employees are workers on your payroll who receive a W-2 tax form. This does not include contractors (1099)."
+                              es="Los empleados W-2 son trabajadores en tu nómina que reciben el formulario W-2. No incluye contratistas independientes (1099)."
+                            />
+                            <span className="req">*</span>
+                          </label>
+                          <YesNo value={form.hasW2} onChange={v => setField('hasW2', v)} />
                         </div>
-                        <div className="form-field">
-                          <label className="form-label">{lang === 'es' ? 'Cargo / Título' : 'Title / Position'}<span className="req">*</span></label>
-                          <input
-                            className="form-input"
-                            value={form.einTitle}
-                            onChange={e => setField('einTitle', e.target.value)}
-                            placeholder={lang === 'es' ? 'ej. Owner, Member' : 'e.g. Owner, Member'}
-                          />
+
+                        {/* Compliance questions — pre-answered No */}
+                        <div className="form-field span2">
+                          <label className="form-label" style={{ marginBottom: 8 }}>
+                            {lang === 'es' ? 'Preguntas de cumplimiento del IRS' : 'IRS compliance questions'}
+                            <Tip
+                              en="These questions are required by the IRS SS-4 form. Most standard businesses answer No to all of them. We have pre-filled them for you."
+                              es="Estas preguntas son requeridas por el formulario IRS SS-4. La mayoría de negocios normales responde No a todas. Las hemos pre-llenado."
+                            />
+                          </label>
+                          <div className="compliance-block">
+                            <div className="compliance-row">
+                              <span className="compliance-q">
+                                {lang === 'es'
+                                  ? '¿Opera vehículos de carretera con peso bruto de 55,000+ lbs?'
+                                  : 'Highway motor vehicles with 55,000+ lbs gross weight?'}
+                              </span>
+                              <YesNo value={form.hasHighwayVehicle} onChange={v => setField('hasHighwayVehicle', v)} />
+                            </div>
+                            <div className="compliance-row">
+                              <span className="compliance-q">
+                                {lang === 'es'
+                                  ? '¿Involucra el negocio juegos de azar (gambling)?'
+                                  : 'Does the business involve gambling or wagering?'}
+                              </span>
+                              <YesNo value={form.hasGambling} onChange={v => setField('hasGambling', v)} />
+                            </div>
+                            <div className="compliance-row">
+                              <span className="compliance-q">
+                                {lang === 'es'
+                                  ? '¿Deberá presentar el formulario 720 (impuestos especiales)?'
+                                  : 'Required to file Form 720 (federal excise taxes)?'}
+                              </span>
+                              <YesNo value={form.hasForm720} onChange={v => setField('hasForm720', v)} />
+                            </div>
+                            <div className="compliance-row">
+                              <span className="compliance-q">
+                                {lang === 'es'
+                                  ? '¿Involucra alcohol, tabaco o armas de fuego?'
+                                  : 'Involves alcohol, tobacco, or firearms?'}
+                              </span>
+                              <YesNo value={form.hasAlcohol} onChange={v => setField('hasAlcohol', v)} />
+                            </div>
+                          </div>
                         </div>
                       </div>
+
                       <div className="step-nav">
                         <button className="step-back" onClick={() => setStep(2)}>
                           ← {lang === 'es' ? 'Atrás' : 'Back'}
