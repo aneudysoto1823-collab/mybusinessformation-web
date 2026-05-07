@@ -522,7 +522,7 @@ const CSS = `
 
   /* ── CHECKOUT BOX ── */
   .co-box {
-    width: 340px;
+    width: 400px;
     flex-shrink: 0;
     background: #fff;
     border: 1px solid #e2e8f0;
