@@ -457,7 +457,7 @@ const CSS = `
     font-weight: 700;
     transition: all .25s;
   }
-  .step-circle.done { background: #2563EB; color: #fff; }
+  .step-circle.done { background: #16a34a; color: #fff; }
   .step-circle.active { background: #1B3A6B; color: #fff; box-shadow: 0 0 0 4px rgba(27,58,107,.12); }
   .step-circle.pending { background: #f1f5f9; color: #94a3b8; border: 2px solid #e2e8f0; }
   .step-lbl {
@@ -468,7 +468,7 @@ const CSS = `
     letter-spacing: .2px;
   }
   .step-lbl.active { color: #1B3A6B; }
-  .step-lbl.done   { color: #2563EB; }
+  .step-lbl.done   { color: #16a34a; }
   .step-connector {
     flex: 1;
     height: 2px;
@@ -477,7 +477,7 @@ const CSS = `
     margin-bottom: 18px;
     transition: background .25s;
   }
-  .step-connector.done { background: #2563EB; }
+  .step-connector.done { background: #16a34a; }
 
   /* ── STEP NAV BUTTONS ── */
   .step-nav {
@@ -1141,7 +1141,7 @@ function NewBusinessContent() {
                             readOnly={!!company}
                             style={company ? { background:'#f1f5f9', color:'#64748b' } : {}}
                           />
-                          {lookupErr && <p style={{ color:'#ef4444', fontSize:'.75rem', marginTop:4 }}>⚠ {lookupErr}</p>}
+                          {lookupErr && !sp.get('id') && <p style={{ color:'#ef4444', fontSize:'.75rem', marginTop:4 }}>⚠ {lookupErr}</p>}
                           {company && <p style={{ color:'#16a34a', fontSize:'.75rem', marginTop:4 }}>✓ {company.company_name}</p>}
                         </div>
 
