@@ -794,16 +794,15 @@ function NewBusinessContent() {
           {/* ── FORM + CHECKOUT ── */}
           <section className="form-section">
             <div className="form-inner">
-              <div className="form-heading">
-                <h2>{lang === 'es' ? 'Completa tu información' : 'Complete your information'}</h2>
-                <p>{lang === 'es'
-                  ? 'Los datos de tu empresa han sido pre-llenados. Completa la información de contacto para procesar tu orden.'
-                  : 'Complete your contact details to process your order.'}</p>
-              </div>
-
               <div className="form-body">
                 {/* ── LEFT: FORM ── */}
                 <div className="form-left">
+                  <div className="form-heading">
+                    <h2>{lang === 'es' ? 'Completa tu información' : 'Complete your information'}</h2>
+                    <p>{lang === 'es'
+                      ? 'Completa la información de contacto para procesar tu orden.'
+                      : 'Complete your contact details to process your order.'}</p>
+                  </div>
                   {/* Business info */}
                   <div className="form-block">
                     <div className="form-block-title">
