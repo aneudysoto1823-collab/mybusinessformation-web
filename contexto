@@ -313,7 +313,8 @@ Auth y sesiones:
 - [ ] Audit trail admin: tabla `admin_audit_log` con admin_email, action, entity, before, after, created_at — insertar en cada PATCH/POST de panel admin
 
 Defensa server:
-- [ ] Rate limiting con Upstash Redis (`@upstash/ratelimit` + `@upstash/redis`, plan free): /api/auth/login (5/15min/IP, slidingWindow), /api/orders (10/h/IP), /api/chat (30/h/IP), /api/contact si existe
+- [x] Rate limiting con Upstash Redis en `/api/auth/login` (5 intentos / 15 min / IP, sliding window) — completado 2026-05-08 (commit `f7c6887`): helper `backend/lib/rate-limit.ts` con `@upstash/ratelimit ^2` + `@upstash/redis ^1`, lazy init, fail-OPEN si Upstash cae, prefix `rl:admin-login`. Frontend `backend/app/login/page.tsx` distingue 401 vs 429 leyendo `Retry-After`, muestra countdown MM:SS y deshabilita inputs/botón durante el bloqueo
+- [ ] Extender rate limiting a otros endpoints públicos: /api/orders (10/h/IP), /api/chat (30/h/IP), /api/contact si existe — usar el mismo helper con prefix distinto por endpoint
 - [ ] Validación zod en TODOS los endpoints POST públicos (length, regex, whitelist de enums, sanitización)
 - [ ] Webhook HMAC verification para Stripe: `stripe.webhooks.constructEvent(payload, sig, STRIPE_WEBHOOK_SECRET)` — sin esto cualquiera puede simular un payment_intent.succeeded
 - [ ] Supabase RLS audit: confirmar `ENABLE ROW LEVEL SECURITY` en todas las tablas con datos de usuario (Order, ClientSession, FormSession, etc.) + políticas apropiadas (read-public, write-service-role)
