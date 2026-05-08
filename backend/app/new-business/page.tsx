@@ -278,7 +278,7 @@ const CSS = `
     text-align: center;
     margin-bottom: 26px;
   }
-  .svc-heading h2 {
+  .svc-heading h1, .svc-heading h2 {
     font-family: 'Fraunces', serif;
     font-size: clamp(1.1rem, 2vw, 1.4rem);
     font-weight: 700;
@@ -1114,7 +1114,10 @@ function NewBusinessContent() {
           <section className="svc-section">
             <div className="svc-inner">
               <div className="svc-heading">
-                <h2>{lang === 'es' ? 'Construye una Base Sólida' : 'Build a Strong Foundation'}</h2>
+                {sp.get('id')
+                  ? <h2>{lang === 'es' ? 'Construye una Base Sólida' : 'Build a Strong Foundation'}</h2>
+                  : <h1>{lang === 'es' ? 'Servicios de Cumplimiento para tu Negocio en Florida' : 'Florida Business Compliance Services'}</h1>
+                }
                 <p>{lang === 'es'
                   ? 'Estos son los servicios principales incluidos en tu aviso para iniciar tu negocio protegido y sobre terreno sólido.'
                   : 'These are the core services included in your notice to start your business protected and on solid ground.'}</p>
