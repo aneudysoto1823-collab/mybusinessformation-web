@@ -103,6 +103,10 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:32px 32px 20px
       <a href="#liability">7. <span class="en-inline">Limitation of Liability</span><span class="es-inline" style="display:none">Limitaci&oacute;n de Responsabilidad</span></a>
       <a href="#arbitration">8. <span class="en-inline">Arbitration</span><span class="es-inline" style="display:none">Arbitraje</span></a>
       <a href="#governing">9. <span class="en-inline">Governing Law</span><span class="es-inline" style="display:none">Ley Aplicable</span></a>
+      <a href="#submission">10. <span class="en-inline">Submission Deadline</span><span class="es-inline" style="display:none">Plazo de Entrega</span></a>
+      <a href="#termination">11. <span class="en-inline">Right to Refuse Service</span><span class="es-inline" style="display:none">Derecho a Rechazar</span></a>
+      <a href="#third-party">12. <span class="en-inline">Third-Party Systems</span><span class="es-inline" style="display:none">Sistemas de Terceros</span></a>
+      <a href="#assignment">13. <span class="en-inline">Assignment</span><span class="es-inline" style="display:none">Cesi&oacute;n</span></a>
     </nav>
   </aside>
 
@@ -186,6 +190,30 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:32px 32px 20px
       <p class="es" style="display:none">Estos T&eacute;rminos se regir&aacute;n e interpretar&aacute;n de acuerdo con las leyes del Estado de Florida, sin tener en cuenta sus principios de conflicto de leyes. En la medida en que alguna disputa no est&eacute; sujeta a arbitraje bajo la Secci&oacute;n 8, dicha disputa estar&aacute; sujeta a la jurisdicci&oacute;n exclusiva de los tribunales estatales y federales ubicados en el Condado de Miami-Dade, Florida, y usted consiente la jurisdicci&oacute;n personal en dichos tribunales.</p>
       <div class="info-box en">&#128231; Questions about these Terms? Contact us at <strong>info@mybusinessformation.com</strong></div>
       <div class="info-box es" style="display:none">&#128231; &iquest;Preguntas sobre estos T&eacute;rminos? Cont&aacute;ctenos en <strong>info@mybusinessformation.com</strong></div>
+    </div>
+
+    <div class="doc-section" id="submission">
+      <h2>10. <span class="en-inline">Information Submission Deadline</span><span class="es-inline" style="display:none">Plazo para Env&iacute;o de Informaci&oacute;n</span></h2>
+      <p class="en">To begin processing your order, you must provide all required information within five (5) business days of completing your purchase. This includes personal details, SSN/ITIN, business information, or any other documentation we request in connection with your selected services. If the required information is not received within this period, we cannot guarantee processing timelines and Florida Business Formation Center shall bear no responsibility for resulting delays. You will receive reminder notifications every three (3) days until all required information has been submitted.</p>
+      <p class="es" style="display:none">Para comenzar a procesar su orden, debe proporcionar toda la informaci&oacute;n requerida dentro de los cinco (5) d&iacute;as h&aacute;biles siguientes a completar su compra. Esto incluye datos personales, SSN/ITIN, informaci&oacute;n del negocio, u otra documentaci&oacute;n que solicitemos en relaci&oacute;n con los servicios seleccionados. Si la informaci&oacute;n requerida no se recibe dentro de este per&iacute;odo, no podemos garantizar los tiempos de procesamiento y Florida Business Formation Center no ser&aacute; responsable por las demoras resultantes. Usted recibir&aacute; recordatorios cada tres (3) d&iacute;as hasta que toda la informaci&oacute;n requerida haya sido enviada.</p>
+    </div>
+
+    <div class="doc-section" id="termination">
+      <h2>11. <span class="en-inline">Right to Refuse or Terminate Service</span><span class="es-inline" style="display:none">Derecho a Rechazar o Cancelar el Servicio</span></h2>
+      <p class="en">Florida Business Formation Center reserves the right to refuse, suspend, or terminate service to any person or entity at our sole discretion and at any time, without prior notice. Grounds for termination include, but are not limited to, providing false or misleading information, violating these Terms, or engaging in conduct that we determine to be harmful, fraudulent, or unlawful. If a service is cancelled before any work has begun, we will evaluate refund eligibility on a case-by-case basis consistent with our refund policy.</p>
+      <p class="es" style="display:none">Florida Business Formation Center se reserva el derecho de rechazar, suspender o cancelar el servicio a cualquier persona o entidad a nuestra sola discreci&oacute;n y en cualquier momento, sin previo aviso. Los motivos de cancelaci&oacute;n incluyen, entre otros, proporcionar informaci&oacute;n falsa o enga&ntilde;osa, incumplir estos T&eacute;rminos, o incurrir en conductas que consideremos perjudiciales, fraudulentas o ilegales. Si un servicio se cancela antes de que haya comenzado cualquier trabajo, evaluaremos la elegibilidad para reembolso caso por caso, conforme a nuestra pol&iacute;tica de reembolsos.</p>
+    </div>
+
+    <div class="doc-section" id="third-party">
+      <h2>12. <span class="en-inline">Third-Party Systems &amp; Tools</span><span class="es-inline" style="display:none">Sistemas y Herramientas de Terceros</span></h2>
+      <p class="en">Certain aspects of our services depend on systems and platforms operated by third parties, including but not limited to the IRS online portal, the Florida Division of Corporations (Sunbiz), and Stripe for payment processing. We have no control over these external systems and are not responsible for any delays, errors, outages, processing backlogs, or rejections caused by them. Delays attributable to government agencies or third-party platforms do not entitle you to a refund or cancellation of services. Your use of any third-party platform in connection with our services is subject to that platform&rsquo;s own terms, conditions, and privacy policies.</p>
+      <p class="es" style="display:none">Ciertos aspectos de nuestros servicios dependen de sistemas y plataformas operados por terceros, incluyendo pero no limitado al portal en l&iacute;nea del IRS, la Divisi&oacute;n de Corporaciones de Florida (Sunbiz) y Stripe para el procesamiento de pagos. No tenemos control sobre estos sistemas externos y no somos responsables por demoras, errores, interrupciones, atrasos en el procesamiento o rechazos causados por ellos. Las demoras atribuibles a agencias gubernamentales o plataformas de terceros no le dan derecho a reembolso ni cancelaci&oacute;n de los servicios. Su uso de cualquier plataforma de terceros en relaci&oacute;n con nuestros servicios est&aacute; sujeto a los propios t&eacute;rminos, condiciones y pol&iacute;ticas de privacidad de esa plataforma.</p>
+    </div>
+
+    <div class="doc-section" id="assignment">
+      <h2>13. <span class="en-inline">Assignment of Rights</span><span class="es-inline" style="display:none">Cesi&oacute;n de Derechos</span></h2>
+      <p class="en">You may not assign, transfer, or delegate any of your rights or obligations under these Terms to any third party without our prior written consent. Any attempted assignment without such consent shall be null and void. Florida Business Formation Center reserves the right to assign or transfer its rights and obligations under these Terms to any affiliate, successor entity, or third party, provided that such transfer does not materially diminish your rights as a client.</p>
+      <p class="es" style="display:none">Usted no puede ceder, transferir ni delegar ninguno de sus derechos u obligaciones bajo estos T&eacute;rminos a ning&uacute;n tercero sin nuestro consentimiento previo y por escrito. Cualquier intento de cesi&oacute;n sin dicho consentimiento ser&aacute; nulo y sin efecto. Florida Business Formation Center se reserva el derecho de ceder o transferir sus derechos y obligaciones bajo estos T&eacute;rminos a cualquier afiliada, entidad sucesora o tercero, siempre que dicha transferencia no disminuya materialmente sus derechos como cliente.</p>
     </div>
   </div>
 </div>
