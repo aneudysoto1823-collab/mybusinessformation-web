@@ -43,6 +43,42 @@ const schemaOrg = {
       ],
     },
     {
+      '@type': ['LocalBusiness', 'ProfessionalService'],
+      '@id': 'https://mybusinessformation.com/#localbusiness',
+      name: 'MyBusinessFormation',
+      alternateName: 'Florida Business Formation Center',
+      url: 'https://mybusinessformation.com',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://mybusinessformation.com/icon.png',
+      },
+      email: 'info@mybusinessformation.com',
+      address: {
+        '@type': 'PostalAddress',
+        addressRegion: 'FL',
+        addressCountry: 'US',
+      },
+      areaServed: {
+        '@type': 'State',
+        name: 'Florida',
+        sameAs: 'https://en.wikipedia.org/wiki/Florida',
+      },
+      priceRange: '$',
+      knowsLanguage: ['en', 'es'],
+      description: 'Florida business formation and compliance services. Bilingual English/Spanish. LLC and Corporation filing, EIN, Operating Agreement, Registered Agent, and more.',
+      hasOfferCatalog: {
+        '@type': 'OfferCatalog',
+        name: 'Florida Business Formation Services',
+        itemListElement: [
+          { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Florida LLC Formation' } },
+          { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Florida Corporation Formation' } },
+          { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'EIN / Tax ID Application' } },
+          { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Operating Agreement' } },
+          { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Registered Agent Service' } },
+        ],
+      },
+    },
+    {
       '@type': 'FAQPage',
       mainEntity: [
         {

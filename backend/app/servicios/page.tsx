@@ -2,10 +2,20 @@ import type { Metadata } from 'next'
 import ChatWidget from '@/components/ChatWidget'
 
 export const metadata: Metadata = {
-  title: 'Our Services',
-  description: 'Full catalog of Florida business services: LLC formation, Corporation, EIN, Operating Agreement, Registered Agent, Annual Report, DBA, ITIN, and more.',
-  alternates: { canonical: 'https://mybusinessformation.com/servicios' },
-  openGraph: { url: 'https://mybusinessformation.com/servicios' },
+  title: 'Florida Business Services — LLC, Corporation, EIN, Registered Agent & More',
+  description: 'Full catalog of Florida business services: LLC formation, Corporation, EIN, Operating Agreement, Registered Agent, Annual Report, DBA, ITIN, and more. Bilingual EN/ES.',
+  alternates: {
+    canonical: 'https://mybusinessformation.com/servicios',
+    languages: {
+      'en-US': 'https://mybusinessformation.com/servicios',
+      'es-US': 'https://mybusinessformation.com/servicios?lang=es',
+    },
+  },
+  openGraph: {
+    url: 'https://mybusinessformation.com/servicios',
+    title: 'Florida Business Services — LLC, Corporation, EIN & More',
+    description: 'Everything your Florida business needs: LLC and Corporation formation, EIN, Operating Agreement, Registered Agent, Annual Report, DBA, ITIN, and more.',
+  },
 }
 
 export default function ServiciosPage() {

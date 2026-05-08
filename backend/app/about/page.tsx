@@ -2,10 +2,20 @@ import type { Metadata } from 'next'
 import ChatWidget from '@/components/ChatWidget'
 
 export const metadata: Metadata = {
-  title: 'About Us',
+  title: 'About MyBusinessFormation — Florida Business Formation Experts',
   description: 'Learn about MyBusinessFormation — a bilingual Florida business filing service dedicated to making LLC and Corporation formation accessible for every entrepreneur.',
-  alternates: { canonical: 'https://mybusinessformation.com/about' },
-  openGraph: { url: 'https://mybusinessformation.com/about' },
+  alternates: {
+    canonical: 'https://mybusinessformation.com/about',
+    languages: {
+      'en-US': 'https://mybusinessformation.com/about',
+      'es-US': 'https://mybusinessformation.com/about?lang=es',
+    },
+  },
+  openGraph: {
+    url: 'https://mybusinessformation.com/about',
+    title: 'About MyBusinessFormation — Florida Business Formation Experts',
+    description: 'Bilingual Florida business filing service. LLC and Corporation formation made simple for entrepreneurs and investors throughout Florida.',
+  },
 }
 
 export default function AboutPage() {

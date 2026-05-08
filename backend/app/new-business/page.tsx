@@ -46,8 +46,7 @@ const SERVICES = [
 ]
 
 const CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   /* ── HEADER ── */
   .nb-header {

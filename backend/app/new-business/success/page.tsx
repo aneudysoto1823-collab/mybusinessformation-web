@@ -1,3 +1,10 @@
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Order Confirmed — Florida Business Formation Center',
+  robots: { index: false, follow: false },
+}
+
 export default function NewBusinessSuccessPage() {
   return (
     <div style={{ fontFamily: 'sans-serif', textAlign: 'center', padding: '80px 24px' }}>
