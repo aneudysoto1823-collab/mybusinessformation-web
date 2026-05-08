@@ -61,16 +61,16 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:32px 32px 20px
   const body = `
 <header>
   <div class="header-inner">
-    <div class="logo">
+    <a href="/new-business" class="logo">
       <div class="logo-mark">FL</div>
       <div class="logo-text">Florida Business Formation Center<span>mybusinessformation.com</span></div>
-    </div>
+    </a>
     <div style="display:flex;align-items:center;gap:12px">
       <div class="lang-toggle">
         <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
         <button class="lang-btn" id="btn-es" onclick="setLang('es')">ES</button>
       </div>
-      <a href="/new-business" class="back-btn">&#8592; <span class="en-inline">Back to New Business</span><span class="es-inline" style="display:none">Regresar</span></a>
+      <a href="/new-business" class="back-btn">&#8592; <span class="en-inline">Back</span><span class="es-inline" style="display:none">&Aacute;tr&aacute;s</span></a>
     </div>
   </div>
 </header>
