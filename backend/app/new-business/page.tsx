@@ -851,99 +851,15 @@ const CSS = `
   .disclosure-links button:hover { color: #2563EB; }
   .disclosure-links span { color: #cbd5e1; font-size: .76rem; }
 
-  .legal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,.55);
-    z-index: 1000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-  }
-  .legal-modal {
-    background: #fff;
-    border-radius: 14px;
-    width: 100%;
-    max-width: 640px;
-    max-height: 85vh;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-  }
-  .legal-modal-header {
-    padding: 20px 22px 16px;
-    border-bottom: 1px solid #e2e8f0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-shrink: 0;
-  }
-  .legal-modal-title {
-    font-size: 1rem;
-    font-weight: 700;
-    color: #1C2E44;
-  }
-  .legal-close {
-    width: 30px;
-    height: 30px;
-    border: none;
-    background: #f1f5f9;
-    border-radius: 7px;
-    cursor: pointer;
-    font-size: 1.1rem;
+  .disclosure-links a {
     color: #64748b;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    line-height: 1;
-    transition: background .2s;
+    font-size: .76rem;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    transition: color .2s;
   }
-  .legal-close:hover { background: #e2e8f0; }
-  .legal-modal-body {
-    padding: 22px;
-    overflow-y: auto;
-    flex: 1;
-  }
-  .legal-updated {
-    font-size: .71rem;
-    color: #94a3b8;
-    margin-bottom: 18px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #e2e8f0;
-  }
-  .legal-section { margin-bottom: 22px; }
-  .legal-section h3 {
-    font-size: .87rem;
-    font-weight: 700;
-    color: #1C2E44;
-    margin-bottom: 7px;
-    padding-bottom: 6px;
-    border-bottom: 1px solid #f1f5f9;
-  }
-  .legal-section p {
-    font-size: .79rem;
-    color: #475569;
-    line-height: 1.75;
-    margin-bottom: 7px;
-  }
-  .legal-section ul { padding-left: 16px; margin-bottom: 7px; }
-  .legal-section li {
-    font-size: .79rem;
-    color: #475569;
-    line-height: 1.7;
-    margin-bottom: 3px;
-  }
-  .legal-warn {
-    background: #FEF3C7;
-    border-left: 3px solid #F59E0B;
-    border-radius: 0 6px 6px 0;
-    padding: 9px 12px;
-    margin: 10px 0;
-    font-size: .77rem;
-    color: #92400E;
-    line-height: 1.6;
-  }
+  .disclosure-links a:hover { color: #2563EB; }
 `
 
 function NewBusinessContent() {
@@ -965,7 +881,6 @@ function NewBusinessContent() {
     setTimeout(() => formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50)
   }
   const [showSsn, setShowSsn]     = useState(false)
-  const [modal, setModal]         = useState<null | 'terms' | 'privacy' | 'legal'>(null)
   const formRef = useRef<HTMLDivElement>(null)
   const shipRef = useRef<HTMLDivElement>(null)
 
@@ -1930,160 +1845,23 @@ function NewBusinessContent() {
 
           <div className="disclosure">
             <div className="disclosure-links">
-              <button onClick={() => setModal('terms')}>
+              <a href="/new-business/terms">
                 {lang === 'es' ? 'Términos y Condiciones' : 'Terms & Conditions'}
-              </button>
+              </a>
               <span>•</span>
-              <button onClick={() => setModal('privacy')}>
+              <a href="/new-business/privacy">
                 {lang === 'es' ? 'Política de Privacidad' : 'Privacy Policy'}
-              </button>
+              </a>
               <span>•</span>
-              <button onClick={() => setModal('legal')}>
+              <a href="/new-business/legal">
                 {lang === 'es' ? 'Aviso Legal' : 'Legal Disclaimer'}
-              </button>
+              </a>
             </div>
             Florida Business Formation Center is a privately owned third-party document preparation service and is not affiliated with or endorsed by any government agency,
             including the IRS, Department of Labor, or Florida Department of State. This is a solicitation for services, not an official government notice. Fees include
             administrative and processing costs. All sales are final and non-refundable. Business registration data is sourced from public records.
           </div>
 
-          {modal && (
-            <div className="legal-overlay" onClick={() => setModal(null)}>
-              <div className="legal-modal" onClick={e => e.stopPropagation()}>
-                <div className="legal-modal-header">
-                  <div className="legal-modal-title">
-                    {modal === 'terms' && (lang === 'es' ? 'Términos y Condiciones' : 'Terms & Conditions')}
-                    {modal === 'privacy' && (lang === 'es' ? 'Política de Privacidad' : 'Privacy Policy')}
-                    {modal === 'legal' && (lang === 'es' ? 'Aviso Legal' : 'Legal Disclaimer')}
-                  </div>
-                  <button className="legal-close" onClick={() => setModal(null)}>×</button>
-                </div>
-                <div className="legal-modal-body">
-
-                  {modal === 'terms' && <>
-                    <div className="legal-updated">{lang === 'es' ? 'Última actualización: 1 de enero de 2025' : 'Last Updated: January 1, 2025'}</div>
-                    <div className="legal-warn">⚠ {lang === 'es' ? <><strong>No somos un bufete:</strong> Florida Business Formation Center es un servicio de preparación de documentos. No brindamos asesoría legal, fiscal ni financiera.</> : <><strong>Not a Law Firm:</strong> Florida Business Formation Center is a document preparation and filing service. We do not provide legal, tax, or financial advice.</>}</div>
-                    <div className="legal-section">
-                      <h3>1. {lang === 'es' ? 'Aceptación de Términos' : 'Acceptance of Terms'}</h3>
-                      <p>{lang === 'es' ? 'Al acceder o utilizar los servicios de Florida Business Formation Center, usted acepta quedar sujeto a estos Términos y Condiciones. Nos reservamos el derecho de modificarlos en cualquier momento.' : 'By accessing or using the services of Florida Business Formation Center, you agree to be fully bound by these Terms and Conditions. We reserve the right to modify these Terms at any time.'}</p>
-                    </div>
-                    <div className="legal-section">
-                      <h3>2. {lang === 'es' ? 'Descripción de Servicios' : 'Description of Services'}</h3>
-                      <p>{lang === 'es' ? 'Florida Business Formation Center proporciona servicios de preparación y presentación de documentos, incluyendo:' : 'Florida Business Formation Center provides document preparation and filing services, including:'}</p>
-                      <ul>
-                        <li>{lang === 'es' ? 'Formación de LLC y Corporación ante la División de Corporaciones de Florida' : 'LLC and Corporation formation filing with the Florida Division of Corporations'}</li>
-                        <li>{lang === 'es' ? 'Asistencia para solicitud de EIN (Número de Identificación del Empleador)' : 'EIN (Employer Identification Number) application assistance'}</li>
-                        <li>{lang === 'es' ? 'Preparación del Acuerdo Operativo' : 'Operating Agreement preparation'}</li>
-                        <li>{lang === 'es' ? 'Servicio de Agente Registrado' : 'Registered Agent service'}</li>
-                        <li>{lang === 'es' ? 'Asistencia para solicitud de ITIN' : 'ITIN application assistance'}</li>
-                      </ul>
-                    </div>
-                    <div className="legal-section">
-                      <h3>3. {lang === 'es' ? 'Responsabilidades del Cliente' : 'Client Responsibilities'}</h3>
-                      <p>{lang === 'es' ? 'Al utilizar nuestros servicios, usted garantiza que toda la información que proporciona es precisa, completa y veraz. Debe tener al menos 18 años de edad y la autoridad legal para celebrar este acuerdo.' : 'By using our services, you warrant that all information you provide is accurate, complete, and truthful. You must be at least 18 years of age and have the legal authority to enter into this agreement.'}</p>
-                    </div>
-                    <div className="legal-section">
-                      <h3>4. {lang === 'es' ? 'Tarifas y Pagos' : 'Fees & Payments'}</h3>
-                      <p>{lang === 'es' ? 'Nuestras tarifas de servicio se muestran claramente durante el proceso de pedido. Las tarifas estatales de Florida son independientes de nuestras tarifas y se pagan directamente al Estado.' : 'Our service fees are clearly displayed during the order process. Florida state filing fees are separate and paid directly to the State of Florida.'}</p>
-                      <div className="legal-warn">⚠ {lang === 'es' ? 'Las ventas son finales y no reembolsables una vez que los documentos han sido preparados o enviados.' : 'All sales are final and non-refundable once documents have been prepared or submitted.'}</div>
-                    </div>
-                    <div className="legal-section">
-                      <h3>5. {lang === 'es' ? 'Tiempos de Procesamiento' : 'Processing Times'}</h3>
-                      <p>{lang === 'es' ? 'Los tiempos de procesamiento son estimados y no están garantizados. Dependen del volumen actual de la División de Corporaciones de Florida y están fuera de nuestro control.' : 'Processing times are estimates only and are not guaranteed. These timeframes are subject to the Florida Division of Corporations\' current processing volume and are beyond our control.'}</p>
-                    </div>
-                    <div className="legal-section">
-                      <h3>6. {lang === 'es' ? 'Limitación de Responsabilidad' : 'Limitation of Liability'}</h3>
-                      <p>{lang === 'es' ? 'En la máxima medida permitida por la ley, Florida Business Formation Center no será responsable por daños indirectos, incidentales o consecuentes. Nuestra responsabilidad total no excederá el monto de las tarifas pagadas por usted.' : 'To the maximum extent permitted by law, Florida Business Formation Center shall not be liable for any indirect, incidental, or consequential damages. Our total liability shall not exceed the total service fees paid by you.'}</p>
-                    </div>
-                    <div className="legal-section">
-                      <h3>7. {lang === 'es' ? 'Ley Aplicable' : 'Governing Law'}</h3>
-                      <p>{lang === 'es' ? 'Estos Términos se regirán por las leyes del Estado de Florida. Cualquier disputa estará sujeta a la jurisdicción de los tribunales del Condado de Miami-Dade, Florida.' : 'These Terms shall be governed by the laws of the State of Florida. Any disputes shall be subject to the jurisdiction of courts in Miami-Dade County, Florida.'}</p>
-                    </div>
-                  </>}
-
-                  {modal === 'privacy' && <>
-                    <div className="legal-updated">{lang === 'es' ? 'Última actualización: 1 de enero de 2025' : 'Last Updated: January 1, 2025'}</div>
-                    <div className="legal-section">
-                      <h3>1. {lang === 'es' ? 'Información que Recopilamos' : 'Information We Collect'}</h3>
-                      <p>{lang === 'es' ? 'Recopilamos información que usted proporciona directamente, incluyendo:' : 'We collect information you provide directly when you use our services, including:'}</p>
-                      <ul>
-                        <li>{lang === 'es' ? 'Nombre legal completo, dirección, correo electrónico y teléfono' : 'Full legal name, address, email address, and phone number'}</li>
-                        <li>{lang === 'es' ? 'Información empresarial (nombre, dirección, estructura de propiedad)' : 'Business information (name, address, purpose, ownership structure)'}</li>
-                        <li>{lang === 'es' ? 'Número de Seguro Social o ITIN (requerido para solicitudes de EIN e ITIN)' : 'Social Security Number or ITIN (required for EIN and ITIN applications)'}</li>
-                        <li>{lang === 'es' ? 'Información de pago (procesada de forma segura; no almacenamos números de tarjeta)' : 'Payment information (processed securely — we do not store card numbers)'}</li>
-                      </ul>
-                    </div>
-                    <div className="legal-section">
-                      <h3>2. {lang === 'es' ? 'Cómo Usamos Su Información' : 'How We Use Your Information'}</h3>
-                      <ul>
-                        <li>{lang === 'es' ? 'Preparar y presentar sus documentos de formación ante la División de Corporaciones de Florida' : 'Prepare and file your business formation documents with the Florida Division of Corporations'}</li>
-                        <li>{lang === 'es' ? 'Enviar solicitudes de EIN, ITIN y otras al IRS en su nombre' : 'Submit EIN, ITIN, and other applications to the IRS on your behalf'}</li>
-                        <li>{lang === 'es' ? 'Comunicarnos con usted sobre el estado de su pedido' : 'Communicate with you about your order status and service updates'}</li>
-                        <li>{lang === 'es' ? 'Cumplir con requisitos legales y regulatorios' : 'Comply with legal and regulatory requirements'}</li>
-                      </ul>
-                      <p>{lang === 'es' ? 'No vendemos su información personal a terceros con fines de marketing.' : 'We do not sell your personal information to third parties for marketing purposes.'}</p>
-                    </div>
-                    <div className="legal-section">
-                      <h3>3. {lang === 'es' ? 'Compartir Su Información' : 'Sharing Your Information'}</h3>
-                      <p>{lang === 'es' ? 'Solo compartimos su información con:' : 'We only share your information with:'}</p>
-                      <ul>
-                        <li>{lang === 'es' ? 'División de Corporaciones de Florida — para presentar sus documentos' : 'Florida Division of Corporations — to file your formation documents'}</li>
-                        <li>{lang === 'es' ? 'IRS — para solicitudes de EIN e ITIN' : 'Internal Revenue Service (IRS) — for EIN and ITIN applications'}</li>
-                        <li>{lang === 'es' ? 'Procesadores de pago — para procesar sus pagos de forma segura' : 'Payment processors — to securely process your payments'}</li>
-                        <li>{lang === 'es' ? 'Autoridades — cuando lo exija la ley' : 'Legal authorities — when required by law or court order'}</li>
-                      </ul>
-                    </div>
-                    <div className="legal-section">
-                      <h3>4. {lang === 'es' ? 'Seguridad de Datos' : 'Data Security'}</h3>
-                      <p>{lang === 'es' ? 'Implementamos cifrado SSL y controles de acceso restringidos. Sin embargo, ningún método de transmisión por Internet es 100% seguro. Conservamos su información solo durante el tiempo necesario.' : 'We implement SSL encryption and restricted access controls. However, no method of transmission over the Internet is 100% secure. We retain your information only as long as necessary to fulfill the services requested.'}</p>
-                    </div>
-                    <div className="legal-section">
-                      <h3>5. {lang === 'es' ? 'Sus Derechos' : 'Your Rights'}</h3>
-                      <p>{lang === 'es' ? 'Usted tiene derecho a acceder, corregir o solicitar la eliminación de sus datos personales. Para ejercer estos derechos, contáctenos en' : 'You have the right to access, correct, or request deletion of your personal data. To exercise these rights, contact us at'} <strong>info@mybusinessformation.com</strong>.</p>
-                    </div>
-                    <div className="legal-section">
-                      <h3>6. Cookies</h3>
-                      <p>{lang === 'es' ? 'Nuestro sitio utiliza cookies para mejorar su experiencia. Puede controlar la configuración de cookies a través de su navegador.' : 'Our website uses cookies to improve your browsing experience. You can control cookie settings through your browser.'}</p>
-                    </div>
-                  </>}
-
-                  {modal === 'legal' && <>
-                    <div className="legal-warn">⚠ {lang === 'es' ? 'Lea cuidadosamente. Este aviso rige el uso de mybusinessformation.com y todos los servicios de Florida Business Formation Center.' : 'Please Read Carefully. This disclaimer governs your use of mybusinessformation.com and all services offered by Florida Business Formation Center.'}</div>
-                    <div className="legal-section">
-                      <h3>1. {lang === 'es' ? 'No Somos un Bufete de Abogados' : 'We Are Not a Law Firm'}</h3>
-                      <p>{lang === 'es' ? 'Florida Business Formation Center es un servicio de preparación y presentación de documentos. No somos un bufete de abogados y no estamos autorizados a ejercer la abogacía. El uso de nuestros servicios no crea ninguna relación abogado-cliente.' : 'Florida Business Formation Center is a document preparation and filing service. We are not a law firm and are not authorized to practice law. No attorney-client relationship is created by your use of our services.'}</p>
-                    </div>
-                    <div className="legal-section">
-                      <h3>2. {lang === 'es' ? 'Sin Asesoría Legal, Fiscal ni Financiera' : 'No Legal, Tax, or Financial Advice'}</h3>
-                      <p>{lang === 'es' ? 'Nada en este sitio web ni en nuestros servicios constituye asesoría legal, fiscal o financiera. Le recomendamos consultar con profesionales legales y fiscales calificados antes de tomar decisiones empresariales.' : 'Nothing on this website or provided through our services constitutes legal, tax, or financial advice. We strongly encourage you to consult with qualified legal and tax professionals before making any business decisions.'}</p>
-                    </div>
-                    <div className="legal-section">
-                      <h3>3. {lang === 'es' ? 'Exactitud de la Información' : 'Accuracy of Information'}</h3>
-                      <p>{lang === 'es' ? 'Si bien nos esforzamos por proporcionar información precisa, las leyes y regulaciones cambian con frecuencia. Siempre verifique los requisitos actuales con la División de Corporaciones de Florida o un profesional licenciado.' : 'While we strive to provide accurate information, laws and regulations change frequently. Always verify current requirements with the Florida Division of Corporations or a licensed professional.'}</p>
-                    </div>
-                    <div className="legal-section">
-                      <h3>4. {lang === 'es' ? 'Tarifas Estatales y Demoras' : 'State Fees & Processing Delays'}</h3>
-                      <p>{lang === 'es' ? 'Las tarifas estatales de Florida están sujetas a cambios sin previo aviso. Los tiempos de procesamiento están fuera de nuestro control. No somos responsables de demoras causadas por agencias gubernamentales.' : 'Florida state filing fees are subject to change without notice. Processing times are outside our control. We are not responsible for delays caused by government agencies or rejected filings due to name conflicts.'}</p>
-                    </div>
-                    <div className="legal-section">
-                      <h3>5. {lang === 'es' ? 'Sin Garantía de Aprobación' : 'No Guarantee of Approval'}</h3>
-                      <p>{lang === 'es' ? 'No podemos garantizar que la División de Corporaciones de Florida o el IRS aprobarán su trámite. Todas las aprobaciones son a la única discreción de la agencia gubernamental correspondiente.' : 'We cannot guarantee that the Florida Division of Corporations or the IRS will approve your filing. All approvals are at the sole discretion of the respective government agency.'}</p>
-                    </div>
-                    <div className="legal-section">
-                      <h3>6. {lang === 'es' ? 'Consulte un Profesional Licenciado' : 'Consult a Licensed Professional'}</h3>
-                      <p>{lang === 'es' ? 'Para asuntos legales, fiscales o de cumplimiento normativo relacionados con su negocio, recomendamos consultar con:' : 'For matters involving legal strategy, tax planning, or compliance related to your business, we recommend consulting:'}</p>
-                      <ul>
-                        <li>{lang === 'es' ? 'Un abogado licenciado en Florida para asesoría legal' : 'A licensed Florida attorney for legal advice'}</li>
-                        <li>{lang === 'es' ? 'Un Contador Público Certificado (CPA) para planificación fiscal' : 'A Certified Public Accountant (CPA) for tax planning'}</li>
-                        <li>{lang === 'es' ? 'Un abogado de inmigración para asuntos de visa e ITIN' : 'A licensed immigration attorney for visa and ITIN matters'}</li>
-                      </ul>
-                    </div>
-                  </>}
-
-                </div>
-              </div>
-            </div>
-          )}
       </>
     </div>
   )
