@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef, Suspense } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 
 type Company = {
   document_id: string
@@ -861,9 +861,10 @@ const CSS = `
   .disclosure-links a:hover { color: #2563EB; }
 `
 
-function NewBusinessContent() {
+export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' | 'es' }) {
   const sp = useSearchParams()
-  const [lang, setLang] = useState<'en' | 'es'>('en')
+  const router = useRouter()
+  const [lang, setLang] = useState<'en' | 'es'>(defaultLang)
 
   const [docInput, setDocInput]   = useState('')
   const [lookingUp, setLookingUp] = useState(false)
@@ -1083,7 +1084,11 @@ function NewBusinessContent() {
         <div className="nb-header-right">
           <div className="nb-lang">
             {(['en', 'es'] as const).map(l => (
-              <button key={l} className={lang === l ? 'active' : ''} onClick={() => setLang(l)}>
+              <button key={l} className={lang === l ? 'active' : ''} onClick={() => {
+                const id = sp.get('id')
+                const idParam = id ? `?id=${id}` : ''
+                router.push(l === 'en' ? `/new-business${idParam}` : `/new-business/es${idParam}`)
+              }}>
                 {l.toUpperCase()}
               </button>
             ))}

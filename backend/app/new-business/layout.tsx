@@ -7,7 +7,7 @@ export const metadata: Metadata = {
     canonical: 'https://mybusinessformation.com/new-business',
     languages: {
       'en-US': 'https://mybusinessformation.com/new-business',
-      'es-US': 'https://mybusinessformation.com/new-business?lang=es',
+      'es-US': 'https://mybusinessformation.com/new-business/es',
     },
   },
   openGraph: {
