@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 
 export default function LoginPage() {
@@ -9,26 +9,67 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [blockedSeconds, setBlockedSeconds] = useState<number | null>(null)
+
+  // Countdown del bloqueo por rate limit. Decrementa cada segundo y se limpia al llegar a 0.
+  useEffect(() => {
+    if (blockedSeconds === null || blockedSeconds <= 0) return
+    const interval = setInterval(() => {
+      setBlockedSeconds(prev => {
+        if (prev === null || prev <= 1) return null
+        return prev - 1
+      })
+    }, 1000)
+    return () => clearInterval(interval)
+  }, [blockedSeconds])
+
+  function formatSeconds(s: number): string {
+    const mm = Math.floor(s / 60).toString().padStart(2, '0')
+    const ss = (s % 60).toString().padStart(2, '0')
+    return `${mm}:${ss}`
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    if (blockedSeconds !== null) return
     setError('')
     setLoading(true)
 
-    const res = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user, password }),
-    })
+    let res: Response
+    try {
+      res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user, password }),
+      })
+    } catch {
+      setLoading(false)
+      setError('Error de conexión. Intentá de nuevo.')
+      return
+    }
 
     setLoading(false)
 
-    if (res.ok) {
+    if (res.status === 200) {
       router.push('/admin')
-    } else {
-      setError('Usuario o contraseña incorrectos.')
+      return
     }
+
+    if (res.status === 429) {
+      const retryAfter = parseInt(res.headers.get('Retry-After') ?? '0', 10) || 60
+      setBlockedSeconds(retryAfter)
+      return
+    }
+
+    if (res.status === 401) {
+      setError('Usuario o contraseña incorrectos.')
+      return
+    }
+
+    setError('Error inesperado. Intentá de nuevo.')
   }
+
+  const isBlocked = blockedSeconds !== null && blockedSeconds > 0
 
   return (
     <>
@@ -144,7 +185,13 @@ export default function LoginPage() {
           </div>
 
           <form onSubmit={handleSubmit}>
-            {error && <div className="error-msg">{error}</div>}
+            {isBlocked ? (
+              <div className="error-msg">
+                Demasiados intentos. Esperá {formatSeconds(blockedSeconds!)} antes de intentar de nuevo.
+              </div>
+            ) : error ? (
+              <div className="error-msg">{error}</div>
+            ) : null}
 
             <div className="form-group">
               <label htmlFor="user">Usuario</label>
@@ -155,6 +202,7 @@ export default function LoginPage() {
                 onChange={e => setUser(e.target.value)}
                 required
                 autoComplete="username"
+                disabled={isBlocked || loading}
               />
             </div>
 
@@ -167,11 +215,12 @@ export default function LoginPage() {
                 onChange={e => setPassword(e.target.value)}
                 required
                 autoComplete="current-password"
+                disabled={isBlocked || loading}
               />
             </div>
 
-            <button type="submit" className="btn-login" disabled={loading}>
-              {loading ? 'Entrando...' : 'Entrar'}
+            <button type="submit" className="btn-login" disabled={loading || isBlocked}>
+              {loading ? 'Entrando...' : isBlocked ? `Bloqueado (${formatSeconds(blockedSeconds!)})` : 'Entrar'}
             </button>
           </form>
         </div>
