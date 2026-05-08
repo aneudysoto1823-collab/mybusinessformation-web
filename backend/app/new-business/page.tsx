@@ -886,11 +886,11 @@ function NewBusinessContent() {
 
   const [form, setForm] = useState({
     // Step 1 — Business
-    companyName: '', address: '', city: '', zip: '',
+    companyName: '', address: '', city: '', zip: '', state: 'Florida',
     llcStartMonth: '', llcStartYear: '',
     businessDescription: '',
     differentShipping: false,
-    shipAddress: '', shipCity: '', shipZip: '',
+    shipAddress: '', shipCity: '', shipZip: '', shipState: 'Florida',
     // Step 2 — Contact
     firstName: '', middleInitial: '', lastName: '', suffix: '',
     email: '', phone: '',
@@ -1260,18 +1260,18 @@ function NewBusinessContent() {
                             className="form-input"
                             value={form.city}
                             onChange={e => setField('city', e.target.value)}
-                            placeholder="Miami"
+                            placeholder={lang === 'es' ? 'Ciudad' : 'City'}
                           />
                         </div>
 
-                        {/* ZIP */}
+                        {/* State */}
                         <div className="form-field">
-                          <label className="form-label">ZIP Code<span className="req">*</span></label>
+                          <label className="form-label">{lang === 'es' ? 'Estado' : 'State'}<span className="req">*</span></label>
                           <input
                             className="form-input"
-                            value={form.zip}
-                            onChange={e => setField('zip', e.target.value)}
-                            placeholder="33101"
+                            value={form.state}
+                            readOnly
+                            style={{ background:'#f1f5f9', color:'#64748b', cursor:'default' }}
                           />
                         </div>
 
@@ -1359,17 +1359,21 @@ function NewBusinessContent() {
                                 className="form-input"
                                 value={form.shipCity}
                                 onChange={e => setField('shipCity', e.target.value)}
-                                placeholder="Miami"
+                                placeholder={lang === 'es' ? 'Ciudad' : 'City'}
                               />
                             </div>
                             <div className="form-field">
-                              <label className="form-label">ZIP Code</label>
-                              <input
+                              <label className="form-label">{lang === 'es' ? 'Estado' : 'State'}</label>
+                              <select
                                 className="form-input"
-                                value={form.shipZip}
-                                onChange={e => setField('shipZip', e.target.value)}
-                                placeholder="33101"
-                              />
+                                value={form.shipState}
+                                onChange={e => setField('shipState', e.target.value)}
+                              >
+                                <option value="">{lang === 'es' ? 'Seleccionar' : 'Select'}</option>
+                                {['Alabama','Alaska','Arizona','Arkansas','California','Colorado','Connecticut','Delaware','Florida','Georgia','Hawaii','Idaho','Illinois','Indiana','Iowa','Kansas','Kentucky','Louisiana','Maine','Maryland','Massachusetts','Michigan','Minnesota','Mississippi','Missouri','Montana','Nebraska','Nevada','New Hampshire','New Jersey','New Mexico','New York','North Carolina','North Dakota','Ohio','Oklahoma','Oregon','Pennsylvania','Rhode Island','South Carolina','South Dakota','Tennessee','Texas','Utah','Vermont','Virginia','Washington','West Virginia','Wisconsin','Wyoming'].map(s => (
+                                  <option key={s} value={s}>{s}</option>
+                                ))}
+                              </select>
                             </div>
                           </>
                         )}
@@ -1699,7 +1703,7 @@ function NewBusinessContent() {
                           [lang === 'es' ? 'Nombre' : 'Business name', form.companyName],
                           [lang === 'es' ? 'Dirección' : 'Address', form.address],
                           [lang === 'es' ? 'Ciudad' : 'City', form.city],
-                          ['ZIP', form.zip],
+                          [lang === 'es' ? 'Estado' : 'State', form.state],
                           [lang === 'es' ? 'Inicio LLC' : 'LLC start', [form.llcStartMonth, form.llcStartYear].filter(Boolean).join(' / ')],
                           [lang === 'es' ? 'Descripción' : 'Description', form.businessDescription],
                         ] as [string,string][]).filter(([,v]) => v).map(([label, val]) => (
