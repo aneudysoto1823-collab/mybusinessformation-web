@@ -308,8 +308,8 @@ Auditoría OWASP y proceso:
 - [ ] Cadencia formal: no se aprueba deploy a producción si la última auditoría tiene 🔴 críticos abiertos
 
 Auth y sesiones:
-- [ ] Verificar `ADMIN_PASSWORD` hasheado con bcrypt factor 12 (`ADMIN_PASSWORD_HASH` env var, sin plaintext) — si todavía es plaintext, migrar
-- [ ] Cookies HttpOnly + Secure + SameSite=Strict (eliminar condicionales por NODE_ENV — secure: true hardcoded post-launch)
+- [x] Verificar `ADMIN_PASSWORD` hasheado con bcrypt factor 12 (`ADMIN_PASSWORD_HASH` env var, sin plaintext) — completado 2026-05-08 (commit `d06992d`): bcryptjs ^3 instalado, hash en base64 para evitar parser dotenv de Next.js, `ADMIN_PASSWORD` viejo eliminado de Vercel
+- [x] Cookies HttpOnly + Secure + SameSite=Strict — completado 2026-05-08 (commit `d06992d`): `secure: true` hardcoded (ya no condicional NODE_ENV), `sameSite: 'strict'` (era `'lax'`)
 - [ ] Audit trail admin: tabla `admin_audit_log` con admin_email, action, entity, before, after, created_at — insertar en cada PATCH/POST de panel admin
 
 Defensa server:
