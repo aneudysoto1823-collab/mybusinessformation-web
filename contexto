@@ -316,10 +316,10 @@ Defensa server:
 - [x] Rate limiting con Upstash Redis en `/api/auth/login` (5 intentos / 15 min / IP, sliding window) — completado 2026-05-08 (commit `f7c6887`): helper `backend/lib/rate-limit.ts` con `@upstash/ratelimit ^2` + `@upstash/redis ^1`, lazy init, fail-OPEN si Upstash cae, prefix `rl:admin-login`. Frontend `backend/app/login/page.tsx` distingue 401 vs 429 leyendo `Retry-After`, muestra countdown MM:SS y deshabilita inputs/botón durante el bloqueo
 - [ ] Extender rate limiting a otros endpoints públicos: /api/orders (10/h/IP), /api/chat (30/h/IP), /api/contact si existe — usar el mismo helper con prefix distinto por endpoint
 - [ ] Validación zod en TODOS los endpoints POST públicos (length, regex, whitelist de enums, sanitización)
-- [ ] Webhook HMAC verification para Stripe: `stripe.webhooks.constructEvent(payload, sig, STRIPE_WEBHOOK_SECRET)` — sin esto cualquiera puede simular un payment_intent.succeeded
+- [x] Webhook HMAC verification para Stripe — verificado 2026-05-07: ya implementado por Fabián en `backend/app/api/webhooks/stripe/route.ts:19` con `getStripe().webhooks.constructEvent(body, signature, STRIPE_WEBHOOK_SECRET)`. Si firma falla retorna 400
 - [ ] Supabase RLS audit: confirmar `ENABLE ROW LEVEL SECURITY` en todas las tablas con datos de usuario (Order, ClientSession, FormSession, etc.) + políticas apropiadas (read-public, write-service-role)
 - [ ] Service role key audit: verificar que `SUPABASE_SERVICE_ROLE_KEY` NUNCA aparece en bundle cliente — solo server-side
-- [ ] Cero `NEXT_PUBLIC_*SECRET*` en código (regla auditada con grep)
+- [x] Cero `NEXT_PUBLIC_*SECRET*` en código — auditado con grep 2026-05-07: cero secretos expuestos en bundle cliente
 
 Defensa browser:
 - [ ] 5 security headers globales en backend/next.config.ts: Content-Security-Policy con whitelist explícita (Stripe, Supabase, Resend, GA4, Sentry), Strict-Transport-Security max-age=63072000 includeSubDomains preload, X-Frame-Options DENY, X-Content-Type-Options nosniff, Referrer-Policy strict-origin-when-cross-origin, Permissions-Policy denegando camera/microphone/geolocation/interest-cohort
@@ -329,7 +329,7 @@ Defensa browser:
 Dependencias y misc:
 - [ ] `npm audit --audit-level=moderate` con 0 vulnerabilidades HIGH/CRITICAL
 - [ ] Activar Dependabot en GitHub (`.github/dependabot.yml`)
-- [ ] Verificar `.gitignore` excluye `.env`, `.env.local`, `.env*.local`
+- [x] Verificar `.gitignore` excluye `.env`, `.env.local`, `.env*.local` — verificado 2026-05-07: `backend/.gitignore` tiene `.env*` y `.env*.local`
 - [ ] Documentar en LOGICA_DE_NEGOCIO/14_security_headers_y_hardening.md + actualizar TROUBLESHOOTING/ con guías de respuesta a incidentes de seguridad
 
 ### Etapa 15 — Monitoreo y Observabilidad (3-4 días)
