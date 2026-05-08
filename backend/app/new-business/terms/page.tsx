@@ -109,13 +109,12 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:32px 32px 20px
       <span class="es" style="display:none">&Uacute;ltima Actualizaci&oacute;n: 1 de enero de 2025 &bull; Efectivo: 1 de enero de 2025</span>
     </div>
 
-    <div class="warn-box en">&#9888; <strong>Not a Law Firm:</strong> Florida Business Formation Center is a document preparation service. We do not provide legal, tax, or financial advice. Use of our services does not create an attorney-client relationship.</div>
-    <div class="warn-box es" style="display:none">&#9888; <strong>No somos un bufete:</strong> Florida Business Formation Center es un servicio de preparaci&oacute;n de documentos. No brindamos asesor&iacute;a legal, fiscal ni financiera. El uso de nuestros servicios no crea una relaci&oacute;n abogado-cliente.</div>
-
     <div class="doc-section" id="acceptance">
       <h2>1. <span class="en-inline">Acceptance of Terms</span><span class="es-inline" style="display:none">Aceptaci&oacute;n de T&eacute;rminos</span></h2>
       <p class="en">By accessing or using the services offered by Florida Business Formation Center (&ldquo;Company,&rdquo; &ldquo;we,&rdquo; &ldquo;us,&rdquo; or &ldquo;our&rdquo;) through mybusinessformation.com, you (&ldquo;Client&rdquo; or &ldquo;you&rdquo;) agree to be fully bound by these Terms and Conditions. If you do not agree with any part of these terms, you must not use our services.</p>
       <p class="es" style="display:none">Al acceder o utilizar los servicios ofrecidos por Florida Business Formation Center (&ldquo;Empresa&rdquo;, &ldquo;nosotros&rdquo; o &ldquo;nuestro&rdquo;) a trav&eacute;s de mybusinessformation.com, usted (&ldquo;Cliente&rdquo;) acepta quedar sujeto a estos T&eacute;rminos y Condiciones. Si no est&aacute; de acuerdo con alguna parte de estos t&eacute;rminos, no debe utilizar nuestros servicios.</p>
+      <p class="en">Florida Business Formation Center is a document preparation service. We do not provide legal, tax, or financial advice. Use of our services does not create an attorney-client relationship.</p>
+      <p class="es" style="display:none">Florida Business Formation Center es un servicio de preparaci&oacute;n de documentos. No brindamos asesor&iacute;a legal, fiscal ni financiera. El uso de nuestros servicios no crea una relaci&oacute;n abogado-cliente.</p>
       <p class="en">We reserve the right to modify these Terms at any time. Your continued use of our services after any modification constitutes acceptance of the revised Terms.</p>
       <p class="es" style="display:none">Nos reservamos el derecho de modificar estos T&eacute;rminos en cualquier momento. El uso continuo de nuestros servicios despu&eacute;s de cualquier modificaci&oacute;n constituye la aceptaci&oacute;n de los T&eacute;rminos revisados.</p>
     </div>
@@ -132,11 +131,13 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:32px 32px 20px
     </div>
 
     <div class="doc-section" id="responsibilities">
-      <h2>3. <span class="en-inline">Client Responsibilities</span><span class="es-inline" style="display:none">Responsabilidades del Cliente</span></h2>
+      <h2>3. <span class="en-inline">Client Responsibilities &amp; Authorization</span><span class="es-inline" style="display:none">Responsabilidades y Autorizaci&oacute;n del Cliente</span></h2>
       <p class="en">By using our services, you represent and warrant that all information you provide is accurate, complete, and truthful. You are solely responsible for providing accurate information. Florida Business Formation Center is not liable for rejection, delay, or additional fees resulting from inaccurate or incomplete information provided by you.</p>
       <p class="es" style="display:none">Al utilizar nuestros servicios, usted declara y garantiza que toda la informaci&oacute;n que proporciona es precisa, completa y veraz. Usted es el &uacute;nico responsable de proporcionar informaci&oacute;n precisa. Florida Business Formation Center no es responsable por rechazos, demoras o cargos adicionales resultantes de informaci&oacute;n inexacta o incompleta proporcionada por usted.</p>
       <p class="en">You must be at least 18 years of age and have the legal authority to enter into this agreement. The business for which you are requesting services must be used only for lawful purposes permitted under Florida law.</p>
       <p class="es" style="display:none">Debe tener al menos 18 a&ntilde;os de edad y tener la autoridad legal para celebrar este acuerdo. El negocio para el que solicita servicios debe utilizarse &uacute;nicamente para fines l&iacute;citos permitidos por la ley de Florida.</p>
+      <p class="en">By submitting your order and completing payment, you expressly authorize Florida Business Formation Center to prepare and submit on your behalf the applications and documents included in your selected services, including EIN applications with the IRS, Labor Law Poster orders, and Certificate of Status requests with the Florida Division of Corporations. This authorization remains in effect until the ordered services have been fulfilled or you notify us in writing to cancel prior to any submission.</p>
+      <p class="es" style="display:none">Al someter su orden y completar el pago, usted autoriza expresamente a Florida Business Formation Center a preparar y tramitar en su nombre las solicitudes y documentos incluidos en los servicios seleccionados, incluyendo solicitudes de EIN ante el IRS, &oacute;rdenes del P&oacute;ster de Leyes Laborales y solicitudes del Certificado de Estatus ante la Divisi&oacute;n de Corporaciones de Florida. Esta autorizaci&oacute;n permanece vigente hasta que los servicios ordenados sean completados o hasta que usted nos notifique por escrito para cancelar antes de cualquier tr&aacute;mite.</p>
     </div>
 
     <div class="doc-section" id="fees">
@@ -144,8 +145,8 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:32px 32px 20px
       <h3 class="en">4.1 Service Fees</h3><h3 class="es" style="display:none">4.1 Tarifas de Servicio</h3>
       <p class="en">Our service fees are clearly displayed during the order process. Current pricing: Labor Law Poster $120.00 &bull; EIN / Tax ID $161.00 &bull; Certificate of Status $79.00 &bull; Business Essentials Bundle (3 services) $324.00. Fees are subject to change without notice.</p>
       <p class="es" style="display:none">Nuestras tarifas de servicio se muestran claramente durante el proceso de pedido. Precios actuales: P&oacute;ster de Leyes Laborales $120.00 &bull; EIN / Tax ID $161.00 &bull; Certificado de Estatus $79.00 &bull; Bundle Esenciales del Negocio (3 servicios) $324.00. Las tarifas est&aacute;n sujetas a cambio sin previo aviso.</p>
-      <div class="warn-box en">&#9888; <strong>All Sales Final:</strong> All sales are final and non-refundable. These are administrative and processing fees for document preparation services.</div>
-      <div class="warn-box es" style="display:none">&#9888; <strong>Ventas Finales:</strong> Todas las ventas son finales y no reembolsables. Estas son tarifas administrativas y de procesamiento por servicios de preparaci&oacute;n de documentos.</div>
+      <p class="en">All sales are final and non-refundable. These are administrative and processing fees for document preparation services.</p>
+      <p class="es" style="display:none">Todas las ventas son finales y no reembolsables. Estas son tarifas administrativas y de procesamiento por servicios de preparaci&oacute;n de documentos.</p>
     </div>
 
     <div class="doc-section" id="liability">
