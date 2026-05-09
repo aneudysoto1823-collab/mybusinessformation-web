@@ -726,6 +726,11 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
   </div>
 </section>
 
+<!-- TODO [ ] BUSINESS COUNTER — trust bar debajo del hero
+     Mostrar un contador de clientes atendidos o años de experiencia.
+     Ej: "Serving Florida entrepreneurs since 2024" o "500+ businesses formed".
+     No agregar número falso — esperar a tener datos reales.
+     Usar clases ya definidas: .trust-bar / .trust-inner / .trust-item / .trust-check -->
 
 <!-- PRICING -->
 <section class="section" id="pricing" style="padding:36px 32px 52px">
@@ -855,6 +860,11 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
     </div>
   </div>
 </section>
+
+<!-- TODO [ ] GUARANTEE BADGE — entre pricing y "How It Works"
+     Pequeño badge de confianza: "100% Accuracy Guarantee — we'll fix any filing error at no charge"
+     Versión ES: "Garantía de Exactitud — corregimos cualquier error de presentación sin costo"
+     Colocarlo centrado, estilo sutil (similar a .sec-badge ya definido en el CSS) -->
 
 <!-- HOW IT WORKS -->
 <section class="section how-bg" id="how">

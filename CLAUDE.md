@@ -133,7 +133,8 @@ BACKEND_URL           # URL Railway del Express server
 ```
 /                   — Home (marketing)
 /servicios          — Página de servicios (ES)
-/new-business       — Landing de marketing QR (EN/ES bilingüe)
+/new-business       — Landing de marketing QR (EN — indexada en Google)
+/new-business/es    — Versión en español (URL dedicada — indexada en Google)
 /new-business/success — Post-pago con instrucciones portal
 /admin              — Panel admin: órdenes activas
 /admin/campaigns    — Panel admin: marketing automation
@@ -210,6 +211,21 @@ function Content() {
 
 ### Bilingüe EN/ES
 No se usa ninguna librería i18n. El patrón es un objeto `T = { en: {...}, es: {...} }` local en cada página/componente con `const t = T[lang]`. El lang se detecta desde `?lang=es` en la URL o toggle del usuario.
+
+### URLs bilingües dedicadas (patrón /new-business)
+Cuando una página necesita URL propia en español (para SEO), el componente principal se exporta con un prop `defaultLang`:
+```tsx
+// page.tsx — exporta el componente para ser reutilizado
+export function PageContent({ defaultLang = 'en' }: { defaultLang?: 'en' | 'es' }) { ... }
+export default function Page() { return <Suspense><PageContent /></Suspense> }
+
+// es/page.tsx — wrapper de 7 líneas
+'use client'
+import { Suspense } from 'react'
+import { PageContent } from '../page'
+export default function PageEs() { return <Suspense><PageContent defaultLang="es" /></Suspense> }
+```
+El toggle de idioma navega entre URLs (`/new-business` ↔ `/new-business/es`) preservando `?id=`. Cada ruta tiene su propio `layout.tsx` con metadata y hreflang en el idioma correspondiente.
 
 ### CSS en páginas marketing-facing
 CSS-in-JS con `<style>` tag dentro del componente. No Tailwind en estas páginas. Clases con nombres descriptivos tipo BEM. Las clases del sistema de diseño de `/new-business` están documentadas en el `<style>` del archivo.
