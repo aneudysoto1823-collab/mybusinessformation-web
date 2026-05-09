@@ -350,15 +350,15 @@ Dependencias y misc:
 Pre-requisito: dominio mybusinessformation.com apuntando a Vercel (Etapa 10) — los monitores apuntan a URLs finales de producción.
 
 Sentry — error tracking + APM:
-- [ ] Crear cuenta en sentry.io (free tier: 5K eventos/mes, retención 30 días) — proyecto `javascript-nextjs` para Next.js (Vercel) y `node-express` para backend Express (Railway)
-- [ ] Env vars en Vercel + Railway (Production + Preview + Development): SENTRY_DSN, NEXT_PUBLIC_SENTRY_DSN, SENTRY_ORG, SENTRY_PROJECT, SENTRY_AUTH_TOKEN (opcional para sourcemaps)
-- [ ] Instalar `@sentry/nextjs` en backend y `@sentry/node` en Express
-- [ ] Crear `instrumentation.ts`, `instrumentation-client.ts`, `sentry.server.config.ts`, `sentry.edge.config.ts` en backend
-- [ ] Wrap backend/next.config.ts con `withSentryConfig`
-- [ ] Filtrar PII en `beforeSend` — cero email, nombre, teléfono, ITIN, número de tarjeta llegan a Sentry
-- [ ] Smoke test server-side: endpoint temporal `/api/sentry-test` que tira `throw new Error('[sentry-test-<fecha>]')` → verificar que llega a Sentry dashboard en <60s + email a support@ → borrar endpoint post-validación
+- [ ] Crear cuenta en sentry.io (free tier: 5K eventos/mes, retención 30 días) — proyecto `javascript-nextjs` para Next.js (Vercel) y `node-express` para backend Express (Railway). **Parte Next.js completada 2026-05-09:** cuenta activa con `admin@mybusinessformation.com`, proyecto `javascript-nextjs` capturando errores en producción. Pendiente: crear proyecto `node-express` para Railway.
+- [ ] Env vars en Vercel + Railway (Production + Preview + Development): SENTRY_DSN, NEXT_PUBLIC_SENTRY_DSN, SENTRY_ORG, SENTRY_PROJECT, SENTRY_AUTH_TOKEN (opcional para sourcemaps). **Parte Vercel completada 2026-05-09:** SENTRY_DSN, NEXT_PUBLIC_SENTRY_DSN, SENTRY_ORG, SENTRY_PROJECT configuradas en los 3 entornos. AUTH_TOKEN omitido (sourcemaps disable hasta agregar). Pendiente: mismas env vars en Railway cuando se sume Express.
+- [ ] Instalar `@sentry/nextjs` en backend y `@sentry/node` en Express. **Next.js completado 2026-05-09 (commit `305bc94`):** `@sentry/nextjs ^9` instalado. Pendiente: `@sentry/node` en `server.ts` de Express.
+- [x] Crear `instrumentation.ts`, `instrumentation-client.ts`, `sentry.server.config.ts`, `sentry.edge.config.ts` en backend — completado 2026-05-09 (commit `305bc94`): los 4 archivos creados con init Sentry según runtime (Node, edge, browser) + helper `backend/lib/sentry-pii-filter.ts` con `scrubPII()` compartido
+- [x] Wrap backend/next.config.ts con `withSentryConfig` — completado 2026-05-09 (commit `305bc94`): + `tunnelRoute: '/monitoring'` para sortear ad-blockers
+- [x] Filtrar PII en `beforeSend` — completado 2026-05-09 (commit `305bc94`): helper `scrubPII()` filtra email, nombre, teléfono, SSN/ITIN, tarjetas, passwords, tokens en strings, objects anidados, breadcrumbs, request body/headers/cookies/query
+- [x] Smoke test server-side — validado local + producción 2026-05-09: endpoint temporal `/api/sentry-test` disparó error con prefix `[sentry-test-2026-05-09]`, evento llegó al dashboard de Sentry con `environment: production`. Endpoint borrado post-validación (commit `06e9c4d`)
 - [ ] Smoke test client-side: ruta `/sentry-client-test` gated a preview/dev (404 en producción) con 3 botones (uncaught throw, captureException, captureMessage) — para validación periódica mensual
-- [ ] Alert Rule en Sentry → email a support@mybusinessformation.com en primera ocurrencia de error nuevo
+- [ ] Alert Rule en Sentry → email a admin@mybusinessformation.com en primera ocurrencia de error nuevo
 
 BetterStack — uptime + status page:
 - [ ] Crear cuenta en betterstack.com (free tier: 10 monitores, 30s checks, status page con custom domain, SSL cert monitor)
