@@ -23,7 +23,4 @@ export default withSentryConfig(nextConfig, {
   // Túnel para evitar ad-blockers (envía eventos por /monitoring en lugar de
   // *.ingest.sentry.io). Reduce eventos perdidos por uBlock Origin / Brave Shields.
   tunnelRoute: "/monitoring",
-
-  // No tratar warnings como errores en el build
-  disableLogger: true,
 });
