@@ -43,47 +43,168 @@ function LoginForm() {
 
         .root { min-height: 100vh; display: flex; }
 
-        /* ── LEFT — form panel ── */
+        /* ── LEFT — photo panel ── */
         .left {
+          display: none;
+          flex: 1;
+          background: #1C2E44;
+          position: relative;
+          overflow: hidden;
+          flex-direction: column;
+          justify-content: space-between;
+          padding: 44px 48px;
+        }
+        @media (min-width: 900px) { .left { display: flex; } }
+
+        /* Photo as background */
+        .left-photo {
+          position: absolute;
+          inset: 0;
+          background: url('/client-portal-bg.jpg') center center / cover no-repeat;
+          z-index: 0;
+        }
+
+        /* Vignette: navy fades in from all edges, photo visible in center */
+        .left-vignette {
+          position: absolute;
+          inset: 0;
+          background:
+            linear-gradient(to bottom,
+              rgba(15, 28, 52, 0.78) 0%,
+              rgba(15, 28, 52, 0.15) 28%,
+              rgba(15, 28, 52, 0.15) 68%,
+              rgba(15, 28, 52, 0.82) 100%
+            ),
+            linear-gradient(to right,
+              rgba(15, 28, 52, 0.45) 0%,
+              rgba(15, 28, 52, 0.0) 35%,
+              rgba(15, 28, 52, 0.0) 65%,
+              rgba(15, 28, 52, 0.55) 100%
+            );
+          z-index: 1;
+        }
+
+        /* Separator line */
+        .left::after {
+          content: '';
+          position: absolute;
+          top: 0; right: 0; bottom: 0;
+          width: 1px;
+          background: rgba(255,255,255,0.07);
+          z-index: 3;
+        }
+
+        /* ── Brand mark ── */
+        .brand-mark {
+          position: relative; z-index: 2;
+          display: flex; align-items: center; gap: 10px;
+        }
+        .brand-icon {
+          width: 34px; height: 34px;
+          background: rgba(255,255,255,0.12);
+          border: 1px solid rgba(255,255,255,0.18);
+          border-radius: 8px;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 16px; flex-shrink: 0;
+        }
+        .brand-name {
+          font-family: 'Fraunces', serif;
+          font-size: 13px; font-weight: 700; color: #e2e8f0; line-height: 1.1;
+        }
+        .brand-name span {
+          display: block; font-size: 9px;
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-weight: 600; color: rgba(255,255,255,0.35);
+          letter-spacing: 0.9px; text-transform: uppercase; margin-top: 2px;
+        }
+
+        /* ── Hero title — center of panel ── */
+        .left-hero {
+          position: relative; z-index: 2;
+          text-align: left;
+        }
+        .hero-eyebrow {
+          display: inline-block;
+          background: rgba(255,255,255,0.08);
+          border: 1px solid rgba(255,255,255,0.14);
+          border-radius: 20px; padding: 4px 13px;
+          font-size: 10px; font-weight: 700;
+          color: rgba(147,197,253,0.9);
+          letter-spacing: 1.4px; text-transform: uppercase; margin-bottom: 16px;
+        }
+        .hero-title {
+          font-family: 'Fraunces', serif;
+          font-size: 46px; font-weight: 900;
+          color: #ffffff; line-height: 1.06;
+          letter-spacing: -1.2px; margin-bottom: 14px;
+          text-shadow: 0 2px 16px rgba(0,0,0,0.3);
+        }
+        .hero-title em { display: block; color: #93c5fd; font-style: normal; }
+        .hero-rule {
+          width: 40px; height: 2px;
+          background: rgba(147,197,253,0.45);
+          border-radius: 2px; margin-bottom: 14px;
+        }
+        .hero-sub {
+          font-size: 13px; color: rgba(255,255,255,0.45);
+          line-height: 1.7; max-width: 280px;
+        }
+
+        /* ── Bottom ── */
+        .left-bottom { position: relative; z-index: 2; }
+
+        .steps-list { display: flex; flex-direction: column; gap: 9px; margin-bottom: 18px; }
+        .step-item { display: flex; align-items: center; gap: 9px; }
+        .step-dot {
+          width: 17px; height: 17px; border-radius: 50%;
+          background: rgba(147,197,253,0.1);
+          border: 1px solid rgba(147,197,253,0.25);
+          display: flex; align-items: center; justify-content: center;
+          font-size: 9px; color: #93c5fd; flex-shrink: 0;
+        }
+        .step-text { font-size: 12px; color: rgba(255,255,255,0.38); }
+
+        .left-footer { font-size: 11px; color: rgba(255,255,255,0.2); }
+
+        /* ── RIGHT — form panel ── */
+        .right {
           width: 100%;
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: center;
           padding: 40px 24px;
-          background: #fafaf8;
+          background: #f8fafc;
           position: relative;
         }
-        @media (min-width: 900px) {
-          .left { width: 480px; flex-shrink: 0; }
-        }
+        @media (min-width: 900px) { .right { width: 500px; flex-shrink: 0; } }
 
-        .form-wrap {
-          width: 100%;
-          max-width: 380px;
-        }
+        .form-wrap { width: 100%; max-width: 390px; }
 
         /* Mobile brand */
         .mobile-brand {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          margin-bottom: 28px;
+          display: flex; align-items: center; gap: 10px; margin-bottom: 28px;
         }
         .mobile-brand .m-icon {
-          width: 32px; height: 32px; border-radius: 8px; font-size: 15px;
-          background: #1a2332;
+          width: 32px; height: 32px; border-radius: 8px;
+          background: #1C2E44; font-size: 15px;
           display: flex; align-items: center; justify-content: center;
         }
-        .mobile-brand .m-name { font-size: 14px; font-weight: 700; color: #0f172a; font-family: 'Fraunces', serif; }
-        .mobile-brand .m-sub { font-size: 10px; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; }
+        .mobile-brand .m-name {
+          font-size: 13px; font-weight: 700; color: #0f172a;
+          font-family: 'Fraunces', serif; line-height: 1.2;
+        }
+        .mobile-brand .m-sub {
+          font-size: 10px; color: #94a3b8; font-weight: 600;
+          text-transform: uppercase; letter-spacing: 0.6px;
+        }
         @media (min-width: 900px) { .mobile-brand { display: none; } }
 
         .form-eyebrow {
           font-size: 11px; font-weight: 700; color: #94a3b8;
           text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px;
         }
-        .form-header { margin-bottom: 28px; }
+        .form-header { margin-bottom: 26px; }
         .form-header h2 {
           font-size: 24px; font-weight: 700; color: #0f172a;
           letter-spacing: -0.4px; margin-bottom: 6px;
@@ -111,27 +232,23 @@ function LoginForm() {
 
         .btn-access {
           width: 100%; padding: 12px;
-          background: #1a2332; color: #ffffff;
-          border: none; border-radius: 9px;
-          font-size: 15px; font-weight: 700; cursor: pointer;
-          margin-top: 8px; font-family: inherit;
-          transition: background 0.15s, transform 0.1s;
-          letter-spacing: -0.2px;
+          background: #1C2E44; color: #ffffff; border: none;
+          border-radius: 9px; font-size: 15px; font-weight: 700;
+          cursor: pointer; margin-top: 8px; font-family: inherit;
+          transition: background 0.15s, transform 0.1s; letter-spacing: -0.2px;
         }
         .btn-access:hover:not(:disabled) { background: #2563eb; }
         .btn-access:active:not(:disabled) { transform: scale(0.99); }
         .btn-access:disabled { background: #94a3b8; cursor: not-allowed; }
 
         .error-msg {
-          background: #fef2f2; border: 1px solid #fecaca;
-          color: #b91c1c; border-radius: 9px;
-          padding: 11px 14px; font-size: 13px; font-weight: 600;
-          margin-bottom: 16px; line-height: 1.5;
+          background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c;
+          border-radius: 9px; padding: 11px 14px; font-size: 13px;
+          font-weight: 600; margin-bottom: 16px; line-height: 1.5;
         }
 
         .contact-note {
-          margin-top: 18px; text-align: center;
-          font-size: 13px; color: #94a3b8;
+          margin-top: 18px; text-align: center; font-size: 13px; color: #94a3b8;
         }
         .contact-note a { color: #2563eb; text-decoration: none; font-weight: 600; }
         .contact-note a:hover { text-decoration: underline; }
@@ -140,109 +257,58 @@ function LoginForm() {
           position: absolute; bottom: 24px; left: 0; right: 0;
           text-align: center; font-size: 11px; color: #94a3b8; line-height: 1.6;
         }
-
-        /* ── RIGHT — brand + photo panel ── */
-        .right {
-          display: none;
-          flex: 1;
-          background: #eceae6;
-          position: relative;
-          overflow: hidden;
-          flex-direction: column;
-        }
-        @media (min-width: 900px) { .right { display: flex; } }
-
-        /* Thin separator */
-        .right::before {
-          content: '';
-          position: absolute;
-          top: 0; left: 0; bottom: 0;
-          width: 1px;
-          background: rgba(0,0,0,0.06);
-          z-index: 2;
-        }
-
-        /* Brand + title block */
-        .right-top {
-          position: relative; z-index: 2;
-          padding: 44px 52px 0;
-        }
-
-        .brand-mark {
-          display: flex; align-items: center; gap: 10px; margin-bottom: 36px;
-        }
-        .brand-icon {
-          width: 36px; height: 36px;
-          background: #1a2332;
-          border-radius: 9px;
-          display: flex; align-items: center; justify-content: center;
-          font-size: 17px; flex-shrink: 0;
-        }
-        .brand-name {
-          font-family: 'Fraunces', serif; font-size: 14px;
-          font-weight: 700; color: #1a2332; line-height: 1.1;
-        }
-        .brand-name span {
-          display: block; font-size: 10px;
-          font-family: 'Plus Jakarta Sans', sans-serif;
-          font-weight: 600; color: #94a3b8;
-          letter-spacing: 0.8px; text-transform: uppercase; margin-top: 2px;
-        }
-
-        .hero-eyebrow {
-          display: inline-block;
-          background: rgba(26,35,50,0.07);
-          border: 1px solid rgba(26,35,50,0.12);
-          border-radius: 20px; padding: 5px 14px;
-          font-size: 10px; font-weight: 700; color: #64748b;
-          letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 16px;
-        }
-        .hero-title {
-          font-family: 'Fraunces', serif; font-size: 48px;
-          font-weight: 900; color: #1a2332;
-          line-height: 1.05; letter-spacing: -1.5px; margin-bottom: 12px;
-        }
-        .hero-title span { display: block; color: #2563eb; }
-        .hero-rule {
-          width: 44px; height: 2px;
-          background: rgba(37,99,235,0.35);
-          border-radius: 2px; margin-bottom: 12px;
-        }
-        .hero-sub { font-size: 13px; color: #64748b; line-height: 1.65; max-width: 300px; }
-
-        /* Photo — natural proportions, bottom-right anchored */
-        .right-photo {
-          position: absolute;
-          bottom: 0; right: 0;
-          height: 80%;
-          width: auto;
-          object-fit: contain;
-          object-position: bottom right;
-          z-index: 1;
-        }
-
-        /* Steps + footer */
-        .right-bottom {
-          position: absolute; bottom: 24px; left: 52px;
-          z-index: 3;
-        }
-        .steps-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
-        .step-item { display: flex; align-items: center; gap: 9px; }
-        .step-dot {
-          width: 17px; height: 17px; border-radius: 50%;
-          background: rgba(37,99,235,0.1);
-          border: 1px solid rgba(37,99,235,0.22);
-          display: flex; align-items: center; justify-content: center;
-          font-size: 9px; color: #2563eb; flex-shrink: 0;
-        }
-        .step-text { font-size: 12px; color: #64748b; }
-        .right-footer { font-size: 11px; color: #94a3b8; }
       `}</style>
 
       <div className="root">
 
-        {/* ── LEFT — form ── */}
+        {/* ── LEFT — photo + brand ── */}
         <div className="left">
+          <div className="left-photo" />
+          <div className="left-vignette" />
+
+          <div className="brand-mark">
+            <div className="brand-icon">🏛️</div>
+            <div className="brand-name">
+              Florida Business Formation Center
+              <span>Client Portal</span>
+            </div>
+          </div>
+
+          <div className="left-hero">
+            <div className="hero-eyebrow">Your Business Journey</div>
+            <div className="hero-title">
+              Track Your
+              <em>Business Filing</em>
+            </div>
+            <div className="hero-rule" />
+            <p className="hero-sub">
+              Real-time status on your Florida business formation — orders, documents, and filings in one place.
+            </p>
+          </div>
+
+          <div className="left-bottom">
+            <div className="steps-list">
+              <div className="step-item">
+                <div className="step-dot">✓</div>
+                <span className="step-text">Order status & filing progress</span>
+              </div>
+              <div className="step-item">
+                <div className="step-dot">✓</div>
+                <span className="step-text">Download your official documents</span>
+              </div>
+              <div className="step-item">
+                <div className="step-dot">✓</div>
+                <span className="step-text">Business formation history</span>
+              </div>
+            </div>
+            <div className="left-footer">
+              © {year} Florida Business Formation Center — mybusinessformation.com
+            </div>
+          </div>
+        </div>
+
+        {/* ── RIGHT — form ── */}
+        <div className="right">
           <div className="form-wrap">
 
             <div className="mobile-brand">
@@ -256,7 +322,7 @@ function LoginForm() {
             <div className="form-header">
               <div className="form-eyebrow">Client Access</div>
               <h2>Track your order</h2>
-              <p>Enter your email and the confirmation number from your order receipt to access your filing status.</p>
+              <p>Enter your email and confirmation number from your order receipt to access your filing status.</p>
             </div>
 
             <form onSubmit={handleSubmit}>
@@ -304,53 +370,6 @@ function LoginForm() {
           </div>
         </div>
 
-        {/* ── RIGHT — brand + photo ── */}
-        <div className="right">
-
-          <div className="right-top">
-            <div className="brand-mark">
-              <div className="brand-icon">🏛️</div>
-              <div className="brand-name">
-                Florida Business Formation Center
-                <span>Client Portal</span>
-              </div>
-            </div>
-
-            <div className="hero-eyebrow">Your Business Journey</div>
-            <div className="hero-title">
-              Track Your
-              <span>Business Filing</span>
-            </div>
-            <div className="hero-rule" />
-            <p className="hero-sub">
-              Real-time status updates on your Florida business formation process.
-            </p>
-          </div>
-
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/client-portal-bg.jpg" alt="" className="right-photo" />
-
-          <div className="right-bottom">
-            <div className="steps-list">
-              <div className="step-item">
-                <div className="step-dot">✓</div>
-                <span className="step-text">Order status & filing progress</span>
-              </div>
-              <div className="step-item">
-                <div className="step-dot">✓</div>
-                <span className="step-text">Download your official documents</span>
-              </div>
-              <div className="step-item">
-                <div className="step-dot">✓</div>
-                <span className="step-text">Business formation history</span>
-              </div>
-            </div>
-            <div className="right-footer">
-              © {year} Florida Business Formation Center — mybusinessformation.com
-            </div>
-          </div>
-
-        </div>
       </div>
     </>
   )
