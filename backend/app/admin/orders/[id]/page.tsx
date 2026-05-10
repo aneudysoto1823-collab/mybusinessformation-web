@@ -37,9 +37,10 @@ interface Order {
 const STATUS_OPTIONS = ['pending', 'in_review', 'names_taken', 'ready_to_file', 'filed', 'approved', 'completed']
 
 const PACKAGE_INFO: Record<string, { name: string; price: string; popular?: boolean }> = {
-  basic:    { name: 'Basic',    price: '$49 + state fee' },
-  standard: { name: 'Standard', price: '$149 + state fee', popular: true },
-  premium:  { name: 'Premium',  price: '$249 + state fee' },
+  basic:    { name: 'Basic',                price: '$49 + state fee' },
+  standard: { name: 'Standard',            price: '$149 + state fee', popular: true },
+  premium:  { name: 'Premium',             price: '$249 + state fee' },
+  addon:    { name: 'New Business Letter',  price: 'Variable' },
 }
 
 const PACKAGE_SERVICES: Record<string, string[]> = {
@@ -69,6 +70,22 @@ const PACKAGE_SERVICES: Record<string, string[]> = {
     'DBA / Fictitious Name',
     'Articles of Amendment',
   ],
+}
+
+const ADDON_SERVICE_LABELS: Record<string, string> = {
+  ein:                   'EIN / Tax ID Number',
+  labor_law_poster:      'Labor Law Poster 2026',
+  certificate_of_status: 'Certificate of Status (FL)',
+  bundle:                'Business Essentials Bundle (EIN + Labor Poster + Certificate)',
+}
+
+function parseAddonServices(raw: unknown): string[] {
+  if (!raw) return []
+  if (Array.isArray(raw)) return raw as string[]
+  if (typeof raw === 'string') {
+    try { const p = JSON.parse(raw); if (Array.isArray(p)) return p } catch { /* noop */ }
+  }
+  return []
 }
 
 const STATUS_BADGE: Record<string, { label: string; bg: string; color: string }> = {
@@ -442,6 +459,38 @@ export default function OrderDetailPage() {
           {(() => {
             const pkgKey = (order.package ?? '').toLowerCase()
             const pkgInfo = PACKAGE_INFO[pkgKey]
+            const isAddon = pkgKey === 'addon'
+
+            if (isAddon) {
+              const services = parseAddonServices(order.addons)
+              return (
+                <>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
+                    <span style={{ fontSize: '20px', fontWeight: 800, color: '#1a1a2e' }}>New Business Letter</span>
+                    <span style={{ background: '#ffedd5', color: '#c2410c', fontSize: '11px', fontWeight: 700, padding: '2px 8px', borderRadius: '999px' }}>New Business</span>
+                  </div>
+                  {services.length > 0 && (
+                    <div style={{ marginTop: '12px', marginBottom: '16px' }}>
+                      <div style={{ fontSize: '11px', fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: '10px' }}>Servicios adquiridos</div>
+                      <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        {services.map(s => (
+                          <li key={s} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#374151' }}>
+                            <span style={{ color: '#c2410c', fontWeight: 700 }}>✓</span>
+                            {ADDON_SERVICE_LABELS[s] ?? s}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  <div className="grid-2" style={{ paddingTop: '16px', borderTop: '1px solid #f1f5f9' }}>
+                    <Field label="Monto total" value={order.amount ? `$${order.amount.toFixed(2)} ${order.currency ?? 'USD'}` : undefined} />
+                    <Field label="Estado del pago" value={order.paymentStatus} />
+                    <Field label="Stripe Payment ID" value={order.stripePaymentId} />
+                  </div>
+                </>
+              )
+            }
+
             const services = PACKAGE_SERVICES[pkgKey] ?? []
             let addons: Record<string, unknown> = {}
             try { addons = JSON.parse(order.addons as string) } catch { /* noop */ }
@@ -889,12 +938,20 @@ export default function OrderDetailPage() {
           <div>
             <div className="sublabel">Enviar Emails</div>
             <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
-              <button className="btn btn-yellow" onClick={() => triggerEmail('names-taken')} disabled={emailLoading !== null}>
-                {emailLoading === 'names-taken' ? 'Enviando…' : '⚠️ Email: Nombres Tomados'}
-              </button>
-              <button className="btn btn-green" onClick={() => triggerEmail('certificate')} disabled={emailLoading !== null}>
-                {emailLoading === 'certificate' ? 'Enviando…' : '🎉 Email: Certificate'}
-              </button>
+              {order.package === 'addon' ? (
+                <span style={{ fontSize: '13px', color: '#9ca3af', fontStyle: 'italic' }}>
+                  Orden New Business Letter — notificaciones manuales vía email directo al cliente.
+                </span>
+              ) : (
+                <>
+                  <button className="btn btn-yellow" onClick={() => triggerEmail('names-taken')} disabled={emailLoading !== null}>
+                    {emailLoading === 'names-taken' ? 'Enviando…' : '⚠️ Email: Nombres Tomados'}
+                  </button>
+                  <button className="btn btn-green" onClick={() => triggerEmail('certificate')} disabled={emailLoading !== null}>
+                    {emailLoading === 'certificate' ? 'Enviando…' : '🎉 Email: Certificate'}
+                  </button>
+                </>
+              )}
               {emailMsg && <span className="msg-inf">{emailMsg}</span>}
             </div>
           </div>

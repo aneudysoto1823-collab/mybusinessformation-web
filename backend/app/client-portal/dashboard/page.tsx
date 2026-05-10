@@ -20,9 +20,44 @@ interface Order {
 }
 
 const PACKAGE_INFO: Record<string, { name: string; price: string; popular?: boolean }> = {
-  basic:    { name: 'Basic',    price: '$49 + state fee' },
-  standard: { name: 'Standard', price: '$149 + state fee', popular: true },
-  premium:  { name: 'Premium',  price: '$249 + state fee' },
+  basic:    { name: 'Basic',               price: '$49 + state fee' },
+  standard: { name: 'Standard',           price: '$149 + state fee', popular: true },
+  premium:  { name: 'Premium',            price: '$249 + state fee' },
+  addon:    { name: 'New Business Letter', price: 'Variable' },
+}
+
+const ADDON_SERVICE_LABELS: Record<string, string> = {
+  ein:                   'EIN / Tax ID Number',
+  labor_law_poster:      'Labor Law Poster 2026',
+  certificate_of_status: 'Certificate of Status (FL)',
+  bundle:                'Business Essentials Bundle (EIN + Labor Poster + Certificate)',
+}
+
+function parseAddonServices(raw: unknown): string[] {
+  if (!raw) return []
+  if (Array.isArray(raw)) return raw as string[]
+  if (typeof raw === 'string') {
+    try { const p = JSON.parse(raw); if (Array.isArray(p)) return p } catch { /* noop */ }
+  }
+  return []
+}
+
+const ADDON_STEPS = [
+  { key: 'payment',    label: 'Payment Confirmed' },
+  { key: 'processing', label: 'Processing Your Services' },
+  { key: 'completed',  label: 'Services Delivered' },
+]
+
+function getAddonStepIndex(status: string): number {
+  if (status === 'completed') return 2
+  if (status === 'in_review' || status === 'processing') return 1
+  return 0
+}
+
+function getAddonWhatsNext(status: string): string {
+  if (status === 'completed') return 'Your services are ready! Check the Documents section below to download your files.'
+  if (status === 'in_review' || status === 'processing') return 'Payment confirmed! Our team is processing your services. We\'ll email you as soon as everything is ready.'
+  return 'Your order has been received and is being reviewed.'
 }
 
 const PACKAGE_SERVICES: Record<string, string[]> = {
@@ -84,7 +119,35 @@ async function getDocuments(orderId: string, order: Order): Promise<DocumentItem
 
   const docs: DocumentItem[] = []
 
-  // Certificate of Formation — always shown
+  // Addon orders — documents based on purchased services array
+  if (pkgKey === 'addon') {
+    const services = parseAddonServices(order.addons)
+    const hasEin  = services.includes('ein') || services.includes('bundle')
+    const hasCert = services.includes('certificate_of_status') || services.includes('bundle')
+    const hasLabor = services.includes('labor_law_poster') || services.includes('bundle')
+
+    if (hasEin) docs.push({
+      key: 'ein-letter',
+      label: 'EIN / Tax ID Letter',
+      url: await signedUrl(`orders/${orderId}/ein-letter.pdf`),
+      pending: 'Pending — will be issued by the IRS',
+    })
+    if (hasCert) docs.push({
+      key: 'certificate-of-status',
+      label: 'Certificate of Status (FL)',
+      url: await signedUrl(`orders/${orderId}/certificate-of-status.pdf`),
+      pending: 'Pending — being processed',
+    })
+    if (hasLabor) docs.push({
+      key: 'labor-poster',
+      label: 'Labor Law Poster 2026',
+      url: await signedUrl(`orders/${orderId}/labor-poster.pdf`),
+      pending: 'Pending — being prepared',
+    })
+    return docs
+  }
+
+  // Formation orders — Certificate of Formation always shown
   docs.push({
     key: 'certificate',
     label: 'Certificate of Formation',
@@ -197,9 +260,11 @@ export default async function ClientDashboardPage() {
   const order = await getOrder(orderId)
   if (!order) redirect('/client-portal')
 
-  const currentStep = getCurrentStepIndex(order.status)
+  const isAddon = order.package === 'addon'
+  const currentStep = isAddon ? getAddonStepIndex(order.status) : getCurrentStepIndex(order.status)
   const confirmationNumber = getConfirmationNumber(order.id, order.package)
-  const whatsNext = getWhatsNext(order.status)
+  const whatsNext = isAddon ? getAddonWhatsNext(order.status) : getWhatsNext(order.status)
+  const steps = isAddon ? ADDON_STEPS : STEPS
   const documents = await getDocuments(orderId, order)
 
   return (
@@ -436,6 +501,7 @@ export default async function ClientDashboardPage() {
 
         .status-pill.pending       { background: #fef3c7; color: #92400e; }
         .status-pill.in_review     { background: #dbeafe; color: #1e40af; }
+        .status-pill.processing    { background: #dbeafe; color: #1e40af; }
         .status-pill.names_taken   { background: #fee2e2; color: #991b1b; }
         .status-pill.ready_to_file { background: #ede9fe; color: #5b21b6; }
         .status-pill.filed         { background: #dbeafe; color: #1e40af; }
@@ -580,7 +646,7 @@ export default async function ClientDashboardPage() {
         <div className="cp-card">
           <h2>Order Status</h2>
           <div className="timeline">
-            {STEPS.map((step, i) => {
+            {steps.map((step, i) => {
               const isDone = i < currentStep
               const isCurrent = i === currentStep
               const className = isDone ? 'done' : isCurrent ? 'current' : 'pending'
@@ -642,6 +708,32 @@ export default async function ClientDashboardPage() {
         {(() => {
           const pkgKey = (order.package ?? '').toLowerCase()
           const pkgInfo = PACKAGE_INFO[pkgKey]
+
+          if (pkgKey === 'addon') {
+            const services = parseAddonServices(order.addons)
+            return (
+              <div className="cp-card">
+                <h2>Your Services</h2>
+                <div>
+                  <span className="pkg-name">New Business Letter</span>
+                </div>
+                {services.length > 0 && (
+                  <>
+                    <div className="pkg-sublabel">Services Purchased</div>
+                    <ul className="pkg-services">
+                      {services.map(s => (
+                        <li key={s}>
+                          <span className="chk">✓</span>
+                          {ADDON_SERVICE_LABELS[s] ?? s}
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                )}
+              </div>
+            )
+          }
+
           const services = PACKAGE_SERVICES[pkgKey] ?? []
           const addons = parseAddons(order.addons)
           const addonItems: { key: string; label: string }[] = [

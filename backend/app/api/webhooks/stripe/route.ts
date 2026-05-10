@@ -7,8 +7,9 @@ export const dynamic = 'force-dynamic'
 
 const getStripe = () => new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2026-02-25.clover' })
 const getResend = () => new Resend(process.env.RESEND_API_KEY)
-const FROM    = 'onboarding@resend.dev'
-const PORTAL  = 'https://mybusinessformation.com/login'
+const FROM          = 'onboarding@resend.dev'
+const PORTAL        = 'https://mybusinessformation.com/client-portal'
+const ADMIN_EMAIL   = 'aneurysoto@gmail.com'
 
 export async function POST(req: NextRequest) {
   const body      = await req.text()
@@ -79,7 +80,7 @@ export async function POST(req: NextRequest) {
     amount:          amountPaid,
     currency:        'USD',
     paymentStatus:   'paid',
-    status:          'processing',
+    status:          'in_review',
     speed:           'standard',
     registeredAgent: 'us',
   })
@@ -179,6 +180,33 @@ export async function POST(req: NextRequest) {
       </div>
     `,
   }).catch(err => console.error('[stripe-webhook] email error (non-fatal):', err))
+
+  // Notify admin of new New Business Letter order
+  getResend().emails.send({
+    from: FROM,
+    to: ADMIN_EMAIL,
+    subject: `🆕 Nueva orden New Business Letter — ${companyName}`,
+    html: `
+      <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;color:#1e293b">
+        <div style="background:#c2410c;padding:20px 28px;border-radius:10px 10px 0 0">
+          <h1 style="color:#fff;font-size:18px;margin:0">🆕 Nueva Orden — New Business Letter</h1>
+        </div>
+        <div style="background:#fff;padding:24px 28px;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 10px 10px;font-size:14px">
+          <table style="width:100%;border-collapse:collapse">
+            <tr><td style="padding:6px 0;color:#64748b;width:40%">Empresa</td><td style="padding:6px 0;font-weight:600">${companyName}</td></tr>
+            <tr style="background:#f8fafc"><td style="padding:6px 4px;color:#64748b">Cliente</td><td style="padding:6px 4px;font-weight:600">${firstName} ${lastName}</td></tr>
+            <tr><td style="padding:6px 0;color:#64748b">Email</td><td style="padding:6px 0"><a href="mailto:${email}" style="color:#2563eb">${email}</a></td></tr>
+            <tr style="background:#f8fafc"><td style="padding:6px 4px;color:#64748b">Número</td><td style="padding:6px 4px;font-weight:700;color:#c2410c">${fbfcNumber}</td></tr>
+            <tr><td style="padding:6px 0;color:#64748b">Servicios</td><td style="padding:6px 0">${selectedServices.join(', ')}</td></tr>
+            <tr style="background:#f8fafc"><td style="padding:6px 4px;color:#64748b">Total</td><td style="padding:6px 4px;font-weight:700">$${amountPaid.toFixed(2)} USD</td></tr>
+          </table>
+          <div style="margin-top:16px;padding:12px;background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;font-size:13px;color:#9a3412">
+            Procesar los servicios adquiridos y actualizar el estado de la orden cuando estén listos.
+          </div>
+        </div>
+      </div>
+    `,
+  }).catch(err => console.error('[stripe-webhook] admin notification error (non-fatal):', err))
 
   return NextResponse.json({ received: true, orderId, fbfcNumber })
 }
