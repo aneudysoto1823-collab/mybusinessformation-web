@@ -45,7 +45,14 @@ const PAYMENT_BADGE: Record<string, { label: string; bg: string; color: string }
   refunded: { label: 'Reembolso', bg: '#ffedd5', color: '#c2410c' },
 }
 
-const PKG_ORDER: Record<string, number> = { basic: 0, standard: 1, premium: 2 }
+const PKG_ORDER: Record<string, number> = { basic: 0, standard: 1, premium: 2, addon: 3 }
+
+const PKG_LABEL: Record<string, { label: string; bg: string; color: string }> = {
+  basic:    { label: 'Basic',                bg: '#f3f4f6', color: '#6b7280' },
+  standard: { label: 'Standard',            bg: '#dbeafe', color: '#1d4ed8' },
+  premium:  { label: 'Premium',             bg: '#ede9fe', color: '#6d28d9' },
+  addon:    { label: 'New Business Letter', bg: '#ffedd5', color: '#c2410c' },
+}
 
 function Badge({ map, value }: { map: Record<string, { label: string; bg: string; color: string }>; value: string }) {
   const b = map[value] ?? { label: value, bg: '#f3f4f6', color: '#374151' }
@@ -343,6 +350,7 @@ export default function OrdersTable({ orders }: { orders: Order[] }) {
             <option value="basic">Basic</option>
             <option value="standard">Standard</option>
             <option value="premium">Premium</option>
+            <option value="addon">New Business Letter</option>
           </select>
 
           <div className="date-group">
@@ -440,7 +448,7 @@ export default function OrdersTable({ orders }: { orders: Order[] }) {
                       <div style={{ fontSize: '11px', color: '#9ca3af' }}>{order.email}</div>
                     </td>
                     <td>{order.companyName}</td>
-                    <td style={{ textTransform: 'capitalize' }}>{order.package}</td>
+                    <td><Badge map={PKG_LABEL} value={order.package} /></td>
                     <td>${(order.amount ?? 0).toFixed(2)}</td>
                     <td><Badge map={PAYMENT_BADGE} value={order.paymentStatus} /></td>
                     <td>
