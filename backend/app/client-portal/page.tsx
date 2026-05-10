@@ -253,6 +253,13 @@ function LoginForm() {
         .contact-note a { color: #2563eb; text-decoration: none; font-weight: 600; }
         .contact-note a:hover { text-decoration: underline; }
 
+        .terms-note {
+          margin-top: 16px; text-align: center;
+          font-size: 11px; color: #cbd5e1; line-height: 1.6;
+        }
+        .terms-note a { color: #94a3b8; text-decoration: underline; }
+        .terms-note a:hover { color: #64748b; }
+
         .form-footer {
           position: absolute; bottom: 24px; left: 0; right: 0;
           text-align: center; font-size: 11px; color: #94a3b8; line-height: 1.6;
@@ -362,6 +369,12 @@ function LoginForm() {
             <p className="contact-note">
               Don&apos;t have your confirmation number?{' '}
               <a href="mailto:support@mybusinessformation.com">Contact us</a>
+            </p>
+
+            <p className="terms-note">
+              By accessing this portal you agree to our{' '}
+              <a href="/terms">Terms of Service</a> and{' '}
+              <a href="/privacy">Privacy Policy</a>.
             </p>
           </div>
 
