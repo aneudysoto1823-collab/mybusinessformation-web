@@ -239,19 +239,6 @@ export default function LoginPage() {
         }
         .access-text { font-size: 12px; color: rgba(255,255,255,0.4); }
 
-        .warning-box {
-          position: relative; z-index: 2;
-          background: rgba(251,191,36,0.07);
-          border: 1px solid rgba(251,191,36,0.15);
-          border-radius: 8px;
-          padding: 12px 16px;
-          display: flex;
-          gap: 10px;
-          align-items: flex-start;
-        }
-        .warning-icon { font-size: 13px; flex-shrink: 0; margin-top: 1px; }
-        .warning-text { font-size: 11px; color: #94a3b8; line-height: 1.6; }
-        .warning-text strong { color: #fbbf24; font-weight: 700; display: block; margin-bottom: 2px; }
 
         .left-footer {
           position: relative; z-index: 2;
@@ -454,13 +441,6 @@ export default function LoginPage() {
               <div className="access-item">
                 <div className="access-check">✓</div>
                 <span className="access-text">Document upload & filing records</span>
-              </div>
-            </div>
-            <div className="warning-box">
-              <span className="warning-icon">⚠️</span>
-              <div className="warning-text">
-                <strong>Authorized Personnel Only</strong>
-                This system contains confidential client and business information. Unauthorized access is strictly prohibited and may be subject to legal action.
               </div>
             </div>
             <div className="left-footer">
