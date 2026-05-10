@@ -172,49 +172,56 @@ export default function LoginPage() {
           margin-top: 2px;
         }
 
-        .left-label {
+        /* ── Center hero title ── */
+        .left-hero {
+          position: relative; z-index: 2;
+          text-align: center;
+          padding: 0 12px;
+        }
+        .left-hero-eyebrow {
           display: inline-block;
-          background: rgba(255,255,255,0.07);
-          border: 1px solid rgba(255,255,255,0.1);
+          background: rgba(255,255,255,0.08);
+          border: 1px solid rgba(255,255,255,0.14);
           border-radius: 20px;
-          padding: 4px 12px;
-          font-size: 11px;
-          font-weight: 600;
-          color: #94a3b8;
-          letter-spacing: 0.5px;
+          padding: 5px 14px;
+          font-size: 10px;
+          font-weight: 700;
+          color: #93c5fd;
+          letter-spacing: 1.5px;
           text-transform: uppercase;
+          margin-bottom: 20px;
+        }
+        .left-hero-title {
+          font-family: 'Fraunces', serif;
+          font-size: 44px;
+          font-weight: 900;
+          color: #ffffff;
+          line-height: 1.1;
+          letter-spacing: -1px;
+          text-shadow: 0 2px 20px rgba(0,0,0,0.4);
           margin-bottom: 18px;
         }
-
-        .left-headline {
-          font-family: 'Fraunces', serif;
-          font-size: 34px;
-          font-weight: 900;
-          color: #e2e8f0;
-          line-height: 1.2;
-          letter-spacing: -0.6px;
-          margin-bottom: 16px;
+        .left-hero-title span {
+          display: block;
+          color: #93c5fd;
         }
-        .left-headline em { color: #93c5fd; font-style: normal; }
-
-        .left-sub {
-          font-size: 13px;
-          color: #64748b;
-          line-height: 1.75;
-          max-width: 300px;
-        }
-
-        .divider {
-          width: 36px; height: 2px;
-          background: rgba(255,255,255,0.1);
+        .left-hero-rule {
+          width: 48px; height: 2px;
+          background: rgba(147,197,253,0.4);
           border-radius: 2px;
-          margin: 28px 0;
+          margin: 0 auto 18px;
+        }
+        .left-hero-sub {
+          font-size: 13px;
+          color: rgba(255,255,255,0.45);
+          letter-spacing: 0.3px;
+          line-height: 1.6;
         }
 
         .access-list {
           display: flex;
           flex-direction: column;
-          gap: 11px;
+          gap: 10px;
         }
         .access-item {
           display: flex;
@@ -230,7 +237,7 @@ export default function LoginPage() {
           flex-shrink: 0;
           color: #93c5fd;
         }
-        .access-text { font-size: 13px; color: #64748b; }
+        .access-text { font-size: 12px; color: rgba(255,255,255,0.4); }
 
         .warning-box {
           position: relative; z-index: 2;
@@ -265,12 +272,12 @@ export default function LoginPage() {
           position: relative;
         }
         @media (min-width: 900px) {
-          .login-right { width: 440px; flex-shrink: 0; }
+          .login-right { width: 520px; flex-shrink: 0; }
         }
 
         .form-wrap {
           width: 100%;
-          max-width: 360px;
+          max-width: 400px;
         }
 
         .form-header { margin-bottom: 28px; }
@@ -408,6 +415,7 @@ export default function LoginPage() {
           <div className="left-photo" />
           <div className="left-overlay" />
 
+          {/* Top: brand mark */}
           <div className="left-content">
             <div className="brand-mark">
               <div className="brand-icon">🏛️</div>
@@ -416,40 +424,38 @@ export default function LoginPage() {
                 <span>Staff Portal</span>
               </div>
             </div>
+          </div>
 
-            <div className="left-label">Internal Use Only</div>
-
-            <div className="left-headline">
-              Operations &<br />
-              <em>Staff Portal</em>
+          {/* Center: big hero title */}
+          <div className="left-hero">
+            <div className="left-hero-eyebrow">Internal Use Only</div>
+            <div className="left-hero-title">
+              Florida Business
+              <span>Formation Center</span>
             </div>
-            <p className="left-sub">
-              Restricted access system for authorized team members. Manage client orders, filings, and internal operations from a single dashboard.
+            <div className="left-hero-rule" />
+            <p className="left-hero-sub">
+              Authorized staff operations portal<br />
+              Orders · Filings · Client Management
             </p>
+          </div>
 
-            <div className="divider" />
-
-            <div className="access-list">
+          {/* Bottom: access list + warning */}
+          <div>
+            <div className="access-list" style={{ marginBottom: 16 }}>
               <div className="access-item">
                 <div className="access-check">✓</div>
                 <span className="access-text">Order management & status tracking</span>
               </div>
               <div className="access-item">
                 <div className="access-check">✓</div>
-                <span className="access-text">Client communication & email notifications</span>
+                <span className="access-text">Client communication & notifications</span>
               </div>
               <div className="access-item">
                 <div className="access-check">✓</div>
                 <span className="access-text">Document upload & filing records</span>
               </div>
-              <div className="access-item">
-                <div className="access-check">✓</div>
-                <span className="access-text">Revenue reports & business analytics</span>
-              </div>
             </div>
-          </div>
-
-          <div>
             <div className="warning-box">
               <span className="warning-icon">⚠️</span>
               <div className="warning-text">
