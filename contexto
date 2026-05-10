@@ -310,6 +310,7 @@ Auditoría OWASP y proceso:
 Auth y sesiones:
 - [x] Verificar `ADMIN_PASSWORD` hasheado con bcrypt factor 12 (`ADMIN_PASSWORD_HASH` env var, sin plaintext) — completado 2026-05-08 (commit `d06992d`): bcryptjs ^3 instalado, hash en base64 para evitar parser dotenv de Next.js, `ADMIN_PASSWORD` viejo eliminado de Vercel
 - [x] Cookies HttpOnly + Secure + SameSite=Strict — completado 2026-05-08 (commit `d06992d`): `secure: true` hardcoded (ya no condicional NODE_ENV), `sameSite: 'strict'` (era `'lax'`)
+- [x] 2FA (autenticación de 2 factores) — completado 2026-05-09 por Fabián (commits `0552930`, `eb0be02`, `937c2b3`, `82766bf`): TOTP app (Google Authenticator / Authy) + email code como fallback. Helpers `backend/lib/encryption.ts` (AES-256-CBC), `lib/totp.ts` (otpauth, no otplib por compat Turbopack/ESM), `lib/twofa.ts`. 4 endpoints: `/api/auth/2fa-config`, `/2fa-setup`, `/2fa-verify`, `/2fa-send-email`. Página `/login/verify` para segundo paso, panel `/admin/security` para gestión. Cookie `admin_pending` (5 min, JWT con role admin_pending) entre password y 2FA. Tabla nueva en Supabase `admin_security_config` (single row) con TOTP secret encriptado y email code hasheado SHA-256. Documentado en LOGICA_DE_NEGOCIO/16_2fa_admin.md. **Pendiente: agregar `ENCRYPTION_KEY` (64 chars hex) y `ADMIN_EMAIL` en Vercel + .env.local para que funcione en producción.**
 - [ ] Audit trail admin: tabla `admin_audit_log` con admin_email, action, entity, before, after, created_at — insertar en cada PATCH/POST de panel admin
 
 Defensa server:
@@ -330,7 +331,7 @@ Dependencias y misc:
 - [ ] `npm audit --audit-level=moderate` con 0 vulnerabilidades HIGH/CRITICAL
 - [ ] Activar Dependabot en GitHub (`.github/dependabot.yml`)
 - [x] Verificar `.gitignore` excluye `.env`, `.env.local`, `.env*.local` — verificado 2026-05-07: `backend/.gitignore` tiene `.env*` y `.env*.local`
-- [ ] Documentar en LOGICA_DE_NEGOCIO/14_security_headers_y_hardening.md + actualizar TROUBLESHOOTING/ con guías de respuesta a incidentes de seguridad
+- [ ] Documentar en LOGICA_DE_NEGOCIO/<próximo número disponible>_security_headers_y_hardening.md + actualizar TROUBLESHOOTING/ con guías de respuesta a incidentes de seguridad (nota: el archivo 14 ya está usado para Sentry, el 16 para 2FA — el próximo libre será 17 cuando se haga este item)
 
 ### Etapa 15 — Monitoreo y Observabilidad (3-4 días)
 
