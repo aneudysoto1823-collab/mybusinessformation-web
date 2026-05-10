@@ -223,7 +223,30 @@ export const sendSuggestNames = async (order: {
   })
 }
 
-// ── 4. Certificate of Formation — entrega final al cliente ───────────────────
+// ── 4. Orden procesada ante el Estado de Florida (status: filed) ─────────────
+//    Template pendiente de diseño — función lista para conectar
+export const sendOrderProcessed = async (_order: {
+  firstName: string
+  email: string
+  companyName: string
+  id: string
+  speed?: string
+}) => {
+  // TODO: diseñar template HTML y activar el envío
+}
+
+// ── 5. Orden aprobada por Florida (status: approved) ─────────────────────────
+//    Template pendiente de diseño — función lista para conectar
+export const sendOrderApproved = async (_order: {
+  firstName: string
+  email: string
+  companyName: string
+  id: string
+}) => {
+  // TODO: diseñar template HTML y activar el envío
+}
+
+// ── 6. Certificate of Formation — entrega final al cliente ───────────────────
 export const sendCertificateDelivery = async (order: {
   firstName: string
   email: string

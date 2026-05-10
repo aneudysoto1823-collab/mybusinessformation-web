@@ -4,7 +4,9 @@ import {
   sendOrderConfirmation,
   sendAllNamesTaken,
   sendCertificateDelivery,
-  sendSuggestNames
+  sendSuggestNames,
+  sendOrderProcessed,
+  sendOrderApproved
 } from './notifications.service.ts'
 import { getOrderById } from '../orders/orders.service.ts'
 
@@ -138,6 +140,47 @@ router.post('/certificate', async (req: Request, res: Response) => {
     }
     await sendCertificateDelivery({ id, firstName, email, companyName })
     res.json({ success: true, message: `Certificate enviado a ${email}` })
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message })
+  }
+})
+
+// POST /api/notifications/order-processed
+// Dispara cuando el admin avanza la orden a 'filed' (procesada ante Florida)
+router.post('/order-processed', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.body
+    if (!id) return res.status(400).json({ success: false, message: 'Falta id' })
+    const order = await getOrderById(id)
+    if (!order) return res.status(404).json({ success: false, message: 'Orden no encontrada' })
+    await sendOrderProcessed({
+      id: order.id,
+      firstName: order.firstName,
+      email: order.email,
+      companyName: order.companyName,
+      speed: (order as any).speed ?? undefined,
+    })
+    res.json({ success: true, message: `Notificación "procesada" enviada a ${order.email}` })
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message })
+  }
+})
+
+// POST /api/notifications/order-approved
+// Dispara cuando el admin avanza la orden a 'approved' (aprobada por Florida)
+router.post('/order-approved', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.body
+    if (!id) return res.status(400).json({ success: false, message: 'Falta id' })
+    const order = await getOrderById(id)
+    if (!order) return res.status(404).json({ success: false, message: 'Orden no encontrada' })
+    await sendOrderApproved({
+      id: order.id,
+      firstName: order.firstName,
+      email: order.email,
+      companyName: order.companyName,
+    })
+    res.json({ success: true, message: `Notificación "aprobada" enviada a ${order.email}` })
   } catch (error: any) {
     res.status(500).json({ success: false, error: error.message })
   }

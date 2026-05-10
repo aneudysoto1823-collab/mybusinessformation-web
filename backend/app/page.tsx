@@ -4,7 +4,13 @@ import ChatWidget from '@/components/ChatWidget'
 export const metadata: Metadata = {
   title: 'Florida LLC & Corporation Formation — Online, Bilingual',
   description: 'Form your Florida LLC or Corporation online in minutes. Bilingual service EN/ES. Packages from $0 + state fee. EIN, Operating Agreement, BOI Filing included.',
-  alternates: { canonical: 'https://mybusinessformation.com' },
+  alternates: {
+    canonical: 'https://mybusinessformation.com',
+    languages: {
+      'en-US': 'https://mybusinessformation.com',
+      'es-US': 'https://mybusinessformation.com/es',
+    },
+  },
   openGraph: { url: 'https://mybusinessformation.com' },
 }
 
@@ -106,7 +112,7 @@ const schemaOrg = {
   ],
 }
 
-export default function HomePage() {
+export function PageContent({ defaultLang = 'en' }: { defaultLang?: 'en' | 'es' }) {
   const styles = `
 :root {
   --navy:#1C2E44; --navy2:#22364E; --blue:#2563EB; --blue-light:#EFF6FF; --blue-mid:#DBEAFE;
@@ -710,8 +716,8 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
     </nav>
     <div style="display:flex;align-items:center;gap:12px">
       <div class="lang-toggle">
-        <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
-        <button class="lang-btn" id="btn-es" onclick="setLang('es')">ES</button>
+        <button class="lang-btn ${defaultLang === 'en' ? 'active' : ''}" id="btn-en" onclick="setLang('en')">EN</button>
+        <button class="lang-btn ${defaultLang === 'es' ? 'active' : ''}" id="btn-es" onclick="setLang('es')">ES</button>
       </div>
       <a href="/client-portal" id="header-login-btn" style="padding:6px 14px;border-radius:6px;border:1.5px solid #e2e8f0;background:#fff;font-size:0.85rem;font-weight:500;color:#475569;text-decoration:none;transition:all 0.2s;white-space:nowrap;" onmouseover="this.style.borderColor='#2563eb';this.style.color='#2563eb'" onmouseout="this.style.borderColor='#e2e8f0';this.style.color='#475569'">Login</a>
     </div>
@@ -2081,7 +2087,7 @@ var totalSteps = 8;
 var formData = { filer:'', entity:'llc', package:'standard', addons:{} };
 var skipPkgStep = true;
 var memberCount = 1;
-var currentLang = 'en';
+var currentLang = '${defaultLang}';
 var orderNumber = '';
 
 var translations = {
@@ -2956,8 +2962,12 @@ function fmUpdateExpUpsell() {
   fmUpdateSummary();
 }
 function setLang(lang) {
+  var onEsRoute = window.location.pathname === '/es' || window.location.pathname.startsWith('/es/');
+  if ((lang === 'es' && !onEsRoute) || (lang === 'en' && onEsRoute)) {
+    window.location.href = lang === 'es' ? '/es' : '/';
+    return;
+  }
   currentLang = lang;
-  localStorage.setItem('flbc_lang', lang);
   var isEs = lang === 'es';
   document.getElementById('btn-en').classList.toggle('active', lang === 'en');
   document.getElementById('btn-es').classList.toggle('active', lang === 'es');
@@ -4156,7 +4166,7 @@ function setFilerForm(type, el) {
   var af = document.getElementById('agent-fields');
   if(af) af.style.display = type === 'company' ? 'block' : 'none';
 }
-(function(){var l=localStorage.getItem('flbc_lang');if(l&&l!=='en')setLang(l);})();
+(function(){if(currentLang!=='en')setLang(currentLang);})();
 
 var fmCurrentStep = 1;
 var fmTotalSteps  = 7;
@@ -6178,4 +6188,8 @@ function claudiaPrefill(d){
       <ChatWidget />
     </>
   )
+}
+
+export default function HomePage() {
+  return <PageContent defaultLang="en" />
 }

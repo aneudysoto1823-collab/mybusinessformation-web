@@ -312,6 +312,18 @@ export default function OrderDetailPage() {
       setOrder(prev => prev ? { ...prev, status: newStatus } : prev)
       setSelectedStatus(newStatus)
       setStatusMsg(`Estado actualizado a "${newStatus}".`)
+
+      const notifMap: Record<string, string> = {
+        filed:    'order-processed',
+        approved: 'order-approved',
+      }
+      if (notifMap[newStatus]) {
+        fetch(`${PROXY}/notifications/${notifMap[newStatus]}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id }),
+        }).catch(() => { /* notificación no bloquea el flujo */ })
+      }
     } else {
       setStatusMsg('Error al actualizar el estado.')
     }

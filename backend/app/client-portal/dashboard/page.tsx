@@ -207,12 +207,23 @@ async function getOrdersByEmail(email: string): Promise<Order[]> {
   return (data ?? []) as Order[]
 }
 
+const STATUS_LABELS: Record<string, string> = {
+  pending:        'Pending',
+  in_review:      'In Review',
+  names_taken:    'Names Taken',
+  ready_to_file:  'Ready to File',
+  filed:          'Processed',
+  approved:       'Approved',
+  completed:      'Completed',
+  processing:     'Processing',
+}
+
 const STEPS = [
   { key: 'order_received',   label: 'Order Received' },
   { key: 'payment',          label: 'Payment Confirmed' },
   { key: 'name_check',       label: 'Name Availability Check' },
   { key: 'ready_to_file',    label: 'Ready to File' },
-  { key: 'filed',            label: 'Filed with Florida' },
+  { key: 'filed',            label: 'Processed with Florida' },
   { key: 'approved',         label: 'Approved by State' },
   { key: 'completed',        label: 'Completed' },
 ]
@@ -735,7 +746,7 @@ export default async function ClientDashboardPage({
                     </div>
                     <div className="order-card-right">
                       <span className={`order-pill ${o.status}`}>
-                        {o.status.replace(/_/g, ' ')}
+                        {STATUS_LABELS[o.status] ?? o.status.replace(/_/g, ' ')}
                       </span>
                       <span className="order-card-arrow">{isActive ? '●' : '→'}</span>
                     </div>
@@ -776,7 +787,7 @@ export default async function ClientDashboardPage({
         <div className="cp-card">
           <h2>What&apos;s Next</h2>
           <div className={`status-pill ${order.status}`}>
-            {(order.status ?? '').replace(/_/g, ' ')}
+            {STATUS_LABELS[order.status] ?? (order.status ?? '').replace(/_/g, ' ')}
           </div>
           <p className="whats-next-text">{whatsNext}</p>
         </div>

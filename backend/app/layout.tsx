@@ -63,7 +63,7 @@ export const metadata: Metadata = {
     canonical: BASE_URL,
     languages: {
       "en-US": BASE_URL,
-      "es-US": `${BASE_URL}/?lang=es`,
+      "es-US": `${BASE_URL}/es`,
     },
   },
   icons: {
