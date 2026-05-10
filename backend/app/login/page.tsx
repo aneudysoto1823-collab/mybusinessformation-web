@@ -109,19 +109,19 @@ export default function LoginPage() {
         .left-photo {
           position: absolute;
           inset: 0;
-          background: url('/miami-bg.jpg') center center / cover no-repeat;
+          background: url('/admin-bg.jpg') center center / cover no-repeat;
           z-index: 0;
         }
 
-        /* Dark overlay so text stays readable */
+        /* Overlay — light since photo is already dark navy */
         .left-overlay {
           position: absolute;
           inset: 0;
           background: linear-gradient(
             180deg,
-            rgba(10, 18, 30, 0.55) 0%,
-            rgba(10, 18, 30, 0.35) 45%,
-            rgba(10, 18, 30, 0.60) 100%
+            rgba(10, 18, 30, 0.60) 0%,
+            rgba(10, 18, 30, 0.20) 45%,
+            rgba(10, 18, 30, 0.65) 100%
           );
           z-index: 1;
         }
