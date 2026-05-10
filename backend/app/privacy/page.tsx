@@ -236,6 +236,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
           <a href="/legal" data-en="Legal Disclaimer" data-es="Aviso Legal">Legal Disclaimer</a>
           <a href="/about" data-en="About Us" data-es="Nosotros">About Us</a>
         </div>
+        <div style="margin-top:8px;font-size:0.77rem;color:rgba(255,255,255,0.45)">&#128231; <a href="mailto:info@mybusinessformation.com" style="color:inherit">info@mybusinessformation.com</a></div>
       </div>
       <div class="footer-disclaimer">
         <strong style="color:rgba(255,255,255,0.5);display:block;margin-bottom:4px">Important Notice</strong>
