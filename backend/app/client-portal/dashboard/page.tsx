@@ -1,7 +1,6 @@
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { getSupabaseAdmin } from '@/lib/supabase'
-import { backendFetch } from '@/lib/backend'
 
 interface Order {
   id: string
@@ -191,14 +190,12 @@ async function getDocuments(orderId: string, order: Order): Promise<DocumentItem
 }
 
 async function getOrder(id: string): Promise<Order | null> {
-  try {
-    const res = await backendFetch(`/api/orders/${id}`, { cache: 'no-store' })
-    if (!res.ok) return null
-    const data = await res.json()
-    return data.order ?? data.data ?? null
-  } catch {
-    return null
-  }
+  const { data } = await getSupabaseAdmin()
+    .from('Order')
+    .select('id, createdAt, firstName, lastName, email, companyName, entityType, package, speed, amount, paymentStatus, status, addons')
+    .eq('id', id)
+    .single()
+  return (data as Order | null)
 }
 
 async function getOrdersByEmail(email: string): Promise<Order[]> {
