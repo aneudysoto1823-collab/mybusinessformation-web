@@ -1,18 +1,30 @@
-import { authenticator } from 'otplib'
-
-authenticator.options = { window: 1 } // acepta ±30s de desfase de reloj
+import { TOTP, Secret } from 'otpauth'
 
 export function generateTotpSecret(): string {
-  return authenticator.generateSecret()
+  return new Secret().base32
 }
 
 export function generateTotpUri(secret: string, accountName: string): string {
-  return authenticator.keyuri(accountName, 'MyBusinessFormation Admin', secret)
+  const totp = new TOTP({
+    issuer: 'MyBusinessFormation Admin',
+    label: accountName,
+    algorithm: 'SHA1',
+    digits: 6,
+    period: 30,
+    secret: Secret.fromBase32(secret),
+  })
+  return totp.toString()
 }
 
 export function verifyTotpCode(token: string, secret: string): boolean {
   try {
-    return authenticator.verify({ token, secret })
+    const totp = new TOTP({
+      algorithm: 'SHA1',
+      digits: 6,
+      period: 30,
+      secret: Secret.fromBase32(secret),
+    })
+    return totp.validate({ token, window: 1 }) !== null
   } catch {
     return false
   }
