@@ -50,11 +50,11 @@ function LoginForm() {
         .left {
           display: none;
           flex: 1;
-          background: #1a1208;
+          background: #f0eeeb;
           position: relative;
           overflow: hidden;
           flex-direction: column;
-          justify-content: space-between;
+          justify-content: flex-start;
           padding: 48px 52px;
         }
         @media (min-width: 900px) {
@@ -64,7 +64,7 @@ function LoginForm() {
         .left-photo {
           position: absolute;
           inset: 0;
-          background: url('/client-portal-bg.jpg') center center / cover no-repeat;
+          background: url('/client-portal-bg.jpg') center top / cover no-repeat;
           z-index: 0;
         }
 
@@ -122,8 +122,10 @@ function LoginForm() {
         /* ── Center hero ── */
         .left-hero {
           position: relative; z-index: 2;
-          text-align: center;
-          padding: 0 8px;
+          text-align: left;
+          padding: 0;
+          margin-top: 28px;
+          margin-bottom: auto;
         }
         .hero-eyebrow {
           display: inline-block;
@@ -136,16 +138,16 @@ function LoginForm() {
           color: #64748b;
           letter-spacing: 1.5px;
           text-transform: uppercase;
-          margin-bottom: 20px;
+          margin-bottom: 16px;
         }
         .hero-title {
           font-family: 'Fraunces', serif;
-          font-size: 42px;
+          font-size: 46px;
           font-weight: 900;
           color: #1a2332;
-          line-height: 1.1;
-          letter-spacing: -1px;
-          margin-bottom: 18px;
+          line-height: 1.05;
+          letter-spacing: -1.5px;
+          margin-bottom: 14px;
         }
         .hero-title span {
           display: block;
@@ -155,12 +157,13 @@ function LoginForm() {
           width: 44px; height: 2px;
           background: rgba(37,99,235,0.3);
           border-radius: 2px;
-          margin: 0 auto 18px;
+          margin: 0 0 14px;
         }
         .hero-sub {
           font-size: 13px;
           color: #64748b;
           line-height: 1.65;
+          max-width: 280px;
         }
 
         /* ── Bottom ── */
@@ -375,7 +378,7 @@ function LoginForm() {
             </p>
           </div>
 
-          <div className="left-bottom">
+          <div className="left-bottom" style={{ marginTop: 'auto' }}>
             <div className="steps-list">
               <div className="step-item">
                 <div className="step-dot">✓</div>
