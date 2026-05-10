@@ -201,6 +201,15 @@ async function getOrder(id: string): Promise<Order | null> {
   }
 }
 
+async function getOrdersByEmail(email: string): Promise<Order[]> {
+  const { data } = await getSupabaseAdmin()
+    .from('Order')
+    .select('id, createdAt, firstName, lastName, email, companyName, entityType, package, speed, amount, paymentStatus, status, addons')
+    .eq('email', email.toLowerCase().trim())
+    .order('createdAt', { ascending: false })
+  return (data ?? []) as Order[]
+}
+
 const STEPS = [
   { key: 'order_received',   label: 'Order Received' },
   { key: 'payment',          label: 'Payment Confirmed' },
@@ -251,21 +260,35 @@ function getConfirmationNumber(id: string, pkg: string): string {
   return `${prefix}-${id.replace(/-/g, '').substring(0, 8).toUpperCase()}`
 }
 
-export default async function ClientDashboardPage() {
+export default async function ClientDashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ order?: string }>
+}) {
   const cookieStore = await cookies()
-  const orderId = cookieStore.get('client_session')?.value
+  const sessionOrderId = cookieStore.get('client_session')?.value
+  if (!sessionOrderId) redirect('/client-portal')
 
-  if (!orderId) redirect('/client-portal')
+  const sessionOrder = await getOrder(sessionOrderId)
+  if (!sessionOrder) redirect('/client-portal')
 
-  const order = await getOrder(orderId)
-  if (!order) redirect('/client-portal')
+  // Fetch all orders for this client's email
+  const allOrders = await getOrdersByEmail(sessionOrder.email)
+
+  // Determine which order to display (URL param or default to session order)
+  const params = await searchParams
+  const selectedId = params.order && allOrders.some(o => o.id === params.order)
+    ? params.order
+    : sessionOrderId
+
+  const order = allOrders.find(o => o.id === selectedId) ?? sessionOrder
 
   const isAddon = order.package === 'addon'
   const currentStep = isAddon ? getAddonStepIndex(order.status) : getCurrentStepIndex(order.status)
   const confirmationNumber = getConfirmationNumber(order.id, order.package)
   const whatsNext = isAddon ? getAddonWhatsNext(order.status) : getWhatsNext(order.status)
   const steps = isAddon ? ADDON_STEPS : STEPS
-  const documents = await getDocuments(orderId, order)
+  const documents = await getDocuments(order.id, order)
 
   return (
     <>
@@ -322,6 +345,53 @@ export default async function ClientDashboardPage() {
           border-color: #d1d5db;
           color: #111827;
         }
+
+        /* My Orders */
+        .my-orders-grid {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+        }
+        .order-card {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 14px 18px;
+          border: 1.5px solid #e5e7eb;
+          border-radius: 10px;
+          text-decoration: none;
+          background: #fff;
+          transition: border-color 0.15s, box-shadow 0.15s;
+          gap: 12px;
+        }
+        .order-card:hover {
+          border-color: #4f46e5;
+          box-shadow: 0 2px 8px rgba(79,70,229,0.08);
+        }
+        .order-card.active {
+          border-color: #4f46e5;
+          background: #f5f3ff;
+        }
+        .order-card-left { display: flex; flex-direction: column; gap: 3px; }
+        .order-card-num { font-size: 13px; font-weight: 700; color: #4f46e5; font-family: monospace; }
+        .order-card.active .order-card-num { color: #3730a3; }
+        .order-card-company { font-size: 14px; font-weight: 600; color: #1a1a2e; }
+        .order-card-pkg { font-size: 12px; color: #6b7280; }
+        .order-card-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+        .order-card-arrow { font-size: 14px; color: #9ca3af; }
+        .order-card.active .order-card-arrow { color: #4f46e5; }
+        .order-pill {
+          font-size: 11px; font-weight: 700; padding: 2px 9px;
+          border-radius: 20px; text-transform: uppercase; letter-spacing: 0.4px;
+        }
+        .order-pill.pending       { background: #fef3c7; color: #92400e; }
+        .order-pill.in_review     { background: #dbeafe; color: #1e40af; }
+        .order-pill.processing    { background: #dbeafe; color: #1e40af; }
+        .order-pill.ready_to_file { background: #ede9fe; color: #5b21b6; }
+        .order-pill.filed         { background: #dbeafe; color: #1e40af; }
+        .order-pill.approved      { background: #d1fae5; color: #065f46; }
+        .order-pill.completed     { background: #d1fae5; color: #065f46; }
+        .order-pill.names_taken   { background: #fee2e2; color: #991b1b; }
 
         /* Welcome */
         .cp-welcome {
@@ -641,6 +711,43 @@ export default async function ClientDashboardPage() {
           <h1>Welcome, {order.firstName}!</h1>
           <p>Confirmation #{confirmationNumber}</p>
         </div>
+
+        {/* My Orders — only shown when client has multiple orders */}
+        {allOrders.length > 1 && (
+          <div className="cp-card">
+            <h2>My Orders</h2>
+            <div className="my-orders-grid">
+              {allOrders.map(o => {
+                const num = getConfirmationNumber(o.id, o.package)
+                const pkgLabel = o.package === 'addon' ? 'New Business Letter'
+                  : o.package === 'basic' ? 'Basic'
+                  : o.package === 'standard' ? 'Standard'
+                  : o.package === 'premium' ? 'Premium'
+                  : o.package
+                const isActive = o.id === order.id
+                return (
+                  <a
+                    key={o.id}
+                    href={`/client-portal/dashboard?order=${o.id}`}
+                    className={`order-card${isActive ? ' active' : ''}`}
+                  >
+                    <div className="order-card-left">
+                      <div className="order-card-num">{num}</div>
+                      <div className="order-card-company">{o.companyName}</div>
+                      <div className="order-card-pkg">{pkgLabel}</div>
+                    </div>
+                    <div className="order-card-right">
+                      <span className={`order-pill ${o.status}`}>
+                        {o.status.replace(/_/g, ' ')}
+                      </span>
+                      <span className="order-card-arrow">{isActive ? '●' : '→'}</span>
+                    </div>
+                  </a>
+                )
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Timeline */}
         <div className="cp-card">
