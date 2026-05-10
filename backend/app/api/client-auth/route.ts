@@ -8,8 +8,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
   }
 
-  // Confirmation number format: FBFC-XXXXXXXX (first 8 chars of order ID, uppercase)
-  const match = String(confirmationNumber).toUpperCase().match(/^FBFC-([A-Z0-9]{8})$/)
+  // Confirmation number format: FBFC-XXXXXXXX (home orders) or FBNB-XXXXXXXX (new-business orders)
+  const match = String(confirmationNumber).toUpperCase().match(/^(?:FBFC|FBNB)-([A-Z0-9]{8})$/)
   if (!match) {
     return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
   }

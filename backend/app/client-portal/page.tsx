@@ -209,7 +209,7 @@ function LoginForm() {
                 type="text"
                 value={confirmationNumber}
                 onChange={e => setConfirmationNumber(e.target.value.toUpperCase())}
-                placeholder="FBFC-00000000"
+                placeholder="FBFC-00000000 or FBNB-00000000"
                 required
               />
               <p className="input-hint">Found in your order confirmation email</p>

@@ -107,7 +107,8 @@ export default function OrdersTable({ orders }: { orders: Order[] }) {
   if (search.trim()) {
     const q = search.trim().toLowerCase()
     visible = visible.filter(o => {
-      const fbfc = ('FBFC-' + o.id.replace(/-/g, '').substring(0, 8)).toLowerCase()
+      const prefix = o.package === 'addon' ? 'FBNB-' : 'FBFC-'
+      const fbfc = (prefix + o.id.replace(/-/g, '').substring(0, 8)).toLowerCase()
       const name = `${o.firstName} ${o.lastName}`.toLowerCase()
       const email = (o.email ?? '').toLowerCase()
       return fbfc.includes(q) || name.includes(q) || email.includes(q)
@@ -440,7 +441,7 @@ export default function OrdersTable({ orders }: { orders: Order[] }) {
                   <tr key={order.id}>
                     <td>
                       <Link href={`/admin/orders/${order.id}`} className="link-fbfc">
-                        {'FBFC-' + order.id.replace(/-/g, '').substring(0, 8).toUpperCase()}
+                        {(order.package === 'addon' ? 'FBNB-' : 'FBFC-') + order.id.replace(/-/g, '').substring(0, 8).toUpperCase()}
                       </Link>
                     </td>
                     <td>

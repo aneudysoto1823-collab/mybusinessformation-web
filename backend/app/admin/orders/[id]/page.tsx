@@ -405,7 +405,7 @@ export default function OrderDetailPage() {
               {order.firstName} {order.lastName}
             </h1>
             <div style={{ fontSize: '14px', fontWeight: 700, color: '#4f46e5', marginTop: '4px', fontFamily: 'monospace' }}>
-              {'FBFC-' + order.id.replace(/-/g, '').substring(0, 8).toUpperCase()}
+              {(order.package === 'addon' ? 'FBNB-' : 'FBFC-') + order.id.replace(/-/g, '').substring(0, 8).toUpperCase()}
             </div>
             <div style={{ fontSize: '11px', color: '#d1d5db', marginTop: '2px', fontFamily: 'monospace' }}>
               {order.id}

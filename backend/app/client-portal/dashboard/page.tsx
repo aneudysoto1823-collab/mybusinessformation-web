@@ -183,8 +183,9 @@ function getWhatsNext(status: string): string {
   }
 }
 
-function getConfirmationNumber(id: string): string {
-  return `FBFC-${id.replace(/-/g, '').substring(0, 8).toUpperCase()}`
+function getConfirmationNumber(id: string, pkg: string): string {
+  const prefix = pkg === 'addon' ? 'FBNB' : 'FBFC'
+  return `${prefix}-${id.replace(/-/g, '').substring(0, 8).toUpperCase()}`
 }
 
 export default async function ClientDashboardPage() {
@@ -197,7 +198,7 @@ export default async function ClientDashboardPage() {
   if (!order) redirect('/client-portal')
 
   const currentStep = getCurrentStepIndex(order.status)
-  const confirmationNumber = getConfirmationNumber(order.id)
+  const confirmationNumber = getConfirmationNumber(order.id, order.package)
   const whatsNext = getWhatsNext(order.status)
   const documents = await getDocuments(orderId, order)
 

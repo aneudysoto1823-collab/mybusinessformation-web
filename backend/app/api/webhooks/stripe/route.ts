@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
 
   // Create Order
   const orderId = crypto.randomUUID()
-  const fbfcNumber = `FBFC-${orderId.replace(/-/g, '').substring(0, 8).toUpperCase()}`
+  const fbfcNumber = `FBNB-${orderId.replace(/-/g, '').substring(0, 8).toUpperCase()}`
 
   const { error: orderError } = await supabase.from('Order').insert({
     id:              orderId,
