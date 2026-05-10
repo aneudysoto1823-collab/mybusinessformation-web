@@ -71,12 +71,7 @@ function LoginForm() {
         .left-overlay {
           position: absolute;
           inset: 0;
-          background: linear-gradient(
-            180deg,
-            rgba(10, 8, 4, 0.50) 0%,
-            rgba(10, 8, 4, 0.28) 45%,
-            rgba(10, 8, 4, 0.62) 100%
-          );
+          background: transparent;
           z-index: 1;
         }
 
@@ -99,8 +94,8 @@ function LoginForm() {
         }
         .brand-icon {
           width: 36px; height: 36px;
-          background: rgba(255,255,255,0.1);
-          border: 1px solid rgba(255,255,255,0.15);
+          background: rgba(26,35,50,0.07);
+          border: 1px solid rgba(26,35,50,0.12);
           border-radius: 9px;
           display: flex; align-items: center; justify-content: center;
           font-size: 17px;
@@ -110,7 +105,7 @@ function LoginForm() {
           font-family: 'Fraunces', serif;
           font-size: 14px;
           font-weight: 700;
-          color: #e2e8f0;
+          color: #1a2332;
           line-height: 1.1;
         }
         .brand-name span {
@@ -118,7 +113,7 @@ function LoginForm() {
           font-size: 10px;
           font-family: 'Plus Jakarta Sans', sans-serif;
           font-weight: 600;
-          color: rgba(255,255,255,0.35);
+          color: #64748b;
           letter-spacing: 0.8px;
           text-transform: uppercase;
           margin-top: 2px;
@@ -132,13 +127,13 @@ function LoginForm() {
         }
         .hero-eyebrow {
           display: inline-block;
-          background: rgba(255,255,255,0.08);
-          border: 1px solid rgba(255,255,255,0.14);
+          background: rgba(26,35,50,0.07);
+          border: 1px solid rgba(26,35,50,0.15);
           border-radius: 20px;
           padding: 5px 14px;
           font-size: 10px;
           font-weight: 700;
-          color: rgba(255,220,130,0.85);
+          color: #64748b;
           letter-spacing: 1.5px;
           text-transform: uppercase;
           margin-bottom: 20px;
@@ -147,25 +142,24 @@ function LoginForm() {
           font-family: 'Fraunces', serif;
           font-size: 42px;
           font-weight: 900;
-          color: #ffffff;
+          color: #1a2332;
           line-height: 1.1;
           letter-spacing: -1px;
-          text-shadow: 0 2px 24px rgba(0,0,0,0.5);
           margin-bottom: 18px;
         }
         .hero-title span {
           display: block;
-          color: #fcd97d;
+          color: #2563eb;
         }
         .hero-rule {
           width: 44px; height: 2px;
-          background: rgba(252,217,125,0.4);
+          background: rgba(37,99,235,0.3);
           border-radius: 2px;
           margin: 0 auto 18px;
         }
         .hero-sub {
           font-size: 13px;
-          color: rgba(255,255,255,0.42);
+          color: #64748b;
           line-height: 1.65;
         }
 
@@ -185,17 +179,17 @@ function LoginForm() {
         }
         .step-dot {
           width: 18px; height: 18px; border-radius: 50%;
-          background: rgba(252,217,125,0.12);
-          border: 1px solid rgba(252,217,125,0.25);
+          background: rgba(37,99,235,0.1);
+          border: 1px solid rgba(37,99,235,0.25);
           display: flex; align-items: center; justify-content: center;
-          font-size: 10px; color: #fcd97d;
+          font-size: 10px; color: #2563eb;
           flex-shrink: 0;
         }
-        .step-text { font-size: 12px; color: rgba(255,255,255,0.38); }
+        .step-text { font-size: 12px; color: #64748b; }
 
         .left-footer {
           font-size: 11px;
-          color: rgba(255,255,255,0.2);
+          color: #94a3b8;
           margin-top: 14px;
         }
 
