@@ -118,10 +118,10 @@ export default function LoginPage() {
           position: absolute;
           inset: 0;
           background: linear-gradient(
-            160deg,
-            rgba(15, 25, 40, 0.82) 0%,
-            rgba(20, 35, 55, 0.75) 60%,
-            rgba(10, 20, 35, 0.88) 100%
+            180deg,
+            rgba(10, 18, 30, 0.55) 0%,
+            rgba(10, 18, 30, 0.35) 45%,
+            rgba(10, 18, 30, 0.60) 100%
           );
           z-index: 1;
         }
