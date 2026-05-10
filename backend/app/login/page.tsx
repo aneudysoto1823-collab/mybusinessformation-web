@@ -28,7 +28,7 @@ export default function LoginPage() {
     return `${mm}:${ss}`
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     if (blockedSeconds !== null) return
     setError('')
@@ -94,7 +94,7 @@ export default function LoginPage() {
         .login-left {
           display: none;
           flex: 1;
-          background: linear-gradient(160deg, #1e2d3d 0%, #243b55 100%);
+          background: #1e2d3d;
           position: relative;
           overflow: hidden;
           flex-direction: column;
@@ -105,21 +105,25 @@ export default function LoginPage() {
           .login-left { display: flex; }
         }
 
-        /* Decorative circles — very subtle */
-        .deco-circle {
-          position: absolute;
-          border-radius: 50%;
-          background: rgba(255,255,255,0.04);
-        }
-        .deco-c1 { width: 460px; height: 460px; top: -160px; right: -140px; }
-        .deco-c2 { width: 280px; height: 280px; bottom: -80px; left: -70px; }
-
-        /* Dot grid */
-        .deco-dots {
+        /* Background photo */
+        .left-photo {
           position: absolute;
           inset: 0;
-          background-image: radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px);
-          background-size: 32px 32px;
+          background: url('/miami-bg.jpg') center center / cover no-repeat;
+          z-index: 0;
+        }
+
+        /* Dark overlay so text stays readable */
+        .left-overlay {
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(
+            160deg,
+            rgba(15, 25, 40, 0.82) 0%,
+            rgba(20, 35, 55, 0.75) 60%,
+            rgba(10, 20, 35, 0.88) 100%
+          );
+          z-index: 1;
         }
 
         /* Thin border on right side */
@@ -128,10 +132,11 @@ export default function LoginPage() {
           position: absolute;
           top: 0; right: 0; bottom: 0;
           width: 1px;
-          background: rgba(255,255,255,0.06);
+          background: rgba(255,255,255,0.08);
+          z-index: 2;
         }
 
-        .left-content { position: relative; z-index: 1; }
+        .left-content { position: relative; z-index: 2; }
 
         .brand-mark {
           display: flex;
@@ -228,7 +233,7 @@ export default function LoginPage() {
         .access-text { font-size: 13px; color: #64748b; }
 
         .warning-box {
-          position: relative; z-index: 1;
+          position: relative; z-index: 2;
           background: rgba(251,191,36,0.07);
           border: 1px solid rgba(251,191,36,0.15);
           border-radius: 8px;
@@ -242,7 +247,7 @@ export default function LoginPage() {
         .warning-text strong { color: #fbbf24; font-weight: 700; display: block; margin-bottom: 2px; }
 
         .left-footer {
-          position: relative; z-index: 1;
+          position: relative; z-index: 2;
           font-size: 11px;
           color: #334155;
           margin-top: 16px;
@@ -400,9 +405,8 @@ export default function LoginPage() {
 
         {/* ── Left — brand panel ── */}
         <div className="login-left">
-          <div className="deco-dots" />
-          <div className="deco-circle deco-c1" />
-          <div className="deco-circle deco-c2" />
+          <div className="left-photo" />
+          <div className="left-overlay" />
 
           <div className="left-content">
             <div className="brand-mark">
