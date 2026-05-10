@@ -1,20 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
-import { createAdminToken } from '@/lib/session'
+import { createAdminToken, createPendingToken } from '@/lib/session'
 import { checkAdminLoginRateLimit, getClientIp } from '@/lib/rate-limit'
+import { getTwoFAConfig } from '@/lib/twofa'
 
 export async function POST(request: NextRequest) {
-  // Rate limit ANTES de leer body o ejecutar bcrypt: protege contra brute
-  // force y contra DoS por costo de bcrypt (hash factor 12 es caro a propósito).
   const ip = getClientIp(request)
   const rl = await checkAdminLoginRateLimit(ip)
   if (!rl.success) {
     return NextResponse.json(
       { error: 'Demasiados intentos. Intenta de nuevo más tarde.' },
-      {
-        status: 429,
-        headers: { 'Retry-After': String(rl.retryAfterSeconds) },
-      }
+      { status: 429, headers: { 'Retry-After': String(rl.retryAfterSeconds) } }
     )
   }
 
@@ -27,24 +23,37 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  // Acepta hash bcrypt crudo ($2b$12$...) o codificado en base64.
-  // El base64 evita que el parser dotenv de Next.js expanda los $ del hash.
   const passwordHash = rawHash.startsWith('$2') && rawHash.length >= 50
     ? rawHash
     : Buffer.from(rawHash, 'base64').toString('utf-8')
 
-  if (user === expectedUser && bcrypt.compareSync(password, passwordHash)) {
+  if (!(user === expectedUser && bcrypt.compareSync(password, passwordHash))) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  // Credenciales válidas — verificar si tiene 2FA activo
+  const config = await getTwoFAConfig()
+  const methods: string[] = []
+  if (config.totp_enabled) methods.push('totp')
+  if (config.email_enabled) methods.push('email')
+
+  if (methods.length === 0) {
+    // Sin 2FA — sesión directa
     const token = await createAdminToken()
     const response = NextResponse.json({ ok: true })
     response.cookies.set('admin_session', token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'strict',
-      maxAge: 60 * 60 * 8, // 8 horas
-      path: '/',
+      httpOnly: true, secure: true, sameSite: 'strict',
+      maxAge: 60 * 60 * 8, path: '/',
     })
     return response
   }
 
-  return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  // Con 2FA — token pendiente de 5 min
+  const pending = await createPendingToken(methods)
+  const response = NextResponse.json({ ok: true, requiresTwoFactor: true, methods })
+  response.cookies.set('admin_pending', pending, {
+    httpOnly: true, secure: true, sameSite: 'strict',
+    maxAge: 60 * 5, path: '/',
+  })
+  return response
 }

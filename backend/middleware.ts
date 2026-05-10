@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { verifyAdminToken } from '@/lib/session'
+import { verifyAdminToken, verifyPendingToken } from '@/lib/session'
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -11,6 +11,13 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  if (pathname === '/login/verify') {
+    const pending = request.cookies.get('admin_pending')
+    if (!pending?.value) return NextResponse.redirect(new URL('/login', request.url))
+    const { valid } = await verifyPendingToken(pending.value)
+    if (!valid) return NextResponse.redirect(new URL('/login', request.url))
+  }
+
   if (pathname.startsWith('/client-portal/dashboard')) {
     const session = request.cookies.get('client_session')
     if (!session) return NextResponse.redirect(new URL('/client-portal', request.url))
@@ -20,5 +27,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/client-portal/dashboard/:path*'],
+  matcher: ['/admin/:path*', '/login/verify', '/client-portal/dashboard/:path*'],
 }

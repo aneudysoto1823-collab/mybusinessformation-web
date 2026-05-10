@@ -51,7 +51,13 @@ export default function LoginPage() {
     setLoading(false)
 
     if (res.status === 200) {
-      router.push('/admin')
+      const data = await res.json()
+      if (data.requiresTwoFactor) {
+        sessionStorage.setItem('twofa_methods', JSON.stringify(data.methods))
+        router.push('/login/verify')
+      } else {
+        router.push('/admin')
+      }
       return
     }
 

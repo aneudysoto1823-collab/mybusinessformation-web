@@ -89,7 +89,12 @@ export default async function AdminDashboard() {
             <h1>Panel de Administración</h1>
             <p>MyBusinessFormation.com</p>
           </div>
-          <LogoutButton />
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            <a href="/admin/security" style={{ fontSize: '13px', color: '#6b7280', textDecoration: 'none', padding: '7px 14px', border: '1.5px solid #e5e7eb', borderRadius: '8px', fontWeight: 600 }}>
+              🔐 Seguridad
+            </a>
+            <LogoutButton />
+          </div>
         </div>
 
         <div className="stats-grid">
