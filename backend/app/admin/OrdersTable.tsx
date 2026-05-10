@@ -19,6 +19,7 @@ export interface Order {
 
 const TABS = [
   { key: 'all',            label: 'Todas' },
+  { key: 'addon',          label: 'New Business Letter' },
   { key: 'pending',        label: 'Pending' },
   { key: 'in_review',      label: 'In review' },
   { key: 'names_taken',    label: 'Names taken' },
@@ -81,11 +82,16 @@ export default function OrdersTable({ orders }: { orders: Order[] }) {
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
 
-  const countFor = (key: string) =>
-    key === 'all' ? orders.length : orders.filter(o => o.status === key).length
+  const countFor = (key: string) => {
+    if (key === 'all') return orders.length
+    if (key === 'addon') return orders.filter(o => o.package === 'addon').length
+    return orders.filter(o => o.status === key).length
+  }
 
   let visible = activeTab === 'all'
     ? [...orders]
+    : activeTab === 'addon'
+    ? orders.filter(o => o.package === 'addon')
     : orders.filter(o => o.status === activeTab)
 
   if (pkgFilter !== 'all') {
