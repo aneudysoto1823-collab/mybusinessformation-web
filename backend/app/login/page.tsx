@@ -420,7 +420,7 @@ export default function LoginPage() {
             <div className="brand-mark">
               <div className="brand-icon">🏛️</div>
               <div className="brand-name">
-                MyBusinessFormation
+                Florida Business Formation Center
                 <span>Staff Portal</span>
               </div>
             </div>
@@ -464,7 +464,7 @@ export default function LoginPage() {
               </div>
             </div>
             <div className="left-footer">
-              © {year} MyBusinessFormation LLC — All rights reserved
+              © {year} Florida Business Formation Center — mybusinessformation.com
             </div>
           </div>
         </div>
@@ -476,7 +476,7 @@ export default function LoginPage() {
             <div className="mobile-brand">
               <div className="brand-icon">🏛️</div>
               <div className="brand-name">
-                MyBusinessFormation
+                Florida Business Formation Center
                 <span>Staff Portal</span>
               </div>
             </div>
@@ -535,7 +535,7 @@ export default function LoginPage() {
           </div>
 
           <div className="form-footer">
-            © {year} MyBusinessFormation LLC — All rights reserved<br />
+            © {year} Florida Business Formation Center — mybusinessformation.com<br />
             Confidential & Proprietary — Unauthorized access is prohibited
           </div>
         </div>
