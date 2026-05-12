@@ -394,6 +394,8 @@ export default function ChatWidget() {
               disabled={loading || segmentLoading}
               style={{
                 flex: 1,
+                minWidth: 0,
+                width: 0,
                 border: '1.5px solid #E2E8F0',
                 borderRadius: '10px',
                 padding: '9px 14px',
@@ -403,6 +405,7 @@ export default function ChatWidget() {
                 outline: 'none',
                 background: (loading || segmentLoading) ? '#F8FAFC' : '#fff',
                 transition: 'border-color 0.2s',
+                boxSizing: 'border-box',
               }}
               onFocus={(e) => (e.target.style.borderColor = '#2563EB')}
               onBlur={(e) => (e.target.style.borderColor = '#E2E8F0')}
