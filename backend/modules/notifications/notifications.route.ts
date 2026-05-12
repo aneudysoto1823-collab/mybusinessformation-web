@@ -119,13 +119,24 @@ router.post('/order-confirmation', async (req: Request, res: Response) => {
 // Dispara cuando el equipo verifica en Sunbiz y los 3 nombres están tomados
 router.post('/names-taken', async (req: Request, res: Response) => {
   try {
-    const { id, firstName, lastName, email, names } = req.body
-    if (!id || !email || !Array.isArray(names) || names.length !== 3) {
-      return res.status(400).json({ success: false, message: 'Faltan campos: id, email, names (array de 3)' })
+    const { orderId } = req.body
+    if (!orderId) return res.status(400).json({ success: false, message: 'Falta orderId' })
+    const order = await getOrderById(orderId)
+    if (!order) return res.status(404).json({ success: false, message: 'Orden no encontrada' })
+    const names = [order.companyName, order.companyName2, order.companyName3].filter(Boolean) as string[]
+    if (names.length !== 3) {
+      return res.status(400).json({ success: false, message: 'La orden no tiene 3 nombres registrados' })
     }
-    await sendAllNamesTaken({ id, firstName, lastName, email, names: names as [string, string, string] })
-    res.json({ success: true, message: `Aviso enviado a ${email} y alerta a admin` })
+    await sendAllNamesTaken({
+      id: order.id,
+      firstName: order.firstName,
+      lastName: order.lastName,
+      email: order.email,
+      names: names as [string, string, string],
+    })
+    res.json({ success: true, message: `Aviso enviado a ${order.email} y alerta a admin` })
   } catch (error: any) {
+    console.error('[POST /names-taken] error:', { orderId: req.body?.orderId, message: error?.message, stack: error?.stack })
     res.status(500).json({ success: false, error: error.message })
   }
 })
@@ -134,13 +145,19 @@ router.post('/names-taken', async (req: Request, res: Response) => {
 // Dispara cuando el negocio es aprobado por el Estado de Florida
 router.post('/certificate', async (req: Request, res: Response) => {
   try {
-    const { id, firstName, email, companyName } = req.body
-    if (!id || !email) {
-      return res.status(400).json({ success: false, message: 'Faltan campos: id, email' })
-    }
-    await sendCertificateDelivery({ id, firstName, email, companyName })
-    res.json({ success: true, message: `Certificate enviado a ${email}` })
+    const { orderId } = req.body
+    if (!orderId) return res.status(400).json({ success: false, message: 'Falta orderId' })
+    const order = await getOrderById(orderId)
+    if (!order) return res.status(404).json({ success: false, message: 'Orden no encontrada' })
+    await sendCertificateDelivery({
+      id: order.id,
+      firstName: order.firstName,
+      email: order.email,
+      companyName: order.companyName,
+    })
+    res.json({ success: true, message: `Certificate enviado a ${order.email}` })
   } catch (error: any) {
+    console.error('[POST /certificate] error:', { orderId: req.body?.orderId, message: error?.message, stack: error?.stack })
     res.status(500).json({ success: false, error: error.message })
   }
 })
