@@ -217,14 +217,7 @@ export default function ChatWidget() {
             ;(e.currentTarget as HTMLButtonElement).style.boxShadow = '0 6px 24px rgba(37,99,235,0.45)'
           }}
         >
-          {open ? (
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-          ) : (
-            <ClaudiaAvatar size={72} uid="btn" />
-          )}
+          <ClaudiaAvatar size={72} uid="btn" />
           {/* Green online dot */}
           {!open && (
             <span style={{
@@ -291,13 +284,37 @@ export default function ChatWidget() {
             <div style={{ flexShrink: 0, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.3)', lineHeight: 0 }}>
               <ClaudiaAvatar size={42} uid="hdr" />
             </div>
-            <div>
+            <div style={{ flex: 1 }}>
               <div style={{ color: '#fff', fontWeight: 700, fontSize: '0.92rem', lineHeight: 1.2 }}>Claudia</div>
               <div style={{ color: 'rgba(255,255,255,0.65)', fontSize: '0.72rem', display: 'flex', alignItems: 'center', gap: '5px' }}>
                 <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#4ade80', display: 'inline-block' }} />
                 MyBusinessFormation · Virtual Assistant
               </div>
             </div>
+            <button
+              onClick={() => setOpen(false)}
+              aria-label="Close chat"
+              style={{
+                background: 'rgba(255,255,255,0.15)',
+                border: 'none',
+                borderRadius: '8px',
+                width: '32px',
+                height: '32px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                flexShrink: 0,
+                transition: 'background 0.2s',
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.25)')}
+              onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.15)')}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
           </div>
 
           {/* Messages */}
