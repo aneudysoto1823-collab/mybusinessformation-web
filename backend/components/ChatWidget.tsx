@@ -58,6 +58,7 @@ export default function ChatWidget() {
   const pendingSegmentsRef = useRef<string[]>([])
   const bottomRef = useRef<HTMLDivElement>(null)
   const lastMsgRef = useRef<HTMLDivElement>(null)
+  const messagesContainerRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const chatWindowRef = useRef<HTMLDivElement>(null)
   const prevMsgCount = useRef(0)
@@ -154,7 +155,9 @@ export default function ChatWidget() {
         setMessages([{ role: 'assistant', content: greeting }])
       } else {
         // Scroll to bottom so user sees latest messages, not old ones
-        setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'instant' }), 50)
+        setTimeout(() => {
+          if (messagesContainerRef.current) messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight
+        }, 50)
       }
 
       setTimeout(() => inputRef.current?.focus(), 100)
@@ -166,13 +169,16 @@ export default function ChatWidget() {
     const isNewMessage = newCount > prevMsgCount.current
     prevMsgCount.current = newCount
 
+    const container = messagesContainerRef.current
+    if (!container) return
+
     if (loading || segmentLoading) {
-      bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+      container.scrollTop = container.scrollHeight
     } else if (isNewMessage && messages[messages.length - 1]?.role === 'assistant') {
-      lastMsgRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      container.scrollTop = container.scrollHeight
       setTimeout(() => inputRef.current?.focus(), 50)
     } else if (isNewMessage) {
-      bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+      container.scrollTop = container.scrollHeight
     }
   }, [messages, loading, segmentLoading])
 
@@ -358,6 +364,7 @@ export default function ChatWidget() {
 
           {/* Messages */}
           <div
+            ref={messagesContainerRef}
             style={{
               flex: 1,
               overflowY: 'auto',
