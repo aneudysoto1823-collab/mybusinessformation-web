@@ -1,12 +1,12 @@
 import express, { Request, Response, NextFunction } from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
-import ordersRouter from './modules/orders/orders.route.ts'
-import clientsRouter from './modules/clients/clients.route.ts'
-import paymentsRouter from './modules/payments/payments.route.ts'
-import documentsRouter from './modules/documents/documents.route.ts'
-import notificationsRouter from './modules/notifications/notifications.route.ts'
-import namesRouter from './modules/names/names.route.ts'
+import ordersRouter from './modules/orders/orders.route'
+import clientsRouter from './modules/clients/clients.route'
+import paymentsRouter from './modules/payments/payments.route'
+import documentsRouter from './modules/documents/documents.route'
+import notificationsRouter from './modules/notifications/notifications.route'
+import namesRouter from './modules/names/names.route'
 
 dotenv.config()
 
