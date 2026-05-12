@@ -67,24 +67,13 @@ export default function ChatWidget() {
   const formContextRef = useRef<string>('')
 
   useEffect(() => {
-    if (typeof window === 'undefined') return
-    if (!open || window.innerWidth > 768) return
-
-    document.body.style.overflow = 'hidden'
-
-    const vv = window.visualViewport
-    const onResize = () => {
-      if (!vv || !chatWindowRef.current) return
-      chatWindowRef.current.style.height = `${vv.height}px`
-      chatWindowRef.current.style.top = `${vv.offsetTop}px`
-    }
-    vv?.addEventListener('resize', onResize)
-    onResize()
-
-    return () => {
-      vv?.removeEventListener('resize', onResize)
+    if (typeof window === 'undefined' || window.innerWidth > 768) return
+    if (open) {
+      document.body.style.overflow = 'hidden'
+    } else {
       document.body.style.overflow = ''
     }
+    return () => { document.body.style.overflow = '' }
   }, [open])
 
   function processNextSegment() {
@@ -486,17 +475,19 @@ export default function ChatWidget() {
         }
         @media (max-width: 768px) {
           .chat-window {
-            top: 0;
+            position: fixed !important;
+            top: 0 !important;
             left: 0 !important;
             right: 0 !important;
-            bottom: 0 !important;
-            width: 100vw !important;
-            max-width: 100vw !important;
-            height: 100dvh;
-            max-height: 100dvh;
+            bottom: env(safe-area-inset-bottom, 0) !important;
+            width: 100dvw !important;
+            max-width: 100dvw !important;
+            height: 100dvh !important;
+            max-height: 100dvh !important;
             border-radius: 0 !important;
             box-shadow: none !important;
             border: none !important;
+            transform: none !important;
           }
         }
       `}</style>
