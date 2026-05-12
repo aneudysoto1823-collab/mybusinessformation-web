@@ -320,6 +320,8 @@ export default function ChatWidget() {
                 style={{
                   display: 'flex',
                   justifyContent: m.role === 'user' ? 'flex-end' : 'flex-start',
+                  width: '100%',
+                  overflow: 'hidden',
                 }}
               >
                 <div
