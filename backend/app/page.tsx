@@ -5103,7 +5103,10 @@ function openFormFromPkg(pkg) {
   var overlay = document.getElementById('formOverlay');
   if(overlay) overlay.classList.add('active');
   document.body.style.overflow = 'hidden';
+  history.pushState({ fmStep: 1 }, '', window.location.pathname);
+  _fmRestoring = true;
   fmGoToStep(1);
+  _fmRestoring = false;
   fmUpdateSummary();
 }
 
@@ -5184,7 +5187,9 @@ function openForm() {
   if(overlay) overlay.classList.add('active');
   document.body.style.overflow = 'hidden';
   history.pushState({ fmStep: 1 }, '', window.location.pathname);
+  _fmRestoring = true;
   fmGoToStep(1);
+  _fmRestoring = false;
   fmUpdateSummary();
   // Initialize dynamic address fields with default country (US)
   setTimeout(function() {
