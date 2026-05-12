@@ -1,7 +1,7 @@
 {
   "build": {
     "builder": "NIXPACKS",
-    "buildCommand": "npm install"
+    "buildCommand": "npm install --include=dev && npm run build:server"
   },
   "deploy": {
     "startCommand": "npm run server"

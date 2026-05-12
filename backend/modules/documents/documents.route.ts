@@ -1,12 +1,12 @@
 import { Router, Request, Response } from 'express'
-import { getOrderById } from '../orders/orders.service.ts'
+import { getOrderById } from '../orders/orders.service'
 import {
   generateOperatingAgreement,
   generateEINSS4,
   generateBOIFiling,
   generateArticlesOfOrganization,
   generateDBA,
-} from './documents.service.ts'
+} from './documents.service'
 
 const router = Router()
 

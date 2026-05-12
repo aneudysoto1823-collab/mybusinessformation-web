@@ -7,8 +7,8 @@ import {
   sendSuggestNames,
   sendOrderProcessed,
   sendOrderApproved
-} from './notifications.service.ts'
-import { getOrderById } from '../orders/orders.service.ts'
+} from './notifications.service'
+import { getOrderById } from '../orders/orders.service'
 
 const router = Router()
 

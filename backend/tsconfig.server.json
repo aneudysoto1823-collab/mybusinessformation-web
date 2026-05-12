@@ -8,13 +8,13 @@
     "skipLibCheck": true,
     "strict": true,
     "resolveJsonModule": true,
-    "allowImportingTsExtensions": true,
-    "noEmit": true,
-    "outDir": "./dist-server"
+    "rootDir": ".",
+    "outDir": "./dist-server",
+    "sourceMap": true
   },
   "include": [
     "server.ts",
     "modules/**/*.ts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "dist-server"]
 }
