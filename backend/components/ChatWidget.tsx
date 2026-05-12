@@ -386,7 +386,6 @@ export default function ChatWidget() {
                   display: 'flex',
                   justifyContent: m.role === 'user' ? 'flex-end' : 'flex-start',
                   width: '100%',
-                  overflow: 'hidden',
                 }}
               >
                 <div
