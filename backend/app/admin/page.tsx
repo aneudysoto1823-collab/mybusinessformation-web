@@ -81,6 +81,15 @@ export default async function AdminDashboard() {
           box-shadow: 0 1px 6px rgba(0,0,0,0.06);
           overflow: hidden;
         }
+
+        @media (max-width: 640px) {
+          .admin-wrapper { padding: 16px 12px; }
+          .admin-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+          .admin-header h1 { font-size: 18px; }
+          .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
+          .stat-card { padding: 14px 16px; }
+          .stat-card .value { font-size: 24px; }
+        }
       `}</style>
 
       <div className="admin-wrapper">

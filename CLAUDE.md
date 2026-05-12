@@ -289,6 +289,50 @@ Ambas páginas de login (`/login` y `/client-portal`) usan el mismo patrón visu
 - Fotos: `/admin-bg.jpg` (escritorio flat-lay) y `/client-portal-bg.jpg` (hombre en escaleras)
 - CSS-in-JS con `<style>` tag (misma convención que páginas marketing)
 
+## Responsive Design (Etapa 17 — 2026-05-12)
+
+### Breakpoints estándar del proyecto
+```
+≤ 768px  — tablet / mobile landscape
+≤ 480px  — mobile portrait (iPhone SE y similares)
+```
+No inventar breakpoints intermedios. Agregar siempre en este orden (mobile-first):
+default (desktop) → `@media(max-width:768px)` → `@media(max-width:480px)`
+
+### Patrón de implementación
+Todos los estilos responsive van al **final del string CSS** de cada página, antes del backtick de cierre. Nunca en un archivo separado ni en `globals.css`.
+
+```css
+/* al final del const styles = `...` */
+@media(max-width:768px) { ... }
+@media(max-width:480px) { ... }
+```
+
+### Navbar hamburguesa (homepage)
+El menú hamburguesa del home vive en tres lugares de `backend/app/page.tsx`:
+
+1. **CSS** — clases `.hamburger`, `.hamburger.open`, `nav.open` y su `@media(max-width:768px)`
+2. **HTML** (dentro de `const body`) — botón `id="hamburger-btn"` dentro del header
+3. **JS** (dentro del `<script>` del body) — función `toggleNav()` + event listeners
+
+Si algo del hamburger falla, revisar los tres puntos. **No tocar uno sin verificar los otros dos.**
+
+### Estado responsive por página (2026-05-12)
+
+| Página | Breakpoints activos | Notas |
+|---|---|---|
+| `/` (home) | 900px, 768px, 580px, 480px | Hamburger + layout general |
+| `/client-portal` | 720px, 480px | Oculta foto en mobile |
+| `/login` | 760px, 480px | Oculta foto en mobile |
+| `/admin` | 640px | Stats grid 2 columnas |
+| `/client-portal/dashboard` | 500px, 480px | Botón download full-width |
+| `/new-business` | 960px, 700px, 600px, 540px | Pre-existente antes Etapa 17 |
+
+**Pendiente responsive:** `/admin/orders/[id]`, `/admin/campaigns`, `/servicios`
+
+### Regla de botones táctiles
+Todo botón CTA en páginas públicas debe tener mínimo 44px de alto en mobile. Usar `min-height: 44px` o `padding` que lo garantice. Referencia: WCAG 2.5.5 y Apple HIG.
+
 ---
 
 ## Módulos Express (Railway)

@@ -301,6 +301,16 @@ function LoginForm() {
         .terms-note a:hover { color: #64748b; }
 
         .copyright { text-align: center; font-size: 10px; color: #cbd5e1; margin-top: 8px; }
+
+        @media (max-width: 480px) {
+          body { padding: 20px 12px; }
+          .portal-wrapper { gap: 18px; }
+          .portal-header-name { font-size: 18px; }
+          .card-form { padding: 24px 20px 20px; min-height: unset; }
+          .form-title { font-size: 20px; }
+          .btn-access { padding: 13px; font-size: 15px; min-height: 48px; }
+          .contact-options { grid-template-columns: 1fr 1fr; }
+        }
       `}</style>
 
       <div className="portal-wrapper">

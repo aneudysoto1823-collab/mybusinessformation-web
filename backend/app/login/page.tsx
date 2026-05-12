@@ -282,6 +282,15 @@ export default function LoginPage() {
           text-align: center; font-size: 11px;
           color: #94a3b8; line-height: 1.6;
         }
+
+        @media (max-width: 480px) {
+          body { padding: 20px 12px; }
+          .login-wrapper { gap: 18px; }
+          .login-header-name { font-size: 18px; }
+          .card-form { padding: 24px 20px 20px; min-height: unset; }
+          .form-title { font-size: 20px; }
+          .btn-login { padding: 13px; font-size: 15px; min-height: 48px; }
+        }
       `}</style>
 
       <div className="login-wrapper">

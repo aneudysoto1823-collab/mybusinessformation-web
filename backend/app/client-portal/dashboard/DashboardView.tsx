@@ -265,6 +265,19 @@ export default function DashboardView({
         .doc-status { font-size: 12px; color: #9ca3af; margin-top: 2px; }
         .btn-download { display: inline-block; background: #16a34a; color: #fff; text-decoration: none; padding: 7px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; white-space: nowrap; flex-shrink: 0; }
         .btn-download:hover { background: #15803d; }
+
+        @media (max-width: 480px) {
+          .cp-wrapper { padding: 20px 14px 40px; }
+          .cp-header { flex-wrap: wrap; gap: 10px; }
+          .cp-header-brand { font-size: 14px; }
+          .cp-welcome h1 { font-size: 20px; }
+          .cp-card { padding: 18px 16px 16px; }
+          .btn-logout { padding: 6px 10px; font-size: 12px; }
+          .doc-item { flex-wrap: wrap; gap: 10px; }
+          .doc-icon { width: 32px; height: 32px; font-size: 16px; }
+          .btn-download { width: 100%; text-align: center; padding: 10px 16px; min-height: 44px; }
+          .order-card { padding: 12px 14px; }
+        }
       `}</style>
 
       <div className="cp-wrapper">

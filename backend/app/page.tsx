@@ -692,6 +692,55 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 .tt-box::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:#e2e8f0}
 .tt-box::before{content:'';position:absolute;top:calc(100% - 1px);left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:#ffffff;z-index:1}
 .tt-wrap:hover .tt-box{visibility:visible;opacity:1}
+
+/* ── HAMBURGER ── */
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none;padding:8px;margin-right:-6px;flex-shrink:0}
+.hamburger span{display:block;width:22px;height:2px;background:var(--navy);border-radius:2px;transition:all 0.3s}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.hamburger.open span:nth-child(2){opacity:0}
+.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+
+/* ── RESPONSIVE 768px ── */
+@media(max-width:768px){
+  header{padding:0 16px}
+  .header-inner{height:62px;position:relative}
+  nav{display:none}
+  nav.open{display:flex;flex-direction:column;position:absolute;top:62px;left:-16px;right:-16px;background:#fff;padding:10px 16px 14px;border-bottom:1px solid var(--gray200);box-shadow:0 8px 24px rgba(0,0,0,0.08);z-index:200;gap:2px}
+  nav.open a{padding:11px 12px;font-size:0.92rem;border-radius:8px;font-weight:500}
+  nav.open a:hover{background:var(--gray100)}
+  .hamburger{display:flex}
+  .logo-text span{display:none}
+  .topbar{font-size:0.72rem;padding:7px 12px}
+  .hero{padding:64px 20px 20px}
+  .trust-bar{padding:10px 16px}
+  .trust-inner{gap:12px}
+  .trust-sep{display:none}
+  .section{padding:52px 20px}
+  .steps-grid{gap:16px;margin-top:32px}
+  .step-card{padding:20px 18px}
+  .faq-q{font-size:0.88rem;padding:16px 0}
+  .help-bar{padding:18px 20px;flex-direction:column;align-items:flex-start}
+  .help-btns{width:100%;display:flex}
+  .btn-wa,.btn-cal{flex:1;justify-content:center}
+  footer{padding:40px 20px 20px}
+  .footer-grid{grid-template-columns:1fr;gap:24px}
+  .footer-bottom{flex-direction:column;gap:10px}
+  .footer-disclaimer{max-width:100%}
+  .wa-float{bottom:20px;right:16px;width:50px;height:50px}
+  .wa-float svg{width:24px;height:24px}
+}
+
+/* ── RESPONSIVE 480px ── */
+@media(max-width:480px){
+  .hero h1{font-size:1.5rem}
+  .btn-hero{padding:13px 28px;font-size:0.9rem}
+  .hero-btns{flex-direction:column;align-items:stretch}
+  .btn-hero-new,.et-toggle-btn{width:100%;justify-content:center}
+  .trust-item{font-size:0.7rem}
+  .mini-svc-grid{grid-template-columns:1fr}
+  .help-btns{flex-direction:column}
+  .btn-wa,.btn-cal{justify-content:center}
+}
 `
   const body = `
 
@@ -720,6 +769,9 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
         <button class="lang-btn ${defaultLang === 'es' ? 'active' : ''}" id="btn-es" onclick="setLang('es')">ES</button>
       </div>
       <a href="/client-portal" id="header-login-btn" style="padding:6px 14px;border-radius:6px;border:1.5px solid #e2e8f0;background:#fff;font-size:0.85rem;font-weight:500;color:#475569;text-decoration:none;transition:all 0.2s;white-space:nowrap;" onmouseover="this.style.borderColor='#2563eb';this.style.color='#2563eb'" onmouseout="this.style.borderColor='#e2e8f0';this.style.color='#475569'">Login</a>
+      <button class="hamburger" id="hamburger-btn" aria-label="Toggle menu" onclick="toggleNav()">
+        <span></span><span></span><span></span>
+      </button>
     </div>
   </div>
 </header>
@@ -2079,6 +2131,27 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 </div><!-- /formOverlay -->
 
 <script>
+
+// ── NAV HAMBURGER ──
+function toggleNav(){
+  var nav=document.getElementById('main-nav');
+  var btn=document.getElementById('hamburger-btn');
+  nav.classList.toggle('open');
+  btn.classList.toggle('open');
+}
+document.querySelectorAll('#main-nav a').forEach(function(a){
+  a.addEventListener('click',function(){
+    document.getElementById('main-nav').classList.remove('open');
+    document.getElementById('hamburger-btn').classList.remove('open');
+  });
+});
+document.addEventListener('click',function(e){
+  var nav=document.getElementById('main-nav');
+  if(nav&&nav.classList.contains('open')&&!e.target.closest('header')){
+    nav.classList.remove('open');
+    document.getElementById('hamburger-btn').classList.remove('open');
+  }
+});
 
 // ── STATE ──
 var currentStep = 1;

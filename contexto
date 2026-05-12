@@ -448,3 +448,52 @@ Pendiente:
 - [x] Validar que las 4 tablas Supabase fueron creadas correctamente — CONFIRMADO 2026-05-01
 - [ ] Probar flujo completo end-to-end con empresa de prueba
 - [x] Documentar en LOGICA_DE_NEGOCIO/12_marketing_automation_campanas.md + TROUBLESHOOTING/12_marketing_automation_campanas.md
+
+### Etapa 17 — Responsive Design Mobile-First (COMPLETADA 2026-05-12)
+
+```diff
++ Qué es: implementar diseño responsive mobile-first en las páginas principales
++ del sitio usando CSS media queries nativas dentro de los <style> tags existentes
++ de cada página (sin Tailwind, respetando las convenciones del proyecto).
++ Breakpoints estandarizados: ≤768px (tablet/mobile) y ≤480px (mobile pequeño).
++ El cliente en mobile tiene la experiencia completa — ningún contenido se elimina.
++ Qué resuelve: antes del cambio el nav del home desbordaba en pantallas pequeñas,
++ las secciones tenían padding excesivo, y los formularios eran difíciles de usar
++ con el pulgar. Ahora el sitio es completamente usable desde cualquier teléfono.
+```
+
+**Páginas modificadas:**
+
+Homepage (`backend/app/page.tsx`):
+- [x] Menú hamburguesa — botón con animación X al abrir, nav se despliega como panel bajo el header; se cierra al clicar un link, el botón, o fuera del header
+- [x] Header, hero, secciones y footer reducen padding en ≤768px
+- [x] Footer colapsa a 1 columna en ≤768px
+- [x] Hero buttons se apilan verticalmente en ≤480px
+- [x] WA float más pequeño en mobile para no tapar contenido
+
+Client Portal login (`backend/app/client-portal/page.tsx`):
+- [x] En ≤480px: padding del card reducido, botón con mínimo 48px de alto (táctil)
+
+Admin login (`backend/app/login/page.tsx`):
+- [x] En ≤480px: mismas mejoras de padding y altura mínima de botón
+
+Admin dashboard (`backend/app/admin/page.tsx`):
+- [x] En ≤640px: header se apila verticalmente, stats grid pasa a 2 columnas, stat cards más compactas
+
+Client Portal dashboard (`backend/app/client-portal/dashboard/DashboardView.tsx`):
+- [x] En ≤480px: padding reducido, botón de descarga full-width con 44px mínimo táctil
+
+**Decisiones de implementación:**
+- Sin Tailwind — media queries directamente en los `<style>` tags de cada página
+- Breakpoints: 768px y 480px (no se usó 1024px; el sitio ya era aceptable en tablet)
+- El nav hamburguesa usa JS puro: `classList.toggle('open')`, sin dependencias externas
+- La foto lateral en los cards de login ya se ocultaba por debajo de 720px/760px (comportamiento existente, conservado)
+
+**Pendiente (páginas no cubiertas en esta etapa):**
+- [ ] `/new-business` — ya tenía queries a 960/700/600px; revisar si necesita mejoras adicionales
+- [ ] `/admin/orders/[id]` — página de detalle de orden, compleja; pendiente revisión mobile
+- [ ] `/admin/campaigns` — panel de campañas; pendiente
+- [ ] `/servicios` — página de servicios; pendiente
+- [ ] `/new-business/es` — wrapper de /new-business en español; hereda los estilos
+
+Ver troubleshooting en `TROUBLESHOOTING/13_responsive_design.md`
