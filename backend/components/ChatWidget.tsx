@@ -73,22 +73,31 @@ export default function ChatWidget() {
       return
     }
 
-    // Lock body scroll
     document.body.style.overflow = 'hidden'
 
-    // iOS Safari scrolls position:fixed elements when keyboard opens.
-    // Counter it by resetting scroll to 0 on every scroll event.
-    const resetScroll = () => window.scrollTo(0, 0)
-    window.addEventListener('scroll', resetScroll, { passive: true })
+    // Keyboard overlays the chat (like WhatsApp/iMessage).
+    // We add paddingBottom = keyboard height so the input stays visible above it.
+    const vv = window.visualViewport
+    const baseHeight = window.innerHeight
 
-    // Also reset on input focus (when keyboard appears)
-    const onFocus = () => requestAnimationFrame(() => window.scrollTo(0, 0))
-    inputRef.current?.addEventListener('focus', onFocus)
+    const onResize = () => {
+      if (!vv || !chatWindowRef.current) return
+      const keyboardHeight = Math.max(0, baseHeight - vv.height - vv.offsetTop)
+      chatWindowRef.current.style.paddingBottom = `${keyboardHeight}px`
+    }
+
+    // Prevent iOS from scrolling the page when input is focused
+    const resetScroll = () => window.scrollTo(0, 0)
+
+    vv?.addEventListener('resize', onResize)
+    window.addEventListener('scroll', resetScroll, { passive: true })
+    onResize()
 
     return () => {
       document.body.style.overflow = ''
+      vv?.removeEventListener('resize', onResize)
       window.removeEventListener('scroll', resetScroll)
-      inputRef.current?.removeEventListener('focus', onFocus)
+      if (chatWindowRef.current) chatWindowRef.current.style.paddingBottom = ''
     }
   }, [open])
 
@@ -495,15 +504,14 @@ export default function ChatWidget() {
             top: 0 !important;
             left: 0 !important;
             right: 0 !important;
-            bottom: env(safe-area-inset-bottom, 0) !important;
-            width: 100dvw !important;
-            max-width: 100dvw !important;
-            height: 100dvh !important;
-            max-height: 100dvh !important;
+            bottom: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: none !important;
             border-radius: 0 !important;
             box-shadow: none !important;
             border: none !important;
-            transform: none !important;
           }
         }
       `}</style>
