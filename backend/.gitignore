@@ -19,7 +19,6 @@
 
 # production
 /build
-/dist-server/
 
 # misc
 .DS_Store

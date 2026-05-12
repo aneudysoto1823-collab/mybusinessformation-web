@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express'
-import { saveOrder, getOrders, getOrderById, updateOrder } from './orders.service'
-import { sendOrderConfirmation } from '../notifications/notifications.service'
+import { saveOrder, getOrders, getOrderById, updateOrder } from './orders.service.ts'
+import { sendOrderConfirmation } from '../notifications/notifications.service.ts'
 
 export const createOrder = async (req: Request, res: Response) => {
   try {
