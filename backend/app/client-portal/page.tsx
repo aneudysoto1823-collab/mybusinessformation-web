@@ -354,7 +354,7 @@ function LoginForm() {
                 <div className="form-group">
                   <label htmlFor="email">{t.email}</label>
                   <input
-                    id="email" type="email" value={email}
+                    id="email" type="text" inputMode="email" value={email}
                     onChange={e => setEmail(e.target.value)}
                     placeholder={t.emailPlaceholder}
                     required autoComplete="off"
