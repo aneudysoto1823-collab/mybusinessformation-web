@@ -141,10 +141,11 @@ Si necesitas cambiar el diseño de una página:
 - [x] Email de actualización de estado
 - [x] Email final con Certificate of Formation
 - [x] Motor de emails probado y funcionando con Resend
+- [x] WhatsApp `+13528377755` configurado en todos los templates de email (notifications.service.ts)
+- [ ] Templates `sendOrderProcessed` (status: filed) y `sendOrderApproved` (status: approved) — funciones existen pero son stubs vacíos, pendiente diseñar HTML
 - [ ] Email con contrato PDF adjunto — pendiente hasta Etapa 6 (generación de documentos)
-- [ ] Verificar dominio mybusinessformation.com en Resend — para enviar a cualquier email
-- [ ] WhatsApp Business API opcional
-[x] Email de confirmación enviado automáticamente al cliente
+- [ ] Verificar dominio mybusinessformation.com en Resend — lo trabaja el socio (Aneudys)
+- [x] Email de confirmación enviado automáticamente al cliente
 - [x] Motor de emails Resend funcionando en producción
 
 ### PUNTO DE LANZAMIENTO = Etapas 1+2+3+4+5+7 completas (~3 meses)
@@ -161,13 +162,15 @@ Si necesitas cambiar el diseño de una página:
 - [x] Dashboard principal con 4 tarjetas de estadísticas
 - [x] Tabla de órdenes con tabs por estado y conteos en tiempo real
 - [x] Vista detallada de cada orden con todos los campos
-- [x] Gestión de estado — botones para avanzar al siguiente estado lógico
+- [x] Gestión de estado — botones contextuales por status (pending → in_review → ready_to_file → filed → approved); dispara notificación al cliente automáticamente al avanzar
 - [x] Cambio de estado forzado con dropdown
 - [x] Botones de email — Nombres Tomados y Certificate
 - [x] Buscador de nombres alternativos (mock hasta que Etapa 5 esté lista)
 - [x] Notas internas por orden
+- [x] Subida de Certificate PDF — aparece cuando status=approved; sube a Supabase Storage, envía email al cliente y marca orden como completed automáticamente
 - [x] Railway conectado a Supabase — pooler aws-1-us-east-1 puerto 6543
 - [x] Panel en producción: https://mybusinessformation-web.vercel.app/admin
+- [x] Rediseño visual login admin (/login) — card centrada sobre fondo oscuro #0f1c2e, foto /admin-bg.jpg a tamaño natural, header "Staff Portal" arriba del card (2026-05-12)
 
 ### Etapa 9 — Portal del Cliente (COMPLETADA 2026-03-27)
 - [x] Botón "Log In" discreto en el navbar del sitio principal
@@ -185,6 +188,11 @@ Si necesitas cambiar el diseño de una página:
 - [x] Número de confirmación FBFC basado en UUID real de la orden
 - [x] Panel de admin muestra número FBFC en tabla y vista detallada
 - [x] Portal en producción: https://mybusinessformation-web.vercel.app/client-portal
+- [x] Login acepta FBNB-XXXXXXXX (New Business Letter) además de FBFC-XXXXXXXX (2026-05-12)
+- [x] Toggle EN/ES con persistencia en localStorage (portal_lang) (2026-05-12)
+- [x] "My Orders" — cliente con múltiples órdenes las ve todas y puede cambiar entre ellas (2026-05-12)
+- [x] Botón "Contact us" abre opciones inline: Email (support@mybusinessformation.com) + WhatsApp (+13528377755) (2026-05-12)
+- [x] Rediseño visual login (/client-portal) — card centrada sobre fondo #0f1c2e, foto a tamaño natural, header con marca arriba del card, "Don't have confirmation number?" justo debajo del botón (2026-05-12)
 
 ### Etapa 10 — Seguridad y Lanzamiento Oficial (post-lanzamiento)
 - [ ] Cloudflare activo
