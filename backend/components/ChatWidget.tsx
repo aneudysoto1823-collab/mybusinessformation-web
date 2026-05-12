@@ -168,16 +168,18 @@ export default function ChatWidget() {
     const isNewMessage = newCount > prevMsgCount.current
     prevMsgCount.current = newCount
 
-    const container = messagesContainerRef.current
-    if (!container) return
+    const scrollToBottom = () => {
+      const container = messagesContainerRef.current
+      if (container) container.scrollTop = container.scrollHeight
+    }
 
     if (loading || segmentLoading) {
-      container.scrollTop = container.scrollHeight
+      setTimeout(scrollToBottom, 0)
     } else if (isNewMessage && messages[messages.length - 1]?.role === 'assistant') {
-      container.scrollTop = container.scrollHeight
+      setTimeout(scrollToBottom, 0)
       setTimeout(() => inputRef.current?.focus(), 50)
     } else if (isNewMessage) {
-      container.scrollTop = container.scrollHeight
+      setTimeout(scrollToBottom, 0)
     }
   }, [messages, loading, segmentLoading])
 
@@ -368,6 +370,7 @@ export default function ChatWidget() {
               flex: 1,
               overflowY: 'auto',
               overflowX: 'hidden',
+              WebkitOverflowScrolling: 'touch',
               padding: '16px',
               display: 'flex',
               flexDirection: 'column',
