@@ -1,6 +1,6 @@
 'use client'
 
-import { Suspense, useState, useEffect } from 'react'
+import { Suspense, useState, useEffect, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 
 const T = {
@@ -56,11 +56,23 @@ function LoginForm() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [lang, setLang] = useState<'en' | 'es'>('en')
+  const [showContact, setShowContact] = useState(false)
+  const contactRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const saved = localStorage.getItem('portal_lang')
     if (saved === 'en' || saved === 'es') setLang(saved)
   }, [])
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (contactRef.current && !contactRef.current.contains(e.target as Node)) {
+        setShowContact(false)
+      }
+    }
+    if (showContact) document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [showContact])
 
   function switchLang(l: 'en' | 'es') {
     setLang(l)
@@ -260,9 +272,59 @@ function LoginForm() {
           font-weight: 600; margin-bottom: 14px; line-height: 1.5;
         }
 
-        .contact-note { text-align: center; font-size: 12px; color: #94a3b8; margin-top: 12px; }
-        .contact-note a { color: #2563eb; text-decoration: none; font-weight: 600; }
-        .contact-note a:hover { text-decoration: underline; }
+        .contact-note { text-align: center; font-size: 12px; color: #94a3b8; margin-top: 12px; position: relative; }
+        .contact-btn {
+          color: #2563eb; font-weight: 600; font-size: 12px;
+          background: none; border: none; cursor: pointer;
+          font-family: inherit; padding: 0; text-decoration: none;
+        }
+        .contact-btn:hover { text-decoration: underline; }
+
+        .contact-popover {
+          position: absolute;
+          bottom: calc(100% + 8px);
+          left: 50%; transform: translateX(-50%);
+          background: #ffffff;
+          border: 1.5px solid #e2e8f0;
+          border-radius: 12px;
+          box-shadow: 0 8px 24px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06);
+          padding: 8px;
+          display: flex; flex-direction: column; gap: 4px;
+          min-width: 200px;
+          z-index: 10;
+        }
+        .contact-popover::after {
+          content: '';
+          position: absolute;
+          top: 100%; left: 50%; transform: translateX(-50%);
+          border: 6px solid transparent;
+          border-top-color: #e2e8f0;
+          margin-top: 0px;
+        }
+        .contact-popover::before {
+          content: '';
+          position: absolute;
+          top: 100%; left: 50%; transform: translateX(-50%);
+          border: 5px solid transparent;
+          border-top-color: #ffffff;
+          z-index: 1;
+          margin-top: -1px;
+        }
+        .contact-option {
+          display: flex; align-items: center; gap: 10px;
+          padding: 10px 12px; border-radius: 8px;
+          text-decoration: none; color: #0f172a;
+          font-size: 13px; font-weight: 600;
+          transition: background 0.12s;
+          white-space: nowrap;
+        }
+        .contact-option:hover { background: #f1f5f9; }
+        .contact-option-icon {
+          width: 30px; height: 30px; border-radius: 8px;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 15px; flex-shrink: 0;
+        }
+        .contact-option-sub { font-size: 11px; font-weight: 400; color: #94a3b8; display: block; margin-top: 1px; }
 
         .terms-note { text-align: center; font-size: 11px; color: #cbd5e1; line-height: 1.55; margin-top: auto; padding-top: 20px; }
         .terms-note a { color: #94a3b8; text-decoration: underline; }
@@ -344,10 +406,40 @@ function LoginForm() {
                   {loading ? t.btnLoading : t.btn}
                 </button>
 
-                <p className="contact-note">
+                <div className="contact-note" ref={contactRef}>
                   {t.noConf}{' '}
-                  <a href="mailto:support@mybusinessformation.com">{t.contact}</a>
-                </p>
+                  <button className="contact-btn" onClick={() => setShowContact(v => !v)}>
+                    {t.contact}
+                  </button>
+                  {showContact && (
+                    <div className="contact-popover">
+                      <a
+                        className="contact-option"
+                        href="mailto:support@mybusinessformation.com"
+                        onClick={() => setShowContact(false)}
+                      >
+                        <div className="contact-option-icon" style={{ background: '#eff6ff' }}>✉️</div>
+                        <div>
+                          Email
+                          <span className="contact-option-sub">support@mybusinessformation.com</span>
+                        </div>
+                      </a>
+                      <a
+                        className="contact-option"
+                        href="https://wa.me/13528377755"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() => setShowContact(false)}
+                      >
+                        <div className="contact-option-icon" style={{ background: '#f0fdf4' }}>💬</div>
+                        <div>
+                          WhatsApp
+                          <span className="contact-option-sub">+1 (352) 837-7755</span>
+                        </div>
+                      </a>
+                    </div>
+                  )}
+                </div>
               </form>
             </div>
 
