@@ -60,7 +60,7 @@ export const sendOrderConfirmation = async (order: {
             Florida Division of Corporations. We'll be in touch within <strong>1 business day</strong>.
           </p>
           <p style="color:#475569;line-height:1.7">
-            Questions? Reach us on <a href="https://wa.me/1XXXXXXXXXX" style="color:#059669">WhatsApp</a> or
+            Questions? Reach us on <a href="https://wa.me/13528377755" style="color:#059669">WhatsApp</a> or
             reply to this email.
           </p>
           ${unsubscribeFooter(order.email)}
@@ -116,7 +116,7 @@ export const sendAllNamesTaken = async (order: {
             </div>
             <p style="color:#475569;line-height:1.7">
               Need help choosing a name?
-              <a href="https://wa.me/1XXXXXXXXXX" style="color:#059669">Chat with us on WhatsApp</a>
+              <a href="https://wa.me/13528377755" style="color:#059669">Chat with us on WhatsApp</a>
             </p>
             ${unsubscribeFooter(order.email)}
           </div>
@@ -214,7 +214,7 @@ export const sendSuggestNames = async (order: {
           </div>
           <p style="color:#475569;line-height:1.7">
             If you have questions or need help deciding,
-            <a href="https://wa.me/1XXXXXXXXXX" style="color:#059669">chat with us on WhatsApp</a>.
+            <a href="https://wa.me/13528377755" style="color:#059669">chat with us on WhatsApp</a>.
           </p>
           ${unsubscribeFooter(order.email)}
         </div>
