@@ -497,3 +497,100 @@ Client Portal dashboard (`backend/app/client-portal/dashboard/DashboardView.tsx`
 - [ ] `/new-business/es` — wrapper de /new-business en español; hereda los estilos
 
 Ver troubleshooting en `TROUBLESHOOTING/13_responsive_design.md`
+
+---
+
+### Etapa 18 — OPABIZ: App On-Demand para Empleados (EN DESARROLLO)
+
+```diff
++ Qué es: aplicación interna de Florida Business Formation Center para gestionar
++ y asignar órdenes a los empleados. Cuando un cliente paga en mybusinessformation.com,
++ la orden entra a OPABIZ donde un empleado calificado la procesa. Automatiza la
++ asignación, elimina la gestión manual desde el panel admin y da trazabilidad
++ completa de quién trabajó qué.
+```
+
+**Integración con mybusinessformation-web:**
+```
+Cliente paga → Order creada (Stripe webhook)
+  → DB trigger Supabase → crea ordenes_opabiz automáticamente
+  → Motor de asignación → selecciona empleado óptimo
+  → Empleado recibe notificación (Push / WhatsApp)
+  → Empleado completa la orden
+  → Status sync → actualiza Order en mybusinessformation
+```
+
+**Dos sistemas de niveles independientes:**
+- `nivel_empleado_opabiz` (ENUM) — jerarquía interna: basico / intermedio / avanzado / experto. Controla permisos y tipo de órdenes que puede recibir.
+- Tabla `niveles` — desempeño por puntaje: Oro (90-100) / Plata (75-89) / Bronce (60-74) / Riesgo (0-59). Determina beneficios y prioridad de asignación.
+
+**Stack:**
+- Base de datos: Supabase PostgreSQL (mismo proyecto)
+- Lógica: Supabase Edge Functions
+- Panel admin: Next.js (web)
+- App empleado: PWA o Expo (pendiente decidir)
+
+**Progreso por etapa:**
+
+🟦 ETAPA 1 — Base de Datos (Supabase) — COMPLETA
+- [x] ENUM: `rol_usuario_opabiz` — admin, empleado, supervisor
+- [x] ENUM: `estado_usuario_opabiz` — activo, inactivo, suspendido
+- [x] ENUM: `estado_orden_opabiz` — pendiente, en_progreso, completada, cancelada, revisando, rechazada
+- [x] ENUM: `nivel_empleado_opabiz` — basico, intermedio, avanzado, experto
+- [x] Tabla: `usuarios`
+- [x] Tabla: `empleado_perfil`
+- [x] Tabla: `ordenes_opabiz`
+- [x] Tabla: `documentos`
+- [x] Tabla: `historial_actividad`
+- [x] Tabla: `puntajes`
+- [x] Tabla: `inactividades`
+- [x] Tabla: `niveles`
+- [x] INSERT valores base de niveles (Oro / Plata / Bronce / Riesgo)
+- [ ] RLS: empleado solo ve sus propias órdenes
+- [ ] RLS: admin ve todo
+- [ ] RLS: documentos protegidos por orden
+- [ ] RLS: historial_actividad protegido
+
+🔲 ETAPA 2 — Lógica de Negocio (Edge Functions)
+- [ ] Motor de asignación: disponibilidad, nivel, puntaje, tiempo de respuesta, inactividades
+- [ ] Reasignación automática si no acepta en tiempo límite
+- [ ] Módulo de emergencias: timer 5 min → liberar orden → penalización → log en inactividades
+- [ ] Sistema de puntaje: +completar, -inactividad, -emergencia, recalcular tier
+- [ ] Notificaciones: Push, WhatsApp, Email
+
+🔲 ETAPA 3 — Panel Admin (Next.js Web)
+- [ ] Dashboard: órdenes activas, atrasadas, empleados activos, emergencias
+- [ ] Gestión de empleados: crear, suspender, métricas, historial
+- [ ] Gestión de órdenes: crear manual, asignar manual, ver documentos, ver historial
+- [ ] Configuración: tiempos de emergencia, reglas de asignación, puntos por acción
+
+🔲 ETAPA 4 — App del Empleado (PWA / Expo)
+- [ ] Autenticación: login, recuperación, verificación
+- [ ] Dashboard: órdenes asignadas, en progreso, historial
+- [ ] Flujo de orden: aceptar, iniciar, subir documentos, completar, notas internas
+- [ ] Perfil: nivel jerárquico, puntaje, tier, inactividades, métricas
+
+🔲 ETAPA 5 — Integraciones
+- [ ] DB trigger: Order de MBF → crea ordenes_opabiz
+- [ ] Sync de status de vuelta a mybusinessformation
+- [ ] WhatsApp: notificaciones al empleado, recepción de documentos
+- [ ] Storage Supabase: bucket opabiz-documentos, bucket opabiz-certificados
+
+🔲 ETAPA 6 — Seguridad y Auditoría
+- [ ] RLS completo (ver Etapa 1)
+- [ ] Log de accesos
+- [ ] Historial inmutable de cambios de estado
+
+🔲 ETAPA 7 — Automatizaciones (Cron Jobs)
+- [ ] Limpieza de inactividades antiguas
+- [ ] Revisión de órdenes sin asignar
+- [ ] Reasignación automática por timeout
+- [ ] Reporte semanal de KPIs
+
+🔲 ETAPA 8 — Escalabilidad y Métricas
+- [ ] Indexes en columnas frecuentes
+- [ ] Tiempo promedio por orden, ranking de empleados
+- [ ] Dashboard de KPIs por período
+
+Ver lógica de negocio en `LOGICA_DE_NEGOCIO/17_opabiz_integracion.md`
+Ver troubleshooting en `TROUBLESHOOTING/14_opabiz.md`
