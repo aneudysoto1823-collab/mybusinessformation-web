@@ -68,35 +68,22 @@ export default function ChatWidget() {
 
   useEffect(() => {
     if (typeof window === 'undefined') return
-    const mobile = window.innerWidth <= 768
+    if (!open || window.innerWidth > 768) return
 
-    if (open && mobile) {
-      // Lock body scroll to prevent page showing behind chat
-      const scrollY = window.scrollY
-      document.body.style.overflow = 'hidden'
-      document.body.style.position = 'fixed'
-      document.body.style.top = `-${scrollY}px`
-      document.body.style.width = '100%'
+    document.body.style.overflow = 'hidden'
 
-      // Visual Viewport API: adjust chat when keyboard opens
-      const vv = window.visualViewport
-      const onResize = () => {
-        if (!vv || !chatWindowRef.current) return
-        chatWindowRef.current.style.height = `${vv.height}px`
-        chatWindowRef.current.style.top = `${vv.offsetTop}px`
-      }
-      vv?.addEventListener('resize', onResize)
-      onResize()
+    const vv = window.visualViewport
+    const onResize = () => {
+      if (!vv || !chatWindowRef.current) return
+      chatWindowRef.current.style.height = `${vv.height}px`
+      chatWindowRef.current.style.top = `${vv.offsetTop}px`
+    }
+    vv?.addEventListener('resize', onResize)
+    onResize()
 
-      return () => {
-        vv?.removeEventListener('resize', onResize)
-        const top = document.body.style.top
-        document.body.style.overflow = ''
-        document.body.style.position = ''
-        document.body.style.top = ''
-        document.body.style.width = ''
-        window.scrollTo(0, -parseInt(top || '0'))
-      }
+    return () => {
+      vv?.removeEventListener('resize', onResize)
+      document.body.style.overflow = ''
     }
   }, [open])
 
@@ -455,7 +442,7 @@ export default function ChatWidget() {
                 border: '1.5px solid #E2E8F0',
                 borderRadius: '10px',
                 padding: '9px 14px',
-                fontSize: '0.83rem',
+                fontSize: '16px',
                 fontFamily: 'inherit',
                 color: '#1E293B',
                 outline: 'none',
