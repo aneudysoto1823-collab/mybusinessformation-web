@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdminToken } from '@/lib/session'
-import { backendFetch } from '@/lib/backend'
 import { getSupabaseAdmin } from '@/lib/supabase'
 
 async function verifyAdmin(request: NextRequest): Promise<boolean> {
@@ -37,11 +36,18 @@ export async function PATCH(
   }
   const { id } = await params
   const body = await request.json()
-  const res = await backendFetch(`/api/orders/${id}`, {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  })
-  const data = await res.json()
-  return NextResponse.json(data, { status: res.status })
+
+  const allowed: Record<string, unknown> = {}
+  if (body.status !== undefined) allowed.status = body.status
+  if (body.notes  !== undefined) allowed.notes  = body.notes
+
+  const { data, error } = await getSupabaseAdmin()
+    .from('Order')
+    .update(allowed)
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json({ success: true, data })
 }
