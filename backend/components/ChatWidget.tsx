@@ -60,6 +60,7 @@ export default function ChatWidget() {
   const bottomRef = useRef<HTMLDivElement>(null)
   const lastMsgRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const chatWindowRef = useRef<HTMLDivElement>(null)
   const prevMsgCount = useRef(0)
   const sessionId = useRef<string>(
     typeof crypto !== 'undefined' ? crypto.randomUUID() : Math.random().toString(36).slice(2)
@@ -72,6 +73,21 @@ export default function ChatWidget() {
     window.addEventListener('resize', check)
     return () => window.removeEventListener('resize', check)
   }, [])
+
+  useEffect(() => {
+    if (!open || !isMobile) return
+    const vv = window.visualViewport
+    if (!vv) return
+    const onResize = () => {
+      if (chatWindowRef.current) {
+        chatWindowRef.current.style.height = `${vv.height}px`
+        chatWindowRef.current.style.top = `${vv.offsetTop}px`
+      }
+    }
+    vv.addEventListener('resize', onResize)
+    onResize()
+    return () => vv.removeEventListener('resize', onResize)
+  }, [open, isMobile])
 
   function processNextSegment() {
     if (pendingSegmentsRef.current.length === 0) {
@@ -259,6 +275,7 @@ export default function ChatWidget() {
       {/* Chat window */}
       {open && (
         <div
+          ref={chatWindowRef}
           style={{
             position: 'fixed',
             bottom: isMobile ? 0 : '100px',
