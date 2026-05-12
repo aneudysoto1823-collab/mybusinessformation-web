@@ -378,7 +378,7 @@ function LoginForm() {
 
                 <div className="contact-note" ref={contactRef}>
                   {t.noConf}{' '}
-                  <button className="contact-btn" onClick={() => setShowContact(v => !v)}>
+                  <button type="button" className="contact-btn" onClick={() => setShowContact(v => !v)}>
                     {t.contact}
                   </button>
                   {showContact && (
