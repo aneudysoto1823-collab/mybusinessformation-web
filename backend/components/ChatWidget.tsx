@@ -68,12 +68,28 @@ export default function ChatWidget() {
 
   useEffect(() => {
     if (typeof window === 'undefined' || window.innerWidth > 768) return
-    if (open) {
-      document.body.style.overflow = 'hidden'
-    } else {
+    if (!open) {
       document.body.style.overflow = ''
+      return
     }
-    return () => { document.body.style.overflow = '' }
+
+    // Lock body scroll
+    document.body.style.overflow = 'hidden'
+
+    // iOS Safari scrolls position:fixed elements when keyboard opens.
+    // Counter it by resetting scroll to 0 on every scroll event.
+    const resetScroll = () => window.scrollTo(0, 0)
+    window.addEventListener('scroll', resetScroll, { passive: true })
+
+    // Also reset on input focus (when keyboard appears)
+    const onFocus = () => requestAnimationFrame(() => window.scrollTo(0, 0))
+    inputRef.current?.addEventListener('focus', onFocus)
+
+    return () => {
+      document.body.style.overflow = ''
+      window.removeEventListener('scroll', resetScroll)
+      inputRef.current?.removeEventListener('focus', onFocus)
+    }
   }, [open])
 
   function processNextSegment() {
