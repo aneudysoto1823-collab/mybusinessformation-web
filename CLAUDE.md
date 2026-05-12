@@ -94,11 +94,14 @@ BACKEND_URL           # URL Railway del Express server
 - Middleware en `middleware.ts` protege toda la ruta `/admin`
 
 ### Cliente (`/client-portal/dashboard/*`)
-- Login en `/client-portal` con **email + FBFC-XXXXXXXX**
-- `FBFC-XXXXXXXX` = primeros 8 caracteres del `Order.id` en mayúsculas
+- Login en `/client-portal` con **email + número de confirmación**
+- Acepta `FBFC-XXXXXXXX` (formaciones LLC/Corp) y `FBNB-XXXXXXXX` (New Business Letter)
+- `FBFC-` / `FBNB-` = primeros 8 chars del `Order.id` en mayúsculas
 - Cookie `client_session` = el `order.id` completo
 - Middleware protege `/client-portal/dashboard/*`
 - Respuesta genérica en `/api/client-auth` — no revela si el email existe
+- Toggle EN/ES con persistencia en `localStorage` (`portal_lang`)
+- Contacto: botones inline Email + WhatsApp (`wa.me/13528377755`) al hacer clic en "Contact us"
 
 ---
 
@@ -131,16 +134,19 @@ BACKEND_URL           # URL Railway del Express server
 ## Páginas principales
 
 ```
-/                   — Home (marketing)
-/servicios          — Página de servicios (ES)
-/new-business       — Landing de marketing QR (EN — indexada en Google)
-/new-business/es    — Versión en español (URL dedicada — indexada en Google)
-/new-business/success — Post-pago con instrucciones portal
-/admin              — Panel admin: órdenes activas
-/admin/campaigns    — Panel admin: marketing automation
-/client-portal      — Login del portal de clientes
-/client-portal/dashboard — Dashboard del cliente
-/login              — Login admin
+/                        — Home (marketing)
+/servicios               — Página de servicios (ES)
+/new-business            — Landing de marketing QR (EN — indexada en Google)
+/new-business/es         — Versión en español (URL dedicada — indexada en Google)
+/new-business/success    — Post-pago con instrucciones portal
+/admin                   — Panel admin: tabla de órdenes activas con filtros
+/admin/orders/[id]       — Detalle de orden: cambio de estado, subida de documentos,
+                           notas internas, buscador de nombres, envío manual de emails
+/admin/campaigns         — Panel admin: marketing automation (envío QR, métricas)
+/admin/security          — Configuración de seguridad admin
+/client-portal           — Login del portal de clientes (EN/ES, contacto Email+WhatsApp)
+/client-portal/dashboard — Dashboard del cliente: status, documentos, My Orders
+/login                   — Login admin (staff portal)
 /legal /privacy /terms /about
 ```
 
@@ -240,6 +246,48 @@ if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
 
 ### TypeScript build errors
 `next.config.ts` tiene `typescript.ignoreBuildErrors: true`. No bloquea deploys por errores TS, pero los errores deben resolverse de todas formas durante desarrollo.
+
+---
+
+## Panel Admin — Gestión de Órdenes (`/admin/orders/[id]`)
+
+Página de detalle de orden con todas las herramientas operativas:
+
+| Sección | Función |
+|---|---|
+| **Gestión de Estado** | Botones contextuales por status. Cada avance dispara notificación al cliente automáticamente (`filed` → `sendOrderProcessed`, `approved` → `sendOrderApproved`) |
+| **Certificate PDF** | Aparece solo cuando status=`approved`. Sube PDF a Supabase Storage (`certificates/orders/{id}/certificate.pdf`), envía email al cliente y marca orden `completed` |
+| **Buscador de nombres** | Aparece solo cuando status=`names_taken`. Verifica disponibilidad en Sunbiz y envía sugerencias al cliente |
+| **Acciones manuales** | Forzar cualquier status vía selector + enviar emails sueltos (nombres tomados, certificate) |
+| **Notas internas** | Texto libre visible solo para el equipo, guardado en la orden |
+| **Pre-filled Documents** | PDFs generados con datos del cliente: Articles of Organization, BOI, EIN SS-4, Operating Agreement |
+
+Flujo de estados: `pending → in_review → ready_to_file → filed → approved → completed`
+Rama alternativa: `in_review → names_taken → in_review` (loop hasta encontrar nombre disponible)
+
+## Sistema de Notificaciones por Email
+
+Emails implementados en `backend/modules/notifications/notifications.service.ts`:
+
+| Función | Trigger | Estado |
+|---|---|---|
+| `sendOrderConfirmation` | Al crear orden (webhook Stripe o `/api/orders`) | ✅ Activo |
+| `sendAllNamesTaken` | Manual desde admin o automático | ✅ Activo |
+| `sendSuggestNames` | Admin encuentra nombres alternativos | ✅ Activo |
+| `sendCertificateDelivery` | Al subir Certificate PDF desde admin | ✅ Activo |
+| `sendOrderProcessed` | Al avanzar a `filed` | ⚠️ Stub vacío — pendiente template |
+| `sendOrderApproved` | Al avanzar a `approved` | ⚠️ Stub vacío — pendiente template |
+
+Todos los emails usan WhatsApp `+13528377755`. Actualmente salen desde `onboarding@resend.dev` — pendiente migrar a dominio propio (lo trabaja el socio).
+
+## Diseño de Login Pages
+
+Ambas páginas de login (`/login` y `/client-portal`) usan el mismo patrón visual:
+- Fondo oscuro `#0f1c2e` con header de marca centrado arriba del card
+- Card con foto a tamaño natural (`<img>` tag, sin `object-fit:cover`) + panel de formulario
+- El panel de formulario iguala la altura de la foto via `align-items: stretch`
+- Fotos: `/admin-bg.jpg` (escritorio flat-lay) y `/client-portal-bg.jpg` (hombre en escaleras)
+- CSS-in-JS con `<style>` tag (misma convención que páginas marketing)
 
 ---
 
