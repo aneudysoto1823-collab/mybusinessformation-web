@@ -69,7 +69,15 @@ export const updateOrderController = async (req: Request, res: Response) => {
     const { status, notes } = req.body
     const order = await updateOrder(id, { status, notes })
     res.status(200).json({ success: true, data: order })
-  } catch (error) {
+  } catch (error: any) {
+    console.error('[updateOrderController] error:', {
+      id: req.params.id,
+      body: req.body,
+      message: error?.message,
+      code: error?.code,
+      meta: error?.meta,
+      stack: error?.stack,
+    })
     res.status(500).json({ success: false, message: 'Error al actualizar la orden' })
   }
 }
