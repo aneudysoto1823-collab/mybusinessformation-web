@@ -76,29 +76,28 @@ export default function ChatWidget() {
 
     document.body.style.overflow = 'hidden'
 
-    // Keyboard overlays the chat (like WhatsApp/iMessage).
-    // We add paddingBottom = keyboard height so the input stays visible above it.
+    // iOS Safari pans the visual viewport down when keyboard opens,
+    // making the header scroll out of view. We track vv.offsetTop and vv.height
+    // to keep the chat pinned to the visible area.
     const vv = window.visualViewport
-    const baseHeight = window.innerHeight
-
     const onResize = () => {
       if (!vv || !chatWindowRef.current) return
-      const keyboardHeight = Math.max(0, baseHeight - vv.height - vv.offsetTop)
-      chatWindowRef.current.style.paddingBottom = `${keyboardHeight}px`
+      chatWindowRef.current.style.top = `${vv.offsetTop}px`
+      chatWindowRef.current.style.height = `${vv.height}px`
     }
 
-    // Prevent iOS from scrolling the page when input is focused
-    const resetScroll = () => window.scrollTo(0, 0)
-
     vv?.addEventListener('resize', onResize)
-    window.addEventListener('scroll', resetScroll, { passive: true })
+    vv?.addEventListener('scroll', onResize)
     onResize()
 
     return () => {
       document.body.style.overflow = ''
       vv?.removeEventListener('resize', onResize)
-      window.removeEventListener('scroll', resetScroll)
-      if (chatWindowRef.current) chatWindowRef.current.style.paddingBottom = ''
+      vv?.removeEventListener('scroll', onResize)
+      if (chatWindowRef.current) {
+        chatWindowRef.current.style.top = ''
+        chatWindowRef.current.style.height = ''
+      }
     }
   }, [open])
 
@@ -508,13 +507,12 @@ export default function ChatWidget() {
         @media (max-width: 768px) {
           .chat-window {
             position: fixed !important;
-            top: 0 !important;
+            top: 0;
             left: 0 !important;
             right: 0 !important;
-            bottom: 0 !important;
             width: 100% !important;
             max-width: 100% !important;
-            height: auto !important;
+            height: 100%;
             max-height: none !important;
             border-radius: 0 !important;
             box-shadow: none !important;
