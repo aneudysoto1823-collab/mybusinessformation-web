@@ -50,7 +50,6 @@ function readFormContext(): { lang: string; firstName: string; businessName: str
 
 export default function ChatWidget() {
   const [open, setOpen] = useState(false)
-  const [isMobile, setIsMobile] = useState(false)
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
@@ -68,17 +67,11 @@ export default function ChatWidget() {
   const formContextRef = useRef<string>('')
 
   useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth <= 768)
-    check()
-    window.addEventListener('resize', check)
-    return () => window.removeEventListener('resize', check)
-  }, [])
-
-  useEffect(() => {
-    if (!open || !isMobile) return
+    if (!open) return
     const vv = window.visualViewport
     if (!vv) return
     const onResize = () => {
+      if (window.innerWidth > 768) return
       if (chatWindowRef.current) {
         chatWindowRef.current.style.height = `${vv.height}px`
         chatWindowRef.current.style.top = `${vv.offsetTop}px`
@@ -87,7 +80,7 @@ export default function ChatWidget() {
     vv.addEventListener('resize', onResize)
     onResize()
     return () => vv.removeEventListener('resize', onResize)
-  }, [open, isMobile])
+  }, [open])
 
   function processNextSegment() {
     if (pendingSegmentsRef.current.length === 0) {
@@ -276,22 +269,21 @@ export default function ChatWidget() {
       {open && (
         <div
           ref={chatWindowRef}
+          className="chat-window"
           style={{
             position: 'fixed',
-            bottom: isMobile ? 0 : '100px',
-            right: isMobile ? 0 : '28px',
-            left: isMobile ? 0 : 'auto',
-            top: isMobile ? 0 : 'auto',
+            bottom: '100px',
+            right: '28px',
             zIndex: 9999,
-            width: isMobile ? '100vw' : '380px',
-            maxWidth: isMobile ? '100vw' : 'calc(100vw - 40px)',
+            width: '380px',
+            maxWidth: 'calc(100vw - 40px)',
             boxSizing: 'border-box',
-            height: isMobile ? '100%' : '520px',
-            maxHeight: isMobile ? '100%' : 'calc(100vh - 130px)',
+            height: '520px',
+            maxHeight: 'calc(100vh - 130px)',
             background: '#fff',
-            borderRadius: isMobile ? 0 : '18px',
-            boxShadow: isMobile ? 'none' : '0 20px 60px rgba(28,46,68,0.22)',
-            border: isMobile ? 'none' : '1px solid #E2E8F0',
+            borderRadius: '18px',
+            boxShadow: '0 20px 60px rgba(28,46,68,0.22)',
+            border: '1px solid #E2E8F0',
             display: 'flex',
             flexDirection: 'column',
             overflow: 'hidden',
@@ -486,6 +478,21 @@ export default function ChatWidget() {
         @keyframes chatdot {
           0%,80%,100% { transform: scale(0.7); opacity: 0.4; }
           40% { transform: scale(1); opacity: 1; }
+        }
+        @media (max-width: 768px) {
+          .chat-window {
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100vw !important;
+            max-width: 100vw !important;
+            height: 100% !important;
+            max-height: 100% !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            border: none !important;
+          }
         }
       `}</style>
     </>
