@@ -305,6 +305,7 @@ export default function ChatWidget() {
             style={{
               flex: 1,
               overflowY: 'auto',
+              overflowX: 'hidden',
               padding: '16px',
               display: 'flex',
               flexDirection: 'column',
@@ -333,6 +334,7 @@ export default function ChatWidget() {
                     boxShadow: m.role === 'user' ? '0 2px 8px rgba(37,99,235,0.25)' : '0 2px 8px rgba(28,46,68,0.08)',
                     border: m.role === 'assistant' ? '1px solid #E2E8F0' : 'none',
                     whiteSpace: 'pre-wrap',
+                    wordBreak: 'break-word',
                   }}
                 >
                   {m.content}
