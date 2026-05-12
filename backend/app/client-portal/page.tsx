@@ -103,6 +103,63 @@ function LoginForm() {
           padding: 32px 16px;
         }
 
+        /* ── Page wrapper ── */
+        .portal-wrapper {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 28px;
+          width: 100%;
+          max-width: 860px;
+        }
+
+        /* ── Welcome header above card ── */
+        .portal-header {
+          text-align: center;
+        }
+        .portal-header-brand {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          margin-bottom: 10px;
+        }
+        .portal-header-icon {
+          width: 36px; height: 36px; border-radius: 10px;
+          background: rgba(255,255,255,0.08);
+          border: 1px solid rgba(255,255,255,0.12);
+          display: flex; align-items: center; justify-content: center;
+          font-size: 16px; flex-shrink: 0;
+        }
+        .portal-header-name {
+          font-family: 'Fraunces', serif;
+          font-size: 15px; font-weight: 700;
+          color: rgba(255,255,255,0.9);
+          letter-spacing: -0.2px;
+          line-height: 1.1;
+          text-align: left;
+        }
+        .portal-header-name span {
+          display: block;
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-size: 10px; font-weight: 600;
+          color: rgba(255,255,255,0.35);
+          letter-spacing: 1px; text-transform: uppercase;
+          margin-top: 2px;
+        }
+        .portal-header-rule {
+          width: 36px; height: 1.5px;
+          background: rgba(255,255,255,0.1);
+          border-radius: 2px;
+          margin: 0 auto 10px;
+        }
+        .portal-header-tagline {
+          font-size: 12px;
+          color: rgba(255,255,255,0.3);
+          letter-spacing: 0.3px;
+          line-height: 1.5;
+        }
+
         /* ── Centered card ── */
         .card {
           display: flex;
@@ -110,7 +167,6 @@ function LoginForm() {
           overflow: hidden;
           box-shadow: 0 24px 64px rgba(0,0,0,0.16), 0 4px 16px rgba(0,0,0,0.08);
           width: 100%;
-          max-width: 860px;
         }
 
         /* ── Photo side ── */
@@ -143,7 +199,6 @@ function LoginForm() {
           background: #f8fafc;
           display: flex;
           flex-direction: column;
-          justify-content: space-between;
           padding: 36px 40px 28px;
           position: relative;
           min-height: 560px;
@@ -226,92 +281,114 @@ function LoginForm() {
           font-weight: 600; margin-bottom: 14px; line-height: 1.5;
         }
 
-        .contact-note { text-align: center; font-size: 12px; color: #94a3b8; margin-top: 14px; margin-bottom: 8px; }
+        .contact-note { text-align: center; font-size: 12px; color: #94a3b8; margin-top: 12px; }
         .contact-note a { color: #2563eb; text-decoration: none; font-weight: 600; }
         .contact-note a:hover { text-decoration: underline; }
 
-        .terms-note { text-align: center; font-size: 11px; color: #cbd5e1; line-height: 1.55; margin-bottom: 10px; }
+        .terms-note { text-align: center; font-size: 11px; color: #cbd5e1; line-height: 1.55; margin-top: auto; padding-top: 20px; }
         .terms-note a { color: #94a3b8; text-decoration: underline; }
         .terms-note a:hover { color: #64748b; }
 
-        .copyright { text-align: center; font-size: 10px; color: #cbd5e1; margin-top: auto; padding-top: 20px; }
+        .copyright { text-align: center; font-size: 10px; color: #cbd5e1; margin-top: 8px; }
       `}</style>
 
-      <div className="card">
+      <div className="portal-wrapper">
 
-        {/* ── Photo — natural size ── */}
-        <div className="card-photo">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/client-portal-bg.jpg" alt="" />
+        {/* ── Welcome header above card ── */}
+        <div className="portal-header">
+          <div className="portal-header-brand">
+            <div className="portal-header-icon">🏛️</div>
+            <div className="portal-header-name">
+              Florida Business Formation Center
+              <span>{t.portal}</span>
+            </div>
+          </div>
+          <div className="portal-header-rule" />
+          <p className="portal-header-tagline">
+            {lang === 'en'
+              ? 'Secure access to your order status and filing documents'
+              : 'Acceso seguro al estado de tu orden y documentos de trámite'}
+          </p>
         </div>
 
-        {/* ── Form ── */}
-        <div className="card-form">
+        {/* ── Card ── */}
+        <div className="card">
 
-          {/* Language toggle */}
-          <div className="lang-toggle">
-            <button className={`lang-btn${lang === 'en' ? ' active' : ''}`} onClick={() => switchLang('en')}>EN</button>
-            <div className="lang-sep" />
-            <button className={`lang-btn${lang === 'es' ? ' active' : ''}`} onClick={() => switchLang('es')}>ES</button>
+          {/* ── Photo — natural size ── */}
+          <div className="card-photo">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/client-portal-bg.jpg" alt="" />
           </div>
 
-          <div className="form-body">
-            {/* Brand */}
-            <div className="brand-mark">
-              <div className="brand-icon">🏛️</div>
-              <div className="brand-name">
-                Florida Business Formation Center
-                <span>{t.portal}</span>
-              </div>
+          {/* ── Form ── */}
+          <div className="card-form">
+
+            {/* Language toggle */}
+            <div className="lang-toggle">
+              <button className={`lang-btn${lang === 'en' ? ' active' : ''}`} onClick={() => switchLang('en')}>EN</button>
+              <div className="lang-sep" />
+              <button className={`lang-btn${lang === 'es' ? ' active' : ''}`} onClick={() => switchLang('es')}>ES</button>
             </div>
 
-            {/* Heading */}
-            <div className="form-eyebrow">{t.eyebrow}</div>
-            <div className="form-title">{t.title}</div>
-            <p className="form-sub">{t.subtitle}</p>
-
-            {/* Form */}
-            <form onSubmit={handleSubmit}>
-              {error && <div className="error-msg">{error}</div>}
-
-              <div className="form-group">
-                <label htmlFor="email">{t.email}</label>
-                <input
-                  id="email" type="email" value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  placeholder={t.emailPlaceholder}
-                  required autoComplete="email"
-                />
+            <div className="form-body">
+              {/* Brand */}
+              <div className="brand-mark">
+                <div className="brand-icon">🏛️</div>
+                <div className="brand-name">
+                  Florida Business Formation Center
+                  <span>{t.portal}</span>
+                </div>
               </div>
 
-              <div className="form-group">
-                <label htmlFor="confirmationNumber">{t.confNum}</label>
-                <input
-                  id="confirmationNumber" type="text" value={confirmationNumber}
-                  onChange={e => setConfirmationNumber(e.target.value.toUpperCase())}
-                  placeholder={t.confPlaceholder}
-                  required
-                />
-                <p className="input-hint">{t.confHint}</p>
-              </div>
+              {/* Heading */}
+              <div className="form-eyebrow">{t.eyebrow}</div>
+              <div className="form-title">{t.title}</div>
+              <p className="form-sub">{t.subtitle}</p>
 
-              <button type="submit" className="btn-access" disabled={loading}>
-                {loading ? t.btnLoading : t.btn}
-              </button>
-            </form>
+              {/* Form */}
+              <form onSubmit={handleSubmit}>
+                {error && <div className="error-msg">{error}</div>}
+
+                <div className="form-group">
+                  <label htmlFor="email">{t.email}</label>
+                  <input
+                    id="email" type="email" value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    placeholder={t.emailPlaceholder}
+                    required autoComplete="email"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="confirmationNumber">{t.confNum}</label>
+                  <input
+                    id="confirmationNumber" type="text" value={confirmationNumber}
+                    onChange={e => setConfirmationNumber(e.target.value.toUpperCase())}
+                    placeholder={t.confPlaceholder}
+                    required
+                  />
+                  <p className="input-hint">{t.confHint}</p>
+                </div>
+
+                <button type="submit" className="btn-access" disabled={loading}>
+                  {loading ? t.btnLoading : t.btn}
+                </button>
+
+                <p className="contact-note">
+                  {t.noConf}{' '}
+                  <a href="mailto:support@mybusinessformation.com">{t.contact}</a>
+                </p>
+              </form>
+            </div>
+
+            <p className="terms-note">
+              {t.terms}{' '}
+              <a href="/terms">{t.termsLink}</a> {t.and}{' '}
+              <a href="/privacy">{t.privacyLink}</a>.
+            </p>
+            <p className="copyright">{t.footer}</p>
+
           </div>
-
-          <p className="contact-note">
-            {t.noConf}{' '}
-            <a href="mailto:support@mybusinessformation.com">{t.contact}</a>
-          </p>
-          <p className="terms-note">
-            {t.terms}{' '}
-            <a href="/terms">{t.termsLink}</a> {t.and}{' '}
-            <a href="/privacy">{t.privacyLink}</a>.
-          </p>
-          <p className="copyright">{t.footer}</p>
-
         </div>
       </div>
     </>
