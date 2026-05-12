@@ -124,9 +124,7 @@ function LoginForm() {
         .card-photo img {
           display: block;
           width: 380px;
-          height: 100%;
-          object-fit: cover;
-          object-position: center top;
+          height: auto;
         }
 
         /* Subtle vignette on right edge so it blends with form */
