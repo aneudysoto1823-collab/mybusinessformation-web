@@ -125,36 +125,36 @@ function LoginForm() {
           margin-bottom: 10px;
         }
         .portal-header-icon {
-          width: 36px; height: 36px; border-radius: 10px;
+          width: 48px; height: 48px; border-radius: 14px;
           background: rgba(255,255,255,0.08);
           border: 1px solid rgba(255,255,255,0.12);
           display: flex; align-items: center; justify-content: center;
-          font-size: 16px; flex-shrink: 0;
+          font-size: 22px; flex-shrink: 0;
         }
         .portal-header-name {
           font-family: 'Fraunces', serif;
-          font-size: 15px; font-weight: 700;
-          color: rgba(255,255,255,0.9);
-          letter-spacing: -0.2px;
+          font-size: 22px; font-weight: 700;
+          color: rgba(255,255,255,0.92);
+          letter-spacing: -0.4px;
           line-height: 1.1;
           text-align: left;
         }
         .portal-header-name span {
           display: block;
           font-family: 'Plus Jakarta Sans', sans-serif;
-          font-size: 10px; font-weight: 600;
+          font-size: 11px; font-weight: 600;
           color: rgba(255,255,255,0.35);
-          letter-spacing: 1px; text-transform: uppercase;
-          margin-top: 2px;
+          letter-spacing: 1.2px; text-transform: uppercase;
+          margin-top: 4px;
         }
         .portal-header-rule {
-          width: 36px; height: 1.5px;
+          width: 48px; height: 1.5px;
           background: rgba(255,255,255,0.1);
           border-radius: 2px;
-          margin: 0 auto 10px;
+          margin: 0 auto 12px;
         }
         .portal-header-tagline {
-          font-size: 12px;
+          font-size: 13px;
           color: rgba(255,255,255,0.3);
           letter-spacing: 0.3px;
           line-height: 1.5;
@@ -223,27 +223,6 @@ function LoginForm() {
         .lang-btn.active { background: #1C2E44; color: #ffffff; }
         .lang-btn:hover:not(.active) { color: #374151; }
         .lang-sep { width: 1px; background: #e2e8f0; }
-
-        /* Brand mark */
-        .brand-mark {
-          display: flex; align-items: center; gap: 9px; margin-bottom: 32px;
-        }
-        .brand-icon {
-          width: 32px; height: 32px; border-radius: 8px;
-          background: #1C2E44;
-          display: flex; align-items: center; justify-content: center;
-          font-size: 15px; flex-shrink: 0;
-        }
-        .brand-name {
-          font-family: 'Fraunces', serif; font-size: 13px;
-          font-weight: 700; color: #0f172a; line-height: 1.15;
-        }
-        .brand-name span {
-          display: block; font-size: 10px;
-          font-family: 'Plus Jakarta Sans', sans-serif;
-          font-weight: 600; color: #94a3b8;
-          letter-spacing: 0.7px; text-transform: uppercase; margin-top: 1px;
-        }
 
         /* Form content */
         .form-body { flex: 1; }
@@ -331,15 +310,6 @@ function LoginForm() {
             </div>
 
             <div className="form-body">
-              {/* Brand */}
-              <div className="brand-mark">
-                <div className="brand-icon">🏛️</div>
-                <div className="brand-name">
-                  Florida Business Formation Center
-                  <span>{t.portal}</span>
-                </div>
-              </div>
-
               {/* Heading */}
               <div className="form-eyebrow">{t.eyebrow}</div>
               <div className="form-title">{t.title}</div>
