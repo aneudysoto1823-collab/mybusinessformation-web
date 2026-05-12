@@ -357,7 +357,7 @@ function LoginForm() {
                     id="email" type="email" value={email}
                     onChange={e => setEmail(e.target.value)}
                     placeholder={t.emailPlaceholder}
-                    required autoComplete="email"
+                    required autoComplete="off"
                   />
                 </div>
 
