@@ -50,6 +50,7 @@ function readFormContext(): { lang: string; firstName: string; businessName: str
 
 export default function ChatWidget() {
   const [open, setOpen] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
@@ -64,6 +65,13 @@ export default function ChatWidget() {
     typeof crypto !== 'undefined' ? crypto.randomUUID() : Math.random().toString(36).slice(2)
   )
   const formContextRef = useRef<string>('')
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth <= 768)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
 
   function processNextSegment() {
     if (pendingSegmentsRef.current.length === 0) {
@@ -253,17 +261,19 @@ export default function ChatWidget() {
         <div
           style={{
             position: 'fixed',
-            bottom: '100px',
-            right: '28px',
+            bottom: isMobile ? 0 : '100px',
+            right: isMobile ? 0 : '28px',
+            left: isMobile ? 0 : 'auto',
+            top: isMobile ? 0 : 'auto',
             zIndex: 9999,
-            width: '380px',
-            maxWidth: 'calc(100vw - 40px)',
-            height: '520px',
-            maxHeight: 'calc(100vh - 130px)',
+            width: isMobile ? '100%' : '380px',
+            maxWidth: isMobile ? '100%' : 'calc(100vw - 40px)',
+            height: isMobile ? '100%' : '520px',
+            maxHeight: isMobile ? '100%' : 'calc(100vh - 130px)',
             background: '#fff',
-            borderRadius: '18px',
-            boxShadow: '0 20px 60px rgba(28,46,68,0.22)',
-            border: '1px solid #E2E8F0',
+            borderRadius: isMobile ? 0 : '18px',
+            boxShadow: isMobile ? 'none' : '0 20px 60px rgba(28,46,68,0.22)',
+            border: isMobile ? 'none' : '1px solid #E2E8F0',
             display: 'flex',
             flexDirection: 'column',
             overflow: 'hidden',
