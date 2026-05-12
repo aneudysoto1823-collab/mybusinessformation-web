@@ -1,7 +1,52 @@
 'use client'
 
-import { Suspense, useState } from 'react'
+import { Suspense, useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+
+const T = {
+  en: {
+    eyebrow: 'Client Access',
+    title: 'Track your order',
+    subtitle: 'Enter your email and confirmation number from your order receipt to access your filing status.',
+    email: 'Email address',
+    emailPlaceholder: 'you@example.com',
+    confNum: 'Confirmation number',
+    confPlaceholder: 'FBFC-00000000 or FBNB-00000000',
+    confHint: 'Found in your order confirmation email',
+    btn: 'Access My Order →',
+    btnLoading: 'Accessing…',
+    noConf: "Don't have your confirmation number?",
+    contact: 'Contact us',
+    terms: 'By accessing this portal you agree to our',
+    termsLink: 'Terms of Service',
+    and: 'and',
+    privacyLink: 'Privacy Policy',
+    error: "We couldn't find an order matching that email and confirmation number.",
+    portal: 'Client Portal',
+    footer: '© 2026 Florida Business Formation Center — mybusinessformation.com',
+  },
+  es: {
+    eyebrow: 'Acceso de Clientes',
+    title: 'Rastrea tu orden',
+    subtitle: 'Ingresa tu correo y número de confirmación de tu recibo para acceder al estado de tu trámite.',
+    email: 'Correo electrónico',
+    emailPlaceholder: 'tú@ejemplo.com',
+    confNum: 'Número de confirmación',
+    confPlaceholder: 'FBFC-00000000 o FBNB-00000000',
+    confHint: 'Lo encuentras en el email de confirmación de tu orden',
+    btn: 'Acceder a Mi Orden →',
+    btnLoading: 'Accediendo…',
+    noConf: '¿No tienes tu número de confirmación?',
+    contact: 'Contáctanos',
+    terms: 'Al acceder aceptas nuestros',
+    termsLink: 'Términos de Servicio',
+    and: 'y la',
+    privacyLink: 'Política de Privacidad',
+    error: 'No encontramos una orden con ese correo y número de confirmación.',
+    portal: 'Portal de Clientes',
+    footer: '© 2026 Florida Business Formation Center — mybusinessformation.com',
+  },
+}
 
 function LoginForm() {
   const router = useRouter()
@@ -10,28 +55,36 @@ function LoginForm() {
   const [confirmationNumber, setConfirmationNumber] = useState(searchParams.get('order') ?? '')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [lang, setLang] = useState<'en' | 'es'>('en')
+
+  useEffect(() => {
+    const saved = localStorage.getItem('portal_lang')
+    if (saved === 'en' || saved === 'es') setLang(saved)
+  }, [])
+
+  function switchLang(l: 'en' | 'es') {
+    setLang(l)
+    localStorage.setItem('portal_lang', l)
+  }
+
+  const t = T[lang]
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setError('')
     setLoading(true)
-
     const res = await fetch('/api/client-auth', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, confirmationNumber }),
     })
-
     setLoading(false)
-
     if (res.ok) {
       router.push('/client-portal/dashboard')
     } else {
-      setError("We couldn't find an order matching that email and confirmation number.")
+      setError(t.error)
     }
   }
-
-  const year = new Date().getFullYear()
 
   return (
     <>
@@ -39,203 +92,131 @@ function LoginForm() {
         @import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
 
-        .root { min-height: 100vh; display: flex; }
+        body {
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          background: #e8ecf0;
+          min-height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 32px 16px;
+        }
 
-        /* ── LEFT — photo panel ── */
-        .left {
-          display: none;
-          flex: 1;
-          background: #1C2E44;
-          position: relative;
+        /* ── Centered card ── */
+        .card {
+          display: flex;
+          border-radius: 18px;
           overflow: hidden;
-          flex-direction: column;
-          justify-content: space-between;
-          padding: 44px 48px;
-        }
-        @media (min-width: 900px) { .left { display: flex; } }
-
-        /* Photo as background */
-        .left-photo {
-          position: absolute;
-          inset: 0;
-          background: url('/client-portal-bg.jpg') center center / cover no-repeat;
-          z-index: 0;
+          box-shadow: 0 24px 64px rgba(0,0,0,0.16), 0 4px 16px rgba(0,0,0,0.08);
+          width: 100%;
+          max-width: 860px;
         }
 
-        /* Vignette: navy fades in from all edges, photo visible in center */
-        .left-vignette {
-          position: absolute;
-          inset: 0;
-          background:
-            linear-gradient(to bottom,
-              rgba(15, 28, 52, 0.78) 0%,
-              rgba(15, 28, 52, 0.15) 28%,
-              rgba(15, 28, 52, 0.15) 68%,
-              rgba(15, 28, 52, 0.82) 100%
-            ),
-            linear-gradient(to right,
-              rgba(15, 28, 52, 0.45) 0%,
-              rgba(15, 28, 52, 0.0) 35%,
-              rgba(15, 28, 52, 0.0) 65%,
-              rgba(15, 28, 52, 0.55) 100%
-            );
-          z-index: 1;
+        /* ── Photo side ── */
+        .card-photo {
+          display: none;
+          flex-shrink: 0;
+          position: relative;
+        }
+        @media (min-width: 720px) { .card-photo { display: block; } }
+
+        .card-photo img {
+          display: block;
+          width: 380px;
+          height: 100%;
+          object-fit: cover;
+          object-position: center top;
         }
 
-        /* Separator line */
-        .left::after {
+        /* Subtle vignette on right edge so it blends with form */
+        .card-photo::after {
           content: '';
           position: absolute;
           top: 0; right: 0; bottom: 0;
-          width: 1px;
-          background: rgba(255,255,255,0.07);
-          z-index: 3;
+          width: 60px;
+          background: linear-gradient(to right, transparent, rgba(248,250,252,0.5));
+          pointer-events: none;
         }
 
-        /* ── Brand mark ── */
-        .brand-mark {
-          position: relative; z-index: 2;
-          display: flex; align-items: center; gap: 10px;
-        }
-        .brand-icon {
-          width: 34px; height: 34px;
-          background: rgba(255,255,255,0.12);
-          border: 1px solid rgba(255,255,255,0.18);
-          border-radius: 8px;
-          display: flex; align-items: center; justify-content: center;
-          font-size: 16px; flex-shrink: 0;
-        }
-        .brand-name {
-          font-family: 'Fraunces', serif;
-          font-size: 13px; font-weight: 700; color: #e2e8f0; line-height: 1.1;
-        }
-        .brand-name span {
-          display: block; font-size: 9px;
-          font-family: 'Plus Jakarta Sans', sans-serif;
-          font-weight: 600; color: rgba(255,255,255,0.35);
-          letter-spacing: 0.9px; text-transform: uppercase; margin-top: 2px;
-        }
-
-        /* ── Hero title — center of panel ── */
-        .left-hero {
-          position: relative; z-index: 2;
-          text-align: left;
-        }
-        .hero-eyebrow {
-          display: inline-block;
-          background: rgba(255,255,255,0.08);
-          border: 1px solid rgba(255,255,255,0.14);
-          border-radius: 20px; padding: 4px 13px;
-          font-size: 10px; font-weight: 700;
-          color: rgba(147,197,253,0.9);
-          letter-spacing: 1.4px; text-transform: uppercase; margin-bottom: 16px;
-        }
-        .hero-title {
-          font-family: 'Fraunces', serif;
-          font-size: 46px; font-weight: 900;
-          color: #ffffff; line-height: 1.06;
-          letter-spacing: -1.2px; margin-bottom: 14px;
-          text-shadow: 0 2px 16px rgba(0,0,0,0.3);
-        }
-        .hero-title em { display: block; color: #93c5fd; font-style: normal; }
-        .hero-rule {
-          width: 40px; height: 2px;
-          background: rgba(147,197,253,0.45);
-          border-radius: 2px; margin-bottom: 14px;
-        }
-        .hero-sub {
-          font-size: 13px; color: rgba(255,255,255,0.45);
-          line-height: 1.7; max-width: 280px;
-        }
-
-        /* ── Bottom ── */
-        .left-bottom { position: relative; z-index: 2; }
-
-        .steps-list { display: flex; flex-direction: column; gap: 9px; margin-bottom: 18px; }
-        .step-item { display: flex; align-items: center; gap: 9px; }
-        .step-dot {
-          width: 17px; height: 17px; border-radius: 50%;
-          background: rgba(147,197,253,0.1);
-          border: 1px solid rgba(147,197,253,0.25);
-          display: flex; align-items: center; justify-content: center;
-          font-size: 9px; color: #93c5fd; flex-shrink: 0;
-        }
-        .step-text { font-size: 12px; color: rgba(255,255,255,0.38); }
-
-        .left-footer { font-size: 11px; color: rgba(255,255,255,0.2); }
-
-        /* ── RIGHT — form panel ── */
-        .right {
-          width: 100%;
+        /* ── Form side ── */
+        .card-form {
+          flex: 1;
+          background: #f8fafc;
           display: flex;
           flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          padding: 40px 24px;
-          background: #f8fafc;
+          justify-content: space-between;
+          padding: 36px 40px 28px;
           position: relative;
+          min-height: 560px;
         }
-        @media (min-width: 900px) { .right { width: 500px; flex-shrink: 0; } }
 
-        .form-wrap { width: 100%; max-width: 390px; }
-
-        /* Mobile brand */
-        .mobile-brand {
-          display: flex; align-items: center; gap: 10px; margin-bottom: 28px;
+        /* Lang toggle */
+        .lang-toggle {
+          position: absolute;
+          top: 20px; right: 20px;
+          display: flex;
+          background: #ffffff;
+          border: 1.5px solid #e2e8f0;
+          border-radius: 8px;
+          overflow: hidden;
         }
-        .mobile-brand .m-icon {
+        .lang-btn {
+          padding: 4px 10px; font-size: 11px; font-weight: 700;
+          color: #94a3b8; background: transparent; border: none;
+          cursor: pointer; font-family: inherit; transition: all 0.15s;
+          letter-spacing: 0.3px;
+        }
+        .lang-btn.active { background: #1C2E44; color: #ffffff; }
+        .lang-btn:hover:not(.active) { color: #374151; }
+        .lang-sep { width: 1px; background: #e2e8f0; }
+
+        /* Brand mark */
+        .brand-mark {
+          display: flex; align-items: center; gap: 9px; margin-bottom: 32px;
+        }
+        .brand-icon {
           width: 32px; height: 32px; border-radius: 8px;
-          background: #1C2E44; font-size: 15px;
+          background: #1C2E44;
           display: flex; align-items: center; justify-content: center;
+          font-size: 15px; flex-shrink: 0;
         }
-        .mobile-brand .m-name {
-          font-size: 13px; font-weight: 700; color: #0f172a;
-          font-family: 'Fraunces', serif; line-height: 1.2;
+        .brand-name {
+          font-family: 'Fraunces', serif; font-size: 13px;
+          font-weight: 700; color: #0f172a; line-height: 1.15;
         }
-        .mobile-brand .m-sub {
-          font-size: 10px; color: #94a3b8; font-weight: 600;
-          text-transform: uppercase; letter-spacing: 0.6px;
+        .brand-name span {
+          display: block; font-size: 10px;
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-weight: 600; color: #94a3b8;
+          letter-spacing: 0.7px; text-transform: uppercase; margin-top: 1px;
         }
-        @media (min-width: 900px) { .mobile-brand { display: none; } }
 
-        .form-eyebrow {
-          font-size: 11px; font-weight: 700; color: #94a3b8;
-          text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px;
-        }
-        .form-header { margin-bottom: 26px; }
-        .form-header h2 {
-          font-size: 24px; font-weight: 700; color: #0f172a;
-          letter-spacing: -0.4px; margin-bottom: 6px;
-        }
-        .form-header p { font-size: 13px; color: #64748b; line-height: 1.55; }
+        /* Form content */
+        .form-body { flex: 1; }
 
-        .form-group { margin-bottom: 16px; }
-        .form-group label {
-          display: block; font-size: 12px; font-weight: 700;
-          color: #374151; text-transform: uppercase;
-          letter-spacing: 0.5px; margin-bottom: 7px;
-        }
+        .form-eyebrow { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 7px; }
+        .form-title { font-size: 22px; font-weight: 700; color: #0f172a; letter-spacing: -0.3px; margin-bottom: 6px; }
+        .form-sub { font-size: 13px; color: #64748b; line-height: 1.55; margin-bottom: 24px; }
+
+        .form-group { margin-bottom: 14px; }
+        .form-group label { display: block; font-size: 11px; font-weight: 700; color: #374151; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
         .form-group input {
-          width: 100%; padding: 11px 14px;
-          border: 1.5px solid #e2e8f0; border-radius: 9px;
+          width: 100%; padding: 10px 13px;
+          border: 1.5px solid #e2e8f0; border-radius: 8px;
           font-size: 14px; color: #0f172a; background: #ffffff;
           outline: none; transition: border-color 0.15s, box-shadow 0.15s;
           font-family: inherit;
         }
-        .form-group input:focus {
-          border-color: #2563eb;
-          box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
-        }
-        .input-hint { font-size: 11px; color: #9ca3af; margin-top: 5px; }
+        .form-group input:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+        .input-hint { font-size: 11px; color: #9ca3af; margin-top: 4px; }
 
         .btn-access {
-          width: 100%; padding: 12px;
+          width: 100%; padding: 11px;
           background: #1C2E44; color: #ffffff; border: none;
-          border-radius: 9px; font-size: 15px; font-weight: 700;
-          cursor: pointer; margin-top: 8px; font-family: inherit;
-          transition: background 0.15s, transform 0.1s; letter-spacing: -0.2px;
+          border-radius: 8px; font-size: 14px; font-weight: 700;
+          cursor: pointer; margin-top: 6px; font-family: inherit;
+          transition: background 0.15s, transform 0.1s;
         }
         .btn-access:hover:not(:disabled) { background: #2563eb; }
         .btn-access:active:not(:disabled) { transform: scale(0.99); }
@@ -243,146 +224,103 @@ function LoginForm() {
 
         .error-msg {
           background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c;
-          border-radius: 9px; padding: 11px 14px; font-size: 13px;
-          font-weight: 600; margin-bottom: 16px; line-height: 1.5;
+          border-radius: 8px; padding: 10px 13px; font-size: 13px;
+          font-weight: 600; margin-bottom: 14px; line-height: 1.5;
         }
 
-        .contact-note {
-          margin-top: 18px; text-align: center; font-size: 13px; color: #94a3b8;
-        }
+        /* Footer area */
+        .form-footer-area { margin-top: 20px; }
+
+        .contact-note { text-align: center; font-size: 12px; color: #94a3b8; margin-bottom: 8px; }
         .contact-note a { color: #2563eb; text-decoration: none; font-weight: 600; }
         .contact-note a:hover { text-decoration: underline; }
 
-        .terms-note {
-          margin-top: 16px; text-align: center;
-          font-size: 11px; color: #cbd5e1; line-height: 1.6;
-        }
+        .terms-note { text-align: center; font-size: 11px; color: #cbd5e1; line-height: 1.55; margin-bottom: 14px; }
         .terms-note a { color: #94a3b8; text-decoration: underline; }
         .terms-note a:hover { color: #64748b; }
 
-        .form-footer {
-          position: absolute; bottom: 24px; left: 0; right: 0;
-          text-align: center; font-size: 11px; color: #94a3b8; line-height: 1.6;
-        }
+        .copyright { text-align: center; font-size: 10px; color: #cbd5e1; }
       `}</style>
 
-      <div className="root">
+      <div className="card">
 
-        {/* ── LEFT — photo + brand ── */}
-        <div className="left">
-          <div className="left-photo" />
-          <div className="left-vignette" />
-
-          <div className="brand-mark">
-            <div className="brand-icon">🏛️</div>
-            <div className="brand-name">
-              Florida Business Formation Center
-              <span>Client Portal</span>
-            </div>
-          </div>
-
-          <div className="left-hero">
-            <div className="hero-eyebrow">Your Business Journey</div>
-            <div className="hero-title">
-              Track Your
-              <em>Business Filing</em>
-            </div>
-            <div className="hero-rule" />
-            <p className="hero-sub">
-              Real-time status on your Florida business formation — orders, documents, and filings in one place.
-            </p>
-          </div>
-
-          <div className="left-bottom">
-            <div className="steps-list">
-              <div className="step-item">
-                <div className="step-dot">✓</div>
-                <span className="step-text">Order status & filing progress</span>
-              </div>
-              <div className="step-item">
-                <div className="step-dot">✓</div>
-                <span className="step-text">Download your official documents</span>
-              </div>
-              <div className="step-item">
-                <div className="step-dot">✓</div>
-                <span className="step-text">Business formation history</span>
-              </div>
-            </div>
-            <div className="left-footer">
-              © {year} Florida Business Formation Center — mybusinessformation.com
-            </div>
-          </div>
+        {/* ── Photo — natural size ── */}
+        <div className="card-photo">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/client-portal-bg.jpg" alt="" />
         </div>
 
-        {/* ── RIGHT — form ── */}
-        <div className="right">
-          <div className="form-wrap">
+        {/* ── Form ── */}
+        <div className="card-form">
 
-            <div className="mobile-brand">
-              <div className="m-icon">🏛️</div>
-              <div>
-                <div className="m-name">Florida Business Formation Center</div>
-                <div className="m-sub">Client Portal</div>
+          {/* Language toggle */}
+          <div className="lang-toggle">
+            <button className={`lang-btn${lang === 'en' ? ' active' : ''}`} onClick={() => switchLang('en')}>EN</button>
+            <div className="lang-sep" />
+            <button className={`lang-btn${lang === 'es' ? ' active' : ''}`} onClick={() => switchLang('es')}>ES</button>
+          </div>
+
+          <div className="form-body">
+            {/* Brand */}
+            <div className="brand-mark">
+              <div className="brand-icon">🏛️</div>
+              <div className="brand-name">
+                Florida Business Formation Center
+                <span>{t.portal}</span>
               </div>
             </div>
 
-            <div className="form-header">
-              <div className="form-eyebrow">Client Access</div>
-              <h2>Track your order</h2>
-              <p>Enter your email and confirmation number from your order receipt to access your filing status.</p>
-            </div>
+            {/* Heading */}
+            <div className="form-eyebrow">{t.eyebrow}</div>
+            <div className="form-title">{t.title}</div>
+            <p className="form-sub">{t.subtitle}</p>
 
+            {/* Form */}
             <form onSubmit={handleSubmit}>
               {error && <div className="error-msg">{error}</div>}
 
               <div className="form-group">
-                <label htmlFor="email">Email address</label>
+                <label htmlFor="email">{t.email}</label>
                 <input
-                  id="email"
-                  type="email"
-                  value={email}
+                  id="email" type="email" value={email}
                   onChange={e => setEmail(e.target.value)}
-                  placeholder="you@example.com"
-                  required
-                  autoComplete="email"
+                  placeholder={t.emailPlaceholder}
+                  required autoComplete="email"
                 />
               </div>
 
               <div className="form-group">
-                <label htmlFor="confirmationNumber">Confirmation number</label>
+                <label htmlFor="confirmationNumber">{t.confNum}</label>
                 <input
-                  id="confirmationNumber"
-                  type="text"
-                  value={confirmationNumber}
+                  id="confirmationNumber" type="text" value={confirmationNumber}
                   onChange={e => setConfirmationNumber(e.target.value.toUpperCase())}
-                  placeholder="FBFC-00000000 or FBNB-00000000"
+                  placeholder={t.confPlaceholder}
                   required
                 />
-                <p className="input-hint">Found in your order confirmation email</p>
+                <p className="input-hint">{t.confHint}</p>
               </div>
 
               <button type="submit" className="btn-access" disabled={loading}>
-                {loading ? 'Accessing…' : 'Access My Order →'}
+                {loading ? t.btnLoading : t.btn}
               </button>
             </form>
+          </div>
 
+          {/* Footer */}
+          <div className="form-footer-area">
             <p className="contact-note">
-              Don&apos;t have your confirmation number?{' '}
-              <a href="mailto:support@mybusinessformation.com">Contact us</a>
+              {t.noConf}{' '}
+              <a href="mailto:support@mybusinessformation.com">{t.contact}</a>
             </p>
-
             <p className="terms-note">
-              By accessing this portal you agree to our{' '}
-              <a href="/terms">Terms of Service</a> and{' '}
-              <a href="/privacy">Privacy Policy</a>.
+              {t.terms}{' '}
+              <a href="/terms">{t.termsLink}</a> {t.and}{' '}
+              <a href="/privacy">{t.privacyLink}</a>.
             </p>
+            <p className="copyright">{t.footer}</p>
           </div>
 
-          <div className="form-footer">
-            © {year} Florida Business Formation Center — mybusinessformation.com
-          </div>
         </div>
-
       </div>
     </>
   )
