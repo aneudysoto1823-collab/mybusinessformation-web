@@ -95,7 +95,7 @@ function LoginForm() {
 
         body {
           font-family: 'Plus Jakarta Sans', sans-serif;
-          background: #e8ecf0;
+          background: #0f1c2e;
           min-height: 100vh;
           display: flex;
           align-items: center;
@@ -226,18 +226,15 @@ function LoginForm() {
           font-weight: 600; margin-bottom: 14px; line-height: 1.5;
         }
 
-        /* Footer area */
-        .form-footer-area { margin-top: 20px; }
-
-        .contact-note { text-align: center; font-size: 12px; color: #94a3b8; margin-bottom: 8px; }
+        .contact-note { text-align: center; font-size: 12px; color: #94a3b8; margin-top: 14px; margin-bottom: 8px; }
         .contact-note a { color: #2563eb; text-decoration: none; font-weight: 600; }
         .contact-note a:hover { text-decoration: underline; }
 
-        .terms-note { text-align: center; font-size: 11px; color: #cbd5e1; line-height: 1.55; margin-bottom: 14px; }
+        .terms-note { text-align: center; font-size: 11px; color: #cbd5e1; line-height: 1.55; margin-bottom: 10px; }
         .terms-note a { color: #94a3b8; text-decoration: underline; }
         .terms-note a:hover { color: #64748b; }
 
-        .copyright { text-align: center; font-size: 10px; color: #cbd5e1; }
+        .copyright { text-align: center; font-size: 10px; color: #cbd5e1; margin-top: auto; padding-top: 20px; }
       `}</style>
 
       <div className="card">
@@ -304,19 +301,16 @@ function LoginForm() {
             </form>
           </div>
 
-          {/* Footer */}
-          <div className="form-footer-area">
-            <p className="contact-note">
-              {t.noConf}{' '}
-              <a href="mailto:support@mybusinessformation.com">{t.contact}</a>
-            </p>
-            <p className="terms-note">
-              {t.terms}{' '}
-              <a href="/terms">{t.termsLink}</a> {t.and}{' '}
-              <a href="/privacy">{t.privacyLink}</a>.
-            </p>
-            <p className="copyright">{t.footer}</p>
-          </div>
+          <p className="contact-note">
+            {t.noConf}{' '}
+            <a href="mailto:support@mybusinessformation.com">{t.contact}</a>
+          </p>
+          <p className="terms-note">
+            {t.terms}{' '}
+            <a href="/terms">{t.termsLink}</a> {t.and}{' '}
+            <a href="/privacy">{t.privacyLink}</a>.
+          </p>
+          <p className="copyright">{t.footer}</p>
 
         </div>
       </div>
