@@ -481,14 +481,14 @@ export default function ChatWidget() {
         }
         @media (max-width: 768px) {
           .chat-window {
-            top: 0 !important;
+            top: 0;
             left: 0 !important;
             right: 0 !important;
             bottom: 0 !important;
             width: 100vw !important;
             max-width: 100vw !important;
-            height: 100% !important;
-            max-height: 100% !important;
+            height: 100dvh;
+            max-height: 100dvh;
             border-radius: 0 !important;
             box-shadow: none !important;
             border: none !important;
