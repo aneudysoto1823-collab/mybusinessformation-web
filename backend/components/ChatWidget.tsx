@@ -283,8 +283,9 @@ export default function ChatWidget() {
             left: isMobile ? 0 : 'auto',
             top: isMobile ? 0 : 'auto',
             zIndex: 9999,
-            width: isMobile ? '100%' : '380px',
-            maxWidth: isMobile ? '100%' : 'calc(100vw - 40px)',
+            width: isMobile ? '100vw' : '380px',
+            maxWidth: isMobile ? '100vw' : 'calc(100vw - 40px)',
+            boxSizing: 'border-box',
             height: isMobile ? '100%' : '520px',
             maxHeight: isMobile ? '100%' : 'calc(100vh - 130px)',
             background: '#fff',
@@ -381,6 +382,7 @@ export default function ChatWidget() {
                     border: m.role === 'assistant' ? '1px solid #E2E8F0' : 'none',
                     whiteSpace: 'pre-wrap',
                     wordBreak: 'break-word',
+                    overflowWrap: 'break-word',
                   }}
                 >
                   {m.content}
