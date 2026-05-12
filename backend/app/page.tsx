@@ -1300,7 +1300,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
     </div>
     <span id="fp-pct" style="font-size:.74rem;color:rgba(255,255,255,.55);white-space:nowrap;flex-shrink:0">Step 1 of 9</span>
   </div>
-  <div style="display:flex;flex-direction:row;gap:24px;align-items:flex-start;max-width:1080px;margin:28px auto;padding:0 20px 60px;box-sizing:border-box">
+  <div class="fm-wrap">
     <div style="flex:1;min-width:0">
       <div class="fm-step active" id="fms1">
         <div class="fm-card">
