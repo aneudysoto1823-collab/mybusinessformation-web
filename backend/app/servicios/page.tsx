@@ -281,7 +281,7 @@ nav a:hover{color:var(--navy);background:var(--gray100)}
 .hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
 .hamburger.open span:nth-child(2){opacity:0}
 .hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
-@media(max-width:768px){nav{display:none}nav.open{display:flex;flex-direction:column;position:absolute;top:62px;left:-16px;right:-16px;background:#fff;padding:10px 16px 14px;border-bottom:1px solid var(--gray200);box-shadow:0 8px 24px rgba(0,0,0,0.08);z-index:200;gap:2px}nav.open a{padding:11px 12px;font-size:.92rem;border-radius:8px;font-weight:500;margin-left:0}nav.open a:hover{background:var(--gray100)}.hamburger{display:flex}header{position:relative;padding:0 16px}.logo-text{font-size:.75rem}.logo-text span{display:none}}
+@media(max-width:768px){nav{display:none}nav.open{display:flex;flex-direction:column;position:absolute;top:62px;left:-16px;right:-16px;background:#fff;padding:10px 16px 14px;border-bottom:1px solid var(--gray200);box-shadow:0 8px 24px rgba(0,0,0,0.08);z-index:200;gap:2px}nav.open a{padding:11px 12px;font-size:.92rem;border-radius:8px;font-weight:500;margin-left:0}nav.open a:hover{background:var(--gray100)}.hamburger{display:flex}header{position:relative;padding:0 16px}.logo-text{font-size:.75rem}.logo-text span{display:none}.page-hero{padding:28px 20px 26px}.page-hero h1{font-size:clamp(1.6rem,7vw,2.4rem)}}
 /* PAGE HERO */
 .page-hero{background:linear-gradient(135deg,var(--navy),#1a3a6b);padding:52px 32px 48px;text-align:center}
 .page-hero-inner{max-width:700px;margin:0 auto;position:relative;z-index:1}
@@ -526,7 +526,6 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
   <div class="page-hero-inner">
     <span class="hero-badge" id="svc-section-label">All Services</span>
     <h1 id="svc-section-title">Everything Your Business Needs</h1>
-    <p id="svc-section-sub">Individual services for every business need.</p>
   </div>
 </div>
 
