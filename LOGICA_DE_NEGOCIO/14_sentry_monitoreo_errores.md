@@ -172,12 +172,12 @@ Esto se hizo el 2026-05-09 (commit `305bc94` para crear el endpoint, `06e9c4d` p
 
 ## Pendientes para próximas sesiones
 
-| Item | Esfuerzo |
-|---|---|
-| Sentry para Express en Railway (`@sentry/node` en `server.ts`) | ~1 hora |
-| Smoke test client-side: ruta `/sentry-client-test` gated a preview/dev (3 botones para validación periódica) | ~30 min |
-| Alert Rule en Sentry → email a `admin@mybusinessformation.com` en cada error nuevo | ~10 min |
-| Activar `SENTRY_AUTH_TOKEN` para sourcemaps (mejora stack traces) | ~15 min |
+| Item | Esfuerzo | Estado |
+|---|---|---|
+| Sentry para Express en Railway (`@sentry/node` en `server.ts`) | ~1 hora | **DIFERIDO hasta Etapa 5** — Railway dormido desde 2026-05-13. Sin tráfico, no hay errores que monitorear. Se activa cuando se implemente Sunbiz. |
+| Smoke test client-side: ruta `/sentry-client-test` gated | ~30 min | ✅ **Completado 2026-05-13 (commit `b1c52d7`)**. Ruta accesible en preview/dev, retorna 404 en producción. Ver `LOGICA_DE_NEGOCIO/15_sentry_betterstack_monitoring.md` para protocolo de validación. |
+| Alert Rule en Sentry → email a `admin@mybusinessformation.com` | ~10 min | ✅ **Completado 2026-05-13**. Configurada en sentry.io. Notifica primera ocurrencia de cada error nuevo. Validada en smoke test end-to-end con BetterStack. |
+| Activar `SENTRY_AUTH_TOKEN` para sourcemaps | ~15 min | ⏸️ Pendiente (opcional). Sin él, stack traces del browser muestran código minificado. Aceptable hasta que sea molesto durante un debug. |
 
 ---
 
@@ -223,11 +223,14 @@ BetterStack se documentará en otro archivo cuando lo configuremos.
 |---|---|---|
 | 2026-05-09 | `305bc94` | Sentry para Next.js: 6 archivos nuevos + wrap config + endpoint test temporal |
 | 2026-05-09 | `06e9c4d` | Limpieza post-smoke-test: borrar endpoint + remover `disableLogger` deprecated |
+| 2026-05-13 | `b1c52d7` | Ruta `/sentry-client-test` gated agregada — server component verifica `VERCEL_ENV !== 'production'`, client component con 3 botones (uncaught throw / captureException / captureMessage). Alert Rule en Sentry configurada el mismo día. |
 
 ---
 
 ## Relacionados
 
 - `LOGICA_DE_NEGOCIO/13_seguridad_panel_admin.md` — bcrypt + rate limiting (Sentry detecta si el rate limiter o el JWT tira error)
-- `contexto` — Etapa 15 (Monitoreo y Observabilidad) con todos los items del bloque
+- `LOGICA_DE_NEGOCIO/15_sentry_betterstack_monitoring.md` — documento maestro de Etapa 15: matriz Sentry vs BetterStack, validación periódica mensual, items diferidos
+- `TROUBLESHOOTING/15_sentry_alerts.md` — runbook para responder alertas de Sentry
+- `CONTEXTO.md` — Etapa 15 (Monitoreo y Observabilidad) con todos los items del bloque y los diferidos a Etapa 5
 - `backend/lib/sentry-pii-filter.ts` — el helper compartido que filtra PII en cada evento
