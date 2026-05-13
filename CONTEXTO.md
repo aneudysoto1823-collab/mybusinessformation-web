@@ -356,7 +356,7 @@ Dependencias y misc:
 - [x] Verificar `.gitignore` excluye `.env`, `.env.local`, `.env*.local` — verificado 2026-05-07: `backend/.gitignore` tiene `.env*` y `.env*.local`
 - [ ] Documentar en LOGICA_DE_NEGOCIO/<próximo número disponible>_security_headers_y_hardening.md + actualizar TROUBLESHOOTING/ con guías de respuesta a incidentes de seguridad (nota: el archivo 14 ya está usado para Sentry, el 16 para 2FA — el próximo libre será 17 cuando se haga este item)
 
-### Etapa 15 — Monitoreo y Observabilidad (3-4 días)
+### Etapa 15 — Monitoreo y Observabilidad (PARTE VERCEL COMPLETADA 2026-05-13)
 
 ```diff
 + Qué es: instalar dos sistemas pasivos de detección que avisan cuando algo
@@ -381,22 +381,22 @@ Sentry — error tracking + APM:
 - [x] Wrap backend/next.config.ts con `withSentryConfig` — completado 2026-05-09 (commit `305bc94`): + `tunnelRoute: '/monitoring'` para sortear ad-blockers
 - [x] Filtrar PII en `beforeSend` — completado 2026-05-09 (commit `305bc94`): helper `scrubPII()` filtra email, nombre, teléfono, SSN/ITIN, tarjetas, passwords, tokens en strings, objects anidados, breadcrumbs, request body/headers/cookies/query
 - [x] Smoke test server-side — validado local + producción 2026-05-09: endpoint temporal `/api/sentry-test` disparó error con prefix `[sentry-test-2026-05-09]`, evento llegó al dashboard de Sentry con `environment: production`. Endpoint borrado post-validación (commit `06e9c4d`)
-- [ ] Smoke test client-side: ruta `/sentry-client-test` gated a preview/dev (404 en producción) con 3 botones (uncaught throw, captureException, captureMessage) — para validación periódica mensual
-- [ ] Alert Rule en Sentry → email a admin@mybusinessformation.com en primera ocurrencia de error nuevo
+- [x] Smoke test client-side: ruta `/sentry-client-test` gated a preview/dev (404 en producción) — completado 2026-05-13 (commit `b1c52d7`): Server Component verifica `VERCEL_ENV !== 'production'` y retorna `notFound()`; Client Component con 3 botones (uncaught throw, `captureException`, `captureMessage`) prefijados `[sentry-client-test-*]`. Documentado en `LOGICA_DE_NEGOCIO/15_sentry_betterstack_monitoring.md` (protocolo de validación mensual).
+- [x] Alert Rule en Sentry → email a admin@mybusinessformation.com — completado 2026-05-13: configurada en sentry.io para primera ocurrencia de cada error nuevo. Validada end-to-end durante smoke test de BetterStack.
 
 BetterStack — uptime + status page:
-- [ ] Crear cuenta en betterstack.com (free tier: 10 monitores, 30s checks, status page con custom domain, SSL cert monitor)
-- [ ] Crear 3 monitores con SSL/TLS verification activado: Home (https://mybusinessformation.com/, status 2xx/3xx), Admin (https://mybusinessformation.com/admin, status 200 con login form), API health Vercel (https://mybusinessformation.com/api/health, keyword match). **El monitor de Express en Railway (`up.railway.app/health`) queda DIFERIDO hasta Etapa 5** — sin tráfico, monitorear Railway dormido es ruido.
-- [ ] Email alerts a 2 destinatarios para redundancia: aneudysoto1823@gmail.com (personal) + support@mybusinessformation.com
-- [ ] Umbral 2-3 fallos consecutivos antes de alertar (evita falsos positivos por hiccups de red)
-- [ ] Status page pública en `status.mybusinessformation.com` con CNAME en el registrar del dominio + cert SSL Let's Encrypt auto-emitido por BetterStack
-- [ ] Smoke test: pausar un monitor 2-3 min → confirmar email DOWN llega a los 2 destinatarios → reactivar → confirmar email UP
+- [x] Crear cuenta en betterstack.com — completado 2026-05-13 (free tier: 10 monitores, 30s checks, status page con custom domain, SSL cert monitor).
+- [x] Crear 3 monitores con SSL/TLS verification — completado 2026-05-13: Home, Admin Login, API Client Portal. **El monitor de Express en Railway (`up.railway.app/health`) queda DIFERIDO hasta Etapa 5** — sin tráfico, monitorear Railway dormido es ruido.
+- [x] Umbral 2-3 fallos consecutivos antes de alertar (evita falsos positivos por hiccups de red) — configurado 2026-05-13.
+- [x] Smoke test DOWN/UP — validado end-to-end 2026-05-13: una ruta inválida `/xxxxxxx` generó DOWN → email a Zoho → recuperación → UP automático.
+- [ ] Email alerts a 2 destinatarios — **APLAZADO**: hoy solo notifica a `admin@mybusinessformation.com`. El segundo destinatario será un Gmail de la compañía (pendiente de crear).
+- [ ] Status page pública en `status.mybusinessformation.com` con CNAME — **APLAZADO**: los DNS están en Netlify; pendiente migración a Namecheap BasicDNS para unificar. Una vez migrados, configurar CNAME apuntando a BetterStack + cert SSL Let's Encrypt auto-emitido.
 
 Proceso y runbooks:
-- [ ] Configurar filtros en Gmail/Zoho del founder: subject `[Sentry]` → label rojo + push notification, subject `[BetterStack]` con DOWN → label rojo + push, subject `[BetterStack]` con UP → label verde
-- [ ] Validación periódica mensual: smoke test Sentry server-side (1 endpoint temporal) + Sentry client-side (3 botones de la ruta gated) + BetterStack pause/resume
-- [ ] Runbooks por tipo de alerta en TROUBLESHOOTING/: qué hacer cuando llega `[Sentry] <Error>` (categorizar bug / endpoint downstream caído / regression / spam de bots → hotfix vs sprint vs silenciar) y cuando llega `[BetterStack] DOWN` para Vercel (verificar desde otra red, identificar causa, rollback Vercel si aplica). **Runbook "Railway DOWN" DIFERIDO hasta Etapa 5.**
-- [ ] Documentar en LOGICA_DE_NEGOCIO/15_sentry_betterstack_monitoring.md con matriz de qué cubre cada uno + qué NO cubre (gaps deliberados)
+- [x] Configurar filtros en Gmail/Zoho — completado 2026-05-13: subject `[Sentry]` → label rojo + push, `[BetterStack] DOWN` → label rojo + push iPhone, `[BetterStack] UP` → label verde.
+- [x] Validación periódica mensual — protocolo documentado en `LOGICA_DE_NEGOCIO/15_sentry_betterstack_monitoring.md` (sección "Validación periódica mensual"): 15 min el día 1 de cada mes, ejecutar smoke Sentry server-side + Sentry client-side + BetterStack DOWN/UP.
+- [x] Runbooks por tipo de alerta — completados 2026-05-13: `TROUBLESHOOTING/15_sentry_alerts.md` (4 cajas: bug del código / endpoint downstream caído / regression / spam de bots) y `TROUBLESHOOTING/16_betterstack_down.md` (chequeo desde otra red + 4 causas posibles). **Runbook "Railway DOWN" DIFERIDO hasta Etapa 5.**
+- [x] Documentar en LOGICA_DE_NEGOCIO/15_sentry_betterstack_monitoring.md — completado 2026-05-13 (commit `bd7021a`): matriz Sentry vs BetterStack, qué cubre cada uno, qué NO cubre (gaps deliberados), configuración actual, validación periódica, items diferidos, decisiones embutidas.
 
 ### Etapa 16 — Sistema de Marketing Automation con QR y Campañas de Email (COMPLETADA 2026-05-01)
 
