@@ -2146,8 +2146,15 @@ document.querySelectorAll('#main-nav a').forEach(function(a){
     document.getElementById('hamburger-btn').classList.remove('open');
     var hash=this.getAttribute('href');
     if(hash&&hash.startsWith('#')&&hash.length>1&&window.innerWidth<=768){
-      var target=document.getElementById(hash.slice(1));
-      if(target){e.preventDefault();target.scrollIntoView({behavior:'smooth',block:'start'});}
+      var id=hash.slice(1);
+      e.preventDefault();
+      setTimeout(function(){
+        var target=document.getElementById(id);
+        if(target){
+          var top=target.getBoundingClientRect().top+window.scrollY-70;
+          window.scrollTo({top:Math.max(0,top),behavior:'smooth'});
+        }
+      },50);
     }
   });
 });
