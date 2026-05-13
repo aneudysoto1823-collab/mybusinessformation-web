@@ -83,16 +83,18 @@ Si necesitas cambiar el diseño de una página:
 - Commits SIEMPRE en español
 
 ## Stack tecnológico
-- Next.js 16 (TypeScript) — frontend
+- Next.js 16 (TypeScript) — frontend + API routes + lógica de negocio (corre 99% del proyecto)
 - Node.js v24.14.0 / npm 11.9.0
-- PostgreSQL + Prisma — base de datos (Etapa 3)
-- Supabase — hosting base de datos
-- Railway.app — hosting backend
+- Supabase — Postgres + Storage (acceso vía REST API desde Vercel; sin Prisma en producción)
+- Vercel — hosting principal (Next.js)
+- Railway.app — RESERVADO para Etapa 5 (Sunbiz). Hoy DORMIDO. Decisión arquitectural Opción B (2026-05-13): toda la lógica vive en Vercel; Railway se despierta cuando se implemente la búsqueda Sunbiz. Ver `LOGICA_DE_NEGOCIO/00_arquitectura_tecnica_de_una_orden.md`.
+- Prisma ORM — instalado y configurado, pero su uso queda restringido al backend Express en Railway (Etapa 5). El resto del proyecto consulta Supabase vía REST.
 - Stripe — pagos (Etapa 4 y Etapa 16)
 - Resend — emails (Etapa 7 y Etapa 16)
+- Upstash Redis — rate limiting login admin (Etapa 14)
 - qrcode ^1.5.4 — generación de QR para campañas (Etapa 16)
 
-## ROADMAP COMPLETO — 16 Etapas
+## ROADMAP COMPLETO — 18 Etapas
 
 ### Etapa 1 — Frontend HTML a Next.js (COMPLETADA)
 - [x] Instalar Node.js y crear proyecto Next.js
@@ -105,14 +107,16 @@ Si necesitas cambiar el diseño de una página:
 - [x] Deploy automático con cada git push
 
 
-### Etapa 2 — Backend Node.js + Express (2-3 semanas)
-- [ x] Crear servidor Express
-- [ x] Organizar módulos: órdenes, clientes, documentos, pagos, notificaciones
-- [x ] Conectar formulario al backend
-- [ x] Variables de entorno (.env)
-- [x ] Subir a Railway.app  Subir a Railway.app — https://mybusinessformation-web-production.up.railway.app
-- [x] Servidor Express en Railway — https://mybusinessformation-web-production.up.railway.app
+### Etapa 2 — Backend Node.js + Express (DORMIDO desde 2026-05-13)
+- [x] Crear servidor Express
+- [x] Organizar módulos: órdenes, clientes, documentos, pagos, notificaciones
+- [x] Conectar formulario al backend
+- [x] Variables de entorno (.env)
+- [x] Subir a Railway.app — https://mybusinessformation-web-production.up.railway.app
+- [x] Servidor Express en Railway
 - [x] Formulario conectado al backend
+
+**NOTA (2026-05-13):** Decisión arquitectural Opción B — Express en Railway queda DORMIDO. Toda la lógica del negocio vive en Vercel (Next.js + Supabase REST + Resend). Railway solo se va a despertar cuando se implemente Etapa 5 (Sunbiz). Pendiente para próxima sesión: limpiar `backend/modules/` del código que ya no se llama desde producción (`orders/`, `clients/`, `payments/`, `notifications/`). Mantener solo `names/` para Etapa 5. Ver `LOGICA_DE_NEGOCIO/00_arquitectura_tecnica_de_una_orden.md` para el detalle de qué se migró a Vercel y por qué.
 
 ### Etapa 3 — Base de Datos PostgreSQL (1-2 semanas)
 - [x] Instalar PostgreSQL — usando Supabase como hosting
@@ -135,16 +139,27 @@ Si necesitas cambiar el diseño de una página:
 - [ ] Buscador en tiempo real con detección de nombres similares
 - [ ] Actualización automática nocturna
 
+**Al despertar Railway para esta etapa, hacer también lo siguiente (diferido de Etapa 15, 2026-05-13):**
+- [ ] Instalar `@sentry/node` en `backend/server.ts` (paquete Sentry para Express)
+- [ ] Crear proyecto `node-express` en sentry.io y obtener su DSN
+- [ ] Configurar env vars en Railway (Production): `SENTRY_DSN`, `SENTRY_ORG`, `SENTRY_PROJECT`, `INTERNAL_API_KEY`. Tipear desde Vercel, no copy-paste, para evitar trailing whitespace
+- [ ] Reusar el filtro PII de `backend/lib/sentry-pii-filter.ts` en el init de Sentry/Node (mismo helper que usa Next.js)
+- [ ] Crear monitor en BetterStack para `https://mybusinessformation-web-production.up.railway.app/health` con SSL verification + keyword match
+- [ ] Crear runbook "Railway DOWN" en `TROUBLESHOOTING/` con pasos para verificar desde otra red, identificar causa (deploy, env vars, IPv4/IPv6) y rollback si aplica
+- [ ] Smoke test Sentry server-side en Express (endpoint temporal con throw, borrar post-validación)
+- [ ] Decidir en este punto si `DATABASE_URL` mantiene direct connection (requiere IPv6) o pasa a Session Pooler (compatible IPv4). Documentar la elección en `LOGICA_DE_NEGOCIO/00_arquitectura_tecnica_de_una_orden.md`
+
 ### Etapa 7 — Comunicación Automática (1 semana)
 - [x] Email confirmación al pagar
 - [x] Email nombres tomados — cliente + alerta admin
 - [x] Email de actualización de estado
 - [x] Email final con Certificate of Formation
 - [x] Motor de emails probado y funcionando con Resend
-- [x] WhatsApp `+13528377755` configurado en todos los templates de email (notifications.service.ts)
+- [x] WhatsApp `+13528377755` configurado en todos los templates de email
+- [x] Handlers de emails manuales del admin migrados de Railway/Express a Vercel/Supabase REST (commit `a5e1d45`, 2026-05-13). Endpoint `/api/proxy/notifications/[type]` ya NO pasa por Railway. Las funciones de Resend viven en `backend/lib/notifications.ts` (canónica para Vercel); la copia en `backend/modules/notifications/notifications.service.ts` queda pendiente de eliminar junto con el resto del código muerto de Express.
 - [ ] Templates `sendOrderProcessed` (status: filed) y `sendOrderApproved` (status: approved) — funciones existen pero son stubs vacíos, pendiente diseñar HTML
 - [ ] Email con contrato PDF adjunto — pendiente hasta Etapa 6 (generación de documentos)
-- [ ] Verificar dominio mybusinessformation.com en Resend — lo trabaja el socio (Aneudys)
+- [ ] Verificar dominio mybusinessformation.com en Resend — lo trabaja el socio (Aneudys). Hoy Resend está en modo sandbox y solo entrega emails al destinatario verificado.
 - [x] Email de confirmación enviado automáticamente al cliente
 - [x] Motor de emails Resend funcionando en producción
 
@@ -359,9 +374,9 @@ Dependencias y misc:
 Pre-requisito: dominio mybusinessformation.com apuntando a Vercel (Etapa 10) — los monitores apuntan a URLs finales de producción.
 
 Sentry — error tracking + APM:
-- [ ] Crear cuenta en sentry.io (free tier: 5K eventos/mes, retención 30 días) — proyecto `javascript-nextjs` para Next.js (Vercel) y `node-express` para backend Express (Railway). **Parte Next.js completada 2026-05-09:** cuenta activa con `admin@mybusinessformation.com`, proyecto `javascript-nextjs` capturando errores en producción. Pendiente: crear proyecto `node-express` para Railway.
-- [ ] Env vars en Vercel + Railway (Production + Preview + Development): SENTRY_DSN, NEXT_PUBLIC_SENTRY_DSN, SENTRY_ORG, SENTRY_PROJECT, SENTRY_AUTH_TOKEN (opcional para sourcemaps). **Parte Vercel completada 2026-05-09:** SENTRY_DSN, NEXT_PUBLIC_SENTRY_DSN, SENTRY_ORG, SENTRY_PROJECT configuradas en los 3 entornos. AUTH_TOKEN omitido (sourcemaps disable hasta agregar). Pendiente: mismas env vars en Railway cuando se sume Express.
-- [ ] Instalar `@sentry/nextjs` en backend y `@sentry/node` en Express. **Next.js completado 2026-05-09 (commit `305bc94`):** `@sentry/nextjs ^9` instalado. Pendiente: `@sentry/node` en `server.ts` de Express.
+- [x] Crear cuenta en sentry.io (free tier: 5K eventos/mes, retención 30 días) — proyecto `javascript-nextjs` para Next.js completado 2026-05-09 con `admin@mybusinessformation.com`, capturando errores en producción. **El proyecto `node-express` para Railway queda DIFERIDO hasta Etapa 5** (Railway dormido desde 2026-05-13).
+- [x] Env vars Sentry en Vercel (Production + Preview + Development): `SENTRY_DSN`, `NEXT_PUBLIC_SENTRY_DSN`, `SENTRY_ORG`, `SENTRY_PROJECT` configuradas 2026-05-09. AUTH_TOKEN omitido (sourcemaps disable). **Env vars en Railway DIFERIDO hasta Etapa 5.**
+- [x] Instalar `@sentry/nextjs` en Next.js — completado 2026-05-09 (commit `305bc94`): `@sentry/nextjs ^9` instalado. **`@sentry/node` en Express DIFERIDO hasta Etapa 5** (Railway dormido, no hay código corriendo que monitorear).
 - [x] Crear `instrumentation.ts`, `instrumentation-client.ts`, `sentry.server.config.ts`, `sentry.edge.config.ts` en backend — completado 2026-05-09 (commit `305bc94`): los 4 archivos creados con init Sentry según runtime (Node, edge, browser) + helper `backend/lib/sentry-pii-filter.ts` con `scrubPII()` compartido
 - [x] Wrap backend/next.config.ts con `withSentryConfig` — completado 2026-05-09 (commit `305bc94`): + `tunnelRoute: '/monitoring'` para sortear ad-blockers
 - [x] Filtrar PII en `beforeSend` — completado 2026-05-09 (commit `305bc94`): helper `scrubPII()` filtra email, nombre, teléfono, SSN/ITIN, tarjetas, passwords, tokens en strings, objects anidados, breadcrumbs, request body/headers/cookies/query
@@ -371,7 +386,7 @@ Sentry — error tracking + APM:
 
 BetterStack — uptime + status page:
 - [ ] Crear cuenta en betterstack.com (free tier: 10 monitores, 30s checks, status page con custom domain, SSL cert monitor)
-- [ ] Crear 4 monitores con SSL/TLS verification activado: Home (https://mybusinessformation.com/, status 2xx/3xx), Admin (https://mybusinessformation.com/admin, status 200 con login form), API health Vercel (https://mybusinessformation.com/api/health, keyword match), Express health Railway (https://...up.railway.app/health, keyword match)
+- [ ] Crear 3 monitores con SSL/TLS verification activado: Home (https://mybusinessformation.com/, status 2xx/3xx), Admin (https://mybusinessformation.com/admin, status 200 con login form), API health Vercel (https://mybusinessformation.com/api/health, keyword match). **El monitor de Express en Railway (`up.railway.app/health`) queda DIFERIDO hasta Etapa 5** — sin tráfico, monitorear Railway dormido es ruido.
 - [ ] Email alerts a 2 destinatarios para redundancia: aneudysoto1823@gmail.com (personal) + support@mybusinessformation.com
 - [ ] Umbral 2-3 fallos consecutivos antes de alertar (evita falsos positivos por hiccups de red)
 - [ ] Status page pública en `status.mybusinessformation.com` con CNAME en el registrar del dominio + cert SSL Let's Encrypt auto-emitido por BetterStack
@@ -380,7 +395,7 @@ BetterStack — uptime + status page:
 Proceso y runbooks:
 - [ ] Configurar filtros en Gmail/Zoho del founder: subject `[Sentry]` → label rojo + push notification, subject `[BetterStack]` con DOWN → label rojo + push, subject `[BetterStack]` con UP → label verde
 - [ ] Validación periódica mensual: smoke test Sentry server-side (1 endpoint temporal) + Sentry client-side (3 botones de la ruta gated) + BetterStack pause/resume
-- [ ] Runbooks por tipo de alerta en TROUBLESHOOTING/: qué hacer cuando llega `[Sentry] <Error>` (categorizar bug / endpoint downstream caído / regression / spam de bots → hotfix vs sprint vs silenciar) y cuando llega `[BetterStack] DOWN` (verificar desde otra red, identificar causa, rollback Vercel si aplica)
+- [ ] Runbooks por tipo de alerta en TROUBLESHOOTING/: qué hacer cuando llega `[Sentry] <Error>` (categorizar bug / endpoint downstream caído / regression / spam de bots → hotfix vs sprint vs silenciar) y cuando llega `[BetterStack] DOWN` para Vercel (verificar desde otra red, identificar causa, rollback Vercel si aplica). **Runbook "Railway DOWN" DIFERIDO hasta Etapa 5.**
 - [ ] Documentar en LOGICA_DE_NEGOCIO/15_sentry_betterstack_monitoring.md con matriz de qué cubre cada uno + qué NO cubre (gaps deliberados)
 
 ### Etapa 16 — Sistema de Marketing Automation con QR y Campañas de Email (COMPLETADA 2026-05-01)
