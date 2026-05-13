@@ -123,7 +123,7 @@ export function PageContent({ defaultLang = 'en' }: { defaultLang?: 'en' | 'es' 
   --radius:12px; --radius-lg:18px;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
+html{scroll-behavior:smooth;background:#1C2E44}
 body{font-family:'Plus Jakarta Sans',sans-serif;color:var(--gray800);background:var(--white);line-height:1.6;overflow-x:hidden}
 h1,h2,h3,h4{font-family:'Fraunces',serif;line-height:1.15}
 a{text-decoration:none;color:inherit}
