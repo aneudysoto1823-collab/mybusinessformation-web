@@ -758,10 +758,10 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
       <div class="logo-text">Florida Business Formation Center</div>
     </a>
     <nav id="main-nav">
-      <a href="javascript:void(0)" data-scroll="how" data-en="How It Works" data-es="Cómo Funciona">How It Works</a>
-      <a href="javascript:void(0)" data-scroll="pricing" data-en="Pricing" data-es="Precios">Pricing</a>
-      <a href="javascript:void(0)" data-scroll="faq" data-en="FAQ" data-es="Preguntas">FAQ</a>
-      <a href="javascript:void(0)" data-scroll="contact" data-en="Contact" data-es="Contacto">Contact</a>
+      <a href="#how" data-en="How It Works" data-es="Cómo Funciona">How It Works</a>
+      <a href="#pricing" data-en="Pricing" data-es="Precios">Pricing</a>
+      <a href="#faq" data-en="FAQ" data-es="Preguntas">FAQ</a>
+      <a href="#contact" data-en="Contact" data-es="Contacto">Contact</a>
       <a href="/servicios" data-en="Services" data-es="Servicios">Services</a>
     </nav>
     <div style="display:flex;align-items:center;gap:12px">
@@ -2140,19 +2140,10 @@ function toggleNav(){
   nav.classList.toggle('open');
   btn.classList.toggle('open');
 }
-document.querySelectorAll('#main-nav a[data-scroll]').forEach(function(a){
-  a.addEventListener('click',function(e){
-    e.preventDefault();
+document.querySelectorAll('#main-nav a').forEach(function(a){
+  a.addEventListener('click',function(){
     document.getElementById('main-nav').classList.remove('open');
     document.getElementById('hamburger-btn').classList.remove('open');
-    var id=this.getAttribute('data-scroll');
-    setTimeout(function(){
-      var target=document.getElementById(id);
-      if(target){
-        var top=target.getBoundingClientRect().top+window.scrollY-70;
-        window.scrollTo({top:Math.max(0,top),behavior:'smooth'});
-      }
-    },50);
   });
 });
 document.addEventListener('click',function(e){
