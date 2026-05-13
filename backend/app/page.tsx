@@ -2133,6 +2133,28 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 
 <script>
 
+// ── INTERCEPT HASH LINKS BEFORE NEXT.JS HYDRATION ──
+document.addEventListener('click',function(e){
+  var a=e.target.closest('a');
+  if(!a)return;
+  var nav=document.getElementById('main-nav');
+  if(!nav||!nav.contains(a))return;
+  var href=a.getAttribute('href');
+  if(!href||!href.startsWith('#')||href.length<=1)return;
+  e.preventDefault();
+  e.stopImmediatePropagation();
+  var id=href.slice(1);
+  nav.classList.remove('open');
+  document.getElementById('hamburger-btn').classList.remove('open');
+  setTimeout(function(){
+    var target=document.getElementById(id);
+    if(target){
+      var top=target.getBoundingClientRect().top+window.scrollY-70;
+      window.scrollTo({top:Math.max(0,top),behavior:'smooth'});
+    }
+  },50);
+},true);
+
 // ── NAV HAMBURGER ──
 function toggleNav(){
   var nav=document.getElementById('main-nav');
@@ -2141,21 +2163,9 @@ function toggleNav(){
   btn.classList.toggle('open');
 }
 document.querySelectorAll('#main-nav a').forEach(function(a){
-  a.addEventListener('click',function(e){
+  a.addEventListener('click',function(){
     document.getElementById('main-nav').classList.remove('open');
     document.getElementById('hamburger-btn').classList.remove('open');
-    var hash=this.getAttribute('href');
-    if(hash&&hash.startsWith('#')&&hash.length>1&&window.innerWidth<=768){
-      var id=hash.slice(1);
-      e.preventDefault();
-      setTimeout(function(){
-        var target=document.getElementById(id);
-        if(target){
-          var top=target.getBoundingClientRect().top+window.scrollY-70;
-          window.scrollTo({top:Math.max(0,top),behavior:'smooth'});
-        }
-      },50);
-    }
   });
 });
 document.addEventListener('click',function(e){
