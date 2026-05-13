@@ -170,7 +170,7 @@ nav a:hover{color:var(--navy);background:var(--gray100)}
 .trust-sep{width:1px;height:14px;background:var(--gray200)}
 
 /* ── SECTION HEADERS ── */
-.section{padding:80px 32px}
+.section{padding:80px 32px;scroll-margin-top:80px}
 .section-inner{max-width:1200px;margin:0 auto}
 .section-label{display:inline-block;font-size:0.72rem;font-weight:600;color:var(--blue);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:14px}
 .section-title{font-size:clamp(1.8rem,3.5vw,2.6rem);color:var(--navy);font-weight:700;margin-bottom:16px}
@@ -2141,9 +2141,14 @@ function toggleNav(){
   btn.classList.toggle('open');
 }
 document.querySelectorAll('#main-nav a').forEach(function(a){
-  a.addEventListener('click',function(){
+  a.addEventListener('click',function(e){
     document.getElementById('main-nav').classList.remove('open');
     document.getElementById('hamburger-btn').classList.remove('open');
+    var hash=this.getAttribute('href');
+    if(hash&&hash.startsWith('#')&&hash.length>1){
+      var target=document.getElementById(hash.slice(1));
+      if(target){e.preventDefault();target.scrollIntoView({behavior:'smooth',block:'start'});}
+    }
   });
 });
 document.addEventListener('click',function(e){
