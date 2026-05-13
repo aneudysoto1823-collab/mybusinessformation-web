@@ -709,6 +709,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
   nav.open a{padding:11px 12px;font-size:0.92rem;border-radius:8px;font-weight:500}
   nav.open a:hover{background:var(--gray100)}
   .hamburger{display:flex}
+  .logo-text{font-size:.75rem}
   .logo-text span{display:none}
   .topbar{font-size:0.72rem;padding:7px 12px}
   .hero{padding:64px 20px 20px}
