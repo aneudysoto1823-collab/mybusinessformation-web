@@ -2145,7 +2145,7 @@ document.querySelectorAll('#main-nav a').forEach(function(a){
     document.getElementById('main-nav').classList.remove('open');
     document.getElementById('hamburger-btn').classList.remove('open');
     var hash=this.getAttribute('href');
-    if(hash&&hash.startsWith('#')&&hash.length>1){
+    if(hash&&hash.startsWith('#')&&hash.length>1&&window.innerWidth<=768){
       var target=document.getElementById(hash.slice(1));
       if(target){e.preventDefault();target.scrollIntoView({behavior:'smooth',block:'start'});}
     }
