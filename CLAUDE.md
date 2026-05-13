@@ -289,7 +289,7 @@ Ambas páginas de login (`/login` y `/client-portal`) usan el mismo patrón visu
 - Fotos: `/admin-bg.jpg` (escritorio flat-lay) y `/client-portal-bg.jpg` (hombre en escaleras)
 - CSS-in-JS con `<style>` tag (misma convención que páginas marketing)
 
-## Responsive Design (Etapa 17 — 2026-05-12)
+## Responsive Design (Etapa 17 — en progreso)
 
 ### Breakpoints estándar del proyecto
 ```
