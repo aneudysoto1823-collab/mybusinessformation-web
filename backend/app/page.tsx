@@ -702,8 +702,6 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 
 /* ── RESPONSIVE 768px ── */
 @media(max-width:768px){
-  html,body{overscroll-behavior-y:none}
-  body{background:var(--navy)}
   header{padding:0 16px}
   .header-inner{height:62px;position:relative}
   nav{display:none}
