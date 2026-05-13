@@ -317,18 +317,20 @@ El menú hamburguesa del home vive en tres lugares de `backend/app/page.tsx`:
 
 Si algo del hamburger falla, revisar los tres puntos. **No tocar uno sin verificar los otros dos.**
 
-### Estado responsive por página (2026-05-12)
+### Estado responsive por página (2026-05-13)
 
 | Página | Breakpoints activos | Notas |
 |---|---|---|
-| `/` (home) | 900px, 768px, 580px, 480px | Hamburger + layout general |
+| `/` (home) | 900px, 768px, 580px, 480px | Hamburger + layout general; footer links corregidos (`href="#"` → anchors reales) |
 | `/client-portal` | 720px, 480px | Oculta foto en mobile |
 | `/login` | 760px, 480px | Oculta foto en mobile |
 | `/admin` | 640px | Stats grid 2 columnas |
 | `/client-portal/dashboard` | 500px, 480px | Botón download full-width |
 | `/new-business` | 960px, 700px, 600px, 540px | Pre-existente antes Etapa 17 |
+| `/servicios` | 1100px, 768px, 480px | Hamburger + hero azul + accordion expand en mobile (popup en desktop) |
+| `/privacy` `/terms` `/legal` | 768px | Hamburger; hero `position:sticky;top:66px`; `p`/`.hero-meta`/`.breadcrumb` ocultos; sidebar `position:static`; header sticky conservado (NO usar `position:relative` en header dentro del media query — rompe el sticky) |
 
-**Pendiente responsive:** `/admin/orders/[id]`, `/admin/campaigns`, `/servicios`
+**Pendiente responsive:** `/admin/orders/[id]`, `/admin/campaigns`
 
 ### Regla de botones táctiles
 Todo botón CTA en páginas públicas debe tener mínimo 44px de alto en mobile. Usar `min-height: 44px` o `padding` que lo garantice. Referencia: WCAG 2.5.5 y Apple HIG.
