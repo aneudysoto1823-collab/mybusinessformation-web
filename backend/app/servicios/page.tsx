@@ -267,15 +267,19 @@ nav a:hover{color:var(--navy);background:var(--gray100)}
 .lang-btn.active{background:var(--navy);color:#fff}
 .btn-start{background:var(--green);color:#fff;padding:9px 18px;border-radius:8px;font-size:.85rem;font-weight:600;border:none;cursor:pointer;font-family:inherit;transition:all .2s}
 .btn-start:hover{background:var(--green-dark)}
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none;padding:8px;margin-right:-6px;flex-shrink:0}
+.hamburger span{display:block;width:22px;height:2px;background:var(--navy);border-radius:2px;transition:all 0.3s}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.hamburger.open span:nth-child(2){opacity:0}
+.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+@media(max-width:768px){nav{display:none}nav.open{display:flex;flex-direction:column;position:absolute;top:62px;left:-16px;right:-16px;background:#fff;padding:10px 16px 14px;border-bottom:1px solid var(--gray200);box-shadow:0 8px 24px rgba(0,0,0,0.08);z-index:200;gap:2px}nav.open a{padding:11px 12px;font-size:.92rem;border-radius:8px;font-weight:500;margin-left:0}nav.open a:hover{background:var(--gray100)}.hamburger{display:flex}header{position:relative}}
 /* PAGE HERO */
-.page-hero{background:var(--white);padding:20px 32px 18px;text-align:center;border-bottom:1px solid var(--gray100)}
-
-.page-hero-inner{max-width:1280px;margin:0 auto;position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
-@media(max-width:768px){.page-hero-inner{grid-template-columns:1fr}}
+.page-hero{background:linear-gradient(135deg,var(--navy),#1a3a6b);padding:52px 32px 48px;text-align:center}
+.page-hero-inner{max-width:700px;margin:0 auto;position:relative;z-index:1}
 .hero-badge{display:inline-block;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.9);font-size:.7rem;font-weight:600;padding:5px 14px;border-radius:20px;letter-spacing:1px;text-transform:uppercase;margin-bottom:18px}
-.page-hero h1{font-size:1.1rem;color:var(--navy);font-weight:700;margin-bottom:4px;letter-spacing:0}
+.page-hero h1{font-size:clamp(2rem,4.5vw,3rem);color:#fff;font-weight:700;margin-bottom:12px;letter-spacing:0}
 .page-hero h1 em{color:var(--blue);font-style:normal}
-.page-hero p{font-size:.8rem;color:var(--gray600);line-height:1.5;margin:0}
+.page-hero p{font-size:.95rem;color:rgba(255,255,255,.78);line-height:1.6;margin:0}
 .hero-services-list{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:4px}
 .hs-item{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:9px 13px;cursor:pointer;transition:all .2s;font-size:.82rem;color:rgba(255,255,255,.85)}
 .hs-item:hover{background:rgba(255,255,255,.14);color:#fff}
@@ -491,18 +495,25 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
         <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
         <button class="lang-btn" id="btn-es" onclick="setLang('es')">ES</button>
       </div>
+      <button class="hamburger" id="hamburger-btn" aria-label="Toggle menu" onclick="toggleNav()">
+        <span></span><span></span><span></span>
+      </button>
     </div>
   </div>
 </header>
 
+<!-- HERO -->
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <span class="hero-badge" id="svc-section-label">All Services</span>
+    <h1 id="svc-section-title">Everything Your Business Needs</h1>
+    <p id="svc-section-sub">Individual services for every business need.</p>
+  </div>
+</div>
+
 <!-- SERVICES GRID -->
 <section class="services-section" style="padding-top:36px">
   <div class="services-inner">
-    <div style="text-align:center;margin-bottom:20px">
-      <span class="section-label" id="svc-section-label">All Services</span>
-      <h2 class="section-title" id="svc-section-title">Everything Your Business Needs</h2>
-      <p class="section-sub" style="margin:0 auto" id="svc-section-sub">Individual services for every business need.</p>
-    </div>
     <div class="services-accordion">${servicesAccordionHtml}</div>
   </div>
 </section>
@@ -1036,6 +1047,22 @@ document.querySelectorAll('.svc-acc-item').forEach(function(item){
   item.addEventListener('mouseenter',function(){activateSvc(item);});
   item.addEventListener('mouseleave',function(){deactivateSvc();});
 });
+
+function toggleNav(){
+  var nav=document.querySelector('nav');
+  var btn=document.getElementById('hamburger-btn');
+  if(!nav||!btn)return;
+  var open=nav.classList.toggle('open');
+  btn.classList.toggle('open',open);
+  if(open){
+    document.addEventListener('click',function closeNav(e){
+      if(!nav.contains(e.target)&&!btn.contains(e.target)){
+        nav.classList.remove('open');btn.classList.remove('open');
+        document.removeEventListener('click',closeNav);
+      }
+    });
+  }
+}
 </script>
 `
   return (
