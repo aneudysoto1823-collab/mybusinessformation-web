@@ -105,7 +105,6 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
         <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
         <button class="lang-btn" id="btn-es" onclick="setLang('es')">ES</button>
       </div>
-      <a href="/"><button class="btn-start">Start My Business &#8594;</button></a>
     </div>
   </div>
 </header>
