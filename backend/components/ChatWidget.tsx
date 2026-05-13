@@ -56,8 +56,6 @@ export default function ChatWidget() {
   const [error, setError] = useState('')
   const [segmentLoading, setSegmentLoading] = useState(false)
   const pendingSegmentsRef = useRef<string[]>([])
-  const bottomRef = useRef<HTMLDivElement>(null)
-  const lastMsgRef = useRef<HTMLDivElement>(null)
   const messagesContainerRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const chatWindowRef = useRef<HTMLDivElement>(null)
@@ -381,7 +379,6 @@ export default function ChatWidget() {
             {messages.map((m, i) => (
               <div
                 key={i}
-                ref={i === messages.length - 1 ? lastMsgRef : undefined}
                 style={{
                   display: 'flex',
                   justifyContent: m.role === 'user' ? 'flex-end' : 'flex-start',
@@ -435,7 +432,6 @@ export default function ChatWidget() {
               </div>
             )}
 
-            <div ref={bottomRef} />
           </div>
 
           {/* Input */}
