@@ -241,6 +241,15 @@ export default function ServiciosPage() {
           </div>
         </div>
       </div>
+      <div class="svc-mobile-expand">
+        <p class="svc-mexp-desc" data-en="${s.desc_en}" data-es="${s.desc_es}">${s.desc_es}</p>
+        <div class="svc-mexp-includes-title svc-includes-title" data-en="What's included" data-es="Qué incluye">Qué incluye</div>
+        <div class="svc-mexp-includes">
+          ${s.includes_es.map((inc, idx) => `<div class="svc-mexp-incl-item" data-en="${s.includes_en[idx]}" data-es="${inc}"><span class="svc-popup-incl-icon">&#10003;</span>${inc}</div>`).join('')}
+        </div>
+        <div class="svc-mexp-time" data-en="${s.time_en}" data-es="${s.time_es}">${s.time_es}</div>
+        <button class="svc-mexp-btn" onclick="openServiceForm('${s.id}')" data-en="${s.btn_en}" data-es="${s.btn_es}">${s.btn_es}</button>
+      </div>
     </div>
   `).join('')
 
@@ -447,8 +456,18 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
 .svc-acc-title{font-family:'Fraunces',serif;font-size:.95rem;font-weight:700;color:var(--navy);line-height:1.25;margin-bottom:2px}
 .svc-acc-sub{font-size:.71rem;color:var(--gray500);line-height:1.3}
 .svc-acc-price{font-family:'Fraunces',serif;font-size:.93rem;font-weight:700;color:var(--navy);flex-shrink:0;white-space:nowrap}
-.svc-acc-chevron{width:20px;height:20px;color:var(--gray400);flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.svc-acc-chevron{width:20px;height:20px;color:var(--gray400);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:transform .25s}
 .svc-acc-chevron svg{width:15px;height:15px}
+.svc-acc-item.expanded .svc-acc-chevron{transform:rotate(180deg)}
+.svc-mobile-expand{display:none;padding:0 16px 16px;border-top:1px solid var(--gray100)}
+.svc-acc-item.expanded .svc-mobile-expand{display:block}
+.svc-mexp-desc{font-size:.82rem;color:var(--gray600);line-height:1.6;margin:14px 0 14px}
+.svc-mexp-includes-title{font-size:.71rem;font-weight:600;color:var(--gray400);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.svc-mexp-includes{margin-bottom:12px}
+.svc-mexp-incl-item{display:flex;align-items:flex-start;gap:8px;font-size:.8rem;color:var(--gray600);line-height:1.5;margin-bottom:5px}
+.svc-mexp-time{font-size:.75rem;color:var(--gray500);background:var(--gray50);border-radius:7px;padding:8px 12px;margin-bottom:14px}
+.svc-mexp-btn{background:var(--blue);color:#fff;padding:13px;border-radius:9px;font-size:.87rem;font-weight:600;border:none;cursor:pointer;font-family:inherit;transition:background .2s;width:100%;min-height:44px}
+.svc-mexp-btn:hover{background:#1d4ed8}
 /* POPUP PANEL — horizontal layout, absolute inside card */
 .svc-popup{position:absolute;left:calc(100% + 14px);top:0;width:560px;background:#fff;border-radius:16px;border:1.5px solid var(--gray200);box-shadow:0 20px 60px rgba(28,46,68,.18),0 4px 14px rgba(37,99,235,.08);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;transform:translateX(8px);z-index:600}
 .services-accordion .svc-acc-item:nth-child(even) .svc-popup{left:auto;right:calc(100% + 14px);transform:translateX(-8px)}
@@ -1039,8 +1058,14 @@ function deactivateSvc(){
 }
 
 function touchSvc(item){
-  if(_activeItem===item&&item.classList.contains('active')){deactivateSvc();}
-  else{activateSvc(item);}
+  if(window.innerWidth<=1100){
+    var wasOpen=item.classList.contains('expanded');
+    document.querySelectorAll('.svc-acc-item.expanded').forEach(function(i){i.classList.remove('expanded');});
+    if(!wasOpen)item.classList.add('expanded');
+  } else {
+    if(_activeItem===item&&item.classList.contains('active')){deactivateSvc();}
+    else{activateSvc(item);}
+  }
 }
 
 document.querySelectorAll('.svc-acc-item').forEach(function(item){
