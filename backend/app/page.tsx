@@ -146,8 +146,6 @@ nav a:hover{color:var(--navy);background:var(--gray100)}
 .lang-toggle{display:flex;align-items:center;background:var(--gray100);border-radius:20px;padding:3px;gap:2px}
 .lang-btn{padding:5px 14px;border-radius:16px;border:none;cursor:pointer;font-size:0.78rem;font-weight:600;font-family:'Plus Jakarta Sans',sans-serif;transition:all 0.2s;color:var(--gray400);background:transparent}
 .lang-btn.active{background:var(--navy);color:#fff}
-.btn-start{background:var(--green);color:#fff;padding:10px 22px;border-radius:8px;font-size:0.88rem;font-weight:600;border:none;cursor:pointer;transition:all 0.2s;white-space:nowrap;font-family:'Plus Jakarta Sans',sans-serif}
-.btn-start:hover{background:var(--green-dark);transform:translateY(-1px)}
 
 /* ── HERO ── */
 .hero{background:var(--white);padding:96px 32px 20px;text-align:center}
@@ -3086,7 +3084,6 @@ function setLang(lang) {
   el=document.getElementById('header-login-btn');  if(el) el.textContent = isEs ? 'Iniciar sesión' : 'Login';
   el=document.getElementById('lbl-new-app');       if(el) el.textContent = isEs ? 'Nueva Aplicación' : 'Start New Application';
   el=document.getElementById('lbl-continue-app');  if(el) el.textContent = isEs ? 'Continuar Mi Aplicación' : 'Continue My Application';
-  var bsBtn=document.querySelector('.btn-start');   if(bsBtn) bsBtn.innerHTML=isEs?'Iniciar Mi Negocio &rarr;':'Start My Business &rarr;';
   // How it works steps
   var hSteps=[{id:'s1h',en:'Choose Your Package',es:'Elige Tu Paquete'},{id:'s1p',en:'Select the formation package that fits your needs.',es:'Selecciona el paquete de formación que se adapte a tus necesidades.'},{id:'s2h',en:'Complete Your Order',es:'Completa Tu Orden'},{id:'s2p',en:'Fill out our guided form in minutes.',es:'Completa nuestro formulario guiado en minutos.'},{id:'s3h',en:'We File With the State',es:'Tramitamos Ante el Estado'},{id:'s3p',en:'Our experts submit everything to the Florida Division of Corporations.',es:'Nuestros expertos presentan todo ante la División de Corporaciones de Florida.'},{id:'s4h',en:'Your Business Is Official',es:'Tu Negocio Es Oficial'},{id:'s4p',en:'Receive your Certificate of Formation and our Exclusive Expert-Crafted Guide, with the key steps to keep your business active and compliant with the state.',es:'Recibe tu Certificado de Formación y nuestra Guía Exclusiva, creada por expertos, con los pasos clave para mantener tu negocio activo y en regla ante el estado.'}];
   hSteps.forEach(function(s){var e2=document.getElementById(s.id);if(e2)e2.textContent=isEs?s.es:s.en;});
@@ -3110,8 +3107,6 @@ function setLang(lang) {
   el=document.getElementById('faq-title');          if(el) el.innerHTML   = t.faqTitle;
   el=document.getElementById('help-title');         if(el) el.textContent = t.helpTitle;
   el=document.getElementById('help-sub');           if(el) el.textContent = t.helpSub;
-  var bs = document.querySelector('.btn-start');    if(bs) bs.textContent = t.startBtn;
-
   // Entity type + state fee
   el=document.getElementById('et-label');           if(el) el.textContent = isEs ? 'Estoy formando una:' : 'I am forming a:';
   el=document.getElementById('et-llc');             if(el) el.innerHTML = isEs ? '&#127963; LLC' : '&#127963; LLC';

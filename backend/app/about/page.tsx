@@ -40,8 +40,6 @@ nav a:hover{color:var(--navy);background:var(--gray100)}
 .lang-toggle{display:flex;background:var(--gray100);border-radius:20px;padding:3px;gap:2px}
 .lang-btn{padding:5px 12px;border-radius:16px;border:none;cursor:pointer;font-size:.77rem;font-weight:600;font-family:inherit;transition:all .2s;color:var(--gray400);background:transparent}
 .lang-btn.active{background:var(--navy);color:#fff}
-.btn-start{background:var(--green);color:#fff;padding:9px 18px;border-radius:8px;font-size:.85rem;font-weight:600;border:none;cursor:pointer;font-family:inherit;transition:all .2s}
-.btn-start:hover{background:var(--green-dark)}
 /* HERO */
 .page-hero{background:linear-gradient(135deg,var(--navy) 0%,#1a3a6b 100%);padding:64px 32px 56px;color:#fff;position:relative;overflow:hidden}
 .page-hero::after{content:'';position:absolute;right:-80px;top:-80px;width:360px;height:360px;background:radial-gradient(circle,rgba(37,99,235,.2) 0%,transparent 70%);pointer-events:none}
@@ -99,7 +97,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
 .hamburger.open span:nth-child(2){opacity:0}
 .hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
 .why-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:4px}
-@media(max-width:768px){nav{display:none}nav.open{display:flex;flex-direction:column;position:absolute;top:62px;left:-16px;right:-16px;background:#fff;padding:10px 16px 14px;border-bottom:1px solid var(--gray200);box-shadow:0 8px 24px rgba(0,0,0,.08);z-index:200;gap:2px}nav.open a{padding:11px 12px;font-size:.92rem;border-radius:8px;font-weight:500;margin-left:0}nav.open a:hover{background:var(--gray100)}.hamburger{display:flex}header{padding:0 16px}.logo-text{font-size:.75rem}.logo-text span{display:none}.btn-start-link{display:none}.page-hero{padding:24px 20px 22px;position:sticky;top:66px;z-index:100}.page-hero p{display:none}.hero-meta{display:none}.breadcrumb{display:none}.sidebar{position:static}}
+@media(max-width:768px){nav{display:none}nav.open{display:flex;flex-direction:column;position:absolute;top:62px;left:-16px;right:-16px;background:#fff;padding:10px 16px 14px;border-bottom:1px solid var(--gray200);box-shadow:0 8px 24px rgba(0,0,0,.08);z-index:200;gap:2px}nav.open a{padding:11px 12px;font-size:.92rem;border-radius:8px;font-weight:500;margin-left:0}nav.open a:hover{background:var(--gray100)}.hamburger{display:flex}header{padding:0 16px}.logo-text{font-size:.75rem}.logo-text span{display:none}.page-hero{padding:24px 20px 22px;position:sticky;top:66px;z-index:100}.page-hero p{display:none}.hero-meta{display:none}.breadcrumb{display:none}.sidebar{position:static}}
 @media(max-width:480px){.why-grid{grid-template-columns:1fr}}
 `
   const body = `
@@ -122,7 +120,6 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
         <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
         <button class="lang-btn" id="btn-es" onclick="setLang('es')">ES</button>
       </div>
-      <a href="/" class="btn-start-link"><button class="btn-start">Start My Business &#8594;</button></a>
       <button class="hamburger" id="hamburger-btn" aria-label="Toggle menu" onclick="toggleNav()">
         <span></span><span></span><span></span>
       </button>
@@ -154,7 +151,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
       <h4 class="en">Ready to Start?</h4><h4 class="es" style="display:none">&iquest;Listo para Empezar?</h4>
       <p class="en">Form your LLC or Corporation today from $49 + state fee.</p>
       <p class="es" style="display:none">Forma tu LLC o Corporaci&oacute;n hoy desde $49 + cargo estatal.</p>
-      <a href="/#pricing" style="display:block;background:var(--green);color:#fff;padding:9px 14px;border-radius:7px;font-size:.83rem;font-weight:600;text-align:center;margin-top:8px">Start My Business &#8594;</a>
+      <a href="/#pricing" style="display:block;background:var(--blue);color:#fff;padding:9px 14px;border-radius:7px;font-size:.83rem;font-weight:600;text-align:center;margin-top:8px">View Our Packages &#8594;</a>
     </div>
   </aside>
 
