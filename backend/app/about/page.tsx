@@ -93,6 +93,14 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
 .wa-float{position:fixed;bottom:26px;right:26px;z-index:500;background:#25D366;width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(37,211,102,.5);cursor:pointer;transition:all .25s}
 .wa-float:hover{transform:scale(1.1)}
 .wa-float svg{width:24px;height:24px;fill:#fff}
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none;padding:8px;margin-right:-6px;flex-shrink:0}
+.hamburger span{display:block;width:22px;height:2px;background:var(--navy);border-radius:2px;transition:all .3s}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.hamburger.open span:nth-child(2){opacity:0}
+.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+.why-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:4px}
+@media(max-width:768px){nav{display:none}nav.open{display:flex;flex-direction:column;position:absolute;top:62px;left:-16px;right:-16px;background:#fff;padding:10px 16px 14px;border-bottom:1px solid var(--gray200);box-shadow:0 8px 24px rgba(0,0,0,.08);z-index:200;gap:2px}nav.open a{padding:11px 12px;font-size:.92rem;border-radius:8px;font-weight:500;margin-left:0}nav.open a:hover{background:var(--gray100)}.hamburger{display:flex}header{padding:0 16px}.logo-text{font-size:.75rem}.logo-text span{display:none}.btn-start-link{display:none}.page-hero{padding:24px 20px 22px;position:sticky;top:66px;z-index:100}.page-hero p{display:none}.hero-meta{display:none}.breadcrumb{display:none}.sidebar{position:static}}
+@media(max-width:480px){.why-grid{grid-template-columns:1fr}}
 `
   const body = `
 <div class="topbar">&#127775; Florida's trusted business formation experts &mdash; <strong>LLC &amp; Corporation</strong> filing made simple.</div>
@@ -114,7 +122,10 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
         <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
         <button class="lang-btn" id="btn-es" onclick="setLang('es')">ES</button>
       </div>
-      <a href="/"><button class="btn-start">Start My Business &#8594;</button></a>
+      <a href="/" class="btn-start-link"><button class="btn-start">Start My Business &#8594;</button></a>
+      <button class="hamburger" id="hamburger-btn" aria-label="Toggle menu" onclick="toggleNav()">
+        <span></span><span></span><span></span>
+      </button>
     </div>
   </div>
 </header>
@@ -180,7 +191,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
 
     <div class="doc-section" id="why-us">
       <h2>&#11088; <span class="en-inline">Why Choose Florida Business Formation Center</span><span class="es-inline" style="display:none">&iquest;Por Qu&eacute; Elegirnos?</span></h2>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:4px">
+      <div class="why-grid">
         <div style="background:var(--gray50);border:1px solid var(--gray200);border-radius:10px;padding:16px">
           <div style="font-size:1.4rem;margin-bottom:8px">&#128205;</div>
           <strong style="font-size:.9rem;color:var(--navy)" class="en">Florida Specialists</strong>
@@ -307,6 +318,7 @@ document.querySelectorAll('.sidebar-nav a').forEach(function(link){
   });
 });
 (function(){var l=localStorage.getItem('flbc_lang');if(l&&l!=='en')setLang(l);})();
+function toggleNav(){var nav=document.querySelector('nav');var btn=document.getElementById('hamburger-btn');if(!nav||!btn)return;var open=nav.classList.toggle('open');btn.classList.toggle('open',open);if(open){document.addEventListener('click',function c(e){if(!nav.contains(e.target)&&!btn.contains(e.target)){nav.classList.remove('open');btn.classList.remove('open');document.removeEventListener('click',c);}});}}
 </script>
 `
   return (
