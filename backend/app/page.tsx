@@ -1250,6 +1250,8 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           <a href="/privacy" data-en="Privacy Policy" data-es="Política de Privacidad">Privacy Policy</a>
           <span style="color:rgba(255,255,255,0.25);margin:0 10px;font-size:.7rem">&bull;</span>
           <a href="/legal" data-en="Legal Disclaimer" data-es="Aviso Legal">Legal Disclaimer</a>
+          <span style="color:rgba(255,255,255,0.25);margin:0 10px;font-size:.7rem">&bull;</span>
+          <a href="/about" data-en="About Us" data-es="Nosotros">About Us</a>
         </div>
       </div>
       <div class="footer-disclaimer">
