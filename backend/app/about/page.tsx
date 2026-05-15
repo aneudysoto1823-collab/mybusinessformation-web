@@ -97,7 +97,15 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
 .hamburger.open span:nth-child(2){opacity:0}
 .hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
 .why-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:4px}
+.contact-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:20px}
+.contact-card{border:1.5px solid var(--gray200);border-radius:12px;padding:22px;background:var(--gray50);display:flex;flex-direction:column;gap:8px}
+.contact-card-icon{font-size:1.4rem}
+.contact-card strong{font-size:.92rem;color:var(--navy)}
+.contact-card p{font-size:.8rem;color:var(--gray600);line-height:1.7;flex:1}
+.contact-card a.card-btn{display:block;text-align:center;padding:9px 14px;border-radius:8px;font-size:.82rem;font-weight:600;margin-top:6px}
+.callout-quote{background:var(--navy);color:#fff;border-radius:12px;padding:20px 24px;margin:22px 0;font-family:'Fraunces',serif;font-size:1.05rem;font-weight:700;letter-spacing:-.2px;line-height:1.5}
 @media(max-width:768px){nav{display:none}nav.open{display:flex;flex-direction:column;position:absolute;top:62px;left:-16px;right:-16px;background:#fff;padding:10px 16px 14px;border-bottom:1px solid var(--gray200);box-shadow:0 8px 24px rgba(0,0,0,.08);z-index:200;gap:2px}nav.open a{padding:11px 12px;font-size:.92rem;border-radius:8px;font-weight:500;margin-left:0}nav.open a:hover{background:var(--gray100)}.hamburger{display:flex}header{padding:0 16px}.logo-text{font-size:.75rem}.logo-text span{display:none}.page-hero{padding:24px 20px 22px;position:sticky;top:66px;z-index:100}.page-hero p{display:none}.hero-meta{display:none}.breadcrumb{display:none}.sidebar{position:static}}
+@media(max-width:768px){.contact-grid{grid-template-columns:1fr}}
 @media(max-width:480px){.why-grid{grid-template-columns:1fr}}
 `
   const body = `
@@ -130,8 +138,8 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
   <div class="page-hero-inner">
     <div class="breadcrumb"><a href="/">Home</a> <span>/</span> <span class="en-inline">About Us</span><span class="es-inline" style="display:none">Qui&eacute;nes Somos</span></div>
     <div class="hero-badge en">About Us</div><div class="hero-badge es" style="display:none">Qui&eacute;nes Somos</div>
-    <h1 class="en">Built to Help You <br/>Start Right in Florida</h1>
-    <h1 class="es" style="display:none">Construidos para Ayudarte <br/>a Empezar Bien en Florida</h1>
+    <h1 class="en">Straightforward, Personal,<br/>Built for You</h1>
+    <h1 class="es" style="display:none">Sencillo, Personal,<br/>Hecho para Usted</h1>
   </div>
 </section>
 
@@ -146,23 +154,26 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
       <a href="#bilingual"><span class="en-inline">Bilingual Service</span><span class="es-inline" style="display:none">Servicio Biling&uuml;e</span></a>
       <a href="#contact-about"><span class="en-inline">Get In Touch</span><span class="es-inline" style="display:none">Cont&aacute;ctanos</span></a>
     </nav>
-    <div class="sidebar-box">
-      <a href="/#pricing" style="display:block;background:#fff;color:var(--blue);border:1.5px solid var(--blue);padding:9px 14px;border-radius:7px;font-size:.83rem;font-weight:600;text-align:center;">
-        <span class="en-inline">View Our Packages &#8594;</span><span class="es-inline" style="display:none">Ver Nuestros Paquetes &#8594;</span>
-      </a>
-    </div>
   </aside>
 
   <div class="doc-content">
 
     <div class="doc-section" id="mission">
       <h2><span class="en-inline">Our Mission</span><span class="es-inline" style="display:none">Nuestra Misi&oacute;n</span></h2>
-      <p class="en">Florida Business Formation Center was founded with one purpose: to make starting a business in Florida straightforward, professional, and accessible &mdash; for every entrepreneur, regardless of language, background, or country of origin.</p>
-      <p class="es" style="display:none">Florida Business Formation Center fue fundado con un solo prop&oacute;sito: hacer que iniciar un negocio en Florida sea sencillo, profesional y accesible &mdash; para todo emprendedor, sin importar idioma, origen o pa&iacute;s de procedencia.</p>
-      <p class="en">We handle the documents, navigate the state and federal requirements, and deliver a complete, accurate filing &mdash; so you can focus entirely on what you do best: building your business, serving your clients, and pursuing your goals.</p>
-      <p class="es" style="display:none">Nos encargamos de los documentos, navegamos los requisitos estatales y federales, y entregamos una presentaci&oacute;n completa y precisa &mdash; para que usted pueda concentrarse en lo que mejor hace: construir su negocio, atender a sus clientes y alcanzar sus metas.</p>
-      <p class="en">Florida is one of the most business-friendly states in the country &mdash; no state income tax, a flexible corporate structure, and a welcoming environment for both domestic and international investors. We exist to make that opportunity accessible to everyone who is ready to take the next step.</p>
-      <p class="es" style="display:none">Florida es uno de los estados m&aacute;s favorables para los negocios en el pa&iacute;s &mdash; sin impuesto estatal sobre la renta, una estructura corporativa flexible y un entorno acogedor tanto para inversionistas nacionales como internacionales. Existimos para hacer esa oportunidad accesible a todos los que est&aacute;n listos para dar el siguiente paso.</p>
+      <p class="en">We&rsquo;re here to make starting your business in Florida straightforward &mdash; and personal.</p>
+      <p class="es" style="display:none">Estamos aqu&iacute; para hacer que iniciar su negocio en Florida sea sencillo &mdash; y personal.</p>
+      <p class="en">Florida Business Formation Center was created to help entrepreneurs, small business owners, and anyone ready to take the next step get their business registered quickly, correctly, and without the headache of navigating government paperwork alone.</p>
+      <p class="es" style="display:none">Florida Business Formation Center fue creado para ayudar a emprendedores, peque&ntilde;os empresarios y a cualquier persona lista para dar el siguiente paso a registrar su negocio de forma r&aacute;pida, correcta y sin el dolor de cabeza de navegar los tr&aacute;mites gubernamentales solo.</p>
+      <p class="en">We know that starting a business can feel overwhelming. Between choosing the right structure, understanding state requirements, and filling out the correct forms, many people put off taking action simply because they don&rsquo;t know where to begin. That&rsquo;s exactly why we exist.</p>
+      <p class="es" style="display:none">Sabemos que iniciar un negocio puede sentirse abrumador. Entre elegir la estructura correcta, entender los requisitos del estado y completar los formularios adecuados, muchas personas posponen actuar simplemente porque no saben por d&oacute;nde empezar. Eso es exactamente por lo que existimos.</p>
+      <p class="en">Our team handles the entire filing process on your behalf &mdash; from preparing your documents to submitting them directly with the Florida Division of Corporations. Whether you&rsquo;re forming an LLC, a corporation, or any other business entity, we make sure everything is done right the first time.</p>
+      <p class="es" style="display:none">Nuestro equipo gestiona todo el proceso de presentaci&oacute;n en su nombre &mdash; desde la preparaci&oacute;n de sus documentos hasta su env&iacute;o directo ante la Divisi&oacute;n de Corporaciones de Florida. Ya sea que est&eacute; formando una LLC, una corporaci&oacute;n u otra entidad empresarial, nos aseguramos de que todo est&eacute; hecho correctamente desde la primera vez.</p>
+      <div class="callout-quote en">&ldquo;You&rsquo;re not just a form &mdash; you&rsquo;re a person with a plan.&rdquo;</div>
+      <div class="callout-quote es" style="display:none">&ldquo;Usted no es solo un formulario &mdash; es una persona con un plan.&rdquo;</div>
+      <p class="en">What sets us apart is the attention we give to each client. We don&rsquo;t believe in one-size-fits-all solutions. Every business is different, and so is every entrepreneur behind it. That&rsquo;s why we take the time to understand your specific situation before recommending the best path forward.</p>
+      <p class="es" style="display:none">Lo que nos distingue es la atenci&oacute;n que brindamos a cada cliente. No creemos en soluciones &uacute;nicas para todos. Cada negocio es diferente, y tambi&eacute;n lo es cada emprendedor detr&aacute;s de &eacute;l. Por eso nos tomamos el tiempo de entender su situaci&oacute;n espec&iacute;fica antes de recomendar el mejor camino a seguir.</p>
+      <p class="en">From your very first question to the moment you receive your official documents, you&rsquo;ll have a real person guiding you &mdash; someone who listens, explains things clearly, and makes sure you feel confident every step of the way.</p>
+      <p class="es" style="display:none">Desde su primera pregunta hasta el momento en que recibe sus documentos oficiales, tendr&aacute; a una persona real gui&aacute;ndole &mdash; alguien que escucha, explica las cosas con claridad y se asegura de que se sienta seguro en cada paso del camino.</p>
     </div>
 
     <div class="doc-section" id="what-we-do">
@@ -243,22 +254,35 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
     </div>
 
     <div class="doc-section" id="contact-about">
-      <h2><span class="en-inline">Get In Touch</span><span class="es-inline" style="display:none">Cont&aacute;ctanos</span></h2>
-      <p class="en">Have questions before you get started? We&rsquo;re here to help. Reach out by email or WhatsApp &mdash; no obligation, no pressure, just answers.</p>
-      <p class="es" style="display:none">&iquest;Tiene preguntas antes de comenzar? Estamos aqu&iacute; para ayudar. Esc&iacute;banos por correo electr&oacute;nico o WhatsApp &mdash; sin compromiso, sin presi&oacute;n, solo respuestas.</p>
-      <div class="green-box">
-        <strong>info@mybusinessformation.com</strong><br/>
-        <span class="en">Florida, United States &nbsp;&bull;&nbsp; mybusinessformation.com</span>
-        <span class="es" style="display:none">Florida, Estados Unidos &nbsp;&bull;&nbsp; mybusinessformation.com</span>
-      </div>
-      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:16px">
-        <a href="https://wa.me/13528377755" target="_blank" style="background:#25D366;color:#fff;padding:11px 22px;border-radius:8px;font-size:.88rem;font-weight:600;display:inline-flex;align-items:center;gap:7px">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-          <span class="en-inline">Chat on WhatsApp</span><span class="es-inline" style="display:none">Chatea por WhatsApp</span>
-        </a>
-        <a href="/#pricing" style="background:var(--navy);color:#fff;padding:11px 22px;border-radius:8px;font-size:.88rem;font-weight:600;display:inline-flex;align-items:center;gap:7px">
-          <span class="en-inline">View Our Packages &#8594;</span><span class="es-inline" style="display:none">Ver Nuestros Paquetes &#8594;</span>
-        </a>
+      <h2><span class="en-inline">Ready to Get Started? Reach Us Your Way.</span><span class="es-inline" style="display:none">&iquest;Listo para Comenzar? Cont&aacute;ctenos a Su Manera.</span></h2>
+      <p class="en">We make it easy to connect with us &mdash; no complicated processes, no waiting in line. Choose the option that works best for you:</p>
+      <p class="es" style="display:none">Le facilitamos comunicarse con nosotros &mdash; sin procesos complicados ni filas de espera. Elija la opci&oacute;n que mejor le funcione:</p>
+      <div class="contact-grid">
+        <div class="contact-card">
+          <div class="contact-card-icon">&#128197;</div>
+          <strong class="en">Book an Appointment</strong><strong class="es" style="display:none">Reserve una Cita</strong>
+          <p class="en">Schedule a one-on-one consultation at a time that works for you. We&rsquo;ll walk you through your options and answer every question you have.</p>
+          <p class="es" style="display:none">Programe una consulta personalizada a la hora que mejor le convenga. Le guiaremos por sus opciones y responderemos cada pregunta.</p>
+          <a href="https://calendly.com/mybusinessformation" target="_blank" class="card-btn" style="background:var(--blue);color:#fff">
+            <span class="en-inline">Schedule Now &#8594;</span><span class="es-inline" style="display:none">Reservar Ahora &#8594;</span>
+          </a>
+        </div>
+        <div class="contact-card">
+          <div class="contact-card-icon">&#128172;</div>
+          <strong class="en">WhatsApp</strong><strong class="es" style="display:none">WhatsApp</strong>
+          <p class="en">Prefer to chat? Message us directly on WhatsApp for a fast, personal response from our team &mdash; no bots, no automated replies.</p>
+          <p class="es" style="display:none">&iquest;Prefiere chatear? Esc&iacute;banos directamente por WhatsApp para una respuesta r&aacute;pida y personal de nuestro equipo &mdash; sin bots ni respuestas autom&aacute;ticas.</p>
+          <a href="https://wa.me/13528377755" target="_blank" class="card-btn" style="background:#25D366;color:#fff">
+            <span class="en-inline">Chat on WhatsApp &#8594;</span><span class="es-inline" style="display:none">Chatear por WhatsApp &#8594;</span>
+          </a>
+        </div>
+        <div class="contact-card">
+          <div class="contact-card-icon">&#9993;</div>
+          <strong class="en">Email</strong><strong class="es" style="display:none">Correo Electr&oacute;nico</strong>
+          <p class="en">Send us your questions at any time and we&rsquo;ll get back to you promptly with a clear, detailed response tailored to your situation.</p>
+          <p class="es" style="display:none">Env&iacute;enos sus preguntas en cualquier momento y le responderemos prontamente con una respuesta clara y detallada adaptada a su situaci&oacute;n.</p>
+          <a href="mailto:info@mybusinessformation.com" class="card-btn" style="background:var(--navy);color:#fff">info@mybusinessformation.com</a>
+        </div>
       </div>
     </div>
 
