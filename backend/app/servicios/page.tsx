@@ -342,7 +342,7 @@ nav a:hover{color:var(--navy);background:var(--gray100)}
 footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;margin-top:auto}
 .footer-inner{max-width:1280px;margin:0 auto}
 .footer-grid{display:grid;grid-template-columns:2fr 1fr;gap:40px;margin-bottom:40px}
-@media(max-width:768px){.footer-grid{grid-template-columns:1fr}}
+@media(max-width:768px){.footer-grid{grid-template-columns:1fr}.footer-col a{display:inline-block;margin-right:14px;margin-bottom:6px}}
 .footer-brand p{font-size:.79rem;line-height:1.7;color:rgba(255,255,255,.5);max-width:260px;margin-top:10px}
 .footer-col h5{font-family:'Fraunces',serif;font-size:.92rem;color:#fff;margin-bottom:14px;font-weight:600}
 .footer-col a{display:block;font-size:.8rem;color:rgba(255,255,255,.5);margin-bottom:8px;transition:color .2s;cursor:pointer}
@@ -559,8 +559,8 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
       <div class="footer-col">
         <h5 data-en="Company" data-es="Compañía">Compañía</h5>
         <a href="/" data-en="Home" data-es="Inicio">Inicio</a>
-        <a href="/#pricing" data-en="Formation Packages" data-es="Paquetes de Formación">Paquetes de Formación</a>
-        <a href="/#faq" data-en="FAQ" data-es="Preguntas Frecuentes">Preguntas Frecuentes</a>
+        <a href="/#pricing" data-en="Packages" data-es="Paquetes">Paquetes</a>
+        <a href="/#faq" data-en="FAQ" data-es="FAQ">FAQ</a>
         <a href="/#contact" data-en="Contact" data-es="Contacto">Contacto</a>
       </div>
     </div>
