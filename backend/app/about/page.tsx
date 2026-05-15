@@ -41,16 +41,16 @@ nav a:hover{color:var(--navy);background:var(--gray100)}
 .lang-btn{padding:5px 12px;border-radius:16px;border:none;cursor:pointer;font-size:.77rem;font-weight:600;font-family:inherit;transition:all .2s;color:var(--gray400);background:transparent}
 .lang-btn.active{background:var(--navy);color:#fff}
 /* HERO */
-.page-hero{background:linear-gradient(135deg,var(--navy) 0%,#1a3a6b 100%);padding:64px 32px 56px;color:#fff;position:relative;overflow:hidden}
+.page-hero{background:linear-gradient(135deg,var(--navy) 0%,#1a3a6b 100%);padding:36px 32px 32px;color:#fff;position:relative;overflow:hidden}
 .page-hero::after{content:'';position:absolute;right:-80px;top:-80px;width:360px;height:360px;background:radial-gradient(circle,rgba(37,99,235,.2) 0%,transparent 70%);pointer-events:none}
 .page-hero-inner{max-width:1280px;margin:0 auto;position:relative;z-index:1}
-.breadcrumb{display:flex;align-items:center;gap:7px;font-size:.74rem;color:rgba(255,255,255,.5);margin-bottom:16px}
+.breadcrumb{display:none}
 .breadcrumb a{color:rgba(255,255,255,.5);transition:color .2s}
 .breadcrumb a:hover{color:#fff}
 .hero-badge{display:inline-block;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.9);font-size:.7rem;font-weight:600;padding:4px 14px;border-radius:20px;letter-spacing:1px;text-transform:uppercase;margin-bottom:14px}
-.page-hero h1{font-size:clamp(2rem,4vw,3rem);font-weight:900;margin-bottom:12px;letter-spacing:-.5px}
-.page-hero p{font-size:.9rem;color:rgba(255,255,255,.65);max-width:560px;line-height:1.75}
-.hero-meta{display:flex;align-items:center;gap:16px;margin-top:18px;flex-wrap:wrap}
+.page-hero h1{font-size:clamp(2rem,4vw,3rem);font-weight:900;margin-bottom:0;letter-spacing:-.5px}
+.page-hero p{display:none}
+.hero-meta{display:none}
 .hero-meta-item{font-size:.75rem;color:rgba(255,255,255,.5);display:flex;align-items:center;gap:5px}
 /* LAYOUT */
 .page-layout{max-width:1280px;margin:0 auto;padding:56px 32px 80px;display:grid;grid-template-columns:240px 1fr;gap:48px;flex:1}
