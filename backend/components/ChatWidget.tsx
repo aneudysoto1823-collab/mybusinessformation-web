@@ -75,7 +75,7 @@ function renderMessageContent(text: string) {
               boxShadow: '0 2px 10px rgba(37,99,235,0.35)',
             }}
           >
-            Ver y revisar mi orden →
+            Por favor haga clic aquí para revisar su orden →
           </a>
         ) : (
           <span key={i}>{part}</span>
