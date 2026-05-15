@@ -1050,10 +1050,13 @@ function touchSvc(item){
   }
 }
 
-document.querySelectorAll('.svc-acc-item').forEach(function(item){
-  item.addEventListener('mouseenter',function(){activateSvc(item);});
-  item.addEventListener('mouseleave',function(){deactivateSvc();});
-});
+var _isTouch=('ontouchstart' in window||navigator.maxTouchPoints>0);
+if(!_isTouch){
+  document.querySelectorAll('.svc-acc-item').forEach(function(item){
+    item.addEventListener('mouseenter',function(){activateSvc(item);});
+    item.addEventListener('mouseleave',function(){deactivateSvc();});
+  });
+}
 
 function toggleNav(){
   var nav=document.querySelector('nav');
