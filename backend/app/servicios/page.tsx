@@ -1026,15 +1026,25 @@ function activateSvc(item){
   });
   var popup=item.querySelector('.svc-popup');
   if(popup){
+    popup.style.maxWidth='';
     var rect=item.getBoundingClientRect();
     if(rect.top+300>window.innerHeight-16){popup.style.top='auto';popup.style.bottom='0';}
     else{popup.style.top='0';popup.style.bottom='auto';}
+    var pr=popup.getBoundingClientRect();
+    var margin=16;
+    if(pr.right>window.innerWidth-margin)popup.style.maxWidth=(window.innerWidth-margin-pr.left)+'px';
+    if(pr.left<margin)popup.style.maxWidth=(pr.right-margin)+'px';
   }
 }
 
 function deactivateSvc(){
   _svcTimer=setTimeout(function(){
-    if(_activeItem){_activeItem.classList.remove('active');_activeItem=null;}
+    if(_activeItem){
+      var p=_activeItem.querySelector('.svc-popup');
+      if(p)p.style.maxWidth='';
+      _activeItem.classList.remove('active');
+      _activeItem=null;
+    }
     document.querySelectorAll('.svc-acc-item').forEach(function(a){a.style.pointerEvents='';});
   },300);
 }
