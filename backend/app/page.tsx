@@ -1254,7 +1254,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
       </div>
       <div class="footer-disclaimer">
         <strong style="color:rgba(255,255,255,0.5);display:block;margin-bottom:4px">Important Notice</strong>
-        Florida Business Formation Center is a document preparation and filing service. We are not a law firm and do not provide legal, tax, or financial advice. The information on this website is for general informational purposes only. Use of our services does not create an attorney-client relationship. For legal advice specific to your situation, please consult a licensed Florida attorney.
+        Florida Business Formation Center is a professional document preparation and filing service. We are not a law firm and do not provide legal, tax, or financial advice. Our services do not constitute the practice of law and do not create an attorney-client relationship. All filings are subject to approval by the Florida Division of Corporations and the IRS. For legal or tax guidance specific to your situation, we encourage you to consult a licensed Florida attorney or certified public accountant.
       </div>
     </div>
   </div>
@@ -3206,8 +3206,8 @@ function setLang(lang) {
     if(fdStrong) fdStrong.textContent = isEs ? 'Aviso Importante' : 'Important Notice';
     var fdText = fd.childNodes[fd.childNodes.length-1];
     if(fdText && fdText.nodeType===3) fdText.textContent = isEs
-      ? ' Florida Business Formation Center es un servicio de preparación de documentos. No somos una firma legal y no brindamos asesoría legal, fiscal ni financiera. La información en este sitio es solo informativa. El uso de nuestros servicios no crea una relación abogado-cliente.'
-      : ' Florida Business Formation Center is a document preparation and filing service. We are not a law firm and do not provide legal, tax, or financial advice. The information on this website is for general informational purposes only. Use of our services does not create an attorney-client relationship.';
+      ? ' Florida Business Formation Center es un servicio profesional de preparación y presentación de documentos. No somos una firma de abogados y no brindamos asesoría legal, fiscal ni financiera. Nuestros servicios no constituyen el ejercicio del derecho ni crean una relación abogado-cliente. Todos los trámites están sujetos a aprobación por la División de Corporaciones de Florida y el IRS. Para orientación legal o fiscal específica a su situación, le recomendamos consultar con un abogado licenciado en Florida o un contador público certificado.'
+      : ' Florida Business Formation Center is a professional document preparation and filing service. We are not a law firm and do not provide legal, tax, or financial advice. Our services do not constitute the practice of law and do not create an attorney-client relationship. All filings are subject to approval by the Florida Division of Corporations and the IRS. For legal or tax guidance specific to your situation, we encourage you to consult a licensed Florida attorney or certified public accountant.';
   }
 
   // Copyright
