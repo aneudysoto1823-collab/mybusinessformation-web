@@ -760,7 +760,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
       <a href="#pricing" data-en="Pricing" data-es="Precios">Pricing</a>
       <a href="#faq" data-en="FAQ" data-es="Preguntas">FAQ</a>
       <a href="#contact" data-en="Contact" data-es="Contacto">Contact</a>
-      <a href="/servicios" data-en="Services" data-es="Servicios">Services</a>
+      <a href="/servicios?lang=${defaultLang}" data-en="Services" data-es="Servicios">Services</a>
     </nav>
     <div style="display:flex;align-items:center;gap:12px">
       <div class="lang-toggle">
@@ -1018,109 +1018,109 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 </section>
 
 <!-- FAQ --><section style="display:none"><div class="mini-svc-grid">
-      <a class="mini-svc-card" href="/servicios#registered-agent">
+      <a class="mini-svc-card" href="/servicios?lang=${defaultLang}#registered-agent">
         <div class="mini-svc-top"><span class="mini-svc-icon">&#127968;</span><span class="mini-svc-name" data-en="Registered Agent" data-es="Agente Registrado">Registered Agent</span></div>
         <div class="mini-svc-price" data-en="Annual Fee" data-es="Tarifa Anual">Annual Fee</div>
         <div class="mini-svc-sub" data-en="Required by FL law" data-es="Requerido por ley en FL">Required by FL law</div>
         <div class="mini-svc-arrow">Ver servicio &#8594;</div>
       </a>
-      <a class="mini-svc-card" href="/servicios#ein">
+      <a class="mini-svc-card" href="/servicios?lang=${defaultLang}#ein">
         <div class="mini-svc-top"><span class="mini-svc-icon">&#127981;</span><span class="mini-svc-name" data-en="EIN / Tax ID Number" data-es="EIN / Número de ID Fiscal">EIN / Tax ID Number</span></div>
         <div class="mini-svc-price">$49</div>
         <div class="mini-svc-sub" data-en="One-time fee" data-es="Pago único">One-time fee</div>
         <div class="mini-svc-arrow">Ver servicio &#8594;</div>
       </a>
-      <a class="mini-svc-card" href="/servicios#operating-agreement">
+      <a class="mini-svc-card" href="/servicios?lang=${defaultLang}#operating-agreement">
         <div class="mini-svc-top"><span class="mini-svc-icon">&#128196;</span><span class="mini-svc-name" data-en="Operating Agreement" data-es="Acuerdo Operativo">Operating Agreement</span></div>
         <div class="mini-svc-price">$79</div>
         <div class="mini-svc-sub" data-en="One-time fee" data-es="Pago único">One-time fee</div>
         <div class="mini-svc-arrow">Ver servicio &#8594;</div>
       </a>
-      <a class="mini-svc-card" href="/servicios#itin">
+      <a class="mini-svc-card" href="/servicios?lang=${defaultLang}#itin">
         <div class="mini-svc-top"><span class="mini-svc-icon">&#127760;</span><span class="mini-svc-name" data-en="ITIN Application" data-es="Solicitud de ITIN">ITIN Application</span></div>
         <div class="mini-svc-price">$135</div>
         <div class="mini-svc-sub" data-en="One-time fee" data-es="Pago único">One-time fee</div>
         <div class="mini-svc-arrow">Ver servicio &#8594;</div>
       </a>
-      <a class="mini-svc-card" href="/servicios#dba">
+      <a class="mini-svc-card" href="/servicios?lang=${defaultLang}#dba">
         <div class="mini-svc-top"><span class="mini-svc-icon">&#127991;</span><span class="mini-svc-name" data-en="DBA / Fictitious Name" data-es="DBA / Nombre Ficticio">DBA / Fictitious Name</span></div>
         <div class="mini-svc-price">$49</div>
         <div class="mini-svc-sub" data-en="+ FL state fee" data-es="+ tarifa estatal FL">+ FL state fee</div>
         <div class="mini-svc-arrow">Ver servicio &#8594;</div>
       </a>
-      <a class="mini-svc-card" href="/servicios#virtual-address">
+      <a class="mini-svc-card" href="/servicios?lang=${defaultLang}#virtual-address">
         <div class="mini-svc-top"><span class="mini-svc-icon">&#128205;</span><span class="mini-svc-name" data-en="Virtual Mailing Address" data-es="Dirección Postal Virtual">Virtual Mailing Address</span></div>
         <div class="mini-svc-price">$29<span style="font-size:.75rem;font-weight:400">/mo</span></div>
         <div class="mini-svc-sub" data-en="Cancel anytime" data-es="Cancela cuando quieras">Cancel anytime</div>
         <div class="mini-svc-arrow">Ver servicio &#8594;</div>
       </a>
-      <a class="mini-svc-card" href="/servicios#annual-report">
+      <a class="mini-svc-card" href="/servicios?lang=${defaultLang}#annual-report">
         <div class="mini-svc-top"><span class="mini-svc-icon">&#128197;</span><span class="mini-svc-name" data-en="Annual Report Filing" data-es="Declaración Anual">Annual Report Filing</span></div>
         <div class="mini-svc-price" data-en="Annual Service" data-es="Servicio Anual">Annual Service</div>
         <div class="mini-svc-sub" data-en="FL Deadline: May 1" data-es="Fecha Límite FL: 1 mayo">FL Deadline: May 1</div>
         <div class="mini-svc-arrow">Ver servicio &#8594;</div>
       </a>
-      <a class="mini-svc-card" href="/servicios#amendment">
+      <a class="mini-svc-card" href="/servicios?lang=${defaultLang}#amendment">
         <div class="mini-svc-top"><span class="mini-svc-icon">&#9998;</span><span class="mini-svc-name" data-en="Articles of Amendment" data-es="Artículos de Enmienda">Articles of Amendment</span></div>
         <div class="mini-svc-price">$59</div>
         <div class="mini-svc-sub" data-en="+ FL state fee" data-es="+ tarifa estatal FL">+ FL state fee</div>
         <div class="mini-svc-arrow">Ver servicio &#8594;</div>
       </a>
-      <a class="mini-svc-card" href="/servicios#banking-resolution">
+      <a class="mini-svc-card" href="/servicios?lang=${defaultLang}#banking-resolution">
         <div class="mini-svc-top"><span class="mini-svc-icon">&#127968;</span><span class="mini-svc-name" data-en="Banking Resolution" data-es="Resolución Bancaria">Banking Resolution</span></div>
         <div class="mini-svc-price">$49</div>
         <div class="mini-svc-sub" data-en="One-time fee" data-es="Pago único">One-time fee</div>
         <div class="mini-svc-arrow">Ver servicio &#8594;</div>
       </a>
-      <a class="mini-svc-card" href="/servicios#business-tax-receipt">
+      <a class="mini-svc-card" href="/servicios?lang=${defaultLang}#business-tax-receipt">
         <div class="mini-svc-top"><span class="mini-svc-icon">&#128203;</span><span class="mini-svc-name" data-en="Business Tax Receipt" data-es="Recibo de Impuesto Empresarial">Business Tax Receipt</span></div>
         <div class="mini-svc-price">$79</div>
         <div class="mini-svc-sub" data-en="+ county fee" data-es="+ tarifa del condado">+ county fee</div>
         <div class="mini-svc-arrow">Ver servicio &#8594;</div>
       </a>
-      <a class="mini-svc-card" href="/servicios#sales-tax-registration">
+      <a class="mini-svc-card" href="/servicios?lang=${defaultLang}#sales-tax-registration">
         <div class="mini-svc-top"><span class="mini-svc-icon">&#128200;</span><span class="mini-svc-name" data-en="Sales Tax Registration" data-es="Registro de Impuesto sobre Ventas">Sales Tax Registration</span></div>
         <div class="mini-svc-price">$79</div>
         <div class="mini-svc-sub" data-en="One-time fee" data-es="Pago único">One-time fee</div>
         <div class="mini-svc-arrow">Ver servicio &#8594;</div>
       </a>
-      <a class="mini-svc-card" href="/servicios#exclusive-guide">
+      <a class="mini-svc-card" href="/servicios?lang=${defaultLang}#exclusive-guide">
         <div class="mini-svc-top"><span class="mini-svc-icon">&#128218;</span><span class="mini-svc-name" data-en="Exclusive Formation Guide" data-es="Guía Exclusiva de Formación">Exclusive Formation Guide</span></div>
         <div class="mini-svc-price">$49</div>
         <div class="mini-svc-sub" data-en="One-time fee" data-es="Pago único">One-time fee</div>
         <div class="mini-svc-arrow">Ver servicio &#8594;</div>
       </a>
-      <a class="mini-svc-card" href="/servicios#good-standing">
+      <a class="mini-svc-card" href="/servicios?lang=${defaultLang}#good-standing">
         <div class="mini-svc-top"><span class="mini-svc-icon">&#127894;</span><span class="mini-svc-name" data-en="Certificate of Good Standing" data-es="Certificado de Buena Fe">Certificate of Good Standing</span></div>
         <div class="mini-svc-price">$49</div>
         <div class="mini-svc-sub" data-en="+ FL state fee" data-es="+ tarifa estatal FL">+ FL state fee</div>
         <div class="mini-svc-arrow">Ver servicio &#8594;</div>
       </a>
-      <a class="mini-svc-card" href="/servicios#scorp-election">
+      <a class="mini-svc-card" href="/servicios?lang=${defaultLang}#scorp-election">
         <div class="mini-svc-top"><span class="mini-svc-icon">&#11088;</span><span class="mini-svc-name" data-en="S-Corp Election (Form 2553)" data-es="Elección S-Corp (Form 2553)">S-Corp Election (Form 2553)</span></div>
         <div class="mini-svc-price">$79</div>
         <div class="mini-svc-sub" data-en="One-time fee" data-es="Pago único">One-time fee</div>
         <div class="mini-svc-arrow">Ver servicio &#8594;</div>
       </a>
-      <a class="mini-svc-card" href="/servicios#foreign-llc">
+      <a class="mini-svc-card" href="/servicios?lang=${defaultLang}#foreign-llc">
         <div class="mini-svc-top"><span class="mini-svc-icon">&#127758;</span><span class="mini-svc-name" data-en="Foreign LLC / Corp Registration" data-es="Registro LLC / Corp Extranjera">Foreign LLC / Corp Registration</span></div>
         <div class="mini-svc-price">$99</div>
         <div class="mini-svc-sub" data-en="+ state filing fee" data-es="+ tarifa estatal">+ state filing fee</div>
         <div class="mini-svc-arrow">Ver servicio &#8594;</div>
       </a>
-      <a class="mini-svc-card" href="/servicios#business-license">
+      <a class="mini-svc-card" href="/servicios?lang=${defaultLang}#business-license">
         <div class="mini-svc-top"><span class="mini-svc-icon">&#128203;</span><span class="mini-svc-name" data-en="Business License" data-es="Licencia de Negocio">Business License</span></div>
         <div class="mini-svc-price">$99</div>
         <div class="mini-svc-sub" data-en="One-time fee" data-es="Pago único">One-time fee</div>
         <div class="mini-svc-arrow">Ver servicio &#8594;</div>
       </a>
-      <a class="mini-svc-card" href="/servicios#dissolution">
+      <a class="mini-svc-card" href="/servicios?lang=${defaultLang}#dissolution">
         <div class="mini-svc-top"><span class="mini-svc-icon">&#128230;</span><span class="mini-svc-name" data-en="Business Dissolution" data-es="Disolución de Negocio">Business Dissolution</span></div>
         <div class="mini-svc-price">$79</div>
         <div class="mini-svc-sub" data-en="+ FL state fee" data-es="+ tarifa estatal FL">+ FL state fee</div>
         <div class="mini-svc-arrow">Ver servicio &#8594;</div>
       </a>
-      <a class="mini-svc-card" href="/servicios#cierre-fiscal">
+      <a class="mini-svc-card" href="/servicios?lang=${defaultLang}#cierre-fiscal">
         <div class="mini-svc-top"><span class="mini-svc-icon">&#128274;</span><span class="mini-svc-name" data-en="Tax Account Closure" data-es="Cierre de Cuenta Fiscal">Tax Account Closure</span></div>
         <div class="mini-svc-price">$79</div>
         <div class="mini-svc-sub" data-en="One-time fee" data-es="Pago único">One-time fee</div>
@@ -1207,24 +1207,24 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
       <div class="footer-col" style="grid-column:span 2">
         <h5 data-en="Business Formation Services" data-es="Servicios de Formación Empresarial">Business Formation Services</h5>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 16px">
-          <a href="/servicios#registered-agent" data-en="Registered Agent" data-es="Agente Registrado">Registered Agent</a>
-          <a href="/servicios#ein" data-en="EIN / Tax ID" data-es="EIN / ID Fiscal">EIN / Tax ID</a>
-          <a href="/servicios#operating-agreement" data-en="Operating Agreement" data-es="Acuerdo Operativo">Operating Agreement</a>
-          <a href="/servicios#annual-report" data-en="Annual Report Filing" data-es="Declaración Anual">Annual Report Filing</a>
-          <a href="/servicios#itin" data-en="ITIN Application" data-es="Solicitud de ITIN">ITIN Application</a>
-          <a href="/servicios#dba" data-en="DBA / Fictitious Name" data-es="DBA / Nombre Ficticio">DBA / Fictitious Name</a>
-          <a href="/servicios#amendment" data-en="Articles of Amendment" data-es="Artículos de Enmienda">Articles of Amendment</a>
-          <a href="/servicios#virtual-address" data-en="Virtual Mailing Address" data-es="Dirección Postal Virtual">Virtual Mailing Address</a>
-          <a href="/servicios#banking-resolution" data-en="Banking Resolution" data-es="Resolución Bancaria">Banking Resolution</a>
-          <a href="/servicios#business-tax-receipt" data-en="Business Tax Receipt" data-es="Recibo de Impuesto Empresarial">Business Tax Receipt</a>
-          <a href="/servicios#sales-tax-registration" data-en="Sales Tax Registration" data-es="Registro de Impuesto sobre Ventas">Sales Tax Registration</a>
-          <a href="/servicios#exclusive-guide" data-en="Exclusive Formation Guide" data-es="Guía Exclusiva de Formación">Exclusive Formation Guide</a>
-          <a href="/servicios#good-standing" data-en="Certificate of Good Standing" data-es="Certificado de Buena Fe">Certificate of Good Standing</a>
-          <a href="/servicios#scorp-election" data-en="S-Corp Election" data-es="Elección S-Corp">S-Corp Election</a>
-          <a href="/servicios#foreign-llc" data-en="Foreign LLC / Corp Registration" data-es="Registro LLC / Corp Extranjera">Foreign LLC / Corp Registration</a>
-          <a href="/servicios#business-license" data-en="Business License" data-es="Licencia de Negocio">Business License</a>
-          <a href="/servicios#dissolution" data-en="Business Dissolution" data-es="Disolución de Negocio">Business Dissolution</a>
-          <a href="/servicios#cierre-fiscal" data-en="Tax Account Closure" data-es="Cierre de Cuenta Fiscal">Tax Account Closure</a>
+          <a href="/servicios?lang=${defaultLang}#registered-agent" data-en="Registered Agent" data-es="Agente Registrado">Registered Agent</a>
+          <a href="/servicios?lang=${defaultLang}#ein" data-en="EIN / Tax ID" data-es="EIN / ID Fiscal">EIN / Tax ID</a>
+          <a href="/servicios?lang=${defaultLang}#operating-agreement" data-en="Operating Agreement" data-es="Acuerdo Operativo">Operating Agreement</a>
+          <a href="/servicios?lang=${defaultLang}#annual-report" data-en="Annual Report Filing" data-es="Declaración Anual">Annual Report Filing</a>
+          <a href="/servicios?lang=${defaultLang}#itin" data-en="ITIN Application" data-es="Solicitud de ITIN">ITIN Application</a>
+          <a href="/servicios?lang=${defaultLang}#dba" data-en="DBA / Fictitious Name" data-es="DBA / Nombre Ficticio">DBA / Fictitious Name</a>
+          <a href="/servicios?lang=${defaultLang}#amendment" data-en="Articles of Amendment" data-es="Artículos de Enmienda">Articles of Amendment</a>
+          <a href="/servicios?lang=${defaultLang}#virtual-address" data-en="Virtual Mailing Address" data-es="Dirección Postal Virtual">Virtual Mailing Address</a>
+          <a href="/servicios?lang=${defaultLang}#banking-resolution" data-en="Banking Resolution" data-es="Resolución Bancaria">Banking Resolution</a>
+          <a href="/servicios?lang=${defaultLang}#business-tax-receipt" data-en="Business Tax Receipt" data-es="Recibo de Impuesto Empresarial">Business Tax Receipt</a>
+          <a href="/servicios?lang=${defaultLang}#sales-tax-registration" data-en="Sales Tax Registration" data-es="Registro de Impuesto sobre Ventas">Sales Tax Registration</a>
+          <a href="/servicios?lang=${defaultLang}#exclusive-guide" data-en="Exclusive Formation Guide" data-es="Guía Exclusiva de Formación">Exclusive Formation Guide</a>
+          <a href="/servicios?lang=${defaultLang}#good-standing" data-en="Certificate of Good Standing" data-es="Certificado de Buena Fe">Certificate of Good Standing</a>
+          <a href="/servicios?lang=${defaultLang}#scorp-election" data-en="S-Corp Election" data-es="Elección S-Corp">S-Corp Election</a>
+          <a href="/servicios?lang=${defaultLang}#foreign-llc" data-en="Foreign LLC / Corp Registration" data-es="Registro LLC / Corp Extranjera">Foreign LLC / Corp Registration</a>
+          <a href="/servicios?lang=${defaultLang}#business-license" data-en="Business License" data-es="Licencia de Negocio">Business License</a>
+          <a href="/servicios?lang=${defaultLang}#dissolution" data-en="Business Dissolution" data-es="Disolución de Negocio">Business Dissolution</a>
+          <a href="/servicios?lang=${defaultLang}#cierre-fiscal" data-en="Tax Account Closure" data-es="Cierre de Cuenta Fiscal">Tax Account Closure</a>
         </div>
       </div>
       <div class="footer-col">

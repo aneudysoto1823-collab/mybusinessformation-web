@@ -952,7 +952,7 @@ function highlightCard(svcId){
   setTimeout(function(){card.classList.remove('highlighted');},5000);
 }
 
-(function(){var l=localStorage.getItem('flbc_lang')||'es';if(l!=='en')setLang(l);})();
+(function(){var p=new URLSearchParams(window.location.search);var l=p.get('lang')||localStorage.getItem('flbc_lang')||'es';setLang(l);})();
 window.addEventListener('scroll',function(){var h=document.getElementById('mainHeader');if(h)h.classList.toggle('scrolled',window.scrollY>30);});
 
 
