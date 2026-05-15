@@ -130,10 +130,8 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
   <div class="page-hero-inner">
     <div class="breadcrumb"><a href="/">Home</a> <span>/</span> <span class="en-inline">About Us</span><span class="es-inline" style="display:none">Qui&eacute;nes Somos</span></div>
     <div class="hero-badge en">About Us</div><div class="hero-badge es" style="display:none">Qui&eacute;nes Somos</div>
-    <h1 class="en">We Help Entrepreneurs <br/>Build Their Dream</h1>
-    <h1 class="es" style="display:none">Ayudamos a Emprendedores <br/>a Construir Su Sue&ntilde;o</h1>
-    <p class="en">Florida Business Formation Center was founded with a clear mission: make business formation accessible, affordable, and stress-free for every entrepreneur &mdash; regardless of language or background.</p>
-    <p class="es" style="display:none">Florida Business Formation Center fue fundado con una misi&oacute;n clara: hacer la formaci&oacute;n empresarial accesible, asequible y sin complicaciones para todo emprendedor, sin importar idioma ni procedencia.</p>
+    <h1 class="en">Built to Help You <br/>Start Right in Florida</h1>
+    <h1 class="es" style="display:none">Construidos para Ayudarte <br/>a Empezar Bien en Florida</h1>
   </div>
 </section>
 
@@ -143,15 +141,15 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
     <nav class="sidebar-nav">
       <a href="#mission" class="active"><span class="en-inline">Our Mission</span><span class="es-inline" style="display:none">Nuestra Misi&oacute;n</span></a>
       <a href="#what-we-do"><span class="en-inline">What We Do</span><span class="es-inline" style="display:none">Lo Que Hacemos</span></a>
+      <a href="#who-we-serve"><span class="en-inline">Who We Serve</span><span class="es-inline" style="display:none">A Qui&eacute;n Servimos</span></a>
       <a href="#why-us"><span class="en-inline">Why Choose Us</span><span class="es-inline" style="display:none">&iquest;Por Qu&eacute; Nosotros?</span></a>
       <a href="#bilingual"><span class="en-inline">Bilingual Service</span><span class="es-inline" style="display:none">Servicio Biling&uuml;e</span></a>
       <a href="#contact-about"><span class="en-inline">Get In Touch</span><span class="es-inline" style="display:none">Cont&aacute;ctanos</span></a>
     </nav>
     <div class="sidebar-box">
-      <h4 class="en">Ready to Start?</h4><h4 class="es" style="display:none">&iquest;Listo para Empezar?</h4>
-      <p class="en">Form your LLC or Corporation today from $49 + state fee.</p>
-      <p class="es" style="display:none">Forma tu LLC o Corporaci&oacute;n hoy desde $49 + cargo estatal.</p>
-      <a href="/#pricing" style="display:block;background:var(--blue);color:#fff;padding:9px 14px;border-radius:7px;font-size:.83rem;font-weight:600;text-align:center;margin-top:8px">View Our Packages &#8594;</a>
+      <a href="/#pricing" style="display:block;background:#fff;color:var(--blue);border:1.5px solid var(--blue);padding:9px 14px;border-radius:7px;font-size:.83rem;font-weight:600;text-align:center;">
+        <span class="en-inline">View Our Packages &#8594;</span><span class="es-inline" style="display:none">Ver Nuestros Paquetes &#8594;</span>
+      </a>
     </div>
   </aside>
 
@@ -159,31 +157,49 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
 
     <div class="doc-section" id="mission">
       <h2><span class="en-inline">Our Mission</span><span class="es-inline" style="display:none">Nuestra Misi&oacute;n</span></h2>
-      <p class="en">We believe that every entrepreneur &mdash; whether a first-time founder in Miami, a foreign investor in Orlando, or a small business owner in Tampa &mdash; deserves professional, affordable support when starting a business in Florida.</p>
-      <p class="es" style="display:none">Creemos que todo emprendedor &mdash; ya sea un fundador primerizo en Miami, un inversionista extranjero en Orlando o un peque&ntilde;o empresario en Tampa &mdash; merece apoyo profesional y asequible al iniciar un negocio en Florida.</p>
-      <p class="en">We cut through the red tape so you can focus on what matters most: building your business, serving your customers, and achieving your goals.</p>
-      <p class="es" style="display:none">Eliminamos la burocracia para que pueda concentrarse en lo que m&aacute;s importa: construir su negocio, atender a sus clientes y alcanzar sus metas.</p>
-      <div class="green-box en">&#10003; Over 500 Florida businesses formed and counting &mdash; LLCs, Corporations, DBAs and more.</div>
-      <div class="green-box es" style="display:none">&#10003; M&aacute;s de 500 negocios en Florida formados y contando &mdash; LLCs, Corporaciones, DBAs y m&aacute;s.</div>
+      <p class="en">Florida Business Formation Center was founded with one purpose: to make starting a business in Florida straightforward, professional, and accessible &mdash; for every entrepreneur, regardless of language, background, or country of origin.</p>
+      <p class="es" style="display:none">Florida Business Formation Center fue fundado con un solo prop&oacute;sito: hacer que iniciar un negocio en Florida sea sencillo, profesional y accesible &mdash; para todo emprendedor, sin importar idioma, origen o pa&iacute;s de procedencia.</p>
+      <p class="en">We handle the documents, navigate the state and federal requirements, and deliver a complete, accurate filing &mdash; so you can focus entirely on what you do best: building your business, serving your clients, and pursuing your goals.</p>
+      <p class="es" style="display:none">Nos encargamos de los documentos, navegamos los requisitos estatales y federales, y entregamos una presentaci&oacute;n completa y precisa &mdash; para que usted pueda concentrarse en lo que mejor hace: construir su negocio, atender a sus clientes y alcanzar sus metas.</p>
+      <p class="en">Florida is one of the most business-friendly states in the country &mdash; no state income tax, a flexible corporate structure, and a welcoming environment for both domestic and international investors. We exist to make that opportunity accessible to everyone who is ready to take the next step.</p>
+      <p class="es" style="display:none">Florida es uno de los estados m&aacute;s favorables para los negocios en el pa&iacute;s &mdash; sin impuesto estatal sobre la renta, una estructura corporativa flexible y un entorno acogedor tanto para inversionistas nacionales como internacionales. Existimos para hacer esa oportunidad accesible a todos los que est&aacute;n listos para dar el siguiente paso.</p>
     </div>
 
     <div class="doc-section" id="what-we-do">
       <h2><span class="en-inline">What We Do</span><span class="es-inline" style="display:none">Lo Que Hacemos</span></h2>
-      <p class="en">Florida Business Formation Center specializes in preparing and filing business formation documents with the Florida Division of Corporations and the IRS. Our services include:</p>
-      <p class="es" style="display:none">Florida Business Formation Center se especializa en preparar y presentar documentos de formaci&oacute;n empresarial ante la Divisi&oacute;n de Corporaciones de Florida y el IRS. Nuestros servicios incluyen:</p>
+      <p class="en">Florida Business Formation Center specializes in preparing and filing business formation documents with the Florida Division of Corporations and the IRS. We manage the entire process from document preparation to submission, so you receive a complete and properly filed entity.</p>
+      <p class="es" style="display:none">Florida Business Formation Center se especializa en preparar y presentar documentos de formaci&oacute;n empresarial ante la Divisi&oacute;n de Corporaciones de Florida y el IRS. Gestionamos todo el proceso, desde la preparaci&oacute;n de documentos hasta la presentaci&oacute;n, para que reciba una entidad completa y debidamente registrada.</p>
+      <p class="en">Our services include:</p>
+      <p class="es" style="display:none">Nuestros servicios incluyen:</p>
       <ul>
-        <li class="en">LLC and Corporation formation filing</li><li class="es" style="display:none">Formaci&oacute;n de LLC y Corporaci&oacute;n</li>
-        <li class="en">EIN (Employer Identification Number) applications</li><li class="es" style="display:none">Solicitudes de EIN (N&uacute;mero de Identificaci&oacute;n del Empleador)</li>
+        <li class="en">LLC and Corporation formation filing with the Florida Division of Corporations</li><li class="es" style="display:none">Formaci&oacute;n de LLC y Corporaci&oacute;n ante la Divisi&oacute;n de Corporaciones de Florida</li>
+        <li class="en">EIN (Employer Identification Number) applications with the IRS</li><li class="es" style="display:none">Solicitudes de EIN (N&uacute;mero de Identificaci&oacute;n del Empleador) ante el IRS</li>
         <li class="en">Operating Agreement and Corporate Bylaws preparation</li><li class="es" style="display:none">Preparaci&oacute;n de Acuerdo Operativo y Estatutos Corporativos</li>
-        <li class="en">ITIN applications for foreign nationals</li><li class="es" style="display:none">Solicitudes de ITIN para extranjeros</li>
+        <li class="en">S-Corporation tax election (IRS Form 2553)</li><li class="es" style="display:none">Elecci&oacute;n de tratamiento fiscal como S-Corporation (Formulario IRS 2553)</li>
+        <li class="en">ITIN applications for foreign nationals (IRS Form W-7)</li><li class="es" style="display:none">Solicitudes de ITIN para extranjeros (Formulario IRS W-7)</li>
         <li class="en">DBA / Fictitious Name registration</li><li class="es" style="display:none">Registro de DBA / Nombre Ficticio</li>
         <li class="en">Registered Agent service</li><li class="es" style="display:none">Servicio de Agente Registrado</li>
-        <li class="en">Annual Report filing</li><li class="es" style="display:none">Presentaci&oacute;n de Declaraci&oacute;n Anual</li>
+        <li class="en">Annual Report filing</li><li class="es" style="display:none">Presentaci&oacute;n de Informe Anual</li>
         <li class="en">Articles of Amendment filing</li><li class="es" style="display:none">Presentaci&oacute;n de Art&iacute;culos de Enmienda</li>
         <li class="en">Virtual Mailing Address service</li><li class="es" style="display:none">Servicio de Direcci&oacute;n Postal Virtual</li>
       </ul>
-      <div class="info-box en">We are a document preparation service, not a law firm. For legal advice, please consult a licensed Florida attorney.</div>
-      <div class="info-box es" style="display:none">Somos un servicio de preparaci&oacute;n de documentos, no un bufete de abogados. Para asesor&iacute;a legal, consulte con un abogado licenciado en Florida.</div>
+      <div class="info-box en">Florida Business Formation Center is a document preparation and filing service. We are not a law firm and do not provide legal, tax, or financial advice. For guidance specific to your situation, consult a licensed Florida attorney or CPA.</div>
+      <div class="info-box es" style="display:none">Florida Business Formation Center es un servicio de preparaci&oacute;n y presentaci&oacute;n de documentos. No somos una firma de abogados y no brindamos asesor&iacute;a legal, fiscal ni financiera. Para orientaci&oacute;n espec&iacute;fica a su situaci&oacute;n, consulte con un abogado licenciado en Florida o un CPA.</div>
+    </div>
+
+    <div class="doc-section" id="who-we-serve">
+      <h2><span class="en-inline">Who We Serve</span><span class="es-inline" style="display:none">A Qui&eacute;n Servimos</span></h2>
+      <p class="en">Florida draws entrepreneurs from across the United States and around the world. We work with a wide range of clients at every stage of their business journey:</p>
+      <p class="es" style="display:none">Florida atrae emprendedores de todo Estados Unidos y del mundo. Trabajamos con una amplia variedad de clientes en cada etapa de su recorrido empresarial:</p>
+      <ul>
+        <li class="en"><strong>First-time entrepreneurs</strong> launching their first Florida business entity and navigating the formation process for the first time</li><li class="es" style="display:none"><strong>Emprendedores primerizos</strong> que inician su primera entidad empresarial en Florida y navegan el proceso de formaci&oacute;n por primera vez</li>
+        <li class="en"><strong>Foreign nationals and international investors</strong> establishing a U.S. business presence from outside the country</li><li class="es" style="display:none"><strong>Extranjeros e inversionistas internacionales</strong> que establecen presencia empresarial en EE.UU. desde el exterior</li>
+        <li class="en"><strong>Established business owners</strong> adding new entities, subsidiaries, or DBAs to their existing operations</li><li class="es" style="display:none"><strong>Propietarios de negocios establecidos</strong> que agregan nuevas entidades, subsidiarias o DBAs a sus operaciones existentes</li>
+        <li class="en"><strong>Latin American and Caribbean entrepreneurs</strong> relocating to or investing in Florida, many of whom require bilingual guidance throughout the process</li><li class="es" style="display:none"><strong>Emprendedores latinoamericanos y caribe&ntilde;os</strong> que se reubican en Florida o invierten en el estado, muchos de los cuales requieren orientaci&oacute;n biling&uuml;e durante todo el proceso</li>
+        <li class="en"><strong>Freelancers, consultants, and independent professionals</strong> formalizing their business structure to open bank accounts, sign contracts, or take on clients professionally</li><li class="es" style="display:none"><strong>Freelancers, consultores y profesionales independientes</strong> que formalizan su estructura empresarial para abrir cuentas bancarias, firmar contratos o atender clientes de forma profesional</li>
+        <li class="en"><strong>Real estate investors</strong> forming LLCs to hold and protect property assets under a separate legal entity</li><li class="es" style="display:none"><strong>Inversionistas en bienes ra&iacute;ces</strong> que forman LLCs para poseer y proteger activos inmobiliarios bajo una entidad legal separada</li>
+        <li class="en"><strong>E-commerce sellers and online businesses</strong> requiring a registered Florida entity to operate under a legitimate business structure</li><li class="es" style="display:none"><strong>Vendedores de comercio electr&oacute;nico y negocios en l&iacute;nea</strong> que necesitan una entidad registrada en Florida para operar bajo una estructura empresarial leg&iacute;tima</li>
+      </ul>
     </div>
 
     <div class="doc-section" id="why-us">
@@ -192,47 +208,51 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
         <div style="background:var(--gray50);border:1px solid var(--gray200);border-radius:10px;padding:16px">
           <strong style="font-size:.9rem;color:var(--navy)" class="en">Florida Specialists</strong>
           <strong style="font-size:.9rem;color:var(--navy)" class="es" style="display:none">Especialistas en Florida</strong>
-          <p style="font-size:.79rem;color:var(--gray600);margin-top:4px" class="en">We focus exclusively on Florida LLC and Corporation filings. We know the process inside and out.</p>
-          <p style="font-size:.79rem;color:var(--gray600);margin-top:4px" class="es" style="display:none">Nos enfocamos exclusivamente en tr&aacute;mites de LLC y Corporaci&oacute;n en Florida. Conocemos el proceso a fondo.</p>
+          <p style="font-size:.79rem;color:var(--gray600);margin-top:4px" class="en">We focus exclusively on Florida business formations. We know the Division of Corporations process, the IRS requirements, and the timelines &mdash; because this is all we do.</p>
+          <p style="font-size:.79rem;color:var(--gray600);margin-top:4px" class="es" style="display:none">Nos enfocamos exclusivamente en formaciones empresariales en Florida. Conocemos el proceso de la Divisi&oacute;n de Corporaciones, los requisitos del IRS y los plazos, porque esto es todo lo que hacemos.</p>
         </div>
         <div style="background:var(--gray50);border:1px solid var(--gray200);border-radius:10px;padding:16px">
           <strong style="font-size:.9rem;color:var(--navy)" class="en">Bilingual EN / ES</strong>
           <strong style="font-size:.9rem;color:var(--navy)" class="es" style="display:none">Biling&uuml;e EN / ES</strong>
-          <p style="font-size:.79rem;color:var(--gray600);margin-top:4px" class="en">Full service in English and Spanish. No language barriers &mdash; ever.</p>
-          <p style="font-size:.79rem;color:var(--gray600);margin-top:4px" class="es" style="display:none">Servicio completo en ingl&eacute;s y espa&ntilde;ol. Sin barreras de idioma.</p>
+          <p style="font-size:.79rem;color:var(--gray600);margin-top:4px" class="en">Full service in English and Spanish &mdash; from initial inquiry to final document delivery. No language barriers, no misunderstandings.</p>
+          <p style="font-size:.79rem;color:var(--gray600);margin-top:4px" class="es" style="display:none">Servicio completo en ingl&eacute;s y espa&ntilde;ol, desde la consulta inicial hasta la entrega final de documentos. Sin barreras de idioma ni malentendidos.</p>
         </div>
         <div style="background:var(--gray50);border:1px solid var(--gray200);border-radius:10px;padding:16px">
-          <strong style="font-size:.9rem;color:var(--navy)" class="en">Transparent Pricing</strong>
-          <strong style="font-size:.9rem;color:var(--navy)" class="es" style="display:none">Precios Transparentes</strong>
-          <p style="font-size:.79rem;color:var(--gray600);margin-top:4px" class="en">Starting at $49. No hidden fees. You always know exactly what you&rsquo;re paying.</p>
-          <p style="font-size:.79rem;color:var(--gray600);margin-top:4px" class="es" style="display:none">Desde $49. Sin cargos ocultos. Siempre sabe exactamente lo que paga.</p>
+          <strong style="font-size:.9rem;color:var(--navy)" class="en">End-to-End Filing</strong>
+          <strong style="font-size:.9rem;color:var(--navy)" class="es" style="display:none">Tramitaci&oacute;n Completa</strong>
+          <p style="font-size:.79rem;color:var(--gray600);margin-top:4px" class="en">From LLC formation to EIN, Operating Agreement, Annual Report, and beyond &mdash; we support your business at every stage, not just at startup.</p>
+          <p style="font-size:.79rem;color:var(--gray600);margin-top:4px" class="es" style="display:none">Desde la formaci&oacute;n de la LLC hasta el EIN, el Acuerdo Operativo, el Informe Anual y m&aacute;s &mdash; apoyamos su negocio en cada etapa, no solo al inicio.</p>
         </div>
         <div style="background:var(--gray50);border:1px solid var(--gray200);border-radius:10px;padding:16px">
-          <strong style="font-size:.9rem;color:var(--navy)" class="en">WhatsApp Support</strong>
-          <strong style="font-size:.9rem;color:var(--navy)" class="es" style="display:none">Soporte por WhatsApp</strong>
-          <p style="font-size:.79rem;color:var(--gray600);margin-top:4px" class="en">Real people, real answers. Reach us on WhatsApp &mdash; in English or Spanish.</p>
-          <p style="font-size:.79rem;color:var(--gray600);margin-top:4px" class="es" style="display:none">Personas reales, respuestas reales. Cont&aacute;ctenos por WhatsApp en espa&ntilde;ol o ingl&eacute;s.</p>
+          <strong style="font-size:.9rem;color:var(--navy)" class="en">Direct Human Support</strong>
+          <strong style="font-size:.9rem;color:var(--navy)" class="es" style="display:none">Soporte Humano Directo</strong>
+          <p style="font-size:.79rem;color:var(--gray600);margin-top:4px" class="en">No bots, no call centers. When you contact us by WhatsApp or email, you reach a real person who knows your case and can answer your questions.</p>
+          <p style="font-size:.79rem;color:var(--gray600);margin-top:4px" class="es" style="display:none">Sin bots ni centros de llamadas. Cuando nos contacta por WhatsApp o correo electr&oacute;nico, llega a una persona real que conoce su caso y puede responder sus preguntas.</p>
         </div>
       </div>
     </div>
 
     <div class="doc-section" id="bilingual">
       <h2><span class="en-inline">Proudly Bilingual</span><span class="es-inline" style="display:none">Orgullosamente Biling&uuml;es</span></h2>
-      <p class="en">Florida is home to one of the largest Spanish-speaking entrepreneur communities in the United States. We built Florida Business Formation Center to serve everyone &mdash; from native English speakers to recent arrivals from Latin America, the Caribbean, and Spain. Our entire website, forms, and support team operate fully in both English and Spanish.</p>
-      <p class="es" style="display:none">Florida es hogar de una de las comunidades de emprendedores hispanohablantes m&aacute;s grandes de los Estados Unidos. Construimos Florida Business Formation Center para servir a todos &mdash; desde angloparlantes nativos hasta reci&eacute;n llegados de Am&eacute;rica Latina, el Caribe y Espa&ntilde;a. Nuestro sitio web, formularios y equipo de soporte operan completamente en ingl&eacute;s y espa&ntilde;ol.</p>
+      <p class="en">Florida is home to one of the largest and most dynamic Spanish-speaking entrepreneur communities in the United States. Cities like Miami, Orlando, and Tampa have become hubs for Latin American and Caribbean business investment &mdash; and we built Florida Business Formation Center specifically to serve that community alongside every other entrepreneur in the state.</p>
+      <p class="es" style="display:none">Florida alberga una de las comunidades de emprendedores hispanohablantes m&aacute;s grandes y din&aacute;micas de los Estados Unidos. Ciudades como Miami, Orlando y Tampa se han convertido en centros de inversi&oacute;n empresarial latinoamericana y caribe&ntilde;a &mdash; y construimos Florida Business Formation Center espec&iacute;ficamente para servir a esa comunidad junto con todos los dem&aacute;s emprendedores del estado.</p>
+      <p class="en">Language should never be a barrier to starting a business. That&rsquo;s why our entire service operates fully in both English and Spanish &mdash; from our website and intake forms to our client portal, support communications, and document delivery. When you contact us, you will always speak with someone who understands you, in the language you prefer.</p>
+      <p class="es" style="display:none">El idioma nunca debe ser un obst&aacute;culo para iniciar un negocio. Por eso, todo nuestro servicio opera completamente en ingl&eacute;s y espa&ntilde;ol &mdash; desde nuestro sitio web y formularios hasta el portal del cliente, las comunicaciones de soporte y la entrega de documentos. Cuando nos contacte, siempre hablar&aacute; con alguien que le entienda, en el idioma que prefiera.</p>
+      <p class="en">Whether you are filing from Miami, Tampa, Orlando, Jacksonville, or from outside the United States entirely, we are equipped to guide you through every step of the Florida business formation process.</p>
+      <p class="es" style="display:none">Ya sea que est&eacute; tramitando desde Miami, Tampa, Orlando, Jacksonville o desde fuera de los Estados Unidos, estamos preparados para guiarle en cada paso del proceso de formaci&oacute;n empresarial en Florida.</p>
     </div>
 
     <div class="doc-section" id="contact-about">
       <h2><span class="en-inline">Get In Touch</span><span class="es-inline" style="display:none">Cont&aacute;ctanos</span></h2>
-      <p class="en">Have questions before you start? We&rsquo;re happy to help. Reach out via email or WhatsApp &mdash; no obligation, no pressure.</p>
-      <p class="es" style="display:none">&iquest;Tienes preguntas antes de empezar? Estamos felices de ayudarte. Esc&iacute;benos por correo o WhatsApp &mdash; sin compromiso ni presi&oacute;n.</p>
+      <p class="en">Have questions before you get started? We&rsquo;re here to help. Reach out by email or WhatsApp &mdash; no obligation, no pressure, just answers.</p>
+      <p class="es" style="display:none">&iquest;Tiene preguntas antes de comenzar? Estamos aqu&iacute; para ayudar. Esc&iacute;banos por correo electr&oacute;nico o WhatsApp &mdash; sin compromiso, sin presi&oacute;n, solo respuestas.</p>
       <div class="green-box">
-        <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="563f383039163b2f3423253f383325253039243b37223f39387835393b">[email&#160;protected]</a></strong><br/>
+        <strong>info@mybusinessformation.com</strong><br/>
         <span class="en">Florida, United States &nbsp;&bull;&nbsp; mybusinessformation.com</span>
         <span class="es" style="display:none">Florida, Estados Unidos &nbsp;&bull;&nbsp; mybusinessformation.com</span>
       </div>
       <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:16px">
-        <a href="https://wa.me/1XXXXXXXXXX" target="_blank" style="background:#25D366;color:#fff;padding:11px 22px;border-radius:8px;font-size:.88rem;font-weight:600;display:inline-flex;align-items:center;gap:7px">
+        <a href="https://wa.me/13528377755" target="_blank" style="background:#25D366;color:#fff;padding:11px 22px;border-radius:8px;font-size:.88rem;font-weight:600;display:inline-flex;align-items:center;gap:7px">
           <svg viewBox="0 0 24 24" width="16" height="16" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
           <span class="en-inline">Chat on WhatsApp</span><span class="es-inline" style="display:none">Chatea por WhatsApp</span>
         </a>
