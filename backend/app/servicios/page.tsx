@@ -1018,7 +1018,11 @@ var _svcTimer=null,_activeItem=null;
 
 function activateSvc(item){
   clearTimeout(_svcTimer);
-  if(_activeItem&&_activeItem!==item)_activeItem.classList.remove('active');
+  if(_activeItem&&_activeItem!==item){
+    var prev=_activeItem.querySelector('.svc-popup');
+    if(prev)prev.style.maxWidth='';
+    _activeItem.classList.remove('active');
+  }
   _activeItem=item;
   item.classList.add('active');
   document.querySelectorAll('.svc-acc-item').forEach(function(a){
