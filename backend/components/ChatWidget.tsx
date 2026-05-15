@@ -48,6 +48,43 @@ function readFormContext(): { lang: string; firstName: string; businessName: str
   return { lang, firstName: fullFirstName, businessName, email, step, hour, selectedPackage }
 }
 
+function renderMessageContent(text: string) {
+  const sessionUrlRegex = /(https?:\/\/[^\s]+\/\?session=[a-z0-9-]+)/i
+  const parts = text.split(/(https?:\/\/[^\s]+\/\?session=[a-z0-9-]+)/i)
+  if (parts.length === 1) return <>{text}</>
+  return (
+    <>
+      {parts.map((part, i) =>
+        sessionUrlRegex.test(part) ? (
+          <a
+            key={i}
+            href={part}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: 'block',
+              marginTop: '12px',
+              background: 'linear-gradient(135deg,#2563EB,#1C2E44)',
+              color: '#fff',
+              padding: '11px 18px',
+              borderRadius: '8px',
+              fontWeight: 600,
+              fontSize: '0.85rem',
+              textAlign: 'center',
+              textDecoration: 'none',
+              boxShadow: '0 2px 10px rgba(37,99,235,0.35)',
+            }}
+          >
+            Ver y revisar mi orden →
+          </a>
+        ) : (
+          <span key={i}>{part}</span>
+        )
+      )}
+    </>
+  )
+}
+
 export default function ChatWidget() {
   const [open, setOpen] = useState(false)
   const [messages, setMessages] = useState<Message[]>([])
@@ -401,7 +438,7 @@ export default function ChatWidget() {
                     overflowWrap: 'break-word',
                   }}
                 >
-                  {m.content}
+                  {m.role === 'assistant' ? renderMessageContent(m.content) : m.content}
                 </div>
               </div>
             ))}
