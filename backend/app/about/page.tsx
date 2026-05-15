@@ -101,7 +101,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
 @media(max-width:480px){.why-grid{grid-template-columns:1fr}}
 `
   const body = `
-<div class="topbar">&#127775; Florida's trusted business formation experts &mdash; <strong>LLC &amp; Corporation</strong> filing made simple.</div>
+<div class="topbar">Florida's trusted business formation experts &mdash; <strong>LLC &amp; Corporation</strong> filing made simple.</div>
 <header id="mainHeader">
   <div class="header-inner">
     <a href="/" class="logo">
@@ -141,11 +141,11 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
   <aside class="sidebar">
     <div class="sidebar-title en">On This Page</div><div class="sidebar-title es" style="display:none">En Esta P&aacute;gina</div>
     <nav class="sidebar-nav">
-      <a href="#mission" class="active">&#127919; <span class="en-inline">Our Mission</span><span class="es-inline" style="display:none">Nuestra Misi&oacute;n</span></a>
-      <a href="#what-we-do">&#128196; <span class="en-inline">What We Do</span><span class="es-inline" style="display:none">Lo Que Hacemos</span></a>
-      <a href="#why-us">&#11088; <span class="en-inline">Why Choose Us</span><span class="es-inline" style="display:none">&iquest;Por Qu&eacute; Nosotros?</span></a>
-      <a href="#bilingual">&#127760; <span class="en-inline">Bilingual Service</span><span class="es-inline" style="display:none">Servicio Biling&uuml;e</span></a>
-      <a href="#contact-about">&#128231; <span class="en-inline">Get In Touch</span><span class="es-inline" style="display:none">Cont&aacute;ctanos</span></a>
+      <a href="#mission" class="active"><span class="en-inline">Our Mission</span><span class="es-inline" style="display:none">Nuestra Misi&oacute;n</span></a>
+      <a href="#what-we-do"><span class="en-inline">What We Do</span><span class="es-inline" style="display:none">Lo Que Hacemos</span></a>
+      <a href="#why-us"><span class="en-inline">Why Choose Us</span><span class="es-inline" style="display:none">&iquest;Por Qu&eacute; Nosotros?</span></a>
+      <a href="#bilingual"><span class="en-inline">Bilingual Service</span><span class="es-inline" style="display:none">Servicio Biling&uuml;e</span></a>
+      <a href="#contact-about"><span class="en-inline">Get In Touch</span><span class="es-inline" style="display:none">Cont&aacute;ctanos</span></a>
     </nav>
     <div class="sidebar-box">
       <h4 class="en">Ready to Start?</h4><h4 class="es" style="display:none">&iquest;Listo para Empezar?</h4>
@@ -158,7 +158,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
   <div class="doc-content">
 
     <div class="doc-section" id="mission">
-      <h2>&#127919; <span class="en-inline">Our Mission</span><span class="es-inline" style="display:none">Nuestra Misi&oacute;n</span></h2>
+      <h2><span class="en-inline">Our Mission</span><span class="es-inline" style="display:none">Nuestra Misi&oacute;n</span></h2>
       <p class="en">We believe that every entrepreneur &mdash; whether a first-time founder in Miami, a foreign investor in Orlando, or a small business owner in Tampa &mdash; deserves professional, affordable support when starting a business in Florida.</p>
       <p class="es" style="display:none">Creemos que todo emprendedor &mdash; ya sea un fundador primerizo en Miami, un inversionista extranjero en Orlando o un peque&ntilde;o empresario en Tampa &mdash; merece apoyo profesional y asequible al iniciar un negocio en Florida.</p>
       <p class="en">We cut through the red tape so you can focus on what matters most: building your business, serving your customers, and achieving your goals.</p>
@@ -168,7 +168,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
     </div>
 
     <div class="doc-section" id="what-we-do">
-      <h2>&#128196; <span class="en-inline">What We Do</span><span class="es-inline" style="display:none">Lo Que Hacemos</span></h2>
+      <h2><span class="en-inline">What We Do</span><span class="es-inline" style="display:none">Lo Que Hacemos</span></h2>
       <p class="en">Florida Business Formation Center specializes in preparing and filing business formation documents with the Florida Division of Corporations and the IRS. Our services include:</p>
       <p class="es" style="display:none">Florida Business Formation Center se especializa en preparar y presentar documentos de formaci&oacute;n empresarial ante la Divisi&oacute;n de Corporaciones de Florida y el IRS. Nuestros servicios incluyen:</p>
       <ul>
@@ -182,36 +182,32 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
         <li class="en">Articles of Amendment filing</li><li class="es" style="display:none">Presentaci&oacute;n de Art&iacute;culos de Enmienda</li>
         <li class="en">Virtual Mailing Address service</li><li class="es" style="display:none">Servicio de Direcci&oacute;n Postal Virtual</li>
       </ul>
-      <div class="info-box en">&#128204; We are a document preparation service, not a law firm. For legal advice, please consult a licensed Florida attorney.</div>
-      <div class="info-box es" style="display:none">&#128204; Somos un servicio de preparaci&oacute;n de documentos, no un bufete de abogados. Para asesor&iacute;a legal, consulte con un abogado licenciado en Florida.</div>
+      <div class="info-box en">We are a document preparation service, not a law firm. For legal advice, please consult a licensed Florida attorney.</div>
+      <div class="info-box es" style="display:none">Somos un servicio de preparaci&oacute;n de documentos, no un bufete de abogados. Para asesor&iacute;a legal, consulte con un abogado licenciado en Florida.</div>
     </div>
 
     <div class="doc-section" id="why-us">
-      <h2>&#11088; <span class="en-inline">Why Choose Florida Business Formation Center</span><span class="es-inline" style="display:none">&iquest;Por Qu&eacute; Elegirnos?</span></h2>
+      <h2><span class="en-inline">Why Choose Florida Business Formation Center</span><span class="es-inline" style="display:none">&iquest;Por Qu&eacute; Elegirnos?</span></h2>
       <div class="why-grid">
         <div style="background:var(--gray50);border:1px solid var(--gray200);border-radius:10px;padding:16px">
-          <div style="font-size:1.4rem;margin-bottom:8px">&#128205;</div>
           <strong style="font-size:.9rem;color:var(--navy)" class="en">Florida Specialists</strong>
           <strong style="font-size:.9rem;color:var(--navy)" class="es" style="display:none">Especialistas en Florida</strong>
           <p style="font-size:.79rem;color:var(--gray600);margin-top:4px" class="en">We focus exclusively on Florida LLC and Corporation filings. We know the process inside and out.</p>
           <p style="font-size:.79rem;color:var(--gray600);margin-top:4px" class="es" style="display:none">Nos enfocamos exclusivamente en tr&aacute;mites de LLC y Corporaci&oacute;n en Florida. Conocemos el proceso a fondo.</p>
         </div>
         <div style="background:var(--gray50);border:1px solid var(--gray200);border-radius:10px;padding:16px">
-          <div style="font-size:1.4rem;margin-bottom:8px">&#127760;</div>
           <strong style="font-size:.9rem;color:var(--navy)" class="en">Bilingual EN / ES</strong>
           <strong style="font-size:.9rem;color:var(--navy)" class="es" style="display:none">Biling&uuml;e EN / ES</strong>
           <p style="font-size:.79rem;color:var(--gray600);margin-top:4px" class="en">Full service in English and Spanish. No language barriers &mdash; ever.</p>
           <p style="font-size:.79rem;color:var(--gray600);margin-top:4px" class="es" style="display:none">Servicio completo en ingl&eacute;s y espa&ntilde;ol. Sin barreras de idioma.</p>
         </div>
         <div style="background:var(--gray50);border:1px solid var(--gray200);border-radius:10px;padding:16px">
-          <div style="font-size:1.4rem;margin-bottom:8px">&#128297;</div>
           <strong style="font-size:.9rem;color:var(--navy)" class="en">Transparent Pricing</strong>
           <strong style="font-size:.9rem;color:var(--navy)" class="es" style="display:none">Precios Transparentes</strong>
           <p style="font-size:.79rem;color:var(--gray600);margin-top:4px" class="en">Starting at $49. No hidden fees. You always know exactly what you&rsquo;re paying.</p>
           <p style="font-size:.79rem;color:var(--gray600);margin-top:4px" class="es" style="display:none">Desde $49. Sin cargos ocultos. Siempre sabe exactamente lo que paga.</p>
         </div>
         <div style="background:var(--gray50);border:1px solid var(--gray200);border-radius:10px;padding:16px">
-          <div style="font-size:1.4rem;margin-bottom:8px">&#128241;</div>
           <strong style="font-size:.9rem;color:var(--navy)" class="en">WhatsApp Support</strong>
           <strong style="font-size:.9rem;color:var(--navy)" class="es" style="display:none">Soporte por WhatsApp</strong>
           <p style="font-size:.79rem;color:var(--gray600);margin-top:4px" class="en">Real people, real answers. Reach us on WhatsApp &mdash; in English or Spanish.</p>
@@ -221,19 +217,19 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
     </div>
 
     <div class="doc-section" id="bilingual">
-      <h2>&#127760; <span class="en-inline">Proudly Bilingual</span><span class="es-inline" style="display:none">Orgullosamente Biling&uuml;es</span></h2>
+      <h2><span class="en-inline">Proudly Bilingual</span><span class="es-inline" style="display:none">Orgullosamente Biling&uuml;es</span></h2>
       <p class="en">Florida is home to one of the largest Spanish-speaking entrepreneur communities in the United States. We built Florida Business Formation Center to serve everyone &mdash; from native English speakers to recent arrivals from Latin America, the Caribbean, and Spain. Our entire website, forms, and support team operate fully in both English and Spanish.</p>
       <p class="es" style="display:none">Florida es hogar de una de las comunidades de emprendedores hispanohablantes m&aacute;s grandes de los Estados Unidos. Construimos Florida Business Formation Center para servir a todos &mdash; desde angloparlantes nativos hasta reci&eacute;n llegados de Am&eacute;rica Latina, el Caribe y Espa&ntilde;a. Nuestro sitio web, formularios y equipo de soporte operan completamente en ingl&eacute;s y espa&ntilde;ol.</p>
     </div>
 
     <div class="doc-section" id="contact-about">
-      <h2>&#128231; <span class="en-inline">Get In Touch</span><span class="es-inline" style="display:none">Cont&aacute;ctanos</span></h2>
+      <h2><span class="en-inline">Get In Touch</span><span class="es-inline" style="display:none">Cont&aacute;ctanos</span></h2>
       <p class="en">Have questions before you start? We&rsquo;re happy to help. Reach out via email or WhatsApp &mdash; no obligation, no pressure.</p>
       <p class="es" style="display:none">&iquest;Tienes preguntas antes de empezar? Estamos felices de ayudarte. Esc&iacute;benos por correo o WhatsApp &mdash; sin compromiso ni presi&oacute;n.</p>
       <div class="green-box">
-        &#128231; <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="563f383039163b2f3423253f383325253039243b37223f39387835393b">[email&#160;protected]</a></strong><br/>
-        <span class="en">&#128205; Florida, United States &nbsp;&bull;&nbsp; &#127760; mybusinessformation.com</span>
-        <span class="es" style="display:none">&#128205; Florida, Estados Unidos &nbsp;&bull;&nbsp; &#127760; mybusinessformation.com</span>
+        <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="563f383039163b2f3423253f383325253039243b37223f39387835393b">[email&#160;protected]</a></strong><br/>
+        <span class="en">Florida, United States &nbsp;&bull;&nbsp; mybusinessformation.com</span>
+        <span class="es" style="display:none">Florida, Estados Unidos &nbsp;&bull;&nbsp; mybusinessformation.com</span>
       </div>
       <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:16px">
         <a href="https://wa.me/1XXXXXXXXXX" target="_blank" style="background:#25D366;color:#fff;padding:11px 22px;border-radius:8px;font-size:.88rem;font-weight:600;display:inline-flex;align-items:center;gap:7px">
@@ -260,7 +256,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
           <a href="/legal" data-en="Legal Disclaimer" data-es="Aviso Legal">Legal Disclaimer</a>
           <a href="/about" data-en="About Us" data-es="Nosotros">About Us</a>
         </div>
-        <div style="margin-top:8px;font-size:0.77rem;color:rgba(255,255,255,0.45)">&#128231; <a href="mailto:info@mybusinessformation.com" style="color:inherit">info@mybusinessformation.com</a></div>
+        <div style="margin-top:8px;font-size:0.77rem;color:rgba(255,255,255,0.45)"><a href="mailto:info@mybusinessformation.com" style="color:inherit">info@mybusinessformation.com</a></div>
       </div>
       <div class="footer-disclaimer">
         <strong style="color:rgba(255,255,255,0.5);display:block;margin-bottom:4px">Important Notice</strong>

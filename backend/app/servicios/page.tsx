@@ -341,7 +341,7 @@ nav a:hover{color:var(--navy);background:var(--gray100)}
 /* FOOTER */
 footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;margin-top:auto}
 .footer-inner{max-width:1280px;margin:0 auto}
-.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;margin-bottom:40px}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px;margin-bottom:40px}
 @media(max-width:768px){.footer-grid{grid-template-columns:1fr 1fr}}
 .footer-brand p{font-size:.79rem;line-height:1.7;color:rgba(255,255,255,.5);max-width:260px;margin-top:10px}
 .footer-col h5{font-family:'Fraunces',serif;font-size:.92rem;color:#fff;margin-bottom:14px;font-weight:600}
@@ -563,14 +563,6 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
         <a href="#registered-agent" onclick="openServiceForm('registered-agent')" data-en="Registered Agent" data-es="Agente Registrado">Agente Registrado</a>
         <a href="#ein" onclick="openServiceForm('ein')" data-en="EIN / Tax ID" data-es="EIN / ID Fiscal">EIN / ID Fiscal</a>
         <a href="#operating-agreement" onclick="openServiceForm('operating-agreement')" data-en="Operating Agreement" data-es="Acuerdo Operativo">Acuerdo Operativo</a>
-      </div>
-      <div class="footer-col">
-        <h5 data-en="Add-On Services" data-es="Servicios Adicionales">Servicios Adicionales</h5>
-        <a href="#itin" onclick="openServiceForm('itin')" data-en="ITIN Application" data-es="Solicitud de ITIN">Solicitud de ITIN</a>
-        <a href="#dba" onclick="openServiceForm('dba')" data-en="DBA / Fictitious Name" data-es="DBA / Nombre Ficticio">DBA / Nombre Ficticio</a>
-        <a href="#amendment" onclick="openServiceForm('amendment')" data-en="Articles of Amendment" data-es="Artículos de Enmienda">Artículos de Enmienda</a>
-        <a href="#virtual-address" onclick="openServiceForm('virtual-address')" data-en="Virtual Mailing Address" data-es="Dirección Virtual de Correo">Dirección Virtual de Correo</a>
-        <a href="#annual-report" onclick="openServiceForm('annual-report')" data-en="Annual Report Filing" data-es="Presentación de Reporte Anual">Presentación de Reporte Anual</a>
       </div>
       <div class="footer-col">
         <h5 data-en="Company" data-es="Compañía">Compañía</h5>
