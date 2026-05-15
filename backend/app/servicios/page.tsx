@@ -1025,9 +1025,11 @@ function activateSvc(item){
   }
   _activeItem=item;
   item.classList.add('active');
-  document.querySelectorAll('.svc-acc-item').forEach(function(a){
-    if(a!==item)a.style.pointerEvents='none';
-  });
+  if(!_isTouch){
+    document.querySelectorAll('.svc-acc-item').forEach(function(a){
+      if(a!==item)a.style.pointerEvents='none';
+    });
+  }
   var popup=item.querySelector('.svc-popup');
   if(popup){
     popup.style.maxWidth='';
@@ -1049,7 +1051,7 @@ function deactivateSvc(){
       _activeItem.classList.remove('active');
       _activeItem=null;
     }
-    document.querySelectorAll('.svc-acc-item').forEach(function(a){a.style.pointerEvents='';});
+    if(!_isTouch)document.querySelectorAll('.svc-acc-item').forEach(function(a){a.style.pointerEvents='';});
   },300);
 }
 
