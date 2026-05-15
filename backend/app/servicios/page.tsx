@@ -341,8 +341,8 @@ nav a:hover{color:var(--navy);background:var(--gray100)}
 /* FOOTER */
 footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;margin-top:auto}
 .footer-inner{max-width:1280px;margin:0 auto}
-.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px;margin-bottom:40px}
-@media(max-width:768px){.footer-grid{grid-template-columns:1fr 1fr}}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr;gap:40px;margin-bottom:40px}
+@media(max-width:768px){.footer-grid{grid-template-columns:1fr}}
 .footer-brand p{font-size:.79rem;line-height:1.7;color:rgba(255,255,255,.5);max-width:260px;margin-top:10px}
 .footer-col h5{font-family:'Fraunces',serif;font-size:.92rem;color:#fff;margin-bottom:14px;font-weight:600}
 .footer-col a{display:block;font-size:.8rem;color:rgba(255,255,255,.5);margin-bottom:8px;transition:color .2s;cursor:pointer}
@@ -555,14 +555,6 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
         <div style="font-family:'Fraunces',serif;color:#fff;font-size:.95rem;font-weight:600;margin-bottom:6px">Florida Business Formation Center</div>
         <p>Professional business formation services for entrepreneurs and investors throughout Florida.</p>
         <p style="margin-top:9px;color:rgba(255,255,255,.35);font-size:.72rem">&#128231; info@mybusinessformation.com</p>
-      </div>
-      <div class="footer-col">
-        <h5 data-en="Formation" data-es="Formación">Formación</h5>
-        <a href="/#pricing" data-en="LLC Formation" data-es="Formación de LLC">Formación de LLC</a>
-        <a href="/#pricing" data-en="Corporation Formation" data-es="Formación de Corporación">Formación de Corporación</a>
-        <a href="#registered-agent" onclick="openServiceForm('registered-agent')" data-en="Registered Agent" data-es="Agente Registrado">Agente Registrado</a>
-        <a href="#ein" onclick="openServiceForm('ein')" data-en="EIN / Tax ID" data-es="EIN / ID Fiscal">EIN / ID Fiscal</a>
-        <a href="#operating-agreement" onclick="openServiceForm('operating-agreement')" data-en="Operating Agreement" data-es="Acuerdo Operativo">Acuerdo Operativo</a>
       </div>
       <div class="footer-col">
         <h5 data-en="Company" data-es="Compañía">Compañía</h5>
