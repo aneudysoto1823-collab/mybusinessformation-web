@@ -342,7 +342,7 @@ nav a:hover{color:var(--navy);background:var(--gray100)}
 footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;margin-top:auto}
 .footer-inner{max-width:1280px;margin:0 auto}
 .footer-grid{display:grid;grid-template-columns:2fr 1fr;gap:40px;margin-bottom:40px}
-@media(max-width:768px){.footer-grid{grid-template-columns:1fr}.footer-col a{display:inline-block;margin-right:14px;margin-bottom:6px}}
+@media(max-width:768px){.footer-grid{grid-template-columns:1fr}}
 .footer-brand p{font-size:.79rem;line-height:1.7;color:rgba(255,255,255,.5);max-width:260px;margin-top:10px}
 .footer-col h5{font-family:'Fraunces',serif;font-size:.92rem;color:#fff;margin-bottom:14px;font-weight:600}
 .footer-col a{display:block;font-size:.8rem;color:rgba(255,255,255,.5);margin-bottom:8px;transition:color .2s;cursor:pointer}
@@ -471,6 +471,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
 .services-accordion .svc-acc-item:nth-child(even) .svc-popup{left:auto;right:calc(100% + 14px);transform:translateX(-8px)}
 .svc-acc-item.active .svc-popup{opacity:1;pointer-events:auto;transform:translateX(0)}
 @media(max-width:1100px){.svc-popup{display:none}}
+@media(max-width:768px){.footer-col a{display:inline-block;margin-right:14px;margin-bottom:6px}}
 .svc-popup-head{padding:14px 18px 12px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--gray100)}
 .svc-popup-icon{width:40px;height:40px;border-radius:10px;background:var(--blue);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;box-shadow:0 4px 12px rgba(37,99,235,.28)}
 .svc-popup-icon svg{width:19px;height:19px}
