@@ -261,7 +261,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
           <strong class="en">Book an Appointment</strong><strong class="es" style="display:none">Reserve una Cita</strong>
           <p class="en">Schedule a one-on-one consultation at a time that works for you. We&rsquo;ll walk you through your options and answer every question you have.</p>
           <p class="es" style="display:none">Programe una consulta personalizada a la hora que mejor le convenga. Le guiaremos por sus opciones y responderemos cada pregunta.</p>
-          <a href="https://calendly.com/mybusinessformation" target="_blank" class="card-btn" style="background:var(--blue);color:#fff">
+          <a href="https://calendly.com/mybusinessformation" target="_blank" class="card-btn" style="background:#fff;color:var(--blue);border:1.5px solid var(--blue)">
             <span class="en-inline">Schedule Now &#8594;</span><span class="es-inline" style="display:none">Reservar Ahora &#8594;</span>
           </a>
         </div>
@@ -279,7 +279,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
           <strong class="en">Email</strong><strong class="es" style="display:none">Correo Electr&oacute;nico</strong>
           <p class="en">Send us your questions at any time and we&rsquo;ll get back to you promptly with a clear, detailed response tailored to your situation.</p>
           <p class="es" style="display:none">Env&iacute;enos sus preguntas en cualquier momento y le responderemos prontamente con una respuesta clara y detallada adaptada a su situaci&oacute;n.</p>
-          <a href="mailto:info@mybusinessformation.com" class="card-btn" style="background:var(--navy);color:#fff">info@mybusinessformation.com</a>
+          <a href="mailto:info@mybusinessformation.com" class="card-btn" style="background:#fff;color:var(--blue);border:1.5px solid var(--blue)">info@mybusinessformation.com</a>
         </div>
       </div>
     </div>
