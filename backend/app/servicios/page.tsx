@@ -341,7 +341,7 @@ nav a:hover{color:var(--navy);background:var(--gray100)}
 /* FOOTER */
 footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;margin-top:auto}
 .footer-inner{max-width:1280px;margin:0 auto}
-.footer-grid{display:grid;grid-template-columns:2fr 1fr;gap:40px;margin-bottom:40px}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px;margin-bottom:40px}
 @media(max-width:768px){.footer-grid{grid-template-columns:1fr}}
 .footer-brand p{font-size:.79rem;line-height:1.7;color:rgba(255,255,255,.5);max-width:260px;margin-top:10px}
 .footer-col h5{font-family:'Fraunces',serif;font-size:.92rem;color:#fff;margin-bottom:14px;font-weight:600}
@@ -563,6 +563,13 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
         <a href="/#pricing" data-en="Packages" data-es="Paquetes">Paquetes</a>
         <a href="/#faq" data-en="FAQ" data-es="FAQ">FAQ</a>
         <a href="/#contact" data-en="Contact" data-es="Contacto">Contacto</a>
+        <a href="/about" data-en="About Us" data-es="Nosotros">About Us</a>
+      </div>
+      <div class="footer-col">
+        <h5 data-en="Legal" data-es="Legal">Legal</h5>
+        <a href="/terms" data-en="Terms &amp; Conditions" data-es="Términos y Condiciones">Terms &amp; Conditions</a>
+        <a href="/privacy" data-en="Privacy Policy" data-es="Política de Privacidad">Privacy Policy</a>
+        <a href="/legal" data-en="Legal Disclaimer" data-es="Aviso Legal">Legal Disclaimer</a>
       </div>
     </div>
     <hr class="footer-divider"/>
