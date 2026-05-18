@@ -120,6 +120,10 @@ Si necesitas cambiar el diseño de una página:
 
 **NOTA (2026-05-18):** Limpieza completada (commit `c7bdc07`). Se eliminaron de `backend/modules/`: `orders/`, `clients/`, `payments/`, `notifications/` y `documents.route.ts`. También se migró el último endpoint que aún llamaba a Railway (`backend/app/api/admin/upload-certificate/route.ts`) a Supabase REST + `lib/notifications`. Quedan vivos en `modules/`: `names/names.route.ts` (Etapa 5) y `documents/documents.service.ts` (lo usa Vercel para generar PDFs). Ver `LOGICA_DE_NEGOCIO/00_arquitectura_tecnica_de_una_orden.md` para el detalle de qué se migró a Vercel y por qué.
 
+Pendientes de higiene técnica:
+- [ ] Refrescar `.env.local` local con `vercel env pull` — apunta al Supabase descontinuado, leería data vieja si se corre `npm run dev`. Acción solo del lado del usuario (terminal local).
+- [x] Mover `backend/modules/documents/documents.service.ts` → `backend/lib/pdf-generator.ts` para consistencia (2026-05-18). Mismo patrón que `lib/notifications.ts`.
+
 ### Etapa 3 — Base de Datos PostgreSQL (1-2 semanas)
 - [x] Instalar PostgreSQL — usando Supabase como hosting
 - [x] Crear tablas: modelo Order completo en Supabase

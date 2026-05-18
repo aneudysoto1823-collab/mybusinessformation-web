@@ -7,7 +7,7 @@ import {
   generateBOIFiling,
   generateArticlesOfOrganization,
   generateDBA,
-} from '@/modules/documents/documents.service'
+} from '@/lib/pdf-generator'
 
 async function verifyAdmin(request: NextRequest): Promise<boolean> {
   const session = request.cookies.get('admin_session')
