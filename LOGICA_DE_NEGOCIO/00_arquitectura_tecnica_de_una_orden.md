@@ -3,7 +3,7 @@
 > Documento maestro que explica cómo se conectan todos los servicios del stack
 > y cuál es el rol específico de cada uno en el ciclo de vida de una orden.
 
-**Última actualización:** 2026-05-13
+**Última actualización:** 2026-05-18
 **Decisión arquitectural:** Vercel-first con Railway dedicado exclusivamente a Etapa 5 (Sunbiz).
 
 ---
@@ -448,24 +448,24 @@ Durante una sesión de debugging se descubrieron varios bugs apilados que confun
 
 ## 9. Hitos completados y próximos pasos
 
-### Completado hasta 2026-05-13
+### Completado hasta 2026-05-18
 
-- ✅ Migración de los 5 handlers de notifications admin de Railway/Express a Vercel/Supabase REST (commit `a5e1d45`).
+- ✅ Migración de los 5 handlers de notifications admin de Railway/Express a Vercel/Supabase REST (commit `a5e1d45`, 2026-05-13).
 - ✅ Decisión arquitectural: Railway dormido salvo Etapa 5.
 - ✅ Documento de arquitectura técnica (este archivo).
+- ✅ Etapa 15 parte Vercel: Sentry Next.js + ruta `/sentry-client-test` + Alert Rule + 3 monitores BetterStack + runbooks + doc maestro `15_sentry_betterstack_monitoring.md` (commits `b1c52d7`, `bd7021a`, 2026-05-13).
+- ✅ Migración del último endpoint admin (`upload-certificate`) de Railway a Vercel/Supabase REST (commit `c7bdc07`, 2026-05-18). Cero llamadas a Railway desde Vercel para flows de admin.
+- ✅ Limpieza de código muerto en `backend/modules/`: eliminados `orders/`, `clients/`, `payments/`, `notifications/` y `documents.route.ts`. Express queda con solo `/health` + `/api/names` (Etapa 5 ready) + `documents.service.ts` (que Vercel sigue usando para generar PDFs vía `@/modules/documents/documents.service`).
 
 ### Corto plazo (próximas sesiones)
 
-1. **Templates HTML pendientes** para `sendOrderProcessed` (status: `filed`) y `sendOrderApproved` (status: `approved`). Hoy ambas funciones son stubs vacíos en `backend/lib/notifications.ts` y `backend/modules/notifications/notifications.service.ts` — cuando el admin avanza el status, no se envía email.
+1. **Templates HTML pendientes** para `sendOrderProcessed` (status: `filed`) y `sendOrderApproved` (status: `approved`). Hoy ambas funciones son stubs vacíos en `backend/lib/notifications.ts` — cuando el admin avanza el status, no se envía email.
 
 2. **Verificar dominio** `mybusinessformation.com` en Resend para salir del modo sandbox. Lo trabaja Aneudys (el socio Fabián).
 
-3. **Limpiar `backend/modules/`** del código que ya no se usa:
-   - Eliminar `notifications.route.ts` y `notifications.service.ts` de Express (código no alcanzado desde el admin).
-   - Eliminar `orders/`, `clients/`, `payments/` (verificar usos antes de borrar).
-   - Mantener `names/` para Etapa 5 (Sunbiz).
+3. **Evaluar mover `documents.service.ts` a `backend/lib/`** para consistencia arquitectural. Hoy vive en `backend/modules/documents/` pero Vercel lo importa con `@/modules/...`, lo cual funciona porque el bundler de Next.js lo resuelve aunque `tsconfig.json` excluya `modules/` del include. Es semi-frágil. Mismo patrón que aplicamos a `notifications.ts` el 2026-05-13.
 
-4. **Documentar oficialmente** en CONTEXTO.md que Railway queda en standby hasta Etapa 5.
+4. **Refrescar `.env.local` local** con `vercel env pull` para alinear con las env vars actuales de Vercel (incluyendo `SUPABASE_URL` y `SUPABASE_SERVICE_ROLE_KEY` del Supabase activo). Importante para `npm run dev` local; producción ya está OK.
 
 ### Medio plazo
 

@@ -116,7 +116,9 @@ Si necesitas cambiar el diseño de una página:
 - [x] Servidor Express en Railway
 - [x] Formulario conectado al backend
 
-**NOTA (2026-05-13):** Decisión arquitectural Opción B — Express en Railway queda DORMIDO. Toda la lógica del negocio vive en Vercel (Next.js + Supabase REST + Resend). Railway solo se va a despertar cuando se implemente Etapa 5 (Sunbiz). Pendiente para próxima sesión: limpiar `backend/modules/` del código que ya no se llama desde producción (`orders/`, `clients/`, `payments/`, `notifications/`). Mantener solo `names/` para Etapa 5. Ver `LOGICA_DE_NEGOCIO/00_arquitectura_tecnica_de_una_orden.md` para el detalle de qué se migró a Vercel y por qué.
+**NOTA (2026-05-13):** Decisión arquitectural Opción B — Express en Railway queda DORMIDO. Toda la lógica del negocio vive en Vercel (Next.js + Supabase REST + Resend). Railway solo se va a despertar cuando se implemente Etapa 5 (Sunbiz).
+
+**NOTA (2026-05-18):** Limpieza completada (commit `c7bdc07`). Se eliminaron de `backend/modules/`: `orders/`, `clients/`, `payments/`, `notifications/` y `documents.route.ts`. También se migró el último endpoint que aún llamaba a Railway (`backend/app/api/admin/upload-certificate/route.ts`) a Supabase REST + `lib/notifications`. Quedan vivos en `modules/`: `names/names.route.ts` (Etapa 5) y `documents/documents.service.ts` (lo usa Vercel para generar PDFs). Ver `LOGICA_DE_NEGOCIO/00_arquitectura_tecnica_de_una_orden.md` para el detalle de qué se migró a Vercel y por qué.
 
 ### Etapa 3 — Base de Datos PostgreSQL (1-2 semanas)
 - [x] Instalar PostgreSQL — usando Supabase como hosting
