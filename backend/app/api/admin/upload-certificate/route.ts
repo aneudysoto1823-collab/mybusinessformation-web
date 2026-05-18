@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-import { backendFetch } from '@/lib/backend'
+import { getSupabaseAdmin } from '@/lib/supabase'
+import { sendCertificateDelivery } from '@/lib/notifications'
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,12 +12,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Faltan: file, orderId' }, { status: 400 })
     }
 
-    // 1. Subir PDF a Supabase Storage
-    const supabase = createClient(
-      process.env.SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
+    const supabase = getSupabaseAdmin()
 
+    // 1. Subir PDF a Supabase Storage
     const bytes = await file.arrayBuffer()
     const { error: uploadError } = await supabase.storage
       .from('certificates')
@@ -30,39 +27,47 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: `Error al subir: ${uploadError.message}` }, { status: 500 })
     }
 
-    // 2. Obtener datos de la orden para el email
-    const orderRes = await backendFetch(`/api/orders/${orderId}`)
-    if (!orderRes.ok) {
-      return NextResponse.json({ error: 'Orden no encontrada en el backend' }, { status: 404 })
-    }
-    const orderData = await orderRes.json()
-    const order = orderData.order ?? orderData.data ?? orderData
+    // 2. Leer datos de la orden para el email
+    const { data: order, error: orderError } = await supabase
+      .from('Order')
+      .select('id, firstName, email, companyName, unsubscribed')
+      .eq('id', orderId)
+      .single()
 
-    // 3. Enviar email de certificate al cliente
-    const emailRes = await backendFetch('/api/notifications/certificate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+    if (orderError || !order) {
+      return NextResponse.json({ error: 'Orden no encontrada' }, { status: 404 })
+    }
+
+    // 3. Enviar email de Certificate al cliente
+    try {
+      await sendCertificateDelivery({
         id: order.id,
         firstName: order.firstName,
         email: order.email,
         companyName: order.companyName,
-      }),
-    })
-
-    if (!emailRes.ok) {
+        unsubscribed: order.unsubscribed ?? false,
+      })
+    } catch (emailErr: unknown) {
+      const msg = emailErr instanceof Error ? emailErr.message : String(emailErr)
+      console.error('[upload-certificate] email error:', msg)
       return NextResponse.json({ error: 'PDF subido pero falló el email' }, { status: 500 })
     }
 
-    // 4. Actualizar orden a completed
-    await backendFetch(`/api/orders/${orderId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: 'completed' }),
-    })
+    // 4. Marcar orden como completed
+    const { error: updateError } = await supabase
+      .from('Order')
+      .update({ status: 'completed', updatedAt: new Date().toISOString() })
+      .eq('id', orderId)
+
+    if (updateError) {
+      console.error('[upload-certificate] update error:', updateError.message)
+      // PDF subido y email enviado OK; el cambio de status falló pero no es fatal.
+      // El admin puede forzar el status manualmente desde el panel.
+    }
 
     return NextResponse.json({ success: true })
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err)
+    return NextResponse.json({ error: msg }, { status: 500 })
   }
 }

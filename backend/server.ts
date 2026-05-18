@@ -1,11 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
-import ordersRouter from './modules/orders/orders.route'
-import clientsRouter from './modules/clients/clients.route'
-import paymentsRouter from './modules/payments/payments.route'
-import documentsRouter from './modules/documents/documents.route'
-import notificationsRouter from './modules/notifications/notifications.route'
 import namesRouter from './modules/names/names.route'
 
 dotenv.config()
@@ -27,8 +22,6 @@ const requireApiKey = (req: Request, res: Response, next: NextFunction) => {
   const apiKey = req.headers['x-api-key']
   const expected = process.env.INTERNAL_API_KEY
   const received = Array.isArray(apiKey) ? apiKey[0] : apiKey
-  console.log(`[requireApiKey] received: "${received?.substring(0, 8)}...${received?.slice(-4)}" len=${received?.length}`)
-  console.log(`[requireApiKey] expected: "${expected?.substring(0, 8)}...${expected?.slice(-4)}" len=${expected?.length}`)
   if (!received || received !== expected) {
     res.status(401).json({ error: 'Unauthorized' })
     return
@@ -44,13 +37,11 @@ app.get('/health', (_req, res) => {
   res.json({ status: 'ok' })
 })
 
+// Decisión arquitectural Opción B (2026-05-13): toda la lógica de negocio vive
+// en Vercel. Este server Express queda dormido hasta Etapa 5 (Sunbiz), que es
+// el único caso de uso que justifica un proceso persistente con queries pesadas
+// a PostgreSQL. Ver LOGICA_DE_NEGOCIO/00_arquitectura_tecnica_de_una_orden.md.
 app.use('/api', requireApiKey)
-
-app.use('/api/orders', ordersRouter)
-app.use('/api/clients', clientsRouter)
-app.use('/api/payments', paymentsRouter)
-app.use('/api/documents', documentsRouter)
-app.use('/api/notifications', notificationsRouter)
 app.use('/api/names', namesRouter)
 
 app.listen(PORT, () => {
