@@ -352,7 +352,7 @@ Defensa server:
 - [x] Cero `NEXT_PUBLIC_*SECRET*` en código — auditado con grep 2026-05-07: cero secretos expuestos en bundle cliente
 
 Defensa browser:
-- [ ] 5 security headers globales en backend/next.config.ts: Content-Security-Policy con whitelist explícita (Stripe, Supabase, Resend, GA4, Sentry), Strict-Transport-Security max-age=63072000 includeSubDomains preload, X-Frame-Options DENY, X-Content-Type-Options nosniff, Referrer-Policy strict-origin-when-cross-origin, Permissions-Policy denegando camera/microphone/geolocation/interest-cohort
+- [x] 5 security headers globales en backend/next.config.ts — completado 2026-05-18: CSP con whitelist (Stripe, Supabase via wildcard, Resend, GA4, Sentry tunnel `/monitoring`), HSTS 63072000 + includeSubDomains + preload, X-Frame-Options DENY, X-Content-Type-Options nosniff, Referrer-Policy strict-origin-when-cross-origin, Permissions-Policy denegando camera/microphone/geolocation/interest-cohort. Aplicados via `headers()` async en config. Pendiente: validar con `curl -I https://mybusinessformation.com/` post-deploy.
 - [ ] Cookie Consent banner + Google Consent Mode v2: categorías necessary / analytics / marketing → mapeo a analytics_storage, ad_storage, ad_user_data, ad_personalization. Bilingüe ES/EN. Tono directo, no legalés
 - [ ] Validar headers en producción con `curl -I https://mybusinessformation.com/`
 
