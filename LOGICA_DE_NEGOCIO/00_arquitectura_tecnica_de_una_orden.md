@@ -479,7 +479,10 @@ Durante una sesión de debugging se descubrieron varios bugs apilados que confun
 
 ---
 
-## 10. Integración futura con OPABIZ (Etapa 18, en desarrollo)
+## 10. Integración futura con OPABIZ (Etapa 18, POSTLANZAMIENTO)
+
+> **NOTA (2026-05-18):** OPABIZ queda descartada del scope pre-launch. Se retoma post-launch cuando haya volumen real de órdenes que justifique automatizar la asignación a empleados. Esta sección documenta cómo se va a integrar cuando llegue el momento — sin invertir tiempo hoy.
+
 
 OPABIZ es la aplicación interna de Florida Business Formation Center que va a gestionar y asignar órdenes a los empleados. Cuando un cliente paga en MBF, la orden hoy queda en `in_review` esperando que el admin la procese manualmente desde el panel. Con OPABIZ, esa orden se va a derivar automáticamente a un empleado calificado para procesarla.
 
@@ -535,7 +538,7 @@ OPABIZ es la aplicación interna de Florida Business Formation Center que va a g
 - **App de empleado:** PWA o Expo (a definir).
 - **Storage:** buckets nuevos en Supabase (`opabiz-documentos`, `opabiz-certificados`).
 
-### Estado actual (Etapa 18 — en desarrollo)
+### Estado actual (Etapa 18 — postlanzamiento, no se trabaja hoy)
 
 - ✅ Tablas creadas en Supabase (Etapa 1 de OPABIZ).
 - ❌ RLS pendiente.

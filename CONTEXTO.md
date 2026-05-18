@@ -517,7 +517,10 @@ Ver troubleshooting en `TROUBLESHOOTING/13_responsive_design.md`
 
 ---
 
-### Etapa 18 — OPABIZ: App On-Demand para Empleados (EN DESARROLLO)
+### Etapa 18 — OPABIZ: App On-Demand para Empleados (POSTLANZAMIENTO — etapa futura)
+
+> **NOTA (2026-05-18):** OPABIZ queda DESCARTADA del scope pre-launch. Se retoma después del lanzamiento oficial del sitio público, cuando haya volumen real de órdenes que justifique automatizar la asignación a empleados. La Etapa 1 de OPABIZ (tablas Supabase) ya está creada y queda lista para cuando se retome; el resto (Edge Functions, panel admin OPABIZ, app empleado, integraciones) se posponen sine die. **No se invertirá tiempo aquí hasta post-launch.**
+
 
 ```diff
 + Qué es: aplicación interna de Florida Business Formation Center para gestionar
