@@ -163,7 +163,7 @@ Pendientes de higiene técnica:
 - [x] Motor de emails probado y funcionando con Resend
 - [x] WhatsApp `+13528377755` configurado en todos los templates de email
 - [x] Handlers de emails manuales del admin migrados de Railway/Express a Vercel/Supabase REST (commit `a5e1d45`, 2026-05-13). Endpoint `/api/proxy/notifications/[type]` ya NO pasa por Railway. Las funciones de Resend viven en `backend/lib/notifications.ts` (canónica para Vercel); la copia en `backend/modules/notifications/notifications.service.ts` queda pendiente de eliminar junto con el resto del código muerto de Express.
-- [ ] Templates `sendOrderProcessed` (status: filed) y `sendOrderApproved` (status: approved) — funciones existen pero son stubs vacíos, pendiente diseñar HTML
+- [x] Templates `sendOrderProcessed` (status: filed) y `sendOrderApproved` (status: approved) — completado 2026-05-18: HTML en `backend/lib/notifications.ts` con estilo coherente al resto. Respeta `unsubscribed`. Subject "📋 Your filing is in" y "🎉 Approved!". Incluye ETA por speed (standard 3-5 días / expedited 1-2 días).
 - [ ] Email con contrato PDF adjunto — pendiente hasta Etapa 6 (generación de documentos)
 - [ ] Verificar dominio mybusinessformation.com en Resend — lo trabaja el socio (Aneudys). Hoy Resend está en modo sandbox y solo entrega emails al destinatario verificado.
 - [x] Email de confirmación enviado automáticamente al cliente

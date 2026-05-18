@@ -224,26 +224,116 @@ export const sendSuggestNames = async (order: {
 }
 
 // ── 4. Orden procesada ante el Estado de Florida (status: filed) ─────────────
-//    Template pendiente de diseño — función lista para conectar
-export const sendOrderProcessed = async (_order: {
+//    Cliente avisa: tus documentos fueron presentados, esperá la aprobación.
+export const sendOrderProcessed = async (order: {
   firstName: string
   email: string
   companyName: string
   id: string
   speed?: string
+  unsubscribed?: boolean
 }) => {
-  // TODO: diseñar template HTML y activar el envío
+  if (order.unsubscribed) {
+    return { success: false, reason: 'unsubscribed' }
+  }
+
+  const eta = order.speed === 'expedited'
+    ? '1–2 business days'
+    : '3–5 business days'
+
+  await getResend().emails.send({
+    from: FROM_EMAIL,
+    to: order.email,
+    subject: `📋 Your filing is in — ${order.companyName}`,
+    html: `
+      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#1e293b">
+        <div style="background:#1C2E44;padding:24px 32px;border-radius:10px 10px 0 0">
+          <h1 style="color:#fff;font-size:22px;margin:0">Florida Business Formation Center</h1>
+        </div>
+        <div style="background:#fff;padding:32px;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 10px 10px">
+          <h2 style="color:#1C2E44;font-size:20px">Hi ${order.firstName}, your filing is in! 📋</h2>
+          <p style="color:#475569;line-height:1.7">
+            We've submitted your formation documents to the
+            <strong>Florida Division of Corporations</strong>. The next step is on the State's side
+            — they review and approve new entities, typically within <strong>${eta}</strong>.
+          </p>
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:20px;margin:20px 0">
+            <p style="margin:6px 0;font-size:14px"><strong>Company:</strong> ${order.companyName}</p>
+            <p style="margin:6px 0;font-size:14px"><strong>Filing speed:</strong> ${order.speed ?? 'standard'}</p>
+            <p style="margin:6px 0;font-size:14px"><strong>Order:</strong> ${order.id}</p>
+          </div>
+          <p style="color:#475569;line-height:1.7">
+            <strong>What's next?</strong> When the State approves your business, you'll get another
+            email from us. After that, your Certificate of Formation goes out the same week.
+          </p>
+          <p style="color:#475569;line-height:1.7">
+            You can track the status anytime in your
+            <a href="https://mybusinessformation.com/client-portal" style="color:#2563eb">client portal</a>.
+          </p>
+          <p style="color:#475569;line-height:1.7">
+            Questions? Reach us on <a href="https://wa.me/13528377755" style="color:#059669">WhatsApp</a> or
+            reply to this email.
+          </p>
+          ${unsubscribeFooter(order.email)}
+        </div>
+      </div>
+    `,
+  })
 }
 
 // ── 5. Orden aprobada por Florida (status: approved) ─────────────────────────
-//    Template pendiente de diseño — función lista para conectar
-export const sendOrderApproved = async (_order: {
+//    Cliente avisa: Florida aprobó tu negocio, certificate viene en camino.
+export const sendOrderApproved = async (order: {
   firstName: string
   email: string
   companyName: string
   id: string
+  unsubscribed?: boolean
 }) => {
-  // TODO: diseñar template HTML y activar el envío
+  if (order.unsubscribed) {
+    return { success: false, reason: 'unsubscribed' }
+  }
+
+  await getResend().emails.send({
+    from: FROM_EMAIL,
+    to: order.email,
+    subject: `🎉 Approved! Florida confirmed your business — ${order.companyName}`,
+    html: `
+      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#1e293b">
+        <div style="background:#1C2E44;padding:24px 32px;border-radius:10px 10px 0 0">
+          <h1 style="color:#fff;font-size:22px;margin:0">Florida Business Formation Center</h1>
+        </div>
+        <div style="background:#fff;padding:32px;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 10px 10px">
+          <h2 style="color:#059669;font-size:22px;text-align:center">🎉 Approved by the State of Florida!</h2>
+          <p style="color:#475569;line-height:1.7;text-align:center">
+            <strong>${order.companyName}</strong> is now an officially registered entity
+            in Florida. Congratulations, ${order.firstName}!
+          </p>
+          <div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:10px;padding:20px;margin:24px 0;text-align:center">
+            <p style="color:#166534;font-weight:600;margin:0 0 8px;font-size:15px">What's coming next</p>
+            <p style="color:#166534;font-size:13px;margin:0;line-height:1.6">
+              We're preparing your official <strong>Certificate of Formation</strong>.
+              Expect it in your inbox within the next <strong>24–48 hours</strong>, along
+              with any add-ons you ordered (EIN, Operating Agreement, ITIN, etc.).
+            </p>
+          </div>
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin:20px 0;font-size:14px">
+            <strong>Company:</strong> ${order.companyName}<br/>
+            <strong>Order:</strong> ${order.id}
+          </div>
+          <p style="color:#475569;line-height:1.7">
+            You can also follow progress in your
+            <a href="https://mybusinessformation.com/client-portal" style="color:#2563eb">client portal</a>.
+          </p>
+          <p style="color:#475569;line-height:1.7">
+            Questions? Reach us on <a href="https://wa.me/13528377755" style="color:#059669">WhatsApp</a> or
+            reply to this email.
+          </p>
+          ${unsubscribeFooter(order.email)}
+        </div>
+      </div>
+    `,
+  })
 }
 
 // ── 6. Certificate of Formation — entrega final al cliente ───────────────────

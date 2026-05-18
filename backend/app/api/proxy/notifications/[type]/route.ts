@@ -107,6 +107,7 @@ export async function POST(
         email: order.email,
         companyName: order.companyName,
         speed: order.speed ?? undefined,
+        unsubscribed: order.unsubscribed ?? false,
       })
       return NextResponse.json({ success: true, message: `Notificación "procesada" enviada a ${order.email}` })
     }
@@ -122,6 +123,7 @@ export async function POST(
         firstName: order.firstName,
         email: order.email,
         companyName: order.companyName,
+        unsubscribed: order.unsubscribed ?? false,
       })
       return NextResponse.json({ success: true, message: `Notificación "aprobada" enviada a ${order.email}` })
     }
