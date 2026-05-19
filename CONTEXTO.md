@@ -511,9 +511,9 @@ Client Portal dashboard (`backend/app/client-portal/dashboard/DashboardView.tsx`
 
 **Pendiente (páginas no cubiertas en esta etapa):**
 - [ ] `/new-business` — ya tenía queries a 960/700/600px; revisar si necesita mejoras adicionales
-- [ ] `/admin/orders/[id]` — página de detalle de orden, compleja; pendiente revisión mobile
-- [ ] `/admin/campaigns` — panel de campañas; pendiente
-- [ ] `/servicios` — página de servicios; pendiente
+- [x] `/admin/orders/[id]` — completado 2026-05-19: breakpoints 768px (padding reducido, inputs 16px anti-zoom iOS) + 480px (botones min-height 44px). Página usa muchos inline styles; estrategia: tweaks vía `.wrapper`, `.btn`, `textarea`, `select`, `input[type=file]` para no reescribir todo
+- [x] `/admin/campaigns` — completado 2026-05-19: breakpoints 768px (wrap padding, stat-card más chica, table cells más compactos) + 480px (stats-grid 1 col, btn min-height 44px)
+- [x] `/servicios` — ya tenía 11 media queries activas (1100/860/768/640/540px) cubriendo grid, form, hero, footer. Tildado 2026-05-19 — el item estaba stale en CONTEXTO
 - [ ] `/new-business/es` — wrapper de /new-business en español; hereda los estilos
 
 Ver troubleshooting en `TROUBLESHOOTING/13_responsive_design.md`

@@ -212,6 +212,21 @@ export default function CampaignsPage() {
         .msg-ok{color:#059669;font-size:.78rem;font-weight:600}
         .msg-err{color:#ef4444;font-size:.78rem;font-weight:600}
         .pause-bar{background:#fef3c7;border:1px solid #fbbf24;border-radius:10px;padding:10px 18px;display:flex;align-items:center;gap:10px;font-size:.82rem;color:#92400e;font-weight:600;margin-bottom:20px}
+        @media(max-width:768px){
+          .wrap{padding:18px 14px}
+          .stats-grid{gap:10px;margin-bottom:18px}
+          .stat-card{padding:14px 16px}
+          .stat-val{font-size:1.5rem}
+          .card-head{padding:14px 16px}
+          .form-grid{padding:18px 14px}
+          th,td{padding:8px 10px}
+        }
+        @media(max-width:480px){
+          .stats-grid{grid-template-columns:1fr}
+          .btn{min-height:44px;padding:10px 16px}
+          .btn-sm{min-height:36px;padding:6px 12px}
+          h1{font-size:1.15rem !important}
+        }
       `}</style>
 
       <div className="wrap">

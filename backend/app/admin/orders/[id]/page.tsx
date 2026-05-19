@@ -409,6 +409,19 @@ export default function OrderDetailPage() {
           font-size: 11px; font-weight: 700; color: #9ca3af;
           text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 8px;
         }
+
+        @media (max-width: 768px) {
+          .wrapper { padding: 20px 14px; }
+          .btn { padding: 10px 16px; }
+          h1 { font-size: 17px !important; }
+          textarea { font-size: 16px; }
+          select { font-size: 16px; }
+          input[type="file"] { font-size: 16px; }
+        }
+        @media (max-width: 480px) {
+          .wrapper { padding: 16px 12px; }
+          .btn { min-height: 44px; }
+        }
       `}</style>
 
       <div className="wrapper">
