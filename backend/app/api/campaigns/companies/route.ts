@@ -1,11 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { CampaignsCompaniesInputSchema, parseOr400 } from '@/lib/schemas'
+import { verifyAdminToken } from '@/lib/session'
 
 export const dynamic = 'force-dynamic'
 
+async function verifyAdmin(request: NextRequest): Promise<boolean> {
+  const session = request.cookies.get('admin_session')
+  if (!session?.value) return false
+  return verifyAdminToken(session.value)
+}
+
 // GET — list companies with optional filters
 export async function GET(req: NextRequest) {
+  if (!(await verifyAdmin(req))) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
   try {
     const { searchParams } = req.nextUrl
     const status      = searchParams.get('status')
@@ -35,6 +45,9 @@ export async function GET(req: NextRequest) {
 
 // POST — add company manually
 export async function POST(req: NextRequest) {
+  if (!(await verifyAdmin(req))) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
   try {
     const raw = await req.json()
     const parsed = parseOr400(CampaignsCompaniesInputSchema, raw)

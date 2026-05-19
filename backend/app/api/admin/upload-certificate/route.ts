@@ -2,8 +2,18 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { sendCertificateDelivery } from '@/lib/notifications'
 import { logAdminAction } from '@/lib/audit-log'
+import { verifyAdminToken } from '@/lib/session'
+
+async function verifyAdmin(request: NextRequest): Promise<boolean> {
+  const session = request.cookies.get('admin_session')
+  if (!session?.value) return false
+  return verifyAdminToken(session.value)
+}
 
 export async function POST(request: NextRequest) {
+  if (!(await verifyAdmin(request))) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
   try {
     const formData = await request.formData()
     const file = formData.get('file') as File

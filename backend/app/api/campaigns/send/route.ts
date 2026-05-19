@@ -2,6 +2,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import QRCode from 'qrcode'
 import { getSupabaseAdmin } from '@/lib/supabase'
+import { verifyAdminToken } from '@/lib/session'
+
+async function verifyAdmin(request: NextRequest): Promise<boolean> {
+  const session = request.cookies.get('admin_session')
+  if (!session?.value) return false
+  return verifyAdminToken(session.value)
+}
 
 const getResend = () => new Resend(process.env.RESEND_API_KEY)
 const FROM_EMAIL = 'info@mybusinessformation.com'
@@ -232,6 +239,9 @@ function buildEmail(company: {
 // ─── Route handler ──────────────────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
+  if (!(await verifyAdmin(req))) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
   try {
     const { company_ids, lang = 'en' } = await req.json()
 
