@@ -251,11 +251,11 @@ SEO Técnico:
 - [ ] Validación final: Rich Results Test (search.google.com/test/rich-results), Mobile-Friendly Test, PageSpeed Insights ≥ 85 mobile
 
 SEO de Contenido:
-- [ ] Crear 2 páginas nuevas accesibles desde el footer: /guia y /wiki (hub que lista los artículos por categoría)
-- [ ] Formatear e integrar 30 artículos .md que pasa el usuario (división guía/wiki por definir al recibirlos)
-- [ ] Frontmatter en cada .md con date y lastUpdated (string ISO YYYY-MM-DD entre comillas) — Article + BreadcrumbList por artículo se generan automáticamente desde el frontmatter
-- [ ] Cross-links module (backend/lib/cross-links.ts) — relaciones entre artículos y páginas principales (servicios, paquetes, FAQ)
-- [ ] Sitemap.ts incluye automáticamente todos los artículos publicados
+- [x] Crear 2 páginas nuevas accesibles desde el footer — completado 2026-05-19: `/wiki` (referencia rápida/glosario) y `/guias` (tutoriales paso a paso). Bilingüe: `/wiki`, `/wiki/es`, `/guias`, `/guias/es`. Hubs con grid de cards agrupadas por categoría. Vacíos hoy (mensaje "Articles coming soon"). **Nota: el roadmap original decía `/guia` (singular) — se eligió `/guias` (plural) por mejor uso del español.** Pendiente: agregar links en footer del home.
+- [ ] Formatear e integrar 30 artículos .md que pasa el usuario (división wiki/guias por definir al recibirlos)
+- [x] Frontmatter parser + Article schema automático — completado 2026-05-19: `backend/lib/content.ts` con `gray-matter` + `remark` + `remark-gfm` + `remark-html`. Cada artículo expone Schema.org `Article` (dateModified, datePublished, author, inLanguage) + `BreadcrumbList` (Home → Section → Article) automáticamente desde frontmatter. Plantillas en `backend/content/{wiki,guias}/{en,es}/_sample.md` (archivos con prefijo `_` se ignoran en build).
+- [x] Cross-links module — completado 2026-05-19: `backend/lib/cross-links.ts` con `resolveRelatedArticles()` (slugs → links navegables), `suggestProductPages()` (artículo → páginas del producto según categoría: formacion/ein/sunbiz/compliance/general), `articleUrl()` + `sectionHubUrl()` helpers.
+- [x] Sitemap.ts incluye artículos automáticamente — completado 2026-05-19: `backend/app/sitemap.ts` ahora suma los 4 hubs (wiki/guias × en/es) + todos los artículos publicados via `listArticles()`. Se actualiza solo cuando se agregan `.md` a `backend/content/`.
 
 Documentación:
 - [x] LOGICA_DE_NEGOCIO/11_seo_tecnico_y_contenido.md con inventario completo, archivos modificados y decisiones embutidas
