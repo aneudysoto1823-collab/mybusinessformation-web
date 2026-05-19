@@ -8,6 +8,7 @@ import {
   sendOrderProcessed,
   sendOrderApproved,
 } from '@/lib/notifications'
+import { logAdminAction } from '@/lib/audit-log'
 
 // Resuelve el admin token de la cookie.
 async function verifyAdmin(request: NextRequest): Promise<boolean> {
@@ -59,6 +60,7 @@ export async function POST(
         names: names as [string, string, string],
         unsubscribed: order.unsubscribed ?? false,
       })
+      await logAdminAction({ action: 'email.names-taken', entity: 'Order', entityId: order.id, request })
       return NextResponse.json({ success: true, message: `Aviso enviado a ${order.email} y alerta a admin` })
     }
 
@@ -75,6 +77,7 @@ export async function POST(
         companyName: order.companyName,
         unsubscribed: order.unsubscribed ?? false,
       })
+      await logAdminAction({ action: 'email.certificate', entity: 'Order', entityId: order.id, request })
       return NextResponse.json({ success: true, message: `Certificate enviado a ${order.email}` })
     }
 
@@ -91,6 +94,13 @@ export async function POST(
         { id: order.id, firstName: order.firstName, email: order.email, companyName: order.companyName },
         availableNames as string[]
       )
+      await logAdminAction({
+        action: 'email.suggest-names',
+        entity: 'Order',
+        entityId: order.id,
+        after: { availableNames },
+        request,
+      })
       return NextResponse.json({ success: true, message: `Sugerencias enviadas a ${order.email}` })
     }
 
@@ -109,6 +119,7 @@ export async function POST(
         speed: order.speed ?? undefined,
         unsubscribed: order.unsubscribed ?? false,
       })
+      await logAdminAction({ action: 'email.order-processed', entity: 'Order', entityId: order.id, request })
       return NextResponse.json({ success: true, message: `Notificación "procesada" enviada a ${order.email}` })
     }
 
@@ -125,6 +136,7 @@ export async function POST(
         companyName: order.companyName,
         unsubscribed: order.unsubscribed ?? false,
       })
+      await logAdminAction({ action: 'email.order-approved', entity: 'Order', entityId: order.id, request })
       return NextResponse.json({ success: true, message: `Notificación "aprobada" enviada a ${order.email}` })
     }
 

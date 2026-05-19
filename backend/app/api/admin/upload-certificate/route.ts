@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { sendCertificateDelivery } from '@/lib/notifications'
+import { logAdminAction } from '@/lib/audit-log'
 
 export async function POST(request: NextRequest) {
   try {
@@ -64,6 +65,15 @@ export async function POST(request: NextRequest) {
       // PDF subido y email enviado OK; el cambio de status falló pero no es fatal.
       // El admin puede forzar el status manualmente desde el panel.
     }
+
+    // Audit log — fail-quiet.
+    await logAdminAction({
+      action: 'order.certificate_uploaded',
+      entity: 'Order',
+      entityId: orderId,
+      after: { status: 'completed', certificate_path: `orders/${orderId}/certificate.pdf` },
+      request,
+    })
 
     return NextResponse.json({ success: true })
   } catch (err: unknown) {

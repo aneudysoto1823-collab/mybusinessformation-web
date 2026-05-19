@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdminToken } from '@/lib/session'
 import { getSupabaseAdmin } from '@/lib/supabase'
+import { logAdminAction } from '@/lib/audit-log'
 
 async function verifyAdmin(request: NextRequest): Promise<boolean> {
   const session = request.cookies.get('admin_session')
@@ -41,6 +42,13 @@ export async function PATCH(
   if (body.status !== undefined) allowed.status = body.status
   if (body.notes  !== undefined) allowed.notes  = body.notes
 
+  // Snapshot before (solo campos que estamos por cambiar) para el audit log.
+  const { data: before } = await getSupabaseAdmin()
+    .from('Order')
+    .select(Object.keys(allowed).join(',') || 'id')
+    .eq('id', id)
+    .single()
+
   const { data, error } = await getSupabaseAdmin()
     .from('Order')
     .update(allowed)
@@ -49,5 +57,16 @@ export async function PATCH(
     .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  // Audit log — fail-quiet (no bloquea la respuesta al admin si falla).
+  await logAdminAction({
+    action: 'order.update',
+    entity: 'Order',
+    entityId: id,
+    before: before ?? null,
+    after: allowed,
+    request,
+  })
+
   return NextResponse.json({ success: true, data })
 }
