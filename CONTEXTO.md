@@ -353,7 +353,7 @@ Defensa server:
 
 Defensa browser:
 - [x] 5 security headers globales en backend/next.config.ts — completado 2026-05-18: CSP con whitelist (Stripe, Supabase via wildcard, Resend, GA4, Sentry tunnel `/monitoring`), HSTS 63072000 + includeSubDomains + preload, X-Frame-Options DENY, X-Content-Type-Options nosniff, Referrer-Policy strict-origin-when-cross-origin, Permissions-Policy denegando camera/microphone/geolocation/interest-cohort. Aplicados via `headers()` async en config. Pendiente: validar con `curl -I https://mybusinessformation.com/` post-deploy.
-- [ ] Cookie Consent banner + Google Consent Mode v2: categorías necessary / analytics / marketing → mapeo a analytics_storage, ad_storage, ad_user_data, ad_personalization. Bilingüe ES/EN. Tono directo, no legalés
+- [x] Cookie Consent banner + Google Consent Mode v2 — completado 2026-05-19: `backend/components/CookieConsent.tsx` (Client Component bilingüe ES/EN, detecta idioma del URL) + `backend/lib/consent.ts` (helpers getConsent / setConsent / onConsentChange con persistencia en cookie 1 año + localStorage). 3 botones: Accept all / Only necessary / Customize. Toggles individuales para analytics y marketing. Hook dispara `gtag('consent', 'update', ...)` mapeando a las 4 dimensiones de Consent Mode v2. `layout.tsx` agrega Consent Mode default (todo denied) ANTES de que cargue cualquier tracker — compliance CCPA/GDPR.
 - [ ] Validar headers en producción con `curl -I https://mybusinessformation.com/`
 
 Dependencias y misc:

@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import Script from "next/script";
+import CookieConsent from "@/components/CookieConsent";
 import "./globals.css";
 
 const BASE_URL = "https://mybusinessformation.com";
@@ -90,8 +92,30 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700;900&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap"
           rel="stylesheet"
         />
+        {/* Google Consent Mode v2 — DEFAULT DENY antes de que cargue gtag.js.
+            Cuando el usuario decida en el banner, dispatch update via lib/consent.ts.
+            Hasta entonces ningún tracker recibe nada (compliance CCPA/GDPR). */}
+        <Script id="gtag-consent-default" strategy="beforeInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            window.gtag = gtag;
+            gtag('consent', 'default', {
+              analytics_storage: 'denied',
+              ad_storage: 'denied',
+              ad_user_data: 'denied',
+              ad_personalization: 'denied',
+              functionality_storage: 'granted',
+              security_storage: 'granted',
+              wait_for_update: 500
+            });
+          `}
+        </Script>
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        <CookieConsent />
+      </body>
     </html>
   );
 }
