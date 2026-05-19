@@ -85,10 +85,9 @@ Si necesitas cambiar el diseño de una página:
 ## Stack tecnológico
 - Next.js 16 (TypeScript) — frontend + API routes + lógica de negocio (corre 99% del proyecto)
 - Node.js v24.14.0 / npm 11.9.0
-- Supabase — Postgres + Storage (acceso vía REST API desde Vercel; sin Prisma en producción)
+- Supabase — Postgres + Storage (acceso vía REST API desde Vercel; sin Prisma)
 - Vercel — hosting principal (Next.js)
 - Railway.app — RESERVADO para Etapa 5 (Sunbiz). Hoy DORMIDO. Decisión arquitectural Opción B (2026-05-13): toda la lógica vive en Vercel; Railway se despierta cuando se implemente la búsqueda Sunbiz. Ver `LOGICA_DE_NEGOCIO/00_arquitectura_tecnica_de_una_orden.md`.
-- Prisma ORM — instalado y configurado, pero su uso queda restringido al backend Express en Railway (Etapa 5). El resto del proyecto consulta Supabase vía REST.
 - Stripe — pagos (Etapa 4 y Etapa 16)
 - Resend — emails (Etapa 7 y Etapa 16)
 - Upstash Redis — rate limiting login admin (Etapa 14)
@@ -162,7 +161,7 @@ Pendientes de higiene técnica:
 - [x] Email final con Certificate of Formation
 - [x] Motor de emails probado y funcionando con Resend
 - [x] WhatsApp `+13528377755` configurado en todos los templates de email
-- [x] Handlers de emails manuales del admin migrados de Railway/Express a Vercel/Supabase REST (commit `a5e1d45`, 2026-05-13). Endpoint `/api/proxy/notifications/[type]` ya NO pasa por Railway. Las funciones de Resend viven en `backend/lib/notifications.ts` (canónica para Vercel); la copia en `backend/modules/notifications/notifications.service.ts` queda pendiente de eliminar junto con el resto del código muerto de Express.
+- [x] Handlers de emails manuales del admin migrados de Railway/Express a Vercel/Supabase REST (commit `a5e1d45`, 2026-05-13). Endpoint `/api/proxy/notifications/[type]` ya NO pasa por Railway. Las funciones de Resend viven en `backend/lib/notifications.ts` (canónica para Vercel). La copia en `backend/modules/notifications/notifications.service.ts` y el resto del código muerto de Express fueron eliminados en commit `c7bdc07` (2026-05-18).
 - [x] Templates `sendOrderProcessed` (status: filed) y `sendOrderApproved` (status: approved) — completado 2026-05-18: HTML en `backend/lib/notifications.ts` con estilo coherente al resto. Respeta `unsubscribed`. Subject "📋 Your filing is in" y "🎉 Approved!". Incluye ETA por speed (standard 3-5 días / expedited 1-2 días).
 - [ ] Email con contrato PDF adjunto — pendiente hasta Etapa 6 (generación de documentos)
 - [ ] Verificar dominio mybusinessformation.com en Resend — lo trabaja el socio (Aneudys). Hoy Resend está en modo sandbox y solo entrega emails al destinatario verificado.

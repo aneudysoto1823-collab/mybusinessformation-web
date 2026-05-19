@@ -17,7 +17,7 @@ async function verifyAdmin(request: NextRequest): Promise<boolean> {
   return verifyAdminToken(session.value)
 }
 
-// Lee la orden desde Supabase REST (no Prisma — Railway desplazado).
+// Lee la orden desde Supabase REST.
 async function getOrder(orderId: string) {
   const { data, error } = await getSupabaseAdmin()
     .from('Order')

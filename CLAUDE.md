@@ -21,17 +21,15 @@ La comunicación de Next.js → Express se hace vía `backendFetch()` (`lib/back
 
 ## Base de datos
 
-**Doble cliente — misma DB (Supabase PostgreSQL):**
+**Supabase PostgreSQL accedido vía REST (sin Prisma):**
 
-- **Prisma** (`lib/prisma.ts`): ORM principal. Usado para el modelo `Order` (tabla de órdenes de formación). Solo para migraciones y queries que necesitan tipado fuerte.
-- **Supabase client** (`lib/supabase.ts`): HTTP client. Usado en todo lo demás — marketing automation, lookup de empresas, etc. Siempre lazy-init via `getSupabaseAdmin()`.
+- **Supabase client** (`lib/supabase.ts`): HTTP client único para todo el proyecto. Siempre lazy-init via `getSupabaseAdmin()` (service role key, bypasa RLS). Prisma fue removido el 2026-05-19 — la única tabla con uso intensivo (`Order`) se accede ahora via REST como el resto.
 
 Variables de entorno para DB:
-- `DATABASE_URL` — pooler URL (runtime en Vercel)
-- `DIRECT_URL` — conexión directa (solo migraciones)
 - `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY`
+- `DATABASE_URL` / `DIRECT_URL` quedaron como legacy en Vercel — pueden borrarse manualmente del dashboard cuando convenga.
 
-### Modelo Order (Prisma)
+### Modelo Order
 
 ```
 Order {
@@ -50,12 +48,13 @@ Order {
 }
 ```
 
-### Tablas Supabase (sin Prisma)
+### Otras tablas Supabase
 
 - `prospective_companies` — empresas para marketing automation
 - `email_campaigns` — registro de emails enviados
 - `qr_scans` — escaneos de QR
 - `conversions` — compras completadas via campaña
+- `admin_audit_log` — trazabilidad de acciones admin (Etapa 14)
 
 ---
 
@@ -63,8 +62,6 @@ Order {
 
 ```
 # DB
-DATABASE_URL          # Supabase pooler (Prisma runtime)
-DIRECT_URL            # Supabase directa (migraciones)
 SUPABASE_URL
 SUPABASE_SERVICE_ROLE_KEY
 
@@ -235,14 +232,6 @@ El toggle de idioma navega entre URLs (`/new-business` ↔ `/new-business/es`) p
 
 ### CSS en páginas marketing-facing
 CSS-in-JS con `<style>` tag dentro del componente. No Tailwind en estas páginas. Clases con nombres descriptivos tipo BEM. Las clases del sistema de diseño de `/new-business` están documentadas en el `<style>` del archivo.
-
-### Prisma singleton (serverless)
-```ts
-// lib/prisma.ts — evita múltiples conexiones en Vercel
-const globalForPrisma = globalThis as unknown as { prisma: PrismaClient }
-export const prisma = globalForPrisma.prisma ?? new PrismaClient()
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
-```
 
 ### TypeScript build errors
 `next.config.ts` tiene `typescript.ignoreBuildErrors: true`. No bloquea deploys por errores TS, pero los errores deben resolverse de todas formas durante desarrollo.

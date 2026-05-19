@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { getSupabaseAdmin } from '@/lib/supabase'
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,10 +9,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Email required' }, { status: 400 })
     }
 
-    await prisma.order.updateMany({
-      where: { email: email.toLowerCase().trim() },
-      data: { unsubscribed: true },
-    })
+    const { error } = await getSupabaseAdmin()
+      .from('Order')
+      .update({ unsubscribed: true })
+      .eq('email', email.toLowerCase().trim())
+
+    if (error) {
+      console.error('Unsubscribe error:', error)
+      return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    }
 
     return NextResponse.json({ success: true })
   } catch (err) {
