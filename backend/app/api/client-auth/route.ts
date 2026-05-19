@@ -1,15 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase'
+import { ClientAuthInputSchema, parseOr400 } from '@/lib/schemas'
 
 export async function POST(request: NextRequest) {
-  const { email, confirmationNumber } = await request.json()
-
-  if (!email || !confirmationNumber) {
-    return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
+  const raw = await request.json()
+  const parsed = parseOr400(ClientAuthInputSchema, raw)
+  if (!parsed.ok) {
+    // Respuesta generica intencional — no revela si el formato del email/numero estaba mal.
+    return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
   }
+  const { email, confirmationNumber } = parsed.data
 
-  // Confirmation number format: FBFC-XXXXXXXX (home orders) or FBNB-XXXXXXXX (new-business orders)
-  const match = String(confirmationNumber).toUpperCase().match(/^(?:FBFC|FBNB)-([A-Z0-9]{8})$/)
+  // El regex de ClientAuthInputSchema ya valido el formato. Extraigo el prefijo del id.
+  const match = confirmationNumber.toUpperCase().match(/^(?:FBFC|FBNB)-([A-Z0-9]{8})$/)
   if (!match) {
     return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
   }

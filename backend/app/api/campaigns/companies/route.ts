@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase'
+import { CampaignsCompaniesInputSchema, parseOr400 } from '@/lib/schemas'
 
 export const dynamic = 'force-dynamic'
 
@@ -35,12 +36,13 @@ export async function GET(req: NextRequest) {
 // POST — add company manually
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json()
-    const { document_id, company_name, owner_name, address, city, zip, email, company_type, registration_date } = body
-
-    if (!document_id || !company_name) {
-      return NextResponse.json({ error: 'document_id and company_name are required' }, { status: 400 })
+    const raw = await req.json()
+    const parsed = parseOr400(CampaignsCompaniesInputSchema, raw)
+    if (!parsed.ok) {
+      console.error('[/api/campaigns/companies] validation error:', parsed.details)
+      return NextResponse.json({ error: parsed.error }, { status: 400 })
     }
+    const { document_id, company_name, owner_name, address, city, zip, email, company_type, registration_date } = parsed.data
 
     const supabase = getSupabaseAdmin()
     const { data, error } = await supabase

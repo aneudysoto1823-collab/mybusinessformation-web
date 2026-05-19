@@ -2,6 +2,7 @@ import Anthropic from '@anthropic-ai/sdk'
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { checkChatRateLimit, getClientIp } from '@/lib/rate-limit'
+import { ChatInputSchema, parseOr400 } from '@/lib/schemas'
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
@@ -618,11 +619,13 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const { messages, session_id, form_context } = await req.json()
-
-    if (!Array.isArray(messages) || messages.length === 0) {
-      return NextResponse.json({ error: 'Invalid messages' }, { status: 400 })
+    const raw = await req.json()
+    const parsed = parseOr400(ChatInputSchema, raw)
+    if (!parsed.ok) {
+      console.error('[/api/chat] validation error:', parsed.details)
+      return NextResponse.json({ error: parsed.error }, { status: 400 })
     }
+    const { messages, session_id, form_context } = parsed.data
 
     const userMessages = messages.filter(
       (m: { role: string; content: string }) =>

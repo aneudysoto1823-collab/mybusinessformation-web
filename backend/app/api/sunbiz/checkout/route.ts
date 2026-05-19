@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { getSupabaseAdmin } from '@/lib/supabase'
+import { SunbizCheckoutInputSchema, parseOr400 } from '@/lib/schemas'
 
 const getStripe = () => new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2026-02-25.clover' })
 
@@ -13,11 +14,13 @@ const SERVICES: Record<string, { name: string; amount: number }> = {
 
 export async function POST(req: NextRequest) {
   try {
-    const { company_id, document_id, company_name, selected_services, lang } = await req.json()
-
-    if (!selected_services || selected_services.length === 0) {
-      return NextResponse.json({ error: 'No services selected' }, { status: 400 })
+    const raw = await req.json()
+    const parsed = parseOr400(SunbizCheckoutInputSchema, raw)
+    if (!parsed.ok) {
+      console.error('[/api/sunbiz/checkout] validation error:', parsed.details)
+      return NextResponse.json({ error: parsed.error }, { status: 400 })
     }
+    const { company_id, document_id, company_name, selected_services, lang } = parsed.data
 
     // Resolve bundle → individual line items
     const isBundle = selected_services.includes('bundle')

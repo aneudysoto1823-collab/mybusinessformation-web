@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { Resend } from 'resend'
 import { checkOrdersRateLimit, getClientIp } from '@/lib/rate-limit'
+import { OrderInputSchema, parseOr400 } from '@/lib/schemas'
 
 const getResend = () => new Resend(process.env.RESEND_API_KEY)
 const FROM_EMAIL = 'onboarding@resend.dev'
@@ -18,20 +19,13 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const body = await request.json()
-
-    // ── Validar campos requeridos ─────────────────────────────────────────────
-    const missing: string[] = []
-    if (!body.firstName)   missing.push('firstName')
-    if (!body.lastName)    missing.push('lastName')
-    if (!body.email)       missing.push('email')
-    if (!body.companyName) missing.push('companyName')
-    if (missing.length > 0) {
-      return NextResponse.json(
-        { success: false, error: 'Campos requeridos faltantes: ' + missing.join(', ') },
-        { status: 400 }
-      )
+    const raw = await request.json()
+    const parsed = parseOr400(OrderInputSchema, raw)
+    if (!parsed.ok) {
+      console.error('[/api/orders] validation error:', parsed.details)
+      return NextResponse.json({ success: false, error: parsed.error }, { status: 400 })
     }
+    const body = parsed.data
 
     // ── Insertar orden en Supabase (HTTP, sin conexión directa a PostgreSQL) ──
     const { data: order, error } = await getSupabaseAdmin()
