@@ -331,9 +331,10 @@ Depende de Etapa 11 — necesita metadata + cookie banner UI.
 Pre-requisito: Etapa 4 (Stripe) lista al menos para staging — varias tareas dependen del flujo de pago real para validar.
 
 Auditoría OWASP y proceso:
-- [ ] Reorganizar carpeta `security/` siguiendo el patrón de preenvios: README.md (metodología + cadencia obligatoria pre-launch + cada 90 días + post-incidentes), 01_auditoria_<fecha>.md (numeradas), monitoring.md
-- [ ] Auditoría OWASP Top 10 completa con clasificación 🔴🟡🟢 + commits de fix por hallazgo + bitácora de remediación
+- [x] Reorganizar carpeta `security/` — completado 2026-05-19 commit `ff45aa9`: README.md (metodología + severidades + flujo de auditoría + frecuencia), plantilla_auditoria.md (OWASP A01-A10 + plantilla individual de hallazgo), auditoria_mensual.md (histórico abril 2026 reescrito limpio).
+- [ ] Auditoría OWASP Top 10 completa con clasificación 🔴🟡🟢 + commits de fix por hallazgo + bitácora de remediación — pendiente al final de todo (decisión 2026-05-19).
 - [ ] Cadencia formal: no se aprueba deploy a producción si la última auditoría tiene 🔴 críticos abiertos
+- [x] **Auditoría de código completa 2026-05-19** (commits `7cf1411` security + `c88cc60` quality): tsc 3→0 errors, ESLint 51→0 problems, build limpio en 11s, 47 páginas. **Hallazgo crítico**: 4 endpoints admin sin auth (`/api/admin/upload-certificate`, `/api/campaigns/companies` GET+POST, `/api/campaigns/send`, `/api/campaigns/stats`) — corregidos con `verifyAdminToken` cookie en commit `7cf1411`. Cero `any` reales, cero `console.log` en producción, cero secretos leaked al client bundle.
 
 Auth y sesiones:
 - [x] Verificar `ADMIN_PASSWORD` hasheado con bcrypt factor 12 (`ADMIN_PASSWORD_HASH` env var, sin plaintext) — completado 2026-05-08 (commit `d06992d`): bcryptjs ^3 instalado, hash en base64 para evitar parser dotenv de Next.js, `ADMIN_PASSWORD` viejo eliminado de Vercel
