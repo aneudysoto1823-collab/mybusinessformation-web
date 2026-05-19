@@ -344,7 +344,7 @@ Auth y sesiones:
 
 Defensa server:
 - [x] Rate limiting con Upstash Redis en `/api/auth/login` (5 intentos / 15 min / IP, sliding window) — completado 2026-05-08 (commit `f7c6887`): helper `backend/lib/rate-limit.ts` con `@upstash/ratelimit ^2` + `@upstash/redis ^1`, lazy init, fail-OPEN si Upstash cae, prefix `rl:admin-login`. Frontend `backend/app/login/page.tsx` distingue 401 vs 429 leyendo `Retry-After`, muestra countdown MM:SS y deshabilita inputs/botón durante el bloqueo
-- [ ] Extender rate limiting a otros endpoints públicos: /api/orders (10/h/IP), /api/chat (30/h/IP), /api/contact si existe — usar el mismo helper con prefix distinto por endpoint
+- [x] Extender rate limiting a otros endpoints públicos — completado 2026-05-19: `/api/orders` (10/h/IP, prefix `rl:orders`) y `/api/chat` (30/h/IP, prefix `rl:chat`). Helper `lib/rate-limit.ts` refactorizado a genérico con cache por endpoint. Fail-open si Upstash cae. Response 429 con header `Retry-After`. **Pendiente: `/api/contact` si existe** (no se encontró tal endpoint en el repo).
 - [ ] Validación zod en TODOS los endpoints POST públicos (length, regex, whitelist de enums, sanitización)
 - [x] Webhook HMAC verification para Stripe — verificado 2026-05-07: ya implementado por Fabián en `backend/app/api/webhooks/stripe/route.ts:19` con `getStripe().webhooks.constructEvent(body, signature, STRIPE_WEBHOOK_SECRET)`. Si firma falla retorna 400
 - [ ] Supabase RLS audit: confirmar `ENABLE ROW LEVEL SECURITY` en todas las tablas con datos de usuario (Order, ClientSession, FormSession, etc.) + políticas apropiadas (read-public, write-service-role)

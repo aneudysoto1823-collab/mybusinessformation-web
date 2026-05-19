@@ -1,6 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase'
+import { checkChatRateLimit, getClientIp } from '@/lib/rate-limit'
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
@@ -607,6 +608,16 @@ function splitIntoSegments(text: string): string[] {
 
 export async function POST(req: NextRequest) {
   try {
+    // Rate limit: 30 mensajes / hora / IP (Claudia usa Claude API, caro).
+    const ip = getClientIp(req)
+    const rl = await checkChatRateLimit(ip)
+    if (!rl.success) {
+      return NextResponse.json(
+        { error: 'Too many messages. Try again in a few minutes.' },
+        { status: 429, headers: { 'Retry-After': String(rl.retryAfterSeconds) } }
+      )
+    }
+
     const { messages, session_id, form_context } = await req.json()
 
     if (!Array.isArray(messages) || messages.length === 0) {

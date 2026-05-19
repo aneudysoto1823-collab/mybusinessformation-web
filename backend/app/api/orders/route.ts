@@ -1,12 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { Resend } from 'resend'
+import { checkOrdersRateLimit, getClientIp } from '@/lib/rate-limit'
 
 const getResend = () => new Resend(process.env.RESEND_API_KEY)
 const FROM_EMAIL = 'onboarding@resend.dev'
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limit: 10 órdenes / hora / IP. Fail-open si Upstash cae.
+    const ip = getClientIp(request)
+    const rl = await checkOrdersRateLimit(ip)
+    if (!rl.success) {
+      return NextResponse.json(
+        { success: false, error: 'Demasiados intentos. Intentá de nuevo en unos minutos.' },
+        { status: 429, headers: { 'Retry-After': String(rl.retryAfterSeconds) } }
+      )
+    }
+
     const body = await request.json()
 
     // ── Validar campos requeridos ─────────────────────────────────────────────
