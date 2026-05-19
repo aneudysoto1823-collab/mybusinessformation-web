@@ -515,7 +515,7 @@ async function createFormSession(formData: object, chatSessionId: string, req: N
     const origin = req.headers.get('origin') || 'https://mybusinessformation.com'
     const link = `${origin}/?session=${token}`
     return JSON.stringify({ success: true, link })
-  } catch (err) {
+  } catch {
     return JSON.stringify({ error: 'Failed to create session' })
   }
 }
@@ -540,7 +540,7 @@ async function getOrderInfo(orderNumber: string): Promise<string> {
 
     const orderNum = `FBFC-${data.id.replace(/-/g, '').substring(0, 8).toUpperCase()}`
     return JSON.stringify({ success: true, orderNumber: orderNum, order: data })
-  } catch (err) {
+  } catch {
     return JSON.stringify({ error: 'Failed to look up order.' })
   }
 }

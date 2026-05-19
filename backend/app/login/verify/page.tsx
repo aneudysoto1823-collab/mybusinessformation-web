@@ -13,10 +13,13 @@ export default function VerifyPage() {
   const [error, setError] = useState('')
   const [emailSent, setEmailSent] = useState(false)
 
+  // Leer métodos 2FA disponibles desde sessionStorage en mount — los puso la
+  // página de login después de validar credenciales. sessionStorage no existe en SSR.
   useEffect(() => {
     const stored = sessionStorage.getItem('twofa_methods')
     if (!stored) { router.replace('/login'); return }
     const m: string[] = JSON.parse(stored)
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMethods(m)
     if (m.length === 1) setMethod(m[0] as 'totp' | 'email')
   }, [router])

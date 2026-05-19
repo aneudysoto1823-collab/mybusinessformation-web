@@ -88,6 +88,11 @@ export default function RootLayout({
         {/* Font preconnect for Core Web Vitals */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {/* Fonts vía <link> intencional: las páginas referencian las families
+            por nombre en sus <style> tags. Migrar a next/font requeriría
+            actualizar ~10 archivos con CSS-in-JS. Preconnect arriba ya
+            optimiza el load. */}
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link
           href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700;900&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap"
           rel="stylesheet"

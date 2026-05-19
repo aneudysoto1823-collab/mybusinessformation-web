@@ -87,6 +87,8 @@ export default function CampaignsPage() {
     setLoading(false)
   }, [filterStatus, filterType, filterFrom, filterTo])
 
+  // Carga inicial de datos del panel — patrón estándar de fetch en mount.
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { fetchStats(); fetchCompanies() }, [fetchStats, fetchCompanies])
 
   // ─── Actions ────────────────────────────────────────────────────────────────

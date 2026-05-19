@@ -7,6 +7,7 @@ import {
   generateBOIFiling,
   generateArticlesOfOrganization,
   generateDBA,
+  type OrderForPdf,
 } from '@/lib/pdf-generator'
 
 async function verifyAdmin(request: NextRequest): Promise<boolean> {
@@ -19,7 +20,7 @@ function safeName(name: string): string {
   return (name || 'document').replace(/[^a-zA-Z0-9]/g, '-').replace(/-+/g, '-').toLowerCase()
 }
 
-const GENERATORS: Record<string, (order: any) => Promise<Buffer>> = {
+const GENERATORS: Record<string, (order: OrderForPdf) => Promise<Buffer>> = {
   'operating-agreement': generateOperatingAgreement,
   'ein-ss4': generateEINSS4,
   'boi-filing': generateBOIFiling,

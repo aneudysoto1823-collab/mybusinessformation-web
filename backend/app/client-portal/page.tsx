@@ -59,8 +59,10 @@ function LoginForm() {
   const [showContact, setShowContact] = useState(false)
   const contactRef = useRef<HTMLDivElement>(null)
 
+  // Hidratar idioma desde localStorage en mount — localStorage no existe en SSR.
   useEffect(() => {
     const saved = localStorage.getItem('portal_lang')
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (saved === 'en' || saved === 'es') setLang(saved)
   }, [])
 

@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Output del tsc -p tsconfig.server.json (Express compilado para Railway).
+    // No tiene sentido lintear JS auto-generado.
+    "dist-server/**",
   ]),
 ]);
 

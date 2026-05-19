@@ -6,6 +6,9 @@ type Message = { role: 'user' | 'assistant'; content: string }
 
 function ClaudiaAvatar({ size = 42 }: { size?: number; uid?: string }) {
   return (
+    // Avatar pequeño (42-60px), un solo asset. next/image agregaría overhead
+    // del image optimizer para una imagen estática que ya está en /public.
+    // eslint-disable-next-line @next/next/no-img-element
     <img
       src="/Claudia.jpg"
       alt="Claudia"
@@ -115,10 +118,12 @@ export default function ChatWidget() {
     // making the header scroll out of view. We track vv.offsetTop and vv.height
     // to keep the chat pinned to the visible area.
     const vv = window.visualViewport
+    // Snapshot del ref para uso seguro en el cleanup (el ref puede mutar antes de cleanup).
+    const chatEl = chatWindowRef.current
     const onResize = () => {
-      if (!vv || !chatWindowRef.current) return
-      chatWindowRef.current.style.top = `${vv.offsetTop}px`
-      chatWindowRef.current.style.height = `${vv.height}px`
+      if (!vv || !chatEl) return
+      chatEl.style.top = `${vv.offsetTop}px`
+      chatEl.style.height = `${vv.height}px`
     }
 
     vv?.addEventListener('resize', onResize)
@@ -129,9 +134,9 @@ export default function ChatWidget() {
       document.body.style.overflow = ''
       vv?.removeEventListener('resize', onResize)
       vv?.removeEventListener('scroll', onResize)
-      if (chatWindowRef.current) {
-        chatWindowRef.current.style.top = ''
-        chatWindowRef.current.style.height = ''
+      if (chatEl) {
+        chatEl.style.top = ''
+        chatEl.style.height = ''
       }
     }
   }, [open])
@@ -196,6 +201,9 @@ export default function ChatWidget() {
 
       setTimeout(() => inputRef.current?.focus(), 100)
     }
+    // Intencional: solo re-disparar cuando cambia `open`. Si agregamos
+    // `messages.length` el saludo se regeneraría al recibir el primer mensaje.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open])
 
   useEffect(() => {

@@ -345,10 +345,15 @@ export default function OrderDetailPage() {
 
   const availableCount = checkResults.filter(r => r.available).length
 
+  // Date.now() en render es intencional: queremos saber si la orden está "stale"
+  // en este momento de la sesión del admin. No hay autorefresh, así que el valor
+  // se calcula una vez por render manual.
+  // eslint-disable-next-line react-hooks/purity
+  const nowMs = Date.now()
   const isStale = order.updatedAt
     && order.status !== 'completed'
     && order.status !== 'approved'
-    && Date.now() - new Date(order.updatedAt).getTime() > 24 * 60 * 60 * 1000
+    && nowMs - new Date(order.updatedAt).getTime() > 24 * 60 * 60 * 1000
 
   return (
     <>

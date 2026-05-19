@@ -1,5 +1,31 @@
 import { PDFDocument, StandardFonts, rgb, PDFPage, PDFFont } from 'pdf-lib'
 
+// Shape mínimo que necesitan los generadores de PDF. No es el modelo completo
+// de `Order` en Supabase — solo los campos que los templates leen.
+export type OrderForPdf = {
+  companyName: string
+  companyName2?: string | null
+  companyName3?: string | null
+  entityType?: string | null
+  firstName: string
+  lastName: string
+  email?: string | null
+  phone?: string | null
+  businessAddress?: string | null
+  registeredAgent?: string | null
+  orgSignature?: string | null
+  members?: unknown
+}
+
+type MemberForPdf = {
+  firstName?: string | null
+  lastName?: string | null
+  title?: string | null
+  ownership?: string | number | null
+  address?: string | null
+  useCompanyAddress?: boolean | null
+}
+
 const MARGIN = 72
 const PAGE_W = 612
 const PAGE_H = 792
@@ -168,14 +194,14 @@ function today(): string {
   return new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
 }
 
-function entityLabel(entityType: string): string {
+function entityLabel(entityType: string | null | undefined): string {
   return (entityType || 'llc').toLowerCase() === 'corp'
     ? 'Corporation'
     : 'Limited Liability Company (LLC)'
 }
 
 // ── 1. Operating Agreement ────────────────────────────────────────────────────
-export async function generateOperatingAgreement(order: any): Promise<Buffer> {
+export async function generateOperatingAgreement(order: OrderForPdf): Promise<Buffer> {
   const b = await DocBuilder.create()
   const members = parseMembers(order.members)
   const companyName = `${order.companyName}, ${(order.entityType || 'LLC').toUpperCase()}`
@@ -255,7 +281,7 @@ export async function generateOperatingAgreement(order: any): Promise<Buffer> {
 }
 
 // ── 2. EIN SS-4 ───────────────────────────────────────────────────────────────
-export async function generateEINSS4(order: any): Promise<Buffer> {
+export async function generateEINSS4(order: OrderForPdf): Promise<Buffer> {
   const b = await DocBuilder.create()
   const members = parseMembers(order.members)
 
@@ -311,7 +337,7 @@ export async function generateEINSS4(order: any): Promise<Buffer> {
 }
 
 // ── 3. BOI Filing ─────────────────────────────────────────────────────────────
-export async function generateBOIFiling(order: any): Promise<Buffer> {
+export async function generateBOIFiling(order: OrderForPdf): Promise<Buffer> {
   const b = await DocBuilder.create()
   const members = parseMembers(order.members)
   const owners = members.length > 0
@@ -337,7 +363,7 @@ export async function generateBOIFiling(order: any): Promise<Buffer> {
   b.para('A beneficial owner is any individual who (1) exercises substantial control over the company, or (2) owns or controls at least 25% of ownership interests.')
   b.skip(8)
 
-  owners.forEach((m: any, i: number) => {
+  owners.forEach((m: MemberForPdf, i: number) => {
     b.guard(180)
     const name = `${m.firstName ?? ''} ${m.lastName ?? ''}`.trim()
     const addr = m.useCompanyAddress ? order.businessAddress : (m.address || order.businessAddress)
@@ -368,7 +394,7 @@ export async function generateBOIFiling(order: any): Promise<Buffer> {
 }
 
 // ── 4. Articles of Organization ───────────────────────────────────────────────
-export async function generateArticlesOfOrganization(order: any): Promise<Buffer> {
+export async function generateArticlesOfOrganization(order: OrderForPdf): Promise<Buffer> {
   const b = await DocBuilder.create()
   const members = parseMembers(order.members)
   const isCorp = (order.entityType || 'llc').toLowerCase() === 'corp'
@@ -406,7 +432,7 @@ export async function generateArticlesOfOrganization(order: any): Promise<Buffer
   b.field('Management Type', mgmtType)
   b.skip(6)
   if (members.length > 0) {
-    members.forEach((m: any, i: number) => {
+    members.forEach((m: MemberForPdf, i: number) => {
       b.guard(90)
       const name = `${m.firstName ?? ''} ${m.lastName ?? ''}`.trim()
       b.field(`Manager / Member ${i + 1}`, name + (m.title ? ` — ${m.title}` : ''))
@@ -442,7 +468,7 @@ export async function generateArticlesOfOrganization(order: any): Promise<Buffer
 }
 
 // ── 5. DBA / Fictitious Name ──────────────────────────────────────────────────
-export async function generateDBA(order: any): Promise<Buffer> {
+export async function generateDBA(order: OrderForPdf): Promise<Buffer> {
   const b = await DocBuilder.create()
 
   b.title('Application for Registration of Fictitious Name (DBA)')

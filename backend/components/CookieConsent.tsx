@@ -55,10 +55,12 @@ export default function CookieConsent() {
 
   useEffect(() => {
     // Hidratamos en cliente: mostramos el banner solo si nunca se decidió.
+    // Idioma y consent leen window/document/cookies que no existen en SSR.
     const existing = getConsent()
     if (!existing) {
       // Pequeño delay para no aparecer antes del first paint.
       const t = setTimeout(() => setVisible(true), 500)
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLang(detectLang())
       return () => clearTimeout(t)
     }

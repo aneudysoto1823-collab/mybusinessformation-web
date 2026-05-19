@@ -2,7 +2,7 @@
 // Se usa en sentry.server.config.ts, sentry.edge.config.ts e instrumentation-client.ts.
 // Cero PII llega a Sentry: ni email, ni nombre, ni teléfono, ni SSN/ITIN, ni tarjetas, ni passwords.
 
-import type { Event, EventHint } from '@sentry/nextjs'
+import type { Event } from '@sentry/nextjs'
 
 const PII_KEYS = [
   'email',
@@ -48,7 +48,7 @@ function scrubObject(obj: unknown, depth = 0): unknown {
   return out
 }
 
-export function scrubPII(event: Event, _hint?: EventHint): Event {
+export function scrubPII<T extends Event>(event: T): T {
   // Request data (body/query/cookies)
   if (event.request) {
     if (event.request.data) event.request.data = scrubObject(event.request.data) as typeof event.request.data

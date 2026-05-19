@@ -68,8 +68,10 @@ export default function DashboardView({
 }: Props) {
   const [lang, setLang] = useState<'en' | 'es'>('en')
 
+  // Hidratar idioma desde localStorage en mount — localStorage no existe en SSR.
   useEffect(() => {
     const saved = localStorage.getItem('portal_lang')
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (saved === 'en' || saved === 'es') setLang(saved)
   }, [])
 
