@@ -1,0 +1,61 @@
+# Dependabot config — Etapa 14 (Hardening de Seguridad).
+# Chequea automaticamente actualizaciones de dependencias y abre PRs.
+#
+# Frecuencia: weekly (lunes). Suficiente para detectar CVEs pronto sin generar
+# spam de PRs. Si una vulnerabilidad critica sale entre revisiones, GitHub
+# Security Alerts notifica fuera de este ciclo.
+#
+# Scope: backend/ (npm) + raiz del repo (github-actions cuando existan).
+
+version: 2
+updates:
+  # ── Backend Next.js ──
+  - package-ecosystem: "npm"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "08:00"
+      timezone: "America/Argentina/Buenos_Aires"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "security"
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
+    # Agrupa updates de seguridad en 1 sola PR para evitar PR-storm.
+    groups:
+      security:
+        applies-to: security-updates
+        patterns:
+          - "*"
+      # Agrupa minor/patch de cada ecosistema clave. Los major siempre van en PRs separadas.
+      next:
+        patterns:
+          - "next"
+          - "@next/*"
+        update-types:
+          - "minor"
+          - "patch"
+      sentry:
+        patterns:
+          - "@sentry/*"
+        update-types:
+          - "minor"
+          - "patch"
+      supabase:
+        patterns:
+          - "@supabase/*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # ── GitHub Actions (cuando se agreguen workflows) ──
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    labels:
+      - "dependencies"
+      - "github-actions"

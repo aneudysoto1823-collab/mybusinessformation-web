@@ -357,8 +357,8 @@ Defensa browser:
 - [ ] Validar headers en producción con `curl -I https://mybusinessformation.com/`
 
 Dependencias y misc:
-- [ ] `npm audit --audit-level=moderate` con 0 vulnerabilidades HIGH/CRITICAL
-- [ ] Activar Dependabot en GitHub (`.github/dependabot.yml`)
+- [ ] `npm audit --audit-level=moderate` con 0 vulnerabilidades HIGH/CRITICAL — **parcial 2026-05-19:** `npm audit fix` (conservador, sin breaking changes) resolvió 5 de 7: `path-to-regexp` (high), `picomatch` (high), `nodemailer` (moderate), `brace-expansion` (moderate), `ws` (moderate). Quedan 2: `next` (1 high con 12 CVEs combinados) y `postcss` (1 moderate vía next) que requieren upgrade Next.js 16.1.7 → 16.2.6+ (sprint aparte con su propio testing).
+- [x] Activar Dependabot en GitHub — completado 2026-05-19: `.github/dependabot.yml` con schedule weekly (lunes 08:00), groups (security, next, sentry, supabase), labels dependencies + security, commit prefix `chore(deps)`. También monitorea GitHub Actions cuando se agreguen.
 - [x] Verificar `.gitignore` excluye `.env`, `.env.local`, `.env*.local` — verificado 2026-05-07: `backend/.gitignore` tiene `.env*` y `.env*.local`
 - [ ] Documentar en LOGICA_DE_NEGOCIO/<próximo número disponible>_security_headers_y_hardening.md + actualizar TROUBLESHOOTING/ con guías de respuesta a incidentes de seguridad (nota: el archivo 14 ya está usado para Sentry, el 16 para 2FA — el próximo libre será 17 cuando se haga este item)
 
