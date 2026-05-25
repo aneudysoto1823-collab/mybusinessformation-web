@@ -23,7 +23,7 @@
     "express": "^5.2.1",
     "gray-matter": "^4.0.3",
     "jose": "^6.2.2",
-    "next": "16.1.7",
+    "next": "16.2.6",
     "nodemailer": "^8.0.3",
     "otpauth": "^9.5.1",
     "pdf-lib": "^1.17.1",
