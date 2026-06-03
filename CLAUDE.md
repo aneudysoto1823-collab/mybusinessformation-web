@@ -88,7 +88,7 @@ BACKEND_URL           # URL Railway del Express server
 - Login en `/login` con usuario/contraseña en env
 - Genera JWT firmado con `jose` (SESSION_SECRET)
 - Cookie `admin_session` (httpOnly, 8h)
-- Middleware en `middleware.ts` protege toda la ruta `/admin`
+- Proxy en `proxy.ts` (raíz del proyecto Next.js) protege `/admin` — antes se llamaba `middleware.ts`; Next.js 16.2 renombró la convención
 
 ### Cliente (`/client-portal/dashboard/*`)
 - Login en `/client-portal` con **email + número de confirmación**
