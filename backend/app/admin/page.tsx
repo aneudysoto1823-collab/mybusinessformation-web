@@ -99,6 +99,9 @@ export default async function AdminDashboard() {
             <p>MyBusinessFormation.com</p>
           </div>
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            <a href="/admin/contabilidad" style={{ fontSize: '13px', color: '#6b7280', textDecoration: 'none', padding: '7px 14px', border: '1.5px solid #e5e7eb', borderRadius: '8px', fontWeight: 600 }}>
+              💰 Contabilidad
+            </a>
             <a href="/admin/security" style={{ fontSize: '13px', color: '#6b7280', textDecoration: 'none', padding: '7px 14px', border: '1.5px solid #e5e7eb', borderRadius: '8px', fontWeight: 600 }}>
               🔐 Seguridad
             </a>
