@@ -3043,6 +3043,9 @@ function setLang(lang) {
     window.location.href = lang === 'es' ? '/es' : '/';
     return;
   }
+  if (typeof window.gtag === 'function') {
+    window.gtag('event', 'lang_toggle', { from: currentLang, to: lang, source: 'home' });
+  }
   currentLang = lang;
   var isEs = lang === 'es';
   document.getElementById('btn-en').classList.toggle('active', lang === 'en');
@@ -4559,6 +4562,10 @@ function fmNext() {
       }
     }
   }
+  // step_completed se dispara al pasar la validación y salir del step actual
+  if (typeof window.gtag === 'function') {
+    window.gtag('event', 'step_completed', { step_number: fmCurrentStep, package: fmData.package, entity: fmData.entity });
+  }
   var next=fmCurrentStep+1;
   // Skip step 4 (upsell removed) and step 6 (RA now in step 3)
   if(next===4){next=5;}
@@ -5095,6 +5102,10 @@ async function fmSubmit() {
 function openFormFromPkg(pkg) {
   if(pkg) { fmData.package = pkg; formData.package = pkg; }
   fmData.entity = selectedEntity || 'llc';
+  if (typeof window.gtag === 'function') {
+    window.gtag('event', 'package_selected', { package: pkg, entity: fmData.entity, source: 'pricing-card' });
+    window.gtag('event', 'formation_start', { package: pkg, entity: fmData.entity });
+  }
   // Sync package card selection
   ['basic','standard','premium'].forEach(function(p){
     var c = document.getElementById('up-pkg-' + p);

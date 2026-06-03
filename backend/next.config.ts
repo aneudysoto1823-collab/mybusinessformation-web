@@ -68,6 +68,19 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  // Apex es el canonical (metadataBase + sitemap). www debe redirigir 301 al apex
+  // para consistencia de indexación. Vercel ya hace esto a nivel edge si el
+  // dominio primary es el apex, pero este bloque actúa como defense in depth.
+  async redirects() {
+    return [
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www.mybusinessformation.com" }],
+        destination: "https://mybusinessformation.com/:path*",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default withSentryConfig(nextConfig, {

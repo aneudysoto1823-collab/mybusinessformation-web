@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { trackEvent } from '@/lib/tracking'
 
 interface Order {
   id: string
@@ -78,6 +79,7 @@ export default function DashboardView({
   function switchLang(l: 'en' | 'es') {
     setLang(l)
     localStorage.setItem('portal_lang', l)
+    trackEvent('lang_toggle', { from: lang, to: l, source: 'client-portal-dashboard' })
   }
 
   const es = lang === 'es'

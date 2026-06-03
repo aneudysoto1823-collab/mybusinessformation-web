@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import { trackEvent } from '@/lib/tracking'
 
 type Message = { role: 'user' | 'assistant'; content: string }
 
@@ -64,6 +65,7 @@ function renderMessageContent(text: string) {
             href={part}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => trackEvent('claudia_session_link_used')}
             style={{
               display: 'block',
               marginTop: '12px',
@@ -234,6 +236,9 @@ export default function ChatWidget() {
     setMessages(next)
     setInput('')
     setLoading(true)
+
+    // GA4 — solo conteo + longitud. NO el texto del mensaje (puede tener PII).
+    trackEvent('claudia_message_sent', { message_length: text.length, turn: next.length })
 
     // Refresh form context on every send so Claudia always has the latest step and package
     const ctx = readFormContext()

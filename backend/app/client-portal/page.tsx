@@ -2,6 +2,7 @@
 
 import { Suspense, useState, useEffect, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { trackEvent } from '@/lib/tracking'
 
 const T = {
   en: {
@@ -79,6 +80,7 @@ function LoginForm() {
   function switchLang(l: 'en' | 'es') {
     setLang(l)
     localStorage.setItem('portal_lang', l)
+    trackEvent('lang_toggle', { from: lang, to: l, source: 'client-portal' })
   }
 
   const t = T[lang]
@@ -94,6 +96,8 @@ function LoginForm() {
     })
     setLoading(false)
     if (res.ok) {
+      // GA4 — solo eventos genéricos. NO incluir email ni FBFC en params (PII).
+      trackEvent('client_login_success', { lang })
       router.push('/client-portal/dashboard')
     } else {
       setError(t.error)

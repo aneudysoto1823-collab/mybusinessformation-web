@@ -302,16 +302,16 @@ Depende de Etapa 11 — sin sitemap.xml no hay nada que submitear.
 
 Depende de Etapa 11 — necesita metadata + cookie banner UI.
 
-- [ ] Crear property GA4 en https://analytics.google.com (Account: MyBusinessFormation; Property: mybusinessformation.com)
-- [ ] Configurar NEXT_PUBLIC_GA_ID=G-XXXXXXXX como env var en Vercel (Production + Preview + Development)
-- [ ] Crear helper único backend/lib/tracking.ts con trackEvent(name, params) SSR-safe — chequeo de typeof window === 'undefined', optional chaining window.gtag?.()
-- [ ] En backend/app/layout.tsx agregar 3 Script tags en orden: gtag-consent-default (beforeInteractive, todos denied), googletagmanager.com/gtag/js (afterInteractive), gtag-init (afterInteractive, gtag('config', '<ID>', { send_page_view: true }))
-- [ ] Cookie Banner + Consent Mode v2 — categorías necessary / analytics / marketing mapeando a analytics_storage, ad_storage, ad_user_data, ad_personalization
-- [ ] Implementar eventos custom del funnel MBF (lista a ajustar al implementar): formation_start, step_completed, package_selected, payment_started, payment_completed, claudia_message_sent, claudia_session_link_used, client_login_success, lang_toggle, external_link_click
-- [ ] Registrar custom dimensions en GA4 Admin (Settings → Custom Definitions): package, step_number, idioma — las que apliquen
-- [ ] PII audit: verificar uno por uno que ningún trackEvent envía email, nombre, dirección, teléfono, ITIN, número de tarjeta — la PII vive solo en Supabase
-- [ ] Smoke test protocol en TROUBLESHOOTING/<n>_ga4_smoke_test.md — tabla de check con los eventos custom + Real-Time validation en GA4
-- [ ] Documentar en LOGICA_DE_NEGOCIO/13_analytics_ga4.md — inventario completo de eventos con archivo:línea, params y insight de negocio
+- [x] Crear property GA4 en https://analytics.google.com — completado 2026-06-03 por Aneury. Measurement ID: `G-6F9CHVYRXW`.
+- [ ] Configurar NEXT_PUBLIC_GA_ID en Vercel — acción de Aneury (~2 min): agregar `NEXT_PUBLIC_GA_ID=G-6F9CHVYRXW` en Production. Recomendación: NO agregarlo en Preview/Development para no contaminar la property con visitas de testing.
+- [x] Crear helper único backend/lib/tracking.ts — completado 2026-06-03: `trackEvent(name, params)` SSR-safe, tipo `GAEventName` union (los 9 eventos), filtra `undefined` antes de mandar. Si `window.gtag` no existe, no-op silencioso.
+- [x] En backend/app/layout.tsx agregar 3 Script tags — completado 2026-06-03: `gtag-consent-default` (beforeInteractive, todo denied + `wait_for_update: 500`) ya existía; agregados `gtag-js` (afterInteractive, gated en `NEXT_PUBLIC_GA_ID`) y `gtag-init` con `send_page_view: true` + `anonymize_ip: true`.
+- [x] Cookie Banner + Consent Mode v2 — ya estaba completado (commit `a4e0512` Etapa 14, 2026-05-19): `lib/consent.ts` mapea analytics/marketing a las 4 dimensiones de Consent Mode v2 y dispara `gtag('consent', 'update', ...)` al aceptar.
+- [x] Implementar eventos custom del funnel — completado 2026-06-03: 9 eventos. `formation_start` + `package_selected` en `app/page.tsx:openFormFromPkg()`, `step_completed` en `app/page.tsx:fmNext()` (con step_number), `payment_started` en `app/new-business/page.tsx:handleCheckout()`, `payment_completed` en `app/new-business/success/PaymentCompletedTracker.tsx` (client island en Server Component), `claudia_message_sent` + `claudia_session_link_used` en `components/ChatWidget.tsx`, `client_login_success` en `app/client-portal/page.tsx`, `lang_toggle` en home + client-portal + dashboard (con source). `external_link_click` descartado del scope inicial — agregar después si hace falta.
+- [ ] Registrar custom dimensions en GA4 Admin — acción de Aneury (~5 min): GA4 → Admin → Custom Definitions → crear 3 con scope Event: `package`, `step_number`, `lang` (en vez de `idioma` para alinear con el param real).
+- [x] PII audit — completado 2026-06-03: verificación pasada por pasada, documentada en `LOGICA_DE_NEGOCIO/19_analytics_ga4.md` (sección PII audit). Cero eventos llevan email, nombre, FBFC, company name, ITIN o phone.
+- [x] Smoke test protocol — completado 2026-06-03: `TROUBLESHOOTING/17_ga4_smoke_test.md` con 6-paso checklist + 7 errores comunes + validación post-incidente.
+- [x] Documentar en LOGICA_DE_NEGOCIO — completado 2026-06-03: `LOGICA_DE_NEGOCIO/19_analytics_ga4.md` (slot 13 ya estaba tomado por `13_seguridad_panel_admin.md`; doc va con número 19). Inventario completo con archivo:línea, params, insight de negocio y decisiones embutidas.
 
 ### Etapa 14 — Hardening de Seguridad de la App (1-2 semanas)
 

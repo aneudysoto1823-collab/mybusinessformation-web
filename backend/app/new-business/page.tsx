@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
+import { trackEvent } from '@/lib/tracking'
 
 type Company = {
   document_id: string
@@ -960,6 +961,14 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
       const svcMap: Record<string, string> = { labor_law: 'labor_law_poster', ein: 'ein', certificate: 'certificate_of_status' }
       const allThree = SERVICES.every(s => selected.has(s.id))
       const selected_services = allThree ? ['bundle'] : [...selected].map(id => svcMap[id])
+      // GA4 — solo metadata anónima. NO incluir company_name (puede tener PII en flujo marketing).
+      trackEvent('payment_started', {
+        services: selected_services.join(','),
+        services_count: selected_services.length,
+        is_bundle: selected_services[0] === 'bundle',
+        lang,
+        source: 'new-business-marketing',
+      })
       const res = await fetch('/api/sunbiz/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
