@@ -1,6 +1,91 @@
 import type { Metadata } from 'next'
 import ChatWidget from '@/components/ChatWidget'
 
+// Schema.org @graph para la página /servicios.
+// - CollectionPage envuelve el catálogo
+// - ItemList con un Service por cada item del catálogo, con Offer cuando hay
+//   precio fijo en USD (Bing es estricto: omite offers para precios variables)
+// - BreadcrumbList para jerarquía
+// Reusa @id de Organization (provider) declarado en home.
+type SchemaService = { id: string; name: string; description: string; priceUsd?: number }
+
+const SERVICIOS_FOR_SCHEMA: SchemaService[] = [
+  { id: 'registered-agent', name: 'Registered Agent (Florida)', description: 'Physical FL street address that receives legal documents and government notices on behalf of your LLC or Corporation.' },
+  { id: 'ein', name: 'EIN / Tax ID Number', description: 'IRS-issued business tax identification number, required to open a bank account, hire employees, and file taxes.', priceUsd: 49 },
+  { id: 'operating-agreement', name: 'Operating Agreement', description: 'Internal LLC document defining ownership, management structure, and member responsibilities. Required by most banks.', priceUsd: 79 },
+  { id: 'itin', name: 'ITIN Application', description: 'IRS Individual Taxpayer Identification Number for non-US founders without a Social Security Number.', priceUsd: 135 },
+  { id: 'dba', name: 'DBA / Fictitious Name Registration', description: 'Florida Fictitious Name registration so your business can operate under a name different from the legal entity name.', priceUsd: 49 },
+  { id: 'virtual-address', name: 'Virtual Mailing Address', description: 'Professional Florida mailing address with mail receipt, scanning, and digital forwarding.' },
+  { id: 'annual-report', name: 'Annual Report Filing', description: 'Yearly required filing with the Florida Division of Corporations to keep the entity active.' },
+  { id: 'amendment', name: 'Articles of Amendment', description: 'Filing to change company name, registered agent, address, or member structure with the State of Florida.', priceUsd: 59 },
+  { id: 'banking-resolution', name: 'Banking Resolution', description: 'Corporate document authorizing signers and account openings, commonly required by banks.', priceUsd: 49 },
+  { id: 'business-tax-receipt', name: 'Business Tax Receipt', description: 'Local business tax receipt (occupational license) required by most Florida counties and municipalities to operate.', priceUsd: 79 },
+  { id: 'sales-tax-registration', name: 'Sales Tax Registration', description: 'Florida Department of Revenue sales tax permit (Form DR-1) for businesses selling taxable goods or services.', priceUsd: 79 },
+  { id: 'exclusive-guide', name: 'Exclusive Formation Guide', description: 'Curated bilingual guide covering post-formation steps to keep your Florida business compliant.', priceUsd: 49 },
+  { id: 'good-standing', name: 'Certificate of Good Standing', description: 'Official Florida certificate confirming your business is active and up-to-date with state filings.', priceUsd: 49 },
+  { id: 'scorp-election', name: 'S-Corp Election (IRS Form 2553)', description: 'Federal tax election to be treated as an S Corporation for pass-through taxation.', priceUsd: 79 },
+  { id: 'foreign-llc', name: 'Foreign LLC / Corp Registration', description: 'Register an out-of-state LLC or Corporation to legally do business in Florida.', priceUsd: 99 },
+  { id: 'business-license', name: 'Business License Research & Filing', description: 'Identify and file the federal, state, and local licenses your business needs to operate legally.', priceUsd: 99 },
+  { id: 'dissolution', name: 'Business Dissolution', description: 'Formal dissolution filing with the Florida Division of Corporations to close an LLC or Corporation cleanly.', priceUsd: 79 },
+  { id: 'cierre-fiscal', name: 'Tax Account Closure', description: 'Close federal and state tax accounts (IRS, FL DOR) after dissolving a business.', priceUsd: 79 },
+]
+
+const serviciosSchema = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'CollectionPage',
+      '@id': 'https://mybusinessformation.com/servicios',
+      url: 'https://mybusinessformation.com/servicios',
+      name: 'Florida Business Services Catalog',
+      description:
+        'Full catalog of Florida business services: LLC formation, EIN, Operating Agreement, Registered Agent, Annual Report, DBA, ITIN and more. Bilingual EN/ES.',
+      inLanguage: 'en-US',
+      isPartOf: { '@id': 'https://mybusinessformation.com/#website' },
+      breadcrumb: { '@id': 'https://mybusinessformation.com/servicios#breadcrumb' },
+      mainEntity: { '@id': 'https://mybusinessformation.com/servicios#itemlist' },
+    },
+    {
+      '@type': 'BreadcrumbList',
+      '@id': 'https://mybusinessformation.com/servicios#breadcrumb',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://mybusinessformation.com' },
+        { '@type': 'ListItem', position: 2, name: 'Services', item: 'https://mybusinessformation.com/servicios' },
+      ],
+    },
+    {
+      '@type': 'ItemList',
+      '@id': 'https://mybusinessformation.com/servicios#itemlist',
+      name: 'Florida Business Services',
+      numberOfItems: SERVICIOS_FOR_SCHEMA.length,
+      itemListElement: SERVICIOS_FOR_SCHEMA.map((s, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        item: {
+          '@type': 'Service',
+          '@id': `https://mybusinessformation.com/servicios#${s.id}`,
+          name: s.name,
+          description: s.description,
+          serviceType: 'Business Formation & Compliance',
+          areaServed: { '@type': 'State', name: 'Florida' },
+          provider: { '@id': 'https://mybusinessformation.com/#organization' },
+          ...(s.priceUsd !== undefined
+            ? {
+                offers: {
+                  '@type': 'Offer',
+                  price: s.priceUsd,
+                  priceCurrency: 'USD',
+                  availability: 'https://schema.org/InStock',
+                  url: `https://mybusinessformation.com/servicios#${s.id}`,
+                },
+              }
+            : {}),
+        },
+      })),
+    },
+  ],
+}
+
 export const metadata: Metadata = {
   title: 'Florida Business Services — LLC, Corporation, EIN, Registered Agent & More',
   description: 'Full catalog of Florida business services: LLC formation, Corporation, EIN, Operating Agreement, Registered Agent, Annual Report, DBA, ITIN, and more. Bilingual EN/ES.',
@@ -1566,6 +1651,10 @@ function toggleNav(){
 `
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(serviciosSchema) }}
+      />
       <main dangerouslySetInnerHTML={{ __html: `<style>${styles}</style>${body}` }} />
       <ChatWidget />
     </>

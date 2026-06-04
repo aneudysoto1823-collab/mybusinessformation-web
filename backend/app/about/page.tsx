@@ -1,6 +1,45 @@
 import type { Metadata } from 'next'
 import ChatWidget from '@/components/ChatWidget'
 
+// Schema.org @graph para AboutPage. Reusa @id de la Organization declarada en
+// el home (relacion mainEntity), evitando duplicar info. BreadcrumbList ayuda
+// a Google/Bing a entender la jerarquia del sitio.
+const aboutSchema = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'AboutPage',
+      '@id': 'https://mybusinessformation.com/about',
+      url: 'https://mybusinessformation.com/about',
+      name: 'About MyBusinessFormation',
+      description:
+        'Bilingual Florida business filing service. LLC and Corporation formation for entrepreneurs and investors throughout Florida.',
+      inLanguage: 'en-US',
+      isPartOf: { '@id': 'https://mybusinessformation.com/#website' },
+      mainEntity: { '@id': 'https://mybusinessformation.com/#organization' },
+      breadcrumb: { '@id': 'https://mybusinessformation.com/about#breadcrumb' },
+    },
+    {
+      '@type': 'BreadcrumbList',
+      '@id': 'https://mybusinessformation.com/about#breadcrumb',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Home',
+          item: 'https://mybusinessformation.com',
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: 'About',
+          item: 'https://mybusinessformation.com/about',
+        },
+      ],
+    },
+  ],
+}
+
 export const metadata: Metadata = {
   title: 'About MyBusinessFormation — Florida Business Formation Experts',
   description: 'Learn about MyBusinessFormation — a bilingual Florida business filing service dedicated to making LLC and Corporation formation accessible for every entrepreneur.',
@@ -357,6 +396,13 @@ function toggleNav(){var nav=document.querySelector('nav');var btn=document.getE
 </script>
 `
   return (
-    <><main dangerouslySetInnerHTML={{ __html: `<style>${styles}</style>${body}` }} /><ChatWidget /></>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(aboutSchema) }}
+      />
+      <main dangerouslySetInnerHTML={{ __html: `<style>${styles}</style>${body}` }} />
+      <ChatWidget />
+    </>
   )
 }

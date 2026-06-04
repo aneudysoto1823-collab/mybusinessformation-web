@@ -1,6 +1,78 @@
 import Link from 'next/link'
 import { listArticles, groupByCategory, type Section, type Lang } from '@/lib/content'
-import { articleUrl } from '@/lib/cross-links'
+import { articleUrl, sectionHubUrl } from '@/lib/cross-links'
+
+const BASE_URL = 'https://mybusinessformation.com'
+
+// Construye Schema.org @graph para un hub (/wiki o /guias en EN/ES).
+// - CollectionPage para el hub
+// - ItemList con los Article del catálogo, ordenados por categoría → fecha
+// - BreadcrumbList Home → Section
+// Si el hub está vacío (no hay .md publicados), igual emite CollectionPage +
+// BreadcrumbList sin ItemList — sigue siendo válido.
+function buildHubSchema(section: Section, lang: Lang, articles: ReturnType<typeof listArticles>) {
+  const hubPath = sectionHubUrl(section, lang)
+  const hubUrl = `${BASE_URL}${hubPath}`
+  const sectionLabel = section === 'wiki'
+    ? (lang === 'es' ? 'Wiki' : 'Wiki')
+    : (lang === 'es' ? 'Guías' : 'Guides')
+  const langTag = lang === 'es' ? 'es-US' : 'en-US'
+
+  const graph: object[] = [
+    {
+      '@type': 'CollectionPage',
+      '@id': hubUrl,
+      url: hubUrl,
+      name: `${sectionLabel} — MyBusinessFormation`,
+      description: section === 'wiki'
+        ? (lang === 'es'
+            ? 'Referencia rápida, glosario y definiciones para formar y operar un negocio en Florida.'
+            : 'Quick reference, glossary and definitions for forming and running a Florida business.')
+        : (lang === 'es'
+            ? 'Tutoriales paso a paso para cada parte de formar y manejar un negocio en Florida.'
+            : 'Step-by-step tutorials for every part of forming and managing a Florida business.'),
+      inLanguage: langTag,
+      isPartOf: { '@id': `${BASE_URL}/#website` },
+      about: { '@id': `${BASE_URL}/#organization` },
+      breadcrumb: { '@id': `${hubUrl}#breadcrumb` },
+      ...(articles.length > 0 ? { mainEntity: { '@id': `${hubUrl}#itemlist` } } : {}),
+    },
+    {
+      '@type': 'BreadcrumbList',
+      '@id': `${hubUrl}#breadcrumb`,
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: BASE_URL },
+        { '@type': 'ListItem', position: 2, name: sectionLabel, item: hubUrl },
+      ],
+    },
+  ]
+
+  if (articles.length > 0) {
+    graph.push({
+      '@type': 'ItemList',
+      '@id': `${hubUrl}#itemlist`,
+      name: `${sectionLabel} articles`,
+      numberOfItems: articles.length,
+      itemListElement: articles.map((a, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        item: {
+          '@type': 'Article',
+          '@id': `${BASE_URL}${articleUrl(section, lang, a.slug)}`,
+          headline: a.title,
+          description: a.description,
+          datePublished: a.date,
+          ...(a.lastUpdated ? { dateModified: a.lastUpdated } : {}),
+          inLanguage: langTag,
+          author: { '@id': `${BASE_URL}/#organization` },
+          publisher: { '@id': `${BASE_URL}/#organization` },
+        },
+      })),
+    })
+  }
+
+  return { '@context': 'https://schema.org', '@graph': graph }
+}
 
 const COPY = {
   wiki: {
@@ -41,9 +113,14 @@ export function HubView({ section, lang }: { section: Section; lang: Lang }) {
   const articles = listArticles(section, lang)
   const groups = groupByCategory(articles)
   const t = COPY[section][lang]
+  const schema = buildHubSchema(section, lang, articles)
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      />
       <style>{`
         .hub-wrap {
           min-height: 100vh;
