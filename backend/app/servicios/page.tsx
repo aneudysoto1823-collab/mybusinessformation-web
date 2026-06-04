@@ -713,6 +713,7 @@ var serviceForms={
   title:'Registered Agent Service',
   title_es:'Servicio de Agente Registrado',
   sub:'We need your current business info to file the Change of Registered Agent with the Florida Division of Corporations.',
+  sub_es:'Necesitamos la información actual de tu negocio para tramitar el cambio de Agente Registrado ante la División de Corporaciones de Florida.',
   headerClass:'',
   price:'Annual fee',
   html:\`
@@ -738,6 +739,7 @@ var serviceForms={
   title:'EIN / Tax ID Number — $49',
   title_es:'Número EIN / ID Fiscal — $49',
   sub:'IRS Form SS-4 preparation and submission. Required to open a business bank account.',
+  sub_es:'Preparación y envío del Formulario SS-4 del IRS. Requerido para abrir una cuenta bancaria empresarial.',
   price:'$49',
   html:\`
     <div class="info-box">&#127981; <strong>Federal Requirement:</strong> Your EIN is issued by the IRS and required for federal taxes, opening a business bank account, and hiring employees.</div>
@@ -767,6 +769,7 @@ var serviceForms={
   title:'Operating Agreement — $79',
   title_es:'Acuerdo Operativo — $79',
   sub:'Custom LLC Operating Agreement based on Florida statutes and your ownership structure.',
+  sub_es:'Acuerdo Operativo personalizado para LLC basado en los estatutos de Florida y tu estructura de propiedad.',
   price:'$79',
   html:\`
     <div class="info-box">&#128196; <strong>Florida Requirement:</strong> Banks require your Operating Agreement (along with your EIN and Certificate of Formation) to open a business checking account.</div>
@@ -802,6 +805,7 @@ var serviceForms={
   title:'ITIN Application — $135',
   title_es:'Solicitud de ITIN — $135',
   sub:'IRS Form W-7 preparation for foreign nationals who need a US taxpayer identification number.',
+  sub_es:'Preparación del Formulario W-7 del IRS para extranjeros que necesitan un número de identificación fiscal en EE.UU.',
   price:'$135',
   html:\`
     <div class="info-box">&#127760; <strong>Who needs an ITIN?</strong> Foreign nationals, non-resident aliens, and individuals who must file US taxes but are not eligible for a Social Security Number (SSN).</div>
@@ -833,6 +837,7 @@ var serviceForms={
   title:'DBA / Fictitious Name Filing — $49',
   title_es:'Registro DBA / Nombre Ficticio — $49',
   sub:'Register your Fictitious Name (DBA) with the Florida Division of Corporations.',
+  sub_es:'Registra tu Nombre Ficticio (DBA) ante la División de Corporaciones de Florida.',
   price:'$49 + state fee',
   html:\`
     <div class="info-box">&#127991; <strong>Florida Requirement:</strong> Any business operating under a name different from its legal registered name must file a Fictitious Name Registration with the Florida Division of Corporations. Valid for 5 years.</div>
@@ -859,6 +864,7 @@ var serviceForms={
   title:'Virtual Mailing Address — $29/month',
   title_es:'Dirección Postal Virtual — $29/mes',
   sub:'Professional FL address for your business. Mail received and forwarded digitally.',
+  sub_es:'Dirección profesional en FL para tu negocio. Correo recibido y reenviado digitalmente.',
   price:'$29/mo',
   html:\`
     <div class="info-box">&#128205; <strong>Privacy &amp; Professionalism:</strong> Your home address stays off all public Florida Division of Corporations records. Use this address for your business registration, website, and business cards.</div>
@@ -881,6 +887,7 @@ var serviceForms={
   title:'Annual Report Filing',
   title_es:'Declaración Anual',
   sub:'File your Florida Annual Report on time and avoid the $400 late fee.',
+  sub_es:'Presenta tu Reporte Anual de Florida a tiempo y evita la multa de $400.',
   price:'Annual',
   html:\`
     <div class="warn-box">&#9888; <strong>Florida Deadline:</strong> Annual Reports must be filed between January 1 and May 1. After May 1, a $400 late penalty is imposed by the State. Continued non-filing results in administrative dissolution.</div>
@@ -918,6 +925,7 @@ var serviceForms={
   title:'Articles of Amendment — $59',
   title_es:'Artículos de Enmienda — $59',
   sub:'Change your business name, address, registered agent, or other registered details with the State of Florida.',
+  sub_es:'Cambia el nombre de tu negocio, dirección, agente registrado u otros datos registrados ante el Estado de Florida.',
   price:'$59 + state fee',
   html:\`
     <div class="info-box">&#9998; <strong>When do you need an Amendment?</strong> Whenever your registered business name, principal address, registered agent, officers/directors, or business purpose changes — you must update Sunbiz within a reasonable time.</div>
@@ -1237,9 +1245,10 @@ function addOAMember(){
 }
 function addARPerson(){
   var c=document.getElementById('ar-officers');if(!c)return;
+  var isEs=document.getElementById('btn-es').classList.contains('active');
   var d=document.createElement('div');
   d.style.cssText='border:1.5px solid var(--gray200);border-radius:9px;padding:14px;margin-bottom:11px';
-  d.innerHTML='<div class="form-row-3"><div class="form-group"><label class="form-label">Title</label><select class="select-input"><option>MGR</option><option>President</option><option>Director</option><option>VP</option><option>Secretary</option></select></div><div class="form-group"><label class="form-label">Full Name</label><input type="text" class="form-input" placeholder="Name"/></div><div class="form-group"><label class="form-label">Address</label><input type="text" class="form-input" placeholder="Address"/></div></div>';
+  d.innerHTML='<div class="form-row-3"><div class="form-group"><label class="form-label">'+(isEs?'Título':'Title')+'</label><select class="select-input"><option>MGR</option><option>MGRM</option><option>'+(isEs?'Presidente':'President')+'</option><option>VP</option><option>'+(isEs?'Secretario':'Secretary')+'</option><option>Director</option></select></div><div class="form-group"><label class="form-label">'+(isEs?'Nombre Completo':'Full Name')+'</label><input type="text" class="form-input" placeholder="'+(isEs?'Nombre':'Name')+'"/></div><div class="form-group"><label class="form-label">'+(isEs?'Dirección':'Address')+'</label><input type="text" class="form-input" placeholder="'+(isEs?'Dirección':'Address')+'"/></div></div>';
   c.appendChild(d);
 }
 // URL hash auto-open
