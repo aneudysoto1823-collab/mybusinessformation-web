@@ -8,72 +8,58 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'document_id is required' }, { status: 400 })
   }
 
-  // 1. Check our prospective_companies table first
-  try {
-    const supabase = getSupabaseAdmin()
-    const { data: existing } = await supabase
+  const supabase = getSupabaseAdmin()
+
+  // Consulta ambas tablas en paralelo para minimizar latencia
+  const [prospectiveResult, sunbizResult] = await Promise.all([
+    supabase
       .from('prospective_companies')
       .select('*')
       .eq('document_id', documentId)
-      .maybeSingle()
+      .maybeSingle(),
+    supabase
+      .from('sunbiz_corps')
+      .select('document_number, entity_name, entity_type, status, filing_date, principal_address, principal_city, principal_state, principal_zip, registered_agent_name')
+      .eq('document_number', documentId)
+      .maybeSingle(),
+  ])
 
-    if (existing) {
-      return NextResponse.json({ source: 'database', company: existing })
-    }
-  } catch {
-    // DB unavailable — fall through to Sunbiz
-  }
+  const prospective = prospectiveResult.data
+  const sunbiz = sunbizResult.data
 
-  // 2. Fallback: scrape Sunbiz by document number
-  try {
-    const searchUrl = `https://search.sunbiz.org/Inquiry/CorporationSearch/SearchResults?inquiryType=DocumentNumber&inquiryDirectionType=ForwardList&masterDocumentNumber=${encodeURIComponent(documentId)}`
-
-    const res = await fetch(searchUrl, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-      },
-      signal: AbortSignal.timeout(10000),
-    })
-
-    if (!res.ok) throw new Error('Sunbiz unavailable')
-
-    const html = await res.text()
-
-    // Extract company name from result link
-    const nameMatch = html.match(/GetFilingInformation[^"]*"[^>]*>\s*([A-Z0-9][^<]{2,80}?)\s*<\/a>/i)
-    const companyName = nameMatch ? nameMatch[1].trim() : null
-
-    if (!companyName) {
-      return NextResponse.json({ error: 'Document ID not found in Florida state records.' }, { status: 404 })
-    }
-
-    // Infer type from name suffix
-    let companyType = 'LLC'
-    if (/\b(corp|corporation|inc\.?|incorporated)\b/i.test(companyName)) companyType = 'CORP'
-    else if (/\bp\.?a\.?\b/i.test(companyName)) companyType = 'PA'
-    else if (/\bltd\.?\b/i.test(companyName)) companyType = 'LTD'
-
-    return NextResponse.json({
-      source: 'sunbiz',
-      company: {
-        document_id: documentId,
-        company_name: companyName,
-        company_type: companyType,
-        owner_name: null,
-        address: null,
-        city: null,
-        state: 'FL',
-        zip: null,
-        email: null,
-        status: 'new',
-      },
-    })
-  } catch (err) {
-    const isTimeout = err instanceof Error && (err.name === 'TimeoutError' || err.name === 'AbortError')
+  if (!prospective && !sunbiz) {
     return NextResponse.json(
-      { error: isTimeout ? 'State database timeout — try again in a moment.' : 'Could not retrieve company data.' },
-      { status: 503 }
+      { error: 'Document ID not found in Florida state records.' },
+      { status: 404 }
     )
   }
+
+  // Normaliza el tipo de entidad al formato que usa el auto-relleno del formulario
+  const rawType = prospective?.company_type || sunbiz?.entity_type || ''
+  let companyType = rawType
+  if (/llc|limited liability/i.test(rawType))         companyType = 'LLC'
+  else if (/corp|corporation|inc\b|incorporated/i.test(rawType)) companyType = 'CORP'
+  else if (/\bp\.?a\.?\b/i.test(rawType))             companyType = 'PA'
+  else if (/\bltd\.?\b/i.test(rawType))               companyType = 'LTD'
+
+  // prospective_companies gana en datos de marketing (owner, email)
+  // sunbiz_corps aporta datos oficiales de FL (dirección, agente, estado)
+  const company = {
+    document_id:      documentId,
+    company_name:     prospective?.company_name || sunbiz?.entity_name || null,
+    company_type:     companyType || null,
+    status:           sunbiz?.status || null,
+    owner_name:       prospective?.owner_name || null,
+    address:          prospective?.address || sunbiz?.principal_address || null,
+    city:             prospective?.city    || sunbiz?.principal_city    || null,
+    state:            prospective?.state   || sunbiz?.principal_state   || 'FL',
+    zip:              prospective?.zip     || sunbiz?.principal_zip     || null,
+    email:            prospective?.email   || null,
+    registered_agent: sunbiz?.registered_agent_name || null,
+    filing_date:      sunbiz?.filing_date  || null,
+  }
+
+  const source = prospective && sunbiz ? 'both' : prospective ? 'database' : 'sunbiz_corps'
+
+  return NextResponse.json({ source, company })
 }
