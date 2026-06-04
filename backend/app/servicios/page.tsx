@@ -1655,8 +1655,8 @@ function touchSvc(item){
     document.querySelectorAll('.svc-acc-item.expanded').forEach(function(i){i.classList.remove('expanded');});
     if(!wasOpen)item.classList.add('expanded');
   } else {
-    if(_activeItem===item&&item.classList.contains('active')){deactivateSvc();}
-    else{activateSvc(item);}
+    var svcId=item.getAttribute('data-svc');
+    if(svcId)openServiceForm(svcId);
   }
 }
 
