@@ -6,6 +6,7 @@ interface Expense {
   description: string; amount: number; receipt_note: string | null; created_at: string
   is_recurring: boolean; recurrence: string; renewal_date: string | null
   receipt_file_url?: string | null
+  auto_renew?: boolean | null
 }
 
 const NAV = [
@@ -29,7 +30,7 @@ const today = () => new Date().toISOString().split('T')[0]
 const EMPTY_FORM = {
   expense_date: today(), category: 'other', expense_type: 'variable',
   description: '', amount: '', receipt_note: '',
-  is_recurring: false, recurrence: 'monthly', renewal_date: '',
+  is_recurring: false, recurrence: 'monthly', renewal_date: '', auto_renew: true,
 }
 
 function daysUntil(dateStr: string): number {
@@ -158,6 +159,7 @@ export default function GastosPage() {
   const [aiMsg, setAiMsg] = useState('')
   const [dragOver, setDragOver] = useState(false)
   const [receiptFile, setReceiptFile] = useState<File | null>(null)
+  const [renewedMsg, setRenewedMsg] = useState('')
   const fileInputRef = useRef<HTMLInputElement>(null)
   const receiptFileRef = useRef<HTMLInputElement>(null)
 
@@ -175,6 +177,28 @@ export default function GastosPage() {
 
   useEffect(() => { load() }, [filterCategory, fromDate, toDate])
 
+  // Procesa renovaciones automáticas al cargar la página
+  useEffect(() => {
+    fetch('/api/contabilidad/gastos/process-renewals', { method: 'POST' })
+      .then(r => r.json())
+      .then(d => {
+        if (d.count > 0) {
+          setRenewedMsg(`Se renovaron automáticamente ${d.count} gasto(s) recurrente(s).`)
+          load()
+        }
+      })
+      .catch(() => {})
+  }, [])
+
+  const toggleAutoRenew = async (id: string, value: boolean) => {
+    await fetch(`/api/contabilidad/gastos/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ auto_renew: value }),
+    })
+    load()
+  }
+
   const openAdd = () => { setEditItem(null); setForm(EMPTY_FORM); setErr(''); setReceiptFile(null); setShowModal(true) }
   const openEdit = (item: Expense) => {
     setEditItem(item)
@@ -183,7 +207,7 @@ export default function GastosPage() {
       expense_type: item.expense_type, description: item.description,
       amount: String(item.amount), receipt_note: item.receipt_note ?? '',
       is_recurring: item.is_recurring, recurrence: item.recurrence || 'monthly',
-      renewal_date: item.renewal_date ?? '',
+      renewal_date: item.renewal_date ?? '', auto_renew: item.auto_renew ?? true,
     })
     setErr(''); setReceiptFile(null); setShowModal(true)
   }
@@ -243,7 +267,7 @@ export default function GastosPage() {
       receipt_note: json.vendor ? `Vendor: ${json.vendor}` : '',
       is_recurring: Boolean(json.is_recurring),
       recurrence: json.recurrence || 'monthly',
-      renewal_date: '',
+      renewal_date: '', auto_renew: true,
     })
     setAiMsg(`✓ Datos extraídos de "${file.name}". Revisa y confirma.`)
     setShowAiModal(false)
@@ -314,6 +338,14 @@ export default function GastosPage() {
             <a key={n.href} href={n.href} className={`nav-tab${n.href === '/admin/contabilidad/gastos' ? ' active' : ''}`}>{n.label}</a>
           ))}
         </div>
+
+        {/* Auto-renewal notification */}
+        {renewedMsg && (
+          <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '10px', padding: '10px 16px', marginBottom: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px', color: '#065f46' }}>
+            <span>✓ {renewedMsg}</span>
+            <button onClick={() => setRenewedMsg('')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6b7280', fontSize: '16px' }}>×</button>
+          </div>
+        )}
 
         {/* Renewal alerts */}
         {renewalAlerts.length > 0 && (
@@ -386,6 +418,10 @@ export default function GastosPage() {
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                               <span className={`badge ${renewClass}`}>{REC_LABELS[r.recurrence] || r.recurrence}</span>
                               {r.renewal_date && <span style={{ fontSize: '11px', color: '#9ca3af' }}>Vence {r.renewal_date}</span>}
+                              {r.auto_renew !== false
+                                ? <button className="btn-sm" style={{ fontSize: '10px', color: '#059669', borderColor: '#bbf7d0', padding: '2px 7px' }} onClick={() => toggleAutoRenew(r.id, false)}>● Auto</button>
+                                : <button className="btn-sm" style={{ fontSize: '10px', color: '#9ca3af', padding: '2px 7px' }} onClick={() => toggleAutoRenew(r.id, true)}>○ Pausado</button>
+                              }
                             </div>
                           ) : <span style={{ color: '#d1d5db' }}>—</span>}
                         </td>
@@ -521,6 +557,14 @@ export default function GastosPage() {
                       <input type="date" value={form.renewal_date} onChange={e => setForm(f => ({ ...f, renewal_date: e.target.value }))} />
                       <div className="hint">Se usará para la alerta de vencimiento</div>
                     </div>
+                  </div>
+                  <div className="toggle-row">
+                    <label htmlFor="toggle-autorenew">Auto-renovar al vencer (replica el gasto automáticamente)</label>
+                    <label className="toggle">
+                      <input id="toggle-autorenew" type="checkbox" checked={form.auto_renew}
+                        onChange={e => setForm(f => ({ ...f, auto_renew: e.target.checked }))} />
+                      <span className="toggle-slider" />
+                    </label>
                   </div>
                 </div>
               )}

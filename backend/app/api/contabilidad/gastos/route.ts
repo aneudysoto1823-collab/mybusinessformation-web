@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
 
   const body = await request.json()
   const { expense_date, category, expense_type = 'variable', description, amount, receipt_note,
-    is_recurring = false, recurrence = 'none', renewal_date } = body
+    is_recurring = false, recurrence = 'none', renewal_date, auto_renew = true } = body
 
   if (!category || !description?.trim() || !amount) {
     return NextResponse.json({ error: 'category, description y amount son requeridos' }, { status: 400 })
@@ -53,6 +53,7 @@ export async function POST(request: NextRequest) {
       is_recurring: Boolean(is_recurring),
       recurrence: is_recurring ? (recurrence || 'monthly') : 'none',
       renewal_date: is_recurring && renewal_date ? renewal_date : null,
+      auto_renew: Boolean(auto_renew),
     })
     .select()
     .single()
