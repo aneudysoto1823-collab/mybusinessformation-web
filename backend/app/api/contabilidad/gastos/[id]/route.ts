@@ -18,7 +18,7 @@ export async function PATCH(
 
   const allowed: Record<string, unknown> = {}
   for (const f of ['expense_date', 'category', 'expense_type', 'description', 'amount', 'receipt_note',
-    'is_recurring', 'recurrence', 'renewal_date']) {
+    'is_recurring', 'recurrence', 'renewal_date', 'receipt_file_url']) {
     if (body[f] !== undefined) allowed[f] = body[f]
   }
   if (allowed.amount) allowed.amount = parseFloat(allowed.amount as string)

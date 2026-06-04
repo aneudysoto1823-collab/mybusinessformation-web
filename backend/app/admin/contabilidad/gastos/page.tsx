@@ -5,6 +5,7 @@ interface Expense {
   id: string; expense_date: string; category: string; expense_type: string
   description: string; amount: number; receipt_note: string | null; created_at: string
   is_recurring: boolean; recurrence: string; renewal_date: string | null
+  receipt_file_url?: string | null
 }
 
 const NAV = [
@@ -115,6 +116,15 @@ tr:last-child td { border-bottom: none; }
 .upload-zone.drag { border-color: #7c3aed; background: #f5f3ff; }
 .upload-zone p { font-size: 13px; color: #6b7280; margin-top: 6px; }
 .upload-icon { font-size: 32px; }
+.upload-zone-sm { border: 2px dashed #e5e7eb; border-radius: 8px; padding: 9px 12px; cursor: pointer; transition: border-color .15s, background .15s; background: #fafafa; display: flex; align-items: center; gap: 8px; min-height: 42px; }
+.upload-zone-sm:hover, .upload-zone-sm.drag { border-color: #2563eb; background: #eff6ff; }
+.upload-zone-sm.has-file { border-color: #059669; background: #f0fdf4; border-style: solid; }
+.upload-zone-sm span.uz-text { font-size: 13px; color: #6b7280; }
+.upload-zone-sm.has-file span.uz-text { color: #065f46; font-weight: 600; }
+.receipt-clear { background: none; border: none; cursor: pointer; font-size: 16px; color: #6b7280; line-height: 1; padding: 0 2px; margin-left: auto; }
+.receipt-current { font-size: 12px; color: #374151; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.receipt-current a { color: #2563eb; text-decoration: none; font-weight: 600; }
+.receipt-current a:hover { text-decoration: underline; }
 .ai-result { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 12px 14px; font-size: 13px; color: #065f46; }
 .err { color: #dc2626; font-size: 12px; }
 .hint { font-size: 11px; color: #9ca3af; margin-top: 3px; }
@@ -147,7 +157,9 @@ export default function GastosPage() {
   const [analyzing, setAnalyzing] = useState(false)
   const [aiMsg, setAiMsg] = useState('')
   const [dragOver, setDragOver] = useState(false)
+  const [receiptFile, setReceiptFile] = useState<File | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const receiptFileRef = useRef<HTMLInputElement>(null)
 
   const load = () => {
     setLoading(true)
@@ -163,7 +175,7 @@ export default function GastosPage() {
 
   useEffect(() => { load() }, [filterCategory, fromDate, toDate])
 
-  const openAdd = () => { setEditItem(null); setForm(EMPTY_FORM); setErr(''); setShowModal(true) }
+  const openAdd = () => { setEditItem(null); setForm(EMPTY_FORM); setErr(''); setReceiptFile(null); setShowModal(true) }
   const openEdit = (item: Expense) => {
     setEditItem(item)
     setForm({
@@ -173,7 +185,7 @@ export default function GastosPage() {
       is_recurring: item.is_recurring, recurrence: item.recurrence || 'monthly',
       renewal_date: item.renewal_date ?? '',
     })
-    setErr(''); setShowModal(true)
+    setErr(''); setReceiptFile(null); setShowModal(true)
   }
 
   const handleSave = async () => {
@@ -186,9 +198,25 @@ export default function GastosPage() {
     const method = editItem ? 'PATCH' : 'POST'
     const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) })
     const data = await res.json()
+    if (!res.ok) { setSaving(false); setErr(data.error ?? 'Error al guardar'); return }
+
+    const expenseId = editItem ? editItem.id : data.expense?.id
+    if (receiptFile && expenseId) {
+      const fd = new FormData()
+      fd.append('file', receiptFile)
+      const uploadRes = await fetch(`/api/contabilidad/gastos/${expenseId}/upload`, { method: 'POST', body: fd })
+      if (!uploadRes.ok) {
+        setSaving(false)
+        setErr('Gasto guardado, pero falló la subida del archivo')
+        load()
+        return
+      }
+    }
+
     setSaving(false)
-    if (!res.ok) { setErr(data.error ?? 'Error al guardar'); return }
-    setShowModal(false); load()
+    setReceiptFile(null)
+    setShowModal(false)
+    load()
   }
 
   const handleDelete = async (id: string) => {
@@ -339,6 +367,7 @@ export default function GastosPage() {
                     <th>Tipo</th>
                     <th>Recurrencia</th>
                     <th>Monto</th>
+                    <th>Factura</th>
                     <th></th>
                   </tr>
                 </thead>
@@ -361,6 +390,11 @@ export default function GastosPage() {
                           ) : <span style={{ color: '#d1d5db' }}>—</span>}
                         </td>
                         <td style={{ fontWeight: 700, color: '#dc2626' }}>{fmt(r.amount)}</td>
+                        <td>
+                          {r.receipt_file_url
+                            ? <a href={r.receipt_file_url} target="_blank" rel="noopener noreferrer" title="Ver factura adjunta" style={{ fontSize: '18px', textDecoration: 'none' }}>📄</a>
+                            : <span style={{ color: '#d1d5db' }}>—</span>}
+                        </td>
                         <td>
                           <button className="btn-sm" onClick={() => openEdit(r)}>Editar</button>
                           <button className="btn-del" onClick={() => handleDelete(r.id)}>Eliminar</button>
@@ -490,6 +524,40 @@ export default function GastosPage() {
                   </div>
                 </div>
               )}
+
+              <div className="form-group">
+                <label>Factura / Archivo adjunto (opcional)</label>
+                {editItem?.receipt_file_url && !receiptFile && (
+                  <div className="receipt-current">
+                    <span>📄</span>
+                    <a href={editItem.receipt_file_url} target="_blank" rel="noopener noreferrer">Ver archivo adjunto</a>
+                    <span style={{ color: '#9ca3af' }}>· Selecciona uno nuevo para reemplazar</span>
+                  </div>
+                )}
+                <div
+                  className={`upload-zone-sm${receiptFile ? ' has-file' : ''}`}
+                  onClick={() => receiptFileRef.current?.click()}
+                  onDragOver={e => { e.preventDefault(); e.currentTarget.classList.add('drag') }}
+                  onDragLeave={e => e.currentTarget.classList.remove('drag')}
+                  onDrop={e => {
+                    e.preventDefault()
+                    e.currentTarget.classList.remove('drag')
+                    const file = e.dataTransfer.files[0]
+                    if (file) setReceiptFile(file)
+                  }}
+                >
+                  <span style={{ fontSize: '16px' }}>{receiptFile ? '📄' : '📎'}</span>
+                  <span className="uz-text">
+                    {receiptFile ? receiptFile.name : 'Haz clic o arrastra un archivo aquí'}
+                  </span>
+                  {receiptFile && (
+                    <button className="receipt-clear" onClick={e => { e.stopPropagation(); setReceiptFile(null) }}>×</button>
+                  )}
+                  <input ref={receiptFileRef} type="file" accept=".pdf,.jpg,.jpeg,.png,.webp" style={{ display: 'none' }}
+                    onChange={e => { const f = e.target.files?.[0]; if (f) setReceiptFile(f) }} />
+                </div>
+                <div className="hint">PDF, JPG, PNG, WEBP · máx. 10 MB</div>
+              </div>
 
               <div className="form-group">
                 <label>Comprobante / Nota</label>
