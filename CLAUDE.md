@@ -124,6 +124,18 @@ BACKEND_URL           # URL Railway del Express server
 /api/proxy/*              — proxy autenticado a Railway Express
 /api/admin/upload-certificate  POST — sube certificado de aprobación
 /api/documents/[orderId]  GET   — documentos de una orden
+
+/api/contabilidad/dashboard      GET    — métricas + alertas de vencimiento
+/api/contabilidad/clientes       GET+POST — CRUD clientes contables
+/api/contabilidad/clientes/[id]  PATCH+DELETE
+/api/contabilidad/ingresos       GET+POST — CRUD facturas/ingresos
+/api/contabilidad/ingresos/[id]  PATCH+DELETE
+/api/contabilidad/gastos         GET+POST — CRUD gastos (soporta recurrentes)
+/api/contabilidad/gastos/[id]    PATCH+DELETE
+/api/contabilidad/reportes       GET    — reporte consolidado por período
+/api/contabilidad/sync-orders    POST   — importa órdenes del admin como ingresos+clientes (idempotente)
+/api/contabilidad/reset          DELETE — borra todos los datos contables (requiere confirm: 'RESET_CONTABILIDAD')
+/api/contabilidad/analyze-invoice POST  — sube PDF/imagen → Claude Haiku extrae datos de la factura
 ```
 
 ---
@@ -253,6 +265,77 @@ Página de detalle de orden con todas las herramientas operativas:
 
 Flujo de estados: `pending → in_review → ready_to_file → filed → approved → completed`
 Rama alternativa: `in_review → names_taken → in_review` (loop hasta encontrar nombre disponible)
+
+## Módulo de Contabilidad (`/admin/contabilidad`)
+
+Módulo interno para gestión financiera del negocio. 100% Next.js/Vercel — no usa Railway.
+
+### Tablas Supabase
+
+- `accounting_clients` — clientes contables (puede enlazarse a `Order` via `order_id`)
+- `accounting_income` — facturas/ingresos (enlazado a cliente via `client_id` y a orden via `order_id`)
+- `accounting_expenses` — gastos con soporte de recurrencia
+
+```
+accounting_expenses {
+  id, expense_date, category, expense_type ('fixed'|'variable')
+  description, amount, receipt_note
+  is_recurring   Boolean  -- bill recurrente (mensual/anual)
+  recurrence     Text     -- 'none' | 'monthly' | 'annual'
+  renewal_date   Date     -- próxima fecha de vencimiento (para alertas)
+}
+```
+
+### Páginas
+
+```
+/admin/contabilidad              — Dashboard: stats, taxes estimados, pagos IRS trimestrales, alertas vencimiento
+/admin/contabilidad/clientes     — Lista + CRUD de clientes contables
+/admin/contabilidad/clientes/[id]— Detalle de cliente
+/admin/contabilidad/ingresos     — Facturas/ingresos con filtros
+/admin/contabilidad/gastos       — Gastos: manual, IA, recurrentes, exportar
+/admin/contabilidad/reportes     — Reporte consolidado
+```
+
+### Lógica de taxes federales estimados
+
+La tasa se configura en el dashboard (default 25%) y se guarda en `localStorage` con key `contabilidad_tax_rate`. El cálculo es 100% frontend:
+- `estimatedTax = max(0, totalBalance) * taxRate / 100`
+- `netProfit = totalBalance - estimatedTax`
+- Pagos trimestrales IRS = `estimatedTax / 4`
+
+Fechas de vencimiento IRS 2025: Q1 Apr 15 · Q2 Jun 16 · Q3 Sep 15 · Q4 Ene 15 2026.
+Florida no tiene state income tax — solo aplica federal.
+
+### Sync de órdenes
+
+`POST /api/contabilidad/sync-orders` importa órdenes de `Order` que no tengan ya un `accounting_income.order_id`. Por cada orden crea un `accounting_client` + `accounting_income`. Es idempotente — se puede correr múltiples veces sin duplicar.
+
+Para limpiar datos de prueba antes de producción: botón "Poner en cero" en el dashboard llama a `DELETE /api/contabilidad/reset` con `{ confirm: 'RESET_CONTABILIDAD' }`.
+
+### Análisis de facturas con IA
+
+`POST /api/contabilidad/analyze-invoice` acepta PDF, JPG, PNG o WEBP. Usa `claude-haiku-4-5-20251001` para extraer: vendor, fecha, monto, categoría, si es recurrente. Requiere `ANTHROPIC_API_KEY` en env vars.
+
+### Bills recurrentes y alertas
+
+Gastos con `is_recurring = true` muestran alertas cuando `renewal_date` está dentro de 30 días:
+- Rojo: ya venció (hasta 7 días atrás)
+- Naranja: vence en ≤7 días
+- Ámbar: vence en 8–30 días
+
+Las alertas aparecen tanto en `/admin/contabilidad/gastos` como en el dashboard principal.
+
+### Exportación
+
+- **Excel**: SheetJS (`xlsx`) — corre en browser, genera `.xlsx` con filtro activo
+- **PDF**: `window.print()` con `@media print` CSS que oculta navegación y botones
+
+### Migración SQL requerida
+
+Archivo: `supabase_migration_recurring_expenses.sql` — correr en Supabase SQL Editor antes de usar bills recurrentes.
+
+---
 
 ## Sistema de Notificaciones por Email
 
