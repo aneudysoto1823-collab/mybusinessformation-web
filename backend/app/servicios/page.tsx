@@ -774,7 +774,8 @@ var serviceForms={
     <div class="form-group"><label class="form-label">LLC Name *</label><input type="text" class="form-input" placeholder="Exact registered name including LLC"/></div>
     <div class="form-group"><label class="form-label">State of Formation</label><input type="text" class="form-input" value="Florida" readonly/></div>
     <div class="form-group"><label class="form-label">Date of Formation / Effective Date *</label><input type="date" class="form-input"/></div>
-    <div class="form-group"><label class="form-label">Principal Office Address *</label><input type="text" class="form-input" placeholder="Street address (no PO Box)"/></div>
+    <div class="form-group"><label class="form-label">Principal Office Street Address *</label><input type="text" class="form-input" placeholder="Street address (no PO Box)"/></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">City *</label><input type="text" class="form-input" placeholder="City"/></div><div class="form-group"><label class="form-label">State</label><input type="text" class="form-input" value="FL" readonly/></div><div class="form-group"><label class="form-label">ZIP</label><input type="text" class="form-input" placeholder="ZIP"/></div></div>
     <div class="section-divider">Management Structure</div>
     <div class="form-group"><label class="form-label">Management Type *</label><select class="select-input"><option>Member-Managed (members run day-to-day)</option><option>Manager-Managed (designated manager runs operations)</option></select></div>
     <div class="section-divider">Members / Owners</div>
@@ -782,7 +783,8 @@ var serviceForms={
       <div style="border:1.5px solid var(--gray200);border-radius:9px;padding:14px;margin-bottom:11px">
         <div style="font-size:.82rem;font-weight:600;color:var(--navy);margin-bottom:11px">Member #1</div>
         <div class="form-row"><div class="form-group"><label class="form-label">Full Legal Name *</label><input type="text" class="form-input" placeholder="First and last name"/></div><div class="form-group"><label class="form-label">Ownership % *</label><input type="number" class="form-input" placeholder="e.g. 100" min="1" max="100"/></div></div>
-        <div class="form-group"><label class="form-label">Address *</label><input type="text" class="form-input" placeholder="Home or business address"/></div>
+        <div class="form-group"><label class="form-label">Street Address *</label><input type="text" class="form-input" placeholder="Street address"/></div>
+        <div class="form-row"><div class="form-group"><label class="form-label">City *</label><input type="text" class="form-input" placeholder="City"/></div><div class="form-group"><label class="form-label">State *</label><input type="text" class="form-input" placeholder="State"/></div><div class="form-group"><label class="form-label">ZIP</label><input type="text" class="form-input" placeholder="ZIP"/></div></div>
       </div>
     </div>
     <button class="btn-add-member" onclick="addOAMember()" style="background:var(--blue-light);color:var(--blue);border:1.5px dashed var(--blue);padding:10px;border-radius:8px;width:100%;font-size:.86rem;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:16px">+ Add Another Member</button>
@@ -892,7 +894,8 @@ var serviceForms={
     <div class="form-row"><div class="form-group"><label class="form-label">City *</label><input type="text" class="form-input" placeholder="City"/></div><div class="form-group"><label class="form-label">ZIP</label><input type="text" class="form-input" placeholder="ZIP"/></div></div>
     <div class="section-divider">Registered Agent (Sunbiz Required Field)</div>
     <div class="form-group"><label class="form-label">Registered Agent Name *</label><input type="text" class="form-input" placeholder="Current registered agent name"/></div>
-    <div class="form-group"><label class="form-label">Agent FL Street Address *</label><input type="text" class="form-input" placeholder="FL street address (no PO Box)"/></div>
+    <div class="form-group"><label class="form-label">Agent FL Street Address *</label><input type="text" class="form-input" placeholder="Street address (no PO Box)"/></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">City *</label><input type="text" class="form-input" placeholder="City"/></div><div class="form-group"><label class="form-label">State</label><input type="text" class="form-input" value="FL" readonly/></div><div class="form-group"><label class="form-label">ZIP</label><input type="text" class="form-input" placeholder="ZIP"/></div></div>
     <div class="section-divider">Officers / Directors / Managers</div>
     <div id="ar-officers">
       <div style="border:1.5px solid var(--gray200);border-radius:9px;padding:14px;margin-bottom:11px">
@@ -934,9 +937,11 @@ var serviceForms={
     </div>
     <div class="section-divider">New / Updated Information</div>
     <div class="form-group"><label class="form-label">New Business Name (if changing)</label><input type="text" class="form-input" placeholder="New name including LLC or Corp suffix"/></div>
-    <div class="form-group"><label class="form-label">New Principal Address (if changing)</label><input type="text" class="form-input" placeholder="New FL street address — no PO Box"/></div>
+    <div class="form-group"><label class="form-label">New Principal Street Address (if changing)</label><input type="text" class="form-input" placeholder="Street address — no PO Box"/></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">City</label><input type="text" class="form-input" placeholder="City"/></div><div class="form-group"><label class="form-label">State</label><input type="text" class="form-input" value="FL" readonly/></div><div class="form-group"><label class="form-label">ZIP</label><input type="text" class="form-input" placeholder="ZIP"/></div></div>
     <div class="form-group"><label class="form-label">New Registered Agent Name (if changing)</label><input type="text" class="form-input" placeholder="New registered agent full name or company"/></div>
-    <div class="form-group"><label class="form-label">New Registered Agent FL Address</label><input type="text" class="form-input" placeholder="FL physical street address"/></div>
+    <div class="form-group"><label class="form-label">New Registered Agent FL Street Address</label><input type="text" class="form-input" placeholder="Street address — no PO Box"/></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">City</label><input type="text" class="form-input" placeholder="City"/></div><div class="form-group"><label class="form-label">State</label><input type="text" class="form-input" value="FL" readonly/></div><div class="form-group"><label class="form-label">ZIP</label><input type="text" class="form-input" placeholder="ZIP"/></div></div>
     <div class="form-group"><label class="form-label">Describe Other Changes</label><textarea class="form-input" rows="3" placeholder="Describe any other amendments in detail..."></textarea></div>
     <div class="section-divider">Adoption Method</div>
     <div class="form-group"><label class="form-label">How was this amendment approved? *</label><select class="select-input"><option>By the members/managers/directors</option><option>By written consent of all members</option><option>By majority vote at a duly noticed meeting</option><option>By the authorized manager acting alone</option></select></div>
