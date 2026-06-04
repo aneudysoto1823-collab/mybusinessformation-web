@@ -275,16 +275,16 @@ Documentación:
 
 Depende de Etapa 11 — sin sitemap.xml no hay nada que submitear.
 
-- [ ] Crear propiedad en https://search.google.com/search-console para mybusinessformation.com (propiedad de dominio cubre todos los subdominios)
-- [ ] Verificar ownership con archivo HTML en backend/public/google<hash>.html — NO BORRAR jamás del repo, Google lo requiere permanente
-- [ ] Submit del sitemap: https://mybusinessformation.com/sitemap.xml
-- [ ] Crear propiedad y submit del mismo sitemap en Bing Webmaster Tools (paralelo)
-- [ ] Validar Coverage (Indexing → Pages): meta de 90%+ URLs como "Indexed" en 4 semanas post-submit
-- [ ] Validar Performance (Search results): empieza a recibir clicks/impressions
-- [ ] Validar Manual Actions (Security & Manual Actions): cero issues
-- [ ] Setup de notificaciones por email cuando GSC detecta problemas
-- [ ] Si en el futuro hay migración de dominio (ej. cambio de host): usar Change of Address tool (Settings → Change of Address) ANTES de mover el DNS, sino los rankings no se transfieren limpio
-- [ ] Documentar en LOGICA_DE_NEGOCIO/12_google_search_console.md + plantilla de troubleshooting en TROUBLESHOOTING/
+- [x] Crear propiedad en https://search.google.com/search-console — completado 2026-06-03 por Aneury. Property tipo **Domain** sobre `mybusinessformation.com` (cubre www + apex + todos los subdominios).
+- [x] Verificar ownership — completado 2026-06-03 por Aneury. **Por DNS TXT** en Namecheap (zona apex). La nota original del roadmap ("HTML en backend/public/google<hash>.html") **NO aplica** a properties tipo Domain — solo a URL-prefix. Ver `LOGICA_DE_NEGOCIO/20_google_search_console.md` sección "Property type — Domain vs URL-prefix".
+- [ ] Submit del sitemap: https://mybusinessformation.com/sitemap.xml — acción manual de Aneury (~1 min). **IMPORTANTE**: pegar la URL completa, no solo `sitemap.xml`. En properties Domain la UI no precarga el dominio (a diferencia de URL-prefix). Doc 20 sección "Submit del sitemap".
+- [ ] Crear propiedad y submit del mismo sitemap en Bing Webmaster Tools — acción de Aneury (~5 min). Doc 20 sección "Bing Webmaster Tools" recomienda Opción A (auto-import desde GSC) como camino más simple.
+- [ ] Validar Coverage (Indexing → Pages): meta de 90%+ URLs como "Indexed" en 4 semanas post-submit — time-dependent, revisar a las 4 sem.
+- [ ] Validar Performance (Search results): empieza a recibir clicks/impressions — time-dependent.
+- [ ] Validar Manual Actions (Security & Manual Actions): cero issues — chequeo periódico.
+- [ ] Setup de notificaciones por email — acción de Aneury (~1 min). GSC → avatar → Search Console preferences → activar "Send me Search Console alerts by email".
+- [ ] Si en el futuro hay migración de dominio (ej. cambio de host): usar Change of Address tool (Settings → Change of Address) ANTES de mover el DNS, sino los rankings no se transfieren limpio.
+- [x] Documentar en LOGICA_DE_NEGOCIO + TROUBLESHOOTING — completado 2026-06-03: `LOGICA_DE_NEGOCIO/20_google_search_console.md` (slot 12 ya estaba tomado por marketing_automation; doc va con número 20). Cubre property type Domain vs URL-prefix, submit correcto, email alerts, Bing import, Change of Address, troubleshooting de errores comunes.
 
 ### Etapa 13 — Google Analytics 4 (GA4) (3-4 días)
 
