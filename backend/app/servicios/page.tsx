@@ -862,6 +862,261 @@ var serviceForms={
     <div class="summary-box"><div class="summary-row"><span>Articles of Amendment Service</span><span>$59</span></div><div class="summary-row"><span>FL Division of Corporations Filing Fee</span><span>~$25</span></div><div class="summary-row"><span style="font-weight:700">Total Today</span><span>$59 + state fee</span></div></div>
     <button class="btn-submit-svc" onclick="submitService()">&#x1F680; Order Articles of Amendment &#8594;</button>
     <div class="disclaimer">Florida state filing fee is approximately $25 for LLC and $35 for Corporation, paid to the FL Division of Corporations.</div>\`
+},
+'banking-resolution':{
+  title:'Banking Resolution — $49',
+  title_es:'Resolución Bancaria — $49',
+  sub:'Custom document authorizing a member or officer to open a business bank account on behalf of your entity.',
+  sub_es:'Documento personalizado que autoriza a un miembro u oficial a abrir una cuenta bancaria en nombre de tu entidad.',
+  price:'$49',
+  html:\`
+    <div class="info-box">&#127981; <strong>Required by most banks:</strong> A Banking Resolution authorizes your LLC or Corporation to open a business bank account. Most U.S. banks require this document along with your EIN and Certificate of Formation.</div>
+    <div class="form-group"><label class="form-label">Florida Document Number (from Sunbiz)</label><input type="text" class="form-input" placeholder="e.g. L23000123456" onblur="lookupFLDoc(this)"/><div id="fldoc-status" style="margin-top:5px;min-height:18px"></div></div>
+    <div class="section-divider">Business Information</div>
+    <div class="form-group"><label class="form-label">Entity Type *</label><select class="select-input" data-field="entity-type"><option value="">Select...</option><option>LLC</option><option>Corporation</option></select></div>
+    <div class="form-group"><label class="form-label">Legal Business Name *</label><input type="text" class="form-input" data-field="business-name" placeholder="Exact name as registered with State of Florida"/></div>
+    <div class="form-group"><label class="form-label">EIN / Tax ID Number *</label><input type="text" class="form-input" placeholder="XX-XXXXXXX"/></div>
+    <div class="form-group"><label class="form-label">State of Formation</label><input type="text" class="form-input" value="Florida" readonly/></div>
+    <div class="section-divider">Bank Information</div>
+    <div class="form-group"><label class="form-label">Bank Name *</label><input type="text" class="form-input" placeholder="e.g. Bank of America, Chase, Wells Fargo"/></div>
+    <div class="form-group"><label class="form-label">Account Type *</label><select class="select-input"><option>Business Checking</option><option>Business Savings</option><option>Both Checking &amp; Savings</option></select></div>
+    <div class="section-divider">Authorized Person</div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Full Legal Name *</label><input type="text" class="form-input" placeholder="Name of person authorized to open the account"/></div><div class="form-group"><label class="form-label">Title / Role *</label><select class="select-input"><option>Managing Member</option><option>Manager</option><option>Owner</option><option>President</option><option>Officer / Director</option></select></div></div>
+    <div class="section-divider">Contact &amp; Signature</div>
+    <div class="form-group"><label class="form-label">Email *</label><input type="email" class="form-input" placeholder="For document delivery"/></div>
+    <div class="form-group"><label class="form-label">Phone / WhatsApp</label><input type="tel" class="form-input" placeholder="(XXX) XXX-XXXX"/></div>
+    <div class="form-group"><label class="form-label">Electronic Signature *</label><input type="text" class="form-input" placeholder="Type full legal name"/></div>
+    <div class="summary-box"><div class="summary-row"><span>Banking Resolution</span><span>$49</span></div><div class="summary-row"><span>Delivery</span><span>PDF via Email</span></div><div class="summary-row"><span style="font-weight:700">Total Today</span><span>$49</span></div></div>
+    <button class="btn-submit-svc" onclick="submitService()">&#x1F680; Order Banking Resolution — $49 &#8594;</button>
+    <div class="disclaimer">Florida Business Formation Center is a document preparation service, not a law firm. We do not provide legal advice.</div>\`
+},
+'business-tax-receipt':{
+  title:'Business Tax Receipt — $79',
+  title_es:'Recibo de Impuesto Empresarial — $79',
+  sub:'BTR application filed with your local Florida county. Required to legally operate in most FL counties.',
+  sub_es:'Solicitud del Business Tax Receipt presentada ante tu condado local. Requerido para operar legalmente en la mayoría de condados de FL.',
+  price:'$79 + county fee',
+  html:\`
+    <div class="info-box">&#127981; <strong>Florida Requirement:</strong> A Business Tax Receipt (formerly Occupational License) is required to legally operate in most Florida counties. The county fee varies by county and business type.</div>
+    <div class="form-group"><label class="form-label">Florida Document Number (from Sunbiz)</label><input type="text" class="form-input" placeholder="e.g. L23000123456" onblur="lookupFLDoc(this)"/><div id="fldoc-status" style="margin-top:5px;min-height:18px"></div></div>
+    <div class="section-divider">Business Information</div>
+    <div class="form-group"><label class="form-label">Entity Type *</label><select class="select-input" data-field="entity-type"><option value="">Select...</option><option>LLC</option><option>Corporation</option><option>Sole Proprietorship</option><option>Partnership</option></select></div>
+    <div class="form-group"><label class="form-label">Legal Business Name *</label><input type="text" class="form-input" data-field="business-name" placeholder="Exact name as registered"/></div>
+    <div class="form-group"><label class="form-label">EIN / Tax ID Number *</label><input type="text" class="form-input" placeholder="XX-XXXXXXX"/></div>
+    <div class="section-divider">Business Location</div>
+    <div class="form-group"><label class="form-label">Florida County *</label><select class="select-input"><option value="">Select county...</option><option>Miami-Dade</option><option>Broward</option><option>Palm Beach</option><option>Orange</option><option>Hillsborough</option><option>Pinellas</option><option>Duval</option><option>Brevard</option><option>Volusia</option><option>Seminole</option><option>Osceola</option><option>Polk</option><option>Lee</option><option>Collier</option><option>Sarasota</option><option>Other</option></select></div>
+    <div class="form-group"><label class="form-label">Business Street Address *</label><input type="text" class="form-input" placeholder="Street address where business operates"/></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">City *</label><input type="text" class="form-input" placeholder="City"/></div><div class="form-group"><label class="form-label">ZIP</label><input type="text" class="form-input" placeholder="ZIP"/></div></div>
+    <div class="section-divider">Business Details</div>
+    <div class="form-group"><label class="form-label">Type of Business / Industry *</label><select class="select-input"><option value="">Select...</option><option>Retail Store</option><option>Restaurant / Food Service</option><option>Professional Services (Consulting, Legal, etc.)</option><option>Construction / Contractor</option><option>Real Estate</option><option>Health &amp; Beauty</option><option>Technology</option><option>Import / Export</option><option>Transportation / Delivery</option><option>E-Commerce / Online</option><option>Other</option></select></div>
+    <div class="form-group"><label class="form-label">Brief Business Description *</label><input type="text" class="form-input" placeholder="e.g. Online retail clothing store / Residential cleaning services"/></div>
+    <div class="form-group"><label class="form-label">Number of Employees</label><select class="select-input"><option>0 (Owner only)</option><option>1–5</option><option>6–10</option><option>11–25</option><option>25+</option></select></div>
+    <div class="section-divider">Owner / Authorized Representative</div>
+    <div class="form-row"><div class="form-group"><label class="form-label">First Name *</label><input type="text" class="form-input" placeholder="First name"/></div><div class="form-group"><label class="form-label">Last Name *</label><input type="text" class="form-input" placeholder="Last name"/></div></div>
+    <div class="form-group"><label class="form-label">Email *</label><input type="email" class="form-input" placeholder="you@email.com"/></div>
+    <div class="form-group"><label class="form-label">Phone *</label><input type="tel" class="form-input" placeholder="(XXX) XXX-XXXX"/></div>
+    <div class="form-group"><label class="form-label">Electronic Signature *</label><input type="text" class="form-input" placeholder="Type full legal name"/></div>
+    <div class="summary-box"><div class="summary-row"><span>BTR Service Fee</span><span>$79</span></div><div class="summary-row"><span>County Filing Fee</span><span>Varies by county</span></div><div class="summary-row"><span style="font-weight:700">Service Fee Due Today</span><span>$79</span></div></div>
+    <button class="btn-submit-svc" onclick="submitService()">&#x1F680; Order Business Tax Receipt — $79 &#8594;</button>
+    <div class="disclaimer">County filing fee is paid separately to your local Florida county. Our $79 covers application preparation and filing assistance.</div>\`
+},
+'sales-tax-registration':{
+  title:'Sales Tax Registration — $79',
+  title_es:'Registro de Impuesto sobre Ventas — $79',
+  sub:'Florida Department of Revenue registration to collect and remit sales tax (Form DR-1).',
+  sub_es:'Registro ante el Departamento de Ingresos de Florida para cobrar y remitir el impuesto sobre ventas (Formulario DR-1).',
+  price:'$79',
+  html:\`
+    <div class="info-box">&#128202; <strong>Florida Requirement:</strong> Any business selling taxable products or services in Florida must register with the FL Department of Revenue. Unregistered businesses face penalties and back taxes.</div>
+    <div class="form-group"><label class="form-label">Florida Document Number (from Sunbiz)</label><input type="text" class="form-input" placeholder="e.g. L23000123456" onblur="lookupFLDoc(this)"/><div id="fldoc-status" style="margin-top:5px;min-height:18px"></div></div>
+    <div class="section-divider">Business Information</div>
+    <div class="form-group"><label class="form-label">Entity Type *</label><select class="select-input" data-field="entity-type"><option value="">Select...</option><option>LLC</option><option>Corporation</option><option>Sole Proprietorship</option><option>Partnership</option></select></div>
+    <div class="form-group"><label class="form-label">Legal Business Name *</label><input type="text" class="form-input" data-field="business-name" placeholder="Exact name as registered"/></div>
+    <div class="form-group"><label class="form-label">EIN / Tax ID Number *</label><input type="text" class="form-input" placeholder="XX-XXXXXXX"/></div>
+    <div class="form-group"><label class="form-label">Business Start Date *</label><input type="date" class="form-input"/></div>
+    <div class="section-divider">Business Address</div>
+    <div class="form-group"><label class="form-label">Florida Business Address *</label><input type="text" class="form-input" placeholder="Street address — no PO Box"/></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">City *</label><input type="text" class="form-input" placeholder="City"/></div><div class="form-group"><label class="form-label">ZIP</label><input type="text" class="form-input" placeholder="ZIP"/></div></div>
+    <div class="section-divider">Sales Tax Details</div>
+    <div class="form-group"><label class="form-label">What are you selling? *</label><select class="select-input"><option value="">Select...</option><option>Physical products / merchandise</option><option>Food &amp; beverages (taxable)</option><option>Software / digital products</option><option>Services (taxable in FL)</option><option>Both products &amp; services</option><option>Rental property / equipment</option></select></div>
+    <div class="form-group"><label class="form-label">Where will you sell? *</label><select class="select-input"><option>Online only</option><option>Physical location in FL</option><option>Both online and physical location</option><option>Wholesale to other businesses</option></select></div>
+    <div class="form-group"><label class="form-label">Estimated Monthly Sales *</label><select class="select-input"><option>Under $1,000</option><option>$1,000 – $5,000</option><option>$5,000 – $25,000</option><option>Over $25,000</option></select></div>
+    <div class="section-divider">Responsible Party</div>
+    <div class="form-row"><div class="form-group"><label class="form-label">First Name *</label><input type="text" class="form-input" placeholder="First name"/></div><div class="form-group"><label class="form-label">Last Name *</label><input type="text" class="form-input" placeholder="Last name"/></div></div>
+    <div class="form-group"><label class="form-label">SSN or ITIN *</label><input type="text" class="form-input" placeholder="XXX-XX-XXXX (required by FL DOR)"/></div>
+    <div class="form-group"><label class="form-label">Title / Role *</label><select class="select-input"><option>Managing Member</option><option>Manager</option><option>Owner</option><option>President</option><option>Officer / Director</option></select></div>
+    <div class="form-group"><label class="form-label">Email *</label><input type="email" class="form-input" placeholder="you@email.com"/></div>
+    <div class="form-group"><label class="form-label">Electronic Signature *</label><input type="text" class="form-input" placeholder="Type full legal name"/></div>
+    <div class="summary-box"><div class="summary-row"><span>Sales Tax Registration Service</span><span>$79</span></div><div class="summary-row"><span>FL DOR Registration Fee</span><span>FREE</span></div><div class="summary-row"><span style="font-weight:700">Total Today</span><span>$79</span></div></div>
+    <button class="btn-submit-svc" onclick="submitService()">&#x1F680; Order Sales Tax Registration — $79 &#8594;</button>
+    <div class="disclaimer">Registration is with the Florida Department of Revenue. Sales tax must be collected and remitted on taxable sales. We do not provide tax advice.</div>\`
+},
+'exclusive-guide':{
+  title:'Exclusive Formation Guide — $49',
+  title_es:'Guía Exclusiva de Formación — $49',
+  sub:'Step-by-step Florida business guide — banking, compliance calendar, and post-formation checklist.',
+  sub_es:'Guía paso a paso para negocios en Florida — banca, calendario de cumplimiento y lista de verificación post-formación.',
+  price:'$49',
+  html:\`
+    <div class="info-box">&#128218; <strong>What you get:</strong> Our Exclusive Formation Guide covers everything you need after forming your LLC or Corporation — from opening your business bank account to Florida compliance deadlines and annual obligations. Delivered same business day by email.</div>
+    <div class="section-divider">Your Business (Optional)</div>
+    <div class="form-group"><label class="form-label">Business Name</label><input type="text" class="form-input" placeholder="Your business name (optional)"/></div>
+    <div class="form-group"><label class="form-label">Entity Type</label><select class="select-input"><option value="">Select (optional)...</option><option>LLC</option><option>Corporation</option><option>Sole Proprietorship</option></select></div>
+    <div class="form-group"><label class="form-label">Industry / Business Type</label><select class="select-input"><option value="">Select (optional)...</option><option>Retail &amp; E-Commerce</option><option>Real Estate</option><option>Restaurant / Food Service</option><option>Construction</option><option>Technology</option><option>Consulting / Professional Services</option><option>Import / Export</option><option>Health &amp; Wellness</option><option>Other</option></select></div>
+    <div class="section-divider">Contact for Delivery</div>
+    <div class="form-row"><div class="form-group"><label class="form-label">First Name *</label><input type="text" class="form-input" placeholder="First name"/></div><div class="form-group"><label class="form-label">Last Name *</label><input type="text" class="form-input" placeholder="Last name"/></div></div>
+    <div class="form-group"><label class="form-label">Email *</label><input type="email" class="form-input" placeholder="Where we send your Guide (PDF)"/></div>
+    <div class="form-group"><label class="form-label">Phone / WhatsApp</label><input type="tel" class="form-input" placeholder="(XXX) XXX-XXXX"/></div>
+    <div class="summary-box"><div class="summary-row"><span>Exclusive Formation Guide (PDF)</span><span>$49</span></div><div class="summary-row"><span>Delivery</span><span>Same business day</span></div><div class="summary-row"><span style="font-weight:700">Total Today</span><span>$49</span></div></div>
+    <button class="btn-submit-svc" onclick="submitService()">&#x1F680; Order Exclusive Guide — $49 &#8594;</button>
+    <div class="disclaimer">Guide is delivered by email within the same business day. Digital PDF format only.</div>\`
+},
+'good-standing':{
+  title:'Certificate of Good Standing — $49',
+  title_es:'Certificado de Buena Reputación — $49',
+  sub:'Official certificate from FL Division of Corporations confirming your business is active and compliant.',
+  sub_es:'Certificado oficial de la División de Corporaciones de FL que confirma que tu negocio está activo y en regla.',
+  price:'$49 + state fee',
+  html:\`
+    <div class="info-box">&#127942; <strong>When do you need this?</strong> Banks, investors, and government agencies require a Certificate of Good Standing before opening accounts, approving loans, signing contracts, or entering business partnerships.</div>
+    <div class="form-group"><label class="form-label">Florida Document Number *</label><input type="text" class="form-input" placeholder="e.g. L23000123456" onblur="lookupFLDoc(this)"/><div id="fldoc-status" style="margin-top:5px;min-height:18px"></div></div>
+    <div class="section-divider">Business Information</div>
+    <div class="form-group"><label class="form-label">Entity Type *</label><select class="select-input" data-field="entity-type"><option value="">Select...</option><option>LLC</option><option>Corporation</option></select></div>
+    <div class="form-group"><label class="form-label">Registered Business Name *</label><input type="text" class="form-input" data-field="business-name" placeholder="Exact name as registered with State of Florida"/></div>
+    <div class="section-divider">Certificate Details</div>
+    <div class="form-group"><label class="form-label">Purpose of Certificate *</label><select class="select-input"><option value="">Select...</option><option>Opening a business bank account</option><option>Loan or financing application</option><option>Business contract or partnership</option><option>Government / licensing requirement</option><option>Investor requirement</option><option>Apostille for international use</option><option>Other</option></select></div>
+    <div class="form-group"><label class="form-label">Number of Copies *</label><select class="select-input"><option>1 copy</option><option>2 copies</option><option>3 copies</option><option>5 copies</option></select></div>
+    <div class="form-group"><label class="form-label">Delivery Format *</label><select class="select-input"><option>Digital (PDF) — faster</option><option>Physical copy by mail</option><option>Both digital and physical</option></select></div>
+    <div class="section-divider">Contact</div>
+    <div class="form-group"><label class="form-label">Email *</label><input type="email" class="form-input" placeholder="you@email.com"/></div>
+    <div class="form-group"><label class="form-label">Phone / WhatsApp</label><input type="tel" class="form-input" placeholder="(XXX) XXX-XXXX"/></div>
+    <div class="form-group"><label class="form-label">Electronic Signature *</label><input type="text" class="form-input" placeholder="Type full legal name"/></div>
+    <div class="summary-box"><div class="summary-row"><span>Certificate of Good Standing Service</span><span>$49</span></div><div class="summary-row"><span>FL Division of Corporations Fee</span><span>~$8.75</span></div><div class="summary-row"><span style="font-weight:700">Total Today</span><span>$49 + state fee</span></div></div>
+    <button class="btn-submit-svc" onclick="submitService()">&#x1F680; Order Certificate — $49 &#8594;</button>
+    <div class="disclaimer">Certificate is issued by the Florida Division of Corporations. State fee is separate and varies by entity type.</div>\`
+},
+'foreign-llc':{
+  title:'Foreign LLC / Corp Registration — $99',
+  title_es:'Registro de LLC / Corp Extranjera — $99',
+  sub:'Register your Florida LLC or Corporation to legally operate in another U.S. state.',
+  sub_es:'Registra tu LLC o Corporación de Florida para operar legalmente en otro estado de EE.UU.',
+  price:'$99 + state filing fee',
+  html:\`
+    <div class="info-box">&#127758; <strong>When is this required?</strong> If your Florida LLC or Corporation has employees, a physical office, or regularly conducts business in another U.S. state, you must register as a Foreign Entity in that state to avoid fines and legal exposure.</div>
+    <div class="form-group"><label class="form-label">Florida Document Number *</label><input type="text" class="form-input" placeholder="e.g. L23000123456" onblur="lookupFLDoc(this)"/><div id="fldoc-status" style="margin-top:5px;min-height:18px"></div></div>
+    <div class="section-divider">Florida Entity Information</div>
+    <div class="form-group"><label class="form-label">Entity Type *</label><select class="select-input" data-field="entity-type"><option value="">Select...</option><option>LLC</option><option>Corporation</option></select></div>
+    <div class="form-group"><label class="form-label">Florida Business Name *</label><input type="text" class="form-input" data-field="business-name" placeholder="Exact name as registered in Florida"/></div>
+    <div class="form-group"><label class="form-label">EIN / Tax ID Number *</label><input type="text" class="form-input" placeholder="XX-XXXXXXX"/></div>
+    <div class="form-group"><label class="form-label">Date of Formation in Florida *</label><input type="date" class="form-input"/></div>
+    <div class="section-divider">Target State Registration</div>
+    <div class="form-group"><label class="form-label">State(s) to Register In *</label><input type="text" class="form-input" placeholder="e.g. Texas, New York, California (list all that apply)"/></div>
+    <div class="form-group"><label class="form-label">Reason for Operating in That State *</label><select class="select-input"><option value="">Select...</option><option>Physical office or store</option><option>Employees or contractors there</option><option>Regular client meetings or contracts</option><option>Real estate or property ownership</option><option>E-commerce fulfillment center</option><option>Other</option></select></div>
+    <div class="form-group"><label class="form-label">Business Address in Target State (if any)</label><input type="text" class="form-input" placeholder="Street address in target state (leave blank if none)"/></div>
+    <div class="section-divider">Contact &amp; Signature</div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Your Name *</label><input type="text" class="form-input" placeholder="Authorized representative"/></div><div class="form-group"><label class="form-label">Title / Role *</label><select class="select-input"><option>Managing Member</option><option>Manager</option><option>President</option><option>Officer / Director</option></select></div></div>
+    <div class="form-group"><label class="form-label">Email *</label><input type="email" class="form-input" placeholder="you@email.com"/></div>
+    <div class="form-group"><label class="form-label">Phone / WhatsApp</label><input type="tel" class="form-input" placeholder="(XXX) XXX-XXXX"/></div>
+    <div class="form-group"><label class="form-label">Electronic Signature *</label><input type="text" class="form-input" placeholder="Type full legal name"/></div>
+    <div class="summary-box"><div class="summary-row"><span>Foreign Registration Service Fee</span><span>$99</span></div><div class="summary-row"><span>State Filing Fee</span><span>Varies by state</span></div><div class="summary-row"><span>Registered Agent in Target State</span><span>Included (1st year)</span></div><div class="summary-row"><span style="font-weight:700">Service Fee Due Today</span><span>$99</span></div></div>
+    <button class="btn-submit-svc" onclick="submitService()">&#x1F680; Order Foreign Registration — $99 &#8594;</button>
+    <div class="disclaimer">State filing fees vary by state and are paid separately. Registered Agent service in the target state is included for the first year.</div>\`
+},
+'business-license':{
+  title:'Business License — $99',
+  title_es:'Licencia de Negocios — $99',
+  sub:'We identify and apply for all federal, state, and local licenses required for your specific business.',
+  sub_es:'Identificamos y tramitamos todas las licencias federales, estatales y locales requeridas para tu negocio.',
+  price:'$99',
+  html:\`
+    <div class="info-box">&#128203; <strong>What\'s included:</strong> We research which licenses your business needs at the federal, Florida state, county, and city level — then handle the applications on your behalf. Requirements vary by industry and location.</div>
+    <div class="form-group"><label class="form-label">Florida Document Number (from Sunbiz)</label><input type="text" class="form-input" placeholder="e.g. L23000123456" onblur="lookupFLDoc(this)"/><div id="fldoc-status" style="margin-top:5px;min-height:18px"></div></div>
+    <div class="section-divider">Business Information</div>
+    <div class="form-group"><label class="form-label">Entity Type *</label><select class="select-input" data-field="entity-type"><option value="">Select...</option><option>LLC</option><option>Corporation</option><option>Sole Proprietorship</option><option>Partnership</option></select></div>
+    <div class="form-group"><label class="form-label">Legal Business Name *</label><input type="text" class="form-input" data-field="business-name" placeholder="Exact name as registered"/></div>
+    <div class="form-group"><label class="form-label">EIN / Tax ID Number *</label><input type="text" class="form-input" placeholder="XX-XXXXXXX"/></div>
+    <div class="section-divider">Business Location</div>
+    <div class="form-group"><label class="form-label">Business Street Address *</label><input type="text" class="form-input" placeholder="Street address where business operates"/></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">City *</label><input type="text" class="form-input" placeholder="City"/></div><div class="form-group"><label class="form-label">ZIP</label><input type="text" class="form-input" placeholder="ZIP"/></div></div>
+    <div class="form-group"><label class="form-label">Florida County *</label><select class="select-input"><option value="">Select county...</option><option>Miami-Dade</option><option>Broward</option><option>Palm Beach</option><option>Orange</option><option>Hillsborough</option><option>Pinellas</option><option>Duval</option><option>Brevard</option><option>Volusia</option><option>Seminole</option><option>Osceola</option><option>Polk</option><option>Lee</option><option>Collier</option><option>Sarasota</option><option>Other</option></select></div>
+    <div class="section-divider">Business Activity</div>
+    <div class="form-group"><label class="form-label">Primary Industry *</label><select class="select-input"><option value="">Select...</option><option>Retail Store</option><option>Restaurant / Food Service</option><option>Construction / Contractor</option><option>Real Estate / Property Management</option><option>Health &amp; Medical</option><option>Beauty / Personal Care</option><option>Transportation / Trucking</option><option>Technology / Software</option><option>Financial Services</option><option>Education / Childcare</option><option>Import / Export</option><option>E-Commerce / Online</option><option>Cleaning / Janitorial</option><option>Landscaping</option><option>Consulting / Professional Services</option><option>Other</option></select></div>
+    <div class="form-group"><label class="form-label">Describe Your Business Activities *</label><input type="text" class="form-input" placeholder="e.g. Online retail store shipping nationwide / Local landscaping services"/></div>
+    <div class="form-group"><label class="form-label">Do you sell food or beverages?</label><select class="select-input"><option>No</option><option>Yes — food / beverages for sale</option><option>Yes — alcohol included</option></select></div>
+    <div class="section-divider">Contact &amp; Signature</div>
+    <div class="form-row"><div class="form-group"><label class="form-label">First Name *</label><input type="text" class="form-input" placeholder="First name"/></div><div class="form-group"><label class="form-label">Last Name *</label><input type="text" class="form-input" placeholder="Last name"/></div></div>
+    <div class="form-group"><label class="form-label">Email *</label><input type="email" class="form-input" placeholder="you@email.com"/></div>
+    <div class="form-group"><label class="form-label">Phone *</label><input type="tel" class="form-input" placeholder="(XXX) XXX-XXXX"/></div>
+    <div class="form-group"><label class="form-label">Electronic Signature *</label><input type="text" class="form-input" placeholder="Type full legal name"/></div>
+    <div class="summary-box"><div class="summary-row"><span>Business License Research &amp; Filing</span><span>$99</span></div><div class="summary-row"><span>License Application Fees</span><span>Varies by license</span></div><div class="summary-row"><span style="font-weight:700">Service Fee Due Today</span><span>$99</span></div></div>
+    <button class="btn-submit-svc" onclick="submitService()">&#x1F680; Order Business License — $99 &#8594;</button>
+    <div class="disclaimer">License application fees (if any) are paid directly to the issuing authority. Our $99 covers research, preparation, and filing assistance.</div>\`
+},
+'dissolution':{
+  title:'Business Dissolution — $79',
+  title_es:'Disolución del Negocio — $79',
+  sub:'Articles of Dissolution filed with the Florida Division of Corporations to properly close your business.',
+  sub_es:'Artículos de Disolución presentados ante la División de Corporaciones de Florida para cerrar correctamente tu negocio.',
+  price:'$79 + state fee',
+  html:\`
+    <div class="warn-box">&#9888; <strong>Before dissolving:</strong> Make sure all Annual Reports are filed, FL state fees are paid, and outstanding debts are resolved. Dissolution stops future Annual Report obligations but does NOT close your IRS or FL DOR tax accounts — order Tax Account Closure separately.</div>
+    <div class="form-group"><label class="form-label">Florida Document Number *</label><input type="text" class="form-input" placeholder="e.g. L23000123456" onblur="lookupFLDoc(this)"/><div id="fldoc-status" style="margin-top:5px;min-height:18px"></div></div>
+    <div class="section-divider">Business Information</div>
+    <div class="form-group"><label class="form-label">Entity Type *</label><select class="select-input" data-field="entity-type"><option value="">Select...</option><option>LLC</option><option>Corporation</option></select></div>
+    <div class="form-group"><label class="form-label">Registered Business Name *</label><input type="text" class="form-input" data-field="business-name" placeholder="Exact name as registered with State of Florida"/></div>
+    <div class="form-group"><label class="form-label">EIN / Tax ID Number</label><input type="text" class="form-input" placeholder="XX-XXXXXXX (for our records)"/></div>
+    <div class="section-divider">Dissolution Details</div>
+    <div class="form-group"><label class="form-label">Reason for Dissolution *</label><select class="select-input"><option value="">Select...</option><option>Business permanently closed</option><option>Business sold to new owner</option><option>Changed to different entity type</option><option>Partnership dissolved</option><option>Retirement / personal decision</option><option>Other</option></select></div>
+    <div class="form-group"><label class="form-label">Date Dissolution Was Approved *</label><input type="date" class="form-input"/></div>
+    <div class="form-group"><label class="form-label">How Was Dissolution Authorized? *</label><select class="select-input"><option>By unanimous consent of all members/shareholders</option><option>By written consent of all members</option><option>By majority vote at a duly noticed meeting</option><option>By the sole member / owner acting alone</option></select></div>
+    <div class="section-divider">Obligations Checklist</div>
+    <div class="form-group">
+      <label class="check-label"><input type="checkbox" id="diss-taxes"/> All state and federal taxes have been filed and paid</label>
+      <label class="check-label"><input type="checkbox" id="diss-reports"/> All Annual Reports are up to date</label>
+      <label class="check-label"><input type="checkbox" id="diss-debts"/> Outstanding debts and obligations have been resolved</label>
+      <label class="check-label"><input type="checkbox" id="diss-accounts"/> Business bank accounts will be closed after dissolution</label>
+    </div>
+    <div class="section-divider">Contact &amp; Signature</div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Your Name *</label><input type="text" class="form-input" placeholder="Authorized representative / member / officer"/></div><div class="form-group"><label class="form-label">Title / Role *</label><select class="select-input"><option>Managing Member</option><option>Sole Member</option><option>Manager</option><option>President</option><option>Officer / Director</option></select></div></div>
+    <div class="form-group"><label class="form-label">Email *</label><input type="email" class="form-input" placeholder="you@email.com"/></div>
+    <div class="form-group"><label class="form-label">Phone / WhatsApp</label><input type="tel" class="form-input" placeholder="(XXX) XXX-XXXX"/></div>
+    <div class="form-group"><label class="form-label">Electronic Signature *</label><input type="text" class="form-input" placeholder="Type full legal name — authorizes Articles of Dissolution"/></div>
+    <div class="summary-box"><div class="summary-row"><span>Business Dissolution Service</span><span>$79</span></div><div class="summary-row"><span>FL Filing Fee (LLC)</span><span>$25</span></div><div class="summary-row"><span>FL Filing Fee (Corp)</span><span>$35</span></div><div class="summary-row"><span style="font-weight:700">Service Fee Due Today</span><span>$79</span></div></div>
+    <button class="btn-submit-svc" onclick="submitService()">&#x1F680; Order Dissolution — $79 &#8594;</button>
+    <div class="disclaimer">State filing fee paid separately to FL Division of Corporations. Dissolution does not close IRS or FL DOR tax accounts.</div>\`
+},
+'cierre-fiscal':{
+  title:'Tax Account Closure — $79',
+  title_es:'Cierre de Cuentas Fiscales — $79',
+  sub:'Proper closure of your EIN with the IRS and sales tax account with the FL Department of Revenue.',
+  sub_es:'Cierre correcto de tu EIN ante el IRS y tu cuenta de impuesto sobre ventas ante el Departamento de Ingresos de Florida.',
+  price:'$79',
+  html:\`
+    <div class="info-box">&#128274; <strong>Why this matters:</strong> Simply dissolving your FL entity does NOT close your IRS or FL Department of Revenue accounts. Unclosed tax accounts can result in penalties, tax notices, and future obligations — even after your business is dissolved.</div>
+    <div class="section-divider">Business Information</div>
+    <div class="form-group"><label class="form-label">Legal Business Name *</label><input type="text" class="form-input" placeholder="Exact name as registered"/></div>
+    <div class="form-group"><label class="form-label">Entity Type *</label><select class="select-input"><option value="">Select...</option><option>LLC</option><option>Corporation</option><option>Sole Proprietorship</option><option>Partnership</option></select></div>
+    <div class="form-group"><label class="form-label">EIN / Tax ID Number *</label><input type="text" class="form-input" placeholder="XX-XXXXXXX (required by IRS)"/></div>
+    <div class="form-group"><label class="form-label">Florida Document Number (from Sunbiz)</label><input type="text" class="form-input" placeholder="e.g. L23000123456 (if entity was registered in FL)"/></div>
+    <div class="section-divider">Closure Details</div>
+    <div class="form-group"><label class="form-label">Reason for Closure *</label><select class="select-input"><option value="">Select...</option><option>Business permanently closed</option><option>Business sold — new owner has their own EIN</option><option>Changed entity type (e.g. LLC to Corp)</option><option>No longer operating in Florida</option><option>Other</option></select></div>
+    <div class="form-group"><label class="form-label">Last Business Activity Date *</label><input type="date" class="form-input"/></div>
+    <div class="form-group"><label class="form-label">Final Tax Return Filed?</label><select class="select-input"><option>Yes — final return has been filed</option><option>No — we need guidance on this</option><option>Not sure</option></select></div>
+    <div class="section-divider">Accounts to Close</div>
+    <div class="form-group">
+      <label class="check-label"><input type="checkbox" id="close-irs" checked/> IRS EIN Account Closure</label>
+      <label class="check-label"><input type="checkbox" id="close-fldor"/> FL Department of Revenue Account (if registered for sales tax)</label>
+    </div>
+    <div class="form-group"><label class="form-label">FL DOR Account Number (if applicable)</label><input type="text" class="form-input" placeholder="Your FL sales tax registration number (optional)"/></div>
+    <div class="section-divider">Responsible Party &amp; Contact</div>
+    <div class="form-row"><div class="form-group"><label class="form-label">First Name *</label><input type="text" class="form-input" placeholder="First name"/></div><div class="form-group"><label class="form-label">Last Name *</label><input type="text" class="form-input" placeholder="Last name"/></div></div>
+    <div class="form-group"><label class="form-label">SSN or ITIN *</label><input type="text" class="form-input" placeholder="XXX-XX-XXXX (required for IRS correspondence)"/></div>
+    <div class="form-group"><label class="form-label">Email *</label><input type="email" class="form-input" placeholder="you@email.com"/></div>
+    <div class="form-group"><label class="form-label">Phone / WhatsApp</label><input type="tel" class="form-input" placeholder="(XXX) XXX-XXXX"/></div>
+    <div class="form-group"><label class="form-label">Electronic Signature *</label><input type="text" class="form-input" placeholder="Type full legal name"/></div>
+    <div class="summary-box"><div class="summary-row"><span>Tax Account Closure Service</span><span>$79</span></div><div class="summary-row"><span>IRS &amp; FL DOR Processing</span><span>Included</span></div><div class="summary-row"><span style="font-weight:700">Total Today</span><span>$79</span></div></div>
+    <button class="btn-submit-svc" onclick="submitService()">&#x1F680; Order Tax Account Closure — $79 &#8594;</button>
+    <div class="disclaimer">IRS EIN closure takes 2–4 weeks. FL DOR account closure takes 2–3 weeks. We do not provide tax advice — consult a CPA for your final tax obligations.</div>\`
 }
 };
 
@@ -1018,7 +1273,39 @@ function translateFormLabels(){
 'Current Registered Business Name *':isEs?'Nombre Registrado Actual *':'Current Registered Business Name *',
 'New Principal Address (if changing)':isEs?'Nueva Dirección Principal (si cambia)':'New Principal Address (if changing)',
 'New Registered Agent Name (if changing)':isEs?'Nuevo Nombre del Agente Registrado (si cambia)':'New Registered Agent Name (if changing)',
-'New Registered Agent FL Address':isEs?'Nueva Dirección FL del Agente Registrado':'New Registered Agent FL Address'};
+'New Registered Agent FL Address':isEs?'Nueva Dirección FL del Agente Registrado':'New Registered Agent FL Address',
+'Bank Name *':isEs?'Nombre del Banco *':'Bank Name *',
+'Account Type *':isEs?'Tipo de Cuenta *':'Account Type *',
+'Florida County *':isEs?'Condado de Florida *':'Florida County *',
+'Type of Business / Industry *':isEs?'Tipo de Negocio / Industria *':'Type of Business / Industry *',
+'Brief Business Description *':isEs?'Descripción Breve del Negocio *':'Brief Business Description *',
+'Number of Employees':isEs?'Número de Empleados':'Number of Employees',
+'Business Start Date *':isEs?'Fecha de Inicio del Negocio *':'Business Start Date *',
+'What are you selling? *':isEs?'¿Qué estás vendiendo? *':'What are you selling? *',
+'Where will you sell? *':isEs?'¿Dónde venderás? *':'Where will you sell? *',
+'Estimated Monthly Sales *':isEs?'Ventas Mensuales Estimadas *':'Estimated Monthly Sales *',
+'SSN or ITIN *':isEs?'SSN o ITIN *':'SSN or ITIN *',
+'Business Name':isEs?'Nombre del Negocio':'Business Name',
+'Industry / Business Type':isEs?'Industria / Tipo de Negocio':'Industry / Business Type',
+'Purpose of Certificate *':isEs?'Propósito del Certificado *':'Purpose of Certificate *',
+'Number of Copies *':isEs?'Número de Copias *':'Number of Copies *',
+'Delivery Format *':isEs?'Formato de Entrega *':'Delivery Format *',
+'State(s) to Register In *':isEs?'Estado(s) donde Registrarse *':'State(s) to Register In *',
+'Reason for Operating in That State *':isEs?'Razón para Operar en ese Estado *':'Reason for Operating in That State *',
+'Business Address in Target State (if any)':isEs?'Dirección del Negocio en el Estado Destino (si aplica)':'Business Address in Target State (if any)',
+'Date of Formation in Florida *':isEs?'Fecha de Formación en Florida *':'Date of Formation in Florida *',
+'Florida Business Name *':isEs?'Nombre del Negocio en Florida *':'Florida Business Name *',
+'Primary Industry *':isEs?'Industria Principal *':'Primary Industry *',
+'Describe Your Business Activities *':isEs?'Describe tus Actividades de Negocio *':'Describe Your Business Activities *',
+'Do you sell food or beverages?':isEs?'¿Vendes alimentos o bebidas?':'Do you sell food or beverages?',
+'Reason for Dissolution *':isEs?'Motivo de la Disolución *':'Reason for Dissolution *',
+'Date Dissolution Was Approved *':isEs?'Fecha en que se Aprobó la Disolución *':'Date Dissolution Was Approved *',
+'How Was Dissolution Authorized? *':isEs?'¿Cómo fue Autorizada la Disolución? *':'How Was Dissolution Authorized? *',
+'Reason for Closure *':isEs?'Motivo del Cierre *':'Reason for Closure *',
+'Last Business Activity Date *':isEs?'Fecha de Última Actividad del Negocio *':'Last Business Activity Date *',
+'Final Tax Return Filed?':isEs?'¿Se Presentó la Declaración Final de Impuestos?':'Final Tax Return Filed?',
+'FL DOR Account Number (if applicable)':isEs?'Número de Cuenta FL DOR (si aplica)':'FL DOR Account Number (if applicable)',
+'Sole Member':isEs?'Único Miembro':'Sole Member'};
   var P={'Exact name as registered with the State':isEs?'Nombre exacto como está registrado ante el Estado':'Exact name as registered with the State','Exact name as it appears in Sunbiz':isEs?'Nombre exacto como aparece en Sunbiz':'Exact name as it appears in Sunbiz','e.g. L23000123456':'e.g. L23000123456','Name of agent you are replacing':isEs?'Nombre del agente que estás reemplazando':'Name of agent you are replacing','Street address — no PO Box':isEs?'Dirección — sin apartado postal':'Street address — no PO Box','FL physical street address':isEs?'Dirección física en FL':'FL physical street address','City':isEs?'Ciudad':'City','ZIP':isEs?'Código Postal':'ZIP','Authorized representative':isEs?'Representante autorizado':'Authorized representative','you@email.com':isEs?'tucorreo@ejemplo.com':'you@email.com','Type your full legal name — constitutes your signature':isEs?'Escribe tu nombre legal completo — constituye tu firma':'Type your full legal name — constitutes your signature','Type full legal name — authorizes Annual Report filing':isEs?'Escribe tu nombre legal completo — autoriza la Declaración Anual':'Type full legal name — authorizes Annual Report filing','The DBA name you want to use (no LLC/Corp suffix needed)':isEs?'El nombre DBA que quieres usar (sin sufijo LLC/Corp)':'The DBA name you want to use (no LLC/Corp suffix needed)','Backup DBA name':isEs?'Nombre DBA alternativo':'Backup DBA name','We email you when mail arrives':isEs?'Te notificamos por correo cuando llega correspondencia':'We email you when mail arrives','Where to forward physical mail (optional)':isEs?'Dónde reenviar correo físico (opcional)':'Where to forward physical mail (optional)','New FL street address — no PO Box':isEs?'Nueva dirección FL — sin apartado postal':'New FL street address — no PO Box','Describe any other amendments in detail...':isEs?'Describe cualquier otra enmienda en detalle...':'Describe any other amendments in detail...',
 'Optional — helps confirm entity':isEs?'Opcional — ayuda a confirmar la entidad':'Optional — helps confirm entity',
 'Exact name as registered with FL':isEs?'Nombre exacto como está registrado en FL':'Exact name as registered with FL',
@@ -1061,10 +1348,95 @@ function translateFormLabels(){
 'Financial Provisions':'Disposiciones Financieras',
 'Officers / Directors / Managers':'Oficiales / Directores / Gerentes',
 'Adoption Method':'Método de Aprobación',
-'Officers / Directors / Managers (check all that apply)':'Oficiales / Directores / Gerentes'};
+'Officers / Directors / Managers (check all that apply)':'Oficiales / Directores / Gerentes',
+'Bank Information':'Información del Banco',
+'Authorized Person':'Persona Autorizada',
+'Business Location':'Ubicación del Negocio',
+'Business Details':'Detalles del Negocio',
+'Sales Tax Details':'Detalles del Impuesto sobre Ventas',
+'Responsible Party':'Parte Responsable',
+'Certificate Details':'Detalles del Certificado',
+'Target State Registration':'Registro en el Estado Destino',
+'Florida Entity Information':'Información de la Entidad en Florida',
+'Business Activity':'Actividad del Negocio',
+'Dissolution Details':'Detalles de la Disolución',
+'Obligations Checklist':'Lista de Verificación de Obligaciones',
+'Closure Details':'Detalles del Cierre',
+'Accounts to Close':'Cuentas a Cerrar',
+'Responsible Party &amp; Contact':'Parte Responsable y Contacto',
+'Your Business (Optional)':'Tu Negocio (Opcional)',
+'Contact for Delivery':'Contacto para Entrega'};
   fb.querySelectorAll('.section-divider').forEach(function(el){var t=el.textContent.trim();if(isEs&&SD[t])el.textContent=SD[t];else if(!isEs){Object.keys(SD).forEach(function(en){if(SD[en]===t)el.textContent=en;});}});
-  fb.querySelectorAll('select option').forEach(function(opt){var map={'Select...':isEs?'Seleccionar...':'Select...','Corporation':isEs?'Corporación':'Corporation','LLC — Single Member':isEs?'LLC — Miembro Único':'LLC — Single Member','LLC — Multi-Member':isEs?'LLC — Múltiples Miembros':'LLC — Multi-Member','Corporation (S-Corp or C-Corp)':isEs?'Corporación (S-Corp o C-Corp)':'Corporation (S-Corp or C-Corp)','Managing Member':isEs?'Miembro Gerente':'Managing Member','Manager':isEs?'Gerente':'Manager','Owner':isEs?'Propietario':'Owner','Officer / Director':isEs?'Oficial / Director':'Officer / Director','Retail & E-Commerce':isEs?'Comercio Minorista y E-Commerce':'Retail & E-Commerce','Real Estate':isEs?'Bienes Raíces':'Real Estate','Restaurant / Food Service':isEs?'Restaurante / Servicio de Alimentos':'Restaurant / Food Service','Construction':isEs?'Construcción':'Construction','Technology':isEs?'Tecnología':'Technology','Consulting':isEs?'Consultoría':'Consulting','Import / Export':isEs?'Importación / Exportación':'Import / Export','Health & Wellness':isEs?'Salud y Bienestar':'Health & Wellness','Other':isEs?'Otro':'Other','Member-Managed':isEs?'Gestionado por Miembros':'Member-Managed','Manager-Managed':isEs?'Gestionado por Gerente':'Manager-Managed','Member-Managed (members run day-to-day)':isEs?'Gestionado por Miembros (los miembros operan el negocio)':'Member-Managed (members run day-to-day)','Manager-Managed (designated manager runs operations)':isEs?'Gestionado por Gerente (un gerente designado dirige las operaciones)':'Manager-Managed (designated manager runs operations)','December 31':isEs?'31 de diciembre':'December 31','March 31':isEs?'31 de marzo':'March 31','June 30':isEs?'30 de junio':'June 30','September 30':isEs?'30 de septiembre':'September 30','Pro-rata to ownership percentages':isEs?'Proporcional a los porcentajes de propiedad':'Pro-rata to ownership percentages','Equal distribution among members':isEs?'Distribución equitativa entre miembros':'Equal distribution among members','Custom (specify below)':isEs?'Personalizada (especificar abajo)':'Custom (specify below)','Non-resident alien filing a US tax return':isEs?'Extranjero no residente que presenta declaración de impuestos en EE.UU.':'Non-resident alien filing a US tax return','Spouse or dependent of a US citizen/resident':isEs?'Cónyuge o dependiente de un ciudadano/residente de EE.UU.':'Spouse or dependent of a US citizen/resident','Dependent of non-resident alien visa holder':isEs?'Dependiente de titular de visa extranjero no residente':'Dependent of non-resident alien visa holder','Non-resident alien student or researcher':isEs?'Estudiante o investigador extranjero no residente':'Non-resident alien student or researcher','Other — Florida business owner requiring tax filing':isEs?'Otro — propietario de negocio en Florida que requiere declaración de impuestos':'Other — Florida business owner requiring tax filing','Passport (preferred by IRS)':isEs?'Pasaporte (preferido por el IRS)':'Passport (preferred by IRS)','Foreign national ID + birth certificate':isEs?'ID nacional extranjero + acta de nacimiento':'Foreign national ID + birth certificate','Visa + passport':isEs?'Visa + pasaporte':'Visa + passport','Brand / marketing name':isEs?'Nombre de marca / marketing':'Brand / marketing name','Multiple business lines under one entity':isEs?'Múltiples líneas de negocio bajo una entidad':'Multiple business lines under one entity','Website / domain name':isEs?'Sitio web / nombre de dominio':'Website / domain name','Doing business in a different county':isEs?'Operar en un condado diferente':'Doing business in a different county','Sole Proprietorship':isEs?'Propietario Individual':'Sole Proprietorship','Sole Proprietorship / Individual':isEs?'Propietario Individual':'Sole Proprietorship / Individual','Partnership':isEs?'Sociedad':'Partnership','Digital Forwarding Only — $29/month':isEs?'Solo Reenvío Digital — $29/mes':'Digital Forwarding Only — $29/month','Digital + Physical Forwarding — $39/month':isEs?'Reenvío Digital + Físico — $39/mes':'Digital + Physical Forwarding — $39/month','President':isEs?'Presidente':'President','Secretary':isEs?'Secretario':'Secretary','By the members/managers/directors':isEs?'Por los miembros/gerentes/directores':'By the members/managers/directors','By written consent of all members':isEs?'Por consentimiento escrito de todos los miembros':'By written consent of all members','By majority vote at a duly noticed meeting':isEs?'Por voto mayoritario en reunión debidamente convocada':'By majority vote at a duly noticed meeting','By the authorized manager acting alone':isEs?'Por el gerente autorizado actuando solo':'By the authorized manager acting alone'};var t=opt.textContent.trim();if(map[t]!==undefined)opt.textContent=map[t];});
-  fb.querySelectorAll('.check-label').forEach(function(el){var CB={'Business Name Change':isEs?'Cambio de Nombre del Negocio':'Business Name Change','Principal Address Change':isEs?'Cambio de Dirección Principal':'Principal Address Change','Mailing Address Change':isEs?'Cambio de Dirección Postal':'Mailing Address Change','Registered Agent Change':isEs?'Cambio de Agente Registrado':'Registered Agent Change','Officers / Directors / Managers Change':isEs?'Cambio de Oficiales / Directores / Gerentes':'Officers / Directors / Managers Change','Business Purpose Change':isEs?'Cambio de Propósito del Negocio':'Business Purpose Change','Other':isEs?'Otro':'Other'};var nodes=el.childNodes;for(var i=0;i<nodes.length;i++){if(nodes[i].nodeType===3&&nodes[i].textContent.trim()){var t=nodes[i].textContent.trim();if(CB[t])nodes[i].textContent=' '+CB[t];break;}}});
+  fb.querySelectorAll('select option').forEach(function(opt){var map={'Select...':isEs?'Seleccionar...':'Select...','Corporation':isEs?'Corporación':'Corporation','LLC — Single Member':isEs?'LLC — Miembro Único':'LLC — Single Member','LLC — Multi-Member':isEs?'LLC — Múltiples Miembros':'LLC — Multi-Member','Corporation (S-Corp or C-Corp)':isEs?'Corporación (S-Corp o C-Corp)':'Corporation (S-Corp or C-Corp)','Managing Member':isEs?'Miembro Gerente':'Managing Member','Manager':isEs?'Gerente':'Manager','Owner':isEs?'Propietario':'Owner','Officer / Director':isEs?'Oficial / Director':'Officer / Director','Retail & E-Commerce':isEs?'Comercio Minorista y E-Commerce':'Retail & E-Commerce','Real Estate':isEs?'Bienes Raíces':'Real Estate','Restaurant / Food Service':isEs?'Restaurante / Servicio de Alimentos':'Restaurant / Food Service','Construction':isEs?'Construcción':'Construction','Technology':isEs?'Tecnología':'Technology','Consulting':isEs?'Consultoría':'Consulting','Import / Export':isEs?'Importación / Exportación':'Import / Export','Health & Wellness':isEs?'Salud y Bienestar':'Health & Wellness','Other':isEs?'Otro':'Other','Member-Managed':isEs?'Gestionado por Miembros':'Member-Managed','Manager-Managed':isEs?'Gestionado por Gerente':'Manager-Managed','Member-Managed (members run day-to-day)':isEs?'Gestionado por Miembros (los miembros operan el negocio)':'Member-Managed (members run day-to-day)','Manager-Managed (designated manager runs operations)':isEs?'Gestionado por Gerente (un gerente designado dirige las operaciones)':'Manager-Managed (designated manager runs operations)','December 31':isEs?'31 de diciembre':'December 31','March 31':isEs?'31 de marzo':'March 31','June 30':isEs?'30 de junio':'June 30','September 30':isEs?'30 de septiembre':'September 30','Pro-rata to ownership percentages':isEs?'Proporcional a los porcentajes de propiedad':'Pro-rata to ownership percentages','Equal distribution among members':isEs?'Distribución equitativa entre miembros':'Equal distribution among members','Custom (specify below)':isEs?'Personalizada (especificar abajo)':'Custom (specify below)','Non-resident alien filing a US tax return':isEs?'Extranjero no residente que presenta declaración de impuestos en EE.UU.':'Non-resident alien filing a US tax return','Spouse or dependent of a US citizen/resident':isEs?'Cónyuge o dependiente de un ciudadano/residente de EE.UU.':'Spouse or dependent of a US citizen/resident','Dependent of non-resident alien visa holder':isEs?'Dependiente de titular de visa extranjero no residente':'Dependent of non-resident alien visa holder','Non-resident alien student or researcher':isEs?'Estudiante o investigador extranjero no residente':'Non-resident alien student or researcher','Other — Florida business owner requiring tax filing':isEs?'Otro — propietario de negocio en Florida que requiere declaración de impuestos':'Other — Florida business owner requiring tax filing','Passport (preferred by IRS)':isEs?'Pasaporte (preferido por el IRS)':'Passport (preferred by IRS)','Foreign national ID + birth certificate':isEs?'ID nacional extranjero + acta de nacimiento':'Foreign national ID + birth certificate','Visa + passport':isEs?'Visa + pasaporte':'Visa + passport','Brand / marketing name':isEs?'Nombre de marca / marketing':'Brand / marketing name','Multiple business lines under one entity':isEs?'Múltiples líneas de negocio bajo una entidad':'Multiple business lines under one entity','Website / domain name':isEs?'Sitio web / nombre de dominio':'Website / domain name','Doing business in a different county':isEs?'Operar en un condado diferente':'Doing business in a different county','Sole Proprietorship':isEs?'Propietario Individual':'Sole Proprietorship','Sole Proprietorship / Individual':isEs?'Propietario Individual':'Sole Proprietorship / Individual','Partnership':isEs?'Sociedad':'Partnership','Digital Forwarding Only — $29/month':isEs?'Solo Reenvío Digital — $29/mes':'Digital Forwarding Only — $29/month','Digital + Physical Forwarding — $39/month':isEs?'Reenvío Digital + Físico — $39/mes':'Digital + Physical Forwarding — $39/month','President':isEs?'Presidente':'President','Secretary':isEs?'Secretario':'Secretary','By the members/managers/directors':isEs?'Por los miembros/gerentes/directores':'By the members/managers/directors','By written consent of all members':isEs?'Por consentimiento escrito de todos los miembros':'By written consent of all members','By majority vote at a duly noticed meeting':isEs?'Por voto mayoritario en reunión debidamente convocada':'By majority vote at a duly noticed meeting','By the authorized manager acting alone':isEs?'Por el gerente autorizado actuando solo':'By the authorized manager acting alone',
+'Business Checking':isEs?'Cuenta Corriente Empresarial':'Business Checking',
+'Business Savings':isEs?'Cuenta de Ahorros Empresarial':'Business Savings',
+'Both Checking & Savings':isEs?'Corriente y Ahorros':'Both Checking & Savings',
+'Retail Store':isEs?'Tienda Minorista':'Retail Store',
+'Professional Services (Consulting, Legal, etc.)':isEs?'Servicios Profesionales (Consultoría, Legal, etc.)':'Professional Services (Consulting, Legal, etc.)',
+'Construction / Contractor':isEs?'Construcción / Contratista':'Construction / Contractor',
+'Health & Beauty':isEs?'Salud y Belleza':'Health & Beauty',
+'Transportation / Delivery':isEs?'Transporte / Entrega':'Transportation / Delivery',
+'E-Commerce / Online':isEs?'E-Commerce / En Línea':'E-Commerce / Online',
+'Physical products / merchandise':isEs?'Productos físicos / mercancía':'Physical products / merchandise',
+'Food & beverages (taxable)':isEs?'Alimentos y bebidas (gravables)':'Food & beverages (taxable)',
+'Software / digital products':isEs?'Software / productos digitales':'Software / digital products',
+'Services (taxable in FL)':isEs?'Servicios (gravables en FL)':'Services (taxable in FL)',
+'Both products & services':isEs?'Productos y servicios':'Both products & services',
+'Rental property / equipment':isEs?'Propiedad / equipo en alquiler':'Rental property / equipment',
+'Online only':isEs?'Solo en línea':'Online only',
+'Physical location in FL':isEs?'Ubicación física en FL':'Physical location in FL',
+'Both online and physical location':isEs?'En línea y ubicación física':'Both online and physical location',
+'Wholesale to other businesses':isEs?'Al por mayor a otros negocios':'Wholesale to other businesses',
+'Under $1,000':isEs?'Menos de $1,000':'Under $1,000',
+'Over $25,000':isEs?'Más de $25,000':'Over $25,000',
+'0 (Owner only)':isEs?'0 (Solo el propietario)':'0 (Owner only)',
+'Opening a business bank account':isEs?'Abrir una cuenta bancaria empresarial':'Opening a business bank account',
+'Loan or financing application':isEs?'Solicitud de préstamo o financiamiento':'Loan or financing application',
+'Business contract or partnership':isEs?'Contrato o asociación empresarial':'Business contract or partnership',
+'Government / licensing requirement':isEs?'Requisito gubernamental / de licencia':'Government / licensing requirement',
+'Investor requirement':isEs?'Requisito de inversionista':'Investor requirement',
+'Apostille for international use':isEs?'Apostilla para uso internacional':'Apostille for international use',
+'1 copy':isEs?'1 copia':'1 copy',
+'2 copies':isEs?'2 copias':'2 copies',
+'3 copies':isEs?'3 copias':'3 copies',
+'5 copies':isEs?'5 copias':'5 copies',
+'Digital (PDF) — faster':isEs?'Digital (PDF) — más rápido':'Digital (PDF) — faster',
+'Physical copy by mail':isEs?'Copia física por correo':'Physical copy by mail',
+'Both digital and physical':isEs?'Digital y física':'Both digital and physical',
+'Physical office or store':isEs?'Oficina o tienda física':'Physical office or store',
+'Employees or contractors there':isEs?'Empleados o contratistas allí':'Employees or contractors there',
+'Regular client meetings or contracts':isEs?'Reuniones regulares con clientes o contratos':'Regular client meetings or contracts',
+'Real estate or property ownership':isEs?'Bienes raíces o propiedad':'Real estate or property ownership',
+'E-commerce fulfillment center':isEs?'Centro de cumplimiento de e-commerce':'E-commerce fulfillment center',
+'Real Estate / Property Management':isEs?'Bienes Raíces / Administración de Propiedades':'Real Estate / Property Management',
+'Health & Medical':isEs?'Salud y Médico':'Health & Medical',
+'Beauty / Personal Care':isEs?'Belleza / Cuidado Personal':'Beauty / Personal Care',
+'Transportation / Trucking':isEs?'Transporte / Camiones':'Transportation / Trucking',
+'Financial Services':isEs?'Servicios Financieros':'Financial Services',
+'Education / Childcare':isEs?'Educación / Cuidado Infantil':'Education / Childcare',
+'Cleaning / Janitorial':isEs?'Limpieza / Conserjería':'Cleaning / Janitorial',
+'Landscaping':isEs?'Jardinería':'Landscaping',
+'Consulting / Professional Services':isEs?'Consultoría / Servicios Profesionales':'Consulting / Professional Services',
+'No':isEs?'No':'No',
+'Yes — food / beverages for sale':isEs?'Sí — alimentos / bebidas a la venta':'Yes — food / beverages for sale',
+'Yes — alcohol included':isEs?'Sí — incluye alcohol':'Yes — alcohol included',
+'Business permanently closed':isEs?'Negocio cerrado permanentemente':'Business permanently closed',
+'Business sold to new owner':isEs?'Negocio vendido a nuevo propietario':'Business sold to new owner',
+'Changed to different entity type':isEs?'Cambio a tipo de entidad diferente':'Changed to different entity type',
+'Partnership dissolved':isEs?'Sociedad disuelta':'Partnership dissolved',
+'Retirement / personal decision':isEs?'Jubilación / decisión personal':'Retirement / personal decision',
+'By unanimous consent of all members/shareholders':isEs?'Por consentimiento unánime de todos los miembros/accionistas':'By unanimous consent of all members/shareholders',
+'By the sole member / owner acting alone':isEs?'Por el único miembro / propietario actuando solo':'By the sole member / owner acting alone',
+'Business sold — new owner has their own EIN':isEs?'Negocio vendido — el nuevo propietario tiene su propio EIN':'Business sold — new owner has their own EIN',
+'Changed entity type (e.g. LLC to Corp)':isEs?'Cambio de tipo de entidad (ej. LLC a Corp)':'Changed entity type (e.g. LLC to Corp)',
+'No longer operating in Florida':isEs?'Ya no opera en Florida':'No longer operating in Florida',
+'Yes — final return has been filed':isEs?'Sí — la declaración final ha sido presentada':'Yes — final return has been filed',
+'No — we need guidance on this':isEs?'No — necesitamos orientación sobre esto':'No — we need guidance on this',
+'Not sure':isEs?'No estoy seguro':'Not sure',
+'Sole Member':isEs?'Único Miembro':'Sole Member',
+'Select (optional)...':isEs?'Seleccionar (opcional)...':'Select (optional)...',
+'Select county...':isEs?'Seleccionar condado...':'Select county...'};var t=opt.textContent.trim();if(map[t]!==undefined)opt.textContent=map[t];});
+  fb.querySelectorAll('.check-label').forEach(function(el){var CB={'Business Name Change':isEs?'Cambio de Nombre del Negocio':'Business Name Change','Principal Address Change':isEs?'Cambio de Dirección Principal':'Principal Address Change','Mailing Address Change':isEs?'Cambio de Dirección Postal':'Mailing Address Change','Registered Agent Change':isEs?'Cambio de Agente Registrado':'Registered Agent Change','Officers / Directors / Managers Change':isEs?'Cambio de Oficiales / Directores / Gerentes':'Officers / Directors / Managers Change','Business Purpose Change':isEs?'Cambio de Propósito del Negocio':'Business Purpose Change','Other':isEs?'Otro':'Other','All state and federal taxes have been filed and paid':isEs?'Todos los impuestos estatales y federales han sido presentados y pagados':'All state and federal taxes have been filed and paid','All Annual Reports are up to date':isEs?'Todas las Declaraciones Anuales están al día':'All Annual Reports are up to date','Outstanding debts and obligations have been resolved':isEs?'Las deudas y obligaciones pendientes han sido resueltas':'Outstanding debts and obligations have been resolved','Business bank accounts will be closed after dissolution':isEs?'Las cuentas bancarias del negocio serán cerradas después de la disolución':'Business bank accounts will be closed after dissolution','IRS EIN Account Closure':isEs?'Cierre de Cuenta EIN ante el IRS':'IRS EIN Account Closure','FL Department of Revenue Account (if registered for sales tax)':isEs?'Cuenta del Departamento de Ingresos de FL (si está registrado para impuesto sobre ventas)':'FL Department of Revenue Account (if registered for sales tax)'};var nodes=el.childNodes;for(var i=0;i<nodes.length;i++){if(nodes[i].nodeType===3&&nodes[i].textContent.trim()){var t=nodes[i].textContent.trim();if(CB[t])nodes[i].textContent=' '+CB[t];break;}}});
   if(window.currentService){
     var ibEn={'registered-agent':'&#127968; <strong>Florida Requirement:<\\/strong> Every LLC and Corporation must maintain a Registered Agent with a physical FL address. Filed directly with the Florida Division of Corporations (Sunbiz).','ein':'&#127981; <strong>Federal Requirement:<\\/strong> Your EIN is issued by the IRS and required for federal taxes, opening a business bank account, and hiring employees.','operating-agreement':'&#128196; <strong>Florida Requirement:<\\/strong> Banks require your Operating Agreement (along with your EIN and Certificate of Formation) to open a business checking account.','itin':'&#127760; <strong>Who needs an ITIN?<\\/strong> Foreign nationals, non-resident aliens, and individuals who must file US taxes but are not eligible for a Social Security Number (SSN).','dba':'&#127991; <strong>Florida Requirement:<\\/strong> Any business operating under a name different from its legal registered name must file a Fictitious Name Registration with the FL Division of Corporations. Valid for 5 years.','virtual-address':'&#128205; <strong>Privacy &amp; Professionalism:<\\/strong> Your home address stays off all public Florida Division of Corporations records.','annual-report':'&#9888; <strong>Florida Deadline:<\\/strong> Annual Reports must be filed between January 1 and May 1. After May 1, a $400 late penalty is imposed. Continued non-filing results in administrative dissolution.','amendment':'&#9998; <strong>When do you need an Amendment?<\\/strong> Whenever your registered business name, principal address, registered agent, or officers change.'};
     var ibEs={'registered-agent':'&#127968; <strong>Requisito de Florida:<\\/strong> Toda LLC y Corporación debe mantener un Agente Registrado con dirección física en FL. Se tramita directamente ante la División de Corporaciones de Florida (Sunbiz).','ein':'&#127981; <strong>Requisito Federal:<\\/strong> Tu EIN es emitido por el IRS y requerido para impuestos federales, abrir una cuenta bancaria empresarial y contratar empleados.','operating-agreement':'&#128196; <strong>Requisito de Florida:<\\/strong> Los bancos requieren tu Acuerdo Operativo (junto con tu EIN y Certificado de Formación) para abrir una cuenta corriente empresarial.','itin':'&#127760; <strong>¿Quién necesita un ITIN?<\\/strong> Extranjeros, no residentes, y personas que deben presentar impuestos en EE.UU. pero no son elegibles para un Número de Seguro Social (SSN).','dba':'&#127991; <strong>Requisito de Florida:<\\/strong> Todo negocio que opere bajo un nombre diferente a su nombre legal registrado debe presentar un Registro de Nombre Ficticio ante la División de Corporaciones de Florida. Válido por 5 años.','virtual-address':'&#128205; <strong>Privacidad y Profesionalismo:<\\/strong> Tu dirección personal no aparecerá en los registros públicos de la División de Corporaciones de Florida.','annual-report':'&#9888; <strong>Fecha Límite de Florida:<\\/strong> Las Declaraciones Anuales deben presentarse entre el 1 de enero y el 1 de mayo. Después del 1 de mayo se impone una multa de $400.','amendment':'&#9998; <strong>¿Cuándo necesitas una Enmienda?<\\/strong> Cuando cambia el nombre registrado, dirección principal, agente registrado u oficiales.'};
@@ -1081,14 +1453,14 @@ function openServiceForm(svcId){
   document.getElementById('svcFormSub').textContent=isEs&&svc.sub_es?svc.sub_es:svc.sub;
   document.getElementById('svcFormBody').innerHTML=svc.html;
   if(isEs){translateFormLabels();}
-  var prEn={'registered-agent':'Annual Fee', 'ein':'$49 — One-time fee', 'operating-agreement':'$79 — One-time fee', 'itin':'$135 — One-time fee', 'dba':'$49 + FL state fee', 'virtual-address':'$29/month — Cancel anytime', 'annual-report':'Annual Service', 'amendment':'$59 + FL state fee'};
-  var prEs={'registered-agent':'Tarifa Anual', 'ein':'$49 — Pago único', 'operating-agreement':'$79 — Pago único', 'itin':'$135 — Pago único', 'dba':'$49 + tarifa estatal FL', 'virtual-address':'$29/mes — Cancela cuando quieras', 'annual-report':'Servicio Anual', 'amendment':'$59 + tarifa estatal FL'};
-  var bgEn={'registered-agent':'Required by FL Law', 'ein':'Federal Requirement', 'operating-agreement':'Bank Required', 'itin':'IRS Issued', 'dba':'FL State Filing', 'virtual-address':'Privacy Protection', 'annual-report':'Deadline: May 1', 'amendment':'FL State Filing'};
-  var bgEs={'registered-agent':'Requerido por Ley en FL', 'ein':'Requisito Federal', 'operating-agreement':'Requerido por el Banco', 'itin':'Emitido por el IRS', 'dba':'Trámite Estatal FL', 'virtual-address':'Protección de Privacidad', 'annual-report':'Fecha Límite: 1 de mayo', 'amendment':'Trámite Estatal FL'};
-  var tmEn={'registered-agent':'Same business day filing', 'ein':'1-3 business days', 'operating-agreement':'2-5 business days', 'itin':'6-10 weeks (IRS processing)', 'dba':'1-3 business days', 'virtual-address':'Active same business day', 'annual-report':'Filed within 24 hours', 'amendment':'1-3 business days'};
-  var tmEs={'registered-agent':'Tramitación el mismo día hábil', 'ein':'1-3 días hábiles', 'operating-agreement':'2-5 días hábiles', 'itin':'6-10 semanas (proceso IRS)', 'dba':'1-3 días hábiles', 'virtual-address':'Activa el mismo día hábil', 'annual-report':'Tramitado en 24 horas', 'amendment':'1-3 días hábiles'};
-  var icEn={'registered-agent':['Official FL street address', 'Legal document acceptance', 'Change of Agent filing', 'Document forwarding & notifications'], 'ein':['IRS EIN application prep', 'Business name verification', 'EIN in 1-3 business days', 'Full support throughout'], 'operating-agreement':['Custom LLC Operating Agreement', 'Covers ownership & management', 'Digital delivery in 2-5 days', 'Bank-ready document'], 'itin':['IRS Form W-7 preparation', 'Required documents guidance', 'IRS filing on your behalf', 'ITIN in 6-10 weeks'], 'dba':['Fictitious Name registration', 'FL Division of Corporations filing', 'Valid for 5 years', '1-3 business days delivery'], 'virtual-address':['Professional FL mailing address', 'Mail scanning & forwarding', 'Email notification on arrival', 'Keeps home address private'], 'annual-report':['Annual Report prep & submission', 'Current data verification', 'Sunbiz filing confirmation', 'Avoid $400 late penalty'], 'amendment':['Amendment document preparation', 'FL Division of Corporations filing', 'Current records verification', '1-3 business days delivery']};
-  var icEs={'registered-agent':['Dirección oficial en FL', 'Acepta documentos legales', 'Tramitación del Cambio de Agente', 'Reenvío y notificaciones'], 'ein':['Preparación solicitud EIN', 'Verificación del nombre', 'EIN en 1-3 días hábiles', 'Soporte durante el proceso'], 'operating-agreement':['Acuerdo Operativo personalizado', 'Cubre propiedad y gestión', 'Entrega digital en 2-5 días', 'Listo para el banco'], 'itin':['Preparación Formulario W-7', 'Guía de documentos requeridos', 'Presentación ante el IRS', 'ITIN en 6-10 semanas'], 'dba':['Registro de Nombre Ficticio', 'Trámite ante División de Corp. FL', 'Válido por 5 años', 'Entrega en 1-3 días hábiles'], 'virtual-address':['Dirección postal profesional en FL', 'Escaneo y reenvío de correo', 'Notificación por email', 'Dirección personal privada'], 'annual-report':['Preparación y envío a Sunbiz', 'Verificación de datos actuales', 'Confirmación de presentación', 'Evita multa de $400'], 'amendment':['Preparación del documento', 'Trámite ante División de Corp. FL', 'Verificación de registros actuales', 'Entrega en 1-3 días hábiles']};
+  var prEn={'registered-agent':'Annual Fee', 'ein':'$49 — One-time fee', 'operating-agreement':'$79 — One-time fee', 'itin':'$135 — One-time fee', 'dba':'$49 + FL state fee', 'virtual-address':'$29/month — Cancel anytime', 'annual-report':'Annual Service', 'amendment':'$59 + FL state fee', 'banking-resolution':'$49 — One-time fee', 'business-tax-receipt':'$79 + county fee', 'sales-tax-registration':'$79 — One-time fee', 'exclusive-guide':'$49 — One-time fee', 'good-standing':'$49 + FL state fee', 'foreign-llc':'$99 + state filing fee', 'business-license':'$99 — One-time fee', 'dissolution':'$79 + FL state fee', 'cierre-fiscal':'$79 — One-time fee'};
+  var prEs={'registered-agent':'Tarifa Anual', 'ein':'$49 — Pago único', 'operating-agreement':'$79 — Pago único', 'itin':'$135 — Pago único', 'dba':'$49 + tarifa estatal FL', 'virtual-address':'$29/mes — Cancela cuando quieras', 'annual-report':'Servicio Anual', 'amendment':'$59 + tarifa estatal FL', 'banking-resolution':'$49 — Pago único', 'business-tax-receipt':'$79 + tarifa del condado', 'sales-tax-registration':'$79 — Pago único', 'exclusive-guide':'$49 — Pago único', 'good-standing':'$49 + tarifa estatal FL', 'foreign-llc':'$99 + tarifa estatal', 'business-license':'$99 — Pago único', 'dissolution':'$79 + tarifa estatal FL', 'cierre-fiscal':'$79 — Pago único'};
+  var bgEn={'registered-agent':'Required by FL Law', 'ein':'Federal Requirement', 'operating-agreement':'Bank Required', 'itin':'IRS Issued', 'dba':'FL State Filing', 'virtual-address':'Privacy Protection', 'annual-report':'Deadline: May 1', 'amendment':'FL State Filing', 'banking-resolution':'Bank Required', 'business-tax-receipt':'County Requirement', 'sales-tax-registration':'FL DOR Filing', 'exclusive-guide':'Digital Delivery', 'good-standing':'Sunbiz Certificate', 'foreign-llc':'Multi-State Filing', 'business-license':'FL & Federal', 'dissolution':'Sunbiz Filing', 'cierre-fiscal':'IRS & FL DOR'};
+  var bgEs={'registered-agent':'Requerido por Ley en FL', 'ein':'Requisito Federal', 'operating-agreement':'Requerido por el Banco', 'itin':'Emitido por el IRS', 'dba':'Trámite Estatal FL', 'virtual-address':'Protección de Privacidad', 'annual-report':'Fecha Límite: 1 de mayo', 'amendment':'Trámite Estatal FL', 'banking-resolution':'Requerido por el Banco', 'business-tax-receipt':'Requisito del Condado', 'sales-tax-registration':'Trámite FL DOR', 'exclusive-guide':'Entrega Digital', 'good-standing':'Certificado Sunbiz', 'foreign-llc':'Trámite Multi-Estado', 'business-license':'FL y Federal', 'dissolution':'Trámite Sunbiz', 'cierre-fiscal':'IRS y FL DOR'};
+  var tmEn={'registered-agent':'Same business day filing', 'ein':'1-3 business days', 'operating-agreement':'2-5 business days', 'itin':'6-10 weeks (IRS processing)', 'dba':'1-3 business days', 'virtual-address':'Active same business day', 'annual-report':'Filed within 24 hours', 'amendment':'1-3 business days', 'banking-resolution':'1-2 business days', 'business-tax-receipt':'3-7 business days', 'sales-tax-registration':'2-5 business days', 'exclusive-guide':'Same business day', 'good-standing':'1-3 business days', 'foreign-llc':'5-10 business days', 'business-license':'2-3 business days', 'dissolution':'3-7 business days', 'cierre-fiscal':'2-4 weeks (IRS processing)'};
+  var tmEs={'registered-agent':'Tramitación el mismo día hábil', 'ein':'1-3 días hábiles', 'operating-agreement':'2-5 días hábiles', 'itin':'6-10 semanas (proceso IRS)', 'dba':'1-3 días hábiles', 'virtual-address':'Activa el mismo día hábil', 'annual-report':'Tramitado en 24 horas', 'amendment':'1-3 días hábiles', 'banking-resolution':'1-2 días hábiles', 'business-tax-receipt':'3-7 días hábiles', 'sales-tax-registration':'2-5 días hábiles', 'exclusive-guide':'El mismo día hábil', 'good-standing':'1-3 días hábiles', 'foreign-llc':'5-10 días hábiles', 'business-license':'2-3 días hábiles', 'dissolution':'3-7 días hábiles', 'cierre-fiscal':'2-4 semanas (proceso IRS)'};
+  var icEn={'registered-agent':['Official FL street address', 'Legal document acceptance', 'Change of Agent filing', 'Document forwarding & notifications'], 'ein':['IRS EIN application prep', 'Business name verification', 'EIN in 1-3 business days', 'Full support throughout'], 'operating-agreement':['Custom LLC Operating Agreement', 'Covers ownership & management', 'Digital delivery in 2-5 days', 'Bank-ready document'], 'itin':['IRS Form W-7 preparation', 'Required documents guidance', 'IRS filing on your behalf', 'ITIN in 6-10 weeks'], 'dba':['Fictitious Name registration', 'FL Division of Corporations filing', 'Valid for 5 years', '1-3 business days delivery'], 'virtual-address':['Professional FL mailing address', 'Mail scanning & forwarding', 'Email notification on arrival', 'Keeps home address private'], 'annual-report':['Annual Report prep & submission', 'Current data verification', 'Sunbiz filing confirmation', 'Avoid $400 late penalty'], 'amendment':['Amendment document preparation', 'FL Division of Corporations filing', 'Current records verification', '1-3 business days delivery'], 'banking-resolution':['Custom Banking Resolution document', 'Authorizes account opening for LLC/Corp', 'Accepted by most U.S. banks', 'PDF delivered by email in 1-2 days'], 'business-tax-receipt':['BTR application preparation', 'County-specific filing', 'Required to legally operate in FL', 'BTR certificate delivered'], 'sales-tax-registration':['FL DOR Form DR-1 preparation', 'Sales tax certificate (DR-11)', 'Required for taxable sales in FL', 'Filing instructions included'], 'exclusive-guide':['Step-by-step post-formation checklist', 'Banking requirements & account tips', 'FL compliance calendar & deadlines', 'Delivered by email (PDF)'], 'good-standing':['Official FL Division of Corps certificate', 'Certified digital & physical copy', 'Accepted by banks & investors', 'Apostille available on request'], 'foreign-llc':['Foreign qualification filing', 'Certificate of Authority from FL', 'Registered Agent in target state', 'Available for all 50 U.S. states'], 'business-license':['Federal, state & local license research', 'Industry & location-specific filing', 'Step-by-step application process', 'Confirmation delivered by email'], 'dissolution':['Articles of Dissolution prepared & filed', 'FL Division of Corporations submission', 'Stops Annual Report obligations', 'Dissolution certificate delivered'], 'cierre-fiscal':['IRS EIN closure letter preparation', 'FL DOR account closure (if applicable)', 'Guidance on final tax obligations', 'Confirmation documents by email']};
+  var icEs={'registered-agent':['Dirección oficial en FL', 'Acepta documentos legales', 'Tramitación del Cambio de Agente', 'Reenvío y notificaciones'], 'ein':['Preparación solicitud EIN', 'Verificación del nombre', 'EIN en 1-3 días hábiles', 'Soporte durante el proceso'], 'operating-agreement':['Acuerdo Operativo personalizado', 'Cubre propiedad y gestión', 'Entrega digital en 2-5 días', 'Listo para el banco'], 'itin':['Preparación Formulario W-7', 'Guía de documentos requeridos', 'Presentación ante el IRS', 'ITIN en 6-10 semanas'], 'dba':['Registro de Nombre Ficticio', 'Trámite ante División de Corp. FL', 'Válido por 5 años', 'Entrega en 1-3 días hábiles'], 'virtual-address':['Dirección postal profesional en FL', 'Escaneo y reenvío de correo', 'Notificación por email', 'Dirección personal privada'], 'annual-report':['Preparación y envío a Sunbiz', 'Verificación de datos actuales', 'Confirmación de presentación', 'Evita multa de $400'], 'amendment':['Preparación del documento', 'Trámite ante División de Corp. FL', 'Verificación de registros actuales', 'Entrega en 1-3 días hábiles'], 'banking-resolution':['Resolución Bancaria personalizada', 'Autoriza apertura de cuenta LLC/Corp', 'Aceptada por la mayoría de bancos en USA', 'PDF entregado por correo en 1-2 días'], 'business-tax-receipt':['Preparación de la solicitud BTR', 'Presentación específica al condado', 'Requerido para operar legalmente en FL', 'Certificado BTR entregado'], 'sales-tax-registration':['Preparación Formulario DR-1 FL DOR', 'Certificado de impuesto sobre ventas', 'Requerido para ventas gravables en FL', 'Instrucciones de presentación incluidas'], 'exclusive-guide':['Lista de verificación post-formación', 'Requisitos bancarios y tips', 'Calendario de cumplimiento FL', 'Entregada por correo (PDF)'], 'good-standing':['Certificado oficial de la División de Corp. FL', 'Copia digital y física certificada', 'Aceptado por bancos e inversionistas', 'Apostilla disponible a solicitud'], 'foreign-llc':['Calificación como Entidad Extranjera', 'Certificado de Autoridad de FL', 'Agente Registrado en estado destino', 'Disponible en los 50 estados de USA'], 'business-license':['Investigación de licencias federal, estatal y local', 'Presentación específica por industria y ubicación', 'Proceso de solicitud paso a paso', 'Confirmación entregada por correo'], 'dissolution':['Artículos de Disolución preparados y presentados', 'Envío a la División de Corporaciones FL', 'Detiene la obligación del Reporte Anual', 'Certificado de disolución entregado'], 'cierre-fiscal':['Preparación de carta de cierre EIN', 'Cierre de cuenta FL DOR (si aplica)', 'Guía sobre obligaciones fiscales finales', 'Documentos de confirmación por correo']};
   var priceStr=isEs?(prEs[svcId]||''):(prEn[svcId]||'');
   var badgeStr=isEs?(bgEs[svcId]||'FL'):(bgEn[svcId]||'FL');
   var timeStr=isEs?(tmEs[svcId]||''):(tmEn[svcId]||'');
