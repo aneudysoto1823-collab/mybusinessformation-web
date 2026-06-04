@@ -632,10 +632,10 @@ var serviceForms={
   price:'Annual fee',
   html:\`
     <div class="info-box">&#127968; <strong>Florida Requirement:</strong> Every LLC and Corporation must maintain a Registered Agent with a physical FL address. The Change of Agent form is filed directly with the Florida Division of Corporations (Sunbiz).</div>
+    <div class="form-group"><label class="form-label">Florida Document Number (from Sunbiz)</label><input type="text" class="form-input" placeholder="e.g. L23000123456" onblur="lookupFLDoc(this)"/><div id="fldoc-status" style="margin-top:5px;min-height:18px"></div></div>
     <div class="section-divider">Business Information</div>
-    <div class="form-group"><label class="form-label">Entity Type *</label><select class="select-input"><option value="">Select...</option><option>LLC</option><option>Corporation</option></select></div>
-    <div class="form-group"><label class="form-label">Registered Business Name *</label><input type="text" class="form-input" placeholder="Exact name as registered with the State"/></div>
-    <div class="form-group"><label class="form-label">Florida Document Number (from Sunbiz)</label><input type="text" class="form-input" placeholder="e.g. L23000123456"/></div>
+    <div class="form-group"><label class="form-label">Entity Type *</label><select class="select-input" data-field="entity-type"><option value="">Select...</option><option>LLC</option><option>Corporation</option></select></div>
+    <div class="form-group"><label class="form-label">Registered Business Name *</label><input type="text" class="form-input" data-field="business-name" placeholder="Exact name as registered with the State"/></div>
     <div class="section-divider">Current Registered Agent (if applicable)</div>
     <div class="form-group"><label class="form-label">Current Agent Name</label><input type="text" class="form-input" placeholder="Name of agent you are replacing"/></div>
     <div class="section-divider">Business Address</div>
@@ -656,10 +656,10 @@ var serviceForms={
   price:'$49',
   html:\`
     <div class="info-box">&#127981; <strong>Federal Requirement:</strong> Your EIN is issued by the IRS and required for federal taxes, opening a business bank account, and hiring employees.</div>
+    <div class="form-group"><label class="form-label">Florida Document Number (from Sunbiz)</label><input type="text" class="form-input" placeholder="Optional — helps confirm entity" onblur="lookupFLDoc(this)"/><div id="fldoc-status" style="margin-top:5px;min-height:18px"></div></div>
     <div class="section-divider">Business Information</div>
-    <div class="form-group"><label class="form-label">Entity Type *</label><select class="select-input"><option value="">Select...</option><option>LLC — Single Member</option><option>LLC — Multi-Member</option><option>Corporation (S-Corp or C-Corp)</option></select></div>
-    <div class="form-group"><label class="form-label">Legal Business Name *</label><input type="text" class="form-input" placeholder="Exact name as registered with FL"/></div>
-    <div class="form-group"><label class="form-label">Florida Document Number (from Sunbiz)</label><input type="text" class="form-input" placeholder="Optional — helps confirm entity"/></div>
+    <div class="form-group"><label class="form-label">Entity Type *</label><select class="select-input" data-field="entity-type"><option value="">Select...</option><option>LLC — Single Member</option><option>LLC — Multi-Member</option><option>Corporation (S-Corp or C-Corp)</option></select></div>
+    <div class="form-group"><label class="form-label">Legal Business Name *</label><input type="text" class="form-input" data-field="business-name" placeholder="Exact name as registered with FL"/></div>
     <div class="form-group"><label class="form-label">State of Formation *</label><input type="text" class="form-input" value="Florida" readonly/></div>
     <div class="form-group"><label class="form-label">Business Start / Effective Date *</label><input type="date" class="form-input"/></div>
     <div class="section-divider">Responsible Party (Sunbiz / IRS Terms)</div>
@@ -749,10 +749,10 @@ var serviceForms={
   price:'$49 + state fee',
   html:\`
     <div class="info-box">&#127991; <strong>Florida Requirement:</strong> Any business operating under a name different from its legal registered name must file a Fictitious Name Registration with the Florida Division of Corporations. Valid for 5 years.</div>
+    <div class="form-group"><label class="form-label">Florida Document Number (from Sunbiz)</label><input type="text" class="form-input" placeholder="e.g. L23000123456 (if entity is registered)" onblur="lookupFLDoc(this)"/><div id="fldoc-status" style="margin-top:5px;min-height:18px"></div></div>
     <div class="section-divider">Business Information</div>
-    <div class="form-group"><label class="form-label">Entity Type *</label><select class="select-input"><option value="">Select...</option><option>LLC</option><option>Corporation</option><option>Sole Proprietorship</option><option>Partnership</option></select></div>
-    <div class="form-group"><label class="form-label">Legal Entity Name *</label><input type="text" class="form-input" placeholder="Your registered legal business name"/></div>
-    <div class="form-group"><label class="form-label">Florida Document Number (from Sunbiz)</label><input type="text" class="form-input" placeholder="e.g. L23000123456 (if entity is registered)"/></div>
+    <div class="form-group"><label class="form-label">Entity Type *</label><select class="select-input" data-field="entity-type"><option value="">Select...</option><option>LLC</option><option>Corporation</option><option>Sole Proprietorship</option><option>Partnership</option></select></div>
+    <div class="form-group"><label class="form-label">Legal Entity Name *</label><input type="text" class="form-input" data-field="business-name" placeholder="Your registered legal business name"/></div>
     <div class="section-divider">Fictitious Name (DBA)</div>
     <div class="form-group"><label class="form-label">Desired Fictitious Name *</label><input type="text" class="form-input" placeholder="The DBA name you want to use (no LLC/Corp suffix needed)"/></div>
     <div class="form-group"><label class="form-label">Alternative Name #1 (optional)</label><input type="text" class="form-input" placeholder="Backup DBA name"/></div>
@@ -797,10 +797,10 @@ var serviceForms={
   price:'Annual',
   html:\`
     <div class="warn-box">&#9888; <strong>Florida Deadline:</strong> Annual Reports must be filed between January 1 and May 1. After May 1, a $400 late penalty is imposed by the State. Continued non-filing results in administrative dissolution.</div>
+    <div class="form-group"><label class="form-label">Florida Document Number *</label><input type="text" class="form-input" placeholder="e.g. L23000123456 — from your Sunbiz records" onblur="lookupFLDoc(this)"/><div id="fldoc-status" style="margin-top:5px;min-height:18px"></div></div>
     <div class="section-divider">Business Information</div>
-    <div class="form-group"><label class="form-label">Entity Type *</label><select class="select-input"><option value="">Select...</option><option>LLC</option><option>Corporation</option></select></div>
-    <div class="form-group"><label class="form-label">Registered Business Name *</label><input type="text" class="form-input" placeholder="Exact name as registered with State of Florida"/></div>
-    <div class="form-group"><label class="form-label">Florida Document Number *</label><input type="text" class="form-input" placeholder="e.g. L23000123456 — from your Sunbiz records"/></div>
+    <div class="form-group"><label class="form-label">Entity Type *</label><select class="select-input" data-field="entity-type"><option value="">Select...</option><option>LLC</option><option>Corporation</option></select></div>
+    <div class="form-group"><label class="form-label">Registered Business Name *</label><input type="text" class="form-input" data-field="business-name" placeholder="Exact name as registered with State of Florida"/></div>
     <div class="form-group"><label class="form-label">EIN / Tax ID Number *</label><input type="text" class="form-input" placeholder="XX-XXXXXXX"/></div>
     <div class="section-divider">Updated Principal Office Address</div>
     <div class="form-group"><label class="form-label">Principal Street Address *</label><input type="text" class="form-input" placeholder="Street address — no PO Box — must be in Florida"/></div>
@@ -833,10 +833,10 @@ var serviceForms={
   price:'$59 + state fee',
   html:\`
     <div class="info-box">&#9998; <strong>When do you need an Amendment?</strong> Whenever your registered business name, principal address, registered agent, officers/directors, or business purpose changes — you must update Sunbiz within a reasonable time.</div>
+    <div class="form-group"><label class="form-label">Florida Document Number *</label><input type="text" class="form-input" placeholder="e.g. L23000123456 — from your Sunbiz certificate" onblur="lookupFLDoc(this)"/><div id="fldoc-status" style="margin-top:5px;min-height:18px"></div></div>
     <div class="section-divider">Business Identification</div>
-    <div class="form-group"><label class="form-label">Entity Type *</label><select class="select-input"><option value="">Select...</option><option>LLC</option><option>Corporation</option></select></div>
-    <div class="form-group"><label class="form-label">Current Registered Business Name *</label><input type="text" class="form-input" placeholder="Exact name as it appears in Sunbiz"/></div>
-    <div class="form-group"><label class="form-label">Florida Document Number *</label><input type="text" class="form-input" placeholder="e.g. L23000123456 — from your Sunbiz certificate"/></div>
+    <div class="form-group"><label class="form-label">Entity Type *</label><select class="select-input" data-field="entity-type"><option value="">Select...</option><option>LLC</option><option>Corporation</option></select></div>
+    <div class="form-group"><label class="form-label">Current Registered Business Name *</label><input type="text" class="form-input" data-field="business-name" placeholder="Exact name as it appears in Sunbiz"/></div>
     <div class="section-divider">What Are You Amending? (Check all that apply)</div>
     <div class="form-group">
       <label class="check-label"><input type="checkbox" id="amend-name"/> Business Name Change</label>
@@ -931,6 +931,37 @@ function setLang(lang){
   if(document.getElementById('svcOverlay')&&document.getElementById('svcOverlay').classList.contains('active')){translateFormLabels();}
 }
 
+function lookupFLDoc(input){
+  var docNum=input.value.trim().toUpperCase();
+  if(!docNum||docNum.length<5)return;
+  var isEs=document.getElementById('btn-es').classList.contains('active');
+  var st=document.getElementById('fldoc-status');
+  if(st)st.innerHTML='<span style="color:var(--gray500);font-size:.75rem">&#128269; '+(isEs?'Buscando en registros de FL...':'Looking up FL state records...')+'</span>';
+  fetch('/api/sunbiz?document_id='+encodeURIComponent(docNum))
+    .then(function(r){return r.json();})
+    .then(function(data){
+      var st=document.getElementById('fldoc-status');
+      if(data.error||!data.company){
+        if(st)st.innerHTML='<span style="color:#dc2626;font-size:.75rem">&#9888; '+(isEs?'No encontrado en registros de Florida.':'Not found in Florida state records.')+'</span>';
+        return;
+      }
+      var c=data.company;
+      var fb=document.getElementById('svcFormBody');
+      var filled=0;
+      var nameEl=fb.querySelector('[data-field="business-name"]');
+      if(nameEl&&c.company_name){nameEl.value=c.company_name;nameEl.style.background='#eff6ff';filled++;}
+      var typeEl=fb.querySelector('[data-field="entity-type"]');
+      if(typeEl&&c.company_type){
+        var tv=c.company_type==='CORP'?'Corporation':'LLC';
+        for(var i=0;i<typeEl.options.length;i++){if(typeEl.options[i].text.indexOf(tv)!==-1){typeEl.selectedIndex=i;typeEl.style.background='#eff6ff';filled++;break;}}
+      }
+      if(st)st.innerHTML='<span style="color:var(--green);font-size:.75rem">&#10003; '+(isEs?filled+' campo(s) auto-rellenado(s) desde registros de FL.':filled+' field(s) auto-filled from FL state records.')+'</span>';
+    })
+    .catch(function(){
+      var st=document.getElementById('fldoc-status');
+      if(st)st.innerHTML='<span style="color:#dc2626;font-size:.75rem">&#9888; '+(isEs?'Error al consultar registros.':'Error looking up records.')+'</span>';
+    });
+}
 function closeServiceForm(){
   document.getElementById('svcOverlay').classList.remove('active');
   document.body.style.overflow='';
