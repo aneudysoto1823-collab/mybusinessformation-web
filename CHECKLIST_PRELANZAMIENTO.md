@@ -37,16 +37,31 @@
 
 ## 🔴 ETAPA 5 — Búsqueda de Nombres Sunbiz Florida (CRÍTICA — bloquea automatización)
 
+### Infraestructura DB (✅ parcialmente lista)
+- [x] Migración SQL creada: `supabase_migration_sunbiz_corps.sql` — tabla + índices GIN trigram + función `upsert_sunbiz_corp()` idempotente
+- [x] `/api/sunbiz` actualizado: consulta `prospective_companies` + `sunbiz_corps` en paralelo (Promise.all, ~150–300ms). Web scraping de sunbiz.org eliminado.
+- [ ] **Correr `supabase_migration_sunbiz_corps.sql` en Supabase SQL Editor** — crea la tabla físicamente en producción
+
+### Carga inicial — Dump trimestral
 - [ ] Solicitar acceso FTP a la base de datos trimestral de Florida Division of Corporations
-- [ ] Descargar primer dump trimestral de Sunbiz (~3.5M registros)
-- [ ] Crear tabla `sunbiz_corps` en Supabase con índices apropiados (GIN trigram para búsqueda fuzzy)
-- [ ] Script de import inicial (parsear formato fixed-width o CSV de Florida)
+- [ ] Descargar primer dump trimestral (~3.5M registros)
+- [ ] Script de import inicial (parsear formato fixed-width o CSV de Florida y llamar a `upsert_sunbiz_corp()`)
 - [ ] Validar que los 3.5M registros importaron sin errores
-- [ ] Implementar endpoint `GET /api/names/check?name=X` con search exacto + similar
+
+### Actualización continua — Scraping diario
+- [ ] Implementar scraper diario de nuevos registros/cambios en Sunbiz
+- [ ] Scraper usa `upsert_sunbiz_corp()` — idempotente, no duplica registros
+- [ ] Configurar Vercel Cron Job o Railway Cron para ejecutar el scraper diario
+- [ ] Documentar proceso de update manual (fallback si falla el cron)
+
+### Verificación de nombres (panel admin)
+- [ ] Implementar endpoint `GET /api/names/check?name=X` usando índice trigram de `sunbiz_corps` (search exacto + fuzzy)
 - [ ] Conectar el panel admin (`/admin/orders/[id]`) para usar este endpoint real (hoy es mock)
-- [ ] Implementar cron nocturno para descargar y aplicar diff trimestral
-- [ ] Configurar Vercel Cron Job o Railway Cron para ejecutar el update
-- [ ] Documentar el proceso de update manual (fallback si falla el cron)
+
+### Auto-relleno formularios /servicios (✅ listo — activa solo cuando haya datos)
+- [x] Auto-relleno en 14 formularios de /servicios consulta `sunbiz_corps` automáticamente al ingresar FL Document Number
+- [x] Normalización de entity_type (LLC/CORP/PA/LTD) integrada en el API
+
 - [ ] **Plan B si Etapa 5 no está lista para sept 15:** lanzar con verificación manual desde panel admin (sin automatización pero funcional)
 
 ---
