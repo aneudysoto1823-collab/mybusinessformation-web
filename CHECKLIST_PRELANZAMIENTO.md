@@ -40,7 +40,7 @@
 ### Infraestructura DB (✅ parcialmente lista)
 - [x] Migración SQL creada: `supabase_migration_sunbiz_corps.sql` — tabla + índices GIN trigram + función `upsert_sunbiz_corp()` idempotente
 - [x] `/api/sunbiz` actualizado: consulta `prospective_companies` + `sunbiz_corps` en paralelo (Promise.all, ~150–300ms). Web scraping de sunbiz.org eliminado.
-- [ ] **Correr `supabase_migration_sunbiz_corps.sql` en Supabase SQL Editor** — crea la tabla físicamente en producción
+- [x] **Correr `supabase_migration_sunbiz_corps.sql` en Supabase SQL Editor** — tabla creada en producción ✅ (2026-06-04)
 
 ### Carga inicial — Dump trimestral
 - [ ] Solicitar acceso FTP a la base de datos trimestral de Florida Division of Corporations
