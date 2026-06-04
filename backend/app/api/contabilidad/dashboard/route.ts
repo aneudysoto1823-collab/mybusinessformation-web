@@ -14,8 +14,10 @@ export async function GET(request: NextRequest) {
   const now = new Date()
   const firstOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0]
   const lastOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0]
+  const thirtyDaysFromNow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 30).toISOString().split('T')[0]
+  const sevenDaysAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7).toISOString().split('T')[0]
 
-  const [allIncome, allExpenses, monthIncome, monthExpenses, activeClients, pendingIncome, recentIncome, recentExpenses] =
+  const [allIncome, allExpenses, monthIncome, monthExpenses, activeClients, pendingIncome, recentIncome, recentExpenses, upcomingRenewals] =
     await Promise.all([
       getSupabaseAdmin().from('accounting_income').select('amount, payment_status, amount_paid'),
       getSupabaseAdmin().from('accounting_expenses').select('amount'),
@@ -31,6 +33,12 @@ export async function GET(request: NextRequest) {
       getSupabaseAdmin().from('accounting_expenses')
         .select('id, expense_date, category, description, amount')
         .order('created_at', { ascending: false }).limit(5),
+      getSupabaseAdmin().from('accounting_expenses')
+        .select('id, description, amount, recurrence, renewal_date')
+        .eq('is_recurring', true)
+        .gte('renewal_date', sevenDaysAgo)
+        .lte('renewal_date', thirtyDaysFromNow)
+        .order('renewal_date', { ascending: true }),
     ])
 
   const sumPaid = (rows: { amount: number; payment_status: string; amount_paid: number }[]) =>
@@ -53,5 +61,6 @@ export async function GET(request: NextRequest) {
     pendingAmount,
     recentIncome: recentIncome.data ?? [],
     recentExpenses: recentExpenses.data ?? [],
+    upcomingRenewals: upcomingRenewals.data ?? [],
   })
 }

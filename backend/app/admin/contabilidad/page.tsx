@@ -13,6 +13,7 @@ interface DashboardData {
   pendingAmount: number
   recentIncome: { id: string; invoice_number: string; invoice_date: string; service_type: string; amount: number; payment_status: string; accounting_clients: { name: string } | null }[]
   recentExpenses: { id: string; expense_date: string; category: string; description: string; amount: number }[]
+  upcomingRenewals: { id: string; description: string; amount: number; recurrence: string; renewal_date: string }[]
 }
 
 const NAV = [
@@ -98,6 +99,15 @@ body { background: #f4f6f9; font-family: 'Plus Jakarta Sans', sans-serif; }
 .btn-reset:hover:not(:disabled) { background: #fef2f2; }
 .sync-msg { font-size: 13px; color: #374151; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 8px 14px; }
 .sync-msg.err { background: #fef2f2; border-color: #fecaca; color: #dc2626; }
+.renewals-banner { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 10px; padding: 12px 16px; margin-bottom: 24px; }
+.renewals-title { font-size: 12px; font-weight: 700; color: #92400e; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+.renewals-title a { font-size: 12px; color: #c2410c; text-decoration: none; font-weight: 600; text-transform: none; letter-spacing: 0; }
+.renewal-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid #fed7aa; font-size: 13px; }
+.renewal-row:last-child { border-bottom: none; }
+.renewal-badge { padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+.rb-expired { background: #fee2e2; color: #991b1b; }
+.rb-urgent { background: #fef3c7; color: #92400e; }
+.rb-soon { background: #fde8d8; color: #c2410c; }
 .tax-bar { display: flex; align-items: center; gap: 12px; background: #fefce8; border: 1px solid #fde68a; border-radius: 10px; padding: 10px 16px; margin-bottom: 24px; flex-wrap: wrap; }
 .tax-bar-label { font-size: 12px; font-weight: 700; color: #92400e; text-transform: uppercase; letter-spacing: .5px; }
 .tax-bar-value { font-size: 18px; font-weight: 700; color: #78350f; }
@@ -275,6 +285,30 @@ export default function ContabilidadDashboard() {
           <div className="loading">Error al cargar. Recarga la página.</div>
         ) : (
           <>
+            {/* Renewal alerts */}
+            {data.upcomingRenewals.length > 0 && (
+              <div className="renewals-banner">
+                <div className="renewals-title">
+                  <span>⚠ Vencimientos próximos ({data.upcomingRenewals.length})</span>
+                  <a href="/admin/contabilidad/gastos">Ver gastos →</a>
+                </div>
+                {data.upcomingRenewals.map(r => {
+                  const d = Math.ceil((new Date(r.renewal_date).getTime() - Date.now()) / 86400000)
+                  const cls = d < 0 ? 'rb-expired' : d <= 7 ? 'rb-urgent' : 'rb-soon'
+                  const label = d < 0 ? `Venció hace ${Math.abs(d)}d` : d === 0 ? 'Vence HOY' : `Vence en ${d}d`
+                  return (
+                    <div key={r.id} className="renewal-row">
+                      <div>
+                        <span style={{ fontWeight: 600, color: '#1a1a2e' }}>{r.description}</span>
+                        <span style={{ fontSize: '11px', color: '#9ca3af', marginLeft: 8 }}>{fmt(r.amount)}</span>
+                      </div>
+                      <span className={`renewal-badge ${cls}`}>{label}</span>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+
             {/* Mes actual */}
             <div className="section-label">Mes actual</div>
             <div className="stats-grid" style={{ marginBottom: '16px' }}>

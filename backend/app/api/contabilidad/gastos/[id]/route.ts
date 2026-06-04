@@ -17,10 +17,13 @@ export async function PATCH(
   const body = await request.json()
 
   const allowed: Record<string, unknown> = {}
-  for (const f of ['expense_date', 'category', 'expense_type', 'description', 'amount', 'receipt_note']) {
+  for (const f of ['expense_date', 'category', 'expense_type', 'description', 'amount', 'receipt_note',
+    'is_recurring', 'recurrence', 'renewal_date']) {
     if (body[f] !== undefined) allowed[f] = body[f]
   }
   if (allowed.amount) allowed.amount = parseFloat(allowed.amount as string)
+  if (allowed.is_recurring !== undefined) allowed.is_recurring = Boolean(allowed.is_recurring)
+  if (allowed.is_recurring === false) { allowed.recurrence = 'none'; allowed.renewal_date = null }
 
   const { data, error } = await getSupabaseAdmin()
     .from('accounting_expenses')
