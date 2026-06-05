@@ -434,6 +434,7 @@ Si algo del hamburger falla, revisar los tres puntos. **No tocar uno sin verific
 | `/new-business` | 960px, 700px, 600px, 540px | Pre-existente antes Etapa 17 |
 | `/servicios` | 1100px, 768px, 480px | Hamburger + hero azul + accordion expand en mobile (popup en desktop) |
 | `/privacy` `/terms` `/legal` | 768px | Hamburger; hero `position:sticky;top:66px`; `p`/`.hero-meta`/`.breadcrumb` ocultos; sidebar `position:static`; header sticky conservado (NO usar `position:relative` en header dentro del media query — rompe el sticky) |
+| `/admin/contabilidad/gastos` | 1024px, 768px, 480px | Tabla scroll horizontal; botones touch 44px; modal 95vh |
 
 **Pendiente responsive:** `/admin/orders/[id]`, `/admin/campaigns`
 
@@ -454,6 +455,35 @@ modules/names/        — verificación de nombres de empresas
 ```
 
 Todos se montan en `server.ts`. El server escucha en `PORT` (default 4000). CORS configurado para Vercel + localhost en dev.
+
+---
+
+## Performance
+
+### Optimizaciones aplicadas (2026-06-05)
+
+**Imágenes** — comprimidas con sharp (quality 72) + versiones WebP generadas:
+- `photonewbusiness.jpg`: 1.3 MB → 62 KB (95% ahorro)
+- `miami-bg.jpg`: 313 KB → 85 KB (73%)
+- `admin-bg.jpg`: 258 KB → 68 KB (74%)
+- `Claudia.jpg`: 179 KB → 41 KB (77%)
+- `client-portal-bg.jpg`: 68 KB → 18 KB (73%)
+
+Si se necesita recomprimir: `node -e "require('sharp')..."` — sharp está en devDependencies.
+
+**Fuentes** — Google Fonts migrada de `<link rel="stylesheet">` (render-blocking) a `<Script strategy="afterInteractive">` en `layout.tsx`. El browser renderiza con system fonts primero (FCP inmediato) y swapea cuando cargan las web fonts.
+
+### Scores Lighthouse (post-optimización, 2026-06-05)
+
+| Métrica | Mobile | Desktop |
+|---|---|---|
+| Performance | 63 | 66 |
+| FCP | 5.5s | **1.8s** |
+| LCP | 6.7s | 6.5s |
+| TBT | 0ms | 40ms |
+| SEO | 100 | 100 |
+
+**Pendiente para siguiente iteración de performance:** Lazy-load del formulario en `page.tsx` (6,284 líneas inline). El LCP de 6-7s en ambos dispositivos se debe principalmente al tamaño del HTML generado — requiere refactor de componentes.
 
 ---
 
