@@ -3086,7 +3086,7 @@ function setLang(lang) {
   el=document.getElementById('s3p');                if(el) el.textContent = t.s3p;
   el=document.getElementById('s4h');                if(el) el.textContent = t.s4h;
   el=document.getElementById('s4p');                if(el) el.textContent = t.s4p;
-  el=document.getElementById('header-login-btn');  if(el) el.textContent = isEs ? 'Iniciar sesión' : 'Login';
+  el=document.getElementById('header-login-btn');  if(el){ el.textContent = isEs ? 'Iniciar sesión' : 'Login'; el.setAttribute('href', isEs ? '/client-portal?lang=es' : '/client-portal'); }
   el=document.getElementById('lbl-new-app');       if(el) el.textContent = isEs ? 'Nueva Aplicación' : 'Start New Application';
   el=document.getElementById('lbl-continue-app');  if(el) el.textContent = isEs ? 'Continuar Mi Aplicación' : 'Continue My Application';
   // How it works steps

@@ -69,12 +69,14 @@ export default function DashboardView({
 }: Props) {
   const [lang, setLang] = useState<'en' | 'es'>('en')
 
-  // Hidratar idioma desde localStorage en mount — localStorage no existe en SSR.
+  // Hidratar idioma en mount: portal_lang → flbc_lang (sitio principal) como fallback
   useEffect(() => {
-    const saved = localStorage.getItem('portal_lang')
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (saved === 'en' || saved === 'es') setLang(saved)
-  }, [])
+    const portalLang = localStorage.getItem('portal_lang')
+    const siteLang = localStorage.getItem('flbc_lang')
+    const detected = portalLang || siteLang
+    if (detected === 'es') { setLang('es'); localStorage.setItem('portal_lang', 'es') }
+    else if (detected === 'en') { setLang('en') }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   function switchLang(l: 'en' | 'es') {
     setLang(l)

@@ -60,12 +60,15 @@ function LoginForm() {
   const [showContact, setShowContact] = useState(false)
   const contactRef = useRef<HTMLDivElement>(null)
 
-  // Hidratar idioma desde localStorage en mount — localStorage no existe en SSR.
+  // Hidratar idioma en mount: URL param → portal_lang → flbc_lang (sitio principal)
   useEffect(() => {
-    const saved = localStorage.getItem('portal_lang')
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (saved === 'en' || saved === 'es') setLang(saved)
-  }, [])
+    const urlLang = searchParams.get('lang')
+    const portalLang = localStorage.getItem('portal_lang')
+    const siteLang = localStorage.getItem('flbc_lang')
+    const detected = urlLang || portalLang || siteLang
+    if (detected === 'es') { setLang('es'); localStorage.setItem('portal_lang', 'es') }
+    else if (detected === 'en') { setLang('en'); localStorage.setItem('portal_lang', 'en') }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
