@@ -433,7 +433,7 @@ export default function GastosPage() {
                         </td>
                         <td>
                           <button className="btn-sm" onClick={() => openEdit(r)}>Editar</button>
-                          <button className="btn-del" onClick={() => handleDelete(r.id)}>Eliminar</button>
+                          <button onClick={() => handleDelete(r.id)} title="Eliminar gasto" style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#dc2626', fontSize: '16px', fontWeight: 700, lineHeight: 1, padding: '2px 4px' }}>✕</button>
                         </td>
                       </tr>
                     )
