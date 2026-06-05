@@ -280,9 +280,11 @@ Módulo interno para gestión financiera del negocio. 100% Next.js/Vercel — no
 accounting_expenses {
   id, expense_date, category, expense_type ('fixed'|'variable')
   description, amount, receipt_note
-  is_recurring   Boolean  -- bill recurrente (mensual/anual)
-  recurrence     Text     -- 'none' | 'monthly' | 'annual'
-  renewal_date   Date     -- próxima fecha de vencimiento (para alertas)
+  is_recurring     Boolean  -- bill recurrente (mensual/anual)
+  recurrence       Text     -- 'none' | 'monthly' | 'annual'
+  renewal_date     Date     -- próxima fecha de vencimiento (para alertas y auto-renovación)
+  auto_renew       Boolean  -- default true; si false, no se replica al vencer
+  receipt_file_url Text     -- URL pública del archivo adjunto (Supabase Storage, bucket expense-receipts)
 }
 ```
 
@@ -326,14 +328,45 @@ Gastos con `is_recurring = true` muestran alertas cuando `renewal_date` está de
 
 Las alertas aparecen tanto en `/admin/contabilidad/gastos` como en el dashboard principal.
 
+### Auto-renovación de gastos recurrentes
+
+`POST /api/contabilidad/gastos/process-renewals` — se llama automáticamente al cargar `/admin/contabilidad/gastos`. Lógica:
+- Busca gastos con `is_recurring=true`, `auto_renew=true` (o null), y `renewal_date <= hoy`
+- Por cada uno: crea un nuevo registro para el siguiente período (`expense_date = renewal_date`, `renewal_date = +1 mes o +1 año`)
+- El registro original queda como histórico (`renewal_date = null`)
+- Si se procesaron renovaciones, aparece un banner verde con el conteo
+
+Control desde la UI:
+- Toggle **"Auto-renovar al vencer"** en el formulario (dentro de los campos de recurrencia)
+- Botón rápido **● Auto / ○ Pausado** en la columna Recurrencia de la tabla — hace PATCH de `auto_renew` sin abrir el formulario
+
+### Facturas adjuntas en gastos
+
+Bucket Supabase Storage: `expense-receipts` (público). Path: `expenses/{id}/receipt.{ext}`.
+
+- `POST /api/contabilidad/gastos/[id]/upload` — sube archivo y actualiza `receipt_file_url` en la fila
+- El upload ocurre justo después de guardar el gasto (paso 2 en `handleSave`)
+- La tabla muestra un ícono 📄 clickeable en la columna "Factura" cuando hay archivo adjunto
+- Al editar un gasto con archivo existente, se muestra link "Ver archivo adjunto" + opción de reemplazar
+
 ### Exportación
 
 - **Excel**: SheetJS (`xlsx`) — corre en browser, genera `.xlsx` con filtro activo
 - **PDF**: `window.print()` con `@media print` CSS que oculta navegación y botones
 
-### Migración SQL requerida
+### Migraciones SQL aplicadas
 
-Archivo: `supabase_migration_recurring_expenses.sql` — correr en Supabase SQL Editor antes de usar bills recurrentes.
+Correr en Supabase SQL Editor:
+```sql
+-- Bills recurrentes (original)
+-- Ver archivo: supabase_migration_recurring_expenses.sql
+
+-- Facturas adjuntas y auto-renovación (2026-06-04)
+ALTER TABLE accounting_expenses ADD COLUMN IF NOT EXISTS receipt_file_url TEXT;
+ALTER TABLE accounting_expenses ADD COLUMN IF NOT EXISTS auto_renew BOOLEAN DEFAULT TRUE;
+```
+
+Storage bucket requerido: `expense-receipts` (público) — crear en Supabase → Storage → New bucket.
 
 ---
 
