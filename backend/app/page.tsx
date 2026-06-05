@@ -940,7 +940,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
       <div class="step-card">
         <div class="step-num">2</div>
         <h4 id="s2h">Complete Your Order</h4>
-        <p id="s2p">Fill out our guided form in minutes. We ask only what's necessary. Your information is encrypted and handled with the highest level of confidentiality.</p>
+        <p id="s2p">Our step-by-step form makes the process simple and straightforward. At any point, you can reach one of our agents online or through WhatsApp for personalized guidance.</p>
       </div>
       <div class="step-card">
         <div class="step-num">3</div>
@@ -1182,11 +1182,11 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
         <p id="help-sub">Our formation experts are ready to answer your questions and guide you to the right package — at no extra cost.</p>
       </div>
       <div class="help-btns">
-        <button class="btn-wa" onclick="window.open('https://wa.me/1XXXXXXXXXX','_blank')">
+        <button class="btn-wa" onclick="window.open('https://wa.me/13528377755','_blank')">
           <svg viewBox="0 0 24 24" width="16" height="16" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
           Chat on WhatsApp
         </button>
-        <button id="hero-cal-btn" class="btn-cal" onclick="window.open('https://calendly.com/PLACEHOLDER','_blank')">
+        <button id="hero-cal-btn" class="btn-cal" onclick="window.open('https://cal.com/businessformation/consultation','_blank')">
           📅 Schedule Free Consultation →
         </button>
       </div>
@@ -1202,7 +1202,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
         <div class="logo-mark" style="display:inline-flex;margin-bottom:14px">FL</div>
         <div style="font-family:'Fraunces',serif;color:#fff;font-size:1rem;font-weight:600;margin-bottom:8px">Florida Business Formation Center</div>
         <p id="footer-brand-desc">Professional business formation services for entrepreneurs and investors. We file your LLC or Corporation with the State of Florida — accurately, efficiently, and with personal attention.</p>
-        <p style="margin-top:10px;color:rgba(255,255,255,0.4);font-size:0.75rem">📧 <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="86efe8e0e9c6ebffe4f3f5efe8e3f5f5e0e9f4ebe7f2efe9e8a8e5e9eb">[email&#160;protected]</a></p>
+        <p style="margin-top:10px;color:rgba(255,255,255,0.75);font-size:0.82rem">📧 <a href="mailto:info@mybusinessformation.com" style="color:rgba(255,255,255,0.75);text-decoration:none">info@mybusinessformation.com</a></p>
       </div>
       <div class="footer-col" style="grid-column:span 2">
         <h5 data-en="Business Formation Services" data-es="Servicios de Formación Empresarial">Business Formation Services</h5>
@@ -2097,7 +2097,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
             </div>
             <p style="font-size:.8rem;color:#6b7280;margin-bottom:24px" id="suc-note">Expect a follow-up within <strong>1 business day</strong> regarding your name availability and next steps.</p>
             <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
-              <button class="btn-next-fm" onclick="window.open('https://wa.me/1XXXXXXXXXX','_blank')">&#x1F4AC; <span id="suc-wa-lbl">Chat with Us on WhatsApp</span></button>
+              <button class="btn-next-fm" onclick="window.open('https://wa.me/13528377755','_blank')">&#x1F4AC; <span id="suc-wa-lbl">Chat with Us on WhatsApp</span></button>
               <button class="btn-back-fm" onclick="closeForm()"><span id="suc-home-lbl">Return to Homepage</span></button>
             </div>
           </div>
@@ -2177,7 +2177,7 @@ var translations = {
     howLabel:"How It Works", howTitle:"From Idea to Official Business<br/>in 4 Simple Steps",
     howSub:"We handle all the paperwork, filings, and communications with the State of Florida.",
     s1h:"Choose Your Package", s1p:"Select the formation package that fits your needs and budget.",
-    s2h:"Complete Your Order", s2p:"Fill out our guided form in minutes. Your information is encrypted and secure.",
+    s2h:"Complete Your Order", s2p:"Our step-by-step form makes the process simple and straightforward. At any point, you can reach one of our agents online or through WhatsApp for personalized guidance.",
     s3h:"We File With the State", s3p:"Our experts review your documents and submit everything to the Florida Division of Corporations.",
     s4h:"Your Business Is Official", s4p:"Receive your Certificate of Formation and our Exclusive Expert-Crafted Guide, with the key steps to keep your business active and compliant with the state.",
     priceLabel:"Our Packages", priceTitle:"Choose Your Formation Package",
@@ -2194,7 +2194,7 @@ var translations = {
   },
     etLabel:"Choose Your Entity Type",
     s1p:"Select the formation package that fits your needs and budget.",
-    s2p:"Fill out our guided form in minutes. Your information is encrypted and secure.",
+    s2p:"Our step-by-step form makes the process simple and straightforward. At any point, you can reach one of our agents online or through WhatsApp for personalized guidance.",
     s3p:"Our experts review your documents and file with the Florida Division of Corporations.",
     s4p:"Receive your Certificate of Formation and our Exclusive Expert-Crafted Guide, with the key steps to keep your business active and compliant with the state.",
     priceTitle:"Choose Your Formation Package",
@@ -2210,7 +2210,7 @@ var translations = {
     howLabel:"Cómo Funciona", howTitle:"De Idea a Negocio Oficial<br/>en 4 Sencillos Pasos",
     howSub:"Manejamos todos los documentos y trámites con el Estado de Florida.",
     s1h:"Elige Tu Paquete", s1p:"Selecciona el paquete de formación que se adapte a tus necesidades y presupuesto.",
-    s2h:"Completa Tu Orden", s2p:"Llena nuestro formulario guiado en minutos. Tu información está cifrada y segura.",
+    s2h:"Completa Tu Orden", s2p:"Nuestro formulario paso a paso hace el proceso simple y directo. En cualquier momento puedes contactar a uno de nuestros agentes en línea o a través de WhatsApp para recibir orientación personalizada.",
     s3h:"Nosotros Tramitamos", s3p:"Nuestros expertos revisan tus documentos y los envían a la División de Corporaciones de Florida.",
     s4h:"Tu Negocio Es Oficial", s4p:"Recibe tu Certificado de Formación y nuestra Guía Exclusiva, creada por expertos, con los pasos clave para mantener tu negocio activo y en regla ante el estado.",
     priceLabel:"Nuestros Paquetes", priceTitle:"Elige Tu Paquete de Formación",
@@ -2227,7 +2227,7 @@ var translations = {
     etLabel:"Elige Tu Tipo de Entidad",
     stat2:"Tiempo de Tramitación", stat4:"Precio Desde",
     s1p:"Selecciona el paquete de formación que se adapte a tus necesidades y presupuesto.",
-    s2p:"Llena nuestro formulario guiado en minutos. Tu información está cifrada y segura.",
+    s2p:"Nuestro formulario paso a paso hace el proceso simple y directo. En cualquier momento puedes contactar a uno de nuestros agentes en línea o a través de WhatsApp para recibir orientación personalizada.",
     s3p:"Nuestros expertos revisan tus documentos y los envían a la División de Corporaciones de Florida.",
     s4p:"Recibe tu Certificado de Formación y nuestra Guía Exclusiva, creada por expertos, con los pasos clave para mantener tu negocio activo y en regla ante el estado.",
     priceTitle:"Elige Tu Paquete de Formación",
@@ -3090,7 +3090,7 @@ function setLang(lang) {
   el=document.getElementById('lbl-new-app');       if(el) el.textContent = isEs ? 'Nueva Aplicación' : 'Start New Application';
   el=document.getElementById('lbl-continue-app');  if(el) el.textContent = isEs ? 'Continuar Mi Aplicación' : 'Continue My Application';
   // How it works steps
-  var hSteps=[{id:'s1h',en:'Choose Your Package',es:'Elige Tu Paquete'},{id:'s1p',en:'Select the formation package that fits your needs.',es:'Selecciona el paquete de formación que se adapte a tus necesidades.'},{id:'s2h',en:'Complete Your Order',es:'Completa Tu Orden'},{id:'s2p',en:'Fill out our guided form in minutes.',es:'Completa nuestro formulario guiado en minutos.'},{id:'s3h',en:'We File With the State',es:'Tramitamos Ante el Estado'},{id:'s3p',en:'Our experts submit everything to the Florida Division of Corporations.',es:'Nuestros expertos presentan todo ante la División de Corporaciones de Florida.'},{id:'s4h',en:'Your Business Is Official',es:'Tu Negocio Es Oficial'},{id:'s4p',en:'Receive your Certificate of Formation and our Exclusive Expert-Crafted Guide, with the key steps to keep your business active and compliant with the state.',es:'Recibe tu Certificado de Formación y nuestra Guía Exclusiva, creada por expertos, con los pasos clave para mantener tu negocio activo y en regla ante el estado.'}];
+  var hSteps=[{id:'s1h',en:'Choose Your Package',es:'Elige Tu Paquete'},{id:'s1p',en:'Select the formation package that fits your needs.',es:'Selecciona el paquete de formación que se adapte a tus necesidades.'},{id:'s2h',en:'Complete Your Order',es:'Completa Tu Orden'},{id:'s2p',en:'Our step-by-step form makes the process simple and straightforward. At any point, you can reach one of our agents online or through WhatsApp for personalized guidance.',es:'Nuestro formulario paso a paso hace el proceso simple y directo. En cualquier momento puedes contactar a uno de nuestros agentes en línea o a través de WhatsApp para recibir orientación personalizada.'},{id:'s3h',en:'We File With the State',es:'Tramitamos Ante el Estado'},{id:'s3p',en:'Our experts submit everything to the Florida Division of Corporations.',es:'Nuestros expertos presentan todo ante la División de Corporaciones de Florida.'},{id:'s4h',en:'Your Business Is Official',es:'Tu Negocio Es Oficial'},{id:'s4p',en:'Receive your Certificate of Formation and our Exclusive Expert-Crafted Guide, with the key steps to keep your business active and compliant with the state.',es:'Recibe tu Certificado de Formación y nuestra Guía Exclusiva, creada por expertos, con los pasos clave para mantener tu negocio activo y en regla ante el estado.'}];
   hSteps.forEach(function(s){var e2=document.getElementById(s.id);if(e2)e2.textContent=isEs?s.es:s.en;});
   // FAQ
   document.querySelectorAll('.faq-item').forEach(function(item){var q=item.querySelector('.faq-q span');var a=item.querySelector('.faq-a');if(q&&q.getAttribute('data-es'))q.textContent=isEs?q.getAttribute('data-es'):q.getAttribute('data-en');if(a&&a.getAttribute('data-es'))a.innerHTML=isEs?a.getAttribute('data-es'):a.getAttribute('data-en');});
@@ -3199,7 +3199,7 @@ function setLang(lang) {
     if(role) role.textContent = isEs ? testiData[i][2] : testiData[i][3];
   });
 
-  el=document.getElementById('hero-cal-btn'); if(el) el.innerHTML = isEs ? '&#128197; Programar Consulta Gratuita &rarr;' : '&#128197; Schedule Free Consultation &rarr;';
+  el=document.getElementById('hero-cal-btn'); if(el){ el.innerHTML = isEs ? '&#128197; Programar Consulta Gratuita &rarr;' : '&#128197; Schedule Free Consultation &rarr;'; el.setAttribute('onclick',"window.open('"+(isEs?'https://cal.com/businessformation/consulta-gratuita-formacion-de-negocios-30-min':'https://cal.com/businessformation/consultation')+"','_blank')"); }
   // Footer brand description
   el=document.getElementById('footer-brand-desc'); if(el) el.textContent = isEs
     ? 'Servicios profesionales de formación empresarial para emprendedores e inversionistas. Tramitamos tu LLC o Corporación ante el Estado de Florida — con precisión, eficiencia y atención personalizada.'

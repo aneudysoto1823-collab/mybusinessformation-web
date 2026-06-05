@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
               Florida Division of Corporations. We'll be in touch within <strong>1 business day</strong>.
             </p>
             <p style="color:#475569;line-height:1.7">
-              Questions? Reach us on <a href="https://wa.me/1XXXXXXXXXX" style="color:#059669">WhatsApp</a> or
+              Questions? Reach us on <a href="https://wa.me/13528377755" style="color:#059669">WhatsApp</a> or
               reply to this email.
             </p>
             <p style="margin-top:32px;color:#94a3b8;font-size:12px">
