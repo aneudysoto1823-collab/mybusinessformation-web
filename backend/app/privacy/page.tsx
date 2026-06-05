@@ -91,7 +91,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
 @media(max-width:768px){.page-hero{padding:24px 20px 22px;position:sticky;top:66px;z-index:100}.page-hero p{display:none}.hero-meta{display:none}.breadcrumb{display:none}.sidebar{position:static}}
 `
   const body = `
-<div class="topbar">&#127775; Florida's trusted business formation experts &mdash; <strong>LLC &amp; Corporation</strong> filing made simple.</div>
+<div class="topbar" data-en="&#127775; Florida's trusted business formation experts — <strong>LLC &amp; Corporation</strong> filing made simple." data-es="&#127775; Expertos de confianza en formación empresarial en Florida — <strong>LLC y Corporación</strong> fácil y rápido.">&#127775; Florida's trusted business formation experts — <strong>LLC &amp; Corporation</strong> filing made simple.</div>
 <header id="mainHeader">
   <div class="header-inner">
     <a href="/" class="logo">

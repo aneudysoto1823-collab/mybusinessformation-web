@@ -230,6 +230,15 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
         <li class="en">Annual Report filing</li><li class="es" style="display:none">Presentaci&oacute;n de Informe Anual</li>
         <li class="en">Articles of Amendment filing</li><li class="es" style="display:none">Presentaci&oacute;n de Art&iacute;culos de Enmienda</li>
         <li class="en">Virtual Mailing Address service</li><li class="es" style="display:none">Servicio de Direcci&oacute;n Postal Virtual</li>
+        <li class="en">Banking Resolution document preparation</li><li class="es" style="display:none">Preparaci&oacute;n de Resoluci&oacute;n Bancaria</li>
+        <li class="en">Business Tax Receipt (occupational license) filing</li><li class="es" style="display:none">Tramitaci&oacute;n de Recibo de Impuesto Empresarial (licencia ocupacional)</li>
+        <li class="en">Sales Tax Registration with the Florida Department of Revenue</li><li class="es" style="display:none">Registro de Impuesto sobre Ventas ante el Departamento de Ingresos de Florida</li>
+        <li class="en">Certificate of Good Standing</li><li class="es" style="display:none">Certificado de Buena Reputaci&oacute;n</li>
+        <li class="en">Foreign LLC / Corporation registration in Florida</li><li class="es" style="display:none">Registro de LLC / Corporaci&oacute;n Extranjera en Florida</li>
+        <li class="en">Business License research and filing</li><li class="es" style="display:none">Investigaci&oacute;n y tramitaci&oacute;n de Licencia Comercial</li>
+        <li class="en">Business Dissolution filing</li><li class="es" style="display:none">Tramitaci&oacute;n de Disoluci&oacute;n de Negocio</li>
+        <li class="en">Tax Account Closure (IRS and Florida DOR)</li><li class="es" style="display:none">Cierre de Cuenta Fiscal (IRS y Departamento de Ingresos de Florida)</li>
+        <li class="en">Exclusive post-formation compliance guide</li><li class="es" style="display:none">Gu&iacute;a exclusiva de cumplimiento post-formaci&oacute;n</li>
       </ul>
       <div class="info-box en">Florida Business Formation Center is a document preparation and filing service. We are not a law firm and do not provide legal, tax, or financial advice. For guidance specific to your situation, consult a licensed Florida attorney or CPA.</div>
       <div class="info-box es" style="display:none">Florida Business Formation Center es un servicio de preparaci&oacute;n y presentaci&oacute;n de documentos. No somos una firma de abogados y no brindamos asesor&iacute;a legal, fiscal ni financiera. Para orientaci&oacute;n espec&iacute;fica a su situaci&oacute;n, consulte con un abogado licenciado en Florida o un CPA.</div>
@@ -310,7 +319,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
           <p class="en">Prefer to chat? Message us directly on WhatsApp for a fast, personal response from our team &mdash; no bots, no automated replies.</p>
           <p class="es" style="display:none">&iquest;Prefiere chatear? Esc&iacute;banos directamente por WhatsApp para una respuesta r&aacute;pida y personal de nuestro equipo &mdash; sin bots ni respuestas autom&aacute;ticas.</p>
           <a href="https://wa.me/13528377755" target="_blank" class="card-btn" style="background:#25D366;color:#fff">
-            <span class="en-inline">Chat on WhatsApp &#8594;</span><span class="es-inline" style="display:none">Chatear por WhatsApp &#8594;</span>
+            <span class="en-inline">WhatsApp Consultation &#8594;</span><span class="es-inline" style="display:none">Consulta por WhatsApp &#8594;</span>
           </a>
         </div>
         <div class="contact-card">

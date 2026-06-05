@@ -1229,7 +1229,7 @@ function submitService(){
       <div class="order-display"><span>\${isEs?'Tu Número de Orden':'Your Order Number'}</span><strong>\${num}</strong></div>
       <p style="font-size:.82rem;color:var(--gray600);margin-bottom:20px">\${isEs?'Guarda este número para tus registros. Nuestro equipo lo usará al contactarte.':'Keep this number for your records. Our team will reference it when we contact you.'}</p>
       <div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap">
-        <button onclick="window.open('https://wa.me/13528377755','_blank')" style="background:#25D366;color:#fff;padding:10px 20px;border-radius:8px;font-size:.85rem;font-weight:600;border:none;cursor:pointer;font-family:inherit">&#x1F4AC; \${isEs?'Escríbenos por WhatsApp':'WhatsApp Us'}</button>
+        <button onclick="window.open('https://wa.me/13528377755','_blank')" style="background:#25D366;color:#fff;padding:10px 20px;border-radius:8px;font-size:.85rem;font-weight:600;border:none;cursor:pointer;font-family:inherit">&#x1F4AC; \${isEs?'Consulta por WhatsApp':'WhatsApp Consultation'}</button>
         <button onclick="closeServiceForm()" style="background:var(--navy);color:#fff;padding:10px 20px;border-radius:8px;font-size:.84rem;font-weight:600;border:none;cursor:pointer;font-family:inherit">\${isEs?'Cerrar':'Close'}</button>
       </div>
     </div>\`;
