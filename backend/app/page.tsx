@@ -1295,7 +1295,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
       <div style="width:28px;height:28px;background:var(--blue);border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;font-size:.85rem">FL</div>
     </a>
     <a href="/" onclick="closeForm();return false;" id="fp-home-btn" style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.9);padding:6px 14px;border-radius:7px;font-size:1rem;font-weight:600;text-decoration:none;white-space:nowrap;flex-shrink:0;line-height:1" title="Back to Home">
-      &#127968;
+      Home
     </a>
     <span id="fp-step-title" style="font-size:.8rem;font-weight:600;color:rgba(255,255,255,.65);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Business Setup</span>
     <div style="width:180px;height:5px;background:rgba(255,255,255,.2);border-radius:3px;overflow:hidden;flex-shrink:0">
