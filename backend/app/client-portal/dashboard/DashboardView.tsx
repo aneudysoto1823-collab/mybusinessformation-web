@@ -424,6 +424,19 @@ export default function DashboardView({
               </ul>
             </>
           )}
+          <a
+            href={es ? '/servicios?lang=es' : '/servicios'}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: 'inline-block', marginTop: '18px', padding: '10px 20px',
+              background: '#2563EB', color: '#fff', borderRadius: '8px',
+              fontSize: '0.85rem', fontWeight: 600, textDecoration: 'none',
+              transition: 'background 0.2s'
+            }}
+          >
+            {es ? '+ Agregar Servicios' : '+ Add Services'}
+          </a>
         </div>
 
         {/* Documents */}
