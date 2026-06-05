@@ -244,7 +244,7 @@ export default function GastosPage() {
   }
 
   const handleDelete = async (id: string) => {
-    if (!confirm('¿Eliminar este gasto?')) return
+    if (!confirm('¿Estás seguro que quieres borrar este gasto? Esta acción no se puede deshacer.')) return
     await fetch(`/api/contabilidad/gastos/${id}`, { method: 'DELETE' })
     load()
   }
@@ -432,8 +432,10 @@ export default function GastosPage() {
                             : <span style={{ color: '#d1d5db' }}>—</span>}
                         </td>
                         <td>
-                          <button className="btn-sm" onClick={() => openEdit(r)}>Editar</button>
-                          <button onClick={() => handleDelete(r.id)} title="Eliminar gasto" style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#dc2626', fontSize: '16px', fontWeight: 700, lineHeight: 1, padding: '2px 4px' }}>✕</button>
+                          <div style={{ display: 'flex', gap: '6px', flexWrap: 'nowrap' }}>
+                            <button className="btn-sm" onClick={() => openEdit(r)}>Editar</button>
+                            <button className="btn-del" onClick={() => handleDelete(r.id)}>Borrar</button>
+                          </div>
                         </td>
                       </tr>
                     )
