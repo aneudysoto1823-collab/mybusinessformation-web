@@ -7,7 +7,7 @@ function addPeriod(dateStr: string, recurrence: string): string {
   if (recurrence === 'annual') {
     return `${year + 1}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
   }
-  // monthly
+  // monthly — preserva el día del mes
   const newMonth = month + 1
   const newYear = newMonth > 12 ? year + 1 : year
   const actualMonth = newMonth > 12 ? 1 : newMonth
@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
   const today = new Date().toISOString().split('T')[0]
   const supabase = getSupabaseAdmin()
 
-  // Busca gastos recurrentes vencidos donde auto_renew=true (o null = legado, se trata como true)
+  // Gastos recurrentes vencidos con auto_renew activo (null se trata como true para registros legados)
   const { data: due, error } = await supabase
     .from('accounting_expenses')
     .select('*')
@@ -39,34 +39,45 @@ export async function POST(request: NextRequest) {
   if (!due || due.length === 0) return NextResponse.json({ count: 0 })
 
   let count = 0
+
   for (const expense of due) {
-    const nextDate = addPeriod(expense.renewal_date, expense.recurrence)
+    // pendingDate = primera fecha vencida; previousId = registro a marcar como histórico
+    let pendingDate = expense.renewal_date
+    let previousId = expense.id
 
-    // Crea el nuevo registro para el período siguiente
-    const { error: insertError } = await supabase
-      .from('accounting_expenses')
-      .insert({
-        expense_date: expense.renewal_date,
-        category: expense.category,
-        expense_type: expense.expense_type,
-        description: expense.description,
-        amount: expense.amount,
-        receipt_note: expense.receipt_note ?? null,
-        is_recurring: true,
-        recurrence: expense.recurrence,
-        renewal_date: nextDate,
-        auto_renew: true,
-      })
+    // Avanza período por período hasta que la siguiente fecha sea futura
+    while (pendingDate <= today) {
+      const nextDate = addPeriod(pendingDate, expense.recurrence)
 
-    if (insertError) continue
+      const { data: newRow, error: insertError } = await supabase
+        .from('accounting_expenses')
+        .insert({
+          expense_date: pendingDate,
+          category: expense.category,
+          expense_type: expense.expense_type,
+          description: expense.description,
+          amount: expense.amount,
+          receipt_note: expense.receipt_note ?? null,
+          is_recurring: true,
+          recurrence: expense.recurrence,
+          renewal_date: nextDate,
+          auto_renew: true,
+        })
+        .select('id')
+        .single()
 
-    // El registro original pasa a ser histórico (sin renewal_date activa)
-    await supabase
-      .from('accounting_expenses')
-      .update({ renewal_date: null })
-      .eq('id', expense.id)
+      if (insertError) break
 
-    count++
+      // El registro anterior queda como histórico sin renewal_date
+      await supabase
+        .from('accounting_expenses')
+        .update({ renewal_date: null })
+        .eq('id', previousId)
+
+      previousId = newRow.id
+      pendingDate = nextDate
+      count++
+    }
   }
 
   return NextResponse.json({ count })
