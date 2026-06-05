@@ -845,6 +845,9 @@ export default async function ClientDashboardPage({
                     </ul>
                   </>
                 )}
+                <a href="/servicios" target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', marginTop: '18px', padding: '10px 20px', background: '#2563EB', color: '#fff', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 600, textDecoration: 'none' }}>
+                  + Add Services
+                </a>
               </div>
             )
           }
@@ -901,6 +904,9 @@ export default async function ClientDashboardPage({
                   </ul>
                 </>
               )}
+              <a href="/servicios" target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', marginTop: '18px', padding: '10px 20px', background: '#2563EB', color: '#fff', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 600, textDecoration: 'none' }}>
+                + Add Services
+              </a>
             </div>
           )
         })()}
