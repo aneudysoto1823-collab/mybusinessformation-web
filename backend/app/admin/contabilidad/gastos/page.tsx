@@ -377,11 +377,11 @@ export default function GastosPage() {
           <input type="date" value={toDate} onChange={e => setToDate(e.target.value)} title="Hasta" />
           <div className="toolbar-right">
             <button className="btn btn-purple" onClick={() => { setAiMsg(''); setShowAiModal(true) }}>
-              ✦ Analizar Factura IA
+              ✦ Registro con Factura
             </button>
             <button className="btn btn-green" onClick={handleExportExcel}>↓ Excel</button>
             <button className="btn btn-outline" onClick={() => window.print()}>⎙ PDF</button>
-            <button className="btn btn-primary" onClick={openAdd}>+ Registrar Gasto</button>
+            <button className="btn btn-primary" onClick={openAdd}>+ Registro Manual</button>
           </div>
         </div>
 
