@@ -88,15 +88,18 @@ export default function RootLayout({
         {/* Font preconnect for Core Web Vitals */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        {/* Fonts vía <link> intencional: las páginas referencian las families
-            por nombre en sus <style> tags. Migrar a next/font requeriría
-            actualizar ~10 archivos con CSS-in-JS. Preconnect arriba ya
-            optimiza el load. */}
-        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-        <link
-          href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700;900&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap"
-          rel="stylesheet"
-        />
+        {/* Fonts cargadas de forma no-bloqueante: el browser renderiza con system fonts
+            primero (FCP inmediato) y swapea a web fonts cuando están listas.
+            display=swap ya está en la URL; el Script afterInteractive elimina el
+            render-blocking que tenía el <link rel="stylesheet"> anterior. */}
+        <Script id="load-fonts" strategy="afterInteractive">{`
+          (function(){
+            var l=document.createElement('link');
+            l.rel='stylesheet';
+            l.href='https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700;900&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap';
+            document.head.appendChild(l);
+          })();
+        `}</Script>
         {/* Google Consent Mode v2 — DEFAULT DENY antes de que cargue gtag.js.
             Cuando el usuario decida en el banner, dispatch update via lib/consent.ts.
             Hasta entonces ningún tracker recibe nada (compliance CCPA/GDPR). */}
