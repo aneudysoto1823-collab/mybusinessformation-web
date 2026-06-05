@@ -309,7 +309,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
           <strong class="en">Book an Appointment</strong><strong class="es" style="display:none">Reserve una Cita</strong>
           <p class="en">Schedule a one-on-one consultation at a time that works for you. We&rsquo;ll walk you through your options and answer every question you have.</p>
           <p class="es" style="display:none">Programe una consulta personalizada a la hora que mejor le convenga. Le guiaremos por sus opciones y responderemos cada pregunta.</p>
-          <a id="cal-book-btn" href="https://cal.com/businessformation/consultation" target="_blank" class="card-btn" style="background:#fff;color:var(--blue);border:1.5px solid var(--blue)">
+          <a id="cal-book-btn" href="/booking" class="card-btn" style="background:#fff;color:var(--blue);border:1.5px solid var(--blue)">
             <span class="en-inline">Schedule Now &#8594;</span><span class="es-inline" style="display:none">Reservar Ahora &#8594;</span>
           </a>
         </div>
@@ -374,7 +374,7 @@ function setLang(lang){
     el.innerHTML = isEs ? el.getAttribute('data-es') : el.getAttribute('data-en');
   });
   // Calendar link
-  var calBtn=document.getElementById('cal-book-btn'); if(calBtn) calBtn.setAttribute('href',isEs?'https://cal.com/businessformation/consulta-gratuita-formacion-de-negocios-30-min':'https://cal.com/businessformation/consultation');
+  var calBtn=document.getElementById('cal-book-btn'); if(calBtn) calBtn.setAttribute('href',isEs?'/booking?lang=es':'/booking');
   // Nav links
   var navM={'Home':isEs?'Inicio':'Home','Packages':isEs?'Paquetes':'Packages','Services':isEs?'Servicios':'Services','FAQ':isEs?'Preguntas':'FAQ','Contact':isEs?'Contacto':'Contact'};
   document.querySelectorAll('nav a').forEach(function(a){var t=a.textContent.trim();if(navM[t])a.textContent=navM[t];});

@@ -1,0 +1,326 @@
+'use client'
+
+import { useState, useEffect, useCallback } from 'react'
+
+interface Appointment {
+  id: string
+  created_at: string
+  name: string
+  email: string
+  phone: string | null
+  date: string
+  time: string
+  note: string | null
+  status: 'pending' | 'confirmed' | 'cancelled'
+}
+
+interface BlockedSlot {
+  id: string
+  date: string
+  time: string | null
+  reason: string | null
+}
+
+const ALL_SLOTS = [
+  '09:00','09:40','10:20','11:00','11:40',
+  '12:20','13:00','13:40','14:20','15:00',
+  '15:40','16:20','17:00','17:40','18:20',
+]
+
+function formatDate(date: string) {
+  return new Date(date + 'T12:00:00').toLocaleDateString('en-US', {
+    weekday: 'short', month: 'short', day: 'numeric', year: 'numeric',
+  })
+}
+
+function formatTime(time: string) {
+  const [h, m] = time.split(':').map(Number)
+  const ampm = h >= 12 ? 'PM' : 'AM'
+  const hour = h % 12 || 12
+  return `${hour}:${m.toString().padStart(2, '0')} ${ampm}`
+}
+
+const STATUS_COLORS: Record<string, string> = {
+  pending:   'background:#fef3c7;color:#92400e',
+  confirmed: 'background:#d1fae5;color:#065f46',
+  cancelled: 'background:#fee2e2;color:#991b1b',
+}
+
+export default function CitasPage() {
+  const [appointments, setAppointments] = useState<Appointment[]>([])
+  const [blocked, setBlocked] = useState<BlockedSlot[]>([])
+  const [loading, setLoading] = useState(true)
+  const [filter, setFilter] = useState<'all' | 'pending' | 'confirmed' | 'cancelled'>('all')
+  const [blockDate, setBlockDate] = useState('')
+  const [blockTime, setBlockTime] = useState('')
+  const [blockReason, setBlockReason] = useState('')
+  const [blocking, setBlocking] = useState(false)
+  const [tab, setTab] = useState<'appointments' | 'blocked'>('appointments')
+
+  const load = useCallback(async () => {
+    setLoading(true)
+    const [apptRes, blockedRes] = await Promise.all([
+      fetch('/api/booking/appointments'),
+      fetch('/api/booking/blocked'),
+    ])
+    setAppointments(await apptRes.json())
+    setBlocked(await blockedRes.json())
+    setLoading(false)
+  }, [])
+
+  useEffect(() => { load() }, [load])
+
+  async function updateStatus(id: string, status: string) {
+    await fetch(`/api/booking/appointments/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status }),
+    })
+    setAppointments(prev => prev.map(a => a.id === id ? { ...a, status: status as Appointment['status'] } : a))
+  }
+
+  async function deleteAppointment(id: string) {
+    if (!confirm('Delete this appointment?')) return
+    await fetch(`/api/booking/appointments/${id}`, { method: 'DELETE' })
+    setAppointments(prev => prev.filter(a => a.id !== id))
+  }
+
+  async function addBlock() {
+    if (!blockDate) return
+    setBlocking(true)
+    const res = await fetch('/api/booking/blocked', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ date: blockDate, time: blockTime || null, reason: blockReason || null }),
+    })
+    const data = await res.json()
+    setBlocked(prev => [...prev, data])
+    setBlockDate(''); setBlockTime(''); setBlockReason('')
+    setBlocking(false)
+  }
+
+  async function removeBlock(id: string) {
+    await fetch(`/api/booking/blocked/${id}`, { method: 'DELETE' })
+    setBlocked(prev => prev.filter(b => b.id !== id))
+  }
+
+  const filtered = appointments.filter(a => filter === 'all' || a.status === filter)
+  const upcoming = appointments.filter(a => a.status !== 'cancelled' && new Date(a.date + 'T23:59:59') >= new Date())
+  const today = new Date().toISOString().split('T')[0]
+  const todayAppts = appointments.filter(a => a.date === today && a.status !== 'cancelled')
+
+  return (
+    <>
+      <style>{`
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: #f4f6f9; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .pg { max-width: 1000px; margin: 0 auto; padding: 32px 24px 80px; }
+        .pg-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; flex-wrap: wrap; gap: 12px; }
+        .pg-title { font-size: 1.3rem; font-weight: 800; color: #1a1a2e; }
+        .pg-title span { display: block; font-size: 0.8rem; font-weight: 400; color: #6b7280; margin-top: 2px; }
+        .btn-back { color: #6b7280; font-size: 0.85rem; text-decoration: none; }
+        .btn-back:hover { color: #2563EB; }
+        .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 24px; }
+        .stat-card { background: #fff; border-radius: 10px; padding: 16px 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+        .stat-val { font-size: 1.6rem; font-weight: 800; color: #1a1a2e; }
+        .stat-label { font-size: 0.75rem; color: #6b7280; margin-top: 2px; }
+        .tabs { display: flex; gap: 4px; margin-bottom: 20px; border-bottom: 2px solid #e5e7eb; }
+        .tab { padding: 10px 18px; background: none; border: none; cursor: pointer; font-size: 0.875rem; font-weight: 600; color: #6b7280; border-bottom: 2px solid transparent; margin-bottom: -2px; }
+        .tab.active { color: #2563EB; border-bottom-color: #2563EB; }
+        .filters { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+        .filter-btn { padding: 6px 14px; border-radius: 20px; border: 1.5px solid #e5e7eb; background: #fff; font-size: 0.8rem; font-weight: 600; cursor: pointer; color: #6b7280; }
+        .filter-btn.active { background: #1C2E44; color: #fff; border-color: #1C2E44; }
+        .appt-table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+        .appt-table th { padding: 12px 16px; text-align: left; font-size: 0.72rem; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; background: #f9fafb; border-bottom: 1px solid #e5e7eb; }
+        .appt-table td { padding: 14px 16px; font-size: 0.85rem; color: #374151; border-bottom: 1px solid #f3f4f6; vertical-align: middle; }
+        .appt-table tr:last-child td { border-bottom: none; }
+        .appt-table tr:hover td { background: #f9fafb; }
+        .status-pill { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; }
+        .action-btn { padding: 5px 12px; border-radius: 6px; border: 1.5px solid; font-size: 0.78rem; font-weight: 600; cursor: pointer; background: #fff; margin-right: 4px; }
+        .action-btn:hover { opacity: 0.8; }
+        .wa-link { color: #25D366; text-decoration: none; font-weight: 600; font-size: 0.8rem; }
+        .wa-link:hover { text-decoration: underline; }
+        /* Block form */
+        .block-form { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 20px; }
+        .block-form h3 { font-size: 0.9rem; font-weight: 700; color: #1a1a2e; margin-bottom: 16px; }
+        .block-row { display: grid; grid-template-columns: 1fr 1fr 2fr auto; gap: 12px; align-items: end; }
+        .block-input { padding: 9px 12px; border: 1.5px solid #e5e7eb; border-radius: 8px; font-size: 0.85rem; font-family: inherit; width: 100%; }
+        .block-input:focus { outline: none; border-color: #2563EB; }
+        .block-label { font-size: 0.78rem; font-weight: 600; color: #6b7280; display: block; margin-bottom: 5px; }
+        .btn-block { background: #1C2E44; color: #fff; border: none; border-radius: 8px; padding: 9px 18px; font-size: 0.85rem; font-weight: 600; cursor: pointer; white-space: nowrap; }
+        .btn-block:hover { background: #2d3f5c; }
+        .blocked-list { display: flex; flex-direction: column; gap: 8px; }
+        .blocked-item { display: flex; align-items: center; justify-content: space-between; background: #fff; border-radius: 8px; padding: 12px 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.04); gap: 12px; }
+        .blocked-info { font-size: 0.85rem; color: #374151; }
+        .blocked-info strong { color: #1a1a2e; }
+        .btn-remove { background: none; border: 1.5px solid #fee2e2; color: #991b1b; border-radius: 6px; padding: 4px 10px; font-size: 0.78rem; cursor: pointer; }
+        .btn-remove:hover { background: #fee2e2; }
+        .empty-state { text-align: center; padding: 40px; color: #9ca3af; font-size: 0.9rem; }
+        .btn-booking { display: inline-flex; align-items: center; gap: 6px; background: #2563EB; color: #fff; padding: 9px 18px; border-radius: 8px; text-decoration: none; font-size: 0.85rem; font-weight: 600; }
+        @media(max-width: 700px) {
+          .stats { grid-template-columns: repeat(3, 1fr); }
+          .block-row { grid-template-columns: 1fr 1fr; }
+          .appt-table { display: block; overflow-x: auto; }
+        }
+      `}</style>
+
+      <div className="pg">
+        <div className="pg-header">
+          <div>
+            <a href="/admin" className="btn-back">← Admin</a>
+            <h1 className="pg-title" style={{ marginTop: '4px' }}>
+              Citas / Appointments
+              <span>Gestión de consultas agendadas</span>
+            </h1>
+          </div>
+          <a href="/booking" target="_blank" rel="noopener noreferrer" className="btn-booking">
+            📅 Ver Página de Citas
+          </a>
+        </div>
+
+        {/* Stats */}
+        <div className="stats">
+          <div className="stat-card">
+            <div className="stat-val">{todayAppts.length}</div>
+            <div className="stat-label">Citas hoy</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-val">{upcoming.length}</div>
+            <div className="stat-label">Próximas citas</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-val">{appointments.filter(a => a.status === 'pending').length}</div>
+            <div className="stat-label">Pendientes</div>
+          </div>
+        </div>
+
+        {/* Tabs */}
+        <div className="tabs">
+          <button className={`tab${tab === 'appointments' ? ' active' : ''}`} onClick={() => setTab('appointments')}>
+            Citas ({appointments.length})
+          </button>
+          <button className={`tab${tab === 'blocked' ? ' active' : ''}`} onClick={() => setTab('blocked')}>
+            Horarios Bloqueados ({blocked.length})
+          </button>
+        </div>
+
+        {tab === 'appointments' && (
+          <>
+            <div className="filters">
+              {(['all', 'pending', 'confirmed', 'cancelled'] as const).map(f => (
+                <button key={f} className={`filter-btn${filter === f ? ' active' : ''}`} onClick={() => setFilter(f)}>
+                  {f === 'all' ? 'Todas' : f === 'pending' ? 'Pendientes' : f === 'confirmed' ? 'Confirmadas' : 'Canceladas'}
+                </button>
+              ))}
+            </div>
+
+            {loading ? (
+              <div className="empty-state">Cargando...</div>
+            ) : filtered.length === 0 ? (
+              <div className="empty-state">No hay citas {filter !== 'all' ? `con estado "${filter}"` : ''}.</div>
+            ) : (
+              <table className="appt-table">
+                <thead>
+                  <tr>
+                    <th>Cliente</th>
+                    <th>Fecha y Hora</th>
+                    <th>Nota</th>
+                    <th>Estado</th>
+                    <th>Contacto</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.map(a => {
+                    const waText = encodeURIComponent(`Hola ${a.name}, te contactamos de MyBusinessFormation sobre tu consulta del ${formatDate(a.date)} a las ${formatTime(a.time)}.`)
+                    const waLink = a.phone ? `https://wa.me/${a.phone.replace(/\D/g, '')}?text=${waText}` : null
+                    return (
+                      <tr key={a.id}>
+                        <td>
+                          <div style={{ fontWeight: 600, color: '#1a1a2e' }}>{a.name}</div>
+                          <div style={{ fontSize: '0.78rem', color: '#6b7280' }}>{a.email}</div>
+                        </td>
+                        <td>
+                          <div style={{ fontWeight: 600 }}>{formatDate(a.date)}</div>
+                          <div style={{ fontSize: '0.78rem', color: '#6b7280' }}>{formatTime(a.time)}</div>
+                        </td>
+                        <td style={{ maxWidth: '180px', fontSize: '0.8rem', color: '#6b7280' }}>
+                          {a.note || '—'}
+                        </td>
+                        <td>
+                          <span className="status-pill" style={{ ...Object.fromEntries(STATUS_COLORS[a.status].split(';').map(s => s.split(':').map(x => x.trim()))) }}>
+                            {a.status}
+                          </span>
+                        </td>
+                        <td>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <a href={`mailto:${a.email}`} style={{ fontSize: '0.78rem', color: '#2563EB' }}>✉️ Email</a>
+                            {waLink && <a href={waLink} target="_blank" rel="noopener noreferrer" className="wa-link">💬 WhatsApp</a>}
+                          </div>
+                        </td>
+                        <td>
+                          {a.status !== 'confirmed' && (
+                            <button className="action-btn" style={{ borderColor: '#d1fae5', color: '#065f46' }} onClick={() => updateStatus(a.id, 'confirmed')}>✓ Confirm</button>
+                          )}
+                          {a.status !== 'cancelled' && (
+                            <button className="action-btn" style={{ borderColor: '#fee2e2', color: '#991b1b' }} onClick={() => updateStatus(a.id, 'cancelled')}>✕ Cancel</button>
+                          )}
+                          <button className="action-btn" style={{ borderColor: '#e5e7eb', color: '#6b7280' }} onClick={() => deleteAppointment(a.id)}>🗑</button>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            )}
+          </>
+        )}
+
+        {tab === 'blocked' && (
+          <>
+            <div className="block-form">
+              <h3>🚫 Bloquear horario o día completo</h3>
+              <div className="block-row">
+                <div>
+                  <label className="block-label">Fecha *</label>
+                  <input type="date" className="block-input" value={blockDate} onChange={e => setBlockDate(e.target.value)} />
+                </div>
+                <div>
+                  <label className="block-label">Hora (vacío = día completo)</label>
+                  <select className="block-input" value={blockTime} onChange={e => setBlockTime(e.target.value)}>
+                    <option value="">— Día completo —</option>
+                    {ALL_SLOTS.map(s => <option key={s} value={s}>{formatTime(s)}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="block-label">Motivo (opcional)</label>
+                  <input className="block-input" placeholder="ej. Vacaciones, reunión interna..." value={blockReason} onChange={e => setBlockReason(e.target.value)} />
+                </div>
+                <button className="btn-block" onClick={addBlock} disabled={!blockDate || blocking}>
+                  {blocking ? '...' : 'Bloquear'}
+                </button>
+              </div>
+            </div>
+
+            {blocked.length === 0 ? (
+              <div className="empty-state">No hay horarios bloqueados.</div>
+            ) : (
+              <div className="blocked-list">
+                {blocked.map(b => (
+                  <div key={b.id} className="blocked-item">
+                    <div className="blocked-info">
+                      <strong>{formatDate(b.date)}</strong>
+                      {b.time ? ` · ${formatTime(b.time)}` : ' · Día completo'}
+                      {b.reason && <span style={{ color: '#6b7280', marginLeft: '8px' }}>— {b.reason}</span>}
+                    </div>
+                    <button className="btn-remove" onClick={() => removeBlock(b.id)}>Eliminar</button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </>
+  )
+}
