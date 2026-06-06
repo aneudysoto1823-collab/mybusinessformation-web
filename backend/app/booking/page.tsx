@@ -23,8 +23,8 @@ const T = {
     noSlots: 'No available slots for this day.',
     selectDate: 'Please select a date first.',
     successTitle: 'Appointment Confirmed!',
-    successSub: 'We\'ll send a confirmation to your email shortly.',
-    successWa: 'WhatsApp Us',
+    successSub: 'Your appointment has been successfully scheduled. A confirmation with all the details has been sent to your email.',
+    successWa: '',
     errorTaken: 'That time slot was just taken. Please select another.',
     errorGeneric: 'Something went wrong. Please try again.',
     months: ['January','February','March','April','May','June','July','August','September','October','November','December'],
@@ -50,8 +50,8 @@ const T = {
     noSlots: 'No hay horarios disponibles para este día.',
     selectDate: 'Por favor selecciona una fecha primero.',
     successTitle: '¡Cita Confirmada!',
-    successSub: 'Te enviaremos una confirmación a tu correo.',
-    successWa: 'Escribirnos por WhatsApp',
+    successSub: 'Tu cita ha sido agendada exitosamente. Hemos enviado una confirmación con todos los detalles a tu correo electrónico.',
+    successWa: '',
     errorTaken: 'Ese horario acaba de ser tomado. Por favor selecciona otro.',
     errorGeneric: 'Algo salió mal. Por favor intenta de nuevo.',
     months: ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'],
@@ -242,9 +242,6 @@ function BookingContent() {
               <div className="bk-success-icon">✅</div>
               <h2>{t.successTitle}</h2>
               <p>{t.successSub}</p>
-              <a href="https://wa.me/13528377755" target="_blank" rel="noopener noreferrer" className="btn-wa">
-                💬 {t.successWa}
-              </a>
             </div>
           </div>
         ) : (
