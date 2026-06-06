@@ -76,8 +76,7 @@ export async function POST(req: NextRequest) {
           <p style="margin:0 0 8px 0"><strong>🕐 Hora:</strong> ${timeFormatted}</p>
           ${note ? `<p style="margin:0"><strong>📝 Nota:</strong> ${note}</p>` : ''}
         </div>
-        <p style="color:#6b7280;font-size:0.9rem">Nuestro equipo te contactará para confirmar el medio de la consulta (Zoom, llamada o WhatsApp). Si necesitas hacer algún cambio, escríbenos por WhatsApp.</p>
-        <a href="https://wa.me/${ADMIN_WHATSAPP}" style="display:inline-block;margin-top:16px;background:#25D366;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:600">Escribir por WhatsApp</a>
+        <p style="color:#6b7280;font-size:0.9rem">Si necesitas reprogramar o tienes alguna pregunta antes de tu cita, puedes responder a este correo.</p>
       </div>
     </div>` : `
     <div style="font-family:sans-serif;max-width:560px;margin:0 auto;color:#1a1a2e">
@@ -92,8 +91,7 @@ export async function POST(req: NextRequest) {
           <p style="margin:0 0 8px 0"><strong>🕐 Time:</strong> ${timeFormatted}</p>
           ${note ? `<p style="margin:0"><strong>📝 Note:</strong> ${note}</p>` : ''}
         </div>
-        <p style="color:#6b7280;font-size:0.9rem">Our team will contact you to confirm the consultation format (Zoom, phone call, or WhatsApp). If you need to make any changes, reach out via WhatsApp.</p>
-        <a href="https://wa.me/${ADMIN_WHATSAPP}" style="display:inline-block;margin-top:16px;background:#25D366;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:600">WhatsApp Us</a>
+        <p style="color:#6b7280;font-size:0.9rem">If you need to reschedule or have any questions before your appointment, you can reply to this email.</p>
       </div>
     </div>`
 
