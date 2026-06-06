@@ -8,6 +8,7 @@ const getResend = () => new Resend(process.env.RESEND_API_KEY)
 
 const ADMIN_EMAIL = 'info@mybusinessformation.com'
 const ADMIN_WHATSAPP = '13528377755'
+const BASE_URL = process.env.NEXT_PUBLIC_URL ?? 'https://mybusinessformation.com'
 
 function formatDate(date: string, lang: 'en' | 'es' = 'en') {
   return new Date(date + 'T12:00:00').toLocaleDateString(lang === 'es' ? 'es-US' : 'en-US', {
@@ -76,7 +77,11 @@ export async function POST(req: NextRequest) {
           <p style="margin:0 0 8px 0"><strong>🕐 Hora:</strong> ${timeFormatted}</p>
           ${note ? `<p style="margin:0"><strong>📝 Nota:</strong> ${note}</p>` : ''}
         </div>
-        <p style="color:#6b7280;font-size:0.9rem">Si necesitas reprogramar o tienes alguna pregunta antes de tu cita, puedes responder a este correo.</p>
+        <p style="color:#6b7280;font-size:0.9rem">Si necesitas hacer algún cambio antes de tu cita, usa los botones a continuación.</p>
+        <div style="margin-top:20px;display:flex;gap:12px;flex-wrap:wrap">
+          <a href="${BASE_URL}/booking/reschedule?id=${appt.id}" style="background:#2563EB;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.85rem">📅 Reprogramar cita</a>
+          <a href="${BASE_URL}/booking/cancel?id=${appt.id}" style="background:#fff;color:#ef4444;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.85rem;border:1.5px solid #ef4444">❌ Cancelar cita</a>
+        </div>
       </div>
     </div>` : `
     <div style="font-family:sans-serif;max-width:560px;margin:0 auto;color:#1a1a2e">
@@ -91,7 +96,11 @@ export async function POST(req: NextRequest) {
           <p style="margin:0 0 8px 0"><strong>🕐 Time:</strong> ${timeFormatted}</p>
           ${note ? `<p style="margin:0"><strong>📝 Note:</strong> ${note}</p>` : ''}
         </div>
-        <p style="color:#6b7280;font-size:0.9rem">If you need to reschedule or have any questions before your appointment, you can reply to this email.</p>
+        <p style="color:#6b7280;font-size:0.9rem">If you need to make any changes before your appointment, use the buttons below.</p>
+        <div style="margin-top:20px;display:flex;gap:12px;flex-wrap:wrap">
+          <a href="${BASE_URL}/booking/reschedule?id=${appt.id}" style="background:#2563EB;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.85rem">📅 Reschedule</a>
+          <a href="${BASE_URL}/booking/cancel?id=${appt.id}" style="background:#fff;color:#ef4444;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.85rem;border:1.5px solid #ef4444">❌ Cancel Appointment</a>
+        </div>
       </div>
     </div>`
 
