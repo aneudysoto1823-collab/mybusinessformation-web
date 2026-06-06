@@ -25,6 +25,7 @@ const T = {
     successTitle: 'Appointment Confirmed!',
     successSub: 'Your appointment has been successfully scheduled. A confirmation with all the details has been sent to your email.',
     successWa: '',
+    errorPhone: 'Please enter your phone number to continue.',
     errorTaken: 'That time slot was just taken. Please select another.',
     errorGeneric: 'Something went wrong. Please try again.',
     months: ['January','February','March','April','May','June','July','August','September','October','November','December'],
@@ -52,6 +53,7 @@ const T = {
     successTitle: '¡Cita Confirmada!',
     successSub: 'Tu cita ha sido agendada exitosamente. Hemos enviado una confirmación con todos los detalles a tu correo electrónico.',
     successWa: '',
+    errorPhone: 'Por favor ingresa tu número de teléfono para continuar.',
     errorTaken: 'Ese horario acaba de ser tomado. Por favor selecciona otro.',
     errorGeneric: 'Algo salió mal. Por favor intenta de nuevo.',
     months: ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'],
@@ -126,6 +128,7 @@ function BookingContent() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!selectedDate || !selectedTime) return
+    if (!phone.trim()) { setError(t.errorPhone); return }
     setSubmitting(true)
     setError('')
     try {
@@ -344,7 +347,7 @@ function BookingContent() {
                   <textarea className="bk-input bk-textarea" placeholder={t.notePh} value={note} onChange={e => setNote(e.target.value)} />
                 </div>
                 {error && <div className="bk-error">{error}</div>}
-                <button className="bk-submit" type="submit" disabled={submitting || !selectedDate || !selectedTime || !phone}>
+                <button className="bk-submit" type="submit" disabled={submitting || !selectedDate || !selectedTime}>
                   {submitting ? t.loading : t.confirm}
                 </button>
               </form>
