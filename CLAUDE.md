@@ -55,6 +55,8 @@ Order {
 - `qr_scans` — escaneos de QR
 - `conversions` — compras completadas via campaña
 - `admin_audit_log` — trazabilidad de acciones admin (Etapa 14)
+- `appointments` — citas del sistema de agendamiento propio
+- `blocked_slots` — horarios/días bloqueados por el admin
 
 ---
 
@@ -78,6 +80,9 @@ RESEND_API_KEY
 # Next.js ↔ Express
 INTERNAL_API_KEY      # Compartido entre ambos servidores
 BACKEND_URL           # URL Railway del Express server
+
+# Citas (sistema propio)
+NEXT_PUBLIC_URL       # URL base del sitio (ej: https://mybusinessformation.com) — usado en emails de citas para links de reprogramar/cancelar
 ```
 
 ---
@@ -98,6 +103,9 @@ BACKEND_URL           # URL Railway del Express server
 - Middleware protege `/client-portal/dashboard/*`
 - Respuesta genérica en `/api/client-auth` — no revela si el email existe
 - Toggle EN/ES con persistencia en `localStorage` (`portal_lang`)
+- Idioma detectado en este orden: `?lang=` URL → `portal_lang` localStorage → `flbc_lang` localStorage (sitio principal)
+- El botón Login del home pasa `?lang=es` cuando el sitio está en español
+- Dashboard rendering delegado a `DashboardContent.tsx` (client component) — `page.tsx` es server-only para fetch de datos
 - Contacto: botones inline Email + WhatsApp (`wa.me/13528377755`) al hacer clic en "Contact us"
 
 ---
@@ -136,6 +144,15 @@ BACKEND_URL           # URL Railway del Express server
 /api/contabilidad/sync-orders    POST   — importa órdenes del admin como ingresos+clientes (idempotente)
 /api/contabilidad/reset          DELETE — borra todos los datos contables (requiere confirm: 'RESET_CONTABILIDAD')
 /api/contabilidad/analyze-invoice POST  — sube PDF/imagen → Claude Haiku extrae datos de la factura
+
+/api/booking/slots            GET    — slots disponibles para una fecha (lun-sáb, 9am-7pm, 40min)
+/api/booking                  POST   — crea cita + emails confirmación al cliente y admin
+/api/booking/reschedule       GET+POST — info de cita / reprogramar (público, por ID)
+/api/booking/cancel           GET+POST — info de cita / cancelar (público, por ID)
+/api/booking/appointments     GET    — lista de citas (admin)
+/api/booking/appointments/[id] PATCH+DELETE — cambiar estado / eliminar cita (admin)
+/api/booking/blocked          GET+POST — listar / crear bloqueos de horario (admin)
+/api/booking/blocked/[id]     DELETE — eliminar bloqueo (admin)
 ```
 
 ---
@@ -153,8 +170,12 @@ BACKEND_URL           # URL Railway del Express server
                            notas internas, buscador de nombres, envío manual de emails
 /admin/campaigns         — Panel admin: marketing automation (envío QR, métricas)
 /admin/security          — Configuración de seguridad admin
+/admin/citas             — Panel admin: citas agendadas, confirmar/cancelar, bloquear horarios
+/booking                 — Página pública de agendamiento: calendario + horarios + formulario (EN/ES)
+/booking/reschedule      — Reprogramar cita (acceso vía link del email de confirmación)
+/booking/cancel          — Cancelar cita (acceso vía link del email de confirmación)
 /client-portal           — Login del portal de clientes (EN/ES, contacto Email+WhatsApp)
-/client-portal/dashboard — Dashboard del cliente: status, documentos, My Orders
+/client-portal/dashboard — Dashboard del cliente: status, documentos, My Orders, botón Add Services
 /login                   — Login admin (staff portal)
 /legal /privacy /terms /about
 ```
@@ -484,6 +505,58 @@ Si se necesita recomprimir: `node -e "require('sharp')..."` — sharp está en d
 | SEO | 100 | 100 |
 
 **Pendiente para siguiente iteración de performance:** Lazy-load del formulario en `page.tsx` (6,284 líneas inline). El LCP de 6-7s en ambos dispositivos se debe principalmente al tamaño del HTML generado — requiere refactor de componentes.
+
+---
+
+## Sistema de Citas (`/booking`) — 2026-06-05
+
+Sistema propio de agendamiento, sin dependencias externas (no Calendly, no Cal.com).
+
+### Configuración
+- **Horario:** Lunes a Sábado, 9:00am – 7:00pm
+- **Duración:** 30 min por cita + 10 min buffer = bloques de 40 min
+- **Capacidad:** 15 slots/día
+- **Slots:** 09:00, 09:40, 10:20, 11:00, 11:40, 12:20, 13:00, 13:40, 14:20, 15:00, 15:40, 16:20, 17:00, 17:40, 18:20
+
+### Tablas Supabase (correr migrations)
+```sql
+-- Ver: supabase_migration_appointments.sql
+CREATE TABLE appointments (id, created_at, name, email, phone, date, time, meeting_method, note, status)
+CREATE TABLE blocked_slots (id, created_at, date, time, reason)
+
+-- Columna meeting_method (si la tabla ya existía antes):
+ALTER TABLE appointments ADD COLUMN IF NOT EXISTS meeting_method text DEFAULT 'zoom';
+```
+
+### Modelo appointments
+```
+appointments {
+  id              uuid     PRIMARY KEY
+  name, email, phone       -- phone es obligatorio desde el formulario
+  date            date     -- YYYY-MM-DD
+  time            text     -- '09:00', '09:40', etc.
+  meeting_method  text     -- 'zoom' | 'whatsapp'
+  note            text?
+  status          text     -- 'pending' | 'confirmed' | 'cancelled'
+}
+```
+
+### Emails automáticos
+- **Al cliente:** confirmación con fecha, hora, método de reunión, botones Reschedule + Cancel
+- **Al admin:** notificación con datos completos + link WhatsApp al cliente + link email
+- **Al reprogramar:** notificación a cliente y admin con nueva fecha/hora
+- **Al cancelar:** notificación a cliente + botón para agendar nueva cita
+
+Los links de Reschedule/Cancel usan el `id` UUID de la cita (difícil de adivinar). Requieren `NEXT_PUBLIC_URL` en env vars para construir la URL correcta.
+
+### Restricción Resend plan gratuito
+En plan gratuito, Resend solo entrega emails al correo registrado en la cuenta. Al migrar al dominio propio (`@mybusinessformation.com`), los emails llegarán a cualquier dirección sin restricción.
+
+### Pendientes del sistema de citas
+- [ ] Configurar `NEXT_PUBLIC_URL=https://mybusinessformation.com` en Vercel env vars
+- [ ] Migrar Resend a dominio propio para que emails lleguen a todos los clientes
+- [ ] Considerar recordatorios automáticos 24h antes de la cita (requiere cron job)
+- [ ] Soporte bilingüe EN/ES en páginas `/booking/reschedule` y `/booking/cancel`
 
 ---
 
