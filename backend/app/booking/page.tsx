@@ -13,14 +13,17 @@ const T = {
     step3: 'Your information',
     name: 'Full Name *', namePh: 'John Smith',
     email: 'Email *', emailPh: 'you@email.com',
-    phone: 'Phone / WhatsApp', phonePh: '+1 (555) 000-0000',
+    phone: 'Phone *', phonePh: '+1 (555) 000-0000',
+    meetingLabel: 'Preferred meeting method *',
+    meetingZoom: 'Zoom Video Call',
+    meetingWa: 'WhatsApp Call / Chat',
     note: 'What would you like to discuss? (optional)', notePh: 'e.g. I want to form an LLC in Florida...',
     confirm: 'Confirm Appointment',
     loading: 'Scheduling...',
     noSlots: 'No available slots for this day.',
     selectDate: 'Please select a date first.',
     successTitle: 'Appointment Confirmed!',
-    successSub: 'We\'ll send a confirmation to your email shortly. Our team will contact you to confirm the meeting format.',
+    successSub: 'We\'ll send a confirmation to your email shortly.',
     successWa: 'WhatsApp Us',
     errorTaken: 'That time slot was just taken. Please select another.',
     errorGeneric: 'Something went wrong. Please try again.',
@@ -37,14 +40,17 @@ const T = {
     step3: 'Tus datos',
     name: 'Nombre Completo *', namePh: 'Juan García',
     email: 'Correo Electrónico *', emailPh: 'tu@correo.com',
-    phone: 'Teléfono / WhatsApp', phonePh: '+1 (555) 000-0000',
+    phone: 'Teléfono *', phonePh: '+1 (555) 000-0000',
+    meetingLabel: 'Método preferido de reunión *',
+    meetingZoom: 'Videollamada por Zoom',
+    meetingWa: 'Llamada / Chat por WhatsApp',
     note: '¿Sobre qué te gustaría hablar? (opcional)', notePh: 'ej. Quiero formar una LLC en Florida...',
     confirm: 'Confirmar Cita',
     loading: 'Agendando...',
     noSlots: 'No hay horarios disponibles para este día.',
     selectDate: 'Por favor selecciona una fecha primero.',
     successTitle: '¡Cita Confirmada!',
-    successSub: 'Te enviaremos una confirmación a tu correo. Nuestro equipo te contactará para confirmar el medio de la reunión.',
+    successSub: 'Te enviaremos una confirmación a tu correo.',
     successWa: 'Escribirnos por WhatsApp',
     errorTaken: 'Ese horario acaba de ser tomado. Por favor selecciona otro.',
     errorGeneric: 'Algo salió mal. Por favor intenta de nuevo.',
@@ -70,6 +76,7 @@ function BookingContent() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
+  const [meetingMethod, setMeetingMethod] = useState<'zoom' | 'whatsapp'>('zoom')
   const [note, setNote] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
@@ -125,7 +132,7 @@ function BookingContent() {
       const res = await fetch('/api/booking', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, phone, date: selectedDate, time: selectedTime, note, lang }),
+        body: JSON.stringify({ name, email, phone, meetingMethod, date: selectedDate, time: selectedTime, note, lang }),
       })
       const data = await res.json()
       if (!res.ok) {
@@ -201,6 +208,11 @@ function BookingContent() {
         .bk-back { display: inline-block; margin-bottom: 20px; color: #6b7280; font-size: 0.85rem; text-decoration: none; }
         .bk-back:hover { color: #2563EB; }
         .summary-bar { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 10px; padding: 14px 18px; font-size: 0.85rem; color: #0369a1; margin-bottom: 4px; }
+        .meeting-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .meeting-btn { padding: 14px 12px; border: 2px solid #e5e7eb; border-radius: 10px; background: #fff; font-size: 0.85rem; font-weight: 600; cursor: pointer; text-align: center; transition: all 0.15s; color: #374151; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+        .meeting-btn .meeting-icon { font-size: 1.4rem; }
+        .meeting-btn:hover { border-color: #2563EB; }
+        .meeting-btn.selected { border-color: #2563EB; background: #eff6ff; color: #2563EB; }
         @media(max-width: 600px) {
           .bk-row { grid-template-columns: 1fr; }
           .bk-hero h1 { font-size: 1.3rem; }
@@ -315,14 +327,27 @@ function BookingContent() {
                 </div>
                 <div>
                   <label className="bk-label">{t.phone}</label>
-                  <input className="bk-input" placeholder={t.phonePh} value={phone} onChange={e => setPhone(e.target.value)} />
+                  <input className="bk-input" placeholder={t.phonePh} value={phone} onChange={e => setPhone(e.target.value)} required />
+                </div>
+                <div>
+                  <label className="bk-label">{t.meetingLabel}</label>
+                  <div className="meeting-grid">
+                    <button type="button" className={`meeting-btn${meetingMethod === 'zoom' ? ' selected' : ''}`} onClick={() => setMeetingMethod('zoom')}>
+                      <span className="meeting-icon">🎥</span>
+                      {t.meetingZoom}
+                    </button>
+                    <button type="button" className={`meeting-btn${meetingMethod === 'whatsapp' ? ' selected' : ''}`} onClick={() => setMeetingMethod('whatsapp')}>
+                      <span className="meeting-icon">💬</span>
+                      {t.meetingWa}
+                    </button>
+                  </div>
                 </div>
                 <div>
                   <label className="bk-label">{t.note}</label>
                   <textarea className="bk-input bk-textarea" placeholder={t.notePh} value={note} onChange={e => setNote(e.target.value)} />
                 </div>
                 {error && <div className="bk-error">{error}</div>}
-                <button className="bk-submit" type="submit" disabled={submitting || !selectedDate || !selectedTime}>
+                <button className="bk-submit" type="submit" disabled={submitting || !selectedDate || !selectedTime || !phone}>
                   {submitting ? t.loading : t.confirm}
                 </button>
               </form>

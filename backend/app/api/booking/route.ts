@@ -25,9 +25,9 @@ function formatTime(time: string) {
 
 export async function POST(req: NextRequest) {
   const body = await req.json()
-  const { name, email, phone, date, time, note, lang = 'en' } = body
+  const { name, email, phone, meetingMethod = 'zoom', date, time, note, lang = 'en' } = body
 
-  if (!name || !email || !date || !time) {
+  if (!name || !email || !phone || !date || !time) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
   }
 
@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
   // Crear la cita
   const { data: appt, error } = await supabase
     .from('appointments')
-    .insert({ name, email, phone: phone || null, date, time, note: note || null, status: 'pending' })
+    .insert({ name, email, phone: phone || null, meeting_method: meetingMethod, date, time, note: note || null, status: 'pending' })
     .select()
     .single()
 
@@ -57,6 +57,9 @@ export async function POST(req: NextRequest) {
 
   const dateFormatted = formatDate(date, lang)
   const timeFormatted = formatTime(time)
+  const meetingLabel = meetingMethod === 'whatsapp'
+    ? (lang === 'es' ? '💬 WhatsApp' : '💬 WhatsApp')
+    : '🎥 Zoom'
   const resend = getResend()
 
   // Email de confirmación al cliente
@@ -75,6 +78,7 @@ export async function POST(req: NextRequest) {
         <div style="background:#f0f4f8;border-radius:8px;padding:20px;margin-bottom:24px">
           <p style="margin:0 0 8px 0"><strong>📅 Fecha:</strong> ${dateFormatted}</p>
           <p style="margin:0 0 8px 0"><strong>🕐 Hora:</strong> ${timeFormatted}</p>
+          <p style="margin:0 0 8px 0"><strong>📞 Medio de reunión:</strong> ${meetingLabel}</p>
           ${note ? `<p style="margin:0"><strong>📝 Nota:</strong> ${note}</p>` : ''}
         </div>
         <p style="color:#6b7280;font-size:0.9rem">Si necesitas hacer algún cambio antes de tu cita, usa los botones a continuación.</p>
@@ -94,6 +98,7 @@ export async function POST(req: NextRequest) {
         <div style="background:#f0f4f8;border-radius:8px;padding:20px;margin-bottom:24px">
           <p style="margin:0 0 8px 0"><strong>📅 Date:</strong> ${dateFormatted}</p>
           <p style="margin:0 0 8px 0"><strong>🕐 Time:</strong> ${timeFormatted}</p>
+          <p style="margin:0 0 8px 0"><strong>📞 Meeting method:</strong> ${meetingLabel}</p>
           ${note ? `<p style="margin:0"><strong>📝 Note:</strong> ${note}</p>` : ''}
         </div>
         <p style="color:#6b7280;font-size:0.9rem">If you need to make any changes before your appointment, use the buttons below.</p>
@@ -122,6 +127,7 @@ export async function POST(req: NextRequest) {
           <tr><td style="padding:8px 0;color:#6b7280">Teléfono</td><td style="padding:8px 0">${phone || '—'}</td></tr>
           <tr><td style="padding:8px 0;color:#6b7280">Fecha</td><td style="padding:8px 0;font-weight:600">${dateFormatted}</td></tr>
           <tr><td style="padding:8px 0;color:#6b7280">Hora</td><td style="padding:8px 0;font-weight:600">${timeFormatted}</td></tr>
+          <tr><td style="padding:8px 0;color:#6b7280">Reunión</td><td style="padding:8px 0;font-weight:600">${meetingLabel}</td></tr>
           ${note ? `<tr><td style="padding:8px 0;color:#6b7280">Nota</td><td style="padding:8px 0">${note}</td></tr>` : ''}
         </table>
         <div style="margin-top:20px;display:flex;gap:12px;flex-wrap:wrap">
