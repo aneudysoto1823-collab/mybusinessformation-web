@@ -1,15 +1,22 @@
 import type { Metadata } from "next";
 import Script from "next/script";
+import { headers } from "next/headers";
 import CookieConsent from "@/components/CookieConsent";
 import "./globals.css";
+
+const EU_COUNTRIES = new Set([
+  'AT','BE','BG','CY','CZ','DE','DK','EE','ES','FI','FR','GR','HR','HU',
+  'IE','IT','LT','LU','LV','MT','NL','PL','PT','RO','SE','SI','SK',
+  'IS','LI','NO','GB',
+])
 
 const BASE_URL = "https://opabiz.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   title: {
-    default: "MyBusinessFormation | Florida LLC & Corporation Formation",
-    template: "%s | MyBusinessFormation",
+    default: "OpaBiz | Florida LLC & Corporation Formation",
+    template: "%s | OpaBiz",
   },
   description:
     "Form your Florida LLC or Corporation online in minutes. Bilingual service (EN/ES). Packages from $0 + state fee. EIN, Operating Agreement, BOI Filing included.",
@@ -23,9 +30,9 @@ export const metadata: Metadata = {
     "formacion LLC Florida",
     "crear empresa Florida",
   ],
-  authors: [{ name: "MyBusinessFormation", url: BASE_URL }],
-  creator: "MyBusinessFormation",
-  publisher: "MyBusinessFormation",
+  authors: [{ name: "OpaBiz", url: BASE_URL }],
+  creator: "OpaBiz",
+  publisher: "OpaBiz",
   robots: {
     index: true,
     follow: true,
@@ -38,11 +45,11 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: "website",
-    siteName: "MyBusinessFormation",
+    siteName: "OpaBiz",
     locale: "en_US",
     alternateLocale: ["es_US"],
     url: BASE_URL,
-    title: "MyBusinessFormation | Florida LLC & Corporation Formation",
+    title: "OpaBiz | Florida LLC & Corporation Formation",
     description:
       "Form your Florida LLC or Corporation online in minutes. Bilingual service (EN/ES). Packages from $0 + state fee.",
     images: [
@@ -50,13 +57,13 @@ export const metadata: Metadata = {
         url: "/opengraph-image",
         width: 1200,
         height: 630,
-        alt: "MyBusinessFormation — Florida LLC & Corporation Formation",
+        alt: "OpaBiz — Florida LLC & Corporation Formation",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "MyBusinessFormation | Florida LLC & Corporation Formation",
+    title: "OpaBiz | Florida LLC & Corporation Formation",
     description:
       "Form your Florida LLC or Corporation online in minutes. Bilingual EN/ES. Packages from $0 + state fee.",
     images: ["/opengraph-image"],
@@ -77,11 +84,15 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const headersList = await headers()
+  const country = (headersList.get('x-vercel-ip-country') ?? '').toUpperCase()
+  const showCookieBanner = EU_COUNTRIES.has(country)
+
   return (
     <html lang="en">
       <head>
@@ -142,7 +153,7 @@ export default function RootLayout({
       </head>
       <body>
         {children}
-        <CookieConsent />
+        <CookieConsent showBanner={showCookieBanner} />
       </body>
     </html>
   );

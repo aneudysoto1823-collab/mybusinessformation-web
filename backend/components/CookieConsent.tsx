@@ -46,7 +46,7 @@ function detectLang(): Lang {
   return 'en'
 }
 
-export default function CookieConsent() {
+export default function CookieConsent({ showBanner = false }: { showBanner?: boolean }) {
   const [visible, setVisible] = useState(false)
   const [expanded, setExpanded] = useState(false)
   const [analytics, setAnalytics] = useState(false)
@@ -54,17 +54,14 @@ export default function CookieConsent() {
   const [lang, setLang] = useState<Lang>('en')
 
   useEffect(() => {
-    // Hidratamos en cliente: mostramos el banner solo si nunca se decidió.
-    // Idioma y consent leen window/document/cookies que no existen en SSR.
+    if (!showBanner) return
     const existing = getConsent()
     if (!existing) {
-      // Pequeño delay para no aparecer antes del first paint.
       const t = setTimeout(() => setVisible(true), 500)
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLang(detectLang())
       return () => clearTimeout(t)
     }
-  }, [])
+  }, [showBanner])
 
   if (!visible) return null
 
