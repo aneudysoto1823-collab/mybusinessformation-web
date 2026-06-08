@@ -23,7 +23,7 @@ function buildHubSchema(section: Section, lang: Lang, articles: ReturnType<typeo
       '@type': 'CollectionPage',
       '@id': hubUrl,
       url: hubUrl,
-      name: `${sectionLabel} — MyBusinessFormation`,
+      name: `${sectionLabel} — OpaBiz`,
       description: section === 'wiki'
         ? (lang === 'es'
             ? 'Referencia rápida, glosario y definiciones para formar y operar un negocio en Florida.'

@@ -111,7 +111,7 @@ export default function VerifyPage() {
 
       <div className="wrap">
         <div className="card">
-          <div className="logo">MyBusinessFormation</div>
+          <div className="logo">OpaBiz</div>
           <h1>Verificación 2FA</h1>
           <p className="sub">
             {method === 'totp'

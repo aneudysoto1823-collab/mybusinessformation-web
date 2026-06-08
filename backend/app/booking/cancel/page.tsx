@@ -74,7 +74,7 @@ function CancelContent() {
       `}</style>
 
       <div className="wrap">
-        <div className="brand">MyBusinessFormation<span>Cancel Appointment</span></div>
+        <div className="brand">OpaBiz<span>Cancel Appointment</span></div>
 
         {!id || notFound ? (
           <div className="card">

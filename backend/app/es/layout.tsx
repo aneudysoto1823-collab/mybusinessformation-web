@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: 'website',
-    siteName: 'MyBusinessFormation',
+    siteName: 'OpaBiz',
     locale: 'es_US',
     alternateLocale: ['en_US'],
     url: `${BASE_URL}/es`,

@@ -20,7 +20,7 @@ const schemaOrg = {
     {
       '@type': 'Organization',
       '@id': 'https://opabiz.com/#organization',
-      name: 'MyBusinessFormation',
+      name: 'OpaBiz',
       url: 'https://opabiz.com',
       logo: 'https://opabiz.com/icon.png',
       email: 'info@opabiz.com',
@@ -32,7 +32,7 @@ const schemaOrg = {
       '@type': 'WebSite',
       '@id': 'https://opabiz.com/#website',
       url: 'https://opabiz.com',
-      name: 'MyBusinessFormation',
+      name: 'OpaBiz',
       publisher: { '@id': 'https://opabiz.com/#organization' },
     },
     {
@@ -51,7 +51,7 @@ const schemaOrg = {
     {
       '@type': ['LocalBusiness', 'ProfessionalService'],
       '@id': 'https://opabiz.com/#localbusiness',
-      name: 'MyBusinessFormation',
+      name: 'OpaBiz',
       alternateName: 'Florida Business Formation Center',
       url: 'https://opabiz.com',
       logo: {
@@ -1258,7 +1258,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
       </div>
       <div class="footer-disclaimer">
         <strong style="color:rgba(255,255,255,0.5);display:block;margin-bottom:4px">Important Notice</strong>
-        Florida Business Formation Center is a professional document preparation and filing service. We are not a law firm and do not provide legal, tax, or financial advice. Our services do not constitute the practice of law and do not create an attorney-client relationship. All filings are subject to approval by the Florida Division of Corporations and the IRS. For legal or tax guidance specific to your situation, we encourage you to consult a licensed Florida attorney or certified public accountant.
+        OpaBiz is a trade name of Florida Business Formation Center — a professional document preparation and filing service. We are not a law firm and do not provide legal, tax, or financial advice. Our services do not constitute the practice of law and do not create an attorney-client relationship. All filings are subject to approval by the Florida Division of Corporations and the IRS. For legal or tax guidance specific to your situation, we encourage you to consult a licensed Florida attorney or certified public accountant.
       </div>
     </div>
   </div>
@@ -3213,8 +3213,8 @@ function setLang(lang) {
     if(fdStrong) fdStrong.textContent = isEs ? 'Aviso Importante' : 'Important Notice';
     var fdText = fd.childNodes[fd.childNodes.length-1];
     if(fdText && fdText.nodeType===3) fdText.textContent = isEs
-      ? ' Florida Business Formation Center es un servicio profesional de preparación y presentación de documentos. No somos una firma de abogados y no brindamos asesoría legal, fiscal ni financiera. Nuestros servicios no constituyen el ejercicio del derecho ni crean una relación abogado-cliente. Todos los trámites están sujetos a aprobación por la División de Corporaciones de Florida y el IRS. Para orientación legal o fiscal específica a su situación, le recomendamos consultar con un abogado licenciado en Florida o un contador público certificado.'
-      : ' Florida Business Formation Center is a professional document preparation and filing service. We are not a law firm and do not provide legal, tax, or financial advice. Our services do not constitute the practice of law and do not create an attorney-client relationship. All filings are subject to approval by the Florida Division of Corporations and the IRS. For legal or tax guidance specific to your situation, we encourage you to consult a licensed Florida attorney or certified public accountant.';
+      ? ' OpaBiz es un nombre comercial de Florida Business Formation Center — un servicio profesional de preparación y presentación de documentos. No somos una firma de abogados y no brindamos asesoría legal, fiscal ni financiera. Nuestros servicios no constituyen el ejercicio del derecho ni crean una relación abogado-cliente. Todos los trámites están sujetos a aprobación por la División de Corporaciones de Florida y el IRS. Para orientación legal o fiscal específica a su situación, le recomendamos consultar con un abogado licenciado en Florida o un contador público certificado.'
+      : ' OpaBiz is a trade name of Florida Business Formation Center — a professional document preparation and filing service. We are not a law firm and do not provide legal, tax, or financial advice. Our services do not constitute the practice of law and do not create an attorney-client relationship. All filings are subject to approval by the Florida Division of Corporations and the IRS. For legal or tax guidance specific to your situation, we encourage you to consult a licensed Florida attorney or certified public accountant.';
   }
 
   // Copyright

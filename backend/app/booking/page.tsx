@@ -226,7 +226,7 @@ function BookingContent() {
       <div className="bk-wrap">
         <div className="bk-header">
           <div className="bk-brand">
-            MyBusinessFormation
+            OpaBiz
             <span>{lang === 'es' ? 'Consulta Gratuita' : 'Free Consultation'}</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>

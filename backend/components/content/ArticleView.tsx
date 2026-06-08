@@ -55,12 +55,12 @@ export async function ArticleView({
         dateModified: article.lastUpdated || article.date,
         author: {
           '@type': 'Organization',
-          name: 'MyBusinessFormation',
+          name: 'OpaBiz',
           url: 'https://opabiz.com',
         },
         publisher: {
           '@type': 'Organization',
-          name: 'MyBusinessFormation',
+          name: 'OpaBiz',
           url: 'https://opabiz.com',
         },
         inLanguage: lang === 'es' ? 'es-US' : 'en-US',

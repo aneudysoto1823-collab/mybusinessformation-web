@@ -55,11 +55,11 @@ export async function POST(req: NextRequest) {
   await getResend().emails.send({
     from: 'onboarding@resend.dev',
     to: appt.email,
-    subject: '❌ Appointment Cancelled — MyBusinessFormation',
+    subject: '❌ Appointment Cancelled — OpaBiz',
     html: `
       <div style="font-family:sans-serif;max-width:560px;margin:0 auto;color:#1a1a2e">
         <div style="background:#1C2E44;padding:24px;text-align:center;border-radius:8px 8px 0 0">
-          <p style="color:#fff;font-size:1.1rem;font-weight:700;margin:0">MyBusinessFormation</p>
+          <p style="color:#fff;font-size:1.1rem;font-weight:700;margin:0">OpaBiz</p>
         </div>
         <div style="background:#fff;padding:32px;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px">
           <h2 style="color:#1C2E44;margin-bottom:8px">Appointment Cancelled</h2>

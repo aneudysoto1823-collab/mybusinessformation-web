@@ -24,11 +24,11 @@ export async function POST(request: NextRequest) {
   await getResend().emails.send({
     from: 'onboarding@resend.dev',
     to: adminEmail,
-    subject: `${code} — Tu código de verificación MyBusinessFormation`,
+    subject: `${code} — Tu código de verificación OpaBiz`,
     html: `
       <div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;color:#1e293b">
         <div style="background:#1C2E44;padding:20px 28px;border-radius:10px 10px 0 0">
-          <h2 style="color:#fff;font-size:18px;margin:0">MyBusinessFormation — Admin 2FA</h2>
+          <h2 style="color:#fff;font-size:18px;margin:0">OpaBiz — Admin 2FA</h2>
         </div>
         <div style="background:#fff;padding:28px;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 10px 10px">
           <p style="color:#475569;margin:0 0 20px">Tu código de verificación para acceder al panel de administración:</p>

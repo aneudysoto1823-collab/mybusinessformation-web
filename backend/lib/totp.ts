@@ -6,7 +6,7 @@ export function generateTotpSecret(): string {
 
 export function generateTotpUri(secret: string, accountName: string): string {
   const totp = new TOTP({
-    issuer: 'MyBusinessFormation Admin',
+    issuer: 'OpaBiz Admin',
     label: accountName,
     algorithm: 'SHA1',
     digits: 6,

@@ -3,7 +3,7 @@ import ChatWidget from '@/components/ChatWidget'
 
 export const metadata: Metadata = {
   title: 'Privacy Policy',
-  description: 'Privacy Policy of MyBusinessFormation. Learn how we collect, use, and protect your personal information when you use our Florida business filing services.',
+  description: 'Privacy Policy of OpaBiz. Learn how we collect, use, and protect your personal information when you use our Florida business filing services.',
   alternates: { canonical: 'https://opabiz.com/privacy' },
   openGraph: { url: 'https://opabiz.com/privacy' },
   robots: { index: true, follow: false },
@@ -249,7 +249,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
       </div>
       <div class="footer-disclaimer">
         <strong style="color:rgba(255,255,255,0.5);display:block;margin-bottom:4px">Important Notice</strong>
-        Florida Business Formation Center is a professional document preparation and filing service. We are not a law firm and do not provide legal, tax, or financial advice. Our services do not constitute the practice of law and do not create an attorney-client relationship. All filings are subject to approval by the Florida Division of Corporations and the IRS. For legal or tax guidance specific to your situation, we encourage you to consult a licensed Florida attorney or certified public accountant.
+        OpaBiz is a trade name of Florida Business Formation Center — a professional document preparation and filing service. We are not a law firm and do not provide legal, tax, or financial advice. Our services do not constitute the practice of law and do not create an attorney-client relationship. All filings are subject to approval by the Florida Division of Corporations and the IRS. For legal or tax guidance specific to your situation, we encourage you to consult a licensed Florida attorney or certified public accountant.
       </div>
     </div>
   </div>
@@ -285,7 +285,7 @@ function setLang(lang){
   if(fd){
     var fds=fd.querySelector('strong');if(fds)fds.textContent=isEs?'Aviso Importante':'Important Notice';
     var fdt=Array.from(fd.childNodes).find(function(n){return n.nodeType===3&&n.textContent.trim().length>10;});
-    if(fdt)fdt.textContent=isEs?' Florida Business Formation Center es un servicio profesional de preparación y presentación de documentos. No somos una firma de abogados y no brindamos asesoría legal, fiscal ni financiera. Nuestros servicios no constituyen el ejercicio del derecho ni crean una relación abogado-cliente. Todos los trámites están sujetos a aprobación por la División de Corporaciones de Florida y el IRS. Para orientación legal o fiscal específica a su situación, le recomendamos consultar con un abogado licenciado en Florida o un contador público certificado.':' Florida Business Formation Center is a professional document preparation and filing service. We are not a law firm and do not provide legal, tax, or financial advice. Our services do not constitute the practice of law and do not create an attorney-client relationship. All filings are subject to approval by the Florida Division of Corporations and the IRS. For legal or tax guidance specific to your situation, we encourage you to consult a licensed Florida attorney or certified public accountant.';
+    if(fdt)fdt.textContent=isEs?' OpaBiz es un nombre comercial de Florida Business Formation Center — un servicio profesional de preparación y presentación de documentos. No somos una firma de abogados y no brindamos asesoría legal, fiscal ni financiera. Nuestros servicios no constituyen el ejercicio del derecho ni crean una relación abogado-cliente. Todos los trámites están sujetos a aprobación por la División de Corporaciones de Florida y el IRS. Para orientación legal o fiscal específica a su situación, le recomendamos consultar con un abogado licenciado en Florida o un contador público certificado.':' OpaBiz is a trade name of Florida Business Formation Center — a professional document preparation and filing service. We are not a law firm and do not provide legal, tax, or financial advice. Our services do not constitute the practice of law and do not create an attorney-client relationship. All filings are subject to approval by the Florida Division of Corporations and the IRS. For legal or tax guidance specific to your situation, we encourage you to consult a licensed Florida attorney or certified public accountant.';
   }
 
   // Copyright

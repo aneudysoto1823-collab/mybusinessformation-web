@@ -64,13 +64,13 @@ export async function POST(req: NextRequest) {
 
   // Email de confirmación al cliente
   const clientSubject = lang === 'es'
-    ? '✅ Tu consulta está agendada — MyBusinessFormation'
-    : '✅ Your consultation is scheduled — MyBusinessFormation'
+    ? '✅ Tu consulta está agendada — OpaBiz'
+    : '✅ Your consultation is scheduled — OpaBiz'
 
   const clientHtml = lang === 'es' ? `
     <div style="font-family:sans-serif;max-width:560px;margin:0 auto;color:#1a1a2e">
       <div style="background:#1C2E44;padding:24px;text-align:center;border-radius:8px 8px 0 0">
-        <p style="color:#fff;font-size:1.1rem;font-weight:700;margin:0">MyBusinessFormation</p>
+        <p style="color:#fff;font-size:1.1rem;font-weight:700;margin:0">OpaBiz</p>
       </div>
       <div style="background:#fff;padding:32px;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px">
         <h2 style="color:#1C2E44;margin-bottom:8px">¡Tu consulta está confirmada!</h2>
@@ -90,7 +90,7 @@ export async function POST(req: NextRequest) {
     </div>` : `
     <div style="font-family:sans-serif;max-width:560px;margin:0 auto;color:#1a1a2e">
       <div style="background:#1C2E44;padding:24px;text-align:center;border-radius:8px 8px 0 0">
-        <p style="color:#fff;font-size:1.1rem;font-weight:700;margin:0">MyBusinessFormation</p>
+        <p style="color:#fff;font-size:1.1rem;font-weight:700;margin:0">OpaBiz</p>
       </div>
       <div style="background:#fff;padding:32px;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px">
         <h2 style="color:#1C2E44;margin-bottom:8px">Your consultation is confirmed!</h2>
@@ -110,7 +110,7 @@ export async function POST(req: NextRequest) {
     </div>`
 
   // Email de notificación al admin
-  const waText = encodeURIComponent(`Hola ${name}, te contactamos de MyBusinessFormation sobre tu consulta agendada para el ${dateFormatted} a las ${timeFormatted}.`)
+  const waText = encodeURIComponent(`Hola ${name}, te contactamos de OpaBiz sobre tu consulta agendada para el ${dateFormatted} a las ${timeFormatted}.`)
   const waLink = phone
     ? `https://wa.me/${phone.replace(/\D/g, '')}?text=${waText}`
     : null

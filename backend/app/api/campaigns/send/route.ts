@@ -94,7 +94,7 @@ function buildEmail(company: {
                         <span style="color:#fff;font-weight:900;font-size:16px;font-family:Georgia,serif">FL</span>
                       </td>
                       <td style="padding-left:12px">
-                        <div style="color:#fff;font-weight:700;font-size:16px;font-family:Georgia,serif">MyBusinessFormation</div>
+                        <div style="color:#fff;font-weight:700;font-size:16px;font-family:Georgia,serif">OpaBiz</div>
                         <div style="color:rgba(255,255,255,.6);font-size:11px;letter-spacing:.5px;text-transform:uppercase">Florida Business Formation Center</div>
                       </td>
                     </tr>
@@ -216,13 +216,13 @@ function buildEmail(company: {
         <tr>
           <td style="background:#F8FAFC;border-top:1px solid #E2E8F0;border-radius:0 0 14px 14px;padding:20px 36px">
             <p style="color:#94A3B8;font-size:11px;line-height:1.6;margin:0 0 8px;text-align:center">
-              <strong>MyBusinessFormation.com</strong> · Florida Business Formation Center<br/>
+              <strong>opabiz.com</strong> · Florida Business Formation Center<br/>
               info@opabiz.com · opabiz.com
             </p>
             <p style="color:#CBD5E1;font-size:10px;line-height:1.6;margin:0;text-align:center">
               ${isEs
-                ? 'Este mensaje es una notificación informativa sobre el estado de cumplimiento de tu empresa registrada en Florida. MyBusinessFormation es un servicio de preparación de documentos — no somos un bufete de abogados y no brindamos asesoría legal, fiscal ni financiera. Los precios mostrados son de nuestros servicios de preparación y no incluyen cargos estatales. Para dejar de recibir estos correos, contáctanos en info@opabiz.com.'
-                : 'This message is an informational notice regarding the compliance status of your Florida-registered company. MyBusinessFormation is a document preparation service — we are not a law firm and do not provide legal, tax, or financial advice. Prices shown are for our preparation services and do not include state fees. To unsubscribe, contact info@opabiz.com.'}
+                ? 'Este mensaje es una notificación informativa sobre el estado de cumplimiento de tu empresa registrada en Florida. OpaBiz es un servicio de preparación de documentos — no somos un bufete de abogados y no brindamos asesoría legal, fiscal ni financiera. Los precios mostrados son de nuestros servicios de preparación y no incluyen cargos estatales. Para dejar de recibir estos correos, contáctanos en info@opabiz.com.'
+                : 'This message is an informational notice regarding the compliance status of your Florida-registered company. OpaBiz is a document preparation service — we are not a law firm and do not provide legal, tax, or financial advice. Prices shown are for our preparation services and do not include state fees. To unsubscribe, contact info@opabiz.com.'}
             </p>
           </td>
         </tr>

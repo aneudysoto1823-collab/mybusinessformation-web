@@ -234,7 +234,7 @@ export default function CitasPage() {
                 </thead>
                 <tbody>
                   {filtered.map(a => {
-                    const waText = encodeURIComponent(`Hola ${a.name}, te contactamos de MyBusinessFormation sobre tu consulta del ${formatDate(a.date)} a las ${formatTime(a.time)}.`)
+                    const waText = encodeURIComponent(`Hola ${a.name}, te contactamos de OpaBiz sobre tu consulta del ${formatDate(a.date)} a las ${formatTime(a.time)}.`)
                     const waLink = a.phone ? `https://wa.me/${a.phone.replace(/\D/g, '')}?text=${waText}` : null
                     return (
                       <tr key={a.id}>

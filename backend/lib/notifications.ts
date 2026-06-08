@@ -10,7 +10,7 @@ function unsubscribeFooter(email: string): string {
   return `
     <hr style="border: none; border-top: 1px solid #eee; margin: 32px 0;">
     <p style="font-size: 12px; color: #888; text-align: center; margin: 0;">
-      This is a transactional email related to your order with MyBusinessFormation.com.<br>
+      This is a transactional email related to your order with opabiz.com.<br>
       If you have questions contact us at support@opabiz.com<br>
       <a href="https://opabiz.com/unsubscribe?email=${encodeURIComponent(email)}" style="color: #888;">Unsubscribe</a>
     </p>

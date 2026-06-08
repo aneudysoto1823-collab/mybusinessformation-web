@@ -185,13 +185,13 @@ export default function ChatWidget() {
         const es = ctx.lang === 'es'
         let greeting: string
         if (ctx.firstName && es) {
-          greeting = `¡Hola ${ctx.firstName}! Soy Claudia, tu asistente virtual de MyBusinessFormation. ¿En qué puedo ayudarte?`
+          greeting = `¡Hola ${ctx.firstName}! Soy Claudia, tu asistente virtual de OpaBiz. ¿En qué puedo ayudarte?`
         } else if (ctx.firstName) {
-          greeting = `Hi ${ctx.firstName}! I'm Claudia, your MyBusinessFormation virtual assistant. How can I help you?`
+          greeting = `Hi ${ctx.firstName}! I'm Claudia, your OpaBiz virtual assistant. How can I help you?`
         } else if (es) {
-          greeting = `¡Hola! Soy Claudia, tu asistente virtual de MyBusinessFormation. ¿En qué puedo ayudarte hoy?`
+          greeting = `¡Hola! Soy Claudia, tu asistente virtual de OpaBiz. ¿En qué puedo ayudarte hoy?`
         } else {
-          greeting = `Hi! I'm Claudia, your MyBusinessFormation virtual assistant. How can I help you today?`
+          greeting = `Hi! I'm Claudia, your OpaBiz virtual assistant. How can I help you today?`
         }
         setMessages([{ role: 'assistant', content: greeting }])
       } else {
@@ -382,7 +382,7 @@ export default function ChatWidget() {
               <div style={{ color: '#fff', fontWeight: 700, fontSize: '0.92rem', lineHeight: 1.2 }}>Claudia</div>
               <div style={{ color: 'rgba(255,255,255,0.65)', fontSize: '0.72rem', display: 'flex', alignItems: 'center', gap: '5px', overflow: 'hidden' }}>
                 <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#4ade80', flexShrink: 0, display: 'inline-block' }} />
-                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>MyBusinessFormation · Virtual Assistant</span>
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>OpaBiz · Virtual Assistant</span>
               </div>
             </div>
             <button

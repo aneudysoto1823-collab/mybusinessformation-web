@@ -181,7 +181,7 @@ export default function DashboardContent({
       {/* Header */}
       <div className="cp-header">
         <div className="cp-header-brand">
-          MyBusinessFormation
+          OpaBiz
           <span>{es ? 'Portal del Cliente' : 'Client Portal'}</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>

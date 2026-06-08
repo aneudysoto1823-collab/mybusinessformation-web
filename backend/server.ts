@@ -30,7 +30,7 @@ const requireApiKey = (req: Request, res: Response, next: NextFunction) => {
 }
 
 app.get('/', (_req, res) => {
-  res.json({ message: 'MyBusinessFormation API corriendo correctamente' })
+  res.json({ message: 'OpaBiz API corriendo correctamente' })
 })
 
 app.get('/health', (_req, res) => {

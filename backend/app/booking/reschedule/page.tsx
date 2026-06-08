@@ -108,7 +108,7 @@ function RescheduleContent() {
         .summary { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 12px 16px; font-size: 0.84rem; color: #0369a1; margin-bottom: 16px; }
       `}</style>
       <div className="wrap">
-        <div className="brand">MyBusinessFormation<span>Reschedule Appointment</span></div>
+        <div className="brand">OpaBiz<span>Reschedule Appointment</span></div>
 
         {!id || notFound ? (
           <div className="card"><p>Appointment not found. Please use the link from your confirmation email.</p></div>

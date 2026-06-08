@@ -264,7 +264,7 @@ export async function generateOperatingAgreement(order: OrderForPdf): Promise<Bu
   b.skip(8)
 
   b.sectionHeader('Article IX — Registered Agent')
-  b.field('Registered Agent', order.registeredAgent === 'us' ? 'MyBusinessFormation.com (Service Included)' : (order.registeredAgent || '—'))
+  b.field('Registered Agent', order.registeredAgent === 'us' ? 'opabiz.com (Service Included)' : (order.registeredAgent || '—'))
   b.field('State', 'Florida')
   b.skip(4)
 
@@ -421,7 +421,7 @@ export async function generateArticlesOfOrganization(order: OrderForPdf): Promis
 
   b.sectionHeader('Article III — Registered Agent')
   b.field('Registered Agent Name', order.registeredAgent === 'us'
-    ? 'MyBusinessFormation.com (Service Included)'
+    ? 'opabiz.com (Service Included)'
     : (order.registeredAgent || `${order.firstName} ${order.lastName}`))
   b.field('Registered Agent Street Address', order.businessAddress)
   b.field('State', 'Florida')
