@@ -1616,7 +1616,8 @@ function openServiceForm(svcId){
   var svc=serviceForms[svcId];if(!svc)return;
   currentService=svcId;window.currentService=svcId;
   var isEs=document.getElementById('btn-es').classList.contains('active');
-  document.getElementById('svcFormTitle').textContent=isEs&&svc.title_es?svc.title_es:svc.title;
+  var titleFull=isEs&&svc.title_es?svc.title_es:svc.title;
+  document.getElementById('svcFormTitle').textContent=titleFull.split(' — ')[0];
   document.getElementById('svcFormSub').textContent=isEs&&svc.sub_es?svc.sub_es:svc.sub;
   document.getElementById('svcFormBody').innerHTML=svc.html;
   translateFormLabels();
@@ -1633,7 +1634,7 @@ function openServiceForm(svcId){
   var timeStr=isEs?(tmEs[svcId]||''):(tmEn[svcId]||'');
   var includes=isEs?(icEs[svcId]||[]):(icEn[svcId]||[]);
   var el;
-  el=document.getElementById('sum-svc-name');     if(el)el.textContent=isEs&&svc.title_es?svc.title_es:svc.title;
+  el=document.getElementById('sum-svc-name');     if(el)el.textContent=titleFull.split(' — ')[0];
   el=document.getElementById('sum-svc-price');    if(el)el.textContent=priceStr;
   el=document.getElementById('sum-svc-badge');    if(el)el.textContent=badgeStr;
   el=document.getElementById('svc-badge-lbl');    if(el)el.textContent=badgeStr;
