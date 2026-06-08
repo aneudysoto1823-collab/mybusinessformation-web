@@ -17,8 +17,10 @@ header{background:rgba(255,255,255,.97);border-bottom:1px solid var(--gray200);p
 .header-inner{max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:66px;gap:20px}
 .logo{display:flex;align-items:center;gap:11px}
 .logo-mark{width:40px;height:40px;background:linear-gradient(135deg,var(--navy),var(--blue));border-radius:9px;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Fraunces',serif;font-size:1rem;font-weight:700;flex-shrink:0}
-.logo-text{font-family:'Fraunces',serif;font-size:.95rem;color:var(--navy);font-weight:700;line-height:1.2}
+.logo-text{font-family:'Fraunces',serif;font-size:1rem;color:var(--navy);font-weight:700;line-height:1.2}
 .logo-text span{display:block;font-family:'Plus Jakarta Sans',sans-serif;font-size:.63rem;color:var(--gray400);font-weight:400;letter-spacing:.8px;text-transform:uppercase}
+.logo-text span.logo-opa{display:inline;font-size:1rem;color:var(--navy);font-style:normal;letter-spacing:-.5px;text-transform:none;font-family:'Fraunces',serif;font-weight:700}
+.logo-text span.logo-biz{display:inline;font-size:1rem;color:#2563EB;font-style:italic;letter-spacing:-.5px;text-transform:none;font-family:'Fraunces',serif;font-weight:700}
 .back-btn{display:flex;align-items:center;gap:7px;font-size:.82rem;font-weight:600;color:var(--blue);padding:8px 16px;border-radius:8px;border:1.5px solid var(--blue);transition:all .2s}
 .back-btn:hover{background:var(--blue-light)}
 .lang-toggle{display:flex;background:var(--gray100);border-radius:20px;padding:3px;gap:2px}
@@ -62,8 +64,8 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:32px 32px 20px
 <header>
   <div class="header-inner">
     <a href="/new-business" class="logo">
-      <div class="logo-mark">FL</div>
-      <div class="logo-text">Florida Business Formation Center<span>opabiz.com</span></div>
+      <div class="logo-mark">OB</div>
+      <div class="logo-text"><span class="logo-opa">Opa</span><span class="logo-biz">Biz</span><span>Florida Business Formation Center</span></div>
     </a>
     <div style="display:flex;align-items:center;gap:12px">
       <div class="lang-toggle">
@@ -118,8 +120,8 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:32px 32px 20px
 
     <div class="doc-section" id="acceptance">
       <h2>1. <span class="en-inline">Acceptance of Terms</span><span class="es-inline" style="display:none">Aceptaci&oacute;n de T&eacute;rminos</span></h2>
-      <p class="en">By accessing or using the services offered by Florida Business Formation Center (&ldquo;Company,&rdquo; &ldquo;we,&rdquo; &ldquo;us,&rdquo; or &ldquo;our&rdquo;) through opabiz.com, you (&ldquo;Client&rdquo; or &ldquo;you&rdquo;) agree to be fully bound by these Terms and Conditions. If you do not agree with any part of these terms, you must not use our services.</p>
-      <p class="es" style="display:none">Al acceder o utilizar los servicios ofrecidos por Florida Business Formation Center (&ldquo;Empresa&rdquo;, &ldquo;nosotros&rdquo; o &ldquo;nuestro&rdquo;) a trav&eacute;s de opabiz.com, usted (&ldquo;Cliente&rdquo;) acepta quedar sujeto a estos T&eacute;rminos y Condiciones. Si no est&aacute; de acuerdo con alguna parte de estos t&eacute;rminos, no debe utilizar nuestros servicios.</p>
+      <p class="en">By accessing or using the services offered by OpaBiz, a trade name of Florida Business Formation Center (&ldquo;Company,&rdquo; &ldquo;we,&rdquo; &ldquo;us,&rdquo; or &ldquo;our&rdquo;) through opabiz.com, you (&ldquo;Client&rdquo; or &ldquo;you&rdquo;) agree to be fully bound by these Terms and Conditions. If you do not agree with any part of these terms, you must not use our services.</p>
+      <p class="es" style="display:none">Al acceder o utilizar los servicios ofrecidos por OpaBiz, nombre comercial de Florida Business Formation Center (&ldquo;Empresa&rdquo;, &ldquo;nosotros&rdquo; o &ldquo;nuestro&rdquo;) a trav&eacute;s de opabiz.com, usted (&ldquo;Cliente&rdquo;) acepta quedar sujeto a estos T&eacute;rminos y Condiciones. Si no est&aacute; de acuerdo con alguna parte de estos t&eacute;rminos, no debe utilizar nuestros servicios.</p>
       <p class="en">Florida Business Formation Center is a document preparation service. We do not provide legal, tax, or financial advice. Use of our services does not create an attorney-client relationship.</p>
       <p class="es" style="display:none">Florida Business Formation Center es un servicio de preparaci&oacute;n de documentos. No brindamos asesor&iacute;a legal, fiscal ni financiera. El uso de nuestros servicios no crea una relaci&oacute;n abogado-cliente.</p>
       <p class="en">We reserve the right to modify these Terms at any time. Your continued use of our services after any modification constitutes acceptance of the revised Terms.</p>

@@ -24,8 +24,10 @@ header.scrolled{box-shadow:0 2px 20px rgba(28,46,68,.1)}
 .header-inner{max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:66px;gap:20px}
 .logo{display:flex;align-items:center;gap:11px}
 .logo-mark{width:40px;height:40px;background:linear-gradient(135deg,var(--navy),var(--blue));border-radius:9px;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Fraunces',serif;font-size:1rem;font-weight:700;flex-shrink:0}
-.logo-text{font-family:'Fraunces',serif;font-size:.95rem;color:var(--navy);font-weight:700;line-height:1.2}
+.logo-text{font-family:'Fraunces',serif;font-size:1rem;color:var(--navy);font-weight:700;line-height:1.2}
 .logo-text span{display:block;font-family:'Plus Jakarta Sans',sans-serif;font-size:.63rem;color:var(--gray400);font-weight:400;letter-spacing:.8px;text-transform:uppercase}
+.logo-text span.logo-opa{display:inline;font-size:1rem;color:var(--navy);font-style:normal;letter-spacing:-.5px;text-transform:none;font-family:'Fraunces',serif;font-weight:700}
+.logo-text span.logo-biz{display:inline;font-size:1rem;color:#2563EB;font-style:italic;letter-spacing:-.5px;text-transform:none;font-family:'Fraunces',serif;font-weight:700}
 nav a{font-size:.82rem;font-weight:500;color:var(--gray600);padding:6px 10px;border-radius:6px;transition:all .2s;margin-left:2px}
 nav a:hover{color:var(--navy);background:var(--gray100)}
 .lang-toggle{display:flex;background:var(--gray100);border-radius:20px;padding:3px;gap:2px}
@@ -95,8 +97,8 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
 <header id="mainHeader">
   <div class="header-inner">
     <a href="/" class="logo">
-      <div class="logo-mark">FL</div>
-      <div class="logo-text">Florida Business Formation Center<span>opabiz.com</span></div>
+      <div class="logo-mark">OB</div>
+      <div class="logo-text"><span class="logo-opa">Opa</span><span class="logo-biz">Biz</span><span>Florida Business Formation Center</span></div>
     </a>
     <nav>
       <a href="/" data-en="Home" data-es="Inicio">Home</a>
@@ -121,8 +123,8 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
     <div class="breadcrumb"><a href="/">Home</a> <span>/</span> <span class="en-inline">Privacy Policy</span><span class="es-inline" style="display:none">Pol&iacute;tica de Privacidad</span></div>
     <div class="hero-badge">Privacy</div>
     <h1 class="en">Privacy Policy</h1><h1 class="es" style="display:none">Pol&iacute;tica de Privacidad</h1>
-    <p class="en">We take your privacy seriously. This policy explains how we collect, use, and protect your personal information.</p>
-    <p class="es" style="display:none">Nos tomamos su privacidad muy en serio. Esta pol&iacute;tica explica c&oacute;mo recopilamos, usamos y protegemos su informaci&oacute;n personal.</p>
+    <p class="en">We take your privacy seriously. This policy explains how we collect, use, and protect your personal information. OpaBiz is a trade name of Florida Business Formation Center.</p>
+    <p class="es" style="display:none">Nos tomamos su privacidad muy en serio. Esta pol&iacute;tica explica c&oacute;mo recopilamos, usamos y protegemos su informaci&oacute;n personal. OpaBiz es un nombre comercial de Florida Business Formation Center.</p>
     <div class="hero-meta">
       <div class="hero-meta-item">&#128197; <span class="en-inline">Last Updated: January 1, 2025</span><span class="es-inline" style="display:none">&Uacute;lt. Actualiz.: 1 de enero de 2025</span></div>
     </div>

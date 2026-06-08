@@ -138,8 +138,10 @@ header{position:sticky;top:0;z-index:200;background:rgba(255,255,255,0.97);backd
 .header-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:70px;gap:20px}
 .logo{display:flex;align-items:center;gap:12px}
 .logo-mark{width:42px;height:42px;background:linear-gradient(135deg,var(--navy),var(--blue));border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Fraunces',serif;font-size:1.1rem;font-weight:700;letter-spacing:-0.5px}
-.logo-text{font-family:'Fraunces',serif;font-size:1.05rem;color:var(--navy);font-weight:700;line-height:1.2}
+.logo-text{font-family:'Fraunces',serif;font-size:1.1rem;color:var(--navy);font-weight:700;line-height:1.2}
 .logo-text span{display:block;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.68rem;color:var(--gray400);font-weight:400;letter-spacing:0.8px;text-transform:uppercase}
+.logo-text span.logo-opa{display:inline;font-size:1.1rem;color:var(--navy);font-style:normal;letter-spacing:-.5px;text-transform:none;font-family:'Fraunces',serif;font-weight:700}
+.logo-text span.logo-biz{display:inline;font-size:1.1rem;color:#2563EB;font-style:italic;letter-spacing:-.5px;text-transform:none;font-family:'Fraunces',serif;font-weight:700}
 nav{display:flex;align-items:center;gap:6px}
 nav a{font-size:0.85rem;font-weight:500;color:var(--gray600);padding:6px 12px;border-radius:6px;transition:all 0.2s}
 nav a:hover{color:var(--navy);background:var(--gray100)}
@@ -752,8 +754,8 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 <header>
   <div class="header-inner">
     <a href="#" class="logo">
-      <div class="logo-mark">FL</div>
-      <div class="logo-text">Florida Business Formation Center</div>
+      <div class="logo-mark">OB</div>
+      <div class="logo-text"><span class="logo-opa">Opa</span><span class="logo-biz">Biz</span><span>Florida Business Formation Center</span></div>
     </a>
     <nav id="main-nav">
       <a href="#how" data-en="How It Works" data-es="Cómo Funciona">How It Works</a>
@@ -1199,8 +1201,8 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
   <div class="footer-inner">
     <div class="footer-grid">
       <div class="footer-brand">
-        <div class="logo-mark" style="display:inline-flex;margin-bottom:14px">FL</div>
-        <div style="font-family:'Fraunces',serif;color:#fff;font-size:1rem;font-weight:600;margin-bottom:8px">Florida Business Formation Center</div>
+        <div class="logo-mark" style="display:inline-flex;margin-bottom:14px">OB</div>
+        <div style="font-family:'Fraunces',serif;font-size:1.05rem;font-weight:700;margin-bottom:8px"><span style="color:#e2e8f0">Opa</span><span style="color:#60a5fa;font-style:italic">Biz</span></div>
         <p id="footer-brand-desc">Professional business formation services for entrepreneurs and investors. We file your LLC or Corporation with the State of Florida — accurately, efficiently, and with personal attention.</p>
         <p style="margin-top:10px;color:rgba(255,255,255,0.75);font-size:0.82rem">📧 <a href="mailto:info@opabiz.com" style="color:rgba(255,255,255,0.75);text-decoration:none">info@opabiz.com</a></p>
       </div>

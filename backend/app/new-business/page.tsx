@@ -1085,10 +1085,10 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
       {/* ── HEADER ── */}
       <header className="nb-header">
         <div className="nb-logo">
-          <div className="nb-logo-mark">FL</div>
+          <div className="nb-logo-mark">OB</div>
           <div className="nb-logo-text">
-            <div className="l1">Florida Business Formation Center</div>
-            <div className="l2">opabiz.com</div>
+            <div className="l1"><span style={{color:'#fff'}}>Opa</span><span style={{color:'#93c5fd',fontStyle:'italic'}}>Biz</span></div>
+            <div className="l2">Florida Business Formation Center</div>
           </div>
         </div>
         <div className="nb-header-right">

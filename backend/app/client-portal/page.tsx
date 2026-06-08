@@ -329,7 +329,7 @@ function LoginForm() {
           <div className="portal-header-brand">
             <div className="portal-header-icon">🏛️</div>
             <div className="portal-header-name">
-              Florida Business Formation Center
+              <span style={{fontFamily:'Fraunces, serif',fontWeight:700}}>Opa</span><span style={{fontFamily:'Fraunces, serif',fontWeight:700,color:'#2563EB',fontStyle:'italic'}}>Biz</span>
               <span>{t.portal}</span>
             </div>
           </div>
