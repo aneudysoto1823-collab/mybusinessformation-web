@@ -697,7 +697,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
         </div>
         <div id="svc-payment-area"></div>
         <div class="form-submit-area">
-          <button class="btn-submit-svc" onclick="submitService()">&#x1F680; <span id="svc-submit-lbl">Submit Order</span> &#8594;</button>
+          <button class="btn-submit-svc" onclick="submitService()"><span id="svc-submit-lbl">Submit Order</span> &#8594;</button>
           <div class="form-secure-note">&#128274; <span id="svc-secure-lbl">Secure & encrypted</span></div>
         </div>
         <p class="form-disclaimer" id="svc-disclaimer-text">Florida Business Formation Center is a document preparation service, not a law firm. We do not provide legal, tax, or financial advice.</p>
@@ -728,7 +728,7 @@ var serviceForms={
   headerClass:'',
   price:'Annual fee',
   html:\`
-    <div class="info-box">&#127968; <strong>Florida Requirement:</strong> Every LLC and Corporation must maintain a Registered Agent with a physical FL address. The Change of Agent form is filed directly with the Florida Division of Corporations.</div>
+    <div class="info-box"><strong>Florida State Requirement:</strong> Every LLC and Corporation must maintain a Registered Agent with a physical FL address. The Change of Agent form is filed directly with the Florida Division of Corporations.</div>
     <div class="form-group"><label class="form-label">Número de Registro Estatal</label><input type="text" class="form-input" placeholder="e.g. L23000123456" onblur="lookupFLDoc(this)"/><div id="fldoc-status" style="margin-top:5px;min-height:18px"></div></div>
     <div class="section-divider">Business Information</div>
     <div class="form-group"><label class="form-label">Entity Type *</label><select class="select-input" data-field="entity-type"><option value="">Select...</option><option>LLC</option><option>Corporation</option></select></div>
@@ -743,7 +743,7 @@ var serviceForms={
     <div class="form-group"><label class="form-label">Email *</label><input type="email" class="form-input" placeholder="you@email.com"/></div>
     <div class="form-group"><label class="form-label">Electronic Signature *</label><input type="text" class="form-input" placeholder="Type your full legal name — constitutes your signature"/></div>
     <div class="summary-box"><div class="summary-row"><span>Registered Agent Service</span><span>Annual Fee</span></div><div class="summary-row"><span>FL Division of Corporations Filing</span><span>Included</span></div><div class="summary-row"><span style="font-weight:700">Total</span><span>Annual Fee</span></div></div>
-    <button class="btn-submit-svc" onclick="submitService()">&#x1F680; Submit Order &#8594;</button>
+    <button class="btn-submit-svc" onclick="submitService()">Submit Order &#8594;</button>
     <div class="disclaimer">Florida Business Formation Center is not a law firm. We do not provide legal advice.</div>\`
 },
 'ein':{
@@ -753,7 +753,7 @@ var serviceForms={
   sub_es:'Preparación y envío del Formulario SS-4 del IRS. Requerido para abrir una cuenta bancaria empresarial.',
   price:'$49',
   html:\`
-    <div class="info-box">&#127981; <strong>Federal Requirement:</strong> Your EIN is issued by the IRS and required for federal taxes, opening a business bank account, and hiring employees.</div>
+    <div class="info-box"><strong>Federal Requirement:</strong> Your EIN is issued by the IRS and required for federal taxes, opening a business bank account, and hiring employees.</div>
     <div class="form-group"><label class="form-label">Número de Registro Estatal</label><input type="text" class="form-input" placeholder="Optional — helps confirm entity" onblur="lookupFLDoc(this)"/><div id="fldoc-status" style="margin-top:5px;min-height:18px"></div></div>
     <div class="section-divider">Business Information</div>
     <div class="form-group"><label class="form-label">Entity Type *</label><select class="select-input" data-field="entity-type"><option value="">Select...</option><option>LLC — Single Member</option><option>LLC — Multi-Member</option><option>Corporation (S-Corp or C-Corp)</option></select></div>
@@ -773,7 +773,7 @@ var serviceForms={
     <div class="form-group"><label class="form-label">Primary Business Activity</label><select class="select-input"><option>Retail &amp; E-Commerce</option><option>Real Estate</option><option>Restaurant / Food Service</option><option>Construction</option><option>Technology</option><option>Consulting</option><option>Import / Export</option><option>Health &amp; Wellness</option><option>Other</option></select></div>
     <div class="form-group"><label class="form-label">Electronic Signature *</label><input type="text" class="form-input" placeholder="Type full legal name"/></div>
     <div class="summary-box"><div class="summary-row"><span>EIN Application Service</span><span>$49</span></div><div class="summary-row"><span>IRS Filing Fee</span><span>FREE</span></div><div class="summary-row"><span style="font-weight:700">Total Today</span><span>$49</span></div></div>
-    <button class="btn-submit-svc" onclick="submitService()">&#x1F680; Order EIN — $49 &#8594;</button>
+    <button class="btn-submit-svc" onclick="submitService()">Order EIN — $49 &#8594;</button>
     <div class="disclaimer">EIN is issued by the IRS. Processing typically takes 1–3 business days after we submit.</div>\`
 },
 'operating-agreement':{
@@ -783,7 +783,7 @@ var serviceForms={
   sub_es:'Acuerdo Operativo personalizado para LLC basado en los estatutos de Florida y tu estructura de propiedad.',
   price:'$79',
   html:\`
-    <div class="info-box">&#128196; <strong>Florida Requirement:</strong> Banks require your Operating Agreement (along with your EIN and Certificate of Formation) to open a business checking account.</div>
+    <div class="info-box"><strong>Florida Requirement:</strong> Banks require your Operating Agreement (along with your EIN and Certificate of Formation) to open a business checking account.</div>
     <div class="section-divider">LLC Information</div>
     <div class="form-group"><label class="form-label">LLC Name *</label><input type="text" class="form-input" placeholder="Exact registered name including LLC"/></div>
     <div class="form-group"><label class="form-label">State of Formation</label><input type="text" class="form-input" value="Florida" readonly/></div>
@@ -809,7 +809,7 @@ var serviceForms={
     <div class="form-group"><label class="form-label">Email *</label><input type="email" class="form-input" placeholder="Where we send your Operating Agreement"/></div>
     <div class="form-group"><label class="form-label">Electronic Signature *</label><input type="text" class="form-input" placeholder="Type full legal name"/></div>
     <div class="summary-box"><div class="summary-row"><span>Custom Operating Agreement</span><span>$79</span></div><div class="summary-row"><span>Delivery</span><span>PDF via Email</span></div><div class="summary-row"><span style="font-weight:700">Total Today</span><span>$79</span></div></div>
-    <button class="btn-submit-svc" onclick="submitService()">&#x1F680; Order Operating Agreement — $79 &#8594;</button>
+    <button class="btn-submit-svc" onclick="submitService()">Order Operating Agreement — $79 &#8594;</button>
     <div class="disclaimer">We prepare your custom Operating Agreement within 2–5 business days.</div>\`
 },
 'itin':{
@@ -819,7 +819,7 @@ var serviceForms={
   sub_es:'Preparación del Formulario W-7 del IRS para extranjeros que necesitan un número de identificación fiscal en EE.UU.',
   price:'$135',
   html:\`
-    <div class="info-box">&#127760; <strong>Who needs an ITIN?</strong> Foreign nationals, non-resident aliens, and individuals who must file US taxes but are not eligible for a Social Security Number (SSN).</div>
+    <div class="info-box"><strong>Who needs an ITIN?</strong> Foreign nationals, non-resident aliens, and individuals who must file US taxes but are not eligible for a Social Security Number (SSN).</div>
     <div class="warn-box">&#9888; ITIN processing by the IRS typically takes 6–10 weeks. Our service fee covers preparation and submission assistance only — the IRS issues the ITIN directly.</div>
     <div class="section-divider">Applicant Information (IRS Form W-7)</div>
     <div class="form-row"><div class="form-group"><label class="form-label">First Name *</label><input type="text" class="form-input" placeholder="As on passport"/></div><div class="form-group"><label class="form-label">Last Name *</label><input type="text" class="form-input" placeholder="As on passport"/></div></div>
@@ -835,13 +835,13 @@ var serviceForms={
     <div class="form-row"><div class="form-group"><label class="form-label">City *</label><input type="text" class="form-input" placeholder="City"/></div><div class="form-group"><label class="form-label">ZIP</label><input type="text" class="form-input" placeholder="ZIP"/></div></div>
     <div class="section-divider">Identity Documents</div>
     <div class="form-group"><label class="form-label">Primary ID Document *</label><select class="select-input"><option>Passport (preferred by IRS)</option><option>Foreign national ID + birth certificate</option><option>Visa + passport</option></select></div>
-    <div class="info-box">&#128196; We'll send you a complete document checklist after you submit this form. You do NOT need to mail us originals — we guide you through certified copy options.</div>
+    <div class="info-box">We'll send you a complete document checklist after you submit this form. You do NOT need to mail us originals — we guide you through certified copy options.</div>
     <div class="section-divider">Contact</div>
     <div class="form-group"><label class="form-label">Email *</label><input type="email" class="form-input" placeholder="For status updates and ITIN delivery"/></div>
     <div class="form-group"><label class="form-label">WhatsApp / Phone</label><input type="tel" class="form-input" placeholder="+1 (XXX) XXX-XXXX or international number"/></div>
     <div class="form-group"><label class="form-label">Electronic Signature *</label><input type="text" class="form-input" placeholder="Type full legal name"/></div>
     <div class="summary-box"><div class="summary-row"><span>ITIN Application Service</span><span>$135</span></div><div class="summary-row"><span>IRS Application Fee</span><span>FREE</span></div><div class="summary-row"><span style="font-weight:700">Total Today</span><span>$135</span></div></div>
-    <button class="btn-submit-svc" onclick="submitService()">&#x1F680; Order ITIN Application — $135 &#8594;</button>
+    <button class="btn-submit-svc" onclick="submitService()">Order ITIN Application — $135 &#8594;</button>
     <div class="disclaimer">ITIN is issued by the IRS. Processing takes 6–10 weeks. We are not a law firm and do not provide tax advice.</div>\`
 },
 'dba':{
@@ -851,7 +851,7 @@ var serviceForms={
   sub_es:'Registra tu Nombre Ficticio (DBA) ante la División de Corporaciones de Florida.',
   price:'$49 + state fee',
   html:\`
-    <div class="info-box">&#127991; <strong>Florida Requirement:</strong> Any business operating under a name different from its legal registered name must file a Fictitious Name Registration with the Florida Division of Corporations. Valid for 5 years.</div>
+    <div class="info-box"><strong>Florida Requirement:</strong> Any business operating under a name different from its legal registered name must file a Fictitious Name Registration with the Florida Division of Corporations. Valid for 5 years.</div>
     <div class="form-group"><label class="form-label">Número de Registro Estatal</label><input type="text" class="form-input" placeholder="e.g. L23000123456 (if entity is registered)" onblur="lookupFLDoc(this)"/><div id="fldoc-status" style="margin-top:5px;min-height:18px"></div></div>
     <div class="section-divider">Business Information</div>
     <div class="form-group"><label class="form-label">Entity Type *</label><select class="select-input" data-field="entity-type"><option value="">Select...</option><option>LLC</option><option>Corporation</option><option>Sole Proprietorship</option><option>Partnership</option></select></div>
@@ -868,7 +868,7 @@ var serviceForms={
     <div class="form-group"><label class="form-label">Email *</label><input type="email" class="form-input" placeholder="you@email.com"/></div>
     <div class="form-group"><label class="form-label">Electronic Signature *</label><input type="text" class="form-input" placeholder="Type full legal name"/></div>
     <div class="summary-box"><div class="summary-row"><span>DBA / Fictitious Name Filing</span><span>$49</span></div><div class="summary-row"><span>FL State Filing Fee</span><span>Included</span></div><div class="summary-row"><span style="font-weight:700">Total Today</span><span>$49</span></div></div>
-    <button class="btn-submit-svc" onclick="submitService()">&#x1F680; Order DBA Filing — $49 &#8594;</button>
+    <button class="btn-submit-svc" onclick="submitService()">Order DBA Filing — $49 &#8594;</button>
     <div class="disclaimer">Fictitious Name is registered for 5 years per Florida Statute § 865.09. Renewal required before expiration.</div>\`
 },
 'virtual-address':{
@@ -878,7 +878,7 @@ var serviceForms={
   sub_es:'Dirección profesional en FL para tu negocio. Correo recibido y reenviado digitalmente.',
   price:'$29/mo',
   html:\`
-    <div class="info-box">&#128205; <strong>Privacy &amp; Professionalism:</strong> Your home address stays off all public Florida Division of Corporations records. Use this address for your business registration, website, and business cards.</div>
+    <div class="info-box"><strong>Privacy &amp; Professionalism:</strong> Your home address stays off all public Florida Division of Corporations records. Use this address for your business registration, website, and business cards.</div>
     <div class="section-divider">Business Information</div>
     <div class="form-group"><label class="form-label">Business Name *</label><input type="text" class="form-input" placeholder="Your business name (as registered or as DBA)"/></div>
     <div class="form-group"><label class="form-label">Entity Type</label><select class="select-input"><option>LLC</option><option>Corporation</option><option>Sole Proprietorship / Individual</option><option>Partnership</option></select></div>
@@ -891,7 +891,7 @@ var serviceForms={
     <div class="form-group"><label class="form-label">Plan</label><select class="select-input"><option>Digital Forwarding Only — $29/month</option><option>Digital + Physical Forwarding — $39/month</option></select></div>
     <div class="form-group"><label class="form-label">Electronic Signature *</label><input type="text" class="form-input" placeholder="Type full legal name — confirms monthly authorization"/></div>
     <div class="summary-box"><div class="summary-row"><span>Virtual Mailing Address</span><span>$29/month</span></div><div class="summary-row"><span>Setup Fee</span><span>FREE</span></div><div class="summary-row"><span style="font-weight:700">First Month Due Today</span><span>$29</span></div></div>
-    <button class="btn-submit-svc" onclick="submitService()">&#x1F680; Activate Virtual Address — $29 &#8594;</button>
+    <button class="btn-submit-svc" onclick="submitService()">Activate Virtual Address — $29 &#8594;</button>
     <div class="disclaimer">Monthly subscription. Cancel anytime with 30 days written notice to info@opabiz.com.</div>\`
 },
 'annual-report':{
@@ -929,7 +929,7 @@ var serviceForms={
     <div class="form-group"><label class="form-label">Email *</label><input type="email" class="form-input" placeholder="Confirmation email"/></div>
     <div class="form-group"><label class="form-label">Electronic Signature *</label><input type="text" class="form-input" placeholder="Type full legal name — authorizes Annual Report filing"/></div>
     <div class="summary-box"><div class="summary-row"><span>Annual Report Filing Service</span><span>Service Fee</span></div><div class="summary-row"><span>FL State Annual Report Fee (LLC)</span><span>$138.75</span></div><div class="summary-row"><span>FL State Annual Report Fee (Corp)</span><span>$150</span></div><div class="summary-row"><span style="font-weight:700">Due Today</span><span>Service Fee + State Fee</span></div></div>
-    <button class="btn-submit-svc" onclick="submitService()">&#x1F680; Submit Annual Report Order &#8594;</button>
+    <button class="btn-submit-svc" onclick="submitService()">Submit Annual Report Order &#8594;</button>
     <div class="disclaimer">State fees are paid to the Florida Division of Corporations. Our service fee is separate.</div>\`
 },
 'amendment':{
@@ -939,7 +939,7 @@ var serviceForms={
   sub_es:'Cambia el nombre de tu negocio, dirección, agente registrado u otros datos registrados ante el Estado de Florida.',
   price:'$59 + state fee',
   html:\`
-    <div class="info-box">&#9998; <strong>When do you need an Amendment?</strong> Whenever your registered business name, principal address, registered agent, officers/directors, or business purpose changes — you must update state records within a reasonable time.</div>
+    <div class="info-box"><strong>When do you need an Amendment?</strong> Whenever your registered business name, principal address, registered agent, officers/directors, or business purpose changes — you must update state records within a reasonable time.</div>
     <div class="form-group"><label class="form-label">Número de Registro Estatal *</label><input type="text" class="form-input" placeholder="e.g. L23000123456 — from your state certificate" onblur="lookupFLDoc(this)"/><div id="fldoc-status" style="margin-top:5px;min-height:18px"></div></div>
     <div class="section-divider">Business Identification</div>
     <div class="form-group"><label class="form-label">Entity Type *</label><select class="select-input" data-field="entity-type"><option value="">Select...</option><option>LLC</option><option>Corporation</option></select></div>
@@ -995,7 +995,7 @@ var serviceForms={
     <div class="form-group"><label class="form-label">Email *</label><input type="email" class="form-input" placeholder="Confirmation and document delivery"/></div>
     <div class="form-group"><label class="form-label">Electronic Signature *</label><input type="text" class="form-input" placeholder="Type full legal name"/></div>
     <div class="summary-box"><div class="summary-row"><span>Articles of Amendment Service</span><span>$59</span></div><div class="summary-row"><span>FL Division of Corporations Filing Fee</span><span>~$25</span></div><div class="summary-row"><span style="font-weight:700">Total Today</span><span>$59 + state fee</span></div></div>
-    <button class="btn-submit-svc" onclick="submitService()">&#x1F680; Order Articles of Amendment &#8594;</button>
+    <button class="btn-submit-svc" onclick="submitService()">Order Articles of Amendment &#8594;</button>
     <div class="disclaimer">Florida state filing fee is approximately $25 for LLC and $35 for Corporation, paid to the FL Division of Corporations.</div>\`
 },
 'banking-resolution':{
@@ -1005,7 +1005,7 @@ var serviceForms={
   sub_es:'Documento personalizado que autoriza a un miembro u oficial a abrir una cuenta bancaria en nombre de tu entidad.',
   price:'$49',
   html:\`
-    <div class="info-box">&#127981; <strong>Required by most banks:</strong> A Banking Resolution authorizes your LLC or Corporation to open a business bank account. Most U.S. banks require this document along with your EIN and Certificate of Formation.</div>
+    <div class="info-box"><strong>Required by most banks:</strong> A Banking Resolution authorizes your LLC or Corporation to open a business bank account. Most U.S. banks require this document along with your EIN and Certificate of Formation.</div>
     <div class="form-group"><label class="form-label">Número de Registro Estatal</label><input type="text" class="form-input" placeholder="e.g. L23000123456" onblur="lookupFLDoc(this)"/><div id="fldoc-status" style="margin-top:5px;min-height:18px"></div></div>
     <div class="section-divider">Business Information</div>
     <div class="form-group"><label class="form-label">Entity Type *</label><select class="select-input" data-field="entity-type"><option value="">Select...</option><option>LLC</option><option>Corporation</option></select></div>
@@ -1022,7 +1022,7 @@ var serviceForms={
     <div class="form-group"><label class="form-label">Phone / WhatsApp</label><input type="tel" class="form-input" placeholder="(XXX) XXX-XXXX"/></div>
     <div class="form-group"><label class="form-label">Electronic Signature *</label><input type="text" class="form-input" placeholder="Type full legal name"/></div>
     <div class="summary-box"><div class="summary-row"><span>Banking Resolution</span><span>$49</span></div><div class="summary-row"><span>Delivery</span><span>PDF via Email</span></div><div class="summary-row"><span style="font-weight:700">Total Today</span><span>$49</span></div></div>
-    <button class="btn-submit-svc" onclick="submitService()">&#x1F680; Order Banking Resolution — $49 &#8594;</button>
+    <button class="btn-submit-svc" onclick="submitService()">Order Banking Resolution — $49 &#8594;</button>
     <div class="disclaimer">Florida Business Formation Center is a document preparation service, not a law firm. We do not provide legal advice.</div>\`
 },
 'business-tax-receipt':{
@@ -1032,7 +1032,7 @@ var serviceForms={
   sub_es:'Solicitud del Business Tax Receipt presentada ante tu condado local. Requerido para operar legalmente en la mayoría de condados de FL.',
   price:'$79 + county fee',
   html:\`
-    <div class="info-box">&#127981; <strong>Florida Requirement:</strong> A Business Tax Receipt (formerly Occupational License) is required to legally operate in most Florida counties. The county fee varies by county and business type.</div>
+    <div class="info-box"><strong>Florida Requirement:</strong> A Business Tax Receipt (formerly Occupational License) is required to legally operate in most Florida counties. The county fee varies by county and business type.</div>
     <div class="form-group"><label class="form-label">Número de Registro Estatal</label><input type="text" class="form-input" placeholder="e.g. L23000123456" onblur="lookupFLDoc(this)"/><div id="fldoc-status" style="margin-top:5px;min-height:18px"></div></div>
     <div class="section-divider">Business Information</div>
     <div class="form-group"><label class="form-label">Entity Type *</label><select class="select-input" data-field="entity-type"><option value="">Select...</option><option>LLC</option><option>Corporation</option><option>Sole Proprietorship</option><option>Partnership</option></select></div>
@@ -1052,7 +1052,7 @@ var serviceForms={
     <div class="form-group"><label class="form-label">Phone *</label><input type="tel" class="form-input" placeholder="(XXX) XXX-XXXX"/></div>
     <div class="form-group"><label class="form-label">Electronic Signature *</label><input type="text" class="form-input" placeholder="Type full legal name"/></div>
     <div class="summary-box"><div class="summary-row"><span>BTR Service Fee</span><span>$79</span></div><div class="summary-row"><span>County Filing Fee</span><span>Varies by county</span></div><div class="summary-row"><span style="font-weight:700">Service Fee Due Today</span><span>$79</span></div></div>
-    <button class="btn-submit-svc" onclick="submitService()">&#x1F680; Order Business Tax Receipt — $79 &#8594;</button>
+    <button class="btn-submit-svc" onclick="submitService()">Order Business Tax Receipt — $79 &#8594;</button>
     <div class="disclaimer">County filing fee is paid separately to your local Florida county. Our $79 covers application preparation and filing assistance.</div>\`
 },
 'sales-tax-registration':{
@@ -1062,7 +1062,7 @@ var serviceForms={
   sub_es:'Registro ante el Departamento de Ingresos de Florida para cobrar y remitir el impuesto sobre ventas (Formulario DR-1).',
   price:'$79',
   html:\`
-    <div class="info-box">&#128202; <strong>Florida Requirement:</strong> Any business selling taxable products or services in Florida must register with the FL Department of Revenue. Unregistered businesses face penalties and back taxes.</div>
+    <div class="info-box"><strong>Florida Requirement:</strong> Any business selling taxable products or services in Florida must register with the FL Department of Revenue. Unregistered businesses face penalties and back taxes.</div>
     <div class="form-group"><label class="form-label">Número de Registro Estatal</label><input type="text" class="form-input" placeholder="e.g. L23000123456" onblur="lookupFLDoc(this)"/><div id="fldoc-status" style="margin-top:5px;min-height:18px"></div></div>
     <div class="section-divider">Business Information</div>
     <div class="form-group"><label class="form-label">Entity Type *</label><select class="select-input" data-field="entity-type"><option value="">Select...</option><option>LLC</option><option>Corporation</option><option>Sole Proprietorship</option><option>Partnership</option></select></div>
@@ -1083,7 +1083,7 @@ var serviceForms={
     <div class="form-group"><label class="form-label">Email *</label><input type="email" class="form-input" placeholder="you@email.com"/></div>
     <div class="form-group"><label class="form-label">Electronic Signature *</label><input type="text" class="form-input" placeholder="Type full legal name"/></div>
     <div class="summary-box"><div class="summary-row"><span>Sales Tax Registration Service</span><span>$79</span></div><div class="summary-row"><span>FL DOR Registration Fee</span><span>FREE</span></div><div class="summary-row"><span style="font-weight:700">Total Today</span><span>$79</span></div></div>
-    <button class="btn-submit-svc" onclick="submitService()">&#x1F680; Order Sales Tax Registration — $79 &#8594;</button>
+    <button class="btn-submit-svc" onclick="submitService()">Order Sales Tax Registration — $79 &#8594;</button>
     <div class="disclaimer">Registration is with the Florida Department of Revenue. Sales tax must be collected and remitted on taxable sales. We do not provide tax advice.</div>\`
 },
 'exclusive-guide':{
@@ -1093,7 +1093,7 @@ var serviceForms={
   sub_es:'Guía paso a paso para negocios en Florida — banca, calendario de cumplimiento y lista de verificación post-formación.',
   price:'$49',
   html:\`
-    <div class="info-box">&#128218; <strong>What you get:</strong> Our Exclusive Formation Guide covers everything you need after forming your LLC or Corporation — from opening your business bank account to Florida compliance deadlines and annual obligations. Delivered same business day by email.</div>
+    <div class="info-box"><strong>What you get:</strong> Our Exclusive Formation Guide covers everything you need after forming your LLC or Corporation — from opening your business bank account to Florida compliance deadlines and annual obligations. Delivered same business day by email.</div>
     <div class="section-divider">Your Business (Optional)</div>
     <div class="form-group"><label class="form-label">Business Name</label><input type="text" class="form-input" placeholder="Your business name (optional)"/></div>
     <div class="form-group"><label class="form-label">Entity Type</label><select class="select-input"><option value="">Select (optional)...</option><option>LLC</option><option>Corporation</option><option>Sole Proprietorship</option></select></div>
@@ -1103,7 +1103,7 @@ var serviceForms={
     <div class="form-group"><label class="form-label">Email *</label><input type="email" class="form-input" placeholder="Where we send your Guide (PDF)"/></div>
     <div class="form-group"><label class="form-label">Phone / WhatsApp</label><input type="tel" class="form-input" placeholder="(XXX) XXX-XXXX"/></div>
     <div class="summary-box"><div class="summary-row"><span>Exclusive Formation Guide (PDF)</span><span>$49</span></div><div class="summary-row"><span>Delivery</span><span>Same business day</span></div><div class="summary-row"><span style="font-weight:700">Total Today</span><span>$49</span></div></div>
-    <button class="btn-submit-svc" onclick="submitService()">&#x1F680; Order Exclusive Guide — $49 &#8594;</button>
+    <button class="btn-submit-svc" onclick="submitService()">Order Exclusive Guide — $49 &#8594;</button>
     <div class="disclaimer">Guide is delivered by email within the same business day. Digital PDF format only.</div>\`
 },
 'good-standing':{
@@ -1113,7 +1113,7 @@ var serviceForms={
   sub_es:'Certificado oficial de la División de Corporaciones de FL que confirma que tu negocio está activo y en regla.',
   price:'$49 + state fee',
   html:\`
-    <div class="info-box">&#127942; <strong>When do you need this?</strong> Banks, investors, and government agencies require a Certificate of Good Standing before opening accounts, approving loans, signing contracts, or entering business partnerships.</div>
+    <div class="info-box"><strong>When do you need this?</strong> Banks, investors, and government agencies require a Certificate of Good Standing before opening accounts, approving loans, signing contracts, or entering business partnerships.</div>
     <div class="form-group"><label class="form-label">Número de Registro Estatal *</label><input type="text" class="form-input" placeholder="e.g. L23000123456" onblur="lookupFLDoc(this)"/><div id="fldoc-status" style="margin-top:5px;min-height:18px"></div></div>
     <div class="section-divider">Business Information</div>
     <div class="form-group"><label class="form-label">Entity Type *</label><select class="select-input" data-field="entity-type"><option value="">Select...</option><option>LLC</option><option>Corporation</option></select></div>
@@ -1127,7 +1127,7 @@ var serviceForms={
     <div class="form-group"><label class="form-label">Phone / WhatsApp</label><input type="tel" class="form-input" placeholder="(XXX) XXX-XXXX"/></div>
     <div class="form-group"><label class="form-label">Electronic Signature *</label><input type="text" class="form-input" placeholder="Type full legal name"/></div>
     <div class="summary-box"><div class="summary-row"><span>Certificate of Good Standing Service</span><span>$49</span></div><div class="summary-row"><span>FL Division of Corporations Fee</span><span>~$8.75</span></div><div class="summary-row"><span style="font-weight:700">Total Today</span><span>$49 + state fee</span></div></div>
-    <button class="btn-submit-svc" onclick="submitService()">&#x1F680; Order Certificate — $49 &#8594;</button>
+    <button class="btn-submit-svc" onclick="submitService()">Order Certificate — $49 &#8594;</button>
     <div class="disclaimer">Certificate is issued by the Florida Division of Corporations. State fee is separate and varies by entity type.</div>\`
 },
 'foreign-llc':{
@@ -1137,7 +1137,7 @@ var serviceForms={
   sub_es:'Registra tu LLC o Corporación de Florida para operar legalmente en otro estado de EE.UU.',
   price:'$99 + state filing fee',
   html:\`
-    <div class="info-box">&#127758; <strong>When is this required?</strong> If your Florida LLC or Corporation has employees, a physical office, or regularly conducts business in another U.S. state, you must register as a Foreign Entity in that state to avoid fines and legal exposure.</div>
+    <div class="info-box"><strong>When is this required?</strong> If your Florida LLC or Corporation has employees, a physical office, or regularly conducts business in another U.S. state, you must register as a Foreign Entity in that state to avoid fines and legal exposure.</div>
     <div class="form-group"><label class="form-label">Número de Registro Estatal *</label><input type="text" class="form-input" placeholder="e.g. L23000123456" onblur="lookupFLDoc(this)"/><div id="fldoc-status" style="margin-top:5px;min-height:18px"></div></div>
     <div class="section-divider">Florida Entity Information</div>
     <div class="form-group"><label class="form-label">Entity Type *</label><select class="select-input" data-field="entity-type"><option value="">Select...</option><option>LLC</option><option>Corporation</option></select></div>
@@ -1154,7 +1154,7 @@ var serviceForms={
     <div class="form-group"><label class="form-label">Phone / WhatsApp</label><input type="tel" class="form-input" placeholder="(XXX) XXX-XXXX"/></div>
     <div class="form-group"><label class="form-label">Electronic Signature *</label><input type="text" class="form-input" placeholder="Type full legal name"/></div>
     <div class="summary-box"><div class="summary-row"><span>Foreign Registration Service Fee</span><span>$99</span></div><div class="summary-row"><span>State Filing Fee</span><span>Varies by state</span></div><div class="summary-row"><span>Registered Agent in Target State</span><span>Included (1st year)</span></div><div class="summary-row"><span style="font-weight:700">Service Fee Due Today</span><span>$99</span></div></div>
-    <button class="btn-submit-svc" onclick="submitService()">&#x1F680; Order Foreign Registration — $99 &#8594;</button>
+    <button class="btn-submit-svc" onclick="submitService()">Order Foreign Registration — $99 &#8594;</button>
     <div class="disclaimer">State filing fees vary by state and are paid separately. Registered Agent service in the target state is included for the first year.</div>\`
 },
 'business-license':{
@@ -1164,7 +1164,7 @@ var serviceForms={
   sub_es:'Identificamos y tramitamos todas las licencias federales, estatales y locales requeridas para tu negocio.',
   price:'$99',
   html:\`
-    <div class="info-box">&#128203; <strong>What\'s included:</strong> We research which licenses your business needs at the federal, Florida state, county, and city level — then handle the applications on your behalf. Requirements vary by industry and location.</div>
+    <div class="info-box"><strong>What\'s included:</strong> We research which licenses your business needs at the federal, Florida state, county, and city level — then handle the applications on your behalf. Requirements vary by industry and location.</div>
     <div class="form-group"><label class="form-label">Número de Registro Estatal</label><input type="text" class="form-input" placeholder="e.g. L23000123456" onblur="lookupFLDoc(this)"/><div id="fldoc-status" style="margin-top:5px;min-height:18px"></div></div>
     <div class="section-divider">Business Information</div>
     <div class="form-group"><label class="form-label">Entity Type *</label><select class="select-input" data-field="entity-type"><option value="">Select...</option><option>LLC</option><option>Corporation</option><option>Sole Proprietorship</option><option>Partnership</option></select></div>
@@ -1184,7 +1184,7 @@ var serviceForms={
     <div class="form-group"><label class="form-label">Phone *</label><input type="tel" class="form-input" placeholder="(XXX) XXX-XXXX"/></div>
     <div class="form-group"><label class="form-label">Electronic Signature *</label><input type="text" class="form-input" placeholder="Type full legal name"/></div>
     <div class="summary-box"><div class="summary-row"><span>Business License Research &amp; Filing</span><span>$99</span></div><div class="summary-row"><span>License Application Fees</span><span>Varies by license</span></div><div class="summary-row"><span style="font-weight:700">Service Fee Due Today</span><span>$99</span></div></div>
-    <button class="btn-submit-svc" onclick="submitService()">&#x1F680; Order Business License — $99 &#8594;</button>
+    <button class="btn-submit-svc" onclick="submitService()">Order Business License — $99 &#8594;</button>
     <div class="disclaimer">License application fees (if any) are paid directly to the issuing authority. Our $99 covers research, preparation, and filing assistance.</div>\`
 },
 'dissolution':{
@@ -1217,7 +1217,7 @@ var serviceForms={
     <div class="form-group"><label class="form-label">Phone / WhatsApp</label><input type="tel" class="form-input" placeholder="(XXX) XXX-XXXX"/></div>
     <div class="form-group"><label class="form-label">Electronic Signature *</label><input type="text" class="form-input" placeholder="Type full legal name — authorizes Articles of Dissolution"/></div>
     <div class="summary-box"><div class="summary-row"><span>Business Dissolution Service</span><span>$79</span></div><div class="summary-row"><span>FL Filing Fee (LLC)</span><span>$25</span></div><div class="summary-row"><span>FL Filing Fee (Corp)</span><span>$35</span></div><div class="summary-row"><span style="font-weight:700">Service Fee Due Today</span><span>$79</span></div></div>
-    <button class="btn-submit-svc" onclick="submitService()">&#x1F680; Order Dissolution — $79 &#8594;</button>
+    <button class="btn-submit-svc" onclick="submitService()">Order Dissolution — $79 &#8594;</button>
     <div class="disclaimer">State filing fee paid separately to FL Division of Corporations. Dissolution does not close IRS or FL DOR tax accounts.</div>\`
 },
 'cierre-fiscal':{
@@ -1227,7 +1227,7 @@ var serviceForms={
   sub_es:'Cierre correcto de tu EIN ante el IRS y tu cuenta de impuesto sobre ventas ante el Departamento de Ingresos de Florida.',
   price:'$79',
   html:\`
-    <div class="info-box">&#128274; <strong>Why this matters:</strong> Simply dissolving your FL entity does NOT close your IRS or FL Department of Revenue accounts. Unclosed tax accounts can result in penalties, tax notices, and future obligations — even after your business is dissolved.</div>
+    <div class="info-box"><strong>Why this matters:</strong> Simply dissolving your FL entity does NOT close your IRS or FL Department of Revenue accounts. Unclosed tax accounts can result in penalties, tax notices, and future obligations — even after your business is dissolved.</div>
     <div class="section-divider">Business Information</div>
     <div class="form-group"><label class="form-label">Legal Business Name *</label><input type="text" class="form-input" placeholder="Exact name as registered"/></div>
     <div class="form-group"><label class="form-label">Entity Type *</label><select class="select-input"><option value="">Select...</option><option>LLC</option><option>Corporation</option><option>Sole Proprietorship</option><option>Partnership</option></select></div>
@@ -1250,7 +1250,7 @@ var serviceForms={
     <div class="form-group"><label class="form-label">Phone / WhatsApp</label><input type="tel" class="form-input" placeholder="(XXX) XXX-XXXX"/></div>
     <div class="form-group"><label class="form-label">Electronic Signature *</label><input type="text" class="form-input" placeholder="Type full legal name"/></div>
     <div class="summary-box"><div class="summary-row"><span>Tax Account Closure Service</span><span>$79</span></div><div class="summary-row"><span>IRS &amp; FL DOR Processing</span><span>Included</span></div><div class="summary-row"><span style="font-weight:700">Total Today</span><span>$79</span></div></div>
-    <button class="btn-submit-svc" onclick="submitService()">&#x1F680; Order Tax Account Closure — $79 &#8594;</button>
+    <button class="btn-submit-svc" onclick="submitService()">Order Tax Account Closure — $79 &#8594;</button>
     <div class="disclaimer">IRS EIN closure takes 2–4 weeks. FL DOR account closure takes 2–3 weeks. We do not provide tax advice — consult a CPA for your final tax obligations.</div>\`
 }
 };
