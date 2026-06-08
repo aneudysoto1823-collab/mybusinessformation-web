@@ -710,6 +710,15 @@ var currentService='';
 var orderNum='';
 function genOrderNum(){return 'FBFC-'+Math.floor(10000+Math.random()*90000);}
 
+function toggleAmendSection(cb){
+  var map={'amend-name':'amend-section-name','amend-addr':'amend-section-addr','amend-mail':'amend-section-mail','amend-agent':'amend-section-agent','amend-officers':'amend-section-officers','amend-purpose':'amend-section-purpose','amend-other':'amend-section-other'};
+  var sec=document.getElementById(map[cb.id]);
+  if(sec) sec.style.display=cb.checked?'':'none';
+  var anyChecked=['amend-name','amend-addr','amend-mail','amend-agent','amend-officers','amend-purpose','amend-other'].some(function(id){var el=document.getElementById(id);return el&&el.checked;});
+  var div=document.getElementById('amend-new-info-divider');
+  if(div) div.style.display=anyChecked?'':'none';
+}
+
 var serviceForms={
 'registered-agent':{
   title:'Registered Agent Service',
@@ -937,22 +946,48 @@ var serviceForms={
     <div class="form-group"><label class="form-label">Current Registered Business Name *</label><input type="text" class="form-input" data-field="business-name" placeholder="Exact name as registered with the State"/></div>
     <div class="section-divider">What Are You Amending? (Check all that apply)</div>
     <div class="form-group">
-      <label class="check-label"><input type="checkbox" id="amend-name"/> Business Name Change</label>
-      <label class="check-label"><input type="checkbox" id="amend-addr"/> Principal Address Change</label>
-      <label class="check-label"><input type="checkbox" id="amend-mail"/> Mailing Address Change</label>
-      <label class="check-label"><input type="checkbox" id="amend-agent"/> Registered Agent Change</label>
-      <label class="check-label"><input type="checkbox" id="amend-officers"/> Officers / Directors / Managers Change</label>
-      <label class="check-label"><input type="checkbox" id="amend-purpose"/> Business Purpose Change</label>
-      <label class="check-label"><input type="checkbox" id="amend-other"/> Other</label>
+      <label class="check-label"><input type="checkbox" id="amend-name" onchange="toggleAmendSection(this)"/> Business Name Change</label>
+      <label class="check-label"><input type="checkbox" id="amend-addr" onchange="toggleAmendSection(this)"/> Principal Address Change</label>
+      <label class="check-label"><input type="checkbox" id="amend-mail" onchange="toggleAmendSection(this)"/> Mailing Address Change</label>
+      <label class="check-label"><input type="checkbox" id="amend-agent" onchange="toggleAmendSection(this)"/> Registered Agent Change</label>
+      <label class="check-label"><input type="checkbox" id="amend-officers" onchange="toggleAmendSection(this)"/> Officers / Directors / Managers Change</label>
+      <label class="check-label"><input type="checkbox" id="amend-purpose" onchange="toggleAmendSection(this)"/> Business Purpose Change</label>
+      <label class="check-label"><input type="checkbox" id="amend-other" onchange="toggleAmendSection(this)"/> Other</label>
     </div>
-    <div class="section-divider">New / Updated Information</div>
-    <div class="form-group"><label class="form-label">New Business Name (if changing)</label><input type="text" class="form-input" placeholder="New name including LLC or Corp suffix"/></div>
-    <div class="form-group"><label class="form-label">New Principal Street Address (if changing)</label><input type="text" class="form-input" placeholder="Street address — no PO Box"/></div>
-    <div class="form-row"><div class="form-group"><label class="form-label">City</label><input type="text" class="form-input" placeholder="City"/></div><div class="form-group"><label class="form-label">State</label><input type="text" class="form-input" value="FL" readonly/></div><div class="form-group"><label class="form-label">ZIP</label><input type="text" class="form-input" placeholder="ZIP"/></div></div>
-    <div class="form-group"><label class="form-label">New Registered Agent Name (if changing)</label><input type="text" class="form-input" placeholder="New registered agent full name or company"/></div>
-    <div class="form-group"><label class="form-label">New Registered Agent FL Street Address</label><input type="text" class="form-input" placeholder="Street address — no PO Box"/></div>
-    <div class="form-row"><div class="form-group"><label class="form-label">City</label><input type="text" class="form-input" placeholder="City"/></div><div class="form-group"><label class="form-label">State</label><input type="text" class="form-input" value="FL" readonly/></div><div class="form-group"><label class="form-label">ZIP</label><input type="text" class="form-input" placeholder="ZIP"/></div></div>
-    <div class="form-group"><label class="form-label">Describe Other Changes</label><textarea class="form-input" rows="3" placeholder="Describe any other amendments in detail..."></textarea></div>
+
+    <div id="amend-new-info-divider" class="section-divider" style="display:none">New / Updated Information</div>
+
+    <div id="amend-section-name" style="display:none">
+      <div class="form-group"><label class="form-label">New Business Name *</label><input type="text" class="form-input" placeholder="New name — include LLC or Corp suffix (e.g. ABC Solutions LLC)"/></div>
+    </div>
+
+    <div id="amend-section-addr" style="display:none">
+      <div class="form-group"><label class="form-label">New Principal Street Address *</label><input type="text" class="form-input" placeholder="Street address — no PO Box"/></div>
+      <div class="form-row"><div class="form-group"><label class="form-label">City *</label><input type="text" class="form-input" placeholder="City"/></div><div class="form-group"><label class="form-label">State</label><input type="text" class="form-input" value="FL" readonly/></div><div class="form-group"><label class="form-label">ZIP *</label><input type="text" class="form-input" placeholder="ZIP"/></div></div>
+    </div>
+
+    <div id="amend-section-mail" style="display:none">
+      <div class="form-group"><label class="form-label">New Mailing Address *</label><input type="text" class="form-input" placeholder="Street address or PO Box"/></div>
+      <div class="form-row"><div class="form-group"><label class="form-label">City *</label><input type="text" class="form-input" placeholder="City"/></div><div class="form-group"><label class="form-label">State</label><input type="text" class="form-input" value="FL" readonly/></div><div class="form-group"><label class="form-label">ZIP *</label><input type="text" class="form-input" placeholder="ZIP"/></div></div>
+    </div>
+
+    <div id="amend-section-agent" style="display:none">
+      <div class="form-group"><label class="form-label">New Registered Agent Name *</label><input type="text" class="form-input" placeholder="Full legal name or company name of new agent"/></div>
+      <div class="form-group"><label class="form-label">New Registered Agent FL Street Address *</label><input type="text" class="form-input" placeholder="FL street address — no PO Box"/></div>
+      <div class="form-row"><div class="form-group"><label class="form-label">City *</label><input type="text" class="form-input" placeholder="City"/></div><div class="form-group"><label class="form-label">State</label><input type="text" class="form-input" value="FL" readonly/></div><div class="form-group"><label class="form-label">ZIP *</label><input type="text" class="form-input" placeholder="ZIP"/></div></div>
+    </div>
+
+    <div id="amend-section-officers" style="display:none">
+      <div class="form-group"><label class="form-label">Officers / Directors / Managers Changes *</label><textarea class="form-input" rows="4" placeholder="Describe the changes: who is being added, removed, or updated. Include full name and title for each person (e.g. Add: John Doe — Managing Member / Remove: Jane Smith — Director)"></textarea></div>
+    </div>
+
+    <div id="amend-section-purpose" style="display:none">
+      <div class="form-group"><label class="form-label">New Business Purpose *</label><textarea class="form-input" rows="3" placeholder="Describe the new or updated purpose of your business (e.g. The purpose of this company is to engage in real estate investment and property management)"></textarea></div>
+    </div>
+
+    <div id="amend-section-other" style="display:none">
+      <div class="form-group"><label class="form-label">Describe Other Changes *</label><textarea class="form-input" rows="3" placeholder="Describe any other amendments in detail..."></textarea></div>
+    </div>
     <div class="section-divider">Adoption Method</div>
     <div class="form-group"><label class="form-label">How was this amendment approved? *</label><select class="select-input"><option>By the members/managers/directors</option><option>By written consent of all members</option><option>By majority vote at a duly noticed meeting</option><option>By the authorized manager acting alone</option></select></div>
     <div class="section-divider">Contact &amp; Signature</div>
