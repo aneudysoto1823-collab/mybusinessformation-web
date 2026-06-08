@@ -84,10 +84,10 @@ const CSS = `
   }
   .nb-logo-text { line-height: 1.25; }
   .nb-logo-text .l1 {
-    color: #fff;
     font-family: 'Fraunces', serif;
-    font-size: .95rem;
+    font-size: 1.5rem;
     font-weight: 700;
+    line-height: 1;
   }
   .nb-logo-text .l2 {
     color: #93c5fd;

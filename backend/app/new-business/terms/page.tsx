@@ -17,10 +17,10 @@ header{background:rgba(255,255,255,.97);border-bottom:1px solid var(--gray200);p
 .header-inner{max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:66px;gap:20px}
 .logo{display:flex;align-items:center;gap:11px}
 .logo-mark{width:40px;height:40px;background:linear-gradient(135deg,var(--navy),var(--blue));border-radius:9px;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Fraunces',serif;font-size:1rem;font-weight:700;flex-shrink:0}
-.logo-text{font-family:'Fraunces',serif;font-size:1rem;color:var(--navy);font-weight:700;line-height:1.2}
+.logo-text{font-family:'Fraunces',serif;font-size:1.5rem;color:var(--navy);font-weight:700;line-height:1.2}
 .logo-text span{display:block;font-family:'Plus Jakarta Sans',sans-serif;font-size:.63rem;color:var(--gray400);font-weight:400;letter-spacing:.8px;text-transform:uppercase}
-.logo-text span.logo-opa{display:inline;font-size:1rem;color:var(--navy);font-style:normal;letter-spacing:-.5px;text-transform:none;font-family:'Fraunces',serif;font-weight:700}
-.logo-text span.logo-biz{display:inline;font-size:1rem;color:#2563EB;font-style:italic;letter-spacing:-.5px;text-transform:none;font-family:'Fraunces',serif;font-weight:700}
+.logo-text span.logo-opa{display:inline;font-size:1.5rem;color:var(--navy);font-style:normal;letter-spacing:-.5px;text-transform:none;font-family:'Fraunces',serif;font-weight:700}
+.logo-text span.logo-biz{display:inline;font-size:1.5rem;color:#2563EB;font-style:normal;letter-spacing:-.5px;text-transform:none;font-family:'Fraunces',serif;font-weight:700}
 .back-btn{display:flex;align-items:center;gap:7px;font-size:.82rem;font-weight:600;color:var(--blue);padding:8px 16px;border-radius:8px;border:1.5px solid var(--blue);transition:all .2s}
 .back-btn:hover{background:var(--blue-light)}
 .lang-toggle{display:flex;background:var(--gray100);border-radius:20px;padding:3px;gap:2px}

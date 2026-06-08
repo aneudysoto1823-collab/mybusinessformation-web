@@ -138,10 +138,10 @@ header{position:sticky;top:0;z-index:200;background:rgba(255,255,255,0.97);backd
 .header-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:70px;gap:20px}
 .logo{display:flex;align-items:center;gap:12px}
 .logo-mark{width:42px;height:42px;background:linear-gradient(135deg,var(--navy),var(--blue));border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Fraunces',serif;font-size:1.1rem;font-weight:700;letter-spacing:-0.5px}
-.logo-text{font-family:'Fraunces',serif;font-size:1.1rem;color:var(--navy);font-weight:700;line-height:1.2}
+.logo-text{font-family:'Fraunces',serif;font-size:1.5rem;color:var(--navy);font-weight:700;line-height:1.2}
 .logo-text span{display:block;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.68rem;color:var(--gray400);font-weight:400;letter-spacing:0.8px;text-transform:uppercase}
-.logo-text span.logo-opa{display:inline;font-size:1.1rem;color:var(--navy);font-style:normal;letter-spacing:-.5px;text-transform:none;font-family:'Fraunces',serif;font-weight:700}
-.logo-text span.logo-biz{display:inline;font-size:1.1rem;color:#2563EB;font-style:italic;letter-spacing:-.5px;text-transform:none;font-family:'Fraunces',serif;font-weight:700}
+.logo-text span.logo-opa{display:inline;font-size:1.5rem;color:var(--navy);font-style:normal;letter-spacing:-.5px;text-transform:none;font-family:'Fraunces',serif;font-weight:700}
+.logo-text span.logo-biz{display:inline;font-size:1.5rem;color:#2563EB;font-style:normal;letter-spacing:-.5px;text-transform:none;font-family:'Fraunces',serif;font-weight:700}
 nav{display:flex;align-items:center;gap:6px}
 nav a{font-size:0.85rem;font-weight:500;color:var(--gray600);padding:6px 12px;border-radius:6px;transition:all 0.2s}
 nav a:hover{color:var(--navy);background:var(--gray100)}
@@ -709,7 +709,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
   nav.open a{padding:11px 12px;font-size:0.92rem;border-radius:8px;font-weight:500}
   nav.open a:hover{background:var(--gray100)}
   .hamburger{display:flex}
-  .logo-text{font-size:.75rem}
+  .logo-text{font-size:1rem}
   .logo-text span{display:none}
   .topbar{font-size:0.72rem;padding:7px 12px}
   .hero{padding:64px 20px 20px}

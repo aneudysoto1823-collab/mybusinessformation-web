@@ -300,7 +300,7 @@ export default function LoginPage() {
           <div className="login-header-brand">
             <div className="login-header-icon">🏛️</div>
             <div className="login-header-name">
-              <span style={{color:'inherit'}}>Opa</span><span style={{color:'#60a5fa',fontStyle:'italic',fontFamily:'Fraunces, serif'}}>Biz</span>
+              <span style={{fontFamily:'Fraunces, serif',fontWeight:700,fontSize:'1.5rem'}}>Opa</span><span style={{fontFamily:'Fraunces, serif',fontWeight:700,fontSize:'1.5rem',color:'#60a5fa'}}>Biz</span>
               <span>Staff Portal</span>
             </div>
           </div>
@@ -323,7 +323,7 @@ export default function LoginPage() {
             <div className="brand-mark">
               <div className="brand-icon">🏛️</div>
               <div className="brand-name">
-                <span style={{fontFamily:'Fraunces, serif',fontWeight:700}}>Opa</span><span style={{fontFamily:'Fraunces, serif',fontWeight:700,color:'#2563EB',fontStyle:'italic'}}>Biz</span>
+                <span style={{fontFamily:'Fraunces, serif',fontWeight:700,fontSize:'1.5rem'}}>Opa</span><span style={{fontFamily:'Fraunces, serif',fontWeight:700,fontSize:'1.5rem',color:'#2563EB'}}>Biz</span>
                 <span>Staff Portal</span>
               </div>
             </div>
