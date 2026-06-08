@@ -14,9 +14,9 @@ const T = {
     name: 'Full Name *', namePh: 'John Smith',
     email: 'Email *', emailPh: 'you@email.com',
     phone: 'Phone *', phonePh: '+1 (555) 000-0000',
-    meetingLabel: 'Preferred meeting method *',
-    meetingZoom: 'Zoom Video Call',
-    meetingWa: 'WhatsApp Call / Chat',
+    meetingLabel: 'Preferred contact method *',
+    meetingPhone: 'Phone Call',
+    meetingWa: 'WhatsApp',
     note: 'What would you like to discuss? (optional)', notePh: 'e.g. I want to form an LLC in Florida...',
     confirm: 'Confirm Appointment',
     loading: 'Scheduling...',
@@ -42,9 +42,9 @@ const T = {
     name: 'Nombre Completo *', namePh: 'Juan García',
     email: 'Correo Electrónico *', emailPh: 'tu@correo.com',
     phone: 'Teléfono *', phonePh: '+1 (555) 000-0000',
-    meetingLabel: 'Método preferido de reunión *',
-    meetingZoom: 'Videollamada por Zoom',
-    meetingWa: 'Llamada / Chat por WhatsApp',
+    meetingLabel: 'Método de contacto preferido *',
+    meetingPhone: 'Llamada Telefónica',
+    meetingWa: 'WhatsApp',
     note: '¿Sobre qué te gustaría hablar? (opcional)', notePh: 'ej. Quiero formar una LLC en Florida...',
     confirm: 'Confirmar Cita',
     loading: 'Agendando...',
@@ -78,7 +78,7 @@ function BookingContent() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
-  const [meetingMethod, setMeetingMethod] = useState<'zoom' | 'whatsapp'>('zoom')
+  const [meetingMethod, setMeetingMethod] = useState<'phone' | 'whatsapp'>('phone')
   const [note, setNote] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
@@ -332,19 +332,17 @@ function BookingContent() {
                 <div>
                   <label className="bk-label">{t.meetingLabel}</label>
                   <div className="meeting-grid">
-                    <button type="button" className={`meeting-btn${meetingMethod === 'zoom' ? ' selected' : ''}`} onClick={() => setMeetingMethod('zoom')}>
+                    <button type="button" className={`meeting-btn${meetingMethod === 'phone' ? ' selected' : ''}`} onClick={() => setMeetingMethod('phone')}>
                       <svg className="meeting-logo" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect width="32" height="32" rx="7" fill="#2D8CFF"/>
-                        <path d="M4 12C4 11.448 4.448 11 5 11H18C18.552 11 19 11.448 19 12V20C19 20.552 18.552 21 18 21H5C4.448 21 4 20.552 4 20V12Z" fill="white"/>
-                        <path d="M20 14L28 10.5V21.5L20 18V14Z" fill="white"/>
+                        <rect width="32" height="32" rx="7" fill="#1C2E44"/>
+                        <path d="M11.5 8C11.5 8 10 8 9 10C8 12 8.5 14 10 16C11.5 18 13.5 20.5 16 22C18.5 23.5 20.5 24 22 23C23.5 22 24 20.5 24 20.5L21.5 18L19.5 19.5C19.5 19.5 17.5 18 16 16.5C14.5 15 13 13 13 13L14.5 11L11.5 8Z" fill="white" stroke="white" strokeWidth="0.5" strokeLinejoin="round"/>
                       </svg>
-                      {t.meetingZoom}
+                      {t.meetingPhone}
                     </button>
                     <button type="button" className={`meeting-btn${meetingMethod === 'whatsapp' ? ' selected' : ''}`} onClick={() => setMeetingMethod('whatsapp')}>
                       <svg className="meeting-logo" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <rect width="32" height="32" rx="16" fill="#25D366"/>
-                        <path d="M16 5C10.477 5 6 9.477 6 15C6 16.89 6.522 18.657 7.428 20.17L6 27L13.02 25.607C14.48 26.493 16.183 27 18 27C23.523 27 28 22.523 28 17C28 11.477 23.523 7 18 7" stroke="white" strokeWidth="1.5" fill="none"/>
-                        <path d="M11 13.5C11 13.5 11.5 12 12.5 12C13 12 13.5 12.5 14 13.5C14.5 14.5 14 15 13.5 15.5C13 16 12.8 16.2 13 16.7C13.5 18 15 19.5 16.5 20C17 20.2 17.2 20 17.7 19.5C18.2 19 18.7 18.5 19.5 18.5C20.3 18.5 21 19.5 21 19.5" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+                        <path fillRule="evenodd" clipRule="evenodd" d="M16 6C10.477 6 6 10.477 6 16C6 17.89 6.52 19.66 7.43 21.17L6 26L11 24.6C12.46 25.49 14.17 26 16 26C21.523 26 26 21.523 26 16C26 10.477 21.523 6 16 6ZM12.5 13C12.5 13 12 12 13 12C13.5 12 14 12.5 14.5 13.5C15 14.5 14.5 15 14 15.5C13.7 15.8 13.5 16 13.7 16.5C14.2 17.8 15.5 19 16.8 19.5C17.2 19.7 17.5 19.4 17.9 19C18.3 18.6 18.7 18 19.5 18.2C20.3 18.4 21.5 19.5 21.5 19.5C21.5 19.5 22 20.5 21 21.5C20 22.5 18 22 16.5 21C15 20 13 18 12.5 16C12 14 12.5 13 12.5 13Z" fill="white"/>
                       </svg>
                       {t.meetingWa}
                     </button>

@@ -25,7 +25,7 @@ function formatTime(time: string) {
 
 export async function POST(req: NextRequest) {
   const body = await req.json()
-  const { name, email, phone, meetingMethod = 'zoom', date, time, note, lang = 'en' } = body
+  const { name, email, phone, meetingMethod = 'phone', date, time, note, lang = 'en' } = body
 
   if (!name || !email || !phone || !date || !time) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
@@ -58,8 +58,8 @@ export async function POST(req: NextRequest) {
   const dateFormatted = formatDate(date, lang)
   const timeFormatted = formatTime(time)
   const meetingLabel = meetingMethod === 'whatsapp'
-    ? (lang === 'es' ? '💬 WhatsApp' : '💬 WhatsApp')
-    : '🎥 Zoom'
+    ? '💬 WhatsApp'
+    : (lang === 'es' ? '📞 Llamada Telefónica' : '📞 Phone Call')
   const resend = getResend()
 
   // Email de confirmación al cliente

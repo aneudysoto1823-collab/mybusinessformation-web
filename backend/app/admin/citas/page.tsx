@@ -12,7 +12,7 @@ interface Appointment {
   time: string
   note: string | null
   status: 'pending' | 'confirmed' | 'cancelled'
-  meeting_method: 'zoom' | 'whatsapp' | null
+  meeting_method: 'phone' | 'whatsapp' | null
 }
 
 interface BlockedSlot {
@@ -247,7 +247,7 @@ export default function CitasPage() {
                           <div style={{ fontSize: '0.78rem', color: '#6b7280' }}>{formatTime(a.time)}</div>
                         </td>
                         <td style={{ fontSize: '0.82rem', fontWeight: 600 }}>
-                          {a.meeting_method === 'whatsapp' ? '💬 WhatsApp' : '🎥 Zoom'}
+                          {a.meeting_method === 'whatsapp' ? '💬 WhatsApp' : '📞 Phone'}
                         </td>
                         <td style={{ maxWidth: '180px', fontSize: '0.8rem', color: '#6b7280' }}>
                           {a.note || '—'}
