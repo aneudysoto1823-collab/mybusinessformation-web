@@ -211,11 +211,11 @@ function BookingContent() {
         .bk-back { display: inline-block; margin-bottom: 20px; color: #6b7280; font-size: 0.85rem; text-decoration: none; }
         .bk-back:hover { color: #2563EB; }
         .summary-bar { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 10px; padding: 14px 18px; font-size: 0.85rem; color: #0369a1; margin-bottom: 4px; }
-        .meeting-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .meeting-btn { padding: 14px 12px; border: 2px solid #e5e7eb; border-radius: 10px; background: #fff; font-size: 0.85rem; font-weight: 600; cursor: pointer; text-align: center; transition: all 0.15s; color: #374151; display: flex; flex-direction: column; align-items: center; gap: 6px; }
-        .meeting-btn .meeting-icon { font-size: 1.4rem; }
+        .meeting-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .meeting-btn { padding: 10px 14px; border: 2px solid #e5e7eb; border-radius: 10px; background: #fff; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.15s; color: #374151; display: flex; flex-direction: row; align-items: center; gap: 10px; }
+        .meeting-btn .meeting-logo { width: 32px; height: 32px; flex-shrink: 0; }
         .meeting-btn:hover { border-color: #2563EB; }
-        .meeting-btn.selected { border-color: #2563EB; background: #eff6ff; color: #2563EB; }
+        .meeting-btn.selected { border-color: #2563EB; background: #eff6ff; color: #1d4ed8; }
         @media(max-width: 600px) {
           .bk-row { grid-template-columns: 1fr; }
           .bk-hero h1 { font-size: 1.3rem; }
@@ -333,11 +333,19 @@ function BookingContent() {
                   <label className="bk-label">{t.meetingLabel}</label>
                   <div className="meeting-grid">
                     <button type="button" className={`meeting-btn${meetingMethod === 'zoom' ? ' selected' : ''}`} onClick={() => setMeetingMethod('zoom')}>
-                      <span className="meeting-icon">🎥</span>
+                      <svg className="meeting-logo" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="32" height="32" rx="7" fill="#2D8CFF"/>
+                        <path d="M4 12C4 11.448 4.448 11 5 11H18C18.552 11 19 11.448 19 12V20C19 20.552 18.552 21 18 21H5C4.448 21 4 20.552 4 20V12Z" fill="white"/>
+                        <path d="M20 14L28 10.5V21.5L20 18V14Z" fill="white"/>
+                      </svg>
                       {t.meetingZoom}
                     </button>
                     <button type="button" className={`meeting-btn${meetingMethod === 'whatsapp' ? ' selected' : ''}`} onClick={() => setMeetingMethod('whatsapp')}>
-                      <span className="meeting-icon">💬</span>
+                      <svg className="meeting-logo" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="32" height="32" rx="16" fill="#25D366"/>
+                        <path d="M16 5C10.477 5 6 9.477 6 15C6 16.89 6.522 18.657 7.428 20.17L6 27L13.02 25.607C14.48 26.493 16.183 27 18 27C23.523 27 28 22.523 28 17C28 11.477 23.523 7 18 7" stroke="white" strokeWidth="1.5" fill="none"/>
+                        <path d="M11 13.5C11 13.5 11.5 12 12.5 12C13 12 13.5 12.5 14 13.5C14.5 14.5 14 15 13.5 15.5C13 16 12.8 16.2 13 16.7C13.5 18 15 19.5 16.5 20C17 20.2 17.2 20 17.7 19.5C18.2 19 18.7 18.5 19.5 18.5C20.3 18.5 21 19.5 21 19.5" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+                      </svg>
                       {t.meetingWa}
                     </button>
                   </div>
