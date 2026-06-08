@@ -11,7 +11,7 @@ Antes (sin 2FA):
 Ahora (con 2FA activo):
 - Admin escribe usuario + password.
 - Pantalla nueva: "Ingresá el código de 6 dígitos."
-- El código sale de **una app en el teléfono del admin** (Google Authenticator / Authy / 1Password) o **un email enviado a `admin@mybusinessformation.com`**.
+- El código sale de **una app en el teléfono del admin** (Google Authenticator / Authy / 1Password) o **un email enviado a `admin@opabiz.com`**.
 - Solo si el código es correcto, entra al panel.
 - Si alguien roba la password pero NO tiene el teléfono del admin ni acceso al inbox → no entra.
 

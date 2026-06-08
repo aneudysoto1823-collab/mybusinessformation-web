@@ -65,14 +65,14 @@ export async function POST(req: NextRequest) {
           <h2 style="color:#1C2E44;margin-bottom:8px">Appointment Cancelled</h2>
           <p style="color:#6b7280;margin-bottom:24px">Hi ${appt.name}, your consultation scheduled for <strong>${dateFormatted}</strong> at <strong>${timeFormatted}</strong> has been cancelled.</p>
           <p style="color:#6b7280;font-size:0.9rem">If you'd like to schedule a new appointment, visit our booking page.</p>
-          <a href="${process.env.NEXT_PUBLIC_URL ?? 'https://mybusinessformation.com'}/booking" style="display:inline-block;margin-top:16px;background:#2563EB;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:600">Schedule New Appointment</a>
+          <a href="${process.env.NEXT_PUBLIC_URL ?? 'https://opabiz.com'}/booking" style="display:inline-block;margin-top:16px;background:#2563EB;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:600">Schedule New Appointment</a>
         </div>
       </div>`,
   })
 
   await getResend().emails.send({
     from: 'onboarding@resend.dev',
-    to: 'info@mybusinessformation.com',
+    to: 'info@opabiz.com',
     subject: `❌ Cita cancelada: ${appt.name} — ${dateFormatted} ${timeFormatted}`,
     html: `<p><strong>${appt.name}</strong> canceló su cita del <strong>${dateFormatted}</strong> a las <strong>${timeFormatted}</strong>.</p><p>Email: ${appt.email}</p>`,
   })

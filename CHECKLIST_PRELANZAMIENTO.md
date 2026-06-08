@@ -68,11 +68,11 @@
 
 ## 🟡 ETAPA 7 — Comunicación Automática (mayoría completa, faltan ítems críticos)
 
-- [ ] **Verificar dominio `mybusinessformation.com` en Resend** — esto cambia from `onboarding@resend.dev` a `noreply@mybusinessformation.com` (mejora deliverability del 60% al 95%+)
+- [ ] **Verificar dominio `opabiz.com` en Resend** — esto cambia from `onboarding@resend.dev` a `noreply@opabiz.com` (mejora deliverability del 60% al 95%+)
 - [ ] Configurar registros DNS SPF, DKIM, DMARC para Resend (necesario para verificación de dominio)
 - [ ] Probar deliverability post-verificación con email a Gmail, Yahoo, Outlook (no debe ir a spam)
-- [ ] Configurar dirección `support@mybusinessformation.com` (forward a Ethan)
-- [ ] Configurar dirección `noreply@mybusinessformation.com` (sender)
+- [ ] Configurar dirección `support@opabiz.com` (forward a Ethan)
+- [ ] Configurar dirección `noreply@opabiz.com` (sender)
 - [ ] Configurar dirección `aneurysoto@gmail.com` como BCC en emails críticos para tener registro
 - [ ] Email "contrato PDF adjunto" (depende de Etapa 6 — opcional pre-launch)
 - [ ] Plantilla email "recordatorio cliente para enviar nuevos nombres" (cuando los 3 nombres están tomados y han pasado 48h sin respuesta)
@@ -83,7 +83,7 @@
 
 ## 🔴 DOMINIO Y DNS (CRÍTICA — bloquea lanzamiento)
 
-- [ ] Confirmar que `mybusinessformation.com` está registrado y a nombre del negocio
+- [ ] Confirmar que `opabiz.com` está registrado y a nombre del negocio
 - [ ] Renovar dominio por mínimo 3 años (evita olvido y pérdida)
 - [ ] Activar privacy protection del dominio (WHOIS privacy)
 - [ ] Apuntar registros DNS:
@@ -92,11 +92,11 @@
   - [ ] MX records → email provider (Google Workspace o similar para `support@`)
   - [ ] TXT records SPF, DKIM, DMARC para Resend
 - [ ] Configurar dominio custom en Vercel (Settings → Domains → Add)
-- [ ] Verificar que SSL automático de Vercel (Let's Encrypt) se activa en `mybusinessformation.com` y `www.mybusinessformation.com`
+- [ ] Verificar que SSL automático de Vercel (Let's Encrypt) se activa en `opabiz.com` y `www.opabiz.com`
 - [ ] Configurar redirect www → no-www (o viceversa, según preferencia)
 - [ ] Probar desde 3 redes distintas (casa, móvil, VPN) que el sitio carga
 - [ ] Verificar que Vercel Analytics empieza a recibir datos del dominio nuevo
-- [ ] Actualizar todos los links absolutos en código de `mybusinessformation-web.vercel.app` a `mybusinessformation.com` (audit final)
+- [ ] Actualizar todos los links absolutos en código de `opabiz.com` a `opabiz.com` (audit final)
 - [ ] Actualizar OG image y meta tags con URL nueva del dominio
 
 ---
@@ -309,7 +309,7 @@
 
 - [ ] Definir quién atiende soporte primer mes (Ethan + Fabián)
 - [ ] Definir SLA de respuesta a soporte: <24h en email, <4h crítico
-- [ ] Configurar email `support@mybusinessformation.com` con autoresponder
+- [ ] Configurar email `support@opabiz.com` con autoresponder
 - [ ] Crear plantillas de respuesta para preguntas frecuentes (saved replies en Gmail)
 - [ ] Documentar el proceso operativo paso a paso para cada estado de orden (admin manual)
 - [ ] Crear documento "Cómo procesar una orden de A a Z" para training (si contratas asistente luego)

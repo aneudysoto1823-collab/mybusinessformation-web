@@ -5,13 +5,13 @@ export const metadata: Metadata = {
   title: 'Florida LLC & Corporation Formation — Online, Bilingual',
   description: 'Form your Florida LLC or Corporation online in minutes. Bilingual service EN/ES. Packages from $0 + state fee. EIN, Operating Agreement, BOI Filing included.',
   alternates: {
-    canonical: 'https://mybusinessformation.com',
+    canonical: 'https://opabiz.com',
     languages: {
-      'en-US': 'https://mybusinessformation.com',
-      'es-US': 'https://mybusinessformation.com/es',
+      'en-US': 'https://opabiz.com',
+      'es-US': 'https://opabiz.com/es',
     },
   },
-  openGraph: { url: 'https://mybusinessformation.com' },
+  openGraph: { url: 'https://opabiz.com' },
 }
 
 const schemaOrg = {
@@ -19,27 +19,27 @@ const schemaOrg = {
   '@graph': [
     {
       '@type': 'Organization',
-      '@id': 'https://mybusinessformation.com/#organization',
+      '@id': 'https://opabiz.com/#organization',
       name: 'MyBusinessFormation',
-      url: 'https://mybusinessformation.com',
-      logo: 'https://mybusinessformation.com/icon.png',
-      email: 'info@mybusinessformation.com',
+      url: 'https://opabiz.com',
+      logo: 'https://opabiz.com/icon.png',
+      email: 'info@opabiz.com',
       description: 'Florida business filing service specializing in LLC and Corporation formation. Bilingual English/Spanish.',
       areaServed: 'US-FL',
       knowsLanguage: ['en', 'es'],
     },
     {
       '@type': 'WebSite',
-      '@id': 'https://mybusinessformation.com/#website',
-      url: 'https://mybusinessformation.com',
+      '@id': 'https://opabiz.com/#website',
+      url: 'https://opabiz.com',
       name: 'MyBusinessFormation',
-      publisher: { '@id': 'https://mybusinessformation.com/#organization' },
+      publisher: { '@id': 'https://opabiz.com/#organization' },
     },
     {
       '@type': 'Service',
-      '@id': 'https://mybusinessformation.com/#llc-formation',
+      '@id': 'https://opabiz.com/#llc-formation',
       name: 'Florida LLC Formation',
-      provider: { '@id': 'https://mybusinessformation.com/#organization' },
+      provider: { '@id': 'https://opabiz.com/#organization' },
       description: 'Online Florida LLC formation service. Includes filing, Certificate of Formation, name availability search, and BOI Filing.',
       areaServed: 'US-FL',
       offers: [
@@ -50,15 +50,15 @@ const schemaOrg = {
     },
     {
       '@type': ['LocalBusiness', 'ProfessionalService'],
-      '@id': 'https://mybusinessformation.com/#localbusiness',
+      '@id': 'https://opabiz.com/#localbusiness',
       name: 'MyBusinessFormation',
       alternateName: 'Florida Business Formation Center',
-      url: 'https://mybusinessformation.com',
+      url: 'https://opabiz.com',
       logo: {
         '@type': 'ImageObject',
-        url: 'https://mybusinessformation.com/icon.png',
+        url: 'https://opabiz.com/icon.png',
       },
-      email: 'info@mybusinessformation.com',
+      email: 'info@opabiz.com',
       address: {
         '@type': 'PostalAddress',
         addressRegion: 'FL',
@@ -1202,7 +1202,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
         <div class="logo-mark" style="display:inline-flex;margin-bottom:14px">FL</div>
         <div style="font-family:'Fraunces',serif;color:#fff;font-size:1rem;font-weight:600;margin-bottom:8px">Florida Business Formation Center</div>
         <p id="footer-brand-desc">Professional business formation services for entrepreneurs and investors. We file your LLC or Corporation with the State of Florida — accurately, efficiently, and with personal attention.</p>
-        <p style="margin-top:10px;color:rgba(255,255,255,0.75);font-size:0.82rem">📧 <a href="mailto:info@mybusinessformation.com" style="color:rgba(255,255,255,0.75);text-decoration:none">info@mybusinessformation.com</a></p>
+        <p style="margin-top:10px;color:rgba(255,255,255,0.75);font-size:0.82rem">📧 <a href="mailto:info@opabiz.com" style="color:rgba(255,255,255,0.75);text-decoration:none">info@opabiz.com</a></p>
       </div>
       <div class="footer-col" style="grid-column:span 2">
         <h5 data-en="Business Formation Services" data-es="Servicios de Formación Empresarial">Business Formation Services</h5>
@@ -1232,7 +1232,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
         <a href="/about" data-en="About Us" data-es="Nosotros">About Us</a>
         <a href="#how" data-en="How It Works" data-es="Cómo Funciona">How It Works</a>
         <a href="#faq" data-en="FAQ" data-es="Preguntas">FAQ</a>
-        <a href="mailto:info@mybusinessformation.com" data-en="Contact Us" data-es="Contáctanos">Contact Us</a>
+        <a href="mailto:info@opabiz.com" data-en="Contact Us" data-es="Contáctanos">Contact Us</a>
         <a href="/guias${defaultLang === 'es' ? '/es' : ''}" style="margin-top:12px" data-en="Guides" data-es="Guías">Guides</a>
         <a href="/wiki${defaultLang === 'es' ? '/es' : ''}" data-en="Wiki" data-es="Wiki">Wiki</a>
         <a href="/terms" style="margin-top:12px" data-en="Terms &amp; Conditions" data-es="Términos y Condiciones">Terms &amp; Conditions</a>
@@ -1243,7 +1243,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
     <hr class="footer-divider"/>
     <div class="footer-bottom">
       <div>
-        <div class="footer-copy">© 2025 Florida Business Formation Center · mybusinessformation.com · All Rights Reserved.</div>
+        <div class="footer-copy">© 2025 Florida Business Formation Center · opabiz.com · All Rights Reserved.</div>
         <div class="footer-links" style="margin-top:8px">
           <a href="/terms" data-en="Terms &amp; Conditions" data-es="Términos y Condiciones">Terms &amp; Conditions</a>
           <span style="color:rgba(255,255,255,0.25);margin:0 10px;font-size:.7rem">&bull;</span>
@@ -3218,8 +3218,8 @@ function setLang(lang) {
   // Copyright
   var copy = document.querySelector('.footer-copy');
   if(copy) copy.textContent = isEs
-    ? '© 2025 Florida Business Formation Center · mybusinessformation.com · Todos los Derechos Reservados.'
-    : '© 2025 Florida Business Formation Center · mybusinessformation.com · All Rights Reserved.';
+    ? '© 2025 Florida Business Formation Center · opabiz.com · Todos los Derechos Reservados.'
+    : '© 2025 Florida Business Formation Center · opabiz.com · All Rights Reserved.';
 
   // Pricing toggle labels
   el=document.getElementById('lbl-monthly');        if(el) el.textContent = isEs ? 'Mensual'  : 'Monthly';

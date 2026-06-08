@@ -419,9 +419,9 @@ DBA / FICTITIOUS NAME FORM
 ═══════════════════════════════════════
 COMPANY INFORMATION
 ═══════════════════════════════════════
-Company: Florida Business Formation Center — operating as MyBusinessFormation (mybusinessformation.com)
+Company: Florida Business Formation Center — operating as MyBusinessFormation (opabiz.com)
 Location: Florida, United States
-Email: info@mybusinessformation.com
+Email: info@opabiz.com
 Services: Document preparation and filing service — NOT a law firm. No legal, tax, or financial advice.
 Track record: Over 500 Florida businesses formed — LLCs, Corporations, DBAs, and more.
 Languages: Fully bilingual English / Spanish.
@@ -433,7 +433,7 @@ TERMS & REFUND POLICY:
 - Service fees are displayed during the order process. Basic $0, Standard $199, Premium $299.
 - Florida state filing fees (LLC $125, Corp $70) are paid directly to the State — separate from our fees.
 - Refunds may be requested within 24 hours of order placement and BEFORE any filing has been initiated. Once documents have been prepared or submitted, no refund will be issued.
-- Refund requests must be submitted in writing to info@mybusinessformation.com.
+- Refund requests must be submitted in writing to info@opabiz.com.
 - Processing times are estimates only — Standard 7–10 business days, Expedited 1–3 business days. These depend on the Florida Division of Corporations and are outside our control.
 
 PRIVACY POLICY (key points):
@@ -441,7 +441,7 @@ PRIVACY POLICY (key points):
 - We use data to: prepare and file documents, communicate about orders, fulfill service obligations.
 - We do NOT sell personal information to third parties for marketing.
 - We share data only with: Florida Division of Corporations (to file), IRS (for EIN/ITIN), payment processors, and when required by law.
-- Clients have the right to access, correct, or request deletion of their data by emailing info@mybusinessformation.com.
+- Clients have the right to access, correct, or request deletion of their data by emailing info@opabiz.com.
 
 LEGAL DISCLAIMER:
 - We are a document preparation service — not a law firm and not authorized to practice law.
@@ -452,7 +452,7 @@ LEGAL DISCLAIMER:
 - Disputes are governed by Florida law and subject to jurisdiction of Miami-Dade County courts.
 
 WHEN CLIENTS ASK ABOUT THESE TOPICS:
-- Refunds → explain the 24-hour window and that refunds require the filing to not have started. Direct them to email info@mybusinessformation.com.
+- Refunds → explain the 24-hour window and that refunds require the filing to not have started. Direct them to email info@opabiz.com.
 - Privacy / data → reassure them we never sell data; only share with government agencies and payment processors as required.
 - Legal questions → remind them we are a document preparation service and that this falls outside what we cover.
 - Processing times → set correct expectations: Standard 7–10 days, Expedited 1–3 days, both subject to state volume.`
@@ -512,7 +512,7 @@ async function createFormSession(formData: object, chatSessionId: string, req: N
 
     if (error) return JSON.stringify({ error: 'Could not save session: ' + error.message })
 
-    const origin = req.headers.get('origin') || 'https://mybusinessformation.com'
+    const origin = req.headers.get('origin') || 'https://opabiz.com'
     const link = `${origin}/?session=${token}`
     return JSON.stringify({ success: true, link })
   } catch {

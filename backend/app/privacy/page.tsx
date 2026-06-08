@@ -4,8 +4,8 @@ import ChatWidget from '@/components/ChatWidget'
 export const metadata: Metadata = {
   title: 'Privacy Policy',
   description: 'Privacy Policy of MyBusinessFormation. Learn how we collect, use, and protect your personal information when you use our Florida business filing services.',
-  alternates: { canonical: 'https://mybusinessformation.com/privacy' },
-  openGraph: { url: 'https://mybusinessformation.com/privacy' },
+  alternates: { canonical: 'https://opabiz.com/privacy' },
+  openGraph: { url: 'https://opabiz.com/privacy' },
   robots: { index: true, follow: false },
 }
 
@@ -96,7 +96,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
   <div class="header-inner">
     <a href="/" class="logo">
       <div class="logo-mark">FL</div>
-      <div class="logo-text">Florida Business Formation Center<span>mybusinessformation.com</span></div>
+      <div class="logo-text">Florida Business Formation Center<span>opabiz.com</span></div>
     </a>
     <nav>
       <a href="/" data-en="Home" data-es="Inicio">Home</a>
@@ -225,7 +225,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
       <div class="green-box">
         <strong>Florida Business Formation Center</strong><br/>
         &#128231; <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="3d54535b527d50445f484e5453584e4e5b524f505c49545253135e5250">[email&#160;protected]</a><br/>
-        &#127760; mybusinessformation.com<br/>
+        &#127760; opabiz.com<br/>
         &#128205; Florida, United States
       </div>
     </div>
@@ -236,14 +236,14 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
     <hr class="footer-divider"/>
     <div class="footer-bottom">
       <div>
-        <div class="footer-copy">&#169; 2025 Florida Business Formation Center &middot; mybusinessformation.com &middot; All Rights Reserved.</div>
+        <div class="footer-copy">&#169; 2025 Florida Business Formation Center &middot; opabiz.com &middot; All Rights Reserved.</div>
         <div class="footer-links" style="margin-top:6px">
           <a href="/terms" data-en="Terms &amp; Conditions" data-es="Términos y Condiciones">Terms &amp; Conditions</a>
           <a href="/privacy" data-en="Privacy Policy" data-es="Política de Privacidad">Privacy Policy</a>
           <a href="/legal" data-en="Legal Disclaimer" data-es="Aviso Legal">Legal Disclaimer</a>
           <a href="/about" data-en="About Us" data-es="Nosotros">About Us</a>
         </div>
-        <div style="margin-top:8px;font-size:0.77rem;color:rgba(255,255,255,0.45)">&#128231; <a href="mailto:info@mybusinessformation.com" style="color:inherit">info@mybusinessformation.com</a></div>
+        <div style="margin-top:8px;font-size:0.77rem;color:rgba(255,255,255,0.45)">&#128231; <a href="mailto:info@opabiz.com" style="color:inherit">info@opabiz.com</a></div>
       </div>
       <div class="footer-disclaimer">
         <strong style="color:rgba(255,255,255,0.5);display:block;margin-bottom:4px">Important Notice</strong>
@@ -288,7 +288,7 @@ function setLang(lang){
 
   // Copyright
   var copy=document.querySelector('.footer-copy');
-  if(copy)copy.innerHTML=isEs?'&#169; 2025 Florida Business Formation Center &middot; mybusinessformation.com &middot; Todos los Derechos Reservados.':'&#169; 2025 Florida Business Formation Center &middot; mybusinessformation.com &middot; All Rights Reserved.';
+  if(copy)copy.innerHTML=isEs?'&#169; 2025 Florida Business Formation Center &middot; opabiz.com &middot; Todos los Derechos Reservados.':'&#169; 2025 Florida Business Formation Center &middot; opabiz.com &middot; All Rights Reserved.';
 }
 // Sidebar active state
 document.querySelectorAll('.sidebar-nav a').forEach(function(link){

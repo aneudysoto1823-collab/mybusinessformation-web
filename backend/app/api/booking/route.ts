@@ -6,9 +6,9 @@ export const dynamic = 'force-dynamic'
 
 const getResend = () => new Resend(process.env.RESEND_API_KEY)
 
-const ADMIN_EMAIL = 'info@mybusinessformation.com'
+const ADMIN_EMAIL = 'info@opabiz.com'
 const ADMIN_WHATSAPP = '13528377755'
-const BASE_URL = process.env.NEXT_PUBLIC_URL ?? 'https://mybusinessformation.com'
+const BASE_URL = process.env.NEXT_PUBLIC_URL ?? 'https://opabiz.com'
 
 function formatDate(date: string, lang: 'en' | 'es' = 'en') {
   return new Date(date + 'T12:00:00').toLocaleDateString(lang === 'es' ? 'es-US' : 'en-US', {
@@ -134,7 +134,7 @@ export async function POST(req: NextRequest) {
           ${waLink ? `<a href="${waLink}" style="background:#25D366;color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.9rem">💬 WhatsApp al cliente</a>` : ''}
           <a href="mailto:${email}" style="background:#2563EB;color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.9rem">✉️ Responder por email</a>
         </div>
-        <p style="margin-top:16px;font-size:0.8rem;color:#9ca3af">Ver en panel admin: <a href="https://mybusinessformation.com/admin/citas">mybusinessformation.com/admin/citas</a></p>
+        <p style="margin-top:16px;font-size:0.8rem;color:#9ca3af">Ver en panel admin: <a href="https://opabiz.com/admin/citas">opabiz.com/admin/citas</a></p>
       </div>
     </div>`
 

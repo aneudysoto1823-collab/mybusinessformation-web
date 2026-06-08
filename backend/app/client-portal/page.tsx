@@ -24,7 +24,7 @@ const T = {
     privacyLink: 'Privacy Policy',
     error: "We couldn't find an order matching that email and confirmation number.",
     portal: 'Client Portal',
-    footer: '© 2026 Florida Business Formation Center — mybusinessformation.com',
+    footer: '© 2026 Florida Business Formation Center — opabiz.com',
   },
   es: {
     eyebrow: 'Acceso de Clientes',
@@ -45,7 +45,7 @@ const T = {
     privacyLink: 'Política de Privacidad',
     error: 'No encontramos una orden con ese correo y número de confirmación.',
     portal: 'Portal de Clientes',
-    footer: '© 2026 Florida Business Formation Center — mybusinessformation.com',
+    footer: '© 2026 Florida Business Formation Center — opabiz.com',
   },
 }
 
@@ -402,7 +402,7 @@ function LoginForm() {
                   </button>
                   {showContact && (
                     <div className="contact-options">
-                      <a className="contact-option" href="mailto:support@mybusinessformation.com">
+                      <a className="contact-option" href="mailto:support@opabiz.com">
                         <span className="contact-option-icon">✉️</span>
                         Email
                       </a>

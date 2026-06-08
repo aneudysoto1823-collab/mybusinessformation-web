@@ -2,7 +2,7 @@
 
 ## Qué es el proyecto
 Plataforma de formación de empresas (LLC y Corporaciones) en Florida, estilo LegalZoom/Bizee.
-Web: mybusinessformation.com
+Web: opabiz.com
 Socios: Ethan (dev backend/frontend Next.js) + socio (diseño y terminación HTML)
 
 ## Repositorio GitHub
@@ -102,7 +102,7 @@ Si necesitas cambiar el diseño de una página:
 - [x] globals.css vaciado — cada página carga su propio CSS
 - [x] Tailwind desinstalado
 - [x] Archivos HTML eliminados del repo (2026-04-20) — ya no son necesarios
-- [x] Sitio en vivo en Vercel — https://mybusinessformation-web.vercel.app/
+- [x] Sitio en vivo en Vercel — https://opabiz.com/
 - [x] Deploy automático con cada git push
 
 
@@ -164,7 +164,7 @@ Pendientes de higiene técnica:
 - [x] Handlers de emails manuales del admin migrados de Railway/Express a Vercel/Supabase REST (commit `a5e1d45`, 2026-05-13). Endpoint `/api/proxy/notifications/[type]` ya NO pasa por Railway. Las funciones de Resend viven en `backend/lib/notifications.ts` (canónica para Vercel). La copia en `backend/modules/notifications/notifications.service.ts` y el resto del código muerto de Express fueron eliminados en commit `c7bdc07` (2026-05-18).
 - [x] Templates `sendOrderProcessed` (status: filed) y `sendOrderApproved` (status: approved) — completado 2026-05-18: HTML en `backend/lib/notifications.ts` con estilo coherente al resto. Respeta `unsubscribed`. Subject "📋 Your filing is in" y "🎉 Approved!". Incluye ETA por speed (standard 3-5 días / expedited 1-2 días).
 - [ ] Email con contrato PDF adjunto — pendiente hasta Etapa 6 (generación de documentos)
-- [ ] Verificar dominio mybusinessformation.com en Resend — lo trabaja el socio (Aneudys). Hoy Resend está en modo sandbox y solo entrega emails al destinatario verificado.
+- [ ] Verificar dominio opabiz.com en Resend — lo trabaja el socio (Aneudys). Hoy Resend está en modo sandbox y solo entrega emails al destinatario verificado.
 - [x] Email de confirmación enviado automáticamente al cliente
 - [x] Motor de emails Resend funcionando en producción
 
@@ -189,7 +189,7 @@ Pendientes de higiene técnica:
 - [x] Notas internas por orden
 - [x] Subida de Certificate PDF — aparece cuando status=approved; sube a Supabase Storage, envía email al cliente y marca orden como completed automáticamente
 - [x] Railway conectado a Supabase — pooler aws-1-us-east-1 puerto 6543
-- [x] Panel en producción: https://mybusinessformation-web.vercel.app/admin
+- [x] Panel en producción: https://opabiz.com/admin
 - [x] Rediseño visual login admin (/login) — card centrada sobre fondo oscuro #0f1c2e, foto /admin-bg.jpg a tamaño natural, header "Staff Portal" arriba del card (2026-05-12)
 
 ### Etapa 9 — Portal del Cliente (COMPLETADA 2026-03-27)
@@ -207,18 +207,18 @@ Pendientes de higiene técnica:
 - [x] Middleware protege /client-portal/dashboard sin sesión
 - [x] Número de confirmación FBFC basado en UUID real de la orden
 - [x] Panel de admin muestra número FBFC en tabla y vista detallada
-- [x] Portal en producción: https://mybusinessformation-web.vercel.app/client-portal
+- [x] Portal en producción: https://opabiz.com/client-portal
 - [x] Login acepta FBNB-XXXXXXXX (New Business Letter) además de FBFC-XXXXXXXX (2026-05-12)
 - [x] Toggle EN/ES con persistencia en localStorage (portal_lang) (2026-05-12)
 - [x] "My Orders" — cliente con múltiples órdenes las ve todas y puede cambiar entre ellas (2026-05-12)
-- [x] Botón "Contact us" abre opciones inline: Email (support@mybusinessformation.com) + WhatsApp (+13528377755) (2026-05-12)
+- [x] Botón "Contact us" abre opciones inline: Email (support@opabiz.com) + WhatsApp (+13528377755) (2026-05-12)
 - [x] Rediseño visual login (/client-portal) — card centrada sobre fondo #0f1c2e, foto a tamaño natural, header con marca arriba del card, "Don't have confirmation number?" justo debajo del botón (2026-05-12)
 
 ### Etapa 10 — Seguridad y Lanzamiento Oficial (post-lanzamiento)
 - [ ] Cloudflare activo
 - [ ] Revisión de seguridad
 - [ ] Pruebas completas con 10 clientes simulados
-- [ ] Apuntar dominio mybusinessformation.com
+- [ ] Apuntar dominio opabiz.com
 
 ### Etapa 11 — SEO Técnico y de Contenido (1-2 semanas)
 
@@ -235,10 +235,10 @@ Pendientes de higiene técnica:
 + contenido editorial que captura tráfico orgánico antes y después del launch.
 ```
 
-Pre-requisito: dominio mybusinessformation.com apuntando a Vercel (Etapa 10).
+Pre-requisito: dominio opabiz.com apuntando a Vercel (Etapa 10).
 
 SEO Técnico:
-- [x] Metadata global completa en backend/app/layout.tsx — Open Graph defaults, Twitter Cards (summary_large_image), canonical, metadataBase apuntando a https://mybusinessformation.com, alternates.languages con hreflang ES/EN explícito (sitio bilingüe)
+- [x] Metadata global completa en backend/app/layout.tsx — Open Graph defaults, Twitter Cards (summary_large_image), canonical, metadataBase apuntando a https://opabiz.com, alternates.languages con hreflang ES/EN explícito (sitio bilingüe)
 - [x] backend/app/sitemap.ts dinámico con todas las páginas públicas indexables (home, servicios, about, legal, privacy, terms, login, client-portal, guía, wiki y artículos) — NO incluir /admin ni rutas internas
 - [x] backend/app/robots.ts con Disallow: /admin/, /api/, /client-portal/dashboard + referencia al sitemap
 - [x] backend/app/opengraph-image.tsx — autogenera 1200×630 PNG con logo "FL" + wordmark + tagline (Next.js ImageResponse)
@@ -262,7 +262,7 @@ Documentación:
 ### Etapa 12 — Google Search Console (GSC) (2 días)
 
 ```diff
-+ Qué es: registrar el dominio mybusinessformation.com como propiedad en
++ Qué es: registrar el dominio opabiz.com como propiedad en
 + Google Search Console (y en Bing Webmaster Tools en paralelo), verificar
 + ownership con un archivo HTML permanente en /public, submitear el sitemap
 + generado en la Etapa 11, y dejar activo el monitoreo de Coverage,
@@ -275,9 +275,9 @@ Documentación:
 
 Depende de Etapa 11 — sin sitemap.xml no hay nada que submitear.
 
-- [x] Crear propiedad en https://search.google.com/search-console — completado 2026-06-03 por Aneury. Property tipo **Domain** sobre `mybusinessformation.com` (cubre www + apex + todos los subdominios).
+- [x] Crear propiedad en https://search.google.com/search-console — completado 2026-06-03 por Aneury. Property tipo **Domain** sobre `opabiz.com` (cubre www + apex + todos los subdominios).
 - [x] Verificar ownership — completado 2026-06-03 por Aneury. **Por DNS TXT** en Namecheap (zona apex). La nota original del roadmap ("HTML en backend/public/google<hash>.html") **NO aplica** a properties tipo Domain — solo a URL-prefix. Ver `LOGICA_DE_NEGOCIO/20_google_search_console.md` sección "Property type — Domain vs URL-prefix".
-- [ ] Submit del sitemap: https://mybusinessformation.com/sitemap.xml — acción manual de Aneury (~1 min). **IMPORTANTE**: pegar la URL completa, no solo `sitemap.xml`. En properties Domain la UI no precarga el dominio (a diferencia de URL-prefix). Doc 20 sección "Submit del sitemap".
+- [ ] Submit del sitemap: https://opabiz.com/sitemap.xml — acción manual de Aneury (~1 min). **IMPORTANTE**: pegar la URL completa, no solo `sitemap.xml`. En properties Domain la UI no precarga el dominio (a diferencia de URL-prefix). Doc 20 sección "Submit del sitemap".
 - [x] Crear propiedad y submit del mismo sitemap en Bing Webmaster Tools — completado 2026-06-03 por Aneury via import desde GSC. Cobertura adicional: Bing + Yahoo + DuckDuckGo + Ecosia + Brave + ChatGPT Search + Copilot + Perplexity (los 3 grandes motores de IA usan el índice de Bing). Estrategia + diferencias técnicas Bing-vs-Google + métricas de éxito documentadas en `LOGICA_DE_NEGOCIO/21_seo_multi_engine_bing_ai.md`.
 - [ ] Validar Coverage (Indexing → Pages): meta de 90%+ URLs como "Indexed" en 4 semanas post-submit — time-dependent, revisar a las 4 sem.
 - [ ] Validar Performance (Search results): empieza a recibir clicks/impressions — time-dependent.
@@ -352,9 +352,9 @@ Defensa server:
 - [x] Cero `NEXT_PUBLIC_*SECRET*` en código — auditado con grep 2026-05-07: cero secretos expuestos en bundle cliente
 
 Defensa browser:
-- [x] 5 security headers globales en backend/next.config.ts — completado 2026-05-18: CSP con whitelist (Stripe, Supabase via wildcard, Resend, GA4, Sentry tunnel `/monitoring`), HSTS 63072000 + includeSubDomains + preload, X-Frame-Options DENY, X-Content-Type-Options nosniff, Referrer-Policy strict-origin-when-cross-origin, Permissions-Policy denegando camera/microphone/geolocation/interest-cohort. Aplicados via `headers()` async en config. Pendiente: validar con `curl -I https://mybusinessformation.com/` post-deploy.
+- [x] 5 security headers globales en backend/next.config.ts — completado 2026-05-18: CSP con whitelist (Stripe, Supabase via wildcard, Resend, GA4, Sentry tunnel `/monitoring`), HSTS 63072000 + includeSubDomains + preload, X-Frame-Options DENY, X-Content-Type-Options nosniff, Referrer-Policy strict-origin-when-cross-origin, Permissions-Policy denegando camera/microphone/geolocation/interest-cohort. Aplicados via `headers()` async en config. Pendiente: validar con `curl -I https://opabiz.com/` post-deploy.
 - [x] Cookie Consent banner + Google Consent Mode v2 — completado 2026-05-19: `backend/components/CookieConsent.tsx` (Client Component bilingüe ES/EN, detecta idioma del URL) + `backend/lib/consent.ts` (helpers getConsent / setConsent / onConsentChange con persistencia en cookie 1 año + localStorage). 3 botones: Accept all / Only necessary / Customize. Toggles individuales para analytics y marketing. Hook dispara `gtag('consent', 'update', ...)` mapeando a las 4 dimensiones de Consent Mode v2. `layout.tsx` agrega Consent Mode default (todo denied) ANTES de que cargue cualquier tracker — compliance CCPA/GDPR.
-- [x] Validar headers en producción con `curl -I https://mybusinessformation.com/` — **completado 2026-06-04**. Los 6 security headers presentes y correctos: CSP con whitelist completa (Stripe + Supabase + Sentry + GTM + GA + Resend), HSTS `max-age=63072000; includeSubDomains; preload` (preload-ready), X-Frame-Options DENY, X-Content-Type-Options nosniff, Referrer-Policy strict-origin-when-cross-origin, Permissions-Policy denegando camera/mic/geolocation/interest-cohort. Adicional: HTTPS forzado con 308 desde HTTP, www → apex 308 (fix: agregar www como dominio en Vercel — el cert SSL no cubría www inicialmente; sin esto, el redirect 301 del `next.config.ts` nunca se ejecutaba porque el SSL handshake fallaba antes). SSL Labs: A+.
+- [x] Validar headers en producción con `curl -I https://opabiz.com/` — **completado 2026-06-04**. Los 6 security headers presentes y correctos: CSP con whitelist completa (Stripe + Supabase + Sentry + GTM + GA + Resend), HSTS `max-age=63072000; includeSubDomains; preload` (preload-ready), X-Frame-Options DENY, X-Content-Type-Options nosniff, Referrer-Policy strict-origin-when-cross-origin, Permissions-Policy denegando camera/mic/geolocation/interest-cohort. Adicional: HTTPS forzado con 308 desde HTTP, www → apex 308 (fix: agregar www como dominio en Vercel — el cert SSL no cubría www inicialmente; sin esto, el redirect 301 del `next.config.ts` nunca se ejecutaba porque el SSL handshake fallaba antes). SSL Labs: A+.
 
 Dependencias y misc:
 - [x] `npm audit --audit-level=moderate` con 0 vulnerabilidades HIGH/CRITICAL — **completado 2026-06-03**: upgrade Next.js 16.1.7 → 16.2.7 cerró la HIGH de next (12 CVEs combinados). `npm audit fix` post-upgrade resolvió 4 moderate transitivas (qs, uuid via svix→resend, etc). Quedan 2 MODERATE acopladas: `postcss <8.5.10` (XSS via unescaped `</style>` en stringify) y `next` (depende del postcss vulnerable). Cerrarlas requiere next 16.3+ que hoy está en canary. **Net: 0 HIGH, 0 CRITICAL — meta alcanzada.**
@@ -377,10 +377,10 @@ Dependencias y misc:
 + partners y afiliados.
 ```
 
-Pre-requisito: dominio mybusinessformation.com apuntando a Vercel (Etapa 10) — los monitores apuntan a URLs finales de producción.
+Pre-requisito: dominio opabiz.com apuntando a Vercel (Etapa 10) — los monitores apuntan a URLs finales de producción.
 
 Sentry — error tracking + APM:
-- [x] Crear cuenta en sentry.io (free tier: 5K eventos/mes, retención 30 días) — proyecto `javascript-nextjs` para Next.js completado 2026-05-09 con `admin@mybusinessformation.com`, capturando errores en producción. **El proyecto `node-express` para Railway queda DIFERIDO hasta Etapa 5** (Railway dormido desde 2026-05-13).
+- [x] Crear cuenta en sentry.io (free tier: 5K eventos/mes, retención 30 días) — proyecto `javascript-nextjs` para Next.js completado 2026-05-09 con `admin@opabiz.com`, capturando errores en producción. **El proyecto `node-express` para Railway queda DIFERIDO hasta Etapa 5** (Railway dormido desde 2026-05-13).
 - [x] Env vars Sentry en Vercel (Production + Preview + Development): `SENTRY_DSN`, `NEXT_PUBLIC_SENTRY_DSN`, `SENTRY_ORG`, `SENTRY_PROJECT` configuradas 2026-05-09. AUTH_TOKEN omitido (sourcemaps disable). **Env vars en Railway DIFERIDO hasta Etapa 5.**
 - [x] Instalar `@sentry/nextjs` en Next.js — completado 2026-05-09 (commit `305bc94`): `@sentry/nextjs ^9` instalado. **`@sentry/node` en Express DIFERIDO hasta Etapa 5** (Railway dormido, no hay código corriendo que monitorear).
 - [x] Crear `instrumentation.ts`, `instrumentation-client.ts`, `sentry.server.config.ts`, `sentry.edge.config.ts` en backend — completado 2026-05-09 (commit `305bc94`): los 4 archivos creados con init Sentry según runtime (Node, edge, browser) + helper `backend/lib/sentry-pii-filter.ts` con `scrubPII()` compartido
@@ -388,15 +388,15 @@ Sentry — error tracking + APM:
 - [x] Filtrar PII en `beforeSend` — completado 2026-05-09 (commit `305bc94`): helper `scrubPII()` filtra email, nombre, teléfono, SSN/ITIN, tarjetas, passwords, tokens en strings, objects anidados, breadcrumbs, request body/headers/cookies/query
 - [x] Smoke test server-side — validado local + producción 2026-05-09: endpoint temporal `/api/sentry-test` disparó error con prefix `[sentry-test-2026-05-09]`, evento llegó al dashboard de Sentry con `environment: production`. Endpoint borrado post-validación (commit `06e9c4d`)
 - [x] Smoke test client-side: ruta `/sentry-client-test` gated a preview/dev (404 en producción) — completado 2026-05-13 (commit `b1c52d7`): Server Component verifica `VERCEL_ENV !== 'production'` y retorna `notFound()`; Client Component con 3 botones (uncaught throw, `captureException`, `captureMessage`) prefijados `[sentry-client-test-*]`. Documentado en `LOGICA_DE_NEGOCIO/15_sentry_betterstack_monitoring.md` (protocolo de validación mensual).
-- [x] Alert Rule en Sentry → email a admin@mybusinessformation.com — completado 2026-05-13: configurada en sentry.io para primera ocurrencia de cada error nuevo. Validada end-to-end durante smoke test de BetterStack.
+- [x] Alert Rule en Sentry → email a admin@opabiz.com — completado 2026-05-13: configurada en sentry.io para primera ocurrencia de cada error nuevo. Validada end-to-end durante smoke test de BetterStack.
 
 BetterStack — uptime + status page:
 - [x] Crear cuenta en betterstack.com — completado 2026-05-13 (free tier: 10 monitores, 30s checks, status page con custom domain, SSL cert monitor).
 - [x] Crear 3 monitores con SSL/TLS verification — completado 2026-05-13: Home, Admin Login, API Client Portal. **El monitor de Express en Railway (`up.railway.app/health`) queda DIFERIDO hasta Etapa 5** — sin tráfico, monitorear Railway dormido es ruido.
 - [x] Umbral 2-3 fallos consecutivos antes de alertar (evita falsos positivos por hiccups de red) — configurado 2026-05-13.
 - [x] Smoke test DOWN/UP — validado end-to-end 2026-05-13: una ruta inválida `/xxxxxxx` generó DOWN → email a Zoho → recuperación → UP automático.
-- [ ] Email alerts a 2 destinatarios — **APLAZADO**: hoy solo notifica a `admin@mybusinessformation.com`. El segundo destinatario será un Gmail de la compañía (pendiente de crear).
-- [ ] Status page pública en `status.mybusinessformation.com` con CNAME — **APLAZADO**: los DNS están en Netlify; pendiente migración a Namecheap BasicDNS para unificar. Una vez migrados, configurar CNAME apuntando a BetterStack + cert SSL Let's Encrypt auto-emitido.
+- [ ] Email alerts a 2 destinatarios — **APLAZADO**: hoy solo notifica a `admin@opabiz.com`. El segundo destinatario será un Gmail de la compañía (pendiente de crear).
+- [ ] Status page pública en `status.opabiz.com` con CNAME — **APLAZADO**: los DNS están en Netlify; pendiente migración a Namecheap BasicDNS para unificar. Una vez migrados, configurar CNAME apuntando a BetterStack + cert SSL Let's Encrypt auto-emitido.
 
 Proceso y runbooks:
 - [x] Configurar filtros en Gmail/Zoho — completado 2026-05-13: subject `[Sentry]` → label rojo + push, `[BetterStack] DOWN` → label rojo + push iPhone, `[BetterStack] UP` → label verde.
@@ -461,7 +461,7 @@ Servicios vendidos (precios en centavos en Stripe):
 
 Variables de entorno pendientes en Vercel:
 - [ ] `STRIPE_SECRET_KEY` — clave secreta de Stripe (obtener en dashboard.stripe.com → Developers → API Keys)
-- [ ] `STRIPE_WEBHOOK_SECRET` — clave de firma del webhook (obtener al registrar el endpoint en Stripe: https://mybusinessformation.com/api/webhooks/stripe, evento: checkout.session.completed)
+- [ ] `STRIPE_WEBHOOK_SECRET` — clave de firma del webhook (obtener al registrar el endpoint en Stripe: https://opabiz.com/api/webhooks/stripe, evento: checkout.session.completed)
 
 Pendiente:
 - [ ] Agregar STRIPE_SECRET_KEY y STRIPE_WEBHOOK_SECRET en Vercel env vars
@@ -528,7 +528,7 @@ Ver troubleshooting en `TROUBLESHOOTING/13_responsive_design.md`
 
 ```diff
 + Qué es: aplicación interna de Florida Business Formation Center para gestionar
-+ y asignar órdenes a los empleados. Cuando un cliente paga en mybusinessformation.com,
++ y asignar órdenes a los empleados. Cuando un cliente paga en opabiz.com,
 + la orden entra a OPABIZ donde un empleado calificado la procesa. Automatiza la
 + asignación, elimina la gestión manual desde el panel admin y da trazabilidad
 + completa de quién trabajó qué.

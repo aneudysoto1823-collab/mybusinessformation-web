@@ -67,7 +67,7 @@ Este es el path principal: cliente entra al home y arranca el wizard de formaci�
 
 #### 1A.1 — Cliente entra a MBF
 
-- Cliente abre `https://mybusinessformation.com`.
+- Cliente abre `https://opabiz.com`.
 - **Vercel** sirve el sitio (Next.js 16).
 - Cliente ve los paquetes en la sección `/#pricing`.
 
@@ -112,7 +112,7 @@ Este es el path de "New Business Letter": el cliente entra desde un QR code o em
 
 - Cliente escanea QR o hace click en email recibido.
 - **Vercel** registra el scan en la tabla `qr_scans` de Supabase.
-- Vercel redirige a `https://mybusinessformation.com/new-business?id=<document_id>`.
+- Vercel redirige a `https://opabiz.com/new-business?id=<document_id>`.
 
 #### 1B.2 — Cliente selecciona servicios
 
@@ -128,7 +128,7 @@ Este es el path de "New Business Letter": el cliente entra desde un QR code o em
 
 - Stripe muestra su propia pantalla de pago.
 - Cliente confirma.
-- Stripe envía webhook a `https://mybusinessformation.com/api/webhooks/stripe`.
+- Stripe envía webhook a `https://opabiz.com/api/webhooks/stripe`.
 
 #### 1B.4 — Webhook crea la orden
 
@@ -197,7 +197,7 @@ Este es el path de "New Business Letter": el cliente entra desde un QR code o em
 
 #### 2.1 — Admin entra al panel
 
-- Admin va a `https://mybusinessformation.com/admin`.
+- Admin va a `https://opabiz.com/admin`.
 - **Vercel** sirve el login.
 - Admin ingresa usuario + contraseña.
 - **Vercel** valida contra `ADMIN_USER` y `ADMIN_PASSWORD_HASH` (bcrypt).
@@ -292,7 +292,7 @@ Cada cambio de status:
 
 #### 3.2 — Cliente abre el link del portal
 
-- Cliente va a `https://mybusinessformation.com/client-portal`.
+- Cliente va a `https://opabiz.com/client-portal`.
 - **Vercel** sirve la página de login del portal.
 
 #### 3.3 — Cliente se autentica
@@ -363,7 +363,7 @@ Cada cambio de status:
 
 - Envía todos los emails transaccionales.
 - Templates manejados por Vercel desde `backend/lib/notifications.ts`.
-- **Pendiente:** verificar dominio `mybusinessformation.com` para enviar a cualquier destinatario (hoy Resend está en sandbox).
+- **Pendiente:** verificar dominio `opabiz.com` para enviar a cualquier destinatario (hoy Resend está en sandbox).
 
 ### Upstash Redis
 
@@ -461,7 +461,7 @@ Durante una sesión de debugging se descubrieron varios bugs apilados que confun
 
 1. **Templates HTML pendientes** para `sendOrderProcessed` (status: `filed`) y `sendOrderApproved` (status: `approved`). Hoy ambas funciones son stubs vacíos en `backend/lib/notifications.ts` — cuando el admin avanza el status, no se envía email.
 
-2. **Verificar dominio** `mybusinessformation.com` en Resend para salir del modo sandbox. Lo trabaja Aneudys (el socio Fabián).
+2. **Verificar dominio** `opabiz.com` en Resend para salir del modo sandbox. Lo trabaja Aneudys (el socio Fabián).
 
 3. **Evaluar mover `documents.service.ts` a `backend/lib/`** para consistencia arquitectural. Hoy vive en `backend/modules/documents/` pero Vercel lo importa con `@/modules/...`, lo cual funciona porque el bundler de Next.js lo resuelve aunque `tsconfig.json` excluya `modules/` del include. Es semi-frágil. Mismo patrón que aplicamos a `notifications.ts` el 2026-05-13.
 

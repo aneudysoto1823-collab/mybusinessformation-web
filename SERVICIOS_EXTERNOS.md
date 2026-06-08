@@ -19,7 +19,7 @@
 | Resend | Free tier | $0 |
 | GitHub | Free | $0 |
 | Stripe | Pay-per-transaction | $0 fijo |
-| Dominio (mybusinessformation.com) | Anual | ~$1.20/mes ($12-15/año amortizado) |
+| Dominio (opabiz.com) | Anual | ~$1.20/mes ($12-15/año amortizado) |
 | **TOTAL HOY** | | **~$6.20/mes** |
 
 ### LANZAMIENTO (septiembre 2026)
@@ -64,7 +64,7 @@
 ### 🟢 Vercel — Frontend Hosting
 
 - **Qué hace:** Hosting del proyecto Next.js. Hace deploy automático cada `git push`. CDN global, SSL automático, edge functions, preview URLs por PR.
-- **URL actual:** https://mybusinessformation-web.vercel.app/
+- **URL actual:** https://opabiz.com/
 - **Plan actual:** Hobby (free)
 - **Free tier incluye:** 100GB bandwidth/mes, 6,000 build minutes/mes, 100 horas serverless function execution, sin commercial use license oficial (zona gris para uso negocio).
 - **Plan recomendado al lanzamiento:** **Pro $20/mes** porque:
@@ -155,19 +155,19 @@
 - **Free tier incluye:** 3,000 emails/mes, 100 emails/día, dominio NO verificado (deliverability mediocre)
 - **Plan recomendado al lanzamiento:** **Pro $20/mes** porque:
   - 50,000 emails/mes (suficiente para waitlist nurture + transaccionales)
-  - **Dominio custom verificado** (`noreply@mybusinessformation.com`) — mejora deliverability del ~60% al ~95%+
+  - **Dominio custom verificado** (`noreply@opabiz.com`) — mejora deliverability del ~60% al ~95%+
   - Dedicated IP opcional (no necesario al inicio)
   - Retención de logs 30 días
   - Audiences (drip campaigns nativas)
   - Webhooks para tracking de bounces/complaints
 - **Verificar precio en:** https://resend.com/pricing
-- **Acción crítica antes de lanzamiento:** Verificar dominio `mybusinessformation.com` en Resend (DNS SPF + DKIM + DMARC). Sin esto, los emails siguen yendo a spam.
+- **Acción crítica antes de lanzamiento:** Verificar dominio `opabiz.com` en Resend (DNS SPF + DKIM + DMARC). Sin esto, los emails siguen yendo a spam.
 
 ---
 
 ### 🔵 Google Workspace — Email de negocio
 
-- **Qué hace:** Email profesional `support@mybusinessformation.com`, `info@`, `legal@`, etc. Calendar, Drive, Meet bundled.
+- **Qué hace:** Email profesional `support@opabiz.com`, `info@`, `legal@`, etc. Calendar, Drive, Meet bundled.
 - **Estado:** No activado, recomendado pre-launch.
 - **Plan recomendado:** **Business Starter $7/usuario/mes** (Ethan + Fabián = $14/mes)
 - **Verificar precio en:** https://workspace.google.com/pricing.html
@@ -399,7 +399,7 @@
 
 ## 12. DOMINIO Y BRANDING
 
-### 🟢 mybusinessformation.com — Dominio principal
+### 🟢 opabiz.com — Dominio principal
 
 - **Qué hace:** Dominio público del proyecto.
 - **Estado:** Comprado pero NO apuntado a Vercel todavía
@@ -462,8 +462,8 @@
 > Marcar conforme se ejecuta cada upgrade.
 
 - [ ] **Supabase Pro** activado (1 click en dashboard, $25/mes prorrateado)
-- [ ] **Resend Pro** activado + dominio `mybusinessformation.com` verificado (DNS propagación ~24h)
-- [ ] **Vercel Pro** activado y dominio `mybusinessformation.com` apuntado
+- [ ] **Resend Pro** activado + dominio `opabiz.com` verificado (DNS propagación ~24h)
+- [ ] **Vercel Pro** activado y dominio `opabiz.com` apuntado
 - [ ] **Railway Pro** activado (decisión: si Hobby aguanta primer mes, posponer)
 - [ ] **Stripe** cuenta activada + verificación de identidad completa + cuenta bancaria conectada
 - [ ] **Cloudflare Free** activado, DNS movido a Cloudflare, Bot Fight Mode ON

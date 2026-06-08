@@ -4,8 +4,8 @@ import ChatWidget from '@/components/ChatWidget'
 export const metadata: Metadata = {
   title: 'Legal Disclaimer',
   description: 'Legal disclaimer for MyBusinessFormation. We are a document preparation service, not a law firm. Read our full legal disclosure before using our services.',
-  alternates: { canonical: 'https://mybusinessformation.com/legal' },
-  openGraph: { url: 'https://mybusinessformation.com/legal' },
+  alternates: { canonical: 'https://opabiz.com/legal' },
+  openGraph: { url: 'https://opabiz.com/legal' },
   robots: { index: true, follow: false },
 }
 
@@ -96,7 +96,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
   <div class="header-inner">
     <a href="/" class="logo">
       <div class="logo-mark">FL</div>
-      <div class="logo-text">Florida Business Formation Center<span>mybusinessformation.com</span></div>
+      <div class="logo-text">Florida Business Formation Center<span>opabiz.com</span></div>
     </a>
     <nav>
       <a href="/" data-en="Home" data-es="Inicio">Home</a>
@@ -140,8 +140,8 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
   </aside>
 
   <div class="doc-content">
-    <div class="warn-box en">&#9888; <strong>Please Read Carefully.</strong> This disclaimer governs your use of mybusinessformation.com and all services offered by Florida Business Formation Center.</div>
-    <div class="warn-box es" style="display:none">&#9888; <strong>Lea Cuidadosamente.</strong> Este aviso legal rige el uso de mybusinessformation.com y todos los servicios ofrecidos por Florida Business Formation Center.</div>
+    <div class="warn-box en">&#9888; <strong>Please Read Carefully.</strong> This disclaimer governs your use of opabiz.com and all services offered by Florida Business Formation Center.</div>
+    <div class="warn-box es" style="display:none">&#9888; <strong>Lea Cuidadosamente.</strong> Este aviso legal rige el uso de opabiz.com y todos los servicios ofrecidos por Florida Business Formation Center.</div>
 
     <div class="doc-section" id="not-law-firm">
       <h2>1. <span class="en-inline">We Are Not a Law Firm</span><span class="es-inline" style="display:none">No Somos un Bufete de Abogados</span></h2>
@@ -194,14 +194,14 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
     <hr class="footer-divider"/>
     <div class="footer-bottom">
       <div>
-        <div class="footer-copy">&#169; 2025 Florida Business Formation Center &middot; mybusinessformation.com &middot; All Rights Reserved.</div>
+        <div class="footer-copy">&#169; 2025 Florida Business Formation Center &middot; opabiz.com &middot; All Rights Reserved.</div>
         <div class="footer-links" style="margin-top:6px">
           <a href="/terms" data-en="Terms &amp; Conditions" data-es="Términos y Condiciones">Terms &amp; Conditions</a>
           <a href="/privacy" data-en="Privacy Policy" data-es="Política de Privacidad">Privacy Policy</a>
           <a href="/legal" data-en="Legal Disclaimer" data-es="Aviso Legal">Legal Disclaimer</a>
           <a href="/about" data-en="About Us" data-es="Nosotros">About Us</a>
         </div>
-        <div style="margin-top:8px;font-size:0.77rem;color:rgba(255,255,255,0.45)">&#128231; <a href="mailto:info@mybusinessformation.com" style="color:inherit">info@mybusinessformation.com</a></div>
+        <div style="margin-top:8px;font-size:0.77rem;color:rgba(255,255,255,0.45)">&#128231; <a href="mailto:info@opabiz.com" style="color:inherit">info@opabiz.com</a></div>
       </div>
       <div class="footer-disclaimer">
         <strong style="color:rgba(255,255,255,0.5);display:block;margin-bottom:4px">Important Notice</strong>
@@ -246,7 +246,7 @@ function setLang(lang){
 
   // Copyright
   var copy=document.querySelector('.footer-copy');
-  if(copy)copy.innerHTML=isEs?'&#169; 2025 Florida Business Formation Center &middot; mybusinessformation.com &middot; Todos los Derechos Reservados.':'&#169; 2025 Florida Business Formation Center &middot; mybusinessformation.com &middot; All Rights Reserved.';
+  if(copy)copy.innerHTML=isEs?'&#169; 2025 Florida Business Formation Center &middot; opabiz.com &middot; Todos los Derechos Reservados.':'&#169; 2025 Florida Business Formation Center &middot; opabiz.com &middot; All Rights Reserved.';
 }
 // Sidebar active state
 document.querySelectorAll('.sidebar-nav a').forEach(function(link){

@@ -4,14 +4,14 @@ export const metadata: Metadata = {
   title: 'Florida Business Compliance Services — EIN, Labor Law Poster & Certificate of Status',
   description: 'Get your Florida business fully compliant. EIN / Tax ID, 2026 Labor Law Poster, and Certificate of Status. Fast, bilingual (EN/ES) document preparation service.',
   alternates: {
-    canonical: 'https://mybusinessformation.com/new-business',
+    canonical: 'https://opabiz.com/new-business',
     languages: {
-      'en-US': 'https://mybusinessformation.com/new-business',
-      'es-US': 'https://mybusinessformation.com/new-business/es',
+      'en-US': 'https://opabiz.com/new-business',
+      'es-US': 'https://opabiz.com/new-business/es',
     },
   },
   openGraph: {
-    url: 'https://mybusinessformation.com/new-business',
+    url: 'https://opabiz.com/new-business',
     title: 'Florida Business Compliance — EIN, Labor Law Poster & Certificate of Status',
     description: 'Get your Florida business fully compliant. EIN / Tax ID, 2026 Labor Law Poster, and Certificate of Status. Bilingual EN/ES.',
   },
@@ -24,7 +24,7 @@ const jsonLd = {
   provider: {
     '@type': 'Organization',
     name: 'Florida Business Formation Center',
-    url: 'https://mybusinessformation.com',
+    url: 'https://opabiz.com',
   },
   areaServed: { '@type': 'State', name: 'Florida' },
   hasOfferCatalog: {

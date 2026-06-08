@@ -63,7 +63,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:32px 32px 20px
   <div class="header-inner">
     <a href="/new-business" class="logo">
       <div class="logo-mark">FL</div>
-      <div class="logo-text">Florida Business Formation Center<span>mybusinessformation.com</span></div>
+      <div class="logo-text">Florida Business Formation Center<span>opabiz.com</span></div>
     </a>
     <div style="display:flex;align-items:center;gap:12px">
       <div class="lang-toggle">
@@ -118,8 +118,8 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:32px 32px 20px
 
     <div class="doc-section" id="acceptance">
       <h2>1. <span class="en-inline">Acceptance of Terms</span><span class="es-inline" style="display:none">Aceptaci&oacute;n de T&eacute;rminos</span></h2>
-      <p class="en">By accessing or using the services offered by Florida Business Formation Center (&ldquo;Company,&rdquo; &ldquo;we,&rdquo; &ldquo;us,&rdquo; or &ldquo;our&rdquo;) through mybusinessformation.com, you (&ldquo;Client&rdquo; or &ldquo;you&rdquo;) agree to be fully bound by these Terms and Conditions. If you do not agree with any part of these terms, you must not use our services.</p>
-      <p class="es" style="display:none">Al acceder o utilizar los servicios ofrecidos por Florida Business Formation Center (&ldquo;Empresa&rdquo;, &ldquo;nosotros&rdquo; o &ldquo;nuestro&rdquo;) a trav&eacute;s de mybusinessformation.com, usted (&ldquo;Cliente&rdquo;) acepta quedar sujeto a estos T&eacute;rminos y Condiciones. Si no est&aacute; de acuerdo con alguna parte de estos t&eacute;rminos, no debe utilizar nuestros servicios.</p>
+      <p class="en">By accessing or using the services offered by Florida Business Formation Center (&ldquo;Company,&rdquo; &ldquo;we,&rdquo; &ldquo;us,&rdquo; or &ldquo;our&rdquo;) through opabiz.com, you (&ldquo;Client&rdquo; or &ldquo;you&rdquo;) agree to be fully bound by these Terms and Conditions. If you do not agree with any part of these terms, you must not use our services.</p>
+      <p class="es" style="display:none">Al acceder o utilizar los servicios ofrecidos por Florida Business Formation Center (&ldquo;Empresa&rdquo;, &ldquo;nosotros&rdquo; o &ldquo;nuestro&rdquo;) a trav&eacute;s de opabiz.com, usted (&ldquo;Cliente&rdquo;) acepta quedar sujeto a estos T&eacute;rminos y Condiciones. Si no est&aacute; de acuerdo con alguna parte de estos t&eacute;rminos, no debe utilizar nuestros servicios.</p>
       <p class="en">Florida Business Formation Center is a document preparation service. We do not provide legal, tax, or financial advice. Use of our services does not create an attorney-client relationship.</p>
       <p class="es" style="display:none">Florida Business Formation Center es un servicio de preparaci&oacute;n de documentos. No brindamos asesor&iacute;a legal, fiscal ni financiera. El uso de nuestros servicios no crea una relaci&oacute;n abogado-cliente.</p>
       <p class="en">We reserve the right to modify these Terms at any time. Your continued use of our services after any modification constitutes acceptance of the revised Terms.</p>
@@ -164,8 +164,8 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:32px 32px 20px
 
     <div class="doc-section" id="electronic-consent">
       <h2>6. <span class="en-inline">Electronic Communication Consent</span><span class="es-inline" style="display:none">Consentimiento de Comunicaci&oacute;n Electr&oacute;nica</span></h2>
-      <p class="en">By using our services and providing your email address or phone number, you consent to receive electronic communications from Florida Business Formation Center, including order confirmations, status updates, service notices, and other information related to your account. You agree that all notices, disclosures, and communications we provide electronically satisfy any legal requirement that such communications be in writing. Standard message and data rates may apply for SMS communications. You may opt out of marketing communications at any time by contacting us at info@mybusinessformation.com.</p>
-      <p class="es" style="display:none">Al utilizar nuestros servicios y proporcionar su direcci&oacute;n de correo electr&oacute;nico o n&uacute;mero de tel&eacute;fono, usted consiente en recibir comunicaciones electr&oacute;nicas de Florida Business Formation Center, incluyendo confirmaciones de pedidos, actualizaciones de estado, avisos de servicio y otra informaci&oacute;n relacionada con su cuenta. Usted acepta que todos los avisos, divulgaciones y comunicaciones que proporcionamos electr&oacute;nicamente satisfacen cualquier requisito legal de que dichas comunicaciones sean por escrito. Pueden aplicarse tarifas est&aacute;ndar de mensajes y datos para comunicaciones por SMS. Puede optar por no recibir comunicaciones de marketing en cualquier momento contact&aacute;ndonos en info@mybusinessformation.com.</p>
+      <p class="en">By using our services and providing your email address or phone number, you consent to receive electronic communications from Florida Business Formation Center, including order confirmations, status updates, service notices, and other information related to your account. You agree that all notices, disclosures, and communications we provide electronically satisfy any legal requirement that such communications be in writing. Standard message and data rates may apply for SMS communications. You may opt out of marketing communications at any time by contacting us at info@opabiz.com.</p>
+      <p class="es" style="display:none">Al utilizar nuestros servicios y proporcionar su direcci&oacute;n de correo electr&oacute;nico o n&uacute;mero de tel&eacute;fono, usted consiente en recibir comunicaciones electr&oacute;nicas de Florida Business Formation Center, incluyendo confirmaciones de pedidos, actualizaciones de estado, avisos de servicio y otra informaci&oacute;n relacionada con su cuenta. Usted acepta que todos los avisos, divulgaciones y comunicaciones que proporcionamos electr&oacute;nicamente satisfacen cualquier requisito legal de que dichas comunicaciones sean por escrito. Pueden aplicarse tarifas est&aacute;ndar de mensajes y datos para comunicaciones por SMS. Puede optar por no recibir comunicaciones de marketing en cualquier momento contact&aacute;ndonos en info@opabiz.com.</p>
     </div>
 
     <div class="doc-section" id="liability">
@@ -188,8 +188,8 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:32px 32px 20px
       <h2>9. <span class="en-inline">Governing Law</span><span class="es-inline" style="display:none">Ley Aplicable</span></h2>
       <p class="en">These Terms shall be governed by and construed in accordance with the laws of the State of Florida, without regard to its conflict of law principles. To the extent any dispute is not subject to arbitration under Section 8, such dispute shall be subject to the exclusive jurisdiction of the state and federal courts located in Miami-Dade County, Florida, and you consent to personal jurisdiction in such courts.</p>
       <p class="es" style="display:none">Estos T&eacute;rminos se regir&aacute;n e interpretar&aacute;n de acuerdo con las leyes del Estado de Florida, sin tener en cuenta sus principios de conflicto de leyes. En la medida en que alguna disputa no est&eacute; sujeta a arbitraje bajo la Secci&oacute;n 8, dicha disputa estar&aacute; sujeta a la jurisdicci&oacute;n exclusiva de los tribunales estatales y federales ubicados en el Condado de Miami-Dade, Florida, y usted consiente la jurisdicci&oacute;n personal en dichos tribunales.</p>
-      <div class="info-box en">&#128231; Questions about these Terms? Contact us at <strong>info@mybusinessformation.com</strong></div>
-      <div class="info-box es" style="display:none">&#128231; &iquest;Preguntas sobre estos T&eacute;rminos? Cont&aacute;ctenos en <strong>info@mybusinessformation.com</strong></div>
+      <div class="info-box en">&#128231; Questions about these Terms? Contact us at <strong>info@opabiz.com</strong></div>
+      <div class="info-box es" style="display:none">&#128231; &iquest;Preguntas sobre estos T&eacute;rminos? Cont&aacute;ctenos en <strong>info@opabiz.com</strong></div>
     </div>
 
     <div class="doc-section" id="submission">

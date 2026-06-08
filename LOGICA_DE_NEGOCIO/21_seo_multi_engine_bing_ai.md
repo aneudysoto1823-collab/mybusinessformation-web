@@ -89,7 +89,7 @@ Esto sin tocar SEO de Google. Es trabajo paralelo, no competitivo.
 |------------|----------|-----|
 | Bing Webmaster Tools | https://www.bing.com/webmasters | Console de indexación + analytics |
 | Verificación | Meta tag via Next.js `metadata.verification.other` | Persistente en el HTML, gestionado en código |
-| Sitemap | `https://mybusinessformation.com/sitemap.xml` (apex) | Mismo que GSC — generado dinámico por `backend/app/sitemap.ts` |
+| Sitemap | `https://opabiz.com/sitemap.xml` (apex) | Mismo que GSC — generado dinámico por `backend/app/sitemap.ts` |
 
 ### El path elegido — import desde GSC
 
@@ -137,7 +137,7 @@ Bing acepta 4 métodos de verificación:
 
 ### Cómo obtener el token de Bing
 
-1. https://www.bing.com/webmasters → Add a site → `https://mybusinessformation.com`
+1. https://www.bing.com/webmasters → Add a site → `https://opabiz.com`
 2. En el modal de verificación, **opción Meta tag** → Bing muestra:
    ```html
    <meta name="msvalidate.01" content="A1B2C3D4E5F6G7H8I9J0K1L2M3N4O5P6">
@@ -158,7 +158,7 @@ Hoy usamos **el import desde GSC**, no el meta tag. Si en el futuro el import de
 ### Si vino por import desde GSC
 
 El sitemap llega copiado automáticamente. **Verificar** en BWT → menú lateral → **Sitemaps**:
-- Debe aparecer `https://mybusinessformation.com/sitemap.xml`
+- Debe aparecer `https://opabiz.com/sitemap.xml`
 - Status: "Success" (o "Processing" en las primeras horas)
 - Submitted URLs: número que coincide con el sitemap actual (hoy ~10 URLs estáticas + hubs + artículos)
 
@@ -167,7 +167,7 @@ El sitemap llega copiado automáticamente. **Verificar** en BWT → menú latera
 BWT → Sitemaps → **"Submit sitemap"** → pegar la URL completa:
 
 ```
-https://mybusinessformation.com/sitemap.xml
+https://opabiz.com/sitemap.xml
 ```
 
 Misma regla que GSC con property Domain: **URL completa**, no `sitemap.xml` solo.
@@ -234,7 +234,7 @@ Google atenúa el "domain age signal" con cada algorithm update — Panda, Pengu
 
 **Bing pondera la edad del dominio más fuerte**. Un dominio de 5+ años outranks a uno de 6 meses con contenido idéntico, en Bing más que en Google.
 
-**Implicación para MBF**: `mybusinessformation.com` es un dominio relativamente joven (registrado 2025). En Bing vamos a tardar más en rankear que en Google, no hay mucho que hacer salvo:
+**Implicación para MBF**: `opabiz.com` es un dominio relativamente joven (registrado 2025). En Bing vamos a tardar más en rankear que en Google, no hay mucho que hacer salvo:
 - Mantener el dominio activo y growing en contenido
 - No migrar de dominio (resetear el clock)
 - Acumular backlinks autoritativos (compensa parcialmente la juventud)

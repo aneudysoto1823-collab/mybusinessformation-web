@@ -9,31 +9,31 @@ const aboutSchema = {
   '@graph': [
     {
       '@type': 'AboutPage',
-      '@id': 'https://mybusinessformation.com/about',
-      url: 'https://mybusinessformation.com/about',
+      '@id': 'https://opabiz.com/about',
+      url: 'https://opabiz.com/about',
       name: 'About MyBusinessFormation',
       description:
         'Bilingual Florida business filing service. LLC and Corporation formation for entrepreneurs and investors throughout Florida.',
       inLanguage: 'en-US',
-      isPartOf: { '@id': 'https://mybusinessformation.com/#website' },
-      mainEntity: { '@id': 'https://mybusinessformation.com/#organization' },
-      breadcrumb: { '@id': 'https://mybusinessformation.com/about#breadcrumb' },
+      isPartOf: { '@id': 'https://opabiz.com/#website' },
+      mainEntity: { '@id': 'https://opabiz.com/#organization' },
+      breadcrumb: { '@id': 'https://opabiz.com/about#breadcrumb' },
     },
     {
       '@type': 'BreadcrumbList',
-      '@id': 'https://mybusinessformation.com/about#breadcrumb',
+      '@id': 'https://opabiz.com/about#breadcrumb',
       itemListElement: [
         {
           '@type': 'ListItem',
           position: 1,
           name: 'Home',
-          item: 'https://mybusinessformation.com',
+          item: 'https://opabiz.com',
         },
         {
           '@type': 'ListItem',
           position: 2,
           name: 'About',
-          item: 'https://mybusinessformation.com/about',
+          item: 'https://opabiz.com/about',
         },
       ],
     },
@@ -44,14 +44,14 @@ export const metadata: Metadata = {
   title: 'About MyBusinessFormation — Florida Business Formation Experts',
   description: 'Learn about MyBusinessFormation — a bilingual Florida business filing service dedicated to making LLC and Corporation formation accessible for every entrepreneur.',
   alternates: {
-    canonical: 'https://mybusinessformation.com/about',
+    canonical: 'https://opabiz.com/about',
     languages: {
-      'en-US': 'https://mybusinessformation.com/about',
-      'es-US': 'https://mybusinessformation.com/about?lang=es',
+      'en-US': 'https://opabiz.com/about',
+      'es-US': 'https://opabiz.com/about?lang=es',
     },
   },
   openGraph: {
-    url: 'https://mybusinessformation.com/about',
+    url: 'https://opabiz.com/about',
     title: 'About MyBusinessFormation — Florida Business Formation Experts',
     description: 'Bilingual Florida business filing service. LLC and Corporation formation made simple for entrepreneurs and investors throughout Florida.',
   },
@@ -153,7 +153,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
   <div class="header-inner">
     <a href="/" class="logo">
       <div class="logo-mark">FL</div>
-      <div class="logo-text">Florida Business Formation Center<span>mybusinessformation.com</span></div>
+      <div class="logo-text">Florida Business Formation Center<span>opabiz.com</span></div>
     </a>
     <nav>
       <a href="/" data-en="Home" data-es="Inicio">Home</a>
@@ -327,7 +327,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
           <strong class="en">Email</strong><strong class="es" style="display:none">Correo Electr&oacute;nico</strong>
           <p class="en">Send us your questions at any time and we&rsquo;ll get back to you promptly with a clear, detailed response tailored to your situation.</p>
           <p class="es" style="display:none">Env&iacute;enos sus preguntas en cualquier momento y le responderemos prontamente con una respuesta clara y detallada adaptada a su situaci&oacute;n.</p>
-          <a href="mailto:info@mybusinessformation.com" class="card-btn" style="background:#fff;color:var(--blue);border:1.5px solid var(--blue)">info@mybusinessformation.com</a>
+          <a href="mailto:info@opabiz.com" class="card-btn" style="background:#fff;color:var(--blue);border:1.5px solid var(--blue)">info@opabiz.com</a>
         </div>
       </div>
     </div>
@@ -339,14 +339,14 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
     <hr class="footer-divider"/>
     <div class="footer-bottom">
       <div>
-        <div class="footer-copy">&#169; 2025 Florida Business Formation Center &middot; mybusinessformation.com &middot; All Rights Reserved.</div>
+        <div class="footer-copy">&#169; 2025 Florida Business Formation Center &middot; opabiz.com &middot; All Rights Reserved.</div>
         <div class="footer-links" style="margin-top:6px">
           <a href="/terms" data-en="Terms &amp; Conditions" data-es="Términos y Condiciones">Terms &amp; Conditions</a>
           <a href="/privacy" data-en="Privacy Policy" data-es="Política de Privacidad">Privacy Policy</a>
           <a href="/legal" data-en="Legal Disclaimer" data-es="Aviso Legal">Legal Disclaimer</a>
           <a href="/about" data-en="About Us" data-es="Nosotros">About Us</a>
         </div>
-        <div style="margin-top:8px;font-size:0.77rem;color:rgba(255,255,255,0.45)"><a href="mailto:info@mybusinessformation.com" style="color:inherit">info@mybusinessformation.com</a></div>
+        <div style="margin-top:8px;font-size:0.77rem;color:rgba(255,255,255,0.45)"><a href="mailto:info@opabiz.com" style="color:inherit">info@opabiz.com</a></div>
       </div>
       <div class="footer-disclaimer">
         <strong style="color:rgba(255,255,255,0.5);display:block;margin-bottom:4px">Important Notice</strong>
@@ -393,7 +393,7 @@ function setLang(lang){
 
   // Copyright
   var copy=document.querySelector('.footer-copy');
-  if(copy)copy.innerHTML=isEs?'&#169; 2025 Florida Business Formation Center &middot; mybusinessformation.com &middot; Todos los Derechos Reservados.':'&#169; 2025 Florida Business Formation Center &middot; mybusinessformation.com &middot; All Rights Reserved.';
+  if(copy)copy.innerHTML=isEs?'&#169; 2025 Florida Business Formation Center &middot; opabiz.com &middot; Todos los Derechos Reservados.':'&#169; 2025 Florida Business Formation Center &middot; opabiz.com &middot; All Rights Reserved.';
 }
 // Sidebar active state
 document.querySelectorAll('.sidebar-nav a').forEach(function(link){

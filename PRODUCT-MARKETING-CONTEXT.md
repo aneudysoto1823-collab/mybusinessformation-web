@@ -196,8 +196,8 @@ Fecha objetivo de lanzamiento: **15 septiembre 2026** (~5 meses)
 ### Pendientes críticas para launch
 - [ ] **Etapa 4** — Stripe completo (keys, Elements, webhooks)
 - [ ] **Etapa 5** — Búsqueda Sunbiz local (descarga + importación de ~3.5M registros)
-- [ ] Verificar dominio en Resend → cambiar from `onboarding@resend.dev` a `noreply@mybusinessformation.com`
-- [ ] Apuntar dominio real `mybusinessformation.com` a Vercel (actualmente corre en `mybusinessformation-web.vercel.app`)
+- [ ] Verificar dominio en Resend → cambiar from `onboarding@resend.dev` a `noreply@opabiz.com`
+- [ ] Apuntar dominio real `opabiz.com` a Vercel (actualmente corre en `opabiz.com`)
 - [ ] ITIN W-7 y Annual Report pre-llenado (Etapa 6 — parcialmente completa)
 
 ### Pendientes post-launch (Etapa 10)

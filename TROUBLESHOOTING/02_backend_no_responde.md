@@ -48,8 +48,8 @@ Problemas con el servidor Express alojado en Railway (`mybusinessformation-web-p
 
 ### 7. CORS bloquea requests del frontend al backend
 **Status:** 🟡 Medio
-**Síntoma visible:** En DevTools → Console aparece error rojo: "Access to fetch at 'https://...railway.app/...' from origin 'https://mybusinessformation.com' has been blocked by CORS policy". Acciones del panel admin no funcionan.
-**Solución posible:** Ir a Railway → Settings → Variables → verificar `ALLOWED_ORIGINS`. Debe incluir TODOS los orígenes que llaman al backend: `https://mybusinessformation.com`, `https://www.mybusinessformation.com`, `https://mybusinessformation-web.vercel.app`, y cualquier preview URL `https://*.vercel.app` que se use para staging. Editar la variable agregando los orígenes faltantes (separados por coma). Restart del servicio.
+**Síntoma visible:** En DevTools → Console aparece error rojo: "Access to fetch at 'https://...railway.app/...' from origin 'https://opabiz.com' has been blocked by CORS policy". Acciones del panel admin no funcionan.
+**Solución posible:** Ir a Railway → Settings → Variables → verificar `ALLOWED_ORIGINS`. Debe incluir TODOS los orígenes que llaman al backend: `https://opabiz.com`, `https://www.opabiz.com`, `https://opabiz.com`, y cualquier preview URL `https://*.vercel.app` que se use para staging. Editar la variable agregando los orígenes faltantes (separados por coma). Restart del servicio.
 
 ---
 

@@ -2,7 +2,7 @@
 
 ## ¿Qué es OPABIZ?
 
-OPABIZ es la aplicación interna de Florida Business Formation Center. Cuando un cliente paga su formación en mybusinessformation.com, la orden no solo queda registrada en el sistema — también entra a OPABIZ, donde un empleado calificado la procesa.
+OPABIZ es la aplicación interna de Florida Business Formation Center. Cuando un cliente paga su formación en opabiz.com, la orden no solo queda registrada en el sistema — también entra a OPABIZ, donde un empleado calificado la procesa.
 
 Antes de OPABIZ, el equipo gestionaba las órdenes manualmente desde el panel admin. Con OPABIZ, el flujo es automatizado, trazable y escalable.
 

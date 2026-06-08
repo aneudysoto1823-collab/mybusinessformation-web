@@ -50,7 +50,7 @@ function UnsubscribeContent() {
               Florida Business Formation Center
             </div>
             <div style={{ color: '#94a3b8', fontSize: '13px', marginTop: '4px' }}>
-              mybusinessformation.com
+              opabiz.com
             </div>
           </div>
 
@@ -133,8 +133,8 @@ function UnsubscribeContent() {
                 </h2>
                 <p style={{ fontSize: '14px', color: '#64748b', lineHeight: 1.7, textAlign: 'center', marginBottom: '24px' }}>
                   We couldn&apos;t process your request. Please try again or contact us at{' '}
-                  <a href="mailto:support@mybusinessformation.com" style={{ color: '#4f46e5' }}>
-                    support@mybusinessformation.com
+                  <a href="mailto:support@opabiz.com" style={{ color: '#4f46e5' }}>
+                    support@opabiz.com
                   </a>
                 </p>
                 <div style={{ textAlign: 'center' }}>

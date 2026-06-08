@@ -7,7 +7,7 @@
 **Causas y soluciones:**
 - La empresa no tiene email registrado → el sistema la salta (`skipped: no email`). Agregar email manualmente desde el panel.
 - `RESEND_API_KEY` no configurada en Vercel → agregar en Environment Variables.
-- Dominio `mybusinessformation.com` no verificado en Resend → solo puede enviar a emails propios hasta verificar el dominio.
+- Dominio `opabiz.com` no verificado en Resend → solo puede enviar a emails propios hasta verificar el dominio.
 
 ---
 
@@ -38,7 +38,7 @@
 
 **Causas y soluciones:**
 - `STRIPE_WEBHOOK_SECRET` no configurado en Vercel → la firma del webhook falla y el handler la rechaza.
-- El webhook no está registrado en Stripe → ir a dashboard.stripe.com → Webhooks → agregar endpoint `https://mybusinessformation.com/api/webhooks/stripe` con evento `checkout.session.completed`.
+- El webhook no está registrado en Stripe → ir a dashboard.stripe.com → Webhooks → agregar endpoint `https://opabiz.com/api/webhooks/stripe` con evento `checkout.session.completed`.
 - El cliente no ingresó su email en Stripe checkout → sin email no se puede crear la Order. Stripe debería pedirlo automáticamente.
 - Verificar en Supabase → tabla `Order` si el registro existe. Si no existe, revisar logs de Vercel en la ruta `/api/webhooks/stripe`.
 

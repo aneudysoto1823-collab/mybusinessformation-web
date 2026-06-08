@@ -75,7 +75,7 @@ Esta combinación detecta — en producción, sin que un cliente nos avise — l
 
 - **Plan:** free tier (5K eventos/mes, retención 30 días).
 - **Proyecto:** `javascript-nextjs` en sentry.io.
-- **Cuenta dueña:** `admin@mybusinessformation.com`.
+- **Cuenta dueña:** `admin@opabiz.com`.
 - **DSNs:** configurados en Vercel (Production + Preview + Development) como `SENTRY_DSN` y `NEXT_PUBLIC_SENTRY_DSN`.
 - **Filtro PII obligatorio:** `backend/lib/sentry-pii-filter.ts` — scrubea email/teléfono/SSN/tarjetas/passwords antes de enviar. Aplica a server, edge, browser, breadcrumbs y request body/headers/cookies.
 - **Tunnel route:** `/monitoring/*` en `next.config.ts` — evita ad-blockers que bloquean `*.sentry.io`.
@@ -83,20 +83,20 @@ Esta combinación detecta — en producción, sin que un cliente nos avise — l
   - `tracesSampleRate: 0.1` (10% de traces de performance — los errores se mandan al 100%).
   - `replaysSessionSampleRate: 0` (cero grabaciones completas — privacidad + ahorro de cuota).
   - `replaysOnErrorSampleRate: 0.1` (10% de sesiones con error se graban para análisis).
-- **Alert Rule:** email a `admin@mybusinessformation.com` en la primera ocurrencia de cada error nuevo (configurada 2026-05-13). NO spamea con repeticiones.
+- **Alert Rule:** email a `admin@opabiz.com` en la primera ocurrencia de cada error nuevo (configurada 2026-05-13). NO spamea con repeticiones.
 - **Ruta de validación periódica:** `/sentry-client-test` gated (404 en producción, accesible en preview/development).
 
 ### BetterStack
 
 - **Plan:** free tier (10 monitores, 30s checks, status page con custom domain, SSL cert monitor).
-- **Cuenta dueña:** `admin@mybusinessformation.com`.
+- **Cuenta dueña:** `admin@opabiz.com`.
 - **3 monitores activos:**
-  - Home — `https://mybusinessformation.com/` (status 2xx/3xx).
-  - Admin Login — `https://mybusinessformation.com/admin` (status 200).
+  - Home — `https://opabiz.com/` (status 2xx/3xx).
+  - Admin Login — `https://opabiz.com/admin` (status 200).
   - API Client Portal — endpoint health del portal.
 - **SSL/TLS verification:** activada en los 3.
 - **Umbral:** 2-3 fallos consecutivos antes de alertar (evita falsos positivos por hiccups de red).
-- **Destinatario email:** `admin@mybusinessformation.com` por ahora. Segundo destinatario pendiente (Gmail compañía futuro).
+- **Destinatario email:** `admin@opabiz.com` por ahora. Segundo destinatario pendiente (Gmail compañía futuro).
 - **Push notifications:** activas en iPhone vía app BetterStack.
 - **Smoke test inicial:** validado end-to-end el 2026-05-13 (un monitor cayó cuando se accedió a una ruta `/xxxxxxx` inválida; emails DOWN y UP llegaron correctamente a Zoho).
 
@@ -119,7 +119,7 @@ Esta combinación detecta — en producción, sin que un cliente nos avise — l
 
 - Crear endpoint temporal `backend/app/api/sentry-test/route.ts` con un `throw new Error('[sentry-test-YYYY-MM-DD]')`.
 - Hacer commit + push.
-- Una vez deployado, visitar `https://mybusinessformation.com/api/sentry-test`.
+- Una vez deployado, visitar `https://opabiz.com/api/sentry-test`.
 - En sentry.io → Issues → filtrar `[sentry-test-`. El evento debe aparecer en menos de 60 segundos con `environment: production`.
 - Borrar el endpoint (commit + push). Resolver el issue en Sentry.
 
@@ -133,7 +133,7 @@ Esta combinación detecta — en producción, sin que un cliente nos avise — l
 
 ### 3. Sentry alert email (1 min)
 
-- Confirmar que el email del paso 1 llegó a `admin@mybusinessformation.com` con subject `[Sentry] ...`.
+- Confirmar que el email del paso 1 llegó a `admin@opabiz.com` con subject `[Sentry] ...`.
 - Si no llegó: la Alert Rule está rota. Ir a sentry.io → Alerts → revisar.
 
 ### 4. BetterStack DOWN / UP (5 min)
@@ -172,8 +172,8 @@ Esta combinación detecta — en producción, sin que un cliente nos avise — l
 
 ### Diferidos por dependencias externas
 
-- **Segundo destinatario de emails BetterStack:** pendiente hasta que esté configurado el Gmail de la compañía. Hoy solo notifica a `admin@mybusinessformation.com`.
-- **Status page pública en `status.mybusinessformation.com`:** pendiente hasta migración DNS de Netlify a Namecheap BasicDNS (planeada). Una vez migrados los DNS, configurar CNAME apuntando a BetterStack + cert SSL auto-emitido por Let's Encrypt.
+- **Segundo destinatario de emails BetterStack:** pendiente hasta que esté configurado el Gmail de la compañía. Hoy solo notifica a `admin@opabiz.com`.
+- **Status page pública en `status.opabiz.com`:** pendiente hasta migración DNS de Netlify a Namecheap BasicDNS (planeada). Una vez migrados los DNS, configurar CNAME apuntando a BetterStack + cert SSL auto-emitido por Let's Encrypt.
 - **`SENTRY_AUTH_TOKEN` para sourcemaps:** opcional. Sin él, los stack traces del browser muestran código minificado (variables como `e`, `n`, etc.). Aceptable hasta que sea molesto durante un debug.
 
 ---
@@ -183,7 +183,7 @@ Esta combinación detecta — en producción, sin que un cliente nos avise — l
 | Decisión | Por qué |
 |---|---|
 | Free tier en ambos (Sentry + BetterStack) | 5K eventos/mes y 10 monitores alcanzan pre-launch sobrado. Upgrade post-launch si hace falta. |
-| Cuenta única `admin@mybusinessformation.com` | Inbox compartido del proyecto, ambos socios pueden ver. |
+| Cuenta única `admin@opabiz.com` | Inbox compartido del proyecto, ambos socios pueden ver. |
 | Filtro PII obligatorio en Sentry | Cero email/teléfono/SSN en Sentry. Compliance CCPA/GDPR + seguridad si hackean Sentry. |
 | Tunnel route `/monitoring` | Sortea ad-blockers (`*.sentry.io` está en listas de bloqueo). Sin esto perderíamos ~15-20% de eventos de browser. |
 | 3 monitores BetterStack (no 4) hoy | Railway dormido — monitorearlo es ruido. 4to monitor cuando Etapa 5. |

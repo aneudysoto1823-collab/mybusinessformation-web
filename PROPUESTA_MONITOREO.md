@@ -97,7 +97,7 @@ Datadog queda fuera hasta cruzar 5,000 órdenes/mes — antes de eso es overkill
 - ✅ Detecta DNS issues (resolución desde múltiples regiones)
 - ✅ Detecta lentitud anómala (response time threshold)
 - ✅ Logs management (recibe logs de Vercel/Railway/Supabase via syslog/HTTP drain)
-- ✅ Status page público (status.mybusinessformation.com)
+- ✅ Status page público (status.opabiz.com)
 - ⚠️ Errores de aplicación → solo si los logueas a BetterStack (Sentry es mejor para esto)
 - ❌ Performance interno de la app (Sentry sí)
 
@@ -287,7 +287,7 @@ Bounces, complaints, deliverability stats. **Hay que mirarlo manualmente.**
 
 2. **Necesitas check intervals más cortos.** Free tier de BetterStack es check cada 3 min — eso significa hasta 3 min de downtime sin que lo sepas. Pro baja a 30 segundos. Crítico cuando estás cobrando.
 
-3. **Status page público para clientes.** Cuando tengas 100+ clientes, vas a querer un `status.mybusinessformation.com` para mostrar transparencia cuando haya un incidente. BetterStack Pro lo da con dominio custom.
+3. **Status page público para clientes.** Cuando tengas 100+ clientes, vas a querer un `status.opabiz.com` para mostrar transparencia cuando haya un incidente. BetterStack Pro lo da con dominio custom.
 
 4. **On-call rotation.** Cuando contrates a alguien o tengas que dormir, Pro te permite rotar quién recibe alertas a qué hora. Sin eso, todo cae sobre Ethan 24/7.
 
@@ -444,7 +444,7 @@ Componente nuevo: `app/admin/components/SystemStatusWidget.tsx`. Renderizado en 
 | Rol | Email | Severidad mínima |
 |-----|-------|------------------|
 | Ethan (founder/CTO) | aneudysoto1823@gmail.com | 🔴 Crítica + 🟡 Media |
-| Fabián (cofounder) | admin@mybusinessformation.com | 🔴 Crítica |
+| Fabián (cofounder) | admin@opabiz.com | 🔴 Crítica |
 | Futuro: VA / soporte | TBD | 🟡 Media + 🟢 Baja (digest) |
 
 ---
@@ -474,7 +474,7 @@ Componente nuevo: `app/admin/components/SystemStatusWidget.tsx`. Renderizado en 
    - URLs: `/`, `/paquetes`, `/servicios`, `/about`, `/legal`, `/admin/login`, `/api/health`, Railway healthcheck
    - Frecuencia: 3 min (free tier)
    - Alertas: email a Ethan
-   - SSL monitor para `mybusinessformation.com` (cuando se apunte el dominio)
+   - SSL monitor para `opabiz.com` (cuando se apunte el dominio)
 
 5. **Construir el widget en `/admin` (4-6 horas dev).**
    - Server Component `SystemStatusWidget.tsx`
@@ -520,7 +520,7 @@ Componente nuevo: `app/admin/components/SystemStatusWidget.tsx`. Renderizado en 
 1. **Ethan es el primer responder de incidentes** durante pre-launch. Fabián entra como backup post-launch.
 2. **Stripe y Resend mantienen sus dashboards nativos** sin cobrar extra. (Stripe ya envía emails de webhook fallidos por default; Resend muestra stats sin upgrade.)
 3. **Vercel Analytics free tier** sigue siendo gratis (Vercel ha sido consistente en mantener este tier).
-4. **El dominio `mybusinessformation.com` se apuntará a Vercel** antes del launch — esto activa el monitoreo SSL real (hoy el SSL es de `vercel.app`, gestionado por Vercel automáticamente, sin riesgo de expiración).
+4. **El dominio `opabiz.com` se apuntará a Vercel** antes del launch — esto activa el monitoreo SSL real (hoy el SSL es de `vercel.app`, gestionado por Vercel automáticamente, sin riesgo de expiración).
 5. **No usaremos PagerDuty / Opsgenie pre-launch.** El email es suficiente. Esos son para equipos con on-call de 4+ personas.
 
 ---

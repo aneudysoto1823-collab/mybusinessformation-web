@@ -1,6 +1,6 @@
 # 01 — Sitio caído (Frontend Vercel)
 
-Problemas relacionados con `mybusinessformation.com` o `mybusinessformation-web.vercel.app` cuando el sitio público no carga, da error o se comporta raro.
+Problemas relacionados con `opabiz.com` o `opabiz.com` cuando el sitio público no carga, da error o se comporta raro.
 
 ---
 
@@ -70,4 +70,4 @@ Problemas relacionados con `mybusinessformation.com` o `mybusinessformation-web.
 ### 10. Sitio carga pero el formulario de orden no se envía
 **Status:** 🔴 Crítico
 **Síntoma visible:** Cliente llena el formulario, hace clic en "Submit Order" y el botón se queda cargando indefinidamente o muestra error genérico. La orden NO aparece en `/admin`.
-**Solución posible:** Verificar 3 cosas en orden: (1) DevTools del navegador → Console → buscar error de CORS o 500 al hacer POST. Si CORS, ir a Railway → variable `ALLOWED_ORIGINS` y verificar que incluye `https://mybusinessformation.com`. (2) Si es 500, ir a Railway → Logs en vivo → identificar el error en `/api/orders`. (3) Si es timeout, verificar https://status.supabase.com — si Supabase está down, esperar resolución upstream. Como mitigación, publicar aviso en sitio "Estamos teniendo problemas técnicos, intenta en 15 min".
+**Solución posible:** Verificar 3 cosas en orden: (1) DevTools del navegador → Console → buscar error de CORS o 500 al hacer POST. Si CORS, ir a Railway → variable `ALLOWED_ORIGINS` y verificar que incluye `https://opabiz.com`. (2) Si es 500, ir a Railway → Logs en vivo → identificar el error en `/api/orders`. (3) Si es timeout, verificar https://status.supabase.com — si Supabase está down, esperar resolución upstream. Como mitigación, publicar aviso en sitio "Estamos teniendo problemas técnicos, intenta en 15 min".

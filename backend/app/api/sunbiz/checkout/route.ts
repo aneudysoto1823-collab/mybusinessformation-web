@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
           return { price_data: { currency: 'usd', product_data: { name: svc.name }, unit_amount: svc.amount }, quantity: 1 }
         })
 
-    const origin = req.headers.get('origin') || 'https://mybusinessformation.com'
+    const origin = req.headers.get('origin') || 'https://opabiz.com'
 
     // Look up company email from DB to pre-fill Stripe checkout
     let customerEmail: string | undefined

@@ -44,7 +44,7 @@ Si después de aplicar la solución el problema persiste, escala: contacta al eq
 | 06 | [06_busqueda_nombres.md](06_busqueda_nombres.md) | Sunbiz Florida — base local desactualizada, búsqueda lenta |
 | 07 | [07_panel_admin.md](07_panel_admin.md) | `/admin` — login admin, dashboard, acciones sobre órdenes |
 | 08 | [08_portal_cliente.md](08_portal_cliente.md) | `/client-portal` — login cliente, descargas, datos incorrectos |
-| 09 | [09_dominio_dns.md](09_dominio_dns.md) | Dominio mybusinessformation.com — DNS, SSL, propagación |
+| 09 | [09_dominio_dns.md](09_dominio_dns.md) | Dominio opabiz.com — DNS, SSL, propagación |
 | 10 | [10_otros.md](10_otros.md) | Problemas no categorizados — DDoS, sobrecostos, accesos revocados |
 
 ---

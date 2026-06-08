@@ -96,7 +96,7 @@ El cliente puede cambiar de orden sin volver a hacer login
 
 ### 8. Email corporativo en todas las páginas
 
-`info@mybusinessformation.com` agregado en el footer de:
+`info@opabiz.com` agregado en el footer de:
 - Home (`/`)
 - About (`/about`)
 - Terms (`/terms`)
@@ -134,7 +134,7 @@ El cliente puede cambiar de orden sin volver a hacer login
 
 - Cambiar status de una orden addon desde el admin (in_review → processing → completed)
 - Email automático al cliente cuando el admin cambia el status
-- Configurar Resend para que los emails salgan desde `info@mybusinessformation.com`
+- Configurar Resend para que los emails salgan desde `info@opabiz.com`
 - Eliminar órdenes de prueba cuando ya no sean necesarias:
   ```sql
   DELETE FROM "Order"

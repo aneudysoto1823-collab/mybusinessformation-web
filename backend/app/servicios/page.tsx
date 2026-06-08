@@ -35,27 +35,27 @@ const serviciosSchema = {
   '@graph': [
     {
       '@type': 'CollectionPage',
-      '@id': 'https://mybusinessformation.com/servicios',
-      url: 'https://mybusinessformation.com/servicios',
+      '@id': 'https://opabiz.com/servicios',
+      url: 'https://opabiz.com/servicios',
       name: 'Florida Business Services Catalog',
       description:
         'Full catalog of Florida business services: LLC formation, EIN, Operating Agreement, Registered Agent, Annual Report, DBA, ITIN and more. Bilingual EN/ES.',
       inLanguage: 'en-US',
-      isPartOf: { '@id': 'https://mybusinessformation.com/#website' },
-      breadcrumb: { '@id': 'https://mybusinessformation.com/servicios#breadcrumb' },
-      mainEntity: { '@id': 'https://mybusinessformation.com/servicios#itemlist' },
+      isPartOf: { '@id': 'https://opabiz.com/#website' },
+      breadcrumb: { '@id': 'https://opabiz.com/servicios#breadcrumb' },
+      mainEntity: { '@id': 'https://opabiz.com/servicios#itemlist' },
     },
     {
       '@type': 'BreadcrumbList',
-      '@id': 'https://mybusinessformation.com/servicios#breadcrumb',
+      '@id': 'https://opabiz.com/servicios#breadcrumb',
       itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://mybusinessformation.com' },
-        { '@type': 'ListItem', position: 2, name: 'Services', item: 'https://mybusinessformation.com/servicios' },
+        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://opabiz.com' },
+        { '@type': 'ListItem', position: 2, name: 'Services', item: 'https://opabiz.com/servicios' },
       ],
     },
     {
       '@type': 'ItemList',
-      '@id': 'https://mybusinessformation.com/servicios#itemlist',
+      '@id': 'https://opabiz.com/servicios#itemlist',
       name: 'Florida Business Services',
       numberOfItems: SERVICIOS_FOR_SCHEMA.length,
       itemListElement: SERVICIOS_FOR_SCHEMA.map((s, i) => ({
@@ -63,12 +63,12 @@ const serviciosSchema = {
         position: i + 1,
         item: {
           '@type': 'Service',
-          '@id': `https://mybusinessformation.com/servicios#${s.id}`,
+          '@id': `https://opabiz.com/servicios#${s.id}`,
           name: s.name,
           description: s.description,
           serviceType: 'Business Formation & Compliance',
           areaServed: { '@type': 'State', name: 'Florida' },
-          provider: { '@id': 'https://mybusinessformation.com/#organization' },
+          provider: { '@id': 'https://opabiz.com/#organization' },
           ...(s.priceUsd !== undefined
             ? {
                 offers: {
@@ -76,7 +76,7 @@ const serviciosSchema = {
                   price: s.priceUsd,
                   priceCurrency: 'USD',
                   availability: 'https://schema.org/InStock',
-                  url: `https://mybusinessformation.com/servicios#${s.id}`,
+                  url: `https://opabiz.com/servicios#${s.id}`,
                 },
               }
             : {}),
@@ -90,14 +90,14 @@ export const metadata: Metadata = {
   title: 'Florida Business Services — LLC, Corporation, EIN, Registered Agent & More',
   description: 'Full catalog of Florida business services: LLC formation, Corporation, EIN, Operating Agreement, Registered Agent, Annual Report, DBA, ITIN, and more. Bilingual EN/ES.',
   alternates: {
-    canonical: 'https://mybusinessformation.com/servicios',
+    canonical: 'https://opabiz.com/servicios',
     languages: {
-      'en-US': 'https://mybusinessformation.com/servicios',
-      'es-US': 'https://mybusinessformation.com/servicios?lang=es',
+      'en-US': 'https://opabiz.com/servicios',
+      'es-US': 'https://opabiz.com/servicios?lang=es',
     },
   },
   openGraph: {
-    url: 'https://mybusinessformation.com/servicios',
+    url: 'https://opabiz.com/servicios',
     title: 'Florida Business Services — LLC, Corporation, EIN & More',
     description: 'Everything your Florida business needs: LLC and Corporation formation, EIN, Operating Agreement, Registered Agent, Annual Report, DBA, ITIN, and more.',
   },
@@ -585,7 +585,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
   <div class="header-inner">
     <a href="/" class="logo">
       <div class="logo-mark">FL</div>
-      <div class="logo-text">Florida Business Formation Center<span>mybusinessformation.com</span></div>
+      <div class="logo-text">Florida Business Formation Center<span>opabiz.com</span></div>
     </a>
     <nav>
       <a href="/" data-en="Home" data-es="Inicio">Inicio</a>
@@ -640,7 +640,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
         <div class="logo-mark" style="display:inline-flex;margin-bottom:12px">FL</div>
         <div style="font-family:'Fraunces',serif;color:#fff;font-size:.95rem;font-weight:600;margin-bottom:6px">Florida Business Formation Center</div>
         <p>Professional business formation services for entrepreneurs and investors throughout Florida.</p>
-        <p style="margin-top:9px;color:rgba(255,255,255,.35);font-size:.72rem">&#128231; info@mybusinessformation.com</p>
+        <p style="margin-top:9px;color:rgba(255,255,255,.35);font-size:.72rem">&#128231; info@opabiz.com</p>
       </div>
       <div class="footer-col">
         <h5 data-en="Company" data-es="Compañía">Compañía</h5>
@@ -658,7 +658,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
       </div>
     </div>
     <hr class="footer-divider"/>
-    <div class="footer-copy">&#169; 2025 Florida Business Formation Center &middot; mybusinessformation.com &middot; All Rights Reserved.</div>
+    <div class="footer-copy">&#169; 2025 Florida Business Formation Center &middot; opabiz.com &middot; All Rights Reserved.</div>
     <div class="footer-disclaimer"><strong style="color:rgba(255,255,255,0.5);display:block;margin-bottom:4px">Important Notice</strong>Florida Business Formation Center is a professional document preparation and filing service. We are not a law firm and do not provide legal, tax, or financial advice. Our services do not constitute the practice of law and do not create an attorney-client relationship. All filings are subject to approval by the Florida Division of Corporations and the IRS. For legal or tax guidance specific to your situation, we encourage you to consult a licensed Florida attorney or certified public accountant.</div>
   </div>
 </footer>
@@ -881,7 +881,7 @@ var serviceForms={
     <div class="form-group"><label class="form-label">Electronic Signature *</label><input type="text" class="form-input" placeholder="Type full legal name — confirms monthly authorization"/></div>
     <div class="summary-box"><div class="summary-row"><span>Virtual Mailing Address</span><span>$29/month</span></div><div class="summary-row"><span>Setup Fee</span><span>FREE</span></div><div class="summary-row"><span style="font-weight:700">First Month Due Today</span><span>$29</span></div></div>
     <button class="btn-submit-svc" onclick="submitService()">&#x1F680; Activate Virtual Address — $29 &#8594;</button>
-    <div class="disclaimer">Monthly subscription. Cancel anytime with 30 days written notice to info@mybusinessformation.com.</div>\`
+    <div class="disclaimer">Monthly subscription. Cancel anytime with 30 days written notice to info@opabiz.com.</div>\`
 },
 'annual-report':{
   title:'Annual Report Filing',

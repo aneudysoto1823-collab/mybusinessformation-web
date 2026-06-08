@@ -138,7 +138,7 @@ export default function OGImage() {
             display: "flex",
           }}
         >
-          mybusinessformation.com
+          opabiz.com
         </div>
       </div>
     ),

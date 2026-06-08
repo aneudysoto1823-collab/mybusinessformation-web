@@ -14,7 +14,7 @@ Con Sentry:
 
 ## Qué hace HOY
 
-**Cubre el sitio público + el panel admin de Vercel** (toda la parte que vive en `mybusinessformation.com`):
+**Cubre el sitio público + el panel admin de Vercel** (toda la parte que vive en `opabiz.com`):
 
 - ✅ Errores en el panel `/admin` (Server Components, ej. cuando se rompe una query a Supabase).
 - ✅ Errores en las API routes (`/api/*`, ej. cuando Stripe webhook falla, cuando Claudia tira un bug).
@@ -29,7 +29,7 @@ Con Sentry:
 
 ## Cómo te enterás cuando pasa algo
 
-**1. Email automático** llega a `admin@mybusinessformation.com` (la cuenta con la que está registrado Sentry). Ejemplo:
+**1. Email automático** llega a `admin@opabiz.com` (la cuenta con la que está registrado Sentry). Ejemplo:
 
 > 🚨 [Sentry] javascript-nextjs — TypeError: Cannot read property 'name' of null
 > in /app/admin/orders/[id]/page.tsx line 47
@@ -107,7 +107,7 @@ Si Sentry tiene problemas (red caída, su servicio offline), el código sigue fu
 
 Mucha gente usa **uBlock Origin, Brave Shields, AdBlock Plus** que bloquean dominios de tracking — incluyendo `*.ingest.sentry.io`. Si dejábamos a Sentry mandando los eventos directo a esa URL, perderíamos el ~15-20% del tráfico latino que usa ad-blockers.
 
-**Solución:** los eventos se mandan a `https://mybusinessformation.com/monitoring/*` (un endpoint propio del sitio que reenvía a Sentry). Como `mybusinessformation.com` no está en listas de bloqueo, los ad-blockers no lo tocan.
+**Solución:** los eventos se mandan a `https://opabiz.com/monitoring/*` (un endpoint propio del sitio que reenvía a Sentry). Como `opabiz.com` no está en listas de bloqueo, los ad-blockers no lo tocan.
 
 Esto se llama **"tunnel route"** y está configurado en `next.config.ts` con `tunnelRoute: '/monitoring'`. Sin esto, perdíamos errores reales de usuarios.
 
@@ -156,7 +156,7 @@ Para evitar quemar la cuota:
 ### Test rápido en producción (1 minuto)
 
 1. Crear endpoint temporal `/api/sentry-test` con un `throw new Error(...)`.
-2. Visitar `https://mybusinessformation.com/api/sentry-test`.
+2. Visitar `https://opabiz.com/api/sentry-test`.
 3. En el dashboard de Sentry, refrescar Issues — el evento debería aparecer en menos de 60 segundos con `environment: production`.
 4. Borrar el endpoint post-validación.
 
@@ -176,7 +176,7 @@ Esto se hizo el 2026-05-09 (commit `305bc94` para crear el endpoint, `06e9c4d` p
 |---|---|---|
 | Sentry para Express en Railway (`@sentry/node` en `server.ts`) | ~1 hora | **DIFERIDO hasta Etapa 5** — Railway dormido desde 2026-05-13. Sin tráfico, no hay errores que monitorear. Se activa cuando se implemente Sunbiz. |
 | Smoke test client-side: ruta `/sentry-client-test` gated | ~30 min | ✅ **Completado 2026-05-13 (commit `b1c52d7`)**. Ruta accesible en preview/dev, retorna 404 en producción. Ver `LOGICA_DE_NEGOCIO/15_sentry_betterstack_monitoring.md` para protocolo de validación. |
-| Alert Rule en Sentry → email a `admin@mybusinessformation.com` | ~10 min | ✅ **Completado 2026-05-13**. Configurada en sentry.io. Notifica primera ocurrencia de cada error nuevo. Validada en smoke test end-to-end con BetterStack. |
+| Alert Rule en Sentry → email a `admin@opabiz.com` | ~10 min | ✅ **Completado 2026-05-13**. Configurada en sentry.io. Notifica primera ocurrencia de cada error nuevo. Validada en smoke test end-to-end con BetterStack. |
 | Activar `SENTRY_AUTH_TOKEN` para sourcemaps | ~15 min | ⏸️ Pendiente (opcional). Sin él, stack traces del browser muestran código minificado. Aceptable hasta que sea molesto durante un debug. |
 
 ---
@@ -211,7 +211,7 @@ BetterStack se documentará en otro archivo cuando lo configuremos.
 | `tunnelRoute: '/monitoring'` | Sortea ad-blockers que bloquean `*.sentry.io`. Sin esto perderíamos ~15-20% de eventos. |
 | Filtro PII obligatorio (`beforeSend: scrubPII`) | Cero email/teléfono/SSN/tarjetas en Sentry. Compliance + seguridad. |
 | Cuenta única para los 2 proyectos (Next.js y Express futuro) | Un solo dashboard, una sola cuenta de billing si upgrade. |
-| Email único `admin@mybusinessformation.com` para todas las alertas | Inbox compartido del proyecto, ambos socios pueden ver. |
+| Email único `admin@opabiz.com` para todas las alertas | Inbox compartido del proyecto, ambos socios pueden ver. |
 | Sin `SENTRY_AUTH_TOKEN` (sourcemaps disable) | Sin auth token, los stack traces son menos legibles (variables minificadas). Aceptable hasta que sea molesto. |
 | Endpoint `/api/sentry-test` solo temporal | Borrado post-validación. Para futuras pruebas se usa la ruta gated client-side. |
 

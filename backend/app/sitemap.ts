@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { listArticles, type Section, type Lang } from "@/lib/content";
 import { articleUrl, sectionHubUrl } from "@/lib/cross-links";
 
-const BASE_URL = "https://mybusinessformation.com";
+const BASE_URL = "https://opabiz.com";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();

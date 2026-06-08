@@ -11,7 +11,7 @@ const app = express()
 const PORT = process.env.PORT || 4000
 
 const ALLOWED_ORIGINS = [
-  'https://mybusinessformation-web.vercel.app',
+  'https://opabiz.com',
   ...(process.env.NODE_ENV !== 'production' ? ['http://localhost:3000'] : []),
 ]
 

@@ -26,7 +26,7 @@ El panel de administración (`/admin`) es la zona crítica del sistema: desde ah
 Para entender de un vistazo qué hicimos para proteger el panel de admin:
 
 - **La password del panel ya NO está en variables de entorno en Vercel.** Antes estaba en plaintext (`ADMIN_PASSWORD=...`); ahora solo guardamos un **hash bcrypt** (`ADMIN_PASSWORD_HASH=...`) que es derivado y no reversible. Aunque alguien filtre el `.env`, no puede sacar la password real.
-- **5 intentos fallidos en 15 minutos = el sistema bloquea esa IP automáticamente.** El bloqueo se gestiona con **Upstash** (servicio de Redis serverless, cuenta creada con `admin@mybusinessformation.com`). Después de los 5 intentos, el server responde `429 Too Many Requests` y el frontend muestra un countdown visible al usuario hasta que se libera.
+- **5 intentos fallidos en 15 minutos = el sistema bloquea esa IP automáticamente.** El bloqueo se gestiona con **Upstash** (servicio de Redis serverless, cuenta creada con `admin@opabiz.com`). Después de los 5 intentos, el server responde `429 Too Many Requests` y el frontend muestra un countdown visible al usuario hasta que se libera.
 - **La cookie de sesión admin se reforzó:** `secure: true` (solo viaja por HTTPS), `sameSite: 'strict'` (anti-CSRF), `httpOnly: true` (el JavaScript del browser no la lee).
 - **La password admin se rotó** el día del cambio porque el hash viejo se transmitió accidentalmente por un `<ide_selection>` automático del IDE.
 

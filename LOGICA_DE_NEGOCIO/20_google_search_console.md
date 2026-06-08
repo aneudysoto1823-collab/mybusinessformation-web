@@ -10,11 +10,11 @@ Documento maestro del sistema de monitoreo de indexación y performance en busca
 
 | Componente | Producto / Tipo | Rol |
 |------------|-----------------|-----|
-| Google Search Console | Property tipo **Domain** sobre `mybusinessformation.com` | Monitoreo indexación + Performance + alertas |
+| Google Search Console | Property tipo **Domain** sobre `opabiz.com` | Monitoreo indexación + Performance + alertas |
 | Verificación GSC | DNS **TXT** en Namecheap (zona apex) | Owner verification — permanente |
-| Sitemap canónico | `https://mybusinessformation.com/sitemap.xml` | Generado dinámicamente por `backend/app/sitemap.ts` |
-| robots.txt | `https://mybusinessformation.com/robots.txt` | Generado por `backend/app/robots.ts` — referencia el sitemap |
-| Bing Webmaster Tools | Property en `https://mybusinessformation.com` | Mismo rol que GSC pero para Bing/DuckDuckGo |
+| Sitemap canónico | `https://opabiz.com/sitemap.xml` | Generado dinámicamente por `backend/app/sitemap.ts` |
+| robots.txt | `https://opabiz.com/robots.txt` | Generado por `backend/app/robots.ts` — referencia el sitemap |
+| Bing Webmaster Tools | Property en `https://opabiz.com` | Mismo rol que GSC pero para Bing/DuckDuckGo |
 
 ---
 
@@ -24,14 +24,14 @@ Esta distinción es **crítica** y afecta cómo se hace el submit del sitemap.
 
 ### Domain (es la que usamos)
 
-- Cobertura: **TODOS** los subdominios + ambos protocolos (`https://mybusinessformation.com`, `https://www.mybusinessformation.com`, `https://blog.mybusinessformation.com`, etc.)
+- Cobertura: **TODOS** los subdominios + ambos protocolos (`https://opabiz.com`, `https://www.opabiz.com`, `https://blog.opabiz.com`, etc.)
 - Verificación: **solo DNS TXT** — no acepta HTML file ni meta tag
 - Sin prefijo precargado en la UI — los campos esperan URLs completas
 - Una sola property cubre tráfico de www y apex sin necesidad de duplicar
 
 ### URL-prefix (NO la usamos)
 
-- Cobertura: una URL específica (ej. `https://www.mybusinessformation.com/`)
+- Cobertura: una URL específica (ej. `https://www.opabiz.com/`)
 - Verificación: HTML file, meta tag, DNS, Google Analytics, o GTM
 - La UI **precarga el prefijo** del dominio en los formularios — el submit acepta paths cortos como `sitemap.xml`
 - Si tenés ambos protocolos o subdominios, necesitás una property por cada uno
@@ -52,7 +52,7 @@ Esta distinción es **crítica** y afecta cómo se hace el submit del sitemap.
 GSC → Sitemaps → "Add a new sitemap" → pegar **la URL completa**:
 
 ```
-https://mybusinessformation.com/sitemap.xml
+https://opabiz.com/sitemap.xml
 ```
 
 ⚠️ **NO funciona** pegar solo `sitemap.xml` o `/sitemap.xml` en una property Domain. La UI no precarga el dominio en este tipo de property. Google va a tomar el path como si fuera relativo a nada y marcará "Couldn't fetch".
@@ -62,7 +62,7 @@ https://mybusinessformation.com/sitemap.xml
 ### Verificación post-submit
 
 - Status esperado: "Success" inicialmente. Hasta 24-48h después, GSC corre su primer crawl y la columna pasa a "Success" con número de páginas descubiertas.
-- Si después de 48h sigue "Couldn't fetch" → verificar manualmente con `curl -I https://mybusinessformation.com/sitemap.xml` que retorna 200 + `Content-Type: application/xml`. Si OK, esperar otras 24h. Si persiste, revisar logs en Vercel.
+- Si después de 48h sigue "Couldn't fetch" → verificar manualmente con `curl -I https://opabiz.com/sitemap.xml` que retorna 200 + `Content-Type: application/xml`. Si OK, esperar otras 24h. Si persiste, revisar logs en Vercel.
 
 ### Re-submit
 
@@ -72,7 +72,7 @@ GSC re-crawlea el sitemap automáticamente (~1 vez por semana cuando hay activid
 
 ## robots.txt
 
-Ya está servido en `https://mybusinessformation.com/robots.txt`. Contenido actual:
+Ya está servido en `https://opabiz.com/robots.txt`. Contenido actual:
 
 ```
 User-Agent: *
@@ -81,7 +81,7 @@ Disallow: /admin/
 Disallow: /api/
 Disallow: /client-portal/dashboard
 
-Sitemap: https://mybusinessformation.com/sitemap.xml
+Sitemap: https://opabiz.com/sitemap.xml
 ```
 
 La línea `Sitemap:` ayuda a buscadores que no usan GSC (ej. Bing antes del Webmaster Tools, DuckDuckGo, motores chinos como Baidu) a descubrir el sitemap. **No reemplaza** al submit manual en GSC — los dos sistemas son independientes.
@@ -124,12 +124,12 @@ Si el import falla (a veces no toma properties tipo Domain), pasar a Opción B.
 
 ### Opción B — Manual
 
-1. Add site: `https://mybusinessformation.com`
+1. Add site: `https://opabiz.com`
 2. Verification (3 opciones):
    - **DNS TXT** — Bing te da otro valor TXT distinto al de GSC. Agregar en Namecheap (zona apex). Verificar al instante.
    - **HTML file** — descargar `BingSiteAuth.xml`, ponerlo en `backend/public/`, commit + deploy, verificar
    - **Meta tag** — pegar el `<meta>` en `<head>` (no recomendado en este proyecto — preferimos DNS o HTML file para tener menos clutter en layout.tsx)
-3. Una vez verificado: **Sitemaps** → Submit `https://mybusinessformation.com/sitemap.xml` (URL completa, mismo principio que GSC Domain)
+3. Una vez verificado: **Sitemaps** → Submit `https://opabiz.com/sitemap.xml` (URL completa, mismo principio que GSC Domain)
 
 ### Diferencias relevantes vs GSC
 
@@ -200,7 +200,7 @@ Ver también `TROUBLESHOOTING/09_dominio_dns.md` para issues de DNS y `TROUBLESH
 
 ### "Couldn't fetch" en GSC después de submit
 
-1. `curl -I https://mybusinessformation.com/sitemap.xml` — debe retornar 200, Content-Type `application/xml`
+1. `curl -I https://opabiz.com/sitemap.xml` — debe retornar 200, Content-Type `application/xml`
 2. Verificar que **NO** pegaste solo `sitemap.xml` en una property Domain (causa #1 de este error)
 3. ¿Pegaste `http://` en vez de `https://`? GSC rechaza HTTP en properties HTTPS
 4. Esperar 24-48h — primer fetch puede tardar

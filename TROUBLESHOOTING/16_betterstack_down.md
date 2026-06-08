@@ -9,7 +9,7 @@ Cómo responder cuando llega un email `[BetterStack]` con `DOWN` en producción.
 BetterStack chequea cada 30 segundos las URLs públicas del sitio. Cuando una URL deja de responder durante **2-3 chequeos consecutivos**, manda email tipo:
 
 ```
-[BetterStack] DOWN: Home — mybusinessformation.com
+[BetterStack] DOWN: Home — opabiz.com
 ```
 
 Después de **2-3 fallos consecutivos** (no 1 solo), para evitar falsos positivos por hiccups de red.
@@ -25,8 +25,8 @@ Lo opuesto: cuando vuelve a responder OK, llega `[BetterStack] UP` con el mismo 
 ### 1. Identificar QUÉ monitor cayó
 
 Los 3 monitores activos son:
-- **Home** — `https://mybusinessformation.com/`
-- **Admin Login** — `https://mybusinessformation.com/admin`
+- **Home** — `https://opabiz.com/`
+- **Admin Login** — `https://opabiz.com/admin`
 - **API Client Portal** — endpoint health del portal
 
 El subject del email dice cuál. Saber cuál es te orienta:
@@ -72,7 +72,7 @@ Abrir el dashboard de Vercel del proyecto → tab **Deployments**:
 
 ### c) DNS y SSL
 
-- `curl -I https://mybusinessformation.com/` desde la terminal → ¿responde?
+- `curl -I https://opabiz.com/` desde la terminal → ¿responde?
 - Si timeout/no resuelve → DNS. Revisar el registrar (Netlify hoy, Namecheap futuro).
 - Si responde con error SSL → certificado expirado. Vercel auto-renueva con Let's Encrypt; si falla, refrescar el dominio en Settings → Domains.
 
@@ -137,7 +137,7 @@ Cuando llega el email `[BetterStack] UP` del mismo monitor → el problema está
 ## Configuración relacionada
 
 - **3 monitores activos** (2026-05-13): Home, Admin Login, API Client Portal. Umbral 2-3 fallos consecutivos antes de alertar.
-- **Destinatarios email:** `admin@mybusinessformation.com` por ahora. Segundo destinatario pendiente (Gmail compañía futuro).
+- **Destinatarios email:** `admin@opabiz.com` por ahora. Segundo destinatario pendiente (Gmail compañía futuro).
 - **Push notifications:** activas en iPhone vía app BetterStack (configuración 2026-05-13).
 - **Status page pública:** pendiente hasta migración DNS Netlify → Namecheap.
 - **Monitor de Railway (4to monitor):** DIFERIDO hasta Etapa 5 (Sunbiz). Hoy Railway está dormido, monitorearlo es ruido.

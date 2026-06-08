@@ -375,7 +375,7 @@ export default function LoginPage() {
             </div>
 
             <div className="form-footer">
-              © {year} Florida Business Formation Center — mybusinessformation.com<br />
+              © {year} Florida Business Formation Center — opabiz.com<br />
               Confidential & Proprietary
             </div>
 

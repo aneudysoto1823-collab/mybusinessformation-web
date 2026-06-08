@@ -14,7 +14,7 @@ Problemas con el sistema de emails: emails no llegan, van a spam, dominio no ver
 ### 2. Emails caen en spam masivamente (todos los clientes reportan)
 **Status:** 🔴 Crítico
 **Síntoma visible:** Múltiples clientes reportan en mismo período que el email cae en spam. Bounces visibles en Resend Dashboard >5%.
-**Solución posible:** Causa #1: dominio NO verificado en Resend (estamos enviando desde `onboarding@resend.dev` que tiene reputation neutra). Solución urgente: ir a https://resend.com/domains → "Add Domain" → `mybusinessformation.com` → seguir instrucciones DNS. Agregar registros SPF, DKIM, DMARC en el proveedor de DNS (Cloudflare/Namecheap/GoDaddy). Esperar verificación (~30 min). Cambiar `FROM_EMAIL` en variables de entorno Railway a `noreply@mybusinessformation.com`. Después de cambio, deliverability sube del ~60% al ~95%+.
+**Solución posible:** Causa #1: dominio NO verificado en Resend (estamos enviando desde `onboarding@resend.dev` que tiene reputation neutra). Solución urgente: ir a https://resend.com/domains → "Add Domain" → `opabiz.com` → seguir instrucciones DNS. Agregar registros SPF, DKIM, DMARC en el proveedor de DNS (Cloudflare/Namecheap/GoDaddy). Esperar verificación (~30 min). Cambiar `FROM_EMAIL` en variables de entorno Railway a `noreply@opabiz.com`. Después de cambio, deliverability sube del ~60% al ~95%+.
 
 ---
 
@@ -39,10 +39,10 @@ Problemas con el sistema de emails: emails no llegan, van a spam, dominio no ver
 
 ---
 
-### 6. Dominio mybusinessformation.com no se verifica en Resend
+### 6. Dominio opabiz.com no se verifica en Resend
 **Status:** 🟡 Medio
 **Síntoma visible:** Agregaste el dominio en Resend hace >24h y sigue marcado como "Not verified" o "Pending". Los emails siguen saliendo desde `onboarding@resend.dev`.
-**Solución posible:** Ir a https://resend.com/domains → click sobre `mybusinessformation.com` → ver "Required DNS records". Comparar con lo que está en el DNS provider real (Cloudflare/Namecheap/GoDaddy). Verificar que se agregaron EXACTAMENTE como Resend lo pidió: SPF (`TXT v=spf1 include:_spf.resend.com ~all`), DKIM (record largo único de Resend), DMARC (`TXT v=DMARC1; p=none;`). Si están bien, esperar más (DNS puede tardar hasta 48h en propagar). Para verificar propagación: usar https://dnschecker.org → query del registro TXT desde múltiples regiones. Si se ve correcto en dnschecker, en Resend click "Verify Domain" para forzar re-check.
+**Solución posible:** Ir a https://resend.com/domains → click sobre `opabiz.com` → ver "Required DNS records". Comparar con lo que está en el DNS provider real (Cloudflare/Namecheap/GoDaddy). Verificar que se agregaron EXACTAMENTE como Resend lo pidió: SPF (`TXT v=spf1 include:_spf.resend.com ~all`), DKIM (record largo único de Resend), DMARC (`TXT v=DMARC1; p=none;`). Si están bien, esperar más (DNS puede tardar hasta 48h en propagar). Para verificar propagación: usar https://dnschecker.org → query del registro TXT desde múltiples regiones. Si se ve correcto en dnschecker, en Resend click "Verify Domain" para forzar re-check.
 
 ---
 

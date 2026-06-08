@@ -9,6 +9,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/admin/", "/api/", "/client-portal/dashboard"],
       },
     ],
-    sitemap: "https://mybusinessformation.com/sitemap.xml",
+    sitemap: "https://opabiz.com/sitemap.xml",
   };
 }

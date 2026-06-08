@@ -532,7 +532,7 @@ Cada artículo debe enlazar a **3-5 artículos relacionados del cluster** (no m�
 
 ### Estructura de URL
 
-Patrón: `mybusinessformation.com/blog/como-abrir-un-llc-en-florida/` (todo en minúscula, guiones, sin números ni fechas en URL).
+Patrón: `opabiz.com/blog/como-abrir-un-llc-en-florida/` (todo en minúscula, guiones, sin números ni fechas en URL).
 
 ### Tipografía y media por artículo
 
@@ -570,7 +570,7 @@ Cada artículo debe incluir:
 
 ### Landing page de captura
 
-**URL:** `mybusinessformation.com/espera` (o `/waitlist`)
+**URL:** `opabiz.com/espera` (o `/waitlist`)
 
 **Estructura above the fold:**
 
@@ -646,7 +646,7 @@ Ethan
 Fundador · MyBusinessFormation.com
 
 P.D. Si tienes a alguien que también necesita abrir LLC, reenvíale
-este link: mybusinessformation.com/espera (los primeros 500 tienen
+este link: opabiz.com/espera (los primeros 500 tienen
 descuento asegurado 👀)
 ```
 
@@ -740,7 +740,7 @@ Si ya tienes tu LLC y no has hecho el BOI Filing, hazlo HOY:
 👉 https://boiefiling.fincen.gov/ (es gratis directo con FinCEN)
 
 Pero si te da miedo equivocarte y prefieres que alguien lo
-haga por ti, entra a mybusinessformation.com y agéndalo desde
+haga por ti, entra a opabiz.com y agéndalo desde
 $49 con el filing incluido.
 
 Mañana te mando una comparativa brutal de los 4 principales
@@ -866,7 +866,7 @@ MyBusinessFormation.com tomamos todo esto y lo hacemos por ti en
 3 días.
 
 La lista de espera sigue abierta:
-👉 mybusinessformation.com/espera
+👉 opabiz.com/espera
 
 Un abrazo,
 Ethan
@@ -1930,7 +1930,7 @@ Pedimos 1 artículo de prueba PAGADO ($50) para evaluar el estilo antes de firma
 
 1. **Ethan está 100% on-camera en YouTube.** Si por alguna razón no puede, pivotear a Fabián o reducir frecuencia a 1 video/sem.
 2. **Fabián ayuda con diseño y ejecución operacional.** Si Fabián se sale, aumentar presupuesto de diseñador externo +$200/mes.
-3. **El dominio mybusinessformation.com se apunta a Vercel antes del lanzamiento.** Crítico — no se puede lanzar con URL vercel.app.
+3. **El dominio opabiz.com se apunta a Vercel antes del lanzamiento.** Crítico — no se puede lanzar con URL vercel.app.
 4. **Supabase Pro activado antes del launch** (backups diarios). Costo $25/mes.
 5. **Supabase Storage** tiene capacidad suficiente para PDFs. Si llenamos tier gratis, upgrade ~$20/mes adicional.
 
@@ -1942,7 +1942,7 @@ Pedimos 1 artículo de prueba PAGADO ($50) para evaluar el estilo antes de firma
 2. **Reclutar SEO writer** — postear oferta en LinkedIn + Upwork antes del 30 abril.
 3. **Grabar Video 1 del canal de YouTube** (Pillar: "Cómo abrir un LLC en Florida...") — objetivo publicar antes del 5 mayo.
 4. **Construir la landing page de waitlist** `/espera` — deploy antes del 10 mayo.
-5. **Verificar el dominio en Resend** para poder enviar desde `noreply@mybusinessformation.com` — aprovecha que ya tienes dominio comprado.
+5. **Verificar el dominio en Resend** para poder enviar desde `noreply@opabiz.com` — aprovecha que ya tienes dominio comprado.
 
 ---
 

@@ -11,8 +11,8 @@ function unsubscribeFooter(email: string): string {
     <hr style="border: none; border-top: 1px solid #eee; margin: 32px 0;">
     <p style="font-size: 12px; color: #888; text-align: center; margin: 0;">
       This is a transactional email related to your order with MyBusinessFormation.com.<br>
-      If you have questions contact us at support@mybusinessformation.com<br>
-      <a href="https://mybusinessformation-web.vercel.app/unsubscribe?email=${encodeURIComponent(email)}" style="color: #888;">Unsubscribe</a>
+      If you have questions contact us at support@opabiz.com<br>
+      <a href="https://opabiz.com/unsubscribe?email=${encodeURIComponent(email)}" style="color: #888;">Unsubscribe</a>
     </p>
   `
 }
@@ -47,7 +47,7 @@ export const sendOrderConfirmation = async (order: {
             <p style="margin:6px 0;font-size:14px"><strong>Confirmation Number:</strong> FBFC-${order.id.replace(/-/g, '').substring(0, 8).toUpperCase()}</p>
           </div>
           <div style="text-align:center;margin:28px 0">
-            <a href="https://mybusinessformation-web.vercel.app/client-portal?email=${encodeURIComponent(order.email)}&order=FBFC-${order.id.replace(/-/g, '').substring(0, 8).toUpperCase()}"
+            <a href="https://opabiz.com/client-portal?email=${encodeURIComponent(order.email)}&order=FBFC-${order.id.replace(/-/g, '').substring(0, 8).toUpperCase()}"
                style="display:inline-block;background:#4f46e5;color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:8px;font-size:15px;font-weight:700;letter-spacing:0.2px">
               Track Your Order →
             </a>
@@ -268,7 +268,7 @@ export const sendOrderProcessed = async (order: {
           </p>
           <p style="color:#475569;line-height:1.7">
             You can track the status anytime in your
-            <a href="https://mybusinessformation.com/client-portal" style="color:#2563eb">client portal</a>.
+            <a href="https://opabiz.com/client-portal" style="color:#2563eb">client portal</a>.
           </p>
           <p style="color:#475569;line-height:1.7">
             Questions? Reach us on <a href="https://wa.me/13528377755" style="color:#059669">WhatsApp</a> or
@@ -323,7 +323,7 @@ export const sendOrderApproved = async (order: {
           </div>
           <p style="color:#475569;line-height:1.7">
             You can also follow progress in your
-            <a href="https://mybusinessformation.com/client-portal" style="color:#2563eb">client portal</a>.
+            <a href="https://opabiz.com/client-portal" style="color:#2563eb">client portal</a>.
           </p>
           <p style="color:#475569;line-height:1.7">
             Questions? Reach us on <a href="https://wa.me/13528377755" style="color:#059669">WhatsApp</a> or

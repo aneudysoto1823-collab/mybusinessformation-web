@@ -97,7 +97,7 @@ export async function POST(req: NextRequest) {
   // Notificación al admin
   await getResend().emails.send({
     from: 'onboarding@resend.dev',
-    to: 'info@mybusinessformation.com',
+    to: 'info@opabiz.com',
     subject: `📅 Cita reprogramada: ${appt.name} → ${dateFormatted} ${timeFormatted}`,
     html: `<p><strong>${appt.name}</strong> reprogramó su cita para el <strong>${dateFormatted}</strong> a las <strong>${timeFormatted}</strong>.</p><p>Email: ${appt.email}</p>`,
   })

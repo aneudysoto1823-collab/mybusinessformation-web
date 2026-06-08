@@ -3,7 +3,7 @@ import Script from "next/script";
 import CookieConsent from "@/components/CookieConsent";
 import "./globals.css";
 
-const BASE_URL = "https://mybusinessformation.com";
+const BASE_URL = "https://opabiz.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),

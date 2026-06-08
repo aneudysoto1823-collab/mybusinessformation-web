@@ -10,7 +10,7 @@ Documento maestro del sistema de analytics del proyecto. Cubre cómo está armad
 
 | Componente | Versión / Producto | Rol |
 |------------|--------------------|-----|
-| GA4 property | `mybusinessformation.com` | Recibe eventos |
+| GA4 property | `opabiz.com` | Recibe eventos |
 | Measurement ID | `G-6F9CHVYRXW` | Identifica la property en gtag |
 | gtag.js | `https://www.googletagmanager.com/gtag/js` | Script oficial de Google |
 | Consent Mode v2 | configurado en `lib/consent.ts` | CCPA/GDPR compliance |

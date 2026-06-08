@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 
 export async function GET() {
   const response = NextResponse.redirect(
-    new URL('/client-portal', process.env.NEXT_PUBLIC_BASE_URL || 'https://mybusinessformation-web.vercel.app')
+    new URL('/client-portal', process.env.NEXT_PUBLIC_BASE_URL || 'https://opabiz.com')
   )
   response.cookies.set('client_session', '', {
     httpOnly: true,

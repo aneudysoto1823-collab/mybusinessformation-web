@@ -59,7 +59,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:32px 32px 20px
   <div class="header-inner">
     <a href="/new-business" class="logo">
       <div class="logo-mark">FL</div>
-      <div class="logo-text">Florida Business Formation Center<span>mybusinessformation.com</span></div>
+      <div class="logo-text">Florida Business Formation Center<span>opabiz.com</span></div>
     </a>
     <div style="display:flex;align-items:center;gap:12px">
       <div class="lang-toggle">
@@ -94,8 +94,8 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:32px 32px 20px
   </aside>
 
   <div class="doc-content">
-    <div class="warn-box en">&#9888; <strong>Please Read Carefully.</strong> This disclaimer governs your use of mybusinessformation.com and all services offered by Florida Business Formation Center.</div>
-    <div class="warn-box es" style="display:none">&#9888; <strong>Lea Cuidadosamente.</strong> Este aviso legal rige el uso de mybusinessformation.com y todos los servicios ofrecidos por Florida Business Formation Center.</div>
+    <div class="warn-box en">&#9888; <strong>Please Read Carefully.</strong> This disclaimer governs your use of opabiz.com and all services offered by Florida Business Formation Center.</div>
+    <div class="warn-box es" style="display:none">&#9888; <strong>Lea Cuidadosamente.</strong> Este aviso legal rige el uso de opabiz.com y todos los servicios ofrecidos por Florida Business Formation Center.</div>
 
     <div class="doc-section" id="not-law-firm">
       <h2>1. <span class="en-inline">We Are Not a Law Firm</span><span class="es-inline" style="display:none">No Somos un Bufete de Abogados</span></h2>
@@ -138,8 +138,8 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:32px 32px 20px
         <li class="en">A Certified Public Accountant (CPA) for tax planning</li><li class="es" style="display:none">Un Contador P&uacute;blico Certificado (CPA) para planificaci&oacute;n fiscal</li>
         <li class="en">A licensed immigration attorney for visa and ITIN matters</li><li class="es" style="display:none">Un abogado de inmigraci&oacute;n licenciado para asuntos de visa e ITIN</li>
       </ul>
-      <div class="green-box en">&#128231; Questions? Contact us at <strong>info@mybusinessformation.com</strong> &mdash; we&rsquo;re here to help with document preparation, not legal advice.</div>
-      <div class="green-box es" style="display:none">&#128231; &iquest;Preguntas? Cont&aacute;ctenos en <strong>info@mybusinessformation.com</strong> &mdash; estamos aqu&iacute; para ayudar con la preparaci&oacute;n de documentos, no con asesor&iacute;a legal.</div>
+      <div class="green-box en">&#128231; Questions? Contact us at <strong>info@opabiz.com</strong> &mdash; we&rsquo;re here to help with document preparation, not legal advice.</div>
+      <div class="green-box es" style="display:none">&#128231; &iquest;Preguntas? Cont&aacute;ctenos en <strong>info@opabiz.com</strong> &mdash; estamos aqu&iacute; para ayudar con la preparaci&oacute;n de documentos, no con asesor&iacute;a legal.</div>
     </div>
   </div>
 </div>

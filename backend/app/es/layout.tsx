@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 
-const BASE_URL = 'https://mybusinessformation.com'
+const BASE_URL = 'https://opabiz.com'
 
 export const metadata: Metadata = {
   title: 'Formación de LLC y Corporación en Florida — Online, Bilingüe',

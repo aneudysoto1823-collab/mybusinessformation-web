@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase'
 
-const BASE_URL = 'https://mybusinessformation.com'
+const BASE_URL = 'https://opabiz.com'
 
 export async function GET(req: NextRequest) {
   const doc = req.nextUrl.searchParams.get('doc')

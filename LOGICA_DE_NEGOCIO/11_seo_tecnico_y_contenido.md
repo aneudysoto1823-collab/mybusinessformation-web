@@ -28,7 +28,7 @@ Configuración de todas las señales que Google y otros motores de búsqueda usa
 
 ### layout.tsx — Metadata global
 ```ts
-metadataBase: new URL('https://mybusinessformation.com')
+metadataBase: new URL('https://opabiz.com')
 title: { default: '...', template: '%s | MyBusinessFormation' }
 openGraph: { type: 'website', siteName, locale: 'en_US', alternateLocale: ['es_US'] }
 twitter: { card: 'summary_large_image' }
@@ -43,7 +43,7 @@ Allow: /
 Disallow: /admin/
 Disallow: /api/
 Disallow: /client-portal/dashboard
-Sitemap: https://mybusinessformation.com/sitemap.xml
+Sitemap: https://opabiz.com/sitemap.xml
 ```
 
 ### sitemap.ts
@@ -171,7 +171,7 @@ Una vez que existan los PNG, el layout.tsx ya los referencia correctamente en `m
 | Favicon | ✅ 25.9 KB ico servido |
 | GA4 Script (gtag) | ✅ Cargado con ID `G-6F9CHVYRXW`, Real-Time funcionando |
 | Consent Mode v2 default-deny | ✅ PASS — Script inline correcto antes de gtag.js |
-| Sitemap apex | ✅ `https://mybusinessformation.com/sitemap.xml` 200 OK, application/xml, 10 URLs base + auto-suma artículos |
+| Sitemap apex | ✅ `https://opabiz.com/sitemap.xml` 200 OK, application/xml, 10 URLs base + auto-suma artículos |
 | robots.txt | ✅ Disallow /admin /api /client-portal/dashboard + Sitemap ref correcto |
 | JSON-LD home | ✅ `@graph` con 5 entidades (Organization, WebSite, Service, LocalBusiness/ProfessionalService, FAQPage) |
 | JSON-LD /new-business | ✅ Organization + Service + Offer + OfferCatalog |

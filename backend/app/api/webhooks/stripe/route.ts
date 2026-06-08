@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic'
 const getStripe = () => new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2026-02-25.clover' })
 const getResend = () => new Resend(process.env.RESEND_API_KEY)
 const FROM          = 'onboarding@resend.dev'
-const PORTAL        = 'https://mybusinessformation.com/client-portal'
+const PORTAL        = 'https://opabiz.com/client-portal'
 const ADMIN_EMAIL   = 'aneurysoto@gmail.com'
 
 export async function POST(req: NextRequest) {
@@ -171,7 +171,7 @@ export async function POST(req: NextRequest) {
           </div>
 
           <p style="color:#94a3b8;font-size:12px;margin-top:24px;line-height:1.6">
-            Florida Business Formation Center · mybusinessformation.com<br/>
+            Florida Business Formation Center · opabiz.com<br/>
             ${isEs
               ? 'Somos una empresa de preparación de documentos, no un bufete de abogados.'
               : 'We are a document preparation service, not a law firm.'}

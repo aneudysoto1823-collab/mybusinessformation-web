@@ -62,7 +62,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:32px 32px 20px
   <div class="header-inner">
     <a href="/new-business" class="logo">
       <div class="logo-mark">FL</div>
-      <div class="logo-text">Florida Business Formation Center<span>mybusinessformation.com</span></div>
+      <div class="logo-text">Florida Business Formation Center<span>opabiz.com</span></div>
     </a>
     <div style="display:flex;align-items:center;gap:12px">
       <div class="lang-toggle">
@@ -164,8 +164,8 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:32px 32px 20px
         <li class="en">Request deletion of your data, subject to our legal retention obligations</li><li class="es" style="display:none">Solicitar la eliminaci&oacute;n de sus datos, sujeto a nuestras obligaciones legales de retenci&oacute;n</li>
         <li class="en">Opt out of marketing communications at any time</li><li class="es" style="display:none">Optar por no recibir comunicaciones de marketing en cualquier momento</li>
       </ul>
-      <p class="en">To exercise any of these rights, please contact us at <strong>info@mybusinessformation.com</strong>.</p>
-      <p class="es" style="display:none">Para ejercer cualquiera de estos derechos, cont&aacute;ctenos en <strong>info@mybusinessformation.com</strong>.</p>
+      <p class="en">To exercise any of these rights, please contact us at <strong>info@opabiz.com</strong>.</p>
+      <p class="es" style="display:none">Para ejercer cualquiera de estos derechos, cont&aacute;ctenos en <strong>info@opabiz.com</strong>.</p>
     </div>
 
     <div class="doc-section" id="cookies">
@@ -180,8 +180,8 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:32px 32px 20px
       <p class="es" style="display:none">Si tiene preguntas sobre esta Pol&iacute;tica de Privacidad o c&oacute;mo manejamos sus datos, cont&aacute;ctenos:</p>
       <div class="green-box">
         <strong>Florida Business Formation Center</strong><br/>
-        &#128231; info@mybusinessformation.com<br/>
-        &#127760; mybusinessformation.com<br/>
+        &#128231; info@opabiz.com<br/>
+        &#127760; opabiz.com<br/>
         &#128205; Florida, United States
       </div>
     </div>

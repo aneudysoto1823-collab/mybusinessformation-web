@@ -112,7 +112,7 @@ Después de aplicar la acción correspondiente:
 
 ## Configuración relacionada
 
-- **Alert Rule en Sentry:** configurada el 2026-05-13. Manda email a `admin@mybusinessformation.com` en la primera ocurrencia de cada error nuevo (no spamea con errores repetidos).
+- **Alert Rule en Sentry:** configurada el 2026-05-13. Manda email a `admin@opabiz.com` en la primera ocurrencia de cada error nuevo (no spamea con errores repetidos).
 - **Filtro PII:** `backend/lib/sentry-pii-filter.ts` limpia email/teléfono/SSN/tarjetas/passwords antes de enviar a Sentry. NUNCA modificar este filtro sin auditar el impacto privacy.
 - **Tunnel route:** `/monitoring/*` en Next.js. Evita ad-blockers. No tocar.
 

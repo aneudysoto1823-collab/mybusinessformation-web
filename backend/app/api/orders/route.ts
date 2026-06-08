@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
               reply to this email.
             </p>
             <p style="margin-top:32px;color:#94a3b8;font-size:12px">
-              Florida Business Formation Center · mybusinessformation.com<br/>
+              Florida Business Formation Center · opabiz.com<br/>
               This is a transactional email. We are a document preparation service, not a law firm.
             </p>
           </div>

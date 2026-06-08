@@ -10,7 +10,7 @@ Protocolo para validar que GA4 está funcionando correctamente después de un de
 
 - `NEXT_PUBLIC_GA_ID=G-6F9CHVYRXW` configurado en Vercel (al menos Production)
 - Deploy reciente que incluya `lib/tracking.ts`, `app/layout.tsx` con los 3 Script tags, y `components/CookieConsent.tsx`
-- Acceso a https://analytics.google.com → property `mybusinessformation.com`
+- Acceso a https://analytics.google.com → property `opabiz.com`
 
 ---
 
@@ -20,7 +20,7 @@ Hacelo una vez al día siguiente del deploy para confirmar que todo el pipeline 
 
 ### Paso 1: ¿gtag.js cargó?
 
-1. Abrir https://mybusinessformation.com en un browser **en modo incógnito** (para empezar sin consent guardado).
+1. Abrir https://opabiz.com en un browser **en modo incógnito** (para empezar sin consent guardado).
 2. DevTools → Network → filtrar `gtag`.
 3. Debe aparecer: `gtag/js?id=G-6F9CHVYRXW` con status 200.
 
@@ -120,7 +120,7 @@ Real-Time tiene **~30-60 segundos de delay**. Esperar.
 ### "El banner aparece todas las veces"
 
 - Causa: la cookie `mbf_consent` no se está guardando, o el dominio del cookie no coincide.
-- Verificar: en DevTools → Application → Cookies, después de aceptar, `mbf_consent` debe estar con domain `mybusinessformation.com` y path `/`.
+- Verificar: en DevTools → Application → Cookies, después de aceptar, `mbf_consent` debe estar con domain `opabiz.com` y path `/`.
 
 ### Real-Time muestra 0 visitors pero hay tráfico
 

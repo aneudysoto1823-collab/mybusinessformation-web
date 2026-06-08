@@ -56,7 +56,7 @@ Problemas con `/client-portal` y `/client-portal/dashboard` — login del client
 ### 8. Cliente cerró sesión y al volver tiene que re-ingresar todo
 **Status:** 🟢 Bajo
 **Síntoma visible:** Cliente cerró sesión voluntariamente o por inactividad. Al volver al portal, los campos de email y FBFC están vacíos, debe ingresar manualmente cada vez.
-**Solución posible:** Esto es comportamiento esperado por seguridad — no auto-fill de credenciales. Como UX improvement: enviar siempre al cliente el link directo desde email con parámetros pre-llenos: `https://mybusinessformation.com/client-portal?email=cliente@example.com&order=FBFC-12345678` — el código ya soporta esto, verificar que la plantilla de email incluye este link en el botón "Track Your Order".
+**Solución posible:** Esto es comportamiento esperado por seguridad — no auto-fill de credenciales. Como UX improvement: enviar siempre al cliente el link directo desde email con parámetros pre-llenos: `https://opabiz.com/client-portal?email=cliente@example.com&order=FBFC-12345678` — el código ya soporta esto, verificar que la plantilla de email incluye este link en el botón "Track Your Order".
 
 ---
 

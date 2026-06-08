@@ -56,20 +56,20 @@ export async function ArticleView({
         author: {
           '@type': 'Organization',
           name: 'MyBusinessFormation',
-          url: 'https://mybusinessformation.com',
+          url: 'https://opabiz.com',
         },
         publisher: {
           '@type': 'Organization',
           name: 'MyBusinessFormation',
-          url: 'https://mybusinessformation.com',
+          url: 'https://opabiz.com',
         },
         inLanguage: lang === 'es' ? 'es-US' : 'en-US',
       },
       {
         '@type': 'BreadcrumbList',
         itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://mybusinessformation.com/' },
-          { '@type': 'ListItem', position: 2, name: sectionName, item: `https://mybusinessformation.com${hubUrl}` },
+          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://opabiz.com/' },
+          { '@type': 'ListItem', position: 2, name: sectionName, item: `https://opabiz.com${hubUrl}` },
           { '@type': 'ListItem', position: 3, name: article.title },
         ],
       },

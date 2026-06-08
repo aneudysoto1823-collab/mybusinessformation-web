@@ -82,7 +82,7 @@ INTERNAL_API_KEY      # Compartido entre ambos servidores
 BACKEND_URL           # URL Railway del Express server
 
 # Citas (sistema propio)
-NEXT_PUBLIC_URL       # URL base del sitio (ej: https://mybusinessformation.com) — usado en emails de citas para links de reprogramar/cancelar
+NEXT_PUBLIC_URL       # URL base del sitio (ej: https://opabiz.com) — usado en emails de citas para links de reprogramar/cancelar
 ```
 
 ---
@@ -550,10 +550,10 @@ appointments {
 Los links de Reschedule/Cancel usan el `id` UUID de la cita (difícil de adivinar). Requieren `NEXT_PUBLIC_URL` en env vars para construir la URL correcta.
 
 ### Restricción Resend plan gratuito
-En plan gratuito, Resend solo entrega emails al correo registrado en la cuenta. Al migrar al dominio propio (`@mybusinessformation.com`), los emails llegarán a cualquier dirección sin restricción.
+En plan gratuito, Resend solo entrega emails al correo registrado en la cuenta. Al migrar al dominio propio (`@opabiz.com`), los emails llegarán a cualquier dirección sin restricción.
 
 ### Pendientes del sistema de citas
-- [ ] Configurar `NEXT_PUBLIC_URL=https://mybusinessformation.com` en Vercel env vars
+- [ ] Configurar `NEXT_PUBLIC_URL=https://opabiz.com` en Vercel env vars
 - [ ] Migrar Resend a dominio propio para que emails lleguen a todos los clientes
 - [ ] Considerar recordatorios automáticos 24h antes de la cita (requiere cron job)
 - [ ] Soporte bilingüe EN/ES en páginas `/booking/reschedule` y `/booking/cancel`

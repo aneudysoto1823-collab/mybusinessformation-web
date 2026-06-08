@@ -6,7 +6,7 @@ El sistema envía 4 emails en total: 3 al cliente y 1 al administrador. Los emai
 ## Configuración
 - **Plataforma:** Resend (resend.com)
 - **Remitente actual:** `onboarding@resend.dev` (dominio de prueba de Resend)
-- **Remitente futuro:** `noreply@mybusinessformation.com` (cuando se verifique el dominio)
+- **Remitente futuro:** `noreply@opabiz.com` (cuando se verifique el dominio)
 - **Variable de entorno:** `RESEND_API_KEY` en el archivo `.env`
 - **Email admin:** `aneurysoto@gmail.com`
 
@@ -96,10 +96,10 @@ El sistema envía 4 emails en total: 3 al cliente y 1 al administrador. Los emai
 ### Footer en todos los emails
 Todos los emails al cliente incluyen al pie:
 - Texto: "This is a transactional email related to your order with MyBusinessFormation.com"
-- Contacto: support@mybusinessformation.com
+- Contacto: support@opabiz.com
 - Link de unsubscribe con el email del cliente pre-llenado via `encodeURIComponent`
 
 ## TODO futuro
-- [ ] Verificar dominio `mybusinessformation.com` en Resend → cambiar `FROM_EMAIL`
+- [ ] Verificar dominio `opabiz.com` en Resend → cambiar `FROM_EMAIL`
 - [ ] Adjuntar PDF del Certificate en Email 4
 - [ ] WhatsApp Business API como canal adicional (opcional)

@@ -11,8 +11,8 @@ async function verifyAdmin(request: NextRequest): Promise<boolean> {
 }
 
 const getResend = () => new Resend(process.env.RESEND_API_KEY)
-const FROM_EMAIL = 'info@mybusinessformation.com'
-const BASE_URL   = 'https://mybusinessformation.com'
+const FROM_EMAIL = 'info@opabiz.com'
+const BASE_URL   = 'https://opabiz.com'
 
 // ─── Email template ────────────────────────────────────────────────────────
 
@@ -205,8 +205,8 @@ function buildEmail(company: {
             <!-- Secondary note -->
             <p style="color:#64748b;font-size:12px;line-height:1.6;text-align:center;margin:0 0 8px">
               ${isEs
-                ? '¿Tienes preguntas? Contáctanos en <a href="mailto:info@mybusinessformation.com" style="color:#2563EB">info@mybusinessformation.com</a>'
-                : 'Questions? Contact us at <a href="mailto:info@mybusinessformation.com" style="color:#2563EB">info@mybusinessformation.com</a>'}
+                ? '¿Tienes preguntas? Contáctanos en <a href="mailto:info@opabiz.com" style="color:#2563EB">info@opabiz.com</a>'
+                : 'Questions? Contact us at <a href="mailto:info@opabiz.com" style="color:#2563EB">info@opabiz.com</a>'}
             </p>
 
           </td>
@@ -217,12 +217,12 @@ function buildEmail(company: {
           <td style="background:#F8FAFC;border-top:1px solid #E2E8F0;border-radius:0 0 14px 14px;padding:20px 36px">
             <p style="color:#94A3B8;font-size:11px;line-height:1.6;margin:0 0 8px;text-align:center">
               <strong>MyBusinessFormation.com</strong> · Florida Business Formation Center<br/>
-              info@mybusinessformation.com · mybusinessformation.com
+              info@opabiz.com · opabiz.com
             </p>
             <p style="color:#CBD5E1;font-size:10px;line-height:1.6;margin:0;text-align:center">
               ${isEs
-                ? 'Este mensaje es una notificación informativa sobre el estado de cumplimiento de tu empresa registrada en Florida. MyBusinessFormation es un servicio de preparación de documentos — no somos un bufete de abogados y no brindamos asesoría legal, fiscal ni financiera. Los precios mostrados son de nuestros servicios de preparación y no incluyen cargos estatales. Para dejar de recibir estos correos, contáctanos en info@mybusinessformation.com.'
-                : 'This message is an informational notice regarding the compliance status of your Florida-registered company. MyBusinessFormation is a document preparation service — we are not a law firm and do not provide legal, tax, or financial advice. Prices shown are for our preparation services and do not include state fees. To unsubscribe, contact info@mybusinessformation.com.'}
+                ? 'Este mensaje es una notificación informativa sobre el estado de cumplimiento de tu empresa registrada en Florida. MyBusinessFormation es un servicio de preparación de documentos — no somos un bufete de abogados y no brindamos asesoría legal, fiscal ni financiera. Los precios mostrados son de nuestros servicios de preparación y no incluyen cargos estatales. Para dejar de recibir estos correos, contáctanos en info@opabiz.com.'
+                : 'This message is an informational notice regarding the compliance status of your Florida-registered company. MyBusinessFormation is a document preparation service — we are not a law firm and do not provide legal, tax, or financial advice. Prices shown are for our preparation services and do not include state fees. To unsubscribe, contact info@opabiz.com.'}
             </p>
           </td>
         </tr>

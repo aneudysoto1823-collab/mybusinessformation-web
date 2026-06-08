@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { listArticles, groupByCategory, type Section, type Lang } from '@/lib/content'
 import { articleUrl, sectionHubUrl } from '@/lib/cross-links'
 
-const BASE_URL = 'https://mybusinessformation.com'
+const BASE_URL = 'https://opabiz.com'
 
 // Construye Schema.org @graph para un hub (/wiki o /guias en EN/ES).
 // - CollectionPage para el hub

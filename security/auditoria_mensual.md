@@ -60,7 +60,7 @@ El servidor Express exponía todos los endpoints sin autenticación. Cualquiera 
 `cors()` sin opciones aceptaba peticiones de cualquier origen (`Access-Control-Allow-Origin: *`).
 
 **Archivo modificado**:
-- `backend/server.ts` — CORS restringido a `https://mybusinessformation-web.vercel.app`
+- `backend/server.ts` — CORS restringido a `https://opabiz.com`
 - `/health` simplificado — ya no revela qué servicios están configurados
 
 ---
