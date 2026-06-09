@@ -93,6 +93,31 @@ export default function CampaignsPage() {
 
   // ─── Actions ────────────────────────────────────────────────────────────────
 
+  async function generateLetter(company: Company) {
+    const payUrl = `opabiz.com/new-business?id=${company.document_id}`
+    const res = await fetch('/api/campaigns/generate-letter', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        documentId:  company.document_id,
+        ownerName:   company.owner_name || company.company_name,
+        companyName: company.company_name,
+        address:     company.address    || '',
+        city:        company.city       || '',
+        zip:         company.zip        || '',
+        payUrl,
+      }),
+    })
+    if (!res.ok) return
+    const blob = await res.blob()
+    const url  = URL.createObjectURL(blob)
+    const a    = document.createElement('a')
+    a.href     = url
+    a.download = `notice-${company.document_id}.pdf`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   async function sendEmail(company: Company) {
     if (paused || !company.email) return
     setSendingId(company.id)
@@ -435,6 +460,7 @@ export default function CampaignsPage() {
                             >
                               {sendingId === c.id ? '...' : '📨'}
                             </button>
+                            <button className="btn btn-ghost btn-sm" onClick={() => generateLetter(c)} title="Generate compliance letter (PDF)">📄</button>
                             <a href={`/new-business?id=${c.document_id}`} target="_blank" rel="noreferrer" className="btn btn-ghost btn-sm" title="Preview landing page">🔗</a>
                           </div>
                         </td>
