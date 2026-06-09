@@ -1,6 +1,17 @@
-# CLAUDE.md — MyBusinessFormation Web
+# CLAUDE.md — OpaBiz Web
 
 Guía de referencia rápida para Claude. Describe el estado actual del sistema, arquitectura, convenciones y decisiones establecidas.
+
+---
+
+## Identidad de marca (actualizado 2026-06-08)
+
+- **Dominio:** `opabiz.com` (antes `mybusinessformation.com`)
+- **Marca visible:** OpaBiz — logo "OB" circular navy, "Opa" en navy + "Biz" en azul (#2563EB)
+- **Entidad legal:** Florida Business Formation Center (se mantiene en documentos legales, términos, privacidad y cartas físicas)
+- **DBA disclosure en términos/privacidad:** "OpaBiz is a trade name of Florida Business Formation Center."
+- **Footer Important Notice:** "OpaBiz is a trade name of Florida Business Formation Center — a professional document preparation..."
+- **`NEXT_PUBLIC_URL`:** `https://opabiz.com` — configurado en Vercel env vars
 
 ---
 
@@ -90,10 +101,12 @@ NEXT_PUBLIC_URL       # URL base del sitio (ej: https://opabiz.com) — usado en
 ## Autenticación
 
 ### Admin (`/admin/*`)
-- Login en `/login` con usuario/contraseña en env
+- Login en `/login` con usuario/contraseña en env (`ADMIN_USER` + `ADMIN_PASSWORD_HASH`)
 - Genera JWT firmado con `jose` (SESSION_SECRET)
 - Cookie `admin_session` (httpOnly, 8h)
 - Proxy en `proxy.ts` (raíz del proyecto Next.js) protege `/admin` — antes se llamaba `middleware.ts`; Next.js 16.2 renombró la convención
+- **Show/hide password** con ícono SVG en el campo de contraseña
+- **Recuperación de contraseña:** `POST /api/auth/recover` valida contra `ADMIN_EMAIL`, genera token Redis (15 min, un solo uso), envía link al correo. Página `/login/recover/[token]` valida y crea sesión directa.
 
 ### Cliente (`/client-portal/dashboard/*`)
 - Login en `/client-portal` con **email + número de confirmación**
@@ -198,12 +211,23 @@ Admin envía email desde /admin/campaigns
 ```
 
 Precios en checkout (`/api/sunbiz/checkout`):
-- Labor Law Poster: $69.99
-- EIN / Tax ID: $99.99
-- Certificate of Status: $49.99
-- Bundle (3 servicios): $189.99
+- Labor Law Poster: $120.00
+- EIN / Tax ID: $161.00
+- Certificate of Status: $79.00
 
 Estados de `prospective_companies.status`: `new → email_sent → qr_scanned → purchased`
+
+### Carta física de cumplimiento (PDF) — 2026-06-08
+
+Generador: `backend/lib/new-business-letter.ts` (usa `pdf-lib` + `qrcode`)
+API: `POST /api/campaigns/generate-letter` → devuelve PDF con datos de la empresa
+Panel admin: botón 👁 (preview en nueva pestaña) y 📄 (descarga) por empresa en `/admin/campaigns`
+
+Diseño: logo circular FBFC navy, título "YYYY NOTICE OF BUSINESS COMPLIANCE SERVICES", tabla de info (Document ID / Notice Date / Respond By / Total Fee en dorado), dirección del cliente, 3 columnas de servicios, sección PAY ONLINE con QR dinámico, footer legal.
+
+Variables de la carta: `documentId, ownerName, companyName, address, city, zip, noticeDate, respondBy, totalFee, payUrl, year`
+
+Pendiente: sustituir logo provisional "FBFC" por logo real cuando esté disponible.
 
 ---
 
@@ -525,7 +549,7 @@ CREATE TABLE appointments (id, created_at, name, email, phone, date, time, meeti
 CREATE TABLE blocked_slots (id, created_at, date, time, reason)
 
 -- Columna meeting_method (si la tabla ya existía antes):
-ALTER TABLE appointments ADD COLUMN IF NOT EXISTS meeting_method text DEFAULT 'zoom';
+ALTER TABLE appointments ADD COLUMN IF NOT EXISTS meeting_method text DEFAULT 'phone';
 ```
 
 ### Modelo appointments
@@ -535,7 +559,7 @@ appointments {
   name, email, phone       -- phone es obligatorio desde el formulario
   date            date     -- YYYY-MM-DD
   time            text     -- '09:00', '09:40', etc.
-  meeting_method  text     -- 'zoom' | 'whatsapp'
+  meeting_method  text     -- 'phone' | 'whatsapp'  (zoom fue eliminado 2026-06-08)
   note            text?
   status          text     -- 'pending' | 'confirmed' | 'cancelled'
 }
