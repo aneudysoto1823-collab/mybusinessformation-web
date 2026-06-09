@@ -11,8 +11,11 @@ export default function LoginPage() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [blockedSeconds, setBlockedSeconds] = useState<number | null>(null)
+  const [showRecover, setShowRecover] = useState(false)
+  const [recoverEmail, setRecoverEmail] = useState('')
   const [recoverSent, setRecoverSent] = useState(false)
   const [recoverLoading, setRecoverLoading] = useState(false)
+  const [recoverError, setRecoverError] = useState('')
 
   useEffect(() => {
     if (blockedSeconds === null || blockedSeconds <= 0) return
@@ -77,17 +80,23 @@ export default function LoginPage() {
     setError('Unexpected error. Please try again.')
   }
 
-  async function handleRecover() {
-    if (!user.trim()) { setError('Enter your username first, then click Forgot password.'); return }
+  async function handleRecover(e: React.FormEvent) {
+    e.preventDefault()
+    setRecoverError('')
+    if (!recoverEmail.trim()) return
     setRecoverLoading(true)
-    await fetch('/api/auth/recover', {
+    const res = await fetch('/api/auth/recover', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: user }),
+      body: JSON.stringify({ email: recoverEmail.trim().toLowerCase() }),
     })
+    const data = await res.json()
     setRecoverLoading(false)
-    setRecoverSent(true)
-    setError('')
+    if (data.notFound) {
+      setRecoverError('No account found with that email address.')
+    } else {
+      setRecoverSent(true)
+    }
   }
 
   useEffect(() => {
@@ -375,17 +384,7 @@ export default function LoginPage() {
                 </div>
 
                 <div className="form-group">
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                    <label htmlFor="password" style={{ margin: 0 }}>Password</label>
-                    <button
-                      type="button"
-                      onClick={handleRecover}
-                      disabled={recoverLoading}
-                      style={{ background: 'none', border: 'none', color: '#2563EB', fontSize: '.78rem', fontWeight: 600, cursor: 'pointer', padding: 0, fontFamily: 'inherit' }}
-                    >
-                      {recoverLoading ? 'Sending…' : 'Forgot password?'}
-                    </button>
-                  </div>
+                  <label htmlFor="password">Password</label>
                   <div style={{ position: 'relative' }}>
                     <input
                       id="password" type={showPwd ? 'text' : 'password'} value={password}
@@ -398,7 +397,7 @@ export default function LoginPage() {
                     <button
                       type="button"
                       onClick={() => setShowPwd(v => !v)}
-                      style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', fontSize: 16, padding: 0, lineHeight: 1 }}
+                      style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', padding: 0, lineHeight: 1 }}
                       tabIndex={-1}
                       aria-label={showPwd ? 'Hide password' : 'Show password'}
                     >
@@ -418,9 +417,41 @@ export default function LoginPage() {
                   </div>
                 </div>
 
+                <div style={{ textAlign: 'right', marginTop: -4 }}>
+                  <button
+                    type="button"
+                    onClick={() => { setShowRecover(v => !v); setRecoverSent(false); setRecoverError(''); setRecoverEmail('') }}
+                    style={{ background: 'none', border: 'none', color: '#2563EB', fontSize: '.78rem', fontWeight: 600, cursor: 'pointer', padding: 0, fontFamily: 'inherit' }}
+                  >
+                    Forgot password or username?
+                  </button>
+                </div>
+
+                {showRecover && !recoverSent && (
+                  <form onSubmit={handleRecover} style={{ background: '#f1f5f9', borderRadius: 10, padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    <p style={{ fontSize: '.8rem', color: '#475569', margin: 0 }}>Enter the email address linked to your admin account and we&apos;ll send you an access link.</p>
+                    <input
+                      type="email"
+                      value={recoverEmail}
+                      onChange={e => setRecoverEmail(e.target.value)}
+                      placeholder="admin@email.com"
+                      required
+                      style={{ padding: '9px 12px', borderRadius: 8, border: '1.5px solid #e2e8f0', fontSize: '.85rem', fontFamily: 'inherit', outline: 'none' }}
+                    />
+                    {recoverError && <p style={{ fontSize: '.78rem', color: '#dc2626', margin: 0 }}>{recoverError}</p>}
+                    <button
+                      type="submit"
+                      disabled={recoverLoading}
+                      style={{ background: '#1C2E44', color: '#fff', border: 'none', borderRadius: 8, padding: '9px 16px', fontSize: '.82rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
+                    >
+                      {recoverLoading ? 'Sending…' : 'Send recovery link'}
+                    </button>
+                  </form>
+                )}
+
                 {recoverSent && (
                   <div style={{ background: '#f0fdf4', border: '1px solid #86efac', borderRadius: 8, padding: '10px 14px', fontSize: '.82rem', color: '#166534' }}>
-                    ✓ If that username is correct, a recovery link was sent to the admin email. Check your inbox (expires in 15 min).
+                    Recovery link sent. Check your inbox — it expires in 15 minutes.
                   </div>
                 )}
 

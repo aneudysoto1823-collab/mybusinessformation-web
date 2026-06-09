@@ -14,14 +14,14 @@ function getResend() { return new Resend(process.env.RESEND_API_KEY) }
 
 // POST /api/auth/recover  — solicita link de recuperación
 export async function POST(req: NextRequest) {
-  const { username } = await req.json()
+  const { email } = await req.json()
 
-  const adminUser  = process.env.ADMIN_USER
   const adminEmail = process.env.ADMIN_EMAIL
 
-  // Always return 200 to avoid username enumeration
-  if (!adminUser || !adminEmail || username !== adminUser) {
-    return NextResponse.json({ ok: true })
+  if (!adminEmail) return NextResponse.json({ ok: true })
+
+  if (!email || email.toLowerCase() !== adminEmail.toLowerCase()) {
+    return NextResponse.json({ ok: false, notFound: true }, { status: 200 })
   }
 
   const token = crypto.randomBytes(32).toString('hex')
