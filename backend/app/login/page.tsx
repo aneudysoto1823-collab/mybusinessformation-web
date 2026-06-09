@@ -7,9 +7,12 @@ export default function LoginPage() {
   const router = useRouter()
   const [user, setUser] = useState('')
   const [password, setPassword] = useState('')
+  const [showPwd, setShowPwd] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [blockedSeconds, setBlockedSeconds] = useState<number | null>(null)
+  const [recoverSent, setRecoverSent] = useState(false)
+  const [recoverLoading, setRecoverLoading] = useState(false)
 
   useEffect(() => {
     if (blockedSeconds === null || blockedSeconds <= 0) return
@@ -73,6 +76,24 @@ export default function LoginPage() {
 
     setError('Unexpected error. Please try again.')
   }
+
+  async function handleRecover() {
+    if (!user.trim()) { setError('Enter your username first, then click Forgot password.'); return }
+    setRecoverLoading(true)
+    await fetch('/api/auth/recover', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: user }),
+    })
+    setRecoverLoading(false)
+    setRecoverSent(true)
+    setError('')
+  }
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('error') === 'expired') setError('Recovery link expired or already used. Request a new one.')
+  }, [])
 
   const isBlocked = blockedSeconds !== null && blockedSeconds > 0
   const year = new Date().getFullYear()
@@ -354,15 +375,43 @@ export default function LoginPage() {
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="password">Password</label>
-                  <input
-                    id="password" type="password" value={password}
-                    onChange={e => setPassword(e.target.value)}
-                    required autoComplete="current-password"
-                    disabled={isBlocked || loading}
-                    placeholder="Enter your password"
-                  />
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                    <label htmlFor="password" style={{ margin: 0 }}>Password</label>
+                    <button
+                      type="button"
+                      onClick={handleRecover}
+                      disabled={recoverLoading}
+                      style={{ background: 'none', border: 'none', color: '#2563EB', fontSize: '.78rem', fontWeight: 600, cursor: 'pointer', padding: 0, fontFamily: 'inherit' }}
+                    >
+                      {recoverLoading ? 'Sending…' : 'Forgot password?'}
+                    </button>
+                  </div>
+                  <div style={{ position: 'relative' }}>
+                    <input
+                      id="password" type={showPwd ? 'text' : 'password'} value={password}
+                      onChange={e => setPassword(e.target.value)}
+                      required autoComplete="current-password"
+                      disabled={isBlocked || loading}
+                      placeholder="Enter your password"
+                      style={{ paddingRight: 44 }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPwd(v => !v)}
+                      style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', fontSize: 16, padding: 0, lineHeight: 1 }}
+                      tabIndex={-1}
+                      aria-label={showPwd ? 'Hide password' : 'Show password'}
+                    >
+                      {showPwd ? '🙈' : '👁'}
+                    </button>
+                  </div>
                 </div>
+
+                {recoverSent && (
+                  <div style={{ background: '#f0fdf4', border: '1px solid #86efac', borderRadius: 8, padding: '10px 14px', fontSize: '.82rem', color: '#166534' }}>
+                    ✓ If that username is correct, a recovery link was sent to the admin email. Check your inbox (expires in 15 min).
+                  </div>
+                )}
 
                 <button type="submit" className="btn-login" disabled={loading || isBlocked}>
                   {loading ? 'Signing in…' : isBlocked ? `Locked (${formatSeconds(blockedSeconds!)})` : 'Sign in →'}
