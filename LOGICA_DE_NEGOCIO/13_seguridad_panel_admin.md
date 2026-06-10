@@ -521,6 +521,104 @@ Receta para agregar rate limit a un endpoint nuevo:
 
 ---
 
+## Recovery por email (magic link)
+
+Sistema de auto-rescate cuando el admin olvida la password. Implementado por Fabián en commits `a30cb86` + `066f8f8` (2026-06-08).
+
+### Por qué
+
+Sin recovery, si el admin se olvida la password el único camino es:
+1. Pedirle a otro admin (no hay otro) o al dev (Aneury/Fabián) que rote el hash en Vercel
+2. Implica un commit + deploy + tiempo de espera
+
+El recovery por email es **un magic link** que crea sesión válida sin pedir password — siempre que el solicitante pruebe que controla la cuenta email del admin.
+
+### Flujo end-to-end
+
+```
+1. User olvida password → click "Forgot password?" en /login
+2. UI muestra input para email → user ingresa su email admin
+3. Frontend → POST /api/auth/recover { email }
+4. Server valida que email matchea ADMIN_EMAIL (case-insensitive)
+   - Si NO matchea → retorna { ok: false, notFound: true } (mensaje genérico, no revela si el email existe)
+   - Si SÍ matchea → continúa
+5. Server genera token = crypto.randomBytes(32).toString('hex') (64 chars hex)
+6. Server guarda en Upstash Redis con key 'recover:<token>' y TTL 900s (15 min)
+7. Server envía email via Resend al ADMIN_EMAIL con link:
+   https://opabiz.com/login/recover/<token>
+   "Click to access. Expires in 15 minutes."
+8. Admin recibe email → click link
+9. Server Component /login/recover/[token]/page.tsx:
+   - Lee token de URL
+   - Consulta Redis: GET 'recover:<token>'
+   - Si NO existe (expirado o invalid) → redirect /login?error=expired
+   - Si existe:
+     - DEL 'recover:<token>' (token de uso único)
+     - createAdminToken() → JWT
+     - Set cookie admin_session (httpOnly, secure, sameSite strict, 8h)
+     - redirect /admin
+```
+
+### Decisiones clave
+
+**Token de uso único** — `DEL` el token en Redis inmediatamente después de validarlo. Si el link es reenviado / interceptado, solo funciona una vez.
+
+**TTL 15 min** — equilibrio entre conveniencia (el admin debe leer su email + hacer click) y exposición (un link interceptado tiene ventana corta). Más corto que TTL típico de magic links (~30 min) porque solo hay 1 admin y vive con el laptop abierto.
+
+**Solo `ADMIN_EMAIL` puede solicitar** — comparación con `email.toLowerCase()` para evitar bypass por mayúsculas. Si el email no matchea, retorna 200 con `{notFound: true}` (mensaje genérico para no revelar si la cuenta existe).
+
+**Falla silenciosa si `ADMIN_EMAIL` no está seteada** — `if (!adminEmail) return NextResponse.json({ ok: true })`. Devuelve `ok: true` para que el atacante no pueda diferenciar "ADMIN_EMAIL no configurado" vs "email correcto pero no detectable". Trade-off: si Aneury olvida setear el env var, el feature parece funcionar pero no envía email. Pendiente: agregar warning en logs.
+
+**Token 32 bytes random = 256 bits** — entropía sobreabundante para resistir guessing en 15 min (incluso si Upstash filtrara hashes, son no-reversibles a la URL original).
+
+**Bypass de password completo** — la página `/login/recover/[token]` salta el flujo de bcrypt + rate-limit del login normal. Por eso es importante que **solo `ADMIN_EMAIL` pueda generar tokens válidos**. Si esa validación falla, todo el sistema cae.
+
+**Implementación duplicada** — el endpoint `/api/auth/recover/route.ts` tiene tanto el `POST` (genera token) como un `GET` que valida (líneas 61-78). Pero el flujo real usa la Server Component `/login/recover/[token]/page.tsx` para validar. El handler `GET` del route.ts queda como código muerto / fallback. **Pendiente refactor**: eliminar el handler GET duplicado.
+
+### Variables de entorno requeridas
+
+| Variable | Para qué | Notas |
+|----------|----------|-------|
+| `ADMIN_EMAIL` | Email único autorizado a solicitar recovery | Nueva — pendiente verificar que está en Vercel |
+| `RESEND_API_KEY` | Envío del email | Ya existía |
+| `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN` | Storage del token con TTL | Ya existían (rate limiting) |
+| `NEXT_PUBLIC_URL` | Base URL para construir el link | Default `https://opabiz.com` si no está |
+| `SESSION_SECRET` | Firma del JWT que crea el endpoint | Ya existía |
+
+### Riesgos y mitigaciones
+
+| Riesgo | Mitigación actual | Mitigación adicional posible |
+|--------|-------------------|------------------------------|
+| Atacante con acceso a la inbox del admin | Sesión válida 8h, el admin nota actividad rara y rota la password | 2FA obligatorio en email account (Gmail/etc) |
+| Token expuesto por log/proxy/extensión | TTL 15 min + single-use | Logs de Vercel no loggean URLs con tokens (verificar) |
+| Brute force del token | Imposible con 256 bits | n/a |
+| Replay del token | DEL inmediato post-uso | n/a |
+| ADMIN_EMAIL no seteado | Retorna `ok: true` silencioso | Agregar warning a Sentry cuando esto pasa |
+| Atacante intercepta DNS y captura el link | TLS + HSTS preload mitigan en producción | n/a |
+
+### Show/hide password (UX adicional)
+
+En el mismo grupo de commits Fabián agregó toggle show/hide password en el login con íconos SVG (commit `5bbd609` reemplaza emojis iniciales por SVG profesionales).
+
+Implementación: state `showPwd` en `backend/app/login/page.tsx` → `<input type={showPwd ? 'text' : 'password'}>` + botón con `onClick={() => setShowPwd(!showPwd)}`.
+
+Beneficio: típos de password en mobile son comunes. Toggle permite verificar antes de submit (especialmente útil con passwords largas tipo passphrase).
+
+### Endpoint público sin rate limit
+
+⚠️ `/api/auth/recover` POST **NO tiene rate limiting**. Un atacante puede:
+- Spamear con emails inválidos → no genera tokens (matchea ADMIN_EMAIL)
+- Spamear con el ADMIN_EMAIL correcto → genera N tokens válidos → satura el inbox
+
+**Mitigaciones presentes**:
+- Cada token TTL 15 min — los viejos expiran rápido
+- Upstash absorbe el costo de storage
+- El inbox del admin es el único colateral
+
+**Mitigación recomendada (pendiente)**: agregar rate limit de 3/hora por IP usando el helper `checkRateLimit` existente en `lib/rate-limit.ts`. Sprint de 5 min.
+
+---
+
 ## Historial de implementación
 
 | Fecha | Commit | Cambio |

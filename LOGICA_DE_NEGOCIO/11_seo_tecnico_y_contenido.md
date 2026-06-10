@@ -192,6 +192,98 @@ Convenciones de diseño consistente:
 - `BreadcrumbList` en cada página
 - `inLanguage` correcto por idioma del hub
 
+### Performance Sprint Fabián 2026-06-04 (parcial)
+
+Después del PageSpeed mobile 64/100 que dejamos diferido, Fabián atacó **2 de las 5 acciones recomendadas** (las menos invasivas, sin tocar el wizard):
+
+#### Acción #4 — Compresión de imágenes públicas (commit `2534185`)
+
+10 archivos en `backend/public/` recomprimidos + versiones WebP agregadas. Ahorro promedio **78%**, máximo **95%** en `photonewbusiness.jpg`.
+
+| Archivo | Antes | Después | Ahorro |
+|---------|-------|---------|--------|
+| `Claudia.jpg` | 184 KB | 42 KB | 77% |
+| `Claudia.webp` (nuevo) | — | 37 KB | — |
+| `admin-bg.jpg` | 264 KB | 69 KB | 74% |
+| `admin-bg.webp` (nuevo) | — | 58 KB | — |
+| `client-portal-bg.jpg` | 70 KB | 19 KB | 73% |
+| `client-portal-bg.webp` (nuevo) | — | 13 KB | — |
+| `miami-bg.jpg` | 320 KB | 87 KB | 73% |
+| `miami-bg.webp` (nuevo) | — | 75 KB | — |
+| **`photonewbusiness.jpg`** | **1347 KB** | **64 KB** | **95%** ⭐ |
+| `photonewbusiness.webp` (nuevo) | — | 43 KB | — |
+
+**Total ahorro**: ~1.9 MB → ~280 KB = **86% de ahorro en peso total de imágenes públicas**.
+
+`photonewbusiness.jpg` solo (era 1.3 MB) explica gran parte del problema de "Improve image delivery: 177 KB savings" que PSI reportaba — la versión cacheada del CDN servía la imagen pre-optimización.
+
+**WebP fallback**: las versiones `.jpg` se mantienen como fallback para browsers viejos. Patrón de uso recomendado:
+
+```html
+<picture>
+  <source srcset="/Claudia.webp" type="image/webp">
+  <img src="/Claudia.jpg" alt="Claudia">
+</picture>
+```
+
+⚠️ **Verificar uso real**: los archivos `.webp` se sumaron pero **no necesariamente se referencian** desde el código. Hay que auditar los `<img>` / `background-image: url(...)` para confirmar que apuntan a `.webp` con fallback. Si todos siguen sirviendo `.jpg`, el ahorro de WebP no se materializa. Pendiente que Fabián confirme.
+
+#### Acción #2 — Fuentes no-bloqueantes (commit `310ee3e`)
+
+Eliminado el render-blocking de Google Fonts en `app/layout.tsx`. Antes:
+
+```html
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces...">
+```
+
+Este `<link rel="stylesheet">` **bloquea el render** hasta que descarga + parsea el CSS, bloqueando el FCP. PSI lo reportaba como "Render-blocking requests — 1050ms".
+
+Después del commit `310ee3e`:
+
+```tsx
+<Script id="load-fonts" strategy="afterInteractive">{`
+  (function(){
+    var l = document.createElement('link');
+    l.rel = 'stylesheet';
+    l.href = 'https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700;900&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap';
+    document.head.appendChild(l);
+  })();
+`}</Script>
+```
+
+Cómo funciona:
+1. El browser renderiza con **system fonts** primero → FCP inmediato
+2. Después de `afterInteractive`, JS inyecta el `<link>` programáticamente
+3. Cuando Google Fonts termina de cargar, `display=swap` reemplaza system fonts con Fraunces + Plus Jakarta Sans
+4. **Mini FOUT** (Flash Of Unstyled Text) — el user ve por ~200-500ms texto en system font hasta el swap
+
+**Trade-off**: pequeño flicker visual a cambio de eliminar 1050ms de render-blocking. **Decisión correcta para mobile** donde FCP es métrica crítica.
+
+`preconnect` a `fonts.googleapis.com` + `fonts.gstatic.com` se mantiene en el `<head>` para que cuando el JS dispare el `<link>`, la conexión TLS ya esté establecida (~100ms de ahorro adicional).
+
+#### Lo que sigue pendiente
+
+De las 5 acciones del diferido original:
+
+| # | Acción | Estado |
+|---|--------|--------|
+| 1 | Code-split del wizard de formación | ❌ Pendiente |
+| 2 | `next/font` para fuentes | ✅ Resuelto con Script afterInteractive (alternativa válida) |
+| 3 | Defer scripts no críticos | ⚠️ Parcial — gtag ya era afterInteractive, falta auditar otros |
+| 4 | Optimizar imágenes con `next/image` | ⚠️ Parcial — comprimió + WebP, pero `next/image` no migrado |
+| 5 | Auditoría de unused JS (793 KB savings) | ❌ Pendiente — la grande |
+
+**La grande sigue siendo #1 + #5** — `app/page.tsx` (~6000 líneas) carga TODO el wizard, traducciones, FAQ y catálogo en el initial bundle. Hasta que esto se code-split, el PageSpeed mobile difícilmente pase de 70-75. Sprint propio futuro.
+
+#### Re-medir PageSpeed post-fixes
+
+Ejecutar PageSpeed mobile en `opabiz.com/` después de propagación de cache CDN:
+- Esperable: FCP ~3.5s (era 4.3s) — mejora por fonts no-bloqueantes
+- Esperable: LCP ~5.5s (era 6.7s) — mejora por imágenes más livianas
+- Esperable: Performance score ~70-75 (era 64)
+
+Si los números mejoran menos que esperado, el cache del CDN puede estar sirviendo versión vieja — esperar 24h y re-medir.
+
 ---
 
 ## SEO de Contenido
