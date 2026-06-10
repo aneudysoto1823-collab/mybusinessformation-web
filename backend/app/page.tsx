@@ -1230,16 +1230,14 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
         </div>
       </div>
       <div class="footer-col">
-        <h5 data-en="My Business Formation" data-es="My Business Formation">My Business Formation</h5>
-        <a href="/about" data-en="About Us" data-es="Nosotros">About Us</a>
+        <h5 data-en="OpaBiz" data-es="OpaBiz">OpaBiz</h5>
+        <a href="/about?lang=${defaultLang}" class="lang-link" data-href="/about" data-en="About Us" data-es="Nosotros">About Us</a>
         <a href="#how" data-en="How It Works" data-es="Cómo Funciona">How It Works</a>
         <a href="#faq" data-en="FAQ" data-es="Preguntas">FAQ</a>
         <a href="mailto:info@opabiz.com" data-en="Contact Us" data-es="Contáctanos">Contact Us</a>
-        <a href="/guias${defaultLang === 'es' ? '/es' : ''}" style="margin-top:12px" data-en="Guides" data-es="Guías">Guides</a>
-        <a href="/wiki${defaultLang === 'es' ? '/es' : ''}" data-en="Wiki" data-es="Wiki">Wiki</a>
-        <a href="/terms" style="margin-top:12px" data-en="Terms &amp; Conditions" data-es="Términos y Condiciones">Terms &amp; Conditions</a>
-        <a href="/privacy" data-en="Privacy Policy" data-es="Política de Privacidad">Privacy Policy</a>
-        <a href="/legal" data-en="Legal Disclaimer" data-es="Aviso Legal">Legal Disclaimer</a>
+        <a href="/terms?lang=${defaultLang}" class="lang-link" data-href="/terms" style="margin-top:12px" data-en="Terms &amp; Conditions" data-es="Términos y Condiciones">Terms &amp; Conditions</a>
+        <a href="/privacy?lang=${defaultLang}" class="lang-link" data-href="/privacy" data-en="Privacy Policy" data-es="Política de Privacidad">Privacy Policy</a>
+        <a href="/legal?lang=${defaultLang}" class="lang-link" data-href="/legal" data-en="Legal Disclaimer" data-es="Aviso Legal">Legal Disclaimer</a>
       </div>
     </div>
     <hr class="footer-divider"/>
@@ -1247,13 +1245,13 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
       <div>
         <div class="footer-copy">© 2025 Florida Business Formation Center · opabiz.com · All Rights Reserved.</div>
         <div class="footer-links" style="margin-top:8px">
-          <a href="/terms" data-en="Terms &amp; Conditions" data-es="Términos y Condiciones">Terms &amp; Conditions</a>
+          <a href="/terms?lang=${defaultLang}" class="lang-link" data-href="/terms" data-en="Terms &amp; Conditions" data-es="Términos y Condiciones">Terms &amp; Conditions</a>
           <span style="color:rgba(255,255,255,0.25);margin:0 10px;font-size:.7rem">&bull;</span>
-          <a href="/privacy" data-en="Privacy Policy" data-es="Política de Privacidad">Privacy Policy</a>
+          <a href="/privacy?lang=${defaultLang}" class="lang-link" data-href="/privacy" data-en="Privacy Policy" data-es="Política de Privacidad">Privacy Policy</a>
           <span style="color:rgba(255,255,255,0.25);margin:0 10px;font-size:.7rem">&bull;</span>
-          <a href="/legal" data-en="Legal Disclaimer" data-es="Aviso Legal">Legal Disclaimer</a>
+          <a href="/legal?lang=${defaultLang}" class="lang-link" data-href="/legal" data-en="Legal Disclaimer" data-es="Aviso Legal">Legal Disclaimer</a>
           <span style="color:rgba(255,255,255,0.25);margin:0 10px;font-size:.7rem">&bull;</span>
-          <a href="/about" data-en="About Us" data-es="Nosotros">About Us</a>
+          <a href="/about?lang=${defaultLang}" class="lang-link" data-href="/about" data-en="About Us" data-es="Nosotros">About Us</a>
         </div>
       </div>
       <div class="footer-disclaimer">
@@ -3056,6 +3054,11 @@ function setLang(lang) {
   // Translate all data-en/data-es elements (footer, nav, pricing cards, etc.)
   document.querySelectorAll('[data-en][data-es]').forEach(function(el){
     el.innerHTML = isEs ? el.getAttribute('data-es') : el.getAttribute('data-en');
+  });
+
+  // Update cross-page links to preserve language
+  document.querySelectorAll('.lang-link[data-href]').forEach(function(el){
+    el.setAttribute('href', el.getAttribute('data-href') + '?lang=' + lang);
   });
 
   // Translate open form if active

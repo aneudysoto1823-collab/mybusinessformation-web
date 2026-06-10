@@ -357,7 +357,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
     </div>
   </div>
 </footer>
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js">(function(){var l=localStorage.getItem('flbc_lang');if(l&&l!=='en')setLang(l);})();
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js">( function(){var p=new URLSearchParams(window.location.search);var l=p.get('lang')||localStorage.getItem('flbc_lang');if(l&&l!=='en')setLang(l);})();
 </script><script>
 function setLang(lang){
   localStorage.setItem('flbc_lang', lang);
@@ -404,7 +404,7 @@ document.querySelectorAll('.sidebar-nav a').forEach(function(link){
     link.classList.add('active');
   });
 });
-(function(){var l=localStorage.getItem('flbc_lang');if(l&&l!=='en')setLang(l);})();
+( function(){var p=new URLSearchParams(window.location.search);var l=p.get('lang')||localStorage.getItem('flbc_lang');if(l&&l!=='en')setLang(l);})();
 function toggleNav(){var nav=document.querySelector('nav');var btn=document.getElementById('hamburger-btn');if(!nav||!btn)return;var open=nav.classList.toggle('open');btn.classList.toggle('open',open);if(open){document.addEventListener('click',function c(e){if(!nav.contains(e.target)&&!btn.contains(e.target)){nav.classList.remove('open');btn.classList.remove('open');document.removeEventListener('click',c);}});}}
 </script>
 `
