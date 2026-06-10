@@ -95,20 +95,30 @@ export default function CampaignsPage() {
 
   async function generateLetter(company: Company, preview = false) {
     const payUrl = `opabiz.com/new-business?id=${company.document_id}`
-    const res = await fetch('/api/campaigns/generate-letter', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        documentId:  company.document_id,
-        ownerName:   company.owner_name || company.company_name,
-        companyName: company.company_name,
-        address:     company.address    || '',
-        city:        company.city       || '',
-        zip:         company.zip        || '',
-        payUrl,
-      }),
-    })
-    if (!res.ok) return
+    let res: Response
+    try {
+      res = await fetch('/api/campaigns/generate-letter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          documentId:  company.document_id,
+          ownerName:   company.owner_name || company.company_name,
+          companyName: company.company_name,
+          address:     company.address    || '',
+          city:        company.city       || '',
+          zip:         company.zip        || '',
+          payUrl,
+        }),
+      })
+    } catch {
+      setSendMsg('✗ Error generating letter. Check your connection.')
+      return
+    }
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }))
+      setSendMsg(`✗ Letter error: ${err.error || res.status}`)
+      return
+    }
     const blob = await res.blob()
     const url  = URL.createObjectURL(blob)
     if (preview) {

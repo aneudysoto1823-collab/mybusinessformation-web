@@ -24,8 +24,8 @@ export async function POST(req: NextRequest) {
 
   const { documentId, ownerName, companyName, address, city, zip, payUrl } = body
 
-  if (!documentId || !ownerName || !companyName || !address || !city || !zip || !payUrl) {
-    return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+  if (!documentId || !ownerName || !companyName || !payUrl) {
+    return NextResponse.json({ error: 'Missing required fields: documentId, ownerName, companyName, payUrl' }, { status: 400 })
   }
 
   const now = new Date()
