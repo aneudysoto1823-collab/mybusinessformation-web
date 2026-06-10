@@ -604,18 +604,19 @@ Implementación: state `showPwd` en `backend/app/login/page.tsx` → `<input typ
 
 Beneficio: típos de password en mobile son comunes. Toggle permite verificar antes de submit (especialmente útil con passwords largas tipo passphrase).
 
-### Endpoint público sin rate limit
+### Rate limit del endpoint (cerrado 2026-06-10)
 
-⚠️ `/api/auth/recover` POST **NO tiene rate limiting**. Un atacante puede:
-- Spamear con emails inválidos → no genera tokens (matchea ADMIN_EMAIL)
-- Spamear con el ADMIN_EMAIL correcto → genera N tokens válidos → satura el inbox
+`/api/auth/recover` POST tiene **3 requests / hora / IP** via `checkAuthRecoverRateLimit` (definido en `lib/rate-limit.ts`). Política: sliding window, fail-open si Upstash cae, retry-after en header del 429.
 
-**Mitigaciones presentes**:
+Por qué 3/h:
+- En uso real un admin se olvida la password ~1 vez por mes — 3/h es generoso para humanos
+- Suficientemente restrictivo para que un atacante no pueda spamear el inbox del admin
+- Más alto que el login (5/15min) porque el riesgo de typo es menor (solo se ingresa el email, no la password)
+
+Mitigaciones adicionales que ya existían:
 - Cada token TTL 15 min — los viejos expiran rápido
-- Upstash absorbe el costo de storage
-- El inbox del admin es el único colateral
-
-**Mitigación recomendada (pendiente)**: agregar rate limit de 3/hora por IP usando el helper `checkRateLimit` existente en `lib/rate-limit.ts`. Sprint de 5 min.
+- Solo `ADMIN_EMAIL` (case-insensitive) genera tokens válidos
+- Mensaje genérico `{notFound: true}` para email incorrecto — no revela si la cuenta existe
 
 ---
 

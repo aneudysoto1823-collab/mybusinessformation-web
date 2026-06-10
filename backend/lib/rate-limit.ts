@@ -105,3 +105,17 @@ export async function checkChatRateLimit(ip: string): Promise<RateLimitResult> {
   })
   return check(limiter, ip, 30)
 }
+
+// ── POST /api/auth/recover: 3 requests / hora / IP ───────────────────────────
+// Magic link de recovery del admin. Solo hay 1 admin → en uso real el endpoint
+// se llama ~1 vez por semana (cuando alguien olvida password). 3/h es generoso
+// para humanos y muy restrictivo para un atacante que quiera spamear el inbox.
+export async function checkAuthRecoverRateLimit(ip: string): Promise<RateLimitResult> {
+  const limiter = getLimiter({
+    cacheKey: 'auth-recover',
+    prefix: 'rl:auth-recover',
+    limit: 3,
+    window: '1 h',
+  })
+  return check(limiter, ip, 3)
+}

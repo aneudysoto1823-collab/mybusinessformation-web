@@ -142,7 +142,7 @@ Todos en `backend/app/api/booking/`. Todos retornan JSON. Validación básica de
 | `/api/booking/blocked` | POST | Crea blocked_slot. Body: `{date, time, reason}` |
 | `/api/booking/blocked/[id]` | DELETE | Borra blocked_slot |
 
-⚠️ **NO verifican `verifyAdminToken`** en el código actual (`/api/booking/appointments/route.ts` línea 1, no hay imports de session). Esto es **un gap de seguridad** — cualquiera con la URL puede listar todas las citas (incluye PII: nombre + email + teléfono). **Mismo patrón que tuvimos en `/api/campaigns/*` antes de la auditoría OWASP del 2026-05-19** — Aneury cerró aquellos endpoints con `verifyAdmin()`. Conviene aplicar el mismo patrón aquí. Ver doc 13 sección "Auth admin".
+✅ **Todos los 5 endpoints validan la cookie `admin_session`** con `jwtVerify` directo (de `jose`) contra `SESSION_SECRET`. Es un patrón **funcionalmente equivalente** al helper `verifyAdminToken` usado en otros endpoints (`/api/contabilidad/*`, `/api/campaigns/*`), solo con la implementación inline. Si en el futuro se quiere uniformizar, refactor menor para usar el helper de `lib/session.ts`.
 
 ---
 
@@ -277,7 +277,7 @@ Para activarlo:
 
 | Item | Cuándo | Quién |
 |------|--------|-------|
-| **Aplicar `verifyAdminToken` a los 5 endpoints admin de booking** (gap de seguridad — sigue el patrón de `/api/campaigns/*` cerrado en commit `7cf1411`) | Esta semana | Aneury |
+| (Opcional, no urgente) Refactor de los 5 endpoints admin de booking para usar el helper `verifyAdminToken` de `lib/session.ts` en vez del patrón inline con `jwtVerify`. Mejora consistencia, no agrega seguridad | Cuando se toque ese código por otra razón | Aneury |
 | Verificar dominio `opabiz.com` en Resend → cambiar `from:` en los 3 routes | Esta semana | Aneury |
 | Recordatorio automático 24h antes de la cita (mencionado en `supabase_migration_appointments.sql` líneas 75-79). Requiere Vercel Cron + endpoint `/api/booking/remind` | Mes 2 post-launch | Aneury |
 | Refactor: consolidar `ALL_SLOTS` en `backend/lib/booking-config.ts` (hoy duplicado en 2 lugares) | Cuando se toque slots por primera vez | Aneury |

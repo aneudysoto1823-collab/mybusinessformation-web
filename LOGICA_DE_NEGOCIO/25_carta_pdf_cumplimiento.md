@@ -213,18 +213,16 @@ POST /api/campaigns/generate-letter
 - **`totalFee`** = hardcoded `'$360.00'` (no calculado de servicios)
 - **`year`** = `today().getFullYear()` para el título "2026 NOTICE..."
 
-### ⚠️ Hallazgo de seguridad — endpoint sin auth
+### Auth admin — cerrado 2026-06-10
 
-**El endpoint NO tiene `verifyAdminToken`**. Cualquiera con la URL puede:
+El endpoint **valida `admin_session` con el helper `verifyAdminToken`** (cerrado en sprint de seguridad 2026-06-10). Sin este check quedaría expuesto a:
 
-1. **Generar PDFs falsos con la marca FBFC** que parecen comunicaciones oficiales de OpaBiz/FBFC
-2. **Phishing/fraud risk**: usar el generador para crear cartas falsas que apuntan a sites maliciosos via el campo `payUrl`
-3. **DoS por costo de PDF generation**: ~300ms de CPU por request × N requests/s
-4. **Generar cartas dirigidas a empresas reales** con datos de Sunbiz (que son públicos pero combinados con apariencia oficial se vuelven material legal sospechoso)
+1. **Generación de PDFs falsos con la marca FBFC** que parecen comunicaciones oficiales de OpaBiz/FBFC
+2. **Phishing/fraud risk** externo usando el generador para crear cartas con `payUrl` apuntando a sites maliciosos
+3. **DoS por costo de PDF generation** (~300ms CPU por request)
+4. **Generación de cartas dirigidas a empresas reales** con datos públicos de Sunbiz pero apariencia oficial
 
-**Severidad**: 🔴 ALTA — combina riesgo reputacional (fraud externo usando nuestra marca) + DoS interno.
-
-**Fix recomendado** (sprint 5 min): agregar `verifyAdminToken` siguiendo el mismo patrón que `/api/contabilidad/*`:
+Patrón aplicado:
 
 ```ts
 import { verifyAdminToken } from '@/lib/session'
@@ -241,7 +239,7 @@ export async function POST(req: NextRequest) {
 }
 ```
 
-Es **el mismo gap** que tenían los 4 endpoints de campañas en commit `7cf1411` (auditoría OWASP 2026-05-19) y los 5 endpoints admin de booking documentados en doc 23. Patrón consistente que falta aplicar.
+Mismo patrón consistente que `/api/contabilidad/*` y `/api/campaigns/*` cerrado en auditoría OWASP del commit `7cf1411`.
 
 ---
 
@@ -321,7 +319,7 @@ Si falta address/city/zip → la carta no se puede enviar (no hay dirección fí
 
 | Item | Cuándo | Quién |
 |------|--------|-------|
-| **Agregar `verifyAdminToken` al endpoint `/api/campaigns/generate-letter`** — gap de seguridad documentado en sección 5 | Esta semana | Aneury |
+| ~~Agregar `verifyAdminToken` al endpoint `/api/campaigns/generate-letter`~~ — ✅ cerrado 2026-06-10 en sprint de seguridad | Hecho | — |
 | Tracking de cuántas cartas físicas se generan por mes (audit log o counter) — útil para reporting de ROI | Mes 2 post-launch | Aneury |
 | Smoke test del PDF impreso a tamaño real (Letter US) — verificar que márgenes funcionan en impresoras típicas | Antes de primer batch | Aneury |
 | Documentar el proceso operativo (qué printer, qué papel, dónde se compran estampillas) en un runbook de TROUBLESHOOTING | Antes de primer batch | Aneury |

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { Redis } from '@upstash/redis'
 import { Resend } from 'resend'
 import { createAdminToken } from '@/lib/session'
+import { checkAuthRecoverRateLimit, getClientIp } from '@/lib/rate-limit'
 import crypto from 'crypto'
 
 function getRedis() {
@@ -14,6 +15,17 @@ function getResend() { return new Resend(process.env.RESEND_API_KEY) }
 
 // POST /api/auth/recover  — solicita link de recuperación
 export async function POST(req: NextRequest) {
+  // Rate limit antes de leer body o tocar Redis/Resend — protege contra spam
+  // del inbox del admin. 3/h/IP es generoso para humanos, restrictivo para abuse.
+  const ip = getClientIp(req)
+  const rl = await checkAuthRecoverRateLimit(ip)
+  if (!rl.success) {
+    return NextResponse.json(
+      { ok: false, error: 'Too many recovery attempts. Please wait before trying again.' },
+      { status: 429, headers: { 'Retry-After': String(rl.retryAfterSeconds) } }
+    )
+  }
+
   const { email } = await req.json()
 
   const adminEmail = process.env.ADMIN_EMAIL
