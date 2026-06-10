@@ -329,7 +329,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
           <strong class="en">Email</strong><strong class="es" style="display:none">Correo Electr&oacute;nico</strong>
           <p class="en">Send us your questions at any time and we&rsquo;ll get back to you promptly with a clear, detailed response tailored to your situation.</p>
           <p class="es" style="display:none">Env&iacute;enos sus preguntas en cualquier momento y le responderemos prontamente con una respuesta clara y detallada adaptada a su situaci&oacute;n.</p>
-          <a href="mailto:info@opabiz.com" class="card-btn" style="background:#fff;color:var(--blue);border:1.5px solid var(--blue)">info@opabiz.com</a>
+          <!--email_off--><a href="mailto:info@opabiz.com" class="card-btn" style="background:#fff;color:var(--blue);border:1.5px solid var(--blue)">info@opabiz.com</a><!--/email_off-->
         </div>
       </div>
     </div>
@@ -348,7 +348,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
           <a href="/legal" data-en="Legal Disclaimer" data-es="Aviso Legal">Legal Disclaimer</a>
           <a href="/about" data-en="About Us" data-es="Nosotros">About Us</a>
         </div>
-        <div style="margin-top:8px;font-size:0.77rem;color:rgba(255,255,255,0.45)"><a href="mailto:info@opabiz.com" style="color:inherit">info@opabiz.com</a></div>
+        <div style="margin-top:8px;font-size:0.77rem;color:rgba(255,255,255,0.45)"><!--email_off--><a href="mailto:info@opabiz.com" style="color:inherit">info@opabiz.com</a><!--/email_off--></div>
       </div>
       <div class="footer-disclaimer">
         <strong style="color:rgba(255,255,255,0.5);display:block;margin-bottom:4px">Important Notice</strong>

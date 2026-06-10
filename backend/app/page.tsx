@@ -1189,7 +1189,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           WhatsApp Consultation
         </button>
         <button id="hero-cal-btn" class="btn-cal" onclick="window.open('/booking?lang=en','_self')">
-          📅 Schedule Free Consultation →
+          Schedule an Appointment →
         </button>
       </div>
     </div>
@@ -1202,9 +1202,9 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
     <div class="footer-grid">
       <div class="footer-brand">
         <div class="logo-mark" style="display:inline-flex;margin-bottom:14px">OB</div>
-        <div style="font-family:'Fraunces',serif;font-size:1.05rem;font-weight:700;margin-bottom:8px"><span style="color:#e2e8f0">Opa</span><span style="color:#60a5fa;font-style:italic">Biz</span></div>
+        <div style="font-family:'Fraunces',serif;font-size:1.5rem;font-weight:700;margin-bottom:8px;letter-spacing:-.5px"><span style="color:#e2e8f0">Opa</span><span style="color:#60a5fa">Biz</span></div>
         <p id="footer-brand-desc">Professional business formation services for entrepreneurs and investors. We file your LLC or Corporation with the State of Florida — accurately, efficiently, and with personal attention.</p>
-        <p style="margin-top:10px;color:rgba(255,255,255,0.75);font-size:0.82rem">📧 <a href="mailto:info@opabiz.com" style="color:rgba(255,255,255,0.75);text-decoration:none">info@opabiz.com</a></p>
+        <p style="margin-top:10px;color:rgba(255,255,255,0.75);font-size:0.82rem">📧 <!--email_off--><a href="mailto:info@opabiz.com" style="color:rgba(255,255,255,0.75);text-decoration:none">info@opabiz.com</a><!--/email_off--></p>
       </div>
       <div class="footer-col" style="grid-column:span 2">
         <h5 data-en="Business Formation Services" data-es="Servicios de Formación Empresarial">Business Formation Services</h5>
@@ -1234,7 +1234,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
         <a href="/about?lang=${defaultLang}" class="lang-link" data-href="/about" data-en="About Us" data-es="Nosotros">About Us</a>
         <a href="#how" data-en="How It Works" data-es="Cómo Funciona">How It Works</a>
         <a href="#faq" data-en="FAQ" data-es="Preguntas">FAQ</a>
-        <a href="mailto:info@opabiz.com" data-en="Contact Us" data-es="Contáctanos">Contact Us</a>
+        <!--email_off--><a href="mailto:info@opabiz.com" data-en="Contact Us" data-es="Contáctanos">Contact Us</a>
         <a href="/terms?lang=${defaultLang}" class="lang-link" data-href="/terms" style="margin-top:12px" data-en="Terms &amp; Conditions" data-es="Términos y Condiciones">Terms &amp; Conditions</a>
         <a href="/privacy?lang=${defaultLang}" class="lang-link" data-href="/privacy" data-en="Privacy Policy" data-es="Política de Privacidad">Privacy Policy</a>
         <a href="/legal?lang=${defaultLang}" class="lang-link" data-href="/legal" data-en="Legal Disclaimer" data-es="Aviso Legal">Legal Disclaimer</a>
@@ -3204,7 +3204,7 @@ function setLang(lang) {
     if(role) role.textContent = isEs ? testiData[i][2] : testiData[i][3];
   });
 
-  el=document.getElementById('hero-cal-btn'); if(el){ el.innerHTML = isEs ? '&#128197; Programar Consulta Gratuita &rarr;' : '&#128197; Schedule Free Consultation &rarr;'; el.setAttribute('onclick',"window.open('"+(isEs?'/booking?lang=es':'/booking?lang=en')+"','_self')"); }
+  el=document.getElementById('hero-cal-btn'); if(el){ el.innerHTML = isEs ? 'Programar una Cita &rarr;' : 'Schedule an Appointment &rarr;'; el.setAttribute('onclick',"window.open('"+(isEs?'/booking?lang=es':'/booking?lang=en')+"','_self')"); }
   // Footer brand description
   el=document.getElementById('footer-brand-desc'); if(el) el.textContent = isEs
     ? 'Servicios profesionales de formación empresarial para emprendedores e inversionistas. Tramitamos tu LLC o Corporación ante el Estado de Florida — con precisión, eficiencia y atención personalizada.'

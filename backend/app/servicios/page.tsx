@@ -640,7 +640,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
     <div class="footer-grid">
       <div class="footer-brand">
         <div class="logo-mark" style="display:inline-flex;margin-bottom:12px">OB</div>
-        <div style="font-family:'Fraunces',serif;font-size:1rem;font-weight:700;margin-bottom:6px"><span style="color:#e2e8f0">Opa</span><span style="color:#60a5fa;font-style:italic">Biz</span></div>
+        <div style="font-family:'Fraunces',serif;font-size:1.5rem;font-weight:700;margin-bottom:8px;letter-spacing:-.5px"><span style="color:#e2e8f0">Opa</span><span style="color:#60a5fa">Biz</span></div>
         <p>Professional business formation services for entrepreneurs and investors throughout Florida.</p>
         <p style="margin-top:9px;color:rgba(255,255,255,.35);font-size:.72rem">&#128231; info@opabiz.com</p>
       </div>
