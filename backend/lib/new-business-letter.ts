@@ -186,17 +186,23 @@ export async function generateNewBusinessLetter(data: NewBusinessLetterData): Pr
     qrImage = await doc.embedPng(qrPng)
   } catch { /* skip QR if fails */ }
 
-  const payH = qrImage ? 106 : 70
+  const qrDim  = 72
+  const payH   = qrImage ? 152 : 70   // texto ~65px + gap + QR 72px + padding
   r(MX, y - payH, CW, payH, OFF_WHITE, { color: NAVY, width: 1 })
+
+  // Texto en la parte superior de la caja
   centered('PAY ONLINE', MX, CW, y - 17, bold, 12, NAVY)
   centered('Fast processing: 1–3 business days', MX, CW, y - 32, bold, 8, BLUE)
   centered(`VISIT: ${data.payUrl}`, MX, CW, y - 46, regular, 8, BLACK)
   centered('OR', MX, CW, y - 57, bold, 7, GRAY)
   centered('EMAIL: info@opabiz.com', MX, CW, y - 68, regular, 8, BLACK)
+  centered('SCAN QR CODE TO PAY', MX, CW, y - 82, bold, 7, GRAY)
 
+  // QR debajo del texto — nunca se superpone
   if (qrImage) {
-    const qrDim = 72
-    page.drawImage(qrImage, { x: MX + (CW - qrDim) / 2, y: y - payH + 4, width: qrDim, height: qrDim })
+    const qrX = MX + (CW - qrDim) / 2
+    const qrY = y - payH + 10           // 10px de padding desde el fondo
+    page.drawImage(qrImage, { x: qrX, y: qrY, width: qrDim, height: qrDim })
   }
   y -= payH + 12
 
