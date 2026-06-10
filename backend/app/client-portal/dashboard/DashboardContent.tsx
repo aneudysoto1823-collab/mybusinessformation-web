@@ -42,6 +42,7 @@ interface Props {
   currentStep: number
   isAddon: boolean
   initialLang: 'en' | 'es'
+  hasPassword: boolean
 }
 
 const PACKAGE_INFO: Record<string, { en: string; es: string; price: string; popular?: boolean }> = {
@@ -142,9 +143,17 @@ function parseAddonServices(raw: unknown): string[] {
 
 export default function DashboardContent({
   order, allOrders, documents, confirmationNumber,
-  steps, currentStep, isAddon, initialLang,
+  steps, currentStep, isAddon, initialLang, hasPassword,
 }: Props) {
   const [lang, setLang] = useState<'en' | 'es'>(initialLang)
+  const [pwBanner, setPwBanner] = useState(!hasPassword)
+  const [pwForm, setPwForm] = useState(false)
+  const [pw, setPw] = useState('')
+  const [pwConfirm, setPwConfirm] = useState('')
+  const [pwShow, setPwShow] = useState(false)
+  const [pwError, setPwError] = useState('')
+  const [pwSuccess, setPwSuccess] = useState(false)
+  const [pwLoading, setPwLoading] = useState(false)
 
   useEffect(() => {
     const portalLang = localStorage.getItem('portal_lang')
@@ -152,11 +161,40 @@ export default function DashboardContent({
     const detected = portalLang || siteLang
     if (detected === 'es') { setLang('es'); localStorage.setItem('portal_lang', 'es') }
     else if (detected === 'en') setLang('en')
+    if (localStorage.getItem('pw_banner_dismissed')) setPwBanner(false)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   function switchLang(l: 'en' | 'es') {
     setLang(l)
     localStorage.setItem('portal_lang', l)
+  }
+
+  function dismissPwBanner() {
+    setPwBanner(false)
+    localStorage.setItem('pw_banner_dismissed', '1')
+  }
+
+  async function handleSetPassword(e: React.FormEvent) {
+    e.preventDefault()
+    setPwError('')
+    if (pw.length < 8) { setPwError(es ? 'Mínimo 8 caracteres.' : 'Minimum 8 characters.'); return }
+    if (pw !== pwConfirm) { setPwError(es ? 'Las contraseñas no coinciden.' : 'Passwords do not match.'); return }
+    setPwLoading(true)
+    const res = await fetch('/api/client-auth/set-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: pw }),
+    })
+    setPwLoading(false)
+    if (res.ok) {
+      setPwSuccess(true)
+      setPwBanner(false)
+      setPwForm(false)
+      localStorage.removeItem('pw_banner_dismissed')
+    } else {
+      const d = await res.json()
+      setPwError(d.error || (es ? 'Error al guardar.' : 'Could not save password.'))
+    }
   }
 
   const es = lang === 'es'
@@ -199,6 +237,81 @@ export default function DashboardContent({
         <h1>{es ? `¡Bienvenido, ${order.firstName}!` : `Welcome, ${order.firstName}!`}</h1>
         <p>{es ? `Confirmación #${confirmationNumber}` : `Confirmation #${confirmationNumber}`}</p>
       </div>
+
+      {/* Password success toast */}
+      {pwSuccess && (
+        <div style={{ background: '#f0fdf4', border: '1px solid #86efac', borderRadius: 10, padding: '12px 16px', marginBottom: 16, fontSize: '.87rem', color: '#166534', display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span>✓</span>
+          <span>{es ? 'Contraseña creada. Ya puedes iniciar sesión con tu email y contraseña.' : 'Password created. You can now sign in with your email and password.'}</span>
+        </div>
+      )}
+
+      {/* Set password banner */}
+      {pwBanner && !pwSuccess && (
+        <div style={{ background: '#eff6ff', border: '1.5px solid #bfdbfe', borderRadius: 12, padding: '14px 18px', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
+          <div style={{ flex: 1, minWidth: 200 }}>
+            <p style={{ fontWeight: 700, fontSize: '.9rem', color: '#1e40af', margin: '0 0 2px' }}>
+              {es ? '🔑 Crea tu contraseña' : '🔑 Set up your password'}
+            </p>
+            <p style={{ fontSize: '.8rem', color: '#3b82f6', margin: 0 }}>
+              {es ? 'Para acceder más rápido en el futuro sin tu número de orden.' : 'Access your portal faster next time without your order number.'}
+            </p>
+          </div>
+          <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+            <button onClick={() => setPwForm(v => !v)} style={{ background: '#2563EB', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 16px', fontSize: '.82rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+              {es ? 'Crear contraseña' : 'Create password'}
+            </button>
+            <button onClick={dismissPwBanner} style={{ background: 'none', border: '1.5px solid #bfdbfe', borderRadius: 8, padding: '8px 12px', fontSize: '.82rem', color: '#3b82f6', cursor: 'pointer', fontFamily: 'inherit' }}>
+              {es ? 'Ahora no' : 'Later'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Set password form */}
+      {pwForm && !pwSuccess && (
+        <div style={{ background: '#fff', border: '1.5px solid #e2e8f0', borderRadius: 12, padding: '20px 22px', marginBottom: 20 }}>
+          <p style={{ fontWeight: 700, color: '#1C2E44', marginBottom: 14, fontSize: '.95rem' }}>
+            {es ? 'Crear contraseña' : 'Create your password'}
+          </p>
+          <form onSubmit={handleSetPassword} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div style={{ position: 'relative' }}>
+              <input
+                type={pwShow ? 'text' : 'password'}
+                value={pw}
+                onChange={e => setPw(e.target.value)}
+                placeholder={es ? 'Nueva contraseña (mín. 8 caracteres)' : 'New password (min. 8 characters)'}
+                required
+                style={{ width: '100%', padding: '10px 40px 10px 12px', borderRadius: 8, border: '1.5px solid #e2e8f0', fontSize: '.87rem', fontFamily: 'inherit', boxSizing: 'border-box' }}
+              />
+              <button type="button" onClick={() => setPwShow(v => !v)} style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', padding: 0 }} tabIndex={-1}>
+                {pwShow ? (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                ) : (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                )}
+              </button>
+            </div>
+            <input
+              type={pwShow ? 'text' : 'password'}
+              value={pwConfirm}
+              onChange={e => setPwConfirm(e.target.value)}
+              placeholder={es ? 'Confirmar contraseña' : 'Confirm password'}
+              required
+              style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1.5px solid #e2e8f0', fontSize: '.87rem', fontFamily: 'inherit', boxSizing: 'border-box' }}
+            />
+            {pwError && <p style={{ color: '#dc2626', fontSize: '.8rem', margin: 0 }}>{pwError}</p>}
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button type="submit" disabled={pwLoading} style={{ background: '#1C2E44', color: '#fff', border: 'none', borderRadius: 8, padding: '10px 20px', fontSize: '.85rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+                {pwLoading ? (es ? 'Guardando...' : 'Saving...') : (es ? 'Guardar contraseña' : 'Save password')}
+              </button>
+              <button type="button" onClick={() => setPwForm(false)} style={{ background: 'none', border: '1.5px solid #e2e8f0', borderRadius: 8, padding: '10px 16px', fontSize: '.85rem', color: '#64748b', cursor: 'pointer', fontFamily: 'inherit' }}>
+                {es ? 'Cancelar' : 'Cancel'}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
 
       {/* My Orders */}
       {allOrders.length > 1 && (

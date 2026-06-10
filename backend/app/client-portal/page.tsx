@@ -54,6 +54,9 @@ function LoginForm() {
   const searchParams = useSearchParams()
   const [email, setEmail] = useState(searchParams.get('email') ?? '')
   const [confirmationNumber, setConfirmationNumber] = useState(searchParams.get('order') ?? '')
+  const [usePassword, setUsePassword] = useState(false)
+  const [password, setPassword] = useState('')
+  const [showPwd, setShowPwd] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [lang, setLang] = useState<'en' | 'es'>('en')
@@ -95,7 +98,7 @@ function LoginForm() {
     const res = await fetch('/api/client-auth', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, confirmationNumber }),
+      body: JSON.stringify(usePassword ? { email, password } : { email, confirmationNumber }),
     })
     setLoading(false)
     if (res.ok) {
@@ -380,16 +383,48 @@ function LoginForm() {
                   />
                 </div>
 
-                <div className="form-group">
-                  <label htmlFor="confirmationNumber">{t.confNum}</label>
-                  <input
-                    id="confirmationNumber" type="text" value={confirmationNumber}
-                    onChange={e => setConfirmationNumber(e.target.value.toUpperCase())}
-                    placeholder={t.confPlaceholder}
-                    required
-                  />
-                  <p className="input-hint">{t.confHint}</p>
-                </div>
+                {!usePassword ? (
+                  <div className="form-group">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                      <label htmlFor="confirmationNumber" style={{ margin: 0 }}>{t.confNum}</label>
+                      <button type="button" onClick={() => { setUsePassword(true); setError('') }} style={{ background: 'none', border: 'none', color: '#2563EB', fontSize: '.78rem', fontWeight: 600, cursor: 'pointer', padding: 0, fontFamily: 'inherit' }}>
+                        {lang === 'es' ? 'Usar contraseña' : 'Use password instead'}
+                      </button>
+                    </div>
+                    <input
+                      id="confirmationNumber" type="text" value={confirmationNumber}
+                      onChange={e => setConfirmationNumber(e.target.value.toUpperCase())}
+                      placeholder={t.confPlaceholder}
+                      required
+                    />
+                    <p className="input-hint">{t.confHint}</p>
+                  </div>
+                ) : (
+                  <div className="form-group">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                      <label htmlFor="password" style={{ margin: 0 }}>{lang === 'es' ? 'Contraseña' : 'Password'}</label>
+                      <button type="button" onClick={() => { setUsePassword(false); setError('') }} style={{ background: 'none', border: 'none', color: '#2563EB', fontSize: '.78rem', fontWeight: 600, cursor: 'pointer', padding: 0, fontFamily: 'inherit' }}>
+                        {lang === 'es' ? 'Usar número de orden' : 'Use order number instead'}
+                      </button>
+                    </div>
+                    <div style={{ position: 'relative' }}>
+                      <input
+                        id="password" type={showPwd ? 'text' : 'password'} value={password}
+                        onChange={e => setPassword(e.target.value)}
+                        placeholder={lang === 'es' ? 'Tu contraseña' : 'Your password'}
+                        required style={{ paddingRight: 40 }}
+                      />
+                      <button type="button" onClick={() => setShowPwd(v => !v)} tabIndex={-1}
+                        style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', padding: 0 }}>
+                        {showPwd ? (
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                        ) : (
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                )}
 
                 <button type="submit" className="btn-access" disabled={loading}>
                   {loading ? t.btnLoading : t.btn}

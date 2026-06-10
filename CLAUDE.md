@@ -425,8 +425,8 @@ Emails implementados en `backend/modules/notifications/notifications.service.ts`
 | `sendAllNamesTaken` | Manual desde admin o automático | ✅ Activo |
 | `sendSuggestNames` | Admin encuentra nombres alternativos | ✅ Activo |
 | `sendCertificateDelivery` | Al subir Certificate PDF desde admin | ✅ Activo |
-| `sendOrderProcessed` | Al avanzar a `filed` | ⚠️ Stub vacío — pendiente template |
-| `sendOrderApproved` | Al avanzar a `approved` | ⚠️ Stub vacío — pendiente template |
+| `sendOrderProcessed` | Al avanzar a `filed` | ✅ Implementado |
+| `sendOrderApproved` | Al avanzar a `approved` | ✅ Implementado |
 
 Todos los emails usan WhatsApp `+13528377755`. Actualmente salen desde `onboarding@resend.dev` — pendiente migrar a dominio propio (lo trabaja el socio).
 

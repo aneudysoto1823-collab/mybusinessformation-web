@@ -147,10 +147,10 @@ async function getDocuments(orderId: string, order: Order): Promise<DocumentItem
 async function getOrder(id: string): Promise<Order | null> {
   const { data } = await getSupabaseAdmin()
     .from('Order')
-    .select('id, createdAt, firstName, lastName, email, companyName, entityType, package, speed, amount, paymentStatus, status, addons')
+    .select('id, createdAt, firstName, lastName, email, companyName, entityType, package, speed, amount, paymentStatus, status, addons, client_password_hash')
     .eq('id', id)
     .single()
-  return (data as Order | null)
+  return (data as (Order & { client_password_hash?: string | null }) | null)
 }
 
 async function getOrdersByEmail(email: string): Promise<Order[]> {
@@ -640,6 +640,7 @@ export default async function ClientDashboardPage({
         currentStep={currentStep}
         isAddon={isAddon}
         initialLang={initialLang}
+        hasPassword={!!(sessionOrder as { client_password_hash?: string | null }).client_password_hash}
       />
     </>
   )
