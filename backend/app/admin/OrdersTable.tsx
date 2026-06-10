@@ -74,7 +74,39 @@ function isStale(order: Order): boolean {
   return Date.now() - new Date(order.updatedAt).getTime() > 24 * 60 * 60 * 1000
 }
 
-export default function OrdersTable({ orders }: { orders: Order[] }) {
+const TBL = {
+  en: {
+    all: 'All', nbl: 'New Business Letter', pending: 'Pending', inReview: 'In review',
+    namesTaken: 'Names taken', readyToFile: 'Ready to file', filed: 'Filed',
+    approved: 'Approved', completed: 'Completed',
+    newestFirst: 'Newest first', oldestFirst: 'Oldest first',
+    allPackages: 'All packages', from: 'From', to: 'To', clear: 'Clear',
+    searchPh: 'Search by order number, client name or email...',
+    colOrder: '# Order', colClient: 'Client', colCompany: 'Company',
+    colPackage: 'Package', colAmount: 'Amount', colPayment: 'Payment',
+    colStatus: 'Status', colDate: 'Date',
+    noOrders: 'No orders in the selected date range.',
+    noOrdersStatus: 'No orders in this status.',
+    view: 'View →',
+  },
+  es: {
+    all: 'Todas', nbl: 'New Business Letter', pending: 'Pending', inReview: 'In review',
+    namesTaken: 'Names taken', readyToFile: 'Ready to file', filed: 'Filed',
+    approved: 'Approved', completed: 'Completed',
+    newestFirst: 'Más recientes primero', oldestFirst: 'Más antiguas primero',
+    allPackages: 'Todos los paquetes', from: 'Desde', to: 'Hasta', clear: 'Limpiar',
+    searchPh: 'Search by order number, client name or email...',
+    colOrder: '# Orden', colClient: 'Cliente', colCompany: 'Empresa',
+    colPackage: 'Paquete', colAmount: 'Monto', colPayment: 'Pago',
+    colStatus: 'Estado', colDate: 'Fecha',
+    noOrders: 'No hay órdenes en el rango de fechas seleccionado.',
+    noOrdersStatus: 'No hay órdenes en este estado.',
+    view: 'Ver →',
+  },
+}
+
+export default function OrdersTable({ orders, lang = 'es' }: { orders: Order[]; lang?: string }) {
+  const tbl = TBL[lang as 'en' | 'es'] ?? TBL.es
   const [activeTab, setActiveTab] = useState('all')
   const [sortBy, setSortBy] = useState('newest')
   const [pkgFilter, setPkgFilter] = useState('all')
@@ -354,18 +386,18 @@ export default function OrdersTable({ orders }: { orders: Order[] }) {
             value={sortBy}
             onChange={e => setSortBy(e.target.value)}
           >
-            <option value="newest">Más recientes primero</option>
-            <option value="oldest">Más antiguas primero</option>
-            <option value="amount_desc">Mayor monto</option>
-            <option value="amount_asc">Menor monto</option>
-            <option value="package">Por paquete (Basic → Premium)</option>
+            <option value="newest">{tbl.newestFirst}</option>
+            <option value="oldest">{tbl.oldestFirst}</option>
+            <option value="amount_desc">{lang === 'en' ? 'Highest amount' : 'Mayor monto'}</option>
+            <option value="amount_asc">{lang === 'en' ? 'Lowest amount' : 'Menor monto'}</option>
+            <option value="package">{lang === 'en' ? 'By package' : 'Por paquete (Basic → Premium)'}</option>
           </select>
           <select
             className="ctrl-select"
             value={pkgFilter}
             onChange={e => setPkgFilter(e.target.value)}
           >
-            <option value="all">Todos los paquetes</option>
+            <option value="all">{tbl.allPackages}</option>
             <option value="basic">Basic</option>
             <option value="standard">Standard</option>
             <option value="premium">Premium</option>
@@ -373,7 +405,7 @@ export default function OrdersTable({ orders }: { orders: Order[] }) {
           </select>
 
           <div className="date-group">
-            <span className="date-label">Desde</span>
+            <span className="date-label">{tbl.from}</span>
             <input
               type="date"
               className="ctrl-date"
@@ -382,9 +414,9 @@ export default function OrdersTable({ orders }: { orders: Order[] }) {
               onChange={e => setDateFrom(e.target.value)}
             />
             {dateFrom && (
-              <button className="date-clear" onClick={() => setDateFrom('')} title="Limpiar">✕</button>
+              <button className="date-clear" onClick={() => setDateFrom('')} title={tbl.clear}>✕</button>
             )}
-            <span className="date-label">Hasta</span>
+            <span className="date-label">{tbl.to}</span>
             <input
               type="date"
               className="ctrl-date"
@@ -393,7 +425,7 @@ export default function OrdersTable({ orders }: { orders: Order[] }) {
               onChange={e => setDateTo(e.target.value)}
             />
             {dateTo && (
-              <button className="date-clear" onClick={() => setDateTo('')} title="Limpiar">✕</button>
+              <button className="date-clear" onClick={() => setDateTo('')} title={tbl.clear}>✕</button>
             )}
           </div>
         </div>
@@ -401,7 +433,9 @@ export default function OrdersTable({ orders }: { orders: Order[] }) {
         {/* Buscador */}
         <div className="search-bar">
           <div className="search-wrap">
-            <span className="search-icon">🔍</span>
+            <span className="search-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </span>
             <input
               className="search-input"
               type="text"
@@ -434,8 +468,8 @@ export default function OrdersTable({ orders }: { orders: Order[] }) {
             {search.trim()
               ? `No orders found matching "${search.trim()}"`
               : (dateFrom || dateTo)
-              ? 'No hay órdenes en el rango de fechas seleccionado.'
-              : 'No hay órdenes en este estado.'
+              ? tbl.noOrders
+              : tbl.noOrdersStatus
             }
           </div>
         ) : (
@@ -454,14 +488,14 @@ export default function OrdersTable({ orders }: { orders: Order[] }) {
               </colgroup>
               <thead>
                 <tr>
-                  <th># Orden</th>
-                  <th>Cliente</th>
-                  <th>Empresa</th>
-                  <th>Paquete</th>
-                  <th>Monto</th>
-                  <th>Pago</th>
-                  <th>Estado</th>
-                  <th>Fecha</th>
+                  <th>{tbl.colOrder}</th>
+                  <th>{tbl.colClient}</th>
+                  <th>{tbl.colCompany}</th>
+                  <th>{tbl.colPackage}</th>
+                  <th>{tbl.colAmount}</th>
+                  <th>{tbl.colPayment}</th>
+                  <th>{tbl.colStatus}</th>
+                  <th>{tbl.colDate}</th>
                   <th></th>
                 </tr>
               </thead>
@@ -489,7 +523,7 @@ export default function OrdersTable({ orders }: { orders: Order[] }) {
                       {new Date(order.createdAt).toLocaleDateString('en-US')}
                     </td>
                     <td>
-                      <Link href={`/admin/orders/${order.id}`} className="link-ver">Ver →</Link>
+                      <Link href={`/admin/orders/${order.id}`} className="link-ver">{tbl.view}</Link>
                     </td>
                   </tr>
                 ))}

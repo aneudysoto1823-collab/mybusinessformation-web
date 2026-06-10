@@ -2,7 +2,25 @@ export const dynamic = 'force-dynamic'
 
 import OrdersTable from './OrdersTable'
 import LogoutButton from './LogoutButton'
+import AdminLangToggle from './AdminLangToggle'
 import { getSupabaseAdmin } from '@/lib/supabase'
+
+const T = {
+  en: {
+    title: 'Administration Panel', sub: 'opabiz.com',
+    campaigns: 'Campaigns', appointments: 'Appointments',
+    accounting: 'Accounting', security: 'Security', logout: 'Log out',
+    totalOrders: 'Total Orders', unpaid: 'Unpaid',
+    inReview: 'In Review', revenue: 'Total Revenue',
+  },
+  es: {
+    title: 'Panel de Administración', sub: 'opabiz.com',
+    campaigns: 'Campaigns', appointments: 'Citas',
+    accounting: 'Contabilidad', security: 'Seguridad', logout: 'Cerrar sesión',
+    totalOrders: 'Total Órdenes', unpaid: 'Sin Pagar',
+    inReview: 'En Revisión', revenue: 'Ingresos Totales',
+  },
+}
 
 interface Order {
   id: string
@@ -30,7 +48,14 @@ async function getOrders(): Promise<Order[]> {
   return data ?? []
 }
 
-export default async function AdminDashboard() {
+export default async function AdminDashboard({
+  searchParams,
+}: {
+  searchParams: Promise<{ lang?: string }>
+}) {
+  const params = await searchParams
+  const lang = (params.lang === 'en' ? 'en' : 'es') as 'en' | 'es'
+  const t = T[lang]
   const orders = await getOrders()
 
   const total = orders.length
@@ -94,41 +119,42 @@ export default async function AdminDashboard() {
       <div className="admin-wrapper">
         <div className="admin-header">
           <div>
-            <h1>Panel de Administración</h1>
-            <p>opabiz.com</p>
+            <h1>{t.title}</h1>
+            <p>{t.sub}</p>
           </div>
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
-            <a href="/admin/campaigns" style={{ fontSize: '13px', color: '#6b7280', textDecoration: 'none', padding: '7px 14px', border: '1.5px solid #e5e7eb', borderRadius: '8px', fontWeight: 600 }}>
-              📨 Campaigns
+            <AdminLangToggle />
+            <a href={`/admin/campaigns?lang=${lang}`} style={{ fontSize: '13px', color: '#6b7280', textDecoration: 'none', padding: '7px 14px', border: '1.5px solid #e5e7eb', borderRadius: '8px', fontWeight: 600 }}>
+              {t.campaigns}
             </a>
-            <a href="/admin/citas" style={{ fontSize: '13px', color: '#6b7280', textDecoration: 'none', padding: '7px 14px', border: '1.5px solid #e5e7eb', borderRadius: '8px', fontWeight: 600 }}>
-              📅 Citas
+            <a href={`/admin/citas?lang=${lang}`} style={{ fontSize: '13px', color: '#6b7280', textDecoration: 'none', padding: '7px 14px', border: '1.5px solid #e5e7eb', borderRadius: '8px', fontWeight: 600 }}>
+              {t.appointments}
             </a>
-            <a href="/admin/contabilidad" style={{ fontSize: '13px', color: '#6b7280', textDecoration: 'none', padding: '7px 14px', border: '1.5px solid #e5e7eb', borderRadius: '8px', fontWeight: 600 }}>
-              💰 Contabilidad
+            <a href={`/admin/contabilidad?lang=${lang}`} style={{ fontSize: '13px', color: '#6b7280', textDecoration: 'none', padding: '7px 14px', border: '1.5px solid #e5e7eb', borderRadius: '8px', fontWeight: 600 }}>
+              {t.accounting}
             </a>
-            <a href="/admin/security" style={{ fontSize: '13px', color: '#6b7280', textDecoration: 'none', padding: '7px 14px', border: '1.5px solid #e5e7eb', borderRadius: '8px', fontWeight: 600 }}>
-              🔐 Seguridad
+            <a href={`/admin/security?lang=${lang}`} style={{ fontSize: '13px', color: '#6b7280', textDecoration: 'none', padding: '7px 14px', border: '1.5px solid #e5e7eb', borderRadius: '8px', fontWeight: 600 }}>
+              {t.security}
             </a>
-            <LogoutButton />
+            <LogoutButton lang={lang} />
           </div>
         </div>
 
         <div className="stats-grid">
           <div className="stat-card">
-            <div className="label">Total Órdenes</div>
+            <div className="label">{t.totalOrders}</div>
             <div className="value">{total}</div>
           </div>
           <div className="stat-card">
-            <div className="label">Sin Pagar</div>
+            <div className="label">{t.unpaid}</div>
             <div className="value">{pendingPayment}</div>
           </div>
           <div className="stat-card">
-            <div className="label">En Revisión</div>
+            <div className="label">{t.inReview}</div>
             <div className="value">{inReview}</div>
           </div>
           <div className="stat-card">
-            <div className="label">Ingresos Totales</div>
+            <div className="label">{t.revenue}</div>
             <div className="value">
               ${revenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
@@ -136,7 +162,7 @@ export default async function AdminDashboard() {
         </div>
 
         <div className="orders-card">
-          <OrdersTable orders={orders} />
+          <OrdersTable orders={orders} lang={lang} />
         </div>
       </div>
     </>

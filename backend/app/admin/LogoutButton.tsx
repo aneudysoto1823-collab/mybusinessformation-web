@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 
-export default function LogoutButton() {
+export default function LogoutButton({ lang = 'es' }: { lang?: string }) {
   const router = useRouter()
 
   async function handleLogout() {
@@ -45,7 +45,7 @@ export default function LogoutButton() {
         <polyline points="16 17 21 12 16 7" />
         <line x1="21" y1="12" x2="9" y2="12" />
       </svg>
-      Cerrar sesión
+      {lang === 'en' ? 'Log out' : 'Cerrar sesión'}
     </button>
   )
 }

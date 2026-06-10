@@ -270,7 +270,7 @@ export default function CampaignsPage() {
               <span style={{ color: '#CBD5E1' }}>/</span>
               <span style={{ color: '#1C2E44', fontSize: '.8rem', fontWeight: 600 }}>Campaigns</span>
             </div>
-            <h1 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#1C2E44' }}>📣 Marketing Campaigns</h1>
+            <h1 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#1C2E44' }}>Marketing Campaigns</h1>
             <p style={{ fontSize: '.8rem', color: '#94A3B8', marginTop: 2 }}>Manage outreach emails and QR code campaigns</p>
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
@@ -462,11 +462,19 @@ export default function CampaignsPage() {
                               disabled={!!sendingId || paused || !c.email}
                               title={!c.email ? 'No email address' : paused ? 'System paused' : 'Send campaign email'}
                             >
-                              {sendingId === c.id ? '...' : '📨'}
+                              {sendingId === c.id ? '...' : (
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                              )}
                             </button>
-                            <button className="btn btn-ghost btn-sm" onClick={() => generateLetter(c, true)} title="Preview letter (PDF)">👁</button>
-                            <button className="btn btn-ghost btn-sm" onClick={() => generateLetter(c)} title="Download letter (PDF)">📄</button>
-                            <a href={`/new-business?id=${c.document_id}`} target="_blank" rel="noreferrer" className="btn btn-ghost btn-sm" title="Preview landing page">🔗</a>
+                            <button className="btn btn-ghost btn-sm" onClick={() => generateLetter(c, true)} title="Preview letter">
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            </button>
+                            <button className="btn btn-ghost btn-sm" onClick={() => generateLetter(c)} title="Download letter">
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            </button>
+                            <a href={`/new-business?id=${c.document_id}`} target="_blank" rel="noreferrer" className="btn btn-ghost btn-sm" title="Preview landing page">
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                            </a>
                           </div>
                         </td>
                       </tr>
