@@ -202,24 +202,36 @@ export default function OrdersTable({ orders }: { orders: Order[] }) {
         }
 
         .table-wrap { overflow-x: auto; background: #fff; border-radius: 0 0 10px 10px; -webkit-overflow-scrolling: touch; }
-        table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 960px; }
+        table { width: 100%; border-collapse: collapse; font-size: 12.5px; table-layout: fixed; }
         th {
           background: #f8fafc;
-          padding: 10px 16px;
+          padding: 10px 10px;
           text-align: left;
-          font-size: 11px;
+          font-size: 10.5px;
           font-weight: 700;
           color: #6b7280;
           text-transform: uppercase;
           letter-spacing: 0.5px;
           white-space: nowrap;
+          overflow: hidden;
         }
         td {
-          padding: 12px 16px;
+          padding: 10px 10px;
           border-top: 1px solid #f1f5f9;
           color: #374151;
           white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
+        col.col-orden   { width: 108px; }
+        col.col-cliente { width: 170px; }
+        col.col-empresa { width: 160px; }
+        col.col-paquete { width: 90px;  }
+        col.col-monto   { width: 74px;  }
+        col.col-pago    { width: 88px;  }
+        col.col-estado  { width: 148px; }
+        col.col-fecha   { width: 76px;  }
+        col.col-accion  { width: 56px;  }
         tr:hover td { background: #f8fafc; }
         .link-fbfc {
           color: #4f46e5; font-weight: 700; text-decoration: none;
@@ -429,6 +441,17 @@ export default function OrdersTable({ orders }: { orders: Order[] }) {
         ) : (
           <div className="table-wrap">
             <table>
+              <colgroup>
+                <col className="col-orden" />
+                <col className="col-cliente" />
+                <col className="col-empresa" />
+                <col className="col-paquete" />
+                <col className="col-monto" />
+                <col className="col-pago" />
+                <col className="col-estado" />
+                <col className="col-fecha" />
+                <col className="col-accion" />
+              </colgroup>
               <thead>
                 <tr>
                   <th># Orden</th>
@@ -438,7 +461,7 @@ export default function OrdersTable({ orders }: { orders: Order[] }) {
                   <th>Monto</th>
                   <th>Pago</th>
                   <th>Estado</th>
-                  <th style={{ minWidth: 90 }}>Fecha</th>
+                  <th>Fecha</th>
                   <th></th>
                 </tr>
               </thead>
