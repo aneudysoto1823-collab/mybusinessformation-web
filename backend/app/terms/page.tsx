@@ -179,13 +179,24 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
       <p class="es" style="display:none">Florida Business Formation Center proporciona servicios de preparaci&oacute;n y presentaci&oacute;n de documentos, incluyendo pero no limitado a:</p>
       <ul>
         <li class="en">LLC and Corporation formation filing with the Florida Division of Corporations</li><li class="es" style="display:none">Formaci&oacute;n de LLC y Corporaci&oacute;n ante la Divisi&oacute;n de Corporaciones de Florida</li>
-        <li class="en">EIN (Employer Identification Number) application assistance</li><li class="es" style="display:none">Asistencia para solicitud de EIN (N&uacute;mero de Identificaci&oacute;n del Empleador)</li>
-        <li class="en">Operating Agreement preparation</li><li class="es" style="display:none">Preparaci&oacute;n del Acuerdo Operativo</li>
+        <li class="en">EIN (Employer Identification Number) application assistance with the IRS</li><li class="es" style="display:none">Asistencia para solicitud de EIN (N&uacute;mero de Identificaci&oacute;n del Empleador) ante el IRS</li>
+        <li class="en">Operating Agreement and Corporate Bylaws preparation</li><li class="es" style="display:none">Preparaci&oacute;n de Acuerdo Operativo y Estatutos Corporativos</li>
         <li class="en">Registered Agent service</li><li class="es" style="display:none">Servicio de Agente Registrado</li>
-        <li class="en">ITIN application assistance</li><li class="es" style="display:none">Asistencia para solicitud de ITIN</li>
+        <li class="en">ITIN application assistance for foreign nationals (IRS Form W-7)</li><li class="es" style="display:none">Asistencia para solicitud de ITIN para extranjeros (Formulario IRS W-7)</li>
         <li class="en">DBA / Fictitious Name registration</li><li class="es" style="display:none">Registro de DBA / Nombre Ficticio</li>
         <li class="en">Articles of Amendment preparation and filing</li><li class="es" style="display:none">Preparaci&oacute;n y presentaci&oacute;n de Art&iacute;culos de Enmienda</li>
-        <li class="en">Annual Report filing assistance</li><li class="es" style="display:none">Asistencia para declaraci&oacute;n anual</li>
+        <li class="en">Annual Report filing assistance</li><li class="es" style="display:none">Asistencia para Informe Anual</li>
+        <li class="en">Virtual Mailing Address service</li><li class="es" style="display:none">Servicio de Direcci&oacute;n Postal Virtual</li>
+        <li class="en">Banking Resolution document preparation</li><li class="es" style="display:none">Preparaci&oacute;n de Resoluci&oacute;n Bancaria</li>
+        <li class="en">Business Tax Receipt (occupational license) filing</li><li class="es" style="display:none">Tramitaci&oacute;n de Recibo de Impuesto Empresarial (licencia ocupacional)</li>
+        <li class="en">Sales Tax Registration with the Florida Department of Revenue</li><li class="es" style="display:none">Registro de Impuesto sobre Ventas ante el Departamento de Ingresos de Florida</li>
+        <li class="en">Certificate of Good Standing</li><li class="es" style="display:none">Certificado de Buena Reputaci&oacute;n</li>
+        <li class="en">S-Corporation tax election (IRS Form 2553)</li><li class="es" style="display:none">Elecci&oacute;n de tratamiento fiscal S-Corporation (Formulario IRS 2553)</li>
+        <li class="en">Foreign LLC / Corporation registration in Florida</li><li class="es" style="display:none">Registro de LLC / Corporaci&oacute;n Extranjera en Florida</li>
+        <li class="en">Business License research and filing</li><li class="es" style="display:none">Investigaci&oacute;n y tramitaci&oacute;n de Licencia Comercial</li>
+        <li class="en">Business Dissolution filing</li><li class="es" style="display:none">Tramitaci&oacute;n de Disoluci&oacute;n de Negocio</li>
+        <li class="en">Tax Account Closure (IRS and Florida DOR)</li><li class="es" style="display:none">Cierre de Cuenta Fiscal (IRS y Departamento de Ingresos de Florida)</li>
+        <li class="en">Exclusive post-formation compliance guide</li><li class="es" style="display:none">Gu&iacute;a exclusiva de cumplimiento post-formaci&oacute;n</li>
       </ul>
     </div>
 
