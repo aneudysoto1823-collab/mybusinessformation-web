@@ -481,7 +481,7 @@ Si algo del hamburger falla, revisar los tres puntos. **No tocar uno sin verific
 | `/privacy` `/terms` `/legal` | 768px | Hamburger; hero `position:sticky;top:66px`; `p`/`.hero-meta`/`.breadcrumb` ocultos; sidebar `position:static`; header sticky conservado (NO usar `position:relative` en header dentro del media query — rompe el sticky) |
 | `/admin/contabilidad/gastos` | 1024px, 768px, 480px | Tabla scroll horizontal; botones touch 44px; modal 95vh |
 
-**Pendiente responsive:** `/admin/orders/[id]`, `/admin/campaigns`
+**Pendiente responsive:** `/admin/orders/[id]`, `/admin/campaigns` (tabla de campañas tiene scroll horizontal correcto desde 2026-06-08)
 
 ### Regla de botones táctiles
 Todo botón CTA en páginas públicas debe tener mínimo 44px de alto en mobile. Usar `min-height: 44px` o `padding` que lo garantice. Referencia: WCAG 2.5.5 y Apple HIG.
@@ -577,7 +577,7 @@ Los links de Reschedule/Cancel usan el `id` UUID de la cita (difícil de adivina
 En plan gratuito, Resend solo entrega emails al correo registrado en la cuenta. Al migrar al dominio propio (`@opabiz.com`), los emails llegarán a cualquier dirección sin restricción.
 
 ### Pendientes del sistema de citas
-- [ ] Configurar `NEXT_PUBLIC_URL=https://opabiz.com` en Vercel env vars
+- [x] Configurar `NEXT_PUBLIC_URL=https://opabiz.com` en Vercel env vars — ✅ hecho 2026-06-08
 - [ ] Migrar Resend a dominio propio para que emails lleguen a todos los clientes
 - [ ] Considerar recordatorios automáticos 24h antes de la cita (requiere cron job)
 - [ ] Soporte bilingüe EN/ES en páginas `/booking/reschedule` y `/booking/cancel`

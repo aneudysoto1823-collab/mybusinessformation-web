@@ -172,3 +172,36 @@ Accesible desde `/admin` con las mismas credenciales de administrador.
 - 🟡 `email_sent` — email enviado
 - 🟠 `qr_scanned` — escaneo registrado
 - 🟢 `purchased` — compra completada
+
+**Botones por empresa (columna acciones):**
+- 📨 — Enviar email de campaña
+- 👁 — Preview de carta PDF en nueva pestaña
+- 📄 — Descargar carta PDF
+- 🔗 — Ver landing page `/new-business`
+
+---
+
+## Carta Física de Cumplimiento (PDF) — agregado 2026-06-08
+
+Canal complementario al email: carta imprimible para envío postal.
+
+**Generador:** `backend/lib/new-business-letter.ts` (pdf-lib + qrcode)
+**API:** `POST /api/campaigns/generate-letter`
+
+**Contenido de la carta:**
+- Logo circular "FBFC" navy (provisional — pendiente logo real)
+- Encabezado: "FLORIDA BUSINESS FORMATION CENTER" + dirección
+- Tabla de info: Document ID, Notice Date, Please Respond By, Total Fee (en dorado)
+- Barra título: `{AÑO} NOTICE OF BUSINESS COMPLIANCE SERVICES`
+- Dirección del destinatario
+- Caja "ACTION REQUIRED" con texto de bienvenida amigable
+- 3 columnas de servicios:
+  - Labor Law Posters — $120.00
+  - EIN (Tax ID) — $161.00
+  - Certificate of Status — $79.00
+- Sección PAY ONLINE con QR dinámico y URL de pago
+- Footer legal (no afiliación con gobierno, solicitud de servicios)
+
+**Variables de entrada:** `documentId, ownerName, companyName, address, city, zip, noticeDate, respondBy, totalFee, payUrl, year`
+
+**Nota de marca:** La carta usa "Florida Business Formation Center" como nombre (entidad legal), no "OpaBiz".
