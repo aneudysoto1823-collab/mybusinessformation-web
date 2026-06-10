@@ -201,8 +201,8 @@ export default function OrdersTable({ orders }: { orders: Order[] }) {
           color: #4f46e5;
         }
 
-        .table-wrap { overflow-x: auto; background: #fff; border-radius: 0 0 10px 10px; }
-        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .table-wrap { overflow-x: auto; background: #fff; border-radius: 0 0 10px 10px; -webkit-overflow-scrolling: touch; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 960px; }
         th {
           background: #f8fafc;
           padding: 10px 16px;
@@ -438,7 +438,7 @@ export default function OrdersTable({ orders }: { orders: Order[] }) {
                   <th>Monto</th>
                   <th>Pago</th>
                   <th>Estado</th>
-                  <th>Fecha</th>
+                  <th style={{ minWidth: 90 }}>Fecha</th>
                   <th></th>
                 </tr>
               </thead>
