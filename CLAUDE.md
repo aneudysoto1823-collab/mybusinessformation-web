@@ -600,7 +600,7 @@ En plan gratuito, Resend solo entrega emails al correo registrado en la cuenta. 
 - [x] Configurar `NEXT_PUBLIC_URL=https://opabiz.com` en Vercel env vars — ✅ hecho 2026-06-08
 - [ ] Migrar Resend a dominio propio para que emails lleguen a todos los clientes
 - [ ] Considerar recordatorios automáticos 24h antes de la cita (requiere cron job)
-- [ ] Soporte bilingüe EN/ES en páginas `/booking/reschedule` y `/booking/cancel`
+- [ ] Soporte bilingüe EN/ES en páginas `/booking/reschedule` y `/booking/cancel` — reusar como referencia el patrón `T = { en, es }` + localización de fechas (`es-ES`) ya implementado en la carta (`backend/lib/new-business-letter.ts` + `generate-letter/route.ts`)
 
 ---
 
