@@ -68,15 +68,24 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  // Apex es el canonical (metadataBase + sitemap). www debe redirigir 301 al apex
-  // para consistencia de indexación. Vercel ya hace esto a nivel edge si el
-  // dominio primary es el apex, pero este bloque actúa como defense in depth.
+  // mybusinessformation.com es el dominio legacy del rebrand a opabiz.com. Se reutiliza
+  // como entrada de las cartas físicas de marketing: TODO su tráfico (apex + www, en
+  // cualquier path) hace 301 a la landing de new-business en opabiz.com. Esto:
+  //  - evita contenido duplicado (opabiz.com/new-business es el único canonical indexado)
+  //  - consolida la autoridad SEO del dominio viejo en opabiz
+  //  - conserva el ?id= del QR automáticamente (Next pasa el query string al destino)
   async redirects() {
     return [
       {
         source: "/:path*",
+        has: [{ type: "host", value: "mybusinessformation.com" }],
+        destination: "https://opabiz.com/new-business",
+        permanent: true,
+      },
+      {
+        source: "/:path*",
         has: [{ type: "host", value: "www.mybusinessformation.com" }],
-        destination: "https://mybusinessformation.com/:path*",
+        destination: "https://opabiz.com/new-business",
         permanent: true,
       },
     ];

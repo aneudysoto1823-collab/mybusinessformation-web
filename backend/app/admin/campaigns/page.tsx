@@ -94,19 +94,21 @@ export default function CampaignsPage() {
   // ─── Actions ────────────────────────────────────────────────────────────────
 
   async function generateLetter(company: Company, preview = false) {
-    const payUrl = `opabiz.com/new-business?id=${company.document_id}`
+    const payUrl = `mybusinessformation.com/?id=${company.document_id}`
     let res: Response
     try {
       res = await fetch('/api/campaigns/generate-letter', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          documentId:  company.document_id,
-          ownerName:   company.owner_name || company.company_name,
-          companyName: company.company_name,
-          address:     company.address    || '',
-          city:        company.city       || '',
-          zip:         company.zip        || '',
+          documentId:       company.document_id,
+          companyName:      company.company_name,
+          ownerName:        company.owner_name || '',
+          address:          company.address    || '',
+          city:             company.city       || '',
+          zip:              company.zip        || '',
+          registrationDate: company.registration_date || '',
+          companyType:      company.company_type,
           payUrl,
         }),
       })

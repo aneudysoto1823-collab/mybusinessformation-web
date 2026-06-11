@@ -1,32 +1,35 @@
-import { PDFDocument, StandardFonts, rgb, PDFPage, PDFFont } from 'pdf-lib'
+import { PDFDocument, StandardFonts, rgb, PDFFont, PDFPage } from 'pdf-lib'
 import QRCode from 'qrcode'
 
 // ── Colors ────────────────────────────────────────────────────────────────────
 const NAVY      = rgb(0.11, 0.18, 0.27)   // #1C2E44
 const BLUE      = rgb(0.15, 0.39, 0.92)   // #2563EB
-const GOLD      = rgb(0.96, 0.62, 0.04)   // total fee highlight
 const WHITE     = rgb(1, 1, 1)
-const BLACK     = rgb(0.08, 0.08, 0.08)
-const GRAY      = rgb(0.42, 0.42, 0.42)
-const LIGHT     = rgb(0.90, 0.90, 0.90)
+const BLACK     = rgb(0.10, 0.10, 0.10)
+const GRAY      = rgb(0.40, 0.40, 0.40)
+const LIGHT     = rgb(0.85, 0.85, 0.85)
 const OFF_WHITE = rgb(0.97, 0.97, 0.97)
 
 const PAGE_W = 612
 const PAGE_H = 792
-const MX = 50   // horizontal margin
+const MX     = 50    // horizontal margin
+const CW     = PAGE_W - MX * 2   // content width = 512
+const BOTTOM = 56    // bottom margin — trigger page break below this
 
+// IMPORTANT (pdf-lib WinAnsi): StandardFonts solo codifican CP1252.
+// NO usar •  ↑ ↓ → ★ ✓  — rompen la generación. El middot · (0xB7) y las
+// rayas — – sí están soportados. El separador de la marca usa · a propósito.
 export type NewBusinessLetterData = {
-  documentId: string    // e.g. "L26000127092"
-  ownerName: string
-  companyName: string
-  address: string
-  city: string
-  zip: string
-  noticeDate: string    // "MM/DD/YYYY"
-  respondBy: string     // "MM/DD/YYYY"
-  totalFee: string      // "$360.00"
-  payUrl: string        // "opabiz.com/pay/ABC123"
-  year?: number
+  documentId: string        // "L26000075446"
+  companyName: string       // "GARLICBAKED LLC"
+  ownerName?: string        // destinatario (opcional)
+  address?: string          // dirección de la empresa (opcional)
+  city?: string             // ciudad (opcional)
+  zip?: string              // ZIP (opcional)
+  registrationDate: string  // "February 17, 2026" (vacío permitido)
+  noticeDate: string        // "March 15, 2026"
+  entityType: string        // "Florida LLC" | "Florida Corporation"
+  payUrl: string            // "opabiz.com/new-business?id=..."
 }
 
 // ── Word-wrap helper ──────────────────────────────────────────────────────────
@@ -47,174 +50,219 @@ function wrapLines(text: string, font: PDFFont, size: number, maxWidth: number):
   return lines
 }
 
-// ── Draw helpers (closure over page+fonts) ────────────────────────────────────
-function makeDrawers(page: PDFPage, bold: PDFFont, regular: PDFFont) {
-  const t = (str: string, x: number, y: number, font: PDFFont, size: number, color = BLACK) =>
-    page.drawText(str, { x, y, font, size, color })
-
-  const r = (x: number, y: number, w: number, h: number, color: ReturnType<typeof rgb>,
-             border?: { color: ReturnType<typeof rgb>; width: number }) =>
-    page.drawRectangle({ x, y, width: w, height: h, color, borderColor: border?.color, borderWidth: border?.width })
-
-  const line = (x1: number, y1: number, x2: number, y2: number, thickness = 0.5, color = LIGHT) =>
-    page.drawLine({ start: { x: x1, y: y1 }, end: { x: x2, y: y2 }, thickness, color })
-
-  const centered = (str: string, boxX: number, boxW: number, y: number, font: PDFFont, size: number, color = BLACK) => {
-    const w = font.widthOfTextAtSize(str, size)
-    t(str, boxX + (boxW - w) / 2, y, font, size, color)
-  }
-
-  return { t, r, line, centered }
-}
-
 // ── Main generator ────────────────────────────────────────────────────────────
 export async function generateNewBusinessLetter(data: NewBusinessLetterData): Promise<Uint8Array> {
-  const doc   = await PDFDocument.create()
-  const page  = doc.addPage([PAGE_W, PAGE_H])
+  const doc     = await PDFDocument.create()
   const bold    = await doc.embedFont(StandardFonts.HelveticaBold)
   const regular = await doc.embedFont(StandardFonts.Helvetica)
-  const { t, r, line, centered } = makeDrawers(page, bold, regular)
 
-  const year     = data.year ?? new Date().getFullYear()
-  const CW       = PAGE_W - MX * 2   // content width = 512
-  let y          = PAGE_H - 36
+  // Mutable page cursor — los helpers leen `page`/`y` actuales vía closure.
+  let page: PDFPage = doc.addPage([PAGE_W, PAGE_H])
+  let y = PAGE_H - 40
 
-  // ── 1. HEADER ───────────────────────────────────────────────────────────────
-  // Circle logo "FBFC"
-  const cx = MX + 22
-  const cy = y - 18
-  page.drawCircle({ x: cx, y: cy, size: 22, color: NAVY })
-  const fbfcW = bold.widthOfTextAtSize('FBFC', 8)
-  t('FBFC', cx - fbfcW / 2, cy - 4, bold, 8, WHITE)
+  const newPage = () => { page = doc.addPage([PAGE_W, PAGE_H]); y = PAGE_H - 50 }
+  const ensure  = (h: number) => { if (y - h < BOTTOM) newPage() }
 
-  // Company name + address
-  t('FLORIDA BUSINESS FORMATION CENTER', MX + 50, y - 8,  bold, 9, NAVY)
-  t('3700 SW 27TH ST Suite D104  |  Gainesville, FL 32608', MX + 50, y - 20, regular, 7, GRAY)
+  // ── Draw helpers (usan el `page` actual) ──────────────────────────────────
+  const t = (str: string, x: number, yy: number, font: PDFFont, size: number, color = BLACK) =>
+    page.drawText(str, { x, y: yy, font, size, color })
 
-  // Info table (right side)
-  const tX = 376
-  const tW = 186
-  const rows = [
-    { label: 'Document ID#',       value: data.documentId, bg: OFF_WHITE },
-    { label: 'Notice Date:',       value: data.noticeDate,  bg: WHITE     },
-    { label: 'Please Respond By:', value: data.respondBy,   bg: OFF_WHITE },
+  const rect = (x: number, yy: number, w: number, h: number, color: ReturnType<typeof rgb>,
+                border?: { color: ReturnType<typeof rgb>; width: number }) =>
+    page.drawRectangle({ x, y: yy, width: w, height: h, color, borderColor: border?.color, borderWidth: border?.width })
+
+  const centered = (str: string, boxX: number, boxW: number, yy: number, font: PDFFont, size: number, color = BLACK) => {
+    const w = font.widthOfTextAtSize(str, size)
+    t(str, boxX + (boxW - w) / 2, yy, font, size, color)
+  }
+
+  // Párrafo justificado a la izquierda con salto de página automático por línea.
+  const para = (text: string, font: PDFFont, size: number, lh: number, color = BLACK) => {
+    for (const line of wrapLines(text, font, size, CW)) {
+      ensure(lh)
+      t(line, MX, y, font, size, color)
+      y -= lh
+    }
+  }
+
+  // ── 1. TITLE (sin recuadro) ───────────────────────────────────────────────
+  centered('BUSINESS COMPLIANCE INFORMATION NOTICE', MX, CW, y - 15, bold, 17, NAVY)
+  y -= 54
+
+  // ── 2. SENDER / BRAND ─────────────────────────────────────────────────────
+  // Logo provisional: círculo navy "FBFC" (pendiente logo real)
+  const logoR  = 26
+  const logoCx = MX + logoR
+  const logoCy = y - 22
+  page.drawCircle({ x: logoCx, y: logoCy, size: logoR, color: NAVY })
+  const fbfcW = bold.widthOfTextAtSize('FBFC', 9)
+  t('FBFC', logoCx - fbfcW / 2, logoCy - 3.5, bold, 9, WHITE)
+
+  const txtX = MX + logoR * 2 + 12
+  t('FLORIDA BUSINESS FORMATION CENTER', txtX, y - 10, bold, 11, NAVY)
+  const dom = 'mybusinessformation.com'
+  const domW = bold.widthOfTextAtSize(dom, 10)
+  t(dom, PAGE_W - MX - domW, y - 10, bold, 10, BLUE)
+  t('3700 SW 27TH ST Suite D104', txtX, y - 25, regular, 8, GRAY)
+  t('GAINESVILLE FL 32608', txtX, y - 36, regular, 8, GRAY)
+  y -= 78
+
+  // ── 3. DESTINATARIO (izq) + RECUADRO DE REGISTRO (der) ────────────────────
+  const topY = y
+
+  // Bloque destinatario: empresa + dirección
+  let ly = topY - 4
+  const recipient: { s: string; f: PDFFont; sz: number; c: ReturnType<typeof rgb> }[] = []
+  recipient.push({ s: data.companyName, f: bold, sz: 11, c: NAVY })
+  if (data.address) recipient.push({ s: data.address, f: regular, sz: 9, c: BLACK })
+  let cityLine = ''
+  if (data.city && data.zip) cityLine = `${data.city}, FL ${data.zip}`
+  else if (data.city)        cityLine = `${data.city}, FL`
+  else if (data.zip)         cityLine = `FL ${data.zip}`
+  if (cityLine) recipient.push({ s: cityLine, f: regular, sz: 9, c: BLACK })
+  for (const r of recipient) {
+    t(r.s, MX, ly, r.f, r.sz, r.c)
+    ly -= 13
+  }
+  const leftH = topY - ly
+
+  // Recuadro de registro (derecha)
+  const boxX = 355
+  const boxW = PAGE_W - MX - boxX   // 207
+  const boxRows: [string, string][] = [
+    ['Document Number', data.documentId],
+    ['Registration Date', data.registrationDate || '—'],
+    ['Notice Date', data.noticeDate],
+    ['Entity Type', data.entityType],
   ]
-  let rowY = y
-  const rowH = 16
-  rows.forEach(row => {
-    r(tX, rowY - rowH, tW, rowH, row.bg, { color: LIGHT, width: 0.5 })
-    t(row.label, tX + 6, rowY - rowH + 5, bold, 7, NAVY)
-    t(row.value, tX + 100, rowY - rowH + 5, regular, 7, BLACK)
-    rowY -= rowH
-  })
-  // Total fee row (navy bg)
-  r(tX, rowY - rowH, tW, rowH, NAVY, { color: NAVY, width: 0.5 })
-  t('Total Fee:', tX + 6, rowY - rowH + 5, bold, 7, WHITE)
-  const feeW = bold.widthOfTextAtSize(data.totalFee, 9)
-  t(data.totalFee, tX + tW - feeW - 8, rowY - rowH + 4, bold, 9, GOLD)
+  const brH    = 13
+  const boxPad = 8
+  const accent = 4
+  const boxH   = accent + boxPad + boxRows.length * brH + 4
+  rect(boxX, topY - boxH, boxW, boxH, OFF_WHITE, { color: LIGHT, width: 0.75 })
+  rect(boxX, topY - accent, boxW, accent, NAVY)   // franja superior navy
+  let by = topY - accent - boxPad - 4
+  for (const [label, value] of boxRows) {
+    t(label, boxX + 9, by, bold, 6.8, GRAY)
+    const vw = regular.widthOfTextAtSize(value, 7.5)
+    t(value, boxX + boxW - 9 - vw, by, regular, 7.5, BLACK)
+    by -= brH
+  }
 
-  y = y - 4 * rowH - 10
+  y = topY - Math.max(leftH, boxH) - 30
 
-  // ── 2. DIVIDER ──────────────────────────────────────────────────────────────
-  line(MX, y, PAGE_W - MX, y, 1, LIGHT)
+  // ── 4. BODY ───────────────────────────────────────────────────────────────
+  para(`Congratulations on the recent registration of ${data.companyName}.`, bold, 9.5, 14, NAVY)
+  y -= 4
+  para(
+    'As a newly formed Florida business, there are several filings, registrations, and compliance-related ' +
+    'services commonly requested during the early stages of operation. These services can help establish ' +
+    'business credibility, support banking relationships, maintain accurate business records, and assist with ' +
+    'the long-term good standing of your company.',
+    regular, 8.5, 12.5, BLACK,
+  )
+  y -= 6
+  para(
+    'Many financial institutions, vendors, lenders, government agencies, and business partners may request ' +
+    'documentation confirming your business status, tax identification information, and compliance history. ' +
+    'Completing applicable filings in a timely manner can help avoid unnecessary delays when opening business ' +
+    'bank accounts, applying for financing, entering into contracts, hiring employees, or expanding operations.',
+    regular, 8.5, 12.5, BLACK,
+  )
+  y -= 6
+  para(
+    'To assist newly registered businesses, Florida Business Formation Center offers the services described below.',
+    regular, 8.5, 12.5, BLACK,
+  )
   y -= 12
 
-  // ── 3. TITLE BAR ────────────────────────────────────────────────────────────
-  const titleH = 24
-  r(MX, y - titleH, CW, titleH, NAVY)
-  centered(`${year} NOTICE OF BUSINESS COMPLIANCE SERVICES`, MX, CW, y - titleH + 8, bold, 10, WHITE)
-  y -= titleH + 14
-
-  // ── 4. CLIENT ADDRESS BLOCK ─────────────────────────────────────────────────
-  const addrLines = [data.ownerName, data.companyName, data.address, `${data.city}, FL ${data.zip}`]
-  addrLines.forEach(ln => { t(ln, MX, y, regular, 9, BLACK); y -= 13 })
-  y -= 8
-
-  // ── 5. DIVIDER ──────────────────────────────────────────────────────────────
-  line(MX, y, PAGE_W - MX, y, 0.5, LIGHT)
-  y -= 14
-
-  // ── 6. ACTION REQUIRED BOX ──────────────────────────────────────────────────
-  const bodyText = `Congratulations on registering ${data.companyName} with the State of Florida. As a newly formed business there are a few important steps you may need to complete to ensure your company is fully operational and compliant. We are here to help you get everything in order quickly and easily. You can complete your request online by visiting the link below or scanning the QR code.`
-  const bodyLines = wrapLines(bodyText, regular, 7.5, CW - 16)
-  const actionH = 16 + bodyLines.length * 10 + 10
-  r(MX, y - actionH, CW, actionH, OFF_WHITE, { color: NAVY, width: 1 })
-  t('ACTION REQUIRED — Keep Your Business Protected and Compliant', MX + 8, y - 13, bold, 8.5, NAVY)
-  let bodyY = y - 26
-  bodyLines.forEach(ln => { t(ln, MX + 8, bodyY, regular, 7.5, BLACK); bodyY -= 10 })
-  y -= actionH + 12
-
-  // ── 7. SERVICES GRID ────────────────────────────────────────────────────────
+  // ── 5. SERVICES GRID (3 columnas con precio + resumen) ────────────────────
   const services = [
     {
-      name: 'Labor Law Posters', price: '$120.00',
-      desc: 'Both Federal and State Law require every business with at least one employee to post current labor law notices in a clearly visible workplace area. Non-compliance can lead to fines and legal consequences.',
+      name: 'Labor Law Posters', price: '$120',
+      desc: 'Federal and Florida law require every business with at least one employee to display current labor ' +
+            'law notices where employees can see them. These notices cover wages, workplace safety, and equal ' +
+            'employment rights. Displaying outdated posters can result in fines during an inspection.',
     },
     {
-      name: 'EIN (Tax ID)', price: '$161.00',
-      desc: 'An EIN is a 9-digit number issued by the IRS to identify your business. Required to open a bank account, hire employees, file federal tax returns, and conduct business with government agencies.',
+      name: 'EIN (Tax ID)', price: '$161',
+      desc: 'A nine-digit number issued by the IRS to identify your business for federal tax purposes. By law, ' +
+            'any business with at least one employee must obtain an EIN for payroll and employment tax reporting. ' +
+            'Also commonly required to open a business bank account, file taxes, and apply for licenses.',
     },
     {
-      name: 'Certificate of Status', price: '$79.00',
-      desc: 'Official proof your business is active and authorized to conduct business in Florida. Often required when applying for loans, renewing licenses, or opening a business bank account.',
+      name: 'Certificate of Status', price: '$79',
+      desc: 'An official document from the State of Florida confirming your business is active and in good ' +
+            'standing. Frequently requested by banks, lenders, vendors, and partners when opening accounts, ' +
+            'applying for financing, or entering into contracts.',
     },
   ]
-  const colW  = CW / 3
-  const gridH = 108
-  services.forEach((svc, i) => {
-    const cx2 = MX + i * colW
-    r(cx2, y - gridH, colW, gridH, WHITE, { color: LIGHT, width: 0.5 })
-    // Header row
-    r(cx2, y - 20, colW, 20, OFF_WHITE)
-    centered(svc.name, cx2, colW, y - 13, bold, 8, NAVY)
-    // Price
-    const prW = bold.widthOfTextAtSize(svc.price, 14)
-    t(svc.price, cx2 + (colW - prW) / 2, y - 40, bold, 14, BLUE)
-    // Description
-    const descLines = wrapLines(svc.desc, regular, 6.5, colW - 12)
-    let dY = y - 56
-    descLines.forEach(ln => { t(ln, cx2 + 6, dY, regular, 6.5, GRAY); dY -= 9 })
-  })
-  y -= gridH + 14
+  const colGap   = 10
+  const colW     = (CW - colGap * 2) / 3
+  const descSize = 6.5
+  const descLh   = 8.5
+  const headerH  = 18
+  const priceGap = 24
+  const descPad  = 8
+  const descLinesArr = services.map(s => wrapLines(s.desc, regular, descSize, colW - 14))
+  const maxLines = Math.max(...descLinesArr.map(a => a.length))
+  const gridH = headerH + priceGap + maxLines * descLh + descPad
 
-  // ── 8. PAY ONLINE BOX ───────────────────────────────────────────────────────
-  // Generate QR code PNG
+  ensure(gridH + 4)   // mantener la grilla íntegra (no partirla entre páginas)
+  services.forEach((s, i) => {
+    const cx = MX + i * (colW + colGap)
+    rect(cx, y - gridH, colW, gridH, WHITE, { color: LIGHT, width: 0.75 })
+    // Header navy
+    rect(cx, y - headerH, colW, headerH, NAVY)
+    centered(s.name, cx, colW, y - headerH + 5.5, bold, 7.5, WHITE)
+    // Price
+    const pw = bold.widthOfTextAtSize(s.price, 15)
+    t(s.price, cx + (colW - pw) / 2, y - headerH - priceGap + 7, bold, 15, BLACK)
+    // Description
+    let dy = y - headerH - priceGap - 2
+    descLinesArr[i].forEach(line => { t(line, cx + 7, dy, regular, descSize, GRAY); dy -= descLh })
+  })
+  y -= gridH + 16
+
+  // ── 6. CTA (discreto) + QR ────────────────────────────────────────────────
   const fullPayUrl = data.payUrl.startsWith('http') ? data.payUrl : `https://${data.payUrl}`
   let qrImage = null
   try {
-    const qrPng = await QRCode.toBuffer(fullPayUrl, { width: 80, margin: 1 })
+    const qrPng = await QRCode.toBuffer(fullPayUrl, { width: 200, margin: 1 })
     qrImage = await doc.embedPng(qrPng)
-  } catch { /* skip QR if fails */ }
+  } catch { /* skip QR si falla */ }
 
-  const qrDim  = 72
-  const payH   = qrImage ? 160 : 70   // texto 68px + gap 10 + QR 72px + padding 10
-  r(MX, y - payH, CW, payH, OFF_WHITE, { color: NAVY, width: 1 })
-
-  // Texto en la parte superior
-  centered('PAY ONLINE', MX, CW, y - 17, bold, 12, NAVY)
-  centered('Fast processing: 1–3 business days', MX, CW, y - 32, bold, 8, BLUE)
-  centered(`VISIT: ${data.payUrl}`, MX, CW, y - 46, regular, 8, BLACK)
-  centered('OR', MX, CW, y - 57, bold, 7, GRAY)
-  centered('EMAIL: info@opabiz.com', MX, CW, y - 68, regular, 8, BLACK)
-
-  // QR debajo del texto con margen suficiente
+  const qrDim = 76
+  ensure(40 + qrDim + 30)
+  y -= 6
+  centered('To request these services, scan the code', MX, CW, y, bold, 9.5, NAVY)
+  y -= 13
+  centered('below or visit mybusinessformation.com', MX, CW, y, bold, 9.5, NAVY)
+  y -= 12
   if (qrImage) {
-    const qrX = MX + (CW - qrDim) / 2
-    const qrY = y - payH + 10          // bottom del QR con padding inferior
-    page.drawImage(qrImage, { x: qrX, y: qrY, width: qrDim, height: qrDim })
-    // Label debajo del QR
-    centered('Scan above to pay', MX, CW, qrY - 10, regular, 7, GRAY)
+    const qx = MX + (CW - qrDim) / 2
+    page.drawImage(qrImage, { x: qx, y: y - qrDim, width: qrDim, height: qrDim })
+    y -= qrDim + 6
   }
-  y -= payH + 12
+  centered('mybusinessformation.com', MX, CW, y, bold, 10, BLUE)
+  y -= 18
 
-  // ── 9. FOOTER ───────────────────────────────────────────────────────────────
-  const footerText = 'FLORIDA BUSINESS FORMATION CENTER is a privately owned third-party document preparation service and is not affiliated with or endorsed by any government agency, including the IRS, Department of Labor, or Florida Department of State. This is a solicitation for services, not an official government notice. Fees include administrative and processing costs. All sales are final and non-refundable. Business registration data is sourced from public records.'
-  const footerLines = wrapLines(footerText, regular, 6, CW - 12)
-  const footerH = footerLines.length * 8 + 10
-  const footerY = 36
-  r(MX, footerY, CW, footerH, OFF_WHITE)
-  let fY = footerY + footerH - 8
-  footerLines.forEach(ln => { t(ln, MX + 6, fY, regular, 6, GRAY); fY -= 8 })
+  // ── 7. IMPORTANT DISCLOSURE ───────────────────────────────────────────────
+  const disclosure =
+    'OpaBiz is a trade name of Florida Business Formation Center — a professional document preparation and ' +
+    'filing service. We are not a law firm and do not provide legal, tax, or financial advice. Our services do ' +
+    'not constitute the practice of law and do not create an attorney-client relationship. All filings are ' +
+    'subject to approval by the Florida Division of Corporations and the IRS. For legal or tax guidance specific ' +
+    'to your situation, we encourage you to consult a licensed Florida attorney or certified public accountant. ' +
+    'Florida Business Formation Center is not affiliated with, endorsed by, or approved by any federal, state, ' +
+    'or local government agency, including the IRS, the U.S. Department of Labor, or the Florida Division of ' +
+    'Corporations. This notice is not a bill, invoice, or demand for payment. The services described are optional.'
+
+  ensure(24)
+  y -= 6
+  t('IMPORTANT DISCLOSURE', MX, y, bold, 8.5, NAVY)
+  y -= 12
+  para(disclosure, regular, 6.8, 9, GRAY)
 
   return doc.save()
 }
