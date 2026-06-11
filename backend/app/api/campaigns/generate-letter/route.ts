@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { generateNewBusinessLetter } from '@/lib/new-business-letter'
+import { generateNewBusinessLetter, type Lang } from '@/lib/new-business-letter'
 import { verifyAdminToken } from '@/lib/session'
 
 export const dynamic = 'force-dynamic'
@@ -10,29 +10,28 @@ async function verifyAdmin(req: NextRequest): Promise<boolean> {
   return verifyAdminToken(session.value)
 }
 
-// Florida entity type label a partir del company_type de Sunbiz
-function entityLabel(companyType?: string): string {
-  const map: Record<string, string> = {
-    LLC:  'Florida LLC',
-    CORP: 'Florida Corporation',
-    PA:   'Florida P.A.',
-    LTD:  'Florida Limited Partnership',
+// Florida entity type label a partir del company_type de Sunbiz, localizado por idioma
+function entityLabel(companyType: string | undefined, lang: Lang): string {
+  const maps: Record<Lang, Record<string, string>> = {
+    en: { LLC: 'Florida LLC', CORP: 'Florida Corporation', PA: 'Florida P.A.', LTD: 'Florida Limited Partnership' },
+    es: { LLC: 'LLC de Florida', CORP: 'Corporación de Florida', PA: 'P.A. de Florida', LTD: 'Sociedad Limitada de Florida' },
   }
   const key = (companyType || '').toUpperCase()
-  return map[key] || (key ? `Florida ${key}` : 'Florida LLC')
+  const fallback = lang === 'es' ? (key ? `${key} de Florida` : 'LLC de Florida') : (key ? `Florida ${key}` : 'Florida LLC')
+  return maps[lang][key] || fallback
 }
 
-// Formato largo "February 17, 2026". Date-only se parsea sin shift de timezone.
-function formatLong(input?: string): string {
+// Fecha en formato largo localizado. Date-only se parsea sin shift de timezone.
+function formatLong(input: string | undefined, lang: Lang): string {
   if (!input) return ''
   const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(input)
   const d = m ? new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])) : new Date(input)
   if (isNaN(d.getTime())) return input
-  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+  return d.toLocaleDateString(lang === 'es' ? 'es-ES' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' })
 }
 
 // POST /api/campaigns/generate-letter
-// Body: { documentId, companyName, payUrl, registrationDate?, companyType? }
+// Body: { documentId, companyName, payUrl, registrationDate?, companyType?, lang? }
 // Returns: PDF file
 export async function POST(req: NextRequest) {
   // Admin-only — el generador produce PDFs con marca FBFC. Si quedara publico,
@@ -44,12 +43,13 @@ export async function POST(req: NextRequest) {
   const body = await req.json()
 
   const { documentId, companyName, payUrl, registrationDate, companyType, ownerName, address, city, zip } = body
+  const lang: Lang = body.lang === 'es' ? 'es' : 'en'
 
   if (!documentId || !companyName || !payUrl) {
     return NextResponse.json({ error: 'Missing required fields: documentId, companyName, payUrl' }, { status: 400 })
   }
 
-  const noticeDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+  const noticeDate = new Date().toLocaleDateString(lang === 'es' ? 'es-ES' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' })
 
   let pdfBytes: Uint8Array
   try {
@@ -60,10 +60,11 @@ export async function POST(req: NextRequest) {
       address,
       city,
       zip,
-      registrationDate: formatLong(registrationDate),
+      registrationDate: formatLong(registrationDate, lang),
       noticeDate,
-      entityType: entityLabel(companyType),
+      entityType: entityLabel(companyType, lang),
       payUrl,
+      lang,
     })
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)

@@ -58,6 +58,9 @@ export default function CampaignsPage() {
   const [sendingAll,  setSendingAll]  = useState(false)
   const [sendMsg,     setSendMsg]     = useState('')
 
+  // Idioma de la carta PDF (preview/descarga)
+  const [letterLang,  setLetterLang]  = useState<'en' | 'es'>('en')
+
   // Add company form
   const [showForm,      setShowForm]      = useState(false)
   const [lookingUp,     setLookingUp]     = useState(false)
@@ -110,6 +113,7 @@ export default function CampaignsPage() {
           registrationDate: company.registration_date || '',
           companyType:      company.company_type,
           payUrl,
+          lang:             letterLang,
         }),
       })
     } catch {
@@ -128,7 +132,7 @@ export default function CampaignsPage() {
     } else {
       const a    = document.createElement('a')
       a.href     = url
-      a.download = `notice-${company.document_id}.pdf`
+      a.download = `notice-${company.document_id}-${letterLang}.pdf`
       a.click()
       URL.revokeObjectURL(url)
     }
@@ -427,6 +431,27 @@ export default function CampaignsPage() {
               {sendingAll ? 'Sending...' : `📨 Send to All New (${companies.filter(c => c.status === 'new' && c.email).length})`}
             </button>
             {sendMsg && <span className={sendMsg.startsWith('✓') ? 'msg-ok' : 'msg-err'} style={{ fontSize: '.78rem' }}>{sendMsg}</span>}
+
+            {/* Selector de idioma de la carta PDF (afecta preview 👁 y descarga 📄) */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginLeft: 'auto' }}>
+              <span style={{ fontSize: '.72rem', color: '#64748b', fontWeight: 600 }}>Letter format:</span>
+              <div style={{ display: 'flex', border: '1.5px solid #E2E8F0', borderRadius: 7, overflow: 'hidden' }}>
+                {(['en', 'es'] as const).map(lng => (
+                  <button
+                    key={lng}
+                    onClick={() => setLetterLang(lng)}
+                    style={{
+                      padding: '5px 13px', fontSize: '.72rem', fontWeight: 700, border: 'none', cursor: 'pointer',
+                      fontFamily: 'inherit',
+                      background: letterLang === lng ? '#2563EB' : '#fff',
+                      color:      letterLang === lng ? '#fff'    : '#475569',
+                    }}
+                  >
+                    {lng.toUpperCase()}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
 
           {loading ? (

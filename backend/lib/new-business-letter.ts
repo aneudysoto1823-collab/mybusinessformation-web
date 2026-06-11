@@ -17,19 +17,133 @@ const CW     = PAGE_W - MX * 2   // content width = 512
 const BOTTOM = 56    // bottom margin — trigger page break below this
 
 // IMPORTANT (pdf-lib WinAnsi): StandardFonts solo codifican CP1252.
-// NO usar •  ↑ ↓ → ★ ✓  — rompen la generación. El middot · (0xB7) y las
-// rayas — – sí están soportados. El separador de la marca usa · a propósito.
+// NO usar •  ↑ ↓ → ★ ✓  — rompen la generación. Acentos/ñ/¿/¡, el middot · (0xB7)
+// y las rayas — – SÍ están soportados (CP1252 cubre todo Latin-1 + español).
+export type Lang = 'en' | 'es'
+
 export type NewBusinessLetterData = {
   documentId: string        // "L26000075446"
   companyName: string       // "GARLICBAKED LLC"
-  ownerName?: string        // destinatario (opcional)
+  ownerName?: string        // destinatario (opcional, ya no se imprime)
   address?: string          // dirección de la empresa (opcional)
   city?: string             // ciudad (opcional)
   zip?: string              // ZIP (opcional)
-  registrationDate: string  // "February 17, 2026" (vacío permitido)
-  noticeDate: string        // "March 15, 2026"
-  entityType: string        // "Florida LLC" | "Florida Corporation"
-  payUrl: string            // "opabiz.com/new-business?id=..."
+  registrationDate: string  // ya formateado según lang (vacío permitido)
+  noticeDate: string        // ya formateado según lang
+  entityType: string        // ya localizado ("Florida LLC" | "LLC de Florida")
+  payUrl: string            // "mybusinessformation.com/?id=..."
+  lang?: Lang               // idioma del texto fijo (default 'en')
+}
+
+// ── Contenido bilingüe (solo el texto FIJO; los datos variables vienen en data) ──
+type LetterContent = {
+  title: string
+  labels: { doc: string; reg: string; notice: string; entity: string }
+  greeting: (company: string) => string
+  body: [string, string, string]
+  services: { name: string; price: string; desc: string }[]
+  cta: [string, string]
+  disclosureHeading: string
+  disclosure: string
+}
+
+const EN: LetterContent = {
+  title: 'BUSINESS COMPLIANCE INFORMATION NOTICE',
+  labels: { doc: 'Document Number', reg: 'Registration Date', notice: 'Notice Date', entity: 'Entity Type' },
+  greeting: c => `Congratulations on the recent registration of ${c}.`,
+  body: [
+    'As a newly formed Florida business, there are several filings, registrations, and compliance-related ' +
+    'services commonly requested during the early stages of operation. These services can help establish ' +
+    'business credibility, support banking relationships, maintain accurate business records, and assist with ' +
+    'the long-term good standing of your company.',
+    'Many financial institutions, vendors, lenders, government agencies, and business partners may request ' +
+    'documentation confirming your business status, tax identification information, and compliance history. ' +
+    'Completing applicable filings in a timely manner can help avoid unnecessary delays when opening business ' +
+    'bank accounts, applying for financing, entering into contracts, hiring employees, or expanding operations.',
+    'To assist newly registered businesses, Florida Business Formation Center offers the services described below.',
+  ],
+  services: [
+    {
+      name: 'Labor Law Posters', price: '$120',
+      desc: 'Federal and Florida law require every business with at least one employee to display current labor ' +
+            'law notices where employees can see them. These notices cover wages, workplace safety, and equal ' +
+            'employment rights. Displaying outdated posters can result in fines during an inspection.',
+    },
+    {
+      name: 'EIN (Tax ID)', price: '$161',
+      desc: 'A nine-digit number issued by the IRS to identify your business for federal tax purposes. By law, ' +
+            'any business with at least one employee must obtain an EIN for payroll and employment tax reporting. ' +
+            'Also commonly required to open a business bank account, file taxes, and apply for licenses.',
+    },
+    {
+      name: 'Certificate of Status', price: '$79',
+      desc: 'An official document from the State of Florida confirming your business is active and in good ' +
+            'standing. Frequently requested by banks, lenders, vendors, and partners when opening accounts, ' +
+            'applying for financing, or entering into contracts.',
+    },
+  ],
+  cta: ['To request these services, scan the code', 'below or visit mybusinessformation.com'],
+  disclosureHeading: 'IMPORTANT DISCLOSURE',
+  disclosure:
+    'Florida Business Formation Center is a professional document preparation and filing service. We are not a ' +
+    'law firm and do not provide legal, tax, or financial advice. Our services do ' +
+    'not constitute the practice of law and do not create an attorney-client relationship. All filings are ' +
+    'subject to approval by the Florida Division of Corporations and the IRS. For legal or tax guidance specific ' +
+    'to your situation, we encourage you to consult a licensed Florida attorney or certified public accountant. ' +
+    'Florida Business Formation Center is not affiliated with, endorsed by, or approved by any federal, state, ' +
+    'or local government agency, including the IRS, the U.S. Department of Labor, or the Florida Division of ' +
+    'Corporations. This notice is not a bill, invoice, or demand for payment. The services described are optional.',
+}
+
+const ES: LetterContent = {
+  title: 'AVISO INFORMATIVO DE CUMPLIMIENTO EMPRESARIAL',
+  labels: { doc: 'Número de Documento', reg: 'Fecha de Registro', notice: 'Fecha del Aviso', entity: 'Tipo de Entidad' },
+  greeting: c => `Felicitaciones por el registro reciente de ${c}.`,
+  body: [
+    'Como empresa de reciente formación en Florida, existen varios trámites, registros y servicios de ' +
+    'cumplimiento que suelen solicitarse durante las primeras etapas de operación. Estos servicios ayudan a ' +
+    'establecer la credibilidad del negocio, respaldar relaciones bancarias, mantener registros precisos y ' +
+    'contribuir al buen estado legal de su empresa a largo plazo.',
+    'Muchas instituciones financieras, proveedores, prestamistas, agencias gubernamentales y socios comerciales ' +
+    'pueden solicitar documentación que confirme el estado de su negocio, su información de identificación fiscal ' +
+    'y su historial de cumplimiento. Completar los trámites correspondientes a tiempo ayuda a evitar demoras ' +
+    'innecesarias al abrir cuentas bancarias comerciales, solicitar financiamiento, firmar contratos, contratar ' +
+    'empleados o expandir operaciones.',
+    'Para asistir a las empresas recién registradas, Florida Business Formation Center ofrece los servicios que ' +
+    'se describen a continuación.',
+  ],
+  services: [
+    {
+      name: 'Carteles de Ley Laboral', price: '$120',
+      desc: 'Las leyes federales y de Florida exigen que toda empresa con al menos un empleado exhiba los carteles ' +
+            'vigentes de ley laboral en un lugar visible para los empleados. Informan sobre salarios, seguridad ' +
+            'laboral e igualdad de oportunidades. Exhibir carteles desactualizados puede generar multas en una inspección.',
+    },
+    {
+      name: 'EIN (Número Fiscal)', price: '$161',
+      desc: 'Número de nueve dígitos emitido por el IRS para identificar su negocio ante el fisco federal. Por ley, ' +
+            'toda empresa con al menos un empleado debe obtener un EIN para la nómina y la declaración de impuestos ' +
+            'laborales. También suele requerirse para abrir una cuenta bancaria comercial, declarar impuestos y obtener licencias.',
+    },
+    {
+      name: 'Certificado de Estatus', price: '$79',
+      desc: 'Documento oficial del Estado de Florida que confirma que su negocio está activo y en buen estado. ' +
+            'Suele ser solicitado por bancos, prestamistas, proveedores y socios al abrir cuentas, solicitar ' +
+            'financiamiento o firmar contratos.',
+    },
+  ],
+  cta: ['Para solicitar estos servicios, escanee el código', 'o visite mybusinessformation.com'],
+  disclosureHeading: 'AVISO IMPORTANTE',
+  disclosure:
+    'Florida Business Formation Center es un servicio profesional de preparación y presentación de documentos. ' +
+    'No somos un bufete de abogados y no brindamos asesoría legal, fiscal ni ' +
+    'financiera. Nuestros servicios no constituyen el ejercicio de la abogacía ni crean una relación ' +
+    'abogado-cliente. Todas las presentaciones están sujetas a la aprobación de la División de Corporaciones de ' +
+    'Florida y del IRS. Para orientación legal o fiscal específica a su situación, le recomendamos consultar a un ' +
+    'abogado de Florida con licencia o a un contador público certificado. Florida Business Formation Center no ' +
+    'está afiliado, respaldado ni aprobado por ninguna agencia gubernamental federal, estatal o local, incluidos ' +
+    'el IRS, el Departamento de Trabajo de EE. UU. o la División de Corporaciones de Florida. Este aviso no es una ' +
+    'factura ni una solicitud de pago. Los servicios descritos son opcionales.',
 }
 
 // ── Word-wrap helper ──────────────────────────────────────────────────────────
@@ -52,6 +166,8 @@ function wrapLines(text: string, font: PDFFont, size: number, maxWidth: number):
 
 // ── Main generator ────────────────────────────────────────────────────────────
 export async function generateNewBusinessLetter(data: NewBusinessLetterData): Promise<Uint8Array> {
+  const C = data.lang === 'es' ? ES : EN
+
   const doc     = await PDFDocument.create()
   const bold    = await doc.embedFont(StandardFonts.HelveticaBold)
   const regular = await doc.embedFont(StandardFonts.Helvetica)
@@ -86,7 +202,7 @@ export async function generateNewBusinessLetter(data: NewBusinessLetterData): Pr
   }
 
   // ── 1. TITLE (sin recuadro) ───────────────────────────────────────────────
-  centered('BUSINESS COMPLIANCE INFORMATION NOTICE', MX, CW, y - 15, bold, 17, NAVY)
+  centered(C.title, MX, CW, y - 15, bold, 17, NAVY)
   y -= 54
 
   // ── 2. SENDER / BRAND ─────────────────────────────────────────────────────
@@ -130,10 +246,10 @@ export async function generateNewBusinessLetter(data: NewBusinessLetterData): Pr
   const boxX = 355
   const boxW = PAGE_W - MX - boxX   // 207
   const boxRows: [string, string][] = [
-    ['Document Number', data.documentId],
-    ['Registration Date', data.registrationDate || '—'],
-    ['Notice Date', data.noticeDate],
-    ['Entity Type', data.entityType],
+    [C.labels.doc,    data.documentId],
+    [C.labels.reg,    data.registrationDate || '—'],
+    [C.labels.notice, data.noticeDate],
+    [C.labels.entity, data.entityType],
   ]
   const brH    = 13
   const boxPad = 8
@@ -152,51 +268,17 @@ export async function generateNewBusinessLetter(data: NewBusinessLetterData): Pr
   y = topY - Math.max(leftH, boxH) - 30
 
   // ── 4. BODY ───────────────────────────────────────────────────────────────
-  para(`Congratulations on the recent registration of ${data.companyName}.`, bold, 9.5, 14, NAVY)
+  para(C.greeting(data.companyName), bold, 9.5, 14, NAVY)
   y -= 4
-  para(
-    'As a newly formed Florida business, there are several filings, registrations, and compliance-related ' +
-    'services commonly requested during the early stages of operation. These services can help establish ' +
-    'business credibility, support banking relationships, maintain accurate business records, and assist with ' +
-    'the long-term good standing of your company.',
-    regular, 8.5, 12.5, BLACK,
-  )
+  para(C.body[0], regular, 8.5, 12.5, BLACK)
   y -= 6
-  para(
-    'Many financial institutions, vendors, lenders, government agencies, and business partners may request ' +
-    'documentation confirming your business status, tax identification information, and compliance history. ' +
-    'Completing applicable filings in a timely manner can help avoid unnecessary delays when opening business ' +
-    'bank accounts, applying for financing, entering into contracts, hiring employees, or expanding operations.',
-    regular, 8.5, 12.5, BLACK,
-  )
+  para(C.body[1], regular, 8.5, 12.5, BLACK)
   y -= 6
-  para(
-    'To assist newly registered businesses, Florida Business Formation Center offers the services described below.',
-    regular, 8.5, 12.5, BLACK,
-  )
+  para(C.body[2], regular, 8.5, 12.5, BLACK)
   y -= 12
 
   // ── 5. SERVICES GRID (3 columnas con precio + resumen) ────────────────────
-  const services = [
-    {
-      name: 'Labor Law Posters', price: '$120',
-      desc: 'Federal and Florida law require every business with at least one employee to display current labor ' +
-            'law notices where employees can see them. These notices cover wages, workplace safety, and equal ' +
-            'employment rights. Displaying outdated posters can result in fines during an inspection.',
-    },
-    {
-      name: 'EIN (Tax ID)', price: '$161',
-      desc: 'A nine-digit number issued by the IRS to identify your business for federal tax purposes. By law, ' +
-            'any business with at least one employee must obtain an EIN for payroll and employment tax reporting. ' +
-            'Also commonly required to open a business bank account, file taxes, and apply for licenses.',
-    },
-    {
-      name: 'Certificate of Status', price: '$79',
-      desc: 'An official document from the State of Florida confirming your business is active and in good ' +
-            'standing. Frequently requested by banks, lenders, vendors, and partners when opening accounts, ' +
-            'applying for financing, or entering into contracts.',
-    },
-  ]
+  const services = C.services
   const colGap   = 10
   const colW     = (CW - colGap * 2) / 3
   const descSize = 6.5
@@ -235,9 +317,9 @@ export async function generateNewBusinessLetter(data: NewBusinessLetterData): Pr
   const qrDim = 76
   ensure(40 + qrDim + 30)
   y -= 6
-  centered('To request these services, scan the code', MX, CW, y, bold, 9.5, NAVY)
+  centered(C.cta[0], MX, CW, y, bold, 9.5, NAVY)
   y -= 13
-  centered('below or visit mybusinessformation.com', MX, CW, y, bold, 9.5, NAVY)
+  centered(C.cta[1], MX, CW, y, bold, 9.5, NAVY)
   y -= 12
   if (qrImage) {
     const qx = MX + (CW - qrDim) / 2
@@ -248,21 +330,11 @@ export async function generateNewBusinessLetter(data: NewBusinessLetterData): Pr
   y -= 18
 
   // ── 7. IMPORTANT DISCLOSURE ───────────────────────────────────────────────
-  const disclosure =
-    'OpaBiz is a trade name of Florida Business Formation Center — a professional document preparation and ' +
-    'filing service. We are not a law firm and do not provide legal, tax, or financial advice. Our services do ' +
-    'not constitute the practice of law and do not create an attorney-client relationship. All filings are ' +
-    'subject to approval by the Florida Division of Corporations and the IRS. For legal or tax guidance specific ' +
-    'to your situation, we encourage you to consult a licensed Florida attorney or certified public accountant. ' +
-    'Florida Business Formation Center is not affiliated with, endorsed by, or approved by any federal, state, ' +
-    'or local government agency, including the IRS, the U.S. Department of Labor, or the Florida Division of ' +
-    'Corporations. This notice is not a bill, invoice, or demand for payment. The services described are optional.'
-
   ensure(24)
   y -= 6
-  t('IMPORTANT DISCLOSURE', MX, y, bold, 8.5, NAVY)
+  t(C.disclosureHeading, MX, y, bold, 8.5, NAVY)
   y -= 12
-  para(disclosure, regular, 6.8, 9, GRAY)
+  para(C.disclosure, regular, 6.8, 9, GRAY)
 
   return doc.save()
 }
