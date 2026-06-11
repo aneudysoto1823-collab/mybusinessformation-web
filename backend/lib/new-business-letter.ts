@@ -203,7 +203,7 @@ export async function generateNewBusinessLetter(data: NewBusinessLetterData): Pr
     const qrY = y - payH + 10          // bottom del QR con padding inferior
     page.drawImage(qrImage, { x: qrX, y: qrY, width: qrDim, height: qrDim })
     // Label debajo del QR
-    centered('↑ Scan to pay', MX, CW, qrY - 10, regular, 7, GRAY)
+    centered('Scan above to pay', MX, CW, qrY - 10, regular, 7, GRAY)
   }
   y -= payH + 12
 
