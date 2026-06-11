@@ -217,19 +217,31 @@ Precios en checkout (`/api/sunbiz/checkout`):
 
 Estados de `prospective_companies.status`: `new → email_sent → qr_scanned → purchased`
 
-### Carta física de cumplimiento (PDF) — 2026-06-08
+### Carta física de cumplimiento (PDF) — rediseñada 2026-06-11
 
 Generador: `backend/lib/new-business-letter.ts` (usa `pdf-lib` + `qrcode`)
 API: `POST /api/campaigns/generate-letter` → devuelve PDF con datos de la empresa
 Panel admin: botón 👁 (preview en nueva pestaña) y 📄 (descarga) por empresa en `/admin/campaigns`
 
-Diseño: logo circular FBFC navy, título "YYYY NOTICE OF BUSINESS COMPLIANCE SERVICES", tabla de info (Document ID / Notice Date / Respond By / Total Fee en dorado), dirección del cliente, 3 columnas de servicios, sección PAY ONLINE con QR dinámico, footer legal.
+**Diseño (template tipo carta de negocio, una página, sin líneas divisorias):**
+1. Título centrado "BUSINESS COMPLIANCE INFORMATION NOTICE" (sin recuadro ni subtítulo)
+2. Membrete: logo circular FBFC navy + "FLORIDA BUSINESS FORMATION CENTER" + dirección física (`3700 SW 27TH ST Suite D104 / GAINESVILLE FL 32608`) + `mybusinessformation.com` a la derecha
+3. Destinatario (izq): empresa + dirección del cliente — el nombre personal del owner NO se imprime (va dirigida al negocio)
+4. Recuadro de registro (der, franja navy arriba): Document Number, Registration Date, Notice Date, Entity Type
+5. Cuerpo neutro (2 párrafos) + "Congratulations on the recent registration of {companyName}"
+6. Grilla de 3 servicios con precio en negro y resumen: Labor Law Posters $120 · EIN (Tax ID) $161 · Certificate of Status $79
+7. CTA discreto + QR (`mybusinessformation.com/?id=...`) + dominio
+8. Important Disclosure = texto de la home + 2 cláusulas: no-afiliación gubernamental y "not a bill, invoice, or demand for payment"
 
-Variables de la carta: `documentId, ownerName, companyName, address, city, zip, noticeDate, respondBy, totalFee, payUrl, year`
+**Decisiones de contenido conscientes:** se mantienen precios visibles (no hay Total Fee ni deadline "Respond By"); el remitente es "Florida Business Formation Center" (sin LLC); sin teléfono. Fechas en formato largo (`February 17, 2026`); `noticeDate` se autogenera con la fecha de hoy; `entityType` se deriva del `company_type` (LLC→Florida LLC, CORP→Florida Corporation).
 
-**Validación del endpoint (2026-06-10):** solo `documentId, ownerName, companyName, payUrl` son obligatorios. `address/city/zip` son opcionales (la carta se genera igual sin dirección — útil para preview; pero para enviar por USPS sí hace falta). La generación del PDF está en `try/catch`: si falla, devuelve `500 { error: "PDF generation failed: <msg>" }` y el admin UI muestra el mensaje en la barra de campañas.
+Variables del template (`NewBusinessLetterData`): `documentId, companyName, registrationDate, noticeDate, entityType, payUrl` + opcionales `ownerName, address, city, zip`. Texto fijo: título, membrete, párrafos, servicios+precios, CTA, disclosure.
 
-**⚠️ Gotcha de pdf-lib (WinAnsi):** las `StandardFonts` de pdf-lib solo codifican WinAnsi (CP1252). NO usar caracteres especiales como `↑ ↓ → • ★ ✓` en el texto de la carta — rompen la generación con `WinAnsi cannot encode "X"`. Las rayas `— –` y comillas curvas sí están soportadas. Si se necesitan íconos, embeber una fuente con `pdfDoc.embedFont(bytes, { subset: true })`.
+**Validación del endpoint:** obligatorios `documentId, companyName, payUrl`; el resto opcional (si una variable viene vacía, esa línea no se imprime). La generación del PDF está en `try/catch`: si falla, devuelve `500 { error: "PDF generation failed: <msg>" }` y el admin UI muestra el mensaje en la barra de campañas.
+
+**Dominio + redirect SEO:** la carta y el QR usan `mybusinessformation.com` (congruente con el remitente legal). `next.config.ts` hace **301 de `mybusinessformation.com` (apex + www, cualquier path) → `https://opabiz.com/new-business`**, conservando el `?id=` automáticamente. Esto evita contenido duplicado (opabiz.com/new-business es el único canonical indexado) y consolida la autoridad SEO del dominio legacy. **Requiere que `mybusinessformation.com` siga agregado como dominio del proyecto en Vercel.** El flujo sin escaneo ya funciona: en `/new-business` el cliente teclea su Document Number (12 chars) y la página auto-busca y autollena los datos ([page.tsx:936](backend/app/new-business/page.tsx#L936)).
+
+**⚠️ Gotcha de pdf-lib (WinAnsi):** las `StandardFonts` de pdf-lib solo codifican WinAnsi (CP1252). NO usar caracteres especiales como `↑ ↓ → • ★ ✓` en el texto de la carta — rompen la generación con `WinAnsi cannot encode "X"`. Las rayas `— –`, el middot `·` y comillas curvas sí están soportados. Si se necesitan íconos, embeber una fuente con `pdfDoc.embedFont(bytes, { subset: true })`.
 
 Pendiente: sustituir logo provisional "FBFC" por logo real cuando esté disponible.
 
