@@ -37,22 +37,27 @@ export async function POST(req: NextRequest) {
   // Total fee = sum of all 3 services
   const totalFee = '$360.00'
 
-  const pdfBytes = await generateNewBusinessLetter({
-    documentId,
-    ownerName,
-    companyName,
-    address,
-    city,
-    zip,
-    noticeDate: fmt(now),
-    respondBy: fmt(respondBy),
-    totalFee,
-    payUrl,
-    year: now.getFullYear(),
-  })
+  let pdfBytes: Uint8Array
+  try {
+    pdfBytes = await generateNewBusinessLetter({
+      documentId,
+      ownerName,
+      companyName,
+      address,
+      city,
+      zip,
+      noticeDate: fmt(now),
+      respondBy: fmt(respondBy),
+      totalFee,
+      payUrl,
+      year: now.getFullYear(),
+    })
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error('[generate-letter] PDF generation failed:', msg)
+    return NextResponse.json({ error: `PDF generation failed: ${msg}` }, { status: 500 })
+  }
 
-  // pdf-lib retorna Uint8Array<ArrayBufferLike>; NextResponse espera el variant
-  // sobre ArrayBuffer plano. Re-empaquetar con Buffer evita el TS2345 sin copiar bytes.
   return new NextResponse(Buffer.from(pdfBytes), {
     headers: {
       'Content-Type': 'application/pdf',
