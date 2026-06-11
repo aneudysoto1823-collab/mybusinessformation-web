@@ -204,7 +204,9 @@ POST /api/campaigns/generate-letter
 
 **Response**: `application/pdf` con `Content-Disposition: attachment; filename="notice-L26000127092.pdf"`.
 
-**Validación**: si falta cualquier campo → `400 Missing required fields`. Cero validación de formato (no verifica que `documentId` exista en `sunbiz_corps`, no valida ZIP, etc.).
+**Validación** (actualizado 2026-06-10): solo `documentId`, `ownerName`, `companyName` y `payUrl` son obligatorios → si falta alguno, `400 Missing required fields`. **`address`, `city` y `zip` son opcionales** — la carta se genera igual sin ellos (útil para preview / empresas sin dirección física en la DB). Cero validación de formato (no verifica que `documentId` exista en `sunbiz_corps`, no valida ZIP, etc.).
+
+**Manejo de errores** (actualizado 2026-06-10): la generación del PDF está envuelta en `try/catch`. Si `generateNewBusinessLetter` lanza, el endpoint loguea `[generate-letter] PDF generation failed: <msg>` y devuelve `500 { error: "PDF generation failed: <msg>" }` en vez de romper la request sin contexto. El admin UI puede mostrar el mensaje al operador.
 
 ### Computación server-side
 
@@ -283,13 +285,13 @@ Ambos botones en la columna de acciones de cada empresa listada en `/admin/campa
 
 ### Datos mínimos requeridos por carta
 
-Para que la carta sea válida, la empresa debe tener en `prospective_companies` (o `sunbiz_corps`):
-- `document_id` (siempre presente — es la PK efectiva)
-- `company_name`
-- `owner_name` (si falta, usa `company_name`)
-- `address` + `city` + `zip`
+Para que el endpoint genere la carta, la empresa debe tener:
+- `document_id` (siempre presente — es la PK efectiva) — **obligatorio**
+- `company_name` — **obligatorio**
+- `owner_name` (si falta, usa `company_name`) — **obligatorio** (el admin UI lo rellena con company_name)
+- `address` + `city` + `zip` — **opcionales** (desde 2026-06-10 el PDF se genera sin ellos)
 
-Si falta address/city/zip → la carta no se puede enviar (no hay dirección física). El admin debería filtrar la tabla por empresas con dirección completa antes de generar.
+El PDF se genera aunque falte address/city/zip, pero **para enviar físicamente por USPS sí hace falta la dirección**. El admin debería filtrar la tabla por empresas con dirección completa antes del batch de impresión. La opcionalidad existe para poder hacer preview o generar la carta de empresas cuya dirección aún no está en la DB.
 
 ---
 
