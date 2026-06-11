@@ -227,6 +227,10 @@ Diseño: logo circular FBFC navy, título "YYYY NOTICE OF BUSINESS COMPLIANCE SE
 
 Variables de la carta: `documentId, ownerName, companyName, address, city, zip, noticeDate, respondBy, totalFee, payUrl, year`
 
+**Validación del endpoint (2026-06-10):** solo `documentId, ownerName, companyName, payUrl` son obligatorios. `address/city/zip` son opcionales (la carta se genera igual sin dirección — útil para preview; pero para enviar por USPS sí hace falta). La generación del PDF está en `try/catch`: si falla, devuelve `500 { error: "PDF generation failed: <msg>" }` y el admin UI muestra el mensaje en la barra de campañas.
+
+**⚠️ Gotcha de pdf-lib (WinAnsi):** las `StandardFonts` de pdf-lib solo codifican WinAnsi (CP1252). NO usar caracteres especiales como `↑ ↓ → • ★ ✓` en el texto de la carta — rompen la generación con `WinAnsi cannot encode "X"`. Las rayas `— –` y comillas curvas sí están soportadas. Si se necesitan íconos, embeber una fuente con `pdfDoc.embedFont(bytes, { subset: true })`.
+
 Pendiente: sustituir logo provisional "FBFC" por logo real cuando esté disponible.
 
 ---
