@@ -239,11 +239,15 @@ Variables del template (`NewBusinessLetterData`): `documentId, companyName, regi
 
 **Validación del endpoint:** obligatorios `documentId, companyName, payUrl`; el resto opcional (si una variable viene vacía, esa línea no se imprime). La generación del PDF está en `try/catch`: si falla, devuelve `500 { error: "PDF generation failed: <msg>" }` y el admin UI muestra el mensaje en la barra de campañas.
 
+**Bilingüe EN/ES (2026-06-11):** el texto fijo vive en un objeto `T = { en, es }` dentro de `new-business-letter.ts` (tipo `Lang = 'en' | 'es'`); el layout es idéntico y solo cambia el contenido según `data.lang` (default `en`). El endpoint recibe `lang`, localiza fechas (`es-ES` → `17 de febrero de 2026`) y `entityType` (`LLC de Florida`). El panel `/admin/campaigns` tiene un selector **"Letter format: EN/ES"** (estado `letterLang`) en la barra de acciones que controla preview 👁 y descarga 📄; el idioma va en el nombre del archivo (`notice-<id>-<lang>.pdf`). El disclosure ya NO menciona "OpaBiz" (en la carta la marca visible es FBFC) — arranca con "Florida Business Formation Center is a professional…". Acentos/ñ/¿/¡ son WinAnsi-safe (CP1252 cubre Latin-1 + español).
+
 **Dominio + redirect SEO:** la carta y el QR usan `mybusinessformation.com` (congruente con el remitente legal). `next.config.ts` hace **301 de `mybusinessformation.com` (apex + www, cualquier path) → `https://opabiz.com/new-business`**, conservando el `?id=` automáticamente. Esto evita contenido duplicado (opabiz.com/new-business es el único canonical indexado) y consolida la autoridad SEO del dominio legacy. **Requiere que `mybusinessformation.com` siga agregado como dominio del proyecto en Vercel.** El flujo sin escaneo ya funciona: en `/new-business` el cliente teclea su Document Number (12 chars) y la página auto-busca y autollena los datos ([page.tsx:936](backend/app/new-business/page.tsx#L936)).
 
 **⚠️ Gotcha de pdf-lib (WinAnsi):** las `StandardFonts` de pdf-lib solo codifican WinAnsi (CP1252). NO usar caracteres especiales como `↑ ↓ → • ★ ✓` en el texto de la carta — rompen la generación con `WinAnsi cannot encode "X"`. Las rayas `— –`, el middot `·` y comillas curvas sí están soportados. Si se necesitan íconos, embeber una fuente con `pdfDoc.embedFont(bytes, { subset: true })`.
 
-Pendiente: sustituir logo provisional "FBFC" por logo real cuando esté disponible.
+**Pendientes de la carta:**
+- [ ] Sustituir logo provisional "FBFC" por logo real cuando esté disponible.
+- [ ] Verificar en el deploy que el 301 de `mybusinessformation.com` funcione y que el QR autollene (el dominio ya apunta al proyecto en Vercel — confirmado por el usuario 2026-06-11).
 
 ---
 
