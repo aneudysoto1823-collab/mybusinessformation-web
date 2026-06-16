@@ -5842,7 +5842,7 @@ function fmEinIdTypeChange(radio) {
   var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
   document.getElementById('ein-ssn-field').style.display    = val === 'ssn'  ? 'block' : 'none';
   document.getElementById('ein-itin-field').style.display   = val === 'itin' ? 'block' : 'none';
-  document.getElementById('ein-no-id-warning').style.display = val === 'none' ? 'block' : 'none';
+  document.getElementById('ein-no-id-warning').style.display = 'none';
   // Style the selected radio label
   ['ein-has-ssn-lbl','ein-has-itin-lbl','ein-no-id-lbl'].forEach(function(id){
     var lbl = document.getElementById(id);
