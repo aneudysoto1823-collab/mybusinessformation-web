@@ -1726,7 +1726,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
                     <input type="radio" name="ein-id-type" id="ein-has-itin" value="itin" onchange="fmEinIdTypeChange(this)" style="cursor:pointer"/> ITIN
                   </label>
                   <label style="display:flex;align-items:center;gap:6px;font-size:.83rem;cursor:pointer;padding:9px 14px;border:1.5px solid #e2e8f0;border-radius:8px;flex:1;transition:all .2s;background:#fff" id="ein-no-id-lbl">
-                    <input type="radio" name="ein-id-type" id="ein-no-id" value="none" onchange="fmEinIdTypeChange(this)" style="cursor:pointer"/> <span id="ein-no-id-txt">I'm a foreigner — Request ITIN <span style="font-size:.72rem;font-weight:600;color:#f59e0b;background:#fef3c7;padding:1px 6px;border-radius:4px;margin-left:2px">+$69</span></span>
+                    <input type="radio" name="ein-id-type" id="ein-no-id" value="none" onchange="fmEinIdTypeChange(this)" style="cursor:pointer"/> <span id="ein-no-id-txt">I'm a foreigner, I don't have an SSN or ITIN</span>
                   </label>
                 </div>
               </div>
@@ -5414,7 +5414,7 @@ function fmTranslate(lang) {
 'tt-itin':isEs?'El ITIN es tu número de identificación fiscal si no tienes Número de Seguro Social de EE.UU. <strong>La mayoría de los bancos de EE.UU. lo exigen para abrir una cuenta bancaria empresarial</strong> — sin él, la mayoría de los bancos te rechazarán. También es obligatorio para declarar tus impuestos federales como dueño de negocio extranjero. Si planeas abrir una cuenta bancaria u operar en EE.UU., obtener tu ITIN ahora evita retrasos más adelante.':'An ITIN (Individual Taxpayer Identification Number) is your tax ID if you don\\'t have a U.S. Social Security Number. <strong>The majority of U.S. banks require it to open a business bank account</strong> — without one, most banks will turn you away. It\\'s also required to file your federal taxes as a foreign national business owner. If you plan to open a bank account or operate in the U.S., getting your ITIN now avoids delays later.',
 'ein-extra-header':isEs?'&#128203; Información adicional requerida para tu solicitud de EIN':'&#128203; Additional info needed for your EIN application',
 'lbl-ein-rp-id':isEs?'SSN / ITIN del Responsable Principal *':'SSN / ITIN of Responsible Party *',
-'ein-no-id-txt':isEs?'Soy extranjero — Solicitar ITIN <span style="font-size:.72rem;font-weight:600;color:#f59e0b;background:#fef3c7;padding:1px 6px;border-radius:4px;margin-left:2px">+$69</span>':'I\\'m a foreigner — Request ITIN <span style="font-size:.72rem;font-weight:600;color:#f59e0b;background:#fef3c7;padding:1px 6px;border-radius:4px;margin-left:2px">+$69</span>',
+'ein-no-id-txt':isEs?'Soy extranjero, no poseo SSN ni ITIN':'I\\'m a foreigner, I don\\'t have an SSN or ITIN',
 'lbl-ssn-1':isEs?'SSN *':'SSN *','lbl-ssn-2':isEs?'Confirmar SSN *':'Confirm SSN *','lbl-itin-1':isEs?'ITIN *':'ITIN *','lbl-itin-2':isEs?'Confirmar ITIN *':'Confirm ITIN *','ssn-privacy-note':isEs?'&#128274; Tu SSN está encriptado y nunca se almacena en texto simple.':'&#128274; Your SSN is encrypted and never stored in plain text.',
 'itin-privacy-note':isEs?'&#128274; Tu ITIN está encriptado y nunca se almacena en texto simple.':'&#128274; Your ITIN is encrypted and never stored in plain text.',
 'ein-warn-title':isEs?'Solicitud de ITIN agregada a tu orden':'ITIN Application added to your order',
