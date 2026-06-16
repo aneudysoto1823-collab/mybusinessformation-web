@@ -1699,7 +1699,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
               <div class="fm-addon-check" id="ein-check"></div>
               <div class="fm-addon-icon">&#127981;</div>
               <div>
-                <div class="fm-addon-name"><span id="addon-ein-name">EIN / Federal Tax ID Number</span> <span class="tt-wrap" style="vertical-align:middle"><span class="tt-icon">?<span class="tt-box" id="tt-ein">An EIN is like a Social Security Number for your business. The IRS requires it to open a business bank account, hire employees, and file taxes. Even if you don't plan to hire anyone, most banks won't let you open a business account without one.</span></span></span></div>
+                <div class="fm-addon-name"><span id="addon-ein-name">EIN / Federal Tax ID Number</span> <span class="tt-wrap" style="vertical-align:middle"><span class="tt-icon" style="width:0;min-width:0;height:0;padding:0;margin:0;border:0;background:none;font-size:0;color:transparent"><span class="tt-box" id="tt-ein">An EIN is like a Social Security Number for your business. The IRS requires it to open a business bank account, hire employees, and file taxes. Even if you don't plan to hire anyone, most banks won't let you open a business account without one.</span></span></span></div>
                 <div class="fm-addon-desc" id="addon-ein-desc">Required for bank accounts, hiring employees &amp; filing taxes</div>
               </div>
             </div>
@@ -1837,7 +1837,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
               <div class="fm-addon-check" id="oa-check"></div>
               <div class="fm-addon-icon">&#128196;</div>
               <div>
-                <div class="fm-addon-name"><span id="addon-oa-name">Operating Agreement</span> <span class="tt-wrap" style="vertical-align:middle"><span class="tt-icon">?<span class="tt-box" id="tt-oa">This is your business's internal rulebook — it defines who owns what, how decisions are made, and how profits are divided. Banks typically ask for it when you open a business checking account, and it protects you legally if there's ever a dispute between partners.</span></span></span></div>
+                <div class="fm-addon-name"><span id="addon-oa-name">Operating Agreement</span> <span class="tt-wrap" style="vertical-align:middle"><span class="tt-icon" style="width:0;min-width:0;height:0;padding:0;margin:0;border:0;background:none;font-size:0;color:transparent"><span class="tt-box" id="tt-oa">This is your business's internal rulebook — it defines who owns what, how decisions are made, and how profits are divided. Banks typically ask for it when you open a business checking account, and it protects you legally if there's ever a dispute between partners.</span></span></span></div>
                 <div class="fm-addon-desc" id="addon-oa-desc">Required by banks to open a business checking account</div>
               </div>
             </div>
@@ -1860,7 +1860,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
               <div class="fm-addon-check" id="itin-check"></div>
               <div class="fm-addon-icon">&#127760;</div>
               <div>
-                <div class="fm-addon-name"><span id="addon-itin-name">ITIN Application</span> <span class="tt-wrap" style="vertical-align:middle"><span class="tt-icon">?<span class="tt-box" id="tt-itin">An ITIN (Individual Taxpayer Identification Number) is your tax ID if you don't have a U.S. Social Security Number. <strong>The majority of U.S. banks require it to open a business bank account</strong> — without one, most banks will turn you away. It's also required to file your federal taxes as a foreign national business owner. If you plan to open a bank account or operate in the U.S., getting your ITIN now avoids delays later.</span></span></span></div>
+                <div class="fm-addon-name"><span id="addon-itin-name">ITIN Application</span> <span class="tt-wrap" style="vertical-align:middle"><span class="tt-icon" style="width:0;min-width:0;height:0;padding:0;margin:0;border:0;background:none;font-size:0;color:transparent"><span class="tt-box" id="tt-itin">An ITIN (Individual Taxpayer Identification Number) is your tax ID if you don't have a U.S. Social Security Number. <strong>The majority of U.S. banks require it to open a business bank account</strong> — without one, most banks will turn you away. It's also required to file your federal taxes as a foreign national business owner. If you plan to open a bank account or operate in the U.S., getting your ITIN now avoids delays later.</span></span></span></div>
                 <div class="fm-addon-desc" id="addon-itin-desc">For foreign nationals without a Social Security Number</div>
               </div>
             </div>
@@ -1872,7 +1872,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
               <div class="fm-addon-check" id="btr-check"></div>
               <div class="fm-addon-icon">&#127981;</div>
               <div>
-                <div class="fm-addon-name"><span id="addon-btr-name">Business Tax Receipt (BTR)</span> <span class="tt-wrap" style="vertical-align:middle"><span class="tt-icon">?<span class="tt-box" id="tt-btr">A Business Tax Receipt (formerly known as an Occupational License) is required by most Florida counties and cities to legally operate a business. It must be renewed annually and is separate from your state formation filing.</span></span></span></div>
+                <div class="fm-addon-name"><span id="addon-btr-name">Business Tax Receipt (BTR)</span> <span class="tt-wrap" style="vertical-align:middle"><span class="tt-icon" style="width:0;min-width:0;height:0;padding:0;margin:0;border:0;background:none;font-size:0;color:transparent"><span class="tt-box" id="tt-btr">A Business Tax Receipt (formerly known as an Occupational License) is required by most Florida counties and cities to legally operate a business. It must be renewed annually and is separate from your state formation filing.</span></span></span></div>
                 <div class="fm-addon-desc" id="addon-btr-desc">Required by most FL counties to operate legally</div>
               </div>
             </div>
@@ -1885,7 +1885,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
               <div class="fm-addon-check" id="str-check"></div>
               <div class="fm-addon-icon">&#128203;</div>
               <div>
-                <div class="fm-addon-name"><span id="addon-str-name">Sales Tax Registration</span> <span class="tt-wrap" style="vertical-align:middle"><span class="tt-icon">?<span class="tt-box" id="tt-str">If your business sells taxable goods or services in Florida, you are required to register with the Florida Department of Revenue to collect and remit sales tax. Businesses that sell without registering may face penalties and back taxes.</span></span></span></div>
+                <div class="fm-addon-name"><span id="addon-str-name">Sales Tax Registration</span> <span class="tt-wrap" style="vertical-align:middle"><span class="tt-icon" style="width:0;min-width:0;height:0;padding:0;margin:0;border:0;background:none;font-size:0;color:transparent"><span class="tt-box" id="tt-str">If your business sells taxable goods or services in Florida, you are required to register with the Florida Department of Revenue to collect and remit sales tax. Businesses that sell without registering may face penalties and back taxes.</span></span></span></div>
                 <div class="fm-addon-desc" id="addon-str-desc">Required if your business sells taxable goods or services in FL</div>
               </div>
             </div>
@@ -1898,7 +1898,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
               <div class="fm-addon-check" id="ar-check"></div>
               <div class="fm-addon-icon">&#128197;</div>
               <div>
-                <div class="fm-addon-name"><span id="addon-ar-name">Annual Report Filing Service</span> <span class="tt-wrap" style="vertical-align:middle"><span class="tt-icon">?<span class="tt-box" id="tt-ar">Every Florida business must file an Annual Report each year to stay active — even if your business has not started operating yet. The law makes no exceptions. The deadline is May 1st. Miss it and Florida automatically charges a $400 late fee. Keep ignoring it and the State can administratively dissolve your company.</span></span></span></div>
+                <div class="fm-addon-name"><span id="addon-ar-name">Annual Report Filing Service</span> <span class="tt-wrap" style="vertical-align:middle"><span class="tt-icon" style="width:0;min-width:0;height:0;padding:0;margin:0;border:0;background:none;font-size:0;color:transparent"><span class="tt-box" id="tt-ar">Every Florida business must file an Annual Report each year to stay active — even if your business has not started operating yet. The law makes no exceptions. The deadline is May 1st. Miss it and Florida automatically charges a $400 late fee. Keep ignoring it and the State can administratively dissolve your company.</span></span></span></div>
                 <div class="fm-addon-desc" id="addon-ar-desc">We file your FL Annual Report each year — deadline May 1st</div>
               </div>
             </div>
