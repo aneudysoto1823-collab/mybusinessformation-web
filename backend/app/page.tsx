@@ -692,6 +692,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 .tt-box::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:#e2e8f0}
 .tt-box::before{content:'';position:absolute;top:calc(100% - 1px);left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:#ffffff;z-index:1}
 .tt-wrap:hover .tt-box{visibility:visible;opacity:1}
+.fm-addon:hover .tt-box{visibility:visible;opacity:1}
 
 /* ── HAMBURGER ── */
 .hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none;padding:8px;margin-right:-6px;flex-shrink:0}
@@ -5859,19 +5860,6 @@ function fmEinIdTypeChange(radio) {
       activeLabel.style.background  = '#eff6ff';
     }
   }
-  // Auto-add ITIN addon when "foreigner" selected, remove when deselected
-  var itinAddon = document.getElementById('addon-itin');
-  if(val === 'none') {
-    if(!fmData.addons.itin) {
-      fmToggleAddon('itin', itinAddon);
-    }
-  } else {
-    // If ITIN was auto-added by us (not manually), remove it
-    if(fmData.addons.itin && fmData._itinAutoAdded) {
-      fmToggleAddon('itin', itinAddon);
-    }
-  }
-  fmData._itinAutoAdded = (val === 'none');
 }
 
 function fmFormatSSN(inp) {
