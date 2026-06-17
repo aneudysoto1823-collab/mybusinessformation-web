@@ -193,6 +193,12 @@ NEXT_PUBLIC_URL       # URL base del sitio (ej: https://opabiz.com) — usado en
 /legal /privacy /terms /about
 ```
 
+### Pendiente: servicio "Stripe Setup Guide" (placeholder)
+
+En `/servicios` se agregó una tarjeta **placeholder** llamada "Stripe Setup Guide" / "Guía Setup Stripe" con precio "Coming soon" y **sin modal** (clic no hace nada — `openServiceForm` la ignora con su guard `if(!svc)return`). Se agregó solo para mantener la grilla de servicios en **pares** (junto al nuevo Certified Copy).
+
+**Pendiente:** definir con el socio el servicio real (precio, qué incluye, formulario de orden) y completarlo. Cuando se defina, agregar: entrada en `serviceForms` + claves en los mapas `prEn/prEs/bgEn/bgEs/tmEn/tmEs/icEn/icEs` de `openServiceForm` (id: `stripe-setup-guide`), igual que los demás servicios.
+
 ---
 
 ## Sistema de Marketing Automation
