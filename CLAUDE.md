@@ -450,6 +450,21 @@ Emails implementados en `backend/modules/notifications/notifications.service.ts`
 
 Todos los emails usan WhatsApp `+13528377755`. Actualmente salen desde `onboarding@resend.dev` — pendiente migrar a dominio propio (lo trabaja el socio).
 
+### Email de contacto: split por dominio (2026-06-17)
+
+El email de contacto visible se divide según la marca de la superficie:
+
+- **Marketing / new business** (`/new-business` y sus legal/privacy/terms, cuerpo del email de campañas, página `/unsubscribe`) → **`info@mybusinessformation.com`**
+- **Sitio principal opabiz.com** (legal, terms, privacy, footers, home, client-portal) → **`info@opabiz.com`**
+- Se descartó `support@` — todo unificado a `info@`.
+
+**⚠️ Tarea pendiente — cambiar el remitente del email de marketing:**
+- Hoy el `FROM_EMAIL` del envío de campañas (`backend/app/api/campaigns/send/route.ts`, const cerca de la línea 14) **sigue en `info@opabiz.com`**.
+- Para que el email de marketing **salga desde** `info@mybusinessformation.com` (y el split quede completo), hay que:
+  1. **Verificar `mybusinessformation.com` en Resend** (SPF/DKIM). Sin esto, el envío falla.
+  2. Cambiar `FROM_EMAIL` a `'info@mybusinessformation.com'`.
+- **Ojo:** `mybusinessformation.com` solo hace 301 web a opabiz.com; el correo (MX) es aparte. Confirmar que `info@mybusinessformation.com` **reciba** email antes de publicarlo como contacto.
+
 ## Diseño de Login Pages
 
 Ambas páginas de login (`/login` y `/client-portal`) usan el mismo patrón visual:
