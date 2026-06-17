@@ -854,11 +854,11 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           <div class="svc-row"><span class="svc-name" data-en="Name Availability Search" data-es="Búsqueda de Nombre Disponible">Name Availability Search</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name">Guía Exclusiva de Formación</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name">BOI Filing (FinCEN)</span><span class="svc-status s-check">✓</span></div>
-          <div class="svc-row"><span class="svc-name" data-en="EIN / Tax ID Number" data-es="EIN / Número de ID Fiscal">EIN / Tax ID Number</span><span class="svc-status s-add">+ $49</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="EIN / Tax ID Number" data-es="EIN / Número de ID Fiscal">EIN / Tax ID Number</span><span class="svc-status s-add">+ $79</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Banking Resolution" data-es="Resolución Bancaria">Banking Resolution</span><span class="svc-status s-add">+ $49</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Business Tax Receipt" data-es="Recibo de Impuesto Empresarial">Business Tax Receipt</span><span class="svc-status s-add">+ $79</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Sales Tax Registration" data-es="Registro de Impuesto sobre Ventas">Sales Tax Registration</span><span class="svc-status s-add">+ $79</span></div>
-          <div class="svc-row"><span class="svc-name" data-en="Operating Agreement" data-es="Acuerdo Operativo">Operating Agreement</span><span class="svc-status s-add">+ $79</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="Operating Agreement" data-es="Acuerdo Operativo">Operating Agreement</span><span class="svc-status s-add">+ $59</span></div>
           <div class="svc-row"><span class="svc-name" data-en="DBA / Fictitious Name" data-es="DBA / Nombre Ficticio">DBA / Fictitious Name</span><span class="svc-status s-add">+ $49</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Articles of Amendment" data-es="Artículos de Enmienda">Articles of Amendment</span><span class="svc-status s-add">+ $59</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Registered Agent" data-es="Agente Registrado">Registered Agent</span><span class="svc-status" style="font-size:.68rem;color:#94a3b8" data-en="🕐 Coming Soon" data-es="🕐 Próximamente">🕐 Coming Soon</span></div>
@@ -886,7 +886,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           <div class="svc-row"><span class="svc-name" data-en="DBA / Fictitious Name" data-es="DBA / Nombre Ficticio">DBA / Fictitious Name</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Business Tax Receipt" data-es="Recibo de Impuesto Empresarial">Business Tax Receipt</span><span class="svc-status s-add">+ $79</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Sales Tax Registration" data-es="Registro de Impuesto sobre Ventas">Sales Tax Registration</span><span class="svc-status s-add">+ $79</span></div>
-          <div class="svc-row"><span class="svc-name" data-en="Operating Agreement" data-es="Acuerdo Operativo">Operating Agreement</span><span class="svc-status s-add">+ $79</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="Operating Agreement" data-es="Acuerdo Operativo">Operating Agreement</span><span class="svc-status s-add">+ $59</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Articles of Amendment" data-es="Artículos de Enmienda">Articles of Amendment</span><span class="svc-status s-add">+ $59</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Registered Agent" data-es="Agente Registrado">Registered Agent</span><span class="svc-status" style="font-size:.68rem;color:#94a3b8" data-en="🕐 Coming Soon" data-es="🕐 Próximamente">🕐 Coming Soon</span></div>
         </div>
@@ -1703,7 +1703,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
                 <div class="fm-addon-desc" id="addon-ein-desc">Required for bank accounts, hiring employees &amp; filing taxes</div>
               </div>
             </div>
-            <div class="fm-addon-price" id="addon-ein-price">$49</div>
+            <div class="fm-addon-price" id="addon-ein-price">$79</div>
           </div>
 
           <!-- EIN extra fields — shown only when EIN is selected -->
@@ -1841,7 +1841,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
                 <div class="fm-addon-desc" id="addon-oa-desc">Required by banks to open a business checking account</div>
               </div>
             </div>
-            <div class="fm-addon-price" id="addon-oa-price">$79</div>
+            <div class="fm-addon-price" id="addon-oa-price">$59</div>
           </div>
 
           <!-- OA extra fields — shown only when OA is selected AND ownership % is missing -->
@@ -2116,8 +2116,8 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
         <div class="fm-sum-line"><span class="fm-sum-lbl sum-state-lbl" id="sum-lbl-state">FL State Fee</span><span class="fm-sum-val sum-state-val">$125</span></div>
         <div class="fm-sum-line sum-exp-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-exp">Expedited Filing</span><span class="fm-sum-val">$99</span></div>
         <div class="fm-sum-line sum-vma-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-vma">Virtual Address</span><span class="fm-sum-val free">1st Month Free</span></div>
-        <div class="fm-sum-line sum-ein-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-ein">EIN / Tax ID</span><span class="fm-sum-val">$49</span></div>
-        <div class="fm-sum-line sum-oa-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-oa">Operating Agreement</span><span class="fm-sum-val">$79</span></div>
+        <div class="fm-sum-line sum-ein-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-ein">EIN / Tax ID</span><span class="fm-sum-val">$79</span></div>
+        <div class="fm-sum-line sum-oa-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-oa">Operating Agreement</span><span class="fm-sum-val">$59</span></div>
         <div class="fm-sum-line sum-itin-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-itin">ITIN Application</span><span class="fm-sum-val">$69</span></div>
         <div class="fm-sum-line sum-ar-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-ar">Annual Report</span><span class="fm-sum-val">Annual</span></div>
       </div>
@@ -3391,8 +3391,8 @@ function updateTotal() {
   var base  = prices[formData.package] || 149;
   var state = formData.entity === 'corp' ? 70 : 125;
   var extras = 0;
-  if(formData.addons.ein)  extras += 49;
-  if(formData.addons.oa)   extras += 79;
+  if(formData.addons.ein)  extras += 79;
+  if(formData.addons.oa)   extras += 59;
   if(formData.addons.itin) extras += 69;
   var expFree = formData.package === 'premium';
   if(formData.delivery === 'expedited' && !expFree) extras += 99;
@@ -4107,8 +4107,8 @@ function buildOrderReview() {
   // Addon items
   var addonLabels = {
     ra:   {en:'Registered Agent Service', es:'Servicio de Agente Registrado', price:isEs?'Tarifa Anual':'Annual Fee'},
-    ein:  {en:'EIN / Tax ID',             es:'EIN / ID Fiscal',               price:'$49'},
-    oa:   {en:'Operating Agreement',      es:'Acuerdo Operativo',             price:'$79'},
+    ein:  {en:'EIN / Tax ID',             es:'EIN / ID Fiscal',               price:'$79'},
+    oa:   {en:'Operating Agreement',      es:'Acuerdo Operativo',             price:'$59'},
     vma:  {en:'Virtual Mailing Address',  es:'Dirección Postal Virtual', price:isEs?'$29/mes':'$29/mo'},
     itin: {en:'ITIN Application',         es:'Solicitud de ITIN',             price:'$69'},
     web:  {en:'Professional Website',     es:'Sitio Web Profesional',         price:isEs?'Personalizado':'Custom'},
@@ -4798,8 +4798,8 @@ function fmUpdateSummary() {
   var base   = prices[pkg] || 149;
   var state  = fmData.entity === 'corp' ? 70 : 125;
   var extras = 0;
-  if(fmData.addons.ein)  extras += 49;
-  if(fmData.addons.oa)   extras += 79;
+  if(fmData.addons.ein)  extras += 79;
+  if(fmData.addons.oa)   extras += 59;
   if(fmData.addons.itin) extras += 69;
   if(fmData.addons.btr)  extras += 79;
   if(fmData.addons.str)  extras += 79;
@@ -4936,8 +4936,8 @@ function fmBuildReview() {
   var addBody = document.getElementById('rev-addons-body');
   if(addBody && anyAddon) {
     var items=[];
-    if(fmData.addons.ein)  items.push('<div class="fm-review-field"><label>EIN / Tax ID</label><span>$49</span></div>');
-    if(fmData.addons.oa)   items.push('<div class="fm-review-field"><label>Operating Agreement</label><span>$79</span></div>');
+    if(fmData.addons.ein)  items.push('<div class="fm-review-field"><label>EIN / Tax ID</label><span>$79</span></div>');
+    if(fmData.addons.oa)   items.push('<div class="fm-review-field"><label>Operating Agreement</label><span>$59</span></div>');
     if(fmData.addons.itin) items.push('<div class="fm-review-field"><label>ITIN Application</label><span>$69</span></div>');
     if(fmData.addons.btr)  items.push('<div class="fm-review-field"><label>'+(isEs?'Recibo de Impuesto Empresarial':'Business Tax Receipt')+'</label><span>$79</span></div>');
     if(fmData.addons.str)  items.push('<div class="fm-review-field"><label>'+(isEs?'Registro de Impuesto sobre Ventas':'Sales Tax Registration')+'</label><span>$79</span></div>');
@@ -5029,8 +5029,8 @@ async function fmSubmit() {
   var pkgPrices = { basic: 49, standard: 149, premium: 249 };
   var stateFee  = entity === 'corp' ? 70 : 125;
   var extras    = 0;
-  if(addons.ein)  extras += 49;
-  if(addons.oa)   extras += 79;
+  if(addons.ein)  extras += 79;
+  if(addons.oa)   extras += 59;
   if(addons.itin) extras += 69;
   if(speed === 'expedited' && pkg !== 'premium') extras += 99;
   var amount = (pkgPrices[pkg] || 49) + stateFee + extras;

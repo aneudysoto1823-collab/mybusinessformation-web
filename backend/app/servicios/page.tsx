@@ -11,7 +11,7 @@ type SchemaService = { id: string; name: string; description: string; priceUsd?:
 
 const SERVICIOS_FOR_SCHEMA: SchemaService[] = [
   { id: 'registered-agent', name: 'Registered Agent (Florida)', description: 'Physical FL street address that receives legal documents and government notices on behalf of your LLC or Corporation.' },
-  { id: 'ein', name: 'EIN / Tax ID Number', description: 'IRS-issued business tax identification number, required to open a bank account, hire employees, and file taxes.', priceUsd: 49 },
+  { id: 'ein', name: 'EIN / Tax ID Number', description: 'IRS-issued business tax identification number, required to open a bank account, hire employees, and file taxes.', priceUsd: 99 },
   { id: 'operating-agreement', name: 'Operating Agreement', description: 'Internal LLC document defining ownership, management structure, and member responsibilities. Required by most banks.', priceUsd: 79 },
   { id: 'itin', name: 'ITIN Application', description: 'IRS Individual Taxpayer Identification Number for non-US founders without a Social Security Number.', priceUsd: 135 },
   { id: 'dba', name: 'DBA / Fictitious Name Registration', description: 'Florida Fictitious Name registration so your business can operate under a name different from the legal entity name.', priceUsd: 49 },
@@ -19,8 +19,8 @@ const SERVICIOS_FOR_SCHEMA: SchemaService[] = [
   { id: 'annual-report', name: 'Annual Report Filing', description: 'Yearly required filing with the Florida Division of Corporations to keep the entity active.' },
   { id: 'amendment', name: 'Articles of Amendment', description: 'Filing to change company name, registered agent, address, or member structure with the State of Florida.', priceUsd: 59 },
   { id: 'banking-resolution', name: 'Banking Resolution', description: 'Corporate document authorizing signers and account openings, commonly required by banks.', priceUsd: 49 },
-  { id: 'business-tax-receipt', name: 'Business Tax Receipt', description: 'Local business tax receipt (occupational license) required by most Florida counties and municipalities to operate.', priceUsd: 79 },
-  { id: 'sales-tax-registration', name: 'Sales Tax Registration', description: 'Florida Department of Revenue sales tax permit (Form DR-1) for businesses selling taxable goods or services.', priceUsd: 79 },
+  { id: 'business-tax-receipt', name: 'Business Tax Receipt', description: 'Local business tax receipt (occupational license) required by most Florida counties and municipalities to operate.', priceUsd: 99 },
+  { id: 'sales-tax-registration', name: 'Sales Tax Registration', description: 'Florida Department of Revenue sales tax permit (Form DR-1) for businesses selling taxable goods or services.', priceUsd: 99 },
   { id: 'exclusive-guide', name: 'Exclusive Formation Guide', description: 'Curated bilingual guide covering post-formation steps to keep your Florida business compliant.', priceUsd: 49 },
   { id: 'good-standing', name: 'Certificate of Good Standing', description: 'Official Florida certificate confirming your business is active and up-to-date with state filings.', priceUsd: 49 },
   { id: 'scorp-election', name: 'S-Corp Election (IRS Form 2553)', description: 'Federal tax election to be treated as an S Corporation for pass-through taxation.', priceUsd: 79 },
@@ -137,7 +137,7 @@ export default function ServiciosPage() {
       time_en: '&#9889; Processing: Same business day filing with FL Division of Corporations',
       time_es: '&#9889; Procesamiento: Presentación el mismo día hábil ante la División de Corporaciones FL',
       btn_en: 'Order Registered Agent Service &#8594;', btn_es: 'Ordenar servicio de Agente Registrado &#8594;' },
-    { id: 'ein', icon: 'hash', name: 'EIN / Tax ID Number', name_es: 'EIN / Número de Identificación Fiscal', price: '$49',
+    { id: 'ein', icon: 'hash', name: 'EIN / Tax ID Number', name_es: 'EIN / Número de Identificación Fiscal', price: '$99',
       sub_en: 'One-time fee', sub_es: 'Pago único',
       desc_en: 'Your federal Employer Identification Number (EIN) is a 9-digit IRS number required to open a business bank account, hire employees, and file federal taxes.',
       desc_es: 'Tu Número de Identificación Fiscal federal (EIN) es un número de 9 dígitos del IRS necesario para abrir cuenta bancaria de negocios, contratar empleados y presentar impuestos federales.',
@@ -145,7 +145,7 @@ export default function ServiciosPage() {
       includes_es: ['Preparación y envío de la solicitud de EIN ante el IRS','Carta de confirmación del EIN (PDF)','Confirmación por correo con tu número de EIN','Necesario para abrir cuenta bancaria de negocios'],
       time_en: '&#9889; Processing: Typically 1–3 business days via IRS',
       time_es: '&#9889; Procesamiento: Típicamente 1-3 días hábiles vía IRS',
-      btn_en: 'Order EIN — $49 &#8594;', btn_es: 'Ordenar EIN — $49 &#8594;' },
+      btn_en: 'Order EIN — $99 &#8594;', btn_es: 'Ordenar EIN — $99 &#8594;' },
     { id: 'operating-agreement', icon: 'file-text', name: 'Operating Agreement', name_es: 'Acuerdo Operativo', price: '$79',
       sub_en: 'One-time fee', sub_es: 'Pago único',
       desc_en: "The Operating Agreement is your LLC's internal governing document — it defines ownership percentages, management roles, profit distribution, and decision-making rules.",
@@ -209,7 +209,7 @@ export default function ServiciosPage() {
       time_en: '&#9889; Processing: 1–2 business days',
       time_es: '&#9889; Procesamiento: 1-2 días hábiles',
       btn_en: 'Order Banking Resolution — $49 &#8594;', btn_es: 'Ordenar Resolución Bancaria — $49 &#8594;' },
-    { id: 'business-tax-receipt', icon: 'receipt', name: 'Business Tax Receipt', name_es: 'Recibo de Impuesto Empresarial', price: '$79',
+    { id: 'business-tax-receipt', icon: 'receipt', name: 'Business Tax Receipt', name_es: 'Recibo de Impuesto Empresarial', price: '$99',
       sub_en: '+ county fee', sub_es: '+ tarifa del condado',
       desc_en: 'A Business Tax Receipt (formerly Occupational License) is required to legally operate your business in most Florida counties. We handle the application and filing with your local county.',
       desc_es: 'Un Business Tax Receipt (antes Licencia Ocupacional) es requerido para operar legalmente tu negocio en la mayoría de condados de Florida. Nosotros manejamos la solicitud y presentación ante tu condado local.',
@@ -217,8 +217,8 @@ export default function ServiciosPage() {
       includes_es: ['Preparación de la solicitud de BTR específica de tu condado','Presentación ante tu condado local de Florida','Requerido para operar legalmente en condados de FL','Certificado de Business Tax Receipt entregado'],
       time_en: '&#9889; Processing: 3–7 business days',
       time_es: '&#9889; Procesamiento: 3-7 días hábiles',
-      btn_en: 'Order Business Tax Receipt — $79 &#8594;', btn_es: 'Ordenar Business Tax Receipt — $79 &#8594;' },
-    { id: 'sales-tax-registration', icon: 'trending-up', name: 'Sales Tax Registration', name_es: 'Registro de Impuesto sobre Ventas', price: '$79',
+      btn_en: 'Order Business Tax Receipt — $99 &#8594;', btn_es: 'Ordenar Business Tax Receipt — $99 &#8594;' },
+    { id: 'sales-tax-registration', icon: 'trending-up', name: 'Sales Tax Registration', name_es: 'Registro de Impuesto sobre Ventas', price: '$99',
       sub_en: 'One-time fee', sub_es: 'Pago único',
       desc_en: 'Any Florida business that sells products or taxable services must register with the Florida Department of Revenue to collect and remit sales tax. We handle the registration on your behalf.',
       desc_es: 'Todo negocio en Florida que vende productos o servicios gravables debe registrarse con el Departamento de Ingresos de Florida para cobrar y remitir el impuesto sobre ventas. Manejamos el registro por ti.',
@@ -226,7 +226,7 @@ export default function ServiciosPage() {
       includes_es: ['Registro con el Departamento de Ingresos de FL','Certificado de impuesto sobre ventas (DR-11)','Requerido para negocios que venden bienes gravables','Instrucciones de presentación incluidas'],
       time_en: '&#9889; Processing: 2–5 business days',
       time_es: '&#9889; Procesamiento: 2-5 días hábiles',
-      btn_en: 'Order Sales Tax Registration — $79 &#8594;', btn_es: 'Ordenar Registro de Impuesto sobre Ventas — $79 &#8594;' },
+      btn_en: 'Order Sales Tax Registration — $99 &#8594;', btn_es: 'Ordenar Registro de Impuesto sobre Ventas — $99 &#8594;' },
     { id: 'exclusive-guide', icon: 'book-open', name: 'Exclusive Formation Guide', name_es: 'Guía Exclusiva de Formación', price: '$49',
       sub_en: 'One-time fee', sub_es: 'Pago único',
       desc_en: 'Our Exclusive Formation Guide gives you everything you need to get your Florida business off to the best possible start — from banking requirements to compliance checklists.',
@@ -747,11 +747,11 @@ var serviceForms={
     <div class="disclaimer">Florida Business Formation Center is not a law firm. We do not provide legal advice.</div>\`
 },
 'ein':{
-  title:'EIN / Tax ID Number — $49',
-  title_es:'Número EIN / ID Fiscal — $49',
+  title:'EIN / Tax ID Number — $99',
+  title_es:'Número EIN / ID Fiscal — $99',
   sub:'IRS Form SS-4 preparation and submission. Required to open a business bank account.',
   sub_es:'Preparación y envío del Formulario SS-4 del IRS. Requerido para abrir una cuenta bancaria empresarial.',
-  price:'$49',
+  price:'$99',
   html:\`
     <div class="info-box"><strong>Federal Requirement:</strong> Your EIN is issued by the IRS and required for federal taxes, opening a business bank account, and hiring employees.</div>
     <div class="form-group"><label class="form-label">Número de Registro Estatal</label><input type="text" class="form-input" placeholder="Optional — helps confirm entity" onblur="lookupFLDoc(this)"/><div id="fldoc-status" style="margin-top:5px;min-height:18px"></div></div>
@@ -772,8 +772,8 @@ var serviceForms={
     <div class="form-group"><label class="form-label">Phone Number</label><input type="tel" class="form-input" placeholder="(XXX) XXX-XXXX"/></div>
     <div class="form-group"><label class="form-label">Primary Business Activity</label><select class="select-input"><option>Retail &amp; E-Commerce</option><option>Real Estate</option><option>Restaurant / Food Service</option><option>Construction</option><option>Technology</option><option>Consulting</option><option>Import / Export</option><option>Health &amp; Wellness</option><option>Other</option></select></div>
     <div class="form-group"><label class="form-label">Electronic Signature *</label><input type="text" class="form-input" placeholder="Type full legal name"/></div>
-    <div class="summary-box"><div class="summary-row"><span>EIN Application Service</span><span>$49</span></div><div class="summary-row"><span>IRS Filing Fee</span><span>FREE</span></div><div class="summary-row"><span style="font-weight:700">Total Today</span><span>$49</span></div></div>
-    <button class="btn-submit-svc" onclick="submitService()">Order EIN — $49 &#8594;</button>
+    <div class="summary-box"><div class="summary-row"><span>EIN Application Service</span><span>$99</span></div><div class="summary-row"><span>IRS Filing Fee</span><span>FREE</span></div><div class="summary-row"><span style="font-weight:700">Total Today</span><span>$99</span></div></div>
+    <button class="btn-submit-svc" onclick="submitService()">Order EIN — $99 &#8594;</button>
     <div class="disclaimer">EIN is issued by the IRS. Processing typically takes 1–3 business days after we submit.</div>\`
 },
 'operating-agreement':{
@@ -1026,11 +1026,11 @@ var serviceForms={
     <div class="disclaimer">Florida Business Formation Center is a document preparation service, not a law firm. We do not provide legal advice.</div>\`
 },
 'business-tax-receipt':{
-  title:'Business Tax Receipt — $79',
-  title_es:'Recibo de Impuesto Empresarial — $79',
+  title:'Business Tax Receipt — $99',
+  title_es:'Recibo de Impuesto Empresarial — $99',
   sub:'BTR application filed with your local Florida county. Required to legally operate in most FL counties.',
   sub_es:'Solicitud del Business Tax Receipt presentada ante tu condado local. Requerido para operar legalmente en la mayoría de condados de FL.',
-  price:'$79 + county fee',
+  price:'$99 + county fee',
   html:\`
     <div class="info-box"><strong>Florida State Requirement:</strong> A Business Tax Receipt (formerly Occupational License) is required to legally operate in most Florida counties. The county fee varies by county and business type.</div>
     <div class="form-group"><label class="form-label">Número de Registro Estatal</label><input type="text" class="form-input" placeholder="e.g. L23000123456" onblur="lookupFLDoc(this)"/><div id="fldoc-status" style="margin-top:5px;min-height:18px"></div></div>
@@ -1051,16 +1051,16 @@ var serviceForms={
     <div class="form-group"><label class="form-label">Email *</label><input type="email" class="form-input" placeholder="you@email.com"/></div>
     <div class="form-group"><label class="form-label">Phone *</label><input type="tel" class="form-input" placeholder="(XXX) XXX-XXXX"/></div>
     <div class="form-group"><label class="form-label">Electronic Signature *</label><input type="text" class="form-input" placeholder="Type full legal name"/></div>
-    <div class="summary-box"><div class="summary-row"><span>BTR Service Fee</span><span>$79</span></div><div class="summary-row"><span>County Filing Fee</span><span>Varies by county</span></div><div class="summary-row"><span style="font-weight:700">Service Fee Due Today</span><span>$79</span></div></div>
-    <button class="btn-submit-svc" onclick="submitService()">Order Business Tax Receipt — $79 &#8594;</button>
-    <div class="disclaimer">County filing fee is paid separately to your local Florida county. Our $79 covers application preparation and filing assistance.</div>\`
+    <div class="summary-box"><div class="summary-row"><span>BTR Service Fee</span><span>$99</span></div><div class="summary-row"><span>County Filing Fee</span><span>Varies by county</span></div><div class="summary-row"><span style="font-weight:700">Service Fee Due Today</span><span>$99</span></div></div>
+    <button class="btn-submit-svc" onclick="submitService()">Order Business Tax Receipt — $99 &#8594;</button>
+    <div class="disclaimer">County filing fee is paid separately to your local Florida county. Our $99 covers application preparation and filing assistance.</div>\`
 },
 'sales-tax-registration':{
-  title:'Sales Tax Registration — $79',
-  title_es:'Registro de Impuesto sobre Ventas — $79',
+  title:'Sales Tax Registration — $99',
+  title_es:'Registro de Impuesto sobre Ventas — $99',
   sub:'Florida Department of Revenue registration to collect and remit sales tax (Form DR-1).',
   sub_es:'Registro ante el Departamento de Ingresos de Florida para cobrar y remitir el impuesto sobre ventas (Formulario DR-1).',
-  price:'$79',
+  price:'$99',
   html:\`
     <div class="info-box"><strong>Florida State Requirement:</strong> Any business selling taxable products or services in Florida must register with the FL Department of Revenue. Unregistered businesses face penalties and back taxes.</div>
     <div class="form-group"><label class="form-label">Número de Registro Estatal</label><input type="text" class="form-input" placeholder="e.g. L23000123456" onblur="lookupFLDoc(this)"/><div id="fldoc-status" style="margin-top:5px;min-height:18px"></div></div>
@@ -1082,8 +1082,8 @@ var serviceForms={
     <div class="form-group"><label class="form-label">Title / Role *</label><select class="select-input"><option>Managing Member</option><option>Manager</option><option>Owner</option><option>President</option><option>Officer / Director</option></select></div>
     <div class="form-group"><label class="form-label">Email *</label><input type="email" class="form-input" placeholder="you@email.com"/></div>
     <div class="form-group"><label class="form-label">Electronic Signature *</label><input type="text" class="form-input" placeholder="Type full legal name"/></div>
-    <div class="summary-box"><div class="summary-row"><span>Sales Tax Registration Service</span><span>$79</span></div><div class="summary-row"><span>FL DOR Registration Fee</span><span>FREE</span></div><div class="summary-row"><span style="font-weight:700">Total Today</span><span>$79</span></div></div>
-    <button class="btn-submit-svc" onclick="submitService()">Order Sales Tax Registration — $79 &#8594;</button>
+    <div class="summary-box"><div class="summary-row"><span>Sales Tax Registration Service</span><span>$99</span></div><div class="summary-row"><span>FL DOR Registration Fee</span><span>FREE</span></div><div class="summary-row"><span style="font-weight:700">Total Today</span><span>$99</span></div></div>
+    <button class="btn-submit-svc" onclick="submitService()">Order Sales Tax Registration — $99 &#8594;</button>
     <div class="disclaimer">Registration is with the Florida Department of Revenue. Sales tax must be collected and remitted on taxable sales. We do not provide tax advice.</div>\`
 },
 'exclusive-guide':{
@@ -1304,7 +1304,7 @@ function setLang(lang){
   var st=document.getElementById('svc-section-title'); if(st)st.textContent=isEs?'Todo lo que tu Negocio Necesita':'Everything Your Business Needs';
   var ss=document.getElementById('svc-section-sub'); if(ss)ss.textContent=isEs?'Servicios individuales para cada necesidad de tu negocio.':'Individual services for every business need.';
   document.querySelectorAll('.svc-includes-title').forEach(function(el){el.textContent=isEs?'Qué incluye':"What's included";});
-  var prM={'registered-agent':isEs?'<strong>Tarifa Anual</strong> &nbsp;&middot;&nbsp; Requerido por ley en FL':'<strong>Annual Fee</strong> &nbsp;&middot;&nbsp; Required by FL law','ein':isEs?'<strong>$49</strong> &nbsp;&middot;&nbsp; Pago único':'<strong>$49</strong> &nbsp;&middot;&nbsp; One-time fee','operating-agreement':isEs?'<strong>$79</strong> &nbsp;&middot;&nbsp; Pago único':'<strong>$79</strong> &nbsp;&middot;&nbsp; One-time fee','itin':isEs?'<strong>$135</strong> &nbsp;&middot;&nbsp; Pago único':'<strong>$135</strong> &nbsp;&middot;&nbsp; One-time fee','dba':isEs?'<strong>$49 + tarifa estatal FL</strong>':'<strong>$49 + FL state fee</strong>','virtual-address':isEs?'<strong>$29/mes</strong> &nbsp;&middot;&nbsp; Cancela cuando quieras':'<strong>$29/month</strong> &nbsp;&middot;&nbsp; Cancel anytime','annual-report':isEs?'<strong>Servicio Anual</strong> &nbsp;&middot;&nbsp; Fecha Límite FL: 1 de mayo':'<strong>Annual Service</strong> &nbsp;&middot;&nbsp; FL Deadline: May 1','amendment':isEs?'<strong>$59 + tarifa estatal FL</strong>':'<strong>$59 + FL state fee</strong>'};
+  var prM={'registered-agent':isEs?'<strong>Tarifa Anual</strong> &nbsp;&middot;&nbsp; Requerido por ley en FL':'<strong>Annual Fee</strong> &nbsp;&middot;&nbsp; Required by FL law','ein':isEs?'<strong>$99</strong> &nbsp;&middot;&nbsp; Pago único':'<strong>$99</strong> &nbsp;&middot;&nbsp; One-time fee','operating-agreement':isEs?'<strong>$79</strong> &nbsp;&middot;&nbsp; Pago único':'<strong>$79</strong> &nbsp;&middot;&nbsp; One-time fee','itin':isEs?'<strong>$135</strong> &nbsp;&middot;&nbsp; Pago único':'<strong>$135</strong> &nbsp;&middot;&nbsp; One-time fee','dba':isEs?'<strong>$49 + tarifa estatal FL</strong>':'<strong>$49 + FL state fee</strong>','virtual-address':isEs?'<strong>$29/mes</strong> &nbsp;&middot;&nbsp; Cancela cuando quieras':'<strong>$29/month</strong> &nbsp;&middot;&nbsp; Cancel anytime','annual-report':isEs?'<strong>Servicio Anual</strong> &nbsp;&middot;&nbsp; Fecha Límite FL: 1 de mayo':'<strong>Annual Service</strong> &nbsp;&middot;&nbsp; FL Deadline: May 1','amendment':isEs?'<strong>$59 + tarifa estatal FL</strong>':'<strong>$59 + FL state fee</strong>'};
   Object.keys(prM).forEach(function(sid){var card=document.getElementById(sid);if(!card)return;var pd=card.querySelector('.svc-price');if(pd)pd.innerHTML=prM[sid];});
   var iE={'registered-agent':['Dirección oficial en FL para tu negocio','Acepta notificaciones y documentos legales','Cambio de Agente Registrado tramitado ante el estado','Reenvío de documentos y notificación por correo'],'ein':['Preparación y envío de la solicitud de EIN ante el IRS','Verificación del nombre del negocio','Entrega del EIN en 1-3 días hábiles','Soporte durante todo el proceso'],'operating-agreement':['Acuerdo Operativo personalizado para tu LLC','Cubre estructura de propiedad, gestión y finanzas','Entrega digital en 2-5 días hábiles','Listo para bancos e instituciones financieras'],'itin':['Preparación del Formulario W-7 del IRS','Guía sobre documentos requeridos','Presentación ante el IRS en tu nombre','El ITIN llega en 6-10 semanas (procesamiento IRS)'],'dba':['Registro del Nombre Ficticio ante la División de Corporaciones FL','Validez por 5 años','Publicación en periódico si aplica','Entrega en 1-3 días hábiles'],'virtual-address':['Dirección postal profesional en Florida','Recepción y escaneo de correspondencia','Notificación digital cuando llega correo','Tu dirección personal no aparece en registros públicos'],'annual-report':['Preparación y envío de la Declaración Anual ante el estado','Verificación de datos registrados','Confirmación de presentación exitosa','Protección contra multas y disolución'],'amendment':['Preparación del documento de enmienda','Tramitación ante la División de Corporaciones FL','Verificación de registros actuales','Confirmación y entrega en 1-3 días hábiles']};
   var iEn={'registered-agent':['Official FL street address for your business','Accepts service of process &amp; legal documents','Change of Registered Agent filed with state','Document forwarding &amp; email notifications'],'ein':['IRS EIN application preparation and submission','Business name verification','EIN delivered within 1-3 business days','Full support throughout the process'],'operating-agreement':['Custom Operating Agreement for your LLC','Covers ownership, management &amp; finances','Digital delivery in 2-5 business days','Ready for banks and financial institutions'],'itin':['IRS Form W-7 preparation','Guidance on required documents','Filing with the IRS on your behalf','ITIN arrives in 6-10 weeks (IRS processing)'],'dba':['Fictitious Name registration with FL Division of Corporations','Valid for 5 years','Newspaper publication if required','Delivered in 1-3 business days'],'virtual-address':['Professional FL mailing address','Mail receipt and scanning','Digital notification when mail arrives','Your personal address stays off public records'],'annual-report':['Annual Report preparation and submission to the state','Verification of current registered data','Confirmation of successful filing','Protection against late fees and dissolution'],'amendment':['Amendment document preparation','Filed with FL Division of Corporations','Verification of current records','Confirmation and delivery in 1-3 business days']};
@@ -1621,8 +1621,8 @@ function openServiceForm(svcId){
   document.getElementById('svcFormSub').textContent=isEs&&svc.sub_es?svc.sub_es:svc.sub;
   document.getElementById('svcFormBody').innerHTML=svc.html;
   translateFormLabels();
-  var prEn={'registered-agent':'Annual Fee', 'ein':'$49 — One-time fee', 'operating-agreement':'$79 — One-time fee', 'itin':'$135 — One-time fee', 'dba':'$49 + FL state fee', 'virtual-address':'$29/month — Cancel anytime', 'annual-report':'Annual Service', 'amendment':'$59 + FL state fee', 'banking-resolution':'$49 — One-time fee', 'business-tax-receipt':'$79 + county fee', 'sales-tax-registration':'$79 — One-time fee', 'exclusive-guide':'$49 — One-time fee', 'good-standing':'$49 + FL state fee', 'foreign-llc':'$99 + state filing fee', 'business-license':'$99 — One-time fee', 'dissolution':'$79 + FL state fee', 'cierre-fiscal':'$79 — One-time fee'};
-  var prEs={'registered-agent':'Tarifa Anual', 'ein':'$49 — Pago único', 'operating-agreement':'$79 — Pago único', 'itin':'$135 — Pago único', 'dba':'$49 + tarifa estatal FL', 'virtual-address':'$29/mes — Cancela cuando quieras', 'annual-report':'Servicio Anual', 'amendment':'$59 + tarifa estatal FL', 'banking-resolution':'$49 — Pago único', 'business-tax-receipt':'$79 + tarifa del condado', 'sales-tax-registration':'$79 — Pago único', 'exclusive-guide':'$49 — Pago único', 'good-standing':'$49 + tarifa estatal FL', 'foreign-llc':'$99 + tarifa estatal', 'business-license':'$99 — Pago único', 'dissolution':'$79 + tarifa estatal FL', 'cierre-fiscal':'$79 — Pago único'};
+  var prEn={'registered-agent':'Annual Fee', 'ein':'$99 — One-time fee', 'operating-agreement':'$79 — One-time fee', 'itin':'$135 — One-time fee', 'dba':'$49 + FL state fee', 'virtual-address':'$29/month — Cancel anytime', 'annual-report':'Annual Service', 'amendment':'$59 + FL state fee', 'banking-resolution':'$49 — One-time fee', 'business-tax-receipt':'$99 + county fee', 'sales-tax-registration':'$99 — One-time fee', 'exclusive-guide':'$49 — One-time fee', 'good-standing':'$49 + FL state fee', 'foreign-llc':'$99 + state filing fee', 'business-license':'$99 — One-time fee', 'dissolution':'$79 + FL state fee', 'cierre-fiscal':'$79 — One-time fee'};
+  var prEs={'registered-agent':'Tarifa Anual', 'ein':'$99 — Pago único', 'operating-agreement':'$79 — Pago único', 'itin':'$135 — Pago único', 'dba':'$49 + tarifa estatal FL', 'virtual-address':'$29/mes — Cancela cuando quieras', 'annual-report':'Servicio Anual', 'amendment':'$59 + tarifa estatal FL', 'banking-resolution':'$49 — Pago único', 'business-tax-receipt':'$99 + tarifa del condado', 'sales-tax-registration':'$99 — Pago único', 'exclusive-guide':'$49 — Pago único', 'good-standing':'$49 + tarifa estatal FL', 'foreign-llc':'$99 + tarifa estatal', 'business-license':'$99 — Pago único', 'dissolution':'$79 + tarifa estatal FL', 'cierre-fiscal':'$79 — Pago único'};
   var bgEn={'registered-agent':'Required by FL Law', 'ein':'Federal Requirement', 'operating-agreement':'Bank Required', 'itin':'IRS Issued', 'dba':'FL State Filing', 'virtual-address':'Privacy Protection', 'annual-report':'Deadline: May 1', 'amendment':'FL State Filing', 'banking-resolution':'Bank Required', 'business-tax-receipt':'County Requirement', 'sales-tax-registration':'FL DOR Filing', 'exclusive-guide':'Digital Delivery', 'good-standing':'FL State Certificate', 'foreign-llc':'Multi-State Filing', 'business-license':'FL & Federal', 'dissolution':'FL State Filing', 'cierre-fiscal':'IRS & FL DOR'};
   var bgEs={'registered-agent':'Requerido por Ley en FL', 'ein':'Requisito Federal', 'operating-agreement':'Requerido por el Banco', 'itin':'Emitido por el IRS', 'dba':'Trámite Estatal FL', 'virtual-address':'Protección de Privacidad', 'annual-report':'Fecha Límite: 1 de mayo', 'amendment':'Trámite Estatal FL', 'banking-resolution':'Requerido por el Banco', 'business-tax-receipt':'Requisito del Condado', 'sales-tax-registration':'Trámite FL DOR', 'exclusive-guide':'Entrega Digital', 'good-standing':'Certificado Estatal', 'foreign-llc':'Trámite Multi-Estado', 'business-license':'FL y Federal', 'dissolution':'Trámite Estatal', 'cierre-fiscal':'IRS y FL DOR'};
   var tmEn={'registered-agent':'Same business day filing', 'ein':'1-3 business days', 'operating-agreement':'2-5 business days', 'itin':'6-10 weeks (IRS processing)', 'dba':'1-3 business days', 'virtual-address':'Active same business day', 'annual-report':'Filed within 24 hours', 'amendment':'1-3 business days', 'banking-resolution':'1-2 business days', 'business-tax-receipt':'3-7 business days', 'sales-tax-registration':'2-5 business days', 'exclusive-guide':'Same business day', 'good-standing':'1-3 business days', 'foreign-llc':'5-10 business days', 'business-license':'2-3 business days', 'dissolution':'3-7 business days', 'cierre-fiscal':'2-4 weeks (IRS processing)'};
