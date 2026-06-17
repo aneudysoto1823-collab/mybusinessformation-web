@@ -4374,6 +4374,15 @@ function fmGoToStep(n) {
   if(overlay) overlay.scrollTo(0, 0);
   var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
   setTimeout(function(){ fmTranslate(isEs ? 'es' : 'en'); }, 30);
+  // Auto-focus + scroll al botón "Continuar" del paso actual
+  setTimeout(function(){
+    var stepEl = document.getElementById('fms' + n);
+    var nextBtn = stepEl ? stepEl.querySelector('.btn-next-fm') : null;
+    if(nextBtn) {
+      try { nextBtn.focus({ preventScroll: true }); } catch(e) { nextBtn.focus(); }
+      nextBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }, 90);
 }
 
 var _fmDevMode = false;
