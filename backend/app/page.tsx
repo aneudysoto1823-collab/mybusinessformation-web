@@ -603,7 +603,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 .fm-upsell-total{display:flex;justify-content:space-between;font-size:.92rem;font-weight:700;color:#1e293b;margin-top:8px;padding-top:8px;border-top:1px solid #e5e7eb}
 
 /* Add-on toggles */
-.fm-addon{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border:1.5px solid #e5e7eb;border-radius:10px;margin-bottom:10px;cursor:pointer;transition:all .2s}
+.fm-addon{position:relative;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border:1.5px solid #e5e7eb;border-radius:10px;margin-bottom:10px;cursor:pointer;transition:all .2s}
 .fm-addon:hover{border-color:#93c5fd}
 .fm-addon.selected{border-color:#2563eb;background:#eff6ff}
 .fm-addon-left{display:flex;align-items:center;gap:12px}
@@ -693,6 +693,10 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 .tt-box::before{content:'';position:absolute;top:calc(100% - 1px);left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:#ffffff;z-index:1}
 .tt-wrap:hover .tt-box{visibility:visible;opacity:1}
 .fm-addon:hover .tt-box{visibility:visible;opacity:1}
+.fm-addon-was{text-decoration:line-through;color:#9ca3af;font-weight:500;font-size:.76rem;margin-right:6px}
+.fm-addon-name .tt-wrap{position:static}
+.fm-addon-name .tt-box{left:16px;right:auto;transform:none;width:300px;min-height:96px}
+.fm-addon-name .tt-box::after,.fm-addon-name .tt-box::before{left:40px}
 
 /* ── HAMBURGER ── */
 .hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none;padding:8px;margin-right:-6px;flex-shrink:0}
@@ -1692,7 +1696,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
         <div class="fm-card">
           <div class="fm-card-body">
             <h2 class="fm-title" id="s7-title">Boost Your Formation</h2>
-            <p class="fm-sub" id="s7-sub">All optional. Add what makes sense now or order anytime.</p>
+            <p class="fm-sub" id="s7-sub">Exclusive prices for new businesses: add these services now, keep your company compliant and avoid setbacks with the State.</p>
             <!-- EIN -->
           <div class="fm-addon" id="addon-ein" onclick="fmToggleAddon('ein',this)">
             <div class="fm-addon-left">
@@ -1703,7 +1707,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
                 <div class="fm-addon-desc" id="addon-ein-desc">Required for bank accounts, hiring employees &amp; filing taxes</div>
               </div>
             </div>
-            <div class="fm-addon-price" id="addon-ein-price">$79</div>
+            <div class="fm-addon-price" id="addon-ein-price"><span class="fm-addon-was">$99</span>$79</div>
           </div>
 
           <!-- EIN extra fields — shown only when EIN is selected -->
@@ -1841,7 +1845,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
                 <div class="fm-addon-desc" id="addon-oa-desc">Required by banks to open a business checking account</div>
               </div>
             </div>
-            <div class="fm-addon-price" id="addon-oa-price">$59</div>
+            <div class="fm-addon-price" id="addon-oa-price"><span class="fm-addon-was">$79</span>$59</div>
           </div>
 
           <!-- OA extra fields — shown only when OA is selected AND ownership % is missing -->
@@ -1876,7 +1880,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
                 <div class="fm-addon-desc" id="addon-btr-desc">Required by most FL counties to operate legally</div>
               </div>
             </div>
-            <div class="fm-addon-price" id="addon-btr-price">$79</div>
+            <div class="fm-addon-price" id="addon-btr-price"><span class="fm-addon-was">$99</span>$79</div>
           </div>
 
           <!-- Sales Tax Registration -->
@@ -1889,7 +1893,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
                 <div class="fm-addon-desc" id="addon-str-desc">Required if your business sells taxable goods or services in FL</div>
               </div>
             </div>
-            <div class="fm-addon-price" id="addon-str-price">$79</div>
+            <div class="fm-addon-price" id="addon-str-price"><span class="fm-addon-was">$99</span>$79</div>
           </div>
 
           <!-- Annual Report -->
@@ -2637,13 +2641,13 @@ function fmFilterAddons() {
   var subEl = document.getElementById('s7-sub');
   if(pkg === 'premium') {
     if(titleEl) titleEl.textContent = isEs ? 'Completa Tu Paquete' : 'Complete Your Package';
-    if(subEl) subEl.textContent = isEs ? 'Tu paquete Premium ya incluye EIN y Acuerdo Operativo. Agrega los servicios adicionales que necesites.' : 'Your Premium package already includes EIN and Operating Agreement. Add any additional services you need.';
+    if(subEl) subEl.textContent = isEs ? 'Tu paquete Premium ya incluye EIN y Acuerdo Operativo. Precios exclusivos para nuevos negocios: mantén tu empresa en regla y evita contratiempos con el Estado.' : 'Your Premium package already includes EIN and Operating Agreement. Exclusive prices for new businesses: keep your company compliant and avoid setbacks with the State.';
   } else if(pkg === 'standard') {
     if(titleEl) titleEl.textContent = isEs ? 'Mejora Tu Formación' : 'Boost Your Formation';
-    if(subEl) subEl.textContent = isEs ? 'Tu paquete Standard ya incluye EIN. Agrega lo que necesites.' : 'Your Standard package already includes EIN. Add what makes sense now or order anytime.';
+    if(subEl) subEl.textContent = isEs ? 'Tu paquete Standard ya incluye EIN. Precios exclusivos para nuevos negocios: mantén tu empresa en regla y evita contratiempos con el Estado.' : 'Your Standard package already includes EIN. Exclusive prices for new businesses: keep your company compliant and avoid setbacks with the State.';
   } else {
     if(titleEl) titleEl.textContent = isEs ? 'Mejora Tu Formación' : 'Boost Your Formation';
-    if(subEl) subEl.textContent = isEs ? 'Todo opcional. Agrega lo que necesites ahora o en cualquier momento.' : 'All optional. Add what makes sense now or order anytime.';
+    if(subEl) subEl.textContent = isEs ? 'Precios exclusivos para nuevos negocios: agrega estos servicios ahora, mantén tu empresa en regla y evita contratiempos con el Estado.' : 'Exclusive prices for new businesses: add these services now, keep your company compliant and avoid setbacks with the State.';
   }
 }
 
@@ -5439,7 +5443,7 @@ function fmTranslate(lang) {
     's4-sub':isEs?'Cada nivel incluye todo lo del nivel anterior.':'Each tier includes everything from the one below it.',
     's5-sub':isEs?'Cu\\u00e9ntanos qui\\u00e9n es due\\u00f1o y dirige este negocio.':'Tell us who owns and runs this business.',
     's6-sub':isEs?'La ley de Florida requiere que cada negocio tenga un Agente Registrado.':'Florida law requires every business to have a Registered Agent on file.',
-    's7-sub':isEs?'Todo opcional. Agrega lo que necesites ahora o en cualquier momento.':'All optional. Add what you need now or anytime.',
+    's7-sub':isEs?'Precios exclusivos para nuevos negocios: agrega estos servicios ahora, mantén tu empresa en regla y evita contratiempos con el Estado.':'Exclusive prices for new businesses: add these services now, keep your company compliant and avoid setbacks with the State.',
     's8-sub':isEs?'Confirma tus datos antes del pago.':'Confirm your details before payment.',
     's9-submit':isEs?'Procesar Mi Orden':'Process My Order',
     // Step 9 - Payment translations
