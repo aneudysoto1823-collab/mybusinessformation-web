@@ -1878,7 +1878,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                 {lang === 'es' ? 'Aviso Legal' : 'Legal Disclaimer'}
               </a>
               <span>•</span>
-              <a href="mailto:info@opabiz.com">info@opabiz.com</a>
+              <a href="mailto:info@mybusinessformation.com">info@mybusinessformation.com</a>
             </div>
             Florida Business Formation Center is a privately owned third-party document preparation service and is not affiliated with or endorsed by any government agency,
             including the IRS, Department of Labor, or Florida Department of State. This is a solicitation for services, not an official government notice. Fees include

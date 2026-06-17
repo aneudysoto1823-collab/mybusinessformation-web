@@ -437,7 +437,7 @@ function LoginForm() {
                   </button>
                   {showContact && (
                     <div className="contact-options">
-                      <a className="contact-option" href="mailto:support@opabiz.com">
+                      <a className="contact-option" href="mailto:info@opabiz.com">
                         <span className="contact-option-icon">✉️</span>
                         Email
                       </a>

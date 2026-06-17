@@ -133,8 +133,8 @@ function UnsubscribeContent() {
                 </h2>
                 <p style={{ fontSize: '14px', color: '#64748b', lineHeight: 1.7, textAlign: 'center', marginBottom: '24px' }}>
                   We couldn&apos;t process your request. Please try again or contact us at{' '}
-                  <a href="mailto:support@opabiz.com" style={{ color: '#4f46e5' }}>
-                    support@opabiz.com
+                  <a href="mailto:info@mybusinessformation.com" style={{ color: '#4f46e5' }}>
+                    info@mybusinessformation.com
                   </a>
                 </p>
                 <div style={{ textAlign: 'center' }}>

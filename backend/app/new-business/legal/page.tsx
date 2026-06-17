@@ -140,8 +140,8 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:32px 32px 20px
         <li class="en">A Certified Public Accountant (CPA) for tax planning</li><li class="es" style="display:none">Un Contador P&uacute;blico Certificado (CPA) para planificaci&oacute;n fiscal</li>
         <li class="en">A licensed immigration attorney for visa and ITIN matters</li><li class="es" style="display:none">Un abogado de inmigraci&oacute;n licenciado para asuntos de visa e ITIN</li>
       </ul>
-      <div class="green-box en">&#128231; Questions? Contact us at <strong>info@opabiz.com</strong> &mdash; we&rsquo;re here to help with document preparation, not legal advice.</div>
-      <div class="green-box es" style="display:none">&#128231; &iquest;Preguntas? Cont&aacute;ctenos en <strong>info@opabiz.com</strong> &mdash; estamos aqu&iacute; para ayudar con la preparaci&oacute;n de documentos, no con asesor&iacute;a legal.</div>
+      <div class="green-box en">&#128231; Questions? Contact us at <strong>info@mybusinessformation.com</strong> &mdash; we&rsquo;re here to help with document preparation, not legal advice.</div>
+      <div class="green-box es" style="display:none">&#128231; &iquest;Preguntas? Cont&aacute;ctenos en <strong>info@mybusinessformation.com</strong> &mdash; estamos aqu&iacute; para ayudar con la preparaci&oacute;n de documentos, no con asesor&iacute;a legal.</div>
     </div>
   </div>
 </div>
