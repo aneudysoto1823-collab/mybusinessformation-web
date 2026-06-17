@@ -695,8 +695,10 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 .fm-addon:hover .tt-box{visibility:visible;opacity:1}
 .fm-addon-was{text-decoration:line-through;color:#9ca3af;font-weight:500;font-size:.76rem;margin-right:6px}
 .fm-addon-name .tt-wrap{position:static}
-.fm-addon-name .tt-box{left:16px;right:auto;transform:none;width:300px;min-height:96px}
-.fm-addon-name .tt-box::after,.fm-addon-name .tt-box::before{left:40px}
+.fm-addon-name .tt-box{left:auto;right:calc(100% + 14px);top:50%;bottom:auto;transform:translateY(-50%);width:300px;min-height:110px}
+.fm-addon-name .tt-box::after{top:50%;left:100%;right:auto;bottom:auto;transform:translateY(-50%);border:7px solid transparent;border-left-color:#e2e8f0;border-top-color:transparent}
+.fm-addon-name .tt-box::before{top:50%;left:100%;right:auto;bottom:auto;transform:translateY(-50%);border:7px solid transparent;border-left-color:#ffffff;border-top-color:transparent;margin-left:-1px;z-index:1}
+@media(max-width:768px){.fm-addon-name .tt-box{left:0;right:auto;top:auto;bottom:calc(100% + 8px);transform:none;width:calc(100% - 6px);min-height:0}.fm-addon-name .tt-box::after{top:100%;left:36px;right:auto;transform:none;border:6px solid transparent;border-top-color:#e2e8f0;border-left-color:transparent}.fm-addon-name .tt-box::before{top:calc(100% - 1px);left:36px;right:auto;transform:none;border:6px solid transparent;border-top-color:#ffffff;border-left-color:transparent;margin-left:0}}
 
 /* ── HAMBURGER ── */
 .hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none;padding:8px;margin-right:-6px;flex-shrink:0}
