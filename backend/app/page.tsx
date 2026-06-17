@@ -3374,8 +3374,8 @@ function selectDelivery(el, type) {
   updateTotal();
 }
 function updateTotal() {
-  var prices = {basic:49, standard:149, premium:249};
-  var base  = prices[formData.package] || 149;
+  var prices = {basic:0, standard:199, premium:299};
+  var base  = (formData.package in prices ? prices[formData.package] : 199);
   var state = formData.entity === 'corp' ? 70 : 125;
   var extras = 0;
   if(formData.addons.ein)  extras += 79;
@@ -3385,8 +3385,8 @@ function updateTotal() {
   if(formData.delivery === 'expedited' && !expFree) extras += 99;
   var total = base + state + extras;
 
-  var pkgNames = {basic:'Basic — $49',standard:'Standard — $149',premium:'Premium — $249'};
-  var pkgStr   = pkgNames[formData.package] || 'Standard — $149';
+  var pkgNames = {basic:'Basic — $0',standard:'Standard — $199',premium:'Premium — $299'};
+  var pkgStr   = pkgNames[formData.package] || 'Standard — $199';
   var entityStr= formData.entity === 'corp' ? 'Corporation' : 'LLC';
 
   // Update ALL summary panels (class-based, works for all steps)
@@ -4084,7 +4084,7 @@ function buildOrderReview() {
   if(!body) return;
 
   var pkgNames = {basic: 'Basic', standard: 'Standard', premium: 'Premium'};
-  var pkgPrices = {basic: '$49', standard: '$149', premium: '$249'};
+  var pkgPrices = {basic: '$0', standard: '$199', premium: '$299'};
   var entityLabel = formData.entity === 'corp'
     ? (isEs ? 'Corporaci\\u00f3n' : 'Corporation')
     : 'LLC';
@@ -4790,8 +4790,8 @@ function fmFormatExpiry(input) {
 // ═══════════════════════════════════════════════════════
 function fmUpdateSummary() {
   var pkg = fmData.package || 'standard';
-  var prices = { basic:49, standard:149, premium:249 };
-  var base   = prices[pkg] || 149;
+  var prices = { basic:0, standard:199, premium:299 };
+  var base   = (pkg in prices ? prices[pkg] : 199);
   var state  = fmData.entity === 'corp' ? 70 : 125;
   var extras = 0;
   if(fmData.addons.ein)  extras += 79;
@@ -4802,7 +4802,7 @@ function fmUpdateSummary() {
   var expFree = pkg === 'premium';
   if(fmData.speed === 'expedited' && !expFree) extras += 99;
   var total = base + state + extras;
-  var pkgNames = { basic:'Basic — $49', standard:'Standard — $149', premium:'Premium — $249' };
+  var pkgNames = { basic:'Basic — $0', standard:'Standard — $199', premium:'Premium — $299' };
   // Update all summary panels
   document.querySelectorAll('.sum-entity-val').forEach(function(el){ el.textContent = fmData.entity === 'corp' ? 'Corporation' : 'LLC'; });
   document.querySelectorAll('.sum-pkg-val').forEach(function(el){ el.textContent = pkgNames[pkg]; });
@@ -5022,14 +5022,14 @@ async function fmSubmit() {
   var addons  = fd.addons  || {};
 
   // ── Calcular monto total (igual que el formulario) ────────────────────────
-  var pkgPrices = { basic: 49, standard: 149, premium: 249 };
+  var pkgPrices = { basic: 0, standard: 199, premium: 299 };
   var stateFee  = entity === 'corp' ? 70 : 125;
   var extras    = 0;
   if(addons.ein)  extras += 79;
   if(addons.oa)   extras += 59;
   if(addons.itin) extras += 69;
   if(speed === 'expedited' && pkg !== 'premium') extras += 99;
-  var amount = (pkgPrices[pkg] || 49) + stateFee + extras;
+  var amount = (pkg in pkgPrices ? pkgPrices[pkg] : 199) + stateFee + extras;
 
   // ── Agente registrado (si es propio, capturar sus datos) ──────────────────
   var raInfo = null;
