@@ -100,10 +100,10 @@ async function getDocuments(orderId: string, order: Order): Promise<DocumentItem
     return docs
   }
 
-  // Formation orders — Certificate of Formation always shown
+  // Formation orders — Articles of Organization / Incorporation always shown
   docs.push({
     key: 'certificate',
-    label: 'Certificate of Formation', labelEs: 'Certificado de Formación',
+    label: 'Articles of Organization / Incorporation', labelEs: 'Artículos de Organización / Incorporación',
     url: order.status === 'completed'
       ? await signedUrl(`orders/${orderId}/certificate.pdf`)
       : null,

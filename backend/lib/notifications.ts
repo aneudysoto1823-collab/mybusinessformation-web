@@ -264,7 +264,7 @@ export const sendOrderProcessed = async (order: {
           </div>
           <p style="color:#475569;line-height:1.7">
             <strong>What's next?</strong> When the State approves your business, you'll get another
-            email from us. After that, your Certificate of Formation goes out the same week.
+            email from us. After that, your Articles of Organization / Incorporation go out the same week.
           </p>
           <p style="color:#475569;line-height:1.7">
             You can track the status anytime in your
@@ -312,7 +312,7 @@ export const sendOrderApproved = async (order: {
           <div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:10px;padding:20px;margin:24px 0;text-align:center">
             <p style="color:#166534;font-weight:600;margin:0 0 8px;font-size:15px">What's coming next</p>
             <p style="color:#166534;font-size:13px;margin:0;line-height:1.6">
-              We're preparing your official <strong>Certificate of Formation</strong>.
+              We're preparing your official <strong>Articles of Organization / Incorporation</strong>.
               Expect it in your inbox within the next <strong>24–48 hours</strong>, along
               with any add-ons you ordered (EIN, Operating Agreement, ITIN, etc.).
             </p>
@@ -336,7 +336,7 @@ export const sendOrderApproved = async (order: {
   })
 }
 
-// ── 6. Certificate of Formation — entrega final al cliente ───────────────────
+// ── 6. Articles of Organization / Incorporation — entrega final al cliente ───────────────────
 export const sendCertificateDelivery = async (order: {
   firstName: string
   email: string
@@ -351,7 +351,7 @@ export const sendCertificateDelivery = async (order: {
   await getResend().emails.send({
     from: FROM_EMAIL,
     to: order.email,
-    subject: `🏆 Your Certificate of Formation is ready — ${order.companyName}`,
+    subject: `🏆 Your Articles of Organization / Incorporation are ready — ${order.companyName}`,
     html: `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#1e293b">
         <div style="background:#1C2E44;padding:24px 32px;border-radius:10px 10px 0 0">
@@ -364,7 +364,7 @@ export const sendCertificateDelivery = async (order: {
             in the State of Florida.
           </p>
           <div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:10px;padding:20px;margin:24px 0;text-align:center">
-            <p style="color:#166534;font-weight:600;margin:0 0 8px">Your Certificate of Formation</p>
+            <p style="color:#166534;font-weight:600;margin:0 0 8px">Your Articles of Organization / Incorporation</p>
             <p style="color:#166534;font-size:13px;margin:0">
               Your official document is attached to this email. Keep it in a safe place —
               you will need it to open your business bank account.

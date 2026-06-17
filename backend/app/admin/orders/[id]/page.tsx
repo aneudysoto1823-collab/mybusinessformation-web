@@ -47,12 +47,12 @@ const PACKAGE_SERVICES: Record<string, string[]> = {
   basic: [
     'Business Formation Filing',
     'Name Availability Search',
-    'Florida Certificate of Formation',
+    'Articles of Organization / Incorporation',
   ],
   standard: [
     'Business Formation Filing',
     'Name Availability Search',
-    'Florida Certificate of Formation',
+    'Articles of Organization / Incorporation',
     'EIN / Tax ID Number',
     'Bank Account Guide',
     'Registered Agent (1st year free)',
@@ -60,7 +60,7 @@ const PACKAGE_SERVICES: Record<string, string[]> = {
   premium: [
     'Business Formation Filing',
     'Name Availability Search',
-    'Florida Certificate of Formation',
+    'Articles of Organization / Incorporation',
     'EIN / Tax ID Number',
     'Bank Account Guide',
     'Registered Agent (1st year free)',
@@ -917,7 +917,7 @@ export default function OrderDetailPage() {
 
         {/* ── FUNC 4 — Subida de Certificate PDF (solo cuando approved) ───── */}
         {order.status === 'approved' && (
-          <Section title="📄 Certificate of Formation">
+          <Section title="📄 Articles of Organization / Incorporation">
             <p style={{ fontSize: '13px', color: '#6b7280', marginBottom: '16px', lineHeight: 1.6 }}>
               Sube el PDF aprobado por el Estado de Florida. Al subir, el sistema lo guardará en Supabase Storage,
               enviará el email al cliente y marcará la orden como <strong>completed</strong> automáticamente.

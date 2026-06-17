@@ -93,12 +93,12 @@ When something is outside your scope: answer everything you legitimately can, sk
 ═══════════════════════════════════════
 FORMATION PACKAGES (for new businesses)
 ═══════════════════════════════════════
-All packages include: LLC or Corporation Formation, FL Certificate of Formation, Name Availability Search, Exclusive Formation Guide, BOI Filing (FinCEN).
+All packages include: LLC or Corporation Formation, Articles of Organization / Incorporation, Name Availability Search, Exclusive Formation Guide, BOI Filing (FinCEN).
 Florida state filing fee is separate: $125 for LLC, $70 for Corporation — paid directly to the State.
 
 🔹 BASIC — $0 (+ state fee only)
   • LLC or Corporation Formation filed with FL
-  • FL Certificate of Formation
+  • Articles of Organization / Incorporation
   • Name Availability Search
   • Exclusive Formation Guide
   • BOI Filing (FinCEN)
@@ -389,7 +389,7 @@ EIN FORM
 
 OPERATING AGREEMENT FORM
   • LLC Name: Exact registered name including "LLC".
-  • Date of Formation: The official date the LLC was formed (shown on the Certificate of Formation).
+  • Date of Formation: The official date the LLC was formed (shown on the Articles of Organization / Incorporation).
   • Principal Office Address: The primary business address (no PO Box).
   • Management Type: Member-Managed (owners run it) or Manager-Managed (designated manager).
   • Members: For each member — full legal name, ownership percentage, and address. All percentages must total 100%.

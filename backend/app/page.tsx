@@ -40,7 +40,7 @@ const schemaOrg = {
       '@id': 'https://opabiz.com/#llc-formation',
       name: 'Florida LLC Formation',
       provider: { '@id': 'https://opabiz.com/#organization' },
-      description: 'Online Florida LLC formation service. Includes filing, Certificate of Formation, name availability search, and BOI Filing.',
+      description: 'Online Florida LLC formation service. Includes filing, Articles of Organization / Incorporation, name availability search, and BOI Filing.',
       areaServed: 'US-FL',
       offers: [
         { '@type': 'Offer', name: 'Basic', price: '0', priceCurrency: 'USD' },
@@ -837,7 +837,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
         <hr class="pkg-divider"/>
         <div class="pkg-services">
           <div class="svc-row"><span class="svc-name" data-en="LLC or Corporation Formation" data-es="Formación de LLC o Corporación">LLC or Corporation Formation</span><span class="svc-status s-check">✓</span></div>
-          <div class="svc-row"><span class="svc-name" data-en="FL Certificate of Formation" data-es="Certificado de Formación FL">FL Certificate of Formation</span><span class="svc-status s-check">✓</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="Articles of Organization / Incorporation" data-es="Artículos de Organización / Incorporación">Articles of Organization / Incorporation</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Name Availability Search" data-es="Búsqueda de Nombre Disponible">Name Availability Search</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name">Guía Exclusiva de Formación</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name">BOI Filing (FinCEN)</span><span class="svc-status s-check">✓</span></div>
@@ -864,7 +864,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
         <hr class="pkg-divider"/>
         <div class="pkg-services">
           <div class="svc-row"><span class="svc-name" data-en="LLC or Corporation Formation" data-es="Formación de LLC o Corporación">LLC or Corporation Formation</span><span class="svc-status s-check">✓</span></div>
-          <div class="svc-row"><span class="svc-name" data-en="FL Certificate of Formation" data-es="Certificado de Formación FL">FL Certificate of Formation</span><span class="svc-status s-check">✓</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="Articles of Organization / Incorporation" data-es="Artículos de Organización / Incorporación">Articles of Organization / Incorporation</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Name Availability Search" data-es="Búsqueda de Nombre Disponible">Name Availability Search</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name">Guía Exclusiva de Formación</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name">BOI Filing (FinCEN)</span><span class="svc-status s-check">✓</span></div>
@@ -890,7 +890,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
         <hr class="pkg-divider"/>
         <div class="pkg-services">
           <div class="svc-row"><span class="svc-name" data-en="LLC or Corporation Formation" data-es="Formación de LLC o Corporación">LLC or Corporation Formation</span><span class="svc-status s-check">✓</span></div>
-          <div class="svc-row"><span class="svc-name" data-en="FL Certificate of Formation" data-es="Certificado de Formación FL">FL Certificate of Formation</span><span class="svc-status s-check">✓</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="Articles of Organization / Incorporation" data-es="Artículos de Organización / Incorporación">Articles of Organization / Incorporation</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Name Availability Search" data-es="Búsqueda de Nombre Disponible">Name Availability Search</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name">Guía Exclusiva de Formación</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name">BOI Filing (FinCEN)</span><span class="svc-status s-check">✓</span></div>
@@ -940,7 +940,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
       <div class="step-card">
         <div class="step-num">4</div>
         <h4 id="s4h">Your Business Is Official</h4>
-        <p id="s4p">Receive your Certificate of Formation and our Exclusive Expert-Crafted Guide, with the key steps to keep your business active and compliant with the state.</p>
+        <p id="s4p">Receive your Articles of Organization / Incorporation and our Exclusive Expert-Crafted Guide, with the key steps to keep your business active and compliant with the state.</p>
       </div>
     </div>
   </div>
@@ -957,7 +957,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
     <div class="testi-grid">
       <div class="testi-card">
         <div class="stars">★★★★★</div>
-        <p class="testi-text">"I had no idea where to start with my LLC. The team walked me through every step and within days I had my Certificate of Formation in hand. Absolutely seamless experience."</p>
+        <p class="testi-text">"I had no idea where to start with my LLC. The team walked me through every step and within days I had my Articles of Organization / Incorporation in hand. Absolutely seamless experience."</p>
         <div class="testi-author">
           <div class="testi-avatar" style="background:#3B82F6">MR</div>
           <div class="testi-info"><strong>Maria Rodriguez</strong><span>Restaurant Owner · Miami, FL</span></div>
@@ -2167,7 +2167,7 @@ var translations = {
     s1h:"Choose Your Package", s1p:"Select the formation package that fits your needs and budget.",
     s2h:"Complete Your Order", s2p:"Our step-by-step form makes the process simple and straightforward. At any point, you can reach one of our agents online or through WhatsApp for personalized guidance.",
     s3h:"We File With the State", s3p:"Our experts review your documents and submit everything to the Florida Division of Corporations.",
-    s4h:"Your Business Is Official", s4p:"Receive your Certificate of Formation and our Exclusive Expert-Crafted Guide, with the key steps to keep your business active and compliant with the state.",
+    s4h:"Your Business Is Official", s4p:"Receive your Articles of Organization / Incorporation and our Exclusive Expert-Crafted Guide, with the key steps to keep your business active and compliant with the state.",
     priceLabel:"Our Packages", priceTitle:"Choose Your Formation Package",
     priceSub:"Every package includes expert handling of your State of Florida filing.",
     testiLabel:"Client Stories", testiTitle:"Real Entrepreneurs.<br/>Real Results.",
@@ -2184,7 +2184,7 @@ var translations = {
     s1p:"Select the formation package that fits your needs and budget.",
     s2p:"Our step-by-step form makes the process simple and straightforward. At any point, you can reach one of our agents online or through WhatsApp for personalized guidance.",
     s3p:"Our experts review your documents and file with the Florida Division of Corporations.",
-    s4p:"Receive your Certificate of Formation and our Exclusive Expert-Crafted Guide, with the key steps to keep your business active and compliant with the state.",
+    s4p:"Receive your Articles of Organization / Incorporation and our Exclusive Expert-Crafted Guide, with the key steps to keep your business active and compliant with the state.",
     priceTitle:"Choose Your Formation Package",
     testiTitle:"Real Entrepreneurs. Real Results.",
     faqTitle:"Answers to Your Most Important Questions",
@@ -2200,7 +2200,7 @@ var translations = {
     s1h:"Elige Tu Paquete", s1p:"Selecciona el paquete de formación que se adapte a tus necesidades y presupuesto.",
     s2h:"Completa Tu Orden", s2p:"Nuestro formulario paso a paso hace el proceso simple y directo. En cualquier momento puedes contactar a uno de nuestros agentes en línea o a través de WhatsApp para recibir orientación personalizada.",
     s3h:"Nosotros Tramitamos", s3p:"Nuestros expertos revisan tus documentos y los envían a la División de Corporaciones de Florida.",
-    s4h:"Tu Negocio Es Oficial", s4p:"Recibe tu Certificado de Formación y nuestra Guía Exclusiva, creada por expertos, con los pasos clave para mantener tu negocio activo y en regla ante el estado.",
+    s4h:"Tu Negocio Es Oficial", s4p:"Recibe tus Artículos de Organización / Incorporación y nuestra Guía Exclusiva, creada por expertos, con los pasos clave para mantener tu negocio activo y en regla ante el estado.",
     priceLabel:"Nuestros Paquetes", priceTitle:"Elige Tu Paquete de Formación",
     priceSub:"Cada paquete incluye el manejo experto de tu trámite ante el Estado de Florida.",
     testiLabel:"Historias de Clientes", testiTitle:"Emprendedores Reales.<br/>Resultados Reales.",
@@ -2217,7 +2217,7 @@ var translations = {
     s1p:"Selecciona el paquete de formación que se adapte a tus necesidades y presupuesto.",
     s2p:"Nuestro formulario paso a paso hace el proceso simple y directo. En cualquier momento puedes contactar a uno de nuestros agentes en línea o a través de WhatsApp para recibir orientación personalizada.",
     s3p:"Nuestros expertos revisan tus documentos y los envían a la División de Corporaciones de Florida.",
-    s4p:"Recibe tu Certificado de Formación y nuestra Guía Exclusiva, creada por expertos, con los pasos clave para mantener tu negocio activo y en regla ante el estado.",
+    s4p:"Recibe tus Artículos de Organización / Incorporación y nuestra Guía Exclusiva, creada por expertos, con los pasos clave para mantener tu negocio activo y en regla ante el estado.",
     priceTitle:"Elige Tu Paquete de Formación",
     testiTitle:"Emprendedores Reales. Resultados Reales.",
     faqTitle:"Respuestas a Tus Preguntas Más Importantes"
@@ -2472,14 +2472,14 @@ function fmBuildUpgradeCards() {
   var allFeatures = {
     standard: isEs ? [
       'Formación de LLC o Corporación en Florida',
-      'Certificado de Formación de Florida',
+      'Artículos de Organización / Incorporación',
       'Búsqueda de Disponibilidad de Nombre',
       'Agente Registrado (Primer Año Gratis)',
       'EIN / Número de Identificación Fiscal',
       'Guía de Cuenta Bancaria'
     ] : [
       'LLC or Corporation Formation in Florida',
-      'FL Certificate of Formation',
+      'Articles of Organization / Incorporation',
       'Name Availability Search',
       'Registered Agent (First Year Free)',
       'EIN / Federal Tax ID Number',
@@ -2487,7 +2487,7 @@ function fmBuildUpgradeCards() {
     ],
     premium: isEs ? [
       'Formación de LLC o Corporación en Florida',
-      'Certificado de Formación de Florida',
+      'Artículos de Organización / Incorporación',
       'Búsqueda de Disponibilidad de Nombre',
       'Agente Registrado (Primer Año Gratis)',
       'EIN / Número de Identificación Fiscal',
@@ -2499,7 +2499,7 @@ function fmBuildUpgradeCards() {
       'Artículos de Enmienda'
     ] : [
       'LLC or Corporation Formation in Florida',
-      'FL Certificate of Formation',
+      'Articles of Organization / Incorporation',
       'Name Availability Search',
       'Registered Agent (First Year Free)',
       'EIN / Federal Tax ID Number',
@@ -3083,7 +3083,7 @@ function setLang(lang) {
   el=document.getElementById('lbl-new-app');       if(el) el.textContent = isEs ? 'Nueva Aplicación' : 'Start New Application';
   el=document.getElementById('lbl-continue-app');  if(el) el.textContent = isEs ? 'Continuar Mi Aplicación' : 'Continue My Application';
   // How it works steps
-  var hSteps=[{id:'s1h',en:'Choose Your Package',es:'Elige Tu Paquete'},{id:'s1p',en:'Select the formation package that fits your needs.',es:'Selecciona el paquete de formación que se adapte a tus necesidades.'},{id:'s2h',en:'Complete Your Order',es:'Completa Tu Orden'},{id:'s2p',en:'Our step-by-step form makes the process simple and straightforward. At any point, you can reach one of our agents online or through WhatsApp for personalized guidance.',es:'Nuestro formulario paso a paso hace el proceso simple y directo. En cualquier momento puedes contactar a uno de nuestros agentes en línea o a través de WhatsApp para recibir orientación personalizada.'},{id:'s3h',en:'We File With the State',es:'Tramitamos Ante el Estado'},{id:'s3p',en:'Our experts submit everything to the Florida Division of Corporations.',es:'Nuestros expertos presentan todo ante la División de Corporaciones de Florida.'},{id:'s4h',en:'Your Business Is Official',es:'Tu Negocio Es Oficial'},{id:'s4p',en:'Receive your Certificate of Formation and our Exclusive Expert-Crafted Guide, with the key steps to keep your business active and compliant with the state.',es:'Recibe tu Certificado de Formación y nuestra Guía Exclusiva, creada por expertos, con los pasos clave para mantener tu negocio activo y en regla ante el estado.'}];
+  var hSteps=[{id:'s1h',en:'Choose Your Package',es:'Elige Tu Paquete'},{id:'s1p',en:'Select the formation package that fits your needs.',es:'Selecciona el paquete de formación que se adapte a tus necesidades.'},{id:'s2h',en:'Complete Your Order',es:'Completa Tu Orden'},{id:'s2p',en:'Our step-by-step form makes the process simple and straightforward. At any point, you can reach one of our agents online or through WhatsApp for personalized guidance.',es:'Nuestro formulario paso a paso hace el proceso simple y directo. En cualquier momento puedes contactar a uno de nuestros agentes en línea o a través de WhatsApp para recibir orientación personalizada.'},{id:'s3h',en:'We File With the State',es:'Tramitamos Ante el Estado'},{id:'s3p',en:'Our experts submit everything to the Florida Division of Corporations.',es:'Nuestros expertos presentan todo ante la División de Corporaciones de Florida.'},{id:'s4h',en:'Your Business Is Official',es:'Tu Negocio Es Oficial'},{id:'s4p',en:'Receive your Articles of Organization / Incorporation and our Exclusive Expert-Crafted Guide, with the key steps to keep your business active and compliant with the state.',es:'Recibe tus Artículos de Organización / Incorporación y nuestra Guía Exclusiva, creada por expertos, con los pasos clave para mantener tu negocio activo y en regla ante el estado.'}];
   hSteps.forEach(function(s){var e2=document.getElementById(s.id);if(e2)e2.textContent=isEs?s.es:s.en;});
   // FAQ
   document.querySelectorAll('.faq-item').forEach(function(item){var q=item.querySelector('.faq-q span');var a=item.querySelector('.faq-a');if(q&&q.getAttribute('data-es'))q.textContent=isEs?q.getAttribute('data-es'):q.getAttribute('data-en');if(a&&a.getAttribute('data-es'))a.innerHTML=isEs?a.getAttribute('data-es'):a.getAttribute('data-en');});
@@ -3171,8 +3171,8 @@ function setLang(lang) {
 
   // Testimonials (bilingual)
   var testiData = [
-    ['"No sabía por dónde empezar con mi LLC. El equipo me guió en cada paso y en días tenía mi Certificado de Formación. Una experiencia absolutamente impecable."',
-     '"I had no idea where to start with my LLC. The team walked me through every step and within days I had my Certificate of Formation in hand. Absolutely seamless experience."',
+    ['"No sabía por dónde empezar con mi LLC. El equipo me guió en cada paso y en días tenía mis Artículos de Organización / Incorporación. Una experiencia absolutamente impecable."',
+     '"I had no idea where to start with my LLC. The team walked me through every step and within days I had my Articles of Organization / Incorporation in hand. Absolutely seamless experience."',
      'Propietaria de Restaurante · Miami, FL', 'Restaurant Owner · Miami, FL'],
     ['"Como inversionista extranjero formando una Corporación en Florida, me preocupaba la complejidad. Lo manejaron todo profesionalmente. Totalmente vale la pena."',
      '"As a foreign investor forming a Corporation in Florida, I was worried about the complexity. They handled everything professionally. Worth every penny."',
@@ -3220,7 +3220,7 @@ function setLang(lang) {
 
   // Pricing cards content
   var pkgData = [
-    { id:'pkg-basic',    name:isEs?'Básico':'Basic',     badge:'',                               items:isEs?['Registro de formación','Verificación de nombre','Certificado de Formación']:['Formation filing','Name search','Certificate of Formation'] },
+    { id:'pkg-basic',    name:isEs?'Básico':'Basic',     badge:'',                               items:isEs?['Registro de formación','Verificación de nombre','Artículos de Organización / Incorporación']:['Formation filing','Name search','Articles of Organization / Incorporation'] },
     { id:'pkg-standard', name:isEs?'Estándar':'Standard', badge:isEs?'⭐ MÁS POPULAR':'⭐ MOST POPULAR', items:isEs?['Todo en Básico','EIN / ID Fiscal','Guía de Cuenta Bancaria']:['Everything in Basic','EIN / Tax ID','Bank Account Guide'] },
     { id:'pkg-premium',  name:isEs?'Premium':'Premium',  badge:'',                               items:isEs?['Todo incluido','Acuerdo Operativo','Tramitación Acelerada Gratis']:['Everything included','Operating Agreement','Free Expedited Filing'] },
   ];

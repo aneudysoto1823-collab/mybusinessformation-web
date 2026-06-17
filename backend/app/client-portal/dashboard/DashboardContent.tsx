@@ -56,12 +56,12 @@ const PACKAGE_SERVICES: Record<string, { en: string; es: string }[]> = {
   basic: [
     { en: 'Business Formation Filing',       es: 'Registro de Formación Empresarial' },
     { en: 'Name Availability Search',         es: 'Verificación de Disponibilidad de Nombre' },
-    { en: 'Florida Certificate of Formation', es: 'Certificado de Formación de Florida' },
+    { en: 'Articles of Organization / Incorporation', es: 'Artículos de Organización / Incorporación' },
   ],
   standard: [
     { en: 'Business Formation Filing',       es: 'Registro de Formación Empresarial' },
     { en: 'Name Availability Search',         es: 'Verificación de Disponibilidad de Nombre' },
-    { en: 'Florida Certificate of Formation', es: 'Certificado de Formación de Florida' },
+    { en: 'Articles of Organization / Incorporation', es: 'Artículos de Organización / Incorporación' },
     { en: 'EIN / Tax ID Number',              es: 'EIN / Número de ID Fiscal' },
     { en: 'Bank Account Guide',               es: 'Guía para Abrir Cuenta Bancaria' },
     { en: 'Registered Agent (1st year free)', es: 'Agente Registrado (1er año gratis)' },
@@ -69,7 +69,7 @@ const PACKAGE_SERVICES: Record<string, { en: string; es: string }[]> = {
   premium: [
     { en: 'Business Formation Filing',       es: 'Registro de Formación Empresarial' },
     { en: 'Name Availability Search',         es: 'Verificación de Disponibilidad de Nombre' },
-    { en: 'Florida Certificate of Formation', es: 'Certificado de Formación de Florida' },
+    { en: 'Articles of Organization / Incorporation', es: 'Artículos de Organización / Incorporación' },
     { en: 'EIN / Tax ID Number',              es: 'EIN / Número de ID Fiscal' },
     { en: 'Bank Account Guide',               es: 'Guía para Abrir Cuenta Bancaria' },
     { en: 'Registered Agent (1st year free)', es: 'Agente Registrado (1er año gratis)' },
@@ -106,8 +106,8 @@ function getWhatsNext(status: string, es: boolean): string {
     names_taken:    { en: 'The names you selected are already registered in Florida. Our team will send you alternative name suggestions shortly — please check your email.', es: 'Los nombres que seleccionaste ya están registrados en Florida. Nuestro equipo te enviará sugerencias alternativas pronto — revisa tu correo.' },
     ready_to_file:  { en: 'A business name is available! Our team is preparing to file your formation documents with the State of Florida.', es: '¡Un nombre está disponible! Nuestro equipo está preparando los documentos para registrar tu negocio.' },
     filed:          { en: 'Your business formation documents have been submitted to the State of Florida. Approval typically takes 3–5 business days.', es: 'Tus documentos han sido enviados al Estado de Florida. La aprobación generalmente toma de 3 a 5 días hábiles.' },
-    approved:       { en: 'Florida has approved your business! We are preparing your Certificate of Formation and will send it to your email shortly.', es: '¡Florida ha aprobado tu negocio! Estamos preparando tu Certificado de Formación y te lo enviaremos pronto.' },
-    completed:      { en: 'Your business is officially formed. Check your email for the Certificate of Formation. Welcome to the business world!', es: 'Tu negocio está oficialmente formado. Revisa tu correo para el Certificado de Formación. ¡Bienvenido al mundo empresarial!' },
+    approved:       { en: 'Florida has approved your business! We are preparing your Articles of Organization / Incorporation and will send them to your email shortly.', es: '¡Florida ha aprobado tu negocio! Estamos preparando tus Artículos de Organización / Incorporación y te los enviaremos pronto.' },
+    completed:      { en: 'Your business is officially formed. Check your email for the Articles of Organization / Incorporation. Welcome to the business world!', es: 'Tu negocio está oficialmente formado. Revisa tu correo para los Artículos de Organización / Incorporación. ¡Bienvenido al mundo empresarial!' },
   }
   const msg = T[status]
   if (!msg) return es ? 'Tu orden está siendo procesada. Te mantendremos informado por correo.' : 'Your order is being processed. We will keep you updated by email.'
