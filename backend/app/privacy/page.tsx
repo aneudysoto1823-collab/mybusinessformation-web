@@ -210,8 +210,8 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
         <li class="en">Request deletion of your data, subject to our legal retention obligations</li><li class="es" style="display:none">Solicitar la eliminaci&oacute;n de sus datos, sujeto a nuestras obligaciones legales de retenci&oacute;n</li>
         <li class="en">Opt out of marketing communications at any time</li><li class="es" style="display:none">Optar por no recibir comunicaciones de marketing en cualquier momento</li>
       </ul>
-      <p class="en">To exercise any of these rights, please contact us at <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="deb7b0b8b19eb3a7bcabadb7b0bbadadb8b1acb3bfaab7b1b0f0bdb1b3">[email&#160;protected]</a>.</p>
-      <p class="es" style="display:none">Para ejercer cualquiera de estos derechos, cont&aacute;ctenos en <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="96fff8f0f9d6fbeff4e3e5fff8f3e5e5f0f9e4fbf7e2fff9f8b8f5f9fb">[email&#160;protected]</a>.</p>
+      <p class="en">To exercise any of these rights, please contact us at <!--email_off--><a href="mailto:info@opabiz.com">info@opabiz.com</a><!--/email_off-->.</p>
+      <p class="es" style="display:none">Para ejercer cualquiera de estos derechos, cont&aacute;ctenos en <!--email_off--><a href="mailto:info@opabiz.com">info@opabiz.com</a><!--/email_off-->.</p>
     </div>
 
     <div class="doc-section" id="cookies">
@@ -224,11 +224,10 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
       <h2>7. <span class="en-inline">Contact Us</span><span class="es-inline" style="display:none">Cont&aacute;ctenos</span></h2>
       <p class="en">If you have questions about this Privacy Policy or how we handle your data, please contact us:</p>
       <p class="es" style="display:none">Si tiene preguntas sobre esta Pol&iacute;tica de Privacidad o c&oacute;mo manejamos sus datos, cont&aacute;ctenos:</p>
-      <div class="green-box">
+      <div style="margin:14px 0;line-height:1.9;font-size:.9rem;color:var(--gray800)">
         <strong>Florida Business Formation Center</strong><br/>
-        &#128231; <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="3d54535b527d50445f484e5453584e4e5b524f505c49545253135e5250">[email&#160;protected]</a><br/>
-        &#127760; opabiz.com<br/>
-        &#128205; Florida, United States
+        &#128231; <!--email_off--><a href="mailto:info@opabiz.com">info@opabiz.com</a><!--/email_off--><br/>
+        &#127760; opabiz.com
       </div>
     </div>
   </div>

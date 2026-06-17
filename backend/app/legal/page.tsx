@@ -186,8 +186,8 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
         <li class="en">A Certified Public Accountant (CPA) for tax planning</li><li class="es" style="display:none">Un Contador P&uacute;blico Certificado (CPA) para planificaci&oacute;n fiscal</li>
         <li class="en">A licensed immigration attorney for visa and ITIN matters</li><li class="es" style="display:none">Un abogado de inmigraci&oacute;n licenciado para asuntos de visa e ITIN</li>
       </ul>
-      <div class="green-box en">&#128231; Questions? Contact us at <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="1f767179705f72667d6a6c76717a6c6c79706d727e6b767071317c7072">[email&#160;protected]</a></strong> &mdash; we're here to help with document preparation, not legal advice.</div>
-      <div class="green-box es" style="display:none">&#128231; &iquest;Preguntas? Cont&aacute;ctenos en <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="a8c1c6cec7e8c5d1cadddbc1c6cddbdbcec7dac5c9dcc1c7c686cbc7c5">[email&#160;protected]</a></strong> &mdash; estamos aqu&iacute; para ayudar con la preparaci&oacute;n de documentos, no con asesor&iacute;a legal.</div>
+      <div class="en" style="margin:14px 0;font-size:.83rem;line-height:1.7;color:var(--gray800)">&#128231; Questions? Contact us at <strong><!--email_off--><a href="mailto:info@opabiz.com">info@opabiz.com</a><!--/email_off--></strong> &mdash; we're here to help with document preparation, not legal advice.</div>
+      <div class="es" style="display:none;margin:14px 0;font-size:.83rem;line-height:1.7;color:var(--gray800)">&#128231; &iquest;Preguntas? Cont&aacute;ctenos en <strong><!--email_off--><a href="mailto:info@opabiz.com">info@opabiz.com</a><!--/email_off--></strong> &mdash; estamos aqu&iacute; para ayudar con la preparaci&oacute;n de documentos, no con asesor&iacute;a legal.</div>
     </div>
   </div>
 </div>
