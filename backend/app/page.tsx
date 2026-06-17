@@ -2119,6 +2119,9 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
         <div class="fm-sum-line sum-ein-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-ein">EIN / Tax ID</span><span class="fm-sum-val">$79</span></div>
         <div class="fm-sum-line sum-oa-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-oa">Operating Agreement</span><span class="fm-sum-val">$59</span></div>
         <div class="fm-sum-line sum-itin-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-itin">ITIN Application</span><span class="fm-sum-val">$69</span></div>
+        <div class="fm-sum-line sum-btr-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-btr">Business Tax Receipt</span><span class="fm-sum-val">$79</span></div>
+        <div class="fm-sum-line sum-str-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-str">Sales Tax Receipt</span><span class="fm-sum-val">$79</span></div>
+        <div class="fm-sum-line sum-cc-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-cc">Certified Copy</span><span class="fm-sum-val">$49</span></div>
         <div class="fm-sum-line sum-ar-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-ar">Annual Report</span><span class="fm-sum-val">Annual</span></div>
       </div>
       <div class="fm-sum-foot">
@@ -4827,6 +4830,9 @@ function fmUpdateSummary() {
   document.querySelectorAll('.sum-ein-line').forEach(function(el){ el.style.display = fmData.addons.ein&&pkg==='basic'?'':'none'; });
   document.querySelectorAll('.sum-oa-line').forEach(function(el){ el.style.display = fmData.addons.oa&&pkg!=='premium'?'':'none'; });
   document.querySelectorAll('.sum-itin-line').forEach(function(el){ el.style.display = fmData.addons.itin?'':'none'; });
+  document.querySelectorAll('.sum-btr-line').forEach(function(el){ el.style.display = fmData.addons.btr?'':'none'; });
+  document.querySelectorAll('.sum-str-line').forEach(function(el){ el.style.display = fmData.addons.str?'':'none'; });
+  document.querySelectorAll('.sum-cc-line').forEach(function(el){ el.style.display = fmData.addons.cc?'':'none'; });
   document.querySelectorAll('.sum-ar-line').forEach(function(el){ el.style.display = fmData.addons.ar?'':'none'; });
   // Legacy compatibility
   formData.package = pkg;
@@ -5515,6 +5521,9 @@ function fmTranslate(lang) {
     'sum-lbl-ein':isEs?'EIN / ID Fiscal':'EIN / Tax ID',
     'sum-lbl-oa':isEs?'Acuerdo Operativo':'Operating Agreement',
     'sum-lbl-itin':isEs?'Solicitud ITIN':'ITIN Application',
+    'sum-lbl-btr':isEs?'Licencia de Negocio (BTR)':'Business Tax Receipt',
+    'sum-lbl-str':isEs?'Permiso de Ventas (STR)':'Sales Tax Receipt',
+    'sum-lbl-cc':isEs?'Copia Certificada':'Certified Copy',
     'sum-lbl-ar':isEs?'Declaraci\\u00f3n Anual':'Annual Report',
     'sum-lbl-total':isEs?'Total':'Total',
     'sum-sec-ssl':isEs?'&#128274; Cifrado SSL':'&#128274; SSL Encrypted',
