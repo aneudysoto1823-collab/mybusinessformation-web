@@ -804,28 +804,9 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
     <div class="text-center">
       <div class="hero-btns" style="margin-top:0;margin-bottom:28px">
       <div style="position:relative;display:inline-block">
-        <button class="btn-hero-new btn-hero-start" onclick="toggleEntityDropdown()" id="btn-new-app" style="display:flex;align-items:center;gap:8px">
-          &#x1F680; <span id="lbl-new-app">Start New Application</span> <span id="entity-arrow" style="font-size:.7rem;transition:transform .2s">▼</span>
+        <button class="btn-hero-new btn-hero-start" onclick="scrollToPackages()" id="btn-new-app" style="display:flex;align-items:center;gap:8px">
+          &#x1F680; <span id="lbl-new-app">Start New Application</span> <span style="font-size:.7rem">&#9660;</span>
         </button>
-        <div id="entityDropdown" style="display:none;position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#fff;border-radius:12px;box-shadow:0 8px 32px rgba(28,46,68,0.18);border:1px solid #e2e8f0;overflow:hidden;min-width:240px;z-index:500;padding:8px">
-
-          <button onclick="selectEntity('llc')" style="width:100%;background:#fff;border:2px solid #e2e8f0;border-radius:9px;padding:12px 16px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:all .2s;font-family:inherit;text-align:left;margin-bottom:6px" onmouseover="this.style.borderColor='#2563eb';this.style.background='#EFF6FF'" onmouseout="this.style.borderColor='#e2e8f0';this.style.background='#fff'">
-            <span style="font-size:1.4rem">🏢</span>
-            <div>
-              <div style="font-weight:700;color:#1C2E44;font-size:.9rem" id="llc-drop-label">LLC</div>
-              <div style="font-size:.75rem;color:#64748b" id="llc-drop-desc">Flexible · Ideal for small businesses</div>
-            </div>
-          </button>
-
-          <button onclick="selectEntity('corp')" style="width:100%;background:#fff;border:2px solid #e2e8f0;border-radius:9px;padding:12px 16px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:all .2s;font-family:inherit;text-align:left" onmouseover="this.style.borderColor='#2563eb';this.style.background='#EFF6FF'" onmouseout="this.style.borderColor='#e2e8f0';this.style.background='#fff'">
-            <span style="font-size:1.4rem">📊</span>
-            <div>
-              <div style="font-weight:700;color:#1C2E44;font-size:.9rem" id="corp-drop-label">Corporation</div>
-              <div style="font-size:.75rem;color:#64748b" id="corp-drop-desc">Formal · Ideal for investors &amp; stock</div>
-            </div>
-          </button>
-
-        </div>
       </div>
       <div style="position:relative;display:inline-block">
         <button class="btn-hero-new btn-hero-continue" onclick="toggleContinueDropdown()" id="btn-continue-app" style="display:flex;align-items:center;gap:8px">
@@ -1299,7 +1280,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 <div class="form-overlay" id="formOverlay">
   <div style="background:var(--navy);padding:10px 24px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(28,46,68,.25)">
     <a href="/" onclick="closeForm();return false;" style="display:flex;align-items:center;gap:8px;text-decoration:none;flex-shrink:0">
-      <div style="width:28px;height:28px;background:var(--blue);border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;font-size:.85rem">FL</div>
+      <div style="width:28px;height:28px;background:var(--blue);border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;font-size:.85rem">OB</div>
     </a>
     <a href="/" onclick="closeForm();return false;" id="fp-home-btn" style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.9);padding:6px 14px;border-radius:7px;font-size:1rem;font-weight:600;text-decoration:none;white-space:nowrap;flex-shrink:0;line-height:1" title="Back to Home">
       Home
@@ -6093,6 +6074,12 @@ fmSetEntity=function(type,el){
 };
 
 
+function scrollToPackages() {
+  var el = document.querySelector('.pricing-grid') || document.getElementById('pricing');
+  if(!el) return;
+  var y = el.getBoundingClientRect().top + window.pageYOffset - 80;
+  window.scrollTo({ top: y, behavior: 'smooth' });
+}
 function toggleEntityDropdown() {
   var dd = document.getElementById('entityDropdown');
   var arrow = document.getElementById('entity-arrow');
