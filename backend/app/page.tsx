@@ -1879,6 +1879,19 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
             <div class="fm-addon-price" id="addon-str-price"><span class="fm-addon-was">$99</span>$79</div>
           </div>
 
+          <!-- Certified Copy -->
+          <div class="fm-addon" id="addon-cc" onclick="fmToggleAddon('cc',this)">
+            <div class="fm-addon-left">
+              <div class="fm-addon-check" id="cc-check"></div>
+              <div class="fm-addon-icon">&#128220;</div>
+              <div>
+                <div class="fm-addon-name"><span id="addon-cc-name">Certified Copy of Articles of Organization / Incorporation</span> <span class="tt-wrap" style="vertical-align:middle"><span class="tt-icon" style="width:0;min-width:0;height:0;padding:0;margin:0;border:0;background:none;font-size:0;color:transparent"><span class="tt-box" id="tt-cc">A state-certified copy of your Articles of Organization (LLC) or Incorporation (Corporation), stamped by the Florida Division of Corporations. Banks, courts, and some agencies require a certified copy instead of a plain copy. The Florida state fee is paid separately.</span></span></span></div>
+                <div class="fm-addon-desc" id="addon-cc-desc">Official state-certified copy of your formation document &middot; + state fee</div>
+              </div>
+            </div>
+            <div class="fm-addon-price" id="addon-cc-price"><span class="fm-addon-was">$59</span>$49</div>
+          </div>
+
           <!-- Annual Report -->
           <div class="fm-addon" id="addon-ar" onclick="fmToggleAddon('ar',this)">
             <div class="fm-addon-left">
@@ -2610,7 +2623,7 @@ function fmFilterAddons() {
   var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
   var included = { basic:[], standard:['ein'], premium:['ein','oa'] };
   var pkgIncludes = included[pkg] || [];
-  ['ein','oa','itin','ar','btr','str'].forEach(function(key) {
+  ['ein','oa','itin','ar','btr','str','cc'].forEach(function(key) {
     var el = document.getElementById('addon-' + key);
     if(!el) return;
     if(pkgIncludes.indexOf(key) !== -1) {
@@ -4250,7 +4263,7 @@ var fmData = {
   package: 'standard',
   members: [{ type:'individual', fname:'', lname:'', own:100, title:'', useCompanyAddr:true }],
   ra: 'us',
-  addons: { ein:false, oa:false, itin:false, ar:false, btr:false, str:false },
+  addons: { ein:false, oa:false, itin:false, ar:false, btr:false, str:false, cc:false },
   payment: 'card'
 };
 
@@ -4799,6 +4812,7 @@ function fmUpdateSummary() {
   if(fmData.addons.itin) extras += 69;
   if(fmData.addons.btr)  extras += 79;
   if(fmData.addons.str)  extras += 79;
+  if(fmData.addons.cc)   extras += 49;
   var expFree = pkg === 'premium';
   if(fmData.speed === 'expedited' && !expFree) extras += 99;
   var total = base + state + extras;
@@ -4927,7 +4941,7 @@ function fmBuildReview() {
   }
 
   // Add-ons
-  var anyAddon = fmData.addons.ein||fmData.addons.oa||fmData.addons.itin||fmData.addons.ar||fmData.addons.btr||fmData.addons.str;
+  var anyAddon = fmData.addons.ein||fmData.addons.oa||fmData.addons.itin||fmData.addons.ar||fmData.addons.btr||fmData.addons.str||fmData.addons.cc;
   var addSec = document.getElementById('rev-addons-section'); if(addSec) addSec.style.display = anyAddon?'block':'none';
   var addBody = document.getElementById('rev-addons-body');
   if(addBody && anyAddon) {
@@ -4937,6 +4951,7 @@ function fmBuildReview() {
     if(fmData.addons.itin) items.push('<div class="fm-review-field"><label>ITIN Application</label><span>$69</span></div>');
     if(fmData.addons.btr)  items.push('<div class="fm-review-field"><label>'+(isEs?'Recibo de Impuesto Empresarial':'Business Tax Receipt')+'</label><span>$79</span></div>');
     if(fmData.addons.str)  items.push('<div class="fm-review-field"><label>'+(isEs?'Registro de Impuesto sobre Ventas':'Sales Tax Registration')+'</label><span>$79</span></div>');
+    if(fmData.addons.cc)   items.push('<div class="fm-review-field"><label>'+(isEs?'Copia Certificada de Art\u00edculos':'Certified Copy of Articles')+'</label><span>$49</span></div>');
     if(fmData.addons.ar)   items.push('<div class="fm-review-field"><label>'+(isEs?'Declaración Anual':'Annual Report Service')+'</label><span>'+(isEs?'Anual':'Annual')+'</span></div>');
     addBody.innerHTML='<div class="fm-review-grid">'+items.join('')+'</div>';
   }
@@ -5028,6 +5043,9 @@ async function fmSubmit() {
   if(addons.ein)  extras += 79;
   if(addons.oa)   extras += 59;
   if(addons.itin) extras += 69;
+  if(addons.btr)  extras += 79;
+  if(addons.str)  extras += 79;
+  if(addons.cc)   extras += 49;
   if(speed === 'expedited' && pkg !== 'premium') extras += 99;
   var amount = (pkg in pkgPrices ? pkgPrices[pkg] : 199) + stateFee + extras;
 
@@ -5061,7 +5079,7 @@ async function fmSubmit() {
     amount:          amount,
     members:         members,
     registeredAgent: ra,
-    addons:          { ein: !!addons.ein, oa: !!addons.oa, itin: !!addons.itin, ar: !!addons.ar, btr: !!addons.btr, str: !!addons.str, raInfo: raInfo },
+    addons:          { ein: !!addons.ein, oa: !!addons.oa, itin: !!addons.itin, ar: !!addons.ar, btr: !!addons.btr, str: !!addons.str, cc: !!addons.cc, raInfo: raInfo },
     orgSignature:    orgSignature
   };
 
@@ -5411,6 +5429,7 @@ function fmTranslate(lang) {
 'tt-itin':isEs?'El ITIN es tu número de identificación fiscal si no tienes Número de Seguro Social de EE.UU. <strong>La mayoría de los bancos de EE.UU. lo exigen para abrir una cuenta bancaria empresarial</strong> — sin él, la mayoría de los bancos te rechazarán. También es obligatorio para declarar tus impuestos federales como dueño de negocio extranjero. Si planeas abrir una cuenta bancaria u operar en EE.UU., obtener tu ITIN ahora evita retrasos más adelante.':'An ITIN (Individual Taxpayer Identification Number) is your tax ID if you don\\'t have a U.S. Social Security Number. <strong>The majority of U.S. banks require it to open a business bank account</strong> — without one, most banks will turn you away. It\\'s also required to file your federal taxes as a foreign national business owner. If you plan to open a bank account or operate in the U.S., getting your ITIN now avoids delays later.',
 'tt-btr':isEs?'El Business Tax Receipt (antes conocido como Licencia Ocupacional) es requerido por la mayoría de los condados y ciudades de Florida para operar un negocio legalmente. Debe renovarse cada año y es independiente de tu registro de formación ante el Estado.':'A Business Tax Receipt (formerly known as an Occupational License) is required by most Florida counties and cities to legally operate a business. It must be renewed annually and is separate from your state formation filing.',
 'tt-str':isEs?'Si tu negocio vende productos o servicios gravables en Florida, debes registrarte ante el Departamento de Ingresos de Florida para cobrar y remitir el impuesto sobre ventas. Los negocios que venden sin registrarse pueden enfrentar multas e impuestos atrasados.':'If your business sells taxable goods or services in Florida, you are required to register with the Florida Department of Revenue to collect and remit sales tax. Businesses that sell without registering may face penalties and back taxes.',
+'tt-cc':isEs?'Una copia certificada por el estado de tus Art\u00edculos de Organizaci\u00f3n (LLC) o Incorporaci\u00f3n (Corporaci\u00f3n), sellada por la Divisi\u00f3n de Corporaciones de Florida. Bancos, tribunales y algunas agencias exigen una copia certificada en lugar de una copia simple. La tarifa estatal de Florida se paga por separado.':'A state-certified copy of your Articles of Organization (LLC) or Incorporation (Corporation), stamped by the Florida Division of Corporations. Banks, courts, and some agencies require a certified copy instead of a plain copy. The Florida state fee is paid separately.',
 'ein-extra-header':isEs?'&#128203; Información adicional requerida para tu solicitud de EIN':'&#128203; Additional info needed for your EIN application',
 'lbl-ein-rp-id':isEs?'SSN / ITIN del Responsable Principal *':'SSN / ITIN of Responsible Party *',
 'ein-no-id-txt':isEs?'Soy extranjero, no poseo SSN ni ITIN':'I\\'m a foreigner, I don\\'t have an SSN or ITIN',
@@ -5660,6 +5679,8 @@ function fmTranslate(lang) {
     'addon-btr-desc':  isEs?'Requerido por la mayoría de condados de FL para operar legalmente':'Required by most FL counties to operate legally',
     'addon-str-name':  isEs?'Registro de Impuesto sobre Ventas':'Sales Tax Registration',
     'addon-str-desc':  isEs?'Requerido si tu negocio vende bienes o servicios gravables en FL':'Required if your business sells taxable goods or services in FL',
+    'addon-cc-name':   isEs?'Copia Certificada de Art\u00edculos de Organizaci\u00f3n / Incorporaci\u00f3n':'Certified Copy of Articles of Organization / Incorporation',
+    'addon-cc-desc':   isEs?'Copia oficial certificada por el estado de tu documento de formaci\u00f3n &middot; + tarifa estatal':'Official state-certified copy of your formation document &middot; + state fee',
     'addon-ar-name':   isEs?'Servicio de Declaración Anual':'Annual Report Filing Service',
     'addon-ar-desc':   isEs?'Presentamos tu Declaración Anual de FL cada año — fecha límite 1 de mayo':'We file your FL Annual Report each year — deadline May 1st',
   };
