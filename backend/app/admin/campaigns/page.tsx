@@ -18,6 +18,7 @@ type Company = {
   email: string | null
   registration_date: string | null
   status: 'new' | 'email_sent' | 'qr_scanned' | 'purchased'
+  note: string | null
   created_at: string
 }
 
@@ -57,6 +58,30 @@ export default function CampaignsPage() {
   const [sendingId,   setSendingId]   = useState<string | null>(null)
   const [sendingAll,  setSendingAll]  = useState(false)
   const [sendMsg,     setSendMsg]     = useState('')
+
+  // Notes editor
+  const [noteEdit,   setNoteEdit]   = useState<{ id: string; name: string; text: string } | null>(null)
+  const [savingNote, setSavingNote] = useState(false)
+
+  const saveNote = async () => {
+    if (!noteEdit) return
+    setSavingNote(true)
+    try {
+      const res = await fetch('/api/campaigns/companies', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: noteEdit.id, note: noteEdit.text }),
+      })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const cleaned = noteEdit.text.trim() || null
+      setCompanies(prev => prev.map(c => (c.id === noteEdit.id ? { ...c, note: cleaned } : c)))
+      setNoteEdit(null)
+    } catch (e) {
+      alert('Error saving note: ' + (e instanceof Error ? e.message : String(e)))
+    } finally {
+      setSavingNote(false)
+    }
+  }
 
   // Idioma de la carta PDF (preview/descarga)
   const [letterLang,  setLetterLang]  = useState<'en' | 'es'>('en')
@@ -480,6 +505,7 @@ export default function CampaignsPage() {
                         <td style={{ fontWeight: 600, color: '#1C2E44', maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {c.company_name}
                           {c.owner_name && <div style={{ fontSize: '.72rem', color: '#94A3B8', fontWeight: 400, marginTop: 2 }}>{c.owner_name}</div>}
+                          {c.note && <div title={c.note} style={{ fontSize: '.72rem', color: '#b45309', fontWeight: 400, marginTop: 2, maxWidth: 210, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>📝 {c.note}</div>}
                         </td>
                         <td><span style={{ fontFamily: 'monospace', fontSize: '.8rem', color: '#475569', background: '#F8FAFC', padding: '2px 7px', borderRadius: 5 }}>{c.document_id}</span></td>
                         <td style={{ color: c.email ? '#374151' : '#CBD5E1', fontSize: '.8rem' }}>{c.email || '—'}</td>
@@ -512,6 +538,9 @@ export default function CampaignsPage() {
                             <a href={`/new-business?id=${c.document_id}`} target="_blank" rel="noreferrer" className="btn btn-ghost btn-sm" title="Preview landing page">
                               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                             </a>
+                            <button className="btn btn-ghost btn-sm" onClick={() => setNoteEdit({ id: c.id, name: c.company_name, text: c.note || '' })} title={c.note ? 'Edit note' : 'Add note'}>
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill={c.note ? '#f59e0b' : 'none'} stroke={c.note ? '#f59e0b' : 'currentColor'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                            </button>
                           </div>
                         </td>
                       </tr>
@@ -524,6 +553,27 @@ export default function CampaignsPage() {
         </div>
 
       </div>
+
+      {/* Note editor modal */}
+      {noteEdit && (
+        <div onClick={() => !savingNote && setNoteEdit(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(15,28,46,.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 20 }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: 12, width: '100%', maxWidth: 460, padding: 22, boxShadow: '0 20px 60px rgba(0,0,0,.25)' }}>
+            <div style={{ fontWeight: 700, color: '#1C2E44', fontSize: '.95rem', marginBottom: 4 }}>📝 Nota de seguimiento</div>
+            <div style={{ fontSize: '.78rem', color: '#64748b', marginBottom: 12 }}>{noteEdit.name}</div>
+            <textarea
+              value={noteEdit.text}
+              onChange={e => setNoteEdit({ ...noteEdit, text: e.target.value })}
+              placeholder="Ej: Llamé el 18/06, interesado en EIN. Reenviar correo la próxima semana..."
+              autoFocus
+              style={{ width: '100%', minHeight: 130, padding: 12, border: '1.5px solid #E2E8F0', borderRadius: 9, fontSize: '.85rem', fontFamily: 'inherit', color: '#1e293b', boxSizing: 'border-box', resize: 'vertical' }}
+            />
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 14 }}>
+              <button className="btn btn-ghost btn-sm" onClick={() => setNoteEdit(null)} disabled={savingNote}>Cancelar</button>
+              <button className="btn btn-primary btn-sm" onClick={saveNote} disabled={savingNote}>{savingNote ? 'Guardando...' : 'Guardar nota'}</button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   )
 }

@@ -87,3 +87,27 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: String(err) }, { status: 500 })
   }
 }
+
+// PATCH — update a company's note
+export async function PATCH(req: NextRequest) {
+  if (!(await verifyAdmin(req))) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+  try {
+    const { id, note } = await req.json()
+    if (!id) return NextResponse.json({ error: 'id is required' }, { status: 400 })
+
+    const supabase = getSupabaseAdmin()
+    const { data, error } = await supabase
+      .from('prospective_companies')
+      .update({ note: (note ?? '').trim() || null })
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (error) throw error
+    return NextResponse.json({ company: data })
+  } catch (err) {
+    return NextResponse.json({ error: String(err) }, { status: 500 })
+  }
+}

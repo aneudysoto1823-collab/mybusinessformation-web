@@ -223,6 +223,11 @@ Precios en checkout (`/api/sunbiz/checkout`):
 
 Estados de `prospective_companies.status`: `new → email_sent → qr_scanned → purchased`
 
+**Notas por empresa (2026-06-18):** `prospective_companies` tiene una columna `note TEXT` para notas de seguimiento del admin. Editable desde `/admin/campaigns` (botón 📝 por fila + modal; preview truncado bajo el nombre). API: `PATCH /api/campaigns/companies` con `{ id, note }`. Migración requerida:
+```sql
+ALTER TABLE prospective_companies ADD COLUMN IF NOT EXISTS note TEXT;
+```
+
 ### Carta física de cumplimiento (PDF) — rediseñada 2026-06-11
 
 Generador: `backend/lib/new-business-letter.ts` (usa `pdf-lib` + `qrcode`)
