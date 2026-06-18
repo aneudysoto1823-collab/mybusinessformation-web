@@ -118,11 +118,11 @@ function buildEmail(company: {
               <td>
                 <table cellpadding="0" cellspacing="0" border="0"><tr>
                   <td style="width:42px;height:42px;background:#2563EB;border-radius:50%;text-align:center;vertical-align:middle">
-                    <span style="color:#fff;font-weight:900;font-size:15px;font-family:Georgia,serif">OB</span>
+                    <span style="color:#fff;font-weight:900;font-size:12px;font-family:Georgia,serif">FBFC</span>
                   </td>
                   <td style="padding-left:12px">
-                    <div style="font-size:16px;font-weight:700;font-family:Georgia,serif"><span style="color:#fff">Opa</span><span style="color:#60a5fa">Biz</span></div>
-                    <div style="color:rgba(255,255,255,.6);font-size:11px;letter-spacing:.5px;text-transform:uppercase">Florida Business Formation Center</div>
+                    <div style="color:#fff;font-size:15px;font-weight:700;font-family:Georgia,serif">Florida Business Formation Center</div>
+                    <div style="color:rgba(255,255,255,.6);font-size:11px;letter-spacing:.5px">mybusinessformation.com</div>
                   </td>
                 </tr></table>
               </td>
@@ -199,7 +199,7 @@ function buildEmail(company: {
         <!-- Footer -->
         <tr>
           <td style="background:#F8FAFC;border-top:1px solid #E2E8F0;border-radius:0 0 14px 14px;padding:18px 36px;text-align:center">
-            <p style="color:#94A3B8;font-size:11px;line-height:1.6;margin:0 0 6px"><strong>opabiz.com</strong> · Florida Business Formation Center<br/>info@mybusinessformation.com</p>
+            <p style="color:#94A3B8;font-size:11px;line-height:1.6;margin:0 0 6px"><strong>Florida Business Formation Center</strong> · mybusinessformation.com<br/>info@mybusinessformation.com</p>
             <p style="color:#CBD5E1;font-size:10px;line-height:1.6;margin:0">${isEs ? 'Para dejar de recibir estos correos, contáctenos en info@mybusinessformation.com.' : 'To unsubscribe, contact info@mybusinessformation.com.'}</p>
           </td>
         </tr>
