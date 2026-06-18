@@ -89,23 +89,43 @@ const schemaOrg = {
       mainEntity: [
         {
           '@type': 'Question',
-          name: 'How long does Florida LLC formation take?',
-          acceptedAnswer: { '@type': 'Answer', text: 'Standard processing takes 7–10 business days. With Expedited Filing it is reduced to 1–3 business days.' },
+          name: 'What is the difference between an LLC and a Corporation?',
+          acceptedAnswer: { '@type': 'Answer', text: 'An LLC offers flexible management and pass-through taxation, ideal for small businesses. A Corporation is suited for businesses seeking investors or planning to issue stock. Both protect your personal assets.' },
         },
         {
           '@type': 'Question',
-          name: 'Do I need an EIN to open a business bank account?',
-          acceptedAnswer: { '@type': 'Answer', text: 'Yes. An EIN (Employer Identification Number) is required by banks to open a business checking account. It is included in our Standard and Premium packages.' },
+          name: 'How long does it take to form my business in Florida?',
+          acceptedAnswer: { '@type': 'Answer', text: 'Standard processing typically takes 7-10 business days. With Expedited Filing, it can be reduced to 1-3 business days.' },
         },
         {
           '@type': 'Question',
-          name: '¿Puedo formar una LLC en Florida si no vivo en Estados Unidos?',
-          acceptedAnswer: { '@type': 'Answer', text: 'Sí. Cualquier persona, independientemente de su país de residencia, puede formar una LLC en Florida. Nuestro paquete Premium incluye asistencia para la solicitud de ITIN.' },
+          name: 'What is a Registered Agent and do I really need one?',
+          acceptedAnswer: { '@type': 'Answer', text: 'Yes. Every LLC and Corporation in Florida is legally required to have a Registered Agent with a physical Florida street address in the state, available Monday through Friday from 9:00 a.m. to 5:00 p.m. to receive legal documents.' },
         },
         {
           '@type': 'Question',
-          name: 'What is the Florida state filing fee for an LLC?',
-          acceptedAnswer: { '@type': 'Answer', text: 'The Florida state filing fee is $125 for an LLC and $70 for a Corporation. This is paid directly to the Florida Division of Corporations and is separate from our service fee.' },
+          name: 'Do I need an EIN if I\'m a single-member LLC?',
+          acceptedAnswer: { '@type': 'Answer', text: 'Yes, in most cases. An EIN is required to open a business bank account, hire employees, and file business taxes.' },
+        },
+        {
+          '@type': 'Question',
+          name: 'Can I start a Florida LLC if I live in another country?',
+          acceptedAnswer: { '@type': 'Answer', text: 'Absolutely. There are no residency requirements to form an LLC or Corporation in Florida. Non-U.S. residents can form a Florida business entity.' },
+        },
+        {
+          '@type': 'Question',
+          name: 'What is an Operating Agreement and why does the bank require it?',
+          acceptedAnswer: { '@type': 'Answer', text: 'An Operating Agreement outlines the ownership structure and operating procedures of your LLC. Most banks require it to open a business checking account.' },
+        },
+        {
+          '@type': 'Question',
+          name: 'Can I save my application and complete it later?',
+          acceptedAnswer: { '@type': 'Answer', text: 'Yes! You can save your progress at any step and return using your order number. Your information is securely stored.' },
+        },
+        {
+          '@type': 'Question',
+          name: 'Are you a law firm? Do you provide legal advice?',
+          acceptedAnswer: { '@type': 'Answer', text: 'We are a professional document filing service, not a law firm. We do not provide legal, tax, or financial advice.' },
         },
       ],
     },
