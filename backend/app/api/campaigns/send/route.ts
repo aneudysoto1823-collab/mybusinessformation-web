@@ -23,8 +23,19 @@ function buildEmail(company: {
   owner_name: string | null
   city: string | null
   state: string
+  email: string
+  registration_date: string | null
 }, trackUrl: string, lang: 'en' | 'es') {
   const isEs = lang === 'es'
+
+  const fmtDate = (d?: string | null) => {
+    if (!d) return '—'
+    const dt = new Date(d)
+    return isNaN(dt.getTime()) ? d : dt.toLocaleDateString(isEs ? 'es-ES' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+  }
+  const registrationDate = fmtDate(company.registration_date)
+  const noticeDate = new Date().toLocaleDateString(isEs ? 'es-ES' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+  const unsubscribeUrl = `${BASE_URL}/unsubscribe?email=${encodeURIComponent(company.email)}`
 
   const subject = isEs
     ? `${company.company_name} — Aviso Informativo de Cumplimiento Empresarial`
@@ -95,10 +106,6 @@ function buildEmail(company: {
       </td>
     </tr>`).join('')
 
-  const companyMeta = company.city
-    ? `${company.document_id} · ${company.city}, ${company.state}`
-    : `${company.document_id} · ${company.state}`
-
   const html = `<!DOCTYPE html>
 <html lang="${lang}">
 <head>
@@ -145,13 +152,35 @@ function buildEmail(company: {
           <td style="background:#fff;padding:14px 36px 6px">
             <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px">
               <tr>
-                <td style="padding:14px 18px">
+                <td style="padding:16px 18px 8px">
                   <div style="color:#94A3B8;font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;margin-bottom:3px">${isEs ? 'Empresa Registrada en Florida' : 'Florida Registered Company'}</div>
                   <div style="color:#1C2E44;font-size:18px;font-weight:800;font-family:Georgia,serif">${company.company_name}</div>
-                  <div style="color:#64748b;font-size:12px;margin-top:4px">${companyMeta}</div>
                 </td>
-                <td width="90" align="right" style="padding:14px 18px;vertical-align:top">
-                  <span style="background:#1C2E44;color:#fff;border-radius:7px;padding:5px 12px;font-size:12px;font-weight:700">${company.company_type}</span>
+              </tr>
+              <tr>
+                <td style="padding:0 18px 16px">
+                  <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-top:1px solid #E2E8F0">
+                    <tr>
+                      <td width="50%" style="padding:10px 0 0;vertical-align:top">
+                        <div style="color:#94A3B8;font-size:9.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase">${isEs ? 'Número de Documento' : 'Document Number'}</div>
+                        <div style="color:#1C2E44;font-size:13px;font-weight:600">${company.document_id}</div>
+                      </td>
+                      <td width="50%" style="padding:10px 0 0;vertical-align:top">
+                        <div style="color:#94A3B8;font-size:9.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase">${isEs ? 'Fecha de Registro' : 'Registration Date'}</div>
+                        <div style="color:#1C2E44;font-size:13px;font-weight:600">${registrationDate}</div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td width="50%" style="padding:10px 0 0;vertical-align:top">
+                        <div style="color:#94A3B8;font-size:9.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase">${isEs ? 'Fecha del Aviso' : 'Notice Date'}</div>
+                        <div style="color:#1C2E44;font-size:13px;font-weight:600">${noticeDate}</div>
+                      </td>
+                      <td width="50%" style="padding:10px 0 0;vertical-align:top">
+                        <div style="color:#94A3B8;font-size:9.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase">${isEs ? 'Tipo de Entidad' : 'Entity Type'}</div>
+                        <div style="color:#1C2E44;font-size:13px;font-weight:600">${company.company_type}</div>
+                      </td>
+                    </tr>
+                  </table>
                 </td>
               </tr>
             </table>
@@ -183,6 +212,7 @@ function buildEmail(company: {
           <td style="background:#fff;padding:24px 36px 6px;text-align:center">
             <a href="${trackUrl}" style="display:inline-block;background:#2563EB;color:#fff;text-decoration:none;padding:15px 44px;border-radius:9px;font-weight:700;font-size:15px">${isEs ? 'Solicitar Estos Servicios' : 'Request These Services'} &#8594;</a>
             <div style="color:#94A3B8;font-size:12px;margin-top:12px">${isEs ? 'Su información ya está pre-cargada — solo seleccione y confirme.' : 'Your information is pre-filled — just select and confirm.'}</div>
+            <div style="color:#64748b;font-size:12px;margin-top:8px">${isEs ? '¿Preguntas? Escríbanos por WhatsApp al ' : 'Questions? WhatsApp us at '}<a href="https://wa.me/13528377755" style="color:#2563EB;text-decoration:none;font-weight:600">+1 (352) 837-7755</a></div>
           </td>
         </tr>
 
@@ -199,8 +229,8 @@ function buildEmail(company: {
         <!-- Footer -->
         <tr>
           <td style="background:#F8FAFC;border-top:1px solid #E2E8F0;border-radius:0 0 14px 14px;padding:18px 36px;text-align:center">
-            <p style="color:#94A3B8;font-size:11px;line-height:1.6;margin:0 0 6px"><strong>Florida Business Formation Center</strong> · mybusinessformation.com<br/>info@mybusinessformation.com</p>
-            <p style="color:#CBD5E1;font-size:10px;line-height:1.6;margin:0">${isEs ? 'Para dejar de recibir estos correos, contáctenos en info@mybusinessformation.com.' : 'To unsubscribe, contact info@mybusinessformation.com.'}</p>
+            <p style="color:#94A3B8;font-size:11px;line-height:1.6;margin:0 0 6px"><strong>Florida Business Formation Center</strong> · mybusinessformation.com<br/>3700 SW 27th St, Suite D104, Gainesville, FL 32608<br/>info@mybusinessformation.com</p>
+            <p style="color:#CBD5E1;font-size:10px;line-height:1.6;margin:0">${isEs ? 'Recibió este correo porque su empresa figura en los registros públicos de Florida. ' : 'You received this email because your company appears in Florida public records. '}<a href="${unsubscribeUrl}" style="color:#94A3B8;text-decoration:underline">${isEs ? 'Cancelar suscripción' : 'Unsubscribe'}</a></p>
           </td>
         </tr>
 
@@ -230,7 +260,7 @@ export async function POST(req: NextRequest) {
 
     const { data: companies, error: fetchErr } = await supabase
       .from('prospective_companies')
-      .select('id,document_id,company_name,company_type,owner_name,city,state,email,status')
+      .select('id,document_id,company_name,company_type,owner_name,city,state,email,status,registration_date')
       .in('id', company_ids)
 
     if (fetchErr) throw fetchErr
