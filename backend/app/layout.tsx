@@ -33,6 +33,9 @@ export const metadata: Metadata = {
   authors: [{ name: "OpaBiz", url: BASE_URL }],
   creator: "OpaBiz",
   publisher: "OpaBiz",
+  verification: {
+    google: "nDeULKoIoYLMD5YnWXz40lik_Q5X7Cmj72L4KvFqoQQ",
+  },
   robots: {
     index: true,
     follow: true,
