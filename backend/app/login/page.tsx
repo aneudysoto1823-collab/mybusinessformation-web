@@ -147,10 +147,10 @@ export default function LoginPage() {
         }
         .login-header-icon {
           width: 48px; height: 48px; border-radius: 14px;
-          background: rgba(255,255,255,0.08);
-          border: 1px solid rgba(255,255,255,0.12);
+          background: linear-gradient(135deg,#1C2E44,#2563EB);
           display: flex; align-items: center; justify-content: center;
-          font-size: 22px; flex-shrink: 0;
+          font-family: 'Fraunces', serif; font-weight: 700; color: #fff;
+          font-size: 19px; letter-spacing: -0.5px; flex-shrink: 0;
         }
         .login-header-name {
           font-family: 'Fraunces', serif;
@@ -235,9 +235,10 @@ export default function LoginPage() {
         }
         .brand-icon {
           width: 32px; height: 32px; border-radius: 8px;
-          background: #1e2d3d;
+          background: linear-gradient(135deg,#1C2E44,#2563EB);
           display: flex; align-items: center; justify-content: center;
-          font-size: 15px; flex-shrink: 0;
+          font-family: 'Fraunces', serif; font-weight: 700; color: #fff;
+          font-size: 13px; letter-spacing: -0.4px; flex-shrink: 0;
         }
         .brand-name {
           font-family: 'Fraunces', serif; font-size: 13px;
@@ -328,9 +329,9 @@ export default function LoginPage() {
         {/* ── Header above card ── */}
         <div className="login-header">
           <div className="login-header-brand">
-            <div className="login-header-icon">🏛️</div>
+            <div className="login-header-icon">OB</div>
             <div className="login-header-name">
-              <span style={{fontFamily:'Fraunces, serif',fontWeight:700,fontSize:'1.5rem'}}>Opa</span><span style={{fontFamily:'Fraunces, serif',fontWeight:700,fontSize:'1.5rem',color:'#60a5fa'}}>Biz</span>
+              <span style={{fontFamily:'Fraunces, serif',fontWeight:700,fontSize:'1.5rem'}}>Opa</span><span style={{fontFamily:'Fraunces, serif',fontWeight:700,fontSize:'1.5rem',color:'#2563EB'}}>Biz</span>
               <span>Staff Portal</span>
             </div>
           </div>
@@ -351,7 +352,7 @@ export default function LoginPage() {
           <div className="card-form">
 
             <div className="brand-mark">
-              <div className="brand-icon">🏛️</div>
+              <div className="brand-icon">OB</div>
               <div className="brand-name">
                 <span style={{fontFamily:'Fraunces, serif',fontWeight:700,fontSize:'1.5rem'}}>Opa</span><span style={{fontFamily:'Fraunces, serif',fontWeight:700,fontSize:'1.5rem',color:'#2563EB'}}>Biz</span>
                 <span>Staff Portal</span>
