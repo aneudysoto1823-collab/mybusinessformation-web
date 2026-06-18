@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
-import QRCode from 'qrcode'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { verifyAdminToken } from '@/lib/session'
 
@@ -14,7 +13,7 @@ const getResend = () => new Resend(process.env.RESEND_API_KEY)
 const FROM_EMAIL = 'info@opabiz.com'
 const BASE_URL   = 'https://opabiz.com'
 
-// ─── Email template ────────────────────────────────────────────────────────
+// ─── Email template (basado en la carta de cumplimiento) ─────────────────────
 
 function buildEmail(company: {
   id: string
@@ -24,51 +23,81 @@ function buildEmail(company: {
   owner_name: string | null
   city: string | null
   state: string
-}, qrDataUrl: string, trackUrl: string, lang: 'en' | 'es') {
+}, trackUrl: string, lang: 'en' | 'es') {
   const isEs = lang === 'es'
 
   const subject = isEs
-    ? `Acción Requerida — ${company.company_name} Aviso de Cumplimiento`
-    : `Action Required — ${company.company_name} Compliance Notice`
+    ? `${company.company_name} — Aviso Informativo de Cumplimiento Empresarial`
+    : `${company.company_name} — Business Compliance Information Notice`
+
+  const title = isEs
+    ? 'AVISO INFORMATIVO DE CUMPLIMIENTO EMPRESARIAL'
+    : 'BUSINESS COMPLIANCE INFORMATION NOTICE'
+
+  const greeting = isEs
+    ? `Felicitaciones por el registro reciente de ${company.company_name}.`
+    : `Congratulations on the recent registration of ${company.company_name}.`
+
+  const p1 = isEs
+    ? 'Como empresa de reciente formación en Florida, existen varios trámites, registros y servicios de cumplimiento que suelen solicitarse durante las primeras etapas de operación. Estos servicios ayudan a establecer la credibilidad del negocio, respaldar relaciones bancarias, mantener registros precisos y contribuir al buen estado legal de su empresa a largo plazo.'
+    : 'As a newly formed Florida business, there are several filings, registrations, and compliance-related services commonly requested during the early stages of operation. These services can help establish business credibility, support banking relationships, maintain accurate business records, and assist with the long-term good standing of your company.'
+
+  const p2 = isEs
+    ? 'Muchas instituciones financieras, proveedores, prestamistas, agencias gubernamentales y socios comerciales pueden solicitar documentación que confirme el estado de su negocio, su información de identificación fiscal y su historial de cumplimiento. Completar los trámites correspondientes a tiempo ayuda a evitar demoras innecesarias al abrir cuentas bancarias comerciales, solicitar financiamiento, firmar contratos, contratar empleados o expandir operaciones.'
+    : 'Many financial institutions, vendors, lenders, government agencies, and business partners may request documentation confirming your business status, tax identification information, and compliance history. Completing applicable filings in a timely manner can help avoid unnecessary delays when opening business bank accounts, applying for financing, entering into contracts, hiring employees, or expanding operations.'
+
+  const p3 = isEs
+    ? `Como ${company.company_name} es un negocio recién registrado, le ofrecemos los siguientes servicios que contribuirán a la organización y el buen funcionamiento de su empresa.`
+    : `As a newly registered business, we offer ${company.company_name} the following services, which will help organize and strengthen your operation.`
+
+  const disclosure = isEs
+    ? 'Florida Business Formation Center es un servicio profesional de preparación y presentación de documentos. No somos un bufete de abogados y no brindamos asesoría legal, fiscal ni financiera. Nuestros servicios no constituyen el ejercicio de la abogacía ni crean una relación abogado-cliente. Todas las presentaciones están sujetas a la aprobación de la División de Corporaciones de Florida y del IRS. Para orientación legal o fiscal específica a su situación, le recomendamos consultar a un abogado de Florida con licencia o a un contador público certificado. Florida Business Formation Center no está afiliado, respaldado ni aprobado por ninguna agencia gubernamental federal, estatal o local, incluidos el IRS, el Departamento de Trabajo de EE. UU. o la División de Corporaciones de Florida. Este aviso no es una factura ni una solicitud de pago. Los servicios descritos son opcionales.'
+    : 'Florida Business Formation Center is a professional document preparation and filing service. We are not a law firm and do not provide legal, tax, or financial advice. Our services do not constitute the practice of law and do not create an attorney-client relationship. All filings are subject to approval by the Florida Division of Corporations and the IRS. For legal or tax guidance specific to your situation, we encourage you to consult a licensed Florida attorney or certified public accountant. Florida Business Formation Center is not affiliated with, endorsed by, or approved by any federal, state, or local government agency, including the IRS, the U.S. Department of Labor, or the Florida Division of Corporations. This notice is not a bill, invoice, or demand for payment. The services described are optional.'
 
   const services = [
     {
-      icon: '📋',
-      name:    isEs ? 'Póster de Leyes Laborales 2026' : 'Labor Law Poster 2026',
-      price:   '$69.99',
-      desc:    isEs ? 'Requerido por ley federal para todos los negocios en Florida.' : 'Required by federal law for all Florida businesses.',
+      name: isEs ? 'Carteles de Ley Laboral' : 'Labor Law Posters',
+      price: '$120',
+      desc: isEs
+        ? 'Las leyes federales y de Florida exigen que toda empresa con al menos un empleado exhiba los carteles vigentes de ley laboral en un lugar visible. Exhibir carteles desactualizados puede generar multas en una inspección.'
+        : 'Federal and Florida law require every business with at least one employee to display current labor law notices where employees can see them. Displaying outdated posters can result in fines during an inspection.',
     },
     {
-      icon: '🔢',
-      name:    isEs ? 'EIN / Número de Identificación Fiscal' : 'EIN / Tax ID Number',
-      price:   '$99.99',
-      desc:    isEs ? 'Necesario para abrir una cuenta bancaria empresarial.' : 'Required to open a business bank account.',
+      name: isEs ? 'EIN (Número Fiscal)' : 'EIN (Tax ID)',
+      price: '$161',
+      desc: isEs
+        ? 'Número de nueve dígitos emitido por el IRS para identificar su negocio ante el fisco federal. Suele requerirse para abrir una cuenta bancaria comercial, declarar impuestos y obtener licencias.'
+        : 'A nine-digit number issued by the IRS to identify your business for federal tax purposes. Commonly required to open a business bank account, file taxes, and apply for licenses.',
     },
     {
-      icon: '✅',
-      name:    isEs ? 'Certificado de Estado de Florida' : 'Certificate of Status (FL)',
-      price:   '$49.99',
-      desc:    isEs ? 'Prueba que tu empresa está activa y en cumplimiento.' : 'Proves your company is active and in good standing.',
+      name: isEs ? 'Certificado de Estatus' : 'Certificate of Status',
+      price: '$79',
+      desc: isEs
+        ? 'Documento oficial del Estado de Florida que confirma que su negocio está activo y en buen estado. Solicitado por bancos, prestamistas, proveedores y socios.'
+        : 'An official document from the State of Florida confirming your business is active and in good standing. Frequently requested by banks, lenders, vendors, and partners.',
     },
   ]
 
   const servicesHtml = services.map(s => `
     <tr>
-      <td style="padding:14px 20px;border-bottom:1px solid #f1f5f9">
+      <td style="padding:16px 20px;border-bottom:1px solid #f1f5f9">
         <table cellpadding="0" cellspacing="0" border="0" width="100%">
           <tr>
-            <td width="36" style="font-size:1.4rem;vertical-align:top;padding-top:2px">${s.icon}</td>
             <td style="vertical-align:top">
-              <div style="font-weight:700;color:#1C2E44;font-size:15px;margin-bottom:3px">${s.name}</div>
-              <div style="color:#64748b;font-size:13px;line-height:1.5">${s.desc}</div>
+              <div style="font-weight:700;color:#1C2E44;font-size:15px;margin-bottom:4px">${s.name}</div>
+              <div style="color:#64748b;font-size:13px;line-height:1.6">${s.desc}</div>
             </td>
-            <td width="80" style="text-align:right;vertical-align:top;padding-top:2px">
-              <span style="font-weight:800;color:#2563EB;font-size:16px;white-space:nowrap">${s.price}</span>
+            <td width="64" style="text-align:right;vertical-align:top">
+              <span style="font-weight:800;color:#1C2E44;font-size:17px;white-space:nowrap">${s.price}</span>
             </td>
           </tr>
         </table>
       </td>
     </tr>`).join('')
+
+  const companyMeta = company.city
+    ? `${company.document_id} · ${company.city}, ${company.state}`
+    : `${company.document_id} · ${company.state}`
 
   const html = `<!DOCTYPE html>
 <html lang="${lang}">
@@ -82,148 +111,96 @@ function buildEmail(company: {
     <tr><td align="center">
       <table cellpadding="0" cellspacing="0" border="0" width="600" style="max-width:600px;width:100%">
 
-        <!-- Header -->
+        <!-- Membrete -->
         <tr>
-          <td style="background:linear-gradient(135deg,#1C2E44 0%,#1e40af 100%);border-radius:14px 14px 0 0;padding:28px 36px">
-            <table cellpadding="0" cellspacing="0" border="0" width="100%">
-              <tr>
-                <td>
-                  <table cellpadding="0" cellspacing="0" border="0">
-                    <tr>
-                      <td style="width:42px;height:42px;background:#2563EB;border-radius:10px;text-align:center;vertical-align:middle">
-                        <span style="color:#fff;font-weight:900;font-size:16px;font-family:Georgia,serif">FL</span>
-                      </td>
-                      <td style="padding-left:12px">
-                        <div style="color:#fff;font-weight:700;font-size:16px;font-family:Georgia,serif">OpaBiz</div>
-                        <div style="color:rgba(255,255,255,.6);font-size:11px;letter-spacing:.5px;text-transform:uppercase">Florida Business Formation Center</div>
-                      </td>
-                    </tr>
-                  </table>
-                </td>
-                <td align="right">
-                  <span style="background:rgba(239,68,68,.15);color:#fca5a5;border:1px solid rgba(239,68,68,.3);border-radius:20px;padding:4px 14px;font-size:11px;font-weight:700;letter-spacing:.4px;text-transform:uppercase">
-                    ${isEs ? '⚠ Acción Requerida' : '⚠ Action Required'}
-                  </span>
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr>
-
-        <!-- Company notice banner -->
-        <tr>
-          <td style="background:#1e40af;padding:16px 36px">
-            <table cellpadding="0" cellspacing="0" border="0" width="100%">
-              <tr>
-                <td>
-                  <div style="color:rgba(255,255,255,.7);font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px">
-                    ${isEs ? 'Empresa Registrada en Florida' : 'Florida Registered Company'}
-                  </div>
-                  <div style="color:#fff;font-size:20px;font-weight:800;font-family:Georgia,serif">${company.company_name}</div>
-                  <div style="color:rgba(255,255,255,.6);font-size:12px;margin-top:3px">
-                    ${company.document_id}${company.city ? ` · ${company.city}, ${company.state}` : ` · ${company.state}`}
-                  </div>
-                </td>
-                <td align="right" width="80">
-                  <span style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:8px;padding:5px 12px;font-size:12px;font-weight:700">${company.company_type}</span>
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr>
-
-        <!-- Body -->
-        <tr>
-          <td style="background:#fff;padding:32px 36px">
-
-            <!-- Intro -->
-            <p style="color:#1C2E44;font-size:16px;font-weight:700;margin:0 0 8px">
-              ${isEs ? `Estimado propietario de ${company.company_name},` : `Dear ${company.company_name} owner,`}
-            </p>
-            <p style="color:#475569;font-size:14px;line-height:1.7;margin:0 0 24px">
-              ${isEs
-                ? 'Revisamos los registros del estado de Florida y notamos que tu empresa puede tener requisitos de cumplimiento pendientes. Completar estos servicios mantiene tu empresa activa, en buena reputación y lista para operar.'
-                : 'We reviewed Florida state records and noticed your company may have outstanding compliance requirements. Completing these services keeps your business active, in good standing, and ready to operate.'}
-            </p>
-
-            <!-- Services -->
-            <div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px;overflow:hidden;margin-bottom:28px">
-              <div style="background:#1C2E44;padding:12px 20px">
-                <span style="color:#fff;font-weight:700;font-size:13px;letter-spacing:.3px">
-                  ${isEs ? '📋 Servicios Requeridos / Recomendados' : '📋 Required / Recommended Services'}
-                </span>
-              </div>
-              <table cellpadding="0" cellspacing="0" border="0" width="100%">
-                ${servicesHtml}
-                <!-- Bundle -->
-                <tr>
-                  <td style="padding:14px 20px;background:#ECFDF5">
-                    <table cellpadding="0" cellspacing="0" border="0" width="100%">
-                      <tr>
-                        <td>
-                          <div style="font-weight:800;color:#047857;font-size:14px;margin-bottom:2px">🎁 ${isEs ? 'Bundle Completo — Los 3 servicios' : 'Complete Bundle — All 3 services'}</div>
-                          <div style="color:#065f46;font-size:12px">${isEs ? 'Ahorra $30 al obtener los 3 juntos' : 'Save $30 when you get all 3 together'}</div>
-                        </td>
-                        <td align="right" width="90">
-                          <div style="font-weight:900;color:#047857;font-size:18px">$189.99</div>
-                          <div style="color:#a7f3d0;font-size:11px;text-decoration:line-through">$219.97</div>
-                        </td>
-                      </tr>
-                    </table>
+          <td style="background:#1C2E44;border-radius:14px 14px 0 0;padding:22px 36px">
+            <table cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
+              <td>
+                <table cellpadding="0" cellspacing="0" border="0"><tr>
+                  <td style="width:42px;height:42px;background:#2563EB;border-radius:50%;text-align:center;vertical-align:middle">
+                    <span style="color:#fff;font-weight:900;font-size:15px;font-family:Georgia,serif">OB</span>
                   </td>
-                </tr>
-              </table>
-            </div>
-
-            <!-- QR section -->
-            <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#F8FAFC;border:2px dashed #CBD5E1;border-radius:12px;margin-bottom:28px">
-              <tr>
-                <td style="padding:24px;text-align:center">
-                  <div style="font-weight:700;color:#1C2E44;font-size:14px;margin-bottom:6px">
-                    📱 ${isEs ? 'Escanea para completar tus requisitos' : 'Scan to complete your requirements'}
-                  </div>
-                  <div style="color:#64748b;font-size:12px;margin-bottom:16px">
-                    ${isEs ? 'Tu información ya está pre-llenada — solo selecciona y paga' : 'Your information is pre-filled — just select and pay'}
-                  </div>
-                  <img src="${qrDataUrl}" width="200" height="200" alt="QR Code" style="border-radius:10px;border:3px solid #E2E8F0;display:block;margin:0 auto"/>
-                  <div style="margin-top:12px;font-size:11px;color:#94A3B8;word-break:break-all">${trackUrl}</div>
-                </td>
-              </tr>
-            </table>
-
-            <!-- CTA button -->
-            <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:24px">
-              <tr>
-                <td align="center">
-                  <a href="${trackUrl}" style="display:inline-block;background:linear-gradient(135deg,#2563EB,#1C2E44);color:#fff;text-decoration:none;padding:15px 48px;border-radius:10px;font-weight:700;font-size:15px;letter-spacing:.2px">
-                    ${isEs ? '✓ Completar Mis Requisitos' : '✓ Complete My Requirements'}
-                  </a>
-                </td>
-              </tr>
-            </table>
-
-            <!-- Secondary note -->
-            <p style="color:#64748b;font-size:12px;line-height:1.6;text-align:center;margin:0 0 8px">
-              ${isEs
-                ? '¿Tienes preguntas? Contáctanos en <a href="mailto:info@mybusinessformation.com" style="color:#2563EB">info@mybusinessformation.com</a>'
-                : 'Questions? Contact us at <a href="mailto:info@mybusinessformation.com" style="color:#2563EB">info@mybusinessformation.com</a>'}
-            </p>
-
+                  <td style="padding-left:12px">
+                    <div style="font-size:16px;font-weight:700;font-family:Georgia,serif"><span style="color:#fff">Opa</span><span style="color:#60a5fa">Biz</span></div>
+                    <div style="color:rgba(255,255,255,.6);font-size:11px;letter-spacing:.5px;text-transform:uppercase">Florida Business Formation Center</div>
+                  </td>
+                </tr></table>
+              </td>
+              <td align="right" style="color:rgba(255,255,255,.55);font-size:11px;text-transform:uppercase;letter-spacing:.5px">
+                ${isEs ? 'Aviso Informativo' : 'Information Notice'}
+              </td>
+            </tr></table>
           </td>
         </tr>
 
-        <!-- Footer / Legal -->
+        <!-- Título -->
         <tr>
-          <td style="background:#F8FAFC;border-top:1px solid #E2E8F0;border-radius:0 0 14px 14px;padding:20px 36px">
-            <p style="color:#94A3B8;font-size:11px;line-height:1.6;margin:0 0 8px;text-align:center">
-              <strong>opabiz.com</strong> · Florida Business Formation Center<br/>
-              info@mybusinessformation.com · opabiz.com
-            </p>
-            <p style="color:#CBD5E1;font-size:10px;line-height:1.6;margin:0;text-align:center">
-              ${isEs
-                ? 'Este mensaje es una notificación informativa sobre el estado de cumplimiento de tu empresa registrada en Florida. OpaBiz es un servicio de preparación de documentos — no somos un bufete de abogados y no brindamos asesoría legal, fiscal ni financiera. Los precios mostrados son de nuestros servicios de preparación y no incluyen cargos estatales. Para dejar de recibir estos correos, contáctanos en info@mybusinessformation.com.'
-                : 'This message is an informational notice regarding the compliance status of your Florida-registered company. OpaBiz is a document preparation service — we are not a law firm and do not provide legal, tax, or financial advice. Prices shown are for our preparation services and do not include state fees. To unsubscribe, contact info@mybusinessformation.com.'}
-            </p>
+          <td style="background:#fff;padding:26px 36px 6px;text-align:center">
+            <div style="color:#1C2E44;font-size:16px;font-weight:800;letter-spacing:.7px;font-family:Georgia,serif">${title}</div>
+          </td>
+        </tr>
+
+        <!-- Recuadro de registro -->
+        <tr>
+          <td style="background:#fff;padding:14px 36px 6px">
+            <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px">
+              <tr>
+                <td style="padding:14px 18px">
+                  <div style="color:#94A3B8;font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;margin-bottom:3px">${isEs ? 'Empresa Registrada en Florida' : 'Florida Registered Company'}</div>
+                  <div style="color:#1C2E44;font-size:18px;font-weight:800;font-family:Georgia,serif">${company.company_name}</div>
+                  <div style="color:#64748b;font-size:12px;margin-top:4px">${companyMeta}</div>
+                </td>
+                <td width="90" align="right" style="padding:14px 18px;vertical-align:top">
+                  <span style="background:#1C2E44;color:#fff;border-radius:7px;padding:5px 12px;font-size:12px;font-weight:700">${company.company_type}</span>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- Cuerpo -->
+        <tr>
+          <td style="background:#fff;padding:20px 36px 6px">
+            <p style="color:#1C2E44;font-size:15px;font-weight:700;margin:0 0 16px">${greeting}</p>
+            <p style="color:#475569;font-size:13.5px;line-height:1.7;margin:0 0 14px">${p1}</p>
+            <p style="color:#475569;font-size:13.5px;line-height:1.7;margin:0 0 14px">${p2}</p>
+            <p style="color:#475569;font-size:13.5px;line-height:1.7;margin:0">${p3}</p>
+          </td>
+        </tr>
+
+        <!-- Servicios -->
+        <tr>
+          <td style="background:#fff;padding:16px 36px 6px">
+            <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border:1px solid #E2E8F0;border-radius:10px;overflow:hidden">
+              <tr><td style="background:#1C2E44;padding:11px 20px"><span style="color:#fff;font-weight:700;font-size:13px;letter-spacing:.3px">${isEs ? 'Servicios Disponibles' : 'Available Services'}</span></td></tr>
+              ${servicesHtml}
+            </table>
+          </td>
+        </tr>
+
+        <!-- CTA -->
+        <tr>
+          <td style="background:#fff;padding:24px 36px 6px;text-align:center">
+            <a href="${trackUrl}" style="display:inline-block;background:#2563EB;color:#fff;text-decoration:none;padding:15px 44px;border-radius:9px;font-weight:700;font-size:15px">${isEs ? 'Solicitar Estos Servicios' : 'Request These Services'} &#8594;</a>
+            <div style="color:#94A3B8;font-size:12px;margin-top:12px">${isEs ? 'Su información ya está pre-cargada — solo seleccione y confirme.' : 'Your information is pre-filled — just select and confirm.'}</div>
+          </td>
+        </tr>
+
+        <!-- Aviso Importante (disclosure) -->
+        <tr>
+          <td style="background:#fff;padding:18px 36px 26px">
+            <div style="border-top:1px solid #eef2f7;padding-top:16px">
+              <div style="color:#1C2E44;font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px">${isEs ? 'Aviso Importante' : 'Important Disclosure'}</div>
+              <p style="color:#94A3B8;font-size:10.5px;line-height:1.7;margin:0">${disclosure}</p>
+            </div>
+          </td>
+        </tr>
+
+        <!-- Footer -->
+        <tr>
+          <td style="background:#F8FAFC;border-top:1px solid #E2E8F0;border-radius:0 0 14px 14px;padding:18px 36px;text-align:center">
+            <p style="color:#94A3B8;font-size:11px;line-height:1.6;margin:0 0 6px"><strong>opabiz.com</strong> · Florida Business Formation Center<br/>info@mybusinessformation.com</p>
+            <p style="color:#CBD5E1;font-size:10px;line-height:1.6;margin:0">${isEs ? 'Para dejar de recibir estos correos, contáctenos en info@mybusinessformation.com.' : 'To unsubscribe, contact info@mybusinessformation.com.'}</p>
           </td>
         </tr>
 
@@ -271,18 +248,11 @@ export async function POST(req: NextRequest) {
       }
 
       try {
-        // Build track URL (QR points here, records scan then redirects)
+        // Build track URL (records scan then redirects to the pre-filled landing)
         const trackUrl = `${BASE_URL}/api/campaigns/track-scan?doc=${encodeURIComponent(company.document_id)}&cid=${company.id}`
 
-        // Generate QR code as data URL (embedded directly in email)
-        const qrDataUrl = await QRCode.toDataURL(trackUrl, {
-          width: 400,
-          margin: 2,
-          color: { dark: '#1C2E44', light: '#FFFFFF' },
-        })
-
         // Build email
-        const { subject, html } = buildEmail(company, qrDataUrl, trackUrl, lang as 'en' | 'es')
+        const { subject, html } = buildEmail(company, trackUrl, lang as 'en' | 'es')
 
         // Send via Resend
         await getResend().emails.send({
