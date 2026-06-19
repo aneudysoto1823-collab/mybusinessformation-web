@@ -21,6 +21,10 @@ const getResend = () => new Resend(process.env.RESEND_API_KEY)
 // para que al admin responder con un click vaya al cliente.
 const TO_EMAIL = process.env.CONTACT_TO_EMAIL || 'info@opabiz.com'
 const FROM_EMAIL = process.env.CONTACT_FROM_EMAIL || process.env.RESEND_FROM_TRANSACTIONAL || 'onboarding@resend.dev'
+const REPLY_TO_DEFAULT = process.env.RESEND_REPLY_TO || 'info@opabiz.com'
+// Display Names: para el admin "OpaBiz Contact", para el visitor "OpaBiz".
+const FROM_OPABIZ_CONTACT = `OpaBiz Contact <${FROM_EMAIL}>`
+const FROM_OPABIZ = `OpaBiz <${FROM_EMAIL}>`
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -85,10 +89,10 @@ export async function POST(req: NextRequest) {
 
   try {
     const result = await getResend().emails.send({
-      from: FROM_EMAIL,
+      from: FROM_OPABIZ_CONTACT,
       to: TO_EMAIL,
       replyTo: email,
-      subject: `[OpaBiz Contact] ${subject}`.slice(0, 240),
+      subject: `OpaBiz Contact: ${subject}`.slice(0, 240),
       html: `
         <div style="font-family:Arial,sans-serif;max-width:640px;margin:0 auto;color:#1e293b">
           <div style="background:#1C2E44;padding:20px 28px;border-radius:10px 10px 0 0">
@@ -115,6 +119,47 @@ export async function POST(req: NextRequest) {
       console.error('[/api/contact] Resend error:', result.error)
       return NextResponse.json({ error: 'Email service is temporarily unavailable. Please try WhatsApp.' }, { status: 502 })
     }
+
+    // ── Confirmación al visitor (D2) — non-blocking ────────────────────────────
+    // Le confirma al cliente que recibimos su mensaje y que respondemos en 24h.
+    // Sin esto el cliente solo ve el panel verde "Got it" pero no tiene constancia
+    // en su inbox de que el mensaje salió. Si este envío falla, no rompe el flow
+    // principal (solo loguea).
+    getResend().emails.send({
+      from: FROM_OPABIZ,
+      replyTo: REPLY_TO_DEFAULT,
+      to: email,
+      subject: `OpaBiz: ✅ We got your message — we'll respond within 24 hours`,
+      html: `
+        <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#1e293b">
+          <div style="background:#1C2E44;padding:24px 32px;border-radius:10px 10px 0 0">
+            <h1 style="color:#fff;font-size:22px;margin:0">OpaBiz</h1>
+            <p style="color:rgba(255,255,255,0.7);font-size:13px;margin:4px 0 0">Florida Business Formation Center</p>
+          </div>
+          <div style="background:#fff;padding:32px;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 10px 10px">
+            <h2 style="color:#1C2E44;font-size:20px;margin:0 0 14px">Hi ${safeName}, we got your message ✅</h2>
+            <p style="color:#475569;line-height:1.7">
+              Thanks for reaching out to OpaBiz. Our team has received your message and will reply to your email within
+              <strong style="color:#1C2E44">24 business hours</strong>.
+            </p>
+            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:18px 20px;margin:20px 0">
+              <p style="margin:0 0 8px;font-size:13px;color:#64748b"><strong>Your message</strong></p>
+              <p style="margin:0;font-size:13px;color:#1e293b"><strong>Subject:</strong> ${safeSubject}</p>
+              <div style="margin-top:8px;font-size:13px;color:#475569;line-height:1.6;white-space:pre-wrap">${safeMessage}</div>
+            </div>
+            <p style="color:#475569;line-height:1.7">
+              Need it sooner? Reach us on
+              <a href="https://wa.me/13528377755" style="color:#059669;font-weight:600">WhatsApp</a>
+              and a team member will help you right away.
+            </p>
+            <p style="margin-top:32px;color:#94a3b8;font-size:12px">
+              OpaBiz · opabiz.com<br/>
+              Florida Business Formation Center. We are a document preparation service, not a law firm.
+            </p>
+          </div>
+        </div>
+      `,
+    }).catch(err => console.error('[/api/contact] Confirmation to visitor failed (non-fatal):', err))
 
     return NextResponse.json({ success: true })
   } catch (err) {

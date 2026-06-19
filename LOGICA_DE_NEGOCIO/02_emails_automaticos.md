@@ -36,10 +36,13 @@ Todos los emails del dominio están como buzones reales en Zoho — el equipo lo
 
 ### Convención de la industria aplicada
 
+- **FROM con Display Name "OpaBiz"**: sin esto, el cliente ve `noreply` o `marketing` en su inbox y no sabe de quién es. Con el formato `OpaBiz <noreply@opabiz.com>` el cliente ve **"OpaBiz"** como remitente y el email queda visualmente atado a la marca.
 - **FROM noreply@** señaliza "automático del sistema"; el cliente no se confunde respondiendo al buzón equivocado.
+- **FROM support@ para emails que requieren respuesta del cliente** (A2 nombres tomados, A4 sugerencias): el display "OpaBiz Support" y el email `support@` dejan clarísimo que pueden contestarnos directo.
 - **Marketing FROM separado**: si una campaña recibe spam complaints, Resend penaliza la reputación de ese FROM. Al separarlo, NUNCA cae la reputación de los emails transaccionales (que son los críticos — confirmación de pago, certificado, etc.). Es el patrón de Stripe, GitHub, Linear, etc.
 - **Reply-To info@**: cuando el cliente responde al email automático, llega a un buzón leído. Sin Reply-To, la respuesta cae en `noreply@` que nadie chequea.
 - **Alertas internas dentro del dominio Zoho**: si mañana cambia el founder o se suma equipo, no hay emails colgando en Gmail personales.
+- **Subject prefijado con "OpaBiz:"**: en clientes de correo como Gmail mobile, el inbox muestra primero el remitente y después el subject. Con "OpaBiz:" en el subject el cliente reconoce instantáneamente de qué empresa es, incluso si el From por alguna razón se ve raro.
 
 ---
 
@@ -52,6 +55,7 @@ Setear en Vercel **(Production + Preview + Development)** y replicar en `backend
 | `RESEND_API_KEY` | API key de Resend (cuenta OpaBiz) | Todos los emails |
 | `RESEND_FROM_TRANSACTIONAL` | `noreply@opabiz.com` | 6 emails de órdenes + Stripe webhook + contact form (fallback) |
 | `RESEND_FROM_MARKETING` | `marketing@opabiz.com` | Campañas |
+| `RESEND_FROM_SUPPORT` | `support@opabiz.com` | Emails que **requieren respuesta del cliente** (A2 names taken, A4 sugerencias) |
 | `RESEND_REPLY_TO` | `info@opabiz.com` | TODOS los emails |
 | `INTERNAL_ALERT_EMAIL` | `admin@opabiz.com` | Alerta de nombres tomados + alerta Stripe |
 | `CONTACT_FROM_EMAIL` | `noreply@opabiz.com` | Form de contacto (override de RESEND_FROM_TRANSACTIONAL si querés un FROM distinto solo para contact) |
@@ -141,30 +145,40 @@ Todos van DESDE `RESEND_FROM_TRANSACTIONAL` con Reply-To `RESEND_REPLY_TO`.
 
 #### D1. Mensaje del Visitor → ADMIN INFO
 - **Cuándo:** Visitor envía el form de `/contact`.
-- **FROM:** `CONTACT_FROM_EMAIL` (cae a transaccional si no está seteado) = `noreply@opabiz.com`.
+- **FROM:** `OpaBiz Contact <noreply@opabiz.com>` (display name + email).
 - **TO:** `CONTACT_TO_EMAIL` = `info@opabiz.com`.
 - **Reply-To:** El email del visitor (sobreescribe el reply-to default) — para responder con un click sin copiar/pegar.
-- **Subject:** `[OpaBiz Contact] {subject elegido del select}`.
+- **Subject:** `OpaBiz Contact: {subject elegido del select}`.
 - **Rate limit:** 5/h por IP (anti-spam, función `checkContactRateLimit` en `backend/lib/rate-limit.ts`).
 - **Validación:** name, email válido, subject, message mínimo 5 chars. Límites máximos defensivos por campo contra payload abuse.
+
+#### D2. Confirmación al Visitor → VISITOR
+- **Cuándo:** Inmediatamente después de D1 (non-blocking — si D2 falla, D1 ya llegó al admin y la response al browser sigue siendo `success: true`).
+- **FROM:** `OpaBiz <noreply@opabiz.com>`.
+- **TO:** Email del visitor.
+- **Reply-To:** `info@opabiz.com` (si el visitor responde, va al buzón Zoho monitoreado).
+- **Subject:** `OpaBiz: ✅ We got your message — we'll respond within 24 hours`.
+- **Contenido:** Saludo personalizado con el nombre del visitor, copia del subject y mensaje original (constancia en su inbox), promesa de respuesta en 24h hábiles, link a WhatsApp para casos urgentes.
+- **Por qué es importante:** Sin esto, el visitor solo ve el panel verde "Got it" en pantalla y nunca recibe nada en su inbox — eso genera dudas ("¿llegó? ¿lo van a leer?"). Con D2 tiene constancia tangible y conoce el SLA de 24h.
 
 ---
 
 ## Resumen completo de destinatarios
 
-| Email | Tipo | FROM | TO | Reply-To | Trigger |
-|---|---|---|---|---|---|
-| A1 Confirmación orden | Transaccional | noreply@ | cliente | info@ | Pago Stripe / POST /api/orders |
-| A2 Nombres tomados | Transaccional | noreply@ | cliente | info@ | Admin marca `names_taken` |
-| A3 Alerta nombres | Interno | noreply@ | admin@ | info@ | Mismo que A2 (paralelo) |
-| A4 Sugerencias | Transaccional | noreply@ | cliente | info@ | Admin manda manual |
-| A5 Procesada | Transaccional | noreply@ | cliente | info@ | Admin avanza a `filed` |
-| A6 Aprobada | Transaccional | noreply@ | cliente | info@ | Admin avanza a `approved` |
-| A7 Certificate | Transaccional | noreply@ | cliente | info@ | Admin sube PDF |
-| B1 Carta QR | Marketing | marketing@ | lead | info@ | Admin lanza campaña |
-| C1 Confirmación NBL | Transaccional | noreply@ | cliente | info@ | Stripe webhook NBL |
-| C2 Alerta nueva orden NBL | Interno | noreply@ | admin@ | info@ | Mismo que C1 |
-| D1 Contact form | Visitor → admin | noreply@ | info@ | email del visitor | Submit del form `/contact` |
+| Email | Tipo | Display Name | FROM | TO | Reply-To | Subject |
+|---|---|---|---|---|---|---|
+| A1 Confirmación orden | Transaccional | **OpaBiz** | noreply@ | cliente | info@ | `OpaBiz: ✅ Your Florida LLC order is in — {company}` |
+| A2 Nombres tomados | Transaccional (requiere respuesta) | **OpaBiz Support** | support@ | cliente | info@ | `OpaBiz: ⚠️ Action needed — your name options are taken` |
+| A3 Alerta nombres | Interno | **OpaBiz Alerts** | noreply@ | admin@ | info@ | `OpaBiz Alerts: 🚨 Nombres tomados — contactar cliente` |
+| A4 Sugerencias | Transaccional (requiere respuesta) | **OpaBiz Support** | support@ | cliente | info@ | `OpaBiz: ✅ We found available names for your LLC` |
+| A5 Procesada | Transaccional | **OpaBiz** | noreply@ | cliente | info@ | `OpaBiz: 📋 Your Florida filing is in — {company}` |
+| A6 Aprobada | Transaccional | **OpaBiz** | noreply@ | cliente | info@ | `OpaBiz: 🎉 Florida approved your business — {company}` |
+| A7 Certificate | Transaccional | **OpaBiz** | noreply@ | cliente | info@ | `OpaBiz: 🏆 Your Articles of Organization are ready — {company}` |
+| B1 Carta QR | Marketing | **OpaBiz** | marketing@ | lead | info@ | `OpaBiz: Business Compliance Notice — {company}` |
+| C1 Confirmación NBL | Transaccional | **OpaBiz** | noreply@ | cliente | info@ | `OpaBiz: ✅ Payment confirmed — {company}` |
+| C2 Alerta nueva orden NBL | Interno | **OpaBiz Alerts** | noreply@ | admin@ | info@ | `OpaBiz Alerts: 🆕 Nueva orden New Business Letter` |
+| D1 Contact form al admin | Visitor → admin | **OpaBiz Contact** | noreply@ | info@ | email del visitor | `OpaBiz Contact: {subject del visitor}` |
+| D2 Confirmación al visitor | Transaccional | **OpaBiz** | noreply@ | visitor | info@ | `OpaBiz: ✅ We got your message — we'll respond within 24 hours` |
 
 ---
 
@@ -242,9 +256,12 @@ Cada email a cliente incluye `unsubscribeFooter(email)` con:
 - [x] `replyTo` agregado en los 12 sends del proyecto (1 en /api/orders + 7 en notifications.ts + 2 en stripe + 1 en campaigns + 1 en contact).
 - [x] **Fix `/api/orders` (commit `36db324`)** — se había pasado en la auditoría original porque su send es inline (no llamaba a notifications.ts). Las órdenes nuevas creaban OK pero el email de confirmación fallaba en silencio.
 - [x] **Fix bug `rate.allowed` → `rate.success` en /api/contact (commit `5e63db8`)** — el endpoint del form rechazaba TODAS las requests con 429 sin importar IP. Bug introducido al crear el endpoint.
+- [x] **Display Names + Subjects con "OpaBiz"** en todos los 12 emails. El cliente ahora ve "OpaBiz" como remitente en su inbox (antes veía solo `noreply` o `marketing`).
+- [x] **Nuevo email D2 de confirmación al visitor** del form de contacto — antes solo veían el panel verde en pantalla, ahora reciben constancia en su inbox con la promesa de respuesta en 24h.
+- [x] `RESEND_FROM_SUPPORT = support@opabiz.com` seteado en Vercel para A2 y A4 (emails que requieren respuesta del cliente).
 - [ ] Preview env vars (bug del CLI — setear manualmente en dashboard si se necesitan PR previews funcionales).
-- [ ] Test E2E: hacer una orden de prueba real, verificar que confirmación llega a cliente desde `noreply@opabiz.com`.
-- [ ] Test contact form en producción.
+- [ ] Test E2E: hacer una orden de prueba real, verificar que confirmación llega a cliente desde "OpaBiz <noreply@opabiz.com>".
+- [ ] Test contact form: verificar que llegan D1 al admin Y D2 al visitor.
 - [ ] Limpiar `sendOrderConfirmation()` dormida en `lib/notifications.ts` o consolidar el template de `/api/orders` para que apunte a ella.
 
 ---
@@ -266,3 +283,4 @@ Cada email a cliente incluye `unsubscribeFooter(email)` con:
 - **2026-05-18:** Eliminada copia muerta de notifications en Express (commit `c7bdc07`). `backend/lib/notifications.ts` es ahora canónica.
 - **2026-06-19:** Migración a cuenta Resend de OpaBiz + centralización de FROM/Reply-To/alerts en env vars (commit `d7f9c68`). Página `/contact` + endpoint `/api/contact` creados (commit `369eb9b`). Doc actualizado.
 - **2026-06-19 (continuación):** Fix bug `rate.allowed` → `rate.success` en `/api/contact` (commit `5e63db8`) — el endpoint rechazaba todas las requests con 429. Fix env vars en `/api/orders/route.ts` (commit `36db324`) — su send inline se había pasado en la migración inicial y seguía con `onboarding@resend.dev` hardcoded. Documentada la situación de `sendOrderConfirmation()` dormida en notifications.ts.
+- **2026-06-19 (sesión tarde):** Display Names + Subjects con "OpaBiz" en los 12 emails (antes el cliente veía solo `noreply` o `marketing` en su inbox sin saber de qué empresa era). Agregado email D2 — confirmación al visitor del form de contacto que antes nunca recibía nada en su inbox. Nueva env var `RESEND_FROM_SUPPORT = support@opabiz.com` para A2 (nombres tomados) y A4 (sugerencias) que requieren respuesta del cliente — display "OpaBiz Support" deja claro que pueden contestar.

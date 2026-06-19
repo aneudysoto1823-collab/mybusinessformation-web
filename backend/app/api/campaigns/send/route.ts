@@ -15,6 +15,8 @@ const getResend = () => new Resend(process.env.RESEND_API_KEY)
 // Reply-To apunta a info@ para que las respuestas lleguen a un buzón leído.
 const FROM_EMAIL = process.env.RESEND_FROM_MARKETING || 'marketing@opabiz.com'
 const REPLY_TO   = process.env.RESEND_REPLY_TO || 'info@opabiz.com'
+// Display Name "OpaBiz" en el inbox del lead — sin esto solo se ve "marketing".
+const FROM_OPABIZ = `OpaBiz <${FROM_EMAIL}>`
 const BASE_URL   = 'https://opabiz.com'
 
 // ─── Email template (basado en la carta de cumplimiento) ─────────────────────
@@ -42,8 +44,8 @@ function buildEmail(company: {
   const unsubscribeUrl = `${BASE_URL}/unsubscribe?email=${encodeURIComponent(company.email)}`
 
   const subject = isEs
-    ? `${company.company_name} — Aviso Informativo de Cumplimiento Empresarial`
-    : `${company.company_name} — Business Compliance Information Notice`
+    ? `OpaBiz: Aviso Informativo de Cumplimiento — ${company.company_name}`
+    : `OpaBiz: Business Compliance Notice — ${company.company_name}`
 
   const title = isEs
     ? 'AVISO INFORMATIVO DE CUMPLIMIENTO EMPRESARIAL'
@@ -290,7 +292,7 @@ export async function POST(req: NextRequest) {
 
         // Send via Resend
         await getResend().emails.send({
-          from:    FROM_EMAIL,
+          from:    FROM_OPABIZ,
           replyTo: REPLY_TO,
           to:      company.email,
           subject,

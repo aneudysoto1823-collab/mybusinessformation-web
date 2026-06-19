@@ -14,6 +14,9 @@ const FROM          = process.env.RESEND_FROM_TRANSACTIONAL || 'onboarding@resen
 const REPLY_TO      = process.env.RESEND_REPLY_TO || 'info@opabiz.com'
 const PORTAL        = 'https://opabiz.com/client-portal'
 const ADMIN_EMAIL   = process.env.INTERNAL_ALERT_EMAIL || 'aneurysoto@gmail.com'
+// Display Names: "OpaBiz" para el cliente, "OpaBiz Alerts" para alertas internas.
+const FROM_OPABIZ        = `OpaBiz <${FROM}>`
+const FROM_OPABIZ_ALERTS = `OpaBiz Alerts <${FROM}>`
 
 export async function POST(req: NextRequest) {
   const body      = await req.text()
@@ -130,12 +133,12 @@ export async function POST(req: NextRequest) {
     .join('')
 
   await getResend().emails.send({
-    from: FROM,
+    from: FROM_OPABIZ,
     replyTo: REPLY_TO,
     to: email,
     subject: isEs
-      ? `✅ Pago confirmado — ${companyName}`
-      : `✅ Payment confirmed — ${companyName}`,
+      ? `OpaBiz: ✅ Pago confirmado — ${companyName}`
+      : `OpaBiz: ✅ Payment confirmed — ${companyName}`,
     html: `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#1e293b">
         <div style="background:#1C2E44;padding:24px 32px;border-radius:10px 10px 0 0">
@@ -188,10 +191,10 @@ export async function POST(req: NextRequest) {
 
   // Notify admin of new New Business Letter order
   getResend().emails.send({
-    from: FROM,
+    from: FROM_OPABIZ_ALERTS,
     replyTo: REPLY_TO,
     to: ADMIN_EMAIL,
-    subject: `🆕 Nueva orden New Business Letter — ${companyName}`,
+    subject: `OpaBiz Alerts: 🆕 Nueva orden New Business Letter — ${companyName}`,
     html: `
       <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;color:#1e293b">
         <div style="background:#c2410c;padding:20px 28px;border-radius:10px 10px 0 0">

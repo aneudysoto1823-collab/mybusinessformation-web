@@ -5,10 +5,20 @@ const getResend = () => new Resend(process.env.RESEND_API_KEY)
 
 // FROM / Reply-To / alertas internas centralizados en env vars (Vercel).
 // Fallback al sandbox de Resend / Gmail viejo para que en dev local sin .env el
-// código no rompa — el deploy productivo siempre debe tener las 3 seteadas.
-const FROM_EMAIL = process.env.RESEND_FROM_TRANSACTIONAL || 'onboarding@resend.dev'
-const REPLY_TO = process.env.RESEND_REPLY_TO || 'info@opabiz.com'
-const INTERNAL_EMAIL = process.env.INTERNAL_ALERT_EMAIL || 'aneurysoto@gmail.com'
+// código no rompa — el deploy productivo siempre debe tener las 4 seteadas.
+const FROM_EMAIL    = process.env.RESEND_FROM_TRANSACTIONAL || 'onboarding@resend.dev'
+const FROM_SUPPORT  = process.env.RESEND_FROM_SUPPORT       || 'support@opabiz.com'
+const REPLY_TO      = process.env.RESEND_REPLY_TO            || 'info@opabiz.com'
+const INTERNAL_EMAIL = process.env.INTERNAL_ALERT_EMAIL       || 'aneurysoto@gmail.com'
+
+// Display Name en el campo "From" — lo que el cliente ve en su inbox.
+// Sin esto el cliente solo ve "noreply" como remitente y no sabe que es de OpaBiz.
+//   FROM_OPABIZ        → emails informativos (confirmación, certificate, etc.)
+//   FROM_OPABIZ_SUPPORT → emails que REQUIEREN respuesta del cliente (nombres tomados, sugerencias)
+//   FROM_OPABIZ_ALERTS  → alertas internas que solo lee el admin
+const FROM_OPABIZ         = `OpaBiz <${FROM_EMAIL}>`
+const FROM_OPABIZ_SUPPORT = `OpaBiz Support <${FROM_SUPPORT}>`
+const FROM_OPABIZ_ALERTS  = `OpaBiz Alerts <${FROM_EMAIL}>`
 
 function unsubscribeFooter(email: string): string {
   return `
@@ -32,10 +42,10 @@ export const sendOrderConfirmation = async (order: {
   id: string
 }) => {
   await getResend().emails.send({
-    from: FROM_EMAIL,
+    from: FROM_OPABIZ,
     replyTo: REPLY_TO,
     to: order.email,
-    subject: `✅ We received your order — ${order.companyName}`,
+    subject: `OpaBiz: ✅ Your Florida LLC order is in — ${order.companyName}`,
     html: `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#1e293b">
         <div style="background:#1C2E44;padding:24px 32px;border-radius:10px 10px 0 0">
@@ -92,12 +102,14 @@ export const sendAllNamesTaken = async (order: {
   }
 
   await Promise.all([
-    // Email al cliente
+    // Email al cliente — usa FROM_OPABIZ_SUPPORT porque REQUIERE respuesta
+    // del cliente (nuevos nombres). Display "OpaBiz Support" + from support@
+    // dejan claro que pueden contestarnos directo.
     getResend().emails.send({
-      from: FROM_EMAIL,
+      from: FROM_OPABIZ_SUPPORT,
       replyTo: REPLY_TO,
       to: order.email,
-      subject: `⚠️ Action required — all 3 name options are taken`,
+      subject: `OpaBiz: ⚠️ Action needed — your name options are taken`,
       html: `
         <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#1e293b">
           <div style="background:#1C2E44;padding:24px 32px;border-radius:10px 10px 0 0">
@@ -131,10 +143,10 @@ export const sendAllNamesTaken = async (order: {
     }),
     // Alerta interna al admin
     getResend().emails.send({
-      from: FROM_EMAIL,
+      from: FROM_OPABIZ_ALERTS,
       replyTo: REPLY_TO,
       to: INTERNAL_EMAIL,
-      subject: `🚨 Nombres tomados — contactar cliente (Orden ${order.id})`,
+      subject: `OpaBiz Alerts: 🚨 Nombres tomados — contactar cliente (Orden ${order.id})`,
       html: `
         <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#1e293b">
           <div style="background:#b91c1c;padding:20px 32px;border-radius:10px 10px 0 0">
@@ -189,11 +201,12 @@ export const sendSuggestNames = async (order: {
     .map(n => `<li style="margin:8px 0;font-size:14px;color:#166534"><strong>✅ ${n}</strong></li>`)
     .join('')
 
+  // FROM_OPABIZ_SUPPORT — el cliente debe confirmar cuál nombre prefiere.
   await getResend().emails.send({
-    from: FROM_EMAIL,
+    from: FROM_OPABIZ_SUPPORT,
     replyTo: REPLY_TO,
     to: order.email,
-    subject: `✅ Good news! We found available names for your business`,
+    subject: `OpaBiz: ✅ We found available names for your LLC`,
     html: `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#1e293b">
         <div style="background:#1C2E44;padding:24px 32px;border-radius:10px 10px 0 0">
@@ -250,10 +263,10 @@ export const sendOrderProcessed = async (order: {
     : '3–5 business days'
 
   await getResend().emails.send({
-    from: FROM_EMAIL,
+    from: FROM_OPABIZ,
     replyTo: REPLY_TO,
     to: order.email,
-    subject: `📋 Your filing is in — ${order.companyName}`,
+    subject: `OpaBiz: 📋 Your Florida filing is in — ${order.companyName}`,
     html: `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#1e293b">
         <div style="background:#1C2E44;padding:24px 32px;border-radius:10px 10px 0 0">
@@ -304,10 +317,10 @@ export const sendOrderApproved = async (order: {
   }
 
   await getResend().emails.send({
-    from: FROM_EMAIL,
+    from: FROM_OPABIZ,
     replyTo: REPLY_TO,
     to: order.email,
-    subject: `🎉 Approved! Florida confirmed your business — ${order.companyName}`,
+    subject: `OpaBiz: 🎉 Florida approved your business — ${order.companyName}`,
     html: `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#1e293b">
         <div style="background:#1C2E44;padding:24px 32px;border-radius:10px 10px 0 0">
@@ -359,10 +372,10 @@ export const sendCertificateDelivery = async (order: {
   }
 
   await getResend().emails.send({
-    from: FROM_EMAIL,
+    from: FROM_OPABIZ,
     replyTo: REPLY_TO,
     to: order.email,
-    subject: `🏆 Your Articles of Organization / Incorporation are ready — ${order.companyName}`,
+    subject: `OpaBiz: 🏆 Your Articles of Organization are ready — ${order.companyName}`,
     html: `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#1e293b">
         <div style="background:#1C2E44;padding:24px 32px;border-radius:10px 10px 0 0">

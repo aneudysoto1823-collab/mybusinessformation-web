@@ -10,6 +10,8 @@ const getResend = () => new Resend(process.env.RESEND_API_KEY)
 // permite enviar al dueño de la cuenta de Resend (modo sandbox).
 const FROM_EMAIL = process.env.RESEND_FROM_TRANSACTIONAL || 'onboarding@resend.dev'
 const REPLY_TO   = process.env.RESEND_REPLY_TO || 'info@opabiz.com'
+// Display Name "OpaBiz" en el inbox del cliente — sin esto solo se ve "noreply".
+const FROM_OPABIZ = `OpaBiz <${FROM_EMAIL}>`
 
 export async function POST(request: NextRequest) {
   try {
@@ -81,10 +83,10 @@ export async function POST(request: NextRequest) {
 
     // ── Email de confirmación — non-blocking ──────────────────────────────────
     getResend().emails.send({
-      from: FROM_EMAIL,
+      from: FROM_OPABIZ,
       replyTo: REPLY_TO,
       to: order.email,
-      subject: `✅ We received your order — ${order.companyName}`,
+      subject: `OpaBiz: ✅ Your Florida LLC order is in — ${order.companyName}`,
       html: `
         <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#1e293b">
           <div style="background:#1C2E44;padding:24px 32px;border-radius:10px 10px 0 0">
