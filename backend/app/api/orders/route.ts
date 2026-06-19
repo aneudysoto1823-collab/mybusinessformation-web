@@ -5,7 +5,11 @@ import { checkOrdersRateLimit, getClientIp } from '@/lib/rate-limit'
 import { OrderInputSchema, parseOr400 } from '@/lib/schemas'
 
 const getResend = () => new Resend(process.env.RESEND_API_KEY)
-const FROM_EMAIL = 'onboarding@resend.dev'
+// Mismo patrón que lib/notifications.ts: FROM/Reply-To centralizados en env
+// vars. Sin esto, Resend rechaza el envío porque onboarding@resend.dev solo
+// permite enviar al dueño de la cuenta de Resend (modo sandbox).
+const FROM_EMAIL = process.env.RESEND_FROM_TRANSACTIONAL || 'onboarding@resend.dev'
+const REPLY_TO   = process.env.RESEND_REPLY_TO || 'info@opabiz.com'
 
 export async function POST(request: NextRequest) {
   try {
@@ -78,6 +82,7 @@ export async function POST(request: NextRequest) {
     // ── Email de confirmación — non-blocking ──────────────────────────────────
     getResend().emails.send({
       from: FROM_EMAIL,
+      replyTo: REPLY_TO,
       to: order.email,
       subject: `✅ We received your order — ${order.companyName}`,
       html: `
