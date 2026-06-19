@@ -10,7 +10,11 @@ async function verifyAdmin(request: NextRequest): Promise<boolean> {
 }
 
 const getResend = () => new Resend(process.env.RESEND_API_KEY)
-const FROM_EMAIL = 'info@opabiz.com'
+// Marketing FROM separado del transaccional (best practice: si una campaña
+// recibe spam complaints, no afecta la reputación de los emails de órdenes).
+// Reply-To apunta a info@ para que las respuestas lleguen a un buzón leído.
+const FROM_EMAIL = process.env.RESEND_FROM_MARKETING || 'marketing@opabiz.com'
+const REPLY_TO   = process.env.RESEND_REPLY_TO || 'info@opabiz.com'
 const BASE_URL   = 'https://opabiz.com'
 
 // ─── Email template (basado en la carta de cumplimiento) ─────────────────────
@@ -287,6 +291,7 @@ export async function POST(req: NextRequest) {
         // Send via Resend
         await getResend().emails.send({
           from:    FROM_EMAIL,
+          replyTo: REPLY_TO,
           to:      company.email,
           subject,
           html,

@@ -7,9 +7,13 @@ export const dynamic = 'force-dynamic'
 
 const getStripe = () => new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2026-02-25.clover' })
 const getResend = () => new Resend(process.env.RESEND_API_KEY)
-const FROM          = 'onboarding@resend.dev'
+// Webhook envía 2 emails: confirmación al cliente + alerta interna al admin.
+// FROM y Reply-To centralizados en env vars (mismo patrón que lib/notifications.ts).
+// ADMIN_EMAIL ahora va al buzón admin@opabiz.com de Zoho (configurable).
+const FROM          = process.env.RESEND_FROM_TRANSACTIONAL || 'onboarding@resend.dev'
+const REPLY_TO      = process.env.RESEND_REPLY_TO || 'info@opabiz.com'
 const PORTAL        = 'https://opabiz.com/client-portal'
-const ADMIN_EMAIL   = 'aneurysoto@gmail.com'
+const ADMIN_EMAIL   = process.env.INTERNAL_ALERT_EMAIL || 'aneurysoto@gmail.com'
 
 export async function POST(req: NextRequest) {
   const body      = await req.text()
@@ -127,6 +131,7 @@ export async function POST(req: NextRequest) {
 
   await getResend().emails.send({
     from: FROM,
+    replyTo: REPLY_TO,
     to: email,
     subject: isEs
       ? `✅ Pago confirmado — ${companyName}`
@@ -184,6 +189,7 @@ export async function POST(req: NextRequest) {
   // Notify admin of new New Business Letter order
   getResend().emails.send({
     from: FROM,
+    replyTo: REPLY_TO,
     to: ADMIN_EMAIL,
     subject: `🆕 Nueva orden New Business Letter — ${companyName}`,
     html: `

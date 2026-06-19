@@ -3,8 +3,12 @@ import { Resend } from 'resend'
 // Lazy init: se crea al primer uso, cuando dotenv ya cargó el .env
 const getResend = () => new Resend(process.env.RESEND_API_KEY)
 
-const FROM_EMAIL = 'onboarding@resend.dev'
-const INTERNAL_EMAIL = 'aneurysoto@gmail.com'
+// FROM / Reply-To / alertas internas centralizados en env vars (Vercel).
+// Fallback al sandbox de Resend / Gmail viejo para que en dev local sin .env el
+// código no rompa — el deploy productivo siempre debe tener las 3 seteadas.
+const FROM_EMAIL = process.env.RESEND_FROM_TRANSACTIONAL || 'onboarding@resend.dev'
+const REPLY_TO = process.env.RESEND_REPLY_TO || 'info@opabiz.com'
+const INTERNAL_EMAIL = process.env.INTERNAL_ALERT_EMAIL || 'aneurysoto@gmail.com'
 
 function unsubscribeFooter(email: string): string {
   return `
@@ -29,6 +33,7 @@ export const sendOrderConfirmation = async (order: {
 }) => {
   await getResend().emails.send({
     from: FROM_EMAIL,
+    replyTo: REPLY_TO,
     to: order.email,
     subject: `✅ We received your order — ${order.companyName}`,
     html: `
@@ -90,6 +95,7 @@ export const sendAllNamesTaken = async (order: {
     // Email al cliente
     getResend().emails.send({
       from: FROM_EMAIL,
+      replyTo: REPLY_TO,
       to: order.email,
       subject: `⚠️ Action required — all 3 name options are taken`,
       html: `
@@ -126,6 +132,7 @@ export const sendAllNamesTaken = async (order: {
     // Alerta interna al admin
     getResend().emails.send({
       from: FROM_EMAIL,
+      replyTo: REPLY_TO,
       to: INTERNAL_EMAIL,
       subject: `🚨 Nombres tomados — contactar cliente (Orden ${order.id})`,
       html: `
@@ -184,6 +191,7 @@ export const sendSuggestNames = async (order: {
 
   await getResend().emails.send({
     from: FROM_EMAIL,
+    replyTo: REPLY_TO,
     to: order.email,
     subject: `✅ Good news! We found available names for your business`,
     html: `
@@ -243,6 +251,7 @@ export const sendOrderProcessed = async (order: {
 
   await getResend().emails.send({
     from: FROM_EMAIL,
+    replyTo: REPLY_TO,
     to: order.email,
     subject: `📋 Your filing is in — ${order.companyName}`,
     html: `
@@ -296,6 +305,7 @@ export const sendOrderApproved = async (order: {
 
   await getResend().emails.send({
     from: FROM_EMAIL,
+    replyTo: REPLY_TO,
     to: order.email,
     subject: `🎉 Approved! Florida confirmed your business — ${order.companyName}`,
     html: `
@@ -350,6 +360,7 @@ export const sendCertificateDelivery = async (order: {
 
   await getResend().emails.send({
     from: FROM_EMAIL,
+    replyTo: REPLY_TO,
     to: order.email,
     subject: `🏆 Your Articles of Organization / Incorporation are ready — ${order.companyName}`,
     html: `
