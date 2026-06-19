@@ -1068,11 +1068,15 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
     else setSelected(new Set(SERVICES.map(s => s.id)))
   }
 
-  const displayName = company?.company_name ?? 'SUNSHINE GLAZING LLC'
+  const displayName = company?.company_name ?? ''
 
-  const welcomeTitle = lang === 'es'
-    ? <>¡Felicidades, <span>{displayName}!</span></>
-    : <>Congratulations, <span>{displayName}!</span></>
+  const welcomeTitle = displayName
+    ? (lang === 'es'
+        ? <>¡Felicidades, <span>{displayName}!</span></>
+        : <>Congratulations, <span>{displayName}!</span></>)
+    : (lang === 'es'
+        ? <>¡Felicidades por tu <span>nuevo negocio!</span></>
+        : <>Congratulations on your <span>new business!</span></>)
 
   const welcomeSub = lang === 'es'
     ? 'Tu registro en el Estado de Florida ha sido exitoso. Estamos aquí para ayudarte a completar los pasos finales para que tu negocio sea plenamente operativo y cumpla con todas las normativas.'
@@ -1087,7 +1091,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
         <div className="nb-logo">
           <div className="nb-logo-mark">OB</div>
           <div className="nb-logo-text">
-            <div className="l1"><span style={{color:'#fff'}}>Opa</span><span style={{color:'#93c5fd',fontStyle:'italic'}}>Biz</span></div>
+            <div className="l1"><span style={{color:'#e2e8f0'}}>Opa</span><span style={{color:'#60a5fa'}}>Biz</span></div>
             <div className="l2">Florida Business Formation Center</div>
           </div>
         </div>
