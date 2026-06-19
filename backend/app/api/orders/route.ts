@@ -10,8 +10,10 @@ const getResend = () => new Resend(process.env.RESEND_API_KEY)
 // permite enviar al dueño de la cuenta de Resend (modo sandbox).
 const FROM_EMAIL = process.env.RESEND_FROM_TRANSACTIONAL || 'onboarding@resend.dev'
 const REPLY_TO   = process.env.RESEND_REPLY_TO || 'info@opabiz.com'
-// Display Name "OpaBiz" en el inbox del cliente — sin esto solo se ve "noreply".
-const FROM_OPABIZ = `OpaBiz <${FROM_EMAIL}>`
+const INTERNAL_ALERT = process.env.INTERNAL_ALERT_EMAIL || 'alert@opabiz.com'
+// Display Names: para el cliente "OpaBiz", para la alerta al admin "OpaBiz Alerts".
+const FROM_OPABIZ        = `OpaBiz <${FROM_EMAIL}>`
+const FROM_OPABIZ_ALERTS = `OpaBiz Alerts <${FROM_EMAIL}>`
 
 export async function POST(request: NextRequest) {
   try {
@@ -120,6 +122,72 @@ export async function POST(request: NextRequest) {
         </div>
       `
     }).catch(err => console.error('Email confirmation error (non-fatal):', err))
+
+    // ── Alerta interna "🆕 NUEVA ORDEN CREADA" → alert@opabiz.com ──────────────
+    // Aviso al equipo para que sepan que entró una orden nueva. Mismo patrón
+    // non-blocking que la confirmación al cliente (no bloquea la response).
+    const fbfcNumber = `FBFC-${order.id.replace(/-/g, '').substring(0, 8).toUpperCase()}`
+    getResend().emails.send({
+      from: FROM_OPABIZ_ALERTS,
+      replyTo: REPLY_TO,
+      to: INTERNAL_ALERT,
+      subject: `OpaBiz Alerts: 🆕 NUEVA ORDEN CREADA — ${order.companyName}`,
+      html: `
+        <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#1e293b">
+          <div style="background:#059669;padding:20px 32px;border-radius:10px 10px 0 0">
+            <h1 style="color:#fff;font-size:20px;margin:0">🆕 NUEVA ORDEN CREADA</h1>
+          </div>
+          <div style="background:#fff;padding:28px 32px;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 10px 10px">
+            <p style="color:#1e293b;font-size:15px;margin:0 0 20px">
+              Acaba de entrar una orden nueva en opabiz.com.
+              <strong>Revisar en el panel admin para iniciar el flujo.</strong>
+            </p>
+            <table style="width:100%;border-collapse:collapse;font-size:14px">
+              <tr>
+                <td style="padding:8px 0;color:#64748b;width:40%">Confirmation Number</td>
+                <td style="padding:8px 0;font-weight:700;color:#1e40af">${fbfcNumber}</td>
+              </tr>
+              <tr style="background:#f8fafc">
+                <td style="padding:8px 4px;color:#64748b">Cliente</td>
+                <td style="padding:8px 4px;font-weight:600">${order.firstName} ${order.lastName}</td>
+              </tr>
+              <tr>
+                <td style="padding:8px 0;color:#64748b">Email</td>
+                <td style="padding:8px 0">
+                  <a href="mailto:${order.email}" style="color:#059669">${order.email}</a>
+                </td>
+              </tr>
+              <tr style="background:#f8fafc">
+                <td style="padding:8px 4px;color:#64748b">Empresa</td>
+                <td style="padding:8px 4px;font-weight:600">${order.companyName}</td>
+              </tr>
+              <tr>
+                <td style="padding:8px 0;color:#64748b">Entity Type</td>
+                <td style="padding:8px 0">${(order.entityType ?? 'llc').toUpperCase()}</td>
+              </tr>
+              <tr style="background:#f8fafc">
+                <td style="padding:8px 4px;color:#64748b">Paquete</td>
+                <td style="padding:8px 4px">${order.package}</td>
+              </tr>
+              <tr>
+                <td style="padding:8px 0;color:#64748b">Filing Speed</td>
+                <td style="padding:8px 0">${order.speed}</td>
+              </tr>
+            </table>
+            <div style="text-align:center;margin:24px 0 8px">
+              <a href="https://opabiz.com/admin/orders/${order.id}"
+                 style="display:inline-block;background:#1d4ed8;color:#fff;text-decoration:none;padding:11px 22px;border-radius:8px;font-size:14px;font-weight:700">
+                Abrir en el panel admin →
+              </a>
+            </div>
+            <div style="margin-top:16px;padding:14px;background:#eff6ff;border-radius:8px;font-size:13px;color:#1e40af">
+              El cliente ya recibió email de confirmación automático.
+              Siguiente paso: verificar disponibilidad de nombres en Sunbiz.
+            </div>
+          </div>
+        </div>
+      `
+    }).catch(err => console.error('Internal alert email error (non-fatal):', err))
 
     return NextResponse.json({ success: true, orderId: order.id }, { status: 201 })
 
