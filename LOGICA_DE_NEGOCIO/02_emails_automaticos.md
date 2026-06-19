@@ -219,10 +219,18 @@ Todos van DESDE `RESEND_FROM_TRANSACTIONAL` con Reply-To `RESEND_REPLY_TO`.
 |---|---|---|
 | POST | `/api/orders` | Crea orden + dispara A1. |
 | POST | `/api/webhooks/stripe` | Stripe webhook — dispara A1 o C1 + C2 según flow. |
-| POST | `/api/proxy/notifications/[type]` | Disparador interno del admin — type: `order-confirmation` (A1), `all-names-taken` (A2+A3), `suggest-names` (A4), `order-processed` (A5), `order-approved` (A6), `certificate` (A7). |
+| POST | `/api/proxy/notifications/[type]` | Disparador interno del admin — type: `order-confirmation` (**reenvío manual de A1**), `names-taken` (A2+A3), `suggest-names` (A4), `order-processed` (A5), `order-approved` (A6), `certificate` (A7). |
 | POST | `/api/campaigns/send` | Marketing — dispara B1. |
 | POST | `/api/contact` | Form público — dispara D1. Rate limited 5/h/IP. |
 | POST | `/api/admin/upload-certificate` | Sube PDF a Supabase Storage + dispara A7. |
+
+### Botón "Reenviar Confirmación de Orden" (commit `1ba8b12`)
+
+En `/admin/orders/[id]` hay un botón azul **🔁 Reenviar: Confirmación de Orden** que dispara `POST /api/proxy/notifications/order-confirmation` y reenvía A1 al cliente.
+
+**¿Cuándo se usa?** El send original de A1 en `/api/orders/route.ts` es **fire-and-forget** (`.catch(err => console.error(...))`) — el endpoint responde 201 sin esperar a Resend. En Vercel serverless, si el Promise tarda más de unos ms en completar, el container puede matarse y el Promise queda colgado sin completar. Resultado: la orden se guarda en Supabase pero **el email nunca llega a Resend** (ni Delivered ni Failed). Este botón rescata esos casos sin recrear la orden.
+
+**Implementación**: usa la función `sendOrderConfirmation()` de `lib/notifications.ts` (que antes estaba dormida — ahora tiene un consumidor real). Audit log registra `email.order-confirmation-resent`.
 
 ---
 
@@ -278,7 +286,7 @@ Cada email a cliente incluye `unsubscribeFooter(email)` con:
 - [ ] Preview env vars (bug del CLI — setear manualmente en dashboard si se necesitan PR previews funcionales).
 - [ ] Test E2E: hacer una orden de prueba real, verificar que confirmación llega a cliente desde "OpaBiz <noreply@opabiz.com>".
 - [ ] Test contact form: verificar que llegan D1 al admin Y D2 al visitor.
-- [ ] Limpiar `sendOrderConfirmation()` dormida en `lib/notifications.ts` o consolidar el template de `/api/orders` para que apunte a ella.
+- [x] **`sendOrderConfirmation()` ya NO está dormida** — la usa el endpoint nuevo `order-confirmation` desde el botón de reenvío del admin (commit `1ba8b12`). Pendiente: consolidar el template inline de `/api/orders` con el de notifications.ts (ahora son 2 templates levemente distintos).
 
 ---
 
@@ -300,3 +308,4 @@ Cada email a cliente incluye `unsubscribeFooter(email)` con:
 - **2026-06-19:** Migración a cuenta Resend de OpaBiz + centralización de FROM/Reply-To/alerts en env vars (commit `d7f9c68`). Página `/contact` + endpoint `/api/contact` creados (commit `369eb9b`). Doc actualizado.
 - **2026-06-19 (continuación):** Fix bug `rate.allowed` → `rate.success` en `/api/contact` (commit `5e63db8`) — el endpoint rechazaba todas las requests con 429. Fix env vars en `/api/orders/route.ts` (commit `36db324`) — su send inline se había pasado en la migración inicial y seguía con `onboarding@resend.dev` hardcoded. Documentada la situación de `sendOrderConfirmation()` dormida en notifications.ts.
 - **2026-06-19 (sesión tarde):** Display Names + Subjects con "OpaBiz" en los 12 emails (antes el cliente veía solo `noreply` o `marketing` en su inbox sin saber de qué empresa era). Agregado email D2 — confirmación al visitor del form de contacto que antes nunca recibía nada en su inbox. Nueva env var `RESEND_FROM_SUPPORT = support@opabiz.com` para A2 (nombres tomados) y A4 (sugerencias) que requieren respuesta del cliente — display "OpaBiz Support" deja claro que pueden contestar.
+- **2026-06-19 (sesión noche):** `names-taken` acepta 1+ nombres en lugar de exigir 3 (commit `601abaa`) — antes daba 400 si el cliente había puesto solo 1 nombre en la orden. Templates de A2 y A3 adaptan singular/plural. Nuevo botón "🔁 Reenviar Confirmación de Orden" en `/admin/orders/[id]` (commit `1ba8b12`) para rescatar casos donde el send fire-and-forget de A1 se perdió por race condition en Vercel serverless (orden FBFC-EC1DCF38 fue el caso real que motivó esto).
