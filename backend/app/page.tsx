@@ -347,6 +347,13 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 .ownership-total strong{color:var(--navy)}
 .ownership-total.ok strong{color:var(--green)}
 .ownership-total.over strong{color:#ef4444}
+.fm-addr-presets{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.fm-addr-preset{display:flex;align-items:center;gap:12px;padding:12px 16px;border:1.5px solid #e2e8f0;border-radius:9px;cursor:pointer;background:#fff;font-family:inherit;font-size:.83rem;color:#1e293b;transition:all .2s}
+.fm-addr-preset:hover{border-color:#2563eb;background:#eff6ff}
+.fm-addr-preset.is-active{border-color:#2563eb;background:#eff6ff}
+.fm-addr-preset-chk{width:17px;height:17px;cursor:pointer;accent-color:#2563eb;flex-shrink:0}
+.fm-addr-preset-pin{color:#f97316;font-size:1rem;flex-shrink:0}
+.fm-addr-preset-text{flex:1;line-height:1.4}
 .name-helper{background:var(--blue-light);border-left:3px solid var(--blue);padding:11px 14px;border-radius:0 8px 8px 0;font-size:0.8rem;color:var(--blue);line-height:1.6;margin-top:-10px;margin-bottom:18px}
 .order-save-box{background:var(--green-light);border:1.5px solid #a7f3d0;border-radius:var(--radius);padding:16px;margin-bottom:20px;display:flex;align-items:center;gap:14px}
 .order-num{font-family:'Fraunces',serif;font-size:1.3rem;font-weight:700;color:var(--green-dark)}
@@ -1576,6 +1583,23 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
             <h2 class="fm-title" id="s5-title">Business Owners &amp; Members</h2>
             <p class="fm-sub" id="s5-sub">Tell us who owns this business. Each person or company with an ownership stake must be listed exactly as they will appear on the State of Florida records.</p>
 
+            <!-- Number of members dropdown -->
+            <div class="fm-group" style="margin-bottom:16px">
+              <label class="fm-label" id="lbl-num-members">Number of Members/Owners *</label>
+              <select class="fm-select" id="inp-num-members" onchange="fmSetMemberCount(this.value)">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+              </select>
+            </div>
+
             <!-- Member 1 -->
             <div class="fm-member-block" id="fms5-member-1">
               <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
@@ -1618,6 +1642,19 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
                     </select>
                   </div>
                   <div class="fm-group"><label class="fm-label" id="s5-m1-own-lbl">Ownership % <span style="font-size:.68rem;font-weight:500;color:#f59e0b;background:#fef3c7;padding:1px 6px;border-radius:4px" id="s5-own-rec-lbl">Recommended</span></label><input type="number" class="fm-input" id="s5-m1-own" placeholder="e.g. 100" min="0" max="100" oninput="fmUpdateOwnership()"/></div>
+                </div>
+                <!-- Address presets: reuse business address or virtual address -->
+                <div class="fm-addr-presets" id="s5-m1-addr-presets" style="display:none">
+                  <label class="fm-addr-preset" id="s5-m1-addr-biz-wrap" style="display:none">
+                    <input type="checkbox" class="fm-addr-preset-chk" id="s5-m1-addr-biz" onchange="fmApplyBizAddrToMember(1,this.checked)"/>
+                    <span class="fm-addr-preset-pin">&#128205;</span>
+                    <span class="fm-addr-preset-text" id="s5-m1-addr-biz-text"></span>
+                  </label>
+                  <label class="fm-addr-preset" id="s5-m1-addr-virtual-wrap" style="display:none">
+                    <input type="checkbox" class="fm-addr-preset-chk" id="s5-m1-addr-virtual" onchange="fmApplyVirtualAddrToMember(1,this.checked)"/>
+                    <span class="fm-addr-preset-pin">&#128205;</span>
+                    <span class="fm-addr-preset-text" id="s5-m1-addr-virtual-text">Use the assigned company address provided by OpaBiz</span>
+                  </label>
                 </div>
                 <div class="fm-group"><label class="fm-label" id="s5-m1-country-lbl">Country *</label>
                 <select class="fm-select" id="s5-m1-country" onchange="fmMemberAddrChange('s5-m1',this)"><option value="US">United States</option><option value="AR">Argentina</option><option value="BR">Brazil</option><option value="CL">Chile</option><option value="CO">Colombia</option><option value="CR">Costa Rica</option><option value="CU">Cuba</option><option value="DO">Dominican Republic</option><option value="EC">Ecuador</option><option value="ES">Spain</option><option value="GB">United Kingdom</option><option value="GT">Guatemala</option><option value="HN">Honduras</option><option value="MX">Mexico</option><option value="NI">Nicaragua</option><option value="PE">Peru</option><option value="VE">Venezuela</option><option value="other">Other</option></select>
@@ -1679,11 +1716,6 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
               <span style="font-size:.8rem;color:#6b7280" id="s5-own-total-lbl">Total Ownership</span>
               <span style="font-size:.9rem;font-weight:700;color:#1e293b" id="s5-own-total">0%</span>
             </div>
-
-            <!-- Add member button -->
-            <button onclick="fmAddMember()" style="width:100%;margin-top:16px;background:#fff;border:1.5px dashed #94a3b8;color:#475569;padding:12px;border-radius:9px;font-size:.86rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px" id="s5-add-btn" onmouseover="this.style.borderColor='#2563eb';this.style.color='#2563eb'" onmouseout="this.style.borderColor='#94a3b8';this.style.color='#475569'">
-              <span style="font-size:1.1rem">+</span> <span id="s5-add-lbl">Add Another Member / Owner</span>
-            </button>
 
           </div>
           <div class="fm-card-footer">
@@ -2423,10 +2455,10 @@ function fmAddMember() {
   div.className = 'fm-member-block';
   div.id = 's5-member-' + n;
   div.style.cssText = 'margin-top:20px;padding-top:20px;border-top:1px solid #e5e7eb';
+  var virtualTxt = isEs ? 'Usar la dirección virtual asignada por OpaBiz' : 'Use the assigned company address provided by OpaBiz';
   div.innerHTML = (
     '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">' +
       '<div style="font-size:.88rem;font-weight:700;color:var(--navy)">' + (isEs ? 'Miembro / Propietario #' : 'Member / Owner #') + n + '</div>' +
-      '<button onclick="fmRemoveMember(' + n + ')" style="background:none;border:none;color:#ef4444;font-size:.78rem;cursor:pointer;font-family:inherit;font-weight:600;display:flex;align-items:center;gap:4px">&#x2715; ' + (isEs ? 'Eliminar' : 'Remove') + '</button>' +
     '</div>' +
     '<div class="fm-group">' +
       '<div class="fm-choices" style="margin-bottom:0">' +
@@ -2449,6 +2481,18 @@ function fmAddMember() {
         '<div class="fm-group"><label class="fm-label">' + (isEs ? 'Título / Rol *' : 'Title / Role *') + '</label><select class="fm-select" id="s5-m' + n + '-role">' + titleOpts + '</select></div>' +
         '<div class="fm-group"><label class="fm-label">' + (isEs ? '% de Propiedad *' : 'Ownership % *') + '</label><input type="number" class="fm-input" id="s5-m' + n + '-own" placeholder="e.g. 50" min="0" max="100" oninput="fmUpdateOwnership()"/></div>' +
       '</div>' +
+      '<div class="fm-addr-presets" id="s5-m' + n + '-addr-presets" style="display:none">' +
+        '<label class="fm-addr-preset" id="s5-m' + n + '-addr-biz-wrap" style="display:none">' +
+          '<input type="checkbox" class="fm-addr-preset-chk" id="s5-m' + n + '-addr-biz" onchange="fmApplyBizAddrToMember(' + n + ',this.checked)"/>' +
+          '<span class="fm-addr-preset-pin">&#128205;</span>' +
+          '<span class="fm-addr-preset-text" id="s5-m' + n + '-addr-biz-text"></span>' +
+        '</label>' +
+        '<label class="fm-addr-preset" id="s5-m' + n + '-addr-virtual-wrap" style="display:none">' +
+          '<input type="checkbox" class="fm-addr-preset-chk" id="s5-m' + n + '-addr-virtual" onchange="fmApplyVirtualAddrToMember(' + n + ',this.checked)"/>' +
+          '<span class="fm-addr-preset-pin">&#128205;</span>' +
+          '<span class="fm-addr-preset-text" id="s5-m' + n + '-addr-virtual-text">' + virtualTxt + '</span>' +
+        '</label>' +
+      '</div>' +
       '<div class="fm-group"><label class="fm-label">' + (isEs ? 'País *' : 'Country *') + '</label><select class="fm-select" id="s5-m' + n + '-country" onchange="fmMemberAddrChange(\\'s5-m' + n + '\\',this)"><option value="US">United States</option><option value="AR">Argentina</option><option value="BR">Brazil</option><option value="CL">Chile</option><option value="CO">Colombia</option><option value="CR">Costa Rica</option><option value="CU">Cuba</option><option value="DO">Dominican Republic</option><option value="EC">Ecuador</option><option value="ES">Spain</option><option value="GB">United Kingdom</option><option value="GT">Guatemala</option><option value="HN">Honduras</option><option value="MX">Mexico</option><option value="NI">Nicaragua</option><option value="PE">Peru</option><option value="VE">Venezuela</option><option value="other">Other</option></select></div>' +
       '<div id="s5-m' + n + '-addr-dynamic"><div class="fm-group"><label class="fm-label">' + (isEs ? 'Dirección *' : 'Street Address *') + '</label><input type="text" class="fm-input" id="s5-m' + n + '-addr" placeholder="e.g. 123 Main Street"/></div><div class="fm-row-3"><div class="fm-group"><label class="fm-label">' + (isEs ? 'Ciudad *' : 'City *') + '</label><input type="text" class="fm-input" id="s5-m' + n + '-city" placeholder="City"/></div><div class="fm-group"><label class="fm-label">' + (isEs ? 'Estado *' : 'State *') + '</label><input type="text" class="fm-input" id="s5-m' + n + '-state" placeholder="e.g. FL"/></div><div class="fm-group"><label class="fm-label">ZIP *</label><input type="text" class="fm-input" id="s5-m' + n + '-zip" placeholder="00000" maxlength="10"/></div></div></div>' +
     '</div>' +
@@ -2466,6 +2510,7 @@ function fmAddMember() {
     '</div>'
   );
   container.appendChild(div);
+  if(typeof fmRefreshAddrPresets === 'function') fmRefreshAddrPresets();
 }
 
 function fmRemoveMember(n) {
@@ -2480,6 +2525,158 @@ function fmRemoveMember(n) {
     if(co) { co.value = '100'; co.style.borderColor = ''; }
   }
   fmUpdateOwnership();
+}
+
+// ═══════════════════════════════════════════════════════
+// MEMBERS DROPDOWN — sync count with selector
+// ═══════════════════════════════════════════════════════
+function fmSetMemberCount(n) {
+  n = parseInt(n, 10);
+  if(isNaN(n) || n < 1) n = 1;
+  if(n > 10) n = 10;
+  var extra = document.getElementById('s5-extra-members');
+  var current = 1 + (extra ? extra.children.length : 0);
+  while(current < n) { fmAddMember(); current++; }
+  while(current > n) {
+    var last = extra ? extra.lastElementChild : null;
+    if(!last) break;
+    var match = last.id.match(/s5-member-(\\d+)/);
+    if(!match) break;
+    fmRemoveMember(parseInt(match[1], 10));
+    current--;
+  }
+  fmRefreshAddrPresets();
+}
+
+// ═══════════════════════════════════════════════════════
+// ADDRESS PRESETS — reuse business address (physical or virtual)
+// ═══════════════════════════════════════════════════════
+function fmGetBusinessAddrParts() {
+  function v(id){ var el = document.getElementById(id); return el ? (el.value||'').trim() : ''; }
+  return {
+    street: v('inp-addr'),
+    city:   v('inp-city'),
+    state:  v('inp-state'),
+    zip:    v('inp-zip')
+  };
+}
+
+function fmBusinessAddrText() {
+  var p = fmGetBusinessAddrParts();
+  if(!p.street && !p.city && !p.state && !p.zip) return '';
+  var parts = [];
+  if(p.street) parts.push(p.street);
+  var cityStateZip = [];
+  if(p.city) cityStateZip.push(p.city);
+  if(p.state) cityStateZip.push(p.state);
+  if(p.zip) cityStateZip.push(p.zip);
+  if(cityStateZip.length) parts.push(cityStateZip.join(', '));
+  parts.push('US.');
+  return parts.join(', ');
+}
+
+function fmRefreshAddrPresets() {
+  var bizParts = fmGetBusinessAddrParts();
+  var hasBizPhysical = !!(bizParts.street && bizParts.city);
+  var hasVirtual = !!(fmData && (fmData.bizAddrType === 'virtual' || (fmData.vma === true)));
+  var bizText = fmBusinessAddrText();
+
+  // Collect all member ids: 1 + dynamic ones in s5-extra-members
+  var memberIds = [1];
+  var extra = document.getElementById('s5-extra-members');
+  if(extra) {
+    Array.prototype.forEach.call(extra.children, function(child){
+      var m = child.id && child.id.match(/s5-member-(\\d+)/);
+      if(m) memberIds.push(parseInt(m[1], 10));
+    });
+  }
+
+  memberIds.forEach(function(n){
+    var presetsWrap = document.getElementById('s5-m' + n + '-addr-presets');
+    var bizWrap     = document.getElementById('s5-m' + n + '-addr-biz-wrap');
+    var virtualWrap = document.getElementById('s5-m' + n + '-addr-virtual-wrap');
+    var bizText2    = document.getElementById('s5-m' + n + '-addr-biz-text');
+    if(!presetsWrap) return;
+    var showAny = false;
+    if(hasBizPhysical && bizWrap) {
+      bizWrap.style.display = '';
+      if(bizText2) bizText2.textContent = bizText;
+      showAny = true;
+    } else if(bizWrap) {
+      bizWrap.style.display = 'none';
+    }
+    if(hasVirtual && virtualWrap) {
+      virtualWrap.style.display = '';
+      showAny = true;
+    } else if(virtualWrap) {
+      virtualWrap.style.display = 'none';
+    }
+    presetsWrap.style.display = showAny ? '' : 'none';
+  });
+}
+
+function fmSetMemberAddrFieldsVisible(n, visible) {
+  var countrySel  = document.getElementById('s5-m' + n + '-country');
+  var countryGrp  = countrySel ? countrySel.closest('.fm-group') : null;
+  var addrDynamic = document.getElementById('s5-m' + n + '-addr-dynamic');
+  if(countryGrp)  countryGrp.style.display  = visible ? '' : 'none';
+  if(addrDynamic) addrDynamic.style.display = visible ? '' : 'none';
+}
+
+function fmApplyBizAddrToMember(n, checked) {
+  var addr  = document.getElementById('s5-m' + n + '-addr');
+  var city  = document.getElementById('s5-m' + n + '-city');
+  var state = document.getElementById('s5-m' + n + '-state');
+  var zip   = document.getElementById('s5-m' + n + '-zip');
+  var country = document.getElementById('s5-m' + n + '-country');
+  var bizWrap     = document.getElementById('s5-m' + n + '-addr-biz-wrap');
+  var virtualChk  = document.getElementById('s5-m' + n + '-addr-virtual');
+  var virtualWrap = document.getElementById('s5-m' + n + '-addr-virtual-wrap');
+  if(checked) {
+    // Uncheck the other one
+    if(virtualChk) virtualChk.checked = false;
+    if(virtualWrap) virtualWrap.classList.remove('is-active');
+    if(bizWrap) bizWrap.classList.add('is-active');
+    var p = fmGetBusinessAddrParts();
+    if(country) country.value = 'US';
+    if(addr)    addr.value    = p.street;
+    if(city)    city.value    = p.city;
+    if(state)   state.value   = p.state;
+    if(zip)     zip.value     = p.zip;
+    fmSetMemberAddrFieldsVisible(n, false);
+  } else {
+    if(bizWrap) bizWrap.classList.remove('is-active');
+    [addr, city, state, zip].forEach(function(el){ if(el) el.value = ''; });
+    fmSetMemberAddrFieldsVisible(n, true);
+  }
+}
+
+function fmApplyVirtualAddrToMember(n, checked) {
+  var addr  = document.getElementById('s5-m' + n + '-addr');
+  var city  = document.getElementById('s5-m' + n + '-city');
+  var state = document.getElementById('s5-m' + n + '-state');
+  var zip   = document.getElementById('s5-m' + n + '-zip');
+  var country = document.getElementById('s5-m' + n + '-country');
+  var bizChk      = document.getElementById('s5-m' + n + '-addr-biz');
+  var bizWrap     = document.getElementById('s5-m' + n + '-addr-biz-wrap');
+  var virtualWrap = document.getElementById('s5-m' + n + '-addr-virtual-wrap');
+  var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
+  var virtualPlaceholder = isEs ? 'Dirección virtual (asignada al confirmar la orden)' : 'Virtual address (assigned upon order confirmation)';
+  if(checked) {
+    if(bizChk) bizChk.checked = false;
+    if(bizWrap) bizWrap.classList.remove('is-active');
+    if(virtualWrap) virtualWrap.classList.add('is-active');
+    if(country) country.value = 'US';
+    if(addr)    addr.value    = virtualPlaceholder;
+    if(city)    city.value    = '';
+    if(state)   state.value   = 'FL';
+    if(zip)     zip.value     = '';
+    fmSetMemberAddrFieldsVisible(n, false);
+  } else {
+    if(virtualWrap) virtualWrap.classList.remove('is-active');
+    [addr, city, state, zip].forEach(function(el){ if(el) el.value = ''; });
+    fmSetMemberAddrFieldsVisible(n, true);
+  }
 }
 
 function fmBuildUpgradeCards() {
@@ -4368,6 +4565,13 @@ function fmSyncStep5() {
   }
   // Auto-fill ownership % if single member and field empty
   fmInitStep5Ownership();
+  // Sync members count selector with current member count
+  var extra = document.getElementById('s5-extra-members');
+  var current = 1 + (extra ? extra.children.length : 0);
+  var sel = document.getElementById('inp-num-members');
+  if(sel) sel.value = String(Math.min(10, Math.max(1, current)));
+  // Show/hide and update address preset checks (biz / virtual) for every member
+  fmRefreshAddrPresets();
 }
 
 // ═══════════════════════════════════════════════════════
@@ -4512,32 +4716,38 @@ function fmNext() {
         if(!mb5||!mb5.value.trim()){if(mb5){mb5.style.borderColor='#ef4444';mb5.focus();}alert(m1base[mi5].msg);return;}
         if(mb5)mb5.style.borderColor='';
       }
-      // Address validation — check rendered fields (addr and city always present)
-      var addrEl=document.getElementById('s5-m1-addr');
-      var cityEl=document.getElementById('s5-m1-city');
-      if(!addrEl||!addrEl.value.trim()){
-        if(addrEl){addrEl.style.borderColor='#ef4444';addrEl.focus();}
-        alert(isEs?'Por favor ingresa la dirección del miembro 1.':'Please enter Member 1 street address.');return;
-      }
-      if(addrEl)addrEl.style.borderColor='';
-      if(!cityEl||!cityEl.value.trim()){
-        if(cityEl){cityEl.style.borderColor='#ef4444';cityEl.focus();}
-        alert(isEs?'Por favor ingresa la ciudad del miembro 1.':'Please enter Member 1 city.');return;
-      }
-      if(cityEl)cityEl.style.borderColor='';
-      // State and ZIP — only validate if the field exists AND is visible (rendered for the selected country)
-      var m1country = document.getElementById('s5-m1-country');
-      var countryVal = m1country ? m1country.value : 'US';
-      var stEl=document.getElementById('s5-m1-state');
-      var zpEl=document.getElementById('s5-m1-zip');
-      var fmt5 = _addrFmt[countryVal] || _addrFmt['other'];
-      if(stEl && stEl.offsetParent !== null && fmt5.state) {
-        if(!stEl.value.trim()){stEl.style.borderColor='#ef4444';stEl.focus();alert(isEs?'Por favor ingresa el estado/región.':'Please enter the state/region.');return;}
-        stEl.style.borderColor='';
-      }
-      if(zpEl && zpEl.offsetParent !== null && fmt5.zip) {
-        if(!zpEl.value.trim()){zpEl.style.borderColor='#ef4444';zpEl.focus();alert(isEs?'Por favor ingresa el código postal.':'Please enter the postal code.');return;}
-        zpEl.style.borderColor='';
+      // Skip address validation if one of the address-preset checks is active (biz or virtual)
+      var m1BizChk = document.getElementById('s5-m1-addr-biz');
+      var m1VirtChk = document.getElementById('s5-m1-addr-virtual');
+      var m1AddrPresetActive = (m1BizChk && m1BizChk.checked) || (m1VirtChk && m1VirtChk.checked);
+      if(!m1AddrPresetActive) {
+        // Address validation — check rendered fields (addr and city always present)
+        var addrEl=document.getElementById('s5-m1-addr');
+        var cityEl=document.getElementById('s5-m1-city');
+        if(!addrEl||!addrEl.value.trim()){
+          if(addrEl){addrEl.style.borderColor='#ef4444';addrEl.focus();}
+          alert(isEs?'Por favor ingresa la dirección del miembro 1.':'Please enter Member 1 street address.');return;
+        }
+        if(addrEl)addrEl.style.borderColor='';
+        if(!cityEl||!cityEl.value.trim()){
+          if(cityEl){cityEl.style.borderColor='#ef4444';cityEl.focus();}
+          alert(isEs?'Por favor ingresa la ciudad del miembro 1.':'Please enter Member 1 city.');return;
+        }
+        if(cityEl)cityEl.style.borderColor='';
+        // State and ZIP — only validate if the field exists AND is visible (rendered for the selected country)
+        var m1country = document.getElementById('s5-m1-country');
+        var countryVal = m1country ? m1country.value : 'US';
+        var stEl=document.getElementById('s5-m1-state');
+        var zpEl=document.getElementById('s5-m1-zip');
+        var fmt5 = _addrFmt[countryVal] || _addrFmt['other'];
+        if(stEl && stEl.offsetParent !== null && fmt5.state) {
+          if(!stEl.value.trim()){stEl.style.borderColor='#ef4444';stEl.focus();alert(isEs?'Por favor ingresa el estado/región.':'Please enter the state/region.');return;}
+          stEl.style.borderColor='';
+        }
+        if(zpEl && zpEl.offsetParent !== null && fmt5.zip) {
+          if(!zpEl.value.trim()){zpEl.style.borderColor='#ef4444';zpEl.focus();alert(isEs?'Por favor ingresa el código postal.':'Please enter the postal code.');return;}
+          zpEl.style.borderColor='';
+        }
       }
     } else {
       var m1coReq=[
@@ -5619,6 +5829,7 @@ function fmTranslate(lang) {
     's5-m1-coown-lbl':isEs?'% de Propiedad *':'Ownership % *',
     's5-m1-coaddr-lbl':isEs?'Dirección del Negocio *':'Business Address *',
     's5-own-total-lbl':isEs?'Propiedad Total':'Total Ownership',
+    's5-m1-addr-virtual-text':isEs?'Usar la dirección virtual asignada por OpaBiz':'Use the assigned company address provided by OpaBiz',
     's5-add-lbl':isEs?'Agregar Otro Miembro / Propietario':'Add Another Member / Owner',
     's2-title':isEs?'Tu Información':'Your Information',
   };
