@@ -68,11 +68,12 @@ Setear en Vercel **(Production + Preview + Development)** y replicar en `backend
 Todos van DESDE `RESEND_FROM_TRANSACTIONAL` con Reply-To `RESEND_REPLY_TO`.
 
 #### A1. Confirmación de Orden → CLIENTE
-- **Cuándo:** Stripe webhook confirma el pago, o al recibir POST a `/api/orders`.
+- **Cuándo:** Al recibir POST a `/api/orders` (form de orden completado por el cliente). No espera al pago Stripe — se envía apenas la orden se inserta en Supabase.
 - **Destinatario:** `order.email` (cliente).
-- **Función:** `sendOrderConfirmation(order)`.
-- **Contenido:** Resumen de la orden, número de orden (`FBFC-XXXXXXXX`), próximos pasos, link a `/client-portal`.
+- **Implementación:** **Inline en `backend/app/api/orders/route.ts`** — el send está dentro del propio endpoint con su propio template HTML. **NO** llama a `sendOrderConfirmation()` de `lib/notifications.ts`.
+- **Contenido:** Resumen de la orden, número de orden (`FBFC-XXXXXXXX`), próximos pasos, link a soporte WhatsApp.
 - **Subject:** `✅ We received your order — {companyName}`
+- **⚠️ Código duplicado pendiente de limpiar:** existe `sendOrderConfirmation()` exportada en `lib/notifications.ts` con un template parecido pero **nadie la importa**. Probablemente quedó como legacy de la migración de Express a Vercel. No borrarla hasta consolidar el template — la versión inline de `/api/orders` es la que se ejecuta en producción.
 
 #### A2. Nombres Tomados → CLIENTE
 - **Cuándo:** Equipo verifica en Sunbiz que los 3 nombres propuestos están registrados.
@@ -169,10 +170,12 @@ Todos van DESDE `RESEND_FROM_TRANSACTIONAL` con Reply-To `RESEND_REPLY_TO`.
 
 ## Flujo técnico de A1–A7 (órdenes)
 
-1. **Stripe** confirma pago → webhook → `/api/webhooks/stripe/route.ts`.
-2. Webhook actualiza la orden en Supabase a `paymentStatus = paid`, `status = in_review` y llama `sendOrderConfirmation()` en background.
-3. **Equipo** verifica los 3 nombres en Sunbiz manualmente.
-4. Si **todos tomados** → admin desde `/admin/orders/[id]` dispara `sendAllNamesTaken` → A2 + A3 en paralelo.
+> **Nota sobre Stripe (2026-06-19):** el pago Stripe **no está configurado todavía** en este flujo. La orden se crea sin pasar por checkout y A1 se dispara inmediatamente desde `/api/orders` cuando el cliente termina el form. El día que se conecte Stripe, A1 puede moverse al webhook para que solo se mande tras el pago confirmado (igual que ya hace C1 en el flow de `/new-business`).
+
+1. **Cliente** completa el form de orden → POST `/api/orders` → la orden se inserta en Supabase con `paymentStatus = 'pending'`, `status = 'pending'`.
+2. Inmediatamente (non-blocking) el mismo endpoint dispara A1 al cliente con la confirmación.
+3. **Equipo** verifica los 3 nombres en Sunbiz manualmente desde `/admin/orders/[id]`.
+4. Si **todos tomados** → admin dispara `sendAllNamesTaken` → A2 + A3 en paralelo.
 5. **Cliente** responde con nuevos nombres → equipo retoma → si admin encuentra alternativas en Sunbiz → `sendSuggestNames` (A4).
 6. Cuando el equipo presenta al Estado → admin marca `filed` → `sendOrderProcessed` (A5).
 7. Cuando Florida aprueba → admin marca `approved` → `sendOrderApproved` (A6).
@@ -195,12 +198,13 @@ Todos van DESDE `RESEND_FROM_TRANSACTIONAL` con Reply-To `RESEND_REPLY_TO`.
 
 ## Archivos clave
 
-- `backend/lib/notifications.ts` — las 6 funciones transaccionales A1–A7. **Único lugar canónico**. Las copias de Railway/Express fueron eliminadas en commit `c7bdc07` (2026-05-18).
+- **`backend/app/api/orders/route.ts`** — endpoint que **dispara A1 inline** al crear la orden. Tiene su propio Resend.emails.send con template propio (NO usa `lib/notifications.ts`). FROM y Reply-To leen de las env vars centralizadas.
+- `backend/lib/notifications.ts` — funciones transaccionales A2–A7 + función dormida `sendOrderConfirmation` (no se llama desde ningún lado, código legacy). Las copias de Railway/Express fueron eliminadas en commit `c7bdc07` (2026-05-18).
 - `backend/app/api/contact/route.ts` — form de contacto D1 + validación + rate limit.
 - `backend/app/api/campaigns/send/route.ts` — campañas B1.
-- `backend/app/api/webhooks/stripe/route.ts` — C1 + C2.
+- `backend/app/api/webhooks/stripe/route.ts` — C1 + C2 (flow `/new-business`).
 - `backend/app/api/proxy/notifications/[type]/route.ts` — endpoints internos para disparar A2–A7 desde admin.
-- `backend/lib/rate-limit.ts` — `checkContactRateLimit()` para D1.
+- `backend/lib/rate-limit.ts` — `checkContactRateLimit()` para D1 (5/h por IP).
 
 ---
 
@@ -235,10 +239,13 @@ Cada email a cliente incluye `unsubscribeFooter(email)` con:
 - [x] `RESEND_API_KEY` actualizada en Vercel (Production).
 - [x] 6 env vars nuevas seteadas en Vercel (Production + Development).
 - [x] Código centralizado: hardcoded `onboarding@resend.dev` y `aneurysoto@gmail.com` reemplazados por env vars con fallback seguro.
-- [x] `replyTo` agregado en los 11 sends del proyecto (7 en notifications.ts + 2 en stripe + 1 en campaigns + 1 en contact).
+- [x] `replyTo` agregado en los 12 sends del proyecto (1 en /api/orders + 7 en notifications.ts + 2 en stripe + 1 en campaigns + 1 en contact).
+- [x] **Fix `/api/orders` (commit `36db324`)** — se había pasado en la auditoría original porque su send es inline (no llamaba a notifications.ts). Las órdenes nuevas creaban OK pero el email de confirmación fallaba en silencio.
+- [x] **Fix bug `rate.allowed` → `rate.success` en /api/contact (commit `5e63db8`)** — el endpoint del form rechazaba TODAS las requests con 429 sin importar IP. Bug introducido al crear el endpoint.
 - [ ] Preview env vars (bug del CLI — setear manualmente en dashboard si se necesitan PR previews funcionales).
 - [ ] Test E2E: hacer una orden de prueba real, verificar que confirmación llega a cliente desde `noreply@opabiz.com`.
 - [ ] Test contact form en producción.
+- [ ] Limpiar `sendOrderConfirmation()` dormida en `lib/notifications.ts` o consolidar el template de `/api/orders` para que apunte a ella.
 
 ---
 
@@ -258,3 +265,4 @@ Cada email a cliente incluye `unsubscribeFooter(email)` con:
 - **2026-05-13:** Handlers de emails manuales migrados de Railway/Express a Vercel/Supabase REST (commit `a5e1d45`). Endpoint `/api/proxy/notifications/[type]` ya NO pasa por Railway.
 - **2026-05-18:** Eliminada copia muerta de notifications en Express (commit `c7bdc07`). `backend/lib/notifications.ts` es ahora canónica.
 - **2026-06-19:** Migración a cuenta Resend de OpaBiz + centralización de FROM/Reply-To/alerts en env vars (commit `d7f9c68`). Página `/contact` + endpoint `/api/contact` creados (commit `369eb9b`). Doc actualizado.
+- **2026-06-19 (continuación):** Fix bug `rate.allowed` → `rate.success` en `/api/contact` (commit `5e63db8`) — el endpoint rechazaba todas las requests con 429. Fix env vars en `/api/orders/route.ts` (commit `36db324`) — su send inline se había pasado en la migración inicial y seguía con `onboarding@resend.dev` hardcoded. Documentada la situación de `sendOrderConfirmation()` dormida en notifications.ts.
