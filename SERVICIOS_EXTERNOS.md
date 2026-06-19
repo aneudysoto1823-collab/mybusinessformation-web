@@ -149,19 +149,26 @@
 
 ### 🟢 Resend — Emails transaccionales
 
-- **Qué hace:** Envía los 4 emails automáticos del sistema (confirmación, nombres tomados, alerta admin, certificate). API moderna y limpia, mucho mejor que SendGrid o Mailgun para developers.
-- **Plan actual:** Free tier
-- **Sender actual:** `onboarding@resend.dev` (subdominio temporal de Resend)
-- **Free tier incluye:** 3,000 emails/mes, 100 emails/día, dominio NO verificado (deliverability mediocre)
-- **Plan recomendado al lanzamiento:** **Pro $20/mes** porque:
+- **Qué hace:** Envía los **12 emails automáticos del sistema** (A0–A7 órdenes/alertas, B1 marketing, C1+C2 NBL Stripe, D1+D2 contact form). Para detalle ver `LOGICA_DE_NEGOCIO/02_emails_automaticos.md`.
+- **Plan actual:** **Free tier** — 3,000 emails/mes, 100 emails/día.
+- **Cuenta:** ✅ **migrada a la cuenta de OpaBiz** (2026-06-19, antes estaba en aneudysoto@gmail.com personal).
+- **Dominio:** ✅ **`opabiz.com` verificado en Resend** (SPF + DKIM + DMARC OK). Salimos del modo sandbox — los emails llegan a cualquier destinatario.
+- **Senders activos:**
+  - `noreply@opabiz.com` — transaccional (confirmación, certificate, etc.)
+  - `marketing@opabiz.com` — campañas (separado para que un spam complaint en marketing no afecte la reputación de transaccional)
+  - `support@opabiz.com` — emails que requieren respuesta del cliente (A2 nombres tomados, A4 sugerencias)
+- **Buzones de recepción (Zoho):**
+  - `info@opabiz.com` — Reply-To de todos + TO del form de contacto
+  - `alert@opabiz.com` — alertas internas unificadas (A0 nueva orden, A3 nombres tomados, C2 NBL Stripe)
+- **Plan recomendado al escalar:** **Pro $20/mes**:
   - 50,000 emails/mes (suficiente para waitlist nurture + transaccionales)
-  - **Dominio custom verificado** (`noreply@opabiz.com`) — mejora deliverability del ~60% al ~95%+
-  - Dedicated IP opcional (no necesario al inicio)
-  - Retención de logs 30 días
+  - Sin límite diario
+  - Dedicated IP opcional
+  - Retención de logs 30 días (Free es 1 día)
   - Audiences (drip campaigns nativas)
   - Webhooks para tracking de bounces/complaints
+- **Cuándo migrar a Pro:** cuando se acerque a 100 emails/día o se necesiten Audiences.
 - **Verificar precio en:** https://resend.com/pricing
-- **Acción crítica antes de lanzamiento:** Verificar dominio `opabiz.com` en Resend (DNS SPF + DKIM + DMARC). Sin esto, los emails siguen yendo a spam.
 
 ---
 
@@ -462,7 +469,7 @@
 > Marcar conforme se ejecuta cada upgrade.
 
 - [ ] **Supabase Pro** activado (1 click en dashboard, $25/mes prorrateado)
-- [ ] **Resend Pro** activado + dominio `opabiz.com` verificado (DNS propagación ~24h)
+- [x] **Dominio `opabiz.com` verificado** en Resend (Free tier alcanza por ahora; upgrade a Pro $20/mes cuando se acerque a 100 emails/día o se necesiten Audiences).
 - [ ] **Vercel Pro** activado y dominio `opabiz.com` apuntado
 - [ ] **Railway Pro** activado (decisión: si Hobby aguanta primer mes, posponer)
 - [ ] **Stripe** cuenta activada + verificación de identidad completa + cuenta bancaria conectada

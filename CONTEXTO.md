@@ -164,9 +164,13 @@ Pendientes de higiene técnica:
 - [x] Handlers de emails manuales del admin migrados de Railway/Express a Vercel/Supabase REST (commit `a5e1d45`, 2026-05-13). Endpoint `/api/proxy/notifications/[type]` ya NO pasa por Railway. Las funciones de Resend viven en `backend/lib/notifications.ts` (canónica para Vercel). La copia en `backend/modules/notifications/notifications.service.ts` y el resto del código muerto de Express fueron eliminados en commit `c7bdc07` (2026-05-18).
 - [x] Templates `sendOrderProcessed` (status: filed) y `sendOrderApproved` (status: approved) — completado 2026-05-18: HTML en `backend/lib/notifications.ts` con estilo coherente al resto. Respeta `unsubscribed`. Subject "📋 Your filing is in" y "🎉 Approved!". Incluye ETA por speed (standard 3-5 días / expedited 1-2 días).
 - [ ] Email con contrato PDF adjunto — pendiente hasta Etapa 6 (generación de documentos)
-- [ ] Verificar dominio opabiz.com en Resend — lo trabaja el socio (Aneudys). Hoy Resend está en modo sandbox y solo entrega emails al destinatario verificado.
+- [x] **Dominio opabiz.com verificado en Resend** (2026-06-19) — cuenta migrada de aneudysoto@gmail.com a la cuenta de OpaBiz. Sale del modo sandbox.
 - [x] Email de confirmación enviado automáticamente al cliente
 - [x] Motor de emails Resend funcionando en producción
+- [x] **Sistema de emails refactorizado (2026-06-19)** — Display Names "OpaBiz" + Subjects prefijados "OpaBiz:" + Reply-To `info@opabiz.com` + FROM separado para marketing (`marketing@`) vs transaccional (`noreply@`) vs support con respuesta (`support@`). Centralizado en env vars con fallback seguro. Ver `LOGICA_DE_NEGOCIO/02_emails_automaticos.md` para la lista completa de los 12 emails del sistema y la matriz de FROM/TO/Reply-To/Subject.
+- [x] **Alerta interna A0 "🆕 NUEVA ORDEN CREADA"** (2026-06-19) — cada vez que entra una orden en `/api/orders`, se dispara email automático al equipo en `alert@opabiz.com` con datos del cliente, FBFC- número y link al panel admin. Junto con A3 (nombres tomados) y C2 (nueva orden NBL Stripe), todas las alertas internas van a un buzón único `alert@opabiz.com` en Zoho.
+- [x] **Página `/contact` + form (D1 + D2)** (2026-06-19) — nueva página bilingüe EN/ES con layout split-screen. El form manda email al admin a `info@opabiz.com` (D1) y confirmación al visitor (D2). Rate limit 5/h/IP. Reemplaza la barra "Not sure where to start" del home y el mailto del footer.
+- [x] **Botón "🔁 Reenviar Confirmación de Orden"** en panel admin (2026-06-19, commit `1ba8b12`) — rescate manual para casos donde el send fire-and-forget de A1 se perdió por race condition en Vercel serverless.
 
 ### PUNTO DE LANZAMIENTO = Etapas 1+2+3+4+5+7 completas (~3 meses)
 

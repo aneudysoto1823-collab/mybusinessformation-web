@@ -29,8 +29,10 @@ Panel interno para que el equipo de MyBusinessFormation gestione órdenes, clien
 - Ver detalle completo del cliente y la empresa
 - Cambiar status de la orden
 - Agregar notas internas
-- Disparar email "Nombres Tomados" → POST /api/notifications/names-taken
-- Disparar email "Certificate of Formation" → POST /api/notifications/certificate
+- **🔁 Reenviar email de Confirmación de Orden** → `POST /api/proxy/notifications/order-confirmation` (rescate manual para casos donde el send original se perdió por race condition en Vercel serverless — caso real: orden FBFC-EC1DCF38)
+- Disparar email "⚠️ Nombres Tomados" → `POST /api/proxy/notifications/names-taken` (acepta 1, 2 o 3 nombres desde 2026-06-19 commit `601abaa` — antes exigía exactamente 3)
+- Disparar email "🎉 Certificate of Formation" → `POST /api/proxy/notifications/certificate`
+- Buscador de nombres + Disparar email "✅ Sugerencias de nombres" → `POST /api/proxy/notifications/suggest-names`
 
 ## Arquitectura de datos del dashboard
 

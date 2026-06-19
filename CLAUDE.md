@@ -131,7 +131,7 @@ NEXT_PUBLIC_URL       # URL base del sitio (ej: https://opabiz.com) — usado en
 /api/client-auth          POST  — login cliente → setea client_session cookie
 /api/client-auth/logout   POST  — borra client_session
 
-/api/orders               POST  — crea Order en Supabase + envía email de confirmación
+/api/orders               POST  — crea Order en Supabase + envía A1 al cliente + A0 alerta al equipo
 /api/webhooks/stripe      POST  — recibe checkout.session.completed → crea Order → envía FBFC
 
 /api/sunbiz               GET   — lookup empresa: DB primero, Sunbiz scraping como fallback
@@ -142,8 +142,10 @@ NEXT_PUBLIC_URL       # URL base del sitio (ej: https://opabiz.com) — usado en
 /api/campaigns/stats      GET   — métricas del dashboard admin
 /api/campaigns/companies  GET+POST — lista con filtros / alta manual de empresa
 
-/api/proxy/*              — proxy autenticado a Railway Express
-/api/admin/upload-certificate  POST — sube certificado de aprobación
+/api/contact              POST  — form público de /contact → email a info@opabiz.com (D1) + confirmación al visitor (D2). Rate limited 5/h/IP.
+
+/api/proxy/notifications/[type]  POST  — disparador interno del admin para reenviar emails: `order-confirmation` (A1, reenvío manual), `names-taken` (A2+A3), `suggest-names` (A4), `order-processed` (A5), `order-approved` (A6), `certificate` (A7)
+/api/admin/upload-certificate  POST — sube certificado de aprobación + dispara A7
 /api/documents/[orderId]  GET   — documentos de una orden
 
 /api/contabilidad/dashboard      GET    — métricas + alertas de vencimiento
@@ -173,14 +175,16 @@ NEXT_PUBLIC_URL       # URL base del sitio (ej: https://opabiz.com) — usado en
 ## Páginas principales
 
 ```
-/                        — Home (marketing)
+/                        — Home (marketing) — link "Contact" del header lleva a /contact
 /servicios               — Página de servicios (ES)
+/contact                 — Página de contacto bilingüe EN/ES (split-screen: WhatsApp + Schedule a la izquierda, formulario a la derecha)
 /new-business            — Landing de marketing QR (EN — indexada en Google)
 /new-business/es         — Versión en español (URL dedicada — indexada en Google)
 /new-business/success    — Post-pago con instrucciones portal
 /admin                   — Panel admin: tabla de órdenes activas con filtros
 /admin/orders/[id]       — Detalle de orden: cambio de estado, subida de documentos,
                            notas internas, buscador de nombres, envío manual de emails
+                           (incluye botón "🔁 Reenviar Confirmación de Orden" para rescate manual)
 /admin/campaigns         — Panel admin: marketing automation (envío QR, métricas)
 /admin/security          — Configuración de seguridad admin
 /admin/citas             — Panel admin: citas agendadas, confirmar/cancelar, bloquear horarios
@@ -446,35 +450,53 @@ Storage bucket requerido: `expense-receipts` (público) — crear en Supabase �
 
 ---
 
-## Sistema de Notificaciones por Email
+## Sistema de Notificaciones por Email (refactorizado 2026-06-19)
 
-Emails implementados en `backend/modules/notifications/notifications.service.ts`:
+**Doc canónica:** `LOGICA_DE_NEGOCIO/02_emails_automaticos.md` — tiene la lista de 12 emails, matriz completa de FROM/TO/Reply-To/Subject por email, y el flujo de cada uno.
 
-| Función | Trigger | Estado |
+### Estado actual
+
+- **Resend con dominio `opabiz.com` verificado** (SPF + DKIM + DMARC). Cuenta migrada de aneudysoto@gmail.com a la cuenta de OpaBiz.
+- **6 buzones Zoho activos:** `noreply@`, `marketing@`, `support@`, `info@`, `admin@`, `alert@`.
+- **12 emails del sistema** (A0–A7, B1, C1, C2, D1, D2). Códigos identificadores en el doc 02.
+- **Display Name "OpaBiz"** en todos los FROM — el cliente ve "OpaBiz" en su inbox en lugar de "noreply".
+- **Subjects prefijados** con `OpaBiz:` / `OpaBiz Support:` / `OpaBiz Alerts:` / `OpaBiz Contact:` según rol.
+- **Reply-To `info@opabiz.com`** en TODOS los emails — el cliente puede responder con un click y va a un buzón Zoho monitoreado.
+- **Alertas internas** (A0 nueva orden creada, A3 nombres tomados, C2 nueva orden NBL) van todas a **`alert@opabiz.com`** (buzón unificado).
+
+### Implementaciones por archivo
+
+| Archivo | Emails | Notas |
 |---|---|---|
-| `sendOrderConfirmation` | Al crear orden (webhook Stripe o `/api/orders`) | ✅ Activo |
-| `sendAllNamesTaken` | Manual desde admin o automático | ✅ Activo |
-| `sendSuggestNames` | Admin encuentra nombres alternativos | ✅ Activo |
-| `sendCertificateDelivery` | Al subir Certificate PDF desde admin | ✅ Activo |
-| `sendOrderProcessed` | Al avanzar a `filed` | ✅ Implementado |
-| `sendOrderApproved` | Al avanzar a `approved` | ✅ Implementado |
+| `backend/lib/notifications.ts` | A2–A7 + `sendOrderConfirmation()` (usado para reenvío manual desde admin) | Único lugar canónico. Las copias de Railway/Express se eliminaron 2026-05-18 (commit `c7bdc07`). |
+| `backend/app/api/orders/route.ts` | A1 + A0 (inline) | A1 dispara la confirmación al cliente, A0 dispara la alerta interna. Ambos son fire-and-forget. |
+| `backend/app/api/campaigns/send/route.ts` | B1 | Marketing — FROM `marketing@opabiz.com` separado del transaccional. |
+| `backend/app/api/webhooks/stripe/route.ts` | C1 + C2 | Flow `/new-business` (NBL). |
+| `backend/app/api/contact/route.ts` | D1 + D2 | D1 al admin, D2 al visitor. Rate limit 5/h/IP. |
+| `backend/app/api/proxy/notifications/[type]/route.ts` | Disparador admin de A2/A3/A4/A5/A6/A7 + reenvío manual de A1 | Endpoints internos del panel admin para botones manuales. |
 
-Todos los emails usan WhatsApp `+13528377755`. Actualmente salen desde `onboarding@resend.dev` — pendiente migrar a dominio propio (lo trabaja el socio).
+### Env vars críticas (Vercel Production + Development)
 
-### Email de contacto: split por dominio (2026-06-17)
+```
+RESEND_API_KEY              ✓ cuenta OpaBiz
+RESEND_FROM_TRANSACTIONAL  = noreply@opabiz.com
+RESEND_FROM_MARKETING      = marketing@opabiz.com
+RESEND_FROM_SUPPORT        = support@opabiz.com
+RESEND_REPLY_TO            = info@opabiz.com
+INTERNAL_ALERT_EMAIL       = alert@opabiz.com
+CONTACT_FROM_EMAIL         = noreply@opabiz.com
+CONTACT_TO_EMAIL           = info@opabiz.com
+```
 
-El email de contacto visible se divide según la marca de la superficie:
+Si una env var falta, el código degrada a un fallback seguro (sandbox de Resend o gmail viejo) para que dev local no rompa — pero el deploy productivo siempre debe tener las 8.
 
-- **Marketing / new business** (`/new-business` y sus legal/privacy/terms, cuerpo del email de campañas, página `/unsubscribe`) → **`info@mybusinessformation.com`**
-- **Sitio principal opabiz.com** (legal, terms, privacy, footers, home, client-portal) → **`info@opabiz.com`**
-- Se descartó `support@` — todo unificado a `info@`.
+### Race condition fire-and-forget (caso real FBFC-EC1DCF38)
 
-**⚠️ Tarea pendiente — cambiar el remitente del email de marketing:**
-- Hoy el `FROM_EMAIL` del envío de campañas (`backend/app/api/campaigns/send/route.ts`, const cerca de la línea 14) **sigue en `info@opabiz.com`**.
-- Para que el email de marketing **salga desde** `info@mybusinessformation.com` (y el split quede completo), hay que:
-  1. **Verificar `mybusinessformation.com` en Resend** (SPF/DKIM). Sin esto, el envío falla.
-  2. Cambiar `FROM_EMAIL` a `'info@mybusinessformation.com'`.
-- **Ojo:** `mybusinessformation.com` solo hace 301 web a opabiz.com; el correo (MX) es aparte. Confirmar que `info@mybusinessformation.com` **reciba** email antes de publicarlo como contacto.
+El send A1 en `/api/orders/route.ts` es fire-and-forget (`.catch(err => console.error(...))`). En Vercel serverless, el container puede matarse después de responder 201 y el Promise queda colgando sin completar. Resultado: la orden se guarda pero el email nunca llega a Resend (ni Delivered ni Failed).
+
+**Rescate manual:** botón **"🔁 Reenviar Confirmación de Orden"** en `/admin/orders/[id]` — usa `sendOrderConfirmation()` de notifications.ts a través de `POST /api/proxy/notifications/order-confirmation`. Audit log registra `email.order-confirmation-resent`.
+
+**Sistema de alertas automáticas POSPUESTO** (decisión del founder 2026-06-19) — el plan completo (Resend webhook + Sentry) está documentado en doc 02 sección "Pendientes" por si pasa más de una vez y se decide retomar.
 
 ## Diseño de Login Pages
 

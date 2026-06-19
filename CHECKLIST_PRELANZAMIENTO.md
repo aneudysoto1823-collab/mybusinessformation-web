@@ -68,16 +68,19 @@
 
 ## 🟡 ETAPA 7 — Comunicación Automática (mayoría completa, faltan ítems críticos)
 
-- [ ] **Verificar dominio `opabiz.com` en Resend** — esto cambia from `onboarding@resend.dev` a `noreply@opabiz.com` (mejora deliverability del 60% al 95%+)
-- [ ] Configurar registros DNS SPF, DKIM, DMARC para Resend (necesario para verificación de dominio)
-- [ ] Probar deliverability post-verificación con email a Gmail, Yahoo, Outlook (no debe ir a spam)
-- [ ] Configurar dirección `support@opabiz.com` (forward a Ethan)
-- [ ] Configurar dirección `noreply@opabiz.com` (sender)
-- [ ] Configurar dirección `aneurysoto@gmail.com` como BCC en emails críticos para tener registro
+- [x] **Dominio `opabiz.com` verificado en Resend** (2026-06-19) — cambió de `onboarding@resend.dev` a `OpaBiz <noreply@opabiz.com>` con Display Name. Cuenta migrada de aneudysoto@gmail.com a la cuenta de OpaBiz.
+- [x] Registros DNS SPF, DKIM, DMARC para Resend configurados y verificados ✅
+- [x] Buzones Zoho creados: `noreply@`, `marketing@`, `support@`, `info@`, `admin@`, `alert@`
+- [ ] Probar deliverability post-verificación con email a Gmail, Yahoo, Outlook (no debe ir a spam) — pendiente test exhaustivo, pero en pruebas iniciales (Gmail) llegan a Primary OK.
+- [x] **Sistema centralizado de FROM/Reply-To/alerts en env vars** (commits `d7f9c68`, `36db324`, `f3fc1cf`) — `RESEND_FROM_TRANSACTIONAL`, `RESEND_FROM_MARKETING`, `RESEND_FROM_SUPPORT`, `RESEND_REPLY_TO`, `INTERNAL_ALERT_EMAIL`, `CONTACT_FROM_EMAIL`, `CONTACT_TO_EMAIL` en Vercel. Ver `LOGICA_DE_NEGOCIO/02_emails_automaticos.md`.
+- [x] **Display Names "OpaBiz" + Subjects prefijados** (commit `70a9a73`) — el cliente ve "OpaBiz" en su inbox, no "noreply".
+- [x] **Nuevo email D2** confirmación al visitor del form de contacto.
+- [x] **Nueva alerta A0** "🆕 NUEVA ORDEN CREADA" → `alert@opabiz.com` por cada orden.
+- [x] **Botón "🔁 Reenviar Confirmación de Orden"** en panel admin (rescate para casos de race condition en Vercel serverless).
 - [ ] Email "contrato PDF adjunto" (depende de Etapa 6 — opcional pre-launch)
 - [ ] Plantilla email "recordatorio cliente para enviar nuevos nombres" (cuando los 3 nombres están tomados y han pasado 48h sin respuesta)
 - [ ] Plantilla email "Annual Report deadline aproximándose" (recordatorio para clientes año 2+)
-- [ ] Test del flujo completo de los 4 emails con un orden simulado en producción
+- [x] Test del flujo completo de los 12 emails con órdenes simuladas en producción — A0, A1, A2, A4, B1, D1, D2 probados OK. Pendientes: A5, A6, A7, C1, C2 (probarán cuando se avance órdenes reales).
 
 ---
 
