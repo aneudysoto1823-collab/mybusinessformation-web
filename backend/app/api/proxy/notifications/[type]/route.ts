@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdminToken } from '@/lib/session'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import {
+  sendOrderConfirmation,
   sendAllNamesTaken,
   sendCertificateDelivery,
   sendSuggestNames,
@@ -40,6 +41,28 @@ export async function POST(
   const body = await request.json()
 
   try {
+    // ── order-confirmation ──────────────────────────────────────────────────
+    // Body esperado: { orderId }
+    // Reenvía el email de confirmación de orden al cliente. Sirve para casos
+    // donde el send original desde /api/orders se perdió (fire-and-forget en
+    // Vercel serverless puede matar el Promise antes de que Resend lo reciba).
+    if (type === 'order-confirmation') {
+      const { orderId } = body
+      if (!orderId) return NextResponse.json({ success: false, message: 'Falta orderId' }, { status: 400 })
+      const order = await getOrder(orderId)
+      if (!order) return NextResponse.json({ success: false, message: 'Orden no encontrada' }, { status: 404 })
+      await sendOrderConfirmation({
+        id: order.id,
+        firstName: order.firstName,
+        lastName: order.lastName,
+        email: order.email,
+        companyName: order.companyName,
+        package: order.package,
+      })
+      await logAdminAction({ action: 'email.order-confirmation-resent', entity: 'Order', entityId: order.id, request })
+      return NextResponse.json({ success: true, message: `Confirmación reenviada a ${order.email}` })
+    }
+
     // ── names-taken ─────────────────────────────────────────────────────────
     // Body esperado: { orderId }
     // Construye el array de nombres desde la orden (1, 2 o 3) y dispara email

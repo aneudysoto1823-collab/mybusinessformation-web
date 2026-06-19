@@ -227,7 +227,7 @@ export default function OrderDetailPage() {
   }
 
   // ── Emails manuales ───────────────────────────────────────────────────────
-  async function triggerEmail(type: 'names-taken' | 'certificate') {
+  async function triggerEmail(type: 'names-taken' | 'certificate' | 'order-confirmation') {
     setEmailLoading(type)
     setEmailMsg('')
     const res = await fetch(`${PROXY}/notifications/${type}`, {
@@ -974,6 +974,9 @@ export default function OrderDetailPage() {
                 </span>
               ) : (
                 <>
+                  <button className="btn btn-blue" onClick={() => triggerEmail('order-confirmation')} disabled={emailLoading !== null} title="Reenviar el email de confirmación al cliente (útil cuando el envío automático original se perdió).">
+                    {emailLoading === 'order-confirmation' ? 'Enviando…' : '🔁 Reenviar: Confirmación de Orden'}
+                  </button>
                   <button className="btn btn-yellow" onClick={() => triggerEmail('names-taken')} disabled={emailLoading !== null}>
                     {emailLoading === 'names-taken' ? 'Enviando…' : '⚠️ Email: Nombres Tomados'}
                   </button>
