@@ -119,3 +119,17 @@ export async function checkAuthRecoverRateLimit(ip: string): Promise<RateLimitRe
   })
   return check(limiter, ip, 3)
 }
+
+// ── POST /api/contact: 5 requests / hora / IP ────────────────────────────────
+// Form público del Contact Us. Un cliente legítimo no manda más de 1-2 mensajes
+// por hora; un bot spammer queda neutralizado. Si Upstash no responde, fail-open
+// (mismo patrón que los demás limiters).
+export async function checkContactRateLimit(ip: string): Promise<RateLimitResult> {
+  const limiter = getLimiter({
+    cacheKey: 'contact',
+    prefix: 'rl:contact',
+    limit: 5,
+    window: '1 h',
+  })
+  return check(limiter, ip, 5)
+}
