@@ -1,5 +1,21 @@
 # Proceso 2 — Emails Automáticos (Resend)
 
+## Lista rápida — qué email, desde dónde, qué ve el destinatario
+
+1. **Confirmación de orden** llega al cliente desde `noreply@opabiz.com` → cliente ve **OpaBiz**
+2. **Nombres tomados** llega al cliente desde `support@opabiz.com` → cliente ve **OpaBiz Support** *(requiere que el cliente conteste con nuevos nombres)*
+3. **Sugerencias de nombres** llega al cliente desde `support@opabiz.com` → cliente ve **OpaBiz Support** *(requiere que el cliente confirme cuál prefiere)*
+4. **Orden procesada (filed)** llega al cliente desde `noreply@opabiz.com` → cliente ve **OpaBiz**
+5. **Orden aprobada por Florida** llega al cliente desde `noreply@opabiz.com` → cliente ve **OpaBiz**
+6. **Certificate of Formation** llega al cliente desde `noreply@opabiz.com` → cliente ve **OpaBiz**
+7. **Alerta de nombres tomados** llega al admin (`admin@opabiz.com`) desde `noreply@opabiz.com` → admin ve **OpaBiz Alerts**
+8. **Alerta de nueva orden NBL (Stripe)** llega al admin (`admin@opabiz.com`) desde `noreply@opabiz.com` → admin ve **OpaBiz Alerts**
+9. **Confirmación NBL (pago Stripe)** llega al cliente desde `noreply@opabiz.com` → cliente ve **OpaBiz**
+10. **Mensaje del form de contacto** llega al admin (`info@opabiz.com`) desde `noreply@opabiz.com` → admin ve **OpaBiz Contact** *(Reply-To = email del visitor, si admin le da Responder va directo al cliente)*
+11. **Confirmación al visitor del form** llega al visitor desde `noreply@opabiz.com` → visitor ve **OpaBiz** *(nuevo email D2 — antes no existía)*
+
+---
+
 ## Descripción
 
 El sistema envía emails transaccionales (órdenes, certificate, alertas), de marketing (campañas QR) y un email del formulario público de contacto. Toda la lógica vive en Vercel (no hay nada en Railway). Resend es el único proveedor.
