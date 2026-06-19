@@ -306,8 +306,18 @@ Cada email a cliente incluye `unsubscribeFooter(email)` con:
 - [ ] **Email con contrato PDF adjunto** — pendiente hasta Etapa 6 (generación de documentos).
 - [ ] **Upgrade a Resend Pro $20/mes** — solo cuando se acerque a 100 emails/día o se necesiten Audiences para drip campaigns.
 - [ ] **Recordatorios automáticos 24h antes de citas agendadas** (requiere cron job — Vercel Cron o Upstash QStash).
-- [ ] **Webhook de bounce/complaint de Resend** — registrar en Supabase para auditoría de deliverability.
-- [ ] **Sentry alert si una función de email falla** — actualmente solo log a console.
+- [ ] **Sistema de alertas si Resend no envía un email** — discutido el 2026-06-19 pero **pospuesto** por decisión del founder (no over-engineerear por un caso edge que ocurrió 1 sola vez). El botón "Reenviar Confirmación de Orden" en el panel admin cubre el rescate manual. Si vuelve a pasar más seguido, retomar este plan:
+
+  **Escenarios a cubrir:**
+  - **Escenario A** — Resend recibe el send pero falla la entrega (bounce, email inválido, dominio bloqueado, complaint). Resend lo sabe pero nosotros no nos enteramos a menos que entremos al dashboard.
+  - **Escenario B** — Resend nunca recibe el send (race condition Vercel serverless mató el container antes de que el fire-and-forget completara). El caso real fue la orden **FBFC-EC1DCF38** (Pepe Prueba / jrfabian2011@gmail.com).
+
+  **3 opciones evaluadas:**
+  1. **Webhook de Resend** → endpoint `POST /api/webhooks/resend` que reciba eventos (`email.bounced`, `email.complained`, `email.delivery_delayed`). Cuando es bounce/complaint, dispara alerta a `alert@opabiz.com`. **Cubre Escenario A**. Costo: bajo (1 endpoint + config en Resend dashboard).
+  2. **Sentry en los `.catch`** → enriquecer `console.error` con `Sentry.captureException(err, { extra: {...} })`. Sentry ya está configurado en el proyecto (ver doc `14_sentry_monitoreo_errores.md`). **Captura excepciones explícitas** pero NO captura race conditions porque el Promise nunca rechaza — se mata silenciosamente con el container.
+  3. **Cambiar fire-and-forget a `await`** en sends críticos (A0, A1) → garantía 100% de envío o error visible. **Cubre Escenario B**. Costo: +300-500ms en POST /api/orders.
+
+  **Solución profesional industria-standard si se retoma:** opción 1 + opción 2 (95% de cobertura). Para el 5% restante (race condition exacto) queda el botón de reenvío.
 - [ ] **WhatsApp Business API como canal adicional** — opcional, post-launch.
 
 ---
