@@ -3,16 +3,17 @@
 ## Lista rápida — qué email, desde dónde, qué ve el destinatario
 
 1. **Confirmación de orden** llega al cliente desde `noreply@opabiz.com` → cliente ve **OpaBiz**
-2. **Nombres tomados** llega al cliente desde `support@opabiz.com` → cliente ve **OpaBiz Support** *(requiere que el cliente conteste con nuevos nombres)*
-3. **Sugerencias de nombres** llega al cliente desde `support@opabiz.com` → cliente ve **OpaBiz Support** *(requiere que el cliente confirme cuál prefiere)*
-4. **Orden procesada (filed)** llega al cliente desde `noreply@opabiz.com` → cliente ve **OpaBiz**
-5. **Orden aprobada por Florida** llega al cliente desde `noreply@opabiz.com` → cliente ve **OpaBiz**
-6. **Certificate of Formation** llega al cliente desde `noreply@opabiz.com` → cliente ve **OpaBiz**
-7. **Alerta de nombres tomados** llega al admin (`admin@opabiz.com`) desde `noreply@opabiz.com` → admin ve **OpaBiz Alerts**
-8. **Alerta de nueva orden NBL (Stripe)** llega al admin (`admin@opabiz.com`) desde `noreply@opabiz.com` → admin ve **OpaBiz Alerts**
-9. **Confirmación NBL (pago Stripe)** llega al cliente desde `noreply@opabiz.com` → cliente ve **OpaBiz**
-10. **Mensaje del form de contacto** llega al admin (`info@opabiz.com`) desde `noreply@opabiz.com` → admin ve **OpaBiz Contact** *(Reply-To = email del visitor, si admin le da Responder va directo al cliente)*
-11. **Confirmación al visitor del form** llega al visitor desde `noreply@opabiz.com` → visitor ve **OpaBiz** *(nuevo email D2 — antes no existía)*
+2. **🆕 NUEVA ORDEN CREADA** (alerta interna) llega al equipo (`alert@opabiz.com`) desde `noreply@opabiz.com` → admin ve **OpaBiz Alerts** *(notifica cada nueva orden con datos del cliente y link al panel admin)*
+3. **Nombres tomados** llega al cliente desde `support@opabiz.com` → cliente ve **OpaBiz Support** *(requiere que el cliente conteste con nuevos nombres)*
+4. **Sugerencias de nombres** llega al cliente desde `support@opabiz.com` → cliente ve **OpaBiz Support** *(requiere que el cliente confirme cuál prefiere)*
+5. **Orden procesada (filed)** llega al cliente desde `noreply@opabiz.com` → cliente ve **OpaBiz**
+6. **Orden aprobada por Florida** llega al cliente desde `noreply@opabiz.com` → cliente ve **OpaBiz**
+7. **Certificate of Formation** llega al cliente desde `noreply@opabiz.com` → cliente ve **OpaBiz**
+8. **Alerta de nombres tomados** llega al equipo (`alert@opabiz.com`) desde `noreply@opabiz.com` → admin ve **OpaBiz Alerts**
+9. **Alerta de nueva orden NBL (Stripe)** llega al equipo (`alert@opabiz.com`) desde `noreply@opabiz.com` → admin ve **OpaBiz Alerts**
+10. **Confirmación NBL (pago Stripe)** llega al cliente desde `noreply@opabiz.com` → cliente ve **OpaBiz**
+11. **Mensaje del form de contacto** llega al admin (`info@opabiz.com`) desde `noreply@opabiz.com` → admin ve **OpaBiz Contact** *(Reply-To = email del visitor, si admin le da Responder va directo al cliente)*
+12. **Confirmación al visitor del form** llega al visitor desde `noreply@opabiz.com` → visitor ve **OpaBiz**
 
 ---
 
@@ -47,7 +48,7 @@ Todos los emails del dominio están como buzones reales en Zoho — el equipo lo
 | `noreply@opabiz.com` | **FROM** de todos los emails transaccionales y del form de contacto. Cliente no debería responder acá (Reply-To redirige). |
 | `marketing@opabiz.com` | **FROM** de campañas (QR / newsletter). Separado del transaccional para que un spam complaint no contamine la reputación de las órdenes. |
 | `info@opabiz.com` | **Reply-To** de TODOS los emails + **TO** del form de contacto. Buzón principal monitoreado por el equipo. |
-| `admin@opabiz.com` | **TO** de alertas internas (nombres tomados, nueva orden Stripe). |
+| `alert@opabiz.com` | **TO** de TODAS las alertas internas: nueva orden creada (A0), nombres tomados (A3), nueva orden NBL Stripe (C2). Buzón único de alertas del equipo. |
 | `support@opabiz.com` | Mencionado en footers de emails como canal de soporte alternativo. |
 
 ### Convención de la industria aplicada
@@ -73,7 +74,7 @@ Setear en Vercel **(Production + Preview + Development)** y replicar en `backend
 | `RESEND_FROM_MARKETING` | `marketing@opabiz.com` | Campañas |
 | `RESEND_FROM_SUPPORT` | `support@opabiz.com` | Emails que **requieren respuesta del cliente** (A2 names taken, A4 sugerencias) |
 | `RESEND_REPLY_TO` | `info@opabiz.com` | TODOS los emails |
-| `INTERNAL_ALERT_EMAIL` | `admin@opabiz.com` | Alerta de nombres tomados + alerta Stripe |
+| `INTERNAL_ALERT_EMAIL` | `alert@opabiz.com` | TODAS las alertas internas: A0 nueva orden creada, A3 nombres tomados, C2 nueva orden NBL Stripe |
 | `CONTACT_FROM_EMAIL` | `noreply@opabiz.com` | Form de contacto (override de RESEND_FROM_TRANSACTIONAL si querés un FROM distinto solo para contact) |
 | `CONTACT_TO_EMAIL` | `info@opabiz.com` | Form de contacto |
 
@@ -87,13 +88,22 @@ Setear en Vercel **(Production + Preview + Development)** y replicar en `backend
 
 Todos van DESDE `RESEND_FROM_TRANSACTIONAL` con Reply-To `RESEND_REPLY_TO`.
 
+#### A0. Alerta "🆕 NUEVA ORDEN CREADA" → EQUIPO
+- **Cuándo:** Inmediatamente después de A1, cuando POST `/api/orders` inserta la orden en Supabase.
+- **Destinatario:** `INTERNAL_ALERT_EMAIL` = `alert@opabiz.com` (buzón Zoho del equipo).
+- **FROM:** `OpaBiz Alerts <noreply@opabiz.com>`.
+- **Subject:** `OpaBiz Alerts: 🆕 NUEVA ORDEN CREADA — {companyName}`.
+- **Implementación:** Inline en `backend/app/api/orders/route.ts`, fire-and-forget en paralelo al A1.
+- **Contenido:** Banner verde, tabla con FBFC- número, datos del cliente (nombre, email, empresa), entity type, paquete, filing speed, **botón directo al panel admin de la orden** (`/admin/orders/{id}`).
+- **Por qué existe:** El equipo quería saber al instante cuando entra una orden nueva, sin tener que estar refrescando el panel admin.
+
 #### A1. Confirmación de Orden → CLIENTE
 - **Cuándo:** Al recibir POST a `/api/orders` (form de orden completado por el cliente). No espera al pago Stripe — se envía apenas la orden se inserta en Supabase.
 - **Destinatario:** `order.email` (cliente).
-- **Implementación:** **Inline en `backend/app/api/orders/route.ts`** — el send está dentro del propio endpoint con su propio template HTML. **NO** llama a `sendOrderConfirmation()` de `lib/notifications.ts`.
+- **Implementación:** **Inline en `backend/app/api/orders/route.ts`** — el send está dentro del propio endpoint con su propio template HTML. La versión inline es la que se ejecuta automáticamente. **También** existe `sendOrderConfirmation()` en `lib/notifications.ts` que se usa para el **reenvío manual desde el panel admin** (botón "🔁 Reenviar Confirmación de Orden") — ya NO está dormida.
 - **Contenido:** Resumen de la orden, número de orden (`FBFC-XXXXXXXX`), próximos pasos, link a soporte WhatsApp.
-- **Subject:** `✅ We received your order — {companyName}`
-- **⚠️ Código duplicado pendiente de limpiar:** existe `sendOrderConfirmation()` exportada en `lib/notifications.ts` con un template parecido pero **nadie la importa**. Probablemente quedó como legacy de la migración de Express a Vercel. No borrarla hasta consolidar el template — la versión inline de `/api/orders` es la que se ejecuta en producción.
+- **Subject:** `OpaBiz: ✅ Your Florida LLC order is in — {companyName}`
+- **⚠️ Templates ligeramente distintos:** la versión inline (`/api/orders`) y la de `sendOrderConfirmation()` tienen pequeñas diferencias visuales. Consolidar en una sola fuente es trabajo pendiente.
 
 #### A2. Nombres Tomados → CLIENTE
 - **Cuándo:** Equipo verifica en Sunbiz que los 3 nombres propuestos están registrados.
@@ -183,16 +193,17 @@ Todos van DESDE `RESEND_FROM_TRANSACTIONAL` con Reply-To `RESEND_REPLY_TO`.
 
 | Email | Tipo | Display Name | FROM | TO | Reply-To | Subject |
 |---|---|---|---|---|---|---|
+| A0 NUEVA ORDEN CREADA | Interno | **OpaBiz Alerts** | noreply@ | alert@ | info@ | `OpaBiz Alerts: 🆕 NUEVA ORDEN CREADA — {company}` |
 | A1 Confirmación orden | Transaccional | **OpaBiz** | noreply@ | cliente | info@ | `OpaBiz: ✅ Your Florida LLC order is in — {company}` |
 | A2 Nombres tomados | Transaccional (requiere respuesta) | **OpaBiz Support** | support@ | cliente | info@ | `OpaBiz: ⚠️ Action needed — your name options are taken` |
-| A3 Alerta nombres | Interno | **OpaBiz Alerts** | noreply@ | admin@ | info@ | `OpaBiz Alerts: 🚨 Nombres tomados — contactar cliente` |
+| A3 Alerta nombres | Interno | **OpaBiz Alerts** | noreply@ | alert@ | info@ | `OpaBiz Alerts: 🚨 Nombres tomados — contactar cliente` |
 | A4 Sugerencias | Transaccional (requiere respuesta) | **OpaBiz Support** | support@ | cliente | info@ | `OpaBiz: ✅ We found available names for your LLC` |
 | A5 Procesada | Transaccional | **OpaBiz** | noreply@ | cliente | info@ | `OpaBiz: 📋 Your Florida filing is in — {company}` |
 | A6 Aprobada | Transaccional | **OpaBiz** | noreply@ | cliente | info@ | `OpaBiz: 🎉 Florida approved your business — {company}` |
 | A7 Certificate | Transaccional | **OpaBiz** | noreply@ | cliente | info@ | `OpaBiz: 🏆 Your Articles of Organization are ready — {company}` |
 | B1 Carta QR | Marketing | **OpaBiz** | marketing@ | lead | info@ | `OpaBiz: Business Compliance Notice — {company}` |
 | C1 Confirmación NBL | Transaccional | **OpaBiz** | noreply@ | cliente | info@ | `OpaBiz: ✅ Payment confirmed — {company}` |
-| C2 Alerta nueva orden NBL | Interno | **OpaBiz Alerts** | noreply@ | admin@ | info@ | `OpaBiz Alerts: 🆕 Nueva orden New Business Letter` |
+| C2 Alerta nueva orden NBL | Interno | **OpaBiz Alerts** | noreply@ | alert@ | info@ | `OpaBiz Alerts: 🆕 Nueva orden New Business Letter` |
 | D1 Contact form al admin | Visitor → admin | **OpaBiz Contact** | noreply@ | info@ | email del visitor | `OpaBiz Contact: {subject del visitor}` |
 | D2 Confirmación al visitor | Transaccional | **OpaBiz** | noreply@ | visitor | info@ | `OpaBiz: ✅ We got your message — we'll respond within 24 hours` |
 
@@ -309,3 +320,4 @@ Cada email a cliente incluye `unsubscribeFooter(email)` con:
 - **2026-06-19 (continuación):** Fix bug `rate.allowed` → `rate.success` en `/api/contact` (commit `5e63db8`) — el endpoint rechazaba todas las requests con 429. Fix env vars en `/api/orders/route.ts` (commit `36db324`) — su send inline se había pasado en la migración inicial y seguía con `onboarding@resend.dev` hardcoded. Documentada la situación de `sendOrderConfirmation()` dormida en notifications.ts.
 - **2026-06-19 (sesión tarde):** Display Names + Subjects con "OpaBiz" en los 12 emails (antes el cliente veía solo `noreply` o `marketing` en su inbox sin saber de qué empresa era). Agregado email D2 — confirmación al visitor del form de contacto que antes nunca recibía nada en su inbox. Nueva env var `RESEND_FROM_SUPPORT = support@opabiz.com` para A2 (nombres tomados) y A4 (sugerencias) que requieren respuesta del cliente — display "OpaBiz Support" deja claro que pueden contestar.
 - **2026-06-19 (sesión noche):** `names-taken` acepta 1+ nombres en lugar de exigir 3 (commit `601abaa`) — antes daba 400 si el cliente había puesto solo 1 nombre en la orden. Templates de A2 y A3 adaptan singular/plural. Nuevo botón "🔁 Reenviar Confirmación de Orden" en `/admin/orders/[id]` (commit `1ba8b12`) para rescatar casos donde el send fire-and-forget de A1 se perdió por race condition en Vercel serverless (orden FBFC-EC1DCF38 fue el caso real que motivó esto).
+- **2026-06-19 (final):** Nueva alerta A0 "🆕 NUEVA ORDEN CREADA" cada vez que entra una orden (commit `f3fc1cf`). `INTERNAL_ALERT_EMAIL` movido de `admin@opabiz.com` a `alert@opabiz.com` para centralizar A0 + A3 + C2 en un buzón único de alertas del equipo. Template verde con botón directo al panel admin de la orden.
