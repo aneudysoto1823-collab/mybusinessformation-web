@@ -2554,7 +2554,13 @@ function fmBusinessAddrText() {
 function fmRefreshAddrPresets() {
   var bizParts = fmGetBusinessAddrParts();
   var hasBizPhysical = !!(bizParts.street && bizParts.city);
-  var hasVirtual = !!(fmData && (fmData.bizAddrType === 'virtual' || (fmData.vma === true)));
+  // Solo mostrar el check de dirección virtual si el cliente la eligió
+  // EXPLÍCITAMENTE en el paso 2 (Business Address). El fmData.vma viejo es un
+  // addon separado (Virtual Mailing Address) cuyo default es 'true' al
+  // inicializar fmData y no corresponde a la dirección que vamos a asignar al
+  // miembro — usarlo acá mostraba el check incorrectamente a todos los clientes
+  // que eligieron "I will use my own address".
+  var hasVirtual = !!(fmData && fmData.bizAddrType === 'virtual');
   var bizText = fmBusinessAddrText();
 
   // Collect all member ids: 1 + dynamic ones in s5-extra-members
