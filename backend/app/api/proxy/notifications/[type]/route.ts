@@ -42,22 +42,24 @@ export async function POST(
   try {
     // ── names-taken ─────────────────────────────────────────────────────────
     // Body esperado: { orderId }
-    // Construye el array de 3 nombres desde la orden y dispara email cliente + alerta admin.
+    // Construye el array de nombres desde la orden (1, 2 o 3) y dispara email
+    // cliente + alerta admin. companyName2 y companyName3 son opcionales en el
+    // form, por eso aceptamos cualquier cantidad >= 1.
     if (type === 'names-taken') {
       const { orderId } = body
       if (!orderId) return NextResponse.json({ success: false, message: 'Falta orderId' }, { status: 400 })
       const order = await getOrder(orderId)
       if (!order) return NextResponse.json({ success: false, message: 'Orden no encontrada' }, { status: 404 })
       const names = [order.companyName, order.companyName2, order.companyName3].filter(Boolean) as string[]
-      if (names.length !== 3) {
-        return NextResponse.json({ success: false, message: 'La orden no tiene 3 nombres registrados' }, { status: 400 })
+      if (names.length < 1) {
+        return NextResponse.json({ success: false, message: 'La orden no tiene nombres registrados' }, { status: 400 })
       }
       await sendAllNamesTaken({
         id: order.id,
         firstName: order.firstName,
         lastName: order.lastName,
         email: order.email,
-        names: names as [string, string, string],
+        names,
         unsubscribed: order.unsubscribed ?? false,
       })
       await logAdminAction({ action: 'email.names-taken', entity: 'Order', entityId: order.id, request })

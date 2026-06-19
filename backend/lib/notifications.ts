@@ -93,13 +93,26 @@ export const sendAllNamesTaken = async (order: {
   firstName: string
   lastName: string
   email: string
-  names: [string, string, string]
+  // names puede tener 1, 2 o 3 elementos — el cliente puede haber enviado solo
+  // un nombre (companyName2/companyName3 son opcionales en el form).
+  names: string[]
   id: string
   unsubscribed?: boolean
 }) => {
   if (order.unsubscribed) {
     return { success: false, reason: 'unsubscribed' }
   }
+
+  // Texto adaptado a la cantidad real de nombres propuestos por el cliente.
+  const n = order.names.length
+  const enQty = n === 1 ? 'the company name' : n === 2 ? 'both company names' : 'all three company names'
+  const esQty = n === 1 ? 'el nombre propuesto está registrado' : `los ${n} nombres propuestos están registrados`
+  const clientList = order.names
+    .map(name => `<p style="margin:6px 0;font-size:14px;color:#92400e">❌ &nbsp;<strong>${name}</strong> — already taken</p>`)
+    .join('')
+  const adminList = order.names
+    .map(name => `<p style="margin:6px 0;color:#991b1b">❌ ${name}</p>`)
+    .join('')
 
   await Promise.all([
     // Email al cliente — usa FROM_OPABIZ_SUPPORT porque REQUIERE respuesta
@@ -118,16 +131,15 @@ export const sendAllNamesTaken = async (order: {
           <div style="background:#fff;padding:32px;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 10px 10px">
             <h2 style="color:#b45309;font-size:20px">Hi ${order.firstName}, we need your help ⚠️</h2>
             <p style="color:#475569;line-height:1.7">
-              We checked the <strong>Florida Division of Corporations</strong> and unfortunately all three
-              company names you submitted are already registered:
+              We checked the <strong>Florida Division of Corporations</strong> and unfortunately ${enQty}
+              you submitted ${n === 1 ? 'is' : 'are'} already registered:
             </p>
             <div style="background:#fefce8;border:1px solid #fde68a;border-radius:8px;padding:20px;margin:20px 0">
-              <p style="margin:6px 0;font-size:14px;color:#92400e">❌ &nbsp;<strong>${order.names[0]}</strong> — already taken</p>
-              <p style="margin:6px 0;font-size:14px;color:#92400e">❌ &nbsp;<strong>${order.names[1]}</strong> — already taken</p>
-              <p style="margin:6px 0;font-size:14px;color:#92400e">❌ &nbsp;<strong>${order.names[2]}</strong> — already taken</p>
+              ${clientList}
             </div>
             <p style="color:#475569;line-height:1.7">
-              Please contact us as soon as possible so we can help you choose new available names for your business.
+              Please reply to this email with <strong>3 new company name options</strong> so we can verify their
+              availability with Florida and continue with your filing.
             </p>
             <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin:20px 0;font-size:14px">
               <strong>Order:</strong> ${order.id}
@@ -154,7 +166,7 @@ export const sendAllNamesTaken = async (order: {
           </div>
           <div style="background:#fff;padding:28px 32px;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 10px 10px">
             <p style="color:#1e293b;font-size:15px;margin:0 0 20px">
-              Los 3 nombres propuestos están registrados en Sunbiz.
+              ${esQty} en Sunbiz.
               <strong>Contactar al cliente para solicitar nuevas opciones.</strong>
             </p>
             <table style="width:100%;border-collapse:collapse;font-size:14px">
@@ -174,10 +186,8 @@ export const sendAllNamesTaken = async (order: {
               </tr>
             </table>
             <div style="margin-top:20px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:16px;font-size:14px">
-              <p style="margin:4px 0;color:#991b1b;font-weight:600">Nombres rechazados:</p>
-              <p style="margin:6px 0;color:#991b1b">❌ ${order.names[0]}</p>
-              <p style="margin:6px 0;color:#991b1b">❌ ${order.names[1]}</p>
-              <p style="margin:6px 0;color:#991b1b">❌ ${order.names[2]}</p>
+              <p style="margin:4px 0;color:#991b1b;font-weight:600">Nombre${n === 1 ? '' : 's'} rechazado${n === 1 ? '' : 's'}:</p>
+              ${adminList}
             </div>
             <div style="margin-top:16px;padding:14px;background:#eff6ff;border-radius:8px;font-size:13px;color:#1e40af">
               Ya se envió email automático al cliente pidiendo nuevas opciones.
