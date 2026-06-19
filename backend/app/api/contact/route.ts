@@ -65,10 +65,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'One or more fields exceed the allowed length.' }, { status: 400 })
   }
 
-  // Rate limit anti-spam
+  // Rate limit anti-spam. checkContactRateLimit retorna { success, ... }
+  // donde success=true significa "allowed". El nombre del campo es success
+  // (no allowed) — el bug original devolvía 429 a TODOS los visitors.
   const ip = getClientIp(req)
   const rate = await checkContactRateLimit(ip)
-  if (!rate.allowed) {
+  if (!rate.success) {
     return NextResponse.json(
       { error: 'Too many messages from this IP. Please try again in an hour.' },
       { status: 429 }
