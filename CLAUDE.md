@@ -131,8 +131,10 @@ NEXT_PUBLIC_URL       # URL base del sitio (ej: https://opabiz.com) — usado en
 /api/client-auth          POST  — login cliente → setea client_session cookie
 /api/client-auth/logout   POST  — borra client_session
 
-/api/orders               POST  — crea Order en Supabase + envía A1 al cliente + A0 alerta al equipo
-/api/webhooks/stripe      POST  — recibe checkout.session.completed → crea Order → envía FBFC
+/api/orders               POST  — crea Order en Supabase + envía A1 al cliente + A0 alerta al equipo (acepta deferEmails:true para omitir emails → flujo Embedded Checkout)
+/api/webhooks/stripe      POST  — checkout.session.completed. Dos flujos: (a) metadata.kind='formation' → marca orden existente paid+in_review; (b) addons/marketing → crea Order nueva
+/api/checkout/embedded    POST  — crea sesión Stripe ui_mode='embedded' desde una orden pending (recalcula precio server-side con lib/pricing.ts)
+/api/checkout/status      GET   — consulta estado de una sesión (para la página de retorno /order/complete)
 
 /api/sunbiz               GET   — lookup empresa: DB primero, Sunbiz scraping como fallback
 /api/sunbiz/checkout      POST  — crea sesión Stripe para servicios de marketing
@@ -275,6 +277,45 @@ Variables del template (`NewBusinessLetterData`): `documentId, companyName, regi
 - EIN en carrito → checkout va a `ein-form` en vez de Stripe directo
 
 Diseño: CSS-in-JS via `<style>` tag con clases BEM-style. Paleta: dark navy `#1C2E44`, accent `#2563EB`, background `#f0f4f8`. Tipografías: Fraunces (headers) + Plus Jakarta Sans (body).
+
+---
+
+## Cobro del home — Stripe Embedded Checkout (⚠️ EN PROGRESO — falta frontend)
+
+**Objetivo:** el formulario de formación del home (`page.tsx`) hoy **NO cobra** — recoge datos de tarjeta en inputs propios (inseguros / viola PCI) y solo guarda la orden como `pending` vía `/api/orders`. Se está migrando a **Stripe Embedded Checkout** (form de Stripe incrustado en la página, el cliente NO sale del sitio). El flujo de marketing `/new-business` ya cobraba bien con Checkout redirect (`/api/sunbiz/checkout`) — ese NO se tocó.
+
+**Decisión:** se eligió **Embedded Checkout** (modo `embedded` de "Prebuilt checkout form"), NO Elements. Razón: cliente no sale + PCI seguro + mucho menos trabajo que Elements.
+
+### Flujo diseñado
+```
+1. Cliente llena el form multi-paso (igual que ahora)
+2. En el paso de pago → POST /api/orders con deferEmails:true → crea orden pending, devuelve orderId
+3. POST /api/checkout/embedded { orderId } → recalcula precio server-side, devuelve clientSecret
+4. Se monta el form de Stripe en la página con ese clientSecret (cliente paga sin salir)
+5. Stripe → return_url /order/complete + webhook (metadata.kind='formation', orderId)
+6. Webhook marca la orden paid+in_review y envía emails (confirmación + alerta interna)
+```
+
+### ✅ HECHO y desplegado (commit 05d3e20)
+- **`lib/pricing.ts`** — cálculo de precio autoritativo server-side (anti-tampering). Espeja `updateTotal()`/`fmBuildPayload()` del form: paquetes (basic $0/standard $199/premium $299), state fee (LLC $125/Corp $70), expedited +$99 (gratis con premium), addons (ein $79, oa $59, itin $69, btr $79, str $79, cc $49). **Si cambian precios en page.tsx, actualizar aquí también.**
+- **`/api/checkout/embedded`** — crea sesión `ui_mode:'embedded'` leyendo la orden de la DB (no confía en el navegador). line_items itemizados.
+- **`/api/checkout/status`** — GET estado de sesión para la página de retorno.
+- **`/order/complete`** — pantalla de confirmación post-pago (bilingüe, lee flbc_lang).
+- **`/api/webhooks/stripe`** — nueva rama `handleFormationPaid()` (idempotente) para órdenes de formación. Flujo addons intacto.
+- **`/api/orders`** — flag `deferEmails` para omitir emails al crear (los manda el webhook al pagar).
+- **Stripe dashboard (test/sandbox):** cuenta creada, keys test, webhook `opabiz-checkout` → `opabiz.com/api/webhooks/stripe` escuchando `checkout.session.completed`.
+- **Vercel env vars (Production+Preview):** `STRIPE_SECRET_KEY`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET` (test). ⚠️ Falta hacer **Redeploy** si no se hizo, y crear las versiones **LIVE** al lanzar (otra cuenta/keys/webhook live).
+
+### ⏳ PENDIENTE — wiring del frontend en `page.tsx` (lo difícil/riesgoso)
+El paso de pago es el step `#fms9` (≈ líneas 2030-2123). Falta:
+1. **Quitar los campos de tarjeta falsos** (`#card-fields-wrap`: `inp-card-name/num/exp/cvv`) + las opciones de pago Zelle/Apple (`fmSelectPayMethod`) + la sección Billing Address (`#billing-addr-fields`). Stripe recoge tarjeta + billing. Conservar el checkbox `chk-agree` (T&C) y el aviso non-refundable.
+2. Añadir contenedor `<div id="embedded-checkout"></div>` en ese step.
+3. Cargar Stripe.js (`https://js.stripe.com/v3/`) e inyectar la publishable key en el script inline (la page es server component con template literal — usar `${process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || ''}`).
+4. Modificar **`fmSubmit()`** (≈ línea 5202): hoy hace POST `/api/orders` y muestra `#fms-success`. Cambiar a: POST `/api/orders` con `deferEmails:true` → con el `orderId`, POST `/api/checkout/embedded` → `stripe.initEmbeddedCheckout({clientSecret})` → `.mount('#embedded-checkout')`. El form de Stripe trae su propio botón Pay; al pagar redirige a `/order/complete`. El step `#fms-success` queda sin uso para el flujo pagado.
+5. Las funciones `fmFormatCard`, `fmFormatExpiry`, `fmSelectPayMethod`, `fmToggleBillingAddr` quedan huérfanas — se pueden borrar (tienen guards `if(el)`, no rompen si quedan).
+6. **Probar en test** con tarjeta `4242 4242 4242 4242` (cualquier fecha futura + CVC) → verificar: orden pending creada, webhook marca paid, llegan emails, /order/complete muestra éxito.
+
+**Nota:** la base server-side está testeada (tsc exit 0) y es independiente. El socio venía manejando la Etapa 4 de Stripe (CHECKLIST_PRELANZAMIENTO.md) — coordinar antes de tocar el form.
 
 ---
 
