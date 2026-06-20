@@ -305,6 +305,7 @@ Diseño: CSS-in-JS via `<style>` tag con clases BEM-style. Paleta: dark navy `#1
 - **`/api/orders`** — flag `deferEmails` para omitir emails al crear (los manda el webhook al pagar).
 - **Stripe dashboard (test/sandbox):** cuenta creada, keys test, webhook `opabiz-checkout` → `opabiz.com/api/webhooks/stripe` escuchando `checkout.session.completed`.
 - **Vercel env vars (Production+Preview):** `STRIPE_SECRET_KEY`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET` (test). ⚠️ Falta hacer **Redeploy** si no se hizo, y crear las versiones **LIVE** al lanzar (otra cuenta/keys/webhook live).
+- **⏳ Statement descriptor (lo que el cliente ve en su extracto bancario):** configurar en Stripe → Settings → Business → Public details (ej. `OPABIZ`, 5–22 chars, mín. 5 letras, sin `< > \ ' " *`). ⚠️ Test y Live son configs **separadas** — lo que se ponga en test NO se copia a Live; hay que configurarlo **también en el modo Live al lanzar**. Opcional: sufijo por transacción vía `payment_intent_data.statement_descriptor_suffix` en `/api/checkout/embedded` si se quiere distinguir tipos de cobro (formación vs. marketing). Por ahora basta con el descriptor general del dashboard.
 
 ### ⏳ PENDIENTE — wiring del frontend en `page.tsx` (lo difícil/riesgoso)
 El paso de pago es el step `#fms9` (≈ líneas 2030-2123). Falta:

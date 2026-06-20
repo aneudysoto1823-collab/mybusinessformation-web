@@ -54,6 +54,13 @@ export async function POST(req: NextRequest) {
       customer_email: customerEmail,
       success_url: `${origin}/new-business/success?session_id={CHECKOUT_SESSION_ID}&doc=${encodeURIComponent(document_id || '')}`,
       cancel_url:  `${origin}/new-business?id=${encodeURIComponent(document_id || '')}`,
+      // Statement descriptor: lo que el cliente ve en su extracto bancario.
+      // El sufijo se concatena al descriptor base de la cuenta (Stripe → Settings
+      // → Business → Public details). Ej: base "OPABIZ" → "OPABIZ* SERVICES".
+      // ⚠️ El base hay que configurarlo en el dashboard (test Y live por separado).
+      payment_intent_data: {
+        statement_descriptor_suffix: 'SERVICES',
+      },
       metadata: {
         company_id:        company_id    || '',
         document_id:       document_id  || '',

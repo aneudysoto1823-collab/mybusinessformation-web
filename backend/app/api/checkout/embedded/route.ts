@@ -59,6 +59,13 @@ export async function POST(req: NextRequest) {
       // Embedded usa return_url (no success_url/cancel_url). El webhook es quien
       // marca la orden como pagada; esta página solo confirma visualmente.
       return_url: `${origin}/order/complete?session_id={CHECKOUT_SESSION_ID}`,
+      // Statement descriptor: lo que el cliente ve en su extracto bancario.
+      // El sufijo se concatena al descriptor base de la cuenta (Stripe → Settings
+      // → Business → Public details). Ej: base "OPABIZ" → "OPABIZ* FORMATION".
+      // ⚠️ El base hay que configurarlo en el dashboard (test Y live por separado).
+      payment_intent_data: {
+        statement_descriptor_suffix: 'FORMATION',
+      },
       metadata: {
         kind:    'formation',
         orderId: order.id,
