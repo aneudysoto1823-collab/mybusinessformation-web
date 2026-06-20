@@ -28,6 +28,10 @@ export async function POST(request: NextRequest) {
     }
 
     const raw = await request.json()
+    // Flujo Embedded Checkout: la orden se crea pending y los emails los envía
+    // el webhook al confirmarse el pago. Así evitamos confirmar/alertar órdenes
+    // que el cliente podría abandonar antes de pagar.
+    const deferEmails = raw?.deferEmails === true
     const parsed = parseOr400(OrderInputSchema, raw)
     if (!parsed.ok) {
       console.error('[/api/orders] validation error:', parsed.details)
@@ -83,6 +87,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // ── Emails — se omiten en el flujo Embedded Checkout (los manda el webhook
+    //    al confirmarse el pago, ver deferEmails arriba) ────────────────────────
+    if (!deferEmails) {
     // ── Email de confirmación — non-blocking ──────────────────────────────────
     getResend().emails.send({
       from: FROM_OPABIZ,
@@ -188,6 +195,7 @@ export async function POST(request: NextRequest) {
         </div>
       `
     }).catch(err => console.error('Internal alert email error (non-fatal):', err))
+    } // fin if (!deferEmails)
 
     return NextResponse.json({ success: true, orderId: order.id }, { status: 201 })
 
