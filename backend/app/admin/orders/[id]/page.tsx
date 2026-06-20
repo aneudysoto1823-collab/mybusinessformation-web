@@ -363,6 +363,8 @@ export default function OrderDetailPage() {
         .wrapper { max-width: 860px; margin: 0 auto; padding: 32px 24px; }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
         @media (max-width: 600px) { .grid-2 { grid-template-columns: 1fr; } }
+        .col-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        @media (max-width: 480px) { .col-2 { grid-template-columns: 1fr; } }
 
         textarea {
           width: 100%; padding: 10px 14px;
@@ -443,7 +445,7 @@ export default function OrderDetailPage() {
         )}
 
         {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '28px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '28px', flexWrap: 'wrap', gap: '14px' }}>
           <div>
             <Link href="/admin" style={{ fontSize: '13px', color: '#6b7280', textDecoration: 'none' }}>
               ← Volver al panel
@@ -634,7 +636,7 @@ export default function OrderDetailPage() {
                     <div style={{ fontSize: '12px', fontWeight: 700, color: '#6d28d9', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: '10px' }}>
                       {m.type === 'organizer' ? 'Organizer' : 'Member'} #{i + 1}
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                    <div className="col-2">
                       <Field label="Nombre" value={`${m.firstName ?? ''} ${m.lastName ?? ''}`.trim() || undefined} />
                       <Field label="Título" value={m.title} />
                       {m.ownership != null && (
@@ -667,7 +669,7 @@ export default function OrderDetailPage() {
           ]
           return (
             <Section title="Add-ons">
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: addons.raInfo ? '16px' : '0' }}>
+              <div className="col-2" style={{ marginBottom: addons.raInfo ? '16px' : '0' }}>
                 {addonList.map(({ key, label }) => (
                   <div key={key} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <span style={{ fontSize: '16px' }}>{addons[key] ? '✅' : '—'}</span>
