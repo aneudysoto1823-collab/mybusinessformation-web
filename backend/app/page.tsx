@@ -2032,79 +2032,13 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           <div class="fm-card-body">
             <h2 class="fm-title" id="s9-title">Secure Payment</h2>
             <p class="fm-sub" id="s9-sub"></p>
-            <h2 class="fm-title" id="s10-title">Billing Information</h2>
-          <!-- Payment method -->
-          <div class="fm-pay-option selected" id="pay-card" onclick="fmSelectPayMethod('card',this)">
-            <div class="fm-pay-option-left">
-              <div class="fm-choice-radio" style="flex-shrink:0"></div>
-              <span id="s10-card-lbl">&#128179; Add a Credit Card</span>
-            </div>
-            <div class="fm-pay-logos">
-              <span class="fm-pay-logo">VISA</span>
-              <span class="fm-pay-logo">MC</span>
-              <span class="fm-pay-logo">AMEX</span>
-            </div>
-          </div>
-          <div class="fm-pay-option" id="pay-zelle" onclick="fmSelectPayMethod('zelle',this)">
-            <div class="fm-pay-option-left">
-              <div class="fm-choice-radio" style="flex-shrink:0"></div>
-              <span>&#128247; Zelle</span>
-            </div>
-          </div>
-          <div class="fm-pay-option" id="pay-apple" onclick="fmSelectPayMethod('apple',this)">
-            <div class="fm-pay-option-left">
-              <div class="fm-choice-radio" style="flex-shrink:0"></div>
-              <span>&#63743; Apple Pay</span>
-            </div>
-          </div>
-          <!-- Card fields -->
-          <div id="card-fields-wrap" style="margin-top:16px">
-            <div class="fm-divider" id="s10-div-card">Credit Card Information</div>
-            <div class="fm-group">
-              <label class="fm-label" id="lbl-card-name">Cardholder Full Name *</label>
-              <input type="text" class="fm-input" id="inp-card-name" placeholder="Full name as it appears on card" autocomplete="cc-name"/>
-            </div>
-            <div class="fm-group">
-              <label class="fm-label" id="lbl-card-num">Card Number *</label>
-              <input type="text" class="fm-input" id="inp-card-num" placeholder="1234 5678 9012 3456" maxlength="19" autocomplete="cc-number" oninput="fmFormatCard(this)"/>
-            </div>
-            <div class="fm-row">
-              <div class="fm-group">
-                <label class="fm-label" id="lbl-card-exp">Expiry Date *</label>
-                <input type="text" class="fm-input" id="inp-card-exp" placeholder="MM/YY" maxlength="5" autocomplete="cc-exp" oninput="fmFormatExpiry(this)"/>
-              </div>
-              <div class="fm-group">
-                <label class="fm-label" id="lbl-card-cvv">CVV / CVC *</label>
-                <input type="text" class="fm-input" id="inp-card-cvv" placeholder="3 digits" maxlength="4" autocomplete="cc-csc"/>
-              </div>
-            </div>
-          </div>
-          <!-- Billing address -->
-          <div class="fm-divider" id="s10-div-billing">Billing Address</div>
-          <div class="fm-checkbox-row" style="margin-bottom:12px">
-            <input type="checkbox" class="fm-checkbox" id="chk-same-addr" checked onchange="fmToggleBillingAddr(this)"/>
-            <label for="chk-same-addr" style="cursor:pointer" id="lbl-same-addr">Same as company address</label>
-          </div>
-          <div id="billing-addr-fields" style="display:none">
-            <div class="fm-group">
-              <label class="fm-label" id="lbl-bill-country">Country</label>
-              <select class="fm-select" id="inp-bill-country">
-                <option value="US">United States of America (United States)</option>
-                <option value="other">Other Country</option>
-              </select>
-            </div>
-            <div class="fm-row">
-              <div class="fm-group"><label class="fm-label" id="lbl-bill-street">Street Address *</label><input type="text" class="fm-input" id="inp-bill-street" placeholder="Street address"/></div>
-              <div class="fm-group"><label class="fm-label" id="lbl-bill-street2">Address (Cont) <span>Optional</span></label><input type="text" class="fm-input" id="inp-bill-street2" placeholder="Apt, Suite"/></div>
-            </div>
-            <div class="fm-row-3">
-              <div class="fm-group"><label class="fm-label" id="lbl-bill-city">City *</label><input type="text" class="fm-input" id="inp-bill-city" placeholder="City"/></div>
-              <div class="fm-group"><label class="fm-label" id="lbl-bill-state">State *</label><input type="text" class="fm-input" id="inp-bill-state" placeholder="State"/></div>
-              <div class="fm-group"><label class="fm-label" id="lbl-bill-zip">ZIP *</label><input type="text" class="fm-input" id="inp-bill-zip" placeholder="ZIP"/></div>
-            </div>
-          </div>
+            <!-- Stripe Embedded Checkout: el formulario de pago (tarjeta + dirección
+                 de facturación) se monta aquí tras el click en "Process My Order"
+                 (ver fmSubmit). Stripe recoge los datos de tarjeta de forma segura —
+                 ya no hay campos de tarjeta propios (PCI). -->
+            <div id="embedded-checkout" style="margin-top:8px;display:none"></div>
           <!-- Agree -->
-          <div class="fm-checkbox-row" style="margin-top:14px">
+          <div class="fm-checkbox-row" style="margin-top:14px" id="agree-row">
             <input type="checkbox" class="fm-checkbox" id="chk-agree"/>
             <label for="chk-agree" style="cursor:pointer;font-size:.79rem;color:#374151" id="lbl-agree">I agree to the <a href="/legal" target="_blank" style="color:#2563eb">Legal Statement</a> and <a href="/terms" target="_blank" style="color:#2563eb">Terms of Service</a>.</label>
           </div>
@@ -2113,7 +2047,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
             <strong id="s10-warn-title">&#9888; Non-Refundable:</strong> <span id="s10-warn-text">State fees cannot be refunded once processing begins. Our service fee is refundable within 24 hours if filing has not started. Questions? Contact us via WhatsApp before submitting.</span>
           </div>
           </div>
-          <div class="fm-card-footer">
+          <div class="fm-card-footer" id="pay-footer">
             <button class="btn-back-fm" onclick="fmBack()">&#8592; <span id="s9-back">Back</span></button>
             <div style="display:flex;align-items:center;gap:10px">
               <button class="save-btn" onclick="saveOrder()">&#x1F4BE; <span id="s9-save">Save</span></button>
@@ -2173,6 +2107,10 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
   </div>
 </div><!-- /formOverlay -->
 
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+  window.__OPABIZ_STRIPE_PK__ = '${process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || ''}';
+</script>
 <script>
 
 // ── NAV HAMBURGER ──
@@ -5302,30 +5240,52 @@ async function fmSubmit() {
     orgSignature:    orgSignature
   };
 
+  // Los emails los env\u00eda el webhook al confirmarse el pago (no al crear la orden).
+  payload.deferEmails = true;
+
   try {
+    // 1) Crear la orden pending (sin emails \u2014 ver deferEmails).
     var res = await fetch('/api/orders', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
     var data = await res.json();
-    if(res.ok && data.success) {
-      fmClearProgress();
-      var orderId = data.orderId || null;
-      generateOrderNumber(orderId);
-      var numEl = document.getElementById('finalOrderNum');
-      if(numEl) numEl.textContent = orderNumber;
-      document.querySelectorAll('.fm-step').forEach(function(s){ s.classList.remove('active'); });
-      var suc = document.getElementById('fms-success');
-      if(suc) suc.classList.add('active');
-      var fill = document.getElementById('fp-fill');
-      if(fill) fill.style.width = '100%';
-      var pct = document.getElementById('fp-pct');
-      if(pct) pct.textContent = 'Complete!';
-      window.scrollTo(0, 0);
-    } else {
+    if(!(res.ok && data.success)) {
       throw new Error((data && data.error) ? data.error : 'Error desconocido');
     }
+    var orderId = data.orderId;
+    fmClearProgress();
+    generateOrderNumber(orderId);
+    var numEl = document.getElementById('finalOrderNum');
+    if(numEl) numEl.textContent = orderNumber;
+
+    // 2) Crear la sesi\u00f3n de Stripe Embedded Checkout (el precio se recalcula
+    //    server-side desde la orden \u2014 el navegador no decide el monto).
+    var sres = await fetch('/api/checkout/embedded', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ orderId: orderId })
+    });
+    var sdata = await sres.json();
+    if(!sres.ok || !sdata.clientSecret) {
+      throw new Error((sdata && sdata.error) ? sdata.error : 'No se pudo iniciar el pago');
+    }
+
+    // 3) Montar el formulario de Stripe (recoge tarjeta + direcci\u00f3n de facturaci\u00f3n).
+    //    Al pagar, Stripe redirige a /order/complete y el webhook marca la orden paid.
+    if(typeof Stripe === 'undefined' || !window.__OPABIZ_STRIPE_PK__) {
+      throw new Error('Stripe.js no disponible');
+    }
+    var stripe = Stripe(window.__OPABIZ_STRIPE_PK__);
+    var checkout = await stripe.initEmbeddedCheckout({ clientSecret: sdata.clientSecret });
+
+    // Ocultar la UI previa al pago y mostrar el formulario de Stripe.
+    var agreeRow  = document.getElementById('agree-row');  if(agreeRow)  agreeRow.style.display  = 'none';
+    var payFooter = document.getElementById('pay-footer'); if(payFooter) payFooter.style.display = 'none';
+    var ec = document.getElementById('embedded-checkout'); if(ec) ec.style.display = 'block';
+    checkout.mount('#embedded-checkout');
+    window.scrollTo(0, 0);
   } catch(err) {
     console.error('fmSubmit error:', err);
     alert(isEsS

@@ -280,9 +280,9 @@ Diseño: CSS-in-JS via `<style>` tag con clases BEM-style. Paleta: dark navy `#1
 
 ---
 
-## Cobro del home — Stripe Embedded Checkout (⚠️ EN PROGRESO — falta frontend)
+## Cobro del home — Stripe Embedded Checkout (✅ WIRING HECHO — pendiente probar en test)
 
-**Objetivo:** el formulario de formación del home (`page.tsx`) hoy **NO cobra** — recoge datos de tarjeta en inputs propios (inseguros / viola PCI) y solo guarda la orden como `pending` vía `/api/orders`. Se está migrando a **Stripe Embedded Checkout** (form de Stripe incrustado en la página, el cliente NO sale del sitio). El flujo de marketing `/new-business` ya cobraba bien con Checkout redirect (`/api/sunbiz/checkout`) — ese NO se tocó.
+**Objetivo:** el formulario de formación del home (`page.tsx`) ahora cobra con **Stripe Embedded Checkout** (form de Stripe incrustado en la página, el cliente NO sale del sitio). Antes recogía datos de tarjeta en inputs propios (inseguros / viola PCI) y solo guardaba la orden como `pending`. El flujo de marketing `/new-business` ya cobraba bien con Checkout redirect (`/api/sunbiz/checkout`) — ese NO se tocó.
 
 **Decisión:** se eligió **Embedded Checkout** (modo `embedded` de "Prebuilt checkout form"), NO Elements. Razón: cliente no sale + PCI seguro + mucho menos trabajo que Elements.
 
@@ -307,16 +307,15 @@ Diseño: CSS-in-JS via `<style>` tag con clases BEM-style. Paleta: dark navy `#1
 - **Vercel env vars (Production+Preview):** `STRIPE_SECRET_KEY`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET` (test). ⚠️ Falta hacer **Redeploy** si no se hizo, y crear las versiones **LIVE** al lanzar (otra cuenta/keys/webhook live).
 - **⏳ Statement descriptor (lo que el cliente ve en su extracto bancario):** configurar en Stripe → Settings → Business → Public details (ej. `OPABIZ`, 5–22 chars, mín. 5 letras, sin `< > \ ' " *`). ⚠️ Test y Live son configs **separadas** — lo que se ponga en test NO se copia a Live; hay que configurarlo **también en el modo Live al lanzar**. Opcional: sufijo por transacción vía `payment_intent_data.statement_descriptor_suffix` en `/api/checkout/embedded` si se quiere distinguir tipos de cobro (formación vs. marketing). Por ahora basta con el descriptor general del dashboard.
 
-### ⏳ PENDIENTE — wiring del frontend en `page.tsx` (lo difícil/riesgoso)
-El paso de pago es el step `#fms9` (≈ líneas 2030-2123). Falta:
-1. **Quitar los campos de tarjeta falsos** (`#card-fields-wrap`: `inp-card-name/num/exp/cvv`) + las opciones de pago Zelle/Apple (`fmSelectPayMethod`) + la sección Billing Address (`#billing-addr-fields`). Stripe recoge tarjeta + billing. Conservar el checkbox `chk-agree` (T&C) y el aviso non-refundable.
-2. Añadir contenedor `<div id="embedded-checkout"></div>` en ese step.
-3. Cargar Stripe.js (`https://js.stripe.com/v3/`) e inyectar la publishable key en el script inline (la page es server component con template literal — usar `${process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || ''}`).
-4. Modificar **`fmSubmit()`** (≈ línea 5202): hoy hace POST `/api/orders` y muestra `#fms-success`. Cambiar a: POST `/api/orders` con `deferEmails:true` → con el `orderId`, POST `/api/checkout/embedded` → `stripe.initEmbeddedCheckout({clientSecret})` → `.mount('#embedded-checkout')`. El form de Stripe trae su propio botón Pay; al pagar redirige a `/order/complete`. El step `#fms-success` queda sin uso para el flujo pagado.
-5. Las funciones `fmFormatCard`, `fmFormatExpiry`, `fmSelectPayMethod`, `fmToggleBillingAddr` quedan huérfanas — se pueden borrar (tienen guards `if(el)`, no rompen si quedan).
-6. **Probar en test** con tarjeta `4242 4242 4242 4242` (cualquier fecha futura + CVC) → verificar: orden pending creada, webhook marca paid, llegan emails, /order/complete muestra éxito.
+### ✅ HECHO — wiring del frontend en `page.tsx`
+El paso de pago es el step `#fms9`. Implementado:
+1. Se quitaron los campos de tarjeta falsos (`#card-fields-wrap`), las opciones Zelle/Apple y la sección Billing Address. Stripe recoge tarjeta + billing. Se conservó el checkbox `chk-agree` (T&C, ahora dentro de `#agree-row`) y el aviso non-refundable.
+2. Contenedor `<div id="embedded-checkout">` añadido en ese step (oculto hasta el submit).
+3. Stripe.js (`https://js.stripe.com/v3/`) cargado antes del `<script>` inline; la publishable key se inyecta en `window.__OPABIZ_STRIPE_PK__` vía `${process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || ''}` (server component, template literal).
+4. **`fmSubmit()`** reescrito: valida T&C → POST `/api/orders` con `deferEmails:true` → POST `/api/checkout/embedded` → `stripe.initEmbeddedCheckout({clientSecret})` → `.mount('#embedded-checkout')`; oculta `#agree-row` + `#pay-footer`. El form de Stripe trae su propio botón Pay; al pagar redirige a `/order/complete`. El step `#fms-success` quedó sin uso para el flujo pagado.
+5. Las funciones `fmFormatCard`, `fmFormatExpiry`, `fmSelectPayMethod`, `fmToggleBillingAddr` quedaron huérfanas (nunca se invocan; se dejaron — no rompen). Los setters de idioma de los inputs eliminados son no-ops guardados con `if(el)`.
 
-**Nota:** la base server-side está testeada (tsc exit 0) y es independiente. El socio venía manejando la Etapa 4 de Stripe (CHECKLIST_PRELANZAMIENTO.md) — coordinar antes de tocar el form.
+**⏳ Falta:** probar en test con tarjeta `4242 4242 4242 4242` (cualquier fecha futura + CVC + ZIP) → verificar: orden pending creada, form de Stripe se monta, webhook marca paid, llegan emails, `/order/complete` muestra éxito. Requiere que las env vars de Stripe (test) estén en Vercel y un **Redeploy**. Al lanzar: repetir todo en **LIVE** (keys, webhook, statement descriptor).
 
 ---
 
