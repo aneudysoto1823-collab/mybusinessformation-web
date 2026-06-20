@@ -163,6 +163,7 @@ header{position:sticky;top:0;z-index:200;background:rgba(255,255,255,0.97);backd
 .logo-text span.logo-opa{display:inline;font-size:1.5rem;color:var(--navy);font-style:normal;letter-spacing:-.5px;text-transform:none;font-family:'Fraunces',serif;font-weight:700}
 .logo-text span.logo-biz{display:inline;font-size:1.5rem;color:#2563EB;font-style:normal;letter-spacing:-.5px;text-transform:none;font-family:'Fraunces',serif;font-weight:700}
 nav{display:flex;align-items:center;gap:6px}
+.nav-login-mobile{display:none}
 nav a{font-size:0.85rem;font-weight:500;color:var(--gray600);padding:6px 12px;border-radius:6px;transition:all 0.2s}
 nav a:hover{color:var(--navy);background:var(--gray100)}
 .lang-toggle{display:flex;align-items:center;background:var(--gray100);border-radius:20px;padding:3px;gap:2px}
@@ -743,6 +744,8 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
   nav.open a{padding:11px 12px;font-size:0.92rem;border-radius:8px;font-weight:500}
   nav.open a:hover{background:var(--gray100)}
   .hamburger{display:flex}
+  #header-login-btn{display:none}
+  nav.open .nav-login-mobile{display:block;color:#2563eb;font-weight:600}
   .logo-text{font-size:1rem}
   .logo-text span{display:none}
   .topbar{font-size:0.72rem;padding:7px 12px}
@@ -797,6 +800,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
       <a href="#faq" data-en="FAQ" data-es="Preguntas">FAQ</a>
       <a href="/contact?lang=${defaultLang}" data-en="Contact" data-es="Contacto">Contact</a>
       <a href="/servicios?lang=${defaultLang}" data-en="Services" data-es="Servicios">Services</a>
+      <a href="/client-portal?lang=${defaultLang}" class="nav-login-mobile" data-en="Login" data-es="Iniciar sesión">Login</a>
     </nav>
     <div style="display:flex;align-items:center;gap:12px">
       <div class="lang-toggle">
