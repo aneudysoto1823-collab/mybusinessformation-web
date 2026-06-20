@@ -19,13 +19,59 @@ function formatTime(time: string) {
 function pad(n: number) { return n.toString().padStart(2, '0') }
 function toDateStr(y: number, m: number, d: number) { return `${y}-${pad(m+1)}-${pad(d)}` }
 
-const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December']
-const DAYS   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
+const MONTHS = {
+  en: ['January','February','March','April','May','June','July','August','September','October','November','December'],
+  es: ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'],
+}
+const DAYS = {
+  en: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+  es: ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'],
+}
+
+const T = {
+  en: {
+    brandSub: 'Reschedule Appointment',
+    notFound: 'Appointment not found. Please use the link from your confirmation email.',
+    loading: 'Loading...',
+    rescheduled: 'Appointment Rescheduled!',
+    confirmSent: (email: string) => `A confirmation has been sent to ${email}.`,
+    scheduleAnother: 'Schedule another appointment →',
+    title: 'Reschedule Your Appointment',
+    greeting: (name: string) => `Hi ${name}, choose a new date and time for your consultation.`,
+    selectDate: 'Select a new date',
+    selectTime: 'Select a new time',
+    selectDateFirst: 'Select a date first.',
+    noSlots: 'No available slots for this day.',
+    slotTaken: 'That time slot is no longer available. Please choose another.',
+    genericError: 'Something went wrong. Please try again.',
+    submitting: 'Rescheduling...',
+    confirmBtn: 'Confirm New Appointment',
+  },
+  es: {
+    brandSub: 'Reprogramar Cita',
+    notFound: 'Cita no encontrada. Usa el enlace de tu correo de confirmación.',
+    loading: 'Cargando...',
+    rescheduled: '¡Cita reprogramada!',
+    confirmSent: (email: string) => `Se envió una confirmación a ${email}.`,
+    scheduleAnother: 'Agendar otra cita →',
+    title: 'Reprograma tu Cita',
+    greeting: (name: string) => `Hola ${name}, elige una nueva fecha y hora para tu consulta.`,
+    selectDate: 'Elige una nueva fecha',
+    selectTime: 'Elige una nueva hora',
+    selectDateFirst: 'Primero elige una fecha.',
+    noSlots: 'No hay horarios disponibles para este día.',
+    slotTaken: 'Ese horario ya no está disponible. Elige otro.',
+    genericError: 'Algo salió mal. Intenta de nuevo.',
+    submitting: 'Reprogramando...',
+    confirmBtn: 'Confirmar Nueva Cita',
+  },
+}
 
 function RescheduleContent() {
   const searchParams = useSearchParams()
   const id = searchParams.get('id')
 
+  const [lang, setLang] = useState<'en' | 'es'>('en')
   const [appt, setAppt] = useState<{ name: string; email: string; date: string; time: string } | null>(null)
   const [notFound, setNotFound] = useState(false)
   const [calYear, setCalYear] = useState(new Date().getFullYear())
@@ -37,6 +83,18 @@ function RescheduleContent() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
+
+  useEffect(() => {
+    const urlLang = searchParams.get('lang')
+    if (urlLang === 'es' || urlLang === 'en') { setLang(urlLang); return }
+    try {
+      const saved = localStorage.getItem('flbc_lang') || localStorage.getItem('portal_lang')
+      if (saved === 'es' || saved === 'en') setLang(saved)
+    } catch {}
+  }, [searchParams])
+
+  const t = T[lang]
+  const locale = lang === 'es' ? 'es-ES' : 'en-US'
 
   useEffect(() => {
     if (!id) return
@@ -70,7 +128,7 @@ function RescheduleContent() {
       body: JSON.stringify({ id, date: selectedDate, time: selectedTime }),
     })
     const data = await res.json()
-    if (!res.ok) setError(data.error === 'slot_taken' ? 'That time slot is no longer available. Please choose another.' : 'Something went wrong. Please try again.')
+    if (!res.ok) setError(data.error === 'slot_taken' ? t.slotTaken : t.genericError)
     else setSuccess(true)
     setSubmitting(false)
   }
@@ -108,33 +166,33 @@ function RescheduleContent() {
         .summary { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 12px 16px; font-size: 0.84rem; color: #0369a1; margin-bottom: 16px; }
       `}</style>
       <div className="wrap">
-        <div className="brand">OpaBiz<span>Reschedule Appointment</span></div>
+        <div className="brand">OpaBiz<span>{t.brandSub}</span></div>
 
         {!id || notFound ? (
-          <div className="card"><p>Appointment not found. Please use the link from your confirmation email.</p></div>
+          <div className="card"><p>{t.notFound}</p></div>
         ) : !appt ? (
-          <div className="card"><p>Loading...</p></div>
+          <div className="card"><p>{t.loading}</p></div>
         ) : success ? (
           <div className="card" style={{ textAlign: 'center', padding: '40px 20px' }}>
             <div className="success-icon">✅</div>
-            <h2 style={{ marginBottom: '8px' }}>Appointment Rescheduled!</h2>
-            <p>A confirmation has been sent to {appt.email}.</p>
-            <a href="/booking" style={{ display: 'inline-block', marginTop: '20px', color: '#2563EB', fontSize: '0.85rem' }}>Schedule another appointment →</a>
+            <h2 style={{ marginBottom: '8px' }}>{t.rescheduled}</h2>
+            <p>{t.confirmSent(appt.email)}</p>
+            <a href={`/booking${lang === 'es' ? '?lang=es' : ''}`} style={{ display: 'inline-block', marginTop: '20px', color: '#2563EB', fontSize: '0.85rem' }}>{t.scheduleAnother}</a>
           </div>
         ) : (
           <>
             <div className="card">
-              <h2>Reschedule Your Appointment</h2>
-              <p>Hi {appt.name}, choose a new date and time for your consultation.</p>
+              <h2>{t.title}</h2>
+              <p>{t.greeting(appt.name)}</p>
 
-              <div className="step-label">Select a new date</div>
+              <div className="step-label">{t.selectDate}</div>
               <div className="cal-nav">
                 <button onClick={() => { if (calMonth === 0) { setCalYear(y => y-1); setCalMonth(11) } else setCalMonth(m => m-1) }}>←</button>
-                <span className="cal-month">{MONTHS[calMonth]} {calYear}</span>
+                <span className="cal-month">{MONTHS[lang][calMonth]} {calYear}</span>
                 <button onClick={() => { if (calMonth === 11) { setCalYear(y => y+1); setCalMonth(0) } else setCalMonth(m => m+1) }}>→</button>
               </div>
               <div className="cal-grid">
-                {DAYS.map(d => <div key={d} className="cal-day-name">{d}</div>)}
+                {DAYS[lang].map(d => <div key={d} className="cal-day-name">{d}</div>)}
                 {Array.from({ length: firstDay }).map((_, i) => <div key={`e${i}`} className="cal-day empty" />)}
                 {Array.from({ length: daysInMonth }).map((_, i) => {
                   const d = i + 1
@@ -152,10 +210,10 @@ function RescheduleContent() {
             </div>
 
             <div className="card">
-              <div className="step-label">Select a new time</div>
-              {!selectedDate ? <p className="slot-empty">Select a date first.</p>
-                : loadingSlots ? <p className="slot-empty">Loading...</p>
-                : slots.length === 0 ? <p className="slot-empty">No available slots for this day.</p>
+              <div className="step-label">{t.selectTime}</div>
+              {!selectedDate ? <p className="slot-empty">{t.selectDateFirst}</p>
+                : loadingSlots ? <p className="slot-empty">{t.loading}</p>
+                : slots.length === 0 ? <p className="slot-empty">{t.noSlots}</p>
                 : <div className="slots-grid">
                   {slots.map(s => (
                     <button key={s} className={`slot-btn${selectedTime === s ? ' selected' : ''}`} onClick={() => setSelectedTime(s)}>
@@ -169,12 +227,12 @@ function RescheduleContent() {
             <div className="card">
               {selectedDate && selectedTime && (
                 <div className="summary">
-                  📅 {new Date(selectedDate + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })} &nbsp;·&nbsp; 🕐 {formatTime(selectedTime)}
+                  📅 {new Date(selectedDate + 'T12:00:00').toLocaleDateString(locale, { weekday: 'long', month: 'long', day: 'numeric' })} &nbsp;·&nbsp; 🕐 {formatTime(selectedTime)}
                 </div>
               )}
               {error && <div className="error">{error}</div>}
               <button className="btn-confirm" onClick={handleReschedule} disabled={!selectedDate || !selectedTime || submitting}>
-                {submitting ? 'Rescheduling...' : 'Confirm New Appointment'}
+                {submitting ? t.submitting : t.confirmBtn}
               </button>
             </div>
           </>

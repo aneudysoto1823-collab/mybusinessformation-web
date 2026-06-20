@@ -3,8 +3,8 @@
 import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 
-function formatDate(date: string) {
-  return new Date(date + 'T12:00:00').toLocaleDateString('en-US', {
+function formatDate(date: string, locale: string) {
+  return new Date(date + 'T12:00:00').toLocaleDateString(locale, {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
   })
 }
@@ -16,15 +16,77 @@ function formatTime(time: string) {
   return `${hour}:${m.toString().padStart(2, '0')} ${ampm}`
 }
 
+const T = {
+  en: {
+    brandSub: 'Cancel Appointment',
+    notFoundTitle: 'Appointment not found',
+    notFoundText: 'Please use the link from your confirmation email.',
+    scheduleNewLink: 'Schedule a new appointment →',
+    loading: 'Loading...',
+    cancelledTitle: 'Appointment Cancelled',
+    cancelledText: (email: string) => `Your consultation has been cancelled. A confirmation has been sent to ${email}.`,
+    scheduleNewBtn: 'Schedule New Appointment',
+    alreadyTitle: 'Already Cancelled',
+    alreadyText: 'This appointment has already been cancelled.',
+    confirmTitle: 'Cancel Appointment',
+    confirmText: 'Are you sure you want to cancel the following consultation?',
+    name: 'Name:',
+    date: 'Date:',
+    time: 'Time:',
+    alreadyError: 'This appointment is already cancelled.',
+    genericError: 'Something went wrong. Please try again.',
+    cancelling: 'Cancelling...',
+    confirmBtn: 'Yes, Cancel Appointment',
+    rescheduleInstead: 'Reschedule instead →',
+  },
+  es: {
+    brandSub: 'Cancelar Cita',
+    notFoundTitle: 'Cita no encontrada',
+    notFoundText: 'Usa el enlace de tu correo de confirmación.',
+    scheduleNewLink: 'Agendar una nueva cita →',
+    loading: 'Cargando...',
+    cancelledTitle: 'Cita Cancelada',
+    cancelledText: (email: string) => `Tu consulta ha sido cancelada. Se envió una confirmación a ${email}.`,
+    scheduleNewBtn: 'Agendar Nueva Cita',
+    alreadyTitle: 'Ya Cancelada',
+    alreadyText: 'Esta cita ya fue cancelada.',
+    confirmTitle: 'Cancelar Cita',
+    confirmText: '¿Seguro que quieres cancelar la siguiente consulta?',
+    name: 'Nombre:',
+    date: 'Fecha:',
+    time: 'Hora:',
+    alreadyError: 'Esta cita ya está cancelada.',
+    genericError: 'Algo salió mal. Intenta de nuevo.',
+    cancelling: 'Cancelando...',
+    confirmBtn: 'Sí, Cancelar Cita',
+    rescheduleInstead: 'Mejor reprogramar →',
+  },
+}
+
 function CancelContent() {
   const searchParams = useSearchParams()
   const id = searchParams.get('id')
 
+  const [lang, setLang] = useState<'en' | 'es'>('en')
   const [appt, setAppt] = useState<{ name: string; email: string; date: string; time: string; status: string } | null>(null)
   const [notFound, setNotFound] = useState(false)
   const [cancelling, setCancelling] = useState(false)
   const [cancelled, setCancelled] = useState(false)
   const [error, setError] = useState('')
+
+  useEffect(() => {
+    const urlLang = searchParams.get('lang')
+    if (urlLang === 'es' || urlLang === 'en') { setLang(urlLang); return }
+    try {
+      const saved = localStorage.getItem('flbc_lang') || localStorage.getItem('portal_lang')
+      if (saved === 'es' || saved === 'en') setLang(saved)
+    } catch {}
+  }, [searchParams])
+
+  const t = T[lang]
+  const locale = lang === 'es' ? 'es-ES' : 'en-US'
+  const bookingHref = `/booking${lang === 'es' ? '?lang=es' : ''}`
+  const rescheduleHref = `/booking/reschedule?id=${id}${lang === 'es' ? '&lang=es' : ''}`
 
   useEffect(() => {
     if (!id) return
@@ -43,7 +105,7 @@ function CancelContent() {
       body: JSON.stringify({ id }),
     })
     const data = await res.json()
-    if (!res.ok) setError(data.error === 'already_cancelled' ? 'This appointment is already cancelled.' : 'Something went wrong. Please try again.')
+    if (!res.ok) setError(data.error === 'already_cancelled' ? t.alreadyError : t.genericError)
     else setCancelled(true)
     setCancelling(false)
   }
@@ -74,49 +136,49 @@ function CancelContent() {
       `}</style>
 
       <div className="wrap">
-        <div className="brand">OpaBiz<span>Cancel Appointment</span></div>
+        <div className="brand">OpaBiz<span>{t.brandSub}</span></div>
 
         {!id || notFound ? (
           <div className="card">
             <div className="icon">❌</div>
-            <h2>Appointment not found</h2>
-            <p>Please use the link from your confirmation email.</p>
-            <a href="/booking" className="btn-back">Schedule a new appointment →</a>
+            <h2>{t.notFoundTitle}</h2>
+            <p>{t.notFoundText}</p>
+            <a href={bookingHref} className="btn-back">{t.scheduleNewLink}</a>
           </div>
         ) : !appt ? (
-          <div className="card"><p>Loading...</p></div>
+          <div className="card"><p>{t.loading}</p></div>
         ) : cancelled ? (
           <div className="card">
             <div className="icon">✅</div>
-            <h2>Appointment Cancelled</h2>
-            <p>Your consultation has been cancelled. A confirmation has been sent to {appt.email}.</p>
-            <a href="/booking" style={{ display: 'inline-block', marginTop: '20px', background: '#2563EB', color: '#fff', padding: '11px 24px', borderRadius: '8px', textDecoration: 'none', fontWeight: 700, fontSize: '0.88rem' }}>
-              Schedule New Appointment
+            <h2>{t.cancelledTitle}</h2>
+            <p>{t.cancelledText(appt.email)}</p>
+            <a href={bookingHref} style={{ display: 'inline-block', marginTop: '20px', background: '#2563EB', color: '#fff', padding: '11px 24px', borderRadius: '8px', textDecoration: 'none', fontWeight: 700, fontSize: '0.88rem' }}>
+              {t.scheduleNewBtn}
             </a>
           </div>
         ) : appt.status === 'cancelled' ? (
           <div className="card">
             <div className="icon">ℹ️</div>
-            <h2>Already Cancelled</h2>
-            <p>This appointment has already been cancelled.</p>
-            <a href="/booking" className="btn-back">Schedule a new appointment →</a>
+            <h2>{t.alreadyTitle}</h2>
+            <p>{t.alreadyText}</p>
+            <a href={bookingHref} className="btn-back">{t.scheduleNewLink}</a>
           </div>
         ) : (
           <div className="card">
             <div className="icon">⚠️</div>
-            <h2>Cancel Appointment</h2>
-            <p>Are you sure you want to cancel the following consultation?</p>
+            <h2>{t.confirmTitle}</h2>
+            <p>{t.confirmText}</p>
             <div className="appt-box">
-              <div><strong>Name:</strong> {appt.name}</div>
-              <div><strong>Date:</strong> {formatDate(appt.date)}</div>
-              <div><strong>Time:</strong> {formatTime(appt.time)}</div>
+              <div><strong>{t.name}</strong> {appt.name}</div>
+              <div><strong>{t.date}</strong> {formatDate(appt.date, locale)}</div>
+              <div><strong>{t.time}</strong> {formatTime(appt.time)}</div>
             </div>
             {error && <div className="error">{error}</div>}
             <button className="btn-cancel" onClick={handleCancel} disabled={cancelling}>
-              {cancelling ? 'Cancelling...' : 'Yes, Cancel Appointment'}
+              {cancelling ? t.cancelling : t.confirmBtn}
             </button>
             <br />
-            <a href={`/booking/reschedule?id=${id}`} className="btn-back">Reschedule instead →</a>
+            <a href={rescheduleHref} className="btn-back">{t.rescheduleInstead}</a>
           </div>
         )}
       </div>
