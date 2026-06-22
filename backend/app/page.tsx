@@ -551,8 +551,18 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 .fm-faq-a.open{display:block}
 
 /* Right: order summary */
-.fm-summary{background:#fff;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.07),0 4px 20px rgba(0,0,0,.07);width:284px;flex-shrink:0;position:sticky;top:70px}
-@media(max-width:820px){.fm-summary{width:100%;position:static}}
+.fm-summary{background:#fff;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.07),0 4px 20px rgba(0,0,0,.07);width:360px;flex-shrink:0;position:sticky;top:70px;max-height:calc(100vh - 90px);overflow-y:auto}
+@media(max-width:820px){.fm-summary{width:100%;position:static;max-height:none;overflow:visible}}
+/* Pago integrado dentro del Order Summary (solo en el step de Review) */
+#fm-pay-area{padding:14px 20px 18px;border-top:1px solid #eef2f7}
+.fm-sum-pay-title{font-family:'Fraunces',serif;font-size:1.02rem;font-weight:700;color:#1e293b;margin-bottom:10px}
+#embedded-checkout{min-height:40px}
+.fm-sum-pay-notice{margin-top:12px;font-size:.72rem;line-height:1.5;color:#92400e;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:9px 11px}
+.fm-sum-pay-notice strong{color:#b45309}
+.fm-sum-pay-consent{margin-top:10px;font-size:.7rem;line-height:1.5;color:#6b7280}
+.fm-sum-pay-consent a{color:#2563eb;text-decoration:none}
+.fm-pay-hint{font-size:.8rem;color:#2563eb;font-weight:600}
+@media(max-width:820px){.fm-pay-hint{display:none}}
 .fm-sum-head{padding:16px 20px;border-bottom:1px solid #f3f4f6}
 .fm-sum-title{font-size:.88rem;font-weight:700;color:#1e293b}
 .fm-sum-biz{background:#eff6ff;border-radius:7px;padding:7px 14px;text-align:center;font-size:.82rem;font-weight:600;color:#1e40af;margin-top:10px;display:none}
@@ -2022,40 +2032,16 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
             <button class="btn-back-fm" onclick="fmBack()">&#8592; <span id="s8-back">Back</span></button>
             <div style="display:flex;align-items:center;gap:10px">
               <button class="save-btn" onclick="saveOrder()">&#x1F4BE; <span id="s8-save">Save</span></button>
-              <button class="btn-next-fm" onclick="fmNext()"><span id="s8-next">Continue</span> &#8594;</button>
+              <!-- Sin botón Continue: el pago se completa con el botón Pay del
+                   formulario de Stripe que vive en el Order Summary (derecha). -->
+              <span class="fm-pay-hint" id="s8-pay-hint">Complete payment in the summary &#8594;</span>
             </div>
           </div>
         </div>
       </div>
-      <div class="fm-step" id="fms9">
-        <div class="fm-card">
-          <div class="fm-card-body">
-            <h2 class="fm-title" id="s9-title">Secure Payment</h2>
-            <p class="fm-sub" id="s9-sub"></p>
-            <!-- Stripe Embedded Checkout: el formulario de pago (tarjeta + dirección
-                 de facturación) se monta aquí tras el click en "Process My Order"
-                 (ver fmSubmit). Stripe recoge los datos de tarjeta de forma segura —
-                 ya no hay campos de tarjeta propios (PCI). -->
-            <div id="embedded-checkout" style="margin-top:8px;display:none"></div>
-          <!-- Agree -->
-          <div class="fm-checkbox-row" style="margin-top:14px" id="agree-row">
-            <input type="checkbox" class="fm-checkbox" id="chk-agree"/>
-            <label for="chk-agree" style="cursor:pointer;font-size:.79rem;color:#374151" id="lbl-agree">I agree to the <a href="/legal" target="_blank" style="color:#2563eb">Legal Statement</a> and <a href="/terms" target="_blank" style="color:#2563eb">Terms of Service</a>.</label>
-          </div>
-          <!-- Notice -->
-          <div class="fm-warn" style="margin-top:14px">
-            <strong id="s10-warn-title">&#9888; Non-Refundable:</strong> <span id="s10-warn-text">State fees cannot be refunded once processing begins. Our service fee is refundable within 24 hours if filing has not started. Questions? Contact us via WhatsApp before submitting.</span>
-          </div>
-          </div>
-          <div class="fm-card-footer" id="pay-footer">
-            <button class="btn-back-fm" onclick="fmBack()">&#8592; <span id="s9-back">Back</span></button>
-            <div style="display:flex;align-items:center;gap:10px">
-              <button class="save-btn" onclick="saveOrder()">&#x1F4BE; <span id="s9-save">Save</span></button>
-              <button class="btn-submit-fm" onclick="fmSubmit()">&#x1F680; <span id="s9-submit">Process My Order</span></button>
-            </div>
-          </div>
-        </div>
-      </div>
+      <!-- El paso de pago dejó de ser un step aparte: el formulario de Stripe
+           Embedded Checkout ahora vive dentro del Order Summary (#fm-pay-area)
+           y se monta al llegar al step de Review (#fms8). Ver fmMountPayment(). -->
       <div class="fm-step" id="fms-success">
         <div class="fm-card">
           <div style="text-align:center;padding:48px 32px">
@@ -2102,6 +2088,14 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
         <div class="fm-sec-badge" id="sum-sec-ssl">&#128274; SSL Encrypted</div>
         <div class="fm-sec-badge" id="sum-sec-nofees">&#10003; No Hidden Fees</div>
         <div class="fm-sec-badge" id="sum-sec-email">&#128196; Receipt by Email</div>
+      </div>
+      <!-- Pago integrado: el form de Stripe se monta aquí solo en el step de
+           Review (fmGoToStep n===8). En los demás pasos queda oculto. -->
+      <div id="fm-pay-area" style="display:none">
+        <div class="fm-sum-pay-title" id="sum-pay-title">Secure Payment</div>
+        <div id="embedded-checkout"></div>
+        <div class="fm-sum-pay-notice" id="sum-pay-notice"><strong>&#9888; Non-Refundable:</strong> State fees cannot be refunded once processing begins. Our service fee is refundable within 24 hours if filing has not started.</div>
+        <div class="fm-sum-pay-consent" id="sum-pay-consent">By completing payment you agree to our <a href="/legal" target="_blank">Legal Statement</a> and <a href="/terms" target="_blank">Terms of Service</a>.</div>
       </div>
     </div>
   </div>
@@ -4392,7 +4386,8 @@ function setFilerForm(type, el) {
 (function(){if(currentLang!=='en')setLang(currentLang);})();
 
 var fmCurrentStep = 1;
-var fmTotalSteps  = 7;
+// 6 pasos: Review (fms8) es el último — el pago vive dentro de su Order Summary.
+var fmTotalSteps  = 6;
 var fmData = {
   entity: 'llc', bizAddrType: 'virtual', agentType: 'ours',
   bizName: '',
@@ -4509,6 +4504,15 @@ function fmGoToStep(n) {
   if(n === 5) fmSyncStep5();
   if(n === 7) fmFilterAddons();
   if(n === 8) fmBuildReview();
+  // Pago integrado en el Order Summary: solo aparece (y se monta) en el Review.
+  var _payArea = document.getElementById('fm-pay-area');
+  if(n === 8) {
+    if(_payArea) _payArea.style.display = 'block';
+    fmMountPayment();
+  } else {
+    if(_payArea) _payArea.style.display = 'none';
+    fmDestroyPayment();
+  }
   if(!_fmRestoring) {
     history.pushState({ fmStep: n }, '', window.location.pathname);
     fmSaveProgress();
@@ -4518,13 +4522,15 @@ function fmGoToStep(n) {
   if(overlay) overlay.scrollTo(0, 0);
   var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
   setTimeout(function(){ fmTranslate(isEs ? 'es' : 'en'); }, 30);
-  // Auto-focus + scroll al botón "Continuar" del paso actual
+  // Auto-focus del botón "Continuar" SIN mover la vista. Antes se hacía
+  // nextBtn.scrollIntoView(), que empujaba la pantalla hacia abajo y ocultaba
+  // el título en los pasos largos (el cliente caía a mitad del paso). Ahora la
+  // vista se queda arriba (window.scrollTo(0,0) de arriba) mostrando el título.
   setTimeout(function(){
     var stepEl = document.getElementById('fms' + n);
     var nextBtn = stepEl ? stepEl.querySelector('.btn-next-fm') : null;
     if(nextBtn) {
-      try { nextBtn.focus({ preventScroll: true }); } catch(e) { nextBtn.focus(); }
-      nextBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      try { nextBtn.focus({ preventScroll: true }); } catch(e) {}
     }
   }, 90);
 }
@@ -4739,7 +4745,9 @@ function fmNext() {
   // Skip step 4 (upsell removed) and step 6 (RA now in step 3)
   if(next===4){next=5;}
   if(next===6){next=7;}
-  if(fmVisualStep(next)<=fmTotalSteps){fmGoToStep(next);}else{fmSubmit();}
+  // El Review (fms8) es el último paso; el pago se completa con el botón Pay de
+  // Stripe dentro del Order Summary, no avanzando a otro step.
+  if(fmVisualStep(next)<=fmTotalSteps){fmGoToStep(next);}
 }
 
 function fmBack() {
@@ -5137,18 +5145,9 @@ function fmToggleAcc(btn) {
 // ═══════════════════════════════════════════════════════
 // SUBMIT
 // ═══════════════════════════════════════════════════════
-async function fmSubmit() {
-  var isEsS = !!(document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active'));
-
-  if(!document.getElementById('chk-agree') || !document.getElementById('chk-agree').checked) {
-    alert(isEsS
-      ? 'Por favor acepta los T\u00e9rminos de Servicio antes de continuar.'
-      : 'Please agree to the Terms of Service before submitting.');
-    return;
-  }
-
-  var btn = document.querySelector('.btn-submit-fm');
-  if(btn) { btn.disabled = true; btn.textContent = isEsS ? 'Procesando...' : 'Processing...'; }
+// Construye el payload de la orden leyendo todos los campos del formulario.
+// Lo usa fmMountPayment() al llegar al Review para crear la orden pending.
+function fmBuildOrderPayload() {
 
   // ── Helper: leer campo por ID ─────────────────────────────────────────────
   function val(id) {
@@ -5240,58 +5239,55 @@ async function fmSubmit() {
     orgSignature:    orgSignature
   };
 
-  // Los emails los env\u00eda el webhook al confirmarse el pago (no al crear la orden).
-  payload.deferEmails = true;
+  return payload;
+}
 
+var _fmCheckout  = null;   // instancia de Stripe Embedded Checkout actual
+var _fmMounting  = false;  // guard contra montajes concurrentes
+
+// Destruye el form de Stripe montado (al salir del Review o antes de remontar).
+function fmDestroyPayment() {
+  if(_fmCheckout) { try { _fmCheckout.destroy(); } catch(e) {} _fmCheckout = null; }
+  var ec = document.getElementById('embedded-checkout');
+  if(ec) ec.innerHTML = '';
+}
+
+// Crea la orden pending + sesi\u00f3n de Stripe y monta el form dentro del Order
+// Summary. Se llama al entrar al Review (fmGoToStep n===8). Los emails los manda
+// el webhook al confirmarse el pago (deferEmails). El precio se recalcula
+// server-side desde la orden \u2014 el navegador no decide el monto.
+async function fmMountPayment() {
+  if(_fmMounting) return;
+  _fmMounting = true;
+  var isEsS = !!(document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active'));
+  var ec = document.getElementById('embedded-checkout');
+  fmDestroyPayment();
+  if(ec) ec.innerHTML = '<div style="padding:18px;text-align:center;color:#6b7280;font-size:.82rem">' + (isEsS ? 'Cargando el pago seguro...' : 'Loading secure payment...') + '</div>';
   try {
-    // 1) Crear la orden pending (sin emails \u2014 ver deferEmails).
-    var res = await fetch('/api/orders', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
+    var payload = fmBuildOrderPayload();
+    payload.deferEmails = true;
+    var res = await fetch('/api/orders', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
     var data = await res.json();
-    if(!(res.ok && data.success)) {
-      throw new Error((data && data.error) ? data.error : 'Error desconocido');
-    }
+    if(!(res.ok && data.success)) { throw new Error((data && data.error) ? data.error : 'Error desconocido'); }
     var orderId = data.orderId;
     fmClearProgress();
     generateOrderNumber(orderId);
-    var numEl = document.getElementById('finalOrderNum');
-    if(numEl) numEl.textContent = orderNumber;
+    var numEl = document.getElementById('finalOrderNum'); if(numEl) numEl.textContent = orderNumber;
 
-    // 2) Crear la sesi\u00f3n de Stripe Embedded Checkout (el precio se recalcula
-    //    server-side desde la orden \u2014 el navegador no decide el monto).
-    var sres = await fetch('/api/checkout/embedded', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ orderId: orderId })
-    });
+    var sres = await fetch('/api/checkout/embedded', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ orderId: orderId }) });
     var sdata = await sres.json();
-    if(!sres.ok || !sdata.clientSecret) {
-      throw new Error((sdata && sdata.error) ? sdata.error : 'No se pudo iniciar el pago');
-    }
+    if(!sres.ok || !sdata.clientSecret) { throw new Error((sdata && sdata.error) ? sdata.error : 'No se pudo iniciar el pago'); }
 
-    // 3) Montar el formulario de Stripe (recoge tarjeta + direcci\u00f3n de facturaci\u00f3n).
-    //    Al pagar, Stripe redirige a /order/complete y el webhook marca la orden paid.
-    if(typeof Stripe === 'undefined' || !window.__OPABIZ_STRIPE_PK__) {
-      throw new Error('Stripe.js no disponible');
-    }
+    if(typeof Stripe === 'undefined' || !window.__OPABIZ_STRIPE_PK__) { throw new Error('Stripe.js no disponible'); }
     var stripe = Stripe(window.__OPABIZ_STRIPE_PK__);
-    var checkout = await stripe.initEmbeddedCheckout({ clientSecret: sdata.clientSecret });
-
-    // Ocultar la UI previa al pago y mostrar el formulario de Stripe.
-    var agreeRow  = document.getElementById('agree-row');  if(agreeRow)  agreeRow.style.display  = 'none';
-    var payFooter = document.getElementById('pay-footer'); if(payFooter) payFooter.style.display = 'none';
-    var ec = document.getElementById('embedded-checkout'); if(ec) ec.style.display = 'block';
-    checkout.mount('#embedded-checkout');
-    window.scrollTo(0, 0);
+    if(ec) ec.innerHTML = '';
+    _fmCheckout = await stripe.initEmbeddedCheckout({ clientSecret: sdata.clientSecret });
+    _fmCheckout.mount('#embedded-checkout');
   } catch(err) {
-    console.error('fmSubmit error:', err);
-    alert(isEsS
-      ? 'Hubo un error procesando tu orden. Por favor int\u00e9ntalo de nuevo.'
-      : 'There was an error processing your order. Please try again.');
-    if(btn) { btn.disabled = false; btn.textContent = isEsS ? 'Procesar Orden' : 'Submit Order'; }
+    console.error('fmMountPayment error:', err);
+    if(ec) ec.innerHTML = '<div style="padding:14px;color:#b91c1c;font-size:.8rem;text-align:center;line-height:1.5">' + (isEsS ? 'No se pudo cargar el pago. Usa Atr\u00e1s y vuelve a Continuar para reintentar.' : 'Could not load payment. Use Back, then Continue to retry.') + '</div>';
+  } finally {
+    _fmMounting = false;
   }
 }
 
@@ -5700,6 +5696,10 @@ function fmTranslate(lang) {
     'sum-lbl-ar':isEs?'Declaraci\\u00f3n Anual':'Annual Report',
     'sum-lbl-total':isEs?'Total':'Total',
     'sum-sec-ssl':isEs?'&#128274; Cifrado SSL':'&#128274; SSL Encrypted',
+    'sum-pay-title':isEs?'Pago Seguro':'Secure Payment',
+    'sum-pay-notice':isEs?'<strong>&#9888; No reembolsable:</strong> Los cargos estatales no son reembolsables una vez iniciado el proceso. Nuestra tarifa de servicio es reembolsable dentro de las 24 horas si el tr\\u00e1mite no ha comenzado.':'<strong>&#9888; Non-Refundable:</strong> State fees cannot be refunded once processing begins. Our service fee is refundable within 24 hours if filing has not started.',
+    'sum-pay-consent':isEs?'Al completar el pago aceptas nuestro <a href="/legal" target="_blank">Aviso Legal</a> y los <a href="/terms" target="_blank">T\\u00e9rminos de Servicio</a>.':'By completing payment you agree to our <a href="/legal" target="_blank">Legal Statement</a> and <a href="/terms" target="_blank">Terms of Service</a>.',
+    's8-pay-hint':isEs?'Completa el pago en el resumen &#8594;':'Complete payment in the summary &#8594;',
     'sum-sec-nofees':isEs?'&#10003; Sin Cargos Ocultos':'&#10003; No Hidden Fees',
     'sum-sec-email':isEs?'&#128196; Recibo por Correo':'&#128196; Receipt by Email',
     's2-sub':isEs?'Cuéntanos cómo contactarte y dónde estará ubicado tu negocio.':'Tell us how to reach you and where your business will be located.',
