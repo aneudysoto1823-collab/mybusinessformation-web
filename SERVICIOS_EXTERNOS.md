@@ -249,13 +249,56 @@
 
 ## 6. DATOS EXTERNOS
 
-### 🟡 Sunbiz / Florida Division of Corporations — Base de nombres
+### 🟢 Sunbiz / Florida Division of Corporations — Base de nombres
 
-- **Qué hace:** Florida Division of Corporations publica trimestralmente un dump completo (~3.5M records) de todas las empresas registradas. Lo usamos para verificar disponibilidad de nombres en tiempo real.
-- **Estado:** Pendiente Etapa 5
-- **Plan:** **Gratis** — descarga FTP pública (no API oficial)
-- **Costo:** $0 (solo costo en storage Supabase para los 3.5M registros — caben en Pro $25)
-- **Acción al lanzamiento:** Solicitar credenciales FTP a Sunbiz, montar pipeline de descarga + import + actualización.
+- **Qué hace:** Florida Division of Corporations publica un dump trimestral completo (~3.5M records) + un daily file (~1,500 empresas/día) de todas las empresas registradas. Lo usamos para verificar disponibilidad de nombres.
+- **Estado:** Plan de integración definido — Etapa 5 (ver `LOGICA_DE_NEGOCIO/26_arquitectura_sunbiz_backups.md`).
+- **Acceso:** **PÚBLICO sin necesidad de solicitar credenciales** (descubrimiento 2026-06-22). Credenciales hardcoded en `sftp.floridados.gov` con usuario `Public`. Ya está siendo usado en el proyecto hermano `datallc` desde mayo 2026.
+- **Costo:** **$0** — el SFTP es público y gratis.
+- **Storage de los 3.5M:** ya NO se usa Supabase (decisión 2026-06-22). Va a **Turso (Free 9 GB)** — ver entrada de Turso abajo.
+- **Acción al lanzamiento:** ejecutar el plan de Fase 1-3 del doc 26 (carga inicial + cron nocturno + migrar Path B/C).
+
+---
+
+### 🟢 Turso — Base de datos para Sunbiz (3.5M empresas)
+
+- **Qué hace:** SQLite distribuido (réplicas globales) que guarda los 3.5M de empresas de Florida + las que se crean cada día. Se consulta desde Vercel para verificar disponibilidad de nombres con búsqueda fuzzy (FTS5 nativo de SQLite).
+- **Estado:** Cuenta pendiente de crear por el founder (2026-06-22).
+- **Plan:** **Hobby (Free)** — 9 GB storage, 500M reads/mes, 10M writes/mes. Más que suficiente para los 3.5M + crecimiento de ~500K registros/año.
+- **Costo:** **$0/mes**.
+- **Plan recomendado si crecemos:** Scale $29/mes (24 GB). No será necesario en 5+ años.
+- **Verificar precio en:** https://turso.tech/pricing
+- **Por qué Turso y no Supabase Pro o Cloudflare D1:** 9 GB free vs Supabase Free 500 MB (no alcanza) o D1 5 GB free. Driver `@libsql/client` para Node.js es más natural desde Vercel serverless que el driver D1 (diseñado para Workers).
+- **Variables de entorno requeridas:** `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN` (en Vercel).
+- **Doc:** ver `LOGICA_DE_NEGOCIO/26_arquitectura_sunbiz_backups.md` para arquitectura completa.
+
+---
+
+### 🟢 Cloudflare R2 — Backups del negocio
+
+- **Qué hace:** Object storage S3-compatible donde se guardan backups diarios automáticos de Supabase (pg_dump + PDFs del Certificate of Formation). Retención 30 días.
+- **Estado:** Cuenta pendiente de crear por el founder (2026-06-22).
+- **Plan:** **Pay-as-you-go** — 10 GB free permanente. Después $0.015/GB/mes.
+- **Costo estimado:** **$0/mes** mientras estemos bajo 10 GB. Para nuestro tamaño (~3-5 GB de dumps + PDFs en 30 días de retención) estaremos siempre dentro del free tier.
+- **Por qué R2 y no AWS S3:** Cloudflare R2 **NO cobra egress** (transferencia de salida). AWS S3 cobra ~$0.09/GB egress que puede ser caro si necesitamos restaurar el backup completo. R2 también tiene 10 GB free permanente vs S3 que solo da 5 GB free el primer año.
+- **Verificar precio en:** https://developers.cloudflare.com/r2/pricing/
+- **Variables de entorno requeridas (en GitHub Actions Secrets, no en Vercel):** `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_ACCOUNT_ID`, `R2_BUCKET_NAME`, `R2_ENDPOINT`.
+- **Quién dispara los backups:** **GitHub Actions** (cron diario, gratis con los 2000 min/mes del free tier).
+- **Doc:** ver `LOGICA_DE_NEGOCIO/26_arquitectura_sunbiz_backups.md`.
+
+---
+
+### 🟢 GitHub Actions — Cron de backups
+
+- **Qué hace:** Workflow `.github/workflows/backup-daily.yml` que cada noche a las 12:30am:
+  1. Hace `pg_dump` de Supabase
+  2. Descarga todos los PDFs de Supabase Storage
+  3. Sube todo a Cloudflare R2 con timestamp YYYY-MM-DD
+  4. Borra dumps de hace más de 30 días
+- **Estado:** Pendiente implementar (Fase 4 del doc 26).
+- **Plan:** Free tier de GitHub — 2,000 minutos/mes para repos privados.
+- **Costo:** **$0** — un backup tarda ~5 min/día = 150 min/mes, muy por debajo del límite.
+- **Por qué GitHub Actions y no Vercel Cron:** los backups pueden tardar más de 5 min (límite de Vercel Pro). GitHub Actions no tiene ese límite.
 
 ---
 

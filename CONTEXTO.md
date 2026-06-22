@@ -87,7 +87,10 @@ Si necesitas cambiar el diseño de una página:
 - Node.js v24.14.0 / npm 11.9.0
 - Supabase — Postgres + Storage (acceso vía REST API desde Vercel; sin Prisma)
 - Vercel — hosting principal (Next.js)
-- Railway.app — RESERVADO para Etapa 5 (Sunbiz). Hoy DORMIDO. Decisión arquitectural Opción B (2026-05-13): toda la lógica vive en Vercel; Railway se despierta cuando se implemente la búsqueda Sunbiz. Ver `LOGICA_DE_NEGOCIO/00_arquitectura_tecnica_de_una_orden.md`.
+- Railway.app — **A CANCELAR** (decisión 2026-06-22). El plan original era despertar Railway para Etapa 5 (Sunbiz), pero se descubrió que: (a) las credenciales SFTP de Florida son públicas (no hay que solicitar acceso), (b) el daily file pesa <3MB y se procesa en <1min — dentro del límite de Vercel Cron Pro. Railway ya no es necesario. Ver arquitectura definitiva en `LOGICA_DE_NEGOCIO/26_arquitectura_sunbiz_backups.md`.
+- **Turso** (NUEVO 2026-06-22) — SQLite distribuido para los 3.5M de Sunbiz. Free tier 9 GB. Cuenta pendiente de crear.
+- **Cloudflare R2** (NUEVO 2026-06-22) — Object storage para backups diarios de Supabase + PDFs. Free tier 10 GB. Cuenta pendiente de crear.
+- **GitHub Actions** (NUEVO 2026-06-22) — Cron diario que ejecuta `pg_dump` + sync PDFs → R2. Free tier 2000 min/mes.
 - Stripe — pagos (Etapa 4 y Etapa 16)
 - Resend — emails (Etapa 7 y Etapa 16)
 - Upstash Redis — rate limiting login admin (Etapa 14)
@@ -138,21 +141,32 @@ Pendientes de higiene técnica:
 - [ ] Guardar transacciones en base de datos
 - [ ] Probar con tarjetas de prueba
 
-### Etapa 5 — Búsqueda de Nombres Sunbiz Florida (2 semanas) ⚠️ CRÍTICA
-- [ ] Descargar base de datos trimestral de Florida vía FTP
-- [ ] Importar a PostgreSQL (~3.5 millones de registros)
-- [ ] Buscador en tiempo real con detección de nombres similares
-- [ ] Actualización automática nocturna
+### Etapa 5 — Búsqueda de Nombres Sunbiz Florida (1-2 días — antes 2 semanas) ⚠️ CRÍTICA
 
-**Al despertar Railway para esta etapa, hacer también lo siguiente (diferido de Etapa 15, 2026-05-13):**
-- [ ] Instalar `@sentry/node` en `backend/server.ts` (paquete Sentry para Express)
-- [ ] Crear proyecto `node-express` en sentry.io y obtener su DSN
-- [ ] Configurar env vars en Railway (Production): `SENTRY_DSN`, `SENTRY_ORG`, `SENTRY_PROJECT`, `INTERNAL_API_KEY`. Tipear desde Vercel, no copy-paste, para evitar trailing whitespace
-- [ ] Reusar el filtro PII de `backend/lib/sentry-pii-filter.ts` en el init de Sentry/Node (mismo helper que usa Next.js)
-- [ ] Crear monitor en BetterStack para `https://mybusinessformation-web-production.up.railway.app/health` con SSL verification + keyword match
-- [ ] Crear runbook "Railway DOWN" en `TROUBLESHOOTING/` con pasos para verificar desde otra red, identificar causa (deploy, env vars, IPv4/IPv6) y rollback si aplica
-- [ ] Smoke test Sentry server-side en Express (endpoint temporal con throw, borrar post-validación)
-- [ ] Decidir en este punto si `DATABASE_URL` mantiene direct connection (requiere IPv6) o pasa a Session Pooler (compatible IPv4). Documentar la elección en `LOGICA_DE_NEGOCIO/00_arquitectura_tecnica_de_una_orden.md`
+**Arquitectura redefinida 2026-06-22** — ver `LOGICA_DE_NEGOCIO/26_arquitectura_sunbiz_backups.md`. Resumen: los 3.5M van a **Turso (Free 9 GB)** en vez de Supabase Pro $25/mes, el cron nocturno corre en **Vercel Cron** (incluido en Pro), y Railway **se cancela**. Costo extra: $0/mes vs $30/mes del plan anterior.
+
+**Hallazgos clave del 2026-06-22:**
+- Las credenciales SFTP de Florida son **PÚBLICAS** (`sftp.floridados.gov` / user `Public`). No hay que solicitar acceso — el proyecto hermano `c:\Users\ethan\datallc\` ya las usa.
+- El scraper completo (`florida_sftp.py`, 346 líneas, parser de fixed-width 1440 chars/record según layout oficial) **ya existe en `datallc`** y se va a adaptar.
+- El daily file pesa ~3 MB y se procesa en <1 min — dentro del límite de 5 min de Vercel Cron Pro. **Railway ya no es necesario.**
+
+**Plan de implementación (5 fases — ver detalle en doc 26):**
+- [ ] **Fase 0** — Founder crea cuentas Turso + Cloudflare R2 (ver doc 26 sección "Plan de implementación")
+- [ ] **Fase 1** — Carga inicial 3.5M desde la PC del founder a Turso (1 vez, 1-2 horas)
+- [ ] **Fase 2** — Vercel Cron nocturno descarga daily file + UPSERT a Turso
+- [ ] **Fase 3** — Migrar Path B (`/api/proxy/names/check`) y Path C (Claudia chat) a consultar Turso real
+- [ ] **Fase 4** — GitHub Actions backup diario de Supabase + PDFs → Cloudflare R2 (30 días retención)
+- [ ] **Fase 5** — Cancelar Railway
+
+**Lo que se descarta del plan original (porque Railway se cancela):**
+- ~~Instalar `@sentry/node` en `backend/server.ts`~~
+- ~~Crear proyecto `node-express` en sentry.io~~
+- ~~Configurar env vars en Railway~~
+- ~~Monitor BetterStack para Railway~~
+- ~~Runbook "Railway DOWN"~~
+- ~~Decisión sobre `DATABASE_URL` direct vs Session Pooler~~
+
+Todo eso queda obsoleto. La lógica Sunbiz vive en Vercel + Turso.
 
 ### Etapa 7 — Comunicación Automática (1 semana)
 - [x] Email confirmación al pagar
