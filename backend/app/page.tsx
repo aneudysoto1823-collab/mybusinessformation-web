@@ -570,7 +570,9 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 /* Pago integrado dentro del Order Summary (solo en el step de Review) */
 #fm-pay-area{padding:14px 20px 18px;border-top:1px solid #eef2f7}
 .fm-sum-pay-title{font-family:'Fraunces',serif;font-size:1.02rem;font-weight:700;color:#1e293b;margin-bottom:10px}
-#embedded-checkout{min-height:40px}
+/* Reservamos el alto aproximado del form de Stripe para que al cargar no se
+   vea "extendiéndose" (el iframe crece de ~40px a ~600px y reflowea la caja). */
+#embedded-checkout{min-height:600px}
 .fm-sum-pay-notice{margin-top:12px;font-size:.72rem;line-height:1.5;color:#92400e;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:9px 11px}
 .fm-sum-pay-notice strong{color:#b45309}
 .fm-sum-pay-consent{margin-top:10px;font-size:.7rem;line-height:1.5;color:#6b7280}
