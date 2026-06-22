@@ -15,6 +15,13 @@ export type PackageId = 'basic' | 'standard' | 'premium'
 
 export const PACKAGE_PRICES: Record<PackageId, number> = { basic: 0, standard: 199, premium: 299 }
 
+// Precio de "lista" del paquete Basic, para mostrarlo como OFERTA en el checkout
+// de Stripe: se incluye como line item a este precio y un cupón (-este mismo
+// monto) lo deja en $0. El cliente ve "Basic Formation Package $99 → -$99".
+// ⚠️ Si cambias este número, ajusta también el cupón en Stripe: su amount_off
+// debe ser exactamente igual (ver STRIPE_BASIC_COUPON_ID en /api/checkout/embedded).
+export const BASIC_PACKAGE_LIST_PRICE = 99
+
 // Add-ons cobrables (igual que fmBuildPayload en page.tsx). `ar` y `raInfo` NO
 // se cobran aquí — coinciden con el cálculo del formulario.
 export const ADDON_PRICES = { ein: 79, oa: 59, itin: 69, btr: 79, str: 79, cc: 49 } as const
