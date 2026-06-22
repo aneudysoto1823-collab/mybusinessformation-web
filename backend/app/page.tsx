@@ -527,21 +527,14 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 
 /* Page wrapper */
 .fm-wrap{max-width:1280px;margin:28px auto;padding:0 20px 60px;display:flex;gap:24px;align-items:flex-start;box-sizing:border-box}
-/* En el paso de pago igualamos la altura de las dos columnas para que los
-   bordes de abajo queden parejos. El contenedor estira ambas columnas y la
-   cadena wrapper→step→card pasa la altura hasta la card blanca; el footer se
-   empuja al fondo con card-body flex:1. */
-.fm-wrap.fm-paystep{align-items:stretch}
-.fm-wrap.fm-paystep>div:first-child{display:flex;flex-direction:column}
-.fm-wrap.fm-paystep .fm-step.active{flex:1;display:flex;flex-direction:column}
-.fm-wrap.fm-paystep .fm-card{display:flex;flex-direction:column}
-.fm-wrap.fm-paystep .fm-card-body{flex:1;display:flex;flex-direction:column}
-/* Distribuir los bloques del review para que llenen el alto disponible (sin
-   vacío abajo): el contenedor de secciones crece y reparte el espacio libre
-   entre los bloques con space-between. */
-.fm-wrap.fm-paystep .fm-review-sections{flex:1;display:flex;flex-direction:column;justify-content:space-between}
-.fm-wrap.fm-paystep .fm-review-sections .fm-review-section{margin:0}
-@media(max-width:820px){.fm-wrap{flex-direction:column;padding:0 14px 40px}}
+/* Paso de pago (disposición de 2 columnas): a la izquierda el review + nuestro
+   Order Summary (los reubica fmGoToStep por JS); a la derecha, solo el form de
+   Stripe en su propia card (#fm-paycol). */
+.fm-paycol{flex-shrink:0;width:460px;background:#fff;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.07),0 4px 20px rgba(0,0,0,.07);align-self:flex-start;display:none}
+.fm-wrap.fm-paystep .fm-paycol{display:block}
+.fm-paycol #fm-pay-area{border-top:none}
+#fm-left-col .fm-summary{width:100%;margin-top:20px}
+@media(max-width:820px){.fm-wrap{flex-direction:column;padding:0 14px 40px}.fm-paycol{width:100%}}
 
 /* Form step visibility */
 .fm-step{display:none}
@@ -1329,7 +1322,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
     <span id="fp-pct" style="font-size:.74rem;color:rgba(255,255,255,.55);white-space:nowrap;flex-shrink:0">Step 1 of 9</span>
   </div>
   <div class="fm-wrap">
-    <div style="flex:1;min-width:0">
+    <div style="flex:1;min-width:0" id="fm-left-col">
       <div class="fm-step active" id="fms1">
         <div class="fm-card">
           <div class="fm-card-body">
@@ -2052,7 +2045,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
               <button class="save-btn" onclick="saveOrder()">&#x1F4BE; <span id="s8-save">Save</span></button>
               <!-- Sin botón Continue: el pago se completa con el botón Pay del
                    formulario de Stripe que vive en el Order Summary (derecha). -->
-              <span class="fm-pay-hint" id="s8-pay-hint">Complete payment in the summary &#8594;</span>
+              <span class="fm-pay-hint" id="s8-pay-hint">Complete payment on the right &#8594;</span>
             </div>
           </div>
         </div>
@@ -2116,6 +2109,8 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
         <div class="fm-sum-pay-consent" id="sum-pay-consent">By completing payment you agree to our <a href="/legal" target="_blank">Legal Statement</a> and <a href="/terms" target="_blank">Terms of Service</a>.</div>
       </div>
     </div>
+    <!-- Columna derecha del paso de pago: aquí fmGoToStep mueve #fm-pay-area (Stripe). -->
+    <div class="fm-paycol" id="fm-paycol"></div>
   </div>
 </div><!-- /formOverlay -->
 
@@ -4527,16 +4522,24 @@ function fmGoToStep(n) {
   // así que ocultamos nuestras líneas de precio + total para no duplicar.
   var _payArea = document.getElementById('fm-pay-area');
   var _sum = document.querySelector('.fm-summary');
-  var _sumParts = _sum ? _sum.querySelectorAll('.fm-sum-body, .fm-sum-foot, .fm-secure') : [];
   var _wrap = document.querySelector('.fm-wrap');
+  var _leftCol = document.getElementById('fm-left-col');
+  var _payCol = document.getElementById('fm-paycol');
+  var _secure = _sum ? _sum.querySelector('.fm-secure') : null;
   if(n === 8) {
-    _sumParts.forEach(function(el){ el.style.display = 'none'; });
+    // Stripe → su columna derecha; Order Summary → bajo el review (izquierda).
+    if(_payCol && _payArea && _payArea.parentNode !== _payCol) _payCol.appendChild(_payArea);
     if(_payArea) _payArea.style.display = 'block';
+    if(_leftCol && _sum && _sum.parentNode !== _leftCol) _leftCol.appendChild(_sum);
+    if(_secure) _secure.style.display = 'none'; // badges nuestros (Stripe ya trae los suyos)
     if(_wrap) _wrap.classList.add('fm-paystep');
     fmMountPayment();
   } else {
-    _sumParts.forEach(function(el){ el.style.display = ''; });
+    // Restaurar: Stripe vuelve dentro del summary y el summary vuelve a la derecha.
+    if(_sum && _payArea && _payArea.parentNode !== _sum) _sum.appendChild(_payArea);
     if(_payArea) _payArea.style.display = 'none';
+    if(_wrap && _payCol && _sum && _sum.parentNode === _leftCol) _wrap.insertBefore(_sum, _payCol);
+    if(_secure) _secure.style.display = '';
     if(_wrap) _wrap.classList.remove('fm-paystep');
     fmDestroyPayment();
   }
@@ -5726,7 +5729,7 @@ function fmTranslate(lang) {
     'sum-pay-title':isEs?'Pago Seguro':'Secure Payment',
     'sum-pay-notice':isEs?'<strong>&#9888; No reembolsable:</strong> Los cargos estatales no son reembolsables una vez iniciado el proceso. Nuestra tarifa de servicio es reembolsable dentro de las 24 horas si el tr\\u00e1mite no ha comenzado.':'<strong>&#9888; Non-Refundable:</strong> State fees cannot be refunded once processing begins. Our service fee is refundable within 24 hours if filing has not started.',
     'sum-pay-consent':isEs?'Al completar el pago aceptas nuestro <a href="/legal" target="_blank">Aviso Legal</a> y los <a href="/terms" target="_blank">T\\u00e9rminos de Servicio</a>.':'By completing payment you agree to our <a href="/legal" target="_blank">Legal Statement</a> and <a href="/terms" target="_blank">Terms of Service</a>.',
-    's8-pay-hint':isEs?'Completa el pago en el resumen &#8594;':'Complete payment in the summary &#8594;',
+    's8-pay-hint':isEs?'Completa el pago a la derecha &#8594;':'Complete payment on the right &#8594;',
     'sum-sec-nofees':isEs?'&#10003; Sin Cargos Ocultos':'&#10003; No Hidden Fees',
     'sum-sec-email':isEs?'&#128196; Recibo por Correo':'&#128196; Receipt by Email',
     's2-sub':isEs?'Cuéntanos cómo contactarte y dónde estará ubicado tu negocio.':'Tell us how to reach you and where your business will be located.',
