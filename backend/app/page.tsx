@@ -526,7 +526,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 .fp-phone svg{color:#6b7280}
 
 /* Page wrapper */
-.fm-wrap{max-width:1060px;margin:28px auto;padding:0 20px 60px;display:flex;gap:24px;align-items:flex-start;box-sizing:border-box}
+.fm-wrap{max-width:1200px;margin:28px auto;padding:0 20px 60px;display:flex;gap:24px;align-items:flex-start;box-sizing:border-box}
 @media(max-width:820px){.fm-wrap{flex-direction:column;padding:0 14px 40px}}
 
 /* Form step visibility */
@@ -551,8 +551,8 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 .fm-faq-a.open{display:block}
 
 /* Right: order summary */
-.fm-summary{background:#fff;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.07),0 4px 20px rgba(0,0,0,.07);width:360px;flex-shrink:0;position:sticky;top:70px;max-height:calc(100vh - 90px);overflow-y:auto}
-@media(max-width:820px){.fm-summary{width:100%;position:static;max-height:none;overflow:visible}}
+.fm-summary{background:#fff;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.07),0 4px 20px rgba(0,0,0,.07);width:440px;flex-shrink:0}
+@media(max-width:820px){.fm-summary{width:100%}}
 /* Pago integrado dentro del Order Summary (solo en el step de Review) */
 #fm-pay-area{padding:14px 20px 18px;border-top:1px solid #eef2f7}
 .fm-sum-pay-title{font-family:'Fraunces',serif;font-size:1.02rem;font-weight:700;color:#1e293b;margin-bottom:10px}
