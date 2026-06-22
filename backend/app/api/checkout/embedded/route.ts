@@ -55,7 +55,9 @@ export async function POST(req: NextRequest) {
       mode: 'payment',
       line_items: lineItems,
       customer_email: order.email || undefined,
-      billing_address_collection: 'auto',
+      // 'required' → Stripe pide la dirección de facturación completa (nombre +
+      // dirección) dentro del Embedded Checkout. Con 'auto' solo pedía lo mínimo.
+      billing_address_collection: 'required',
       // Embedded usa return_url (no success_url/cancel_url). El webhook es quien
       // marca la orden como pagada; esta página solo confirma visualmente.
       return_url: `${origin}/order/complete?session_id={CHECKOUT_SESSION_ID}`,
