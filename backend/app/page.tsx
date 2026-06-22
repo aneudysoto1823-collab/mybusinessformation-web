@@ -526,7 +526,16 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 .fp-phone svg{color:#6b7280}
 
 /* Page wrapper */
-.fm-wrap{max-width:1200px;margin:28px auto;padding:0 20px 60px;display:flex;gap:24px;align-items:flex-start;box-sizing:border-box}
+.fm-wrap{max-width:1280px;margin:28px auto;padding:0 20px 60px;display:flex;gap:24px;align-items:flex-start;box-sizing:border-box}
+/* En el paso de pago igualamos la altura de las dos columnas para que los
+   bordes de abajo queden parejos. El contenedor estira ambas columnas y la
+   cadena wrapper→step→card pasa la altura hasta la card blanca; el footer se
+   empuja al fondo con card-body flex:1. */
+.fm-wrap.fm-paystep{align-items:stretch}
+.fm-wrap.fm-paystep>div:first-child{display:flex;flex-direction:column}
+.fm-wrap.fm-paystep .fm-step.active{flex:1;display:flex;flex-direction:column}
+.fm-wrap.fm-paystep .fm-card{display:flex;flex-direction:column}
+.fm-wrap.fm-paystep .fm-card-body{flex:1}
 @media(max-width:820px){.fm-wrap{flex-direction:column;padding:0 14px 40px}}
 
 /* Form step visibility */
@@ -551,7 +560,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 .fm-faq-a.open{display:block}
 
 /* Right: order summary */
-.fm-summary{background:#fff;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.07),0 4px 20px rgba(0,0,0,.07);width:440px;flex-shrink:0}
+.fm-summary{background:#fff;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.07),0 4px 20px rgba(0,0,0,.07);width:500px;flex-shrink:0}
 @media(max-width:820px){.fm-summary{width:100%}}
 /* Pago integrado dentro del Order Summary (solo en el step de Review) */
 #fm-pay-area{padding:14px 20px 18px;border-top:1px solid #eef2f7}
@@ -4509,14 +4518,17 @@ function fmGoToStep(n) {
   // así que ocultamos nuestras líneas de precio + total para no duplicar.
   var _payArea = document.getElementById('fm-pay-area');
   var _sum = document.querySelector('.fm-summary');
-  var _sumParts = _sum ? _sum.querySelectorAll('.fm-sum-body, .fm-sum-foot') : [];
+  var _sumParts = _sum ? _sum.querySelectorAll('.fm-sum-body, .fm-sum-foot, .fm-secure') : [];
+  var _wrap = document.querySelector('.fm-wrap');
   if(n === 8) {
     _sumParts.forEach(function(el){ el.style.display = 'none'; });
     if(_payArea) _payArea.style.display = 'block';
+    if(_wrap) _wrap.classList.add('fm-paystep');
     fmMountPayment();
   } else {
     _sumParts.forEach(function(el){ el.style.display = ''; });
     if(_payArea) _payArea.style.display = 'none';
+    if(_wrap) _wrap.classList.remove('fm-paystep');
     fmDestroyPayment();
   }
   if(!_fmRestoring) {
