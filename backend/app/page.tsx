@@ -4505,11 +4505,17 @@ function fmGoToStep(n) {
   if(n === 7) fmFilterAddons();
   if(n === 8) fmBuildReview();
   // Pago integrado en el Order Summary: solo aparece (y se monta) en el Review.
+  // En ese paso Stripe ya muestra el desglose completo (con el cupón del Basic),
+  // así que ocultamos nuestras líneas de precio + total para no duplicar.
   var _payArea = document.getElementById('fm-pay-area');
+  var _sum = document.querySelector('.fm-summary');
+  var _sumParts = _sum ? _sum.querySelectorAll('.fm-sum-body, .fm-sum-foot') : [];
   if(n === 8) {
+    _sumParts.forEach(function(el){ el.style.display = 'none'; });
     if(_payArea) _payArea.style.display = 'block';
     fmMountPayment();
   } else {
+    _sumParts.forEach(function(el){ el.style.display = ''; });
     if(_payArea) _payArea.style.display = 'none';
     fmDestroyPayment();
   }
