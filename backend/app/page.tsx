@@ -535,7 +535,12 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 .fm-wrap.fm-paystep>div:first-child{display:flex;flex-direction:column}
 .fm-wrap.fm-paystep .fm-step.active{flex:1;display:flex;flex-direction:column}
 .fm-wrap.fm-paystep .fm-card{display:flex;flex-direction:column}
-.fm-wrap.fm-paystep .fm-card-body{flex:1}
+.fm-wrap.fm-paystep .fm-card-body{flex:1;display:flex;flex-direction:column}
+/* Distribuir los bloques del review para que llenen el alto disponible (sin
+   vacío abajo): el contenedor de secciones crece y reparte el espacio libre
+   entre los bloques con space-between. */
+.fm-wrap.fm-paystep .fm-review-sections{flex:1;display:flex;flex-direction:column;justify-content:space-between}
+.fm-wrap.fm-paystep .fm-review-sections .fm-review-section{margin:0}
 @media(max-width:820px){.fm-wrap{flex-direction:column;padding:0 14px 40px}}
 
 /* Form step visibility */
@@ -1978,6 +1983,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
             <h2 class="fm-title" id="s8-title">Review Your Order</h2>
             <p class="fm-sub" id="s8-sub">Confirm your details before payment.</p>
             <div class="fm-review-name" id="review-biz-name">—</div>
+          <div class="fm-review-sections">
           <!-- Formation Info -->
           <div class="fm-review-section">
             <div class="fm-review-section-head">
@@ -2035,6 +2041,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
               <button class="fm-review-edit" onclick="fmGoToStep(7)" id="rev-edit-7b">Edit</button>
             </div>
             <div class="fm-review-body" id="rev-addons-body"></div>
+          </div>
           </div>
           </div>
           <div class="fm-card-footer">
