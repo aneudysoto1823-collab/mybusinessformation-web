@@ -39,6 +39,18 @@ Los emails al cliente son **en inglés** porque la audiencia es internacional y 
   - SPF + DKIM + DMARC configurados en DNS.
   - Sin esto, Resend solo permite enviar al dueño de la cuenta (modo sandbox).
 
+#### Segundo dominio: `mybusinessformation.com` (autenticado 2026-06-22)
+
+Dominio legacy (carta/QR de marketing + buzones del equipo). Tiene **buzones reales en Zoho** (`info@`, `admin@`, `support@`) y se autenticó para que sus correos **no caigan en spam** (antes Gmail los marcaba "isn't authenticated"). DNS administrado en **Namecheap** (nameservers `registrar-servers.com`).
+
+Registros DNS puestos (Namecheap → Advanced DNS):
+- **MX** → Zoho (`mx.zoho.com` 10, `mx2.zoho.com` 20, `mx3.zoho.com` 50). Se cambió **MAIL SETTINGS de "Email Forwarding" a "Custom MX"** (el forwarding viejo inyectaba un SPF de `spf.efwd.registrar-servers.com` que ya no aplica).
+- **SPF** (TXT @) → `v=spf1 include:zoho.com ~all` (solo Zoho; si algún día el sistema envía desde este dominio vía Resend, Resend usa subdominio `send.` y no choca).
+- **DKIM** (TXT `zoho._domainkey`) → valor de Zoho. ⚠️ Gotcha: Zoho mostraba el DKIM como "Verified" pero el registro **no existía** en el DNS de Namecheap (estado viejo en caché tras migrar de DNS). Hubo que re-publicarlo.
+- **DMARC** (TXT `_dmarc`) → `v=DMARC1; p=quarantine; rua=mailto:info@mybusinessformation.com; pct=100`.
+
+**Nota:** el **sistema/código sigue enviando todo desde `opabiz.com`** (env vars abajo). `mybusinessformation.com` por ahora es solo para buzones (recibir/responder a mano). Si se quiere que el sistema envíe automático desde este dominio, hay que verificarlo también en Resend + ajustar SPF y las env vars. BIMI quedó pendiente (opcional, requiere certificado VMC pagado, no afecta spam).
+
 ### Buzones (en Zoho Mail)
 
 Todos los emails del dominio están como buzones reales en Zoho — el equipo los ve en la app móvil y web.
