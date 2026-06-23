@@ -10,8 +10,48 @@ type OrderSummary = {
   companyName: string | null
   entityType: string | null
   package: string | null
+  addons: string[]
   lines: Line[]
   total: number
+}
+
+// Inclusiones por paquete (mismo contenido que el portal del cliente).
+const PACKAGE_SERVICES: Record<string, { en: string; es: string }[]> = {
+  basic: [
+    { en: 'Business Formation Filing', es: 'Registro de Formación Empresarial' },
+    { en: 'Name Availability Search', es: 'Verificación de Disponibilidad de Nombre' },
+    { en: 'Articles of Organization / Incorporation', es: 'Artículos de Organización / Incorporación' },
+  ],
+  standard: [
+    { en: 'Business Formation Filing', es: 'Registro de Formación Empresarial' },
+    { en: 'Name Availability Search', es: 'Verificación de Disponibilidad de Nombre' },
+    { en: 'Articles of Organization / Incorporation', es: 'Artículos de Organización / Incorporación' },
+    { en: 'EIN / Tax ID Number', es: 'EIN / Número de ID Fiscal' },
+    { en: 'Bank Account Guide', es: 'Guía para Abrir Cuenta Bancaria' },
+    { en: 'Registered Agent (1st year free)', es: 'Agente Registrado (1er año gratis)' },
+  ],
+  premium: [
+    { en: 'Business Formation Filing', es: 'Registro de Formación Empresarial' },
+    { en: 'Name Availability Search', es: 'Verificación de Disponibilidad de Nombre' },
+    { en: 'Articles of Organization / Incorporation', es: 'Artículos de Organización / Incorporación' },
+    { en: 'EIN / Tax ID Number', es: 'EIN / Número de ID Fiscal' },
+    { en: 'Bank Account Guide', es: 'Guía para Abrir Cuenta Bancaria' },
+    { en: 'Registered Agent (1st year free)', es: 'Agente Registrado (1er año gratis)' },
+    { en: 'Operating Agreement', es: 'Acuerdo Operativo' },
+    { en: 'Expedited Filing (1–3 days)', es: 'Registro Prioritario (1–3 días)' },
+    { en: 'ITIN Application', es: 'Solicitud de ITIN' },
+    { en: 'DBA / Fictitious Name', es: 'DBA / Nombre Ficticio' },
+    { en: 'Articles of Amendment', es: 'Artículos de Enmienda' },
+  ],
+}
+
+const ADDON_LABELS: Record<string, { en: string; es: string }> = {
+  ein:  { en: 'EIN / Tax ID Number', es: 'EIN / Número de ID Fiscal' },
+  oa:   { en: 'Operating Agreement', es: 'Acuerdo Operativo' },
+  itin: { en: 'ITIN Application', es: 'Solicitud de ITIN' },
+  btr:  { en: 'Business Tax Receipt', es: 'Recibo de Impuesto Empresarial' },
+  str:  { en: 'Sales Tax Registration', es: 'Registro de Impuesto sobre Ventas' },
+  cc:   { en: 'Certified Copy', es: 'Copia Certificada' },
 }
 
 // Las etiquetas de las líneas vienen en inglés desde lib/pricing (fuente de
@@ -76,6 +116,9 @@ function CompleteContent() {
       confLabel: 'Confirmation number',
       copy: 'Copy', copied: 'Copied!',
       company: 'Company', entity: 'Entity type', pkg: 'Package',
+      includesTitle: (p: string) => `Your ${p} package includes`,
+      addonsTitle: 'Additional services you added',
+      summary: 'Payment summary',
       total: 'Total paid',
       next: 'Our team is reviewing your order and will verify your company name with the Florida Division of Corporations. We will be in touch with the next steps.',
       emailNote: (e: string | null) => e ? `A confirmation has been sent to ${e}.` : 'A confirmation has been sent to your email.',
@@ -91,6 +134,9 @@ function CompleteContent() {
       confLabel: 'Número de confirmación',
       copy: 'Copiar', copied: '¡Copiado!',
       company: 'Empresa', entity: 'Tipo de entidad', pkg: 'Paquete',
+      includesTitle: (p: string) => `Tu Paquete ${p} incluye`,
+      addonsTitle: 'Servicios adicionales que agregaste',
+      summary: 'Resumen de pago',
       total: 'Total pagado',
       next: 'Nuestro equipo está revisando tu orden y verificará el nombre de tu empresa ante la División de Corporaciones de Florida. Te contactaremos con los próximos pasos.',
       emailNote: (e: string | null) => e ? `Enviamos una confirmación a ${e}.` : 'Enviamos una confirmación a tu correo.',
@@ -158,8 +204,8 @@ function CompleteContent() {
               </div>
             </div>
 
-            {/* Detalles + desglose */}
-            <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 12, padding: '16px 18px', margin: '0 0 18px', textAlign: 'left', fontSize: '0.88rem' }}>
+            {/* Empresa + entidad */}
+            <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 12, padding: '14px 18px', margin: '0 0 14px', textAlign: 'left', fontSize: '0.88rem' }}>
               {order.companyName && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, padding: '5px 0' }}>
                   <span style={{ color: '#64748b' }}>{t.company}</span><strong style={{ color: '#1C2E44', textAlign: 'right' }}>{order.companyName}</strong>
@@ -170,20 +216,38 @@ function CompleteContent() {
                   <span style={{ color: '#64748b' }}>{t.entity}</span><strong style={{ color: '#1C2E44' }}>{entityName}</strong>
                 </div>
               )}
-              {pkgName && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, padding: '5px 0' }}>
-                  <span style={{ color: '#64748b' }}>{t.pkg}</span><strong style={{ color: '#1C2E44' }}>{pkgName}</strong>
-                </div>
-              )}
+            </div>
 
-              <div style={{ borderTop: '1px solid #e2e8f0', margin: '10px 0' }} />
+            {/* Lo que incluye tu paquete + add-ons */}
+            {pkgName && (
+              <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 12, padding: '16px 18px', margin: '0 0 14px', textAlign: 'left', fontSize: '0.88rem' }}>
+                <div style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.5px', textTransform: 'uppercase', color: '#94a3b8', marginBottom: 10 }}>{t.includesTitle(pkgName)}</div>
+                {(PACKAGE_SERVICES[order.package ?? ''] ?? []).map((s, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, padding: '4px 0', color: '#334155' }}>
+                    <span style={{ color: '#16a34a', fontWeight: 800, flexShrink: 0 }}>✓</span><span>{es ? s.es : s.en}</span>
+                  </div>
+                ))}
+                {order.addons.length > 0 && (
+                  <>
+                    <div style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.5px', textTransform: 'uppercase', color: '#94a3b8', margin: '14px 0 10px' }}>{t.addonsTitle}</div>
+                    {order.addons.filter(k => ADDON_LABELS[k]).map((k, i) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, padding: '4px 0', color: '#334155' }}>
+                        <span style={{ color: '#16a34a', fontWeight: 800, flexShrink: 0 }}>✓</span><span>{es ? ADDON_LABELS[k].es : ADDON_LABELS[k].en}</span>
+                      </div>
+                    ))}
+                  </>
+                )}
+              </div>
+            )}
 
+            {/* Resumen de pago (recibo) */}
+            <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 12, padding: '16px 18px', margin: '0 0 18px', textAlign: 'left', fontSize: '0.88rem' }}>
+              <div style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.5px', textTransform: 'uppercase', color: '#94a3b8', marginBottom: 10 }}>{t.summary}</div>
               {order.lines.map((l, i) => (
                 <div key={i} style={{ display: 'flex', justifyContent: 'space-between', gap: 12, padding: '4px 0', color: '#475569' }}>
                   <span>{localizeLine(l.label, es)}</span><span>${l.amount.toFixed(2)}</span>
                 </div>
               ))}
-
               <div style={{ borderTop: '1px solid #e2e8f0', margin: '10px 0 8px' }} />
               <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, fontWeight: 800, color: '#1C2E44', fontSize: '0.98rem' }}>
                 <span>{t.total}</span><span>${order.total.toFixed(2)} USD</span>

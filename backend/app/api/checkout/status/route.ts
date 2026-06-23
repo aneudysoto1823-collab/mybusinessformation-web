@@ -38,11 +38,14 @@ export async function GET(req: NextRequest) {
           speed:      data.speed,
           addons:     data.addons as Record<string, unknown> | null,
         })
+        const addonsObj = (data.addons ?? {}) as Record<string, unknown>
+        const addons = ['ein', 'oa', 'itin', 'btr', 'str', 'cc'].filter(k => addonsObj[k])
         order = {
           fbfc:        `FBFC-${data.id.replace(/-/g, '').substring(0, 8).toUpperCase()}`,
           companyName: data.companyName,
           entityType:  data.entityType,
           package:     data.package,
+          addons,  // keys de add-ons elegidos (para la lista "Lo que incluye")
           lines,   // [{ label, amount }] — labels EN, se localizan en el front
           total,
         }
