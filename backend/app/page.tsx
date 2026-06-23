@@ -2197,7 +2197,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
     <form id="plogin-form" onsubmit="portalLoginSubmit(event)">
       <div class="plogin-group">
         <label for="plogin-acct" id="plogin-lbl-email">Email address</label>
-        <input id="plogin-acct" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Your email">
+        <input id="plogin-acct" name="username" type="text" autocomplete="username" autocapitalize="off" spellcheck="false" placeholder="Your email">
       </div>
       <div class="plogin-group">
         <label for="plogin-cred" id="plogin-lbl-cred">Confirmation number or password</label>
