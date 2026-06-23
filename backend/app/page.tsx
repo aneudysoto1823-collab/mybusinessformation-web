@@ -177,9 +177,9 @@ html.portal-authed #header-account{display:flex}
 #header-logout-btn{padding:6px 10px;border:none;background:none;color:#94a3b8;font-size:0.82rem;font-weight:500;cursor:pointer;font-family:inherit;white-space:nowrap}
 #header-logout-btn:hover{color:#475569}
 
-.plogin-overlay{display:none;position:fixed;inset:0;z-index:3000;background:rgba(15,28,46,0.6);align-items:center;justify-content:center;padding:20px}
-.plogin-overlay.open{display:flex}
-.plogin-card{background:#fff;border-radius:16px;width:100%;max-width:420px;padding:30px 28px 24px;position:relative;box-shadow:0 24px 64px rgba(0,0,0,0.3);font-family:inherit}
+.plogin-overlay{display:none;position:fixed;top:62px;right:18px;z-index:3000;width:360px;max-width:calc(100vw - 32px)}
+.plogin-overlay.open{display:block}
+.plogin-card{background:#fff;border-radius:14px;width:100%;padding:24px 24px 20px;position:relative;box-shadow:0 16px 48px rgba(15,28,46,0.22);border:1px solid #e2e8f0;font-family:inherit}
 .plogin-close{position:absolute;top:14px;right:16px;background:none;border:none;font-size:24px;line-height:1;color:#94a3b8;cursor:pointer;padding:0}
 .plogin-close:hover{color:#475569}
 .plogin-eyebrow{font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px}
@@ -821,6 +821,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
   html.portal-authed #header-account{display:none}
   html.portal-authed nav.open .nav-login-mobile{display:none}
   html.portal-authed nav.open .nav-orders-mobile,html.portal-authed nav.open .nav-logout-mobile{display:block;color:#2563eb;font-weight:600}
+  .plogin-overlay{top:58px;right:12px;left:12px;width:auto;max-width:none}
   .logo-text{font-size:1rem}
   .logo-text span{display:none}
   .topbar{font-size:0.72rem;padding:7px 12px}
@@ -2193,12 +2194,12 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 </div><!-- /formOverlay -->
 
 <!-- CLIENT LOGIN MODAL (acceso al portal sin salir del home) -->
-<div id="plogin-overlay" class="plogin-overlay" onclick="if(event.target===this)closePortalLogin()">
+<div id="plogin-overlay" class="plogin-overlay">
   <div class="plogin-card" role="dialog" aria-modal="true" aria-labelledby="plogin-title">
     <button class="plogin-close" type="button" aria-label="Close" onclick="closePortalLogin()">&times;</button>
     <div class="plogin-eyebrow" id="plogin-eyebrow">Client Access</div>
-    <h3 class="plogin-title" id="plogin-title">Track your order</h3>
-    <p class="plogin-sub" id="plogin-sub">Enter your email and confirmation number to access your order status.</p>
+    <h3 class="plogin-title" id="plogin-title">Access your account</h3>
+    <p class="plogin-sub" id="plogin-sub">Enter your email and confirmation number to sign in.</p>
     <div id="plogin-error" class="plogin-error" style="display:none"></div>
     <form id="plogin-form" onsubmit="portalLoginSubmit(event)">
       <div class="plogin-group">
@@ -2220,7 +2221,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
         </div>
         <input id="plogin-pwd" type="password" placeholder="Your password">
       </div>
-      <button type="submit" class="plogin-btn" id="plogin-btn">Access My Order</button>
+      <button type="submit" class="plogin-btn" id="plogin-btn">Access My Account</button>
     </form>
     <p class="plogin-terms" id="plogin-terms">By accessing this portal you agree to our <a href="/terms">Terms of Service</a> and <a href="/privacy">Privacy Policy</a>.</p>
   </div>
@@ -3363,15 +3364,15 @@ function setLang(lang) {
   el=document.querySelector('.nav-orders-mobile'); if(el) el.textContent = isEs ? 'Mis órdenes' : 'My Orders';
   el=document.querySelector('.nav-logout-mobile'); if(el) el.textContent = isEs ? 'Salir' : 'Logout';
   el=document.getElementById('plogin-eyebrow'); if(el) el.textContent = isEs ? 'Acceso de Clientes' : 'Client Access';
-  el=document.getElementById('plogin-title'); if(el) el.textContent = isEs ? 'Rastrea tu orden' : 'Track your order';
-  el=document.getElementById('plogin-sub'); if(el) el.textContent = isEs ? 'Ingresa tu correo y número de confirmación para ver el estado de tu orden.' : 'Enter your email and confirmation number to access your order status.';
+  el=document.getElementById('plogin-title'); if(el) el.textContent = isEs ? 'Accede a tu cuenta' : 'Access your account';
+  el=document.getElementById('plogin-sub'); if(el) el.textContent = isEs ? 'Ingresa tu correo y número de confirmación para iniciar sesión.' : 'Enter your email and confirmation number to sign in.';
   el=document.getElementById('plogin-lbl-email'); if(el) el.textContent = isEs ? 'Correo electrónico' : 'Email address';
   el=document.getElementById('plogin-lbl-conf'); if(el) el.textContent = isEs ? 'Número de confirmación' : 'Confirmation number';
   el=document.getElementById('plogin-switch-pwd'); if(el) el.textContent = isEs ? 'Usar contraseña' : 'Use password instead';
   el=document.getElementById('plogin-hint'); if(el) el.textContent = isEs ? 'Lo encuentras en tu email de confirmación' : 'Found in your order confirmation email';
   el=document.getElementById('plogin-lbl-pwd'); if(el) el.textContent = isEs ? 'Contraseña' : 'Password';
   el=document.getElementById('plogin-switch-conf'); if(el) el.textContent = isEs ? 'Usar número de orden' : 'Use order number instead';
-  el=document.getElementById('plogin-btn'); if(el) el.textContent = isEs ? 'Acceder a Mi Orden' : 'Access My Order';
+  el=document.getElementById('plogin-btn'); if(el) el.textContent = isEs ? 'Acceder a Mi Cuenta' : 'Access My Account';
   el=document.getElementById('plogin-email'); if(el) el.placeholder = isEs ? 'tú@ejemplo.com' : 'you@example.com';
   el=document.getElementById('plogin-conf'); if(el) el.placeholder = isEs ? 'FBFC-00000000 o FBNB-00000000' : 'FBFC-00000000 or FBNB-00000000';
   el=document.getElementById('plogin-pwd'); if(el) el.placeholder = isEs ? 'Tu contraseña' : 'Your password';
@@ -6705,7 +6706,7 @@ function portalLoginSubmit(e){
   fetch('/api/client-auth',{ method:'POST', headers:{'Content-Type':'application/json'}, credentials:'same-origin', body: JSON.stringify(body) })
     .then(function(r){ return r.ok; })
     .then(function(ok){
-      if(btn){ btn.disabled=false; btn.textContent = isEs ? 'Acceder a Mi Orden' : 'Access My Order'; }
+      if(btn){ btn.disabled=false; btn.textContent = isEs ? 'Acceder a Mi Cuenta' : 'Access My Account'; }
       if(ok){
         if(typeof window.gtag==='function'){ window.gtag('event','client_login_success',{ lang: currentLang, source:'home' }); }
         closePortalLogin();
@@ -6715,7 +6716,7 @@ function portalLoginSubmit(e){
       }
     })
     .catch(function(){
-      if(btn){ btn.disabled=false; btn.textContent = isEs ? 'Acceder a Mi Orden' : 'Access My Order'; }
+      if(btn){ btn.disabled=false; btn.textContent = isEs ? 'Acceder a Mi Cuenta' : 'Access My Account'; }
       portalLoginError(isEs ? 'Error de conexión. Intenta de nuevo.' : 'Connection error. Please try again.');
     });
 }
@@ -6749,6 +6750,13 @@ function refreshAccountUI(){
     .catch(function(){});
 }
 document.addEventListener('keydown',function(e){ if(e.key==='Escape') closePortalLogin(); });
+// Cerrar el popover al hacer clic fuera (sin fondo oscuro que tape la página).
+document.addEventListener('click',function(e){
+  var ov=document.getElementById('plogin-overlay');
+  if(!ov || !ov.classList.contains('open')) return;
+  if(e.target.closest('#plogin-overlay') || e.target.closest('#header-login-btn') || e.target.closest('.nav-login-mobile')) return;
+  closePortalLogin();
+});
 refreshAccountUI();
 </script>
 `
