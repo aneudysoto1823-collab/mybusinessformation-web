@@ -1389,7 +1389,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
             <div class="fm-acc-title" id="name-acc-title">Additional Explanation</div>
 
             <div class="fm-acc-item" id="name-acc-1">
-              <button type="button" class="fm-acc-head" onclick="fmToggleNameAcc('name-acc-1')">
+              <button type="button" class="fm-acc-head" onclick="this.parentElement.classList.toggle('open')">
                 <span id="name-acc-1-q">What if my company name is unavailable?</span>
                 <span class="fm-acc-chev">&#9662;</span>
               </button>
@@ -1399,7 +1399,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
             </div>
 
             <div class="fm-acc-item" id="name-acc-2">
-              <button type="button" class="fm-acc-head" onclick="fmToggleNameAcc('name-acc-2')">
+              <button type="button" class="fm-acc-head" onclick="this.parentElement.classList.toggle('open')">
                 <span id="name-acc-2-q">Does the company name end with &quot;LLC&quot; or &quot;Inc.&quot;?</span>
                 <span class="fm-acc-chev">&#9662;</span>
               </button>
@@ -1409,7 +1409,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
             </div>
 
             <div class="fm-acc-item" id="name-acc-3">
-              <button type="button" class="fm-acc-head" onclick="fmToggleNameAcc('name-acc-3')">
+              <button type="button" class="fm-acc-head" onclick="this.parentElement.classList.toggle('open')">
                 <span id="name-acc-3-q">Is the name availability check guaranteed?</span>
                 <span class="fm-acc-chev">&#9662;</span>
               </button>
@@ -6338,14 +6338,10 @@ var _fmSE=fmSetEntity;
 // fmSetEntity ya está cubierto por la implementación base (_fmSE);
 // los selects de designators alternativos fueron eliminados en favor de un único campo principal.
 
-// Acordeones de "Additional Explanation" en el paso del nombre.
-// Función con nombre distinto a fmToggleAcc para evitar colisión con la
-// función ya existente arriba (línea ~5195) que usa otra signature.
-function fmToggleNameAcc(id){
-  var el = document.getElementById(id);
-  if(!el) return;
-  el.classList.toggle('open');
-}
+// Los acordeones de "Additional Explanation" usan onclick inline directo
+// (this.parentElement.classList.toggle('open')) para evitar colisiones con
+// otras funciones del script y para ser inmunes a errores en otras partes
+// del JS. Ver bloque HTML en el paso 1 del form.
 
 
 function scrollToPackages() {
