@@ -4,12 +4,45 @@ import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 
 type Status = 'loading' | 'paid' | 'processing' | 'error'
+type Line = { label: string; amount: number }
+type OrderSummary = {
+  fbfc: string
+  companyName: string | null
+  entityType: string | null
+  package: string | null
+  lines: Line[]
+  total: number
+}
+
+// Las etiquetas de las líneas vienen en inglés desde lib/pricing (fuente de
+// verdad del cobro). Se localizan aquí para el desglose en español.
+function localizeLine(label: string, es: boolean): string {
+  if (!es) return label
+  if (label.startsWith('Florida State Filing Fee')) {
+    return label.replace('Florida State Filing Fee', 'Cargo Estatal de Florida')
+  }
+  const map: Record<string, string> = {
+    'Basic Formation Package': 'Paquete Básico de Formación',
+    'Standard Formation Package': 'Paquete Standard de Formación',
+    'Premium Formation Package': 'Paquete Premium de Formación',
+    'Expedited Processing': 'Procesamiento Acelerado',
+    'EIN / Tax ID Number': 'EIN / Número de Identificación Fiscal',
+    'Operating Agreement': 'Acuerdo Operativo',
+    'ITIN Application': 'Solicitud de ITIN',
+    'Business Tax Receipt': 'Recibo de Impuesto Empresarial',
+    'Sales Tax Registration': 'Registro de Impuesto sobre Ventas',
+    'Certified Copy': 'Copia Certificada',
+  }
+  return map[label] || label
+}
 
 function CompleteContent() {
   const sp = useSearchParams()
   const sessionId = sp.get('session_id')
   const [status, setStatus] = useState<Status>('loading')
   const [email, setEmail] = useState<string | null>(null)
+  const [order, setOrder] = useState<OrderSummary | null>(null)
+  const [copied, setCopied] = useState(false)
   const [lang, setLang] = useState<'en' | 'es'>('en')
 
   useEffect(() => {
@@ -25,33 +58,42 @@ function CompleteContent() {
       .then(r => r.json())
       .then(d => {
         setEmail(d.email ?? null)
+        setOrder(d.order ?? null)
         if (d.paymentStatus === 'paid') setStatus('paid')
-        else if (d.status === 'complete') setStatus('processing')
         else setStatus('processing')
       })
       .catch(() => setStatus('error'))
   }, [sessionId])
 
+  const es = lang === 'es'
   const t = {
     en: {
       loading: 'Confirming your payment...',
       paidTitle: 'Payment confirmed!',
-      paidSub: (e: string | null) => `Thank you. A confirmation${e ? ` has been sent to ${e}` : ''}. Our team will review your order and contact you within 1 business day.`,
       processingTitle: 'Payment received',
-      processingSub: 'We are finalizing your order. You will receive a confirmation email shortly.',
       errorTitle: 'Something went wrong',
       errorSub: 'We could not confirm your payment status. If you were charged, please contact us and we will help right away.',
+      confLabel: 'Confirmation number',
+      copy: 'Copy', copied: 'Copied!',
+      company: 'Company', entity: 'Entity type', pkg: 'Package',
+      total: 'Total paid',
+      next: 'Our team is now reviewing your order and will verify your company name with the Florida Division of Corporations. We will contact you within 1 business day.',
+      emailNote: (e: string | null) => e ? `A confirmation has been sent to ${e}.` : 'A confirmation has been sent to your email.',
       portal: 'Access Client Portal',
       home: 'Back to Home',
     },
     es: {
       loading: 'Confirmando tu pago...',
       paidTitle: '¡Pago confirmado!',
-      paidSub: (e: string | null) => `Gracias. Te enviamos una confirmación${e ? ` a ${e}` : ''}. Nuestro equipo revisará tu orden y te contactará en un día hábil.`,
       processingTitle: 'Pago recibido',
-      processingSub: 'Estamos finalizando tu orden. Recibirás un correo de confirmación en breve.',
       errorTitle: 'Algo salió mal',
       errorSub: 'No pudimos confirmar el estado de tu pago. Si se te cobró, contáctanos y te ayudamos enseguida.',
+      confLabel: 'Número de confirmación',
+      copy: 'Copiar', copied: '¡Copiado!',
+      company: 'Empresa', entity: 'Tipo de entidad', pkg: 'Paquete',
+      total: 'Total pagado',
+      next: 'Nuestro equipo está revisando tu orden y verificará el nombre de tu empresa ante la División de Corporaciones de Florida. Te contactaremos en un día hábil.',
+      emailNote: (e: string | null) => e ? `Enviamos una confirmación a ${e}.` : 'Enviamos una confirmación a tu correo.',
       portal: 'Acceder al Portal de Clientes',
       home: 'Volver al Inicio',
     },
@@ -62,10 +104,20 @@ function CompleteContent() {
     : status === 'paid' ? t.paidTitle
     : status === 'error' ? t.errorTitle
     : t.processingTitle
-  const sub = status === 'paid' ? t.paidSub(email)
-    : status === 'error' ? t.errorSub
-    : status === 'processing' ? t.processingSub
-    : ''
+
+  const pkgName = order?.package
+    ? ({ basic: es ? 'Básico' : 'Basic', standard: 'Standard', premium: 'Premium' } as Record<string, string>)[order.package] ?? order.package
+    : null
+  const entityName = order?.entityType ? order.entityType.toUpperCase() : null
+
+  function copyNum() {
+    if (!order) return
+    try {
+      navigator.clipboard.writeText(order.fbfc)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1800)
+    } catch {}
+  }
 
   return (
     <div style={{
@@ -74,19 +126,77 @@ function CompleteContent() {
       background: 'linear-gradient(160deg, #0f1c2e 0%, #1C2E44 100%)',
     }}>
       <div style={{
-        background: '#fff', borderRadius: 16, maxWidth: 520, width: '100%',
-        padding: '44px 36px', textAlign: 'center', boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+        background: '#fff', borderRadius: 16, maxWidth: 540, width: '100%',
+        padding: '40px 34px', textAlign: 'center', boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
       }}>
-        <a href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, textDecoration: 'none', marginBottom: 24 }}>
+        <a href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, textDecoration: 'none', marginBottom: 20 }}>
           <div style={{ width: 36, height: 36, background: '#2563EB', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontFamily: "'Fraunces', serif", fontWeight: 700 }}>OB</div>
           <div style={{ fontFamily: "'Fraunces', serif", fontSize: '1.2rem', fontWeight: 700 }}>
             <span style={{ color: '#1C2E44' }}>Opa</span><span style={{ color: '#2563EB' }}>Biz</span>
           </div>
         </a>
 
-        <div style={{ fontSize: '3rem', marginBottom: 12 }}>{icon}</div>
-        <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: '1.5rem', color: '#1C2E44', margin: '0 0 12px' }}>{title}</h1>
-        {sub && <p style={{ color: '#64748b', fontSize: '0.95rem', lineHeight: 1.6, margin: '0 0 28px' }}>{sub}</p>}
+        <div style={{ fontSize: '3rem', marginBottom: 10 }}>{icon}</div>
+        <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: '1.5rem', color: '#1C2E44', margin: '0 0 6px' }}>{title}</h1>
+
+        {status === 'error' && (
+          <p style={{ color: '#64748b', fontSize: '0.95rem', lineHeight: 1.6, margin: '8px 0 24px' }}>{t.errorSub}</p>
+        )}
+
+        {/* Resumen de la orden */}
+        {status !== 'loading' && status !== 'error' && order && (
+          <>
+            {/* Número de confirmación */}
+            <div style={{ background: '#EFF6FF', border: '1px solid #bfdbfe', borderRadius: 12, padding: '16px 18px', margin: '20px 0 16px' }}>
+              <div style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.6px', textTransform: 'uppercase', color: '#2563EB', marginBottom: 6 }}>{t.confLabel}</div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+                <span style={{ fontSize: '1.5rem', fontWeight: 800, color: '#1C2E44', letterSpacing: '0.5px' }}>{order.fbfc}</span>
+                <button onClick={copyNum} style={{ border: '1px solid #bfdbfe', background: '#fff', color: '#2563EB', borderRadius: 6, padding: '4px 10px', fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', minHeight: 30 }}>
+                  {copied ? t.copied : t.copy}
+                </button>
+              </div>
+            </div>
+
+            {/* Detalles + desglose */}
+            <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 12, padding: '16px 18px', margin: '0 0 18px', textAlign: 'left', fontSize: '0.88rem' }}>
+              {order.companyName && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, padding: '5px 0' }}>
+                  <span style={{ color: '#64748b' }}>{t.company}</span><strong style={{ color: '#1C2E44', textAlign: 'right' }}>{order.companyName}</strong>
+                </div>
+              )}
+              {entityName && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, padding: '5px 0' }}>
+                  <span style={{ color: '#64748b' }}>{t.entity}</span><strong style={{ color: '#1C2E44' }}>{entityName}</strong>
+                </div>
+              )}
+              {pkgName && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, padding: '5px 0' }}>
+                  <span style={{ color: '#64748b' }}>{t.pkg}</span><strong style={{ color: '#1C2E44' }}>{pkgName}</strong>
+                </div>
+              )}
+
+              <div style={{ borderTop: '1px solid #e2e8f0', margin: '10px 0' }} />
+
+              {order.lines.map((l, i) => (
+                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', gap: 12, padding: '4px 0', color: '#475569' }}>
+                  <span>{localizeLine(l.label, es)}</span><span>${l.amount.toFixed(2)}</span>
+                </div>
+              ))}
+
+              <div style={{ borderTop: '1px solid #e2e8f0', margin: '10px 0 8px' }} />
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, fontWeight: 800, color: '#1C2E44', fontSize: '0.98rem' }}>
+                <span>{t.total}</span><span>${order.total.toFixed(2)} USD</span>
+              </div>
+            </div>
+          </>
+        )}
+
+        {status !== 'loading' && status !== 'error' && (
+          <p style={{ color: '#64748b', fontSize: '0.9rem', lineHeight: 1.6, margin: '0 0 8px' }}>{t.next}</p>
+        )}
+        {status !== 'loading' && status !== 'error' && (
+          <p style={{ color: '#94a3b8', fontSize: '0.82rem', lineHeight: 1.5, margin: '0 0 26px' }}>{t.emailNote(email)}</p>
+        )}
 
         {status !== 'loading' && (
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
