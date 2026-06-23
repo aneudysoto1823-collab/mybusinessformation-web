@@ -123,17 +123,23 @@ NEXT_PUBLIC_URL       # URL base del sitio (ej: https://opabiz.com) — usado en
 - **Recuperación de contraseña:** `POST /api/auth/recover` valida contra `ADMIN_EMAIL`, genera token Redis (15 min, un solo uso), envía link al correo. Página `/login/recover/[token]` valida y crea sesión directa.
 
 ### Cliente (`/client-portal/dashboard/*`)
-- Login en `/client-portal` con **email + número de confirmación**
+- **Login principal: en el HOME** (popover anclado al botón Login, clases `.plogin-*` en `page.tsx`) — ver detalle abajo. `/client-portal` se conserva como **fallback** (deep-links + redirect de sesión expirada del middleware).
 - Acepta `FBFC-XXXXXXXX` (formaciones LLC/Corp) y `FBNB-XXXXXXXX` (New Business Letter)
 - `FBFC-` / `FBNB-` = primeros 8 chars del `Order.id` en mayúsculas
 - Cookie `client_session` = el `order.id` completo
 - Middleware protege `/client-portal/dashboard/*`
 - Respuesta genérica en `/api/client-auth` — no revela si el email existe
 - Toggle EN/ES con persistencia en `localStorage` (`portal_lang`)
-- Idioma detectado en este orden: `?lang=` URL → `portal_lang` localStorage → `flbc_lang` localStorage (sitio principal)
-- El botón Login del home pasa `?lang=es` cuando el sitio está en español
-- Dashboard rendering delegado a `DashboardContent.tsx` (client component) — `page.tsx` es server-only para fetch de datos
+- **Idioma del portal sigue al del home:** prioridad `?lang=` URL → `portal_lang` → `flbc_lang`. El home pasa `?lang` al dashboard ("Mis órdenes" + redirect al entrar), y el dashboard persiste también `'en'` (antes solo `'es'`, dejando valores stale que lo dejaban pegado en español). NO depende de la orden ni el país (server `page.tsx` también lee `?lang` para `initialLang`, evita parpadeo).
+- Dashboard rendering delegado a `DashboardContent.tsx` (client component) — `page.tsx` es server-only para fetch de datos. `DashboardView.tsx` quedó **sin uso** (candidato a borrar).
 - Contacto: botones inline Email + WhatsApp (`wa.me/13528377755`) al hacer clic en "Contact us"
+
+#### Login del cliente en el home (popover) — 2026-06-23
+- El botón **"Login"** del header abre un **popover anclado** (top-right, sin oscurecer la página). NO modal centrado.
+- Logueado: header muestra **"Hola, {nombre}" + "Mis órdenes" + "Salir"** (clase `portal-authed` en `<html>` controla visibilidad por CSS, sin estilos inline para no romper el responsive). Estado detectado client-side vía `GET /api/client-auth/me` → `{loggedIn, firstName}` (nada sensible; el home sigue estático).
+- **Un solo campo** acepta número de orden O contraseña: si matchea `^(fbfc|fbnb)/i` → `confirmationNumber`, si no → `password`.
+- Logout del home = `POST /api/client-auth/logout` (JSON, no recarga). El **GET** de logout (usado por el dashboard) redirige al **HOME** preservando idioma vía `?lang` (antes iba al viejo `/client-portal`).
+- Safari "Hide My Email": el campo email usa `autocomplete="username"` + `name="username"`, sin `inputmode="email"` ni placeholder con `@`. Es heurístico de Apple, no 100% garantizado.
 
 ---
 
@@ -143,7 +149,8 @@ NEXT_PUBLIC_URL       # URL base del sitio (ej: https://opabiz.com) — usado en
 /api/auth/login           POST  — login admin → setea admin_session cookie
 /api/auth/logout          POST  — borra admin_session
 /api/client-auth          POST  — login cliente → setea client_session cookie
-/api/client-auth/logout   POST  — borra client_session
+/api/client-auth/me       GET   — estado de sesión para personalizar el home (devuelve {loggedIn, firstName})
+/api/client-auth/logout   POST(JSON, logout del home) + GET(redirect al home con ?lang, usado por el dashboard)
 
 /api/orders               POST  — crea Order en Supabase + envía A1 al cliente + A0 alerta al equipo (acepta deferEmails:true para omitir emails → flujo Embedded Checkout)
 /api/webhooks/stripe      POST  — checkout.session.completed. Dos flujos: (a) metadata.kind='formation' → marca orden existente paid+in_review; (b) addons/marketing → crea Order nueva
@@ -329,7 +336,13 @@ El paso de pago es el step `#fms9`. Implementado:
 4. **`fmSubmit()`** reescrito: valida T&C → POST `/api/orders` con `deferEmails:true` → POST `/api/checkout/embedded` → `stripe.initEmbeddedCheckout({clientSecret})` → `.mount('#embedded-checkout')`; oculta `#agree-row` + `#pay-footer`. El form de Stripe trae su propio botón Pay; al pagar redirige a `/order/complete`. El step `#fms-success` quedó sin uso para el flujo pagado.
 5. Las funciones `fmFormatCard`, `fmFormatExpiry`, `fmSelectPayMethod`, `fmToggleBillingAddr` quedaron huérfanas (nunca se invocan; se dejaron — no rompen). Los setters de idioma de los inputs eliminados son no-ops guardados con `if(el)`.
 
-**⏳ Falta:** probar en test con tarjeta `4242 4242 4242 4242` (cualquier fecha futura + CVC + ZIP) → verificar: orden pending creada, form de Stripe se monta, webhook marca paid, llegan emails, `/order/complete` muestra éxito. Requiere que las env vars de Stripe (test) estén en Vercel y un **Redeploy**. Al lanzar: repetir todo en **LIVE** (keys, webhook, statement descriptor).
+**✅ PROBADO OK EN TEST (2026-06-23):** flujo completo verificado (`4242…` → orden pending → webhook `200` → paid+in_review → emails → `/order/complete`). El bloqueo era el webhook sin `www` (ver gotcha abajo). El sitio en test usa el **sandbox `TkDfr`** (`acct_1TkDfrCJpzHlLzWq`), no el modo test de la cuenta live `TkDfg`. **Al lanzar: repetir todo en LIVE** (keys, webhook **con www**, statement descriptor, cupón Basic — configs separadas de test).
+
+**Stripe Link** queda activo (ayuda a la conversión; el "Pay without Link" cubre a quien no lo quiera). **`billing_address_collection: 'required'`** en `/api/checkout/embedded` (mejor AVS antifraude — estándar para filing services).
+
+#### Página de confirmación `/order/complete` (rediseñada 2026-06-23)
+
+Pantalla post-pago dedicada (bilingüe, fondo blanco, header estilo home). Muestra: **número FBFC copiable**, Empresa/Entidad, **"Tu Paquete {X} incluye"** (✓ inclusiones, mismo mapa `PACKAGE_SERVICES` que el portal) + **"Servicios adicionales que agregaste"**, y **"Resumen de pago"** (desglose itemizado vía `computeFormationTotal` + total). Título **"Orden recibida"** (no "Pago confirmado"). El texto de próximos pasos **NO promete tiempo preciso** ("te contactaremos con los próximos pasos", nunca "1 día hábil"). `/api/checkout/status` devuelve el resumen leyendo `metadata.orderId` de la sesión (disponible aunque el webhook no haya corrido). Las etiquetas de líneas vienen en EN desde `lib/pricing` y se localizan en el front.
 
 #### 🚨 GOTCHA CRÍTICO: la URL del webhook DEBE llevar `www` (resuelto 2026-06-23)
 
