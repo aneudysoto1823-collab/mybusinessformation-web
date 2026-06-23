@@ -1,6 +1,6 @@
-# SERVICIOS EXTERNOS — MyBusinessFormation.com
+# SERVICIOS EXTERNOS — OpaBiz (opabiz.com)
 
-**Última actualización:** 20 abril 2026
+**Última actualización:** 22 junio 2026 _(por Javier — actualizó tabla de costos, removió Railway de costos al lanzamiento, agregó Turso + Cloudflare R2 + GitHub Actions a la sección de infraestructura)_
 **Propósito:** Inventario completo de TODOS los servicios externos que usa o usará el proyecto. Para cada uno: qué hace, plan actual, si necesita upgrade al lanzamiento, costo mensual estimado.
 
 > **Cómo leer esta tabla:** Cada servicio tiene un estado: 🟢 ACTIVO (ya en uso) · 🟡 PENDIENTE (planeado pre-launch) · 🔵 FUTURO (post-launch o nice-to-have).
@@ -9,53 +9,65 @@
 
 ## 1. RESUMEN DE COSTOS
 
-### HOY (abril 2026, pre-launch)
+### HOY (junio 2026, pre-launch)
 
 | Servicio | Plan | Costo/mes |
 |----------|------|-----------|
-| Vercel | Hobby (free) | $0 |
-| Railway | Hobby ($5 crédito) | $5 |
+| Vercel | Pro (ya pagado) | $20 |
 | Supabase | Free tier | $0 |
+| Turso | Hobby (Free) | $0 |
+| Cloudflare R2 | Pay-as-you-go (bajo 10 GB) | ~$0 |
+| GitHub Actions | Free (bajo 2000 min/mes) | $0 |
 | Resend | Free tier | $0 |
+| Zoho Mail | 6 buzones plan free | $0 |
 | GitHub | Free | $0 |
 | Stripe | Pay-per-transaction | $0 fijo |
+| Sentry | Free tier (5K eventos/mes) | $0 |
+| BetterStack | Free tier (10 monitores) | $0 |
+| ~~Railway~~ | **A CANCELAR (decisión 2026-06-22)** | ~~$5~~ |
 | Dominio (opabiz.com) | Anual | ~$1.20/mes ($12-15/año amortizado) |
-| **TOTAL HOY** | | **~$6.20/mes** |
+| **TOTAL HOY** | | **~$21/mes** |
 
 ### LANZAMIENTO (septiembre 2026)
 
 | Servicio | Plan recomendado | Costo/mes |
 |----------|------------------|-----------|
-| Vercel | Pro (probable) | $20 |
-| Railway | Pro o Hobby+ | $20 |
-| Supabase | Pro | $25 |
-| Resend | Pro | $20 |
+| Vercel | Pro (ya pagado) | $20 |
+| Supabase | **Free (no upgrade)** — backups en GitHub Actions+R2 | $0 |
+| Turso | Hobby (Free) — 9 GB suficiente para 3.5M Sunbiz | $0 |
+| Cloudflare R2 | Pay-as-you-go (bajo 10 GB) | ~$0 |
+| GitHub Actions | Free (2000 min/mes) | $0 |
+| Resend | Pro (50K emails/mes) | $20 |
+| Zoho Mail | 6 buzones plan free | $0 |
 | Stripe | Pay-per-transaction | ~3% revenue (~$50-100 si ventas $2-3K) |
-| Cloudflare | Free | $0 |
-| Sentry | Free pre-launch, Team post-launch | $0 → $26 |
-| BetterStack | Free pre-launch, Pro post-launch | $0 → $29 |
-| Google Workspace | Business Starter | $7/usuario (1-2 users) = $7-14 |
+| Cloudflare (DNS+WAF) | Free | $0 |
+| Sentry | Free → Team post-launch si se cruza el límite | $0 → $26 |
+| BetterStack | Free → Pro post-launch | $0 → $29 |
+| Google Workspace | Business Starter (opcional, hoy Zoho cubre) | $0 → $7 |
 | Dominio | Anual | ~$1.20/mes |
 | Google Ads | Variable | $1,500-2,000 en launch |
 | Meta Ads | Variable | $1,200-1,500 en launch |
-| **TOTAL FIJO LANZAMIENTO** | | **~$200/mes (sin ads)** |
+| **TOTAL FIJO LANZAMIENTO** | | **~$45/mes (sin ads)** |
 | **TOTAL CON ADS** | | **~$3,000-3,500/mes** |
+
+> _Actualizado por Javier el 2026-06-22_ — la nueva arquitectura distribuida (Turso + R2 + GitHub Actions) ahorra **$30/mes** vs el plan original (Supabase Pro $25 + Railway $5). Total fijo bajó de ~$200 a ~$45 al lanzamiento.
 
 ### ESCALADO (mid-2027, post-tracción)
 
 | Servicio | Plan | Costo/mes |
 |----------|------|-----------|
 | Vercel | Pro o Enterprise | $20-150 |
-| Railway | Pro escalado | $50-200 |
-| Supabase | Pro o Team | $25-599 |
+| Supabase | Free → Pro si se cruza el límite | $0-25 |
+| Turso | Hobby → Scale si crece mucho | $0-29 |
+| Cloudflare R2 | Pay-as-you-go | $0-5 |
 | Resend | Scale | $90-200 |
 | Sentry | Team o Business | $26-80 |
 | BetterStack | Pro o Business | $29-199 |
-| Google Workspace | Business | $14-30 |
-| Cloudflare | Pro | $20 |
+| Google Workspace o Zoho Pro | Plan adecuado | $14-30 |
+| Cloudflare (DNS+WAF) | Pro | $20 |
 | Twilio (SMS/WhatsApp) | Pay-per-msg | $50-200 |
 | Ads (Google + Meta + TikTok) | Variable | $5K-20K |
-| **TOTAL ESCALADO (sin ads)** | | **$300-1,500/mes** |
+| **TOTAL ESCALADO (sin ads)** | | **$250-950/mes** |
 
 ---
 
@@ -79,19 +91,14 @@
 
 ---
 
-### 🟢 Railway — Backend Express Hosting
+### 🔴 Railway — A CANCELAR (decisión 2026-06-22)
 
-- **Qué hace:** Hosting del servidor Express (`backend/server.ts`) que expone APIs REST consumidas por el frontend Next.js para operaciones críticas (orders, notifications, documents).
-- **URL actual:** https://mybusinessformation-web-production.up.railway.app/
-- **Plan actual:** Hobby ($5/mes con $5 de crédito de uso)
-- **Free tier incluye:** $5 de crédito mensual de uso (suele cubrir un servicio Express ligero)
-- **Plan recomendado al lanzamiento:** **Pro $20/mes** porque:
-  - Hobby tiene límite estricto de usage que se puede cruzar con tráfico real
-  - Pro incluye múltiples ambientes (staging + prod separados)
-  - Mejor garantía de uptime
-  - Soporte priority
-- **Verificar precio en:** https://railway.com/pricing
-- **Alternativa futura:** Render ($7-19/mes), Fly.io (free tier generoso), o consolidar todo en Vercel Functions si Edge Runtime soporta lo que hace Express.
+- **Estado:** Sin uso real desde 2026-05-13 (Opción B: Express dormido). La idea era despertarlo para Etapa 5 (Sunbiz) pero la nueva arquitectura usa Vercel Cron + Turso, eliminando la necesidad de Railway.
+- **Acción:** Cancelar plan después de Fase 5 (cuando todo esté migrado y verificado). Ahorro: $5/mes.
+- **Limpieza:** eliminar `railway.json`, `BACKEND_URL` env var, y código residual de `backend/modules/`.
+- **URL legacy (no usar):** ~~https://mybusinessformation-web-production.up.railway.app/~~
+
+> _Actualizado por Javier el 2026-06-22_ — sección bajada de 🟢 activo a 🔴 cancelar. Vercel Cron Pro (incluido en lo que ya pagamos) cubre el cron nocturno de Sunbiz que era la única razón para mantener Railway vivo.
 
 ---
 
@@ -499,11 +506,12 @@
 
 | Fase | Servicios pagos | Costo mensual fijo | + Variable (ads, transactions) |
 |------|-----------------|--------------------|--------------------------------| 
-| **HOY (pre-launch)** | Railway $5 + dominio $1.20 | **~$6.20/mes** | $0 |
-| **Mes -1 (preparación lanzamiento)** | + Supabase Pro $25 + Resend Pro $20 + Vercel Pro $20 | **~$71/mes** | $0 |
-| **Lanzamiento (sept 2026)** | + Sentry Team $26 + BetterStack Pro $29 + Google Workspace $14 | **~$140/mes** | + Stripe ~$50 + Ads ~$3,000 |
-| **Mes +3 (estabilizado)** | + Cloudflare Pro $20 (opcional) | **~$160/mes** | + Stripe ~$200 + Ads escalados |
-| **Mid-2027 (escala)** | Upgrades a Sentry Business, BetterStack Business, Supabase Team | **$300-1,500/mes** | + Stripe % de revenue + Ads $5K-20K |
+| **HOY (pre-launch, 2026-06-22)** | Vercel Pro $20 + dominio $1.20 | **~$21/mes** | $0 |
+| **Lanzamiento (sept 2026)** | + Resend Pro $20 | **~$41/mes** | + Stripe ~$50 + Ads ~$3,000 |
+| **Post-launch (si crece)** | + Sentry Team $26 + BetterStack Pro $29 | **~$96/mes** | + Stripe ~$200 + Ads escalados |
+| **Mid-2027 (escala)** | + Supabase Pro $25 + Cloudflare Pro $20 + Turso Scale $29 si se necesita | **$170-400/mes** | + Stripe % revenue + Ads $5K-20K |
+
+> _Actualizado por Javier el 2026-06-22_ — eliminadas líneas de Railway + Supabase Pro pre-launch. La nueva arquitectura mantiene costos al lanzamiento en **~$41/mes** (vs ~$140 del plan original). Los upgrades de Supabase/Cloudflare/Turso son condicionales si las métricas reales lo justifican.
 
 ---
 
@@ -511,18 +519,21 @@
 
 > Marcar conforme se ejecuta cada upgrade.
 
-- [ ] **Supabase Pro** activado (1 click en dashboard, $25/mes prorrateado)
-- [x] **Dominio `opabiz.com` verificado** en Resend (Free tier alcanza por ahora; upgrade a Pro $20/mes cuando se acerque a 100 emails/día o se necesiten Audiences).
-- [ ] **Vercel Pro** activado y dominio `opabiz.com` apuntado
-- [ ] **Railway Pro** activado (decisión: si Hobby aguanta primer mes, posponer)
-- [ ] **Stripe** cuenta activada + verificación de identidad completa + cuenta bancaria conectada
-- [ ] **Cloudflare Free** activado, DNS movido a Cloudflare, Bot Fight Mode ON
+- [x] **Vercel Pro** activado (ya pagado)
+- [x] **Dominio `opabiz.com` verificado** en Resend (Free tier alcanza; upgrade a Pro $20/mes cuando se acerque a 100 emails/día o se necesiten Audiences).
+- [x] **Turso Hobby (Free)** activado — database `opabiz-sunbiz-opabiz` (2026-06-22)
+- [x] **Cloudflare R2** activado — bucket `opabiz-backups` (2026-06-22)
+- [x] **Sentry Free** activado en Next.js (Etapa 15)
+- [x] **BetterStack Free** activado con 3 monitores (Etapa 15)
+- [ ] **Stripe LIVE** — verificación de identidad + cuenta bancaria + keys live
+- [ ] **Resend Pro** activado ($20/mes) si proyecta superar 100 emails/día
+- [ ] **Cloudflare Free** activado, DNS movido a Cloudflare, Bot Fight Mode ON (opcional pre-launch)
 - [ ] **Google Analytics 4** instalado y conversion tracking configurado
 - [ ] **Google Search Console** y Bing Webmaster Tools activados
-- [ ] **Sentry Free** activado (Next.js + Express)
-- [ ] **BetterStack Free** activado con 10 monitores
 - [ ] **Google Business Profile** creado y verificado
 - [ ] **Dominio renovado** por 3-5 años con privacy ON
+- [ ] ~~**Supabase Pro** activado~~ — **DESCARTADO** (backups en GitHub Actions + R2)
+- [ ] ~~**Railway Pro** activado~~ — **CANCELAR** (decisión 2026-06-22)
 
 ---
 

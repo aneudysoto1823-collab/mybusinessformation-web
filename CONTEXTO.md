@@ -1,8 +1,10 @@
-# CONTEXTO DEL PROYECTO — MyBusinessFormation.com
+# CONTEXTO DEL PROYECTO — OpaBiz (opabiz.com)
+
+> **Última actualización del header:** 22 junio 2026 _(por Javier — sincronizó con la nueva arquitectura Sunbiz/Turso/R2 y marca OpaBiz)_
 
 ## Qué es el proyecto
 Plataforma de formación de empresas (LLC y Corporaciones) en Florida, estilo LegalZoom/Bizee.
-Web: opabiz.com
+Web: opabiz.com (marca visible "OpaBiz"; entidad legal Florida Business Formation Center se mantiene en docs legales)
 Socios: Ethan (dev backend/frontend Next.js) + socio (diseño y terminación HTML)
 
 ## Repositorio GitHub

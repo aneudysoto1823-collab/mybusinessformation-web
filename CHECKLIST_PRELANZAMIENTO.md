@@ -1,68 +1,103 @@
-# CHECKLIST PRE-LANZAMIENTO — MyBusinessFormation.com
+# CHECKLIST PRE-LANZAMIENTO — OpaBiz (opabiz.com)
 
-**Última actualización:** 20 abril 2026
+**Última actualización:** 22 junio 2026 _(por Javier — actualizó Etapa 4 Stripe, Etapa 5 Sunbiz, Dominio/DNS, Base de datos, Hosting, Monitoreo y Troubleshooting con el estado real al 2026-06-22)_
 **Fecha objetivo de lanzamiento:** 15 septiembre 2026
-**Tiempo restante:** ~5 meses
+**Tiempo restante:** ~3 meses
+
+> **Cambio de marca (2026-06-08):** El dominio activo es `opabiz.com`. La entidad legal Florida Business Formation Center se mantiene en docs legales. Ver `CLAUDE.md` para detalles.
 
 > **Cómo usar este archivo:** Recorre cada sección antes de lanzar. Marca con `[x]` cada ítem completado. NO lances hasta que el 100% de los ítems críticos (🔴) estén marcados. Los importantes (🟡) deberían estar al 90%+. Los opcionales (🟢) son nice-to-have.
 
 ---
 
-## 🔴 ETAPA 4 — Pagos con Stripe (CRÍTICA — bloquea lanzamiento)
+## 🔴 ETAPA 4 — Pagos con Stripe (mayormente listo en TEST — falta LIVE)
 
-- [ ] Crear cuenta Stripe en stripe.com con email del negocio
+**Estado 2026-06-22:** Flujo de Embedded Checkout implementado y desplegado (commit `05d3e20`). Falta probar end-to-end en TEST y luego replicar todo en LIVE.
+
+### Cuenta y verificación
+- [x] Crear cuenta Stripe en stripe.com con email del negocio (cuenta OpaBiz creada en sandbox)
 - [ ] Completar verificación de identidad de Stripe (puede tardar 2-7 días)
 - [ ] Conectar cuenta bancaria del negocio para recibir pagos
-- [ ] Obtener API keys de prueba (`sk_test_...`, `pk_test_...`)
+- [x] Obtener API keys de prueba (`sk_test_...`, `pk_test_...`) — en Vercel env vars
 - [ ] Obtener API keys de producción (`sk_live_...`, `pk_live_...`)
-- [ ] Configurar variables de entorno en Vercel: `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET`
-- [ ] Configurar variables de entorno en Railway (mismas)
-- [ ] Implementar `POST /api/payments/create-intent` (PaymentIntent server-side)
-- [ ] Integrar Stripe Elements en el formulario de checkout (frontend)
-- [ ] Implementar `POST /api/payments/webhook` con firma verificada
-- [ ] Configurar webhook en dashboard Stripe apuntando a `/api/payments/webhook`
-- [ ] Eventos webhook a escuchar: `payment_intent.succeeded`, `payment_intent.payment_failed`, `charge.refunded`
-- [ ] Probar pago exitoso con tarjeta de prueba `4242 4242 4242 4242`
+
+### Implementación (HECHO — Embedded Checkout)
+- [x] `lib/pricing.ts` — cálculo autoritativo server-side anti-tampering
+- [x] `POST /api/checkout/embedded` — crea sesión Stripe `ui_mode='embedded'`
+- [x] `GET /api/checkout/status` — consulta estado para la página de retorno
+- [x] `/order/complete` — pantalla post-pago bilingüe
+- [x] `POST /api/webhooks/stripe` — handler para formación (`metadata.kind='formation'`) + addons/marketing (NBL). Idempotente.
+- [x] Webhook `opabiz-checkout` configurado en Stripe TEST → `opabiz.com/api/webhooks/stripe`
+- [x] Env vars TEST en Vercel: `STRIPE_SECRET_KEY`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET`
+- [x] Wiring frontend completo en `page.tsx` — fmSubmit reescrito, form de Stripe se monta, T&C validados
+- [x] Eventos webhook: `checkout.session.completed` (formation + addons)
+
+### Pendientes pre-launch
+- [ ] **Smoke test TEST end-to-end** con `4242 4242 4242 4242` → verificar orden pending creada, webhook marca paid, emails llegan, `/order/complete` muestra éxito (requiere Redeploy si no se hizo)
 - [ ] Probar pago rechazado con `4000 0000 0000 0002`
 - [ ] Probar 3D Secure con `4000 0027 6000 3184`
-- [ ] Verificar que webhook actualiza `paymentStatus = paid` y `status = in_review`
-- [ ] Verificar que se dispara email de confirmación (Email 1) automáticamente
-- [ ] Configurar Stripe Tax para calcular impuestos automáticamente (FL no tiene state income tax pero sí sales tax si vendes producto)
-- [ ] Activar emails automáticos de Stripe a clientes (recibos)
-- [ ] Activar protección contra fraude de Stripe (Radar default rules)
+- [ ] **Configurar Statement Descriptor** en Stripe → Settings → Business → Public details (ej. `OPABIZ`, 5-22 chars, mín 5 letras). ⚠️ TEST y Live son configs SEPARADAS
+- [ ] Crear cuenta Stripe LIVE + keys live + webhook live + descriptor live (REPETIR todo en modo live)
 - [ ] Hacer pago real con tarjeta personal de $1 en producción para validar end-to-end
 - [ ] Reembolsar ese pago de prueba después de validar
+- [ ] Activar emails automáticos de Stripe a clientes (recibos)
+- [ ] Activar protección contra fraude de Stripe (Radar default rules)
+
+> _Actualizado por Javier el 2026-06-22_ — reescrita la sección con el estado de Embedded Checkout (commit 05d3e20). Pendiente smoke test TEST + replicar todo en LIVE.
 
 ---
 
-## 🔴 ETAPA 5 — Búsqueda de Nombres Sunbiz Florida (CRÍTICA — bloquea automatización)
+## 🔴 ETAPA 5 — Búsqueda de Nombres Sunbiz Florida (CRÍTICA — en progreso)
 
-### Infraestructura DB (✅ parcialmente lista)
-- [x] Migración SQL creada: `supabase_migration_sunbiz_corps.sql` — tabla + índices GIN trigram + función `upsert_sunbiz_corp()` idempotente
-- [x] `/api/sunbiz` actualizado: consulta `prospective_companies` + `sunbiz_corps` en paralelo (Promise.all, ~150–300ms). Web scraping de sunbiz.org eliminado.
-- [x] **Correr `supabase_migration_sunbiz_corps.sql` en Supabase SQL Editor** — tabla creada en producción ✅ (2026-06-04)
+**Arquitectura redefinida 2026-06-22.** Ver `LOGICA_DE_NEGOCIO/26_arquitectura_sunbiz_backups_opabiz.md`. Los 3.5M van a **Turso (Free 9 GB)**, el cron nocturno corre en **Vercel Cron**. Railway se cancela. Costo extra: $0/mes.
 
-### Carga inicial — Dump trimestral
-- [ ] Solicitar acceso FTP a la base de datos trimestral de Florida Division of Corporations
-- [ ] Descargar primer dump trimestral (~3.5M registros)
-- [ ] Script de import inicial (parsear formato fixed-width o CSV de Florida y llamar a `upsert_sunbiz_corp()`)
-- [ ] Validar que los 3.5M registros importaron sin errores
+**Descubrimiento clave 2026-06-22:** las credenciales SFTP de Florida son **PÚBLICAS** (`sftp.floridados.gov` user `Public`). No hay que solicitar acceso. El proyecto hermano `c:\Users\ethan\datallc\` ya las usa con un scraper Python listo que se va a adaptar.
 
-### Actualización continua — Scraping diario
-- [ ] Implementar scraper diario de nuevos registros/cambios en Sunbiz
-- [ ] Scraper usa `upsert_sunbiz_corp()` — idempotente, no duplica registros
-- [ ] Configurar Vercel Cron Job o Railway Cron para ejecutar el scraper diario
-- [ ] Documentar proceso de update manual (fallback si falla el cron)
+### Fase 0 — Cuentas (DONE)
+- [x] Crear cuenta en Turso (https://turso.tech) — database `opabiz-sunbiz-opabiz` creada (2026-06-22)
+- [x] Crear cuenta en Cloudflare R2 — bucket `opabiz-backups` creado (2026-06-22)
+- [x] Env vars `TURSO_DATABASE_URL` + `TURSO_AUTH_TOKEN` en Vercel Production + Development
 
-### Verificación de nombres (panel admin)
-- [ ] Implementar endpoint `GET /api/names/check?name=X` usando índice trigram de `sunbiz_corps` (search exacto + fuzzy)
-- [ ] Conectar el panel admin (`/admin/orders/[id]`) para usar este endpoint real (hoy es mock)
+### Fase 1 — Carga inicial 3.5M (en progreso)
+- [x] Schema `sunbiz_corps` + FTS5 + triggers + `sunbiz_load_log` creado en Turso
+- [x] `@libsql/client@0.17.4` instalado en `backend/`
+- [x] `backend/lib/turso.ts` — helper `getTurso()` lazy init
+- [x] `backend/scripts/sunbiz-load.mjs` — loader Node con batch 2000 × 6 workers paralelos
+- [x] Smoke test end-to-end con 26 daily files de datallc → **59,898 registros cargados** (FTS5 fuzzy search funcionando)
+- [ ] Descargar dump trimestral `cordata.zip` desde SFTP (1.66 GB) — en progreso, ~47%
+- [ ] Descomprimir + procesar e insertar los 3.5M
+- [ ] Verificar `SELECT COUNT(*) FROM sunbiz_corps ≈ 3.5M`
 
-### Auto-relleno formularios /servicios (✅ listo — activa solo cuando haya datos)
-- [x] Auto-relleno en 14 formularios de /servicios consulta `sunbiz_corps` automáticamente al ingresar FL Document Number
-- [x] Normalización de entity_type (LLC/CORP/PA/LTD) integrada en el API
+### Fase 2 — Cron nocturno (Vercel Cron)
+- [ ] Crear `backend/app/api/cron/sunbiz-daily/route.ts`
+- [ ] `ALTER TABLE` agregar columnas `officers JSON`, `fei TEXT`, `last_tx_date TEXT` (schema completo para daily — decisión founder 2026-06-22)
+- [ ] Portar `parseOfficers()` del scraper Python de datallc al loader Node
+- [ ] Configurar cron en `vercel.json` para 4am UTC (12am EST)
+- [ ] Smoke test: correr manualmente y verificar logs
 
-- [ ] **Plan B si Etapa 5 no está lista para sept 15:** lanzar con verificación manual desde panel admin (sin automatización pero funcional)
+### Fase 3 — Migrar Path B y Path C (consumir Turso real)
+- [ ] Path B: `/api/proxy/names/check` — quitar el mock, consultar `sunbiz_corps_fts` con FTS5
+- [ ] Path C: tool `check_name_availability` de Claudia chat — quitar scraping HTML, consultar Turso
+- [ ] Conectar el panel admin (`/admin/orders/[id]`) para usar endpoint real (hoy es mock)
+- [ ] Auto-relleno de 14 formularios en `/servicios` — migrar de `sunbiz_corps` Supabase (vacío) a Turso
+
+### Fase 4 — Backups GitHub Actions → R2
+- [ ] Crear `.github/workflows/backup-daily.yml` (cron diario 12:30am)
+- [ ] Script: `pg_dump` Supabase + sync PDFs → R2 con timestamp YYYY-MM-DD
+- [ ] Lifecycle policy R2: retención 30 días
+- [ ] Agregar 5 vars de R2 en GitHub Actions Secrets (NO en Vercel)
+- [ ] Smoke test: correr workflow manualmente, verificar archivos en R2
+- [ ] Documentar restore en `TROUBLESHOOTING/`
+
+### Fase 5 — Cancelar Railway
+- [ ] Confirmar que todo funciona sin Railway (verificar `/api/sunbiz` y demás endpoints)
+- [ ] Cancelar plan de Railway en su dashboard (ahorro $5/mes)
+- [ ] Limpiar `BACKEND_URL` y código relacionado en Vercel
+- [ ] Limpiar `railway.json` del repo
+
+- [ ] **Plan B si Fase 1 no termina antes del lanzamiento:** lanzar con los ~60K daily files cargados + scraping fallback de Claudia para nombres no encontrados
+
+> _Actualizado por Javier el 2026-06-22_ — arquitectura completa redefinida (Turso + Cloudflare R2 + Vercel Cron + GitHub Actions, Railway cancelado). Plan original "solicitar acceso FTP" descartado: el SFTP de Florida es público. Fase 0 + parte de Fase 1 ya hechas (60K records cargados como proof of concept).
 
 ---
 
@@ -84,23 +119,27 @@
 
 ---
 
-## 🔴 DOMINIO Y DNS (CRÍTICA — bloquea lanzamiento)
+## 🟢 DOMINIO Y DNS — (DONE, dominio activo)
 
-- [ ] Confirmar que `opabiz.com` está registrado y a nombre del negocio
+**Estado 2026-06-22:** `opabiz.com` activo en producción + `mybusinessformation.com` autenticado para buzones Zoho y 301 → opabiz.com.
+
+- [x] `opabiz.com` registrado y a nombre del negocio
+- [x] Apuntado a Vercel con SSL automático
+- [x] Dominio configurado en Vercel (Settings → Domains)
+- [x] MX records → Zoho Mail (6 buzones activos: noreply, marketing, support, info, admin, alert)
+- [x] TXT records SPF, DKIM, DMARC verificados en Resend (2026-06-19)
+- [x] `mybusinessformation.com` autenticado con MX/SPF/DKIM/DMARC para Zoho (2026-06-22) — fix de "isn't authenticated" en Gmail
+- [x] 301 de `mybusinessformation.com` → `https://opabiz.com/new-business` (en `next.config.ts`, conserva `?id=`)
+- [x] OG image y meta tags actualizados con `opabiz.com`
+- [x] `NEXT_PUBLIC_URL=https://opabiz.com` configurado en Vercel
+
+### Pendientes menores
 - [ ] Renovar dominio por mínimo 3 años (evita olvido y pérdida)
 - [ ] Activar privacy protection del dominio (WHOIS privacy)
-- [ ] Apuntar registros DNS:
-  - [ ] A record o CNAME → Vercel (production)
-  - [ ] CNAME `www` → Vercel
-  - [ ] MX records → email provider (Google Workspace o similar para `support@`)
-  - [ ] TXT records SPF, DKIM, DMARC para Resend
-- [ ] Configurar dominio custom en Vercel (Settings → Domains → Add)
-- [ ] Verificar que SSL automático de Vercel (Let's Encrypt) se activa en `opabiz.com` y `www.opabiz.com`
-- [ ] Configurar redirect www → no-www (o viceversa, según preferencia)
-- [ ] Probar desde 3 redes distintas (casa, móvil, VPN) que el sitio carga
-- [ ] Verificar que Vercel Analytics empieza a recibir datos del dominio nuevo
-- [ ] Actualizar todos los links absolutos en código de `opabiz.com` a `opabiz.com` (audit final)
-- [ ] Actualizar OG image y meta tags con URL nueva del dominio
+- [ ] Configurar redirect www → no-www (verificar si ya está)
+- [ ] BIMI logo para inbox preview (opcional, requiere certificado VMC pagado)
+
+> _Actualizado por Javier el 2026-06-22_ — sección bajada de 🔴 crítica a 🟢 done. opabiz.com vive en producción + mybusinessformation.com autenticado para los buzones Zoho.
 
 ---
 
@@ -132,33 +171,44 @@
 
 ## 🔴 BASE DE DATOS Y BACKUPS (CRÍTICA)
 
-- [ ] Upgrade Supabase a plan Pro ($25/mes) para activar:
-  - [ ] Backups automáticos diarios (retención 7 días)
-  - [ ] Point-in-time recovery
-  - [ ] Read replicas si performance lo requiere
-- [ ] Configurar backup adicional manual semanal a almacenamiento externo (Google Drive cifrado o S3)
-- [ ] Probar restore de backup en environment de prueba (validar que funciona)
-- [ ] Documentar el proceso de restore en `LOGICA_DE_NEGOCIO/` o `TROUBLESHOOTING/`
-- [ ] Revisar índices de Supabase — agregar índices en columnas con queries frecuentes (`order.email`, `order.status`, `order.createdAt`)
-- [ ] Configurar alertas de Supabase para connection pool saturado (>80% connections)
-- [ ] Documentar el schema de Prisma versionado (cada cambio en migration)
+**Arquitectura redefinida 2026-06-22.** El upgrade a Supabase Pro $25/mes **se descartó**. Plan distribuido: Supabase Free + Turso Free + Cloudflare R2 + GitHub Actions = $0/mes con la misma protección. Ver `LOGICA_DE_NEGOCIO/26_arquitectura_sunbiz_backups_opabiz.md`.
+
+### Decisión arquitectural
+- [x] **NO upgrade a Supabase Pro** — decisión 2026-06-22 (no concentrar todo en un proveedor)
+- [x] Datos críticos del negocio (Order, accounting, appointments, PDFs) → **Supabase Free**
+- [x] 3.5M Sunbiz → **Turso Free 9 GB**
+- [x] Backups diarios pg_dump + sync PDFs → **Cloudflare R2** (10 GB free)
+- [x] Cron diario de backups → **GitHub Actions** (2000 min/mes free)
+
+### Pendientes (Fase 4 — backups)
+- [ ] Crear `.github/workflows/backup-daily.yml`
+- [ ] Script `pg_dump` Supabase + sync PDFs → R2 con timestamp
+- [ ] Configurar lifecycle policy R2 retención 30 días
+- [ ] Probar restore desde R2 en environment de prueba (validar que funciona)
+- [ ] Documentar el proceso de restore en `TROUBLESHOOTING/`
+
+### Otros
+- [x] Prisma removido 2026-05-19 — todo Supabase REST ahora (no más migrations Prisma)
+- [ ] Revisar índices de Supabase — agregar índices en columnas con queries frecuentes (`Order.email`, `Order.status`, `Order.createdAt`)
+
+> _Actualizado por Javier el 2026-06-22_ — descartado el upgrade a Supabase Pro $25/mes. Plan distribuido (Supabase Free + Turso Free + Cloudflare R2 + GitHub Actions) = $0/mes con la misma protección y no concentra todo en un proveedor.
 
 ---
 
-## 🟡 INFRAESTRUCTURA — Hosting (Vercel + Railway)
+## 🟢 INFRAESTRUCTURA — Hosting (Vercel Pro + Turso, Railway CANCELAR)
 
-- [ ] Verificar que Vercel está en plan Hobby (free) o evaluar upgrade a Pro ($20/mes) si necesitas:
-  - [ ] Vercel Analytics avanzado (Web Vitals reales)
-  - [ ] Más build time / bandwidth
-  - [ ] Edge Functions sin límite estricto
-  - [ ] Removal de la marca "Powered by Vercel"
-- [ ] Verificar que Railway está en plan Hobby ($5/mes incluye $5 de crédito) o evaluar Pro ($20/mes)
-- [ ] Configurar healthcheck en Railway (`/api/health` que retorne 200 OK)
-- [ ] Configurar auto-deploy de Railway desde branch `main`
-- [ ] Configurar preview deployments en Vercel (cada PR genera URL temporal)
-- [ ] Configurar variables de entorno por ambiente: production, preview, development
+**Decisión 2026-06-22:** Railway se cancela (ya no se necesita para Etapa 5). Vercel Pro ya cubre todo: cron de Sunbiz, API routes, edge functions.
+
+- [x] Vercel Pro activado ($20/mes — ya se paga)
+- [x] Cron de Vercel Pro disponible para `/api/cron/sunbiz-daily` (hasta 100 crons en Pro)
+- [x] Preview deployments configurados (cada PR/branch genera URL)
+- [x] Env vars por ambiente: production, preview, development
+- [x] Turso conectado desde Vercel (TURSO_DATABASE_URL + TURSO_AUTH_TOKEN en Prod + Dev)
+- [ ] **CANCELAR Railway** después de Fase 5 (ahorro $5/mes — ver Etapa 5)
+- [ ] Eliminar `railway.json` del repo cuando Railway esté cancelado
 - [ ] Documentar TODAS las env vars necesarias en `backend/.env.example` (sin valores reales)
-- [ ] Crear segundo entorno "staging" en Railway para testing antes de producción
+
+> _Actualizado por Javier el 2026-06-22_ — Railway marcado para cancelar. La lógica que iba a vivir ahí (Sunbiz) se hace en Vercel Cron Pro + Turso.
 
 ---
 
@@ -176,38 +226,53 @@
 
 ---
 
-## 🟡 MONITOREO Y OBSERVABILIDAD (recomendado fuerte antes de lanzar)
+## 🟢 MONITOREO Y OBSERVABILIDAD — (DONE en Etapa 15)
 
-> Ver `PROPUESTA_MONITOREO.md` para plan detallado.
+**Estado 2026-05-13:** Bloque Sentry + BetterStack cerrado en commits `b1c52d7` y `bd7021a`. Ver `LOGICA_DE_NEGOCIO/15_sentry_betterstack_monitoring.md`.
 
-- [ ] Crear cuenta Sentry y configurar SDK en Next.js (`@sentry/nextjs`)
-- [ ] Configurar Sentry en Express Railway (`@sentry/node`)
-- [ ] Filtrar PII en `beforeSend` para no capturar emails/SSN/tarjetas
-- [ ] Crear cuenta BetterStack y agregar 8 monitores principales
-- [ ] Configurar alertas a email principal (Ethan)
+- [x] Sentry Next.js — proyecto `javascript-nextjs` creado, `@sentry/nextjs ^9` instalado, env vars en Vercel (Prod + Preview + Dev)
+- [x] Filtro PII en `lib/sentry-pii-filter.ts` aplicado al init de Sentry
+- [x] `tunnelRoute /monitoring` contra ad-blockers
+- [x] BetterStack — 3 monitores con SSL + push iPhone + filtros email (Home, Admin Login, API Client Portal)
+- [x] Alert Rule en Sentry configurado
+- [x] Runbooks en `TROUBLESHOOTING/15_sentry_alerts.md` y `TROUBLESHOOTING/16_betterstack_down.md`
+
+### Diferidos (no críticos para launch)
+- [ ] Sentry node-express + 4to monitor BetterStack + runbook "Railway DOWN" — **OBSOLETOS** (Railway se cancela, ver Etapa 5)
+- [ ] Segundo email destinatario en alertas (Gmail compañía) — pendiente migración DNS Netlify→Namecheap
+- [ ] Status page custom domain — pendiente migración DNS
+- [ ] Cron "orden estancada > 30 min en pending" (Vercel Cron)
 - [ ] Construir widget `SystemStatusWidget.tsx` en `/admin` (consume APIs Sentry + BetterStack)
-- [ ] Implementar cron job "orden estancada > 30 min en pending" (Vercel Cron)
-- [ ] Test de alertas: simular caída de Railway y verificar que llega email
-- [ ] Documentar cómo responder a cada tipo de alerta (en `TROUBLESHOOTING/`)
+
+> _Actualizado por Javier el 2026-06-22_ — sección bajada de 🟡 a 🟢. Sentry + BetterStack ya activos desde 2026-05-13. Los items diferidos a Railway quedan obsoletos.
 
 ---
 
-## 🔴 CARPETA TROUBLESHOOTING (CRÍTICA antes de lanzar)
+## 🟢 CARPETA TROUBLESHOOTING — (DONE — 18 runbooks)
 
-> Hoy NO existe carpeta `TROUBLESHOOTING/` en este proyecto. Usar la de `preenvios/` como modelo.
+**Estado 2026-06-22:** Carpeta `TROUBLESHOOTING/` activa con 18 runbooks. Ver `TROUBLESHOOTING/README.md`.
 
-- [ ] Crear carpeta `TROUBLESHOOTING/` en raíz del proyecto
-- [ ] Documento `01_sitio_caido_vercel.md`
-- [ ] Documento `02_backend_railway_no_responde.md`
-- [ ] Documento `03_supabase_errores_db.md`
-- [ ] Documento `04_stripe_webhook_falla.md`
-- [ ] Documento `05_resend_emails_no_llegan.md`
-- [ ] Documento `06_orden_estancada_pending.md`
-- [ ] Documento `07_dns_dominio_problemas.md`
-- [ ] Documento `08_admin_no_puede_loguear.md`
-- [ ] Documento `09_cliente_no_puede_loguear.md`
-- [ ] Documento `10_pago_correcto_pero_no_orden.md`
-- [ ] Cada documento debe tener: Síntoma, Gravedad (🔴🟡🟢), Causas ordenadas, Pasos exactos de fix
+- [x] `01_sitio_caido.md`
+- [x] `02_backend_no_responde.md`
+- [x] `03_base_de_datos.md`
+- [x] `04_pagos_fallidos.md`
+- [x] `05_emails_no_envian.md`
+- [x] `06_busqueda_nombres.md`
+- [x] `07_panel_admin.md`
+- [x] `08_portal_cliente.md`
+- [x] `09_dominio_dns.md`
+- [x] `10_otros.md`
+- [x] `11_claudia_asistente_virtual.md`
+- [x] `12_marketing_automation_campanas.md`
+- [x] `13_responsive_design.md`
+- [x] `14_opabiz.md`
+- [x] `15_sentry_alerts.md`
+- [x] `16_betterstack_down.md`
+- [x] `17_ga4_smoke_test.md`
+- [ ] Nuevo runbook: `18_sunbiz_turso_cron_falla.md` (cuando Fase 2 esté lista)
+- [ ] Nuevo runbook: `19_backups_r2_no_corren.md` (cuando Fase 4 esté lista)
+
+> _Actualizado por Javier el 2026-06-22_ — sección bajada de 🔴 a 🟢. 18 runbooks activos en `TROUBLESHOOTING/`.
 
 ---
 
