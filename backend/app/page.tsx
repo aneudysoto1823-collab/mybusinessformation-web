@@ -2203,8 +2203,8 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
     <div id="plogin-error" class="plogin-error" style="display:none"></div>
     <form id="plogin-form" onsubmit="portalLoginSubmit(event)">
       <div class="plogin-group">
-        <label for="plogin-email" id="plogin-lbl-email">Email address</label>
-        <input id="plogin-email" type="text" inputmode="email" autocomplete="off" placeholder="you@example.com">
+        <label for="plogin-acct" id="plogin-lbl-email">Email address</label>
+        <input id="plogin-acct" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Your email">
       </div>
       <div class="plogin-group" id="plogin-conf-group">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
@@ -3373,7 +3373,7 @@ function setLang(lang) {
   el=document.getElementById('plogin-lbl-pwd'); if(el) el.textContent = isEs ? 'Contraseña' : 'Password';
   el=document.getElementById('plogin-switch-conf'); if(el) el.textContent = isEs ? 'Usar número de orden' : 'Use order number instead';
   el=document.getElementById('plogin-btn'); if(el) el.textContent = isEs ? 'Acceder a Mi Cuenta' : 'Access My Account';
-  el=document.getElementById('plogin-email'); if(el) el.placeholder = isEs ? 'tú@ejemplo.com' : 'you@example.com';
+  el=document.getElementById('plogin-acct'); if(el) el.placeholder = isEs ? 'Tu correo' : 'Your email';
   el=document.getElementById('plogin-conf'); if(el) el.placeholder = isEs ? 'FBFC-00000000 o FBNB-00000000' : 'FBFC-00000000 or FBNB-00000000';
   el=document.getElementById('plogin-pwd'); if(el) el.placeholder = isEs ? 'Tu contraseña' : 'Your password';
   el=document.getElementById('plogin-terms'); if(el) el.innerHTML = isEs ? 'Al acceder aceptas nuestros <a href="/terms">Términos de Servicio</a> y la <a href="/privacy">Política de Privacidad</a>.' : 'By accessing this portal you agree to our <a href="/terms">Terms of Service</a> and <a href="/privacy">Privacy Policy</a>.';
@@ -6598,7 +6598,7 @@ function openPortalLogin(e){
     window.location.href='/client-portal/dashboard'; return;
   }
   var ov=document.getElementById('plogin-overlay');
-  if(ov){ ov.classList.add('open'); var em=document.getElementById('plogin-email'); if(em) setTimeout(function(){em.focus();},50); }
+  if(ov){ ov.classList.add('open'); var em=document.getElementById('plogin-acct'); if(em) setTimeout(function(){em.focus();},50); }
   var nav=document.getElementById('main-nav'); if(nav) nav.classList.remove('open');
   var hb=document.getElementById('hamburger-btn'); if(hb) hb.classList.remove('open');
 }
@@ -6622,7 +6622,7 @@ function portalLoginError(msg){
 function portalLoginSubmit(e){
   if(e && e.preventDefault) e.preventDefault();
   var isEs = currentLang==='es';
-  var email=((document.getElementById('plogin-email')||{}).value || '').trim();
+  var email=((document.getElementById('plogin-acct')||{}).value || '').trim();
   var body;
   if(portalLoginMode==='pwd'){
     var pwd=(document.getElementById('plogin-pwd')||{}).value || '';
