@@ -218,9 +218,12 @@ export default function DashboardContent({
     <div className="cp-wrapper">
       {/* Header */}
       <div className="cp-header">
-        <div className="cp-header-brand">
-          OpaBiz
-          <span>{es ? 'Portal del Cliente' : 'Client Portal'}</span>
+        <div className="cp-header-left">
+          <a href={es ? '/es' : '/'} className="cp-back">{es ? '← Inicio' : '← Home'}</a>
+          <a href={es ? '/es' : '/'} className="cp-header-brand">
+            OpaBiz
+            <span>{es ? 'Portal del Cliente' : 'Client Portal'}</span>
+          </a>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div className="lang-toggle">
@@ -228,7 +231,7 @@ export default function DashboardContent({
             <div className="lang-sep" />
             <button className={`lang-btn${lang === 'es' ? ' active' : ''}`} onClick={() => switchLang('es')}>ES</button>
           </div>
-          <a href="/api/client-auth/logout" className="btn-logout">{es ? 'Cerrar Sesión' : 'Log Out'}</a>
+          <a href={`/api/client-auth/logout?lang=${es ? 'es' : 'en'}`} className="btn-logout">{es ? 'Cerrar Sesión' : 'Log Out'}</a>
         </div>
       </div>
 

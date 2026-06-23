@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 
 function clearCookie(response: NextResponse) {
   response.cookies.set('client_session', '', {
@@ -11,11 +11,12 @@ function clearCookie(response: NextResponse) {
   return response
 }
 
-// GET: usado por links del portal (redirige a la página de login).
-export async function GET() {
-  return clearCookie(NextResponse.redirect(
-    new URL('/client-portal', process.env.NEXT_PUBLIC_BASE_URL || 'https://opabiz.com')
-  ))
+// GET: usado por el botón "Cerrar Sesión" del portal. Redirige al HOME (no al
+// viejo landing de login), preservando el idioma vía ?lang.
+export async function GET(request: NextRequest) {
+  const base = process.env.NEXT_PUBLIC_BASE_URL || 'https://opabiz.com'
+  const home = request.nextUrl.searchParams.get('lang') === 'es' ? '/es' : '/'
+  return clearCookie(NextResponse.redirect(new URL(home, base)))
 }
 
 // POST: usado por el logout del home (fetch). Solo borra la cookie y devuelve

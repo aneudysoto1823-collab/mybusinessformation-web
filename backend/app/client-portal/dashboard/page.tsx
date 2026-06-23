@@ -246,10 +246,14 @@ export default async function ClientDashboardPage({
           margin-bottom: 32px;
         }
 
+        .cp-header-left { display: flex; align-items: center; gap: 14px; }
+
         .cp-header-brand {
           font-size: 15px;
           font-weight: 700;
           color: #1a1a2e;
+          text-decoration: none;
+          display: inline-block;
         }
 
         .cp-header-brand span {
@@ -259,6 +263,21 @@ export default async function ClientDashboardPage({
           color: #6b7280;
           margin-top: 2px;
         }
+
+        .cp-back {
+          display: inline-flex;
+          align-items: center;
+          font-size: 13px;
+          font-weight: 600;
+          color: #6b7280;
+          text-decoration: none;
+          border: 1.5px solid #e5e7eb;
+          border-radius: 8px;
+          padding: 7px 12px;
+          white-space: nowrap;
+          transition: border-color 0.15s, color 0.15s;
+        }
+        .cp-back:hover { border-color: #d1d5db; color: #111827; }
 
         .btn-logout {
           background: none;
