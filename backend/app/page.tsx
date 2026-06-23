@@ -602,6 +602,20 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 .fm-divider{font-size:.72rem;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.7px;margin:20px 0 14px;display:flex;align-items:center;gap:10px}
 .fm-divider::after{content:'';flex:1;height:1px;background:#e5e7eb}
 
+/* Accordions estilo Bizee — "Additional Explanation" */
+.fm-acc-wrap{margin-top:20px;background:#fafafa;border:1px solid #eef0f2;border-radius:10px;padding:14px 16px}
+.fm-acc-title{font-size:.78rem;font-weight:700;color:#475569;margin-bottom:8px;letter-spacing:.2px}
+.fm-acc-item{border-bottom:1px solid #eef0f2}
+.fm-acc-item:last-child{border-bottom:none}
+.fm-acc-head{width:100%;background:transparent;border:none;cursor:pointer;padding:13px 4px;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;font-size:.86rem;font-weight:500;color:#1f2937;font-family:inherit}
+.fm-acc-head:hover{color:#2563eb}
+.fm-acc-chev{font-size:.85rem;color:#94a3b8;transition:transform .2s}
+.fm-acc-item.open .fm-acc-chev{transform:rotate(180deg);color:#2563eb}
+.fm-acc-body{max-height:0;overflow:hidden;transition:max-height .25s ease,padding .25s ease;padding:0 4px}
+.fm-acc-item.open .fm-acc-body{max-height:600px;padding:0 4px 14px}
+.fm-acc-body p{margin:0;font-size:.82rem;line-height:1.65;color:#475569}
+.fm-acc-body a{color:#2563eb;text-decoration:underline}
+
 /* Radio/choice cards */
 .fm-choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
 .fm-choice{border:1.5px solid #e5e7eb;border-radius:10px;padding:14px 16px;cursor:pointer;transition:all .2s;display:flex;align-items:flex-start;gap:10px;background:#fff}
@@ -1370,26 +1384,40 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
             </div>
           </div>
 
-          <div class="fm-divider" id="alt-names-divider">Alternative Names <span id="alt-names-sub" style="font-size:.68rem;font-weight:400;color:#9ca3af;text-transform:none;letter-spacing:0">(Optional)</span></div>
-          <div class="fm-group">
-            <label class="fm-label" id="lbl-bizname2">Alternative Name #1 <span id="alt1-opt-lbl">Optional</span></label>
-            <div style="display:flex;gap:10px">
-              <input type="text" class="fm-input" id="inp-bizname2" placeholder="e.g. Sunshine Group" style="flex:2"/>
-              <select class="fm-select" id="inp-designator2" style="flex:1">
-                <option value="LLC">LLC</option><option value="L.L.C.">L.L.C.</option><option value="Limited Liability Company">Limited Liability Company</option>
-              </select>
+          <!-- Additional Explanation — 3 accordions (estilo Bizee). Aclaraciones legales y operativas sobre el nombre. -->
+          <div class="fm-acc-wrap" id="name-acc-wrap">
+            <div class="fm-acc-title" id="name-acc-title">Additional Explanation</div>
+
+            <div class="fm-acc-item" id="name-acc-1">
+              <button type="button" class="fm-acc-head" onclick="fmToggleAcc('name-acc-1')">
+                <span id="name-acc-1-q">What if my company name is unavailable?</span>
+                <span class="fm-acc-chev">&#9662;</span>
+              </button>
+              <div class="fm-acc-body" id="name-acc-1-body">
+                <p id="name-acc-1-a">If the name you choose is rejected by the Florida Division of Corporations after we submit your filing, we will contact you to request an alternative name and will resubmit at no additional service fee from us. The original state filing fee paid to Florida is non-refundable. Any new state filing fee charged for the resubmission is your responsibility.</p>
+              </div>
+            </div>
+
+            <div class="fm-acc-item" id="name-acc-2">
+              <button type="button" class="fm-acc-head" onclick="fmToggleAcc('name-acc-2')">
+                <span id="name-acc-2-q">Does the company name end with &quot;LLC&quot; or &quot;Inc.&quot;?</span>
+                <span class="fm-acc-chev">&#9662;</span>
+              </button>
+              <div class="fm-acc-body" id="name-acc-2-body">
+                <p id="name-acc-2-a">Yes. Florida requires every entity name to include a designator. For LLCs you can use: <em>LLC</em>, <em>L.L.C.</em>, <em>Limited Liability Company</em>, or <em>Ltd. Liability Co.</em> For Corporations: <em>Inc.</em>, <em>Corp.</em>, <em>Corporation</em>, or <em>Incorporated</em>. You select the designator from the dropdown above — <strong>you do not need to type it in the name field.</strong> We add it automatically when we file.</p>
+              </div>
+            </div>
+
+            <div class="fm-acc-item" id="name-acc-3">
+              <button type="button" class="fm-acc-head" onclick="fmToggleAcc('name-acc-3')">
+                <span id="name-acc-3-q">Is the name availability check guaranteed?</span>
+                <span class="fm-acc-chev">&#9662;</span>
+              </button>
+              <div class="fm-acc-body" id="name-acc-3-body">
+                <p id="name-acc-3-a">No. The check we perform while you type is a <strong>preliminary search</strong> against Florida's public Sunbiz database. A name shown as available may still be rejected by Florida for reasons not visible in the public records, including: 120-day name reservations not yet public, names requiring special licensing (such as &ldquo;Bank&rdquo;, &ldquo;Trust&rdquo;, &ldquo;Insurance&rdquo;), federally trademarked names, or examiner discretion regarding similarity to existing entities. See our <a href="/terms#name-availability" target="_blank" rel="noopener">Terms of Service &sect;14</a> for the full policy.</p>
+              </div>
             </div>
           </div>
-          <div class="fm-group">
-            <label class="fm-label" id="lbl-bizname3">Alternative Name #2 <span id="alt2-opt-lbl">Optional</span></label>
-            <div style="display:flex;gap:10px">
-              <input type="text" class="fm-input" id="inp-bizname3" placeholder="e.g. Sunshine Solutions" style="flex:2"/>
-              <select class="fm-select" id="inp-designator3" style="flex:1">
-                <option value="LLC">LLC</option><option value="L.L.C.">L.L.C.</option><option value="Limited Liability Company">Limited Liability Company</option>
-              </select>
-            </div>
-          </div>
-          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:9px;padding:11px 14px;font-size:.76rem;color:#475569;line-height:1.65;margin-top:6px" id="s1-avail-note">&#128269; <span id="s1-avail-text">We verify your name against Florida's public records before filing. If your preferred name is taken, we contact you right away and help find a strong alternative &mdash; at no extra charge.</span></div>
 
           <!-- Authorized Shares — Corporation only -->
           <div id="s1-shares-wrap" style="display:none;margin-top:14px">
@@ -5192,18 +5220,11 @@ function fmBuildOrderPayload() {
   var phone   = val('inp-phone');
   var country = val('inp-phone-country') || 'US';
 
-  // ── Nombres propuestos de empresa ─────────────────────────────────────────
+  // ── Nombre de la empresa (un solo nombre, ver doc 27 + Terms §14) ─────────
   var biz1 = val('inp-bizname');
   var des1 = val('inp-designator');
-  var biz2 = val('inp-bizname2');
-  var des2 = val('inp-designator2');
-  var biz3 = val('inp-bizname3');
-  var des3 = val('inp-designator3');
-
   function buildName(b, d) { return b ? (d ? b + ' ' + d : b).trim() : null; }
-  var companyName  = buildName(biz1, des1);
-  var companyName2 = buildName(biz2, des2);
-  var companyName3 = buildName(biz3, des3);
+  var companyName = buildName(biz1, des1);
 
   // ── Direcci\u00f3n del negocio ─────────────────────────────────────────────────
   var addrParts = [val('inp-addr'), val('inp-street2'), val('inp-city'), val('inp-state'), val('inp-zip')]
@@ -5256,8 +5277,8 @@ function fmBuildOrderPayload() {
     phone:           phone || null,
     country:         country,
     companyName:     companyName,
-    companyName2:    companyName2,
-    companyName3:    companyName3,
+    companyName2:    null,
+    companyName3:    null,
     entityType:      entity,
     businessAddress: businessAddress,
     speed:           speed,
@@ -5456,7 +5477,7 @@ function closeForm() {
 var FM_STORAGE_KEY = 'mbf_form_progress';
 
 var FM_FIELD_IDS = [
-  'inp-bizname','inp-designator','inp-bizname2','inp-designator2','inp-bizname3','inp-designator3',
+  'inp-bizname','inp-designator',
   'inp-fname','inp-lname','inp-email','inp-email-confirm','inp-phone','inp-phone-country',
   'inp-addr','inp-street2','inp-city','inp-state','inp-zip','inp-biz-country',
   'inp-org-sig','inp-ra-name','inp-ra-street','inp-ra-street2','inp-ra-city','inp-ra-state','inp-ra-zip'
@@ -5614,7 +5635,14 @@ var fmTranslations = {
 
 function fmTranslate(lang) {
   var isEs=lang==='es';
-  var tm={'s1-entity-divider':isEs?'\\u00bfQu\\u00e9 tipo de entidad est\\u00e1s formando?':'What type of entity are you forming?','s1-llc-desc':isEs?'Gesti\\u00f3n flexible \\u00b7 Pass-through \\u00b7 La m\\u00e1s popular':'Flexible management \\u00b7 Pass-through taxes \\u00b7 Most popular','s1-corp-lbl':isEs?'&#128202; Corporaci\\u00f3n':'&#128202; Corporation','s1-corp-desc':isEs?'Ideal para inversores \\u00b7 Emite acciones \\u00b7 Estructura formal':'Ideal for investors \\u00b7 Issue stock \\u00b7 Formal structure','s1-name-divider':isEs?'Nombre del Negocio':'Business Name','lbl-bizname':isEs?'Nombre Preferido *':'Preferred Business Name *','lbl-designator':isEs?'Debe terminar con *':'Must end with *','s1-fl-note-title':isEs?'Exigido por Florida:':'Required by Florida:','s1-fl-note-text':isEs?'Las LLC deben terminar con LLC, L.L.C. o Limited Liability Company. Las Corp con Corp, Inc, Corporation o Incorporated.':'LLCs must end with LLC, L.L.C., or Limited Liability Company. Corps must end with Corp, Inc, Corporation, or Incorporated.','lbl-preview':isEs?'Tu nombre oficial aparecer\\u00e1 como':'Your official name will appear as','alt-names-divider':isEs?'Nombres Alternativos':'Alternative Names','alt-names-sub':isEs?'(Opcional)':'(Optional)','alt1-opt-lbl':isEs?'Opcional':'Optional','alt2-opt-lbl':isEs?'Opcional':'Optional','lbl-bizname2':isEs?'Nombre Alternativo #1':'Alternative Name #1','lbl-bizname3':isEs?'Nombre Alternativo #2':'Alternative Name #2','s1-avail-text':isEs?'Verificamos tu nombre en los registros de Florida antes de tramitar.':'We verify your name in Florida records before filing.',
+  var tm={'s1-entity-divider':isEs?'\\u00bfQu\\u00e9 tipo de entidad est\\u00e1s formando?':'What type of entity are you forming?','s1-llc-desc':isEs?'Gesti\\u00f3n flexible \\u00b7 Pass-through \\u00b7 La m\\u00e1s popular':'Flexible management \\u00b7 Pass-through taxes \\u00b7 Most popular','s1-corp-lbl':isEs?'&#128202; Corporaci\\u00f3n':'&#128202; Corporation','s1-corp-desc':isEs?'Ideal para inversores \\u00b7 Emite acciones \\u00b7 Estructura formal':'Ideal for investors \\u00b7 Issue stock \\u00b7 Formal structure','s1-name-divider':isEs?'Nombre del Negocio':'Business Name','lbl-bizname':isEs?'Nombre Preferido *':'Preferred Business Name *','lbl-designator':isEs?'Debe terminar con *':'Must end with *','s1-fl-note-title':isEs?'Exigido por Florida:':'Required by Florida:','s1-fl-note-text':isEs?'Las LLC deben terminar con LLC, L.L.C. o Limited Liability Company. Las Corp con Corp, Inc, Corporation o Incorporated.':'LLCs must end with LLC, L.L.C., or Limited Liability Company. Corps must end with Corp, Inc, Corporation, or Incorporated.','lbl-preview':isEs?'Tu nombre oficial aparecer\\u00e1 como':'Your official name will appear as',
+'name-acc-title':isEs?'Informaci\\u00f3n Adicional':'Additional Explanation',
+'name-acc-1-q':isEs?'\\u00bfQu\\u00e9 pasa si el nombre no est\\u00e1 disponible?':'What if my company name is unavailable?',
+'name-acc-1-a':isEs?'Si el nombre que elija es rechazado por la Divisi\\u00f3n de Corporaciones de Florida despu\\u00e9s de presentar el tr\\u00e1mite, lo contactaremos para solicitar un nombre alternativo y reenviaremos sin cargo de servicio adicional de nuestra parte. La tarifa estatal original pagada a Florida no es reembolsable. Cualquier tarifa estatal nueva cobrada por el reenv\\u00edo es su responsabilidad.':'If the name you choose is rejected by the Florida Division of Corporations after we submit your filing, we will contact you to request an alternative name and will resubmit at no additional service fee from us. The original state filing fee paid to Florida is non-refundable. Any new state filing fee charged for the resubmission is your responsibility.',
+'name-acc-2-q':isEs?'\\u00bfEl nombre debe terminar con &quot;LLC&quot; o &quot;Inc.&quot;?':'Does the company name end with &quot;LLC&quot; or &quot;Inc.&quot;?',
+'name-acc-2-a':isEs?'S\\u00ed. Florida requiere que cada nombre incluya un designador. Para LLCs puede usar: <em>LLC</em>, <em>L.L.C.</em>, <em>Limited Liability Company</em> o <em>Ltd. Liability Co.</em> Para Corporaciones: <em>Inc.</em>, <em>Corp.</em>, <em>Corporation</em> o <em>Incorporated</em>. Usted selecciona el designador en el men\\u00fa desplegable de arriba \\u2014 <strong>no necesita escribirlo en el campo del nombre.</strong> Lo agregamos autom\\u00e1ticamente al presentar.':'Yes. Florida requires every entity name to include a designator. For LLCs you can use: <em>LLC</em>, <em>L.L.C.</em>, <em>Limited Liability Company</em>, or <em>Ltd. Liability Co.</em> For Corporations: <em>Inc.</em>, <em>Corp.</em>, <em>Corporation</em>, or <em>Incorporated</em>. You select the designator from the dropdown above \\u2014 <strong>you do not need to type it in the name field.</strong> We add it automatically when we file.',
+'name-acc-3-q':isEs?'\\u00bfLa verificaci\\u00f3n de disponibilidad es garantizada?':'Is the name availability check guaranteed?',
+'name-acc-3-a':isEs?'No. La verificaci\\u00f3n que hacemos mientras usted escribe es una <strong>b\\u00fasqueda preliminar</strong> contra la base de datos p\\u00fablica de Sunbiz de Florida. Un nombre que aparezca como disponible a\\u00fan podr\\u00eda ser rechazado por Florida por razones no visibles en los registros p\\u00fablicos, incluyendo: reservas de nombres por 120 d\\u00edas que a\\u00fan no son p\\u00fablicas, nombres que requieren licencia especial (como &ldquo;Bank&rdquo;, &ldquo;Trust&rdquo;, &ldquo;Insurance&rdquo;), nombres con marca registrada federal, o discreci\\u00f3n del examinador respecto a similitud con entidades existentes. Vea nuestros <a href="/terms#name-availability" target="_blank" rel="noopener">T\\u00e9rminos de Servicio &sect;14</a> para la pol\\u00edtica completa.':'No. The check we perform while you type is a <strong>preliminary search</strong> against Florida\\u2019s public Sunbiz database. A name shown as available may still be rejected by Florida for reasons not visible in the public records, including: 120-day name reservations not yet public, names requiring special licensing (such as &ldquo;Bank&rdquo;, &ldquo;Trust&rdquo;, &ldquo;Insurance&rdquo;), federally trademarked names, or examiner discretion regarding similarity to existing entities. See our <a href="/terms#name-availability" target="_blank" rel="noopener">Terms of Service &sect;14</a> for the full policy.',
 's1-shares-divider':isEs?'Acciones Autorizadas':'Authorized Shares',
 'lbl-shares':isEs?'N\\u00famero de Acciones Autorizadas *':'Number of Authorized Shares *',
 's1-shares-info-text':isEs?'Florida exige que cada Corporaci\\u00f3n declare el n\\u00famero total de acciones que est\\u00e1 autorizada a emitir. Este n\\u00famero queda registrado p\\u00fablicamente en los Art\\u00edculos de Incorporaci\\u00f3n. La mayor\\u00eda de corporaciones peque\\u00f1as usan 1,000 acciones o m\\u00e1s.':'Florida requires every Corporation to declare the total number of shares it is authorized to issue. Most small corporations use 1,000 or more shares.',
@@ -5809,8 +5837,6 @@ function fmTranslate(lang) {
   Object.keys(tm).forEach(function(id){var e=document.getElementById(id);if(e)e.innerHTML=tm[id];});
   var llcLbl=document.getElementById('s1-llc-lbl');if(llcLbl)llcLbl.innerHTML=isEs?'&#127963; LLC - Sociedad de Responsabilidad Limitada':'&#127963; LLC - Limited Liability Company';
   var bp=document.getElementById('inp-bizname');if(bp)bp.placeholder=isEs?'ej. Sunshine Ventures':'e.g. Sunshine Ventures';
-  var b2=document.getElementById('inp-bizname2');if(b2)b2.placeholder=isEs?'ej. Sunshine Group':'e.g. Sunshine Group';
-  var b3=document.getElementById('inp-bizname3');if(b3)b3.placeholder=isEs?'ej. Sunshine Solutions':'e.g. Sunshine Solutions';
   var ie=document.getElementById('inp-email');if(ie)ie.placeholder=isEs?'tucorreo@email.com':'your@email.com';
   var icn=document.getElementById('inp-card-name');if(icn)icn.placeholder=isEs?'Nombre completo como aparece en la tarjeta':'Full name as it appears on card';
   var icnum=document.getElementById('inp-card-num');if(icnum)icnum.placeholder=isEs?'1234 5678 9012 3456':'1234 5678 9012 3456';
@@ -6300,12 +6326,15 @@ function fmOaOwnershipTotal() {
 }
 
 var _fmSE=fmSetEntity;
-fmSetEntity=function(type,el){
-  _fmSE(type,el);
-  var llc='<option value="LLC">LLC</option><option value="L.L.C.">L.L.C.</option><option value="Limited Liability Company">Limited Liability Company</option>';
-  var corp='<option value="Corp">Corp</option><option value="Inc">Inc</option><option value="Corporation">Corporation</option><option value="Incorporated">Incorporated</option>';
-  ['inp-designator2','inp-designator3'].forEach(function(id){var d=document.getElementById(id);if(d)d.innerHTML=type==='corp'?corp:llc;});
-};
+// fmSetEntity ya está cubierto por la implementación base (_fmSE);
+// los selects de designators alternativos fueron eliminados en favor de un único campo principal.
+
+// Acordeones de "Additional Explanation" en el paso del nombre.
+function fmToggleAcc(id){
+  var el = document.getElementById(id);
+  if(!el) return;
+  el.classList.toggle('open');
+}
 
 
 function scrollToPackages() {
@@ -6454,8 +6483,8 @@ function claudiaPrefill(d){
     setSelect('inp-designator',suffix);
     if(typeof fmUpdateBizName==='function') fmUpdateBizName(baseName);
   }
-  if(d.altName1) setVal('inp-bizname2',d.altName1.replace(/\s*(LLC|Corp|Inc|L\.L\.C\.|Corporation|Incorporated)$/,'').trim());
-  if(d.altName2) setVal('inp-bizname3',d.altName2.replace(/\s*(LLC|Corp|Inc|L\.L\.C\.|Corporation|Incorporated)$/,'').trim());
+  // altName1/altName2 fueron deprecados — el form ahora pide un único nombre (ver Terms §14).
+  // Drafts viejos guardados con esos campos se ignoran intencionalmente.
 
   // Contact info (step 2)
   if(d.members&&d.members[0]){
