@@ -1389,7 +1389,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
             <div class="fm-acc-title" id="name-acc-title">Additional Explanation</div>
 
             <div class="fm-acc-item" id="name-acc-1">
-              <button type="button" class="fm-acc-head" onclick="fmToggleAcc('name-acc-1')">
+              <button type="button" class="fm-acc-head" onclick="fmToggleNameAcc('name-acc-1')">
                 <span id="name-acc-1-q">What if my company name is unavailable?</span>
                 <span class="fm-acc-chev">&#9662;</span>
               </button>
@@ -1399,7 +1399,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
             </div>
 
             <div class="fm-acc-item" id="name-acc-2">
-              <button type="button" class="fm-acc-head" onclick="fmToggleAcc('name-acc-2')">
+              <button type="button" class="fm-acc-head" onclick="fmToggleNameAcc('name-acc-2')">
                 <span id="name-acc-2-q">Does the company name end with &quot;LLC&quot; or &quot;Inc.&quot;?</span>
                 <span class="fm-acc-chev">&#9662;</span>
               </button>
@@ -1409,7 +1409,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
             </div>
 
             <div class="fm-acc-item" id="name-acc-3">
-              <button type="button" class="fm-acc-head" onclick="fmToggleAcc('name-acc-3')">
+              <button type="button" class="fm-acc-head" onclick="fmToggleNameAcc('name-acc-3')">
                 <span id="name-acc-3-q">Is the name availability check guaranteed?</span>
                 <span class="fm-acc-chev">&#9662;</span>
               </button>
@@ -4876,17 +4876,24 @@ function fmSetEntity(type, el) {
   fmUpdateSummary();
 }
 
+// Strip designator del input si el usuario lo escribió (evita "Soto Holdings LLC LLC").
+// Acepta variantes: LLC, L.L.C., Limited Liability Company, Inc, Inc., Corp, Corp.,
+// Corporation, Incorporated, Ltd. Liability Co. — todas case-insensitive al final.
+function fmStripDesignator(name) {
+  return String(name||'').replace(/[\s,.]*\b(L\.?L\.?C\.?|Limited\s+Liability\s+Company|Ltd\.?\s*Liability\s*Co\.?|Inc\.?|Corp\.?|Corporation|Incorporated)\s*$/i, '').trim();
+}
+
 function fmUpdateBizName(val) {
   if(val !== undefined) fmData.bizName = val;
   var nameEl = document.getElementById('inp-bizname');
   var desEl  = document.getElementById('inp-designator');
   if(!nameEl || !desEl) return;
-  var name = nameEl.value.trim();
+  var name = fmStripDesignator(nameEl.value.trim());
   var des  = desEl.value;
   if(!name) { document.getElementById('bizname-preview-wrap').style.display='none'; return; }
   fmData.bizName = name;
   fmData.designator = des;
-  var full = name + ' ' + des;
+  var full = des ? (name + ' ' + des) : name;
   document.getElementById('bizname-preview').textContent = full;
   document.getElementById('bizname-preview-wrap').style.display = 'block';
   // Update summary biz name
@@ -5221,7 +5228,9 @@ function fmBuildOrderPayload() {
   var country = val('inp-phone-country') || 'US';
 
   // ── Nombre de la empresa (un solo nombre, ver doc 27 + Terms §14) ─────────
-  var biz1 = val('inp-bizname');
+  // Strip designator si el usuario lo escribió en el campo del nombre
+  // (evita guardar "Soto Holdings LLC LLC" en la orden).
+  var biz1 = (typeof fmStripDesignator==='function') ? fmStripDesignator(val('inp-bizname')) : val('inp-bizname');
   var des1 = val('inp-designator');
   function buildName(b, d) { return b ? (d ? b + ' ' + d : b).trim() : null; }
   var companyName = buildName(biz1, des1);
@@ -6330,7 +6339,9 @@ var _fmSE=fmSetEntity;
 // los selects de designators alternativos fueron eliminados en favor de un único campo principal.
 
 // Acordeones de "Additional Explanation" en el paso del nombre.
-function fmToggleAcc(id){
+// Función con nombre distinto a fmToggleAcc para evitar colisión con la
+// función ya existente arriba (línea ~5195) que usa otra signature.
+function fmToggleNameAcc(id){
   var el = document.getElementById(id);
   if(!el) return;
   el.classList.toggle('open');
