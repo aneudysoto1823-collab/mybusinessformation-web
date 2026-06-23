@@ -1,8 +1,10 @@
 # Proceso 6 — Búsqueda Sunbiz (Tabla local + lookups)
 
+> **⚠️ Doc parcialmente obsoleto — actualización 2026-06-22 (Javier).** La arquitectura cambió: los 3.5M de Sunbiz ya NO viven en Supabase con índices GIN trigram, ahora viven en **Turso (SQLite distribuido)** con índices **FTS5**. Railway **se cancela**. Ver doc canónico nuevo: `26_arquitectura_sunbiz_backups_opabiz.md`. Además, el form de checkout ahora pide **UN solo nombre** (no 3) con verificación en vivo planificada (commit `cbf477b`). Cuando esté lista la Fase 3 se crea el doc 27 con el flujo end-to-end y este doc 06 queda como referencia histórica. Las secciones abajo se mantienen con tachado/notas donde aplican.
+
 Documento maestro de la integración con datos de Florida Division of Corporations (Sunbiz). Cubre la tabla local `sunbiz_corps` con dump de empresas FL, los tres paths de búsqueda activos hoy (cada uno con propósito distinto), y el plan de actualización incremental.
 
-> Este doc reemplaza la versión anterior que describía búsqueda **manual** en sunbiz.org. La Etapa 5 del roadmap (CONTEXTO) se desbloqueó cuando Fabián cargó la tabla `sunbiz_corps` en Supabase producción (commits `1b652c9`, `e156ce6`, `29825ee` del 2026-06-04).
+> Este doc reemplaza la versión anterior que describía búsqueda **manual** en sunbiz.org. La Etapa 5 del roadmap (CONTEXTO) se desbloqueó cuando Fabián cargó la tabla `sunbiz_corps` en Supabase producción (commits `1b652c9`, `e156ce6`, `29825ee` del 2026-06-04). **Update 2026-06-22:** la tabla se migró de Supabase a Turso (ver doc 26).
 
 ---
 
@@ -182,7 +184,9 @@ Reglas oficiales de la Division of Corporations FL que el verificador debe respe
 
 ### Estrategia para el cliente
 
-El formulario de OpaBiz pide **3 nombres en orden de preferencia** (`companyName`, `companyName2`, `companyName3`). Si el primero está tomado o es engañosamente similar, el equipo intenta con el segundo, etc. Esto evita ida-vuelta con el cliente cuando hay un duplicado.
+**Update 2026-06-22 (Javier):** el formulario ahora pide **UN solo nombre + designator** (commit `cbf477b`). La verificación en vivo contra Turso FTS5 (pendiente de activar, ver Fase 3 del doc 26) usa el criterio oficial de Florida §605.0112 / §607.0401 con normalización tajante (sin espacios, sin puntuación, sin designator, sin "the"/"a" inicial) — el sistema responde binario: tomado o disponible. Si Florida igual lo rechaza tras el filing, lo cubre la cláusula `/terms#name-availability` (§14).
+
+**Strategy legacy (pre-2026-06-22, solo aplica para órdenes viejas):** el form pedía **3 nombres en orden de preferencia** (`companyName`, `companyName2`, `companyName3`). Si el primero estaba tomado o era engañosamente similar, el equipo intentaba con el segundo, etc. Esto evitaba ida-vuelta con el cliente cuando había un duplicado. Las órdenes que entraron antes del rediseño todavía tienen `companyName2/3` poblados en la DB; las nuevas las dejan NULL.
 
 ---
 
@@ -212,13 +216,25 @@ El formulario de OpaBiz pide **3 nombres en orden de preferencia** (`companyName
 
 ## 7. Flujo operativo del verificador de nombres
 
-Cuando una orden llega con status `in_review`, el equipo verifica los 3 nombres:
+### Flujo nuevo (post-2026-06-22) — verificación en vivo en el form
+Antes de que el cliente pague, el form ya validó el nombre contra Turso:
+
+1. Cliente tipea el nombre + elige designator
+2. Debounce 300ms → `GET /api/proxy/names/check?q=<nombre>+<designator>` (pendiente activar — Fase 3 del doc 26)
+3. Turso FTS5 query: <30ms desde Vercel
+4. Si **tomado** → texto rojo "Este nombre ya está tomado en Florida" + botón Next bloqueado
+5. Si **disponible** → silencio (solo preview verde del nombre formateado)
+6. Cliente paga → orden llega a admin con status `in_review` y nombre validado
+7. Equipo procede directo a filear con FL Division of Corporations — **NO hay verificación manual**
+
+### Flujo legacy (pre-2026-06-22) — verificación manual en admin
+Aplicable solo a órdenes viejas que entraron con 3 nombres:
 
 1. Admin abre `/admin/orders/[id]`
 2. Click "Verificar nombres" → llama `GET /api/proxy/names/check?names=NAME1,NAME2,NAME3`
 3. (Hoy retorna mock; **pendiente** migrar a query real contra `sunbiz_corps`)
 4. UI muestra lista de los 3 con disponibilidad
-5. Si los 3 están tomados → status `names_taken` + email al cliente
+5. Si los 3 están tomados → status `names_taken` + email A2 al cliente
 6. Si al menos 1 está disponible → status `ready_to_file` con ese nombre
 7. Equipo procede a filear con FL Division of Corporations
 

@@ -46,7 +46,9 @@ Variables de entorno para DB:
 Order {
   id              String   // cuid() — los primeros 8 chars son el FBFC del cliente
   firstName, lastName, email, phone, country
-  companyName, companyName2, companyName3
+  companyName              // único nombre desde 2026-06-22 (ver /terms §14 + flujo nuevo abajo)
+  companyName2, companyName3  // LEGACY — siempre null en órdenes nuevas. Schema los conserva
+                              //          para órdenes pre-2026-06-22 (backwards compat).
   entityType      // 'llc' | 'corp'
   speed           // 'standard' | 'expedited'
   package         String   // nombre del paquete o 'addon' (marketing)
@@ -55,9 +57,21 @@ Order {
   addons          Json?    // {ein, oa, itin, ar}
   stripePaymentId String?
   paymentStatus   // 'pending' | 'paid'
-  status          // pending → in_review → names_taken → ready_to_file → filed → approved → completed
+  status          // pending → in_review → ready_to_file → filed → approved → completed
+                  // (names_taken queda como enum legacy pero no se usa en flujos nuevos —
+                  //  el form valida en vivo contra Turso antes de cobrar)
 }
 ```
+
+#### Flujo nuevo de captura del nombre (commit `cbf477b`, 2026-06-22)
+
+El formulario en `backend/app/page.tsx` paso 1 pide **un solo nombre + designator** (LLC/L.L.C./Limited Liability Company para LLCs, Inc/Corp/Corporation/Incorporated para Corps). Debajo del card hay 3 acordeones colapsables ("Additional Explanation") que el usuario puede abrir:
+
+1. **What if my company name is unavailable?** — explica que si Florida rechaza, recontactamos sin cargo de servicio pero la nueva state fee es responsabilidad del cliente
+2. **Does the company name end with "LLC" or "Inc."?** — explica que el designator va aparte y se agrega automático
+3. **Is the name availability check guaranteed?** — disclaimer del preliminary check con link a `/terms#name-availability` (§14)
+
+La verificación EN VIVO contra Turso FTS5 está **pendiente de activar** cuando los 3.5M de Sunbiz terminen de cargarse (Fase 1 en progreso). Mientras tanto, el form acepta cualquier nombre y la validación final ocurre al presentar a Florida (mismo comportamiento que pre-cambio, solo que ahora con un solo nombre).
 
 ### Otras tablas Supabase
 
@@ -379,13 +393,13 @@ Página de detalle de orden con todas las herramientas operativas:
 |---|---|
 | **Gestión de Estado** | Botones contextuales por status. Cada avance dispara notificación al cliente automáticamente (`filed` → `sendOrderProcessed`, `approved` → `sendOrderApproved`) |
 | **Certificate PDF** | Aparece solo cuando status=`approved`. Sube PDF a Supabase Storage (`certificates/orders/{id}/certificate.pdf`), envía email al cliente y marca orden `completed` |
-| **Buscador de nombres** | Aparece solo cuando status=`names_taken`. Verifica disponibilidad en Sunbiz y envía sugerencias al cliente |
-| **Acciones manuales** | Forzar cualquier status vía selector + enviar emails sueltos (nombres tomados, certificate) |
+| **Buscador de nombres** _(LEGACY — a ocultar)_ | Aparece solo cuando status=`names_taken`. Sirve para órdenes viejas que entraron antes del rediseño del form 2026-06-22. Las órdenes nuevas no llegan a este estado porque el form valida en vivo contra Turso antes de cobrar. |
+| **Acciones manuales** | Forzar cualquier status vía selector + enviar emails sueltos (nombres tomados, certificate). Los emails A2/A4 (nombres tomados, sugerencias) quedan disponibles para órdenes legacy pero se desactivan cuando entre en producción la verificación en vivo. |
 | **Notas internas** | Texto libre visible solo para el equipo, guardado en la orden |
 | **Pre-filled Documents** | PDFs generados con datos del cliente: Articles of Organization, BOI, EIN SS-4, Operating Agreement |
 
-Flujo de estados: `pending → in_review → ready_to_file → filed → approved → completed`
-Rama alternativa: `in_review → names_taken → in_review` (loop hasta encontrar nombre disponible)
+Flujo de estados (órdenes nuevas, post-2026-06-22): `pending → in_review → ready_to_file → filed → approved → completed`
+Rama legacy (órdenes pre-rediseño form): `in_review → names_taken → in_review` (loop hasta encontrar nombre disponible — solo aplicaba cuando el form aceptaba 3 nombres y todos estaban tomados)
 
 ## Módulo de Contabilidad (`/admin/contabilidad`)
 

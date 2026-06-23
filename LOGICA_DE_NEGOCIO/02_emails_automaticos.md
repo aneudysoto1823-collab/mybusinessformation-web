@@ -1,5 +1,7 @@
 # Proceso 2 — Emails Automáticos (Resend)
 
+> **⚠️ Actualización 2026-06-22 (Javier):** Los emails **A2, A3 y A4** quedan marcados como **LEGACY — a deprecar**. El form de checkout (commit `cbf477b`) ya solo pide UN nombre con validación en vivo planificada contra Turso. Cuando la verificación en vivo entre en producción (Fase 3 del doc 26, tras cargar los 3.5M de Sunbiz), se eliminarán A2/A3/A4 del código y la lista total bajará de 12 emails a **9**. Por ahora siguen vivos para soportar órdenes legacy. Ver detalle en cada email abajo.
+
 ## Lista rápida — qué email, desde dónde, qué ve el destinatario
 
 1. **Confirmación de orden** llega al cliente desde `noreply@opabiz.com` → cliente ve **OpaBiz**
@@ -117,19 +119,22 @@ Todos van DESDE `RESEND_FROM_TRANSACTIONAL` con Reply-To `RESEND_REPLY_TO`.
 - **Subject:** `OpaBiz: ✅ Your Florida LLC order is in — {companyName}`
 - **⚠️ Templates ligeramente distintos:** la versión inline (`/api/orders`) y la de `sendOrderConfirmation()` tienen pequeñas diferencias visuales. Consolidar en una sola fuente es trabajo pendiente.
 
-#### A2. Nombres Tomados → CLIENTE
-- **Cuándo:** Equipo verifica en Sunbiz que los 3 nombres propuestos están registrados.
+#### A2. Nombres Tomados → CLIENTE _(LEGACY — a deprecar)_
+- **⚠️ Deprecation (decisión Javier 2026-06-22):** este email **se eliminará** cuando se active la verificación de nombres en vivo contra Turso en el form (Fase 3 del doc 26). El form rediseñado (commit `cbf477b`) ya solo pide UN nombre con validación en vivo, así que el caso "todos tomados" deja de existir. Mientras tanto el email sigue vivo para órdenes legacy que entraron con 3 nombres antes del rediseño.
+- **Cuándo (legacy):** Equipo verifica en Sunbiz que los 3 nombres propuestos están registrados.
 - **Destinatario:** `order.email`.
 - **Función:** `sendAllNamesTaken(order)` — envía A2 + A3 en paralelo (Promise.all).
 - **Contenido:** Lista 3 nombres rechazados con ❌, pide 3 nuevas opciones, enlaza `search.sunbiz.org`.
 
-#### A3. Alerta de Nombres Tomados → ADMIN INTERNO
+#### A3. Alerta de Nombres Tomados → ADMIN INTERNO _(LEGACY — a deprecar)_
+- **⚠️ Deprecation:** mismo motivo que A2. Se elimina junto con A2 cuando la verificación en vivo esté activa.
 - **Cuándo:** Mismo momento que A2 (parte de `sendAllNamesTaken`).
-- **Destinatario:** `INTERNAL_ALERT_EMAIL` = `admin@opabiz.com`.
+- **Destinatario:** `INTERNAL_ALERT_EMAIL` = `alert@opabiz.com`.
 - **Contenido:** Alerta roja con datos del cliente, nombres rechazados, instrucción de seguimiento.
 
-#### A4. Sugerencia de Nombres → CLIENTE
-- **Cuándo:** Admin encuentra nombres alternativos disponibles y los manda al cliente.
+#### A4. Sugerencia de Nombres → CLIENTE _(LEGACY — a deprecar)_
+- **⚠️ Deprecation:** ya no aplica para órdenes nuevas (el cliente solo elige UN nombre que ya validamos en vivo). Se elimina junto con A2/A3.
+- **Cuándo (legacy):** Admin encuentra nombres alternativos disponibles y los manda al cliente.
 - **Destinatario:** `order.email`.
 - **Función:** `sendSuggestNames(order)`.
 - **Contenido:** Lista de nombres sugeridos por el equipo + CTA para que el cliente confirme.

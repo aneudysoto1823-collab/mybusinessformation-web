@@ -76,10 +76,14 @@
 - [ ] Smoke test: correr manualmente y verificar logs
 
 ### Fase 3 — Migrar Path B y Path C (consumir Turso real)
-- [ ] Path B: `/api/proxy/names/check` — quitar el mock, consultar `sunbiz_corps_fts` con FTS5
+- [x] **Rediseño del form en el landing** — paso 1 ahora pide 1 nombre + Designator + 3 acordeones "Additional Explanation" estilo Bizee (commit `cbf477b`, 2026-06-22). Backwards compat: `companyName2/3 = null` en órdenes nuevas, schema conservado para órdenes legacy.
+- [x] **Cobertura legal** — nueva cláusula §14 "Preliminary Name Availability Check" en `/terms` (EN+ES, commit `67d1fb0`, 2026-06-22)
+- [ ] **Activar verificación en vivo** — `/api/proxy/names/check?q=<nombre>+<designator>` con FTS5 + normalización tajante (criterio Florida §605.0112). Conectar `oninput` del campo `inp-bizname` con debounce 300ms + spinner + texto rojo si tomado. **REQUIERE 3.5M cargados primero.**
+- [ ] **Eliminar emails A2/A3/A4** (Nombres Tomados cliente + alerta admin + Sugerencias) — quedan obsoletos con verificación en vivo. Baja total de 12 a 9 emails.
+- [ ] **Ocultar en admin** la sección "Buscador de nombres" + botones manuales A2/A4. Conservar el código por backwards compat con órdenes legacy.
 - [ ] Path C: tool `check_name_availability` de Claudia chat — quitar scraping HTML, consultar Turso
-- [ ] Conectar el panel admin (`/admin/orders/[id]`) para usar endpoint real (hoy es mock)
 - [ ] Auto-relleno de 14 formularios en `/servicios` — migrar de `sunbiz_corps` Supabase (vacío) a Turso
+- [ ] Crear doc canónico `LOGICA_DE_NEGOCIO/27_busqueda_nombres_en_vivo.md` (deja doc 06 como referencia histórica)
 
 ### Fase 4 — Backups GitHub Actions → R2
 - [ ] Crear `.github/workflows/backup-daily.yml` (cron diario 12:30am)
@@ -97,7 +101,7 @@
 
 - [ ] **Plan B si Fase 1 no termina antes del lanzamiento:** lanzar con los ~60K daily files cargados + scraping fallback de Claudia para nombres no encontrados
 
-> _Actualizado por Javier el 2026-06-22_ — arquitectura completa redefinida (Turso + Cloudflare R2 + Vercel Cron + GitHub Actions, Railway cancelado). Plan original "solicitar acceso FTP" descartado: el SFTP de Florida es público. Fase 0 + parte de Fase 1 ya hechas (60K records cargados como proof of concept).
+> _Actualizado por Javier el 2026-06-22_ — arquitectura completa redefinida (Turso + Cloudflare R2 + Vercel Cron + GitHub Actions, Railway cancelado). Plan original "solicitar acceso FTP" descartado: el SFTP de Florida es público. Fase 0 + parte de Fase 1 ya hechas (60K records cargados como proof of concept). **Update segunda mitad del día:** primeros entregables de Fase 3 ya en producción — rediseño del form (1 nombre + 3 acordeones) y cobertura legal `/terms §14`. Falta activar la verificación en vivo cuando los 3.5M terminen de cargarse.
 
 ---
 
