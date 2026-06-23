@@ -331,6 +331,17 @@ El paso de pago es el step `#fms9`. Implementado:
 
 **⏳ Falta:** probar en test con tarjeta `4242 4242 4242 4242` (cualquier fecha futura + CVC + ZIP) → verificar: orden pending creada, form de Stripe se monta, webhook marca paid, llegan emails, `/order/complete` muestra éxito. Requiere que las env vars de Stripe (test) estén en Vercel y un **Redeploy**. Al lanzar: repetir todo en **LIVE** (keys, webhook, statement descriptor).
 
+#### 🚨 GOTCHA CRÍTICO: la URL del webhook DEBE llevar `www` (resuelto 2026-06-23)
+
+El dominio redirige **`opabiz.com` (apex) → `www.opabiz.com`** con un **308**. **Stripe NO sigue redirects**: cuando el webhook apunta a `https://opabiz.com/api/webhooks/stripe`, recibe el 308 y marca la entrega como fallida (error rate 100%), sin llegar nunca a ejecutar el código. Resultado: pago exitoso en Stripe pero la orden queda `pending` y **no se envían emails** (el webhook es quien marca paid + dispara A1/A0).
+
+- **URL correcta del endpoint en Stripe:** `https://www.opabiz.com/api/webhooks/stripe` (CON `www`).
+- Aplica **tanto en test/sandbox como en LIVE** — al crear el webhook live, usar también `www` o se repite el bug con clientes reales.
+- El `whsec_` (signing secret) NO era el problema; ya coincidía con `STRIPE_WEBHOOK_SECRET` de Vercel.
+- **Recuperar órdenes afectadas:** Stripe → (cuenta/sandbox correcto) → Developers → Webhooks → `opabiz-checkout` → Event deliveries → abrir el evento fallido → botón **Resend**. Al responder `200` la orden pasa a paid+in_review y salen los emails (idempotente vía `handleFormationPaid`).
+
+> **Estructura de cuentas Stripe:** 1 sola cuenta "Florida Business Formation Center" = `acct_1TkDfgCSqYWERc9A` (live, `pk_live_51TkDfg…`) + 1 **sandbox** con id propio `acct_1TkDfrCJpzHlLzWq` (`pk_test_51TkDfr…`). El sitio en test usa las keys del **sandbox** (`TkDfr`) — ahí van los pagos de prueba y el webhook de test. No son cuentas duplicadas; el sandbox del modelo nuevo de Stripe tiene su propio `acct_` id.
+
 ---
 
 ## Convenciones establecidas
