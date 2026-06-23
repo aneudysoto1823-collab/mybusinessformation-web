@@ -69,30 +69,30 @@ function CompleteContent() {
   const t = {
     en: {
       loading: 'Confirming your payment...',
-      paidTitle: 'Payment confirmed!',
-      processingTitle: 'Payment received',
+      paidTitle: 'Order received',
+      processingTitle: 'Order received',
       errorTitle: 'Something went wrong',
       errorSub: 'We could not confirm your payment status. If you were charged, please contact us and we will help right away.',
       confLabel: 'Confirmation number',
       copy: 'Copy', copied: 'Copied!',
       company: 'Company', entity: 'Entity type', pkg: 'Package',
       total: 'Total paid',
-      next: 'Our team is now reviewing your order and will verify your company name with the Florida Division of Corporations. We will contact you within 1 business day.',
+      next: 'Our team is reviewing your order and will verify your company name with the Florida Division of Corporations. We will be in touch with the next steps.',
       emailNote: (e: string | null) => e ? `A confirmation has been sent to ${e}.` : 'A confirmation has been sent to your email.',
       portal: 'Access Client Portal',
       home: 'Back to Home',
     },
     es: {
       loading: 'Confirmando tu pago...',
-      paidTitle: '¡Pago confirmado!',
-      processingTitle: 'Pago recibido',
+      paidTitle: 'Orden recibida',
+      processingTitle: 'Orden recibida',
       errorTitle: 'Algo salió mal',
       errorSub: 'No pudimos confirmar el estado de tu pago. Si se te cobró, contáctanos y te ayudamos enseguida.',
       confLabel: 'Número de confirmación',
       copy: 'Copiar', copied: '¡Copiado!',
       company: 'Empresa', entity: 'Tipo de entidad', pkg: 'Paquete',
       total: 'Total pagado',
-      next: 'Nuestro equipo está revisando tu orden y verificará el nombre de tu empresa ante la División de Corporaciones de Florida. Te contactaremos en un día hábil.',
+      next: 'Nuestro equipo está revisando tu orden y verificará el nombre de tu empresa ante la División de Corporaciones de Florida. Te contactaremos con los próximos pasos.',
       emailNote: (e: string | null) => e ? `Enviamos una confirmación a ${e}.` : 'Enviamos una confirmación a tu correo.',
       portal: 'Acceder al Portal de Clientes',
       home: 'Volver al Inicio',
@@ -123,11 +123,12 @@ function CompleteContent() {
     <div style={{
       fontFamily: "'Plus Jakarta Sans', sans-serif", minHeight: '100vh',
       display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 20px',
-      background: 'linear-gradient(160deg, #0f1c2e 0%, #1C2E44 100%)',
+      background: '#ffffff',
     }}>
       <div style={{
-        background: '#fff', borderRadius: 16, maxWidth: 540, width: '100%',
-        padding: '40px 34px', textAlign: 'center', boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+        background: '#fff', borderRadius: 18, maxWidth: 620, width: '100%',
+        padding: '44px 40px', textAlign: 'center',
+        border: '1px solid #e2e8f0', boxShadow: '0 10px 40px rgba(15,28,46,0.08)',
       }}>
         <a href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, textDecoration: 'none', marginBottom: 20 }}>
           <div style={{ width: 36, height: 36, background: '#2563EB', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontFamily: "'Fraunces', serif", fontWeight: 700 }}>OB</div>
@@ -200,8 +201,7 @@ function CompleteContent() {
 
         {status !== 'loading' && (
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <a href="/client-portal" style={{ background: '#2563EB', color: '#fff', textDecoration: 'none', padding: '12px 24px', borderRadius: 8, fontWeight: 700, fontSize: '0.9rem', minHeight: 44, display: 'inline-flex', alignItems: 'center' }}>{t.portal}</a>
-            <a href="/" style={{ background: '#f1f5f9', color: '#475569', textDecoration: 'none', padding: '12px 24px', borderRadius: 8, fontWeight: 600, fontSize: '0.9rem', minHeight: 44, display: 'inline-flex', alignItems: 'center' }}>{t.home}</a>
+            <a href="/" style={{ background: '#1C2E44', color: '#fff', textDecoration: 'none', padding: '12px 28px', borderRadius: 8, fontWeight: 700, fontSize: '0.9rem', minHeight: 44, display: 'inline-flex', alignItems: 'center' }}>{t.home}</a>
           </div>
         )}
       </div>
