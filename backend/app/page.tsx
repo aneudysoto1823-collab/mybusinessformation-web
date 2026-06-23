@@ -602,19 +602,21 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 .fm-divider{font-size:.72rem;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.7px;margin:20px 0 14px;display:flex;align-items:center;gap:10px}
 .fm-divider::after{content:'';flex:1;height:1px;background:#e5e7eb}
 
-/* Accordions estilo Bizee — "Additional Explanation" */
-.fm-acc-wrap{margin-top:20px;background:#fafafa;border:1px solid #eef0f2;border-radius:10px;padding:14px 16px}
-.fm-acc-title{font-size:.78rem;font-weight:700;color:#475569;margin-bottom:8px;letter-spacing:.2px}
-.fm-acc-item{border-bottom:1px solid #eef0f2}
-.fm-acc-item:last-child{border-bottom:none}
-.fm-acc-head{width:100%;background:transparent;border:none;cursor:pointer;padding:13px 4px;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;font-size:.86rem;font-weight:500;color:#1f2937;font-family:inherit}
-.fm-acc-head:hover{color:#2563eb}
-.fm-acc-chev{font-size:.85rem;color:#94a3b8;transition:transform .2s}
-.fm-acc-item.open .fm-acc-chev{transform:rotate(180deg);color:#2563eb}
-.fm-acc-body{max-height:0;overflow:hidden;transition:max-height .25s ease,padding .25s ease;padding:0 4px}
-.fm-acc-item.open .fm-acc-body{max-height:600px;padding:0 4px 14px}
-.fm-acc-body p{margin:0;font-size:.82rem;line-height:1.65;color:#475569}
-.fm-acc-body a{color:#2563eb;text-decoration:underline}
+/* Accordions estilo Bizee — "Additional Explanation".
+   Prefijo único fm-nameacc-* para NO colisionar con .fm-acc-* que ya
+   existían (FAQ del home y accordions de /servicios). */
+.fm-nameacc-wrap{margin-top:20px;background:#fafafa;border:1px solid #eef0f2;border-radius:10px;padding:14px 16px}
+.fm-nameacc-title{font-size:.78rem;font-weight:700;color:#475569;margin-bottom:8px;letter-spacing:.2px}
+.fm-nameacc-item{border-bottom:1px solid #eef0f2}
+.fm-nameacc-item:last-child{border-bottom:none}
+.fm-nameacc-head{width:100%;background:transparent;border:none;cursor:pointer;padding:13px 4px;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;font-size:.86rem;font-weight:500;color:#1f2937;font-family:inherit}
+.fm-nameacc-head:hover{color:#2563eb}
+.fm-nameacc-chev{font-size:.85rem;color:#94a3b8;transition:transform .2s}
+.fm-nameacc-item.open .fm-nameacc-chev{transform:rotate(180deg);color:#2563eb}
+.fm-nameacc-body{display:none;padding:0 4px 14px}
+.fm-nameacc-item.open .fm-nameacc-body{display:block}
+.fm-nameacc-body p{margin:0;font-size:.82rem;line-height:1.65;color:#475569}
+.fm-nameacc-body a{color:#2563eb;text-decoration:underline}
 
 /* Radio/choice cards */
 .fm-choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
@@ -1384,36 +1386,37 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
             </div>
           </div>
 
-          <!-- Additional Explanation — 3 accordions (estilo Bizee). Aclaraciones legales y operativas sobre el nombre. -->
-          <div class="fm-acc-wrap" id="name-acc-wrap">
-            <div class="fm-acc-title" id="name-acc-title">Additional Explanation</div>
+          <!-- Additional Explanation — 3 accordions (estilo Bizee). Aclaraciones legales y operativas sobre el nombre.
+               Clases con prefijo fm-nameacc-* para NO colisionar con .fm-acc-* del FAQ del home. -->
+          <div class="fm-nameacc-wrap" id="name-acc-wrap">
+            <div class="fm-nameacc-title" id="name-acc-title">Additional Explanation</div>
 
-            <div class="fm-acc-item" id="name-acc-1">
-              <button type="button" class="fm-acc-head" onclick="this.parentElement.classList.toggle('open')">
+            <div class="fm-nameacc-item" id="name-acc-1">
+              <button type="button" class="fm-nameacc-head" onclick="this.parentElement.classList.toggle('open')">
                 <span id="name-acc-1-q">What if my company name is unavailable?</span>
-                <span class="fm-acc-chev">&#9662;</span>
+                <span class="fm-nameacc-chev">&#9662;</span>
               </button>
-              <div class="fm-acc-body" id="name-acc-1-body">
+              <div class="fm-nameacc-body" id="name-acc-1-body">
                 <p id="name-acc-1-a">If the name you choose is rejected by the Florida Division of Corporations after we submit your filing, we will contact you to request an alternative name and will resubmit at no additional service fee from us. The original state filing fee paid to Florida is non-refundable. Any new state filing fee charged for the resubmission is your responsibility.</p>
               </div>
             </div>
 
-            <div class="fm-acc-item" id="name-acc-2">
-              <button type="button" class="fm-acc-head" onclick="this.parentElement.classList.toggle('open')">
+            <div class="fm-nameacc-item" id="name-acc-2">
+              <button type="button" class="fm-nameacc-head" onclick="this.parentElement.classList.toggle('open')">
                 <span id="name-acc-2-q">Does the company name end with &quot;LLC&quot; or &quot;Inc.&quot;?</span>
-                <span class="fm-acc-chev">&#9662;</span>
+                <span class="fm-nameacc-chev">&#9662;</span>
               </button>
-              <div class="fm-acc-body" id="name-acc-2-body">
+              <div class="fm-nameacc-body" id="name-acc-2-body">
                 <p id="name-acc-2-a">Yes. Florida requires every entity name to include a designator. For LLCs you can use: <em>LLC</em>, <em>L.L.C.</em>, <em>Limited Liability Company</em>, or <em>Ltd. Liability Co.</em> For Corporations: <em>Inc.</em>, <em>Corp.</em>, <em>Corporation</em>, or <em>Incorporated</em>. You select the designator from the dropdown above — <strong>you do not need to type it in the name field.</strong> We add it automatically when we file.</p>
               </div>
             </div>
 
-            <div class="fm-acc-item" id="name-acc-3">
-              <button type="button" class="fm-acc-head" onclick="this.parentElement.classList.toggle('open')">
+            <div class="fm-nameacc-item" id="name-acc-3">
+              <button type="button" class="fm-nameacc-head" onclick="this.parentElement.classList.toggle('open')">
                 <span id="name-acc-3-q">Is the name availability check guaranteed?</span>
-                <span class="fm-acc-chev">&#9662;</span>
+                <span class="fm-nameacc-chev">&#9662;</span>
               </button>
-              <div class="fm-acc-body" id="name-acc-3-body">
+              <div class="fm-nameacc-body" id="name-acc-3-body">
                 <p id="name-acc-3-a">No. The check we perform while you type is a <strong>preliminary search</strong> against Florida's public Sunbiz database. A name shown as available may still be rejected by Florida for reasons not visible in the public records, including: 120-day name reservations not yet public, names requiring special licensing (such as &ldquo;Bank&rdquo;, &ldquo;Trust&rdquo;, &ldquo;Insurance&rdquo;), federally trademarked names, or examiner discretion regarding similarity to existing entities. See our <a href="/terms#name-availability" target="_blank" rel="noopener">Terms of Service &sect;14</a> for the full policy.</p>
               </div>
             </div>
