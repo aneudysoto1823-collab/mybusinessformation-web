@@ -194,7 +194,7 @@ function getConfirmationNumber(id: string, pkg: string): string {
 export default async function ClientDashboardPage({
   searchParams,
 }: {
-  searchParams: Promise<{ order?: string }>
+  searchParams: Promise<{ order?: string; lang?: string }>
 }) {
   const cookieStore = await cookies()
   const sessionOrderId = cookieStore.get('client_session')?.value
@@ -219,8 +219,14 @@ export default async function ClientDashboardPage({
   const confirmationNumber = getConfirmationNumber(order.id, order.package)
   const steps = isAddon ? ADDON_STEPS : STEPS
   const documents = await getDocuments(order.id, order)
+  // initialLang: ?lang del home (prioridad) → cookie portal_lang → 'en'. Evita el
+  // parpadeo EN→ES en el primer render cuando vienes del home con ?lang.
   const portalLangCookie = cookieStore.get('portal_lang')?.value
-  const initialLang: 'en' | 'es' = portalLangCookie === 'es' ? 'es' : 'en'
+  const initialLang: 'en' | 'es' =
+    params.lang === 'es' ? 'es'
+    : params.lang === 'en' ? 'en'
+    : portalLangCookie === 'es' ? 'es'
+    : 'en'
 
   return (
     <>

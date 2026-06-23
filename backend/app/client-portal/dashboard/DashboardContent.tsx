@@ -156,11 +156,15 @@ export default function DashboardContent({
   const [pwLoading, setPwLoading] = useState(false)
 
   useEffect(() => {
+    // Prioridad: ?lang de la URL (idioma del home del que viene) → portal_lang →
+    // flbc_lang. El ?lang persiste para que la sesión del portal se quede en ese
+    // idioma. Persistimos también 'en' (antes solo 'es', dejando valores stale).
+    const urlLang = new URLSearchParams(window.location.search).get('lang')
     const portalLang = localStorage.getItem('portal_lang')
     const siteLang = localStorage.getItem('flbc_lang')
-    const detected = portalLang || siteLang
+    const detected = urlLang || portalLang || siteLang
     if (detected === 'es') { setLang('es'); localStorage.setItem('portal_lang', 'es') }
-    else if (detected === 'en') setLang('en')
+    else if (detected === 'en') { setLang('en'); localStorage.setItem('portal_lang', 'en') }
     if (localStorage.getItem('pw_banner_dismissed')) setPwBanner(false)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 

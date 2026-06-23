@@ -872,7 +872,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
       <a href="/contact?lang=${defaultLang}" data-en="Contact" data-es="Contacto">Contact</a>
       <a href="/servicios?lang=${defaultLang}" data-en="Services" data-es="Servicios">Services</a>
       <a href="/client-portal?lang=${defaultLang}" class="nav-login-mobile" data-en="Login" data-es="Iniciar sesión" onclick="openPortalLogin(event)">Login</a>
-      <a href="/client-portal/dashboard" class="nav-orders-mobile" data-en="My Orders" data-es="Mis órdenes">My Orders</a>
+      <a href="/client-portal/dashboard?lang=${defaultLang}" class="nav-orders-mobile" data-en="My Orders" data-es="Mis órdenes">My Orders</a>
       <a href="#" class="nav-logout-mobile" data-en="Logout" data-es="Salir" onclick="portalLogout();return false">Logout</a>
     </nav>
     <div style="display:flex;align-items:center;gap:12px">
@@ -883,7 +883,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
       <a href="/client-portal" id="header-login-btn" style="padding:6px 14px;border-radius:6px;border:1.5px solid #e2e8f0;background:#fff;font-size:0.85rem;font-weight:500;color:#475569;text-decoration:none;transition:all 0.2s;white-space:nowrap;" onmouseover="this.style.borderColor='#2563eb';this.style.color='#2563eb'" onmouseout="this.style.borderColor='#e2e8f0';this.style.color='#475569'" onclick="openPortalLogin(event)">Login</a>
       <div id="header-account">
         <span id="header-greeting"></span>
-        <a href="/client-portal/dashboard" id="header-orders-btn" data-en="My Orders" data-es="Mis órdenes">My Orders</a>
+        <a href="/client-portal/dashboard?lang=${defaultLang}" id="header-orders-btn" data-en="My Orders" data-es="Mis órdenes">My Orders</a>
         <button id="header-logout-btn" onclick="portalLogout()" data-en="Logout" data-es="Salir">Logout</button>
       </div>
       <button class="hamburger" id="hamburger-btn" aria-label="Toggle menu" onclick="toggleNav()">
@@ -6569,7 +6569,7 @@ function openPortalLogin(e){
   if(e && e.preventDefault) e.preventDefault();
   // Si ya hay sesión activa, el botón lleva directo al dashboard.
   if(document.documentElement.classList.contains('portal-authed')){
-    window.location.href='/client-portal/dashboard'; return;
+    window.location.href='/client-portal/dashboard?lang=' + currentLang; return;
   }
   var ov=document.getElementById('plogin-overlay');
   if(ov){ ov.classList.add('open'); var em=document.getElementById('plogin-acct'); if(em) setTimeout(function(){em.focus();},50); }
