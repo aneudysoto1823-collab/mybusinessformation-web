@@ -567,6 +567,9 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
    vea "extendiéndose". En live con todos los métodos (Card/Link/Klarna/Cash
    App/Affirm/Bank) el form mide ~720px, así que reservamos ese alto. */
 #embedded-checkout{min-height:720px}
+/* Skeleton mientras carga el form de Stripe (imita su layout con shimmer). */
+@keyframes fmSkelShimmer{0%{background-position:-400px 0}100%{background-position:400px 0}}
+.fm-skel{border-radius:8px;background:#eef2f7;background-image:linear-gradient(90deg,#eef2f7 0px,#f6f8fb 200px,#eef2f7 400px);background-size:800px 100%;animation:fmSkelShimmer 1.2s linear infinite}
 .fm-sum-pay-notice{margin-top:12px;font-size:.72rem;line-height:1.5;color:#92400e;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:9px 11px}
 .fm-sum-pay-notice strong{color:#b45309}
 .fm-sum-pay-consent{margin-top:10px;font-size:.7rem;line-height:1.5;color:#6b7280}
@@ -5326,7 +5329,19 @@ async function fmMountPayment() {
   var isEsS = !!(document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active'));
   var ec = document.getElementById('embedded-checkout');
   fmDestroyPayment();
-  if(ec) ec.innerHTML = '<div style="padding:18px;text-align:center;color:#6b7280;font-size:.82rem">' + (isEsS ? 'Cargando el pago seguro...' : 'Loading secure payment...') + '</div>';
+  if(ec) ec.innerHTML = ''
+    + '<div style="padding:4px 2px">'
+    +   '<div style="display:flex;gap:10px;margin-bottom:14px">'
+    +     '<div class="fm-skel" style="height:44px;flex:1"></div>'
+    +     '<div class="fm-skel" style="height:44px;flex:1"></div>'
+    +   '</div>'
+    +   '<div class="fm-skel" style="height:12px;width:38%;margin:0 auto 16px"></div>'
+    +   '<div class="fm-skel" style="height:48px;margin-bottom:10px"></div>'
+    +   '<div class="fm-skel" style="height:48px;margin-bottom:10px"></div>'
+    +   '<div class="fm-skel" style="height:48px;margin-bottom:18px"></div>'
+    +   '<div class="fm-skel" style="height:46px"></div>'
+    +   '<div style="text-align:center;margin-top:12px;color:#9ca3af;font-size:.74rem">' + (isEsS ? 'Cargando el pago seguro...' : 'Loading secure payment...') + '</div>'
+    + '</div>';
   try {
     var payload = fmBuildOrderPayload();
     payload.deferEmails = true;
