@@ -564,8 +564,9 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 #fm-pay-area{padding:14px 20px 18px;border-top:1px solid #eef2f7}
 .fm-sum-pay-title{font-family:'Fraunces',serif;font-size:1.02rem;font-weight:700;color:#1e293b;margin-bottom:10px}
 /* Reservamos el alto aproximado del form de Stripe para que al cargar no se
-   vea "extendiéndose" (el iframe crece de ~40px a ~600px y reflowea la caja). */
-#embedded-checkout{min-height:600px}
+   vea "extendiéndose". En live con todos los métodos (Card/Link/Klarna/Cash
+   App/Affirm/Bank) el form mide ~720px, así que reservamos ese alto. */
+#embedded-checkout{min-height:720px}
 .fm-sum-pay-notice{margin-top:12px;font-size:.72rem;line-height:1.5;color:#92400e;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:9px 11px}
 .fm-sum-pay-notice strong{color:#b45309}
 .fm-sum-pay-consent{margin-top:10px;font-size:.7rem;line-height:1.5;color:#6b7280}
