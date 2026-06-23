@@ -4468,43 +4468,6 @@ function buildReviewRow(label, price, color, note) {
 }
 
 
-// ── Payment method toggle ──────────────────────────────────────────────────
-var payMethodOpen = null;
-function togglePayMethod(method) {
-  // Toggle card fields panel
-  var cf = document.getElementById('card-fields');
-  if(cf){
-    if(method === 'card'){
-      var isOpen = cf.classList.contains('open');
-      cf.classList.toggle('open', !isOpen);
-      var btn = document.getElementById('pm-btn-card');
-      if(btn) btn.classList.toggle('active', !isOpen);
-    } else {
-      cf.classList.remove('open');
-      var cardBtn = document.getElementById('pm-btn-card');
-      if(cardBtn) cardBtn.classList.remove('active');
-    }
-  }
-  // Highlight selected method
-  ['card','apple','zelle'].forEach(function(m){
-    var b = document.getElementById('pm-btn-'+m);
-    if(b) b.classList.toggle('active', m === method && method !== 'card');
-  });
-  payMethodOpen = method;
-}
-function formatCardNumber(input) {
-  var v = input.value.replace(/\\D/g,'').substring(0,16);
-  var parts = [];
-  for(var i=0; i<v.length; i+=4) parts.push(v.substring(i,i+4));
-  input.value = parts.join(' ');
-}
-function formatExpiry(input) {
-  var v = input.value.replace(/\\D/g,'');
-  if(v.length >= 2) v = v.substring(0,2) + ' / ' + v.substring(2,4);
-  input.value = v;
-}
-
-
 function setEntityForm(type, el) {
   selectedEntity = type;
   formData.entity = type;
@@ -5098,37 +5061,6 @@ function fmUpdateMembers(count) {
 }
 
 
-
-function fmSelectPayMethod(method, el) {
-  fmData.payment = method;
-  ['pay-card','pay-zelle','pay-apple'].forEach(function(id){
-    var c = document.getElementById(id);
-    if(c) { c.classList.remove('selected'); c.querySelector('.fm-choice-radio').style.background=''; c.querySelector('.fm-choice-radio').style.borderColor='#d1d5db'; }
-  });
-  if(el) {
-    el.classList.add('selected');
-    var radio = el.querySelector('.fm-choice-radio');
-    if(radio) { radio.style.background='#f97316'; radio.style.borderColor='#f97316'; }
-  }
-  var cardFields = document.getElementById('card-fields-wrap');
-  if(cardFields) cardFields.style.display = method === 'card' ? 'block' : 'none';
-}
-
-function fmToggleBillingAddr(chk) {
-  var fields = document.getElementById('billing-addr-fields');
-  if(fields) fields.style.display = chk.checked ? 'none' : 'block';
-}
-
-function fmFormatCard(input) {
-  var v = input.value.replace(/\\D/g,'').substring(0,16);
-  input.value = v.replace(/(\\d{4})/g,'$1 ').trim();
-}
-
-function fmFormatExpiry(input) {
-  var v = input.value.replace(/\\D/g,'').substring(0,4);
-  if(v.length >= 2) v = v.substring(0,2) + '/' + v.substring(2);
-  input.value = v;
-}
 
 // ═══════════════════════════════════════════════════════
 // ORDER SUMMARY UPDATE
