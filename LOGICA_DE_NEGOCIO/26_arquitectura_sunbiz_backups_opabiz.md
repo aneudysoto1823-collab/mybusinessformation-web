@@ -70,7 +70,7 @@ Si se inunda la cocina (Supabase) → seguís verificando nombres y mandando ema
 
 
 ┌─────────────────────────────────────────────────────────────┐
-│  TURSO FREE (9 GB SQLite distribuido)                       │
+│  TURSO FREE (5 GB SQLite distribuido)                       │
 │  ─ Archivo grande de Sunbiz ─                               │
 │                                                             │
 │  • Tabla sunbiz_corps (3.5M empresas de Florida)            │
@@ -135,7 +135,7 @@ Si se inunda la cocina (Supabase) → seguís verificando nombres y mandando ema
 | `data_source` | De dónde viene el dato (`sftp_dump`, `daily_file`, `manual`) |
 | `last_updated` | Cuándo se actualizó por última vez |
 
-**Por qué Turso y no Supabase**: los 3.5M ocupan ~2 GB con índices. No entran en Supabase Free (500 MB) y nos forzarían a pagar Supabase Pro $25/mes. Turso da **9 GB gratis** y para queries de búsqueda de nombres es **más rápido** porque usa SQLite con FTS5 (full-text search nativo).
+**Por qué Turso y no Supabase**: los 3.5M ocupan **~1.24 GB** con índices y FTS5 (medido empíricamente con los primeros 60K cargados — 382 bytes/row). No entran en Supabase Free (500 MB) y nos forzarían a pagar Supabase Pro $25/mes. Turso da **5 GB gratis** (Hobby) — usamos ~25%, sobra ~75% para crecimiento de varios años. Además, SQLite con FTS5 es más rápido que Postgres pg_trgm para búsqueda fuzzy de nombres.
 
 **Por qué SQLite distribuido**: Turso replica la base en múltiples regiones del mundo, así desde Vercel las consultas son ultra rápidas (10-50ms).
 
@@ -326,7 +326,7 @@ Las de R2 van solo en GitHub Actions Secrets, no en Vercel (Vercel no necesita a
 
 | Decisión | Por qué |
 |---|---|
-| **Turso en vez de Cloudflare D1** para Sunbiz | 9 GB free vs 5 GB. Driver Node más natural para Vercel serverless. |
+| **Turso en vez de Cloudflare D1** para Sunbiz | Ambos free 5 GB. Driver `@libsql/client` de Turso es más natural para Vercel serverless que el D1 (diseñado para Workers). |
 | **Cloudflare R2 en vez de AWS S3** para backups | No cobra egress (transferencia de salida). 10 GB free permanente vs S3 5 GB free solo el primer año. |
 | **Vercel Cron en vez de Railway** | Ya pagamos Vercel Pro. El daily file tarda <1 min, dentro del límite de 5 min de Vercel serverless. Ahorramos $5/mes de Railway. |
 | **Carga inicial desde la PC del founder** en vez de servidor cloud | Tarda 1-2 horas y se hace 1 sola vez. Pagar un servidor solo para eso es desperdicio. |

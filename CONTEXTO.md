@@ -90,7 +90,7 @@ Si necesitas cambiar el diseño de una página:
 - Supabase — Postgres + Storage (acceso vía REST API desde Vercel; sin Prisma)
 - Vercel — hosting principal (Next.js)
 - Railway.app — **A CANCELAR** (decisión 2026-06-22). El plan original era despertar Railway para Etapa 5 (Sunbiz), pero se descubrió que: (a) las credenciales SFTP de Florida son públicas (no hay que solicitar acceso), (b) el daily file pesa <3MB y se procesa en <1min — dentro del límite de Vercel Cron Pro. Railway ya no es necesario. Ver arquitectura definitiva en `LOGICA_DE_NEGOCIO/26_arquitectura_sunbiz_backups.md`.
-- **Turso** (NUEVO 2026-06-22) — SQLite distribuido para los 3.5M de Sunbiz. Free tier 9 GB. Cuenta pendiente de crear.
+- **Turso** (NUEVO 2026-06-22) — SQLite distribuido para los 3.5M de Sunbiz. Free tier 5 GB. Cuenta pendiente de crear.
 - **Cloudflare R2** (NUEVO 2026-06-22) — Object storage para backups diarios de Supabase + PDFs. Free tier 10 GB. Cuenta pendiente de crear.
 - **GitHub Actions** (NUEVO 2026-06-22) — Cron diario que ejecuta `pg_dump` + sync PDFs → R2. Free tier 2000 min/mes.
 - Stripe — pagos (Etapa 4 y Etapa 16)
@@ -145,7 +145,7 @@ Pendientes de higiene técnica:
 
 ### Etapa 5 — Búsqueda de Nombres Sunbiz Florida (1-2 días — antes 2 semanas) ⚠️ CRÍTICA
 
-**Arquitectura redefinida 2026-06-22** — ver `LOGICA_DE_NEGOCIO/26_arquitectura_sunbiz_backups.md`. Resumen: los 3.5M van a **Turso (Free 9 GB)** en vez de Supabase Pro $25/mes, el cron nocturno corre en **Vercel Cron** (incluido en Pro), y Railway **se cancela**. Costo extra: $0/mes vs $30/mes del plan anterior.
+**Arquitectura redefinida 2026-06-22** — ver `LOGICA_DE_NEGOCIO/26_arquitectura_sunbiz_backups.md`. Resumen: los 3.5M van a **Turso (Free 5 GB)** en vez de Supabase Pro $25/mes, el cron nocturno corre en **Vercel Cron** (incluido en Pro), y Railway **se cancela**. Costo extra: $0/mes vs $30/mes del plan anterior.
 
 **Hallazgos clave del 2026-06-22:**
 - Las credenciales SFTP de Florida son **PÚBLICAS** (`sftp.floridados.gov` / user `Public`). No hay que solicitar acceso — el proyecto hermano `c:\Users\ethan\datallc\` ya las usa.

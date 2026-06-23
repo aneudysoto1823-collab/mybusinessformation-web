@@ -34,7 +34,7 @@
 |----------|------------------|-----------|
 | Vercel | Pro (ya pagado) | $20 |
 | Supabase | **Free (no upgrade)** — backups en GitHub Actions+R2 | $0 |
-| Turso | Hobby (Free) — 9 GB suficiente para 3.5M Sunbiz | $0 |
+| Turso | Hobby (Free) — 5 GB suficiente para 3.5M Sunbiz | $0 |
 | Cloudflare R2 | Pay-as-you-go (bajo 10 GB) | ~$0 |
 | GitHub Actions | Free (2000 min/mes) | $0 |
 | Resend | Pro (50K emails/mes) | $20 |
@@ -262,7 +262,7 @@
 - **Estado:** Plan de integración definido — Etapa 5 (ver `LOGICA_DE_NEGOCIO/26_arquitectura_sunbiz_backups.md`).
 - **Acceso:** **PÚBLICO sin necesidad de solicitar credenciales** (descubrimiento 2026-06-22). Credenciales hardcoded en `sftp.floridados.gov` con usuario `Public`. Ya está siendo usado en el proyecto hermano `datallc` desde mayo 2026.
 - **Costo:** **$0** — el SFTP es público y gratis.
-- **Storage de los 3.5M:** ya NO se usa Supabase (decisión 2026-06-22). Va a **Turso (Free 9 GB)** — ver entrada de Turso abajo.
+- **Storage de los 3.5M:** ya NO se usa Supabase (decisión 2026-06-22). Va a **Turso (Free 5 GB)** — ver entrada de Turso abajo.
 - **Acción al lanzamiento:** ejecutar el plan de Fase 1-3 del doc 26 (carga inicial + cron nocturno + migrar Path B/C).
 
 ---
@@ -270,14 +270,17 @@
 ### 🟢 Turso — Base de datos para Sunbiz (3.5M empresas)
 
 - **Qué hace:** SQLite distribuido (réplicas globales) que guarda los 3.5M de empresas de Florida + las que se crean cada día. Se consulta desde Vercel para verificar disponibilidad de nombres con búsqueda fuzzy (FTS5 nativo de SQLite).
-- **Estado:** Cuenta pendiente de crear por el founder (2026-06-22).
-- **Plan:** **Hobby (Free)** — 9 GB storage, 500M reads/mes, 10M writes/mes. Más que suficiente para los 3.5M + crecimiento de ~500K registros/año.
+- **Estado:** Cuenta creada 2026-06-22, database `opabiz-sunbiz-opabiz`, env vars en Vercel.
+- **Plan:** **Hobby (Free)** — 5 GB storage, 500M reads/mes, 10M writes/mes.
 - **Costo:** **$0/mes**.
-- **Plan recomendado si crecemos:** Scale $29/mes (24 GB). No será necesario en 5+ años.
+- **Tamaño real medido** (con 60K rows ya cargados): **382 bytes por row**. Proyección a 3.5M = **1.24 GB** (~25% del límite de 5 GB). Margen: ~6-7 años de crecimiento antes de tocar techo.
+- **Plan recomendado si crecemos:** Scale $29/mes (24 GB). No será necesario hasta 2032+.
 - **Verificar precio en:** https://turso.tech/pricing
-- **Por qué Turso y no Supabase Pro o Cloudflare D1:** 9 GB free vs Supabase Free 500 MB (no alcanza) o D1 5 GB free. Driver `@libsql/client` para Node.js es más natural desde Vercel serverless que el driver D1 (diseñado para Workers).
-- **Variables de entorno requeridas:** `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN` (en Vercel).
-- **Doc:** ver `LOGICA_DE_NEGOCIO/26_arquitectura_sunbiz_backups.md` para arquitectura completa.
+- **Por qué Turso y no Supabase Pro o Cloudflare D1:** ambos free 5 GB, pero el driver `@libsql/client` para Node.js es más natural desde Vercel serverless que el D1 (diseñado para Workers). Supabase Free son solo 500 MB — no alcanza.
+- **Variables de entorno requeridas:** `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN` (en Vercel Production + Development).
+- **Doc:** ver `LOGICA_DE_NEGOCIO/26_arquitectura_sunbiz_backups_opabiz.md` para arquitectura completa.
+
+> _Actualizado por Javier el 2026-06-22_ — corregido el límite (era 5 GB no 9 GB) y agregada medición real de bytes/row con los primeros 60K cargados.
 
 ---
 

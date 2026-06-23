@@ -49,7 +49,7 @@
 
 ## 🔴 ETAPA 5 — Búsqueda de Nombres Sunbiz Florida (CRÍTICA — en progreso)
 
-**Arquitectura redefinida 2026-06-22.** Ver `LOGICA_DE_NEGOCIO/26_arquitectura_sunbiz_backups_opabiz.md`. Los 3.5M van a **Turso (Free 9 GB)**, el cron nocturno corre en **Vercel Cron**. Railway se cancela. Costo extra: $0/mes.
+**Arquitectura redefinida 2026-06-22.** Ver `LOGICA_DE_NEGOCIO/26_arquitectura_sunbiz_backups_opabiz.md`. Los 3.5M van a **Turso (Free 5 GB)**, el cron nocturno corre en **Vercel Cron**. Railway se cancela. Costo extra: $0/mes.
 
 **Descubrimiento clave 2026-06-22:** las credenciales SFTP de Florida son **PÚBLICAS** (`sftp.floridados.gov` user `Public`). No hay que solicitar acceso. El proyecto hermano `c:\Users\ethan\datallc\` ya las usa con un scraper Python listo que se va a adaptar.
 
@@ -176,7 +176,7 @@
 ### Decisión arquitectural
 - [x] **NO upgrade a Supabase Pro** — decisión 2026-06-22 (no concentrar todo en un proveedor)
 - [x] Datos críticos del negocio (Order, accounting, appointments, PDFs) → **Supabase Free**
-- [x] 3.5M Sunbiz → **Turso Free 9 GB**
+- [x] 3.5M Sunbiz → **Turso Free 5 GB**
 - [x] Backups diarios pg_dump + sync PDFs → **Cloudflare R2** (10 GB free)
 - [x] Cron diario de backups → **GitHub Actions** (2000 min/mes free)
 
