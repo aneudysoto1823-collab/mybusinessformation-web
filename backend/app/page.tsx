@@ -182,16 +182,11 @@ html.portal-authed #header-account{display:flex}
 .plogin-card{background:#fff;border-radius:14px;width:100%;padding:24px 24px 20px;position:relative;box-shadow:0 16px 48px rgba(15,28,46,0.22);border:1px solid #e2e8f0;font-family:inherit}
 .plogin-close{position:absolute;top:14px;right:16px;background:none;border:none;font-size:24px;line-height:1;color:#94a3b8;cursor:pointer;padding:0}
 .plogin-close:hover{color:#475569}
-.plogin-eyebrow{font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px}
-.plogin-title{font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:#0f172a;margin:0 0 6px}
-.plogin-sub{font-size:13px;color:#64748b;line-height:1.55;margin:0 0 20px}
+.plogin-title{font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:#0f172a;margin:0 0 18px}
 .plogin-group{margin-bottom:14px}
 .plogin-group label{display:block;font-size:11px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px}
 .plogin-group input{width:100%;padding:10px 13px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;color:#0f172a;background:#fff;outline:none;font-family:inherit;transition:border-color 0.15s,box-shadow 0.15s}
 .plogin-group input:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
-.plogin-hint{font-size:11px;color:#9ca3af;margin:4px 0 0}
-.plogin-switch{background:none;border:none;color:#2563eb;font-size:12px;font-weight:600;cursor:pointer;padding:0;font-family:inherit}
-.plogin-switch:hover{text-decoration:underline}
 .plogin-btn{width:100%;padding:12px;background:#1C2E44;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:4px;min-height:44px;transition:background 0.15s}
 .plogin-btn:hover:not(:disabled){background:#2563eb}
 .plogin-btn:disabled{background:#94a3b8;cursor:not-allowed}
@@ -2197,29 +2192,16 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 <div id="plogin-overlay" class="plogin-overlay">
   <div class="plogin-card" role="dialog" aria-modal="true" aria-labelledby="plogin-title">
     <button class="plogin-close" type="button" aria-label="Close" onclick="closePortalLogin()">&times;</button>
-    <div class="plogin-eyebrow" id="plogin-eyebrow">Client Access</div>
     <h3 class="plogin-title" id="plogin-title">Access your account</h3>
-    <p class="plogin-sub" id="plogin-sub">Enter your email and confirmation number to sign in.</p>
     <div id="plogin-error" class="plogin-error" style="display:none"></div>
     <form id="plogin-form" onsubmit="portalLoginSubmit(event)">
       <div class="plogin-group">
         <label for="plogin-acct" id="plogin-lbl-email">Email address</label>
         <input id="plogin-acct" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Your email">
       </div>
-      <div class="plogin-group" id="plogin-conf-group">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-          <label for="plogin-conf" id="plogin-lbl-conf" style="margin:0">Confirmation number</label>
-          <button type="button" class="plogin-switch" id="plogin-switch-pwd" onclick="portalSetMode('pwd')">Use password instead</button>
-        </div>
-        <input id="plogin-conf" type="text" placeholder="FBFC-00000000 or FBNB-00000000" oninput="this.value=this.value.toUpperCase()">
-        <p class="plogin-hint" id="plogin-hint">Found in your order confirmation email</p>
-      </div>
-      <div class="plogin-group" id="plogin-pwd-group" style="display:none">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-          <label for="plogin-pwd" id="plogin-lbl-pwd" style="margin:0">Password</label>
-          <button type="button" class="plogin-switch" id="plogin-switch-conf" onclick="portalSetMode('conf')">Use order number instead</button>
-        </div>
-        <input id="plogin-pwd" type="password" placeholder="Your password">
+      <div class="plogin-group">
+        <label for="plogin-cred" id="plogin-lbl-cred">Confirmation number or password</label>
+        <input id="plogin-cred" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="FBFC-00000000 or your password">
       </div>
       <button type="submit" class="plogin-btn" id="plogin-btn">Access My Account</button>
     </form>
@@ -3363,19 +3345,12 @@ function setLang(lang) {
   el=document.getElementById('header-logout-btn'); if(el) el.textContent = isEs ? 'Salir' : 'Logout';
   el=document.querySelector('.nav-orders-mobile'); if(el) el.textContent = isEs ? 'Mis órdenes' : 'My Orders';
   el=document.querySelector('.nav-logout-mobile'); if(el) el.textContent = isEs ? 'Salir' : 'Logout';
-  el=document.getElementById('plogin-eyebrow'); if(el) el.textContent = isEs ? 'Acceso de Clientes' : 'Client Access';
   el=document.getElementById('plogin-title'); if(el) el.textContent = isEs ? 'Accede a tu cuenta' : 'Access your account';
-  el=document.getElementById('plogin-sub'); if(el) el.textContent = isEs ? 'Ingresa tu correo y número de confirmación para iniciar sesión.' : 'Enter your email and confirmation number to sign in.';
   el=document.getElementById('plogin-lbl-email'); if(el) el.textContent = isEs ? 'Correo electrónico' : 'Email address';
-  el=document.getElementById('plogin-lbl-conf'); if(el) el.textContent = isEs ? 'Número de confirmación' : 'Confirmation number';
-  el=document.getElementById('plogin-switch-pwd'); if(el) el.textContent = isEs ? 'Usar contraseña' : 'Use password instead';
-  el=document.getElementById('plogin-hint'); if(el) el.textContent = isEs ? 'Lo encuentras en tu email de confirmación' : 'Found in your order confirmation email';
-  el=document.getElementById('plogin-lbl-pwd'); if(el) el.textContent = isEs ? 'Contraseña' : 'Password';
-  el=document.getElementById('plogin-switch-conf'); if(el) el.textContent = isEs ? 'Usar número de orden' : 'Use order number instead';
+  el=document.getElementById('plogin-lbl-cred'); if(el) el.textContent = isEs ? 'Número de confirmación o contraseña' : 'Confirmation number or password';
   el=document.getElementById('plogin-btn'); if(el) el.textContent = isEs ? 'Acceder a Mi Cuenta' : 'Access My Account';
   el=document.getElementById('plogin-acct'); if(el) el.placeholder = isEs ? 'Tu correo' : 'Your email';
-  el=document.getElementById('plogin-conf'); if(el) el.placeholder = isEs ? 'FBFC-00000000 o FBNB-00000000' : 'FBFC-00000000 or FBNB-00000000';
-  el=document.getElementById('plogin-pwd'); if(el) el.placeholder = isEs ? 'Tu contraseña' : 'Your password';
+  el=document.getElementById('plogin-cred'); if(el) el.placeholder = isEs ? 'FBFC-00000000 o tu contraseña' : 'FBFC-00000000 or your password';
   el=document.getElementById('plogin-terms'); if(el) el.innerHTML = isEs ? 'Al acceder aceptas nuestros <a href="/terms">Términos de Servicio</a> y la <a href="/privacy">Política de Privacidad</a>.' : 'By accessing this portal you agree to our <a href="/terms">Terms of Service</a> and <a href="/privacy">Privacy Policy</a>.';
   el=document.getElementById('lbl-new-app');       if(el) el.textContent = isEs ? 'Nueva Aplicación' : 'Start New Application';
   el=document.getElementById('lbl-continue-app');  if(el) el.textContent = isEs ? 'Continuar Mi Aplicación' : 'Continue My Application';
@@ -6588,7 +6563,6 @@ function claudiaPrefill(d){
 // (saludo + "Mis órdenes") sin recargar. La cookie client_session ya persiste,
 // así que "Mis órdenes" entra al dashboard sin pedir login de nuevo.
 // ════════════════════════════════════════════════════════
-var portalLoginMode = 'conf';
 window.__portalFirstName = null;
 
 function openPortalLogin(e){
@@ -6606,14 +6580,6 @@ function closePortalLogin(){
   var ov=document.getElementById('plogin-overlay'); if(ov) ov.classList.remove('open');
   portalLoginError('');
 }
-function portalSetMode(mode){
-  portalLoginMode=mode;
-  var cg=document.getElementById('plogin-conf-group');
-  var pg=document.getElementById('plogin-pwd-group');
-  if(cg) cg.style.display = mode==='conf' ? 'block' : 'none';
-  if(pg) pg.style.display = mode==='pwd' ? 'block' : 'none';
-  portalLoginError('');
-}
 function portalLoginError(msg){
   var el=document.getElementById('plogin-error');
   if(!el) return;
@@ -6623,16 +6589,12 @@ function portalLoginSubmit(e){
   if(e && e.preventDefault) e.preventDefault();
   var isEs = currentLang==='es';
   var email=((document.getElementById('plogin-acct')||{}).value || '').trim();
-  var body;
-  if(portalLoginMode==='pwd'){
-    var pwd=(document.getElementById('plogin-pwd')||{}).value || '';
-    if(!email || !pwd){ portalLoginError(isEs?'Completa todos los campos.':'Please fill in all fields.'); return; }
-    body={ email: email, password: pwd };
-  } else {
-    var conf=((document.getElementById('plogin-conf')||{}).value || '').trim();
-    if(!email || !conf){ portalLoginError(isEs?'Completa todos los campos.':'Please fill in all fields.'); return; }
-    body={ email: email, confirmationNumber: conf };
-  }
+  var cred=((document.getElementById('plogin-cred')||{}).value || '').trim();
+  if(!email || !cred){ portalLoginError(isEs?'Completa todos los campos.':'Please fill in all fields.'); return; }
+  // El número de confirmación tiene formato FBFC-/FBNB-; cualquier otra cosa = contraseña.
+  var body = /^(fbfc|fbnb)/i.test(cred)
+    ? { email: email, confirmationNumber: cred.toUpperCase() }
+    : { email: email, password: cred };
   var btn=document.getElementById('plogin-btn');
   if(btn){ btn.disabled=true; btn.textContent = isEs ? 'Accediendo...' : 'Accessing...'; }
   fetch('/api/client-auth',{ method:'POST', headers:{'Content-Type':'application/json'}, credentials:'same-origin', body: JSON.stringify(body) })
