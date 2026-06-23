@@ -166,24 +166,27 @@ function CompleteContent() {
   }
 
   return (
-    <div style={{
-      fontFamily: "'Plus Jakarta Sans', sans-serif", minHeight: '100vh',
-      display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 20px',
-      background: '#ffffff',
-    }}>
-      <div style={{
-        background: '#fff', borderRadius: 18, maxWidth: 620, width: '100%',
-        padding: '44px 40px', textAlign: 'center',
-        border: '1px solid #e2e8f0', boxShadow: '0 10px 40px rgba(15,28,46,0.08)',
-      }}>
-        <a href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, textDecoration: 'none', marginBottom: 20 }}>
-          <div style={{ width: 36, height: 36, background: '#2563EB', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontFamily: "'Fraunces', serif", fontWeight: 700 }}>OB</div>
-          <div style={{ fontFamily: "'Fraunces', serif", fontSize: '1.2rem', fontWeight: 700 }}>
-            <span style={{ color: '#1C2E44' }}>Opa</span><span style={{ color: '#2563EB' }}>Biz</span>
+    <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", minHeight: '100vh', background: '#ffffff' }}>
+      {/* Header estilo home */}
+      <header style={{ display: 'flex', alignItems: 'center', padding: '13px 24px', borderBottom: '1px solid #eef2f6' }}>
+        <a href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
+          <div style={{ width: 38, height: 38, background: '#2563EB', borderRadius: 9, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontFamily: "'Fraunces', serif", fontWeight: 700, fontSize: '0.95rem' }}>OB</div>
+          <div style={{ lineHeight: 1.1 }}>
+            <div style={{ fontFamily: "'Fraunces', serif", fontSize: '1.15rem', fontWeight: 700 }}>
+              <span style={{ color: '#1C2E44' }}>Opa</span><span style={{ color: '#2563EB' }}>Biz</span>
+            </div>
+            <div style={{ fontSize: '0.6rem', letterSpacing: '0.5px', color: '#94a3b8', textTransform: 'uppercase', marginTop: 2 }}>Florida Business Formation Center</div>
           </div>
         </a>
+      </header>
 
-        <div style={{ fontSize: '3rem', marginBottom: 10 }}>{icon}</div>
+      <div style={{ display: 'flex', justifyContent: 'center', padding: '26px 20px 44px' }}>
+      <div style={{
+        background: '#fff', borderRadius: 18, maxWidth: 620, width: '100%',
+        padding: '26px 36px 32px', textAlign: 'center',
+        border: '1px solid #e2e8f0', boxShadow: '0 10px 40px rgba(15,28,46,0.08)',
+      }}>
+        <div style={{ fontSize: '2.2rem', marginBottom: 4 }}>{icon}</div>
         <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: '1.5rem', color: '#1C2E44', margin: '0 0 6px' }}>{title}</h1>
 
         {status === 'error' && (
@@ -268,6 +271,7 @@ function CompleteContent() {
             <a href="/" style={{ background: '#1C2E44', color: '#fff', textDecoration: 'none', padding: '12px 28px', borderRadius: 8, fontWeight: 700, fontSize: '0.9rem', minHeight: 44, display: 'inline-flex', alignItems: 'center' }}>{t.home}</a>
           </div>
         )}
+      </div>
       </div>
     </div>
   )
