@@ -341,7 +341,9 @@ export default function ServiciosPage() {
               <div class="svc-popup-includes-title" data-en="What's included" data-es="Qué incluye">Qué incluye</div>
               ${s.includes_es.map((inc, idx) => `<div class="svc-popup-incl-item" data-en="${s.includes_en[idx]}" data-es="${inc}"><span class="svc-popup-incl-icon">&#10003;</span>${inc}</div>`).join('')}
             </div>
-            <button class="svc-popup-btn" onclick="openServiceForm('${s.id}')" data-en="${s.btn_en}" data-es="${s.btn_es}">${s.btn_es}</button>
+            ${s.id === 'stripe-setup-guide'
+              ? `<button class="svc-popup-btn" data-en="${s.btn_en}" data-es="${s.btn_es}">${s.btn_es}</button>`
+              : `<button class="svc-popup-btn svc-add-btn" data-svc="${s.id}" onclick="event.stopPropagation();toggleCart('${s.id}')"><span class="svc-add-lbl">Agregar al pedido</span></button>`}
           </div>
         </div>
       </div>
@@ -352,7 +354,9 @@ export default function ServiciosPage() {
           ${s.includes_es.map((inc, idx) => `<div class="svc-mexp-incl-item" data-en="${s.includes_en[idx]}" data-es="${inc}"><span class="svc-popup-incl-icon">&#10003;</span>${inc}</div>`).join('')}
         </div>
         <div class="svc-mexp-time" data-en="${s.time_en}" data-es="${s.time_es}">${s.time_es}</div>
-        <button class="svc-mexp-btn" onclick="openServiceForm('${s.id}')" data-en="${s.btn_en}" data-es="${s.btn_es}">${s.btn_es}</button>
+        ${s.id === 'stripe-setup-guide'
+          ? `<button class="svc-mexp-btn" data-en="${s.btn_en}" data-es="${s.btn_es}">${s.btn_es}</button>`
+          : `<button class="svc-mexp-btn svc-add-btn" data-svc="${s.id}" onclick="event.stopPropagation();toggleCart('${s.id}')"><span class="svc-add-lbl">Agregar al pedido</span></button>`}
       </div>
     </div>
   `).join('')
@@ -597,6 +601,59 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
 .svc-popup-time{font-size:.71rem;color:var(--gray500);padding:6px 10px;background:var(--gray50);border-radius:7px}
 .svc-popup-btn{background:#fff;color:var(--blue);padding:11px;border-radius:10px;font-size:.86rem;font-weight:700;border:2px solid var(--blue);cursor:pointer;font-family:inherit;transition:all .2s;width:100%}
 .svc-popup-btn:hover{background:var(--blue);color:#fff;transform:translateY(-1px);box-shadow:0 6px 18px rgba(37,99,235,.28)}
+/* ADD-TO-CART BUTTON STATES */
+.svc-popup-btn.svc-add-btn.added{background:var(--green-light);color:var(--green-dark);border-color:var(--green)}
+.svc-popup-btn.svc-add-btn.added:hover{background:var(--green);color:#fff}
+.svc-mexp-btn.svc-add-btn.added{background:var(--green);color:#fff}
+/* FLOATING CART BAR */
+.svc-cart-bar{position:fixed;left:0;right:0;bottom:0;z-index:900;background:var(--navy);box-shadow:0 -6px 24px rgba(28,46,68,.22);transform:translateY(120%);transition:transform .28s cubic-bezier(.4,0,.2,1);padding:env(safe-area-inset-bottom,0) 0 0}
+.svc-cart-bar.show{transform:translateY(0)}
+.svc-cart-bar-inner{max-width:760px;margin:0 auto;padding:13px 20px;display:flex;align-items:center;justify-content:space-between;gap:14px}
+.svc-cart-bar-info{display:flex;align-items:center;gap:10px;min-width:0}
+.svc-cart-bar-icon{font-size:1.2rem;flex-shrink:0}
+.svc-cart-bar-text{color:#fff;font-size:.92rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.svc-cart-bar-btn{background:var(--blue);color:#fff;border:none;padding:12px 22px;border-radius:10px;font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;min-height:44px;transition:background .2s}
+.svc-cart-bar-btn:hover{background:#1d4ed8}
+/* CART CHECKOUT MODAL */
+.cart-overlay{position:fixed;inset:0;z-index:1000;background:rgba(15,28,46,.55);backdrop-filter:blur(2px);display:none;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto}
+.cart-overlay.active{display:flex}
+.cart-modal{background:#fff;border-radius:16px;width:100%;max-width:480px;box-shadow:0 24px 70px rgba(28,46,68,.32);overflow:hidden;animation:cartIn .25s ease}
+@keyframes cartIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.cart-modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--gray100)}
+.cart-modal-title{font-family:var(--font-serif);font-size:1.18rem;font-weight:700;color:var(--navy);margin:0}
+.cart-modal-close{background:var(--gray100);border:none;width:32px;height:32px;border-radius:8px;font-size:1rem;color:var(--gray600);cursor:pointer;line-height:1;flex-shrink:0}
+.cart-modal-close:hover{background:var(--gray200)}
+.cart-modal-body{padding:18px 22px 22px}
+.cart-items{display:flex;flex-direction:column;gap:2px;margin-bottom:14px}
+.cart-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--gray100)}
+.cart-row-name{flex:1;font-size:.86rem;color:var(--gray800);font-weight:500;line-height:1.4}
+.cart-row-price{font-size:.84rem;font-weight:700;color:var(--blue);white-space:nowrap}
+.cart-row-x{background:none;border:none;color:var(--gray400);font-size:.85rem;cursor:pointer;padding:4px 6px;border-radius:6px;line-height:1;flex-shrink:0}
+.cart-row-x:hover{background:#fee2e2;color:#dc2626}
+.cart-subtotal-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0 6px;font-size:.92rem;color:var(--gray800)}
+.cart-subtotal-row strong{font-family:var(--font-serif);font-size:1.25rem;color:var(--navy)}
+.cart-var-note{font-size:.72rem;color:var(--gray500);line-height:1.5;margin:0 0 10px}
+.cart-nopay-note{font-size:.78rem;color:var(--green-dark);background:var(--green-light);border:1px solid #bbf7d0;border-radius:9px;padding:10px 12px;line-height:1.5;margin:0 0 16px}
+.cart-form{display:flex;flex-direction:column;gap:9px}
+.cart-input{width:100%;border:1.5px solid var(--gray200);border-radius:9px;padding:12px 14px;font-size:.88rem;font-family:inherit;color:var(--gray800);background:#fff;transition:border-color .2s}
+.cart-input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+.cart-textarea{resize:vertical;min-height:54px}
+.cart-form-error{color:#dc2626;font-size:.8rem;margin:8px 0 0;min-height:1px}
+.cart-submit-btn{width:100%;background:var(--blue);color:#fff;border:none;padding:14px;border-radius:11px;font-size:.95rem;font-weight:700;cursor:pointer;font-family:inherit;margin-top:14px;min-height:48px;transition:background .2s}
+.cart-submit-btn:hover{background:#1d4ed8}
+.cart-submit-btn:disabled{opacity:.65;cursor:default}
+.cart-secure-note{text-align:center;font-size:.74rem;color:var(--gray500);margin-top:12px}
+.cart-success{text-align:center;padding:14px 4px}
+.cart-success-icon{font-size:2.6rem;margin-bottom:8px}
+.cart-success h3{font-family:var(--font-serif);font-size:1.3rem;color:var(--navy);margin:0 0 10px}
+.cart-success p{font-size:.86rem;color:var(--gray600);line-height:1.6;margin:0 0 16px}
+.cart-success-order{background:var(--gray50);border:1px solid var(--gray200);border-radius:10px;padding:12px;margin-bottom:18px}
+.cart-success-order span{display:block;font-size:.7rem;color:var(--gray500);text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px}
+.cart-success-order strong{font-family:var(--font-serif);font-size:1.3rem;color:var(--blue);letter-spacing:.5px}
+.cart-success-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.cart-wa-btn{background:#25D366;color:#fff;border:none;padding:11px 20px;border-radius:9px;font-size:.85rem;font-weight:600;cursor:pointer;font-family:inherit;min-height:44px}
+.cart-close-btn{background:var(--navy);color:#fff;border:none;padding:11px 20px;border-radius:9px;font-size:.85rem;font-weight:600;cursor:pointer;font-family:inherit;min-height:44px}
+@media(max-width:480px){.svc-cart-bar-inner{padding:11px 14px}.svc-cart-bar-text{font-size:.82rem}.svc-cart-bar-btn{padding:11px 16px;font-size:.85rem}.cart-overlay{padding:20px 10px}.cart-modal-body{padding:16px 16px 18px}}
 `
   const body = `
 
@@ -724,10 +781,172 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
     </div>
   </div>
 </div>
+
+<!-- FLOATING CART BAR -->
+<div class="svc-cart-bar" id="svcCartBar">
+  <div class="svc-cart-bar-inner">
+    <div class="svc-cart-bar-info">
+      <span class="svc-cart-bar-icon">&#128722;</span>
+      <span class="svc-cart-bar-text" id="svcCartBarText"></span>
+    </div>
+    <button class="svc-cart-bar-btn" onclick="openCart()"><span data-en="Continue" data-es="Continuar">Continuar</span> &#8594;</button>
+  </div>
+</div>
+
+<!-- CART CHECKOUT MODAL -->
+<div class="cart-overlay" id="cartOverlay">
+  <div class="cart-modal" id="cartModal">
+    <div class="cart-modal-head">
+      <h3 class="cart-modal-title" data-en="Your order" data-es="Tu pedido">Tu pedido</h3>
+      <button class="cart-modal-close" onclick="closeCart()">&#x2715;</button>
+    </div>
+    <div class="cart-modal-body">
+      <div id="cartMain">
+        <div class="cart-items" id="cartItemsList"></div>
+        <div class="cart-subtotal-row">
+          <span data-en="Estimated subtotal" data-es="Subtotal estimado">Subtotal estimado</span>
+          <strong id="cartSubtotal">$0</strong>
+        </div>
+        <p class="cart-var-note" id="cartVarNote" data-en="Annual, monthly, and state-fee services are confirmed separately when we contact you." data-es="Los servicios anuales, mensuales y las tarifas estatales se confirman aparte cuando te contactamos.">Los servicios anuales, mensuales y las tarifas estatales se confirman aparte cuando te contactamos.</p>
+        <p class="cart-nopay-note" data-en="No payment now. We confirm the details and pricing when we contact you (within 1 business day)." data-es="Sin pago ahora. Confirmamos los detalles y el cobro al contactarte (1 día hábil).">Sin pago ahora. Confirmamos los detalles y el cobro al contactarte (1 día hábil).</p>
+        <div class="cart-form">
+          <input type="text" class="cart-input" id="cartName" autocomplete="name"/>
+          <input type="email" class="cart-input" id="cartEmail" autocomplete="email"/>
+          <input type="tel" class="cart-input" id="cartPhone" autocomplete="tel"/>
+          <textarea class="cart-input cart-textarea" id="cartMessage" rows="2"></textarea>
+        </div>
+        <div class="cart-form-error" id="cartFormError"></div>
+        <button class="cart-submit-btn" id="cartSubmitBtn" onclick="submitServiceRequest()"><span data-en="Send request" data-es="Enviar solicitud">Enviar solicitud</span> &#8594;</button>
+        <div class="cart-secure-note">&#128274; <span data-en="No card required &middot; We reply within 1 business day" data-es="Sin tarjeta &middot; Respondemos en 1 día hábil">Sin tarjeta &middot; Respondemos en 1 día hábil</span></div>
+      </div>
+      <div id="cartSuccess" style="display:none"></div>
+    </div>
+  </div>
+</div>
+
 <script>
 var currentService='';
 var orderNum='';
 function genOrderNum(){return 'FBFC-'+Math.floor(10000+Math.random()*90000);}
+
+// ===== MULTI-SERVICE CART =====
+var SVC_CATALOG=${JSON.stringify(
+  services
+    .filter(s => s.id !== 'stripe-setup-guide')
+    .reduce((acc: Record<string, { name: string; name_es: string; price: string }>, s) => {
+      acc[s.id] = { name: s.name, name_es: s.name_es, price: s.price }
+      return acc
+    }, {})
+)};
+var cart=[];
+try{cart=JSON.parse(localStorage.getItem('flbc_svc_cart')||'[]');if(!Array.isArray(cart))cart=[];}catch(e){cart=[];}
+function svcIsEs(){return document.getElementById('btn-es').classList.contains('active');}
+function svcParsePrice(p){
+  if(!p)return null;
+  if(/\\/mo/i.test(p))return null;
+  if(/annual/i.test(p))return null;
+  var m=String(p).match(/\\$([0-9][0-9,]*)/);
+  if(!m)return null;
+  return parseInt(m[1].replace(/,/g,''),10);
+}
+function inCart(id){return cart.indexOf(id)>-1;}
+function persistCart(){try{localStorage.setItem('flbc_svc_cart',JSON.stringify(cart));}catch(e){}}
+function toggleCart(id){if(inCart(id))removeFromCart(id);else addToCart(id);}
+function addToCart(id){if(!SVC_CATALOG[id])return;if(!inCart(id)){cart.push(id);persistCart();renderCart();}}
+function removeFromCart(id){var i=cart.indexOf(id);if(i>-1){cart.splice(i,1);persistCart();renderCart();}}
+function cartTotals(){var fixed=0,hasVar=false;cart.forEach(function(id){var v=svcParsePrice((SVC_CATALOG[id]||{}).price);if(v!=null)fixed+=v;else hasVar=true;});return{fixed:fixed,hasVar:hasVar};}
+function renderCart(){
+  var isEs=svcIsEs();
+  document.querySelectorAll('.svc-add-btn').forEach(function(b){
+    var id=b.getAttribute('data-svc');var on=inCart(id);
+    b.classList.toggle('added',on);
+    var lbl=b.querySelector('.svc-add-lbl');
+    if(lbl)lbl.textContent=on?(isEs?'\\u2713 Agregado':'\\u2713 Added'):(isEs?'Agregar al pedido':'Add to order');
+  });
+  var bar=document.getElementById('svcCartBar');
+  var count=cart.length;
+  if(bar){
+    if(count>0)bar.classList.add('show');
+    else{bar.classList.remove('show');closeCart();}
+  }
+  var t=cartTotals();
+  var svcWord=count===1?(isEs?'servicio':'service'):(isEs?'servicios':'services');
+  var bt=document.getElementById('svcCartBarText');
+  if(bt)bt.textContent=count+' '+svcWord+(t.fixed>0?' \\u00b7 $'+t.fixed+(t.hasVar?'+':'')+(isEs?' est.':' est.'):'');
+  renderCartModal();
+}
+function renderCartModal(){
+  var list=document.getElementById('cartItemsList');if(!list)return;
+  var isEs=svcIsEs();
+  var rows='';
+  cart.forEach(function(id){
+    var s=SVC_CATALOG[id]||{};var nm=isEs?s.name_es:s.name;
+    rows+='<div class="cart-row"><div class="cart-row-name">'+(nm||id)+'</div><div class="cart-row-price">'+(s.price||'')+'</div><button class="cart-row-x" aria-label="remove" onclick="removeFromCart(\\''+id+'\\')">\\u2715</button></div>';
+  });
+  list.innerHTML=rows;
+  var t=cartTotals();
+  var sub=document.getElementById('cartSubtotal');if(sub)sub.textContent='$'+t.fixed+(t.hasVar?'+':'');
+  var note=document.getElementById('cartVarNote');if(note)note.style.display=t.hasVar?'':'none';
+}
+function localizeCartForm(){
+  var isEs=svcIsEs();
+  var n=document.getElementById('cartName');if(n)n.placeholder=isEs?'Nombre completo':'Full name';
+  var e=document.getElementById('cartEmail');if(e)e.placeholder=isEs?'Correo electrónico':'Email address';
+  var p=document.getElementById('cartPhone');if(p)p.placeholder=isEs?'Teléfono (WhatsApp de preferencia)':'Phone (WhatsApp preferred)';
+  var m=document.getElementById('cartMessage');if(m)m.placeholder=isEs?'¿Algo que debamos saber? (opcional)':'Anything we should know? (optional)';
+}
+function openCart(){
+  if(cart.length===0)return;
+  document.getElementById('cartMain').style.display='';
+  document.getElementById('cartSuccess').style.display='none';
+  localizeCartForm();renderCartModal();
+  document.getElementById('cartOverlay').classList.add('active');
+  document.body.style.overflow='hidden';
+}
+function closeCart(){
+  var o=document.getElementById('cartOverlay');if(!o)return;
+  o.classList.remove('active');
+  document.body.style.overflow='';
+}
+function submitServiceRequest(){
+  var isEs=svcIsEs();
+  var name=(document.getElementById('cartName').value||'').trim();
+  var email=(document.getElementById('cartEmail').value||'').trim();
+  var phone=(document.getElementById('cartPhone').value||'').trim();
+  var message=(document.getElementById('cartMessage').value||'').trim();
+  var err=document.getElementById('cartFormError');err.textContent='';
+  if(name.length<2){err.textContent=isEs?'Ingresa tu nombre completo.':'Please enter your full name.';return;}
+  if(!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)){err.textContent=isEs?'Ingresa un correo válido.':'Please enter a valid email.';return;}
+  if(phone.replace(/[^0-9]/g,'').length<7){err.textContent=isEs?'Ingresa un teléfono válido.':'Please enter a valid phone.';return;}
+  if(cart.length===0){err.textContent=isEs?'Tu pedido está vacío.':'Your order is empty.';return;}
+  var btn=document.getElementById('cartSubmitBtn');btn.disabled=true;var prev=btn.innerHTML;
+  btn.innerHTML=isEs?'Enviando...':'Sending...';
+  var payload={name:name,email:email,phone:phone,message:message,lang:isEs?'es':'en',services:cart.map(function(id){var s=SVC_CATALOG[id]||{};return{id:id,name:s.name,price:s.price};})};
+  fetch('/api/services/request',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+    .then(function(r){return r.json().then(function(d){return{ok:r.ok,d:d};});})
+    .then(function(res){
+      if(!res.ok){err.textContent=(res.d&&res.d.error)||(isEs?'Algo salió mal. Intenta por WhatsApp.':'Something went wrong. Try WhatsApp.');btn.disabled=false;btn.innerHTML=prev;return;}
+      cart=[];persistCart();renderCart();
+      showCartSuccess(res.d.orderNumber);
+    })
+    .catch(function(){err.textContent=isEs?'Error de conexión. Intenta de nuevo.':'Connection error. Please try again.';btn.disabled=false;btn.innerHTML=prev;});
+}
+function showCartSuccess(num){
+  var isEs=svcIsEs();
+  document.getElementById('cartMain').style.display='none';
+  var sx=document.getElementById('cartSuccess');
+  sx.style.display='';
+  sx.innerHTML=
+    '<div class="cart-success">'
+    +'<div class="cart-success-icon">\\u2705</div>'
+    +'<h3>'+(isEs?'¡Solicitud enviada!':'Request sent!')+'</h3>'
+    +'<p>'+(isEs?'Recibimos tu solicitud. Un miembro de nuestro equipo te contactará en un día hábil para confirmar los detalles y el pago.':'We received your request. A team member will contact you within one business day to confirm the details and payment.')+'</p>'
+    +'<div class="cart-success-order"><span>'+(isEs?'Tu número de orden':'Your order number')+'</span><strong>'+(num||'')+'</strong></div>'
+    +'<div class="cart-success-btns">'
+    +'<button class="cart-wa-btn" onclick="window.open(\\'https://wa.me/13528377755\\',\\'_blank\\')">\\u{1F4AC} WhatsApp</button>'
+    +'<button class="cart-close-btn" onclick="closeCart()">'+(isEs?'Cerrar':'Close')+'</button>'
+    +'</div></div>';
+}
 
 function toggleAmendSection(cb){
   var map={'amend-name':'amend-section-name','amend-addr':'amend-section-addr','amend-mail':'amend-section-mail','amend-agent':'amend-section-agent','amend-officers':'amend-section-officers','amend-purpose':'amend-section-purpose','amend-other':'amend-section-other'};
@@ -1363,6 +1582,7 @@ function setLang(lang){
   var navM={'How It Works':isEs?'Cómo Funciona':'How It Works','Packages':isEs?'Paquetes':'Packages','Formation Packages':isEs?'Paquetes de Formación':'Formation Packages','Services':isEs?'Servicios':'Services','FAQ':isEs?'Preguntas':'FAQ','Contact':isEs?'Contacto':'Contact','Home':isEs?'Inicio':'Home'};
   document.querySelectorAll('nav a').forEach(function(a){var t=a.textContent.trim();if(navM[t])a.textContent=navM[t];});
   if(document.getElementById('svcOverlay')&&document.getElementById('svcOverlay').classList.contains('active')){translateFormLabels();}
+  renderCart();localizeCartForm();
 }
 
 function lookupFLDoc(input){
