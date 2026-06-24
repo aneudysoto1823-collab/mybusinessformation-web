@@ -4792,47 +4792,90 @@ function fmNext() {
         if(!re3||!re3.value.trim()){if(re3){re3.style.borderColor='#ef4444';re3.focus();}alert(agReq[ri].msg);return;}
         if(re3)re3.style.borderColor='';
       }
-      // === Lob validation grupo 2: Registered Agent (siempre US, state FL) ===
-      // Solo si el user NO tiene marcada "Same as Physical Business Address"
-      // (porque en ese caso usa la del negocio, ya validada en step 2).
+    }
+    // === Lob validation paso 3: Registered Agent (grupo 2) + Mailing (grupo 3) ===
+    // Validamos las direcciones US del paso 3 en cadena dentro de un solo IIFE
+    // async. Si el user elige re-enter/close en cualquiera, NO avanza.
+    var _addrsToValidate3 = [];
+    var _isEsLob3 = isEs;
+    // RA: solo si agentType==='own' Y "Same as Physical Business Address" NO esta marcado
+    if(fmData.agentType==='own') {
       var _raSameChk = document.getElementById('chk-ra-same-biz');
       var _raSameActive = _raSameChk && _raSameChk.checked;
       if(!_raSameActive) {
         var _raStreetEl=document.getElementById('inp-ra-street');
         if(_raStreetEl && _raStreetEl.value && _raStreetEl.value.trim()) {
-          var _isEsLob3 = isEs;
-          var _raStreet2El=document.getElementById('inp-ra-street2');
-          var _raCityEl=document.getElementById('inp-ra-city');
-          var _raZipEl=document.getElementById('inp-ra-zip');
-          (async function(){
-            try {
-              var result = await fmLobValidateAddr({
-                primary_line: _raStreetEl.value,
-                secondary_line: _raStreet2El ? _raStreet2El.value : '',
-                city: _raCityEl ? _raCityEl.value : '',
-                state: 'FL',
-                zip_code: _raZipEl ? _raZipEl.value : '',
-                country: 'US',
-              }, _isEsLob3 ? 'Direccion del Agente Registrado' : 'Registered Agent Address');
-              if(result && (result.action === 're-enter' || result.action === 'close')) return;
-              if(result && result.action === 'use-suggested' && result.addr) {
-                if(_raStreetEl && result.addr.primary_line) _raStreetEl.value = result.addr.primary_line;
-                if(_raStreet2El && result.addr.secondary_line) _raStreet2El.value = result.addr.secondary_line;
-                if(_raCityEl && result.addr.city) _raCityEl.value = result.addr.city;
-                if(_raZipEl && result.addr.zip_code) _raZipEl.value = result.addr.zip_code;
-              }
-              if (typeof window.gtag === 'function') { window.gtag('event', 'step_completed', { step_number: fmCurrentStep, package: fmData.package, entity: fmData.entity }); }
-              var _next3=fmCurrentStep+1; if(_next3===4)_next3=5; if(_next3===6)_next3=7;
-              if(fmVisualStep(_next3)<=fmTotalSteps) fmGoToStep(_next3);
-            } catch(e) {
-              if (typeof window.gtag === 'function') { window.gtag('event', 'step_completed', { step_number: fmCurrentStep, package: fmData.package, entity: fmData.entity }); }
-              var _nx3=fmCurrentStep+1; if(_nx3===4)_nx3=5; if(_nx3===6)_nx3=7;
-              if(fmVisualStep(_nx3)<=fmTotalSteps) fmGoToStep(_nx3);
-            }
-          })();
-          return;
+          _addrsToValidate3.push({
+            addr: {
+              primary_line: _raStreetEl.value,
+              secondary_line: (document.getElementById('inp-ra-street2')||{}).value || '',
+              city: (document.getElementById('inp-ra-city')||{}).value || '',
+              state: 'FL',
+              zip_code: (document.getElementById('inp-ra-zip')||{}).value || '',
+              country: 'US',
+            },
+            label: _isEsLob3 ? 'Direccion del Agente Registrado' : 'Registered Agent Address',
+            els: {
+              primary: _raStreetEl,
+              secondary: document.getElementById('inp-ra-street2'),
+              city: document.getElementById('inp-ra-city'),
+              zip: document.getElementById('inp-ra-zip'),
+            },
+          });
         }
       }
+    }
+    // Mailing: solo si "Same as business address" NO esta marcado Y country===US
+    var _mailSameChk = document.getElementById('chk-same-mail');
+    var _mailSameActive = _mailSameChk && _mailSameChk.checked;
+    if(!_mailSameActive) {
+      var _mailCountryEl = document.getElementById('inp-mail-country');
+      if(_mailCountryEl && _mailCountryEl.value === 'US') {
+        var _mailStreetEl = document.getElementById('inp-mail-street');
+        if(_mailStreetEl && _mailStreetEl.value && _mailStreetEl.value.trim()) {
+          _addrsToValidate3.push({
+            addr: {
+              primary_line: _mailStreetEl.value,
+              secondary_line: '',
+              city: (document.getElementById('inp-mail-city')||{}).value || '',
+              state: '',
+              zip_code: (document.getElementById('inp-mail-zip')||{}).value || '',
+              country: 'US',
+            },
+            label: _isEsLob3 ? 'Direccion de Correspondencia' : 'Mailing Address',
+            els: {
+              primary: _mailStreetEl,
+              city: document.getElementById('inp-mail-city'),
+              zip: document.getElementById('inp-mail-zip'),
+            },
+          });
+        }
+      }
+    }
+    if(_addrsToValidate3.length > 0) {
+      (async function(){
+        try {
+          for(var i = 0; i < _addrsToValidate3.length; i++) {
+            var item = _addrsToValidate3[i];
+            var result = await fmLobValidateAddr(item.addr, item.label);
+            if(result && (result.action === 're-enter' || result.action === 'close')) return;
+            if(result && result.action === 'use-suggested' && result.addr) {
+              if(item.els.primary && result.addr.primary_line) item.els.primary.value = result.addr.primary_line;
+              if(item.els.secondary && result.addr.secondary_line) item.els.secondary.value = result.addr.secondary_line;
+              if(item.els.city && result.addr.city) item.els.city.value = result.addr.city;
+              if(item.els.zip && result.addr.zip_code) item.els.zip.value = result.addr.zip_code;
+            }
+          }
+          if (typeof window.gtag === 'function') { window.gtag('event', 'step_completed', { step_number: fmCurrentStep, package: fmData.package, entity: fmData.entity }); }
+          var _next3=fmCurrentStep+1; if(_next3===4)_next3=5; if(_next3===6)_next3=7;
+          if(fmVisualStep(_next3)<=fmTotalSteps) fmGoToStep(_next3);
+        } catch(e) {
+          if (typeof window.gtag === 'function') { window.gtag('event', 'step_completed', { step_number: fmCurrentStep, package: fmData.package, entity: fmData.entity }); }
+          var _nx3=fmCurrentStep+1; if(_nx3===4)_nx3=5; if(_nx3===6)_nx3=7;
+          if(fmVisualStep(_nx3)<=fmTotalSteps) fmGoToStep(_nx3);
+        }
+      })();
+      return;
     }
   }
   if(fmCurrentStep===5){
