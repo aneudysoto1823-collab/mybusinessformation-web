@@ -112,6 +112,10 @@ NEXT_PUBLIC_URL       # URL base del sitio (ej: https://opabiz.com) — usado en
 # ZeroBounce — validación de email en el form de checkout
 ZEROBOUNCE_API_KEY    # Key de la cuenta ZeroBounce
 ZEROBOUNCE_ENABLED    # 'true' para activar (consume créditos). Cualquier otro valor = dormido (solo regex local)
+
+# Lob.com — verificación de direcciones US en el form de checkout
+LOB_SECRET_KEY        # 'live_...' en Vercel Production (consume crédito). 'test_...' en local dev (gratis)
+LOB_ENABLED           # 'true' para activar. 'false' para apagar sin redeploy si rompe algo
 ```
 
 ---
@@ -171,6 +175,7 @@ ZEROBOUNCE_ENABLED    # 'true' para activar (consume créditos). Cualquier otro 
 
 /api/contact              POST  — form público de /contact → email a info@opabiz.com (D1) + confirmación al visitor (D2). Rate limited 5/h/IP.
 /api/email/validate       GET   — valida email contra ZeroBounce (MX + SMTP probe + typos). Llamado desde el onblur del campo email en el form de checkout. DORMIDO por defecto (ZEROBOUNCE_ENABLED!=='true') — devuelve solo regex local sin consumir crédito. Doc: LOGICA_DE_NEGOCIO/27.
+/api/address/verify       POST  — valida dirección US contra Lob.com (USPS deliverability + sugerencia normalizada). Llamado desde fmNext() al click de Next en pasos con direcciones US (Negocio, RA, Mailing, Members). LIVE por default. Body JSON {primary_line, secondary_line?, city?, state?, zip_code?}. Doc: LOGICA_DE_NEGOCIO/28.
 
 /api/proxy/notifications/[type]  POST  — disparador interno del admin para reenviar emails: `order-confirmation` (A1, reenvío manual), `names-taken` (A2+A3), `suggest-names` (A4), `order-processed` (A5), `order-approved` (A6), `certificate` (A7)
 /api/admin/upload-certificate  POST — sube certificado de aprobación + dispara A7

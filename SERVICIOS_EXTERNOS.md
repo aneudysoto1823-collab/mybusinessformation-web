@@ -15,7 +15,8 @@
 |----------|------|-----------|
 | Vercel | Pro (ya pagado) | $20 |
 | Supabase | Free tier | $0 |
-| Turso | Hobby (Free) | $0 |
+| Turso | Developer ($4.99/mes) — upgrade 2026-06-24 por quota writes | $5 |
+| Lob.com | Free (300 verificaciones/mes) — verificación direcciones US del form | $0 |
 | Cloudflare R2 | Pay-as-you-go (bajo 10 GB) | ~$0 |
 | GitHub Actions | Free (bajo 2000 min/mes) | $0 |
 | Resend | Free tier | $0 |
@@ -35,7 +36,8 @@
 |----------|------------------|-----------|
 | Vercel | Pro (ya pagado) | $20 |
 | Supabase | **Free (no upgrade)** — backups en GitHub Actions+R2 | $0 |
-| Turso | Hobby (Free) — 5 GB suficiente para 3.5M Sunbiz | $0 |
+| Turso | Developer ($4.99/mes) — 9 GB storage, 25M writes/mes (vs 10M Free) | $5 |
+| Lob.com | Free (300 verificaciones/mes) o pay-as-you-go $0.07/extra | $0 → $15 |
 | Cloudflare R2 | Pay-as-you-go (bajo 10 GB) | ~$0 |
 | GitHub Actions | Free (2000 min/mes) | $0 |
 | Resend | Pro (50K emails/mes) | $20 |
@@ -269,14 +271,31 @@
 
 ---
 
+### 🟢 Lob.com — Verificación de direcciones US (USPS deliverability)
+
+- **Qué hace:** Verifica que las direcciones US que el cliente escribe en el form de checkout existan de verdad (USPS), corrige typos (`9848 chirltin dr` → `9848 CHORLTON CIR`), marca catch-all/undeliverable, acepta PO Box. Reemplaza la necesidad de que el cliente re-tipie su dirección — Lob la corrige y el cliente confirma con un popup.
+- **Estado:** LIVE en producción desde 2026-06-24. Cuenta de Lob con billing address + tarjeta configurada. Ya cobrando contra el free tier mensual.
+- **Cuándo se llama:** Al hacer click en **Next** de los pasos del form que contienen direcciones US (Negocio físico, Registered Agent, Mailing, Members). Una llamada por dirección US del paso.
+- **Plan:** **Free** — 300 verificaciones/mes recurrentes. Pay-as-you-go $0.07 por verificación extra.
+- **Costo estimado:** **$0/mes** hasta superar 300 verificaciones. Para 50-100 órdenes/mes × ~3 direcciones US = 150-300 verificaciones → dentro del free tier.
+- **Verificar precio en:** https://www.lob.com/pricing
+- **Librería usada:** `@lob/lob-typescript-sdk@^1.4.0` — SDK oficial TypeScript de Lob, mantenido por Lob via OpenAPI Generator.
+- **Variables de entorno:** `LOB_SECRET_KEY=live_...` (Vercel Production) + `LOB_ENABLED=true`. En local dev se usa `LOB_SECRET_KEY=test_...` (gratis, devuelve dummies sin consumir crédito).
+- **Doc completo:** `LOGICA_DE_NEGOCIO/28_verificacion_direccion_lob.md`
+- **Decisión UX:** popup bloqueante estilo Stripe/LegalZoom cuando Lob sugiere corrección o marca undeliverable. Si Lob considera la dirección OK sin cambios, NO aparece popup (UX silenciosa en éxito).
+- **Anti-bug "form frizado":** AbortController + timeout 6s, try/catch total, degradación silenciosa si Lob cae. NUNCA bloquea el form si el servicio externo falla.
+- **Setup mínimo en Lob dashboard** (requerido antes de usar LIVE): Settings → Billing → agregar billing address + tarjeta. Sin esto, Lob devuelve 403 `billing_address_required`.
+
+---
+
 ### 🟢 Turso — Base de datos para Sunbiz (3.5M empresas)
 
 - **Qué hace:** SQLite distribuido (réplicas globales) que guarda los 3.5M de empresas de Florida + las que se crean cada día. Se consulta desde Vercel para verificar disponibilidad de nombres con búsqueda fuzzy (FTS5 nativo de SQLite).
-- **Estado:** Cuenta creada 2026-06-22, database `opabiz-sunbiz-opabiz`, env vars en Vercel.
-- **Plan:** **Hobby (Free)** — 5 GB storage, 500M reads/mes, 10M writes/mes.
-- **Costo:** **$0/mes**.
-- **Tamaño real medido** (con 60K rows ya cargados): **382 bytes por row**. Proyección a 3.5M = **1.24 GB** (~25% del límite de 5 GB). Margen: ~6-7 años de crecimiento antes de tocar techo.
-- **Plan recomendado si crecemos:** Scale $29/mes (24 GB). No será necesario hasta 2032+.
+- **Estado:** Cuenta creada 2026-06-22, database `opabiz-sunbiz-opabiz`, env vars en Vercel. **Upgrade a plan Developer 2026-06-24** (motivo abajo).
+- **Plan actual: Developer ($4.99/mes)** — 9 GB storage, **25M writes/mes** (vs 10M Free), 2.5B reads/mes, sin riesgo de bloqueo. Pay-as-you-go: $1/M writes extra, $0.75/GB extra.
+- **Costo:** **~$5/mes** (puede subir levemente si superamos quota).
+- **Por qué se hizo el upgrade (2026-06-24):** durante la carga inicial de los 3.5M Sunbiz se golpeó el límite de **10M writes/mes** del Hobby Free (TRUNCATE + retries + inserts agotaron la cuota). Dashboard mostró "Quota Critical 100% used" con riesgo de bloqueo de la cuenta entera. Pagar $5/mes el Developer fue la solución correcta vs esperar reset mensual.
+- **Tamaño real medido:** ~382 bytes por row. 3.5M Sunbiz = ~1.3 GB → bien dentro de los 9 GB del plan Developer.
 - **Verificar precio en:** https://turso.tech/pricing
 - **Por qué Turso y no Supabase Pro o Cloudflare D1:** ambos free 5 GB, pero el driver `@libsql/client` para Node.js es más natural desde Vercel serverless que el D1 (diseñado para Workers). Supabase Free son solo 500 MB — no alcanza.
 - **Variables de entorno requeridas:** `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN` (en Vercel Production + Development).
