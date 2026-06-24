@@ -19,6 +19,7 @@
 | Cloudflare R2 | Pay-as-you-go (bajo 10 GB) | ~$0 |
 | GitHub Actions | Free (bajo 2000 min/mes) | $0 |
 | Resend | Free tier | $0 |
+| ZeroBounce | Free tier (100 validaciones/mes) | $0 |
 | Zoho Mail | 6 buzones plan free | $0 |
 | GitHub | Free | $0 |
 | Stripe | Pay-per-transaction | $0 fijo |
@@ -38,6 +39,7 @@
 | Cloudflare R2 | Pay-as-you-go (bajo 10 GB) | ~$0 |
 | GitHub Actions | Free (2000 min/mes) | $0 |
 | Resend | Pro (50K emails/mes) | $20 |
+| ZeroBounce | Free (100/mes) o pay-as-you-go $15 (2K) si crece | $0 → $15 |
 | Zoho Mail | 6 buzones plan free | $0 |
 | Stripe | Pay-per-transaction | ~3% revenue (~$50-100 si ventas $2-3K) |
 | Cloudflare (DNS+WAF) | Free | $0 |
@@ -309,6 +311,25 @@
 - **Plan:** Free tier de GitHub — 2,000 minutos/mes para repos privados.
 - **Costo:** **$0** — un backup tarda ~5 min/día = 150 min/mes, muy por debajo del límite.
 - **Por qué GitHub Actions y no Vercel Cron:** los backups pueden tardar más de 5 min (límite de Vercel Pro). GitHub Actions no tiene ese límite.
+
+---
+
+### 🟢 ZeroBounce — Validación de email en el form de checkout
+
+- **Qué hace:** Verifica que el email que escribe el cliente en el form de orden **exista de verdad**: chequea MX, hace SMTP probe a la casilla, detecta typos (`gmial.com` → `gmail.com`), dominios desechables (`mailinator.com`), catch-all y spam-traps. Reemplaza el viejo campo "Confirm Email" — ahora el cliente escribe el email **una sola vez**.
+- **Estado:** Implementado 2026-06-24 (commits `4899ecb`, `6da2e96`, `1fe2448`, `5a796af`). DORMIDO por defecto (`ZEROBOUNCE_ENABLED=false`) — solo valida formato regex local sin consumir crédito hasta que se active.
+- **Cuándo se llama:** En el `onblur` del campo email del form (`/`, paso "Contact Information"). Una verificación por orden.
+- **Plan:** **Free** — 100 validaciones/mes. Suficiente para 50-100 órdenes/mes en pre-launch.
+- **Costo:** **$0/mes** mientras estemos en el free tier. Pay-as-you-go desde $15 (2,000 validaciones) si superamos 100/mes.
+- **Verificar precio en:** https://www.zerobounce.net/pricing
+- **Librería usada:** `@zerobounce/zero-bounce-sdk@^2.1.9` — SDK oficial mantenido por ZeroBounce. No reimplementamos cliente HTTP.
+- **Activación al lanzamiento:**
+  1. Vercel env vars Production: `ZEROBOUNCE_API_KEY=<key>` + `ZEROBOUNCE_ENABLED=true`
+  2. Redeploy
+  3. Empieza a validar contra la API real (consume crédito)
+- **Variables de entorno:** `ZEROBOUNCE_API_KEY`, `ZEROBOUNCE_ENABLED`
+- **Doc completo:** `LOGICA_DE_NEGOCIO/27_verificacion_email_zerobounce.md`
+- **Fallbacks:** si la API cae o timeout, el endpoint degrada a regex local — **nunca bloquea al cliente por un fallo externo**.
 
 ---
 

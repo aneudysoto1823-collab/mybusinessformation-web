@@ -108,6 +108,10 @@ BACKEND_URL           # URL Railway del Express server
 
 # Citas (sistema propio)
 NEXT_PUBLIC_URL       # URL base del sitio (ej: https://opabiz.com) — usado en emails de citas para links de reprogramar/cancelar
+
+# ZeroBounce — validación de email en el form de checkout
+ZEROBOUNCE_API_KEY    # Key de la cuenta ZeroBounce
+ZEROBOUNCE_ENABLED    # 'true' para activar (consume créditos). Cualquier otro valor = dormido (solo regex local)
 ```
 
 ---
@@ -166,6 +170,7 @@ NEXT_PUBLIC_URL       # URL base del sitio (ej: https://opabiz.com) — usado en
 /api/campaigns/companies  GET+POST — lista con filtros / alta manual de empresa
 
 /api/contact              POST  — form público de /contact → email a info@opabiz.com (D1) + confirmación al visitor (D2). Rate limited 5/h/IP.
+/api/email/validate       GET   — valida email contra ZeroBounce (MX + SMTP probe + typos). Llamado desde el onblur del campo email en el form de checkout. DORMIDO por defecto (ZEROBOUNCE_ENABLED!=='true') — devuelve solo regex local sin consumir crédito. Doc: LOGICA_DE_NEGOCIO/27.
 
 /api/proxy/notifications/[type]  POST  — disparador interno del admin para reenviar emails: `order-confirmation` (A1, reenvío manual), `names-taken` (A2+A3), `suggest-names` (A4), `order-processed` (A5), `order-approved` (A6), `certificate` (A7)
 /api/admin/upload-certificate  POST — sube certificado de aprobación + dispara A7
