@@ -4792,6 +4792,47 @@ function fmNext() {
         if(!re3||!re3.value.trim()){if(re3){re3.style.borderColor='#ef4444';re3.focus();}alert(agReq[ri].msg);return;}
         if(re3)re3.style.borderColor='';
       }
+      // === Lob validation grupo 2: Registered Agent (siempre US, state FL) ===
+      // Solo si el user NO tiene marcada "Same as Physical Business Address"
+      // (porque en ese caso usa la del negocio, ya validada en step 2).
+      var _raSameChk = document.getElementById('chk-ra-same-biz');
+      var _raSameActive = _raSameChk && _raSameChk.checked;
+      if(!_raSameActive) {
+        var _raStreetEl=document.getElementById('inp-ra-street');
+        if(_raStreetEl && _raStreetEl.value && _raStreetEl.value.trim()) {
+          var _isEsLob3 = isEs;
+          var _raStreet2El=document.getElementById('inp-ra-street2');
+          var _raCityEl=document.getElementById('inp-ra-city');
+          var _raZipEl=document.getElementById('inp-ra-zip');
+          (async function(){
+            try {
+              var result = await fmLobValidateAddr({
+                primary_line: _raStreetEl.value,
+                secondary_line: _raStreet2El ? _raStreet2El.value : '',
+                city: _raCityEl ? _raCityEl.value : '',
+                state: 'FL',
+                zip_code: _raZipEl ? _raZipEl.value : '',
+                country: 'US',
+              }, _isEsLob3 ? 'Direccion del Agente Registrado' : 'Registered Agent Address');
+              if(result && (result.action === 're-enter' || result.action === 'close')) return;
+              if(result && result.action === 'use-suggested' && result.addr) {
+                if(_raStreetEl && result.addr.primary_line) _raStreetEl.value = result.addr.primary_line;
+                if(_raStreet2El && result.addr.secondary_line) _raStreet2El.value = result.addr.secondary_line;
+                if(_raCityEl && result.addr.city) _raCityEl.value = result.addr.city;
+                if(_raZipEl && result.addr.zip_code) _raZipEl.value = result.addr.zip_code;
+              }
+              if (typeof window.gtag === 'function') { window.gtag('event', 'step_completed', { step_number: fmCurrentStep, package: fmData.package, entity: fmData.entity }); }
+              var _next3=fmCurrentStep+1; if(_next3===4)_next3=5; if(_next3===6)_next3=7;
+              if(fmVisualStep(_next3)<=fmTotalSteps) fmGoToStep(_next3);
+            } catch(e) {
+              if (typeof window.gtag === 'function') { window.gtag('event', 'step_completed', { step_number: fmCurrentStep, package: fmData.package, entity: fmData.entity }); }
+              var _nx3=fmCurrentStep+1; if(_nx3===4)_nx3=5; if(_nx3===6)_nx3=7;
+              if(fmVisualStep(_nx3)<=fmTotalSteps) fmGoToStep(_nx3);
+            }
+          })();
+          return;
+        }
+      }
     }
   }
   if(fmCurrentStep===5){
