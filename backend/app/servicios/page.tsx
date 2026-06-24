@@ -602,10 +602,36 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
 .svc-popup-btn{background:#fff;color:var(--blue);padding:11px;border-radius:10px;font-size:.86rem;font-weight:700;border:2px solid var(--blue);cursor:pointer;font-family:inherit;transition:all .2s;width:100%}
 .svc-popup-btn:hover{background:var(--blue);color:#fff;transform:translateY(-1px);box-shadow:0 6px 18px rgba(37,99,235,.28)}
 /* ADD-TO-CART BUTTON STATES */
+.svc-popup-btn.svc-add-btn{width:auto;align-self:flex-start;padding:9px 20px;font-size:.82rem}
 .svc-popup-btn.svc-add-btn.added{background:var(--green-light);color:var(--green-dark);border-color:var(--green)}
 .svc-popup-btn.svc-add-btn.added:hover{background:var(--green);color:#fff}
 .svc-mexp-btn.svc-add-btn.added{background:var(--green);color:#fff}
+/* SERVICES LAYOUT WITH STICKY ORDER SUMMARY */
+.services-layout{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:28px;align-items:start}
+.services-main{min-width:0}
+.order-summary{position:sticky;top:80px;align-self:start}
+.order-summary-card{background:#fff;border:1.5px solid var(--gray200);border-radius:14px;box-shadow:0 8px 30px rgba(28,46,68,.07);padding:18px 18px 20px}
+.os-head{display:flex;align-items:center;gap:9px;padding-bottom:14px;border-bottom:1px solid var(--gray100);margin-bottom:14px}
+.os-cart-icon{font-size:1.15rem}
+.os-title{font-family:var(--font-serif);font-size:1.1rem;font-weight:700;color:var(--navy);margin:0;flex:1}
+.os-count{background:var(--blue);color:#fff;font-size:.72rem;font-weight:700;min-width:22px;height:22px;border-radius:11px;display:none;align-items:center;justify-content:center;padding:0 7px}
+.os-count.show{display:flex}
+.os-empty{font-size:.82rem;color:var(--gray500);line-height:1.6;text-align:center;padding:18px 6px}
+.os-items{display:flex;flex-direction:column}
+.os-item{display:flex;align-items:flex-start;gap:8px;padding:9px 0;border-bottom:1px solid var(--gray100)}
+.os-item-name{flex:1;font-size:.8rem;color:var(--gray800);font-weight:500;line-height:1.4}
+.os-item-price{font-size:.8rem;font-weight:700;color:var(--blue);white-space:nowrap}
+.os-item-x{background:none;border:none;color:var(--gray400);font-size:.78rem;cursor:pointer;padding:2px 5px;border-radius:6px;line-height:1;flex-shrink:0}
+.os-item-x:hover{background:#fee2e2;color:#dc2626}
+.os-subtotal-row{display:flex;align-items:center;justify-content:space-between;padding:13px 0 4px;font-size:.86rem;color:var(--gray800)}
+.os-subtotal-row strong{font-family:var(--font-serif);font-size:1.3rem;color:var(--navy)}
+.os-var-note{font-size:.7rem;color:var(--gray500);line-height:1.5;margin:0 0 13px}
+.os-continue-btn{width:100%;background:var(--blue);color:#fff;border:none;padding:13px;border-radius:11px;font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit;min-height:46px;transition:background .2s}
+.os-continue-btn:hover{background:#1d4ed8}
+.os-nopay{text-align:center;font-size:.7rem;color:var(--green-dark);margin-top:9px}
+@media(max-width:860px){.services-layout{grid-template-columns:1fr}.order-summary{display:none}}
 /* FLOATING CART BAR */
+@media(min-width:861px){.svc-cart-bar{display:none}}
 .svc-cart-bar{position:fixed;left:0;right:0;bottom:0;z-index:900;background:var(--navy);box-shadow:0 -6px 24px rgba(28,46,68,.22);transform:translateY(120%);transition:transform .28s cubic-bezier(.4,0,.2,1);padding:env(safe-area-inset-bottom,0) 0 0}
 .svc-cart-bar.show{transform:translateY(0)}
 .svc-cart-bar-inner{max-width:760px;margin:0 auto;padding:13px 20px;display:flex;align-items:center;justify-content:space-between;gap:14px}
@@ -693,8 +719,27 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
 
 <!-- SERVICES GRID -->
 <section class="services-section" style="padding-top:36px">
-  <div class="services-inner">
-    <div class="services-accordion">${servicesAccordionHtml}</div>
+  <div class="services-inner services-layout">
+    <div class="services-main">
+      <div class="services-accordion">${servicesAccordionHtml}</div>
+    </div>
+    <aside class="order-summary" id="orderSummary">
+      <div class="order-summary-card">
+        <div class="os-head">
+          <span class="os-cart-icon">&#128722;</span>
+          <h3 class="os-title" data-en="Your order" data-es="Tu pedido">Tu pedido</h3>
+          <span class="os-count" id="osCount"></span>
+        </div>
+        <div class="os-empty" id="osEmpty" data-en="No services added yet. Browse the list and add what you need." data-es="Aún no has agregado servicios. Explora la lista y agrega lo que necesites.">Aún no has agregado servicios. Explora la lista y agrega lo que necesites.</div>
+        <div class="os-items" id="osItems"></div>
+        <div class="os-foot" id="osFoot" style="display:none">
+          <div class="os-subtotal-row"><span data-en="Estimated subtotal" data-es="Subtotal estimado">Subtotal estimado</span><strong id="osSubtotal">$0</strong></div>
+          <p class="os-var-note" id="osVarNote" data-en="Annual, monthly, and state-fee services are confirmed separately." data-es="Los servicios anuales, mensuales y las tarifas estatales se confirman aparte.">Los servicios anuales, mensuales y las tarifas estatales se confirman aparte.</p>
+          <button class="os-continue-btn" onclick="openCart()"><span data-en="Continue" data-es="Continuar">Continuar</span> &#8594;</button>
+          <div class="os-nopay"><span data-en="No payment now &middot; we reply in 1 business day" data-es="Sin pago ahora &middot; respondemos en 1 día hábil">Sin pago ahora &middot; respondemos en 1 día hábil</span></div>
+        </div>
+      </div>
+    </aside>
   </div>
 </section>
 
@@ -873,7 +918,34 @@ function renderCart(){
   var svcWord=count===1?(isEs?'servicio':'service'):(isEs?'servicios':'services');
   var bt=document.getElementById('svcCartBarText');
   if(bt)bt.textContent=count+' '+svcWord+(t.fixed>0?' \\u00b7 $'+t.fixed+(t.hasVar?'+':'')+(isEs?' est.':' est.'):'');
+  renderSidebar();
   renderCartModal();
+}
+function renderSidebar(){
+  var os=document.getElementById('osItems');if(!os)return;
+  var isEs=svcIsEs();
+  var empty=document.getElementById('osEmpty');
+  var foot=document.getElementById('osFoot');
+  var countEl=document.getElementById('osCount');
+  if(cart.length===0){
+    os.innerHTML='';
+    if(empty)empty.style.display='';
+    if(foot)foot.style.display='none';
+    if(countEl)countEl.classList.remove('show');
+    return;
+  }
+  if(empty)empty.style.display='none';
+  if(foot)foot.style.display='';
+  if(countEl){countEl.textContent=cart.length;countEl.classList.add('show');}
+  var rows='';
+  cart.forEach(function(id){
+    var s=SVC_CATALOG[id]||{};var nm=isEs?s.name_es:s.name;
+    rows+='<div class="os-item"><div class="os-item-name">'+(nm||id)+'</div><div class="os-item-price">'+(s.price||'')+'</div><button class="os-item-x" aria-label="remove" onclick="removeFromCart(\\''+id+'\\')">\\u2715</button></div>';
+  });
+  os.innerHTML=rows;
+  var t=cartTotals();
+  var sub=document.getElementById('osSubtotal');if(sub)sub.textContent='$'+t.fixed+(t.hasVar?'+':'');
+  var note=document.getElementById('osVarNote');if(note)note.style.display=t.hasVar?'':'none';
 }
 function renderCartModal(){
   var list=document.getElementById('cartItemsList');if(!list)return;
