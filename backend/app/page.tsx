@@ -850,6 +850,29 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
   .help-btns{flex-direction:column}
   .btn-wa,.btn-cal{justify-content:center}
 }
+
+/* Lob address verification popup (modal bloqueante) */
+.lob-popup-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99999;align-items:center;justify-content:center;padding:16px}
+.lob-popup-backdrop.open{display:flex}
+.lob-popup{background:#fff;border-radius:16px;width:min(440px,100%);max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3);font-family:var(--font-sans)}
+.lob-popup-header{padding:20px 24px 16px;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;gap:14px}
+.lob-popup-icon{width:42px;height:42px;border-radius:10px;background:#fef3eb;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:22px;color:#ea580c}
+.lob-popup-title{font-size:1.05rem;font-weight:600;color:#111827;flex:1;margin:0}
+.lob-popup-close{background:none;border:0;cursor:pointer;color:#6b7280;font-size:18px;padding:4px;line-height:1}
+.lob-popup-close:hover{color:#111827}
+.lob-popup-body{padding:20px 24px}
+.lob-popup-notfound-title{font-weight:600;color:#111827;font-size:.95rem;margin:0 0 4px}
+.lob-popup-notfound-sub{color:#6b7280;font-size:.84rem;margin:0 0 18px}
+.lob-popup-suggested-lbl{font-weight:600;color:#111827;font-size:.85rem;margin:0 0 6px}
+.lob-popup-suggested{color:#1e40af;font-size:.92rem;line-height:1.5;margin-bottom:18px}
+.lob-popup-entered-lbl{font-weight:600;color:#111827;font-size:.85rem;margin:0 0 6px}
+.lob-popup-entered{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:12px 14px;color:#374151;font-size:.9rem;line-height:1.45}
+.lob-popup-footer{display:flex;gap:12px;padding:16px 24px 20px;border-top:1px solid #f3f4f6}
+.lob-popup-btn{flex:1;padding:11px 16px;border-radius:10px;font-size:.92rem;font-weight:600;cursor:pointer;border:0;font-family:inherit;transition:background .15s}
+.lob-popup-btn-secondary{background:#fff;color:#374151;border:1.5px solid #e5e7eb}
+.lob-popup-btn-secondary:hover{background:#f9fafb}
+.lob-popup-btn-primary{background:#ea580c;color:#fff}
+.lob-popup-btn-primary:hover{background:#c2410c}
 `
   const body = `
 
@@ -2199,6 +2222,33 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
       <button type="submit" class="plogin-btn" id="plogin-btn">Access My Account</button>
     </form>
     <p class="plogin-terms" id="plogin-terms">By accessing this portal you agree to our <a href="/terms">Terms of Service</a> and <a href="/privacy">Privacy Policy</a>.</p>
+  </div>
+</div>
+
+<!-- Lob address verification popup (oculto por default; abierto desde fmLobPopupShow) -->
+<div class="lob-popup-backdrop" id="lob-popup-backdrop" role="dialog" aria-modal="true" aria-labelledby="lob-popup-title">
+  <div class="lob-popup">
+    <div class="lob-popup-header">
+      <div class="lob-popup-icon" aria-hidden="true">&#128205;</div>
+      <h3 class="lob-popup-title" id="lob-popup-title">Confirm your address</h3>
+      <button type="button" class="lob-popup-close" id="lob-popup-close" aria-label="Close">&#10005;</button>
+    </div>
+    <div class="lob-popup-body">
+      <div id="lob-popup-notfound" style="display:none">
+        <p class="lob-popup-notfound-title" id="lob-popup-notfound-title">Suggested address not found</p>
+        <p class="lob-popup-notfound-sub" id="lob-popup-notfound-sub">Please verify and confirm your address.</p>
+      </div>
+      <div id="lob-popup-suggested-block" style="display:none">
+        <p class="lob-popup-suggested-lbl" id="lob-popup-suggested-lbl">Suggested</p>
+        <div class="lob-popup-suggested" id="lob-popup-suggested-value"></div>
+      </div>
+      <p class="lob-popup-entered-lbl" id="lob-popup-entered-lbl">Address</p>
+      <div class="lob-popup-entered" id="lob-popup-entered-value"></div>
+    </div>
+    <div class="lob-popup-footer">
+      <button type="button" class="lob-popup-btn lob-popup-btn-secondary" id="lob-popup-use-entered">Use Entered</button>
+      <button type="button" class="lob-popup-btn lob-popup-btn-primary" id="lob-popup-primary">Use Suggested</button>
+    </div>
   </div>
 </div>
 
@@ -6624,6 +6674,110 @@ document.addEventListener('click',function(e){
   closePortalLogin();
 });
 refreshAccountUI();
+
+// === Lob address verification — popup + fetch al endpoint ===
+// (Funciones disponibles globalmente; los wirings al form vienen en commits 4-7).
+var _lobPopupResolver = null;
+function fmLobPopupClose() {
+  var bd = document.getElementById('lob-popup-backdrop');
+  if (bd) bd.classList.remove('open');
+  if (_lobPopupResolver) { var r = _lobPopupResolver; _lobPopupResolver = null; r({action:'close'}); }
+}
+function fmLobPopupShow(opts) {
+  // opts: { mode:'suggest'|'not-found', enteredLines:[], enteredLabel, suggestedLines?:[], suggestedAddr?:{} }
+  return new Promise(function(resolve){
+    _lobPopupResolver = resolve;
+    var notFoundDiv = document.getElementById('lob-popup-notfound');
+    var suggestedDiv = document.getElementById('lob-popup-suggested-block');
+    var suggestedVal = document.getElementById('lob-popup-suggested-value');
+    var enteredLbl = document.getElementById('lob-popup-entered-lbl');
+    var enteredVal = document.getElementById('lob-popup-entered-value');
+    var primaryBtn = document.getElementById('lob-popup-primary');
+    var useEnteredBtn = document.getElementById('lob-popup-use-entered');
+    var closeBtn = document.getElementById('lob-popup-close');
+    var titleEl = document.getElementById('lob-popup-title');
+    var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
+    if (titleEl) titleEl.textContent = isEs?'Confirma tu direccion':'Confirm your address';
+    if (useEnteredBtn) useEnteredBtn.textContent = isEs?'Usar la mia':'Use Entered';
+    if (enteredLbl) enteredLbl.textContent = opts.enteredLabel || (isEs?'Direccion ingresada':'Entered Address');
+    if (enteredVal) enteredVal.innerHTML = (opts.enteredLines||[]).map(function(l){return String(l).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}).join('<br>');
+    if (opts.mode === 'not-found') {
+      if (notFoundDiv) notFoundDiv.style.display = 'block';
+      if (suggestedDiv) suggestedDiv.style.display = 'none';
+      var nft = document.getElementById('lob-popup-notfound-title');
+      var nfs = document.getElementById('lob-popup-notfound-sub');
+      if (nft) nft.textContent = isEs?'Direccion sugerida no encontrada':'Suggested address not found';
+      if (nfs) nfs.textContent = isEs?'Por favor verifica y confirma tu direccion.':'Please verify and confirm your address.';
+      if (primaryBtn) {
+        primaryBtn.textContent = isEs?'Re-ingresar direccion':'Re-enter Address';
+        primaryBtn.onclick = function(){ var r=_lobPopupResolver; _lobPopupResolver=null; document.getElementById('lob-popup-backdrop').classList.remove('open'); if(r) r({action:'re-enter'}); };
+      }
+    } else {
+      if (notFoundDiv) notFoundDiv.style.display = 'none';
+      if (suggestedDiv) suggestedDiv.style.display = 'block';
+      var slbl = document.getElementById('lob-popup-suggested-lbl');
+      if (slbl) slbl.textContent = isEs?'Sugerida':'Suggested';
+      if (suggestedVal) suggestedVal.innerHTML = (opts.suggestedLines||[]).map(function(l){return String(l).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}).join('<br>');
+      if (primaryBtn) {
+        primaryBtn.textContent = isEs?'Usar sugerida':'Use Suggested';
+        primaryBtn.onclick = function(){ var r=_lobPopupResolver; _lobPopupResolver=null; document.getElementById('lob-popup-backdrop').classList.remove('open'); if(r) r({action:'use-suggested', addr: opts.suggestedAddr}); };
+      }
+    }
+    if (useEnteredBtn) useEnteredBtn.onclick = function(){ var r=_lobPopupResolver; _lobPopupResolver=null; document.getElementById('lob-popup-backdrop').classList.remove('open'); if(r) r({action:'use-entered'}); };
+    if (closeBtn) closeBtn.onclick = fmLobPopupClose;
+    var bd = document.getElementById('lob-popup-backdrop');
+    if (bd) bd.classList.add('open');
+  });
+}
+
+async function fmLobValidateAddr(addrInput, enteredLabel) {
+  // addrInput: {primary_line, secondary_line?, city?, state?, zip_code?, country?}
+  // Devuelve Promise<{action:'pass'|'use-entered'|'use-suggested'|'re-enter'|'close', addr?}>
+  try {
+    if (addrInput && addrInput.country && addrInput.country !== 'US') return {action:'pass'};
+    if (!addrInput || !addrInput.primary_line || !String(addrInput.primary_line).trim()) return {action:'pass'};
+    var ctrl = new AbortController();
+    var tid = setTimeout(function(){ try{ctrl.abort();}catch(e){} }, 6000);
+    var res = await fetch('/api/address/verify', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        primary_line: addrInput.primary_line,
+        secondary_line: addrInput.secondary_line,
+        city: addrInput.city,
+        state: addrInput.state,
+        zip_code: addrInput.zip_code,
+      }),
+      signal: ctrl.signal,
+    });
+    clearTimeout(tid);
+    var data = await res.json();
+    if (!data || data.source !== 'lob') return {action:'pass'};
+    var entered = addrInput;
+    var sugg = data.suggested || null;
+    function n(s){ return String(s||'').trim().toUpperCase().replace(/\\s+/g,' '); }
+    var same = sugg
+      && n(entered.primary_line)===n(sugg.primary_line)
+      && n(entered.city)===n(sugg.city)
+      && n(entered.state)===n(sugg.state)
+      && n(entered.zip_code).slice(0,5)===n(sugg.zip_code).slice(0,5);
+    if (data.ok && same) return {action:'pass'};
+    var enteredLines = [
+      String(entered.primary_line||'') + (entered.secondary_line?(' '+entered.secondary_line):''),
+      [entered.city, entered.state, entered.zip_code].filter(Boolean).join(' '),
+    ].filter(function(l){return l && String(l).trim().length>0;});
+    if (!data.ok) {
+      return await fmLobPopupShow({mode:'not-found', enteredLines:enteredLines, enteredLabel:enteredLabel});
+    }
+    var suggLines = sugg ? [
+      String(sugg.primary_line||'') + (sugg.secondary_line?(' '+sugg.secondary_line):''),
+      [sugg.city, sugg.state, sugg.zip_code].filter(Boolean).join(' '),
+    ].filter(function(l){return l && String(l).trim().length>0;}) : [];
+    return await fmLobPopupShow({mode:'suggest', enteredLines:enteredLines, enteredLabel:enteredLabel, suggestedLines:suggLines, suggestedAddr:sugg});
+  } catch (e) {
+    return {action:'pass'};
+  }
+}
 </script>
 `
   return (
