@@ -1,0 +1,437 @@
+// /servicios/checkout — Checkout à la carte de servicios (Fase 1).
+//
+// Lee el carrito (localStorage flbc_svc_cart) que se arma en /servicios.
+// Paso 1: captura de datos (bloque común una vez + extras por servicio).
+// Paso 2: review de la orden + Stripe Embedded Checkout al lado (paga sin salir).
+// Al volver con ?paid=1 muestra la confirmación. El webhook (kind='services')
+// marca la orden pagada y envía los emails.
+//
+// CSS-in-JS + script inline, mismo patrón que el resto de páginas marketing.
+
+export const dynamic = 'force-dynamic'
+
+export default function ServiciosCheckoutPage() {
+  const PK = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || ''
+
+  const styles = `
+:root{--navy:#1C2E44;--blue:#2563EB;--blue-light:#EFF6FF;--green:#059669;--green-light:#ECFDF5;--white:#fff;--gray50:#F8FAFC;--gray100:#F1F5F9;--gray200:#E2E8F0;--gray400:#94A3B8;--gray500:#64748B;--gray600:#475569;--gray800:#1E293B;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans),'Plus Jakarta Sans',system-ui,sans-serif;color:var(--gray800);background:var(--gray50);line-height:1.6;min-height:100vh}
+.co-header{background:#fff;border-bottom:1px solid var(--gray200);position:sticky;top:0;z-index:50}
+.co-header-inner{max-width:1080px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.co-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.co-logo-mark{width:36px;height:36px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem}
+.co-logo-text{font-family:var(--font-serif),serif;font-size:1.15rem;font-weight:700}
+.co-logo-text .o{color:var(--navy)}.co-logo-text .b{color:var(--blue)}
+.co-back{font-size:.85rem;color:var(--gray500);text-decoration:none;font-weight:600}
+.co-back:hover{color:var(--blue)}
+.co-lang{display:flex;gap:2px;background:var(--gray100);border-radius:8px;padding:3px}
+.co-lang button{border:none;background:none;padding:5px 11px;border-radius:6px;font-size:.78rem;font-weight:700;color:var(--gray500);cursor:pointer;font-family:inherit}
+.co-lang button.active{background:#fff;color:var(--navy);box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.co-wrap{max-width:1080px;margin:0 auto;padding:30px 24px 80px}
+.co-steps{display:flex;align-items:center;gap:10px;margin-bottom:24px;font-size:.82rem;color:var(--gray400);font-weight:600}
+.co-step.active{color:var(--blue)}
+.co-step-num{display:inline-flex;width:22px;height:22px;border-radius:50%;background:var(--gray200);color:var(--gray500);align-items:center;justify-content:center;font-size:.74rem;margin-right:6px}
+.co-step.active .co-step-num{background:var(--blue);color:#fff}
+.co-step-sep{flex:0 0 30px;height:2px;background:var(--gray200)}
+.co-h1{font-family:var(--font-serif),serif;font-size:1.7rem;font-weight:700;color:var(--navy);margin-bottom:6px}
+.co-sub{font-size:.92rem;color:var(--gray600);margin-bottom:24px}
+.co-card{background:#fff;border:1px solid var(--gray200);border-radius:14px;padding:22px 24px;margin-bottom:18px}
+.co-card-title{font-family:var(--font-serif),serif;font-size:1.1rem;font-weight:700;color:var(--navy);margin-bottom:4px}
+.co-card-svc{font-size:.72rem;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.6px;margin-bottom:16px}
+.co-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.co-field{display:flex;flex-direction:column;gap:5px}
+.co-field.full{grid-column:1/-1}
+.co-label{font-size:.8rem;font-weight:600;color:var(--gray600)}
+.co-label .req{color:#dc2626}
+.co-input,.co-select,.co-textarea{border:1.5px solid var(--gray200);border-radius:9px;padding:11px 13px;font-size:.9rem;font-family:inherit;color:var(--gray800);background:#fff;width:100%}
+.co-input:focus,.co-select:focus,.co-textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+.co-textarea{resize:vertical;min-height:64px}
+.co-hint{font-size:.72rem;color:var(--gray400)}
+.co-status{font-size:.74rem;min-height:16px}
+.co-err{color:#dc2626;font-size:.84rem;margin:10px 0 0;min-height:1px}
+.co-actions{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:8px}
+.co-btn{background:var(--blue);color:#fff;border:none;padding:14px 26px;border-radius:11px;font-size:.95rem;font-weight:700;cursor:pointer;font-family:inherit;min-height:48px;transition:background .2s}
+.co-btn:hover{background:#1d4ed8}
+.co-btn:disabled{opacity:.6;cursor:default}
+.co-btn-ghost{background:none;color:var(--gray500);border:none;font-size:.86rem;font-weight:600;cursor:pointer;font-family:inherit}
+.co-btn-ghost:hover{color:var(--navy)}
+.co-pay-grid{display:grid;grid-template-columns:1fr 1.2fr;gap:22px;align-items:start}
+.co-review{background:#fff;border:1px solid var(--gray200);border-radius:14px;padding:22px 24px;position:sticky;top:90px}
+.co-review-row{display:flex;justify-content:space-between;gap:10px;font-size:.86rem;padding:8px 0;border-bottom:1px solid var(--gray100);color:var(--gray600)}
+.co-review-row span:last-child{font-weight:600;color:var(--gray800);white-space:nowrap}
+.co-review-total{display:flex;justify-content:space-between;align-items:center;padding-top:14px;margin-top:6px;font-size:1rem;font-weight:700;color:var(--navy)}
+.co-review-total strong{font-family:var(--font-serif),serif;font-size:1.5rem}
+.co-embed{background:#fff;border:1px solid var(--gray200);border-radius:14px;padding:18px;min-height:380px}
+.co-empty,.co-success{text-align:center;background:#fff;border:1px solid var(--gray200);border-radius:14px;padding:50px 28px;max-width:560px;margin:20px auto}
+.co-success-icon{font-size:3rem;margin-bottom:10px}
+.co-success h2{font-family:var(--font-serif),serif;font-size:1.6rem;color:var(--navy);margin-bottom:10px}
+.co-success p{color:var(--gray600);margin-bottom:18px}
+.co-success-num{display:inline-block;background:var(--blue-light);border:1px solid #bfdbfe;border-radius:10px;padding:12px 22px;margin-bottom:20px}
+.co-success-num span{display:block;font-size:.7rem;color:var(--gray500);text-transform:uppercase;letter-spacing:.6px}
+.co-success-num strong{font-family:var(--font-serif),serif;font-size:1.5rem;color:var(--blue);letter-spacing:.5px}
+.co-spinner{display:inline-block;width:30px;height:30px;border:3px solid var(--gray200);border-top-color:var(--blue);border-radius:50%;animation:cospin .7s linear infinite}
+@keyframes cospin{to{transform:rotate(360deg)}}
+@media(max-width:760px){.co-grid{grid-template-columns:1fr}.co-pay-grid{grid-template-columns:1fr}.co-review{position:static}}
+`
+
+  const body = `
+<header class="co-header">
+  <div class="co-header-inner">
+    <a href="/servicios" class="co-logo">
+      <div class="co-logo-mark">OB</div>
+      <div class="co-logo-text"><span class="o">Opa</span><span class="b">Biz</span></div>
+    </a>
+    <div style="display:flex;align-items:center;gap:14px">
+      <a href="/servicios" class="co-back" data-en="&#8592; Back to services" data-es="&#8592; Volver a servicios">&#8592; Volver a servicios</a>
+      <div class="co-lang">
+        <button id="co-en" onclick="coSetLang('en')">EN</button>
+        <button id="co-es" class="active" onclick="coSetLang('es')">ES</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="co-wrap">
+  <div class="co-steps" id="co-steps">
+    <span class="co-step active" id="co-step1"><span class="co-step-num">1</span><span data-en="Your details" data-es="Tus datos">Tus datos</span></span>
+    <span class="co-step-sep"></span>
+    <span class="co-step" id="co-step2"><span class="co-step-num">2</span><span data-en="Review &amp; pay" data-es="Revisar y pagar">Revisar y pagar</span></span>
+  </div>
+
+  <!-- EMPTY -->
+  <div class="co-empty" id="co-empty" style="display:none">
+    <div style="font-size:2.4rem;margin-bottom:8px">&#128722;</div>
+    <h2 class="co-h1" data-en="Your order is empty" data-es="Tu pedido está vacío">Tu pedido está vacío</h2>
+    <p class="co-sub" data-en="Add the services you need and come back here to complete your order." data-es="Agrega los servicios que necesitas y vuelve aquí para completar tu pedido.">Agrega los servicios que necesitas y vuelve aquí para completar tu pedido.</p>
+    <a href="/servicios" class="co-btn" style="display:inline-block;text-decoration:none" data-en="Browse services" data-es="Ver servicios">Ver servicios</a>
+  </div>
+
+  <!-- STEP 1: INTAKE -->
+  <div id="co-intake" style="display:none">
+    <h1 class="co-h1" data-en="Complete your order" data-es="Completa tu pedido">Completa tu pedido</h1>
+    <p class="co-sub" data-en="We need a few details to prepare your filings. You only enter shared info once." data-es="Necesitamos algunos datos para preparar tus trámites. La información común se ingresa una sola vez.">Necesitamos algunos datos para preparar tus trámites. La información común se ingresa una sola vez.</p>
+
+    <div class="co-card">
+      <div class="co-card-title" data-en="Your information &amp; business" data-es="Tu información y tu negocio">Tu información y tu negocio</div>
+      <div class="co-card-svc" data-en="Used for all selected services" data-es="Se usa para todos los servicios elegidos">Se usa para todos los servicios elegidos</div>
+      <div class="co-grid">
+        <div class="co-field"><label class="co-label" data-en="First name" data-es="Nombre">Nombre</label><input class="co-input" id="f-firstName"/></div>
+        <div class="co-field"><label class="co-label" data-en="Last name" data-es="Apellido">Apellido</label><input class="co-input" id="f-lastName"/></div>
+        <div class="co-field"><label class="co-label" data-en="Email" data-es="Correo">Correo</label><input class="co-input" type="email" id="f-email"/></div>
+        <div class="co-field"><label class="co-label" data-en="Phone / WhatsApp" data-es="Teléfono / WhatsApp">Teléfono / WhatsApp</label><input class="co-input" type="tel" id="f-phone"/></div>
+        <div class="co-field"><label class="co-label" data-en="Entity type" data-es="Tipo de entidad">Tipo de entidad</label><select class="co-select" id="f-entityType"><option value="llc">LLC</option><option value="corp" data-en="Corporation" data-es="Corporación">Corporación</option></select></div>
+        <div class="co-field"><label class="co-label" data-en="Legal business name" data-es="Nombre legal del negocio">Nombre legal del negocio</label><input class="co-input" id="f-legalName"/></div>
+        <div class="co-field full"><label class="co-label" data-en="FL registration number (optional)" data-es="Número de registro FL (opcional)">Número de registro FL (opcional)</label><input class="co-input" id="f-flDoc" placeholder="L23000123456" onblur="coLookupFL(this)"/><div class="co-status" id="f-flDoc-status"></div></div>
+        <div class="co-field full"><label class="co-label" data-en="Business street address" data-es="Dirección del negocio">Dirección del negocio</label><input class="co-input" id="f-street" placeholder=""/></div>
+        <div class="co-field"><label class="co-label" data-en="City" data-es="Ciudad">Ciudad</label><input class="co-input" id="f-city"/></div>
+        <div class="co-field"><label class="co-label" data-en="ZIP" data-es="Código postal">Código postal</label><input class="co-input" id="f-zip"/></div>
+        <div class="co-field full"><label class="co-label" data-en="Electronic signature (type your full legal name)" data-es="Firma electrónica (escribe tu nombre legal completo)">Firma electrónica (escribe tu nombre legal completo)</label><input class="co-input" id="f-signature"/></div>
+      </div>
+    </div>
+
+    <div id="co-svc-sections"></div>
+
+    <div class="co-err" id="co-intake-err"></div>
+    <div class="co-actions">
+      <a href="/servicios" class="co-btn-ghost" data-en="&#8592; Edit services" data-es="&#8592; Editar servicios">&#8592; Editar servicios</a>
+      <button class="co-btn" id="co-to-pay" onclick="coGoToPayment()"><span data-en="Continue to payment" data-es="Continuar al pago">Continuar al pago</span> &#8594;</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: REVIEW + PAY -->
+  <div id="co-pay" style="display:none">
+    <h1 class="co-h1" data-en="Review &amp; pay" data-es="Revisar y pagar">Revisar y pagar</h1>
+    <p class="co-sub" data-en="Confirm your order and pay securely. You won't leave this page." data-es="Confirma tu pedido y paga de forma segura. No saldrás de esta página.">Confirma tu pedido y paga de forma segura. No saldrás de esta página.</p>
+    <div class="co-pay-grid">
+      <div class="co-review">
+        <div class="co-card-title" style="margin-bottom:12px" data-en="Order summary" data-es="Resumen del pedido">Resumen del pedido</div>
+        <div id="co-review-lines"></div>
+        <div class="co-review-total"><span data-en="Total" data-es="Total">Total</span><strong id="co-review-total">$0</strong></div>
+        <button class="co-btn-ghost" style="margin-top:14px" onclick="coBackToIntake()" data-en="&#8592; Edit details" data-es="&#8592; Editar datos">&#8592; Editar datos</button>
+      </div>
+      <div class="co-embed" id="embedded-checkout"><div style="text-align:center;padding:60px 0"><div class="co-spinner"></div></div></div>
+    </div>
+  </div>
+
+  <!-- SUCCESS -->
+  <div class="co-success" id="co-success" style="display:none">
+    <div class="co-success-icon">&#9989;</div>
+    <h2 data-en="Order received" data-es="Orden recibida">Orden recibida</h2>
+    <p data-en="Thank you! We received your payment. Our team will contact you within 1 business day with the next steps." data-es="¡Gracias! Recibimos tu pago. Nuestro equipo te contactará en 1 día hábil con los próximos pasos.">¡Gracias! Recibimos tu pago. Nuestro equipo te contactará en 1 día hábil con los próximos pasos.</p>
+    <div class="co-success-num"><span data-en="Your order number" data-es="Tu número de orden">Tu número de orden</span><strong id="co-success-num">—</strong></div>
+    <div><a href="/client-portal" class="co-btn" style="display:inline-block;text-decoration:none" data-en="Go to client portal" data-es="Ir al portal de clientes">Ir al portal de clientes</a></div>
+  </div>
+</div>
+
+<script src="https://js.stripe.com/v3/"></script>
+<script>window.__OPABIZ_PK__='${PK}';</script>
+<script>
+${scriptBody()}
+</script>
+`
+
+  return <main dangerouslySetInnerHTML={{ __html: `<style>${styles}</style>${body}` }} />
+}
+
+// El script del cliente vive en una función aparte para mantener el JSX legible.
+function scriptBody() {
+  return String.raw`
+var coLang = 'es';
+(function(){ try{ var p=new URLSearchParams(location.search); coLang = p.get('lang') || localStorage.getItem('flbc_lang') || 'es'; }catch(e){} })();
+
+// Catálogo de extras por servicio (campos específicos, además del bloque común).
+// type: text | tel | email | date | select | textarea. opts solo para select.
+var SVC_EXTRAS = {
+  'ein': { name_en:'EIN / Tax ID', name_es:'EIN / ID Fiscal', fields:[
+    {k:'startDate', en:'Business start / effective date', es:'Fecha de inicio del negocio', type:'date'},
+    {k:'respName', en:'Responsible party full name', es:'Nombre completo del responsible party', type:'text'},
+    {k:'ssnItin', en:'SSN or ITIN of responsible party', es:'SSN o ITIN del responsible party', type:'text'},
+    {k:'title', en:'Title / role', es:'Título / rol', type:'select', opts:['Managing Member','Manager','Owner','Officer / Director']},
+    {k:'activity', en:'Primary business activity', es:'Actividad principal', type:'select', opts:['Retail & E-Commerce','Real Estate','Restaurant / Food','Construction','Technology','Consulting','Import / Export','Health & Wellness','Other']}
+  ]},
+  'itin': { name_en:'ITIN Application', name_es:'Solicitud de ITIN', fields:[
+    {k:'applName', en:'Applicant full name (as on passport)', es:'Nombre del solicitante (como en pasaporte)', type:'text'},
+    {k:'dob', en:'Date of birth', es:'Fecha de nacimiento', type:'date'},
+    {k:'countryBirth', en:'Country of birth', es:'País de nacimiento', type:'text'},
+    {k:'countryCitizen', en:'Country of citizenship', es:'País de ciudadanía', type:'text'},
+    {k:'reason', en:'Reason for ITIN', es:'Motivo del ITIN', type:'select', opts:['Non-resident filing US tax return','Spouse/dependent of US citizen/resident','Florida business owner requiring tax filing','Other']},
+    {k:'usMailing', en:'US mailing address (for IRS letter)', es:'Dirección postal en EE.UU. (carta del IRS)', type:'text'},
+    {k:'idDoc', en:'Primary ID document', es:'Documento de identidad principal', type:'select', opts:['Passport','Foreign national ID + birth certificate','Visa + passport']}
+  ]},
+  'operating-agreement': { name_en:'Operating Agreement', name_es:'Acuerdo Operativo', fields:[
+    {k:'formationDate', en:'Date of formation', es:'Fecha de formación', type:'date'},
+    {k:'mgmt', en:'Management type', es:'Tipo de gestión', type:'select', opts:['Member-Managed','Manager-Managed']},
+    {k:'members', en:'Members (name, ownership %, address — one per line)', es:'Miembros (nombre, % de propiedad, dirección — uno por línea)', type:'textarea'},
+    {k:'fiscalYear', en:'Fiscal year end', es:'Fin de año fiscal', type:'select', opts:['December 31','March 31','June 30','September 30']}
+  ]},
+  'registered-agent': { name_en:'Registered Agent', name_es:'Agente Registrado', fields:[
+    {k:'currentAgent', en:'Current registered agent (if replacing)', es:'Agente registrado actual (si lo reemplazas)', type:'text'}
+  ]},
+  'dba': { name_en:'DBA / Fictitious Name', name_es:'DBA / Nombre Ficticio', fields:[
+    {k:'desiredName', en:'Desired fictitious name (DBA)', es:'Nombre ficticio deseado (DBA)', type:'text'},
+    {k:'altName', en:'Alternative name (optional)', es:'Nombre alternativo (opcional)', type:'text'},
+    {k:'reason', en:'Why a DBA?', es:'¿Por qué un DBA?', type:'select', opts:['Brand / marketing name','Multiple business lines','Website / domain','Different county','Other']}
+  ]},
+  'virtual-address': { name_en:'Virtual Mailing Address', name_es:'Dirección Virtual', fields:[
+    {k:'plan', en:'Plan', es:'Plan', type:'select', opts:['Digital forwarding','Digital + physical forwarding']},
+    {k:'forwarding', en:'Physical forwarding address (optional)', es:'Dirección de reenvío físico (opcional)', type:'text'}
+  ]},
+  'annual-report': { name_en:'Annual Report', name_es:'Declaración Anual', fields:[
+    {k:'ein', en:'EIN / Tax ID', es:'EIN / ID Fiscal', type:'text'},
+    {k:'agentName', en:'Registered agent name', es:'Nombre del agente registrado', type:'text'},
+    {k:'agentAddress', en:'Registered agent FL address', es:'Dirección FL del agente registrado', type:'text'},
+    {k:'officers', en:'Officers / managers (title, name, address — one per line)', es:'Oficiales / managers (título, nombre, dirección — uno por línea)', type:'textarea'}
+  ]},
+  'amendment': { name_en:'Articles of Amendment', name_es:'Artículos de Enmienda', fields:[
+    {k:'changes', en:'What are you changing? (name, address, agent, officers...)', es:'¿Qué vas a cambiar? (nombre, dirección, agente, oficiales...)', type:'textarea'},
+    {k:'newInfo', en:'New / updated information', es:'Información nueva / actualizada', type:'textarea'},
+    {k:'authName', en:'Authorized person name', es:'Nombre de la persona autorizada', type:'text'}
+  ]},
+  'banking-resolution': { name_en:'Banking Resolution', name_es:'Resolución Bancaria', fields:[
+    {k:'ein', en:'EIN / Tax ID', es:'EIN / ID Fiscal', type:'text'},
+    {k:'bankName', en:'Bank name', es:'Nombre del banco', type:'text'},
+    {k:'accountType', en:'Account type', es:'Tipo de cuenta', type:'select', opts:['Business Checking','Business Savings','Both']},
+    {k:'authName', en:'Authorized person', es:'Persona autorizada', type:'text'}
+  ]},
+  'business-tax-receipt': { name_en:'Business Tax Receipt', name_es:'Recibo de Impuesto', fields:[
+    {k:'ein', en:'EIN / Tax ID', es:'EIN / ID Fiscal', type:'text'},
+    {k:'county', en:'Florida county', es:'Condado de Florida', type:'select', opts:['Miami-Dade','Broward','Palm Beach','Orange','Hillsborough','Pinellas','Duval','Other']},
+    {k:'industry', en:'Type of business', es:'Tipo de negocio', type:'text'},
+    {k:'employees', en:'Number of employees', es:'Número de empleados', type:'select', opts:['0 (Owner only)','1-5','6-10','11-25','25+']}
+  ]},
+  'sales-tax-registration': { name_en:'Sales Tax Registration', name_es:'Registro Impuesto Ventas', fields:[
+    {k:'ein', en:'EIN / Tax ID', es:'EIN / ID Fiscal', type:'text'},
+    {k:'startDate', en:'Business start date', es:'Fecha de inicio', type:'date'},
+    {k:'selling', en:'What are you selling?', es:'¿Qué vendes?', type:'select', opts:['Physical products','Food & beverages','Software / digital','Services','Both products & services','Rentals']},
+    {k:'where', en:'Where will you sell?', es:'¿Dónde venderás?', type:'select', opts:['Online only','Physical location in FL','Both','Wholesale']},
+    {k:'ssnItin', en:'Responsible party SSN or ITIN', es:'SSN o ITIN del responsible party', type:'text'}
+  ]},
+  'exclusive-guide': { name_en:'Exclusive Formation Guide', name_es:'Guía Exclusiva', fields:[
+    {k:'industry', en:'Industry (optional)', es:'Industria (opcional)', type:'text'}
+  ]},
+  'good-standing': { name_en:'Certificate of Good Standing', name_es:'Certificado de Buena Reputación', fields:[
+    {k:'purpose', en:'Purpose of certificate', es:'Propósito del certificado', type:'select', opts:['Bank account','Loan / financing','Contract / partnership','Government / licensing','Investor','Apostille / international','Other']},
+    {k:'copies', en:'Number of copies', es:'Número de copias', type:'select', opts:['1','2','3','5']},
+    {k:'delivery', en:'Delivery format', es:'Formato de entrega', type:'select', opts:['Digital (PDF)','Physical by mail','Both']}
+  ]},
+  'scorp-election': { name_en:'S-Corp Election (Form 2553)', name_es:'Elección de S-Corp', fields:[
+    {k:'effectiveDate', en:'Desired effective date', es:'Fecha efectiva deseada', type:'date'},
+    {k:'ein', en:'EIN / Tax ID', es:'EIN / ID Fiscal', type:'text'},
+    {k:'shareholders', en:'Shareholders / members (name, %, SSN/ITIN — one per line)', es:'Accionistas / miembros (nombre, %, SSN/ITIN — uno por línea)', type:'textarea'}
+  ]},
+  'foreign-llc': { name_en:'Foreign Registration', name_es:'Registro Extranjero', fields:[
+    {k:'ein', en:'EIN / Tax ID', es:'EIN / ID Fiscal', type:'text'},
+    {k:'targetStates', en:'State(s) to register in', es:'Estado(s) donde registrar', type:'text'},
+    {k:'reason', en:'Reason for operating there', es:'Motivo de operar allí', type:'select', opts:['Physical office / store','Employees there','Client contracts','Real estate','E-commerce fulfillment','Other']},
+    {k:'targetAddress', en:'Address in target state (if any)', es:'Dirección en el estado destino (si aplica)', type:'text'}
+  ]},
+  'business-license': { name_en:'Business License', name_es:'Licencia de Negocios', fields:[
+    {k:'ein', en:'EIN / Tax ID', es:'EIN / ID Fiscal', type:'text'},
+    {k:'county', en:'Florida county', es:'Condado de Florida', type:'select', opts:['Miami-Dade','Broward','Palm Beach','Orange','Hillsborough','Pinellas','Duval','Other']},
+    {k:'industry', en:'Primary industry', es:'Industria principal', type:'text'},
+    {k:'description', en:'Describe your business activities', es:'Describe las actividades de tu negocio', type:'textarea'}
+  ]},
+  'dissolution': { name_en:'Business Dissolution', name_es:'Disolución del Negocio', fields:[
+    {k:'ein', en:'EIN / Tax ID', es:'EIN / ID Fiscal', type:'text'},
+    {k:'reason', en:'Reason for dissolution', es:'Motivo de la disolución', type:'select', opts:['Business permanently closed','Business sold','Changed entity type','Partnership dissolved','Retirement','Other']},
+    {k:'approvedDate', en:'Date dissolution was approved', es:'Fecha en que se aprobó', type:'date'},
+    {k:'authName', en:'Authorized person', es:'Persona autorizada', type:'text'}
+  ]},
+  'cierre-fiscal': { name_en:'Tax Account Closure', name_es:'Cierre de Cuentas Fiscales', fields:[
+    {k:'ein', en:'EIN / Tax ID', es:'EIN / ID Fiscal', type:'text'},
+    {k:'reason', en:'Reason for closure', es:'Motivo del cierre', type:'select', opts:['Business permanently closed','Business sold','Changed entity type','No longer operating in FL','Other']},
+    {k:'lastActivity', en:'Last business activity date', es:'Fecha de última actividad', type:'date'},
+    {k:'ssnItin', en:'Responsible party SSN or ITIN', es:'SSN o ITIN del responsible party', type:'text'}
+  ]},
+  'certified-copy': { name_en:'Certified Copy', name_es:'Copia Certificada', fields:[
+    {k:'copies', en:'Number of copies', es:'Número de copias', type:'select', opts:['1','2','3','5']},
+    {k:'delivery', en:'Delivery format', es:'Delivery format', type:'select', opts:['Digital (PDF)','Physical by mail','Both']}
+  ]}
+};
+
+var cart = [];
+try { cart = JSON.parse(localStorage.getItem('flbc_svc_cart')||'[]'); if(!Array.isArray(cart)) cart=[]; } catch(e){ cart=[]; }
+var stripeCheckout = null;
+
+function coIsEs(){ return coLang==='es'; }
+function $(id){ return document.getElementById(id); }
+function coShow(id){ ['co-empty','co-intake','co-pay','co-success'].forEach(function(s){ var el=$(s); if(el) el.style.display = (s===id?'':'none'); }); }
+
+function coSetLang(l){
+  coLang=l; try{ localStorage.setItem('flbc_lang',l); }catch(e){}
+  $('co-en').classList.toggle('active', l==='en');
+  $('co-es').classList.toggle('active', l==='es');
+  var isEs=coIsEs();
+  document.querySelectorAll('[data-en][data-es]').forEach(function(el){ el.textContent = isEs?el.getAttribute('data-es'):el.getAttribute('data-en'); });
+  // re-render dynamic service sections in the new language (preserve values)
+  if($('co-intake').style.display!=='none'){ var vals=coCollectExtras(); renderSvcSections(); restoreExtras(vals); }
+}
+
+function fieldHtml(svcId, f){
+  var isEs=coIsEs(); var lbl=isEs?f.es:f.en; var id='x-'+svcId+'-'+f.k;
+  var full = (f.type==='textarea')?' full':'';
+  var inner='';
+  if(f.type==='select'){
+    inner='<select class="co-select" id="'+id+'">'+f.opts.map(function(o){return '<option>'+o+'</option>';}).join('')+'</select>';
+  } else if(f.type==='textarea'){
+    inner='<textarea class="co-textarea" id="'+id+'"></textarea>';
+  } else {
+    inner='<input class="co-input" type="'+(f.type||'text')+'" id="'+id+'"/>';
+  }
+  return '<div class="co-field'+full+'"><label class="co-label">'+lbl+'</label>'+inner+'</div>';
+}
+
+function renderSvcSections(){
+  var host=$('co-svc-sections'); if(!host) return;
+  var isEs=coIsEs(); var html='';
+  cart.forEach(function(svcId){
+    var def=SVC_EXTRAS[svcId];
+    var name = def ? (isEs?def.name_es:def.name_en) : svcId;
+    html += '<div class="co-card"><div class="co-card-title">'+name+'</div>';
+    if(def && def.fields && def.fields.length){
+      html += '<div class="co-card-svc" data-en="Specific details for this service" data-es="Detalles específicos de este servicio">'+(isEs?'Detalles específicos de este servicio':'Specific details for this service')+'</div>';
+      html += '<div class="co-grid">'+def.fields.map(function(f){return fieldHtml(svcId,f);}).join('')+'</div>';
+    } else {
+      html += '<div class="co-card-svc">'+(isEs?'No requiere datos adicionales':'No extra details required')+'</div>';
+    }
+    html += '</div>';
+  });
+  host.innerHTML=html;
+}
+
+function coCollectExtras(){
+  var out={};
+  cart.forEach(function(svcId){
+    var def=SVC_EXTRAS[svcId]; if(!def||!def.fields) return;
+    def.fields.forEach(function(f){ var el=$('x-'+svcId+'-'+f.k); if(el) out[svcId+'.'+f.k]=el.value; });
+  });
+  return out;
+}
+function restoreExtras(vals){
+  Object.keys(vals).forEach(function(key){ var parts=key.split('.'); var el=$('x-'+parts[0]+'-'+parts.slice(1).join('.')); if(el) el.value=vals[key]; });
+}
+
+function coLookupFL(input){
+  var doc=(input.value||'').trim().toUpperCase(); if(doc.length<5) return;
+  var st=$('f-flDoc-status'); var isEs=coIsEs();
+  if(st) st.innerHTML='<span style="color:#64748b">'+(isEs?'Buscando...':'Looking up...')+'</span>';
+  fetch('/api/sunbiz?document_id='+encodeURIComponent(doc)).then(function(r){return r.json();}).then(function(d){
+    if(d.error||!d.company){ if(st) st.innerHTML='<span style="color:#dc2626">'+(isEs?'No encontrado.':'Not found.')+'</span>'; return; }
+    var c=d.company;
+    if(c.company_name && !$('f-legalName').value) $('f-legalName').value=c.company_name;
+    if(c.company_type) $('f-entityType').value = (c.company_type==='CORP'?'corp':'llc');
+    if(st) st.innerHTML='<span style="color:#059669">'+(isEs?'✓ Encontrado: ':'✓ Found: ')+(c.company_name||'')+'</span>';
+  }).catch(function(){ if(st) st.innerHTML=''; });
+}
+
+function coGetIntake(){
+  return {
+    firstName:$('f-firstName').value.trim(), lastName:$('f-lastName').value.trim(),
+    email:$('f-email').value.trim(), phone:$('f-phone').value.trim(),
+    entityType:$('f-entityType').value, legalName:$('f-legalName').value.trim(),
+    flDoc:$('f-flDoc').value.trim(), street:$('f-street').value.trim(),
+    city:$('f-city').value.trim(), zip:$('f-zip').value.trim(),
+    signature:$('f-signature').value.trim(), extras:coCollectExtras()
+  };
+}
+
+function coGoToPayment(){
+  var isEs=coIsEs(); var err=$('co-intake-err'); err.textContent='';
+  var intake=coGetIntake();
+  if(intake.firstName.length<1||intake.lastName.length<1){ err.textContent=isEs?'Ingresa tu nombre y apellido.':'Please enter your first and last name.'; return; }
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(intake.email)){ err.textContent=isEs?'Ingresa un correo válido.':'Please enter a valid email.'; return; }
+  if(intake.phone.replace(/[^0-9]/g,'').length<7){ err.textContent=isEs?'Ingresa un teléfono válido.':'Please enter a valid phone.'; return; }
+  if(intake.legalName.length<2){ err.textContent=isEs?'Ingresa el nombre legal del negocio.':'Please enter your legal business name.'; return; }
+  if(intake.signature.length<2){ err.textContent=isEs?'Escribe tu firma electrónica.':'Please type your electronic signature.'; return; }
+
+  var btn=$('co-to-pay'); btn.disabled=true; var prev=btn.innerHTML; btn.innerHTML=isEs?'Creando pago...':'Creating payment...';
+  fetch('/api/checkout/embedded-services',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({services:cart,intake:intake,lang:coLang})})
+    .then(function(r){return r.json().then(function(d){return{ok:r.ok,d:d};});})
+    .then(function(res){
+      if(!res.ok||!res.d.clientSecret){ err.textContent=(res.d&&res.d.error)||(isEs?'No se pudo crear el pago.':'Could not create payment.'); btn.disabled=false; btn.innerHTML=prev; return; }
+      try{ localStorage.setItem('flbc_svc_order', res.d.fbfc||''); }catch(e){}
+      coRenderReview(res.d.lines, res.d.total);
+      coShow('co-pay'); $('co-step1').classList.remove('active'); $('co-step2').classList.add('active');
+      window.scrollTo(0,0);
+      coMountStripe(res.d.clientSecret);
+    })
+    .catch(function(){ err.textContent=isEs?'Error de conexión. Intenta de nuevo.':'Connection error. Please try again.'; btn.disabled=false; btn.innerHTML=prev; });
+}
+
+function coRenderReview(lines, total){
+  var host=$('co-review-lines'); if(!host) return;
+  host.innerHTML=(lines||[]).map(function(l){ return '<div class="co-review-row"><span>'+l.label+'</span><span>$'+l.amount+'</span></div>'; }).join('');
+  $('co-review-total').textContent='$'+(total||0);
+}
+
+function coMountStripe(clientSecret){
+  var pk=window.__OPABIZ_PK__;
+  if(!pk||typeof Stripe==='undefined'){ $('embedded-checkout').innerHTML='<p style="color:#dc2626;padding:20px">Stripe no está configurado.</p>'; return; }
+  var stripe=Stripe(pk);
+  stripe.initEmbeddedCheckout({clientSecret:clientSecret}).then(function(c){ stripeCheckout=c; $('embedded-checkout').innerHTML=''; c.mount('#embedded-checkout'); });
+}
+
+function coBackToIntake(){
+  if(stripeCheckout){ try{ stripeCheckout.destroy(); }catch(e){} stripeCheckout=null; }
+  $('embedded-checkout').innerHTML='<div style="text-align:center;padding:60px 0"><div class="co-spinner"></div></div>';
+  coShow('co-intake'); $('co-step2').classList.remove('active'); $('co-step1').classList.add('active'); window.scrollTo(0,0);
+}
+
+// ── Init ──
+(function init(){
+  coSetLang(coLang);
+  var paid=false; try{ paid=new URLSearchParams(location.search).get('paid')==='1'; }catch(e){}
+  if(paid){
+    var num=''; try{ num=localStorage.getItem('flbc_svc_order')||''; }catch(e){}
+    $('co-success-num').textContent=num||'—';
+    try{ localStorage.removeItem('flbc_svc_cart'); localStorage.removeItem('flbc_svc_order'); }catch(e){}
+    $('co-steps').style.display='none';
+    coShow('co-success'); return;
+  }
+  if(!cart.length){ $('co-steps').style.display='none'; coShow('co-empty'); return; }
+  renderSvcSections();
+  coShow('co-intake');
+})();
+`
+}

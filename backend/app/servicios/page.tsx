@@ -968,11 +968,9 @@ function localizeCartForm(){
 }
 function openCart(){
   if(cart.length===0)return;
-  document.getElementById('cartMain').style.display='';
-  document.getElementById('cartSuccess').style.display='none';
-  localizeCartForm();renderCartModal();
-  document.getElementById('cartOverlay').classList.add('active');
-  document.body.style.overflow='hidden';
+  // "Continuar" ahora navega a la página de checkout (captura de datos + Stripe).
+  // El modal viejo (cartOverlay) quedó sin uso pero se conserva en el DOM.
+  window.location.href='/servicios/checkout';
 }
 function closeCart(){
   var o=document.getElementById('cartOverlay');if(!o)return;
