@@ -4737,6 +4737,47 @@ function fmNext() {
       var bc=document.getElementById('inp-biz-country');
       if(bc&&bc.value==='US'){var st=document.getElementById('inp-state');if(!st||!st.value){if(st){st.style.borderColor='#ef4444';st.focus();}alert(isEs?'Por favor selecciona el estado.':'Please select your state.');return;}if(st)st.style.borderColor='';}
     }
+    // === Lob validation grupo 1: Direccion fisica del negocio (solo US) ===
+    if((!fmData.bizAddrType||fmData.bizAddrType==='own') && document.getElementById('inp-biz-country') && document.getElementById('inp-biz-country').value==='US') {
+      var _addrEl=document.getElementById('inp-addr');
+      if(_addrEl && _addrEl.value && _addrEl.value.trim()) {
+        var _isEsLob = isEs;
+        var _street2El=document.getElementById('inp-street2');
+        var _cityEl=document.getElementById('inp-city');
+        var _stateEl=document.getElementById('inp-state');
+        var _zipEl=document.getElementById('inp-zip');
+        (async function(){
+          try {
+            var result = await fmLobValidateAddr({
+              primary_line: _addrEl.value,
+              secondary_line: _street2El ? _street2El.value : '',
+              city: _cityEl ? _cityEl.value : '',
+              state: _stateEl ? _stateEl.value : '',
+              zip_code: _zipEl ? _zipEl.value : '',
+              country: 'US',
+            }, _isEsLob ? 'Direccion de la empresa' : 'Company Address');
+            if(result && (result.action === 're-enter' || result.action === 'close')) return;
+            if(result && result.action === 'use-suggested' && result.addr) {
+              if(_addrEl && result.addr.primary_line) _addrEl.value = result.addr.primary_line;
+              if(_street2El && result.addr.secondary_line) _street2El.value = result.addr.secondary_line;
+              if(_cityEl && result.addr.city) _cityEl.value = result.addr.city;
+              if(_stateEl && result.addr.state) _stateEl.value = result.addr.state;
+              if(_zipEl && result.addr.zip_code) _zipEl.value = result.addr.zip_code;
+            }
+            // Avanzar al siguiente paso (mismo logica que el final de fmNext)
+            if (typeof window.gtag === 'function') { window.gtag('event', 'step_completed', { step_number: fmCurrentStep, package: fmData.package, entity: fmData.entity }); }
+            var _next=fmCurrentStep+1; if(_next===4)_next=5; if(_next===6)_next=7;
+            if(fmVisualStep(_next)<=fmTotalSteps) fmGoToStep(_next);
+          } catch(e) {
+            // Si algo falla, avanzar igual (no bloquear al cliente)
+            if (typeof window.gtag === 'function') { window.gtag('event', 'step_completed', { step_number: fmCurrentStep, package: fmData.package, entity: fmData.entity }); }
+            var _nx=fmCurrentStep+1; if(_nx===4)_nx=5; if(_nx===6)_nx=7;
+            if(fmVisualStep(_nx)<=fmTotalSteps) fmGoToStep(_nx);
+          }
+        })();
+        return; // El IIFE async maneja el avance
+      }
+    }
   }
   if(fmCurrentStep===3){
     if(fmData.agentType==='own'){
