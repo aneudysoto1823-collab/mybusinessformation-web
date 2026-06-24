@@ -144,8 +144,8 @@ export function PageContent({ defaultLang = 'en' }: { defaultLang?: 'en' | 'es' 
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth;background:#1C2E44}
-body{font-family:'Plus Jakarta Sans',sans-serif;color:var(--gray800);background:var(--white);line-height:1.6;overflow-x:hidden}
-h1,h2,h3,h4{font-family:'Fraunces',serif;line-height:1.15}
+body{font-family:var(--font-sans);color:var(--gray800);background:var(--white);line-height:1.6;overflow-x:hidden}
+h1,h2,h3,h4{font-family:var(--font-serif);line-height:1.15}
 a{text-decoration:none;color:inherit}
 img{max-width:100%}
 
@@ -157,11 +157,11 @@ img{max-width:100%}
 header{position:sticky;top:0;z-index:200;background:rgba(255,255,255,0.97);backdrop-filter:blur(12px);border-bottom:1px solid var(--gray200);padding:0 32px}
 .header-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:70px;gap:20px}
 .logo{display:flex;align-items:center;gap:12px}
-.logo-mark{width:42px;height:42px;background:linear-gradient(135deg,var(--navy),var(--blue));border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Fraunces',serif;font-size:1.1rem;font-weight:700;letter-spacing:-0.5px}
-.logo-text{font-family:'Fraunces',serif;font-size:1.5rem;color:var(--navy);font-weight:700;line-height:1.2}
-.logo-text span{display:block;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.68rem;color:var(--gray400);font-weight:400;letter-spacing:0.8px;text-transform:uppercase}
-.logo-text span.logo-opa{display:inline;font-size:1.5rem;color:var(--navy);font-style:normal;letter-spacing:-.5px;text-transform:none;font-family:'Fraunces',serif;font-weight:700}
-.logo-text span.logo-biz{display:inline;font-size:1.5rem;color:#2563EB;font-style:normal;letter-spacing:-.5px;text-transform:none;font-family:'Fraunces',serif;font-weight:700}
+.logo-mark{width:42px;height:42px;background:linear-gradient(135deg,var(--navy),var(--blue));border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-family:var(--font-serif);font-size:1.1rem;font-weight:700;letter-spacing:-0.5px}
+.logo-text{font-family:var(--font-serif);font-size:1.5rem;color:var(--navy);font-weight:700;line-height:1.2}
+.logo-text span{display:block;font-family:var(--font-sans);font-size:0.68rem;color:var(--gray400);font-weight:400;letter-spacing:0.8px;text-transform:uppercase}
+.logo-text span.logo-opa{display:inline;font-size:1.5rem;color:var(--navy);font-style:normal;letter-spacing:-.5px;text-transform:none;font-family:var(--font-serif);font-weight:700}
+.logo-text span.logo-biz{display:inline;font-size:1.5rem;color:#2563EB;font-style:normal;letter-spacing:-.5px;text-transform:none;font-family:var(--font-serif);font-weight:700}
 nav{display:flex;align-items:center;gap:6px}
 .nav-login-mobile{display:none}
 nav a{font-size:0.85rem;font-weight:500;color:var(--gray600);padding:6px 12px;border-radius:6px;transition:all 0.2s}
@@ -182,7 +182,7 @@ html.portal-authed #header-account{display:flex}
 .plogin-card{background:#fff;border-radius:14px;width:100%;padding:24px 24px 20px;position:relative;box-shadow:0 16px 48px rgba(15,28,46,0.22);border:1px solid #e2e8f0;font-family:inherit}
 .plogin-close{position:absolute;top:14px;right:16px;background:none;border:none;font-size:24px;line-height:1;color:#94a3b8;cursor:pointer;padding:0}
 .plogin-close:hover{color:#475569}
-.plogin-title{font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:#0f172a;margin:0 0 18px}
+.plogin-title{font-family:var(--font-serif);font-size:22px;font-weight:700;color:#0f172a;margin:0 0 18px}
 .plogin-group{margin-bottom:14px}
 .plogin-group label{display:block;font-size:11px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px}
 .plogin-group input{width:100%;padding:10px 13px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;color:#0f172a;background:#fff;outline:none;font-family:inherit;transition:border-color 0.15s,box-shadow 0.15s}
@@ -195,7 +195,7 @@ html.portal-authed #header-account{display:flex}
 .plogin-terms a{color:#94a3b8;text-decoration:underline}
 nav a:hover{color:var(--navy);background:var(--gray100)}
 .lang-toggle{display:flex;align-items:center;background:var(--gray100);border-radius:20px;padding:3px;gap:2px}
-.lang-btn{padding:5px 14px;border-radius:16px;border:none;cursor:pointer;font-size:0.78rem;font-weight:600;font-family:'Plus Jakarta Sans',sans-serif;transition:all 0.2s;color:var(--gray400);background:transparent}
+.lang-btn{padding:5px 14px;border-radius:16px;border:none;cursor:pointer;font-size:0.78rem;font-weight:600;font-family:var(--font-sans);transition:all 0.2s;color:var(--gray400);background:transparent}
 .lang-btn.active{background:var(--navy);color:#fff}
 
 /* ── HERO ── */
@@ -204,12 +204,12 @@ nav a:hover{color:var(--navy);background:var(--gray100)}
 .hero h1{font-size:clamp(1.5rem,3vw,2rem);color:var(--navy);font-weight:700;margin-bottom:24px;letter-spacing:0}
 .hero h1 em{color:var(--blue);font-style:normal}
 .hero p{font-size:.8rem;color:var(--gray600);max-width:700px;margin:0 auto;font-weight:400;line-height:1.5}
-.btn-hero{background:var(--green);color:#fff;padding:15px 36px;border-radius:10px;font-size:1rem;font-weight:600;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;animation:pulse 2.5s infinite;transition:all 0.25s;box-shadow:0 4px 20px rgba(5,150,105,0.35)}
+.btn-hero{background:var(--green);color:#fff;padding:15px 36px;border-radius:10px;font-size:1rem;font-weight:600;border:none;cursor:pointer;font-family:var(--font-sans);animation:pulse 2.5s infinite;transition:all 0.25s;box-shadow:0 4px 20px rgba(5,150,105,0.35)}
 .btn-hero:hover{background:var(--green-dark);transform:translateY(-2px);box-shadow:0 8px 28px rgba(5,150,105,0.45);animation:none}
 .hero-btns{display:flex;gap:12px;justify-content:center;margin-top:24px;flex-wrap:wrap}
-.btn-hero-new{padding:10px 22px;border-radius:9px;font-size:.85rem;font-weight:600;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .25s;display:flex;align-items:center;gap:7px;background:#fff;color:var(--navy);border:2px solid var(--gray200);box-shadow:0 2px 12px rgba(28,46,68,0.08)}
+.btn-hero-new{padding:10px 22px;border-radius:9px;font-size:.85rem;font-weight:600;border:none;cursor:pointer;font-family:var(--font-sans);transition:all .25s;display:flex;align-items:center;gap:7px;background:#fff;color:var(--navy);border:2px solid var(--gray200);box-shadow:0 2px 12px rgba(28,46,68,0.08)}
 .btn-hero-new:hover{border-color:var(--blue);color:var(--blue);transform:translateY(-1px);box-shadow:0 4px 14px rgba(37,99,235,0.15)}
-.et-toggle-btn{padding:10px 0;width:140px;text-align:center;border-radius:9px;font-size:.88rem;font-weight:600;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;transition:all .25s;background:#fff;color:var(--navy);border:2px solid var(--gray200);box-shadow:0 2px 8px rgba(28,46,68,0.06)}
+.et-toggle-btn{padding:10px 0;width:140px;text-align:center;border-radius:9px;font-size:.88rem;font-weight:600;font-family:var(--font-sans);cursor:pointer;transition:all .25s;background:#fff;color:var(--navy);border:2px solid var(--gray200);box-shadow:0 2px 8px rgba(28,46,68,0.06)}
 .et-toggle-btn:hover{border-color:var(--blue);color:var(--blue);transform:translateY(-1px);box-shadow:0 4px 14px rgba(37,99,235,0.15)}
 @keyframes pulse{0%,100%{box-shadow:0 4px 20px rgba(5,150,105,0.35)}50%{box-shadow:0 4px 28px rgba(5,150,105,0.6)}}
 .trust-bar{background:var(--gray50);border-bottom:1px solid var(--gray200);padding:13px 32px}
@@ -232,7 +232,7 @@ nav a:hover{color:var(--navy);background:var(--gray100)}
 .steps-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:28px;margin-top:52px}
 .step-card{background:var(--white);border:1px solid var(--gray200);border-radius:var(--radius-lg);padding:30px 26px;position:relative;transition:all 0.25s}
 .step-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
-.step-num{width:48px;height:48px;background:linear-gradient(135deg,var(--navy),var(--blue));border-radius:12px;display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:1.3rem;font-weight:700;color:#fff;margin-bottom:18px}
+.step-num{width:48px;height:48px;background:linear-gradient(135deg,var(--navy),var(--blue));border-radius:12px;display:flex;align-items:center;justify-content:center;font-family:var(--font-serif);font-size:1.3rem;font-weight:700;color:#fff;margin-bottom:18px}
 .step-card h4{font-size:1.05rem;color:var(--navy);font-weight:700;margin-bottom:8px}
 .step-card p{font-size:0.87rem;color:var(--gray600);line-height:1.65}
 
@@ -246,14 +246,14 @@ nav a:hover{color:var(--navy);background:var(--gray100)}
 .pkg-head{padding:16px 18px 14px;background:var(--white)}
 .pkg-card.featured .pkg-head{background:linear-gradient(135deg,var(--navy),var(--blue))}
 .popular-tag{display:inline-block;font-size:0.65rem;font-weight:700;background:var(--gold);color:#fff;padding:2px 10px;border-radius:20px;margin-bottom:6px;letter-spacing:0.3px;text-transform:uppercase}
-.pkg-name{font-family:'Fraunces',serif;font-size:1rem;font-weight:700;color:var(--navy);margin-bottom:2px}
+.pkg-name{font-family:var(--font-serif);font-size:1rem;font-weight:700;color:var(--navy);margin-bottom:2px}
 .pkg-card.featured .pkg-name{color:#fff}
 .pkg-price-row{display:flex;align-items:baseline;gap:3px;margin-bottom:1px}
-.pkg-price{font-family:'Fraunces',serif;font-size:2rem;font-weight:900;color:var(--navy);line-height:1}
+.pkg-price{font-family:var(--font-serif);font-size:2rem;font-weight:900;color:var(--navy);line-height:1}
 .pkg-card.featured .pkg-price{color:#fff}
 .pkg-state-fee{font-size:0.72rem;color:var(--gray400);margin-bottom:10px}
 .pkg-card.featured .pkg-state-fee{color:rgba(255,255,255,0.55)}
-.pkg-cta{width:100%;padding:8px;border-radius:6px;font-size:0.82rem;font-weight:600;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all 0.2s}
+.pkg-cta{width:100%;padding:8px;border-radius:6px;font-size:0.82rem;font-weight:600;border:none;cursor:pointer;font-family:var(--font-sans);transition:all 0.2s}
 .pkg-cta-basic,.pkg-cta-featured,.pkg-cta-premium{background:#fff;color:var(--navy);border:1.5px solid #cbd5e1}
 .pkg-cta-basic:hover,.pkg-cta-featured:hover,.pkg-cta-premium:hover{border-color:var(--blue);color:var(--blue);background:#f8faff}
 .pkg-divider{border:none;border-top:1px solid var(--gray200);margin:0}
@@ -285,8 +285,8 @@ nav a:hover{color:var(--navy);background:var(--gray100)}
 .mini-svc-card:hover{border-color:var(--blue);transform:translateY(-3px);box-shadow:0 8px 28px rgba(28,46,68,.10)}
 .mini-svc-top{display:flex;align-items:center;gap:10px}
 .mini-svc-icon{font-size:1.5rem;line-height:1}
-.mini-svc-name{font-family:'Fraunces',serif;font-size:.92rem;font-weight:700;color:var(--navy);line-height:1.25}
-.mini-svc-price{font-family:'Fraunces',serif;font-size:1.1rem;font-weight:900;color:var(--navy)}
+.mini-svc-name{font-family:var(--font-serif);font-size:.92rem;font-weight:700;color:var(--navy);line-height:1.25}
+.mini-svc-price{font-family:var(--font-serif);font-size:1.1rem;font-weight:900;color:var(--navy)}
 .mini-svc-sub{font-size:.72rem;color:var(--gray400);margin-top:-6px}
 .mini-svc-arrow{font-size:.8rem;color:var(--blue);font-weight:700;margin-top:auto;padding-top:4px}
 @media(max-width:600px){.mini-svc-grid{grid-template-columns:repeat(2,1fr)}}
@@ -294,7 +294,7 @@ nav a:hover{color:var(--navy);background:var(--gray100)}
 /* ── FAQ ── */
 .faq-list{max-width:760px;margin:48px auto 0}
 .faq-item{border-bottom:1px solid var(--gray200)}
-.faq-q{width:100%;text-align:left;background:none;border:none;cursor:pointer;padding:20px 0;display:flex;justify-content:space-between;align-items:center;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.97rem;font-weight:600;color:var(--navy);gap:12px}
+.faq-q{width:100%;text-align:left;background:none;border:none;cursor:pointer;padding:20px 0;display:flex;justify-content:space-between;align-items:center;font-family:var(--font-sans);font-size:0.97rem;font-weight:600;color:var(--navy);gap:12px}
 .faq-icon{font-size:1.2rem;color:var(--blue);transition:transform 0.25s;flex-shrink:0}
 .faq-a{font-size:0.88rem;color:var(--gray600);line-height:1.75;padding-bottom:18px;display:none}
 .faq-item.open .faq-icon{transform:rotate(45deg)}
@@ -305,9 +305,9 @@ nav a:hover{color:var(--navy);background:var(--gray100)}
 .help-text strong{display:block;font-size:1rem;color:var(--navy);margin-bottom:4px}
 .help-text p{font-size:0.83rem;color:var(--gray600)}
 .help-btns{display:flex;gap:10px;flex-wrap:wrap}
-.btn-wa{background:#25D366;color:#fff;padding:10px 20px;border-radius:8px;font-size:0.85rem;font-weight:600;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;display:flex;align-items:center;gap:7px;transition:all 0.2s}
+.btn-wa{background:#25D366;color:#fff;padding:10px 20px;border-radius:8px;font-size:0.85rem;font-weight:600;border:none;cursor:pointer;font-family:var(--font-sans);display:flex;align-items:center;gap:7px;transition:all 0.2s}
 .btn-wa:hover{background:#1ebe5d;transform:translateY(-1px)}
-.btn-cal{background:var(--white);color:var(--navy);padding:10px 20px;border-radius:8px;font-size:0.85rem;font-weight:600;border:1.5px solid var(--gray200);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;display:flex;align-items:center;gap:7px;transition:all 0.2s}
+.btn-cal{background:var(--white);color:var(--navy);padding:10px 20px;border-radius:8px;font-size:0.85rem;font-weight:600;border:1.5px solid var(--gray200);cursor:pointer;font-family:var(--font-sans);display:flex;align-items:center;gap:7px;transition:all 0.2s}
 .btn-cal:hover{border-color:var(--blue);color:var(--blue)}
 
 /* ── FOOTER ── */
@@ -317,7 +317,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 @media(max-width:768px){.footer-grid{grid-template-columns:1fr 1fr}}
 .footer-brand .logo-mark{margin-bottom:14px}
 .footer-brand p{font-size:0.82rem;line-height:1.7;color:rgba(255,255,255,0.55);max-width:280px;margin-top:10px}
-.footer-col h5{font-family:'Fraunces',serif;font-size:0.95rem;color:#fff;margin-bottom:14px;font-weight:600}
+.footer-col h5{font-family:var(--font-serif);font-size:0.95rem;color:#fff;margin-bottom:14px;font-weight:600}
 .footer-col a{display:block;font-size:0.82rem;color:rgba(255,255,255,0.55);margin-bottom:8px;transition:color 0.2s}
 .footer-col a:hover{color:#fff}
 .footer-divider{border:none;border-top:1px solid rgba(255,255,255,0.1);margin-bottom:22px}
@@ -350,25 +350,25 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 .pkg-choice.selected{border-color:var(--blue);background:var(--blue-light)}
 .pkg-choice.pop{border-color:var(--green)}
 .pkg-choice.pop.selected{background:var(--green-light)}
-.pkg-choice .pc-name{font-family:'Fraunces',serif;font-size:1rem;font-weight:700;color:var(--navy);margin-bottom:4px}
-.pkg-choice .pc-price{font-size:1.4rem;font-weight:700;color:var(--blue);font-family:'Fraunces',serif}
+.pkg-choice .pc-name{font-family:var(--font-serif);font-size:1rem;font-weight:700;color:var(--navy);margin-bottom:4px}
+.pkg-choice .pc-price{font-size:1.4rem;font-weight:700;color:var(--blue);font-family:var(--font-serif)}
 .pkg-choice .pc-items{font-size:0.7rem;color:var(--gray600);margin-top:6px;line-height:1.5;text-align:left}
 .addon-card{border:1.5px solid var(--gray200);border-radius:var(--radius-lg);padding:22px;margin-bottom:14px}
 .addon-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
-.addon-title{font-family:'Fraunces',serif;font-size:1.1rem;font-weight:700;color:var(--navy)}
-.addon-price{font-size:1.1rem;font-weight:700;color:var(--blue);font-family:'Fraunces',serif}
+.addon-title{font-family:var(--font-serif);font-size:1.1rem;font-weight:700;color:var(--navy)}
+.addon-price{font-size:1.1rem;font-weight:700;color:var(--blue);font-family:var(--font-serif)}
 .addon-desc{font-size:0.84rem;color:var(--gray600);line-height:1.65;margin-bottom:16px}
 .addon-benefit{font-size:0.78rem;color:var(--green-dark);background:var(--green-light);padding:7px 12px;border-radius:8px;margin-bottom:16px;font-weight:500}
 .addon-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.btn-addon-yes{background:var(--green);color:#fff;padding:11px;border-radius:8px;font-size:0.88rem;font-weight:600;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all 0.2s}
+.btn-addon-yes{background:var(--green);color:#fff;padding:11px;border-radius:8px;font-size:0.88rem;font-weight:600;border:none;cursor:pointer;font-family:var(--font-sans);transition:all 0.2s}
 .btn-addon-yes:hover{background:var(--green-dark)}
-.btn-addon-no{background:var(--gray100);color:var(--gray600);padding:11px;border-radius:8px;font-size:0.88rem;font-weight:500;border:1.5px solid var(--gray200);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all 0.2s}
+.btn-addon-no{background:var(--gray100);color:var(--gray600);padding:11px;border-radius:8px;font-size:0.88rem;font-weight:500;border:1.5px solid var(--gray200);cursor:pointer;font-family:var(--font-sans);transition:all 0.2s}
 .btn-addon-no:hover{background:var(--gray200)}
 .btn-addon-yes.selected{background:var(--green-dark);box-shadow:0 0 0 3px rgba(5,150,105,0.25)}
 .btn-addon-no.selected{background:var(--gray200);border-color:var(--gray400)}
 .member-block{border:1.5px solid var(--gray200);border-radius:var(--radius);padding:18px;margin-bottom:12px;position:relative}
 .member-block h5{font-size:0.88rem;font-weight:600;color:var(--navy);margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--gray100)}
-.btn-add-member{background:var(--blue-light);color:var(--blue);border:1.5px dashed var(--blue);padding:10px;border-radius:8px;width:100%;font-size:0.88rem;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all 0.2s;margin-top:4px}
+.btn-add-member{background:var(--blue-light);color:var(--blue);border:1.5px dashed var(--blue);padding:10px;border-radius:8px;width:100%;font-size:0.88rem;font-weight:600;cursor:pointer;font-family:var(--font-sans);transition:all 0.2s;margin-top:4px}
 .btn-add-member:hover{background:rgba(26,86,219,0.12)}
 .btn-remove-member{position:absolute;top:14px;right:14px;background:none;border:none;color:var(--gray400);cursor:pointer;font-size:1rem;transition:color 0.2s}
 .btn-remove-member:hover{color:#ef4444}
@@ -385,28 +385,28 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 .fm-addr-preset-text{flex:1;line-height:1.4}
 .name-helper{background:var(--blue-light);border-left:3px solid var(--blue);padding:11px 14px;border-radius:0 8px 8px 0;font-size:0.8rem;color:var(--blue);line-height:1.6;margin-top:-10px;margin-bottom:18px}
 .order-save-box{background:var(--green-light);border:1.5px solid #a7f3d0;border-radius:var(--radius);padding:16px;margin-bottom:20px;display:flex;align-items:center;gap:14px}
-.order-num{font-family:'Fraunces',serif;font-size:1.3rem;font-weight:700;color:var(--green-dark)}
+.order-num{font-family:var(--font-serif);font-size:1.3rem;font-weight:700;color:var(--green-dark)}
 .order-save-box p{font-size:0.8rem;color:var(--green-dark)}
 .summary-table{width:100%;border-collapse:collapse;margin-bottom:20px}
 .summary-table td{padding:9px 0;font-size:0.87rem;border-bottom:1px solid var(--gray100)}
 .summary-table td:last-child{text-align:right;font-weight:600;color:var(--navy)}
 .summary-total{display:flex;justify-content:space-between;background:var(--navy);color:#fff;padding:14px 16px;border-radius:8px;font-weight:700;margin-bottom:20px}
 .form-footer{display:flex;justify-content:space-between;align-items:center;margin-top:24px;padding-top:20px;border-top:1px solid var(--gray100);gap:10px}
-.btn-submit{background:var(--green);color:#fff;padding:14px 32px;border-radius:8px;font-size:0.95rem;font-weight:600;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all 0.2s;width:100%}
+.btn-submit{background:var(--green);color:#fff;padding:14px 32px;border-radius:8px;font-size:0.95rem;font-weight:600;border:none;cursor:pointer;font-family:var(--font-sans);transition:all 0.2s;width:100%}
 .btn-submit:hover{background:var(--green-dark)}
 .form-help{background:var(--gray50);border:1px solid var(--gray200);border-radius:8px;padding:14px 16px;margin-top:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
 .form-help p{font-size:0.78rem;color:var(--gray600)}
 .form-help strong{color:var(--navy)}
 .form-help-btns{display:flex;gap:8px}
-.fh-wa{background:#25D366;color:#fff;padding:7px 14px;border-radius:6px;font-size:0.78rem;font-weight:600;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif}
-.fh-cal{background:var(--white);color:var(--navy);padding:7px 14px;border-radius:6px;font-size:0.78rem;font-weight:600;border:1px solid var(--gray200);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif}
+.fh-wa{background:#25D366;color:#fff;padding:7px 14px;border-radius:6px;font-size:0.78rem;font-weight:600;border:none;cursor:pointer;font-family:var(--font-sans)}
+.fh-cal{background:var(--white);color:var(--navy);padding:7px 14px;border-radius:6px;font-size:0.78rem;font-weight:600;border:1px solid var(--gray200);cursor:pointer;font-family:var(--font-sans)}
 .success-screen{text-align:center;padding:20px 0}
 .success-icon{width:72px;height:72px;background:var(--green-light);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:2rem}
-.success-screen h3{font-family:'Fraunces',serif;font-size:1.6rem;color:var(--navy);margin-bottom:10px}
+.success-screen h3{font-family:var(--font-serif);font-size:1.6rem;color:var(--navy);margin-bottom:10px}
 .success-screen p{font-size:0.88rem;color:var(--gray600);max-width:440px;margin:0 auto 24px;line-height:1.7}
 .order-display{background:var(--navy);color:#fff;padding:16px 24px;border-radius:var(--radius);display:inline-block;margin:0 auto 24px}
 .order-display span{font-size:0.75rem;color:rgba(255,255,255,0.6);display:block;margin-bottom:4px}
-.order-display strong{font-family:'Fraunces',serif;font-size:1.8rem;font-weight:700;color:var(--gold);letter-spacing:1px}
+.order-display strong{font-family:var(--font-serif);font-size:1.8rem;font-weight:700;color:var(--gold);letter-spacing:1px}
 
 .email-error-msg.visible,.email-ok-msg.visible{display:flex}
 .review-step-btn-proceed{background:var(--green)!important}
@@ -417,7 +417,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 /* Order summary panel */
 .order-panel{background:#fff;border:1.5px solid var(--gray200);border-radius:12px;overflow:hidden}
 .order-panel-head{background:linear-gradient(135deg,var(--navy),#1e4db7);padding:14px 18px}
-.order-panel-title{font-family:'Fraunces',serif;font-size:.9rem;font-weight:700;color:#fff}
+.order-panel-title{font-family:var(--font-serif);font-size:.9rem;font-weight:700;color:#fff}
 .order-panel-body{padding:10px 18px}
 .order-line{display:flex;justify-content:space-between;align-items:center;font-size:.76rem;color:var(--gray700);padding:5px 0;border-bottom:1px solid var(--gray100)}
 .order-line:last-child{border-bottom:none}
@@ -425,7 +425,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 .order-line-price{font-weight:600;color:var(--gray800)}
 .order-total-line{display:flex;justify-content:space-between;align-items:center;padding:10px 18px;background:var(--blue-light);border-top:2px solid var(--blue)}
 .order-total-label{font-size:.84rem;font-weight:700;color:var(--navy)}
-.order-total-price{font-size:1.1rem;font-weight:900;color:var(--blue);font-family:'Fraunces',serif}
+.order-total-price{font-size:1.1rem;font-weight:900;color:var(--blue);font-family:var(--font-serif)}
 /* Pay methods */
 /* Form body layout */
 
@@ -472,10 +472,10 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 .ord-line-val{font-weight:600;color:var(--navy)}
 .order-card-total{padding:12px 20px;border-top:2px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center}
 .order-total-lbl{font-size:.87rem;font-weight:700;color:var(--navy)}
-.order-total-val{font-size:1.1rem;font-weight:900;color:var(--blue);font-family:'Fraunces',serif}
+.order-total-val{font-size:1.1rem;font-weight:900;color:var(--blue);font-family:var(--font-serif)}
 
 /* Step title */
-.step-title{font-family:'Fraunces',serif;font-size:1.15rem;font-weight:700;color:var(--navy);margin-bottom:6px}
+.step-title{font-family:var(--font-serif);font-size:1.15rem;font-weight:700;color:var(--navy);margin-bottom:6px}
 .step-sub{font-size:.8rem;color:#6b7280;line-height:1.65;margin-bottom:22px}
 
 /* Form fields */
@@ -590,7 +590,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 @media(max-width:820px){.fm-summary{width:100%}}
 /* Pago integrado dentro del Order Summary (solo en el step de Review) */
 #fm-pay-area{padding:14px 20px 18px;border-top:1px solid #eef2f7}
-.fm-sum-pay-title{font-family:'Fraunces',serif;font-size:1.02rem;font-weight:700;color:#1e293b;margin-bottom:10px}
+.fm-sum-pay-title{font-family:var(--font-serif);font-size:1.02rem;font-weight:700;color:#1e293b;margin-bottom:10px}
 /* Reservamos el alto aproximado del form de Stripe para que al cargar no se
    vea "extendiéndose". En live con todos los métodos (Card/Link/Klarna/Cash
    App/Affirm/Bank) el form mide ~720px, así que reservamos ese alto. */
@@ -615,10 +615,10 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 .fm-sum-check{color:#f97316}
 .fm-sum-foot{padding:12px 20px;border-top:2px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center}
 .fm-sum-total-lbl{font-size:.86rem;font-weight:700;color:#1e293b}
-.fm-sum-total-val{font-size:1.1rem;font-weight:900;color:#2563eb;font-family:'Fraunces',serif}
+.fm-sum-total-val{font-size:1.1rem;font-weight:900;color:#2563eb;font-family:var(--font-serif)}
 
 /* Step heading */
-.fm-title{font-family:'Fraunces',serif;font-size:1.2rem;font-weight:700;color:#1e293b;margin-bottom:6px}
+.fm-title{font-family:var(--font-serif);font-size:1.2rem;font-weight:700;color:#1e293b;margin-bottom:6px}
 .fm-sub{font-size:.82rem;color:#6b7280;line-height:1.65;margin-bottom:22px}
 
 /* Form fields */
@@ -682,7 +682,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 .fm-pkg-card.selected{border-color:#2563eb;background:#eff6ff}
 .fm-pkg-card .pop-badge{position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#059669;color:#fff;font-size:.62rem;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap}
 .fm-pkg-name{font-size:.95rem;font-weight:700;color:#1e293b;margin-bottom:4px}
-.fm-pkg-price{font-size:1.1rem;font-weight:900;color:#2563eb;font-family:'Fraunces',serif;margin-bottom:8px}
+.fm-pkg-price{font-size:1.1rem;font-weight:900;color:#2563eb;font-family:var(--font-serif);margin-bottom:8px}
 .fm-pkg-items{font-size:.74rem;color:#6b7280;line-height:1.8;text-align:left}
 
 /* Upsell bundle card */
@@ -783,7 +783,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 .tt-wrap{position:relative;display:inline-flex;align-items:center;gap:6px}
 .tt-icon{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:var(--blue-mid);color:var(--blue);font-size:.72rem;font-weight:700;cursor:default;flex-shrink:0;line-height:1;user-select:none;transition:all .2s;border:1px solid var(--blue)}
 .tt-icon:hover{background:var(--blue);color:#fff}
-.tt-box{visibility:hidden;opacity:0;position:absolute;left:50%;transform:translateX(-50%);bottom:calc(100% + 8px);background:#ffffff;color:#1e293b;font-size:.82rem;font-weight:400;line-height:1.7;padding:14px 18px;border-radius:10px;width:310px;box-shadow:0 4px 24px rgba(28,46,68,0.13);border:1px solid #e2e8f0;pointer-events:none;transition:opacity .18s,visibility .18s;z-index:999;font-family:'Plus Jakarta Sans',sans-serif}
+.tt-box{visibility:hidden;opacity:0;position:absolute;left:50%;transform:translateX(-50%);bottom:calc(100% + 8px);background:#ffffff;color:#1e293b;font-size:.82rem;font-weight:400;line-height:1.7;padding:14px 18px;border-radius:10px;width:310px;box-shadow:0 4px 24px rgba(28,46,68,0.13);border:1px solid #e2e8f0;pointer-events:none;transition:opacity .18s,visibility .18s;z-index:999;font-family:var(--font-sans)}
 .tt-box::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:#e2e8f0}
 .tt-box::before{content:'';position:absolute;top:calc(100% - 1px);left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:#ffffff;z-index:1}
 .tt-wrap:hover .tt-box{visibility:visible;opacity:1}
@@ -1279,7 +1279,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
     <div class="footer-grid">
       <div class="footer-brand">
         <div class="logo-mark" style="display:inline-flex;margin-bottom:14px">OB</div>
-        <div style="font-family:'Fraunces',serif;font-size:1.5rem;font-weight:700;margin-bottom:8px;letter-spacing:-.5px"><span style="color:#e2e8f0">Opa</span><span style="color:#60a5fa">Biz</span></div>
+        <div style="font-family:var(--font-serif);font-size:1.5rem;font-weight:700;margin-bottom:8px;letter-spacing:-.5px"><span style="color:#e2e8f0">Opa</span><span style="color:#60a5fa">Biz</span></div>
         <p id="footer-brand-desc">Professional business formation services for entrepreneurs and investors. We file your LLC or Corporation with the State of Florida — accurately, efficiently, and with personal attention.</p>
         <p style="margin-top:10px;color:rgba(255,255,255,0.75);font-size:0.82rem">📧 <!--email_off--><a href="mailto:info@opabiz.com" style="color:rgba(255,255,255,0.75);text-decoration:none">info@opabiz.com</a><!--/email_off--></p>
       </div>
@@ -1348,7 +1348,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
   <div style="background:#fff;border-radius:16px;width:100%;max-width:440px;box-shadow:0 24px 80px rgba(0,0,0,0.35);overflow:hidden">
     <div style="background:linear-gradient(135deg,var(--navy),#1e4db7);padding:22px 26px;display:flex;align-items:center;justify-content:space-between">
       <div>
-        <div style="font-family:'Fraunces',serif;color:#fff;font-size:1.1rem;font-weight:700;margin-bottom:3px" id="cont-modal-title">Continue My Application</div>
+        <div style="font-family:var(--font-serif);color:#fff;font-size:1.1rem;font-weight:700;margin-bottom:3px" id="cont-modal-title">Continue My Application</div>
         <div style="font-size:.75rem;color:rgba(255,255,255,.6)" id="cont-modal-sub">Enter your order number to pick up where you left off</div>
       </div>
       <button onclick="closeContinueModal()" style="background:rgba(255,255,255,.15);border:none;color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:1rem;line-height:1">&#x2715;</button>
@@ -2131,11 +2131,11 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
         <div class="fm-card">
           <div style="text-align:center;padding:48px 32px">
             <div style="font-size:3rem;margin-bottom:16px">&#127881;</div>
-            <h2 style="font-family:'Fraunces',serif;font-size:1.5rem;color:#1e293b;margin-bottom:12px" id="suc-title">Your Application Is Confirmed!</h2>
+            <h2 style="font-family:var(--font-serif);font-size:1.5rem;color:#1e293b;margin-bottom:12px" id="suc-title">Your Application Is Confirmed!</h2>
             <p style="font-size:.88rem;color:#6b7280;line-height:1.7;margin-bottom:20px" id="suc-desc">We&rsquo;ve received everything we need. Our team will start the filing with the Florida Division of Corporations promptly.</p>
             <div style="background:#eff6ff;border-radius:10px;padding:14px 20px;margin-bottom:20px;display:inline-block">
               <div style="font-size:.75rem;color:#6b7280;margin-bottom:4px" id="suc-order-lbl">Confirmation Number</div>
-              <div style="font-size:1.15rem;font-weight:800;color:#1e40af;font-family:'Fraunces',serif" id="finalOrderNum">FBFC-00000</div>
+              <div style="font-size:1.15rem;font-weight:800;color:#1e40af;font-family:var(--font-serif)" id="finalOrderNum">FBFC-00000</div>
             </div>
             <p style="font-size:.8rem;color:#6b7280;margin-bottom:24px" id="suc-note">Expect a follow-up within <strong>1 business day</strong> regarding your name availability and next steps.</p>
             <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
@@ -2787,12 +2787,12 @@ function fmBuildUpgradeCards() {
     head.style.cssText = 'padding:20px 22px 14px';
 
     var nameEl = document.createElement('div');
-    nameEl.style.cssText = 'font-family:Fraunces,serif;font-size:1rem;font-weight:700;color:#1e293b;margin-bottom:6px';
+    nameEl.style.cssText = 'font-family:var(--font-serif);font-size:1rem;font-weight:700;color:#1e293b;margin-bottom:6px';
     nameEl.textContent = name;
 
     var priceEl = document.createElement('div');
     priceEl.style.cssText = 'display:flex;align-items:baseline;gap:3px;margin-bottom:4px';
-    priceEl.innerHTML = '<span style="font-family:Fraunces,serif;font-size:2rem;font-weight:900;color:#2563eb;line-height:1">' + price + '</span><span style="font-size:.75rem;color:#94a3b8;margin-left:4px">+ FL state fee</span>';
+    priceEl.innerHTML = '<span style="font-family:var(--font-serif);font-size:2rem;font-weight:900;color:#2563eb;line-height:1">' + price + '</span><span style="font-size:.75rem;color:#94a3b8;margin-left:4px">+ FL state fee</span>';
 
     var stateNote = document.createElement('div');
     stateNote.style.cssText = 'font-size:.72rem;color:#94a3b8;margin-bottom:0';
@@ -4919,19 +4919,18 @@ function fmSetEntity(type, el) {
   fmUpdateSummary();
 }
 
-// Strip designator del input si el usuario lo escribió (evita "Soto Holdings LLC LLC").
-// Acepta variantes: LLC, L.L.C., Limited Liability Company, Inc, Inc., Corp, Corp.,
-// Corporation, Incorporated, Ltd. Liability Co. — todas case-insensitive al final.
-function fmStripDesignator(name) {
-  return String(name||'').replace(/[\s,.]*\b(L\.?L\.?C\.?|Limited\s+Liability\s+Company|Ltd\.?\s*Liability\s*Co\.?|Inc\.?|Corp\.?|Corporation|Incorporated)\s*$/i, '').trim();
-}
+// fmStripDesignator ELIMINADA: la regex tenia escape chars (\\b, \\s) que
+// vivian dentro del template literal JSX y se interpretaban como BACKSPACE
+// (0x08) rompiendo el script entero en el browser. Decisión Javier
+// 2026-06-23: el bug "LLC LLC" duplicado en preview es cosmético y se
+// acepta como deuda técnica.
 
 function fmUpdateBizName(val) {
   if(val !== undefined) fmData.bizName = val;
   var nameEl = document.getElementById('inp-bizname');
   var desEl  = document.getElementById('inp-designator');
   if(!nameEl || !desEl) return;
-  var name = fmStripDesignator(nameEl.value.trim());
+  var name = nameEl.value.trim();
   var des  = desEl.value;
   if(!name) { document.getElementById('bizname-preview-wrap').style.display='none'; return; }
   fmData.bizName = name;
@@ -5242,7 +5241,7 @@ function fmBuildOrderPayload() {
   // ── Nombre de la empresa (un solo nombre, ver doc 27 + Terms §14) ─────────
   // Strip designator si el usuario lo escribió en el campo del nombre
   // (evita guardar "Soto Holdings LLC LLC" en la orden).
-  var biz1 = (typeof fmStripDesignator==='function') ? fmStripDesignator(val('inp-bizname')) : val('inp-bizname');
+  var biz1 = val('inp-bizname');  // fmStripDesignator eliminada (ver función arriba)
   var des1 = val('inp-designator');
   function buildName(b, d) { return b ? (d ? b + ' ' + d : b).trim() : null; }
   var companyName = buildName(biz1, des1);
@@ -5563,7 +5562,7 @@ function fmShowResumeBanner(progress) {
     'position:fixed','top:0','left:0','right:0','z-index:9999',
     'background:#1C2E44','color:#fff','padding:14px 24px',
     'display:flex','align-items:center','justify-content:center',
-    'gap:16px','flex-wrap:wrap','font-family:Plus Jakarta Sans,sans-serif',
+    'gap:16px','flex-wrap:wrap','font-family:var(--font-sans)',
     'font-size:14px','box-shadow:0 2px 12px rgba(0,0,0,0.25)'
   ].join(';');
   var stepName = (fmStepTitles && fmStepTitles[progress.step - 1]) ? fmStepTitles[progress.step - 1] : ('Step ' + progress.step);

@@ -158,7 +158,7 @@ function BookingContent() {
     <>
       <style>{`
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: #f0f4f8; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background: #f0f4f8; font-family: var(--font-sans); }
         .bk-wrap { max-width: 780px; margin: 0 auto; padding: 40px 20px 80px; }
         .bk-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
         .bk-brand { font-size: 1rem; font-weight: 700; color: #1C2E44; }

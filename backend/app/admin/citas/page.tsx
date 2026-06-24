@@ -114,7 +114,7 @@ export default function CitasPage() {
     <>
       <style>{`
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: #f4f6f9; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background: #f4f6f9; font-family: var(--font-sans); }
         .pg { max-width: 1000px; margin: 0 auto; padding: 32px 24px 80px; }
         .pg-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; flex-wrap: wrap; gap: 12px; }
         .pg-title { font-size: 1.3rem; font-weight: 800; color: #1a1a2e; }

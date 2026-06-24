@@ -114,7 +114,7 @@ function CancelContent() {
     <>
       <style>{`
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: #f0f4f8; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background: #f0f4f8; font-family: var(--font-sans); }
         .wrap { max-width: 520px; margin: 0 auto; padding: 60px 20px 80px; }
         .brand { font-size: 1rem; font-weight: 700; color: #1C2E44; margin-bottom: 32px; text-align: center; }
         .brand span { display: block; font-size: 0.8rem; font-weight: 400; color: #6b7280; margin-top: 2px; }

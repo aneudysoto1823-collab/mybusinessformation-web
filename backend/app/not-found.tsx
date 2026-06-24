@@ -29,7 +29,7 @@ export default function NotFound() {
 
   return (
     <div style={{
-      fontFamily: "'Plus Jakarta Sans', sans-serif",
+      fontFamily: 'var(--font-sans)',
       minHeight: '100vh',
       display: 'flex',
       flexDirection: 'column',
@@ -45,19 +45,19 @@ export default function NotFound() {
         <div style={{
           width: 44, height: 44, background: '#2563EB', borderRadius: 10,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          color: '#fff', fontFamily: "'Fraunces', serif", fontWeight: 700, fontSize: '1.1rem', letterSpacing: '-0.5px',
+          color: '#fff', fontFamily: 'var(--font-serif)', fontWeight: 700, fontSize: '1.1rem', letterSpacing: '-0.5px',
         }}>OB</div>
-        <div style={{ fontFamily: "'Fraunces', serif", fontSize: '1.5rem', fontWeight: 700, letterSpacing: '-0.5px' }}>
+        <div style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', fontWeight: 700, letterSpacing: '-0.5px' }}>
           <span style={{ color: '#e2e8f0' }}>Opa</span><span style={{ color: '#60a5fa' }}>Biz</span>
         </div>
       </a>
 
       <div style={{
-        fontFamily: "'Fraunces', serif", fontSize: 'clamp(4rem, 18vw, 8rem)',
+        fontFamily: 'var(--font-serif)', fontSize: 'clamp(4rem, 18vw, 8rem)',
         fontWeight: 700, lineHeight: 1, color: '#2563EB', marginBottom: 8,
       }}>404</div>
 
-      <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: 'clamp(1.4rem, 5vw, 2rem)', fontWeight: 600, margin: '0 0 12px' }}>
+      <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(1.4rem, 5vw, 2rem)', fontWeight: 600, margin: '0 0 12px' }}>
         {t.title}
       </h1>
 

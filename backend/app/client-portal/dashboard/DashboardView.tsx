@@ -121,7 +121,7 @@ export default function DashboardView({
     <>
       <style>{`
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: #f4f6f9; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background: #f4f6f9; font-family: var(--font-sans); }
 
         .cp-wrapper { max-width: 760px; margin: 0 auto; padding: 40px 24px 60px; }
 

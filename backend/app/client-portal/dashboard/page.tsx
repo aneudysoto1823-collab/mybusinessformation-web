@@ -235,7 +235,7 @@ export default async function ClientDashboardPage({
 
         body {
           background: #f4f6f9;
-          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-family: var(--font-sans);
         }
 
         .cp-wrapper {

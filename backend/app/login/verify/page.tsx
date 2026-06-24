@@ -59,7 +59,7 @@ export default function VerifyPage() {
     <>
       <style>{`
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: #f4f6f9; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background: #f4f6f9; font-family: var(--font-sans); }
         .wrap {
           min-height: 100vh; display: flex; align-items: center;
           justify-content: center; padding: 24px;

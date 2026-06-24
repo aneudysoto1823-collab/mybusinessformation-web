@@ -24,7 +24,7 @@ const fmt = (n: number) => `$${n.toLocaleString('en-US', { minimumFractionDigits
 
 const styles = `
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: #f4f6f9; font-family: 'Plus Jakarta Sans', sans-serif; }
+body { background: #f4f6f9; font-family: var(--font-sans); }
 .page { max-width: 1000px; margin: 0 auto; padding: 32px 24px; }
 .breadcrumb { font-size: 12px; color: #6b7280; margin-bottom: 20px; }
 .breadcrumb a { color: #2563eb; text-decoration: none; }

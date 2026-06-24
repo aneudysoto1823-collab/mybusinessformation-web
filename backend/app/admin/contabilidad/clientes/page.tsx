@@ -26,7 +26,7 @@ const STATUS_CLASS: Record<string, string> = { active: 'badge-green', pending: '
 
 const styles = `
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: #f4f6f9; font-family: 'Plus Jakarta Sans', sans-serif; }
+body { background: #f4f6f9; font-family: var(--font-sans); }
 .page { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
 .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
 .top-bar h1 { font-size: 22px; font-weight: 700; color: #1a1a2e; }

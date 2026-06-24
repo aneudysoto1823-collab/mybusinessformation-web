@@ -110,12 +110,11 @@ export default function LoginPage() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-family: var(--font-sans);
           background: #0f1c2e;
           min-height: 100vh;
           display: flex;
@@ -149,11 +148,11 @@ export default function LoginPage() {
           width: 48px; height: 48px; border-radius: 14px;
           background: linear-gradient(135deg,#1C2E44,#2563EB);
           display: flex; align-items: center; justify-content: center;
-          font-family: 'Fraunces', serif; font-weight: 700; color: #fff;
+          font-family: var(--font-serif); font-weight: 700; color: #fff;
           font-size: 19px; letter-spacing: -0.5px; flex-shrink: 0;
         }
         .login-header-name {
-          font-family: 'Fraunces', serif;
+          font-family: var(--font-serif);
           font-size: 22px; font-weight: 700;
           color: rgba(255,255,255,0.92);
           letter-spacing: -0.4px;
@@ -162,7 +161,7 @@ export default function LoginPage() {
         }
         .login-header-name span {
           display: block;
-          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-family: var(--font-sans);
           font-size: 11px; font-weight: 600;
           color: rgba(255,255,255,0.35);
           letter-spacing: 1.2px; text-transform: uppercase;
@@ -237,16 +236,16 @@ export default function LoginPage() {
           width: 32px; height: 32px; border-radius: 8px;
           background: linear-gradient(135deg,#1C2E44,#2563EB);
           display: flex; align-items: center; justify-content: center;
-          font-family: 'Fraunces', serif; font-weight: 700; color: #fff;
+          font-family: var(--font-serif); font-weight: 700; color: #fff;
           font-size: 13px; letter-spacing: -0.4px; flex-shrink: 0;
         }
         .brand-name {
-          font-family: 'Fraunces', serif; font-size: 13px;
+          font-family: var(--font-serif); font-size: 13px;
           font-weight: 700; color: #0f172a; line-height: 1.15;
         }
         .brand-name span {
           display: block; font-size: 10px;
-          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-family: var(--font-sans);
           font-weight: 600; color: #94a3b8;
           letter-spacing: 0.7px; text-transform: uppercase; margin-top: 1px;
         }
@@ -331,7 +330,7 @@ export default function LoginPage() {
           <div className="login-header-brand">
             <div className="login-header-icon">OB</div>
             <div className="login-header-name">
-              <span style={{fontFamily:'Fraunces, serif',fontWeight:700,fontSize:'1.5rem'}}>Opa</span><span style={{fontFamily:'Fraunces, serif',fontWeight:700,fontSize:'1.5rem',color:'#2563EB'}}>Biz</span>
+              <span style={{fontFamily:'var(--font-serif)',fontWeight:700,fontSize:'1.5rem'}}>Opa</span><span style={{fontFamily:'var(--font-serif)',fontWeight:700,fontSize:'1.5rem',color:'#2563EB'}}>Biz</span>
               <span>Staff Portal</span>
             </div>
           </div>
@@ -354,7 +353,7 @@ export default function LoginPage() {
             <div className="brand-mark">
               <div className="brand-icon">OB</div>
               <div className="brand-name">
-                <span style={{fontFamily:'Fraunces, serif',fontWeight:700,fontSize:'1.5rem'}}>Opa</span><span style={{fontFamily:'Fraunces, serif',fontWeight:700,fontSize:'1.5rem',color:'#2563EB'}}>Biz</span>
+                <span style={{fontFamily:'var(--font-serif)',fontWeight:700,fontSize:'1.5rem'}}>Opa</span><span style={{fontFamily:'var(--font-serif)',fontWeight:700,fontSize:'1.5rem',color:'#2563EB'}}>Biz</span>
                 <span>Staff Portal</span>
               </div>
             </div>

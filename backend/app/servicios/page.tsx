@@ -361,8 +361,8 @@ export default function ServiciosPage() {
 :root{--navy:#1C2E44;--navy2:#22364E;--blue:#2563EB;--blue-light:#EFF6FF;--green:#059669;--green-dark:#047857;--green-light:#ECFDF5;--gold:#F59E0B;--white:#fff;--gray50:#F8FAFC;--gray100:#F1F5F9;--gray200:#E2E8F0;--gray400:#94A3B8;--gray500:#64748B;--gray600:#475569;--gray800:#1E293B;}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{font-family:'Plus Jakarta Sans',sans-serif;color:var(--gray800);background:var(--white);line-height:1.6;overflow-x:hidden;min-height:100vh;display:flex;flex-direction:column}
-h1,h2,h3,h4{font-family:'Fraunces',serif;line-height:1.15}
+body{font-family:var(--font-sans);color:var(--gray800);background:var(--white);line-height:1.6;overflow-x:hidden;min-height:100vh;display:flex;flex-direction:column}
+h1,h2,h3,h4{font-family:var(--font-serif);line-height:1.15}
 a{text-decoration:none;color:inherit}
 .topbar{background:var(--navy);color:#fff;font-size:.77rem;padding:9px 24px;text-align:center}
 .topbar strong{color:var(--gold)}
@@ -370,11 +370,11 @@ header{position:sticky;top:0;z-index:200;background:rgba(255,255,255,.97);backdr
 header.scrolled{box-shadow:0 2px 20px rgba(28,46,68,.1)}
 .header-inner{max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:66px;gap:20px}
 .logo{display:flex;align-items:center;gap:11px}
-.logo-mark{width:40px;height:40px;background:linear-gradient(135deg,var(--navy),var(--blue));border-radius:9px;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Fraunces',serif;font-size:1rem;font-weight:700;flex-shrink:0}
-.logo-text{font-family:'Fraunces',serif;font-size:1.5rem;color:var(--navy);font-weight:700;line-height:1.2}
-.logo-text span{display:block;font-family:'Plus Jakarta Sans',sans-serif;font-size:.63rem;color:var(--gray400);font-weight:400;letter-spacing:.8px;text-transform:uppercase}
-.logo-text span.logo-opa{display:inline;font-size:1.5rem;color:var(--navy);font-style:normal;letter-spacing:-.5px;text-transform:none;font-family:'Fraunces',serif;font-weight:700}
-.logo-text span.logo-biz{display:inline;font-size:1.5rem;color:#2563EB;font-style:normal;letter-spacing:-.5px;text-transform:none;font-family:'Fraunces',serif;font-weight:700}
+.logo-mark{width:40px;height:40px;background:linear-gradient(135deg,var(--navy),var(--blue));border-radius:9px;display:flex;align-items:center;justify-content:center;color:#fff;font-family:var(--font-serif);font-size:1rem;font-weight:700;flex-shrink:0}
+.logo-text{font-family:var(--font-serif);font-size:1.5rem;color:var(--navy);font-weight:700;line-height:1.2}
+.logo-text span{display:block;font-family:var(--font-sans);font-size:.63rem;color:var(--gray400);font-weight:400;letter-spacing:.8px;text-transform:uppercase}
+.logo-text span.logo-opa{display:inline;font-size:1.5rem;color:var(--navy);font-style:normal;letter-spacing:-.5px;text-transform:none;font-family:var(--font-serif);font-weight:700}
+.logo-text span.logo-biz{display:inline;font-size:1.5rem;color:#2563EB;font-style:normal;letter-spacing:-.5px;text-transform:none;font-family:var(--font-serif);font-weight:700}
 nav a{font-size:.82rem;font-weight:500;color:var(--gray600);padding:6px 10px;border-radius:6px;transition:all .2s;margin-left:2px}
 nav a:hover{color:var(--navy);background:var(--gray100)}
 .lang-toggle{display:flex;background:var(--gray100);border-radius:20px;padding:3px;gap:2px}
@@ -419,9 +419,9 @@ nav a:hover{color:var(--navy);background:var(--gray100)}
 .svc-card-header.blue,.svc-card-header.green,.svc-card-header.gold,.svc-card-header.purple,.svc-card-header.teal,.svc-card-header.orange,.svc-card-header.slate{background:var(--white)}
 .svc-icon-wrap{width:44px;height:44px;background:var(--blue-light);border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:16px}
 .svc-icon{font-size:1.4rem}
-.svc-name{font-family:'Fraunces',serif;font-size:1.1rem;font-weight:700;color:var(--navy);margin-bottom:8px}
+.svc-name{font-family:var(--font-serif);font-size:1.1rem;font-weight:700;color:var(--navy);margin-bottom:8px}
 .svc-price{display:flex;align-items:baseline;gap:4px;margin-bottom:2px}
-.svc-price strong{font-family:'Fraunces',serif;font-size:1.7rem;font-weight:900;color:var(--navy);line-height:1}
+.svc-price strong{font-family:var(--font-serif);font-size:1.7rem;font-weight:900;color:var(--navy);line-height:1}
 .svc-price-sub{font-size:.75rem;color:var(--gray400);margin-top:2px}
 .svc-body{padding:18px 22px;flex:1;display:flex;flex-direction:column;gap:0}
 .svc-desc{font-size:.83rem;color:var(--gray600);line-height:1.75;margin-bottom:14px}
@@ -450,7 +450,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
 .footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px;margin-bottom:40px}
 @media(max-width:768px){.footer-grid{grid-template-columns:1fr}}
 .footer-brand p{font-size:.79rem;line-height:1.7;color:rgba(255,255,255,.5);max-width:260px;margin-top:10px}
-.footer-col h5{font-family:'Fraunces',serif;font-size:.92rem;color:#fff;margin-bottom:14px;font-weight:600}
+.footer-col h5{font-family:var(--font-serif);font-size:.92rem;color:#fff;margin-bottom:14px;font-weight:600}
 .footer-col a{display:block;font-size:.8rem;color:rgba(255,255,255,.5);margin-bottom:8px;transition:color .2s;cursor:pointer}
 .footer-col a:hover{color:#fff}
 .footer-divider{border:none;border-top:1px solid rgba(255,255,255,.1);margin-bottom:20px}
@@ -465,7 +465,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
 
 .form-header{background:linear-gradient(135deg,var(--navy),#1e4db7);padding:22px 26px 18px;border-radius:16px 16px 0 0;position:sticky;top:0;z-index:10}
 .form-header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
-.form-header h3{font-family:'Fraunces',serif;color:#fff;font-size:1.12rem;font-weight:700}
+.form-header h3{font-family:var(--font-serif);color:#fff;font-size:1.12rem;font-weight:700}
 .form-close{background:rgba(255,255,255,.15);border:none;color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all .2s}
 .form-close:hover{background:rgba(255,255,255,.25)}
 .form-sub{font-size:.75rem;color:rgba(255,255,255,.55)}
@@ -492,11 +492,11 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
 .disclaimer{font-size:.72rem;color:var(--gray400);text-align:center;margin-top:10px;line-height:1.6}
 .success-screen{text-align:center;padding:24px 10px}
 .success-icon{width:72px;height:72px;background:var(--green-light);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;font-size:2rem}
-.success-screen h3{font-family:'Fraunces',serif;font-size:1.5rem;color:var(--navy);margin-bottom:9px}
+.success-screen h3{font-family:var(--font-serif);font-size:1.5rem;color:var(--navy);margin-bottom:9px}
 .success-screen p{font-size:.87rem;color:var(--gray600);max-width:400px;margin:0 auto 22px;line-height:1.7}
 .order-display{background:var(--navy);color:#fff;padding:14px 22px;border-radius:10px;display:inline-block;margin-bottom:22px}
 .order-display span{font-size:.72rem;color:rgba(255,255,255,.55);display:block;margin-bottom:3px}
-.order-display strong{font-family:'Fraunces',serif;font-size:1.7rem;font-weight:700;color:var(--gold);letter-spacing:1px}
+.order-display strong{font-family:var(--font-serif);font-size:1.7rem;font-weight:700;color:var(--gold);letter-spacing:1px}
 
 /* ── Form overlay — full screen ──────────────────── */
 .form-overlay{display:none;position:fixed;inset:0;z-index:1000;background:#f8fafc;overflow-y:auto}
@@ -506,7 +506,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
 .form-topbar-left{display:flex;align-items:center;gap:12px}
 .form-topbar-back{background:rgba(255,255,255,.12);border:none;color:rgba(255,255,255,.75);padding:6px 14px;border-radius:7px;cursor:pointer;font-size:.78rem;font-weight:600;font-family:inherit;transition:all .2s}
 .form-topbar-back:hover{background:rgba(255,255,255,.22);color:#fff}
-.form-topbar-title{font-family:'Fraunces',serif;color:#fff;font-size:1rem;font-weight:700}
+.form-topbar-title{font-family:var(--font-serif);color:#fff;font-size:1rem;font-weight:700}
 .form-topbar-badge{font-size:.69rem;font-weight:600;background:var(--blue);color:#fff;padding:3px 9px;border-radius:20px}
 .form-close{background:rgba(255,255,255,.12);border:none;color:rgba(255,255,255,.75);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
 .form-close:hover{background:rgba(255,255,255,.25);color:#fff}
@@ -533,7 +533,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
 @media(max-width:860px){.form-right{padding:24px 0 32px;position:static}}
 .svc-summary-card{background:#fff;border:1.5px solid var(--gray200);border-radius:14px;overflow:hidden}
 .svc-summary-head{background:linear-gradient(135deg,var(--navy),#1e4db7);padding:20px 22px}
-.svc-summary-name{font-family:'Fraunces',serif;font-size:1rem;font-weight:700;color:#fff;margin-bottom:4px}
+.svc-summary-name{font-family:var(--font-serif);font-size:1rem;font-weight:700;color:#fff;margin-bottom:4px}
 .svc-summary-price{font-size:.82rem;color:rgba(255,255,255,.65)}
 .svc-summary-price strong{color:#fff;font-size:1.1rem}
 .svc-summary-badge{display:inline-block;background:rgba(255,255,255,.15);color:rgba(255,255,255,.85);font-size:.68rem;font-weight:600;padding:3px 9px;border-radius:20px;margin-top:8px}
@@ -557,9 +557,9 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
 .svc-acc-icon{width:40px;height:40px;border-radius:10px;background:var(--blue-light);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--blue);transition:background .2s,color .2s}
 .svc-acc-icon svg{width:19px;height:19px}
 .svc-acc-title-wrap{flex:1;min-width:0}
-.svc-acc-title{font-family:'Fraunces',serif;font-size:.95rem;font-weight:700;color:var(--navy);line-height:1.25;margin-bottom:2px}
+.svc-acc-title{font-family:var(--font-serif);font-size:.95rem;font-weight:700;color:var(--navy);line-height:1.25;margin-bottom:2px}
 .svc-acc-sub{font-size:.71rem;color:var(--gray500);line-height:1.3}
-.svc-acc-price{font-family:'Fraunces',serif;font-size:.93rem;font-weight:700;color:var(--navy);flex-shrink:0;white-space:nowrap}
+.svc-acc-price{font-family:var(--font-serif);font-size:.93rem;font-weight:700;color:var(--navy);flex-shrink:0;white-space:nowrap}
 .svc-acc-chevron{width:20px;height:20px;color:var(--gray400);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:transform .25s}
 .svc-acc-chevron svg{width:15px;height:15px}
 .svc-acc-item.expanded .svc-acc-chevron{transform:rotate(180deg)}
@@ -582,9 +582,9 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
 .svc-popup-icon{width:40px;height:40px;border-radius:10px;background:var(--blue);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;box-shadow:0 4px 12px rgba(37,99,235,.28)}
 .svc-popup-icon svg{width:19px;height:19px}
 .svc-popup-title-wrap{flex:1;min-width:0}
-.svc-popup-name{font-family:'Fraunces',serif;font-size:.97rem;font-weight:700;color:var(--navy);line-height:1.2;margin-bottom:2px}
+.svc-popup-name{font-family:var(--font-serif);font-size:.97rem;font-weight:700;color:var(--navy);line-height:1.2;margin-bottom:2px}
 .svc-popup-sub{font-size:.7rem;color:var(--gray500)}
-.svc-popup-price{font-family:'Fraunces',serif;font-size:1rem;font-weight:800;color:var(--blue);white-space:nowrap;padding-left:8px}
+.svc-popup-price{font-family:var(--font-serif);font-size:1rem;font-weight:800;color:var(--blue);white-space:nowrap;padding-left:8px}
 .svc-popup-content{display:grid;grid-template-columns:1fr 1fr;gap:0}
 .svc-popup-left{padding:14px 16px 16px;border-right:1px solid var(--gray100);display:flex;flex-direction:column;gap:10px}
 .svc-popup-right{padding:14px 16px 16px;display:flex;flex-direction:column;gap:10px}
@@ -659,7 +659,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
     <div class="footer-grid">
       <div class="footer-brand">
         <div class="logo-mark" style="display:inline-flex;margin-bottom:12px">OB</div>
-        <div style="font-family:'Fraunces',serif;font-size:1.5rem;font-weight:700;margin-bottom:8px;letter-spacing:-.5px"><span style="color:#e2e8f0">Opa</span><span style="color:#60a5fa">Biz</span></div>
+        <div style="font-family:var(--font-serif);font-size:1.5rem;font-weight:700;margin-bottom:8px;letter-spacing:-.5px"><span style="color:#e2e8f0">Opa</span><span style="color:#60a5fa">Biz</span></div>
         <p>Professional business formation services for entrepreneurs and investors throughout Florida.</p>
         <p style="margin-top:9px;color:rgba(255,255,255,.35);font-size:.72rem">&#128231; info@opabiz.com</p>
       </div>

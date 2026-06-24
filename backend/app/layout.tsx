@@ -1,8 +1,32 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import { headers } from "next/headers";
+import { Plus_Jakarta_Sans, Fraunces } from "next/font/google";
 import CookieConsent from "@/components/CookieConsent";
 import "./globals.css";
+
+// next/font/google — API oficial Next.js para self-hostear fuentes.
+// Reemplaza el <Script id="load-fonts"> manual que causaba FOUT (commit
+// 310ee3e, 2026-06-04). Ahora las fuentes se self-hostean desde Vercel:
+// mismo origen, preload automático antes del primer paint, size-adjust
+// auto para que la fallback ocupe el mismo espacio (cero CLS), sin
+// request externo a googleapis.com (mejor privacy/GDPR).
+//
+// Cada font expone una CSS variable que globals.css mapea a tokens
+// globales (--font-sans, --font-serif) usados en todos los page.tsx.
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600"],
+  variable: "--font-jakarta",
+  display: "swap",
+});
+
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  weight: ["600", "700", "900"],
+  variable: "--font-fraunces",
+  display: "swap",
+});
 
 const EU_COUNTRIES = new Set([
   'AT','BE','BG','CY','CZ','DE','DK','EE','ES','FI','FR','GR','HR','HU',
@@ -97,23 +121,11 @@ export default async function RootLayout({
   const showCookieBanner = EU_COUNTRIES.has(country)
 
   return (
-    <html lang="en">
+    <html lang="en" className={`${jakarta.variable} ${fraunces.variable}`}>
       <head>
-        {/* Font preconnect for Core Web Vitals */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        {/* Fonts cargadas de forma no-bloqueante: el browser renderiza con system fonts
-            primero (FCP inmediato) y swapea a web fonts cuando están listas.
-            display=swap ya está en la URL; el Script afterInteractive elimina el
-            render-blocking que tenía el <link rel="stylesheet"> anterior. */}
-        <Script id="load-fonts" strategy="afterInteractive">{`
-          (function(){
-            var l=document.createElement('link');
-            l.rel='stylesheet';
-            l.href='https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700;900&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap';
-            document.head.appendChild(l);
-          })();
-        `}</Script>
+        {/* Fonts cargadas via next/font/google (ver imports arriba).
+            Next.js inyecta automáticamente <link rel="preload"> con la fuente
+            self-hosted antes del primer paint. Cero FOUT, cero CLS. */}
         {/* Google Consent Mode v2 — DEFAULT DENY antes de que cargue gtag.js.
             Cuando el usuario decida en el banner, dispatch update via lib/consent.ts.
             Hasta entonces ningún tracker recibe nada (compliance CCPA/GDPR). */}

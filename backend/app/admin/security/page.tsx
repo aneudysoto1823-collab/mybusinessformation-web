@@ -62,7 +62,7 @@ export default function SecurityPage() {
   }
 
   if (loading) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Plus Jakarta Sans, sans-serif', color: '#6b7280' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-sans)', color: '#6b7280' }}>
       Cargando…
     </div>
   )
@@ -71,7 +71,7 @@ export default function SecurityPage() {
     <>
       <style>{`
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: #f4f6f9; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background: #f4f6f9; font-family: var(--font-sans); }
         .wrap { max-width: 680px; margin: 0 auto; padding: 32px 24px; }
         .back { font-size: 13px; color: #6b7280; text-decoration: none; display: inline-block; margin-bottom: 20px; }
         .back:hover { color: #4f46e5; }

@@ -166,13 +166,13 @@ function CompleteContent() {
   }
 
   return (
-    <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", minHeight: '100vh', background: '#ffffff' }}>
+    <div style={{ fontFamily: 'var(--font-sans)', minHeight: '100vh', background: '#ffffff' }}>
       {/* Header estilo home */}
       <header style={{ display: 'flex', alignItems: 'center', padding: '13px 24px', borderBottom: '1px solid #eef2f6' }}>
         <a href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
-          <div style={{ width: 38, height: 38, background: '#2563EB', borderRadius: 9, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontFamily: "'Fraunces', serif", fontWeight: 700, fontSize: '0.95rem' }}>OB</div>
+          <div style={{ width: 38, height: 38, background: '#2563EB', borderRadius: 9, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontFamily: 'var(--font-serif)', fontWeight: 700, fontSize: '0.95rem' }}>OB</div>
           <div style={{ lineHeight: 1.1 }}>
-            <div style={{ fontFamily: "'Fraunces', serif", fontSize: '1.15rem', fontWeight: 700 }}>
+            <div style={{ fontFamily: 'var(--font-serif)', fontSize: '1.15rem', fontWeight: 700 }}>
               <span style={{ color: '#1C2E44' }}>Opa</span><span style={{ color: '#2563EB' }}>Biz</span>
             </div>
             <div style={{ fontSize: '0.6rem', letterSpacing: '0.5px', color: '#94a3b8', textTransform: 'uppercase', marginTop: 2 }}>Florida Business Formation Center</div>
@@ -187,7 +187,7 @@ function CompleteContent() {
         border: '1px solid #e2e8f0', boxShadow: '0 10px 40px rgba(15,28,46,0.08)',
       }}>
         <div style={{ fontSize: '2.2rem', marginBottom: 4 }}>{icon}</div>
-        <h1 style={{ fontFamily: "'Fraunces', serif", fontSize: '1.5rem', color: '#1C2E44', margin: '0 0 6px' }}>{title}</h1>
+        <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', color: '#1C2E44', margin: '0 0 6px' }}>{title}</h1>
 
         {status === 'error' && (
           <p style={{ color: '#64748b', fontSize: '0.95rem', lineHeight: 1.6, margin: '8px 0 24px' }}>{t.errorSub}</p>

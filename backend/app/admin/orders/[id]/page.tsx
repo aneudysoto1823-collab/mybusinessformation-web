@@ -331,13 +331,13 @@ export default function OrderDetailPage() {
   }
 
   if (loading) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Plus Jakarta Sans, sans-serif', color: '#6b7280' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-sans)', color: '#6b7280' }}>
       Cargando orden…
     </div>
   )
 
   if (error || !order) return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontFamily: 'Plus Jakarta Sans, sans-serif', gap: '12px' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-sans)', gap: '12px' }}>
       <div style={{ color: '#b91c1c', fontWeight: 600 }}>{error || 'Orden no encontrada.'}</div>
       <Link href="/admin" style={{ color: '#4f46e5', fontSize: '14px' }}>← Volver al panel</Link>
     </div>
@@ -359,7 +359,7 @@ export default function OrderDetailPage() {
     <>
       <style>{`
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: #f4f6f9; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background: #f4f6f9; font-family: var(--font-sans); }
         .wrapper { max-width: 860px; margin: 0 auto; padding: 32px 24px; }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
         @media (max-width: 600px) { .grid-2 { grid-template-columns: 1fr; } }

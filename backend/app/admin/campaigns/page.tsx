@@ -244,7 +244,7 @@ export default function CampaignsPage() {
     <>
       <style>{`
         *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-        body{background:#f4f6f9;font-family:'Plus Jakarta Sans',sans-serif}
+        body{background:#f4f6f9;font-family:var(--font-sans)}
         .wrap{max-width:1280px;margin:0 auto;padding:28px 24px}
         .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
         @media(max-width:900px){.stats-grid{grid-template-columns:repeat(2,1fr)}}

@@ -69,7 +69,7 @@ export default async function AdminDashboard({
     <>
       <style>{`
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: #f4f6f9; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background: #f4f6f9; font-family: var(--font-sans); }
 
         .admin-wrapper { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
 

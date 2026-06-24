@@ -76,7 +76,7 @@ const CSS = `
     align-items: center;
     justify-content: center;
     color: #fff;
-    font-family: 'Fraunces', serif;
+    font-family: var(--font-serif);
     font-size: 1rem;
     font-weight: 700;
     letter-spacing: -.5px;
@@ -84,7 +84,7 @@ const CSS = `
   }
   .nb-logo-text { line-height: 1.25; }
   .nb-logo-text .l1 {
-    font-family: 'Fraunces', serif;
+    font-family: var(--font-serif);
     font-size: 1.5rem;
     font-weight: 700;
     line-height: 1;
@@ -125,7 +125,7 @@ const CSS = `
     cursor: pointer;
     font-size: .72rem;
     font-weight: 700;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-sans);
     transition: all .15s;
   }
   .nb-lang button.active  { background: #fff; color: #1B3A6B; }
@@ -140,7 +140,7 @@ const CSS = `
   }
   .nb-welcome-inner { max-width: 680px; margin: 0 auto; }
   .nb-welcome h1 {
-    font-family: 'Fraunces', serif;
+    font-family: var(--font-serif);
     font-size: clamp(1.2rem, 2.2vw, 1.55rem);
     font-weight: 700;
     color: #1B3A6B;
@@ -187,7 +187,7 @@ const CSS = `
     margin-bottom: 14px;
   }
   .entry-title {
-    font-family: 'Fraunces', serif;
+    font-family: var(--font-serif);
     font-size: 1.55rem;
     font-weight: 900;
     color: #1B3A6B;
@@ -215,7 +215,7 @@ const CSS = `
     border: 1.5px solid #e2e8f0;
     border-radius: 8px;
     font-size: .92rem;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-sans);
     color: #1e293b;
     outline: none;
     transition: all .2s;
@@ -246,7 +246,7 @@ const CSS = `
     font-weight: 700;
     border: none;
     cursor: pointer;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-sans);
     margin-top: 14px;
     transition: all .2s;
     box-shadow: 0 4px 14px rgba(27,58,107,.3);
@@ -280,7 +280,7 @@ const CSS = `
     margin-bottom: 26px;
   }
   .svc-heading h1, .svc-heading h2 {
-    font-family: 'Fraunces', serif;
+    font-family: var(--font-serif);
     font-size: clamp(1.1rem, 2vw, 1.4rem);
     font-weight: 700;
     color: #1B3A6B;
@@ -365,7 +365,7 @@ const CSS = `
   .form-inner { max-width: 1100px; margin: 0 auto; }
   .form-heading { margin-bottom: 28px; }
   .form-heading h2 {
-    font-family: 'Fraunces', serif;
+    font-family: var(--font-serif);
     font-size: clamp(1.15rem, 2.2vw, 1.5rem);
     font-weight: 700;
     color: #1B3A6B;
@@ -413,7 +413,7 @@ const CSS = `
     border: 1.5px solid #e2e8f0;
     border-radius: 8px;
     font-size: .88rem;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-sans);
     color: #1e293b;
     outline: none;
     background: #f8fafc;
@@ -496,7 +496,7 @@ const CSS = `
     font-weight: 600;
     color: #64748b;
     cursor: pointer;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-sans);
     transition: all .2s;
   }
   .step-back:hover { border-color: #94a3b8; color: #374151; }
@@ -509,7 +509,7 @@ const CSS = `
     font-weight: 700;
     color: #fff;
     cursor: pointer;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-sans);
     transition: all .2s;
     box-shadow: 0 4px 14px rgba(37,99,235,.3);
     display: flex;
@@ -533,7 +533,7 @@ const CSS = `
     top: 84px;
   }
   .co-title {
-    font-family: 'Fraunces', serif;
+    font-family: var(--font-serif);
     font-size: 1rem;
     font-weight: 700;
     color: #1B3A6B;
@@ -593,7 +593,7 @@ const CSS = `
     font-weight: 700;
     border: none;
     cursor: pointer;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-sans);
     transition: all .2s;
     box-shadow: 0 4px 16px rgba(27,58,107,.28);
     display: flex;
@@ -737,7 +737,7 @@ const CSS = `
     font-weight: 600;
     color: #64748b;
     cursor: pointer;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-sans);
     transition: all .15s;
     text-align: center;
   }
@@ -752,7 +752,7 @@ const CSS = `
     border: 1.5px solid #e2e8f0;
     border-radius: 8px;
     font-size: .88rem;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-sans);
     color: #1e293b;
     outline: none;
     background: #f8fafc;
@@ -1083,7 +1083,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
     : 'Your registration with the State of Florida was successful. We are here to help you complete the final steps so your business is fully operational and compliant with all regulations.'
 
   return (
-    <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", minHeight: '100vh', background: '#F1F5F9' }}>
+    <div style={{ fontFamily: 'var(--font-sans)', minHeight: '100vh', background: '#F1F5F9' }}>
       <style>{CSS}</style>
 
       {/* ── HEADER ── */}

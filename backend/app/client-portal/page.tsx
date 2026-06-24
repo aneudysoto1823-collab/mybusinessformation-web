@@ -113,12 +113,11 @@ function LoginForm() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-family: var(--font-sans);
           background: #0f1c2e;
           min-height: 100vh;
           display: flex;
@@ -156,7 +155,7 @@ function LoginForm() {
           font-size: 22px; flex-shrink: 0;
         }
         .portal-header-name {
-          font-family: 'Fraunces', serif;
+          font-family: var(--font-serif);
           font-size: 22px; font-weight: 700;
           color: rgba(255,255,255,0.92);
           letter-spacing: -0.4px;
@@ -165,7 +164,7 @@ function LoginForm() {
         }
         .portal-header-name span {
           display: block;
-          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-family: var(--font-sans);
           font-size: 11px; font-weight: 600;
           color: rgba(255,255,255,0.35);
           letter-spacing: 1.2px; text-transform: uppercase;
@@ -332,7 +331,7 @@ function LoginForm() {
           <div className="portal-header-brand">
             <div className="portal-header-icon">🏛️</div>
             <div className="portal-header-name">
-              <span style={{fontFamily:'Fraunces, serif',fontWeight:700,fontSize:'1.5rem'}}>Opa</span><span style={{fontFamily:'Fraunces, serif',fontWeight:700,fontSize:'1.5rem',color:'#2563EB'}}>Biz</span>
+              <span style={{fontFamily:'var(--font-serif)',fontWeight:700,fontSize:'1.5rem'}}>Opa</span><span style={{fontFamily:'var(--font-serif)',fontWeight:700,fontSize:'1.5rem',color:'#2563EB'}}>Biz</span>
               <span>{t.portal}</span>
             </div>
           </div>
