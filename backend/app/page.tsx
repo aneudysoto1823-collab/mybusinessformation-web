@@ -1498,7 +1498,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
               <div class="fm-group"><label class="fm-label" id="lbl-fname">First Name *</label><input type="text" class="fm-input" id="inp-fname" placeholder="First name" oninput="fmTitleCase(this)"/></div>
               <div class="fm-group"><label class="fm-label" id="lbl-lname">Last Name *</label><input type="text" class="fm-input" id="inp-lname" placeholder="Last name" oninput="fmTitleCase(this)"/></div>
             </div>
-            <div class="fm-group"><label class="fm-label" id="lbl-email">Email *</label><input type="email" class="fm-input" id="inp-email" placeholder="your@email.com" oninput="fmCheckEmailMatch()"/></div>
+            <div class="fm-group"><label class="fm-label" id="lbl-email">Email *</label><input type="email" class="fm-input" id="inp-email" placeholder="your@email.com" oninput="fmCheckEmailMatch();fmEmailReset()" onblur="fmEmailValidate()"/><div id="email-validate-msg" style="font-size:.74rem;margin-top:4px;display:none"></div></div>
             <div class="fm-group">
               <label class="fm-label" id="lbl-email-confirm">Confirm Email *</label>
               <input type="email" class="fm-input" id="inp-email-confirm" placeholder="Re-enter your email"
@@ -2938,6 +2938,39 @@ function fmCheckEmailMatch() {
     // Still typing but no mismatch yet — stay neutral
     msg.style.display='none';
     e2.style.borderColor='';
+  }
+}
+
+// ZeroBounce - validacion del email contra /api/email/validate (onblur).
+// En modo dormido (ZEROBOUNCE_ENABLED!=='true') solo regex local, sin consumo.
+function fmEmailReset() {
+  var msg = document.getElementById('email-validate-msg');
+  var inp = document.getElementById('inp-email');
+  if (msg) { msg.style.display = 'none'; msg.textContent = ''; }
+  if (inp) inp.style.borderColor = '';
+}
+async function fmEmailValidate() {
+  var inp = document.getElementById('inp-email');
+  var msg = document.getElementById('email-validate-msg');
+  if (!inp || !msg) return;
+  var email = (inp.value || '').trim();
+  if (!email) return;
+  var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
+  try {
+    var res = await fetch('/api/email/validate?email=' + encodeURIComponent(email));
+    var data = await res.json();
+    if (data && data.valid) {
+      msg.style.display = 'none';
+      inp.style.borderColor = '';
+      return;
+    }
+    msg.style.display = 'block';
+    msg.style.color = '#ef4444';
+    msg.textContent = isEs ? 'Por favor ingresa un email valido.' : 'Please enter a valid email.';
+    inp.style.borderColor = '#ef4444';
+  } catch (e) {
+    msg.style.display = 'none';
+    inp.style.borderColor = '';
   }
 }
 
