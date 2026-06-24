@@ -628,6 +628,8 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
 .os-var-note{font-size:.7rem;color:var(--gray500);line-height:1.5;margin:0 0 13px}
 .os-continue-btn{width:100%;background:var(--blue);color:#fff;border:none;padding:13px;border-radius:11px;font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit;min-height:46px;transition:background .2s}
 .os-continue-btn:hover{background:#1d4ed8}
+.os-clear-btn{width:100%;background:none;border:none;color:var(--gray400);font-size:.78rem;font-weight:600;cursor:pointer;font-family:inherit;padding:9px 0 2px;margin-top:4px}
+.os-clear-btn:hover{color:#dc2626;text-decoration:underline}
 .os-nopay{text-align:center;font-size:.7rem;color:var(--green-dark);margin-top:9px}
 @media(max-width:860px){.services-layout{grid-template-columns:1fr}.order-summary{display:none}}
 /* FLOATING CART BAR */
@@ -736,6 +738,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
           <div class="os-subtotal-row"><span data-en="Estimated subtotal" data-es="Subtotal estimado">Subtotal estimado</span><strong id="osSubtotal">$0</strong></div>
           <p class="os-var-note" id="osVarNote" data-en="Annual, monthly, and state-fee services are confirmed separately." data-es="Los servicios anuales, mensuales y las tarifas estatales se confirman aparte.">Los servicios anuales, mensuales y las tarifas estatales se confirman aparte.</p>
           <button class="os-continue-btn" onclick="openCart()"><span data-en="Continue" data-es="Continuar">Continuar</span> &#8594;</button>
+          <button class="os-clear-btn" onclick="clearCart()" data-en="Clear cart" data-es="Vaciar carrito">Vaciar carrito</button>
         </div>
       </div>
     </aside>
@@ -898,6 +901,7 @@ function persistCart(){try{localStorage.setItem('flbc_svc_cart',JSON.stringify(c
 function toggleCart(id){if(inCart(id))removeFromCart(id);else addToCart(id);}
 function addToCart(id){if(!SVC_CATALOG[id])return;if(!inCart(id)){cart.push(id);persistCart();renderCart();}}
 function removeFromCart(id){var i=cart.indexOf(id);if(i>-1){cart.splice(i,1);persistCart();renderCart();}}
+function clearCart(){if(cart.length===0)return;var isEs=svcIsEs();if(!confirm(isEs?'¿Vaciar el carrito? Se quitarán todos los servicios.':'Clear the cart? All services will be removed.'))return;cart=[];persistCart();renderCart();}
 function cartTotals(){var fixed=0,hasVar=false;cart.forEach(function(id){var v=svcParsePrice((SVC_CATALOG[id]||{}).price);if(v!=null)fixed+=v;else hasVar=true;});return{fixed:fixed,hasVar:hasVar};}
 function renderCart(){
   var isEs=svcIsEs();
