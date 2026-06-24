@@ -1498,14 +1498,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
               <div class="fm-group"><label class="fm-label" id="lbl-fname">First Name *</label><input type="text" class="fm-input" id="inp-fname" placeholder="First name" oninput="fmTitleCase(this)"/></div>
               <div class="fm-group"><label class="fm-label" id="lbl-lname">Last Name *</label><input type="text" class="fm-input" id="inp-lname" placeholder="Last name" oninput="fmTitleCase(this)"/></div>
             </div>
-            <div class="fm-group"><label class="fm-label" id="lbl-email">Email *</label><input type="email" class="fm-input" id="inp-email" placeholder="your@email.com" oninput="fmCheckEmailMatch();fmEmailReset()" onblur="fmEmailValidate()"/><div id="email-validate-msg" style="font-size:.74rem;margin-top:4px;display:none"></div></div>
-            <div class="fm-group">
-              <label class="fm-label" id="lbl-email-confirm">Confirm Email *</label>
-              <input type="email" class="fm-input" id="inp-email-confirm" placeholder="Re-enter your email"
-                onpaste="return false" oncopy="return false" oncut="return false"
-                oninput="fmCheckEmailMatch()" autocomplete="off"/>
-              <div id="email-match-msg" style="font-size:.74rem;margin-top:4px;display:none"></div>
-            </div>
+            <div class="fm-group"><label class="fm-label" id="lbl-email">Email *</label><input type="email" class="fm-input" id="inp-email" placeholder="your@email.com" oninput="fmEmailReset()" onblur="fmEmailValidate()"/><div id="email-validate-msg" style="font-size:.74rem;margin-top:4px;display:none"></div></div>
             <div class="fm-group">
               <label class="fm-label" id="lbl-phone">Phone Number *</label>
               <div style="display:flex;gap:8px">
@@ -2902,45 +2895,6 @@ function fmUpgradePkg(pkg, el) {
   fmUpdateSummary();
 }
 
-// Email match live feedback
-function fmCheckEmailMatch() {
-  var e1 = document.getElementById('inp-email');
-  var e2 = document.getElementById('inp-email-confirm');
-  var msg = document.getElementById('email-match-msg');
-  if(!e1||!e2||!msg) return;
-  var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
-  var v1 = e1.value;
-  var v2 = e2.value;
-  // Nothing typed yet — hide everything
-  if(!v2) {
-    msg.style.display='none';
-    e2.style.borderColor='';
-    return;
-  }
-  // Check character by character up to what the user has typed so far
-  var mismatch = false;
-  for(var i=0; i<v2.length; i++) {
-    if(v2[i] !== v1[i]) { mismatch = true; break; }
-  }
-  if(mismatch) {
-    // A character doesn't match its position in e1 — show error immediately
-    msg.style.display='block';
-    msg.style.color='#ef4444';
-    msg.textContent = isEs ? 'Los correos no coinciden.' : 'Emails do not match.';
-    e2.style.borderColor='#ef4444';
-  } else if(v2.length === v1.length && v1.length > 0) {
-    // Fully typed and matches — show success
-    msg.style.display='block';
-    msg.style.color='#059669';
-    msg.textContent = isEs ? '✓ Los correos coinciden.' : '✓ Emails match.';
-    e2.style.borderColor='#059669';
-  } else {
-    // Still typing but no mismatch yet — stay neutral
-    msg.style.display='none';
-    e2.style.borderColor='';
-  }
-}
-
 // ZeroBounce - validacion del email contra /api/email/validate (onblur).
 // En modo dormido (ZEROBOUNCE_ENABLED!=='true') solo regex local, sin consumo.
 function fmEmailReset() {
@@ -3927,8 +3881,6 @@ var formTranslations = {
       'Florida Street Address * (No PO Box)':'Dirección FL * (Sin Apartado Postal)',
       'Agent Electronic Signature *':'Firma Electrónica del Agente *',
       'Filing Speed':'Velocidad de Tramitación',
-      'Email Address for Confirmation *':'Correo de Confirmación *',
-      'Confirm Email *':'Confirmar Correo *',
       'Electronic Signature *':'Firma Electrónica *',
     },
     placeholders: {
@@ -3960,7 +3912,6 @@ var formTranslations = {
       'Type your full legal name':'Escribe tu nombre legal completo',
       'your@email.com':'tucorreo@email.com',
       'email@example.com':'tucorreo@ejemplo.com',
-      'Re-enter your email':'Vuelve a ingresar tu correo',
       '(305) 000-0000':'(305) 000-0000',
       'e.g. The purpose of this company is to engage in any lawful business activity permitted under Florida law, including retail sales and e-commerce operations.':'ej. El propósito de esta empresa es dedicarse a cualquier actividad empresarial lícita permitida por la ley de Florida.',
     },
@@ -4719,17 +4670,6 @@ function fmNext() {
       alert(isEs?'Por favor ingresa un correo válido.':'Please enter a valid email address.');return;
     }
     if(emailEl)emailEl.style.borderColor='';
-    // Confirm email validation
-    var emailConfEl=document.getElementById('inp-email-confirm');
-    if(!emailConfEl||!emailConfEl.value.trim()){
-      if(emailConfEl){emailConfEl.style.borderColor='#ef4444';emailConfEl.focus();}
-      alert(isEs?'Por favor confirma tu correo electrónico.':'Please confirm your email address.');return;
-    }
-    if(emailEl&&emailConfEl&&emailEl.value.trim()!==emailConfEl.value.trim()){
-      emailConfEl.style.borderColor='#ef4444';emailConfEl.focus();
-      alert(isEs?'Los correos no coinciden. Por favor verifica.':'Emails do not match. Please check and try again.');return;
-    }
-    if(emailConfEl)emailConfEl.style.borderColor='';
     var phoneEl=document.getElementById('inp-phone');
     if(phoneEl&&/[a-zA-Z]/.test(phoneEl.value)){phoneEl.style.borderColor='#ef4444';phoneEl.focus();alert(isEs?'El teléfono solo debe contener números.':'Phone must contain only digits.');return;}
     if(phoneEl)phoneEl.style.borderColor='';
@@ -5543,7 +5483,7 @@ var FM_STORAGE_KEY = 'mbf_form_progress';
 
 var FM_FIELD_IDS = [
   'inp-bizname','inp-designator',
-  'inp-fname','inp-lname','inp-email','inp-email-confirm','inp-phone','inp-phone-country',
+  'inp-fname','inp-lname','inp-email','inp-phone','inp-phone-country',
   'inp-addr','inp-street2','inp-city','inp-state','inp-zip','inp-biz-country',
   'inp-org-sig','inp-ra-name','inp-ra-street','inp-ra-street2','inp-ra-city','inp-ra-state','inp-ra-zip'
 ];
@@ -5744,7 +5684,7 @@ function fmTranslate(lang) {
 'oa-extra-header':isEs?'Necesitamos un dato para completar tu Acuerdo Operativo':'We need one detail to complete your Operating Agreement','oa-extra-sub':isEs?'Solo tomará un momento':'This will only take a moment',
 'oa-own-why':isEs?'Para preparar tu Acuerdo Operativo necesitamos saber <strong>qué porcentaje de la empresa posee cada miembro</strong>. Es un requisito legal — el Acuerdo Operativo debe especificar el porcentaje de propiedad de cada miembro para ser válido ante bancos e instituciones.<br/><span style=\\'display:block;margin-top:8px;font-size:.76rem;color:#065f46\\'>&#10003; Ya tenemos la información de tus miembros. Solo llena el % de cada uno abajo.</span>':'To prepare your Operating Agreement we need to know <strong>how much of the company each member owns</strong>. This is a legal requirement — your Operating Agreement must specify the ownership percentage of every member so it is valid for banking and legal purposes.<br/><span style=\\'display:block;margin-top:8px;font-size:.76rem;color:#065f46\\'>&#10003; We already have your members\\' information. Just fill in the % for each one below.</span>',
 'tt-ar':isEs?'Cada negocio en Florida debe presentar un Reporte Anual para mantenerse activo ante el Estado. Esto aplica aunque tu negocio no haya iniciado operaciones — la ley no hace excepciones. La fecha l\\u00edmite es el 1 de mayo. Si no se presenta a tiempo, Florida cobra una multa de $400 autom\\u00e1tica. Si se ignora por completo, el Estado puede disolver tu empresa administrativamente.':'Every Florida business must file an Annual Report each year to stay active — even if your business has not started operating yet. The law makes no exceptions. The deadline is May 1st. Miss it and Florida automatically charges a $400 late fee. Keep ignoring it and the State can administratively dissolve your company.',
-'fp-home-lbl':isEs?'Inicio':'Back to Home','s2-speed-divider':isEs?'Velocidad de Procesamiento':'Processing Speed','s2-fast-badge':isEs?'R\\u00c1PIDO':'FAST','s2-exp-lbl':isEs?'&#9889; Procesamiento Prioritario':'&#9889; Priority Processing','s2-exp-days':isEs?'Entrega en 1-3 d\\u00edas h\\u00e1biles':'Delivered in 1-3 business days','s2-exp-note':isEs?'Incluido gratis con Premium':'Included free with Premium','s2-std-lbl':isEs?'Procesamiento Est\\u00e1ndar':'Standard Processing','s2-std-days':isEs?'Normalmente 7-10 d\\u00edas h\\u00e1biles':'Typically 7-10 business days','s2-std-note':isEs?'Sin cargo adicional':'No additional charge','s2-disclaimer':isEs?'* Las fechas son estimadas.':'* Estimated dates may vary.','s2-contact-divider':isEs?'Informaci\\u00f3n de Contacto':'Contact Information','lbl-fname':isEs?'Nombre *':'First Name *','lbl-lname':isEs?'Apellido *':'Last Name *','lbl-email':isEs?'Correo Electr\\u00f3nico *':'Email *','lbl-email-confirm':isEs?'Confirmar Correo *':'Confirm Email *','lbl-phone':isEs?'Tel\\u00e9fono *':'Phone Number *','lbl-sms':isEs?'Acepto recibir actualizaciones por mensaje y teléfono.':'I agree to receive order updates by text and phone.',
+'fp-home-lbl':isEs?'Inicio':'Back to Home','s2-speed-divider':isEs?'Velocidad de Procesamiento':'Processing Speed','s2-fast-badge':isEs?'R\\u00c1PIDO':'FAST','s2-exp-lbl':isEs?'&#9889; Procesamiento Prioritario':'&#9889; Priority Processing','s2-exp-days':isEs?'Entrega en 1-3 d\\u00edas h\\u00e1biles':'Delivered in 1-3 business days','s2-exp-note':isEs?'Incluido gratis con Premium':'Included free with Premium','s2-std-lbl':isEs?'Procesamiento Est\\u00e1ndar':'Standard Processing','s2-std-days':isEs?'Normalmente 7-10 d\\u00edas h\\u00e1biles':'Typically 7-10 business days','s2-std-note':isEs?'Sin cargo adicional':'No additional charge','s2-disclaimer':isEs?'* Las fechas son estimadas.':'* Estimated dates may vary.','s2-contact-divider':isEs?'Informaci\\u00f3n de Contacto':'Contact Information','lbl-fname':isEs?'Nombre *':'First Name *','lbl-lname':isEs?'Apellido *':'Last Name *','lbl-email':isEs?'Correo Electr\\u00f3nico *':'Email *','lbl-phone':isEs?'Tel\\u00e9fono *':'Phone Number *','lbl-sms':isEs?'Acepto recibir actualizaciones por mensaje y teléfono.':'I agree to receive order updates by text and phone.',
 'lbl-sms-opt':isEs?'(Opcional)':'(Optional)','sum-title-main':isEs?'Tu Orden':'Your Order',
     's3-sub':isEs?'La ley establece que todo negocio debe tener un Agente Registrado.':'The law requires every business to have a Registered Agent.',
     's4-div-addr':isEs?'Direcci\\u00f3n de Correspondencia':'Contact Address',
@@ -6555,7 +6495,7 @@ function claudiaPrefill(d){
     setVal('inp-fname',m.firstName||'');
     setVal('inp-lname',m.lastName||'');
   }
-  if(d.email){setVal('inp-email',d.email);setVal('inp-email-confirm',d.email);}
+  if(d.email){setVal('inp-email',d.email);}
 
   // Member / owner fields (step 5)
   if(d.members&&d.members[0]){
