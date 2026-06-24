@@ -4938,6 +4938,94 @@ function fmNext() {
         if(ce5)ce5.style.borderColor='';
       }
     }
+    // === Lob validation paso 5: Members (grupos 4 + 5) ===
+    // Loop dinamico sobre fmMemberCount: por cada miembro determina si es
+    // individual (s5-mN-*) o company (s5-mN-co*), y si pais === US recoge
+    // su direccion para validar con Lob. Skip si checkbox addr-biz o
+    // addr-virtual esta activo (usa direccion preset, no propia).
+    var _addrsToValidate5 = [];
+    var _isEsLob5 = isEs;
+    var _memberN = (typeof fmMemberCount !== 'undefined') ? fmMemberCount : 1;
+    for(var _mIdx = 1; _mIdx <= _memberN; _mIdx++) {
+      var _pfx = 's5-m' + _mIdx;
+      var _indBtn = document.getElementById(_pfx + '-ind');
+      var _isInd = _indBtn && _indBtn.classList.contains('selected');
+      if(_isInd) {
+        // Individual member: skip si addr preset (biz / virtual) activo
+        var _bizChk = document.getElementById(_pfx + '-addr-biz');
+        var _virtChk = document.getElementById(_pfx + '-addr-virtual');
+        if((_bizChk && _bizChk.checked) || (_virtChk && _virtChk.checked)) continue;
+        var _countryEl = document.getElementById(_pfx + '-country');
+        if(!_countryEl || _countryEl.value !== 'US') continue;
+        var _indAddrEl = document.getElementById(_pfx + '-addr');
+        if(!_indAddrEl || !_indAddrEl.value || !_indAddrEl.value.trim()) continue;
+        _addrsToValidate5.push({
+          addr: {
+            primary_line: _indAddrEl.value,
+            secondary_line: '',
+            city: (document.getElementById(_pfx + '-city')||{}).value || '',
+            state: (document.getElementById(_pfx + '-state')||{}).value || '',
+            zip_code: (document.getElementById(_pfx + '-zip')||{}).value || '',
+            country: 'US',
+          },
+          label: _isEsLob5 ? ('Direccion del Miembro ' + _mIdx) : ('Member ' + _mIdx + ' Address'),
+          els: {
+            primary: _indAddrEl,
+            city: document.getElementById(_pfx + '-city'),
+            state: document.getElementById(_pfx + '-state'),
+            zip: document.getElementById(_pfx + '-zip'),
+          },
+        });
+      } else {
+        // Company member: usa los IDs s5-mN-co*
+        var _coCountryEl = document.getElementById(_pfx + '-cocountry');
+        if(!_coCountryEl || _coCountryEl.value !== 'US') continue;
+        var _coAddrEl = document.getElementById(_pfx + '-coaddr');
+        if(!_coAddrEl || !_coAddrEl.value || !_coAddrEl.value.trim()) continue;
+        _addrsToValidate5.push({
+          addr: {
+            primary_line: _coAddrEl.value,
+            secondary_line: '',
+            city: (document.getElementById(_pfx + '-cocity')||{}).value || '',
+            state: (document.getElementById(_pfx + '-costate')||{}).value || '',
+            zip_code: (document.getElementById(_pfx + '-cozip')||{}).value || '',
+            country: 'US',
+          },
+          label: _isEsLob5 ? ('Direccion de la Empresa del Miembro ' + _mIdx) : ('Member ' + _mIdx + ' Company Address'),
+          els: {
+            primary: _coAddrEl,
+            city: document.getElementById(_pfx + '-cocity'),
+            state: document.getElementById(_pfx + '-costate'),
+            zip: document.getElementById(_pfx + '-cozip'),
+          },
+        });
+      }
+    }
+    if(_addrsToValidate5.length > 0) {
+      (async function(){
+        try {
+          for(var i = 0; i < _addrsToValidate5.length; i++) {
+            var item = _addrsToValidate5[i];
+            var result = await fmLobValidateAddr(item.addr, item.label);
+            if(result && (result.action === 're-enter' || result.action === 'close')) return;
+            if(result && result.action === 'use-suggested' && result.addr) {
+              if(item.els.primary && result.addr.primary_line) item.els.primary.value = result.addr.primary_line;
+              if(item.els.city && result.addr.city) item.els.city.value = result.addr.city;
+              if(item.els.state && result.addr.state) item.els.state.value = result.addr.state;
+              if(item.els.zip && result.addr.zip_code) item.els.zip.value = result.addr.zip_code;
+            }
+          }
+          if (typeof window.gtag === 'function') { window.gtag('event', 'step_completed', { step_number: fmCurrentStep, package: fmData.package, entity: fmData.entity }); }
+          var _next5=fmCurrentStep+1; if(_next5===4)_next5=5; if(_next5===6)_next5=7;
+          if(fmVisualStep(_next5)<=fmTotalSteps) fmGoToStep(_next5);
+        } catch(e) {
+          if (typeof window.gtag === 'function') { window.gtag('event', 'step_completed', { step_number: fmCurrentStep, package: fmData.package, entity: fmData.entity }); }
+          var _nx5=fmCurrentStep+1; if(_nx5===4)_nx5=5; if(_nx5===6)_nx5=7;
+          if(fmVisualStep(_nx5)<=fmTotalSteps) fmGoToStep(_nx5);
+        }
+      })();
+      return;
+    }
   }
   // Validate addon extra fields
   if(fmCurrentStep===7){
