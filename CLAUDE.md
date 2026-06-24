@@ -741,6 +741,55 @@ En plan gratuito, Resend solo entrega emails al correo registrado en la cuenta. 
 
 ---
 
+## Sunbiz SFTP — daily files cron (reusar approach datallc)
+
+Para el **cron nocturno** que mantiene la DB Turso de Sunbiz al día con las empresas nuevas registradas en Florida cada día, **NO construir nada nuevo**. Existe ya el script Python `florida_sftp.py` del proyecto hermano `datallc` (path: `c:\Users\ethan\datallc\fase0-validation\src\ingest\florida_sftp.py`) que funciona y está probado en producción (el founder retiró 57K registros en 10 min usándolo).
+
+### Lo que YA funciona en datallc
+
+- **Librería**: `paramiko` (estándar Python SFTP, no construye cliente custom).
+- **Credenciales hardcoded públicas**: `sftp.floridados.gov` user `Public` password `PubAccess1845!` (acceso público oficial, no requiere registro).
+- **Path SFTP**: `doc/cor` (no `doc/Quarterly/Cor` — ese es el bulk inicial).
+- **Patrón archivo daily**: `YYYYMMDDc.txt` (regex `^\d{8}c\.txt$`). Florida publica 1 por día con las novedades.
+- **Schema parseado**: FULL 1440 chars (no los 668 que usé en la carga inicial). Incluye:
+  - Doc number, name, entity_type, status, filing_type, filing_date
+  - Principal address (addr1, addr2, city, state, zip, country)
+  - Mailing address
+  - **FEI number** (494 offset, 14 chars) — útil para depuración/marketing
+  - **last_tx_date** (495, 8 chars) — fecha última transacción
+  - Registered Agent (name + type P/C + addr completo)
+  - **Hasta 6 officers** (offset 668, 128 bytes cada uno) con:
+    - title (4 chars)
+    - type (P=persona, C=company)
+    - name (42 chars sub-dividido en last(20) + first(14) + middle(8))
+    - addr completo (addr + city + state + zip)
+  - Officers tipo `P` también se surfacean al array `members` para marketing personalizado.
+
+### Por qué el schema FULL en el cron nocturno (y NO en el bulk inicial)
+
+Decisión documentada 2026-06-22 (`project_sunbiz_schema_alcance.md` en memoria):
+
+- **Carga inicial (3.5M+ ACTIVE)**: solo schema mínimo (verificación de nombres). 668 chars.
+- **Cron nocturno (~1.5K/día)**: schema COMPLETO. 1440 chars con officers + FEI + last_tx_date. Para depuración manual de órdenes y marketing personalizado a empresas recién registradas.
+
+### Reusar para el cron en OpaBiz
+
+Para el cron nocturno de Turso/Sunbiz en OpaBiz **NO escribir scraper nuevo**. Opciones por orden de simplicidad:
+
+1. **Portar `florida_sftp.py` a Node.js** usando `ssh2-sftp-client` (la lib que ya tenemos del scraper de bulk) + el mismo parsing 1440 chars. Estructura del script ya está clara en datallc.
+2. **Llamar al Python directo** desde un Vercel Cron / GitHub Actions cron que SSH-eje al VPS Hetzner USA, corra el script Python, y publique al Turso vía libsql.
+3. **Pasar tareas al proyecto datallc** si está siendo mantenido — datallc ya hace esto.
+
+### Velocidad medida en datallc
+
+Founder reportó **57,000 registros en 10 minutos** (~95 records/seg). Para el daily file (~1.5K registros) son **<1 minuto**. Trivial.
+
+### Documentación oficial del layout
+
+Florida Division of Corporations publica el layout completo: https://dos.sunbiz.org/data-definitions/cor.html
+
+---
+
 ## Deploy
 
 - `git push origin main` — Vercel detecta cambios en `backend/` y hace deploy automático

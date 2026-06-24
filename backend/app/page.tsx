@@ -1451,6 +1451,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
               <span id="bizname-preview"></span><span>&#10003;</span>
             </div>
           </div>
+          <div id="bizname-check-result" style="margin-top:6px;font-size:.78rem;line-height:1.45;display:none"></div>
 
           <!-- Additional Explanation — 3 accordions (estilo Bizee). Aclaraciones legales y operativas sobre el nombre.
                Clases con prefijo fm-nameacc-* para NO colisionar con .fm-acc-* del FAQ del home. -->
@@ -5178,6 +5179,53 @@ function fmUpdateBizName(val) {
   var bn = document.getElementById('sum-biz-name');
   if(bn) { bn.textContent = full; bn.style.display = 'block'; }
   fmUpdateSummary();
+  // Lanzar chequeo de disponibilidad (debounce 300ms, min 3 chars).
+  fmBiznameDebounced(name);
+}
+
+// Chequeo de disponibilidad de nombre contra /api/sunbiz/name-check.
+// Debounce 300ms + AbortController para cancelar requests anteriores.
+// Solo muestra mensaje rojo si el nombre YA EXISTE (available=false).
+// Si available=true o hay error de red, degrada en silencio.
+var _bizChkTimer = null;
+var _bizChkCtrl = null;
+function fmBiznameDebounced(name) {
+  if (_bizChkTimer) clearTimeout(_bizChkTimer);
+  if (_bizChkCtrl) { try { _bizChkCtrl.abort(); } catch (e) {} _bizChkCtrl = null; }
+  var box = document.getElementById('bizname-check-result');
+  if (!box) return;
+  var n = (name || '').trim();
+  if (n.length < 3) { box.style.display = 'none'; box.textContent = ''; return; }
+  _bizChkTimer = setTimeout(function () { fmCheckBizname(n); }, 300);
+}
+async function fmCheckBizname(q) {
+  var box = document.getElementById('bizname-check-result');
+  if (!box) return;
+  var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
+  _bizChkCtrl = new AbortController();
+  try {
+    var res = await fetch('/api/sunbiz/name-check?q=' + encodeURIComponent(q), { signal: _bizChkCtrl.signal });
+    var data = await res.json();
+    if (!data || !data.ok) { box.style.display = 'none'; return; }
+    if (data.tooShort) { box.style.display = 'none'; return; }
+    if (data.available === false) {
+      box.style.color = '#dc2626';
+      box.style.fontWeight = '500';
+      box.style.display = 'block';
+      var ex = data.example || '';
+      var msg = isEs
+        ? 'Ya existe en Florida una empresa con un nombre identico (' + ex + '). Por favor probá una variacion.'
+        : 'A Florida company with an identical name already exists (' + ex + '). Please try a variation.';
+      box.textContent = msg;
+    } else {
+      // available — no mostramos nada (el preview verde de arriba ya da feedback positivo).
+      box.style.display = 'none';
+      box.textContent = '';
+    }
+  } catch (e) {
+    // network error o abort — silencioso (no bloquea el form).
+    box.style.display = 'none';
+  }
 }
 
 function fmSetSpeed(type, el) {

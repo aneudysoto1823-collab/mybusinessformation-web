@@ -120,6 +120,21 @@ export async function checkAuthRecoverRateLimit(ip: string): Promise<RateLimitRe
   return check(limiter, ip, 3)
 }
 
+// ── GET /api/sunbiz/name-check: 60 requests / minuto / IP ────────────────────
+// Search de disponibilidad de nombre desde el form. El frontend hace debounce
+// 300ms + min 3 chars, asi que un usuario tipeando rapido manda ~10-20 req/min
+// como mucho. 60/min es generoso y mata bots/scrapers que quieran extraer la
+// base entera.
+export async function checkNameSearchRateLimit(ip: string): Promise<RateLimitResult> {
+  const limiter = getLimiter({
+    cacheKey: 'name-search',
+    prefix: 'rl:name-search',
+    limit: 60,
+    window: '1 m',
+  })
+  return check(limiter, ip, 60)
+}
+
 // ── POST /api/contact: 5 requests / hora / IP ────────────────────────────────
 // Form público del Contact Us. Un cliente legítimo no manda más de 1-2 mensajes
 // por hora; un bot spammer queda neutralizado. Si Upstash no responde, fail-open
