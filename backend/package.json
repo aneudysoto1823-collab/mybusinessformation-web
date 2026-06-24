@@ -18,6 +18,7 @@
     "@supabase/supabase-js": "^2.99.2",
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.38.0",
+    "@zerobounce/zero-bounce-sdk": "^2.1.9",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
