@@ -736,7 +736,6 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
           <div class="os-subtotal-row"><span data-en="Estimated subtotal" data-es="Subtotal estimado">Subtotal estimado</span><strong id="osSubtotal">$0</strong></div>
           <p class="os-var-note" id="osVarNote" data-en="Annual, monthly, and state-fee services are confirmed separately." data-es="Los servicios anuales, mensuales y las tarifas estatales se confirman aparte.">Los servicios anuales, mensuales y las tarifas estatales se confirman aparte.</p>
           <button class="os-continue-btn" onclick="openCart()"><span data-en="Continue" data-es="Continuar">Continuar</span> &#8594;</button>
-          <div class="os-nopay"><span data-en="No payment now &middot; we reply in 1 business day" data-es="Sin pago ahora &middot; respondemos en 1 día hábil">Sin pago ahora &middot; respondemos en 1 día hábil</span></div>
         </div>
       </div>
     </aside>
@@ -2031,14 +2030,13 @@ function deactivateSvc(){
 }
 
 function touchSvc(item){
-  if(window.innerWidth<=1100){
+  if(window.innerWidth<=1100||_isTouch){
     var wasOpen=item.classList.contains('expanded');
     document.querySelectorAll('.svc-acc-item.expanded').forEach(function(i){i.classList.remove('expanded');});
     if(!wasOpen)item.classList.add('expanded');
-  } else {
-    var svcId=item.getAttribute('data-svc');
-    if(svcId)openServiceForm(svcId);
   }
+  // Desktop con mouse: el popup en hover maneja la interacción.
+  // Ya NO se abre el formulario viejo (openServiceForm) al hacer clic.
 }
 
 var _isTouch=('ontouchstart' in window||navigator.maxTouchPoints>0);
