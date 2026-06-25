@@ -2733,8 +2733,17 @@ function fmRefreshAddrPresets() {
   //    marcado el RA = biz (duplicado, no mostrar). Cuando no existe el
   //    checkbox (Paso 2 fuera de own+US+FL), el RA propio siempre es FL aparte
   //    así que siempre distinto del biz.
+  //
+  //    Importante: leer raSameActive considerando si el wrap del checkbox
+  //    esta VISIBLE. El checkbox HTML tiene checked por default y en los
+  //    casos donde no aplica (Paso 2 = virtual / no-US / no-FL) queda oculto
+  //    pero con .checked=true stuck. Si leemos solo .checked sin chequear
+  //    visibilidad, creemos que RA = biz cuando en realidad el user puso una
+  //    direccion RA FL aparte y no mostrabamos el checkbox RA al miembro.
+  var raSameOpt = document.getElementById('ra-same-biz-opt');
+  var raSameVisible = !!(raSameOpt && raSameOpt.style.display !== 'none');
   var raSameChk = document.getElementById('chk-ra-same-biz');
-  var raSameActive = !!(raSameChk && raSameChk.checked);
+  var raSameActive = raSameVisible && !!(raSameChk && raSameChk.checked);
   var raParts = fmGetRaAddrParts();
   var hasRaPhysical = !!(raParts.street && raParts.city);
   var showRa = !!(fmData && fmData.agentType === 'own') && !raSameActive && hasRaPhysical;
