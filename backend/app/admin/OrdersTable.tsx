@@ -19,6 +19,7 @@ export interface Order {
 
 const TABS = [
   { key: 'all',            label: 'Todas' },
+  { key: 'services',       label: 'Servicios' },
   { key: 'addon',          label: 'New Business Letter' },
   { key: 'pending',        label: 'Pending' },
   { key: 'in_review',      label: 'In review' },
@@ -46,12 +47,13 @@ const PAYMENT_BADGE: Record<string, { label: string; bg: string; color: string }
   refunded: { label: 'Reembolso', bg: '#ffedd5', color: '#c2410c' },
 }
 
-const PKG_ORDER: Record<string, number> = { basic: 0, standard: 1, premium: 2, addon: 3 }
+const PKG_ORDER: Record<string, number> = { basic: 0, standard: 1, premium: 2, services: 3, addon: 4 }
 
 const PKG_LABEL: Record<string, { label: string; bg: string; color: string }> = {
   basic:    { label: 'Basic',                bg: '#f3f4f6', color: '#6b7280' },
   standard: { label: 'Standard',            bg: '#dbeafe', color: '#1d4ed8' },
   premium:  { label: 'Premium',             bg: '#ede9fe', color: '#6d28d9' },
+  services: { label: 'Servicios',           bg: '#ede9fe', color: '#7c3aed' },
   addon:    { label: 'New Business Letter', bg: '#ffedd5', color: '#c2410c' },
 }
 
@@ -117,6 +119,7 @@ export default function OrdersTable({ orders, lang = 'es' }: { orders: Order[]; 
   const countFor = (key: string) => {
     if (key === 'all') return orders.length
     if (key === 'addon') return orders.filter(o => o.package === 'addon').length
+    if (key === 'services') return orders.filter(o => o.package === 'services').length
     return orders.filter(o => o.status === key).length
   }
 
@@ -124,6 +127,8 @@ export default function OrdersTable({ orders, lang = 'es' }: { orders: Order[]; 
     ? [...orders]
     : activeTab === 'addon'
     ? orders.filter(o => o.package === 'addon')
+    : activeTab === 'services'
+    ? orders.filter(o => o.package === 'services')
     : orders.filter(o => o.status === activeTab)
 
   if (pkgFilter !== 'all') {
@@ -401,6 +406,7 @@ export default function OrdersTable({ orders, lang = 'es' }: { orders: Order[]; 
             <option value="basic">Basic</option>
             <option value="standard">Standard</option>
             <option value="premium">Premium</option>
+            <option value="services">Servicios</option>
             <option value="addon">New Business Letter</option>
           </select>
 

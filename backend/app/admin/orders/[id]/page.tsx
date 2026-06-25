@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
+import ServicesFilingForm from './ServicesFilingForm'
 
 const PROXY = '/api/proxy'
 
@@ -703,6 +704,25 @@ export default function OrderDetailPage() {
             <Field label="Última actualización" value={order.updatedAt ? new Date(order.updatedAt).toLocaleString('en-US') : undefined} />
           </div>
         </Section>
+
+        {/* ── Formulario autollenado de Servicios (à la carte) ─────────────── */}
+        {(order.package ?? '').toLowerCase() === 'services' && (
+          <Section title="🧾 Formulario de servicios (autollenado desde Sunbiz)">
+            <p style={{ fontSize: '13px', color: '#6b7280', marginBottom: '16px', lineHeight: 1.6 }}>
+              Datos de la empresa autollenados desde Sunbiz (Turso) con el número de registro del cliente,
+              + los datos que el cliente aportó por cada servicio. Editable e imprimible para hacer los trámites.
+            </p>
+            <ServicesFilingForm
+              addons={order.addons}
+              firstName={order.firstName}
+              lastName={order.lastName}
+              email={order.email}
+              phone={order.phone}
+              companyName={order.companyName}
+              entityType={order.entityType}
+            />
+          </Section>
+        )}
 
         {/* ── Pre-filled Documents ─────────────────────────────────────────── */}
         {(() => {
