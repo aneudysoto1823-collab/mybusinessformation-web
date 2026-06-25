@@ -10,7 +10,7 @@
 
 export const dynamic = 'force-dynamic'
 
-import { SERVICE_FIELDS } from '@/lib/service-fields'
+import { SERVICE_FIELDS, SHARED_FIELDS } from '@/lib/service-fields'
 
 export default function ServiciosCheckoutPage() {
   const PK = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || ''
@@ -169,6 +169,8 @@ body{font-family:var(--font-sans),'Plus Jakarta Sans',system-ui,sans-serif;color
       </div>
     </div>
 
+    <div id="co-shared-section"></div>
+
     <div id="co-svc-sections"></div>
 
     <div class="co-err" id="co-intake-err"></div>
@@ -222,6 +224,7 @@ var coLang = 'es';
 // Catálogo de extras por servicio (campos específicos, además del bloque común).
 // type: text | tel | email | date | select | textarea. opts solo para select.
 var SVC_EXTRAS = ${JSON.stringify(SERVICE_FIELDS)};
+var SHARED_CFG = ${JSON.stringify(SHARED_FIELDS)};
 
 var cart = [];
 try { cart = JSON.parse(localStorage.getItem('flbc_svc_cart')||'[]'); if(!Array.isArray(cart)) cart=[]; } catch(e){ cart=[]; }
@@ -238,7 +241,7 @@ function coSetLang(l){
   var isEs=coIsEs();
   document.querySelectorAll('[data-en][data-es]').forEach(function(el){ el.textContent = isEs?el.getAttribute('data-es'):el.getAttribute('data-en'); });
   // re-render dynamic service sections in the new language (preserve values)
-  if($('co-intake').style.display!=='none'){ var vals=coCollectExtras(); renderSvcSections(); restoreExtras(vals); }
+  if($('co-intake').style.display!=='none'){ var vals=coCollectExtras(); var sh=coCollectShared(); renderSvcSections(); renderSharedSection(); restoreExtras(vals); restoreShared(sh); }
 }
 
 function repRowHtml(svcId, f){
@@ -293,6 +296,27 @@ function renderSvcSections(){
   host.innerHTML=html;
 }
 
+function sharedKeys(){
+  var keys=[];
+  cart.forEach(function(svcId){ var def=SVC_EXTRAS[svcId]; if(def&&def.shared) def.shared.forEach(function(k){ if(keys.indexOf(k)<0) keys.push(k); }); });
+  return keys;
+}
+function renderSharedSection(){
+  var host=$('co-shared-section'); if(!host) return;
+  var isEs=coIsEs(); var keys=sharedKeys();
+  if(!keys.length){ host.innerHTML=''; return; }
+  var fields=keys.map(function(k){ var f=SHARED_CFG[k]; if(!f) return ''; var lbl=isEs?f.es:f.en;
+    var inner;
+    if(f.type==='select'){ inner='<select class="co-select" id="s-'+k+'">'+(f.opts||[]).map(function(o){return '<option>'+o+'</option>';}).join('')+'</select>'; }
+    else { inner='<input class="co-input" type="'+(f.type||'text')+'" id="s-'+k+'"/>'; }
+    return '<div class="co-field"><label class="co-label">'+lbl+'</label>'+inner+'</div>';
+  }).join('');
+  host.innerHTML='<div class="co-card"><div class="co-card-title">'+(isEs?'Datos requeridos':'Required details')+'</div>'
+    +'<div class="co-card-svc">'+(isEs?'Se piden una sola vez para todos tus servicios':'Asked once for all your services')+'</div>'
+    +'<div class="co-grid">'+fields+'</div></div>';
+}
+function coCollectShared(){ var out={}; sharedKeys().forEach(function(k){ var el=$('s-'+k); if(el) out[k]=el.value; }); return out; }
+function restoreShared(vals){ Object.keys(vals).forEach(function(k){ var el=$('s-'+k); if(el) el.value=vals[k]; }); }
 function coCollectExtras(){
   var out={};
   cart.forEach(function(svcId){
@@ -375,7 +399,7 @@ function coGetIntake(){
     entityType:$('f-entityType').value, legalName:$('f-legalName').value.trim(),
     flDoc:$('f-flDoc').value.trim(), street:$('f-street').value.trim(),
     city:$('f-city').value.trim(), zip:$('f-zip').value.trim(),
-    signature:$('f-signature').value.trim(), extras:coCollectExtras()
+    signature:$('f-signature').value.trim(), extras:coCollectExtras(), shared:coCollectShared()
   };
 }
 
@@ -434,6 +458,7 @@ function coBackToIntake(){
   }
   if(!cart.length){ $('co-steps').style.display='none'; coShow('co-empty'); return; }
   renderSvcSections();
+  renderSharedSection();
   coShow('co-intake');
 })();
 `

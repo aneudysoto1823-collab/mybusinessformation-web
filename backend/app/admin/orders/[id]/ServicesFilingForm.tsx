@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { SERVICE_FIELDS, type RepeaterCol } from '@/lib/service-fields'
+import { SERVICE_FIELDS, SHARED_FIELDS, sharedKeysForServices, type RepeaterCol } from '@/lib/service-fields'
 
 // Formulario dinámico autollenado para órdenes de servicios à la carte.
 // - Lee los servicios + datos capturados de Order.addons (intake).
@@ -86,6 +86,11 @@ export default function ServicesFilingForm({ addons, firstName, lastName, email,
         v['x_' + svcId + '_' + f.k] = String(extras[svcId + '.' + f.k] ?? '')
       }
     }
+    // Pre-cargar datos compartidos (EIN, SSN/ITIN) — guardados en intake.shared
+    const sharedVals = (intake.shared && typeof intake.shared === 'object') ? (intake.shared as Record<string, string>) : {}
+    for (const k of sharedKeysForServices(services)) {
+      v['s_' + k] = String(sharedVals[k] ?? '')
+    }
     return v
   })
 
@@ -167,6 +172,7 @@ export default function ServicesFilingForm({ addons, firstName, lastName, email,
     const row = (label: string, val: string) => val ? `<tr><td class="l">${label}</td><td class="v">${(val || '').replace(/</g, '&lt;')}</td></tr>` : ''
     const companyRows = COMPANY_FIELDS.map(f => row(f.label, vals[f.k])).join('')
     const contactRows = row('Cliente', `${vals.k_firstName} ${vals.k_lastName}`) + row('Email', vals.k_email) + row('Teléfono', vals.k_phone) + row('Firma', vals.k_signature)
+    const sharedRows = sharedKeysForServices(services).map(k => { const f = SHARED_FIELDS[k]; return f ? row(f.es, vals['s_' + k]) : '' }).join('')
     const svcBlocks = services.map(svcId => {
       const def = SERVICE_FIELDS[svcId]
       const title = def ? def.name_es : svcId
@@ -192,6 +198,7 @@ export default function ServicesFilingForm({ addons, firstName, lastName, email,
       </head><body><h2>Hoja de trabajo — Orden de servicios</h2>
       <h3>Empresa (Sunbiz)</h3><table>${companyRows}</table>
       <h3>Contacto</h3><table>${contactRows}</table>
+      ${sharedRows ? `<h3>Datos requeridos</h3><table>${sharedRows}</table>` : ''}
       ${svcBlocks}
       </body></html>`)
     win.document.close(); win.focus(); win.print()
@@ -259,6 +266,26 @@ export default function ServicesFilingForm({ addons, firstName, lastName, email,
           <div className="sff-field full"><label>Firma electrónica</label><input value={vals.k_signature || ''} onChange={e => set('k_signature', e.target.value)} /></div>
         </div>
       </div>
+
+      {/* Datos compartidos (EIN, SSN/ITIN) — pedidos una vez al cliente */}
+      {sharedKeysForServices(services).length > 0 && (
+        <div className="sff-block">
+          <h4>Datos requeridos (compartidos)</h4>
+          <div className="sff-grid">
+            {sharedKeysForServices(services).map(k => {
+              const f = SHARED_FIELDS[k]
+              if (!f) return null
+              const id = 's_' + k
+              return (
+                <div className="sff-field" key={id}>
+                  <label>{f.es}</label>
+                  <input value={vals[id] || ''} onChange={e => set(id, e.target.value)} />
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Secciones por servicio pedido */}
       {services.map(svcId => {

@@ -12,6 +12,24 @@
 ## ✅ Implementado (lado cliente) — 2026-06-25
 - `/servicios/checkout` ahora **arranca por el número de registro** (card prominente arriba). Al buscar → `/api/sunbiz/company` (público, Turso) autollena nombre/tipo/dirección y los **oculta** (confirmación read-only "Encontramos tu empresa" + link Editar). Si no se encuentra → se revelan campos manuales. **Regla: NO se le pide al cliente nada que esté en Turso.** Solo teclea nombre/email/teléfono/firma + lo específico/sensible por servicio.
 
+### Campos quitados por estar en Turso (no se le piden al cliente)
+- Operating Agreement: **Fecha de formación** (= `filing_date`).
+- Annual Report: **Agente registrado nombre + dirección** (= `registered_agent_*`).
+- EIN: **Fecha de inicio del negocio** (= `filing_date`) y **nombre del responsible party** (la persona que ordena, ya capturada arriba en "Tu información").
+- Registered Agent: **agente actual** (= `registered_agent_name`) → ese servicio ya no pide extras.
+
+### Campos COMPARTIDOS (se piden UNA vez aunque varios servicios los usen)
+- `lib/service-fields.ts` exporta **`SHARED_FIELDS`** (`ein`, `ssnItin`) + helper **`sharedKeysForServices()`**. Cada servicio declara `shared: [...]` en vez de repetir el campo.
+- **EIN / Tax ID**: lo comparten annual-report, banking-resolution, business-tax-receipt, sales-tax, scorp-election, foreign-llc, business-license, dissolution, cierre-fiscal.
+- **SSN/ITIN del responsible party**: lo comparten ein, sales-tax, cierre-fiscal.
+- Cliente: sección **"Datos requeridos"** (`#co-shared-section`, `var SHARED_CFG`), valores en `intake.shared`. Admin: bloque **"Datos requeridos (compartidos)"** pre-llenado de `intake.shared` (keys `s_<k>`). No requiere cambio de endpoint (va dentro de `intake`).
+
+### Filas estructuradas (repeater)
+- Miembros (Operating Agreement), Oficiales (Annual Report) y Accionistas (S-Corp) son tipo **`repeater`** (filas con columnas: nombre/%/título/dirección/SSN según el caso) con Agregar/Quitar. Valor guardado como JSON string en `extras[svcId.fieldKey]`. Soportado en cliente y admin + impresión.
+
+### Fuente única de campos
+- El checkout del cliente **inyecta `SERVICE_FIELDS` y `SHARED_FIELDS` desde `lib/service-fields.ts`** (antes tenía copia inline duplicada que se desincronizó). Ahora cliente y admin SIEMPRE coinciden. **Para tocar campos: editar solo `lib/service-fields.ts`.**
+
 ## Pendiente
 - [ ] Persistir las ediciones del `ServicesFilingForm` (admin) de vuelta a la orden.
 - [ ] Verificar en deploy que el lookup a Turso trae los campos (probar con un número real). Turso tiene env vars en Vercel; localmente no se puede probar.

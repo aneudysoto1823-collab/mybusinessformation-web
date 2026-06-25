@@ -31,14 +31,35 @@ export interface ServiceFieldDef {
   name_en: string
   name_es: string
   fields: ServiceField[]
+  /** claves de campos COMPARTIDOS que requiere este servicio (ver SHARED_FIELDS).
+   *  Se piden UNA sola vez aunque varios servicios los necesiten. */
+  shared?: string[]
+}
+
+// Campos compartidos entre servicios: se piden una sola vez (no por servicio).
+// Ej: el EIN lo necesitan ~9 servicios; el SSN/ITIN del responsible party, 3.
+// El cliente los llena una vez; se guardan en Order.addons.intake.shared.
+export const SHARED_FIELDS: Record<string, ServiceField> = {
+  ein:     { k: 'ein',     en: 'EIN / Tax ID Number',                  es: 'EIN / Número de ID Fiscal',                  type: 'text' },
+  ssnItin: { k: 'ssnItin', en: 'Your SSN or ITIN (responsible party)', es: 'Tu SSN o ITIN (responsible party)',          type: 'text' },
+}
+
+// Unión de claves compartidas que requieren los servicios dados (sin duplicar).
+export function sharedKeysForServices(serviceIds: string[]): string[] {
+  const keys: string[] = []
+  for (const id of serviceIds) {
+    const def = SERVICE_FIELDS[id]
+    if (!def || !def.shared) continue
+    for (const k of def.shared) if (!keys.includes(k)) keys.push(k)
+  }
+  return keys
 }
 
 export const SERVICE_FIELDS: Record<string, ServiceFieldDef> = {
   // El responsible party (IRS) es la persona que ordena — su nombre ya se pide
   // arriba en "Tu información". Aquí solo pedimos el SSN/ITIN (sensible) + rol +
   // actividad, que no se piden en otro lado.
-  'ein': { name_en: 'EIN / Tax ID', name_es: 'EIN / ID Fiscal', fields: [
-    { k: 'ssnItin', en: 'Your SSN or ITIN (responsible party)', es: 'Tu SSN o ITIN (responsible party)', type: 'text' },
+  'ein': { name_en: 'EIN / Tax ID', name_es: 'EIN / ID Fiscal', shared: ['ssnItin'], fields: [
     { k: 'title', en: 'Your title / role', es: 'Tu título / rol', type: 'select', opts: ['Managing Member', 'Manager', 'Owner', 'Officer / Director'] },
     { k: 'activity', en: 'Primary business activity', es: 'Actividad principal', type: 'select', opts: ['Retail & E-Commerce', 'Real Estate', 'Restaurant / Food', 'Construction', 'Technology', 'Consulting', 'Import / Export', 'Health & Wellness', 'Other'] },
   ]},
@@ -72,8 +93,7 @@ export const SERVICE_FIELDS: Record<string, ServiceFieldDef> = {
     { k: 'plan', en: 'Plan', es: 'Plan', type: 'select', opts: ['Digital forwarding', 'Digital + physical forwarding'] },
     { k: 'forwarding', en: 'Physical forwarding address (optional)', es: 'Dirección de reenvío físico (opcional)', type: 'text' },
   ]},
-  'annual-report': { name_en: 'Annual Report', name_es: 'Declaración Anual', fields: [
-    { k: 'ein', en: 'EIN / Tax ID', es: 'EIN / ID Fiscal', type: 'text' },
+  'annual-report': { name_en: 'Annual Report', name_es: 'Declaración Anual', shared: ['ein'], fields: [
     { k: 'officers', en: 'Officers / Managers / Directors', es: 'Oficiales / Managers / Directores', type: 'repeater', cols: [
       { k: 'title', en: 'Title', es: 'Título', type: 'select', opts: ['MGR', 'MGRM', 'President', 'VP', 'Secretary', 'Treasurer', 'Director'] },
       { k: 'name', en: 'Full name', es: 'Nombre completo', type: 'text' },
@@ -85,24 +105,20 @@ export const SERVICE_FIELDS: Record<string, ServiceFieldDef> = {
     { k: 'newInfo', en: 'New / updated information', es: 'Información nueva / actualizada', type: 'textarea' },
     { k: 'authName', en: 'Authorized person name', es: 'Nombre de la persona autorizada', type: 'text' },
   ]},
-  'banking-resolution': { name_en: 'Banking Resolution', name_es: 'Resolución Bancaria', fields: [
-    { k: 'ein', en: 'EIN / Tax ID', es: 'EIN / ID Fiscal', type: 'text' },
+  'banking-resolution': { name_en: 'Banking Resolution', name_es: 'Resolución Bancaria', shared: ['ein'], fields: [
     { k: 'bankName', en: 'Bank name', es: 'Nombre del banco', type: 'text' },
     { k: 'accountType', en: 'Account type', es: 'Tipo de cuenta', type: 'select', opts: ['Business Checking', 'Business Savings', 'Both'] },
     { k: 'authName', en: 'Authorized person', es: 'Persona autorizada', type: 'text' },
   ]},
-  'business-tax-receipt': { name_en: 'Business Tax Receipt', name_es: 'Recibo de Impuesto', fields: [
-    { k: 'ein', en: 'EIN / Tax ID', es: 'EIN / ID Fiscal', type: 'text' },
+  'business-tax-receipt': { name_en: 'Business Tax Receipt', name_es: 'Recibo de Impuesto', shared: ['ein'], fields: [
     { k: 'county', en: 'Florida county', es: 'Condado de Florida', type: 'select', opts: ['Miami-Dade', 'Broward', 'Palm Beach', 'Orange', 'Hillsborough', 'Pinellas', 'Duval', 'Other'] },
     { k: 'industry', en: 'Type of business', es: 'Tipo de negocio', type: 'text' },
     { k: 'employees', en: 'Number of employees', es: 'Número de empleados', type: 'select', opts: ['0 (Owner only)', '1-5', '6-10', '11-25', '25+'] },
   ]},
-  'sales-tax-registration': { name_en: 'Sales Tax Registration', name_es: 'Registro Impuesto Ventas', fields: [
-    { k: 'ein', en: 'EIN / Tax ID', es: 'EIN / ID Fiscal', type: 'text' },
-    { k: 'startDate', en: 'Business start date', es: 'Fecha de inicio', type: 'date' },
+  'sales-tax-registration': { name_en: 'Sales Tax Registration', name_es: 'Registro Impuesto Ventas', shared: ['ein', 'ssnItin'], fields: [
+    { k: 'startDate', en: 'Date taxable sales begin', es: 'Fecha de inicio de ventas gravables', type: 'date' },
     { k: 'selling', en: 'What are you selling?', es: '¿Qué vendes?', type: 'select', opts: ['Physical products', 'Food & beverages', 'Software / digital', 'Services', 'Both products & services', 'Rentals'] },
     { k: 'where', en: 'Where will you sell?', es: '¿Dónde venderás?', type: 'select', opts: ['Online only', 'Physical location in FL', 'Both', 'Wholesale'] },
-    { k: 'ssnItin', en: 'Responsible party SSN or ITIN', es: 'SSN o ITIN del responsible party', type: 'text' },
   ]},
   'exclusive-guide': { name_en: 'Exclusive Formation Guide', name_es: 'Guía Exclusiva', fields: [
     { k: 'industry', en: 'Industry (optional)', es: 'Industria (opcional)', type: 'text' },
@@ -112,38 +128,32 @@ export const SERVICE_FIELDS: Record<string, ServiceFieldDef> = {
     { k: 'copies', en: 'Number of copies', es: 'Número de copias', type: 'select', opts: ['1', '2', '3', '5'] },
     { k: 'delivery', en: 'Delivery format', es: 'Formato de entrega', type: 'select', opts: ['Digital (PDF)', 'Physical by mail', 'Both'] },
   ]},
-  'scorp-election': { name_en: 'S-Corp Election (Form 2553)', name_es: 'Elección de S-Corp', fields: [
+  'scorp-election': { name_en: 'S-Corp Election (Form 2553)', name_es: 'Elección de S-Corp', shared: ['ein'], fields: [
     { k: 'effectiveDate', en: 'Desired effective date', es: 'Fecha efectiva deseada', type: 'date' },
-    { k: 'ein', en: 'EIN / Tax ID', es: 'EIN / ID Fiscal', type: 'text' },
     { k: 'shareholders', en: 'Shareholders / Members', es: 'Accionistas / Miembros', type: 'repeater', cols: [
       { k: 'name', en: 'Full name', es: 'Nombre completo', type: 'text' },
       { k: 'pct', en: 'Ownership %', es: '% de propiedad', type: 'text' },
       { k: 'ssnItin', en: 'SSN / ITIN', es: 'SSN / ITIN', type: 'text' },
     ]},
   ]},
-  'foreign-llc': { name_en: 'Foreign Registration', name_es: 'Registro Extranjero', fields: [
-    { k: 'ein', en: 'EIN / Tax ID', es: 'EIN / ID Fiscal', type: 'text' },
+  'foreign-llc': { name_en: 'Foreign Registration', name_es: 'Registro Extranjero', shared: ['ein'], fields: [
     { k: 'targetStates', en: 'State(s) to register in', es: 'Estado(s) donde registrar', type: 'text' },
     { k: 'reason', en: 'Reason for operating there', es: 'Motivo de operar allí', type: 'select', opts: ['Physical office / store', 'Employees there', 'Client contracts', 'Real estate', 'E-commerce fulfillment', 'Other'] },
     { k: 'targetAddress', en: 'Address in target state (if any)', es: 'Dirección en el estado destino (si aplica)', type: 'text' },
   ]},
-  'business-license': { name_en: 'Business License', name_es: 'Licencia de Negocios', fields: [
-    { k: 'ein', en: 'EIN / Tax ID', es: 'EIN / ID Fiscal', type: 'text' },
+  'business-license': { name_en: 'Business License', name_es: 'Licencia de Negocios', shared: ['ein'], fields: [
     { k: 'county', en: 'Florida county', es: 'Condado de Florida', type: 'select', opts: ['Miami-Dade', 'Broward', 'Palm Beach', 'Orange', 'Hillsborough', 'Pinellas', 'Duval', 'Other'] },
     { k: 'industry', en: 'Primary industry', es: 'Industria principal', type: 'text' },
     { k: 'description', en: 'Describe your business activities', es: 'Describe las actividades de tu negocio', type: 'textarea' },
   ]},
-  'dissolution': { name_en: 'Business Dissolution', name_es: 'Disolución del Negocio', fields: [
-    { k: 'ein', en: 'EIN / Tax ID', es: 'EIN / ID Fiscal', type: 'text' },
+  'dissolution': { name_en: 'Business Dissolution', name_es: 'Disolución del Negocio', shared: ['ein'], fields: [
     { k: 'reason', en: 'Reason for dissolution', es: 'Motivo de la disolución', type: 'select', opts: ['Business permanently closed', 'Business sold', 'Changed entity type', 'Partnership dissolved', 'Retirement', 'Other'] },
     { k: 'approvedDate', en: 'Date dissolution was approved', es: 'Fecha en que se aprobó', type: 'date' },
     { k: 'authName', en: 'Authorized person', es: 'Persona autorizada', type: 'text' },
   ]},
-  'cierre-fiscal': { name_en: 'Tax Account Closure', name_es: 'Cierre de Cuentas Fiscales', fields: [
-    { k: 'ein', en: 'EIN / Tax ID', es: 'EIN / ID Fiscal', type: 'text' },
+  'cierre-fiscal': { name_en: 'Tax Account Closure', name_es: 'Cierre de Cuentas Fiscales', shared: ['ein', 'ssnItin'], fields: [
     { k: 'reason', en: 'Reason for closure', es: 'Motivo del cierre', type: 'select', opts: ['Business permanently closed', 'Business sold', 'Changed entity type', 'No longer operating in FL', 'Other'] },
     { k: 'lastActivity', en: 'Last business activity date', es: 'Fecha de última actividad', type: 'date' },
-    { k: 'ssnItin', en: 'Responsible party SSN or ITIN', es: 'SSN o ITIN del responsible party', type: 'text' },
   ]},
   'certified-copy': { name_en: 'Certified Copy', name_es: 'Copia Certificada', fields: [
     { k: 'copies', en: 'Number of copies', es: 'Número de copias', type: 'select', opts: ['1', '2', '3', '5'] },
