@@ -35,7 +35,6 @@ export interface ServiceFieldDef {
 
 export const SERVICE_FIELDS: Record<string, ServiceFieldDef> = {
   'ein': { name_en: 'EIN / Tax ID', name_es: 'EIN / ID Fiscal', fields: [
-    { k: 'startDate', en: 'Business start / effective date', es: 'Fecha de inicio del negocio', type: 'date' },
     { k: 'respName', en: 'Responsible party full name', es: 'Nombre completo del responsible party', type: 'text' },
     { k: 'ssnItin', en: 'SSN or ITIN of responsible party', es: 'SSN o ITIN del responsible party', type: 'text' },
     { k: 'title', en: 'Title / role', es: 'Título / rol', type: 'select', opts: ['Managing Member', 'Manager', 'Owner', 'Officer / Director'] },
@@ -59,9 +58,9 @@ export const SERVICE_FIELDS: Record<string, ServiceFieldDef> = {
     ]},
     { k: 'fiscalYear', en: 'Fiscal year end', es: 'Fin de año fiscal', type: 'select', opts: ['December 31', 'March 31', 'June 30', 'September 30'] },
   ]},
-  'registered-agent': { name_en: 'Registered Agent', name_es: 'Agente Registrado', fields: [
-    { k: 'currentAgent', en: 'Current registered agent (if replacing)', es: 'Agente registrado actual (si lo reemplazas)', type: 'text' },
-  ]},
+  // El agente registrado actual está en Turso (registered_agent_name) — no se
+  // le pide al cliente. El equipo lo ve autollenado en el bloque empresa.
+  'registered-agent': { name_en: 'Registered Agent', name_es: 'Agente Registrado', fields: [] },
   'dba': { name_en: 'DBA / Fictitious Name', name_es: 'DBA / Nombre Ficticio', fields: [
     { k: 'desiredName', en: 'Desired fictitious name (DBA)', es: 'Nombre ficticio deseado (DBA)', type: 'text' },
     { k: 'altName', en: 'Alternative name (optional)', es: 'Nombre alternativo (opcional)', type: 'text' },
