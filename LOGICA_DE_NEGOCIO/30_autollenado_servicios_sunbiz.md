@@ -9,9 +9,11 @@
 - **`/admin/orders/[id]` → `ServicesFilingForm.tsx`** — cuando `package='services'`: bloque empresa autollenado de Turso + contacto + secciones SOLO de los servicios pedidos (prellenados con lo que aportó el cliente). Editable + imprimible. **Ediciones aún NO se persisten** (hoja de trabajo).
 - **`lib/service-fields.ts`** — definición compartida de campos por servicio (mismas keys que `SVC_EXTRAS` del checkout del cliente).
 
+## ✅ Implementado (lado cliente) — 2026-06-25
+- `/servicios/checkout` ahora **arranca por el número de registro** (card prominente arriba). Al buscar → `/api/sunbiz/company` (público, Turso) autollena nombre/tipo/dirección y los **oculta** (confirmación read-only "Encontramos tu empresa" + link Editar). Si no se encuentra → se revelan campos manuales. **Regla: NO se le pide al cliente nada que esté en Turso.** Solo teclea nombre/email/teléfono/firma + lo específico/sensible por servicio.
+
 ## Pendiente
-- [ ] Lado cliente: autollenar la empresa en `/servicios/checkout` con el número (hoy el cliente teclea el bloque empresa; el autollenado vive solo en admin).
-- [ ] Persistir las ediciones del `ServicesFilingForm` de vuelta a la orden.
+- [ ] Persistir las ediciones del `ServicesFilingForm` (admin) de vuelta a la orden.
 - [ ] Verificar en deploy que el lookup a Turso trae los campos (probar con un número real). Turso tiene env vars en Vercel; localmente no se puede probar.
 - [ ] Confirmar nombre exacto de columnas en la tabla Turso (asumido `document_number`, `entity_name`, etc. según doc 26).
 
