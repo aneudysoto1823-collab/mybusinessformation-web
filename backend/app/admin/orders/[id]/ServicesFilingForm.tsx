@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { SERVICE_FIELDS } from '@/lib/service-fields'
+import { SERVICE_FIELDS, type RepeaterCol } from '@/lib/service-fields'
 
 // Formulario dinámico autollenado para órdenes de servicios à la carte.
 // - Lee los servicios + datos capturados de Order.addons (intake).
@@ -91,6 +91,40 @@ export default function ServicesFilingForm({ addons, firstName, lastName, email,
 
   const set = (k: string, val: string) => setVals(prev => ({ ...prev, [k]: val }))
 
+  // Render de un campo 'repeater' (filas estructuradas). El valor se guarda como
+  // JSON string en vals[id] (array de objetos {colKey: valor}).
+  function renderRepeater(id: string, cols: RepeaterCol[]) {
+    let rows: Record<string, string>[] = []
+    try { const p = JSON.parse(vals[id] || '[]'); if (Array.isArray(p)) rows = p } catch { rows = [] }
+    const update = (next: Record<string, string>[]) => set(id, JSON.stringify(next))
+    const setCell = (i: number, ck: string, v: string) => {
+      const n = rows.map(r => ({ ...r })); n[i] = { ...n[i], [ck]: v }; update(n)
+    }
+    const addRow = () => update([...rows, {}])
+    const delRow = (i: number) => update(rows.filter((_, idx) => idx !== i))
+    const display = rows.length ? rows : [{}]
+    return (
+      <div className="sff-rep">
+        {display.map((row, i) => (
+          <div className="sff-rep-row" key={i}>
+            {cols.map(col => (
+              col.type === 'select' ? (
+                <select key={col.k} value={row[col.k] || ''} onChange={e => setCell(i, col.k, e.target.value)}>
+                  <option value=""></option>
+                  {(col.opts || []).map(o => <option key={o} value={o}>{o}</option>)}
+                </select>
+              ) : (
+                <input key={col.k} placeholder={col.es} value={row[col.k] || ''} onChange={e => setCell(i, col.k, e.target.value)} />
+              )
+            ))}
+            <button type="button" className="sff-rep-del" onClick={() => delRow(i)}>×</button>
+          </div>
+        ))}
+        <button type="button" className="sff-rep-add" onClick={addRow}>+ Agregar</button>
+      </div>
+    )
+  }
+
   // Autollenar empresa desde Turso al montar (si hay número de registro)
   async function doLookup(doc: string) {
     const d = doc.trim()
@@ -136,7 +170,21 @@ export default function ServicesFilingForm({ addons, firstName, lastName, email,
     const svcBlocks = services.map(svcId => {
       const def = SERVICE_FIELDS[svcId]
       const title = def ? def.name_es : svcId
-      const rows = def ? def.fields.map(f => row(f.es, vals['x_' + svcId + '_' + f.k])).join('') : ''
+      const rows = def ? def.fields.map(f => {
+        const v = vals['x_' + svcId + '_' + f.k]
+        if (f.type === 'repeater') {
+          let arr: Record<string, string>[] = []
+          try { const p = JSON.parse(v || '[]'); if (Array.isArray(p)) arr = p } catch { /* noop */ }
+          if (!arr.length) return ''
+          const items = arr
+            .map(r => (f.cols || []).map(c => r[c.k]).filter(Boolean).join(' · '))
+            .filter(Boolean)
+            .map(x => `<div>• ${x.replace(/</g, '&lt;')}</div>`)
+            .join('')
+          return items ? `<tr><td class="l">${f.es}</td><td class="v">${items}</td></tr>` : ''
+        }
+        return row(f.es, v)
+      }).join('') : ''
       return `<h3>${title}</h3><table>${rows || '<tr><td>—</td></tr>'}</table>`
     }).join('')
     win.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Orden de servicios — ${vals.c_name}</title>
@@ -171,6 +219,12 @@ export default function ServicesFilingForm({ addons, firstName, lastName, email,
         .sff-field label{ font-size:11.5px; font-weight:600; color:#64748b; }
         .sff-field input, .sff-field select, .sff-field textarea{ padding:8px 10px; border:1.5px solid #e5e7eb; border-radius:7px; font-size:13px; font-family:inherit; color:#1e293b; background:#fff; width:100%; }
         .sff-field textarea{ min-height:54px; resize:vertical; }
+        .sff-rep{ display:flex; flex-direction:column; gap:7px; }
+        .sff-rep-row{ display:flex; gap:6px; align-items:center; }
+        .sff-rep-row input, .sff-rep-row select{ flex:1; min-width:0; padding:7px 9px; border:1.5px solid #e5e7eb; border-radius:7px; font-size:12.5px; font-family:inherit; color:#1e293b; background:#fff; }
+        .sff-rep-del{ flex:0 0 auto; width:26px; height:26px; border:1.5px solid #e5e7eb; background:#fff; border-radius:6px; color:#94a3b8; cursor:pointer; font-size:14px; line-height:1; }
+        .sff-rep-del:hover{ background:#fee2e2; color:#dc2626; }
+        .sff-rep-add{ align-self:flex-start; background:#ede9fe; color:#7c3aed; border:1.5px dashed #c4b5fd; padding:6px 12px; border-radius:7px; font-size:12px; font-weight:600; cursor:pointer; font-family:inherit; }
         .sff-print{ background:#1C2E44; color:#fff; border:none; padding:11px 20px; border-radius:9px; font-weight:700; font-size:13px; cursor:pointer; font-family:inherit; }
         @media(max-width:640px){ .sff-grid{ grid-template-columns:1fr; } }
       `}</style>
@@ -217,11 +271,13 @@ export default function ServicesFilingForm({ addons, firstName, lastName, email,
               <div className="sff-grid">
                 {def.fields.map(f => {
                   const id = 'x_' + svcId + '_' + f.k
-                  const full = f.type === 'textarea'
+                  const full = f.type === 'textarea' || f.type === 'repeater'
                   return (
                     <div className={`sff-field${full ? ' full' : ''}`} key={id}>
                       <label>{f.es}</label>
-                      {f.type === 'select' ? (
+                      {f.type === 'repeater' ? (
+                        renderRepeater(id, f.cols || [])
+                      ) : f.type === 'select' ? (
                         <select value={vals[id] || ''} onChange={e => set(id, e.target.value)}>
                           <option value=""></option>
                           {(f.opts || []).map(o => <option key={o} value={o}>{o}</option>)}

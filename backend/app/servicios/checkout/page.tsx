@@ -10,6 +10,8 @@
 
 export const dynamic = 'force-dynamic'
 
+import { SERVICE_FIELDS } from '@/lib/service-fields'
+
 export default function ServiciosCheckoutPage() {
   const PK = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || ''
 
@@ -47,6 +49,13 @@ body{font-family:var(--font-sans),'Plus Jakarta Sans',system-ui,sans-serif;color
 .co-input,.co-select,.co-textarea{border:1.5px solid var(--gray200);border-radius:9px;padding:11px 13px;font-size:.9rem;font-family:inherit;color:var(--gray800);background:#fff;width:100%}
 .co-input:focus,.co-select:focus,.co-textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.12)}
 .co-textarea{resize:vertical;min-height:64px}
+.rep-host{display:flex;flex-direction:column;gap:8px}
+.rep-row{display:flex;gap:8px;align-items:center}
+.rep-row .rep-cell{flex:1;min-width:0;padding:9px 11px;font-size:.86rem}
+.rep-del{flex:0 0 auto;width:30px;height:30px;border:1.5px solid var(--gray200);background:#fff;border-radius:7px;color:var(--gray400);font-size:1rem;cursor:pointer;line-height:1}
+.rep-del:hover{background:#fee2e2;color:#dc2626;border-color:#fecaca}
+.co-rep-add{align-self:flex-start;margin-top:8px;background:var(--blue-light);color:var(--blue);border:1.5px dashed var(--blue);padding:8px 16px;border-radius:8px;font-size:.82rem;font-weight:600;cursor:pointer;font-family:inherit}
+.co-rep-add:hover{background:#dbeafe}
 .co-hint{font-size:.72rem;color:var(--gray400)}
 .co-status{font-size:.78rem;min-height:16px;margin-top:8px}
 .co-lookup-row{display:flex;gap:10px;align-items:stretch}
@@ -126,7 +135,6 @@ body{font-family:var(--font-sans),'Plus Jakarta Sans',system-ui,sans-serif;color
     <!-- Card 1: número de registro PRIMERO -->
     <div class="co-card">
       <div class="co-card-title" data-en="Start here: your company" data-es="Empieza aquí: tu empresa">Empieza aquí: tu empresa</div>
-      <div class="co-card-svc" data-en="Enter your Florida registration number — we fill in your company details automatically" data-es="Ingresa tu número de registro de Florida — autollenamos los datos de tu empresa">Ingresa tu número de registro de Florida — autollenamos los datos de tu empresa</div>
       <div class="co-lookup-row">
         <input class="co-input" id="f-flDoc" placeholder="L23000123456 / P23000012345"/>
         <button class="co-lookup-btn" id="co-lookup-btn" onclick="coLookupCompany()"><span data-en="Search" data-es="Buscar">Buscar</span></button>
@@ -213,113 +221,7 @@ var coLang = 'es';
 
 // Catálogo de extras por servicio (campos específicos, además del bloque común).
 // type: text | tel | email | date | select | textarea. opts solo para select.
-var SVC_EXTRAS = {
-  'ein': { name_en:'EIN / Tax ID', name_es:'EIN / ID Fiscal', fields:[
-    {k:'startDate', en:'Business start / effective date', es:'Fecha de inicio del negocio', type:'date'},
-    {k:'respName', en:'Responsible party full name', es:'Nombre completo del responsible party', type:'text'},
-    {k:'ssnItin', en:'SSN or ITIN of responsible party', es:'SSN o ITIN del responsible party', type:'text'},
-    {k:'title', en:'Title / role', es:'Título / rol', type:'select', opts:['Managing Member','Manager','Owner','Officer / Director']},
-    {k:'activity', en:'Primary business activity', es:'Actividad principal', type:'select', opts:['Retail & E-Commerce','Real Estate','Restaurant / Food','Construction','Technology','Consulting','Import / Export','Health & Wellness','Other']}
-  ]},
-  'itin': { name_en:'ITIN Application', name_es:'Solicitud de ITIN', fields:[
-    {k:'applName', en:'Applicant full name (as on passport)', es:'Nombre del solicitante (como en pasaporte)', type:'text'},
-    {k:'dob', en:'Date of birth', es:'Fecha de nacimiento', type:'date'},
-    {k:'countryBirth', en:'Country of birth', es:'País de nacimiento', type:'text'},
-    {k:'countryCitizen', en:'Country of citizenship', es:'País de ciudadanía', type:'text'},
-    {k:'reason', en:'Reason for ITIN', es:'Motivo del ITIN', type:'select', opts:['Non-resident filing US tax return','Spouse/dependent of US citizen/resident','Florida business owner requiring tax filing','Other']},
-    {k:'usMailing', en:'US mailing address (for IRS letter)', es:'Dirección postal en EE.UU. (carta del IRS)', type:'text'},
-    {k:'idDoc', en:'Primary ID document', es:'Documento de identidad principal', type:'select', opts:['Passport','Foreign national ID + birth certificate','Visa + passport']}
-  ]},
-  'operating-agreement': { name_en:'Operating Agreement', name_es:'Acuerdo Operativo', fields:[
-    {k:'formationDate', en:'Date of formation', es:'Fecha de formación', type:'date'},
-    {k:'mgmt', en:'Management type', es:'Tipo de gestión', type:'select', opts:['Member-Managed','Manager-Managed']},
-    {k:'members', en:'Members (name, ownership %, address — one per line)', es:'Miembros (nombre, % de propiedad, dirección — uno por línea)', type:'textarea'},
-    {k:'fiscalYear', en:'Fiscal year end', es:'Fin de año fiscal', type:'select', opts:['December 31','March 31','June 30','September 30']}
-  ]},
-  'registered-agent': { name_en:'Registered Agent', name_es:'Agente Registrado', fields:[
-    {k:'currentAgent', en:'Current registered agent (if replacing)', es:'Agente registrado actual (si lo reemplazas)', type:'text'}
-  ]},
-  'dba': { name_en:'DBA / Fictitious Name', name_es:'DBA / Nombre Ficticio', fields:[
-    {k:'desiredName', en:'Desired fictitious name (DBA)', es:'Nombre ficticio deseado (DBA)', type:'text'},
-    {k:'altName', en:'Alternative name (optional)', es:'Nombre alternativo (opcional)', type:'text'},
-    {k:'reason', en:'Why a DBA?', es:'¿Por qué un DBA?', type:'select', opts:['Brand / marketing name','Multiple business lines','Website / domain','Different county','Other']}
-  ]},
-  'virtual-address': { name_en:'Virtual Mailing Address', name_es:'Dirección Virtual', fields:[
-    {k:'plan', en:'Plan', es:'Plan', type:'select', opts:['Digital forwarding','Digital + physical forwarding']},
-    {k:'forwarding', en:'Physical forwarding address (optional)', es:'Dirección de reenvío físico (opcional)', type:'text'}
-  ]},
-  'annual-report': { name_en:'Annual Report', name_es:'Declaración Anual', fields:[
-    {k:'ein', en:'EIN / Tax ID', es:'EIN / ID Fiscal', type:'text'},
-    {k:'agentName', en:'Registered agent name', es:'Nombre del agente registrado', type:'text'},
-    {k:'agentAddress', en:'Registered agent FL address', es:'Dirección FL del agente registrado', type:'text'},
-    {k:'officers', en:'Officers / managers (title, name, address — one per line)', es:'Oficiales / managers (título, nombre, dirección — uno por línea)', type:'textarea'}
-  ]},
-  'amendment': { name_en:'Articles of Amendment', name_es:'Artículos de Enmienda', fields:[
-    {k:'changes', en:'What are you changing? (name, address, agent, officers...)', es:'¿Qué vas a cambiar? (nombre, dirección, agente, oficiales...)', type:'textarea'},
-    {k:'newInfo', en:'New / updated information', es:'Información nueva / actualizada', type:'textarea'},
-    {k:'authName', en:'Authorized person name', es:'Nombre de la persona autorizada', type:'text'}
-  ]},
-  'banking-resolution': { name_en:'Banking Resolution', name_es:'Resolución Bancaria', fields:[
-    {k:'ein', en:'EIN / Tax ID', es:'EIN / ID Fiscal', type:'text'},
-    {k:'bankName', en:'Bank name', es:'Nombre del banco', type:'text'},
-    {k:'accountType', en:'Account type', es:'Tipo de cuenta', type:'select', opts:['Business Checking','Business Savings','Both']},
-    {k:'authName', en:'Authorized person', es:'Persona autorizada', type:'text'}
-  ]},
-  'business-tax-receipt': { name_en:'Business Tax Receipt', name_es:'Recibo de Impuesto', fields:[
-    {k:'ein', en:'EIN / Tax ID', es:'EIN / ID Fiscal', type:'text'},
-    {k:'county', en:'Florida county', es:'Condado de Florida', type:'select', opts:['Miami-Dade','Broward','Palm Beach','Orange','Hillsborough','Pinellas','Duval','Other']},
-    {k:'industry', en:'Type of business', es:'Tipo de negocio', type:'text'},
-    {k:'employees', en:'Number of employees', es:'Número de empleados', type:'select', opts:['0 (Owner only)','1-5','6-10','11-25','25+']}
-  ]},
-  'sales-tax-registration': { name_en:'Sales Tax Registration', name_es:'Registro Impuesto Ventas', fields:[
-    {k:'ein', en:'EIN / Tax ID', es:'EIN / ID Fiscal', type:'text'},
-    {k:'startDate', en:'Business start date', es:'Fecha de inicio', type:'date'},
-    {k:'selling', en:'What are you selling?', es:'¿Qué vendes?', type:'select', opts:['Physical products','Food & beverages','Software / digital','Services','Both products & services','Rentals']},
-    {k:'where', en:'Where will you sell?', es:'¿Dónde venderás?', type:'select', opts:['Online only','Physical location in FL','Both','Wholesale']},
-    {k:'ssnItin', en:'Responsible party SSN or ITIN', es:'SSN o ITIN del responsible party', type:'text'}
-  ]},
-  'exclusive-guide': { name_en:'Exclusive Formation Guide', name_es:'Guía Exclusiva', fields:[
-    {k:'industry', en:'Industry (optional)', es:'Industria (opcional)', type:'text'}
-  ]},
-  'good-standing': { name_en:'Certificate of Good Standing', name_es:'Certificado de Buena Reputación', fields:[
-    {k:'purpose', en:'Purpose of certificate', es:'Propósito del certificado', type:'select', opts:['Bank account','Loan / financing','Contract / partnership','Government / licensing','Investor','Apostille / international','Other']},
-    {k:'copies', en:'Number of copies', es:'Número de copias', type:'select', opts:['1','2','3','5']},
-    {k:'delivery', en:'Delivery format', es:'Formato de entrega', type:'select', opts:['Digital (PDF)','Physical by mail','Both']}
-  ]},
-  'scorp-election': { name_en:'S-Corp Election (Form 2553)', name_es:'Elección de S-Corp', fields:[
-    {k:'effectiveDate', en:'Desired effective date', es:'Fecha efectiva deseada', type:'date'},
-    {k:'ein', en:'EIN / Tax ID', es:'EIN / ID Fiscal', type:'text'},
-    {k:'shareholders', en:'Shareholders / members (name, %, SSN/ITIN — one per line)', es:'Accionistas / miembros (nombre, %, SSN/ITIN — uno por línea)', type:'textarea'}
-  ]},
-  'foreign-llc': { name_en:'Foreign Registration', name_es:'Registro Extranjero', fields:[
-    {k:'ein', en:'EIN / Tax ID', es:'EIN / ID Fiscal', type:'text'},
-    {k:'targetStates', en:'State(s) to register in', es:'Estado(s) donde registrar', type:'text'},
-    {k:'reason', en:'Reason for operating there', es:'Motivo de operar allí', type:'select', opts:['Physical office / store','Employees there','Client contracts','Real estate','E-commerce fulfillment','Other']},
-    {k:'targetAddress', en:'Address in target state (if any)', es:'Dirección en el estado destino (si aplica)', type:'text'}
-  ]},
-  'business-license': { name_en:'Business License', name_es:'Licencia de Negocios', fields:[
-    {k:'ein', en:'EIN / Tax ID', es:'EIN / ID Fiscal', type:'text'},
-    {k:'county', en:'Florida county', es:'Condado de Florida', type:'select', opts:['Miami-Dade','Broward','Palm Beach','Orange','Hillsborough','Pinellas','Duval','Other']},
-    {k:'industry', en:'Primary industry', es:'Industria principal', type:'text'},
-    {k:'description', en:'Describe your business activities', es:'Describe las actividades de tu negocio', type:'textarea'}
-  ]},
-  'dissolution': { name_en:'Business Dissolution', name_es:'Disolución del Negocio', fields:[
-    {k:'ein', en:'EIN / Tax ID', es:'EIN / ID Fiscal', type:'text'},
-    {k:'reason', en:'Reason for dissolution', es:'Motivo de la disolución', type:'select', opts:['Business permanently closed','Business sold','Changed entity type','Partnership dissolved','Retirement','Other']},
-    {k:'approvedDate', en:'Date dissolution was approved', es:'Fecha en que se aprobó', type:'date'},
-    {k:'authName', en:'Authorized person', es:'Persona autorizada', type:'text'}
-  ]},
-  'cierre-fiscal': { name_en:'Tax Account Closure', name_es:'Cierre de Cuentas Fiscales', fields:[
-    {k:'ein', en:'EIN / Tax ID', es:'EIN / ID Fiscal', type:'text'},
-    {k:'reason', en:'Reason for closure', es:'Motivo del cierre', type:'select', opts:['Business permanently closed','Business sold','Changed entity type','No longer operating in FL','Other']},
-    {k:'lastActivity', en:'Last business activity date', es:'Fecha de última actividad', type:'date'},
-    {k:'ssnItin', en:'Responsible party SSN or ITIN', es:'SSN o ITIN del responsible party', type:'text'}
-  ]},
-  'certified-copy': { name_en:'Certified Copy', name_es:'Copia Certificada', fields:[
-    {k:'copies', en:'Number of copies', es:'Número de copias', type:'select', opts:['1','2','3','5']},
-    {k:'delivery', en:'Delivery format', es:'Delivery format', type:'select', opts:['Digital (PDF)','Physical by mail','Both']}
-  ]}
-};
+var SVC_EXTRAS = ${JSON.stringify(SERVICE_FIELDS)};
 
 var cart = [];
 try { cart = JSON.parse(localStorage.getItem('flbc_svc_cart')||'[]'); if(!Array.isArray(cart)) cart=[]; } catch(e){ cart=[]; }
@@ -339,8 +241,28 @@ function coSetLang(l){
   if($('co-intake').style.display!=='none'){ var vals=coCollectExtras(); renderSvcSections(); restoreExtras(vals); }
 }
 
+function repRowHtml(svcId, f){
+  var isEs=coIsEs();
+  var cells=(f.cols||[]).map(function(col){
+    var lbl=isEs?col.es:col.en;
+    if(col.type==='select'){ return '<select class="co-select rep-cell" data-col="'+col.k+'"><option value="">'+lbl+'</option>'+(col.opts||[]).map(function(o){return '<option>'+o+'</option>';}).join('')+'</select>'; }
+    return '<input class="co-input rep-cell" data-col="'+col.k+'" placeholder="'+lbl+'"/>';
+  }).join('');
+  return '<div class="rep-row">'+cells+'<button type="button" class="rep-del" title="Quitar" onclick="this.parentNode.remove()">&#215;</button></div>';
+}
+function coAddRepRow(svcId, fk){
+  var host=document.getElementById('rep-'+svcId+'-'+fk); if(!host) return;
+  var def=SVC_EXTRAS[svcId]; if(!def) return;
+  var f=null; def.fields.forEach(function(x){ if(x.k===fk) f=x; }); if(!f) return;
+  host.insertAdjacentHTML('beforeend', repRowHtml(svcId,f));
+}
 function fieldHtml(svcId, f){
   var isEs=coIsEs(); var lbl=isEs?f.es:f.en; var id='x-'+svcId+'-'+f.k;
+  if(f.type==='repeater'){
+    return '<div class="co-field full"><label class="co-label">'+lbl+'</label>'
+      +'<div class="rep-host" id="rep-'+svcId+'-'+f.k+'">'+repRowHtml(svcId,f)+'</div>'
+      +'<button type="button" class="co-rep-add" onclick="coAddRepRow(\'' + svcId + '\',\'' + f.k + '\')">+ '+(isEs?'Agregar otro':'Add another')+'</button></div>';
+  }
   var full = (f.type==='textarea')?' full':'';
   var inner='';
   if(f.type==='select'){
@@ -375,12 +297,40 @@ function coCollectExtras(){
   var out={};
   cart.forEach(function(svcId){
     var def=SVC_EXTRAS[svcId]; if(!def||!def.fields) return;
-    def.fields.forEach(function(f){ var el=$('x-'+svcId+'-'+f.k); if(el) out[svcId+'.'+f.k]=el.value; });
+    def.fields.forEach(function(f){
+      if(f.type==='repeater'){
+        var host=document.getElementById('rep-'+svcId+'-'+f.k); var rows=[];
+        if(host){ host.querySelectorAll('.rep-row').forEach(function(r){
+          var obj={}, any=false;
+          r.querySelectorAll('.rep-cell').forEach(function(c){ obj[c.getAttribute('data-col')]=c.value; if(c.value) any=true; });
+          if(any) rows.push(obj);
+        }); }
+        out[svcId+'.'+f.k]=JSON.stringify(rows);
+      } else {
+        var el=$('x-'+svcId+'-'+f.k); if(el) out[svcId+'.'+f.k]=el.value;
+      }
+    });
   });
   return out;
 }
 function restoreExtras(vals){
-  Object.keys(vals).forEach(function(key){ var parts=key.split('.'); var el=$('x-'+parts[0]+'-'+parts.slice(1).join('.')); if(el) el.value=vals[key]; });
+  Object.keys(vals).forEach(function(key){
+    var parts=key.split('.'); var svcId=parts[0]; var fk=parts.slice(1).join('.');
+    var def=SVC_EXTRAS[svcId]; var f=null; if(def&&def.fields) def.fields.forEach(function(x){ if(x.k===fk) f=x; });
+    if(f && f.type==='repeater'){
+      var host=document.getElementById('rep-'+svcId+'-'+fk); if(!host) return;
+      var rows=[]; try{ rows=JSON.parse(vals[key]||'[]'); }catch(e){ rows=[]; }
+      host.innerHTML='';
+      if(!rows.length){ host.insertAdjacentHTML('beforeend', repRowHtml(svcId,f)); return; }
+      rows.forEach(function(row){
+        host.insertAdjacentHTML('beforeend', repRowHtml(svcId,f));
+        var rowEl=host.lastElementChild;
+        rowEl.querySelectorAll('.rep-cell').forEach(function(c){ var k=c.getAttribute('data-col'); if(row[k]!=null) c.value=row[k]; });
+      });
+    } else {
+      var el=$('x-'+svcId+'-'+fk); if(el) el.value=vals[key];
+    }
+  });
 }
 
 function coRevealManual(){ $('co-company-card').style.display=''; var mt=$('co-manual-toggle'); if(mt) mt.style.display='none'; }

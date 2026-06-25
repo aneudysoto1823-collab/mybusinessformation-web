@@ -6,7 +6,16 @@
 //  - el formulario autollenado del admin (ServicesFilingForm.tsx), que los lee.
 // Si cambian las keys aquí, mantenerlas sincronizadas con el checkout.
 
-export type FieldType = 'text' | 'tel' | 'email' | 'date' | 'select' | 'textarea'
+export type FieldType = 'text' | 'tel' | 'email' | 'date' | 'select' | 'textarea' | 'repeater'
+
+// Sub-columna de un campo 'repeater' (filas estructuradas: miembros, oficiales…)
+export interface RepeaterCol {
+  k: string
+  en: string
+  es: string
+  type: 'text' | 'select'
+  opts?: string[]
+}
 
 export interface ServiceField {
   k: string
@@ -14,6 +23,8 @@ export interface ServiceField {
   es: string
   type: FieldType
   opts?: string[]
+  /** solo para type:'repeater' — columnas de cada fila */
+  cols?: RepeaterCol[]
 }
 
 export interface ServiceFieldDef {
@@ -40,9 +51,12 @@ export const SERVICE_FIELDS: Record<string, ServiceFieldDef> = {
     { k: 'idDoc', en: 'Primary ID document', es: 'Documento de identidad principal', type: 'select', opts: ['Passport', 'Foreign national ID + birth certificate', 'Visa + passport'] },
   ]},
   'operating-agreement': { name_en: 'Operating Agreement', name_es: 'Acuerdo Operativo', fields: [
-    { k: 'formationDate', en: 'Date of formation', es: 'Fecha de formación', type: 'date' },
     { k: 'mgmt', en: 'Management type', es: 'Tipo de gestión', type: 'select', opts: ['Member-Managed', 'Manager-Managed'] },
-    { k: 'members', en: 'Members (name, ownership %, address — one per line)', es: 'Miembros (nombre, % de propiedad, dirección — uno por línea)', type: 'textarea' },
+    { k: 'members', en: 'Members / Owners', es: 'Miembros / Propietarios', type: 'repeater', cols: [
+      { k: 'name', en: 'Full legal name', es: 'Nombre legal completo', type: 'text' },
+      { k: 'pct', en: 'Ownership %', es: '% de propiedad', type: 'text' },
+      { k: 'address', en: 'Address', es: 'Dirección', type: 'text' },
+    ]},
     { k: 'fiscalYear', en: 'Fiscal year end', es: 'Fin de año fiscal', type: 'select', opts: ['December 31', 'March 31', 'June 30', 'September 30'] },
   ]},
   'registered-agent': { name_en: 'Registered Agent', name_es: 'Agente Registrado', fields: [
@@ -59,9 +73,11 @@ export const SERVICE_FIELDS: Record<string, ServiceFieldDef> = {
   ]},
   'annual-report': { name_en: 'Annual Report', name_es: 'Declaración Anual', fields: [
     { k: 'ein', en: 'EIN / Tax ID', es: 'EIN / ID Fiscal', type: 'text' },
-    { k: 'agentName', en: 'Registered agent name', es: 'Nombre del agente registrado', type: 'text' },
-    { k: 'agentAddress', en: 'Registered agent FL address', es: 'Dirección FL del agente registrado', type: 'text' },
-    { k: 'officers', en: 'Officers / managers (title, name, address — one per line)', es: 'Oficiales / managers (título, nombre, dirección — uno por línea)', type: 'textarea' },
+    { k: 'officers', en: 'Officers / Managers / Directors', es: 'Oficiales / Managers / Directores', type: 'repeater', cols: [
+      { k: 'title', en: 'Title', es: 'Título', type: 'select', opts: ['MGR', 'MGRM', 'President', 'VP', 'Secretary', 'Treasurer', 'Director'] },
+      { k: 'name', en: 'Full name', es: 'Nombre completo', type: 'text' },
+      { k: 'address', en: 'Address', es: 'Dirección', type: 'text' },
+    ]},
   ]},
   'amendment': { name_en: 'Articles of Amendment', name_es: 'Artículos de Enmienda', fields: [
     { k: 'changes', en: 'What are you changing? (name, address, agent, officers...)', es: '¿Qué vas a cambiar? (nombre, dirección, agente, oficiales...)', type: 'textarea' },
@@ -98,7 +114,11 @@ export const SERVICE_FIELDS: Record<string, ServiceFieldDef> = {
   'scorp-election': { name_en: 'S-Corp Election (Form 2553)', name_es: 'Elección de S-Corp', fields: [
     { k: 'effectiveDate', en: 'Desired effective date', es: 'Fecha efectiva deseada', type: 'date' },
     { k: 'ein', en: 'EIN / Tax ID', es: 'EIN / ID Fiscal', type: 'text' },
-    { k: 'shareholders', en: 'Shareholders / members (name, %, SSN/ITIN — one per line)', es: 'Accionistas / miembros (nombre, %, SSN/ITIN — uno por línea)', type: 'textarea' },
+    { k: 'shareholders', en: 'Shareholders / Members', es: 'Accionistas / Miembros', type: 'repeater', cols: [
+      { k: 'name', en: 'Full name', es: 'Nombre completo', type: 'text' },
+      { k: 'pct', en: 'Ownership %', es: '% de propiedad', type: 'text' },
+      { k: 'ssnItin', en: 'SSN / ITIN', es: 'SSN / ITIN', type: 'text' },
+    ]},
   ]},
   'foreign-llc': { name_en: 'Foreign Registration', name_es: 'Registro Extranjero', fields: [
     { k: 'ein', en: 'EIN / Tax ID', es: 'EIN / ID Fiscal', type: 'text' },
