@@ -36,9 +36,17 @@ export async function GET(request: NextRequest) {
     if (!company) {
       return NextResponse.json({ found: false }, { status: 404 })
     }
+    // status en Turso es un código de 1 letra ('A' = ACTIVE). Lo hacemos legible.
+    const STATUS_LABELS: Record<string, string> = { A: 'ACTIVE', I: 'INACTIVE', D: 'DISSOLVED' }
+    const statusLabel = company.status ? (STATUS_LABELS[company.status.toUpperCase()] || company.status) : null
+
     return NextResponse.json({
       found: true,
-      company: { ...company, entity_type_normalized: normalizeType(company.entity_type) },
+      company: {
+        ...company,
+        status: statusLabel,
+        entity_type_normalized: normalizeType(company.entity_type),
+      },
     })
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)

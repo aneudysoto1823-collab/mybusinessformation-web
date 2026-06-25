@@ -60,6 +60,9 @@ export async function lookupCompanyByDocument(documentNumber: string): Promise<T
     const v = (row as Record<string, unknown>)[k]
     return v == null ? null : String(v)
   }
+  // Combina partes de dirección (calle, ciudad, estado, zip) en una sola línea.
+  const combine = (...parts: (string | null)[]): string | null =>
+    parts.filter(Boolean).join(', ') || null
 
   return {
     document_number:          s('document_number') || doc,
@@ -71,8 +74,9 @@ export async function lookupCompanyByDocument(documentNumber: string): Promise<T
     principal_city:           s('principal_city'),
     principal_state:          s('principal_state'),
     principal_zip:            s('principal_zip'),
-    mailing_address:          s('mailing_address'),
+    // Columna real en Turso = mail_address (+ mail_city/state/zip). Ver doc 29.
+    mailing_address:          combine(s('mail_address'), s('mail_city'), s('mail_state'), s('mail_zip')),
     registered_agent_name:    s('registered_agent_name'),
-    registered_agent_address: s('registered_agent_address'),
+    registered_agent_address: combine(s('registered_agent_address'), s('registered_agent_city'), s('registered_agent_state'), s('registered_agent_zip')),
   }
 }
