@@ -132,7 +132,7 @@ body{font-family:var(--font-sans),'Plus Jakarta Sans',system-ui,sans-serif;color
   <!-- STEP 1: INTAKE -->
   <div id="co-intake" style="display:none">
     <h1 class="co-h1" data-en="Complete your order" data-es="Completa tu pedido">Completa tu pedido</h1>
-    <p class="co-sub" data-en="We need a few details to prepare your filings. You only enter shared info once." data-es="Necesitamos algunos datos para preparar tus trámites. La información común se ingresa una sola vez.">Necesitamos algunos datos para preparar tus trámites. La información común se ingresa una sola vez.</p>
+    <p class="co-sub" data-en="We need a few details to prepare your filings." data-es="Necesitamos algunos datos para preparar tus trámites.">Necesitamos algunos datos para preparar tus trámites.</p>
 
     <!-- Card 1: número de registro PRIMERO -->
     <div class="co-card">
