@@ -1,0 +1,63 @@
+name: Backup Diario OpaBiz
+
+# Corre todos los dias a las 04:30 UTC (00:30 EST / 12:30am hora Florida).
+# Tambien se puede disparar manualmente desde la UI de GitHub Actions o con
+# `gh workflow run backup-daily.yml` para smoke tests.
+
+on:
+  schedule:
+    - cron: '30 4 * * *'
+  workflow_dispatch:
+
+# Solo un backup corriendo a la vez — si el del dia anterior aun esta corriendo,
+# el siguiente espera. Evita race conditions sobre el mismo dump del dia.
+concurrency:
+  group: backup-daily
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts/backup
+          sparse-checkout-cone-mode: false
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: scripts/backup/package-lock.json
+
+      - name: Install PostgreSQL client v16 (pg_dump compatible Supabase v15+)
+        run: |
+          sudo sh -c 'echo "deb https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+          wget -qO- https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client-16
+          pg_dump --version
+
+      - name: Install backup script deps
+        working-directory: scripts/backup
+        run: npm ci || npm install
+
+      - name: Run daily backup
+        working-directory: scripts/backup
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          RESEND_FROM_TRANSACTIONAL: noreply@opabiz.com
+          INTERNAL_ALERT_EMAIL: alert@opabiz.com
+        run: node daily-backup.mjs
