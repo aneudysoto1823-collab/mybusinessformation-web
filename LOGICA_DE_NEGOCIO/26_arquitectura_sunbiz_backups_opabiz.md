@@ -2,6 +2,8 @@
 
 > **⚠️ Actualización 2026-06-25**: la parte de **Sunbiz en producción** ya está vivo y vive en el doc nuevo [**29_busqueda_nombres_sunbiz.md**](29_busqueda_nombres_sunbiz.md). Este doc 26 queda como referencia histórica del **planteo inicial** (parte de Sunbiz, decisiones de arquitectura tomadas el 22 de junio) + la sección de **backups distribuidos de OpaBiz** que sigue vigente. Para todo lo de búsqueda de nombres (DB activa, normalización, endpoint, integración con la orden, etc.) ver el doc 29.
 
+> **✅ Backups Cloudflare R2 IMPLEMENTADOS 2026-06-25** (commits `976530d`, `2b30300`, `41b7d84`, `c0268ac`, `49defc0`). Workflow GitHub Actions vivo en `.github/workflows/backup-daily.yml`, script en `scripts/backup/daily-backup.mjs`. Corre cron `30 4 * * *` (00:30 EST) y se puede disparar manual desde GitHub Actions UI. Primer smoke test OK: dump `supabase-dumps/2026-06-25.sql.gz` (25.3 KB) + 2 Certificate PDFs sincronizados. Ver sección "Implementación de backups R2" al final del doc.
+
 ## ¿Por qué este documento existe?
 
 Hasta hoy (2026-06-22) todos los datos del proyecto estaban en un solo lugar: **Supabase**. Eso es cómodo pero peligroso, porque si Supabase tiene un problema todo el negocio se cae al mismo tiempo. Como dice el refrán: **"no guardes todos los huevos en la misma canasta"**.
@@ -357,3 +359,94 @@ Las de R2 van solo en GitHub Actions Secrets, no en Vercel (Vercel no necesita a
 - **GitHub Actions docs**: https://docs.github.com/en/actions
 - **Proyecto datallc** (scraper original que vamos a adaptar): `c:\Users\ethan\datallc\fase0-validation\src\ingest\florida_sftp.py`
 - **Doc relacionado**: `LOGICA_DE_NEGOCIO/06_busqueda_nombres_sunbiz.md` (el flujo actual de búsqueda)
+
+---
+
+## Implementación de backups R2 (✅ vivo 2026-06-25)
+
+### Resumen
+
+Backup nocturno automático del proyecto OpaBiz a Cloudflare R2.
+
+| Cuándo | Cron `30 4 * * *` (04:30 UTC = 00:30 EST = 12:30am hora Florida) |
+| Qué | (1) Postgres dump completo Supabase, (2) sync PDFs de Supabase Storage |
+| Dónde | GitHub Actions runner `ubuntu-latest` (gratis, 2000 min/mes) |
+| Cuesta | $0/mes (R2 free 10 GB + GitHub Actions free + Resend free) |
+| Retención SQL | 30 días (rotación code-based — el token R2 no permite lifecycle rules) |
+| Retención PDFs | Forever (los pagó el cliente, irrecuperables) |
+| Alertas | Email a `alert@opabiz.com` vía Resend si cualquier paso falla |
+| Idempotente | Sí — el sync de PDFs hace `HeadObject` y skip si ya existe |
+
+### Archivos
+
+```
+.github/workflows/backup-daily.yml       — workflow GitHub Actions
+scripts/backup/daily-backup.mjs          — script Node 22 que hace los 3 pasos
+scripts/backup/package.json              — deps: @aws-sdk/client-s3, @supabase/supabase-js
+```
+
+### Buckets
+
+| Bucket | Contenido | Path | Retención |
+|---|---|---|---|
+| `opabiz-backups` | SQL dump completo (gzip) | `supabase-dumps/YYYY-MM-DD.sql.gz` | 30 días |
+| `opabiz-pdfs` | Certificate of Formation PDFs | `certificates/orders/{orderId}/{filename}` | Forever |
+
+### Conexión a Supabase desde GitHub Actions
+
+⚠️ **GOTCHA crítico**: Supabase deprecó el endpoint **Direct connection** (`db.PROJECT.supabase.co:5432`) para IPv4 desde 2024. Solo responde por IPv6. **GitHub Actions runners son IPv4-only.**
+
+**Solución**: usar el **Session pooler** (Supavisor) que es IPv4-compatible y soporta `pg_dump`:
+
+```
+postgresql://postgres.qkjacgvmrlomzqdfygyx:PASSWORD@aws-1-us-east-1.pooler.supabase.com:5432/postgres
+                                                    ^^^^^ ojo: aws-1, no aws-0
+```
+
+El prefijo `aws-1-` es específico de la región/asignación del proyecto qkjacgvmrlomzqdfygyx. NO es universal — otros proyectos pueden estar en `aws-0-*`.
+
+### GitHub Secrets configurados
+
+```
+DATABASE_URL                  ← Session pooler URL (NO Direct)
+R2_ACCOUNT_ID                 cac8d334cbaab7c6a4dac07acfecbc8c
+R2_ACCESS_KEY_ID
+R2_SECRET_ACCESS_KEY
+R2_ENDPOINT                   https://<ACCT>.r2.cloudflarestorage.com
+SUPABASE_URL                  https://qkjacgvmrlomzqdfygyx.supabase.co
+SUPABASE_SERVICE_ROLE_KEY
+RESEND_API_KEY                para email de alerta si falla
+```
+
+### Restore manual
+
+Para restaurar la base desde un dump:
+
+```bash
+# 1. Bajar el dump
+aws s3 cp s3://opabiz-backups/supabase-dumps/2026-06-25.sql.gz . \
+  --endpoint-url https://<ACCT>.r2.cloudflarestorage.com
+
+# 2. Descomprimir
+gunzip 2026-06-25.sql.gz
+
+# 3. Restaurar a un proyecto Supabase nuevo (o el actual via Session pooler)
+psql "$DATABASE_URL" < 2026-06-25.sql
+```
+
+El dump tiene `--clean --if-exists` así que es seguro re-aplicar (drop + create de todo el schema public).
+
+### Decisiones técnicas y gotchas que aprendimos
+
+1. **Session pooler region `aws-1-us-east-1`** — yo asumí `aws-0-` y probé 17 regiones antes de descubrir el `aws-1-`. El connection string lo da exacto el dashboard Supabase → Connect → Session pooler.
+2. **pg_dump v17** — Supabase ya corre Postgres 17.6. El cliente debe ser >= versión del servidor. `ubuntu-latest` viene con v16 preinstalado en `/usr/bin`, hay que prependear `/usr/lib/postgresql/17/bin` al `$GITHUB_PATH` para que `pg_dump` tome el v17.
+3. **Schemas excluidos**: `auth`, `storage`, `realtime`, `supabase_functions`, `extensions`, `graphql*`, `pgbouncer`, `pgsodium*`, `vault`. Solo se backupea `public`. Esas schemas son responsabilidad de Supabase y no queremos pisarlas en un restore.
+4. **Sin cache npm** en el workflow — el `.gitignore` global del repo bloquea `package-lock.json`, así que `npm ci` falla. El step hace `npm install` (~3s, no vale la pena el ruido del cache).
+5. **Lifecycle rule code-based** — el token R2 con permisos `Object Read & Write` no incluye `PutBucketLifecycleConfiguration` (que es account-wide admin). El paso 3 del script lista `supabase-dumps/` y borra los > 30 días con `DeleteObject` (que sí está en R/W). Más portable.
+6. **Node 22** — Node 20 fue deprecated en GitHub Actions runners (sept 2025). Bumpeamos a 22 LTS.
+
+### Pendiente
+
+- Revocar el PAT `ghp_JKK51vm3CZ...` que se usó para automatizar el setup (ya no hace falta).
+- Validar restore real haciendo un drop + restore de prueba en un proyecto Supabase nuevo.
+- Documentar runbook completo en `TROUBLESHOOTING/26-backups-r2.md` si ocurre algún fallo en prod.
