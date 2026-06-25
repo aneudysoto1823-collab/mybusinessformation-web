@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { Resend } from 'resend'
+import { nameCheckHtmlLine, NameCheckResult } from '@/lib/sunbiz-namecheck'
 
 export const dynamic = 'force-dynamic'
 
@@ -279,7 +280,14 @@ async function handleFormationPaid(orderId: string, session: Stripe.Checkout.Ses
 
   const fbfc = `FBFC-${order.id.replace(/-/g, '').substring(0, 8).toUpperCase()}`
 
-  // Confirmación al cliente (pago confirmado)
+  // Pre-computar la linea HTML del name-check (solo se usa en el email
+  // del admin de mas abajo). Try/catch para que NUNCA pueda romper el
+  // procesamiento del pago si nameCheckHtmlLine throw por algun motivo.
+  let nameCheckHtml = ''
+  try { nameCheckHtml = nameCheckHtmlLine((order.nameCheck as NameCheckResult | null) ?? null) }
+  catch (e) { console.error('[stripe-webhook] nameCheckHtmlLine error (non-fatal):', e) }
+
+  // Confirmación al cliente (pago confirmado) — NO incluye name-check
   getResend().emails.send({
     from: FROM_OPABIZ,
     replyTo: REPLY_TO,
@@ -343,6 +351,7 @@ async function handleFormationPaid(orderId: string, session: Stripe.Checkout.Ses
             <tr><td style="padding:6px 0;color:#64748b">Paquete</td><td style="padding:6px 0">${order.package} · ${order.speed}</td></tr>
             <tr style="background:#f8fafc"><td style="padding:6px 4px;color:#64748b">Total</td><td style="padding:6px 4px;font-weight:700">$${amountPaid.toFixed(2)} USD</td></tr>
           </table>
+          ${nameCheckHtml}
           <div style="text-align:center;margin:18px 0 4px">
             <a href="https://opabiz.com/admin/orders/${order.id}" style="display:inline-block;background:#1d4ed8;color:#fff;text-decoration:none;padding:11px 22px;border-radius:8px;font-size:14px;font-weight:700">Abrir en el panel admin →</a>
           </div>

@@ -5179,8 +5179,11 @@ function fmUpdateBizName(val) {
   var bn = document.getElementById('sum-biz-name');
   if(bn) { bn.textContent = full; bn.style.display = 'block'; }
   fmUpdateSummary();
-  // Lanzar chequeo de disponibilidad (debounce 300ms, min 3 chars).
-  fmBiznameDebounced(name);
+  // (decision negocio 2026-06-25) El chequeo de disponibilidad ya NO se
+  // muestra al cliente — cero fricción, max conversión. El name-check se
+  // hace server-side al crear la orden y solo lo ve el admin (panel + email).
+  // Las funciones fmBiznameDebounced/fmCheckBizname quedan como dead code
+  // hasta que se borren o se decida re-activarlas para algún uso interno.
 }
 
 // Chequeo de disponibilidad de nombre contra /api/sunbiz/name-check.

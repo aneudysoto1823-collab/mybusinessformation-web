@@ -3,6 +3,7 @@ import { getSupabaseAdmin } from '@/lib/supabase'
 import { Resend } from 'resend'
 import { checkOrdersRateLimit, getClientIp } from '@/lib/rate-limit'
 import { OrderInputSchema, parseOr400 } from '@/lib/schemas'
+import { checkNameAvailability, nameCheckHtmlLine, NameCheckResult } from '@/lib/sunbiz-namecheck'
 
 const getResend = () => new Resend(process.env.RESEND_API_KEY)
 // Mismo patrón que lib/notifications.ts: FROM/Reply-To centralizados en env
@@ -86,6 +87,33 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       )
     }
+
+    // ── Chequeo de disponibilidad de nombre (server-side, guardado en
+    //    Order.nameCheck para que el admin lo vea en email + panel).
+    //    El cliente NO ve el resultado (decisión negocio 2026-06-25).
+    //    Si el chequeo falla, nameCheck queda null y la orden continúa normal —
+    //    NUNCA bloquea la creación de la orden.
+    let nameCheck: NameCheckResult | null = null
+    try {
+      nameCheck = await checkNameAvailability(order.companyName)
+      // Guardar en la columna nameCheck (JSONB). Non-blocking: si UPDATE falla,
+      // solo logueamos y seguimos.
+      const { error: nameCheckErr } = await getSupabaseAdmin()
+        .from('Order')
+        .update({ nameCheck })
+        .eq('id', order.id)
+      if (nameCheckErr) console.error('[/api/orders] nameCheck update error (non-fatal):', nameCheckErr)
+    } catch (e) {
+      console.error('[/api/orders] name check error (non-fatal):', e)
+      nameCheck = null
+    }
+
+    // ── Pre-computar la linea HTML del name-check en una variable protegida.
+    //    Si nameCheckHtmlLine throws por cualquier motivo, el email sale igual
+    //    (con la linea vacia) y NO afecta la creacion ni el envio.
+    let nameCheckHtml = ''
+    try { nameCheckHtml = nameCheckHtmlLine(nameCheck) }
+    catch (e) { console.error('[/api/orders] nameCheckHtmlLine error (non-fatal):', e) }
 
     // ── Emails — se omiten en el flujo Embedded Checkout (los manda el webhook
     //    al confirmarse el pago, ver deferEmails arriba) ────────────────────────
@@ -187,9 +215,9 @@ export async function POST(request: NextRequest) {
                 Abrir en el panel admin →
               </a>
             </div>
-            <div style="margin-top:16px;padding:14px;background:#eff6ff;border-radius:8px;font-size:13px;color:#1e40af">
+            ${nameCheckHtml}
+            <div style="margin-top:12px;padding:12px;background:#eff6ff;border-radius:8px;font-size:13px;color:#1e40af">
               El cliente ya recibió email de confirmación automático.
-              Siguiente paso: verificar disponibilidad de nombres en Sunbiz.
             </div>
           </div>
         </div>
