@@ -34,10 +34,12 @@ export interface ServiceFieldDef {
 }
 
 export const SERVICE_FIELDS: Record<string, ServiceFieldDef> = {
+  // El responsible party (IRS) es la persona que ordena — su nombre ya se pide
+  // arriba en "Tu información". Aquí solo pedimos el SSN/ITIN (sensible) + rol +
+  // actividad, que no se piden en otro lado.
   'ein': { name_en: 'EIN / Tax ID', name_es: 'EIN / ID Fiscal', fields: [
-    { k: 'respName', en: 'Responsible party full name', es: 'Nombre completo del responsible party', type: 'text' },
-    { k: 'ssnItin', en: 'SSN or ITIN of responsible party', es: 'SSN o ITIN del responsible party', type: 'text' },
-    { k: 'title', en: 'Title / role', es: 'Título / rol', type: 'select', opts: ['Managing Member', 'Manager', 'Owner', 'Officer / Director'] },
+    { k: 'ssnItin', en: 'Your SSN or ITIN (responsible party)', es: 'Tu SSN o ITIN (responsible party)', type: 'text' },
+    { k: 'title', en: 'Your title / role', es: 'Tu título / rol', type: 'select', opts: ['Managing Member', 'Manager', 'Owner', 'Officer / Director'] },
     { k: 'activity', en: 'Primary business activity', es: 'Actividad principal', type: 'select', opts: ['Retail & E-Commerce', 'Real Estate', 'Restaurant / Food', 'Construction', 'Technology', 'Consulting', 'Import / Export', 'Health & Wellness', 'Other'] },
   ]},
   'itin': { name_en: 'ITIN Application', name_es: 'Solicitud de ITIN', fields: [
