@@ -10,6 +10,86 @@ Este sistema **chequea el nombre automáticamente al crear cada orden** contra l
 
 ---
 
+## REGLA DE CLASIFICACIÓN DE NOMBRES TOMADOS O DISPONIBLES
+
+**Estos son los mismos parámetros que usa Florida (Sunbiz) cuando decide si dos nombres son "el mismo" o no.** Nuestro sistema los aplica antes de cobrar para avisarte si el nombre del cliente probablemente colisione.
+
+### Cosas que NO importan (se ignoran al comparar)
+
+Cuando comparamos el nombre que el cliente eligió con la base de las 3.9M LLC/Corp activas, **ignoramos** lo siguiente — porque Florida también lo ignora:
+
+1. **Mayúsculas o minúsculas**
+   `Joe's Pizza` = `JOE'S PIZZA` = `joe's pizza`
+
+2. **Comillas y apóstrofes** (dobles, simples, backticks, tipográficas)
+   `Joe's Pizza` = `Joes Pizza` = `"Joe's Pizza"`
+
+3. **Puntos, comas, guiones, símbolos** (cualquier carácter que no sea letra o número o espacio)
+   `Joe's Pizza, L.L.C.` = `Joes Pizza LLC`
+   `411-413-415 Petronia St` = `411 413 415 Petronia St`
+
+4. **El sufijo de tipo de entidad al final** (LLC, L.L.C., Limited Liability Company, Inc, Inc., Incorporated, Corp, Corp., Corporation, Co, Co., Ltd, Limited, PLLC, PA, LP, LLP, LLLP, LC)
+   `Joe's Pizza LLC` = `Joe's Pizza Inc` = `Joe's Pizza Corporation`
+   *(Florida no permite dos LLCs con el mismo nombre y tampoco permite que una LLC y una Inc compartan el mismo nombre — por eso ignoramos el sufijo y comparamos el "nombre real".)*
+
+5. **Las palabras "The", "A", "An" al inicio**
+   `The Pizza LLC` = `Pizza Inc`
+
+### Cosas que se consideran IGUALES (sinónimos)
+
+6. **El símbolo `&` y la palabra `AND`** son lo mismo
+   `Joe's & Co` = `Joe's and Co`
+   `A & T Construction` = `A and T Construction`
+
+7. **Números escritos y dígitos** son lo mismo, incluyendo ordinales
+   `Twenty Four Hour Plumbing` = `24 Hour Plumbing`
+   `Three Blind Mice` = `3 Blind Mice`
+   `Second Chance Antiques` = `2nd Chance Antiques`
+   `First National Bank` = `1st National Bank`
+   `One Star LLC` = `1 Star LLC`
+
+### Cosas que SÍ importan (los nombres siguen siendo distintos)
+
+8. **Letras distintas**, aunque la diferencia sea de una sola letra
+   `Adidas` ≠ `Adida`
+   `Pizza` ≠ `Pizzas`
+
+9. **Números con valor distinto**
+   `1 Star LLC` ≠ `2 Star LLC`
+   `5576 Captiva Lane` ≠ `5577 Captiva Lane`
+
+10. **Números embebidos dentro de una palabra** (códigos, modelos) NO se tocan
+    `4CS Cleaning` se queda `4CS Cleaning` (el `4` y `CS` están pegados — no es "cuatro CS")
+    `CAMARGO204` se queda `CAMARGO204`
+
+### Ejemplos de lo que pasa al comparar
+
+| Nombre que el cliente quiere | Si en Florida existe... | Resultado |
+|---|---|---|
+| `Joe's Pizza LLC` | `JOES PIZZA, L.L.C.` activa | ⚠️ **TOMADO** |
+| `Joe's Pizza LLC` | `JOES PIZZA CORPORATION` activa | ⚠️ **TOMADO** (el sufijo no diferencia) |
+| `The Pizza LLC` | `PIZZA INC` activa | ⚠️ **TOMADO** ("The" no diferencia) |
+| `Twenty Four Hour Plumbing LLC` | `24 HOUR PLUMBING LLC` activa | ⚠️ **TOMADO** (números escritos = dígitos) |
+| `Gekko & Co` | `GEKKO AND CO` activa | ⚠️ **TOMADO** (& = and) |
+| `2nd Chance Antiques Inc` | `SECOND CHANCE ANTIQUES CO` activa | ⚠️ **TOMADO** (ordinales) |
+| `1 Star LLC` | `2 STAR LLC` activa | ✅ **DISPONIBLE** (1 ≠ 2) |
+| `Adidas LLC` | `ADIDA LLC` activa | ✅ **DISPONIBLE** (letra distinta) |
+| `Adidas LLC` | nadie con ese nombre | ✅ **DISPONIBLE** |
+
+### Lo que NO chequeamos (Florida igual puede rechazar)
+
+Importante: nuestro chequeo NO sustituye al examinador de Florida. Florida también rechaza nombres por razones que **no** dependen de coincidencia con otra entidad:
+
+- **Palabras restringidas o prohibidas**: "Bank", "Insurance", "Trust", "Attorney", "Engineer" (requieren licencia)
+- **Marcas registradas federales** (USPTO, no Sunbiz)
+- **Similitud "engañosamente parecida"** según criterio del examinador (subjetivo)
+- **Nombres vulgares o que sugieran afiliación gubernamental**
+- **Cambios de status muy recientes** que aún no llegaron a nuestra base (cron nocturno corre 1 vez al día)
+
+Por eso el badge verde "✓ Sin conflictos exactos" en el panel **no garantiza** que Florida lo apruebe — solo dice que no hay choque con otra entidad activa en la base. El admin sigue siendo quien decide cuándo presentar.
+
+---
+
 ## Arquitectura — la foto completa
 
 ```
