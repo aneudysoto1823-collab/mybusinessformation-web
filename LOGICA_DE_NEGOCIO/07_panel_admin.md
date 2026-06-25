@@ -27,6 +27,7 @@ Panel interno para que el equipo de MyBusinessFormation gestione órdenes, clien
 
 ## Acciones disponibles por orden
 - Ver detalle completo del cliente y la empresa
+- **Ver chequeo automático Sunbiz del nombre** — badge inline (✓ verde / ⚠ rojo / ? ámbar) en la tabla del listado al lado del nombre de empresa + bloque visual completo en el detalle dentro de la sección "Empresa" con: `example` (LLC que coincide si está tomado), `similarCount` (matches FTS5 parciales), `normalized` (string normalizado para debug). Ver doc 29 para la implementación completa.
 - Cambiar status de la orden
 - Agregar notas internas
 - **🔁 Reenviar email de Confirmación de Orden** → `POST /api/proxy/notifications/order-confirmation` (rescate manual para casos donde el send original se perdió por race condition en Vercel serverless — caso real: orden FBFC-EC1DCF38)
@@ -84,12 +85,22 @@ INTERNAL_API_KEY=                # protege el Express en Railway (requerida para
 | `approved` | 👨‍💼 Equipo | Florida aprobó el negocio. El equipo sube el PDF del Certificate of Formation desde el panel. El sistema lo adjunta y lo envía al cliente por email automáticamente. |
 | `completed` | 🤖 Sistema | Certificate enviado al cliente. Orden cerrada. |
 
-## Lógica de búsqueda de nombres (Etapa 5 — pendiente)
-- La base de datos de Sunbiz (~3.5 millones de registros) se descarga vía FTP y se importa a Supabase
-- Se actualiza automáticamente cada noche
-- Cuando Stripe confirma el pago, el sistema busca los 3 nombres en tiempo real contra esa base de datos local
-- El buscador del panel admin también usa esa misma base de datos para buscar nombres alternativos
-- Mientras la Etapa 5 no esté lista, el buscador del panel mostrará un mensaje de "base de datos no disponible aún"
+## Lógica de búsqueda de nombres Sunbiz (IMPLEMENTADO 2026-06-25)
+
+**Estado**: en producción. Doc canónica completa en `LOGICA_DE_NEGOCIO/29_busqueda_nombres_sunbiz.md`.
+
+### Resumen
+- La base de Florida (3,933,744 LLC/Corp ACTIVE) vive en **Turso `opabiz-sunbiz-search`** (no en Supabase como se planteó originalmente — Turso es más eficiente para SQLite + FTS5 y mantiene Supabase libre para Order/admin).
+- Cuando se crea cualquier orden (`POST /api/orders`), el sistema corre `checkNameAvailability(order.companyName)` server-side contra Turso y guarda el resultado en la columna **`Order.nameCheck`** (JSONB) en Supabase.
+- El cliente **NO ve nada** del chequeo en el form (decisión negocio 2026-06-25: cero fricción, max conversión). El admin lo ve en 3 lugares:
+  1. **Email automático** "🆕 NUEVA ORDEN CREADA/PAGADA" a `alert@opabiz.com` con línea verde/roja/ámbar
+  2. **Badge inline** en la tabla del listado `/admin` al lado del nombre de empresa
+  3. **Bloque visual** en el detalle `/admin/orders/[id]` dentro de la sección "Empresa"
+- **Pago blindado**: si el chequeo o la línea del email throw por algún motivo, la orden se crea igual, el pago se procesa, el webhook responde 200 a Stripe. La columna `nameCheck` queda `null` y el admin ve el badge ámbar "verificar manualmente".
+
+### Pendiente
+- **Cron nocturno** para mantener Turso al día con las LLC nuevas que Florida publica diariamente. Decisión: corre en Vercel Cron o GitHub Actions (no Hetzner). Debe: catch-up de los días desde el dump trimestral, insertar ACTIVE nuevas, actualizar `status` de las que cambian a INACTIVE/UA (período de protección 1 año) o disolución voluntaria (120 días). Ver doc 29 sección "Pendientes".
+- **Buscador manual de nombres del admin** en `/admin/orders/[id]` (sección "Buscador de nombres") sigue usando `POST /api/proxy/names/check` legacy. Pendiente migrar a `/api/sunbiz/name-check`.
 
 ## Funcionalidades construidas en el panel
 
@@ -116,3 +127,4 @@ INTERNAL_API_KEY=                # protege el Express en Railway (requerida para
 - 2026-03-30: Mejoras al panel — (1) número FBFC clickeable en tabla, (2) dropdowns de ordenamiento (más recientes, más antiguas, mayor/menor monto, por paquete) y filtro por paquete (Basic/Standard/Premium), (3) badge ⚠️ +24h en tabla y aviso en detalle cuando una orden activa lleva más de 24h sin actualizar
 - 2026-04-01: Auditoría de seguridad — cookie admin reemplazada por JWT firmado (jose), rutas proxy creadas para el panel de detalle, CORS del Express restringido
 - 2026-04-02: `getOrders()` en dashboard migrado de Express (`backendFetch`) a Supabase directo (`getSupabaseAdmin()`). Motivo: prerenderizado estático de Next.js capturaba resultado vacío en build. `INTERNAL_API_KEY` sigue siendo requerida para todas las operaciones del panel de detalle. Filtro de fechas Desde/Hasta añadido a la tabla de órdenes.
+- 2026-06-25: Chequeo automático Sunbiz integrado al panel (commit `930a05a`). Listado muestra badge inline ✓/⚠/? al lado del nombre de empresa con tooltip; detalle de orden incluye bloque visual completo dentro de la sección "Empresa" (verde/rojo/ámbar con `example`, `similarCount`, `normalized`). La columna `Order.nameCheck` (JSONB) se popula automáticamente al crear cada orden vía `checkNameAvailability()` contra Turso opabiz-sunbiz-search (3.9M LLC/Corp ACTIVE). Doc completa: `29_busqueda_nombres_sunbiz.md`.
