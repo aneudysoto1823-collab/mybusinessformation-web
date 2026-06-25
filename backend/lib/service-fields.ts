@@ -25,6 +25,9 @@ export interface ServiceField {
   opts?: string[]
   /** solo para type:'repeater' — columnas de cada fila */
   cols?: RepeaterCol[]
+  /** solo para type:'repeater' — etiqueta del selector de cantidad de filas */
+  countEn?: string
+  countEs?: string
 }
 
 export interface ServiceFieldDef {
@@ -34,6 +37,10 @@ export interface ServiceFieldDef {
   /** claves de campos COMPARTIDOS que requiere este servicio (ver SHARED_FIELDS).
    *  Se piden UNA sola vez aunque varios servicios los necesiten. */
   shared?: string[]
+  /** subtítulo de la sección en el checkout. Si falta, se usa el genérico
+   *  "Detalles específicos de este servicio". */
+  note_en?: string
+  note_es?: string
 }
 
 // Campos compartidos entre servicios: se piden una sola vez (no por servicio).
@@ -74,7 +81,8 @@ export const SERVICE_FIELDS: Record<string, ServiceFieldDef> = {
   ]},
   'operating-agreement': { name_en: 'Operating Agreement', name_es: 'Acuerdo Operativo', fields: [
     { k: 'mgmt', en: 'Management type', es: 'Tipo de gestión', type: 'select', opts: ['Member-Managed', 'Manager-Managed'] },
-    { k: 'members', en: 'Members / Owners', es: 'Miembros / Propietarios', type: 'repeater', cols: [
+    { k: 'members', en: 'Members / Owners', es: 'Miembros / Dueños', type: 'repeater',
+      countEn: 'How many members (owners)?', countEs: '¿Cuántos miembros (dueños)?', cols: [
       { k: 'name', en: 'Full legal name', es: 'Nombre legal completo', type: 'text' },
       { k: 'pct', en: 'Ownership %', es: '% de propiedad', type: 'text' },
       { k: 'address', en: 'Address', es: 'Dirección', type: 'text' },
@@ -93,8 +101,10 @@ export const SERVICE_FIELDS: Record<string, ServiceFieldDef> = {
     { k: 'plan', en: 'Plan', es: 'Plan', type: 'select', opts: ['Digital forwarding', 'Digital + physical forwarding'] },
     { k: 'forwarding', en: 'Physical forwarding address (optional)', es: 'Dirección de reenvío físico (opcional)', type: 'text' },
   ]},
-  'annual-report': { name_en: 'Annual Report', name_es: 'Declaración Anual', shared: ['ein'], fields: [
-    { k: 'officers', en: 'Officers / Managers / Directors', es: 'Oficiales / Managers / Directores', type: 'repeater', cols: [
+  'annual-report': { name_en: 'Annual Report', name_es: 'Declaración Anual', shared: ['ein'],
+    note_en: 'Owners, officers, managers and directors', note_es: 'Dueños, oficiales, gerentes y directores', fields: [
+    { k: 'officers', en: 'Owners / Officers / Managers / Directors', es: 'Dueños / Oficiales / Gerentes / Directores', type: 'repeater',
+      countEn: 'How many owners/officers?', countEs: '¿Cuántos dueños u oficiales?', cols: [
       { k: 'title', en: 'Title', es: 'Título', type: 'select', opts: ['MGR', 'MGRM', 'President', 'VP', 'Secretary', 'Treasurer', 'Director'] },
       { k: 'name', en: 'Full name', es: 'Nombre completo', type: 'text' },
       { k: 'address', en: 'Address', es: 'Dirección', type: 'text' },
@@ -130,7 +140,8 @@ export const SERVICE_FIELDS: Record<string, ServiceFieldDef> = {
   ]},
   'scorp-election': { name_en: 'S-Corp Election (Form 2553)', name_es: 'Elección de S-Corp', shared: ['ein'], fields: [
     { k: 'effectiveDate', en: 'Desired effective date', es: 'Fecha efectiva deseada', type: 'date' },
-    { k: 'shareholders', en: 'Shareholders / Members', es: 'Accionistas / Miembros', type: 'repeater', cols: [
+    { k: 'shareholders', en: 'Shareholders / Owners', es: 'Accionistas / Dueños', type: 'repeater',
+      countEn: 'How many shareholders (owners)?', countEs: '¿Cuántos accionistas (dueños)?', cols: [
       { k: 'name', en: 'Full name', es: 'Nombre completo', type: 'text' },
       { k: 'pct', en: 'Ownership %', es: '% de propiedad', type: 'text' },
       { k: 'ssnItin', en: 'SSN / ITIN', es: 'SSN / ITIN', type: 'text' },

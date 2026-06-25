@@ -25,7 +25,9 @@
 - Cliente: sección **"Datos requeridos"** (`#co-shared-section`, `var SHARED_CFG`), valores en `intake.shared`. Admin: bloque **"Datos requeridos (compartidos)"** pre-llenado de `intake.shared` (keys `s_<k>`). No requiere cambio de endpoint (va dentro de `intake`).
 
 ### Filas estructuradas (repeater)
-- Miembros (Operating Agreement), Oficiales (Annual Report) y Accionistas (S-Corp) son tipo **`repeater`** (filas con columnas: nombre/%/título/dirección/SSN según el caso) con Agregar/Quitar. Valor guardado como JSON string en `extras[svcId.fieldKey]`. Soportado en cliente y admin + impresión.
+- Miembros (Operating Agreement), Oficiales (Annual Report) y Accionistas (S-Corp) son tipo **`repeater`** (filas con columnas: nombre/%/título/dirección/SSN según el caso). Valor guardado como JSON string en `extras[svcId.fieldKey]`. Soportado en cliente y admin + impresión.
+- **Checkout cliente (2026-06-25):** cada repeater abre con un **selector de cantidad** ("¿Cuántos dueños/miembros/accionistas?", 1–10) que crea esas filas; el botón ✕ por fila se mantiene y sincroniza el selector. Etiquetas en `service-fields.ts` vía `countEn/countEs` por campo. Se usa la palabra "dueños" (conocida para los latinos). Admin conserva su Agregar/Quitar libre.
+- **Subtítulo por servicio:** `ServiceFieldDef.note_en/note_es` reemplaza el genérico "Detalles específicos de este servicio". Annual Report usa "Dueños, oficiales, gerentes y directores". El card "Datos requeridos" (compartidos) ya no lleva subtítulo.
 
 ### Fuente única de campos
 - El checkout del cliente **inyecta `SERVICE_FIELDS` y `SHARED_FIELDS` desde `lib/service-fields.ts`** (antes tenía copia inline duplicada que se desincronizó). Ahora cliente y admin SIEMPRE coinciden. **Para tocar campos: editar solo `lib/service-fields.ts`.**

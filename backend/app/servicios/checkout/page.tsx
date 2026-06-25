@@ -20,7 +20,7 @@ export default function ServiciosCheckoutPage() {
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:var(--font-sans),'Plus Jakarta Sans',system-ui,sans-serif;color:var(--gray800);background:var(--gray50);line-height:1.6;min-height:100vh}
 .co-header{background:#fff;border-bottom:1px solid var(--gray200);position:sticky;top:0;z-index:50}
-.co-header-inner{max-width:1080px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.co-header-inner{max-width:880px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px}
 .co-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
 .co-logo-mark{width:36px;height:36px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem}
 .co-logo-text{font-family:var(--font-serif),serif;font-size:1.15rem;font-weight:700}
@@ -30,7 +30,7 @@ body{font-family:var(--font-sans),'Plus Jakarta Sans',system-ui,sans-serif;color
 .co-lang{display:flex;gap:2px;background:var(--gray100);border-radius:8px;padding:3px}
 .co-lang button{border:none;background:none;padding:5px 11px;border-radius:6px;font-size:.78rem;font-weight:700;color:var(--gray500);cursor:pointer;font-family:inherit}
 .co-lang button.active{background:#fff;color:var(--navy);box-shadow:0 1px 3px rgba(0,0,0,.1)}
-.co-wrap{max-width:1080px;margin:0 auto;padding:30px 24px 80px}
+.co-wrap{max-width:880px;margin:0 auto;padding:30px 24px 80px}
 .co-steps{display:flex;align-items:center;gap:10px;margin-bottom:24px;font-size:.82rem;color:var(--gray400);font-weight:600}
 .co-step.active{color:var(--blue)}
 .co-step-num{display:inline-flex;width:22px;height:22px;border-radius:50%;background:var(--gray200);color:var(--gray500);align-items:center;justify-content:center;font-size:.74rem;margin-right:6px}
@@ -49,6 +49,8 @@ body{font-family:var(--font-sans),'Plus Jakarta Sans',system-ui,sans-serif;color
 .co-input,.co-select,.co-textarea{border:1.5px solid var(--gray200);border-radius:9px;padding:11px 13px;font-size:.9rem;font-family:inherit;color:var(--gray800);background:#fff;width:100%}
 .co-input:focus,.co-select:focus,.co-textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.12)}
 .co-textarea{resize:vertical;min-height:64px}
+.co-rep-count{display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:.82rem;font-weight:600;color:var(--gray600)}
+.co-rep-count select{width:auto;min-width:64px;padding:7px 10px;font-size:.86rem}
 .rep-host{display:flex;flex-direction:column;gap:8px}
 .rep-row{display:flex;gap:8px;align-items:center}
 .rep-row .rep-cell{flex:1;min-width:0;padding:9px 11px;font-size:.86rem}
@@ -251,20 +253,37 @@ function repRowHtml(svcId, f){
     if(col.type==='select'){ return '<select class="co-select rep-cell" data-col="'+col.k+'"><option value="">'+lbl+'</option>'+(col.opts||[]).map(function(o){return '<option>'+o+'</option>';}).join('')+'</select>'; }
     return '<input class="co-input rep-cell" data-col="'+col.k+'" placeholder="'+lbl+'"/>';
   }).join('');
-  return '<div class="rep-row">'+cells+'<button type="button" class="rep-del" title="Quitar" onclick="this.parentNode.remove()">&#215;</button></div>';
+  return '<div class="rep-row">'+cells+'<button type="button" class="rep-del" title="Quitar" onclick="coDelRepRow(this)">&#215;</button></div>';
 }
-function coAddRepRow(svcId, fk){
-  var host=document.getElementById('rep-'+svcId+'-'+fk); if(!host) return;
-  var def=SVC_EXTRAS[svcId]; if(!def) return;
-  var f=null; def.fields.forEach(function(x){ if(x.k===fk) f=x; }); if(!f) return;
-  host.insertAdjacentHTML('beforeend', repRowHtml(svcId,f));
+// Repeaters manejados por un selector de cantidad: el cliente elige cuántas
+// personas y se abren esas filas. El botón de borrar y el restore sincronizan
+// el selector con el número real de filas.
+function coRepField(svcId, fk){ var def=SVC_EXTRAS[svcId]; var f=null; if(def&&def.fields) def.fields.forEach(function(x){ if(x.k===fk) f=x; }); return f; }
+function coSyncRepCount(host){
+  if(!host) return; var sel=document.getElementById('repcount-'+host.getAttribute('data-svc')+'-'+host.getAttribute('data-fk'));
+  if(sel){ var n=host.querySelectorAll('.rep-row').length; sel.value=String(n); }
+}
+function coSetRepCount(svcId, fk, n){
+  var host=document.getElementById('rep-'+svcId+'-'+fk); var f=coRepField(svcId,fk); if(!host||!f) return;
+  n=parseInt(n,10)||1; if(n<1) n=1;
+  var rows=host.querySelectorAll('.rep-row').length;
+  if(n>rows){ for(var i=rows;i<n;i++) host.insertAdjacentHTML('beforeend', repRowHtml(svcId,f)); }
+  else if(n<rows){ for(var j=rows-1;j>=n;j--) host.children[j].remove(); }
+}
+function coDelRepRow(btn){
+  var host=btn.closest('.rep-host'); btn.parentNode.remove(); if(!host) return;
+  // siempre dejar al menos una fila
+  if(!host.querySelector('.rep-row')){ var f=coRepField(host.getAttribute('data-svc'),host.getAttribute('data-fk')); if(f) host.insertAdjacentHTML('beforeend', repRowHtml(host.getAttribute('data-svc'),f)); }
+  coSyncRepCount(host);
 }
 function fieldHtml(svcId, f){
   var isEs=coIsEs(); var lbl=isEs?f.es:f.en; var id='x-'+svcId+'-'+f.k;
   if(f.type==='repeater'){
+    var cl=isEs?(f.countEs||'Cantidad'):(f.countEn||'How many');
+    var opts=''; for(var n=1;n<=10;n++){ opts+='<option'+(n===1?' selected':'')+'>'+n+'</option>'; }
     return '<div class="co-field full"><label class="co-label">'+lbl+'</label>'
-      +'<div class="rep-host" id="rep-'+svcId+'-'+f.k+'">'+repRowHtml(svcId,f)+'</div>'
-      +'<button type="button" class="co-rep-add" onclick="coAddRepRow(\'' + svcId + '\',\'' + f.k + '\')">+ '+(isEs?'Agregar otro':'Add another')+'</button></div>';
+      +'<div class="co-rep-count"><span>'+cl+'</span><select class="co-select" id="repcount-'+svcId+'-'+f.k+'" onchange="coSetRepCount(\'' + svcId + '\',\'' + f.k + '\',this.value)">'+opts+'</select></div>'
+      +'<div class="rep-host" id="rep-'+svcId+'-'+f.k+'" data-svc="'+svcId+'" data-fk="'+f.k+'">'+repRowHtml(svcId,f)+'</div></div>';
   }
   var full = (f.type==='textarea')?' full':'';
   var inner='';
@@ -286,7 +305,9 @@ function renderSvcSections(){
     var name = def ? (isEs?def.name_es:def.name_en) : svcId;
     html += '<div class="co-card"><div class="co-card-title">'+name+'</div>';
     if(def && def.fields && def.fields.length){
-      html += '<div class="co-card-svc" data-en="Specific details for this service" data-es="Detalles específicos de este servicio">'+(isEs?'Detalles específicos de este servicio':'Specific details for this service')+'</div>';
+      var noteEn=(def.note_en!=null)?def.note_en:'Specific details for this service';
+      var noteEs=(def.note_es!=null)?def.note_es:'Detalles específicos de este servicio';
+      html += '<div class="co-card-svc" data-en="'+noteEn+'" data-es="'+noteEs+'">'+(isEs?noteEs:noteEn)+'</div>';
       html += '<div class="co-grid">'+def.fields.map(function(f){return fieldHtml(svcId,f);}).join('')+'</div>';
     } else {
       html += '<div class="co-card-svc">'+(isEs?'No requiere datos adicionales':'No extra details required')+'</div>';
@@ -312,7 +333,6 @@ function renderSharedSection(){
     return '<div class="co-field"><label class="co-label">'+lbl+'</label>'+inner+'</div>';
   }).join('');
   host.innerHTML='<div class="co-card"><div class="co-card-title">'+(isEs?'Datos requeridos':'Required details')+'</div>'
-    +'<div class="co-card-svc">'+(isEs?'Se piden una sola vez para todos tus servicios':'Asked once for all your services')+'</div>'
     +'<div class="co-grid">'+fields+'</div></div>';
 }
 function coCollectShared(){ var out={}; sharedKeys().forEach(function(k){ var el=$('s-'+k); if(el) out[k]=el.value; }); return out; }
@@ -345,12 +365,13 @@ function restoreExtras(vals){
       var host=document.getElementById('rep-'+svcId+'-'+fk); if(!host) return;
       var rows=[]; try{ rows=JSON.parse(vals[key]||'[]'); }catch(e){ rows=[]; }
       host.innerHTML='';
-      if(!rows.length){ host.insertAdjacentHTML('beforeend', repRowHtml(svcId,f)); return; }
+      if(!rows.length){ host.insertAdjacentHTML('beforeend', repRowHtml(svcId,f)); coSyncRepCount(host); return; }
       rows.forEach(function(row){
         host.insertAdjacentHTML('beforeend', repRowHtml(svcId,f));
         var rowEl=host.lastElementChild;
         rowEl.querySelectorAll('.rep-cell').forEach(function(c){ var k=c.getAttribute('data-col'); if(row[k]!=null) c.value=row[k]; });
       });
+      coSyncRepCount(host);
     } else {
       var el=$('x-'+svcId+'-'+fk); if(el) el.value=vals[key];
     }
