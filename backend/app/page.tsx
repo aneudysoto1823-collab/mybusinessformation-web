@@ -1636,6 +1636,12 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
                 <div class="fm-group"><label class="fm-label" id="lbl-ra-zip">ZIP Code *</label><input type="text" class="fm-input" id="inp-ra-zip" placeholder="e.g. 33101" maxlength="5"/></div>
               </div>
               </div>
+            </div>
+            <!-- LLC Mailing Address — fuera de agent-own-form (2026-06-25): el
+                 mailing es independiente del tipo de RA. Antes estaba anidado
+                 dentro de agent-own-form y desaparecia cuando el cliente
+                 elegia "Use Our Registered Agent Service" (display:none). -->
+            <div style="margin-top:14px">
               <div style="margin-top:20px;padding-bottom:12px">
                 <div style="font-size:.7rem;font-weight:700;color:#1e293b;text-transform:uppercase;letter-spacing:1px" id="s3-mail-divider"><span id="s3-mail-divider-entity">LLC</span> Mailing Address</div>
                 <div style="font-size:.68rem;color:#9ca3af;margin-top:2px" id="s3-mail-opt">Optional — separate from your Registered Agent address</div>
