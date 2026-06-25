@@ -3100,12 +3100,21 @@ function fmSetAgentChoice(type, el) {
   if(on) on.style.display = type === 'ours' ? 'block' : 'none';
   if(of2) of2.style.display = type === 'own' ? 'block' : 'none';
   if(type === 'own') {
+    // Regla 2026-06-25: el checkbox "Same as Physical Business Address" solo
+    // se muestra si en el Paso 2 (Direccion fisica) el usuario eligio SU
+    // PROPIA direccion (no virtual), pais USA y state Florida. En cualquier
+    // otro caso el RA debe ser una direccion fisica nueva en Florida (los
+    // campos quedan visibles para que el user los llene).
     var stateEl = document.getElementById('inp-state');
-    var isFL = stateEl && stateEl.value === 'FL';
+    var countryEl = document.getElementById('inp-biz-country');
+    var bizIsOwn = fmData.bizAddrType === 'own';
+    var bizIsUS = countryEl && countryEl.value === 'US';
+    var bizIsFL = stateEl && stateEl.value === 'FL';
+    var canUseSameAsBiz = bizIsOwn && bizIsUS && bizIsFL;
     var sameBizOpt = document.getElementById('ra-same-biz-opt');
     var raAddrFields = document.getElementById('ra-addr-fields');
-    if(sameBizOpt) sameBizOpt.style.display = isFL ? 'block' : 'none';
-    if(isFL) {
+    if(sameBizOpt) sameBizOpt.style.display = canUseSameAsBiz ? 'block' : 'none';
+    if(canUseSameAsBiz) {
       fmFillRaFromBiz();
       if(raAddrFields) raAddrFields.style.display = 'none';
     } else {
@@ -3116,13 +3125,20 @@ function fmSetAgentChoice(type, el) {
 // Re-evaluate step 3 RA state whenever step 3 is entered (handles back navigation from step 2)
 function fmSyncRaState() {
   if(fmData.agentType !== 'own') return;
+  // Misma regla que fmSetAgentChoice: el checkbox "Same as Physical Business
+  // Address" solo aparece si Paso 2 = (own + US + FL). Sino, campos RA
+  // visibles para que el user los llene con una direccion fisica en FL.
   var stateEl = document.getElementById('inp-state');
-  var isFL = stateEl && stateEl.value === 'FL';
+  var countryEl = document.getElementById('inp-biz-country');
+  var bizIsOwn = fmData.bizAddrType === 'own';
+  var bizIsUS = countryEl && countryEl.value === 'US';
+  var bizIsFL = stateEl && stateEl.value === 'FL';
+  var canUseSameAsBiz = bizIsOwn && bizIsUS && bizIsFL;
   var sameBizOpt = document.getElementById('ra-same-biz-opt');
   var raAddrFields = document.getElementById('ra-addr-fields');
   var chk = document.getElementById('chk-ra-same-biz');
-  if(sameBizOpt) sameBizOpt.style.display = isFL ? 'block' : 'none';
-  if(isFL) {
+  if(sameBizOpt) sameBizOpt.style.display = canUseSameAsBiz ? 'block' : 'none';
+  if(canUseSameAsBiz) {
     if(chk) chk.checked = true;
     fmFillRaFromBiz();
     if(raAddrFields) raAddrFields.style.display = 'none';
