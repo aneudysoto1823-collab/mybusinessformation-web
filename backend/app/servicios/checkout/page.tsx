@@ -48,7 +48,18 @@ body{font-family:var(--font-sans),'Plus Jakarta Sans',system-ui,sans-serif;color
 .co-input:focus,.co-select:focus,.co-textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.12)}
 .co-textarea{resize:vertical;min-height:64px}
 .co-hint{font-size:.72rem;color:var(--gray400)}
-.co-status{font-size:.74rem;min-height:16px}
+.co-status{font-size:.78rem;min-height:16px;margin-top:8px}
+.co-lookup-row{display:flex;gap:10px;align-items:stretch}
+.co-lookup-row .co-input{flex:1;font-size:1.05rem;letter-spacing:.5px}
+.co-lookup-btn{background:var(--blue);color:#fff;border:none;padding:0 24px;border-radius:9px;font-size:.92rem;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;transition:background .2s}
+.co-lookup-btn:hover{background:#1d4ed8}.co-lookup-btn:disabled{opacity:.6;cursor:default}
+.co-found{background:var(--green-light);border:1px solid #bbf7d0;border-radius:10px;padding:14px 16px;margin-top:12px}
+.co-found-name{font-weight:700;color:var(--green-dark);font-size:.95rem}
+.co-found-meta{font-size:.8rem;color:var(--gray600);margin-top:2px}
+.co-edit-link{display:inline-block;margin-top:8px;background:none;border:none;color:var(--blue);font-size:.78rem;font-weight:600;cursor:pointer;font-family:inherit;padding:0}
+.co-edit-link:hover{text-decoration:underline}
+.co-manual-link{display:inline-block;margin-top:12px;background:none;border:none;color:var(--gray500);font-size:.8rem;font-weight:600;cursor:pointer;font-family:inherit;padding:0;text-decoration:underline}
+.co-manual-link:hover{color:var(--navy)}
 .co-err{color:#dc2626;font-size:.84rem;margin:10px 0 0;min-height:1px}
 .co-actions{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:8px}
 .co-btn{background:var(--blue);color:#fff;border:none;padding:14px 26px;border-radius:11px;font-size:.95rem;font-weight:700;cursor:pointer;font-family:inherit;min-height:48px;transition:background .2s}
@@ -112,20 +123,40 @@ body{font-family:var(--font-sans),'Plus Jakarta Sans',system-ui,sans-serif;color
     <h1 class="co-h1" data-en="Complete your order" data-es="Completa tu pedido">Completa tu pedido</h1>
     <p class="co-sub" data-en="We need a few details to prepare your filings. You only enter shared info once." data-es="Necesitamos algunos datos para preparar tus trámites. La información común se ingresa una sola vez.">Necesitamos algunos datos para preparar tus trámites. La información común se ingresa una sola vez.</p>
 
+    <!-- Card 1: número de registro PRIMERO -->
     <div class="co-card">
-      <div class="co-card-title" data-en="Your information &amp; business" data-es="Tu información y tu negocio">Tu información y tu negocio</div>
-      <div class="co-card-svc" data-en="Used for all selected services" data-es="Se usa para todos los servicios elegidos">Se usa para todos los servicios elegidos</div>
+      <div class="co-card-title" data-en="Start here: your company" data-es="Empieza aquí: tu empresa">Empieza aquí: tu empresa</div>
+      <div class="co-card-svc" data-en="Enter your Florida registration number — we fill in your company details automatically" data-es="Ingresa tu número de registro de Florida — autollenamos los datos de tu empresa">Ingresa tu número de registro de Florida — autollenamos los datos de tu empresa</div>
+      <div class="co-lookup-row">
+        <input class="co-input" id="f-flDoc" placeholder="L23000123456 / P23000012345"/>
+        <button class="co-lookup-btn" id="co-lookup-btn" onclick="coLookupCompany()"><span data-en="Search" data-es="Buscar">Buscar</span></button>
+      </div>
+      <div class="co-status" id="f-flDoc-status"></div>
+      <div class="co-found" id="co-company-found" style="display:none"></div>
+      <button type="button" class="co-manual-link" id="co-manual-toggle" onclick="coToggleManual()" data-en="I don't have a number / new company — enter manually" data-es="No tengo número / empresa nueva — ingresar manualmente">No tengo número / empresa nueva — ingresar manualmente</button>
+    </div>
+
+    <!-- Card 2: datos de empresa (oculto hasta autollenar o entrada manual) -->
+    <div class="co-card" id="co-company-card" style="display:none">
+      <div class="co-card-title" data-en="Company details" data-es="Datos de la empresa">Datos de la empresa</div>
+      <div class="co-grid">
+        <div class="co-field"><label class="co-label" data-en="Entity type" data-es="Tipo de entidad">Tipo de entidad</label><select class="co-select" id="f-entityType"><option value="llc">LLC</option><option value="corp" data-en="Corporation" data-es="Corporación">Corporación</option></select></div>
+        <div class="co-field"><label class="co-label" data-en="Legal business name" data-es="Nombre legal del negocio">Nombre legal del negocio</label><input class="co-input" id="f-legalName"/></div>
+        <div class="co-field full"><label class="co-label" data-en="Business street address" data-es="Dirección del negocio">Dirección del negocio</label><input class="co-input" id="f-street"/></div>
+        <div class="co-field"><label class="co-label" data-en="City" data-es="Ciudad">Ciudad</label><input class="co-input" id="f-city"/></div>
+        <div class="co-field"><label class="co-label" data-en="ZIP" data-es="Código postal">Código postal</label><input class="co-input" id="f-zip"/></div>
+      </div>
+    </div>
+
+    <!-- Card 3: tu información personal (siempre) -->
+    <div class="co-card">
+      <div class="co-card-title" data-en="Your information" data-es="Tu información">Tu información</div>
+      <div class="co-card-svc" data-en="So we can contact you about your order" data-es="Para poder contactarte sobre tu pedido">Para poder contactarte sobre tu pedido</div>
       <div class="co-grid">
         <div class="co-field"><label class="co-label" data-en="First name" data-es="Nombre">Nombre</label><input class="co-input" id="f-firstName"/></div>
         <div class="co-field"><label class="co-label" data-en="Last name" data-es="Apellido">Apellido</label><input class="co-input" id="f-lastName"/></div>
         <div class="co-field"><label class="co-label" data-en="Email" data-es="Correo">Correo</label><input class="co-input" type="email" id="f-email"/></div>
         <div class="co-field"><label class="co-label" data-en="Phone / WhatsApp" data-es="Teléfono / WhatsApp">Teléfono / WhatsApp</label><input class="co-input" type="tel" id="f-phone"/></div>
-        <div class="co-field"><label class="co-label" data-en="Entity type" data-es="Tipo de entidad">Tipo de entidad</label><select class="co-select" id="f-entityType"><option value="llc">LLC</option><option value="corp" data-en="Corporation" data-es="Corporación">Corporación</option></select></div>
-        <div class="co-field"><label class="co-label" data-en="Legal business name" data-es="Nombre legal del negocio">Nombre legal del negocio</label><input class="co-input" id="f-legalName"/></div>
-        <div class="co-field full"><label class="co-label" data-en="FL registration number (optional)" data-es="Número de registro FL (opcional)">Número de registro FL (opcional)</label><input class="co-input" id="f-flDoc" placeholder="L23000123456" onblur="coLookupFL(this)"/><div class="co-status" id="f-flDoc-status"></div></div>
-        <div class="co-field full"><label class="co-label" data-en="Business street address" data-es="Dirección del negocio">Dirección del negocio</label><input class="co-input" id="f-street" placeholder=""/></div>
-        <div class="co-field"><label class="co-label" data-en="City" data-es="Ciudad">Ciudad</label><input class="co-input" id="f-city"/></div>
-        <div class="co-field"><label class="co-label" data-en="ZIP" data-es="Código postal">Código postal</label><input class="co-input" id="f-zip"/></div>
         <div class="co-field full"><label class="co-label" data-en="Electronic signature (type your full legal name)" data-es="Firma electrónica (escribe tu nombre legal completo)">Firma electrónica (escribe tu nombre legal completo)</label><input class="co-input" id="f-signature"/></div>
       </div>
     </div>
@@ -352,17 +383,39 @@ function restoreExtras(vals){
   Object.keys(vals).forEach(function(key){ var parts=key.split('.'); var el=$('x-'+parts[0]+'-'+parts.slice(1).join('.')); if(el) el.value=vals[key]; });
 }
 
-function coLookupFL(input){
-  var doc=(input.value||'').trim().toUpperCase(); if(doc.length<5) return;
+function coRevealManual(){ $('co-company-card').style.display=''; var mt=$('co-manual-toggle'); if(mt) mt.style.display='none'; }
+function coToggleManual(){ coRevealManual(); }
+function coLookupCompany(){
+  var doc=($('f-flDoc').value||'').trim().toUpperCase();
   var st=$('f-flDoc-status'); var isEs=coIsEs();
-  if(st) st.innerHTML='<span style="color:#64748b">'+(isEs?'Buscando...':'Looking up...')+'</span>';
-  fetch('/api/sunbiz?document_id='+encodeURIComponent(doc)).then(function(r){return r.json();}).then(function(d){
-    if(d.error||!d.company){ if(st) st.innerHTML='<span style="color:#dc2626">'+(isEs?'No encontrado.':'Not found.')+'</span>'; return; }
-    var c=d.company;
-    if(c.company_name && !$('f-legalName').value) $('f-legalName').value=c.company_name;
-    if(c.company_type) $('f-entityType').value = (c.company_type==='CORP'?'corp':'llc');
-    if(st) st.innerHTML='<span style="color:#059669">'+(isEs?'✓ Encontrado: ':'✓ Found: ')+(c.company_name||'')+'</span>';
-  }).catch(function(){ if(st) st.innerHTML=''; });
+  if(doc.length<5){ if(st) st.innerHTML='<span style="color:#dc2626">'+(isEs?'Ingresa un número de registro válido.':'Enter a valid registration number.')+'</span>'; return; }
+  if(st) st.innerHTML='<span style="color:#64748b">'+(isEs?'Buscando en Sunbiz...':'Searching Sunbiz...')+'</span>';
+  var btn=$('co-lookup-btn'); if(btn) btn.disabled=true;
+  fetch('/api/sunbiz/company?document_number='+encodeURIComponent(doc)).then(function(r){return r.json().then(function(d){return {ok:r.ok,status:r.status,d:d};});}).then(function(res){
+    if(btn) btn.disabled=false;
+    if(res.status===404||!res.d.company){
+      if(st) st.innerHTML='<span style="color:#dc2626">'+(isEs?'No encontramos esa empresa. Ingresa los datos manualmente abajo.':'Company not found. Enter the details manually below.')+'</span>';
+      coRevealManual(); return;
+    }
+    if(!res.ok){ if(st) st.innerHTML='<span style="color:#dc2626">'+((res.d&&res.d.error)||(isEs?'Error en la búsqueda.':'Lookup error.'))+'</span>'; return; }
+    var c=res.d.company;
+    // Autollenar campos OCULTOS (no se le piden al cliente — están en Turso)
+    $('f-legalName').value=c.entity_name||'';
+    $('f-entityType').value=(c.entity_type_normalized==='CORP'?'corp':'llc');
+    $('f-street').value=c.principal_address||'';
+    $('f-city').value=c.principal_city||'';
+    $('f-zip').value=c.principal_zip||'';
+    if(st) st.innerHTML='';
+    var addr=[c.principal_address,c.principal_city,c.principal_state,c.principal_zip].filter(Boolean).join(', ');
+    var found=$('co-company-found'); found.style.display='';
+    found.innerHTML='<div class="co-found-name">&#10003; '+(c.entity_name||'')+'</div>'
+      +'<div class="co-found-meta">'+[c.entity_type_normalized,c.status].filter(Boolean).join(' &middot; ')+'</div>'
+      +(addr?'<div class="co-found-meta">'+addr+'</div>':'')
+      +(c.registered_agent_name?'<div class="co-found-meta">'+(isEs?'Agente: ':'Agent: ')+c.registered_agent_name+'</div>':'')
+      +'<button type="button" class="co-edit-link" onclick="coRevealManual()">'+(isEs?'Editar datos de la empresa':'Edit company details')+'</button>';
+    var mt=$('co-manual-toggle'); if(mt) mt.style.display='none';
+    $('co-company-card').style.display='none';
+  }).catch(function(){ if(btn) btn.disabled=false; if(st) st.innerHTML='<span style="color:#dc2626">'+(isEs?'Error de conexión.':'Connection error.')+'</span>'; });
 }
 
 function coGetIntake(){
@@ -382,7 +435,7 @@ function coGoToPayment(){
   if(intake.firstName.length<1||intake.lastName.length<1){ err.textContent=isEs?'Ingresa tu nombre y apellido.':'Please enter your first and last name.'; return; }
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(intake.email)){ err.textContent=isEs?'Ingresa un correo válido.':'Please enter a valid email.'; return; }
   if(intake.phone.replace(/[^0-9]/g,'').length<7){ err.textContent=isEs?'Ingresa un teléfono válido.':'Please enter a valid phone.'; return; }
-  if(intake.legalName.length<2){ err.textContent=isEs?'Ingresa el nombre legal del negocio.':'Please enter your legal business name.'; return; }
+  if(intake.legalName.length<2){ err.textContent=isEs?'Busca tu empresa por número de registro, o ingresa los datos manualmente.':'Search your company by registration number, or enter the details manually.'; coRevealManual(); return; }
   if(intake.signature.length<2){ err.textContent=isEs?'Escribe tu firma electrónica.':'Please type your electronic signature.'; return; }
 
   var btn=$('co-to-pay'); btn.disabled=true; var prev=btn.innerHTML; btn.innerHTML=isEs?'Creando pago...':'Creating payment...';
