@@ -1,12 +1,14 @@
 # Proceso 26 — Arquitectura de Sunbiz + Backups Distribuidos
 
+> **⚠️ Actualización 2026-06-25**: la parte de **Sunbiz en producción** ya está vivo y vive en el doc nuevo [**29_busqueda_nombres_sunbiz.md**](29_busqueda_nombres_sunbiz.md). Este doc 26 queda como referencia histórica del **planteo inicial** (parte de Sunbiz, decisiones de arquitectura tomadas el 22 de junio) + la sección de **backups distribuidos de OpaBiz** que sigue vigente. Para todo lo de búsqueda de nombres (DB activa, normalización, endpoint, integración con la orden, etc.) ver el doc 29.
+
 ## ¿Por qué este documento existe?
 
 Hasta hoy (2026-06-22) todos los datos del proyecto estaban en un solo lugar: **Supabase**. Eso es cómodo pero peligroso, porque si Supabase tiene un problema todo el negocio se cae al mismo tiempo. Como dice el refrán: **"no guardes todos los huevos en la misma canasta"**.
 
 Este documento explica la arquitectura que decidimos implementar para resolver **dos cosas a la vez**:
 
-1. **Almacenar los 3.5 millones de empresas de Florida (Sunbiz)** para poder verificar si un nombre que el cliente quiere usar para su LLC ya está tomado o no.
+1. **Almacenar los 3.5 millones de empresas de Florida (Sunbiz)** para poder verificar si un nombre que el cliente quiere usar para su LLC ya está tomado o no. ← _ver doc 29 para el estado actual implementado._
 2. **Tener backups automáticos diarios** de todo el negocio (órdenes, contabilidad, documentos PDF de los clientes) por si Supabase se cae o pasa cualquier desastre.
 
 Y todo eso **gastando casi $0 al mes** (en lugar de los $25/mes que costaría hacer todo dentro de Supabase Pro).

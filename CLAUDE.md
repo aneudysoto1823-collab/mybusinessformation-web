@@ -60,6 +60,10 @@ Order {
   status          // pending → in_review → ready_to_file → filed → approved → completed
                   // (names_taken queda como enum legacy pero no se usa en flujos nuevos —
                   //  el form valida en vivo contra Turso antes de cobrar)
+  nameCheck       Json?    // Resultado del chequeo Sunbiz al crear la orden.
+                  // Estructura: {query, normalized, available, exactCount, example?,
+                  // similarCount, checkedAt, error?}. Se ve en el email admin con
+                  // semáforo verde/rojo/ámbar. Ver doc LOGICA_DE_NEGOCIO/29.
 }
 ```
 
@@ -176,6 +180,7 @@ LOB_ENABLED           # 'true' para activar. 'false' para apagar sin redeploy si
 /api/contact              POST  — form público de /contact → email a info@opabiz.com (D1) + confirmación al visitor (D2). Rate limited 5/h/IP.
 /api/email/validate       GET   — valida email contra ZeroBounce (MX + SMTP probe + typos). Llamado desde el onblur del campo email en el form de checkout. DORMIDO por defecto (ZEROBOUNCE_ENABLED!=='true') — devuelve solo regex local sin consumir crédito. Doc: LOGICA_DE_NEGOCIO/27.
 /api/address/verify       POST  — valida dirección US contra Lob.com (USPS deliverability + sugerencia normalizada). Llamado desde fmNext() al click de Next en pasos con direcciones US (Negocio, RA, Mailing, Members). LIVE por default. Body JSON {primary_line, secondary_line?, city?, state?, zip_code?}. Doc: LOGICA_DE_NEGOCIO/28.
+/api/sunbiz/name-check    GET   — chequea disponibilidad de nombre contra Turso opabiz-sunbiz-search (3.9M LLC/Corp ACTIVE de Florida). Respuesta mínima {ok, available, exactCount, similarCount, example?}. NO se llama desde el form (decisión negocio 2026-06-25: cero fricción cliente). Sí se llama internamente desde /api/orders al crear orden. Rate-limit 60/min/IP. Doc: LOGICA_DE_NEGOCIO/29.
 
 /api/proxy/notifications/[type]  POST  — disparador interno del admin para reenviar emails: `order-confirmation` (A1, reenvío manual), `names-taken` (A2+A3), `suggest-names` (A4), `order-processed` (A5), `order-approved` (A6), `certificate` (A7)
 /api/admin/upload-certificate  POST — sube certificado de aprobación + dispara A7
