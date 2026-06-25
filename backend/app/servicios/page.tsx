@@ -10,6 +10,8 @@ import ChatWidget from '@/components/ChatWidget'
 type SchemaService = { id: string; name: string; description: string; priceUsd?: number }
 
 const SERVICIOS_FOR_SCHEMA: SchemaService[] = [
+  { id: 'llc-formation', name: 'LLC Formation (Florida)', description: 'Prepare and file Florida Articles of Organization to form a new Limited Liability Company with the Division of Corporations.', priceUsd: 99 },
+  { id: 'corp-formation', name: 'Corporation Formation (Florida)', description: 'Prepare and file Florida Articles of Incorporation to form a new Corporation with the Division of Corporations.', priceUsd: 99 },
   { id: 'registered-agent', name: 'Registered Agent (Florida)', description: 'Physical FL street address that receives legal documents and government notices on behalf of your LLC or Corporation.' },
   { id: 'ein', name: 'EIN / Tax ID Number', description: 'IRS-issued business tax identification number, required to open a bank account, hire employees, and file taxes.', priceUsd: 99 },
   { id: 'operating-agreement', name: 'Operating Agreement', description: 'Internal LLC document defining ownership, management structure, and member responsibilities. Required by most banks.', priceUsd: 79 },
@@ -124,11 +126,30 @@ export default function ServiciosPage() {
     'clipboard-list': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg>',
     archive: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="5" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/><line x1="10" y1="12" x2="14" y2="12"/></svg>',
     lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>',
+    building: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M8 10h.01"/><path d="M16 10h.01"/><path d="M8 14h.01"/><path d="M16 14h.01"/></svg>',
     chevron: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>'
   }
 
   type Service = { id: string; icon: string; name: string; name_es: string; price: string; sub_en: string; sub_es: string; desc_en: string; desc_es: string; includes_en: string[]; includes_es: string[]; time_en: string; time_es: string; btn_en: string; btn_es: string }
   const services: Service[] = [
+    { id: 'llc-formation', icon: 'building', name: 'LLC Formation', name_es: 'Formación de LLC', price: '$99',
+      sub_en: '+ FL state fee', sub_es: '+ tarifa estatal de FL',
+      desc_en: 'Start your Florida Limited Liability Company the right way. We prepare and file your Articles of Organization with the Florida Division of Corporations and set up your company structure.',
+      desc_es: 'Crea tu LLC de Florida de la forma correcta. Preparamos y presentamos tus Artículos de Organización ante la División de Corporaciones de Florida y configuramos la estructura de tu empresa.',
+      includes_en: ['Articles of Organization prepared &amp; filed','Name availability check with the State','Ownership &amp; management structure set up','Registered Agent option available'],
+      includes_es: ['Artículos de Organización preparados y presentados','Verificación de disponibilidad del nombre con el Estado','Estructura de propiedad y gestión configurada','Opción de Agente Registrado disponible'],
+      time_en: '&#9889; Processing: 1–3 business days with FL Division of Corporations',
+      time_es: '&#9889; Procesamiento: 1-3 días hábiles con la División de Corporaciones FL',
+      btn_en: 'Order LLC Formation &#8594;', btn_es: 'Ordenar Formación de LLC &#8594;' },
+    { id: 'corp-formation', icon: 'landmark', name: 'Corporation Formation', name_es: 'Formación de Corporation', price: '$99',
+      sub_en: '+ FL state fee', sub_es: '+ tarifa estatal de FL',
+      desc_en: 'Form your Florida Corporation (Inc.) with the state. We prepare and file your Articles of Incorporation, set up directors and officers, and define your authorized shares.',
+      desc_es: 'Forma tu Corporation (Inc.) de Florida ante el estado. Preparamos y presentamos tus Artículos de Incorporación, configuramos directores y oficiales, y definimos tus acciones autorizadas.',
+      includes_en: ['Articles of Incorporation prepared &amp; filed','Name availability check with the State','Directors, officers &amp; shares structure set up','Registered Agent option available'],
+      includes_es: ['Artículos de Incorporación preparados y presentados','Verificación de disponibilidad del nombre con el Estado','Estructura de directores, oficiales y acciones configurada','Opción de Agente Registrado disponible'],
+      time_en: '&#9889; Processing: 1–3 business days with FL Division of Corporations',
+      time_es: '&#9889; Procesamiento: 1-3 días hábiles con la División de Corporaciones FL',
+      btn_en: 'Order Corporation Formation &#8594;', btn_es: 'Ordenar Formación de Corporation &#8594;' },
     { id: 'registered-agent', icon: 'home', name: 'Registered Agent', name_es: 'Agente Registrado', price: '$99',
       sub_en: 'Required by FL law', sub_es: 'Requerido por ley en FL',
       desc_en: 'Every Florida LLC and Corporation must have a Registered Agent with a physical FL street address. We receive your legal documents, tax notices, and official mail on your behalf.',

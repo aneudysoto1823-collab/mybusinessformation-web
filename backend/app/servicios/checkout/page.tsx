@@ -134,8 +134,8 @@ body{font-family:var(--font-sans),'Plus Jakarta Sans',system-ui,sans-serif;color
     <h1 class="co-h1" data-en="Complete your order" data-es="Completa tu pedido">Completa tu pedido</h1>
     <p class="co-sub" data-en="We need a few details to prepare your filings." data-es="Necesitamos algunos datos para preparar tus trámites.">Necesitamos algunos datos para preparar tus trámites.</p>
 
-    <!-- Card 1: número de registro PRIMERO -->
-    <div class="co-card">
+    <!-- Card 1: número de registro PRIMERO (oculto en modo formación) -->
+    <div class="co-card" id="co-lookup-card">
       <div class="co-card-title" data-en="Start here: your company" data-es="Empieza aquí: tu empresa">Empieza aquí: tu empresa</div>
       <div class="co-lookup-row">
         <input class="co-input" id="f-flDoc" placeholder="L23000123456 / P23000012345"/>
@@ -148,10 +148,11 @@ body{font-family:var(--font-sans),'Plus Jakarta Sans',system-ui,sans-serif;color
 
     <!-- Card 2: datos de empresa (oculto hasta autollenar o entrada manual) -->
     <div class="co-card" id="co-company-card" style="display:none">
-      <div class="co-card-title" data-en="Company details" data-es="Datos de la empresa">Datos de la empresa</div>
+      <div class="co-card-title" id="co-company-title" data-en="Company details" data-es="Datos de la empresa">Datos de la empresa</div>
       <div class="co-grid">
-        <div class="co-field"><label class="co-label" data-en="Entity type" data-es="Tipo de entidad">Tipo de entidad</label><select class="co-select" id="f-entityType"><option value="llc">LLC</option><option value="corp" data-en="Corporation" data-es="Corporación">Corporación</option></select></div>
-        <div class="co-field"><label class="co-label" data-en="Legal business name" data-es="Nombre legal del negocio">Nombre legal del negocio</label><input class="co-input" id="f-legalName"/></div>
+        <div class="co-field" id="co-entity-field"><label class="co-label" data-en="Entity type" data-es="Tipo de entidad">Tipo de entidad</label><select class="co-select" id="f-entityType"><option value="llc">LLC</option><option value="corp" data-en="Corporation" data-es="Corporación">Corporación</option></select></div>
+        <div class="co-field"><label class="co-label" id="co-name-label" data-en="Legal business name" data-es="Nombre legal del negocio">Nombre legal del negocio</label><input class="co-input" id="f-legalName"/></div>
+        <div class="co-field" id="co-designator-field" style="display:none"><label class="co-label" data-en="Name ending" data-es="Terminación del nombre">Terminación del nombre</label><select class="co-select" id="f-designator"></select></div>
         <div class="co-field full"><label class="co-label" data-en="Business street address" data-es="Dirección del negocio">Dirección del negocio</label><input class="co-input" id="f-street"/></div>
         <div class="co-field"><label class="co-label" data-en="City" data-es="Ciudad">Ciudad</label><input class="co-input" id="f-city"/></div>
         <div class="co-field"><label class="co-label" data-en="ZIP" data-es="Código postal">Código postal</label><input class="co-input" id="f-zip"/></div>
@@ -231,6 +232,12 @@ var SHARED_CFG = ${JSON.stringify(SHARED_FIELDS)};
 var cart = [];
 try { cart = JSON.parse(localStorage.getItem('flbc_svc_cart')||'[]'); if(!Array.isArray(cart)) cart=[]; } catch(e){ cart=[]; }
 var stripeCheckout = null;
+
+// Formación de empresa NUEVA: el checkout se adapta (no se busca empresa
+// existente; se pide el nombre NUEVO + designador segun LLC/Corp).
+var FORMATION_MAP = { 'llc-formation':'llc', 'corp-formation':'corp' };
+var DESIGNATORS = { llc:['LLC','L.L.C.','Limited Liability Company'], corp:['Inc.','Corp.','Corporation','Incorporated'] };
+function coFormationType(){ for(var i=0;i<cart.length;i++){ if(FORMATION_MAP[cart[i]]) return FORMATION_MAP[cart[i]]; } return null; }
 
 function coIsEs(){ return coLang==='es'; }
 function $(id){ return document.getElementById(id); }
@@ -414,10 +421,15 @@ function coLookupCompany(){
 }
 
 function coGetIntake(){
+  var ft=coFormationType();
+  var name=$('f-legalName').value.trim();
+  var desig=(ft && $('f-designator')) ? $('f-designator').value : '';
   return {
     firstName:$('f-firstName').value.trim(), lastName:$('f-lastName').value.trim(),
     email:$('f-email').value.trim(), phone:$('f-phone').value.trim(),
-    entityType:$('f-entityType').value, legalName:$('f-legalName').value.trim(),
+    entityType:$('f-entityType').value,
+    legalName:(ft && desig && name) ? (name+' '+desig) : name,
+    formationType:ft||'', designator:desig,
     flDoc:$('f-flDoc').value.trim(), street:$('f-street').value.trim(),
     city:$('f-city').value.trim(), zip:$('f-zip').value.trim(),
     signature:$('f-signature').value.trim(), extras:coCollectExtras(), shared:coCollectShared()
@@ -430,7 +442,9 @@ function coGoToPayment(){
   if(intake.firstName.length<1||intake.lastName.length<1){ err.textContent=isEs?'Ingresa tu nombre y apellido.':'Please enter your first and last name.'; return; }
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(intake.email)){ err.textContent=isEs?'Ingresa un correo válido.':'Please enter a valid email.'; return; }
   if(intake.phone.replace(/[^0-9]/g,'').length<7){ err.textContent=isEs?'Ingresa un teléfono válido.':'Please enter a valid phone.'; return; }
-  if(intake.legalName.length<2){ err.textContent=isEs?'Busca tu empresa por número de registro, o ingresa los datos manualmente.':'Search your company by registration number, or enter the details manually.'; coRevealManual(); return; }
+  if(coFormationType()){
+    if(($('f-legalName').value||'').trim().length<2){ err.textContent=isEs?'Escribe el nombre deseado de tu nueva empresa.':'Enter the desired name for your new company.'; return; }
+  } else if(intake.legalName.length<2){ err.textContent=isEs?'Busca tu empresa por número de registro, o ingresa los datos manualmente.':'Search your company by registration number, or enter the details manually.'; coRevealManual(); return; }
   if(intake.signature.length<2){ err.textContent=isEs?'Escribe tu firma electrónica.':'Please type your electronic signature.'; return; }
 
   var btn=$('co-to-pay'); btn.disabled=true; var prev=btn.innerHTML; btn.innerHTML=isEs?'Creando pago...':'Creating payment...';
@@ -467,6 +481,23 @@ function coBackToIntake(){
 }
 
 // ── Init ──
+// Modo formación: oculta el lookup de empresa existente y convierte el card de
+// empresa en "tu nueva empresa" (nombre deseado + designador + tipo fijo).
+function coApplyFormationMode(){
+  var t=coFormationType(); if(!t) return;
+  var isEs=coIsEs();
+  var lk=$('co-lookup-card'); if(lk) lk.style.display='none';
+  var cc=$('co-company-card'); if(cc) cc.style.display='';
+  var et=$('f-entityType'); if(et) et.value=t;
+  var ef=$('co-entity-field'); if(ef) ef.style.display='none';
+  var title=$('co-company-title'); if(title){ title.setAttribute('data-en','Your new company'); title.setAttribute('data-es','Tu nueva empresa'); title.textContent=isEs?'Tu nueva empresa':'Your new company'; }
+  var nl=$('co-name-label'); if(nl){ nl.setAttribute('data-en','Desired company name'); nl.setAttribute('data-es','Nombre deseado de la empresa'); nl.textContent=isEs?'Nombre deseado de la empresa':'Desired company name'; }
+  var df=$('co-designator-field'), ds=$('f-designator');
+  if(df&&ds){ df.style.display=''; ds.innerHTML=(DESIGNATORS[t]||[]).map(function(o){return '<option>'+o+'</option>';}).join(''); }
+  var sub=document.querySelector('#co-intake .co-sub');
+  if(sub){ var en='Enter your new company name and details to start the filing.'; var es='Ingresa el nombre y los datos de tu nueva empresa para iniciar el trámite.'; sub.setAttribute('data-en',en); sub.setAttribute('data-es',es); sub.textContent=isEs?es:en; }
+}
+
 (function init(){
   coSetLang(coLang);
   var paid=false; try{ paid=new URLSearchParams(location.search).get('paid')==='1'; }catch(e){}
@@ -480,6 +511,7 @@ function coBackToIntake(){
   if(!cart.length){ $('co-steps').style.display='none'; coShow('co-empty'); return; }
   renderSvcSections();
   renderSharedSection();
+  coApplyFormationMode();
   coShow('co-intake');
 })();
 `

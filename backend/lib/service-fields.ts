@@ -63,6 +63,33 @@ export function sharedKeysForServices(serviceIds: string[]): string[] {
 }
 
 export const SERVICE_FIELDS: Record<string, ServiceFieldDef> = {
+  // Formación de empresa NUEVA. El nombre deseado + designador + dirección se
+  // capturan en el card "Tu nueva empresa" del checkout (no aquí). Estos campos
+  // son los específicos del filing de formación.
+  'llc-formation': { name_en: 'LLC Formation', name_es: 'Formación de LLC',
+    note_en: 'Owners and how the LLC is run', note_es: 'Dueños y cómo se maneja la LLC', fields: [
+    { k: 'activity', en: 'Primary business activity', es: 'Actividad principal del negocio', type: 'select', opts: ['Retail & E-Commerce', 'Real Estate', 'Restaurant / Food', 'Construction', 'Technology', 'Consulting', 'Import / Export', 'Health & Wellness', 'Other'] },
+    { k: 'raPref', en: 'Registered Agent', es: 'Agente registrado', type: 'select', opts: ['Use OpaBiz as my Registered Agent', 'I will provide my own Registered Agent'] },
+    { k: 'mgmt', en: 'Management type', es: 'Tipo de gestión', type: 'select', opts: ['Member-Managed', 'Manager-Managed'] },
+    { k: 'members', en: 'Owners / Members', es: 'Dueños / Miembros', type: 'repeater',
+      countEn: 'How many owners/members?', countEs: '¿Cuántos dueños o miembros?', cols: [
+      { k: 'name', en: 'Full legal name', es: 'Nombre legal completo', type: 'text' },
+      { k: 'pct', en: 'Ownership %', es: '% de propiedad', type: 'text' },
+      { k: 'address', en: 'Address', es: 'Dirección', type: 'text' },
+    ]},
+  ]},
+  'corp-formation': { name_en: 'Corporation Formation', name_es: 'Formación de Corporation',
+    note_en: 'Directors, officers and shares', note_es: 'Directores, oficiales y acciones', fields: [
+    { k: 'activity', en: 'Primary business activity', es: 'Actividad principal del negocio', type: 'select', opts: ['Retail & E-Commerce', 'Real Estate', 'Restaurant / Food', 'Construction', 'Technology', 'Consulting', 'Import / Export', 'Health & Wellness', 'Other'] },
+    { k: 'raPref', en: 'Registered Agent', es: 'Agente registrado', type: 'select', opts: ['Use OpaBiz as my Registered Agent', 'I will provide my own Registered Agent'] },
+    { k: 'shares', en: 'Authorized shares', es: 'Acciones autorizadas', type: 'select', opts: ['1,000', '10,000', '100,000', 'Other'] },
+    { k: 'directors', en: 'Directors / Officers', es: 'Directores / Oficiales', type: 'repeater',
+      countEn: 'How many directors/officers?', countEs: '¿Cuántos directores u oficiales?', cols: [
+      { k: 'title', en: 'Role', es: 'Cargo', type: 'select', opts: ['Director', 'President', 'VP', 'Secretary', 'Treasurer'] },
+      { k: 'name', en: 'Full name', es: 'Nombre completo', type: 'text' },
+      { k: 'address', en: 'Address', es: 'Dirección', type: 'text' },
+    ]},
+  ]},
   // El responsible party (IRS) es la persona que ordena — su nombre ya se pide
   // arriba en "Tu información". Aquí solo pedimos el SSN/ITIN (sensible) + rol +
   // actividad, que no se piden en otro lado.

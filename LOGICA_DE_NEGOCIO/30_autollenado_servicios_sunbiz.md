@@ -29,6 +29,12 @@
 - **Checkout cliente (2026-06-25):** cada repeater abre con un **selector de cantidad** ("¿Cuántos dueños/miembros/accionistas?", 1–10) que crea esas filas; el botón ✕ por fila se mantiene y sincroniza el selector. Etiquetas en `service-fields.ts` vía `countEn/countEs` por campo. Se usa la palabra "dueños" (conocida para los latinos). Admin conserva su Agregar/Quitar libre.
 - **Subtítulo por servicio:** `ServiceFieldDef.note_en/note_es` reemplaza el genérico "Detalles específicos de este servicio". Annual Report usa "Dueños, oficiales, gerentes y directores". El card "Datos requeridos" (compartidos) ya no lleva subtítulo.
 
+### Formación de empresa NUEVA (à la carte) — 2026-06-25
+- Se agregaron 2 servicios **arriba** en `/servicios`: `llc-formation` y `corp-formation` ($99 + tarifa estatal FL $125 LLC / $70 Corp en `services-pricing.ts`). Cards con características + tip (data-driven del array `services`).
+- **El checkout se adapta (modo formación):** si el carrito trae un servicio de formación, `coApplyFormationMode()` oculta el card de lookup de empresa existente y convierte el card de empresa en **"Tu nueva empresa"** (nombre deseado + **designador** según LLC `LLC/L.L.C./Limited Liability Company` o Corp `Inc./Corp./Corporation/Incorporated`; el tipo de entidad se fija por el servicio elegido y se oculta su selector). `coGetIntake` combina nombre+designador en `legalName` y guarda `formationType`/`designator`.
+- Campos de formación en `service-fields.ts` (`llc-formation`/`corp-formation`): actividad, preferencia de agente registrado, gestión (LLC) o acciones autorizadas (Corp), y repeater de dueños/miembros (LLC) o directores/oficiales (Corp) con selector de cantidad.
+- ⚠️ Precio $99 **placeholder**; tarifas estatales aprox. Confirmar antes de LIVE. El subtotal del carrito muestra solo $99 (la tarifa estatal se suma en el review/Stripe vía `computeServicesTotal`, igual que los demás servicios con `stateFee`).
+
 ### Fuente única de campos
 - El checkout del cliente **inyecta `SERVICE_FIELDS` y `SHARED_FIELDS` desde `lib/service-fields.ts`** (antes tenía copia inline duplicada que se desincronizó). Ahora cliente y admin SIEMPRE coinciden. **Para tocar campos: editar solo `lib/service-fields.ts`.**
 
