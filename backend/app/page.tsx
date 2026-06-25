@@ -1737,7 +1737,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
                   </div>
                   <div class="fm-group"><label class="fm-label" id="s5-m1-own-lbl">Ownership % <span style="font-size:.68rem;font-weight:500;color:#f59e0b;background:#fef3c7;padding:1px 6px;border-radius:4px" id="s5-own-rec-lbl">Recommended</span></label><input type="number" class="fm-input" id="s5-m1-own" placeholder="e.g. 100" min="0" max="100" oninput="fmUpdateOwnership()"/></div>
                 </div>
-                <!-- Address presets: reuse business address or virtual address -->
+                <!-- Address presets: reuse business/virtual + RA + Mailing (segun reglas 2026-06-25) -->
                 <div class="fm-addr-presets" id="s5-m1-addr-presets" style="display:none">
                   <label class="fm-addr-preset" id="s5-m1-addr-biz-wrap" style="display:none">
                     <input type="checkbox" class="fm-addr-preset-chk" id="s5-m1-addr-biz" onchange="fmApplyBizAddrToMember(1,this.checked)"/>
@@ -1748,6 +1748,16 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
                     <input type="checkbox" class="fm-addr-preset-chk" id="s5-m1-addr-virtual" onchange="fmApplyVirtualAddrToMember(1,this.checked)"/>
                     <span class="fm-addr-preset-pin">&#128205;</span>
                     <span class="fm-addr-preset-text" id="s5-m1-addr-virtual-text">Use the assigned company address provided by OpaBiz</span>
+                  </label>
+                  <label class="fm-addr-preset" id="s5-m1-addr-ra-wrap" style="display:none">
+                    <input type="checkbox" class="fm-addr-preset-chk" id="s5-m1-addr-ra" onchange="fmApplyRaAddrToMember(1,this.checked)"/>
+                    <span class="fm-addr-preset-pin">&#128205;</span>
+                    <span class="fm-addr-preset-text" id="s5-m1-addr-ra-text"></span>
+                  </label>
+                  <label class="fm-addr-preset" id="s5-m1-addr-mailing-wrap" style="display:none">
+                    <input type="checkbox" class="fm-addr-preset-chk" id="s5-m1-addr-mailing" onchange="fmApplyMailingAddrToMember(1,this.checked)"/>
+                    <span class="fm-addr-preset-pin">&#128205;</span>
+                    <span class="fm-addr-preset-text" id="s5-m1-addr-mailing-text"></span>
                   </label>
                 </div>
                 <div class="fm-group"><label class="fm-label" id="s5-m1-country-lbl">Country *</label>
@@ -2556,6 +2566,16 @@ function fmAddMember() {
           '<span class="fm-addr-preset-pin">&#128205;</span>' +
           '<span class="fm-addr-preset-text" id="s5-m' + n + '-addr-virtual-text">' + virtualTxt + '</span>' +
         '</label>' +
+        '<label class="fm-addr-preset" id="s5-m' + n + '-addr-ra-wrap" style="display:none">' +
+          '<input type="checkbox" class="fm-addr-preset-chk" id="s5-m' + n + '-addr-ra" onchange="fmApplyRaAddrToMember(' + n + ',this.checked)"/>' +
+          '<span class="fm-addr-preset-pin">&#128205;</span>' +
+          '<span class="fm-addr-preset-text" id="s5-m' + n + '-addr-ra-text"></span>' +
+        '</label>' +
+        '<label class="fm-addr-preset" id="s5-m' + n + '-addr-mailing-wrap" style="display:none">' +
+          '<input type="checkbox" class="fm-addr-preset-chk" id="s5-m' + n + '-addr-mailing" onchange="fmApplyMailingAddrToMember(' + n + ',this.checked)"/>' +
+          '<span class="fm-addr-preset-pin">&#128205;</span>' +
+          '<span class="fm-addr-preset-text" id="s5-m' + n + '-addr-mailing-text"></span>' +
+        '</label>' +
       '</div>' +
       '<div class="fm-group"><label class="fm-label">' + (isEs ? 'País *' : 'Country *') + '</label><select class="fm-select" id="s5-m' + n + '-country" onchange="fmMemberAddrChange(\\'s5-m' + n + '\\',this)"><option value="US">United States</option><option value="AR">Argentina</option><option value="BR">Brazil</option><option value="CL">Chile</option><option value="CO">Colombia</option><option value="CR">Costa Rica</option><option value="CU">Cuba</option><option value="DO">Dominican Republic</option><option value="EC">Ecuador</option><option value="ES">Spain</option><option value="GB">United Kingdom</option><option value="GT">Guatemala</option><option value="HN">Honduras</option><option value="MX">Mexico</option><option value="NI">Nicaragua</option><option value="PE">Peru</option><option value="VE">Venezuela</option><option value="other">Other</option></select></div>' +
       '<div id="s5-m' + n + '-addr-dynamic"><div class="fm-group"><label class="fm-label">' + (isEs ? 'Dirección *' : 'Street Address *') + '</label><input type="text" class="fm-input" id="s5-m' + n + '-addr" placeholder="e.g. 123 Main Street"/></div><div class="fm-row-3"><div class="fm-group"><label class="fm-label">' + (isEs ? 'Ciudad *' : 'City *') + '</label><input type="text" class="fm-input" id="s5-m' + n + '-city" placeholder="City"/></div><div class="fm-group"><label class="fm-label">' + (isEs ? 'Estado *' : 'State *') + '</label><input type="text" class="fm-input" id="s5-m' + n + '-state" placeholder="e.g. FL"/></div><div class="fm-group"><label class="fm-label">ZIP *</label><input type="text" class="fm-input" id="s5-m' + n + '-zip" placeholder="00000" maxlength="10"/></div></div></div>' +
@@ -2639,6 +2659,57 @@ function fmBusinessAddrText() {
   return parts.join(', ');
 }
 
+// ── Helpers para los 2 checkboxes nuevos (RA y Mailing) ──────────────────────
+// Regla 2026-06-25 (simplificada, ver doc 29 / tabla 14 combinaciones):
+//   Business/Virtual: siempre aparece según bizAddrType (label dinamico)
+//   RA:               solo si agentType='own' Y direccion RA distinta de biz
+//                     (chk-ra-same-biz NO marcado, o no existe el checkbox)
+//   Mailing:          solo si chk-same-mail NO marcado (mailing custom)
+
+function fmGetRaAddrParts() {
+  function v(id){var e=document.getElementById(id);return e?(e.value||'').trim():'';}
+  return {
+    street: v('inp-ra-street'),
+    street2: v('inp-ra-street2'),
+    city:   v('inp-ra-city'),
+    // RA siempre Florida US (el form fuerza esto)
+    state:  'FL',
+    zip:    v('inp-ra-zip'),
+  };
+}
+function fmRaAddrText() {
+  var p = fmGetRaAddrParts();
+  if(!p.street || !p.city) return '';
+  var parts = [p.street];
+  var csz = [p.city];
+  if(p.state) csz.push(p.state);
+  if(p.zip) csz.push(p.zip);
+  parts.push(csz.join(', '));
+  parts.push('US.');
+  return parts.join(', ');
+}
+function fmGetMailingAddrParts() {
+  function v(id){var e=document.getElementById(id);return e?(e.value||'').trim():'';}
+  var countryEl = document.getElementById('inp-mail-country');
+  return {
+    street: v('inp-mail-street'),
+    city:   v('inp-mail-city'),
+    state:  '',  // mailing no tiene state input
+    zip:    v('inp-mail-zip'),
+    country: countryEl ? countryEl.value : 'US',
+  };
+}
+function fmMailingAddrText() {
+  var p = fmGetMailingAddrParts();
+  if(!p.street || !p.city) return '';
+  var parts = [p.street];
+  var csz = [p.city];
+  if(p.zip) csz.push(p.zip);
+  parts.push(csz.join(', '));
+  if(p.country) parts.push(p.country + '.');
+  return parts.join(', ');
+}
+
 function fmRefreshAddrPresets() {
   var bizParts = fmGetBusinessAddrParts();
   var hasBizPhysical = !!(bizParts.street && bizParts.city);
@@ -2650,6 +2721,27 @@ function fmRefreshAddrPresets() {
   // que eligieron "I will use my own address".
   var hasVirtual = !!(fmData && fmData.bizAddrType === 'virtual');
   var bizText = fmBusinessAddrText();
+
+  // ── RA visible? Solo si el cliente eligió "Own RA" en Paso 3 Y la dirección
+  //    del RA es distinta de la del negocio. Cuando chk-ra-same-biz está
+  //    marcado el RA = biz (duplicado, no mostrar). Cuando no existe el
+  //    checkbox (Paso 2 fuera de own+US+FL), el RA propio siempre es FL aparte
+  //    así que siempre distinto del biz.
+  var raSameChk = document.getElementById('chk-ra-same-biz');
+  var raSameActive = !!(raSameChk && raSameChk.checked);
+  var raParts = fmGetRaAddrParts();
+  var hasRaPhysical = !!(raParts.street && raParts.city);
+  var showRa = !!(fmData && fmData.agentType === 'own') && !raSameActive && hasRaPhysical;
+  var raText = showRa ? fmRaAddrText() : '';
+
+  // ── Mailing visible? Solo si "Same as business" (chk-same-mail) NO está
+  //    marcado Y hay datos en los campos mailing.
+  var mailSameChk = document.getElementById('chk-same-mail');
+  var mailSameActive = !!(mailSameChk && mailSameChk.checked);
+  var mailParts = fmGetMailingAddrParts();
+  var hasMailingPhysical = !!(mailParts.street && mailParts.city);
+  var showMailing = !mailSameActive && hasMailingPhysical;
+  var mailText = showMailing ? fmMailingAddrText() : '';
 
   // Collect all member ids: 1 + dynamic ones in s5-extra-members
   var memberIds = [1];
@@ -2665,7 +2757,11 @@ function fmRefreshAddrPresets() {
     var presetsWrap = document.getElementById('s5-m' + n + '-addr-presets');
     var bizWrap     = document.getElementById('s5-m' + n + '-addr-biz-wrap');
     var virtualWrap = document.getElementById('s5-m' + n + '-addr-virtual-wrap');
+    var raWrap      = document.getElementById('s5-m' + n + '-addr-ra-wrap');
+    var mailWrap    = document.getElementById('s5-m' + n + '-addr-mailing-wrap');
     var bizText2    = document.getElementById('s5-m' + n + '-addr-biz-text');
+    var raText2     = document.getElementById('s5-m' + n + '-addr-ra-text');
+    var mailText2   = document.getElementById('s5-m' + n + '-addr-mailing-text');
     if(!presetsWrap) return;
     var showAny = false;
     if(hasBizPhysical && bizWrap) {
@@ -2681,6 +2777,20 @@ function fmRefreshAddrPresets() {
     } else if(virtualWrap) {
       virtualWrap.style.display = 'none';
     }
+    if(showRa && raWrap) {
+      raWrap.style.display = '';
+      if(raText2) raText2.textContent = raText;
+      showAny = true;
+    } else if(raWrap) {
+      raWrap.style.display = 'none';
+    }
+    if(showMailing && mailWrap) {
+      mailWrap.style.display = '';
+      if(mailText2) mailText2.textContent = mailText;
+      showAny = true;
+    } else if(mailWrap) {
+      mailWrap.style.display = 'none';
+    }
     presetsWrap.style.display = showAny ? '' : 'none';
   });
 }
@@ -2693,19 +2803,27 @@ function fmSetMemberAddrFieldsVisible(n, visible) {
   if(addrDynamic) addrDynamic.style.display = visible ? '' : 'none';
 }
 
+// Helper interno: desmarca los OTROS 3 checkboxes preset del miembro N
+// (todos los presets son mutuamente excluyentes).
+function _fmUncheckOtherMemberPresets(n, keep) {
+  ['biz','virtual','ra','mailing'].forEach(function(k){
+    if(k === keep) return;
+    var chk = document.getElementById('s5-m' + n + '-addr-' + k);
+    var wrap = document.getElementById('s5-m' + n + '-addr-' + k + '-wrap');
+    if(chk) chk.checked = false;
+    if(wrap) wrap.classList.remove('is-active');
+  });
+}
+
 function fmApplyBizAddrToMember(n, checked) {
   var addr  = document.getElementById('s5-m' + n + '-addr');
   var city  = document.getElementById('s5-m' + n + '-city');
   var state = document.getElementById('s5-m' + n + '-state');
   var zip   = document.getElementById('s5-m' + n + '-zip');
   var country = document.getElementById('s5-m' + n + '-country');
-  var bizWrap     = document.getElementById('s5-m' + n + '-addr-biz-wrap');
-  var virtualChk  = document.getElementById('s5-m' + n + '-addr-virtual');
-  var virtualWrap = document.getElementById('s5-m' + n + '-addr-virtual-wrap');
+  var bizWrap = document.getElementById('s5-m' + n + '-addr-biz-wrap');
   if(checked) {
-    // Uncheck the other one
-    if(virtualChk) virtualChk.checked = false;
-    if(virtualWrap) virtualWrap.classList.remove('is-active');
+    _fmUncheckOtherMemberPresets(n, 'biz');
     if(bizWrap) bizWrap.classList.add('is-active');
     var p = fmGetBusinessAddrParts();
     if(country) country.value = 'US';
@@ -2727,14 +2845,11 @@ function fmApplyVirtualAddrToMember(n, checked) {
   var state = document.getElementById('s5-m' + n + '-state');
   var zip   = document.getElementById('s5-m' + n + '-zip');
   var country = document.getElementById('s5-m' + n + '-country');
-  var bizChk      = document.getElementById('s5-m' + n + '-addr-biz');
-  var bizWrap     = document.getElementById('s5-m' + n + '-addr-biz-wrap');
   var virtualWrap = document.getElementById('s5-m' + n + '-addr-virtual-wrap');
   var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
   var virtualPlaceholder = isEs ? 'Dirección virtual (asignada al confirmar la orden)' : 'Virtual address (assigned upon order confirmation)';
   if(checked) {
-    if(bizChk) bizChk.checked = false;
-    if(bizWrap) bizWrap.classList.remove('is-active');
+    _fmUncheckOtherMemberPresets(n, 'virtual');
     if(virtualWrap) virtualWrap.classList.add('is-active');
     if(country) country.value = 'US';
     if(addr)    addr.value    = virtualPlaceholder;
@@ -2744,6 +2859,58 @@ function fmApplyVirtualAddrToMember(n, checked) {
     fmSetMemberAddrFieldsVisible(n, false);
   } else {
     if(virtualWrap) virtualWrap.classList.remove('is-active');
+    [addr, city, state, zip].forEach(function(el){ if(el) el.value = ''; });
+    fmSetMemberAddrFieldsVisible(n, true);
+  }
+}
+
+// Nuevos 2026-06-25: reusar direccion del RA (Paso 3) si el RA es own y su
+// direccion es distinta de la del negocio.
+function fmApplyRaAddrToMember(n, checked) {
+  var addr  = document.getElementById('s5-m' + n + '-addr');
+  var city  = document.getElementById('s5-m' + n + '-city');
+  var state = document.getElementById('s5-m' + n + '-state');
+  var zip   = document.getElementById('s5-m' + n + '-zip');
+  var country = document.getElementById('s5-m' + n + '-country');
+  var raWrap = document.getElementById('s5-m' + n + '-addr-ra-wrap');
+  if(checked) {
+    _fmUncheckOtherMemberPresets(n, 'ra');
+    if(raWrap) raWrap.classList.add('is-active');
+    var p = fmGetRaAddrParts();
+    if(country) country.value = 'US';
+    if(addr)    addr.value    = p.street;
+    if(city)    city.value    = p.city;
+    if(state)   state.value   = p.state;  // siempre FL
+    if(zip)     zip.value     = p.zip;
+    fmSetMemberAddrFieldsVisible(n, false);
+  } else {
+    if(raWrap) raWrap.classList.remove('is-active');
+    [addr, city, state, zip].forEach(function(el){ if(el) el.value = ''; });
+    fmSetMemberAddrFieldsVisible(n, true);
+  }
+}
+
+// Nuevos 2026-06-25: reusar direccion Mailing (Paso 3) si chk-same-mail
+// no esta marcado (mailing custom distinto del negocio).
+function fmApplyMailingAddrToMember(n, checked) {
+  var addr  = document.getElementById('s5-m' + n + '-addr');
+  var city  = document.getElementById('s5-m' + n + '-city');
+  var state = document.getElementById('s5-m' + n + '-state');
+  var zip   = document.getElementById('s5-m' + n + '-zip');
+  var country = document.getElementById('s5-m' + n + '-country');
+  var mailWrap = document.getElementById('s5-m' + n + '-addr-mailing-wrap');
+  if(checked) {
+    _fmUncheckOtherMemberPresets(n, 'mailing');
+    if(mailWrap) mailWrap.classList.add('is-active');
+    var p = fmGetMailingAddrParts();
+    if(country) country.value = p.country || 'US';
+    if(addr)    addr.value    = p.street;
+    if(city)    city.value    = p.city;
+    if(state)   state.value   = p.state || '';  // mailing no tiene state input fijo
+    if(zip)     zip.value     = p.zip;
+    fmSetMemberAddrFieldsVisible(n, false);
+  } else {
+    if(mailWrap) mailWrap.classList.remove('is-active');
     [addr, city, state, zip].forEach(function(el){ if(el) el.value = ''; });
     fmSetMemberAddrFieldsVisible(n, true);
   }
@@ -4741,18 +4908,26 @@ function fmNext() {
     if(phoneEl&&/[a-zA-Z]/.test(phoneEl.value)){phoneEl.style.borderColor='#ef4444';phoneEl.focus();alert(isEs?'El teléfono solo debe contener números.':'Phone must contain only digits.');return;}
     if(phoneEl)phoneEl.style.borderColor='';
     if(!fmData.bizAddrType||fmData.bizAddrType==='own'){
+      // Fix 2026-06-25: ZIP solo se exige si el país lo usa (_addrFmt[country].zip).
+      // Antes el array siempre exigía inp-zip incluso para países sin ZIP (DR,
+      // CO, VE, CU, EC, GT, HN, NI, PE) donde fmRenderAddrFields ni siquiera
+      // renderiza el campo. Resultado: alert "enter ZIP" sin campo para llenarlo.
+      var bcEl=document.getElementById('inp-biz-country');
+      var bcVal=bcEl?bcEl.value:'US';
+      var fmt2=(_addrFmt[bcVal])||(_addrFmt['other']);
       var addrReq=[
         {id:'inp-addr',msg:isEs?'Por favor ingresa la dirección.':'Please enter your street address.'},
         {id:'inp-city',msg:isEs?'Por favor ingresa la ciudad.':'Please enter your city.'},
-        {id:'inp-zip',msg:isEs?'Por favor ingresa el código postal.':'Please enter your ZIP code.'},
       ];
+      if(fmt2.zip){
+        addrReq.push({id:'inp-zip',msg:isEs?'Por favor ingresa el código postal.':'Please enter your ZIP code.'});
+      }
       for(var ai=0;ai<addrReq.length;ai++){
         var ae=document.getElementById(addrReq[ai].id);
         if(!ae||!ae.value.trim()){if(ae){ae.style.borderColor='#ef4444';ae.focus();}alert(addrReq[ai].msg);return;}
         if(ae)ae.style.borderColor='';
       }
-      var bc=document.getElementById('inp-biz-country');
-      if(bc&&bc.value==='US'){var st=document.getElementById('inp-state');if(!st||!st.value){if(st){st.style.borderColor='#ef4444';st.focus();}alert(isEs?'Por favor selecciona el estado.':'Please select your state.');return;}if(st)st.style.borderColor='';}
+      if(bcVal==='US'){var st=document.getElementById('inp-state');if(!st||!st.value){if(st){st.style.borderColor='#ef4444';st.focus();}alert(isEs?'Por favor selecciona el estado.':'Please select your state.');return;}if(st)st.style.borderColor='';}
     }
     // === Lob validation grupo 1: Direccion fisica del negocio (solo US) ===
     if((!fmData.bizAddrType||fmData.bizAddrType==='own') && document.getElementById('inp-biz-country') && document.getElementById('inp-biz-country').value==='US') {
