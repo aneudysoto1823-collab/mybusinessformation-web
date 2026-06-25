@@ -8,10 +8,13 @@ import { SERVICE_FIELDS, SHARED_FIELDS, sharedKeysForServices, type RepeaterCol 
 // - Autollena el bloque de empresa desde Turso (3.5M Sunbiz) con el número de
 //   registro que puso el cliente.
 // - Muestra solo las secciones de los servicios que el cliente pidió.
-// - Editable por el equipo + imprimible. (Las ediciones NO se persisten todavía
-//   — es una hoja de trabajo; persistir es una mejora futura.)
+// - Editable por el equipo + imprimible.
+// - Las ediciones se PERSISTEN: el snapshot completo del form (vals) se guarda en
+//   addons.intake.worksheet vía PATCH /api/proxy/orders/[id]. Al recargar se
+//   seedea desde ahí (round-trip), de modo que el equipo no pierde su trabajo.
 
 interface Props {
+  orderId: string
   addons: unknown
   firstName: string
   lastName: string
@@ -49,10 +52,12 @@ const COMPANY_FIELDS: { k: string; label: string }[] = [
   { k: 'c_agentAddr', label: 'Dirección del agente' },
 ]
 
-export default function ServicesFilingForm({ addons, firstName, lastName, email, phone, companyName, entityType }: Props) {
+export default function ServicesFilingForm({ orderId, addons, firstName, lastName, email, phone, companyName, entityType }: Props) {
   const { services, intake } = parseAddons(addons)
   const extras = (intake.extras && typeof intake.extras === 'object') ? (intake.extras as Record<string, string>) : {}
   const docNumberInitial = String(intake.flDoc || '')
+  // Snapshot guardado por el equipo en una sesión anterior (si existe).
+  const savedWorksheet = (intake.worksheet && typeof intake.worksheet === 'object') ? (intake.worksheet as Vals) : null
 
   const [docNumber, setDocNumber] = useState(docNumberInitial)
   const [lookup, setLookup] = useState<'idle' | 'loading' | 'found' | 'notfound' | 'error'>('idle')
@@ -91,10 +96,40 @@ export default function ServicesFilingForm({ addons, firstName, lastName, email,
     for (const k of sharedKeysForServices(services)) {
       v['s_' + k] = String(sharedVals[k] ?? '')
     }
-    return v
+    // Las ediciones guardadas por el equipo ganan sobre los valores derivados.
+    return savedWorksheet ? { ...v, ...savedWorksheet } : v
   })
 
   const set = (k: string, val: string) => setVals(prev => ({ ...prev, [k]: val }))
+
+  // Guardado de la hoja de trabajo
+  const [saving, setSaving] = useState(false)
+  const [saveMsg, setSaveMsg] = useState('')
+
+  async function handleSave() {
+    setSaving(true); setSaveMsg('')
+    // Reconstruye addons preservando lo existente; mete el snapshot del form en intake.worksheet.
+    const base = parseAddons(addons)
+    const prevObj = (typeof addons === 'object' && addons) ? (addons as Record<string, unknown>) : {}
+    const newAddons = {
+      ...prevObj,
+      services: base.services,
+      intake: { ...base.intake, worksheet: vals },
+    }
+    try {
+      const res = await fetch(`/api/proxy/orders/${orderId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ addons: newAddons }),
+      })
+      setSaveMsg(res.ok ? '✓ Hoja de trabajo guardada.' : 'Error al guardar.')
+    } catch {
+      setSaveMsg('Error de conexión al guardar.')
+    } finally {
+      setSaving(false)
+      setTimeout(() => setSaveMsg(''), 4000)
+    }
+  }
 
   // Render de un campo 'repeater' (filas estructuradas). El valor se guarda como
   // JSON string en vals[id] (array de objetos {colKey: valor}).
@@ -162,7 +197,9 @@ export default function ServicesFilingForm({ addons, firstName, lastName, email,
   }
 
   useEffect(() => {
-    if (docNumberInitial) doLookup(docNumberInitial)
+    // Solo autollenar de Turso si NO hay una hoja guardada (para no pisar las
+    // ediciones del equipo). El botón "Buscar en Sunbiz" sigue disponible manual.
+    if (docNumberInitial && !savedWorksheet) doLookup(docNumberInitial)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -232,6 +269,9 @@ export default function ServicesFilingForm({ addons, firstName, lastName, email,
         .sff-rep-del{ flex:0 0 auto; width:26px; height:26px; border:1.5px solid #e5e7eb; background:#fff; border-radius:6px; color:#94a3b8; cursor:pointer; font-size:14px; line-height:1; }
         .sff-rep-del:hover{ background:#fee2e2; color:#dc2626; }
         .sff-rep-add{ align-self:flex-start; background:#ede9fe; color:#7c3aed; border:1.5px dashed #c4b5fd; padding:6px 12px; border-radius:7px; font-size:12px; font-weight:600; cursor:pointer; font-family:inherit; }
+        .sff-actions{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+        .sff-save{ background:#16a34a; color:#fff; border:none; padding:11px 20px; border-radius:9px; font-weight:700; font-size:13px; cursor:pointer; font-family:inherit; }
+        .sff-save:disabled{ opacity:.6; cursor:default; }
         .sff-print{ background:#1C2E44; color:#fff; border:none; padding:11px 20px; border-radius:9px; font-weight:700; font-size:13px; cursor:pointer; font-family:inherit; }
         @media(max-width:640px){ .sff-grid{ grid-template-columns:1fr; } }
       `}</style>
@@ -323,7 +363,13 @@ export default function ServicesFilingForm({ addons, firstName, lastName, email,
         )
       })}
 
-      <button className="sff-print" onClick={printForm}>🖨️ Imprimir hoja de trabajo</button>
+      <div className="sff-actions">
+        <button className="sff-save" onClick={handleSave} disabled={saving}>
+          {saving ? 'Guardando…' : '💾 Guardar hoja de trabajo'}
+        </button>
+        <button className="sff-print" onClick={printForm}>🖨️ Imprimir hoja de trabajo</button>
+        {saveMsg && <span className={`sff-msg ${saveMsg.startsWith('✓') ? 'found' : 'error'}`}>{saveMsg}</span>}
+      </div>
     </div>
   )
 }

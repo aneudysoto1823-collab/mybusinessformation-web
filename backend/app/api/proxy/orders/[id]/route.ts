@@ -41,6 +41,11 @@ export async function PATCH(
   const allowed: Record<string, unknown> = {}
   if (body.status !== undefined) allowed.status = body.status
   if (body.notes  !== undefined) allowed.notes  = body.notes
+  // addons (JSON) — usado por la hoja de trabajo de servicios para persistir las
+  // ediciones del equipo (ServicesFilingForm). Debe ser un objeto.
+  if (body.addons !== undefined && body.addons && typeof body.addons === 'object') {
+    allowed.addons = body.addons
+  }
 
   // Snapshot before (solo campos que estamos por cambiar) para el audit log.
   const { data: before } = await getSupabaseAdmin()
@@ -59,12 +64,18 @@ export async function PATCH(
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
   // Audit log — fail-quiet (no bloquea la respuesta al admin si falla).
+  // addons puede contener datos sensibles (SSN/ITIN/EIN) → se redacta para no
+  // duplicarlos en admin_audit_log; solo se registra que cambió.
+  const redact = (o: Record<string, unknown> | null | undefined) => {
+    if (!o) return o ?? null
+    return 'addons' in o ? { ...o, addons: '[redacted]' } : o
+  }
   await logAdminAction({
     action: 'order.update',
     entity: 'Order',
     entityId: id,
-    before: before ?? null,
-    after: allowed,
+    before: redact(before as Record<string, unknown> | null),
+    after: redact(allowed),
     request,
   })
 

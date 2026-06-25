@@ -748,6 +748,7 @@ export default function OrderDetailPage() {
               + los datos que el cliente aportó por cada servicio. Editable e imprimible para hacer los trámites.
             </p>
             <ServicesFilingForm
+              orderId={order.id}
               addons={order.addons}
               firstName={order.firstName}
               lastName={order.lastName}

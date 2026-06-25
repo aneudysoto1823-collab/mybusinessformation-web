@@ -6,7 +6,7 @@
 - **`lib/turso.ts` → `lookupCompanyByDocument()`** — consulta `sunbiz_corps` (3.5M, Turso) por número de documento. Lectura defensiva por columna.
 - **`/api/admin/sunbiz-lookup`** — endpoint protegido (`verifyAdminToken`) que devuelve la empresa normalizada.
 - **`/admin` (OrdersTable)** — tab/filtro **"Servicios"** (`package='services'`) + badge morado.
-- **`/admin/orders/[id]` → `ServicesFilingForm.tsx`** — cuando `package='services'`: bloque empresa autollenado de Turso + contacto + secciones SOLO de los servicios pedidos (prellenados con lo que aportó el cliente). Editable + imprimible. **Ediciones aún NO se persisten** (hoja de trabajo).
+- **`/admin/orders/[id]` → `ServicesFilingForm.tsx`** — cuando `package='services'`: bloque empresa autollenado de Turso + contacto + secciones SOLO de los servicios pedidos (prellenados con lo que aportó el cliente). Editable + imprimible. **Ediciones SÍ se persisten** (2026-06-25): botón "💾 Guardar hoja de trabajo" guarda el snapshot completo del form (`vals`) en `addons.intake.worksheet` vía `PATCH /api/proxy/orders/[id]`. Al recargar se seedea desde ahí (round-trip); el auto-lookup de Turso solo corre si NO hay worksheet guardada (no pisa ediciones). El PATCH redacta `addons` en el audit log (datos sensibles SSN/ITIN/EIN no se duplican).
 - **`lib/service-fields.ts`** — definición compartida de campos por servicio (mismas keys que `SVC_EXTRAS` del checkout del cliente).
 
 ## ✅ Implementado (lado cliente) — 2026-06-25
@@ -31,7 +31,7 @@
 - El checkout del cliente **inyecta `SERVICE_FIELDS` y `SHARED_FIELDS` desde `lib/service-fields.ts`** (antes tenía copia inline duplicada que se desincronizó). Ahora cliente y admin SIEMPRE coinciden. **Para tocar campos: editar solo `lib/service-fields.ts`.**
 
 ## Pendiente
-- [ ] Persistir las ediciones del `ServicesFilingForm` (admin) de vuelta a la orden.
+- [x] Persistir las ediciones del `ServicesFilingForm` (admin) de vuelta a la orden. ✅ 2026-06-25 (`addons.intake.worksheet`).
 - [ ] Verificar en deploy que el lookup a Turso trae los campos (probar con un número real). Turso tiene env vars en Vercel; localmente no se puede probar.
 - [ ] Confirmar nombre exacto de columnas en la tabla Turso (asumido `document_number`, `entity_name`, etc. según doc 26).
 
