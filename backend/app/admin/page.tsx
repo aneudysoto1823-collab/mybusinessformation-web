@@ -22,6 +22,16 @@ const T = {
   },
 }
 
+interface NameCheck {
+  available?: boolean
+  exactCount?: number
+  example?: string
+  similarCount?: number
+  normalized?: string
+  checkedAt?: string
+  error?: string
+}
+
 interface Order {
   id: string
   createdAt: string
@@ -34,12 +44,13 @@ interface Order {
   amount: number
   paymentStatus: string
   status: string
+  nameCheck: NameCheck | null
 }
 
 async function getOrders(): Promise<Order[]> {
   const { data, error } = await getSupabaseAdmin()
     .from('Order')
-    .select('id, createdAt, updatedAt, firstName, lastName, email, companyName, package, amount, paymentStatus, status')
+    .select('id, createdAt, updatedAt, firstName, lastName, email, companyName, package, amount, paymentStatus, status, nameCheck')
     .order('createdAt', { ascending: false })
   if (error) {
     console.error('[admin/getOrders] Supabase error:', error.message)

@@ -3,6 +3,16 @@
 import { useState } from 'react'
 import Link from 'next/link'
 
+export interface NameCheck {
+  available?: boolean
+  exactCount?: number
+  example?: string
+  similarCount?: number
+  normalized?: string
+  checkedAt?: string
+  error?: string
+}
+
 export interface Order {
   id: string
   createdAt: string
@@ -15,6 +25,32 @@ export interface Order {
   amount: number
   paymentStatus: string
   status: string
+  nameCheck?: NameCheck | null
+}
+
+// Badge inline del chequeo Sunbiz al lado del nombre de empresa.
+// 3 estados visuales segun el JSONB Order.nameCheck:
+//   - null/error  -> ámbar "?"  (chequeo no se pudo hacer)
+//   - taken       -> rojo "⚠"   (nombre TOMADO en Florida)
+//   - available   -> verde "✓"  (sin conflictos exactos)
+function NameCheckBadge({ nc }: { nc?: NameCheck | null }) {
+  if (!nc || nc.error) {
+    return (
+      <span title="No se pudo verificar el nombre en Sunbiz — verificar manualmente"
+            style={{display:'inline-block',marginLeft:'6px',fontSize:'11px',padding:'1px 6px',borderRadius:'999px',background:'#fef3c7',color:'#92400e',fontWeight:700,whiteSpace:'nowrap'}}>?</span>
+    )
+  }
+  if (nc.available === false) {
+    const ex = nc.example ? `Coincide con: ${nc.example}` : 'Nombre tomado en Florida'
+    return (
+      <span title={ex}
+            style={{display:'inline-block',marginLeft:'6px',fontSize:'11px',padding:'1px 6px',borderRadius:'999px',background:'#fee2e2',color:'#b91c1c',fontWeight:700,whiteSpace:'nowrap'}}>⚠ tomado</span>
+    )
+  }
+  return (
+    <span title="Sin conflictos exactos en Sunbiz (chequeo automático)"
+          style={{display:'inline-block',marginLeft:'6px',fontSize:'11px',padding:'1px 6px',borderRadius:'999px',background:'#dcfce7',color:'#166534',fontWeight:700,whiteSpace:'nowrap'}}>✓</span>
+  )
 }
 
 const TABS = [
@@ -517,7 +553,7 @@ export default function OrdersTable({ orders, lang = 'es' }: { orders: Order[]; 
                       <div style={{ fontWeight: 600 }}>{order.firstName} {order.lastName}</div>
                       <div style={{ fontSize: '11px', color: '#9ca3af' }}>{order.email}</div>
                     </td>
-                    <td>{order.companyName}</td>
+                    <td>{order.companyName}<NameCheckBadge nc={order.nameCheck} /></td>
                     <td><Badge map={PKG_LABEL} value={order.package} /></td>
                     <td>${(order.amount ?? 0).toFixed(2)}</td>
                     <td><Badge map={PAYMENT_BADGE} value={order.paymentStatus} /></td>

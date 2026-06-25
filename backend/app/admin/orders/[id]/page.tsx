@@ -33,6 +33,15 @@ interface Order {
   paymentStatus: string
   status: string
   notes: string
+  nameCheck?: {
+    available?: boolean
+    exactCount?: number
+    example?: string
+    similarCount?: number
+    normalized?: string
+    checkedAt?: string
+    error?: string
+  } | null
 }
 
 const STATUS_OPTIONS = ['pending', 'in_review', 'names_taken', 'ready_to_file', 'filed', 'approved', 'completed']
@@ -485,6 +494,32 @@ export default function OrderDetailPage() {
             <Field label="Nombre 3" value={order.companyName3} />
             <Field label="Tipo de entidad" value={order.entityType} />
           </div>
+          {/* Chequeo automático Sunbiz (Order.nameCheck JSONB). Ver doc 29. */}
+          {(() => {
+            const nc = order.nameCheck
+            if (!nc || nc.error) {
+              return (
+                <div style={{marginTop:'14px',padding:'12px 14px',background:'#fef3c7',borderRadius:'8px',borderLeft:'3px solid #f59e0b',fontSize:'13px',color:'#92400e',lineHeight:1.5}}>
+                  ℹ️ <strong>Chequeo Sunbiz no disponible</strong> — verificar manualmente.{nc?.error ? ` (Motivo: ${nc.error})` : ''}
+                </div>
+              )
+            }
+            if (nc.available === false) {
+              return (
+                <div style={{marginTop:'14px',padding:'12px 14px',background:'#fef2f2',borderRadius:'8px',borderLeft:'3px solid #dc2626',fontSize:'13px',color:'#991b1b',lineHeight:1.5}}>
+                  ⚠️ <strong>NOMBRE POSIBLEMENTE TOMADO</strong> en Florida — coincide con: <strong>{nc.example ?? '(sin ejemplo)'}</strong> ({nc.similarCount ?? 0} similares en FTS5). Revisar antes de presentar.
+                  {nc.normalized && <div style={{fontSize:'11px',color:'#9b1c1c',marginTop:'4px',fontFamily:'monospace'}}>normalizado: {nc.normalized}</div>}
+                </div>
+              )
+            }
+            return (
+              <div style={{marginTop:'14px',padding:'12px 14px',background:'#ecfdf5',borderRadius:'8px',borderLeft:'3px solid #10b981',fontSize:'13px',color:'#065f46',lineHeight:1.5}}>
+                ✓ <strong>Sin conflictos exactos detectados en Sunbiz</strong> (chequeo automático contra 3.9M LLC/Corp activas).
+                {nc.similarCount && nc.similarCount > 0 ? <div style={{fontSize:'12px',marginTop:'4px',color:'#047857'}}>{nc.similarCount} nombres similares existen (info, no bloquea).</div> : null}
+                {nc.normalized && <div style={{fontSize:'11px',color:'#047857',marginTop:'4px',fontFamily:'monospace'}}>normalizado: {nc.normalized}</div>}
+              </div>
+            )
+          })()}
         </Section>
 
         {/* Paquete y Pago */}
