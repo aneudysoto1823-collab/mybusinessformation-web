@@ -99,14 +99,8 @@ function CompleteContent() {
       .then(d => {
         setEmail(d.email ?? null)
         setOrder(d.order ?? null)
-        if (d.paymentStatus === 'paid') {
-          setStatus('paid')
-          // Pago confirmado -> el draft del form ya no aplica, lo borramos
-          // para que el cliente NO vea el popup "¿continuar tu orden?" si
-          // entra de nuevo al sitio. La proxima vez que abra el form empezara
-          // desde cero (correcto: la orden ya esta en Supabase con FBFC real).
-          try { localStorage.removeItem('opabiz_draft') } catch {}
-        } else setStatus('processing')
+        if (d.paymentStatus === 'paid') setStatus('paid')
+        else setStatus('processing')
       })
       .catch(() => setStatus('error'))
   }, [sessionId])
