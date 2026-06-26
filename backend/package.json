@@ -38,6 +38,7 @@
     "remark-gfm": "^4.0.1",
     "remark-html": "^16.0.1",
     "resend": "^6.9.4",
+    "ssh2-sftp-client": "^12.1.1",
     "stripe": "^20.4.1",
     "xlsx": "^0.18.5",
     "zod": "^4.4.3"
@@ -50,6 +51,7 @@
     "@types/qrcode": "^1.5.6",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/ssh2-sftp-client": "^9.0.6",
     "babel-plugin-react-compiler": "1.0.0",
     "eslint": "^9",
     "eslint-config-next": "^16.2.7",
