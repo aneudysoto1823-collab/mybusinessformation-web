@@ -55,6 +55,13 @@ Se acercó el à la carte a los forms del home:
 - **Empaque:** budget subió a 12 (menos pasos casi vacíos).
 - **Pendiente (parity con home):** Individual/Empresa aún no oculta campos condicionalmente; EIN avanzado (actividad buscable + confirmar SSN/ITIN con ojo); teléfono con código de país + validación email + consentimiento SMS. Admin worksheet muestra los cols nuevos con flex-wrap.
 
+### Fixes 2026-06-25 (tarde)
+- **LLC/Corp mutuamente excluyentes también en `/servicios`** (no solo en el checkout): `addToCart` quita la otra formación al agregar una (`var SVC_FORMATION`).
+- **Botón "Agregar al pedido" en el header del acordeón** de `/servicios` (clase `svc-add-btn svc-acc-add`, junto al nombre/precio; `renderCart` lo sincroniza; oculto en ≤560px).
+- **Paso "Revisar y pagar" SIEMPRE se muestra al continuar** (antes solo tras crear la sesión). `coNext` → `coGoStep(pay)` + `coStartPayment()`: pinta el resumen con nombres (`coRenderReviewNames`) al instante y carga Stripe en `#embedded-checkout`; si la sesión/pago falla, el error se muestra **dentro del box**. Stripe NO se prueba local (faltan env).
+- **Bundle (franja inferior):** texto menciona "Basic, Standard y Premium" (sin guion largo); botones sin ícono de calendario, fondo blanco + borde azul al hover (HTML + el `setLang` JS en ~líneas 1668-1671 de `page.tsx`).
+- Emojis del upsell con entidades HTML (en `String.raw` los `\u{...}` quedan literales).
+
 ### Fuente única de campos
 - El checkout del cliente **inyecta `SERVICE_FIELDS` y `SHARED_FIELDS` desde `lib/service-fields.ts`** (antes tenía copia inline duplicada que se desincronizó). Ahora cliente y admin SIEMPRE coinciden. **Para tocar campos: editar solo `lib/service-fields.ts`.**
 
