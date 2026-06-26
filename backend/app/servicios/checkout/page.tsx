@@ -143,7 +143,9 @@ body{font-family:var(--font-sans),'Plus Jakarta Sans',system-ui,sans-serif;color
 .co-tier-price{font-size:1.5rem;font-weight:800;color:var(--navy);font-family:var(--font-serif),serif}
 .co-tier-save{font-size:.7rem;font-weight:700;color:var(--green-dark);background:var(--green-light);border-radius:6px;padding:2px 8px;display:inline-block;margin:6px 0 12px}
 .co-tier-incl{display:flex;flex-direction:column;gap:7px;margin-bottom:16px;flex:1}
-.co-tier-incl-item{display:flex;align-items:flex-start;gap:7px;font-size:.76rem;color:var(--gray600);line-height:1.4}
+.co-tier-svc{font-size:.76rem;font-weight:800;color:var(--navy);text-transform:uppercase;letter-spacing:.4px;margin-top:8px;padding-top:8px;border-top:1px solid var(--gray100)}
+.co-tier-svc:first-child{margin-top:0;padding-top:0;border-top:none}
+.co-tier-incl-item{display:flex;align-items:flex-start;gap:7px;font-size:.8rem;color:var(--gray600);line-height:1.45}
 .co-tier-incl-check{color:var(--green);font-weight:700;flex-shrink:0}
 .co-tier-btn{width:100%;background:#fff;color:var(--blue);border:1.5px solid var(--blue);border-radius:9px;padding:10px;font-size:.84rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;margin-top:auto}
 .co-tier-btn:hover{background:var(--blue-light)}
@@ -157,6 +159,8 @@ body{font-family:var(--font-sans),'Plus Jakarta Sans',system-ui,sans-serif;color
 .co-side{position:sticky;top:90px}
 .co-side .co-review{position:static;top:auto}
 .co-side-note{font-size:.7rem;color:var(--gray400);margin-top:12px;line-height:1.5}
+/* Modo ancho: en los hubs de tiers damos más espacio a las tarjetas */
+html.co-wide .co-wrap,html.co-wide .co-header-inner{max-width:1200px}
 @media(max-width:900px){.co-layout{grid-template-columns:1fr 260px}}
 @media(max-width:760px){.co-grid{grid-template-columns:1fr}.co-pay-grid{grid-template-columns:1fr}.co-review{position:static}.co-choices{grid-template-columns:1fr}.co-tiers{grid-template-columns:1fr}.co-layout{grid-template-columns:1fr}.co-side{position:static;order:-1;margin-bottom:18px}}
 `
@@ -385,14 +389,27 @@ var HUBS = {
 };
 // A qué hub pertenece cada bundle (para limpiar/cambiar selección).
 var BUNDLE_HUB = {}; Object.keys(HUBS).forEach(function(h){ HUBS[h].tiers.forEach(function(b){ BUNDLE_HUB[b]=h; }); });
-// Frases de valor cortas por servicio (para las tarjetas de tier).
+// Detalle por servicio (varios bullets, estilo LegalZoom) para las tarjetas de
+// tier. Cada servicio tiene nombre + lista de beneficios concretos.
 var SVC_BLURBS = {
-  'operating-agreement': { es:'Acuerdo Operativo: define dueños, % y reglas de tu LLC', en:'Operating Agreement: defines owners, % and rules of your LLC' },
-  'ein':                 { es:'EIN (Tax ID): necesario para abrir cuenta bancaria y pagar impuestos', en:'EIN (Tax ID): needed to open a bank account and file taxes' },
-  'banking-resolution':  { es:'Resolución Bancaria: autoriza quién maneja la cuenta del negocio', en:'Banking Resolution: authorizes who manages the business account' },
-  'virtual-address':     { es:'Dirección Virtual: dirección profesional en FL, tu casa privada', en:'Virtual Address: professional FL address, your home stays private' },
-  'annual-report':       { es:'Declaración Anual: la presentamos ante el estado por ti', en:'Annual Report: we file it with the state for you' },
-  'business-tax-receipt':{ es:'Recibo de Impuesto: licencia local para operar legalmente', en:'Business Tax Receipt: local license to operate legally' }
+  'operating-agreement': { nameEs:'Acuerdo Operativo', nameEn:'Operating Agreement',
+    es:['Define las reglas de tu LLC en vez de seguir las leyes por defecto del estado','Se vuelve un contrato vinculante entre socios para evitar disputas','Ayuda a proteger tus bienes manteniendo tu responsabilidad limitada'],
+    en:['Set your own rules for your LLC instead of default state laws','Becomes a binding contract among partners to avoid disputes','Helps protect your assets by maintaining limited liability'] },
+  'ein':                 { nameEs:'EIN (Tax ID)', nameEn:'EIN (Tax ID)',
+    es:['Número de identificación fiscal federal (el "SSN" de tu empresa)','Requerido por los bancos para abrir cuenta de negocio','Necesario para contratar empleados y declarar impuestos'],
+    en:['Federal tax ID number (like an SSN for your business)','Required by banks to open a business account','Needed to hire employees and file taxes'] },
+  'banking-resolution':  { nameEs:'Resolución Bancaria', nameEn:'Banking Resolution',
+    es:['Autoriza formalmente quién puede manejar la cuenta del negocio','Documento que muchos bancos piden para abrir la cuenta','Da claridad legal sobre el control de los fondos'],
+    en:['Formally authorizes who can manage the business account','Document many banks require to open the account','Gives legal clarity over who controls the funds'] },
+  'virtual-address':     { nameEs:'Dirección Virtual', nameEn:'Virtual Mailing Address',
+    es:['Dirección comercial profesional en Florida','Tu dirección personal se mantiene privada en registros públicos','Recibimos y reenviamos tu correo digitalmente'],
+    en:['Professional Florida business address','Your home address stays private on public records','We receive and forward your mail digitally'] },
+  'annual-report':       { nameEs:'Declaración Anual', nameEn:'Annual Report',
+    es:['Obligatoria cada año para toda LLC y Corporation de FL','La preparamos y presentamos ante el estado por ti','Evita la multa de $400 por presentación tardía'],
+    en:['Required every year for every FL LLC & Corporation','We prepare and file it with the state for you','Avoids the $400 late penalty'] },
+  'business-tax-receipt':{ nameEs:'Recibo de Impuesto', nameEn:'Business Tax Receipt',
+    es:['Licencia local para operar tu negocio legalmente','La tramitamos ante tu condado de Florida','Requisito en muchas ciudades para abrir al público'],
+    en:['Local license to operate your business legally','We process it with your Florida county','Required in many cities to open to the public'] }
 };
 // Campos que la formación ya captura (en los pasos Empresa/Dueños): se ocultan en
 // los demás servicios para no duplicar.
@@ -795,9 +812,14 @@ function coHubApplicable(hub){
   return true;
 }
 function coTierBullets(svcIds){
-  var isEs=coIsEs();
-  return svcIds.map(function(s){ var bl=SVC_BLURBS[s]; var txt=bl?(isEs?bl.es:bl.en):s;
-    return '<div class="co-tier-incl-item"><span class="co-tier-incl-check">&#10003;</span><span>'+txt+'</span></div>'; }).join('');
+  var isEs=coIsEs(); var out='';
+  svcIds.forEach(function(s){ var bl=SVC_BLURBS[s]; if(!bl) return;
+    out+='<div class="co-tier-svc">'+(isEs?bl.nameEs:bl.nameEn)+'</div>';
+    (isEs?bl.es:bl.en).forEach(function(txt){
+      out+='<div class="co-tier-incl-item"><span class="co-tier-incl-check">&#10003;</span><span>'+txt+'</span></div>';
+    });
+  });
+  return out;
 }
 function coRenderHub(hub){
   var panel=$(HUBS[hub].panel); if(!panel) return; var isEs=coIsEs(); var cfg=HUBS[hub];
@@ -962,6 +984,9 @@ function coGoStep(i){
   coRenderProgress();
   $('co-back').style.display = (i===0) ? 'none' : '';
   var isPay = coSteps[i].id==='panel-pay';
+  // Modo ancho en los hubs de tiers (cards más anchas, estilo LegalZoom).
+  var isHub = coSteps[i].id.indexOf('panel-hub-')===0;
+  try{ document.documentElement.classList.toggle('co-wide', isHub); }catch(e){}
   $('co-next').style.display = isPay ? 'none' : '';
   var nextIsPay = (i+1<coSteps.length) && coSteps[i+1].id==='panel-pay';
   var isEs=coIsEs();
