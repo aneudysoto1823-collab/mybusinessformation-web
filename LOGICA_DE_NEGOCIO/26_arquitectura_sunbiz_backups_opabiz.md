@@ -450,3 +450,92 @@ El dump tiene `--clean --if-exists` así que es seguro re-aplicar (drop + create
 - Revocar el PAT `ghp_JKK51vm3CZ...` que se usó para automatizar el setup (ya no hace falta).
 - Validar restore real haciendo un drop + restore de prueba en un proyecto Supabase nuevo.
 - Documentar runbook completo en `TROUBLESHOOTING/26-backups-r2.md` si ocurre algún fallo en prod.
+
+---
+
+## Implementación del cron Sunbiz Bloque 1 (✅ vivo 2026-06-26)
+
+### Resumen
+
+Cron nocturno automático que mantiene `sunbiz_corps` (Turso) al día con las LLC/Corp que Florida publica cada día.
+
+| Cuándo | Cron `0 6 * * *` (06:00 UTC = 02:00 EST = madrugada Florida) |
+| Qué hace | Descarga daily SFTP de Florida → parsea record 1440-char → UPSERT en sunbiz_corps |
+| Dónde | Vercel function (Pro tier, maxDuration=300s) |
+| Cuesta | $0/mes (Vercel ya pagado + Turso free + SFTP Florida gratis + Resend free para alertas) |
+| Duración promedio | ~80-100s (SFTP ~65s + upsert ~15-30s) |
+| Alertas | Email a `alert@opabiz.com` via Resend si cualquier paso falla |
+| Idempotente | Sí — UPSERT con `ON CONFLICT(document_number) DO UPDATE SET ...`. Re-procesar un día no genera duplicados ni pisa cols de control (procesada, fecha_contactada) |
+
+### Archivos en el repo
+
+```
+backend/app/api/cron/sunbiz-daily/route.ts    — endpoint Next.js GET
+backend/lib/sunbiz-cron/parser.ts             — port literal de florida_sftp.py (datallc)
+backend/lib/sunbiz-cron/sftp.ts               — cliente ssh2-sftp-client
+backend/lib/sunbiz-cron/upsert.ts             — batch UPSERT con multi-row + name_normalized
+backend/vercel.json                            — cron schedule + functions.maxDuration=300
+```
+
+### Schema de la base
+
+`sunbiz_corps` (UNA sola tabla, en la DB existente `opabiz-sunbiz-search`):
+- 25 columnas originales de la carga inicial (intactas, no se renombran)
+- +12 columnas nuevas agregadas el 2026-06-25 (todas nullables): `officers TEXT` (JSON hasta 6 personas), `officer_count INTEGER`, `principal_addr1/2`, `mail_addr1/2`, `fei`, `last_tx_date`, `state_country`, `more_than_six`, `procesada DEFAULT 0`, `fecha_contactada`
+- +2 índices: `idx_sunbiz_filing_date_desc`, `idx_sunbiz_procesada`
+- 3 triggers FTS5: `sunbiz_corps_ai/ad/au` — el AU tiene **`WHEN OLD.entity_name IS NOT NEW.entity_name`** que skipea el body si el nombre no cambió (90%+ de los updates). Crítico para que el cron caiga en <100s en lugar de timeoutear.
+
+Total final: 37 columnas, 3 índices, 3 triggers.
+
+### Env vars Vercel Production (8 secrets)
+
+Ya existían: `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN`, `RESEND_API_KEY`, `INTERNAL_ALERT_EMAIL`, `RESEND_FROM_TRANSACTIONAL`.
+
+Nuevas: `CRON_SECRET` (auto-generada por mí, Vercel la usa en el header `Authorization: Bearer …` al disparar el cron), `SUNBIZ_SFTP_HOST=sftp.floridados.gov`, `SUNBIZ_SFTP_USER=Public`, `SUNBIZ_SFTP_PASS=PubAccess1845!`.
+
+### Gotchas CRÍTICOS aprendidos
+
+1. **`ssh2` requiere `serverExternalPackages` en next.config.ts** — `ssh2` tiene binarios nativos que Turbopack no puede bundlear en chunks ESM. Sin esto: `non-ecmascript placeable asset` en build.
+
+2. **`maxDuration` en `vercel.json`, no en `export const`** — el `export const maxDuration = 300` del route handler NO se aplicó. Hay que declararlo en `vercel.json` → `functions["app/api/cron/sunbiz-daily/route.ts"].maxDuration = 300`.
+
+3. **`INSERT OR REPLACE` GENERA DUPLICADOS en sunbiz_fts en libsql/Turso** — el trigger AFTER DELETE no se dispara con REPLACE. La fila se reemplaza en sunbiz_corps pero sunbiz_fts acumula. Solución: `ON CONFLICT(document_number) DO UPDATE SET …` que dispara el trigger AFTER UPDATE correctamente.
+
+4. **WHEN clause en trigger AU es DECISIVO para performance** — Sin WHEN, cada UPDATE dispara DELETE+INSERT en sunbiz_fts → para 2000 updates = 4000 operaciones FTS5 → timeout 300s. Con `WHEN OLD.entity_name IS NOT NEW.entity_name`, el body solo corre cuando el nombre cambia (~1-5% de los casos) → tiempo baja a 80s.
+
+5. **Multi-row UPSERT** (1 SQL con N filas en VALUES) es mucho más rápido que `.batch([N statements])` cuando hay triggers que disparan. Ver `buildMultiRowUpsert()` en upsert.ts.
+
+6. **Florida SFTP es lento** — 3-4 MB tardan 60-70s. Es el cuello de botella inevitable.
+
+7. **Florida SÍ publica fines de semana** — el cron sábado/domingo procesa sus respectivos dailies (más chicos, ~800-1000 records vs 2,500-3,500 entre semana). Confirmado en catch-up del 2026-06-26.
+
+### Catch-up manual (catch-up de días pasados)
+
+```bash
+curl -H "Authorization: Bearer $CRON_SECRET" "https://www.opabiz.com/api/cron/sunbiz-daily?date=20260621"
+```
+
+Devuelve JSON `{date, processed, inserted, failed, durationMs, failedExamples}`. Idempotente — re-procesar un día no genera duplicados ni pisa `procesada` ni `fecha_contactada`.
+
+### Commits relevantes
+
+`7ce1776` workflow inicial → `86adc3d` serverExternalPackages → `97df65e` redeploy CRON_SECRET → `e8c1552` maxDuration 60→300 → `5bf9f49` vercel.json functions.maxDuration → `8a354cd` ON CONFLICT DO UPDATE → `fa2db71` multi-row UPSERT → modificación in-DB de triggers con WHEN clause (no commit, hecho via script Turso desde local).
+
+### Estado de la base post-implementación
+
+- `sunbiz_corps`: **3,956,123** registros (3.93M iniciales + ~25K agregados del catch-up de 7 días + cron auto + smoke tests)
+- `sunbiz_fts`: **3,956,123** (sincronizado, 0 duplicados)
+- Cron automático verificado corriendo a las 06:00 UTC
+
+### Decisiones de scope (Bloque 1 NO hace)
+
+- ❌ NO clasifica (Bloque 2)
+- ❌ NO enriquece (Bloque 3 — Google/Enformion/ZeroBounce)
+- ❌ NO envía campañas (Bloque 4 — Resend marketing)
+- ❌ NO deriva owner/MGR del JSON officers (Bloque 2)
+
+Solo trae data cruda + actualiza status.
+
+### Pendiente menor (no afecta funcionamiento)
+
+- Considerar silenciar el alert de "file not found" del SFTP en caso de que algún día Florida no publique (Florida sí publica fines de semana — confirmado — pero ocasionalmente puede haber feriados). Por ahora deja alertar, vemos en práctica.
