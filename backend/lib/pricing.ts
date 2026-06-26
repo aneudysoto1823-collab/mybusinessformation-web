@@ -24,7 +24,11 @@ export const BASIC_PACKAGE_LIST_PRICE = 99
 
 // Add-ons cobrables (igual que fmBuildPayload en page.tsx). `ar` y `raInfo` NO
 // se cobran aquí — coinciden con el cálculo del formulario.
-export const ADDON_PRICES = { ein: 79, oa: 59, itin: 69, btr: 79, str: 79, cc: 49 } as const
+export const ADDON_PRICES = {
+  ein: 79, oa: 59, itin: 69, btr: 79, str: 79, cc: 49,
+  // Nuevos 2026-06-26 (seccion expandible "Ver todos los servicios" del paso 5)
+  dba: 49, br: 49, gd: 49, gs: 49, sc: 79, bl: 99,
+} as const
 export type AddonKey = keyof typeof ADDON_PRICES
 
 export const EXPEDITED_FEE = 99
@@ -37,6 +41,12 @@ const ADDON_LABELS: Record<AddonKey, string> = {
   btr:  'Business Tax Receipt',
   str:  'Sales Tax Registration',
   cc:   'Certified Copy',
+  dba:  'DBA / Fictitious Name',
+  br:   'Banking Resolution',
+  gd:   'Exclusive Formation Guide',
+  gs:   'Certificate of Good Standing',
+  sc:   'S-Corp Election (Form 2553)',
+  bl:   'Business License Research & Filing',
 }
 
 const PACKAGE_LABELS: Record<PackageId, string> = {

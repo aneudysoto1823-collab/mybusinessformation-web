@@ -790,10 +790,12 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 .fm-addon:hover .tt-box{visibility:visible;opacity:1}
 .fm-addon-was{text-decoration:line-through;color:#9ca3af;font-weight:500;font-size:.76rem;margin-right:6px}
 .fm-addon-name .tt-wrap{position:static}
-.fm-addon-name .tt-box{left:auto;right:calc(100% + 14px);top:50%;bottom:auto;transform:translateY(-50%);width:332px;min-height:110px}
-.fm-addon-name .tt-box::after{top:50%;left:100%;right:auto;bottom:auto;transform:translateY(-50%);border:7px solid transparent;border-left-color:#e2e8f0;border-top-color:transparent}
-.fm-addon-name .tt-box::before{top:50%;left:100%;right:auto;bottom:auto;transform:translateY(-50%);border:7px solid transparent;border-left-color:#ffffff;border-top-color:transparent;margin-left:-1px;z-index:1}
-@media(max-width:768px){.fm-addon-name .tt-box{left:0;right:auto;top:auto;bottom:calc(100% + 8px);transform:none;width:calc(100% - 6px);min-height:0}.fm-addon-name .tt-box::after{top:100%;left:36px;right:auto;transform:none;border:6px solid transparent;border-top-color:#e2e8f0;border-left-color:transparent}.fm-addon-name .tt-box::before{top:calc(100% - 1px);left:36px;right:auto;transform:none;border:6px solid transparent;border-top-color:#ffffff;border-left-color:transparent;margin-left:0}}
+/* Fix 2026-06-26: tooltip aparece a la DERECHA del addon (antes a la izquierda
+   se tapaba cuando el card estaba pegado al lado izquierdo de la pantalla). */
+.fm-addon-name .tt-box{left:calc(100% + 14px);right:auto;top:50%;bottom:auto;transform:translateY(-50%);width:332px;min-height:110px}
+.fm-addon-name .tt-box::after{top:50%;left:auto;right:100%;bottom:auto;transform:translateY(-50%);border:7px solid transparent;border-right-color:#e2e8f0;border-top-color:transparent}
+.fm-addon-name .tt-box::before{top:50%;left:auto;right:100%;bottom:auto;transform:translateY(-50%);border:7px solid transparent;border-right-color:#ffffff;border-top-color:transparent;margin-right:-1px;margin-left:0;z-index:1}
+@media(max-width:768px){.fm-addon-name .tt-box{left:0;right:auto;top:auto;bottom:calc(100% + 8px);transform:none;width:calc(100% - 6px);min-height:0}.fm-addon-name .tt-box::after{top:100%;left:36px;right:auto;transform:none;border:6px solid transparent;border-top-color:#e2e8f0;border-left-color:transparent;border-right-color:transparent}.fm-addon-name .tt-box::before{top:calc(100% - 1px);left:36px;right:auto;transform:none;border:6px solid transparent;border-top-color:#ffffff;border-left-color:transparent;border-right-color:transparent;margin-left:0;margin-right:0}}
 
 /* ── HAMBURGER ── */
 .hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none;padding:8px;margin-right:-6px;flex-shrink:0}
@@ -2066,6 +2068,94 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
             </div>
             <div class="fm-addon-price" id="addon-ar-price">Annual</div>
           </div>
+
+          <!-- Toggle: Ver todos los servicios (despliega 6 mas) -->
+          <div style="text-align:center;margin:20px 0 6px">
+            <button type="button" id="more-svc-toggle" onclick="toggleMoreServices()" style="background:none;border:none;cursor:pointer;color:var(--blue);font-size:.92rem;font-weight:600;padding:8px 14px;border-radius:8px;display:inline-flex;align-items:center;gap:6px;font-family:var(--font-sans)">
+              <span id="more-svc-toggle-text">&#9660; View all services</span>
+            </button>
+          </div>
+
+          <div id="more-services-wrap" style="display:none">
+            <!-- DBA -->
+            <div class="fm-addon" id="addon-dba" onclick="fmToggleAddon('dba',this)">
+              <div class="fm-addon-left">
+                <div class="fm-addon-check" id="dba-check"></div>
+                <div class="fm-addon-icon">&#127991;</div>
+                <div>
+                  <div class="fm-addon-name"><span id="addon-dba-name">DBA / Fictitious Name</span> <span class="tt-wrap" style="vertical-align:middle"><span class="tt-icon" style="width:0;min-width:0;height:0;padding:0;margin:0;border:0;background:none;font-size:0;color:transparent"><span class="tt-box" id="tt-dba">A DBA (Doing Business As) or Fictitious Name lets your business operate under a different name from its registered legal name. Required by Florida if you want to brand or sell under an alternate name. State fee paid separately.</span></span></span></div>
+                  <div class="fm-addon-desc" id="addon-dba-desc">Operate or brand under a different name from your legal entity</div>
+                </div>
+              </div>
+              <div class="fm-addon-price" id="addon-dba-price">$49</div>
+            </div>
+
+            <!-- Banking Resolution -->
+            <div class="fm-addon" id="addon-br" onclick="fmToggleAddon('br',this)">
+              <div class="fm-addon-left">
+                <div class="fm-addon-check" id="br-check"></div>
+                <div class="fm-addon-icon">&#127963;</div>
+                <div>
+                  <div class="fm-addon-name"><span id="addon-br-name">Banking Resolution</span> <span class="tt-wrap" style="vertical-align:middle"><span class="tt-icon" style="width:0;min-width:0;height:0;padding:0;margin:0;border:0;background:none;font-size:0;color:transparent"><span class="tt-box" id="tt-br">A Banking Resolution authorizes a member or officer to open a business bank account on behalf of your LLC or Corporation. Most U.S. banks require this document before they let you open the account, especially when there is more than one owner.</span></span></span></div>
+                  <div class="fm-addon-desc" id="addon-br-desc">Authorizes opening a business bank account in the company's name</div>
+                </div>
+              </div>
+              <div class="fm-addon-price" id="addon-br-price">$49</div>
+            </div>
+
+            <!-- Exclusive Formation Guide -->
+            <div class="fm-addon" id="addon-gd" onclick="fmToggleAddon('gd',this)">
+              <div class="fm-addon-left">
+                <div class="fm-addon-check" id="gd-check"></div>
+                <div class="fm-addon-icon">&#128214;</div>
+                <div>
+                  <div class="fm-addon-name"><span id="addon-gd-name">Exclusive Formation Guide</span> <span class="tt-wrap" style="vertical-align:middle"><span class="tt-icon" style="width:0;min-width:0;height:0;padding:0;margin:0;border:0;background:none;font-size:0;color:transparent"><span class="tt-box" id="tt-gd">Bilingual step-by-step guide covering everything that comes after your LLC is formed: opening bank accounts, getting EIN/ITIN, sales tax, hiring contractors, annual reports, and Florida compliance pitfalls to avoid. Written by our team.</span></span></span></div>
+                  <div class="fm-addon-desc" id="addon-gd-desc">Bilingual post-formation guide to keep your business compliant</div>
+                </div>
+              </div>
+              <div class="fm-addon-price" id="addon-gd-price">$49</div>
+            </div>
+
+            <!-- Certificate of Good Standing -->
+            <div class="fm-addon" id="addon-gs" onclick="fmToggleAddon('gs',this)">
+              <div class="fm-addon-left">
+                <div class="fm-addon-check" id="gs-check"></div>
+                <div class="fm-addon-icon">&#128220;</div>
+                <div>
+                  <div class="fm-addon-name"><span id="addon-gs-name">Certificate of Good Standing</span> <span class="tt-wrap" style="vertical-align:middle"><span class="tt-icon" style="width:0;min-width:0;height:0;padding:0;margin:0;border:0;background:none;font-size:0;color:transparent"><span class="tt-box" id="tt-gs">An official Florida certificate confirming that your business is active, current with state filings, and authorized to do business. Banks, lenders, contracts, and out-of-state registrations often require it. Issued by the Florida Division of Corporations.</span></span></span></div>
+                  <div class="fm-addon-desc" id="addon-gs-desc">Official proof your FL business is active &amp; compliant</div>
+                </div>
+              </div>
+              <div class="fm-addon-price" id="addon-gs-price">$49</div>
+            </div>
+
+            <!-- S-Corp Election (Form 2553) -->
+            <div class="fm-addon" id="addon-sc" onclick="fmToggleAddon('sc',this)">
+              <div class="fm-addon-left">
+                <div class="fm-addon-check" id="sc-check"></div>
+                <div class="fm-addon-icon">&#128188;</div>
+                <div>
+                  <div class="fm-addon-name"><span id="addon-sc-name">S-Corp Election (Form 2553)</span> <span class="tt-wrap" style="vertical-align:middle"><span class="tt-icon" style="width:0;min-width:0;height:0;padding:0;margin:0;border:0;background:none;font-size:0;color:transparent"><span class="tt-box" id="tt-sc">Federal tax election (IRS Form 2553) to have your LLC or Corporation taxed as an S Corporation — pass-through taxation that can save you self-employment tax once your business is profitable. Strict IRS deadlines apply; we file it for you.</span></span></span></div>
+                  <div class="fm-addon-desc" id="addon-sc-desc">IRS election for pass-through taxation (can reduce self-employment tax)</div>
+                </div>
+              </div>
+              <div class="fm-addon-price" id="addon-sc-price">$79</div>
+            </div>
+
+            <!-- Business License Research & Filing -->
+            <div class="fm-addon" id="addon-bl" onclick="fmToggleAddon('bl',this)">
+              <div class="fm-addon-left">
+                <div class="fm-addon-check" id="bl-check"></div>
+                <div class="fm-addon-icon">&#128209;</div>
+                <div>
+                  <div class="fm-addon-name"><span id="addon-bl-name">Business License Research &amp; Filing</span> <span class="tt-wrap" style="vertical-align:middle"><span class="tt-icon" style="width:0;min-width:0;height:0;padding:0;margin:0;border:0;background:none;font-size:0;color:transparent"><span class="tt-box" id="tt-bl">We identify and file the federal, state, county, and city licenses your business needs to operate legally based on your industry and location. Avoids penalties from operating without the required permits. Includes the application; government fees paid separately.</span></span></span></div>
+                  <div class="fm-addon-desc" id="addon-bl-desc">We identify &amp; file federal/state/local licenses your business needs</div>
+                </div>
+              </div>
+              <div class="fm-addon-price" id="addon-bl-price">$99</div>
+            </div>
+          </div>
+
           <div class="fm-warn">
             <strong id="s8-warn-title">&#9888; Florida Deadline:</strong> <span id="s8-warn-text">Annual Reports must be filed between January 1 and May 1. After May 1, Florida imposes a $400 late penalty.</span>
           </div>
@@ -4716,7 +4806,7 @@ var fmData = {
   package: 'standard',
   members: [{ type:'individual', fname:'', lname:'', own:100, title:'', useCompanyAddr:true }],
   ra: 'us',
-  addons: { ein:false, oa:false, itin:false, ar:false, btr:false, str:false, cc:false },
+  addons: { ein:false, oa:false, itin:false, ar:false, btr:false, str:false, cc:false, dba:false, br:false, gd:false, gs:false, sc:false, bl:false },
   payment: 'card'
 };
 
@@ -5481,6 +5571,20 @@ function fmSetRA(type, el) {
   if(own) own.style.display = type === 'own' ? 'block' : 'none';
 }
 
+function toggleMoreServices() {
+  var wrap = document.getElementById('more-services-wrap');
+  var btn  = document.getElementById('more-svc-toggle-text');
+  if(!wrap || !btn) return;
+  var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
+  if(wrap.style.display === 'none' || wrap.style.display === '') {
+    wrap.style.display = 'block';
+    btn.innerHTML = isEs ? '&#9650; Ocultar servicios adicionales' : '&#9650; Hide additional services';
+  } else {
+    wrap.style.display = 'none';
+    btn.innerHTML = isEs ? '&#9660; Ver todos los servicios' : '&#9660; View all services';
+  }
+}
+
 function fmToggleAddon(key, el) {
   fmData.addons[key] = !fmData.addons[key];
   if(el) el.classList.toggle('selected', fmData.addons[key]);
@@ -5544,6 +5648,13 @@ function fmUpdateSummary() {
   if(fmData.addons.btr)  extras += 79;
   if(fmData.addons.str)  extras += 79;
   if(fmData.addons.cc)   extras += 49;
+  // Addons nuevos 2026-06-26 (seccion expandible "Ver todos los servicios")
+  if(fmData.addons.dba)  extras += 49;
+  if(fmData.addons.br)   extras += 49;
+  if(fmData.addons.gd)   extras += 49;
+  if(fmData.addons.gs)   extras += 49;
+  if(fmData.addons.sc)   extras += 79;
+  if(fmData.addons.bl)   extras += 99;
   var expFree = pkg === 'premium';
   if(fmData.speed === 'expedited' && !expFree) extras += 99;
   var total = base + state + extras;
@@ -5799,7 +5910,7 @@ function fmBuildOrderPayload() {
     amount:          amount,
     members:         members,
     registeredAgent: ra,
-    addons:          { ein: !!addons.ein, oa: !!addons.oa, itin: !!addons.itin, ar: !!addons.ar, btr: !!addons.btr, str: !!addons.str, cc: !!addons.cc, raInfo: raInfo },
+    addons:          { ein: !!addons.ein, oa: !!addons.oa, itin: !!addons.itin, ar: !!addons.ar, btr: !!addons.btr, str: !!addons.str, cc: !!addons.cc, dba: !!addons.dba, br: !!addons.br, gd: !!addons.gd, gs: !!addons.gs, sc: !!addons.sc, bl: !!addons.bl, raInfo: raInfo },
     orgSignature:    orgSignature
   };
 
@@ -6447,6 +6558,19 @@ function fmTranslate(lang) {
     'addon-cc-desc':   isEs?'Copia oficial certificada por el estado de tu documento de formaci\u00f3n &middot; + tarifa estatal':'Official state-certified copy of your formation document &middot; + state fee',
     'addon-ar-name':   isEs?'Servicio de Declaración Anual':'Annual Report Filing Service',
     'addon-ar-desc':   isEs?'Presentamos tu Declaración Anual de FL cada año — fecha límite 1 de mayo':'We file your FL Annual Report each year — deadline May 1st',
+    // Addons nuevos 2026-06-26 (seccion expandible "Ver todos los servicios")
+    'addon-dba-name':  isEs?'DBA / Nombre Ficticio':'DBA / Fictitious Name',
+    'addon-dba-desc':  isEs?'Operar o vender bajo un nombre comercial distinto al legal':'Operate or brand under a different name from your legal entity',
+    'addon-br-name':   isEs?'Resolución Bancaria':'Banking Resolution',
+    'addon-br-desc':   isEs?'Autoriza abrir una cuenta bancaria a nombre de la empresa':"Authorizes opening a business bank account in the company's name",
+    'addon-gd-name':   isEs?'Guía Exclusiva de Formación':'Exclusive Formation Guide',
+    'addon-gd-desc':   isEs?'Guía bilingüe post-formación para mantener el negocio en regla':'Bilingual post-formation guide to keep your business compliant',
+    'addon-gs-name':   isEs?'Certificate of Good Standing':'Certificate of Good Standing',
+    'addon-gs-desc':   isEs?'Prueba oficial de que tu empresa FL está activa y al día':'Official proof your FL business is active &amp; compliant',
+    'addon-sc-name':   isEs?'Elección S-Corp (Formulario 2553)':'S-Corp Election (Form 2553)',
+    'addon-sc-desc':   isEs?'Elección IRS para tributación pass-through (puede reducir self-employment tax)':'IRS election for pass-through taxation (can reduce self-employment tax)',
+    'addon-bl-name':   isEs?'Investigación y Trámite de Licencias':'Business License Research &amp; Filing',
+    'addon-bl-desc':   isEs?'Identificamos y tramitamos licencias federales/estatales/locales que tu negocio necesita':'We identify &amp; file federal/state/local licenses your business needs',
   };
   Object.keys(addonMap).forEach(function(id){
     var e = document.getElementById(id);
