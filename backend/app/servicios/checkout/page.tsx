@@ -279,19 +279,29 @@ html.co-wide .co-wrap,html.co-wide .co-header-inner{max-width:1200px}
     <!-- STEPS: SERVICES (dinámico) -->
     <div id="co-svc-host"></div>
 
-    <!-- STEP: CONTACT -->
+    <!-- STEP: CONTACT (temprano, paso 2 — como el home) -->
     <div class="co-panel" id="panel-contact" style="display:none">
       <h1 class="co-h1" data-en="Your details" data-es="Tus datos">Tus datos</h1>
-      <p class="co-sub" data-en="So we can contact you and authorize your filings." data-es="Para poder contactarte y autorizar tus trámites.">Para poder contactarte y autorizar tus trámites.</p>
+      <p class="co-sub" data-en="Tell us how to reach you." data-es="Dinos cómo contactarte.">Dinos cómo contactarte.</p>
       <div class="co-card">
         <div class="co-grid">
           <div class="co-field"><label class="co-label" data-en="First name" data-es="Nombre">Nombre</label><input class="co-input" id="f-firstName"/></div>
           <div class="co-field"><label class="co-label" data-en="Last name" data-es="Apellido">Apellido</label><input class="co-input" id="f-lastName"/></div>
           <div class="co-field"><label class="co-label" data-en="Email" data-es="Correo">Correo</label><input class="co-input" type="email" id="f-email"/></div>
           <div class="co-field"><label class="co-label" data-en="Phone / WhatsApp" data-es="Teléfono / WhatsApp">Teléfono / WhatsApp</label><input class="co-input" type="tel" id="f-phone"/></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP: FINAL (datos fiscales sensibles + firma, antes de pagar) -->
+    <div class="co-panel" id="panel-final" style="display:none">
+      <h1 class="co-h1" data-en="Confirm &amp; sign" data-es="Confirmar y firmar">Confirmar y firmar</h1>
+      <p class="co-sub" data-en="Review your tax details and authorize your filings." data-es="Revisa tus datos fiscales y autoriza tus trámites.">Revisa tus datos fiscales y autoriza tus trámites.</p>
+      <div class="co-card">
+        <div id="co-contact-shared"></div>
+        <div class="co-grid" style="margin-top:14px">
           <div class="co-field full"><label class="co-label" data-en="Electronic signature (type your full legal name)" data-es="Firma electrónica (escribe tu nombre legal completo)">Firma electrónica (escribe tu nombre legal completo)</label><input class="co-input" id="f-signature"/></div>
         </div>
-        <div id="co-contact-shared"></div>
       </div>
     </div>
 
@@ -946,9 +956,15 @@ function coBuildWizard(){
     var oi=cart.indexOf(other); if(oi>=0){ cart.splice(oi,1); coSaveCart(); }
   }
 
+  // Orden espejo del formulario de paquetes del home: el contacto va temprano
+  // (paso 2). Los datos fiscales sensibles (SSN/ITIN) + firma van al final, en
+  // "Confirmar y firmar", porque dependen de los servicios elegidos en los combos.
   coSteps=[];
   coSteps.push({id:'panel-company', title:{en:'Your company',es:'Tu empresa'}});
   coSetupCompanyPanel(ft);
+
+  // Tus datos (nombre/email/teléfono) temprano, como el home.
+  coSteps.push({id:'panel-contact', title:{en:'Your details',es:'Tus datos'}});
 
   // En formación: Agente Registrado justo después de Empresa (reusa la dirección).
   if(ft){ coRenderRaPanel(); coSteps.push({id:'panel-ra', title:{en:'Registered Agent',es:'Agente Registrado'}}); }
@@ -963,9 +979,9 @@ function coBuildWizard(){
   coRenderServicePages(ft);
   coServicePages.forEach(function(p){ coSteps.push({id:p.id, title:{en:'Service details',es:'Datos del servicio'}}); });
 
-  // SSN/ITIN + EIN compartidos viven en el paso de contacto (con tooltip).
+  // Confirmar y firmar: SSN/ITIN compartidos (si aplican) + firma electrónica.
   coRenderContactShared(coSharedKeysActive());
-  coSteps.push({id:'panel-contact', title:{en:'Your details',es:'Tus datos'}});
+  coSteps.push({id:'panel-final', title:{en:'Confirm & sign',es:'Confirmar y firmar'}});
   coSteps.push({id:'panel-pay', title:{en:'Review & pay',es:'Revisar y pagar'}});
 }
 
@@ -1052,6 +1068,9 @@ function coValidateStep(i){
     if(($('f-firstName').value||'').trim().length<1||($('f-lastName').value||'').trim().length<1){ err.textContent=isEs?'Ingresa tu nombre y apellido.':'Enter your first and last name.'; return false; }
     if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(($('f-email').value||'').trim())){ err.textContent=isEs?'Ingresa un correo válido.':'Enter a valid email.'; return false; }
     if(($('f-phone').value||'').replace(/[^0-9]/g,'').length<7){ err.textContent=isEs?'Ingresa un teléfono válido.':'Enter a valid phone.'; return false; }
+    return true;
+  }
+  if(id==='panel-final'){
     if(($('f-signature').value||'').trim().length<2){ err.textContent=isEs?'Escribe tu firma electrónica.':'Type your electronic signature.'; return false; }
     return true;
   }
