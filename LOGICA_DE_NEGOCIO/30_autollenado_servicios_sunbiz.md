@@ -35,6 +35,17 @@
 - Campos de formación en `service-fields.ts` (`llc-formation`/`corp-formation`): actividad, preferencia de agente registrado, gestión (LLC) o acciones autorizadas (Corp), y repeater de dueños/miembros (LLC) o directores/oficiales (Corp) con selector de cantidad.
 - ⚠️ Precio $99 **placeholder**; tarifas estatales aprox. Confirmar antes de LIVE. El subtotal del carrito muestra solo $99 (la tarifa estatal se suma en el review/Stripe vía `computeServicesTotal`, igual que los demás servicios con `stateFee`).
 
+### Checkout en pasos (wizard) + dedup — 2026-06-25
+El checkout `/servicios/checkout` se reescribió de 1 página a **wizard por pasos** (como los paquetes del home), con barra de progreso. Pasos dinámicos según carrito/escenario:
+1. **Tu empresa** — NUEVA (formación: nombre+designador+dirección+actividad+agente) o EXISTENTE (busca # → Sunbiz autollena).
+2. **Dueños y gestión** — SOLO en formación; se piden UNA vez (LLC: gestión+miembros · Corp: acciones+directores). Los campos de la formación se reubican aquí y en el paso 1 (mismos ids `x-<svcId>-<key>`, así el backend/admin no cambian).
+3. **Datos requeridos** — EIN/SSN compartidos. **EIN NO se pide si es formación** (es interno, se procesa tras crear la empresa).
+4. **Tus servicios** — campos únicos por servicio, **empacados por tamaño** (`coServiceWeight`, budget ~7 unidades) para meter tantos como quepan sin scroll; `.co-panel{min-height:380px}` para que los pasos se vean uniformes.
+5. **Tus datos** — contacto + firma (ambos escenarios).
+6. **Revisar y pagar** — Stripe Embedded.
+
+**Reglas confirmadas (founder):** formaciones LLC/Corp **mutuamente excluyentes** (al armar el wizard se quita la otra del carrito); servicios que solapan con la formación (`COVERED_IN_FORMATION` = ein, operating-agreement, registered-agent) **no se vuelven a pedir** (se procesan junto, siguen cobrando); campos que la formación ya captura (`HIDE_KEYS_IN_FORMATION` = activity, mgmt, members, officers, raPref, shares, directors) se ocultan en los demás servicios para no duplicar. Servicios de empresa existente (Annual Report, etc.) se permiten igual aunque se forme nueva.
+
 ### Fuente única de campos
 - El checkout del cliente **inyecta `SERVICE_FIELDS` y `SHARED_FIELDS` desde `lib/service-fields.ts`** (antes tenía copia inline duplicada que se desincronizó). Ahora cliente y admin SIEMPRE coinciden. **Para tocar campos: editar solo `lib/service-fields.ts`.**
 
