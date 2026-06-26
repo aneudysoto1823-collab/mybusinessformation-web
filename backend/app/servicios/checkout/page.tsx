@@ -62,6 +62,25 @@ body{font-family:var(--font-sans),'Plus Jakarta Sans',system-ui,sans-serif;color
 .rep-row .rep-cell{flex:1;min-width:0;padding:9px 11px;font-size:.86rem}
 .rep-del{flex:0 0 auto;width:30px;height:30px;border:1.5px solid var(--gray200);background:#fff;border-radius:7px;color:var(--gray400);font-size:1rem;cursor:pointer;line-height:1}
 .rep-del:hover{background:#fee2e2;color:#dc2626;border-color:#fecaca}
+.rep-block{position:relative;border:1px solid var(--gray200);border-radius:12px;padding:16px 16px 6px;background:var(--gray50)}
+.rep-block .rep-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.rep-block .co-field{margin-bottom:10px}
+.rep-block .co-field.full{grid-column:1/-1}
+.rep-block-del{position:absolute;top:10px;right:10px;width:26px;height:26px}
+.co-own-total{display:flex;justify-content:space-between;align-items:center;background:var(--gray50);border:1px solid var(--gray200);border-radius:9px;padding:10px 14px;margin-top:12px;font-size:.85rem;font-weight:600;color:var(--gray600)}
+.co-tip{position:relative;display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:var(--gray200);color:var(--gray600);font-size:.7rem;font-weight:700;cursor:help;margin-left:6px}
+.co-tip .co-tip-box{visibility:hidden;opacity:0;position:absolute;bottom:135%;left:50%;transform:translateX(-50%);width:250px;background:var(--navy);color:#fff;font-size:.74rem;font-weight:400;line-height:1.5;padding:10px 12px;border-radius:8px;z-index:100;transition:opacity .15s;box-shadow:0 8px 24px rgba(0,0,0,.18)}
+.co-tip:hover .co-tip-box{visibility:visible;opacity:1}
+.co-up-card{display:flex;align-items:center;justify-content:space-between;gap:14px;border:1.5px solid var(--gray200);border-radius:12px;padding:16px 18px;margin-bottom:12px;background:#fff}
+.co-up-left{display:flex;align-items:flex-start;gap:12px}
+.co-up-icon{font-size:1.5rem;flex-shrink:0}
+.co-up-name{font-size:.92rem;font-weight:700;color:var(--navy)}
+.co-up-desc{font-size:.78rem;color:var(--gray600);margin-top:2px;line-height:1.5}
+.co-up-why{font-size:.74rem;color:var(--green-dark);background:var(--green-light);border-radius:7px;padding:5px 9px;margin-top:7px;display:inline-block}
+.co-up-right{display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0}
+.co-up-price{font-size:.95rem;font-weight:800;color:var(--navy);font-family:var(--font-serif),serif}
+.co-up-add{background:var(--green);color:#fff;border:none;padding:9px 16px;border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap}
+.co-up-add:hover{background:var(--green-dark)}
 .co-hint{font-size:.72rem;color:var(--gray400)}
 .co-status{font-size:.78rem;min-height:16px;margin-top:8px}
 .co-lookup-row{display:flex;gap:10px;align-items:stretch}
@@ -158,9 +177,12 @@ body{font-family:var(--font-sans),'Plus Jakarta Sans',system-ui,sans-serif;color
           <div class="co-field" id="co-entity-field"><label class="co-label" data-en="Entity type" data-es="Tipo de entidad">Tipo de entidad</label><select class="co-select" id="f-entityType"><option value="llc">LLC</option><option value="corp" data-en="Corporation" data-es="Corporación">Corporación</option></select></div>
           <div class="co-field"><label class="co-label" id="co-name-label" data-en="Legal business name" data-es="Nombre legal del negocio">Nombre legal del negocio</label><input class="co-input" id="f-legalName"/></div>
           <div class="co-field" id="co-designator-field" style="display:none"><label class="co-label" data-en="Name ending" data-es="Terminación del nombre">Terminación del nombre</label><select class="co-select" id="f-designator"></select></div>
-          <div class="co-field full"><label class="co-label" data-en="Business street address" data-es="Dirección del negocio">Dirección del negocio</label><input class="co-input" id="f-street"/></div>
+          <div class="co-field full"><label class="co-label" data-en="Street address" data-es="Dirección (calle)">Dirección (calle)</label><input class="co-input" id="f-street"/></div>
+          <div class="co-field"><label class="co-label" data-en="Apt / Suite (optional)" data-es="Apt / Suite (opcional)">Apt / Suite (opcional)</label><input class="co-input" id="f-apt"/></div>
           <div class="co-field"><label class="co-label" data-en="City" data-es="Ciudad">Ciudad</label><input class="co-input" id="f-city"/></div>
+          <div class="co-field"><label class="co-label" data-en="State" data-es="Estado">Estado</label><input class="co-input" id="f-state"/></div>
           <div class="co-field"><label class="co-label" data-en="ZIP" data-es="Código postal">Código postal</label><input class="co-input" id="f-zip"/></div>
+          <div class="co-field"><label class="co-label" data-en="Country" data-es="País">País</label><input class="co-input" id="f-country"/></div>
         </div>
         <div id="co-company-extra" style="margin-top:14px"></div>
       </div>
@@ -173,8 +195,8 @@ body{font-family:var(--font-sans),'Plus Jakarta Sans',system-ui,sans-serif;color
       <div class="co-card"><div id="co-owners-host"></div></div>
     </div>
 
-    <!-- STEP: SHARED (EIN/SSN) -->
-    <div class="co-panel" id="panel-shared" style="display:none"></div>
+    <!-- STEP: UPSELL (Registered Agent / Virtual Address) -->
+    <div class="co-panel" id="panel-upsell" style="display:none"></div>
 
     <!-- STEPS: SERVICES (dinámico) -->
     <div id="co-svc-host"></div>
@@ -191,6 +213,7 @@ body{font-family:var(--font-sans),'Plus Jakarta Sans',system-ui,sans-serif;color
           <div class="co-field"><label class="co-label" data-en="Phone / WhatsApp" data-es="Teléfono / WhatsApp">Teléfono / WhatsApp</label><input class="co-input" type="tel" id="f-phone"/></div>
           <div class="co-field full"><label class="co-label" data-en="Electronic signature (type your full legal name)" data-es="Firma electrónica (escribe tu nombre legal completo)">Firma electrónica (escribe tu nombre legal completo)</label><input class="co-input" id="f-signature"/></div>
         </div>
+        <div id="co-contact-shared"></div>
       </div>
     </div>
 
@@ -285,7 +308,7 @@ function coSetLang(l){
   if($('co-wizard').style.display!=='none'){
     var ex=coCollectExtras(), sh=coCollectShared(), simple=coSnapSimple();
     coBuildWizard();
-    coRestoreSimple(simple); restoreShared(sh); restoreExtras(ex);
+    coRestoreSimple(simple); restoreShared(sh); restoreExtras(ex); coOwnTotal();
     coGoStep(Math.min(coIdx, coSteps.length-1));
   }
 }
@@ -293,12 +316,35 @@ function coSetLang(l){
 // ── Repeaters (filas estructuradas con selector de cantidad) ────────────────
 function repRowHtml(svcId, f){
   var isEs=coIsEs();
+  // Bloque vertical con etiquetas (miembros/directores): nombre+apellido,
+  // rol, %, dirección por partes. Cada input conserva .rep-cell[data-col] para
+  // que el colector genérico lo lea igual.
+  if(f.block){
+    var fullKeys={street:1};
+    var fields=(f.cols||[]).map(function(col){
+      var lbl=isEs?col.es:col.en;
+      var pctHook=(col.k==='pct');
+      var inp = (col.type==='select')
+        ? '<select class="co-select rep-cell" data-col="'+col.k+'"'+(pctHook?' onchange="coOwnTotal()"':'')+'><option value="">'+lbl+'</option>'+(col.opts||[]).map(function(o){return '<option>'+o+'</option>';}).join('')+'</select>'
+        : '<input class="co-input rep-cell" data-col="'+col.k+'"'+(pctHook?' oninput="coOwnTotal()"':'')+' placeholder="'+lbl+'"/>';
+      return '<div class="co-field'+(fullKeys[col.k]?' full':'')+'"><label class="co-label">'+lbl+'</label>'+inp+'</div>';
+    }).join('');
+    return '<div class="rep-row rep-block"><button type="button" class="rep-del rep-block-del" title="Quitar" onclick="coDelRepRow(this)">&#215;</button><div class="rep-grid">'+fields+'</div></div>';
+  }
   var cells=(f.cols||[]).map(function(col){
     var lbl=isEs?col.es:col.en;
     if(col.type==='select'){ return '<select class="co-select rep-cell" data-col="'+col.k+'"><option value="">'+lbl+'</option>'+(col.opts||[]).map(function(o){return '<option>'+o+'</option>';}).join('')+'</select>'; }
     return '<input class="co-input rep-cell" data-col="'+col.k+'" placeholder="'+lbl+'"/>';
   }).join('');
   return '<div class="rep-row">'+cells+'<button type="button" class="rep-del" title="Quitar" onclick="coDelRepRow(this)">&#215;</button></div>';
+}
+// Suma de % de propiedad de los miembros (LLC). Verde si = 100%.
+function coOwnTotal(){
+  var t=$('co-own-total'); if(!t) return;
+  var host=document.getElementById('rep-llc-formation-members'); var sum=0;
+  if(host){ host.querySelectorAll('.rep-cell[data-col="pct"]').forEach(function(c){ var v=parseFloat(c.value); if(!isNaN(v)) sum+=v; }); }
+  t.textContent=sum+'%';
+  t.style.color=(sum===100)?'#16a34a':(sum>100?'#dc2626':'#64748b');
 }
 function coRepField(svcId, fk){ return coFieldDef(svcId, fk); }
 function coSyncRepCount(host){
@@ -423,7 +469,7 @@ function restoreExtras(vals){
   });
 }
 function coSnapSimple(){
-  var ids=['f-flDoc','f-entityType','f-legalName','f-designator','f-street','f-city','f-zip','f-firstName','f-lastName','f-email','f-phone','f-signature'];
+  var ids=['f-flDoc','f-entityType','f-legalName','f-designator','f-street','f-apt','f-city','f-state','f-zip','f-country','f-firstName','f-lastName','f-email','f-phone','f-signature'];
   var o={}; ids.forEach(function(id){ var el=$(id); if(el) o[id]=el.value; }); return o;
 }
 function coRestoreSimple(o){ Object.keys(o).forEach(function(id){ var el=$(id); if(el) el.value=o[id]; }); }
@@ -449,7 +495,9 @@ function coLookupCompany(){
     $('f-entityType').value=(c.entity_type_normalized==='CORP'?'corp':'llc');
     $('f-street').value=c.principal_address||'';
     $('f-city').value=c.principal_city||'';
+    if($('f-state')) $('f-state').value=c.principal_state||'';
     $('f-zip').value=c.principal_zip||'';
+    if($('f-country')) $('f-country').value='United States';
     if(st) st.innerHTML='';
     var addr=[c.principal_address,c.principal_city,c.principal_state,c.principal_zip].filter(Boolean).join(', ');
     var found=$('co-company-found'); found.style.display='';
@@ -474,7 +522,9 @@ function coGetIntake(){
     legalName:(ft && desig && name) ? (name+' '+desig) : name,
     formationType:ft||'', designator:desig,
     flDoc:$('f-flDoc').value.trim(), street:$('f-street').value.trim(),
-    city:$('f-city').value.trim(), zip:$('f-zip').value.trim(),
+    apt:($('f-apt')?$('f-apt').value.trim():''), city:$('f-city').value.trim(),
+    state:($('f-state')?$('f-state').value.trim():''), zip:$('f-zip').value.trim(),
+    country:($('f-country')?$('f-country').value.trim():''),
     signature:$('f-signature').value.trim(), extras:coCollectExtras(), shared:coCollectShared()
   };
 }
@@ -510,21 +560,68 @@ function coSetupCompanyPanel(ft){
   }
 }
 function coSetupOwnersPanel(ft){
-  var host=$('co-owners-host'); if(!host) return;
-  var keys = (ft==='llc') ? ['mgmt','members'] : ['shares','directors'];
-  var h=''; keys.forEach(function(k){ var fd=coFieldDef(coFormId,k); if(fd) h+=fieldHtml(coFormId,fd); });
-  host.innerHTML='<div class="co-grid">'+h+'</div>';
+  var host=$('co-owners-host'); if(!host) return; var isEs=coIsEs();
+  if(ft==='llc'){
+    var fm=coFieldDef('llc-formation','members');
+    var h = fm ? fieldHtml('llc-formation',fm) : '';
+    h += '<div class="co-own-total"><span data-en="Total ownership" data-es="Propiedad total">'+(isEs?'Propiedad total':'Total ownership')+'</span><strong id="co-own-total">0%</strong></div>';
+    host.innerHTML=h;
+    coOwnTotal();
+  } else {
+    var fs=coFieldDef('corp-formation','shares'); var fdd=coFieldDef('corp-formation','directors');
+    var h2='';
+    if(fs) h2+='<div class="co-grid">'+fieldHtml('corp-formation',fs)+'</div>';
+    if(fdd) h2+=fieldHtml('corp-formation',fdd);
+    host.innerHTML=h2;
+  }
 }
-function coRenderSharedPanel(keys){
-  var panel=$('panel-shared'); if(!panel) return; var isEs=coIsEs();
-  if(!keys.length){ panel.innerHTML=''; return; }
+// Campos compartidos (SSN/ITIN, EIN) ahora viven en el paso "Tus datos" con un
+// tooltip que explica para qué se necesitan (decisión 2026-06-25).
+function coRenderContactShared(keys){
+  var host=$('co-contact-shared'); if(!host) return; var isEs=coIsEs();
+  if(!keys.length){ host.innerHTML=''; return; }
   var fields=keys.map(function(k){ var f=SHARED_CFG[k]; if(!f) return ''; var lbl=isEs?f.es:f.en;
-    var inner = (f.type==='select') ? '<select class="co-select" id="s-'+k+'">'+(f.opts||[]).map(function(o){return '<option>'+o+'</option>';}).join('')+'</select>' : '<input class="co-input" type="'+(f.type||'text')+'" id="s-'+k+'"/>';
-    return '<div class="co-field"><label class="co-label">'+lbl+'</label>'+inner+'</div>';
+    var tip=isEs?(f.tipEs||''):(f.tipEn||'');
+    var tipHtml = tip ? ' <span class="co-tip">?<span class="co-tip-box">'+tip+'</span></span>' : '';
+    var inner = (k==='ssnItin')
+      ? '<input class="co-input" type="password" autocomplete="off" id="s-'+k+'"/>'
+      : '<input class="co-input" type="text" id="s-'+k+'"/>';
+    return '<div class="co-field full"><label class="co-label">'+lbl+tipHtml+'</label>'+inner+'</div>';
   }).join('');
-  panel.innerHTML='<h1 class="co-h1" data-en="Required details" data-es="Datos requeridos">'+(isEs?'Datos requeridos':'Required details')+'</h1>'
-    +'<p class="co-sub" data-en="Asked once for the services that need them." data-es="Se piden una vez para los servicios que los necesitan.">'+(isEs?'Se piden una vez para los servicios que los necesitan.':'Asked once for the services that need them.')+'</p>'
-    +'<div class="co-card"><div class="co-grid">'+fields+'</div></div>';
+  host.innerHTML='<div class="co-grid" style="margin-top:14px;border-top:1px solid var(--gray200);padding-top:16px">'+fields+'</div>';
+}
+
+// Tarjetas de upsell (Registered Agent / Virtual Address) si NO están en el
+// carrito: explican qué son y por qué conviene, con botón Agregar.
+var UPSELL = {
+  'registered-agent': { icon:'\u{1F3DB}\u{FE0F}', price:'$99',
+    en:{name:'Registered Agent', desc:'Every Florida LLC & Corporation must have a Registered Agent with a physical FL address to receive legal & state documents.', why:'Keeps your home address private and off the public record.'},
+    es:{name:'Agente Registrado', desc:'Toda LLC y Corporation de Florida necesita un Agente Registrado con dirección física en FL para recibir documentos legales y del estado.', why:'Mantiene tu dirección personal privada y fuera del registro público.'} },
+  'virtual-address': { icon:'\u{1F4EC}', price:'$99',
+    en:{name:'Virtual Mailing Address', desc:'A professional Florida business address that receives and forwards your mail digitally.', why:'Use a real FL address without exposing your home address.'},
+    es:{name:'Dirección Virtual', desc:'Una dirección comercial profesional en Florida que recibe y reenvía tu correo digitalmente.', why:'Usa una dirección real en FL sin exponer la de tu casa.'} }
+};
+function coUpsellIds(){ return ['registered-agent','virtual-address'].filter(function(id){ return cart.indexOf(id)<0; }); }
+function coRenderUpsellPanel(ids){
+  var panel=$('panel-upsell'); if(!panel) return; var isEs=coIsEs();
+  if(!ids.length){ panel.innerHTML=''; return; }
+  var cards=ids.map(function(id){ var u=UPSELL[id]; if(!u) return ''; var t=isEs?u.es:u.en;
+    return '<div class="co-up-card"><div class="co-up-left"><div class="co-up-icon">'+u.icon+'</div>'
+      +'<div><div class="co-up-name">'+t.name+'</div><div class="co-up-desc">'+t.desc+'</div><div class="co-up-why">✓ '+t.why+'</div></div></div>'
+      +'<div class="co-up-right"><div class="co-up-price">'+u.price+'</div><button class="co-up-add" onclick="coAddUpsell(\'' + id + '\')">'+(isEs?'Agregar':'Add')+'</button></div></div>';
+  }).join('');
+  panel.innerHTML='<h1 class="co-h1" data-en="Recommended for you" data-es="Recomendado para ti">'+(isEs?'Recomendado para ti':'Recommended for you')+'</h1>'
+    +'<p class="co-sub" data-en="Optional services that most new businesses need." data-es="Servicios opcionales que la mayoría de negocios nuevos necesitan.">'+(isEs?'Servicios opcionales que la mayoría de negocios nuevos necesitan.':'Optional services that most new businesses need.')+'</p>'
+    +cards;
+}
+function coAddUpsell(id){
+  if(cart.indexOf(id)<0){ cart.push(id); try{ localStorage.setItem('flbc_svc_cart',JSON.stringify(cart)); }catch(e){} }
+  var ex=coCollectExtras(), sh=coCollectShared(), simple=coSnapSimple();
+  coBuildWizard();
+  coRestoreSimple(simple); restoreShared(sh); restoreExtras(ex); coOwnTotal();
+  var idx=-1; coSteps.forEach(function(s,i){ if(s.id==='panel-upsell') idx=i; });
+  if(idx<0) coSteps.forEach(function(s,i){ if(s.id==='panel-contact') idx=i; });
+  coGoStep(idx<0?Math.min(coIdx,coSteps.length-1):idx);
 }
 // "Peso" aproximado de un servicio = cuánto espacio ocupa (para empacar tantos
 // como quepan por paso sin scroll, en vez de un número fijo). Un repeater pesa
@@ -537,7 +634,7 @@ function coServiceWeight(svcId, ft){
 function coRenderServicePages(ft){
   var ids=coServiceIds(ft); var host=$('co-svc-host'); host.innerHTML=''; coServicePages=[];
   var isEs=coIsEs();
-  var BUDGET=7; // unidades de campo que caben cómodas por paso (≈ sin scroll)
+  var BUDGET=12; // unidades de campo que caben cómodas por paso (≈ sin scroll)
   // Empaca servicios por tamaño: mete todos los que quepan en el presupuesto.
   var pages=[], cur=[], curW=0;
   ids.forEach(function(id){
@@ -569,12 +666,15 @@ function coBuildWizard(){
 
   if(ft){ coSteps.push({id:'panel-owners', title:{en:'Owners & management',es:'Dueños y gestión'}}); coSetupOwnersPanel(ft); }
 
-  var sk=coSharedKeysActive(); coRenderSharedPanel(sk);
-  if(sk.length){ coSteps.push({id:'panel-shared', title:{en:'Required details',es:'Datos requeridos'}}); }
-
   coRenderServicePages(ft);
   coServicePages.forEach(function(p){ coSteps.push({id:p.id, title:{en:'Service details',es:'Datos del servicio'}}); });
 
+  // Upsell (RA / Virtual Address) antes del contacto, si no están en el carrito.
+  var ups=coUpsellIds(); coRenderUpsellPanel(ups);
+  if(ups.length){ coSteps.push({id:'panel-upsell', title:{en:'Recommended',es:'Recomendado'}}); }
+
+  // SSN/ITIN + EIN compartidos viven en el paso de contacto (con tooltip).
+  coRenderContactShared(coSharedKeysActive());
   coSteps.push({id:'panel-contact', title:{en:'Your details',es:'Tus datos'}});
   coSteps.push({id:'panel-pay', title:{en:'Review & pay',es:'Revisar y pagar'}});
 }

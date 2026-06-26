@@ -46,6 +46,15 @@ El checkout `/servicios/checkout` se reescribió de 1 página a **wizard por pas
 
 **Reglas confirmadas (founder):** formaciones LLC/Corp **mutuamente excluyentes** (al armar el wizard se quita la otra del carrito); servicios que solapan con la formación (`COVERED_IN_FORMATION` = ein, operating-agreement, registered-agent) **no se vuelven a pedir** (se procesan junto, siguen cobrando); campos que la formación ya captura (`HIDE_KEYS_IN_FORMATION` = activity, mgmt, members, officers, raPref, shares, directors) se ocultan en los demás servicios para no duplicar. Servicios de empresa existente (Annual Report, etc.) se permiten igual aunque se forme nueva.
 
+### Formularios detallados como los paquetes (home) — 2026-06-25
+Se acercó el à la carte a los forms del home:
+- **Dueños/Directores** ahora son **bloques verticales detallados** (flag `block:true` en el repeater de `service-fields.ts`): Tipo (Individual/Empresa), **Nombre + Apellido**, **Rol por miembro** (MGR/MGRM/Pres/VP/Sec/Tes/Dir), **% de propiedad** con **total** (verde si =100%), y **dirección por partes** (país/calle/apt/ciudad/estado/ZIP). Se quitó el "Tipo de gestión" global (el rol va por miembro). La cantidad se elige primero.
+- **Empresa (paso 1):** dirección por partes (calle/apt/ciudad/estado/ZIP/país).
+- **SSN/ITIN y EIN compartidos** se movieron al paso **"Tus datos"** con **tooltip** (`tipEn/tipEs` en `SHARED_FIELDS`); SSN enmascarado (type=password). Ya no hay paso "Datos requeridos" aparte.
+- **Tarjetas upsell** (paso "Recomendado"): si Registered Agent o Virtual Address NO están en el carrito, se muestran tarjetas estilo add-on (qué es + por qué + precio + Agregar) que los meten al carrito y reconstruyen el wizard.
+- **Empaque:** budget subió a 12 (menos pasos casi vacíos).
+- **Pendiente (parity con home):** Individual/Empresa aún no oculta campos condicionalmente; EIN avanzado (actividad buscable + confirmar SSN/ITIN con ojo); teléfono con código de país + validación email + consentimiento SMS. Admin worksheet muestra los cols nuevos con flex-wrap.
+
 ### Fuente única de campos
 - El checkout del cliente **inyecta `SERVICE_FIELDS` y `SHARED_FIELDS` desde `lib/service-fields.ts`** (antes tenía copia inline duplicada que se desincronizó). Ahora cliente y admin SIEMPRE coinciden. **Para tocar campos: editar solo `lib/service-fields.ts`.**
 

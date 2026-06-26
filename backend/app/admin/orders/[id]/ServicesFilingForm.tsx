@@ -264,7 +264,8 @@ export default function ServicesFilingForm({ orderId, addons, firstName, lastNam
         .sff-field input, .sff-field select, .sff-field textarea{ padding:8px 10px; border:1.5px solid #e5e7eb; border-radius:7px; font-size:13px; font-family:inherit; color:#1e293b; background:#fff; width:100%; }
         .sff-field textarea{ min-height:54px; resize:vertical; }
         .sff-rep{ display:flex; flex-direction:column; gap:7px; }
-        .sff-rep-row{ display:flex; gap:6px; align-items:center; }
+        .sff-rep-row{ display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
+        .sff-rep-row input, .sff-rep-row select{ min-width:120px; }
         .sff-rep-row input, .sff-rep-row select{ flex:1; min-width:0; padding:7px 9px; border:1.5px solid #e5e7eb; border-radius:7px; font-size:12.5px; font-family:inherit; color:#1e293b; background:#fff; }
         .sff-rep-del{ flex:0 0 auto; width:26px; height:26px; border:1.5px solid #e5e7eb; background:#fff; border-radius:6px; color:#94a3b8; cursor:pointer; font-size:14px; line-height:1; }
         .sff-rep-del:hover{ background:#fee2e2; color:#dc2626; }

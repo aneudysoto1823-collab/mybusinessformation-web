@@ -28,6 +28,12 @@ export interface ServiceField {
   /** solo para type:'repeater' — etiqueta del selector de cantidad de filas */
   countEn?: string
   countEs?: string
+  /** solo para type:'repeater' — renderiza cada fila como bloque vertical con
+   *  etiquetas (no una fila horizontal apretada). Para miembros/directores. */
+  block?: boolean
+  /** tooltip explicativo (ícono ?) — usado en campos sensibles tipo SSN/EIN. */
+  tipEn?: string
+  tipEs?: string
 }
 
 export interface ServiceFieldDef {
@@ -47,8 +53,12 @@ export interface ServiceFieldDef {
 // Ej: el EIN lo necesitan ~9 servicios; el SSN/ITIN del responsible party, 3.
 // El cliente los llena una vez; se guardan en Order.addons.intake.shared.
 export const SHARED_FIELDS: Record<string, ServiceField> = {
-  ein:     { k: 'ein',     en: 'EIN / Tax ID Number',                  es: 'EIN / Número de ID Fiscal',                  type: 'text' },
-  ssnItin: { k: 'ssnItin', en: 'Your SSN or ITIN (responsible party)', es: 'Tu SSN o ITIN (responsible party)',          type: 'text' },
+  ein:     { k: 'ein',     en: 'EIN / Tax ID Number',                  es: 'EIN / Número de ID Fiscal',                  type: 'text',
+    tipEn: 'Your 9-digit federal Employer Identification Number from the IRS. Needed to prepare filings for services like the Annual Report, Sales Tax, or Banking Resolution.',
+    tipEs: 'Tu número federal de identificación fiscal (EIN) de 9 dígitos del IRS. Se necesita para preparar trámites como la Declaración Anual, el Impuesto de Ventas o la Resolución Bancaria.' },
+  ssnItin: { k: 'ssnItin', en: 'Your SSN or ITIN (responsible party)', es: 'Tu SSN o ITIN (responsible party)',          type: 'text',
+    tipEn: 'The IRS requires the tax ID (SSN or ITIN) of the responsible party — the person who controls the business — to process the EIN and tax registrations. It is encrypted and never shown publicly.',
+    tipEs: 'El IRS exige el ID fiscal (SSN o ITIN) del responsible party — la persona que controla el negocio — para procesar el EIN y los registros fiscales. Se encripta y nunca se muestra públicamente.' },
 }
 
 // Unión de claves compartidas que requieren los servicios dados (sin duplicar).
@@ -70,12 +80,19 @@ export const SERVICE_FIELDS: Record<string, ServiceFieldDef> = {
     note_en: 'Owners and how the LLC is run', note_es: 'Dueños y cómo se maneja la LLC', fields: [
     { k: 'activity', en: 'Primary business activity', es: 'Actividad principal del negocio', type: 'select', opts: ['Retail & E-Commerce', 'Real Estate', 'Restaurant / Food', 'Construction', 'Technology', 'Consulting', 'Import / Export', 'Health & Wellness', 'Other'] },
     { k: 'raPref', en: 'Registered Agent', es: 'Agente registrado', type: 'select', opts: ['Use OpaBiz as my Registered Agent', 'I will provide my own Registered Agent'] },
-    { k: 'mgmt', en: 'Management type', es: 'Tipo de gestión', type: 'select', opts: ['Member-Managed', 'Manager-Managed'] },
-    { k: 'members', en: 'Owners / Members', es: 'Dueños / Miembros', type: 'repeater',
+    { k: 'members', en: 'Owners / Members', es: 'Dueños / Miembros', type: 'repeater', block: true,
       countEn: 'How many owners/members?', countEs: '¿Cuántos dueños o miembros?', cols: [
-      { k: 'name', en: 'Full legal name', es: 'Nombre legal completo', type: 'text' },
+      { k: 'type', en: 'Type', es: 'Tipo', type: 'select', opts: ['Individual', 'Company'] },
+      { k: 'firstName', en: 'First name', es: 'Nombre', type: 'text' },
+      { k: 'lastName', en: 'Last name', es: 'Apellido', type: 'text' },
+      { k: 'role', en: 'Role', es: 'Rol', type: 'select', opts: ['MGR (Manager)', 'MGRM (Manager & Member)', 'President', 'VP', 'Secretary', 'Treasurer', 'Director'] },
       { k: 'pct', en: 'Ownership %', es: '% de propiedad', type: 'text' },
-      { k: 'address', en: 'Address', es: 'Dirección', type: 'text' },
+      { k: 'country', en: 'Country', es: 'País', type: 'text' },
+      { k: 'street', en: 'Street address', es: 'Dirección (calle)', type: 'text' },
+      { k: 'apt', en: 'Apt / Suite (optional)', es: 'Apt / Suite (opcional)', type: 'text' },
+      { k: 'city', en: 'City', es: 'Ciudad', type: 'text' },
+      { k: 'state', en: 'State', es: 'Estado', type: 'text' },
+      { k: 'zip', en: 'ZIP', es: 'ZIP', type: 'text' },
     ]},
   ]},
   'corp-formation': { name_en: 'Corporation Formation', name_es: 'Formación de Corporation',
@@ -83,11 +100,17 @@ export const SERVICE_FIELDS: Record<string, ServiceFieldDef> = {
     { k: 'activity', en: 'Primary business activity', es: 'Actividad principal del negocio', type: 'select', opts: ['Retail & E-Commerce', 'Real Estate', 'Restaurant / Food', 'Construction', 'Technology', 'Consulting', 'Import / Export', 'Health & Wellness', 'Other'] },
     { k: 'raPref', en: 'Registered Agent', es: 'Agente registrado', type: 'select', opts: ['Use OpaBiz as my Registered Agent', 'I will provide my own Registered Agent'] },
     { k: 'shares', en: 'Authorized shares', es: 'Acciones autorizadas', type: 'select', opts: ['1,000', '10,000', '100,000', 'Other'] },
-    { k: 'directors', en: 'Directors / Officers', es: 'Directores / Oficiales', type: 'repeater',
+    { k: 'directors', en: 'Directors / Officers', es: 'Directores / Oficiales', type: 'repeater', block: true,
       countEn: 'How many directors/officers?', countEs: '¿Cuántos directores u oficiales?', cols: [
-      { k: 'title', en: 'Role', es: 'Cargo', type: 'select', opts: ['Director', 'President', 'VP', 'Secretary', 'Treasurer'] },
-      { k: 'name', en: 'Full name', es: 'Nombre completo', type: 'text' },
-      { k: 'address', en: 'Address', es: 'Dirección', type: 'text' },
+      { k: 'role', en: 'Role', es: 'Cargo', type: 'select', opts: ['Director', 'President', 'VP', 'Secretary', 'Treasurer'] },
+      { k: 'firstName', en: 'First name', es: 'Nombre', type: 'text' },
+      { k: 'lastName', en: 'Last name', es: 'Apellido', type: 'text' },
+      { k: 'country', en: 'Country', es: 'País', type: 'text' },
+      { k: 'street', en: 'Street address', es: 'Dirección (calle)', type: 'text' },
+      { k: 'apt', en: 'Apt / Suite (optional)', es: 'Apt / Suite (opcional)', type: 'text' },
+      { k: 'city', en: 'City', es: 'Ciudad', type: 'text' },
+      { k: 'state', en: 'State', es: 'Estado', type: 'text' },
+      { k: 'zip', en: 'ZIP', es: 'ZIP', type: 'text' },
     ]},
   ]},
   // El responsible party (IRS) es la persona que ordena — su nombre ya se pide
