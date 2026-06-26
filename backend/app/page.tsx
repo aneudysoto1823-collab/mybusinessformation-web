@@ -942,16 +942,14 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           &#x1F680; <span id="lbl-new-app">Start New Application</span> <span style="font-size:.7rem">&#9660;</span>
         </button>
       </div>
-      <div style="position:relative;display:inline-block">
-        <button class="btn-hero-new btn-hero-continue" onclick="toggleContinueDropdown()" id="btn-continue-app" style="display:flex;align-items:center;gap:8px">
-          &#x1F50D; <span id="lbl-continue-app">Continue My Application</span> <span id="continue-arrow" style="font-size:.7rem;transition:transform .2s">▼</span>
+      <div style="display:inline-block">
+        <!-- 2026-06-26: simplificado de dropdown con input FBFC a boton directo.
+             El cliente no ve un FBFC (se genera al pagar). Click llama a
+             continueFromHome() que verifica el localStorage 'mbf_form_progress'
+             (sistema existente fmSaveProgress) y restaura el form. -->
+        <button class="btn-hero-new btn-hero-continue" onclick="continueFromHome()" id="btn-continue-app" style="display:flex;align-items:center;gap:8px">
+          &#x1F50D; <span id="lbl-continue-app">Continue My Application</span>
         </button>
-        <div id="continueDropdown" style="display:none;position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#fff;border-radius:12px;box-shadow:0 8px 32px rgba(28,46,68,0.18);border:1px solid #e2e8f0;overflow:hidden;min-width:280px;z-index:500;padding:20px">
-          <div style="font-size:.82rem;font-weight:600;color:#1C2E44;margin-bottom:10px" id="cont-drop-title">Order Number</div>
-          <input type="text" id="inp-continue-order-drop" placeholder="E.G. FBFC-12345" style="width:100%;padding:10px 14px;border:1.5px solid #e5e7eb;border-radius:9px;font-size:.88rem;font-family:inherit;color:#1e293b;box-sizing:border-box;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter')findOrderDrop()"/>
-          <div id="cont-drop-error" style="display:none;color:#ef4444;font-size:.75rem;margin-bottom:10px;padding:7px 10px;background:#fef2f2;border-radius:7px"></div>
-          <button onclick="findOrderDrop()" class="btn-hero-new" style="width:100%;justify-content:center" id="cont-drop-btn"><span id="cont-drop-btn-lbl">Continue</span> &#8594;</button>
-        </div>
       </div>
       </div>
       <span class="section-label" id="price-label">Our Packages</span>
@@ -4037,16 +4035,49 @@ function toggleFaq(btn) {
   document.querySelectorAll('.faq-item').forEach(function(i){ i.classList.remove('open'); });
   if(!wasOpen) item.classList.add('open');
 }
+// Reescrita 2026-06-26: el viejo saveOrder() generaba un FBFC random con
+// Math.random() y apuntaba a selectores del form viejo (.form-step.active)
+// que ya no existen — no hacia nada visible. Ahora REUSA la funcion
+// fmSaveProgress() ya existente (linea ~6312) que guarda en localStorage
+// con key 'mbf_form_progress'. Solo agrega banner verde de confirmacion.
+//
+// NO se activa fmCheckProgress automatico — Fabian lo desactivo el 2026-04-19
+// (commit 0c55c4e) por una razon. Si se reactiva, preguntar primero al founder.
 function saveOrder() {
-  generateOrderNumber();
-  var box = document.createElement('div');
-  box.className = 'order-save-box';
-  box.innerHTML = '<div><div class="order-num">' + orderNumber + '</div><p>Your order has been saved! Use this number to continue from any device.</p></div>';
-  var existing = document.querySelector('.order-save-box');
+  try { fmSaveProgress(); } catch(e) {}
+  var existing = document.getElementById('save-toast');
   if(existing) existing.remove();
-  var activeStep = document.querySelector('.form-step.active');
-  if(activeStep) activeStep.insertBefore(box, activeStep.querySelector('.form-footer'));
+  var t = document.createElement('div');
+  t.id = 'save-toast';
+  t.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#10b981;color:#fff;padding:13px 24px;border-radius:10px;font-size:.92rem;font-weight:600;box-shadow:0 6px 22px rgba(16,185,129,0.38);z-index:99999;font-family:var(--font-sans);display:flex;align-items:center;gap:8px;transition:opacity 0.4s';
+  var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
+  t.innerHTML = '&#10004; ' + (isEs ? 'Guardado — podés volver cuando quieras' : 'Saved — come back anytime');
+  document.body.appendChild(t);
+  setTimeout(function(){ t.style.opacity = '0'; setTimeout(function(){ if(t.parentNode) t.remove(); }, 500); }, 2600);
 }
+
+// Llamado desde el home cuando el cliente clickea "Continue My Application".
+// Verifica si hay progreso guardado en localStorage 'mbf_form_progress' y lo
+// restaura usando fmRestoreProgress (funcion existente). Sino alerta.
+function continueFromHome() {
+  var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
+  try {
+    var raw = localStorage.getItem('mbf_form_progress');
+    if(!raw) {
+      alert(isEs ? 'No tenés órdenes guardadas en este dispositivo.\nLas órdenes guardadas se conservan solo en el navegador desde el cual las iniciaste.' : "You don't have any saved orders on this device.\nSaved orders are kept only in the browser where you started them.");
+      return;
+    }
+    var progress = JSON.parse(raw);
+    if(!progress || (progress.step || 0) < 2) {
+      alert(isEs ? 'No tenés órdenes con progreso suficiente para continuar.' : "You don't have an order with enough progress to continue.");
+      return;
+    }
+    fmRestoreProgress(progress);
+  } catch(e) {
+    alert(isEs ? 'No pudimos recuperar tu orden anterior.' : "We couldn't recover your previous order.");
+  }
+}
+
 function submitForm() {
   generateOrderNumber();
   document.getElementById('finalOrderNum').textContent = orderNumber;
