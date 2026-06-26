@@ -22,7 +22,11 @@ import { parseFile, RECORD_LEN } from '@/lib/sunbiz-cron/parser'
 import { upsertBatch } from '@/lib/sunbiz-cron/upsert'
 
 export const dynamic = 'force-dynamic'
-export const maxDuration = 60  // segundos. Hobby max=60, Pro max=300. ~1500 records caben en <30s.
+// SFTP de Florida tarda ~60-70s descargando el archivo de 3-4 MB.
+// Parse + UPSERT batch a Turso suman ~10s. Total real ~75-90s.
+// Pro tier max = 300s. Le damos 5min por si Florida esta lento un dia
+// o si el daily es mas grande de lo normal.
+export const maxDuration = 300
 
 const ALERT_FROM = process.env.RESEND_FROM_TRANSACTIONAL || 'noreply@opabiz.com'
 const ALERT_TO = process.env.INTERNAL_ALERT_EMAIL || 'alert@opabiz.com'
