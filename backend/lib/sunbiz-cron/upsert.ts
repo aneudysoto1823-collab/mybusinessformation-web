@@ -10,7 +10,7 @@
 //  - INSERT OR REPLACE garantiza idempotencia ante re-runs de un mismo dia.
 //  - Los triggers FTS5 ai/ad/au se ocupan del indice de busqueda solos.
 
-import { createClient, type Client } from '@libsql/client'
+import { createClient, type Client, type InValue } from '@libsql/client'
 import { normalizeName } from '../sunbiz-normalize'
 import type { ParsedRecord } from './parser'
 
@@ -61,8 +61,14 @@ const UPDATE_SET = COLS
   .map(col => `${col} = excluded.${col}`)
   .join(', ')
 
-const UPSERT_SQL = `INSERT INTO sunbiz_corps (${COLS.join(', ')}) VALUES (${PLACEHOLDERS})
+// Multi-row UPSERT: 1 sola query SQL con N filas en VALUES, en lugar de N queries
+// separadas. Reduce roundtrips a Turso de N a 1 por chunk. Crucial para caber en
+// los 300s de Vercel Pro cuando hay 2000+ updates (cada uno con AU trigger).
+function buildMultiRowUpsert(rows: number): string {
+  const valuesPart = Array.from({ length: rows }, () => `(${PLACEHOLDERS})`).join(', ')
+  return `INSERT INTO sunbiz_corps (${COLS.join(', ')}) VALUES ${valuesPart}
 ON CONFLICT(document_number) DO UPDATE SET ${UPDATE_SET}`
+}
 
 export interface UpsertResult {
   inserted: number
@@ -79,69 +85,75 @@ export async function upsertBatch(records: ParsedRecord[]): Promise<UpsertResult
   const result: UpsertResult = { inserted: 0, failed: 0, failedExamples: [] }
   const now = new Date().toISOString()
 
+  // Helper: arma los args de una fila en el orden de COLS
+  const rowArgs = (r: ParsedRecord): InValue[] => {
+    const officersJson = r.officers.length ? JSON.stringify(r.officers) : null
+    // CRITICO: name_normalized usa la misma funcion que la busqueda
+    const nameNormalized = normalizeName(r.entity_name)
+    return [
+      r.document_number,
+      r.entity_name,
+      r.entity_type,
+      r.status,
+      r.filing_type_raw,        // codigo crudo: FLAL/FORL/DOMP/etc.
+      r.filing_date,
+      r.principal_address,      // concatenada (compat)
+      r.principal_city,
+      r.principal_state,
+      r.principal_zip,
+      r.principal_country,
+      r.mailing_address,        // concatenada (compat)
+      r.mail_city,
+      r.mail_state,
+      r.mail_zip,
+      r.mail_country,
+      r.registered_agent_name,
+      r.registered_agent_type,
+      r.registered_agent_address,
+      r.registered_agent_city,
+      r.registered_agent_state,
+      r.registered_agent_zip,
+      'florida_sftp_daily',     // data_source
+      now,                      // last_updated
+      nameNormalized,           // CRITICO para la busqueda
+      // Cols nuevas crudas
+      officersJson,
+      r.officer_count,
+      r.principal_addr1,
+      r.principal_addr2,
+      r.mail_addr1,
+      r.mail_addr2,
+      r.fei,
+      r.last_tx_date,
+      r.state_country,
+      r.more_than_six,
+      0,                        // procesada = 0 (Bloque 2 la flipea)
+      null,                     // fecha_contactada = NULL
+    ]
+  }
+
   for (let i = 0; i < records.length; i += BATCH_SIZE) {
     const chunk = records.slice(i, i + BATCH_SIZE)
-    const statements = chunk.map(r => {
-      const officersJson = r.officers.length ? JSON.stringify(r.officers) : null
-      // CRITICO: name_normalized usa la misma funcion que la busqueda
-      const nameNormalized = normalizeName(r.entity_name)
-      const args = [
-        r.document_number,
-        r.entity_name,
-        r.entity_type,
-        r.status,
-        r.filing_type_raw,        // codigo crudo: FLAL/FORL/DOMP/etc.
-        r.filing_date,
-        r.principal_address,      // concatenada (compat)
-        r.principal_city,
-        r.principal_state,
-        r.principal_zip,
-        r.principal_country,
-        r.mailing_address,        // concatenada (compat)
-        r.mail_city,
-        r.mail_state,
-        r.mail_zip,
-        r.mail_country,
-        r.registered_agent_name,
-        r.registered_agent_type,
-        r.registered_agent_address,
-        r.registered_agent_city,
-        r.registered_agent_state,
-        r.registered_agent_zip,
-        'florida_sftp_daily',      // data_source
-        now,                       // last_updated
-        nameNormalized,            // CRITICO para la busqueda
-        // Cols nuevas crudas
-        officersJson,
-        r.officer_count,
-        r.principal_addr1,
-        r.principal_addr2,
-        r.mail_addr1,
-        r.mail_addr2,
-        r.fei,
-        r.last_tx_date,
-        r.state_country,
-        r.more_than_six,
-        0,                         // procesada = 0 (Bloque 2 la flipea)
-        null,                      // fecha_contactada = NULL
-      ]
-      return { sql: UPSERT_SQL, args }
-    })
+    const sql = buildMultiRowUpsert(chunk.length)
+    const args = chunk.flatMap(rowArgs)
 
     try {
-      await client.batch(statements, 'write')
+      // 1 sola query SQL con chunk.length filas — drasticamente mas rapido
+      // que ejecutar chunk.length statements separados via client.batch().
+      await client.execute({ sql, args })
       result.inserted += chunk.length
     } catch (e) {
       // Fallback: una a una para identificar la fila culpable
-      for (const stmt of statements) {
+      const singleSql = buildMultiRowUpsert(1)
+      for (const r of chunk) {
         try {
-          await client.execute(stmt)
+          await client.execute({ sql: singleSql, args: rowArgs(r) })
           result.inserted++
         } catch (rowErr) {
           result.failed++
           if (result.failedExamples.length < 5) {
             result.failedExamples.push({
-              doc: String(stmt.args[0]),
+              doc: r.document_number,
               err: rowErr instanceof Error ? rowErr.message : String(rowErr),
             })
           }
