@@ -341,6 +341,7 @@ export default function ServiciosPage() {
           <div class="svc-acc-sub" data-en="${s.sub_en}" data-es="${s.sub_es}">${s.sub_es}</div>
         </div>
         <div class="svc-acc-price">${s.price}</div>
+        ${s.id === 'stripe-setup-guide' ? '' : `<button class="svc-add-btn svc-acc-add" data-svc="${s.id}" onclick="event.stopPropagation();toggleCart('${s.id}')"><span class="svc-add-lbl">Agregar al pedido</span></button>`}
         <div class="svc-acc-chevron">${svgIcons.chevron}</div>
       </div>
       <div class="svc-popup" onmouseenter="clearTimeout(_svcTimer)" onmouseleave="deactivateSvc()">
@@ -465,10 +466,10 @@ nav a:hover{color:var(--navy);background:var(--gray100)}
 .bundle-inner h2{font-size:clamp(1.8rem,3.5vw,2.5rem);font-weight:900;margin-bottom:12px;color:var(--navy)}
 .bundle-inner p{font-size:.95rem;color:var(--gray600);line-height:1.75;margin-bottom:28px;max-width:560px;margin-left:auto;margin-right:auto}
 .bundle-btns{display:flex;justify-content:center;gap:14px;flex-wrap:wrap}
-.btn-bundle-primary{background:var(--blue);color:#fff;padding:14px 32px;border-radius:10px;font-size:.95rem;font-weight:600;border:2px solid var(--blue);cursor:pointer;font-family:inherit;transition:all .2s}
-.btn-bundle-primary:hover{background:#1d4ed8;border-color:#1d4ed8;transform:translateY(-1px)}
-.btn-bundle-sec{background:#fff;color:var(--navy);padding:14px 24px;border-radius:10px;font-size:.92rem;font-weight:600;border:1.5px solid var(--gray200);cursor:pointer;font-family:inherit;transition:all .2s}
-.btn-bundle-sec:hover{background:var(--gray100)}
+.btn-bundle-primary{background:#fff;color:var(--navy);padding:14px 32px;border-radius:10px;font-size:.95rem;font-weight:600;border:2px solid var(--gray200);cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-bundle-primary:hover{border-color:var(--blue);color:var(--blue);transform:translateY(-1px)}
+.btn-bundle-sec{background:#fff;color:var(--navy);padding:14px 24px;border-radius:10px;font-size:.92rem;font-weight:600;border:2px solid var(--gray200);cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-bundle-sec:hover{border-color:var(--blue);color:var(--blue)}
 /* FOOTER */
 footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;margin-top:auto}
 .footer-inner{max-width:1280px;margin:0 auto}
@@ -585,6 +586,11 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
 .svc-acc-title{font-family:var(--font-serif);font-size:.95rem;font-weight:700;color:var(--navy);line-height:1.25;margin-bottom:2px}
 .svc-acc-sub{font-size:.71rem;color:var(--gray500);line-height:1.3}
 .svc-acc-price{font-family:var(--font-serif);font-size:.93rem;font-weight:700;color:var(--navy);flex-shrink:0;white-space:nowrap}
+.svc-acc-add{flex-shrink:0;background:var(--blue);color:#fff;border:1.5px solid var(--blue);border-radius:8px;padding:7px 13px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:var(--font-sans);white-space:nowrap;transition:all .2s}
+.svc-acc-add:hover{background:#1d4ed8;border-color:#1d4ed8}
+.svc-acc-add.added{background:var(--green-light);color:var(--green-dark);border-color:var(--green)}
+.svc-acc-add.added:hover{background:var(--green);color:#fff;border-color:var(--green)}
+@media(max-width:560px){.svc-acc-add{display:none}}
 .svc-acc-chevron{width:20px;height:20px;color:var(--gray400);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:transform .25s}
 .svc-acc-chevron svg{width:15px;height:15px}
 .svc-acc-item.expanded .svc-acc-chevron{transform:rotate(180deg)}
@@ -770,10 +776,10 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
 <section class="bundle-section">
   <div class="bundle-inner">
     <h2 id="bundle-title">Ahorra con un Paquete de Formación</h2>
-    <p id="bundle-sub">Nuestros paquetes Standard y Premium combinan varios servicios — pagas menos que ordenándolos individualmente.</p>
+    <p id="bundle-sub">Nuestros paquetes Basic, Standard y Premium combinan varios servicios y pagas menos que ordenándolos individualmente.</p>
     <div class="bundle-btns">
-      <a href="/#pricing"><button id="bundle-btn-main" class="btn-bundle-primary">&#128197; Ver Paquetes de Formación &#8594;</button></a>
-      <button id="bundle-btn-sec" class="btn-bundle-sec" onclick="window.open('/booking?lang=en','_self')">&#128197; Schedule a Consultation</button>
+      <a href="/#pricing"><button id="bundle-btn-main" class="btn-bundle-primary">Ver Paquetes de Formación &#8594;</button></a>
+      <button id="bundle-btn-sec" class="btn-bundle-sec" onclick="window.open('/booking?lang=en','_self')">Schedule a Consultation</button>
     </div>
   </div>
 </section>
@@ -920,7 +926,15 @@ function svcParsePrice(p){
 function inCart(id){return cart.indexOf(id)>-1;}
 function persistCart(){try{localStorage.setItem('flbc_svc_cart',JSON.stringify(cart));}catch(e){}}
 function toggleCart(id){if(inCart(id))removeFromCart(id);else addToCart(id);}
-function addToCart(id){if(!SVC_CATALOG[id])return;if(!inCart(id)){cart.push(id);persistCart();renderCart();}}
+// Formaciones mutuamente excluyentes: una empresa es LLC O Corp, no ambas.
+var SVC_FORMATION={'llc-formation':1,'corp-formation':1};
+function addToCart(id){
+  if(!SVC_CATALOG[id])return;
+  var changed=false;
+  if(SVC_FORMATION[id]){var other=id==='llc-formation'?'corp-formation':'llc-formation';var oi=cart.indexOf(other);if(oi>-1){cart.splice(oi,1);changed=true;}}
+  if(!inCart(id)){cart.push(id);changed=true;}
+  if(changed){persistCart();renderCart();}
+}
 function removeFromCart(id){var i=cart.indexOf(id);if(i>-1){cart.splice(i,1);persistCart();renderCart();}}
 function clearCart(){if(cart.length===0)return;var isEs=svcIsEs();if(!confirm(isEs?'¿Vaciar el carrito? Se quitarán todos los servicios.':'Clear the cart? All services will be removed.'))return;cart=[];persistCart();renderCart();}
 function cartTotals(){var fixed=0,hasVar=false;cart.forEach(function(id){var v=svcParsePrice((SVC_CATALOG[id]||{}).price);if(v!=null)fixed+=v;else hasVar=true;});return{fixed:fixed,hasVar:hasVar};}
@@ -1666,9 +1680,9 @@ function setLang(lang){
   Object.keys(iE).forEach(function(sid){var card=document.getElementById(sid);if(!card)return;card.querySelectorAll('.svc-incl-item').forEach(function(item,i){var icon=item.querySelector('.svc-incl-icon');var iH=icon?icon.outerHTML:'<span class="svc-incl-icon">&#10003;</span>';var arr=isEs?iE[sid]:iEn[sid];if(arr&&arr[i]!==undefined)item.innerHTML=iH+' '+arr[i];});});
   var e;
   e=document.getElementById('bundle-title');    if(e)e.textContent=isEs?'Ahorra con un Paquete de Formación':'Save with a Formation Package';
-  e=document.getElementById('bundle-sub');      if(e)e.textContent=isEs?'Nuestros paquetes Standard y Premium combinan varios servicios — pagas menos que ordenándolos individualmente.':'Our Standard and Premium packages bundle multiple services — pay less than ordering individually.';
-  e=document.getElementById('bundle-btn-main'); if(e)e.innerHTML=isEs?'&#128197; Ver Paquetes de Formación &#8594;':'&#128197; View Formation Packages &#8594;';
-  e=document.getElementById('bundle-btn-sec');  if(e){ e.innerHTML=isEs?'&#128197; Programar cita de consulta':'&#128197; Schedule a Consultation'; e.setAttribute('onclick',"window.open('"+(isEs?'/booking?lang=es':'/booking?lang=en')+"','_self')"); }
+  e=document.getElementById('bundle-sub');      if(e)e.textContent=isEs?'Nuestros paquetes Basic, Standard y Premium combinan varios servicios y pagas menos que ordenándolos individualmente.':'Our Basic, Standard and Premium packages bundle multiple services and you pay less than ordering individually.';
+  e=document.getElementById('bundle-btn-main'); if(e)e.innerHTML=isEs?'Ver Paquetes de Formación &#8594;':'View Formation Packages &#8594;';
+  e=document.getElementById('bundle-btn-sec');  if(e){ e.innerHTML=isEs?'Programar cita de consulta':'Schedule a Consultation'; e.setAttribute('onclick',"window.open('"+(isEs?'/booking?lang=es':'/booking?lang=en')+"','_self')"); }
   var fbrand=document.querySelector('.footer-brand p'); if(fbrand)fbrand.textContent=isEs?'Servicios profesionales de formación empresarial para emprendedores e inversionistas en toda Florida.':'Professional business formation services for entrepreneurs and investors throughout Florida.';
   var fd=document.querySelector('.footer-disclaimer'); if(fd)fd.innerHTML=isEs?'<strong style="color:rgba(255,255,255,0.5);display:block;margin-bottom:4px">Aviso Importante</strong> OpaBiz es un nombre comercial de Florida Business Formation Center — un servicio profesional de preparación y presentación de documentos. No somos una firma de abogados y no brindamos asesoría legal, fiscal ni financiera. Nuestros servicios no constituyen el ejercicio del derecho ni crean una relación abogado-cliente. Todos los trámites están sujetos a aprobación por la División de Corporaciones de Florida y el IRS. Para orientación legal o fiscal específica a su situación, le recomendamos consultar con un abogado licenciado en Florida o un contador público certificado.':'<strong style="color:rgba(255,255,255,0.5);display:block;margin-bottom:4px">Important Notice</strong>OpaBiz is a trade name of Florida Business Formation Center — a professional document preparation and filing service. We are not a law firm and do not provide legal, tax, or financial advice. Our services do not constitute the practice of law and do not create an attorney-client relationship. All filings are subject to approval by the Florida Division of Corporations and the IRS. For legal or tax guidance specific to your situation, we encourage you to consult a licensed Florida attorney or certified public accountant.';
   var copy=document.querySelector('.footer-copy'); if(copy)copy.innerHTML=isEs?'&#169; 2025 Florida Business Formation Center &middot; Todos los Derechos Reservados.':'&#169; 2025 Florida Business Formation Center &middot; All Rights Reserved.';

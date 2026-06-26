@@ -594,10 +594,10 @@ function coRenderContactShared(keys){
 // Tarjetas de upsell (Registered Agent / Virtual Address) si NO están en el
 // carrito: explican qué son y por qué conviene, con botón Agregar.
 var UPSELL = {
-  'registered-agent': { icon:'\u{1F3DB}\u{FE0F}', price:'$99',
+  'registered-agent': { icon:'&#127963;', price:'$99',
     en:{name:'Registered Agent', desc:'Every Florida LLC & Corporation must have a Registered Agent with a physical FL address to receive legal & state documents.', why:'Keeps your home address private and off the public record.'},
     es:{name:'Agente Registrado', desc:'Toda LLC y Corporation de Florida necesita un Agente Registrado con dirección física en FL para recibir documentos legales y del estado.', why:'Mantiene tu dirección personal privada y fuera del registro público.'} },
-  'virtual-address': { icon:'\u{1F4EC}', price:'$99',
+  'virtual-address': { icon:'&#128236;', price:'$99',
     en:{name:'Virtual Mailing Address', desc:'A professional Florida business address that receives and forwards your mail digitally.', why:'Use a real FL address without exposing your home address.'},
     es:{name:'Dirección Virtual', desc:'Una dirección comercial profesional en Florida que recibe y reenvía tu correo digitalmente.', why:'Usa una dirección real en FL sin exponer la de tu casa.'} }
 };
@@ -709,7 +709,7 @@ function coBack(){ if(coSteps[coIdx].id==='panel-pay'){ coDestroyStripe(); } coG
 function coNext(){
   if(!coValidateStep(coIdx)) return;
   var nextIsPay=(coIdx+1<coSteps.length)&&coSteps[coIdx+1].id==='panel-pay';
-  if(nextIsPay){ coCreateSessionAndGo(); return; }
+  if(nextIsPay){ coGoStep(coIdx+1); coStartPayment(); return; }
   coGoStep(coIdx+1);
 }
 function coValidateStep(i){
@@ -732,22 +732,31 @@ function coValidateStep(i){
   }
   return true;
 }
-function coCreateSessionAndGo(){
-  var isEs=coIsEs(); var err=$('co-err'); err.textContent='';
+// Ya estamos en el paso "Revisar y pagar": muestra el resumen al instante
+// (nombres de servicios) y crea la sesión + monta Stripe en el box de la derecha.
+function coStartPayment(){
+  var isEs=coIsEs();
+  coRenderReviewNames();
+  var ec=$('embedded-checkout'); if(ec) ec.innerHTML='<div style="text-align:center;padding:60px 0"><div class="co-spinner"></div></div>';
   var intake=coGetIntake();
-  var nb=$('co-next'); nb.disabled=true; var prev=nb.innerHTML; nb.innerHTML=isEs?'Creando pago...':'Creating payment...';
   fetch('/api/checkout/embedded-services',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({services:cart,intake:intake,lang:coLang})})
     .then(function(r){return r.json().then(function(d){return{ok:r.ok,d:d};});})
     .then(function(res){
-      nb.disabled=false; nb.innerHTML=prev;
-      if(!res.ok||!res.d.clientSecret){ err.textContent=(res.d&&res.d.error)||(isEs?'No se pudo crear el pago.':'Could not create payment.'); return; }
+      if(!res.ok||!res.d.clientSecret){
+        if(ec) ec.innerHTML='<p style="color:#dc2626;padding:24px;font-size:.86rem;line-height:1.6">'+((res.d&&res.d.error)||(isEs?'No se pudo crear el pago. Revisa tus datos e intenta de nuevo.':'Could not create payment. Check your details and try again.'))+'</p>';
+        return;
+      }
       try{ localStorage.setItem('flbc_svc_order', res.d.fbfc||''); }catch(e){}
       coRenderReview(res.d.lines, res.d.total);
-      var payIdx=-1; coSteps.forEach(function(s,ix){ if(s.id==='panel-pay') payIdx=ix; });
-      coGoStep(payIdx);
       coMountStripe(res.d.clientSecret);
     })
-    .catch(function(){ nb.disabled=false; nb.innerHTML=prev; err.textContent=isEs?'Error de conexión. Intenta de nuevo.':'Connection error. Please try again.'; });
+    .catch(function(){ if(ec) ec.innerHTML='<p style="color:#dc2626;padding:24px">'+(isEs?'Error de conexión. Intenta de nuevo.':'Connection error. Please try again.')+'</p>'; });
+}
+// Resumen inmediato con los nombres de los servicios (sin esperar al servidor).
+function coRenderReviewNames(){
+  var host=$('co-review-lines'); if(!host) return; var isEs=coIsEs();
+  host.innerHTML=cart.map(function(id){ var d=SVC_EXTRAS[id]; var nm=d?(isEs?d.name_es:d.name_en):id; return '<div class="co-review-row"><span>'+nm+'</span><span></span></div>'; }).join('');
+  var t=$('co-review-total'); if(t) t.textContent=isEs?'Calculando…':'Calculating…';
 }
 function coRenderReview(lines, total){
   var host=$('co-review-lines'); if(!host) return;
