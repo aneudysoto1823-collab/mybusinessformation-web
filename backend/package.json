@@ -39,7 +39,7 @@
     "remark-html": "^16.0.1",
     "resend": "^6.9.4",
     "ssh2-sftp-client": "^12.1.1",
-    "stripe": "^20.4.1",
+    "stripe": "^22.3.0",
     "xlsx": "^0.18.5",
     "zod": "^4.4.3"
   },
