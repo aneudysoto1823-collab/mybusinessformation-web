@@ -4040,10 +4040,11 @@ function toggleFaq(btn) {
 // fmSaveProgress() ya existente (linea ~6312) que guarda en localStorage
 // con key mbf_form_progress.
 //
-// REGLA CRITICA: NO usar escape chars (\n \t \b \r \d \s \w) en strings
-// dentro de este script. Vive en un template literal JSX y los chars se
-// interpretan como literales (newline real / backspace), rompiendo el
-// parsing del browser. Mismo bug que commits 2758e09 y 59e3150.
+// REGLA CRITICA: NO usar escape chars (backslash-n, backslash-t,
+// backslash-b, backslash-r) en strings dentro de este script. Vive en un
+// template literal JSX y los chars se interpretan como literales (newline
+// real / backspace 0x08), rompiendo el parsing del browser.
+// Mismo bug que commits 2758e09 y 59e3150.
 //
 // NO se activa fmCheckProgress automatico — Fabian lo desactivo el
 // 2026-04-19 (commit 0c55c4e) por una razon. Si se reactiva, preguntar
