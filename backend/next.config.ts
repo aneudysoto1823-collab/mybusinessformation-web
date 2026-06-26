@@ -60,6 +60,12 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  // ssh2 (dep transitiva de ssh2-sftp-client) tiene modulos Node nativos
+  // que Turbopack no puede empaquetar en chunks ESM. Marcarlos como
+  // serverExternalPackages le dice a Next que los importe en runtime
+  // (require Node nativo) en lugar de bundlear. Usado por el cron Sunbiz
+  // /api/cron/sunbiz-daily (SFTP a sftp.floridados.gov).
+  serverExternalPackages: ['ssh2', 'ssh2-sftp-client'],
   async headers() {
     return [
       {
