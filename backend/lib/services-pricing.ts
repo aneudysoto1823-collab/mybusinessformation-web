@@ -47,6 +47,32 @@ export const SERVICES_CATALOG: Record<string, ServiceDef> = {
   'certified-copy':        { name_en: 'Certified Copy of Articles',        name_es: 'Copia Certificada de Artículos',       serviceFee: 59,  stateFee: 30 },
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Bundles (combos estilo LegalZoom) — se ofrecen en los "hubs" de 3 tiers del
+// checkout. Cada bundle agrupa servicios a un precio con descuento. Si se elige
+// un bundle, sus servicios NO se cobran individualmente (se cobra el precio del
+// bundle + las tarifas estatales de esos servicios). PRECIOS CONFIRMADOS 2026-06-26.
+// ─────────────────────────────────────────────────────────────────────────────
+export interface BundleDef {
+  name_en: string
+  name_es: string
+  /** servicios incluidos en el combo */
+  services: string[]
+  /** precio del combo en dólares (reemplaza la suma de serviceFee individuales) */
+  price: number
+}
+
+export const SERVICE_BUNDLES: Record<string, BundleDef> = {
+  // Hub 1 — Documentos esenciales (después de Dueños)
+  'bundle-docs-oa':     { name_en: 'Operating Agreement',                      name_es: 'Acuerdo Operativo',                            services: ['operating-agreement'], price: 79 },
+  'bundle-docs-oa-ein': { name_en: 'Operating Agreement + EIN',                name_es: 'Acuerdo Operativo + EIN',                      services: ['operating-agreement', 'ein'], price: 149 },
+  'bundle-docs-full':   { name_en: 'Operating Agreement + EIN + Banking Resolution', name_es: 'Acuerdo Operativo + EIN + Resolución Bancaria', services: ['operating-agreement', 'ein', 'banking-resolution'], price: 189 },
+  // Hub 2 — Protección y cumplimiento (antes de pagar)
+  'bundle-protect-va':     { name_en: 'Virtual Mailing Address',              name_es: 'Dirección Virtual',                            services: ['virtual-address'], price: 99 },
+  'bundle-protect-va-ar':  { name_en: 'Virtual Address + Annual Report',      name_es: 'Dirección Virtual + Declaración Anual',         services: ['virtual-address', 'annual-report'], price: 179 },
+  'bundle-protect-full':   { name_en: 'Virtual Address + Annual Report + Business Tax Receipt', name_es: 'Dirección Virtual + Declaración Anual + Recibo de Impuesto', services: ['virtual-address', 'annual-report', 'business-tax-receipt'], price: 259 },
+}
+
 export interface PriceLine {
   label: string
   /** monto en dólares */
@@ -61,14 +87,35 @@ export interface ServicesPrice {
 
 /**
  * Recalcula el total de una orden de servicios à la carte a partir de la lista
- * de IDs. Ignora IDs desconocidos. Itemiza tarifa de servicio + tarifa estatal.
+ * de IDs + bundles elegidos. Ignora IDs desconocidos. Los servicios cubiertos por
+ * un bundle se cobran al precio del bundle (no individualmente), pero sus tarifas
+ * estatales sí se suman. Itemiza tarifa de servicio + tarifa estatal.
  */
-export function computeServicesTotal(serviceIds: string[]): ServicesPrice {
+export function computeServicesTotal(serviceIds: string[], bundleIds: string[] = []): ServicesPrice {
   const lines: PriceLine[] = []
-  const seen = new Set<string>()
+  const bundled = new Set<string>()
 
+  // 1) Bundles primero (precio combo + tarifas estatales de sus servicios)
+  const seenBundle = new Set<string>()
+  for (const bid of bundleIds) {
+    if (seenBundle.has(bid)) continue
+    seenBundle.add(bid)
+    const b = SERVICE_BUNDLES[bid]
+    if (!b) continue
+    lines.push({ label: b.name_en, amount: b.price })
+    for (const s of b.services) {
+      bundled.add(s)
+      const svc = SERVICES_CATALOG[s]
+      if (svc && svc.stateFee > 0) {
+        lines.push({ label: `${svc.name_en} — Florida State Fee`, amount: svc.stateFee })
+      }
+    }
+  }
+
+  // 2) Servicios individuales no cubiertos por un bundle
+  const seen = new Set<string>()
   for (const id of serviceIds) {
-    if (seen.has(id)) continue
+    if (seen.has(id) || bundled.has(id)) continue
     seen.add(id)
     const svc = SERVICES_CATALOG[id]
     if (!svc) continue

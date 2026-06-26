@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { getSupabaseAdmin } from '@/lib/supabase'
-import { computeServicesTotal, SERVICES_CATALOG } from '@/lib/services-pricing'
+import { computeServicesTotal, SERVICES_CATALOG, SERVICE_BUNDLES } from '@/lib/services-pricing'
 
 export const dynamic = 'force-dynamic'
 
@@ -27,6 +27,10 @@ export async function POST(req: NextRequest) {
     if (uniqueIds.length === 0) {
       return NextResponse.json({ error: isEs ? 'No hay servicios válidos en el pedido.' : 'No valid services in the order.' }, { status: 400 })
     }
+
+    // Bundles (combos) elegidos — validar contra el catálogo de bundles
+    const rawBundles: string[] = Array.isArray(intake.bundles) ? intake.bundles : []
+    const bundleIds = Array.from(new Set(rawBundles.filter((b) => typeof b === 'string' && SERVICE_BUNDLES[b])))
     if (services.length > 30) {
       return NextResponse.json({ error: 'Too many services.' }, { status: 400 })
     }
@@ -46,7 +50,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: isEs ? 'Correo inválido.' : 'Invalid email.' }, { status: 400 })
     }
 
-    const { cents, lines, total } = computeServicesTotal(uniqueIds)
+    const { cents, lines, total } = computeServicesTotal(uniqueIds, bundleIds)
     if (cents < 50) {
       return NextResponse.json({ error: isEs ? 'Monto inválido.' : 'Invalid amount.' }, { status: 400 })
     }
@@ -69,7 +73,7 @@ export async function POST(req: NextRequest) {
       package:         'services',
       // Guardamos TODO lo capturado (servicios + intake + desglose) en addons
       // (JSON) para que el equipo procese cada servicio. members queda null.
-      addons:          { services: uniqueIds, intake, lines },
+      addons:          { services: uniqueIds, bundles: bundleIds, intake, lines },
       amount:          total,
       currency:        'USD',
       paymentStatus:   'pending',

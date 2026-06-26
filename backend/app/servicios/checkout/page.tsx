@@ -17,7 +17,7 @@
 export const dynamic = 'force-dynamic'
 
 import { SERVICE_FIELDS, SHARED_FIELDS } from '@/lib/service-fields'
-import { SERVICES_CATALOG } from '@/lib/services-pricing'
+import { SERVICES_CATALOG, SERVICE_BUNDLES } from '@/lib/services-pricing'
 
 export default function ServiciosCheckoutPage() {
   const PK = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || ''
@@ -131,6 +131,25 @@ body{font-family:var(--font-sans),'Plus Jakarta Sans',system-ui,sans-serif;color
 .co-up-incl-item{display:flex;align-items:flex-start;gap:7px;font-size:.78rem;color:var(--gray600);line-height:1.45}
 .co-up-incl-check{color:var(--green);font-weight:700;flex-shrink:0}
 .co-ra-form{margin-top:14px;border-top:1px dashed var(--gray200);padding-top:14px}
+.co-ra-same{display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px 14px;background:#fff;border:1.5px solid var(--gray200);border-radius:9px;margin-bottom:14px;font-size:.83rem;font-weight:600;color:var(--gray600)}
+.co-ra-same input{width:17px;height:17px;cursor:pointer;accent-color:var(--blue)}
+/* Hubs de upsell (3 tiers estilo LegalZoom) */
+.co-tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:6px}
+.co-tier{position:relative;border:1.5px solid var(--gray200);border-radius:14px;padding:18px 16px;background:#fff;display:flex;flex-direction:column}
+.co-tier.best{border-color:var(--blue)}
+.co-tier.sel{border-color:var(--blue);background:var(--blue-light);box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+.co-tier-badge{position:absolute;top:-10px;right:14px;background:var(--blue);color:#fff;font-size:.62rem;font-weight:800;letter-spacing:.5px;text-transform:uppercase;padding:3px 10px;border-radius:20px}
+.co-tier-name{font-family:var(--font-serif),serif;font-size:1rem;font-weight:700;color:var(--navy);line-height:1.3;margin-bottom:6px;min-height:2.6em}
+.co-tier-price{font-size:1.5rem;font-weight:800;color:var(--navy);font-family:var(--font-serif),serif}
+.co-tier-save{font-size:.7rem;font-weight:700;color:var(--green-dark);background:var(--green-light);border-radius:6px;padding:2px 8px;display:inline-block;margin:6px 0 12px}
+.co-tier-incl{display:flex;flex-direction:column;gap:7px;margin-bottom:16px;flex:1}
+.co-tier-incl-item{display:flex;align-items:flex-start;gap:7px;font-size:.76rem;color:var(--gray600);line-height:1.4}
+.co-tier-incl-check{color:var(--green);font-weight:700;flex-shrink:0}
+.co-tier-btn{width:100%;background:#fff;color:var(--blue);border:1.5px solid var(--blue);border-radius:9px;padding:10px;font-size:.84rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;margin-top:auto}
+.co-tier-btn:hover{background:var(--blue-light)}
+.co-tier.sel .co-tier-btn{background:var(--blue);color:#fff}
+.co-hub-nothanks{display:block;margin:18px auto 0;background:none;border:none;color:var(--gray500);font-size:.85rem;font-weight:600;cursor:pointer;font-family:inherit;text-decoration:underline}
+.co-hub-nothanks:hover{color:var(--navy)}
 /* Layout con resumen de orden a la derecha (visible en cada paso) */
 .co-layout{display:grid;grid-template-columns:1fr 300px;gap:24px;align-items:start}
 .co-layout.solo{grid-template-columns:1fr}
@@ -139,7 +158,7 @@ body{font-family:var(--font-sans),'Plus Jakarta Sans',system-ui,sans-serif;color
 .co-side .co-review{position:static;top:auto}
 .co-side-note{font-size:.7rem;color:var(--gray400);margin-top:12px;line-height:1.5}
 @media(max-width:900px){.co-layout{grid-template-columns:1fr 260px}}
-@media(max-width:760px){.co-grid{grid-template-columns:1fr}.co-pay-grid{grid-template-columns:1fr}.co-review{position:static}.co-choices{grid-template-columns:1fr}.co-layout{grid-template-columns:1fr}.co-side{position:static;order:-1;margin-bottom:18px}}
+@media(max-width:760px){.co-grid{grid-template-columns:1fr}.co-pay-grid{grid-template-columns:1fr}.co-review{position:static}.co-choices{grid-template-columns:1fr}.co-tiers{grid-template-columns:1fr}.co-layout{grid-template-columns:1fr}.co-side{position:static;order:-1;margin-bottom:18px}}
 `
 
   const body = `
@@ -246,8 +265,12 @@ body{font-family:var(--font-sans),'Plus Jakarta Sans',system-ui,sans-serif;color
       <div class="co-card"><div id="co-owners-host"></div></div>
     </div>
 
-    <!-- STEP: UPSELL (Registered Agent / Virtual Address) -->
-    <div class="co-panel" id="panel-upsell" style="display:none"></div>
+    <!-- STEP: REGISTERED AGENT (solo formación, tras Empresa) -->
+    <div class="co-panel" id="panel-ra" style="display:none"></div>
+
+    <!-- HUBS de upsell (3 tiers, estilo LegalZoom) -->
+    <div class="co-panel" id="panel-hub-docs" style="display:none"></div>
+    <div class="co-panel" id="panel-hub-protect" style="display:none"></div>
 
     <!-- STEPS: SERVICES (dinámico) -->
     <div id="co-svc-host"></div>
@@ -331,9 +354,14 @@ var coLang = 'es';
 var SVC_EXTRAS = ${JSON.stringify(SERVICE_FIELDS)};
 var SHARED_CFG = ${JSON.stringify(SHARED_FIELDS)};
 var SVC_CATALOG = ${JSON.stringify(SERVICES_CATALOG)};
+var BUNDLES_CLIENT = ${JSON.stringify(SERVICE_BUNDLES)};
 
 var cart = [];
 try { cart = JSON.parse(localStorage.getItem('flbc_svc_cart')||'[]'); if(!Array.isArray(cart)) cart=[]; } catch(e){ cart=[]; }
+// Bundles (combos) elegidos en los hubs de 3 tiers. Persisten junto al carrito.
+var coBundles = [];
+try { coBundles = JSON.parse(localStorage.getItem('flbc_svc_bundles')||'[]'); if(!Array.isArray(coBundles)) coBundles=[]; } catch(e){ coBundles=[]; }
+function coSaveCart(){ try{ localStorage.setItem('flbc_svc_cart',JSON.stringify(cart)); localStorage.setItem('flbc_svc_bundles',JSON.stringify(coBundles)); }catch(e){} }
 var stripeCheckout = null;
 
 // ── Formación de empresa NUEVA ──────────────────────────────────────────────
@@ -342,7 +370,30 @@ var stripeCheckout = null;
 var FORMATION_MAP = { 'llc-formation':'llc', 'corp-formation':'corp' };
 var DESIGNATORS = { llc:['LLC','L.L.C.','Limited Liability Company'], corp:['Inc.','Corp.','Corporation','Incorporated'] };
 // Servicios que YA van con la formación: no se vuelven a pedir (se procesan junto).
-var COVERED_IN_FORMATION = { 'ein':1, 'operating-agreement':1, 'registered-agent':1 };
+// El Agente Registrado se decide en su propio paso (panel-ra). EIN y Operating
+// Agreement ya NO están "cubiertos por la formación" gratis: se venden como
+// add-ons en el hub de Documentos esenciales, así que sí generan su paso de datos.
+var COVERED_IN_FORMATION = { 'registered-agent':1 };
+// Configuración de los hubs de upsell (3 tiers estilo LegalZoom).
+var HUBS = {
+  docs:    { panel:'panel-hub-docs',    services:['operating-agreement','ein','banking-resolution'], tiers:['bundle-docs-oa','bundle-docs-oa-ein','bundle-docs-full'],
+             titleEs:'Documentos esenciales', titleEn:'Essential documents',
+             subEs:'Ahorra tiempo y dinero en los documentos que tu negocio necesita.', subEn:'Save time and money on the documents your business needs.' },
+  protect: { panel:'panel-hub-protect', services:['virtual-address','annual-report','business-tax-receipt'], tiers:['bundle-protect-va','bundle-protect-va-ar','bundle-protect-full'],
+             titleEs:'Protección y cumplimiento', titleEn:'Protection & compliance',
+             subEs:'Mantén tu negocio protegido y al día con el estado.', subEn:'Keep your business protected and compliant with the state.' }
+};
+// A qué hub pertenece cada bundle (para limpiar/cambiar selección).
+var BUNDLE_HUB = {}; Object.keys(HUBS).forEach(function(h){ HUBS[h].tiers.forEach(function(b){ BUNDLE_HUB[b]=h; }); });
+// Frases de valor cortas por servicio (para las tarjetas de tier).
+var SVC_BLURBS = {
+  'operating-agreement': { es:'Acuerdo Operativo: define dueños, % y reglas de tu LLC', en:'Operating Agreement: defines owners, % and rules of your LLC' },
+  'ein':                 { es:'EIN (Tax ID): necesario para abrir cuenta bancaria y pagar impuestos', en:'EIN (Tax ID): needed to open a bank account and file taxes' },
+  'banking-resolution':  { es:'Resolución Bancaria: autoriza quién maneja la cuenta del negocio', en:'Banking Resolution: authorizes who manages the business account' },
+  'virtual-address':     { es:'Dirección Virtual: dirección profesional en FL, tu casa privada', en:'Virtual Address: professional FL address, your home stays private' },
+  'annual-report':       { es:'Declaración Anual: la presentamos ante el estado por ti', en:'Annual Report: we file it with the state for you' },
+  'business-tax-receipt':{ es:'Recibo de Impuesto: licencia local para operar legalmente', en:'Business Tax Receipt: local license to operate legally' }
+};
 // Campos que la formación ya captura (en los pasos Empresa/Dueños): se ocultan en
 // los demás servicios para no duplicar.
 var HIDE_KEYS_IN_FORMATION = { 'activity':1, 'mgmt':1, 'members':1, 'officers':1, 'raPref':1, 'shares':1, 'directors':1 };
@@ -591,7 +642,7 @@ function coGetIntake(){
     apt:($('f-apt')?$('f-apt').value.trim():''), city:$('f-city').value.trim(),
     state:($('f-state')?$('f-state').value.trim():''), zip:$('f-zip').value.trim(),
     country:($('f-country')?$('f-country').value.trim():''),
-    signature:$('f-signature').value.trim(), extras:coCollectExtras(), shared:coCollectShared()
+    signature:$('f-signature').value.trim(), extras:coCollectExtras(), shared:coCollectShared(), bundles:coBundles.slice()
   };
 }
 
@@ -673,92 +724,149 @@ var UPSELL = {
     es:{name:'Dirección Virtual', desc:'Una dirección comercial profesional en Florida que recibe y reenvía tu correo digitalmente.', why:'Usa una dirección real en FL sin exponer la de tu casa.',
       incl:['Dirección postal profesional en Florida','Recepción de correo y reenvío digital','Tu dirección personal no aparece en registros públicos','Activo inmediatamente al inscribirte']} }
 };
-function coUpsellIds(){ return ['registered-agent','virtual-address'].filter(function(id){ return cart.indexOf(id)<0; }); }
-// Tarjeta enriquecida (con bullets) + botón Agregar — para upsells opcionales.
-function coUpsellCardHtml(id){
-  var u=UPSELL[id]; if(!u) return ''; var isEs=coIsEs(); var t=isEs?u.es:u.en;
-  var bullets=(t.incl||[]).map(function(b){ return '<div class="co-up-incl-item"><span class="co-up-incl-check">&#10003;</span><span>'+b+'</span></div>'; }).join('');
-  return '<div class="co-up-card"><div class="co-up-left"><div class="co-up-icon">'+u.icon+'</div>'
-    +'<div><div class="co-up-name">'+t.name+'</div><div class="co-up-desc">'+t.desc+'</div><div class="co-up-why">&#10003; '+t.why+'</div>'
-    +'<div class="co-up-incl">'+bullets+'</div></div></div>'
-    +'<div class="co-up-right"><div class="co-up-price">'+u.price+'</div><button class="co-up-add" onclick="coAddUpsell(\'' + id + '\')">'+(isEs?'Agregar':'Add')+'</button></div></div>';
-}
-// Agente Registrado en formación: dos cajas (nuestro servicio / propio agente).
-function coRaChoiceCardHtml(){
-  var isEs=coIsEs(); var u=UPSELL['registered-agent']; var t=isEs?u.es:u.en;
-  var oursSel=(coRaChoice==='ours')||(coRaChoice==null && cart.indexOf('registered-agent')>=0);
-  var ownSel=(coRaChoice==='own');
+// ── Paso Agente Registrado (formación): dos cajas + reuso de dirección ───────
+function coRenderRaPanel(){
+  var panel=$('panel-ra'); if(!panel) return; var isEs=coIsEs();
+  if(coRaChoice==null && cart.indexOf('registered-agent')>=0) coRaChoice='ours';
+  var u=UPSELL['registered-agent']; var t=isEs?u.es:u.en;
+  var oursSel=(coRaChoice==='ours'); var ownSel=(coRaChoice==='own');
   var bullets=(t.incl||[]).map(function(b){ return '<div class="co-up-incl-item"><span class="co-up-incl-check">&#10003;</span><span>'+b+'</span></div>'; }).join('');
   var fid=coFormId;
   var oursDesc=isEs?'Actuamos como tu Agente Registrado oficial. Tu dirección personal se mantiene 100% privada.':'We act as your official Registered Agent. Your personal address stays completely private.';
   var ownDesc=isEs?'Tu dirección se registra públicamente en Florida y la ley exige que estés disponible de lunes a viernes de 9am a 5pm para recibir documentos legales.':'Your address is publicly registered with Florida and the law requires you to be available Mon-Fri 9am-5pm to receive legal documents.';
-  return '<div class="co-card">'
-    +'<div class="co-card-title">'+t.name+'</div>'
-    +'<div class="co-card-svc">'+(isEs?'Requerido por ley en Florida':'Required by Florida law')+'</div>'
-    +'<p class="co-up-desc" style="font-size:.82rem">'+t.desc+'</p>'
-    +'<div class="co-up-incl">'+bullets+'</div>'
-    +'<div class="co-choices">'
-      +'<div class="co-choice'+(oursSel?' sel':'')+'" id="co-ra-ours" onclick="coSetRaChoice(\'ours\')">'
-        +'<div class="co-choice-top"><span class="co-choice-title">&#127963; '+(isEs?'Usa nuestro servicio de Agente Registrado':'Use our Registered Agent service')+'</span><span class="co-choice-price">$99</span></div>'
-        +'<div class="co-choice-desc">'+oursDesc+'</div></div>'
-      +'<div class="co-choice'+(ownSel?' sel':'')+'" id="co-ra-own" onclick="coSetRaChoice(\'own\')">'
-        +'<div class="co-choice-top"><span class="co-choice-title">&#128100; '+(isEs?'Seré mi propio Agente Registrado':'I will be my own Registered Agent')+'</span><span class="co-choice-price">$0</span></div>'
-        +'<div class="co-choice-desc">'+ownDesc+'</div></div>'
-    +'</div>'
-    +'<input type="hidden" id="x-'+fid+'-raPref" value="'+(coRaChoice||'')+'"/>'
-    +'<div class="co-ra-form" id="co-ra-own-form" style="display:'+(ownSel?'':'none')+'">'
-      +'<div class="co-grid">'
-        +'<div class="co-field"><label class="co-label">'+(isEs?'Nombre':'First name')+'</label><input class="co-input" id="x-'+fid+'-raFirstName"/></div>'
-        +'<div class="co-field"><label class="co-label">'+(isEs?'Apellido':'Last name')+'</label><input class="co-input" id="x-'+fid+'-raLastName"/></div>'
-        +'<div class="co-field full"><label class="co-label">'+(isEs?'Dirección en Florida (sin PO Box)':'Florida street address (no PO Box)')+'</label><input class="co-input" id="x-'+fid+'-raStreet"/></div>'
-        +'<div class="co-field"><label class="co-label">'+(isEs?'Apt / Suite (opcional)':'Apt / Suite (optional)')+'</label><input class="co-input" id="x-'+fid+'-raApt"/></div>'
-        +'<div class="co-field"><label class="co-label">'+(isEs?'Ciudad':'City')+'</label><input class="co-input" id="x-'+fid+'-raCity"/></div>'
-        +'<div class="co-field"><label class="co-label">'+(isEs?'Código postal':'ZIP')+'</label><input class="co-input" id="x-'+fid+'-raZip"/></div>'
-      +'</div></div>'
+  panel.innerHTML='<h1 class="co-h1">'+(isEs?'Agente Registrado':'Registered Agent')+'</h1>'
+    +'<p class="co-sub">'+(isEs?'Toda LLC y Corporation de Florida necesita un Agente Registrado. Elige una opción.':'Every Florida LLC & Corporation needs a Registered Agent. Choose an option.')+'</p>'
+    +'<div class="co-card">'
+      +'<div class="co-up-incl">'+bullets+'</div>'
+      +'<div class="co-choices">'
+        +'<div class="co-choice'+(oursSel?' sel':'')+'" id="co-ra-ours" onclick="coSetRaChoice(\'ours\')">'
+          +'<div class="co-choice-top"><span class="co-choice-title">&#127963; '+(isEs?'Usa nuestro servicio de Agente Registrado':'Use our Registered Agent service')+'</span><span class="co-choice-price">$99</span></div>'
+          +'<div class="co-choice-desc">'+oursDesc+'</div></div>'
+        +'<div class="co-choice'+(ownSel?' sel':'')+'" id="co-ra-own" onclick="coSetRaChoice(\'own\')">'
+          +'<div class="co-choice-top"><span class="co-choice-title">&#128100; '+(isEs?'Seré mi propio Agente Registrado':'I will be my own Registered Agent')+'</span><span class="co-choice-price">$0</span></div>'
+          +'<div class="co-choice-desc">'+ownDesc+'</div></div>'
+      +'</div>'
+      +'<input type="hidden" id="x-'+fid+'-raPref" value="'+(coRaChoice||'')+'"/>'
+      +'<div class="co-ra-form" id="co-ra-own-form" style="display:'+(ownSel?'':'none')+'">'
+        +'<div class="co-grid">'
+          +'<div class="co-field"><label class="co-label">'+(isEs?'Nombre':'First name')+'</label><input class="co-input" id="x-'+fid+'-raFirstName"/></div>'
+          +'<div class="co-field"><label class="co-label">'+(isEs?'Apellido':'Last name')+'</label><input class="co-input" id="x-'+fid+'-raLastName"/></div>'
+        +'</div>'
+        +'<label class="co-ra-same"><input type="checkbox" id="co-ra-same" checked onchange="coRaSameAddr(this)"/> <span>'+(isEs?'Usar la dirección de mi empresa como dirección del agente':'Use my company address as the agent address')+'</span></label>'
+        +'<div id="co-ra-addr-block" style="display:none"><div class="co-grid">'
+          +'<div class="co-field full"><label class="co-label">'+(isEs?'Dirección en Florida (sin PO Box)':'Florida street address (no PO Box)')+'</label><input class="co-input" id="x-'+fid+'-raStreet"/></div>'
+          +'<div class="co-field"><label class="co-label">'+(isEs?'Apt / Suite (opcional)':'Apt / Suite (optional)')+'</label><input class="co-input" id="x-'+fid+'-raApt"/></div>'
+          +'<div class="co-field"><label class="co-label">'+(isEs?'Ciudad':'City')+'</label><input class="co-input" id="x-'+fid+'-raCity"/></div>'
+          +'<div class="co-field"><label class="co-label">'+(isEs?'Código postal':'ZIP')+'</label><input class="co-input" id="x-'+fid+'-raZip"/></div>'
+        +'</div></div>'
+      +'</div>'
     +'</div>';
+  if(ownSel){ var cb=$('co-ra-same'); if(cb) coRaSameAddr(cb); }
+}
+function coRaSameAddr(cb){
+  var fid=coFormId;
+  var block=$('co-ra-addr-block'); if(block) block.style.display=cb.checked?'none':'';
+  if(cb.checked){
+    var set=function(k,src){ var el=$('x-'+fid+'-'+k), s=$(src); if(el&&s) el.value=s.value||''; };
+    set('raStreet','f-street'); set('raApt','f-apt'); set('raCity','f-city'); set('raZip','f-zip');
+  }
 }
 function coSetRaChoice(choice){
   coRaChoice=choice;
   var inCart=cart.indexOf('registered-agent')>=0;
   if(choice==='ours'&&!inCart){ cart.push('registered-agent'); }
   if(choice==='own'&&inCart){ cart.splice(cart.indexOf('registered-agent'),1); }
-  try{ localStorage.setItem('flbc_svc_cart',JSON.stringify(cart)); }catch(e){}
+  coSaveCart();
   var bo=$('co-ra-ours'), bw=$('co-ra-own');
   if(bo) bo.classList.toggle('sel',choice==='ours');
   if(bw) bw.classList.toggle('sel',choice==='own');
   var form=$('co-ra-own-form'); if(form) form.style.display=(choice==='own')?'':'none';
   var prefEl=$('x-'+coFormId+'-raPref'); if(prefEl) prefEl.value=choice;
+  if(choice==='own'){ var cb=$('co-ra-same'); if(cb) coRaSameAddr(cb); }
   coUpdateOrderSummary();
 }
-function coRenderUpsellPanel(ft){
-  var panel=$('panel-upsell'); if(!panel) return; var isEs=coIsEs();
-  var html='<h1 class="co-h1">'+(isEs?'Recomendado para ti':'Recommended for you')+'</h1>'
-    +'<p class="co-sub">'+(isEs?'Servicios opcionales que la mayoría de negocios nuevos necesitan.':'Optional services that most new businesses need.')+'</p>';
-  if(ft){
-    if(coRaChoice==null && cart.indexOf('registered-agent')>=0) coRaChoice='ours';
-    html += coRaChoiceCardHtml();
-    if(cart.indexOf('virtual-address')<0) html += coUpsellCardHtml('virtual-address');
-  } else {
-    coUpsellIds().forEach(function(id){ html += coUpsellCardHtml(id); });
-  }
-  panel.innerHTML=html;
+// ── Hubs de upsell (3 tiers estilo LegalZoom) ───────────────────────────────
+// Un hub se ofrece si el cliente aún no tiene ninguno de sus servicios (o ya
+// eligió un tier de ese hub, para poder cambiarlo).
+function coHubApplicable(hub){
+  var cfg=HUBS[hub];
+  for(var b=0;b<coBundles.length;b++){ if(BUNDLE_HUB[coBundles[b]]===hub) return true; }
+  for(var i=0;i<cfg.services.length;i++){ if(cart.indexOf(cfg.services[i])>=0) return false; }
+  return true;
 }
-function coAddUpsell(id){
-  if(cart.indexOf(id)<0){ cart.push(id); try{ localStorage.setItem('flbc_svc_cart',JSON.stringify(cart)); }catch(e){} }
+function coTierBullets(svcIds){
+  var isEs=coIsEs();
+  return svcIds.map(function(s){ var bl=SVC_BLURBS[s]; var txt=bl?(isEs?bl.es:bl.en):s;
+    return '<div class="co-tier-incl-item"><span class="co-tier-incl-check">&#10003;</span><span>'+txt+'</span></div>'; }).join('');
+}
+function coRenderHub(hub){
+  var panel=$(HUBS[hub].panel); if(!panel) return; var isEs=coIsEs(); var cfg=HUBS[hub];
+  var tiers=cfg.tiers.map(function(bid, i){
+    var b=BUNDLES_CLIENT[bid]; if(!b) return '';
+    var indiv=0; b.services.forEach(function(s){ var svc=SVC_CATALOG[s]; if(svc) indiv+=svc.serviceFee; });
+    var save=indiv-b.price;
+    var best=(i===cfg.tiers.length-1);
+    var sel=(coBundles.indexOf(bid)>=0);
+    return '<div class="co-tier'+(best?' best':'')+(sel?' sel':'')+'">'
+      +(best?'<div class="co-tier-badge">'+(isEs?'Mejor valor':'Best value')+'</div>':'')
+      +'<div class="co-tier-name">'+(isEs?b.name_es:b.name_en)+'</div>'
+      +'<div class="co-tier-price">$'+b.price+'</div>'
+      +(save>0?'<div class="co-tier-save">'+(isEs?'Ahorras $':'Save $')+save+'</div>':'<div style="height:10px"></div>')
+      +'<div class="co-tier-incl">'+coTierBullets(b.services)+'</div>'
+      +'<button class="co-tier-btn" onclick="coSelectTier(\''+hub+'\',\''+bid+'\')">'+(sel?(isEs?'&#10003; Seleccionado':'&#10003; Selected'):(isEs?'Seleccionar':'Select'))+'</button>'
+      +'</div>';
+  }).join('');
+  panel.innerHTML='<h1 class="co-h1">'+(isEs?cfg.titleEs:cfg.titleEn)+'</h1>'
+    +'<p class="co-sub">'+(isEs?cfg.subEs:cfg.subEn)+'</p>'
+    +'<div class="co-tiers">'+tiers+'</div>'
+    +'<button type="button" class="co-hub-nothanks" onclick="coHubNoThanks(\''+hub+'\')">'+(isEs?'No, gracias':'No thanks')+'</button>';
+}
+function coClearHub(hub){
+  var cfg=HUBS[hub];
+  cart=cart.filter(function(id){ return cfg.services.indexOf(id)<0; });
+  coBundles=coBundles.filter(function(b){ return BUNDLE_HUB[b]!==hub; });
+}
+function coSelectTier(hub, bundleId){
+  var toggleOff=(coBundles.indexOf(bundleId)>=0);
+  coClearHub(hub);
+  if(!toggleOff){
+    var b=BUNDLES_CLIENT[bundleId]; if(b){ b.services.forEach(function(s){ if(cart.indexOf(s)<0) cart.push(s); }); coBundles.push(bundleId); }
+  }
+  coSaveCart();
+  coRebuildTo(HUBS[hub].panel);
+}
+function coHubNoThanks(hub){
+  coClearHub(hub); coSaveCart();
+  // reconstruye (quita pasos de servicios removidos) y avanza al paso siguiente
   var ex=coCollectExtras(), sh=coCollectShared(), simple=coSnapSimple();
   coBuildWizard();
   coRestoreSimple(simple); restoreShared(sh); restoreExtras(ex); coOwnTotal();
-  var idx=-1; coSteps.forEach(function(s,i){ if(s.id==='panel-upsell') idx=i; });
-  if(idx<0) coSteps.forEach(function(s,i){ if(s.id==='panel-contact') idx=i; });
+  var idx=-1; coSteps.forEach(function(s,i){ if(s.id===HUBS[hub].panel) idx=i; });
+  coGoStep(idx>=0?Math.min(idx+1,coSteps.length-1):Math.min(coIdx,coSteps.length-1));
+}
+// Reconstruye preservando datos y vuelve a un paso por id.
+function coRebuildTo(stepId){
+  var ex=coCollectExtras(), sh=coCollectShared(), simple=coSnapSimple();
+  coBuildWizard();
+  coRestoreSimple(simple); restoreShared(sh); restoreExtras(ex); coOwnTotal();
+  var idx=-1; coSteps.forEach(function(s,i){ if(s.id===stepId) idx=i; });
   coGoStep(idx<0?Math.min(coIdx,coSteps.length-1):idx);
 }
 // ── Resumen de orden persistente (sidebar derecho, visible en cada paso) ─────
 // Espeja computeServicesTotal (services-pricing.ts) para mostrar el total en vivo.
 // El cobro real siempre se recalcula server-side desde los IDs del carrito.
 function coComputeTotal(){
-  var lines=[], seen={}, total=0, isEs=coIsEs();
+  var lines=[], total=0, isEs=coIsEs(), bundled={}, seenB={};
+  // 1) Bundles primero (precio combo + tarifas estatales de sus servicios)
+  coBundles.forEach(function(bid){
+    if(seenB[bid]) return; seenB[bid]=1; var b=BUNDLES_CLIENT[bid]; if(!b) return;
+    lines.push({label:isEs?b.name_es:b.name_en, amount:b.price}); total+=b.price;
+    b.services.forEach(function(sid){ bundled[sid]=1; var svc=SVC_CATALOG[sid]; if(svc&&svc.stateFee>0){ lines.push({label:(isEs?svc.name_es:svc.name_en)+(isEs?' (Tarifa estatal FL)':' (Florida State Fee)'), amount:svc.stateFee}); total+=svc.stateFee; } });
+  });
+  // 2) Servicios individuales no cubiertos por un bundle
+  var seen={};
   cart.forEach(function(id){
-    if(seen[id]) return; seen[id]=1; var s=SVC_CATALOG[id]; if(!s) return;
+    if(seen[id]||bundled[id]) return; seen[id]=1; var s=SVC_CATALOG[id]; if(!s) return;
     var nm=isEs?s.name_es:s.name_en;
     lines.push({label:nm, amount:s.serviceFee}); total+=s.serviceFee;
     if(s.stateFee>0){ lines.push({label:nm+(isEs?' (Tarifa estatal FL)':' (Florida State Fee)'), amount:s.stateFee}); total+=s.stateFee; }
@@ -813,23 +921,25 @@ function coBuildWizard(){
   if(ft){
     var keep=(ft==='llc')?'llc-formation':'corp-formation';
     var other=(ft==='llc')?'corp-formation':'llc-formation';
-    var oi=cart.indexOf(other); if(oi>=0){ cart.splice(oi,1); try{ localStorage.setItem('flbc_svc_cart',JSON.stringify(cart)); }catch(e){} }
+    var oi=cart.indexOf(other); if(oi>=0){ cart.splice(oi,1); coSaveCart(); }
   }
 
   coSteps=[];
   coSteps.push({id:'panel-company', title:{en:'Your company',es:'Tu empresa'}});
   coSetupCompanyPanel(ft);
 
+  // En formación: Agente Registrado justo después de Empresa (reusa la dirección).
+  if(ft){ coRenderRaPanel(); coSteps.push({id:'panel-ra', title:{en:'Registered Agent',es:'Agente Registrado'}}); }
+
   if(ft){ coSteps.push({id:'panel-owners', title:{en:'Owners & management',es:'Dueños y gestión'}}); coSetupOwnersPanel(ft); }
+
+  // Hubs de upsell (3 tiers). Van antes de los datos de servicios para que lo que
+  // el cliente agregue genere su paso de datos a continuación.
+  if(coHubApplicable('docs')){ coRenderHub('docs'); coSteps.push({id:'panel-hub-docs', title:{en:'Essential documents',es:'Documentos esenciales'}}); }
+  if(coHubApplicable('protect')){ coRenderHub('protect'); coSteps.push({id:'panel-hub-protect', title:{en:'Protection & compliance',es:'Protección y cumplimiento'}}); }
 
   coRenderServicePages(ft);
   coServicePages.forEach(function(p){ coSteps.push({id:p.id, title:{en:'Service details',es:'Datos del servicio'}}); });
-
-  // Recomendado: en formación, el Agente Registrado se decide aquí (dos cajas) +
-  // Dirección Virtual opcional. Sin formación, upsells opcionales si no están en
-  // el carrito. El paso se incluye si hay formación o algún upsell que ofrecer.
-  coRenderUpsellPanel(ft);
-  if(ft || coUpsellIds().length){ coSteps.push({id:'panel-upsell', title:{en:'Recommended',es:'Recomendado'}}); }
 
   // SSN/ITIN + EIN compartidos viven en el paso de contacto (con tooltip).
   coRenderContactShared(coSharedKeysActive());
@@ -893,15 +1003,13 @@ function coValidateStep(i){
     }
     return true;
   }
-  if(id==='panel-upsell'){
-    if(coFormationType()){
-      if(coRaChoice!=='ours'&&coRaChoice!=='own'){ err.textContent=isEs?'Elige una opción de Agente Registrado para continuar.':'Choose a Registered Agent option to continue.'; return false; }
-      if(coRaChoice==='own'){
-        var raF=(($('x-'+coFormId+'-raFirstName')||{}).value||'').trim();
-        var raL=(($('x-'+coFormId+'-raLastName')||{}).value||'').trim();
-        var raS=(($('x-'+coFormId+'-raStreet')||{}).value||'').trim();
-        if(raF.length<1||raL.length<1||raS.length<3){ err.textContent=isEs?'Ingresa el nombre, apellido y dirección de tu agente registrado.':'Enter your registered agent first name, last name and address.'; return false; }
-      }
+  if(id==='panel-ra'){
+    if(coRaChoice!=='ours'&&coRaChoice!=='own'){ err.textContent=isEs?'Elige una opción de Agente Registrado para continuar.':'Choose a Registered Agent option to continue.'; return false; }
+    if(coRaChoice==='own'){
+      var raF=(($('x-'+coFormId+'-raFirstName')||{}).value||'').trim();
+      var raL=(($('x-'+coFormId+'-raLastName')||{}).value||'').trim();
+      var raS=(($('x-'+coFormId+'-raStreet')||{}).value||'').trim();
+      if(raF.length<1||raL.length<1||raS.length<3){ err.textContent=isEs?'Ingresa el nombre, apellido y dirección de tu agente registrado.':'Enter your registered agent first name, last name and address.'; return false; }
     }
     return true;
   }
@@ -937,8 +1045,10 @@ function coStartPayment(){
 // Resumen inmediato con los nombres de los servicios (sin esperar al servidor).
 function coRenderReviewNames(){
   var host=$('co-review-lines'); if(!host) return; var isEs=coIsEs();
-  host.innerHTML=cart.map(function(id){ var d=SVC_EXTRAS[id]; var nm=d?(isEs?d.name_es:d.name_en):id; return '<div class="co-review-row"><span>'+nm+'</span><span></span></div>'; }).join('');
-  var t=$('co-review-total'); if(t) t.textContent=isEs?'Calculando…':'Calculating…';
+  // Reusa el cálculo del resumen (ya contempla bundles) para el desglose instantáneo.
+  var r=coComputeTotal();
+  host.innerHTML=r.lines.map(function(l){ return '<div class="co-review-row"><span>'+l.label+'</span><span>$'+l.amount+'</span></div>'; }).join('');
+  var t=$('co-review-total'); if(t) t.textContent='$'+r.total;
 }
 function coRenderReview(lines, total){
   var host=$('co-review-lines'); if(!host) return;
@@ -959,7 +1069,7 @@ function coMountStripe(clientSecret){
   if(paid){
     var num=''; try{ num=localStorage.getItem('flbc_svc_order')||''; }catch(e){}
     $('co-success-num').textContent=num||'—';
-    try{ localStorage.removeItem('flbc_svc_cart'); localStorage.removeItem('flbc_svc_order'); }catch(e){}
+    try{ localStorage.removeItem('flbc_svc_cart'); localStorage.removeItem('flbc_svc_bundles'); localStorage.removeItem('flbc_svc_order'); }catch(e){}
     coShowScreen('co-success'); return;
   }
   if(!cart.length){ coShowScreen('co-empty'); return; }
