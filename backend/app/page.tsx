@@ -942,16 +942,14 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           &#x1F680; <span id="lbl-new-app">Start New Application</span> <span style="font-size:.7rem">&#9660;</span>
         </button>
       </div>
-      <div style="position:relative;display:inline-block">
-        <button class="btn-hero-new btn-hero-continue" onclick="toggleContinueDropdown()" id="btn-continue-app" style="display:flex;align-items:center;gap:8px">
-          &#x1F50D; <span id="lbl-continue-app">Continue My Application</span> <span id="continue-arrow" style="font-size:.7rem;transition:transform .2s">▼</span>
+      <div style="display:inline-block">
+        <!-- 2026-06-26: simplificado de dropdown con input FBFC a boton directo.
+             El draft se identifica auto via localStorage — el cliente nunca
+             ve un FBFC (eso se genera al pagar). Click verifica si hay draft
+             local y lo restaura, o muestra mensaje "ninguna orden guardada". -->
+        <button class="btn-hero-new btn-hero-continue" onclick="continueFromHome()" id="btn-continue-app" style="display:flex;align-items:center;gap:8px">
+          &#x1F50D; <span id="lbl-continue-app">Continue My Application</span>
         </button>
-        <div id="continueDropdown" style="display:none;position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#fff;border-radius:12px;box-shadow:0 8px 32px rgba(28,46,68,0.18);border:1px solid #e2e8f0;overflow:hidden;min-width:280px;z-index:500;padding:20px">
-          <div style="font-size:.82rem;font-weight:600;color:#1C2E44;margin-bottom:10px" id="cont-drop-title">Order Number</div>
-          <input type="text" id="inp-continue-order-drop" placeholder="E.G. FBFC-12345" style="width:100%;padding:10px 14px;border:1.5px solid #e5e7eb;border-radius:9px;font-size:.88rem;font-family:inherit;color:#1e293b;box-sizing:border-box;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter')findOrderDrop()"/>
-          <div id="cont-drop-error" style="display:none;color:#ef4444;font-size:.75rem;margin-bottom:10px;padding:7px 10px;background:#fef2f2;border-radius:7px"></div>
-          <button onclick="findOrderDrop()" class="btn-hero-new" style="width:100%;justify-content:center" id="cont-drop-btn"><span id="cont-drop-btn-lbl">Continue</span> &#8594;</button>
-        </div>
       </div>
       </div>
       <span class="section-label" id="price-label">Our Packages</span>
@@ -4037,15 +4035,195 @@ function toggleFaq(btn) {
   document.querySelectorAll('.faq-item').forEach(function(i){ i.classList.remove('open'); });
   if(!wasOpen) item.classList.add('open');
 }
-function saveOrder() {
-  generateOrderNumber();
-  var box = document.createElement('div');
-  box.className = 'order-save-box';
-  box.innerHTML = '<div><div class="order-num">' + orderNumber + '</div><p>Your order has been saved! Use this number to continue from any device.</p></div>';
-  var existing = document.querySelector('.order-save-box');
+// ═══════════════════════════════════════════════════════
+// DRAFT SYSTEM (auto-save + restore) — 2026-06-26
+// Guarda el estado del form en localStorage. Sin DB, sin generar
+// numero de orden. El FBFC real se crea al pagar (webhook Stripe).
+// Solo funciona en el MISMO dispositivo/browser donde se guardo.
+// ═══════════════════════════════════════════════════════
+var DRAFT_KEY = 'opabiz_draft';
+var DRAFT_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000; // 30 dias
+
+// Inputs sensibles que NO se persisten (SSN/ITIN). El cliente vuelve a escribirlos.
+var DRAFT_SENSITIVE = ['inp-ein-ssn','inp-ein-ssn-confirm','inp-ein-itin','inp-ein-itin-confirm'];
+
+function _draftCollectInputs() {
+  var overlay = document.getElementById('formOverlay');
+  if(!overlay) return {};
+  var inputs = {};
+  overlay.querySelectorAll('input, select, textarea').forEach(function(el) {
+    if(!el.id) return;
+    if(DRAFT_SENSITIVE.indexOf(el.id) >= 0) return;
+    if(el.type === 'checkbox' || el.type === 'radio') {
+      inputs[el.id] = !!el.checked;
+    } else {
+      inputs[el.id] = el.value;
+    }
+  });
+  return inputs;
+}
+
+function _draftApplyInputs(inputs) {
+  if(!inputs) return;
+  Object.keys(inputs).forEach(function(id) {
+    var el = document.getElementById(id);
+    if(!el) return;
+    if(el.type === 'checkbox' || el.type === 'radio') {
+      el.checked = !!inputs[id];
+    } else {
+      el.value = inputs[id];
+    }
+    try { el.dispatchEvent(new Event('change', {bubbles: true})); } catch(e) {}
+    try { el.dispatchEvent(new Event('input',  {bubbles: true})); } catch(e) {}
+  });
+}
+
+function _draftSave() {
+  try {
+    var data = {
+      fmData: (typeof fmData !== 'undefined') ? fmData : null,
+      inputs: _draftCollectInputs(),
+      step:   (typeof fmCurrentStep !== 'undefined') ? fmCurrentStep : 1,
+      ts:     Date.now()
+    };
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
+  } catch(e) { /* localStorage full o disabled — silencio */ }
+}
+
+var _draftAutoTimer = null;
+function _draftAutoSave() {
+  if(_draftAutoTimer) clearTimeout(_draftAutoTimer);
+  _draftAutoTimer = setTimeout(_draftSave, 1500);
+}
+
+function _draftLoad() {
+  try {
+    var raw = localStorage.getItem(DRAFT_KEY);
+    if(!raw) return null;
+    var d = JSON.parse(raw);
+    if(!d || !d.ts) return null;
+    if(Date.now() - d.ts > DRAFT_MAX_AGE_MS) {
+      localStorage.removeItem(DRAFT_KEY);
+      return null;
+    }
+    return d;
+  } catch(e) { return null; }
+}
+
+function _draftClear() {
+  try { localStorage.removeItem(DRAFT_KEY); } catch(e) {}
+}
+
+function _draftHas() { return _draftLoad() !== null; }
+
+// Restaura el draft completo: state + inputs + paso.
+function _draftRestore() {
+  var d = _draftLoad();
+  if(!d) return;
+  if(d.fmData && typeof fmData !== 'undefined') {
+    Object.keys(d.fmData).forEach(function(k) { fmData[k] = d.fmData[k]; });
+  }
+  var overlay = document.getElementById('formOverlay');
+  if(overlay) overlay.classList.add('active');
+  document.body.style.overflow = 'hidden';
+  _fmRestoring = true;
+  try { fmGoToStep(d.step || 1); } catch(e) {}
+  _fmRestoring = false;
+  // Aplicar inputs DESPUES de que fmGoToStep haya renderizado los miembros dinamicos
+  setTimeout(function() {
+    _draftApplyInputs(d.inputs || {});
+    try { fmUpdateSummary(); } catch(e) {}
+  }, 120);
+}
+
+// Popup "¿Continuar o empezar nueva?"
+function _draftShowPopup() {
+  var d = _draftLoad();
+  if(!d) { _openFormFresh(); return; }
+  var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
+  var inp = d.inputs || {};
+  var bizName = (inp['inp-bizname'] || '').trim();
+  var designator = (inp['inp-designator'] || (d.fmData && d.fmData.entity === 'corp' ? 'Inc' : 'LLC'));
+  var biz = bizName ? (bizName + ' ' + designator) : (isEs ? 'Sin nombre aun' : 'Untitled');
+  var step = d.step || 1;
+  var diffH = Math.floor((Date.now() - d.ts) / 3600000);
+  var ago = diffH < 1 ? (isEs ? 'hace unos minutos' : 'a few minutes ago') :
+            diffH < 24 ? ((isEs ? 'hace ' : '') + diffH + (isEs ? ' horas' : 'h ago')) :
+                         ((isEs ? 'hace ' : '') + Math.floor(diffH/24) + (isEs ? ' dias' : ' days ago'));
+  var existing = document.getElementById('draft-popup');
   if(existing) existing.remove();
-  var activeStep = document.querySelector('.form-step.active');
-  if(activeStep) activeStep.insertBefore(box, activeStep.querySelector('.form-footer'));
+  var modal = document.createElement('div');
+  modal.id = 'draft-popup';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(15,28,46,0.6);display:flex;align-items:center;justify-content:center;z-index:99998;padding:20px;font-family:var(--font-sans)';
+  modal.innerHTML = ''
+    + '<div style="background:#fff;border-radius:14px;padding:28px 28px 22px;max-width:440px;width:100%;box-shadow:0 20px 60px rgba(15,28,46,0.35);text-align:left">'
+    + '<div style="font-family:var(--font-serif);font-size:1.4rem;font-weight:800;color:#1a1a2e;margin-bottom:10px;display:flex;align-items:center;gap:10px">&#128221; ' + (isEs ? '¿Continuar tu orden?' : 'Continue your order?') + '</div>'
+    + '<div style="font-size:.92rem;color:#475569;line-height:1.7;margin-bottom:20px">'
+    +   (isEs ? 'Tenés una orden sin terminar en este dispositivo:' : 'You have an unfinished order on this device:') + '<br>'
+    +   '<strong style="color:#1a1a2e;font-size:1rem">' + biz + '</strong> &mdash; ' + (isEs ? 'paso ' : 'step ') + step + ' / 6<br>'
+    +   '<span style="font-size:.85rem;color:#9ca3af">' + (isEs ? 'Guardado ' : 'Saved ') + ago + '</span>'
+    + '</div>'
+    + '<div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap">'
+    +   '<button id="draft-popup-new" style="padding:11px 22px;border:1.5px solid #e5e7eb;background:#fff;color:#6b7280;border-radius:9px;font-size:.9rem;font-weight:600;cursor:pointer;font-family:inherit">' + (isEs ? 'Empezar nueva' : 'Start new') + '</button>'
+    +   '<button id="draft-popup-continue" style="padding:11px 22px;border:none;background:#2563eb;color:#fff;border-radius:9px;font-size:.9rem;font-weight:600;cursor:pointer;font-family:inherit">' + (isEs ? 'Continuar →' : 'Continue →') + '</button>'
+    + '</div>'
+    + '</div>';
+  document.body.appendChild(modal);
+  document.getElementById('draft-popup-new').onclick = function() {
+    _draftClear();
+    modal.remove();
+    _openFormFresh();
+  };
+  document.getElementById('draft-popup-continue').onclick = function() {
+    modal.remove();
+    _draftRestore();
+  };
+}
+
+// Banner verde temporal de confirmacion de guardado
+function _draftToast(isEs) {
+  var existing = document.getElementById('save-toast');
+  if(existing) existing.remove();
+  var t = document.createElement('div');
+  t.id = 'save-toast';
+  t.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#10b981;color:#fff;padding:13px 24px;border-radius:10px;font-size:.92rem;font-weight:600;box-shadow:0 6px 22px rgba(16,185,129,0.38);z-index:99999;font-family:var(--font-sans);display:flex;align-items:center;gap:8px;transition:opacity 0.4s';
+  t.innerHTML = '&#10004; ' + (isEs ? 'Guardado — podés volver cuando quieras' : 'Saved — come back anytime');
+  document.body.appendChild(t);
+  setTimeout(function(){ t.style.opacity = '0'; setTimeout(function(){ if(t.parentNode) t.remove(); }, 500); }, 2600);
+}
+
+// Reescrita 2026-06-26: el viejo saveOrder() apuntaba a selectores del form
+// VIEJO (.form-step.active) y no hacia nada. Ahora guarda el state real en
+// localStorage + muestra banner. NO genera numero de orden (eso es en el pago).
+function saveOrder() {
+  _draftSave();
+  var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
+  _draftToast(isEs);
+}
+
+// Llamado desde el home cuando el cliente clickea "Continue My Application"
+function continueFromHome() {
+  var d = _draftLoad();
+  var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
+  if(!d) {
+    alert(isEs ? 'No tenés órdenes guardadas en este dispositivo.\nLas órdenes guardadas se conservan solo en el navegador desde el cual las iniciaste.' : "You don't have any saved orders on this device.\nSaved orders are kept only in the browser where you started them.");
+    return;
+  }
+  _draftRestore();
+}
+
+// Auto-save invisible: escucha cambios en cualquier input/select/checkbox
+// dentro del form modal. Debounced 1.5s para no spammear localStorage.
+if(typeof window !== 'undefined' && !window._draftListenerAttached) {
+  window._draftListenerAttached = true;
+  document.addEventListener('input', function(e) {
+    var t = e.target;
+    if(t && t.closest && t.closest('#formOverlay')) _draftAutoSave();
+  });
+  document.addEventListener('change', function(e) {
+    var t = e.target;
+    if(t && t.closest && t.closest('#formOverlay')) _draftAutoSave();
+  });
 }
 function submitForm() {
   generateOrderNumber();
@@ -6072,7 +6250,9 @@ function _fmMoveCountryToTop(code){
   });
 }
 
-function openForm() {
+// Abre el form desde cero (sin chequear draft). Usado internamente y por el
+// popup "Empezar nueva". El cliente normal entra por openForm() que sí chequea.
+function _openFormFresh() {
   fmMemberCount = 1;
   // Clear extra members
   var em = document.getElementById("s5-extra-members"); if(em) em.innerHTML = "";
@@ -6093,6 +6273,16 @@ function openForm() {
     var m1Country = document.getElementById('s5-m1-country');
     if(m1Country) fmMemberAddrChange('s5-m1', m1Country);
   }, 50);
+}
+
+// Wrapper publico: si hay draft guardado en localStorage muestra popup
+// "¿Continuar tu orden o empezar nueva?". Sino abre form fresco.
+function openForm() {
+  if(_draftHas()) {
+    _draftShowPopup();
+    return;
+  }
+  _openFormFresh();
 }
 
 function openFormEntity(entity) {
