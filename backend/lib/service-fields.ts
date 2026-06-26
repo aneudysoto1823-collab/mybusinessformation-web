@@ -79,13 +79,20 @@ export const SERVICE_FIELDS: Record<string, ServiceFieldDef> = {
   'llc-formation': { name_en: 'LLC Formation', name_es: 'Formación de LLC',
     note_en: 'Owners and how the LLC is run', note_es: 'Dueños y cómo se maneja la LLC', fields: [
     { k: 'activity', en: 'Primary business activity', es: 'Actividad principal del negocio', type: 'select', opts: ['Retail & E-Commerce', 'Real Estate', 'Restaurant / Food', 'Construction', 'Technology', 'Consulting', 'Import / Export', 'Health & Wellness', 'Other'] },
-    { k: 'raPref', en: 'Registered Agent', es: 'Agente registrado', type: 'select', opts: ['Use OpaBiz as my Registered Agent', 'I will provide my own Registered Agent'] },
+    { k: 'activityDesc', en: 'Briefly describe what your business does', es: 'Describe brevemente qué hace tu negocio', type: 'textarea' },
+    // Agente registrado: se decide en el paso "Recomendado" (dos cajas). Estos
+    // campos se capturan ahí cuando el cliente elige ser su propio agente.
+    { k: 'raPref', en: 'Registered Agent', es: 'Agente registrado', type: 'select', opts: ['ours', 'own'] },
+    { k: 'raName', en: 'Registered Agent name', es: 'Nombre del agente registrado', type: 'text' },
+    { k: 'raStreet', en: 'Registered Agent street (FL)', es: 'Dirección del agente (FL)', type: 'text' },
+    { k: 'raApt', en: 'Apt / Suite (optional)', es: 'Apt / Suite (opcional)', type: 'text' },
+    { k: 'raCity', en: 'City', es: 'Ciudad', type: 'text' },
+    { k: 'raZip', en: 'ZIP', es: 'ZIP', type: 'text' },
     { k: 'members', en: 'Owners / Members', es: 'Dueños / Miembros', type: 'repeater', block: true,
       countEn: 'How many owners/members?', countEs: '¿Cuántos dueños o miembros?', cols: [
-      { k: 'type', en: 'Type', es: 'Tipo', type: 'select', opts: ['Individual', 'Company'] },
+      { k: 'role', en: 'Role', es: 'Rol', type: 'select', opts: ['MGR (Manager)', 'MGRM (Manager & Member)', 'President', 'VP', 'Secretary', 'Treasurer', 'Director'] },
       { k: 'firstName', en: 'First name', es: 'Nombre', type: 'text' },
       { k: 'lastName', en: 'Last name', es: 'Apellido', type: 'text' },
-      { k: 'role', en: 'Role', es: 'Rol', type: 'select', opts: ['MGR (Manager)', 'MGRM (Manager & Member)', 'President', 'VP', 'Secretary', 'Treasurer', 'Director'] },
       { k: 'pct', en: 'Ownership %', es: '% de propiedad', type: 'text' },
       { k: 'country', en: 'Country', es: 'País', type: 'text' },
       { k: 'street', en: 'Street address', es: 'Dirección (calle)', type: 'text' },
@@ -98,7 +105,14 @@ export const SERVICE_FIELDS: Record<string, ServiceFieldDef> = {
   'corp-formation': { name_en: 'Corporation Formation', name_es: 'Formación de Corporation',
     note_en: 'Directors, officers and shares', note_es: 'Directores, oficiales y acciones', fields: [
     { k: 'activity', en: 'Primary business activity', es: 'Actividad principal del negocio', type: 'select', opts: ['Retail & E-Commerce', 'Real Estate', 'Restaurant / Food', 'Construction', 'Technology', 'Consulting', 'Import / Export', 'Health & Wellness', 'Other'] },
-    { k: 'raPref', en: 'Registered Agent', es: 'Agente registrado', type: 'select', opts: ['Use OpaBiz as my Registered Agent', 'I will provide my own Registered Agent'] },
+    { k: 'activityDesc', en: 'Briefly describe what your business does', es: 'Describe brevemente qué hace tu negocio', type: 'textarea' },
+    // Agente registrado: se decide en el paso "Recomendado" (dos cajas).
+    { k: 'raPref', en: 'Registered Agent', es: 'Agente registrado', type: 'select', opts: ['ours', 'own'] },
+    { k: 'raName', en: 'Registered Agent name', es: 'Nombre del agente registrado', type: 'text' },
+    { k: 'raStreet', en: 'Registered Agent street (FL)', es: 'Dirección del agente (FL)', type: 'text' },
+    { k: 'raApt', en: 'Apt / Suite (optional)', es: 'Apt / Suite (opcional)', type: 'text' },
+    { k: 'raCity', en: 'City', es: 'Ciudad', type: 'text' },
+    { k: 'raZip', en: 'ZIP', es: 'ZIP', type: 'text' },
     { k: 'shares', en: 'Authorized shares', es: 'Acciones autorizadas', type: 'select', opts: ['1,000', '10,000', '100,000', 'Other'] },
     { k: 'directors', en: 'Directors / Officers', es: 'Directores / Oficiales', type: 'repeater', block: true,
       countEn: 'How many directors/officers?', countEs: '¿Cuántos directores u oficiales?', cols: [

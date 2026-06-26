@@ -17,6 +17,7 @@
 export const dynamic = 'force-dynamic'
 
 import { SERVICE_FIELDS, SHARED_FIELDS } from '@/lib/service-fields'
+import { SERVICES_CATALOG } from '@/lib/services-pricing'
 
 export default function ServiciosCheckoutPage() {
   const PK = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || ''
@@ -117,7 +118,31 @@ body{font-family:var(--font-sans),'Plus Jakarta Sans',system-ui,sans-serif;color
 .co-success-num strong{font-family:var(--font-serif),serif;font-size:1.5rem;color:var(--blue);letter-spacing:.5px}
 .co-spinner{display:inline-block;width:30px;height:30px;border:3px solid var(--gray200);border-top-color:var(--blue);border-radius:50%;animation:cospin .7s linear infinite}
 @keyframes cospin{to{transform:rotate(360deg)}}
-@media(max-width:760px){.co-grid{grid-template-columns:1fr}.co-pay-grid{grid-template-columns:1fr}.co-review{position:static}}
+/* Recomendado: cajas de elección (estilo paquetes) */
+.co-choices{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0 0}
+.co-choice{border:1.5px solid var(--gray200);border-radius:12px;padding:15px 16px;cursor:pointer;transition:all .2s;background:#fff;display:flex;flex-direction:column;gap:6px}
+.co-choice:hover{border-color:#93c5fd}
+.co-choice.sel{border-color:var(--blue);background:var(--blue-light)}
+.co-choice-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.co-choice-title{font-size:.88rem;font-weight:700;color:var(--navy)}
+.co-choice-price{font-size:.85rem;font-weight:800;color:var(--navy);font-family:var(--font-serif),serif;flex-shrink:0}
+.co-choice-desc{font-size:.77rem;color:var(--gray600);line-height:1.5}
+.co-up-incl{margin-top:10px;display:flex;flex-direction:column;gap:6px}
+.co-up-incl-item{display:flex;align-items:flex-start;gap:7px;font-size:.78rem;color:var(--gray600);line-height:1.45}
+.co-up-incl-check{color:var(--green);font-weight:700;flex-shrink:0}
+.co-ra-form{margin-top:14px;border-top:1px dashed var(--gray200);padding-top:14px}
+/* Resumen de orden persistente */
+.co-osum{background:#fff;border:1px solid var(--gray200);border-radius:12px;margin-bottom:18px;overflow:hidden}
+.co-osum-head{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;background:none;border:none;padding:12px 16px;cursor:pointer;font-family:inherit;text-align:left}
+.co-osum-head:hover{background:var(--gray50)}
+.co-osum-left{display:flex;align-items:baseline;gap:8px;font-size:.84rem;font-weight:700;color:var(--navy)}
+.co-osum-count{font-size:.74rem;font-weight:600;color:var(--gray500)}
+.co-osum-total{font-size:.98rem;font-weight:800;color:var(--navy);font-family:var(--font-serif),serif;display:flex;align-items:center;gap:9px}
+.co-osum-chev{font-size:.6rem;color:var(--gray400);transition:transform .2s}
+.co-osum.open .co-osum-chev{transform:rotate(180deg)}
+.co-osum-body{display:none;border-top:1px solid var(--gray100);padding:6px 16px 12px}
+.co-osum.open .co-osum-body{display:block}
+@media(max-width:760px){.co-grid{grid-template-columns:1fr}.co-pay-grid{grid-template-columns:1fr}.co-review{position:static}.co-choices{grid-template-columns:1fr}}
 `
 
   const body = `
@@ -155,6 +180,15 @@ body{font-family:var(--font-sans),'Plus Jakarta Sans',system-ui,sans-serif;color
   <!-- WIZARD -->
   <div id="co-wizard" style="display:none">
 
+    <!-- RESUMEN DE ORDEN PERSISTENTE -->
+    <div class="co-osum" id="co-osum" style="display:none">
+      <button type="button" class="co-osum-head" onclick="coToggleOsum()">
+        <span class="co-osum-left"><span data-en="Order summary" data-es="Resumen del pedido">Resumen del pedido</span><span class="co-osum-count" id="co-osum-count"></span></span>
+        <span class="co-osum-total"><span id="co-osum-total">$0</span><span class="co-osum-chev">&#9660;</span></span>
+      </button>
+      <div class="co-osum-body" id="co-osum-body"></div>
+    </div>
+
     <!-- STEP: COMPANY -->
     <div class="co-panel" id="panel-company" style="display:none">
       <h1 class="co-h1" data-en="Your company" data-es="Tu empresa">Tu empresa</h1>
@@ -177,12 +211,39 @@ body{font-family:var(--font-sans),'Plus Jakarta Sans',system-ui,sans-serif;color
           <div class="co-field" id="co-entity-field"><label class="co-label" data-en="Entity type" data-es="Tipo de entidad">Tipo de entidad</label><select class="co-select" id="f-entityType"><option value="llc">LLC</option><option value="corp" data-en="Corporation" data-es="Corporación">Corporación</option></select></div>
           <div class="co-field"><label class="co-label" id="co-name-label" data-en="Legal business name" data-es="Nombre legal del negocio">Nombre legal del negocio</label><input class="co-input" id="f-legalName"/></div>
           <div class="co-field" id="co-designator-field" style="display:none"><label class="co-label" data-en="Name ending" data-es="Terminación del nombre">Terminación del nombre</label><select class="co-select" id="f-designator"></select></div>
+          <div class="co-field full"><label class="co-label" data-en="Country" data-es="País">País</label>
+            <select class="co-select" id="f-country">
+              <option value="United States" data-en="United States" data-es="Estados Unidos" selected>Estados Unidos</option>
+              <option value="Mexico" data-en="Mexico" data-es="México">México</option>
+              <option value="Argentina" data-en="Argentina" data-es="Argentina">Argentina</option>
+              <option value="Brazil" data-en="Brazil" data-es="Brasil">Brasil</option>
+              <option value="Chile" data-en="Chile" data-es="Chile">Chile</option>
+              <option value="Colombia" data-en="Colombia" data-es="Colombia">Colombia</option>
+              <option value="Costa Rica" data-en="Costa Rica" data-es="Costa Rica">Costa Rica</option>
+              <option value="Cuba" data-en="Cuba" data-es="Cuba">Cuba</option>
+              <option value="Dominican Republic" data-en="Dominican Republic" data-es="República Dominicana">República Dominicana</option>
+              <option value="Ecuador" data-en="Ecuador" data-es="Ecuador">Ecuador</option>
+              <option value="El Salvador" data-en="El Salvador" data-es="El Salvador">El Salvador</option>
+              <option value="Spain" data-en="Spain" data-es="España">España</option>
+              <option value="Guatemala" data-en="Guatemala" data-es="Guatemala">Guatemala</option>
+              <option value="Honduras" data-en="Honduras" data-es="Honduras">Honduras</option>
+              <option value="Nicaragua" data-en="Nicaragua" data-es="Nicaragua">Nicaragua</option>
+              <option value="Panama" data-en="Panama" data-es="Panamá">Panamá</option>
+              <option value="Paraguay" data-en="Paraguay" data-es="Paraguay">Paraguay</option>
+              <option value="Peru" data-en="Peru" data-es="Perú">Perú</option>
+              <option value="Puerto Rico" data-en="Puerto Rico" data-es="Puerto Rico">Puerto Rico</option>
+              <option value="Uruguay" data-en="Uruguay" data-es="Uruguay">Uruguay</option>
+              <option value="Venezuela" data-en="Venezuela" data-es="Venezuela">Venezuela</option>
+              <option value="Canada" data-en="Canada" data-es="Canadá">Canadá</option>
+              <option value="United Kingdom" data-en="United Kingdom" data-es="Reino Unido">Reino Unido</option>
+              <option value="Other" data-en="Other" data-es="Otro">Otro</option>
+            </select>
+          </div>
           <div class="co-field full"><label class="co-label" data-en="Street address" data-es="Dirección (calle)">Dirección (calle)</label><input class="co-input" id="f-street"/></div>
           <div class="co-field"><label class="co-label" data-en="Apt / Suite (optional)" data-es="Apt / Suite (opcional)">Apt / Suite (opcional)</label><input class="co-input" id="f-apt"/></div>
           <div class="co-field"><label class="co-label" data-en="City" data-es="Ciudad">Ciudad</label><input class="co-input" id="f-city"/></div>
           <div class="co-field"><label class="co-label" data-en="State" data-es="Estado">Estado</label><input class="co-input" id="f-state"/></div>
           <div class="co-field"><label class="co-label" data-en="ZIP" data-es="Código postal">Código postal</label><input class="co-input" id="f-zip"/></div>
-          <div class="co-field"><label class="co-label" data-en="Country" data-es="País">País</label><input class="co-input" id="f-country"/></div>
         </div>
         <div id="co-company-extra" style="margin-top:14px"></div>
       </div>
@@ -267,6 +328,7 @@ var coLang = 'es';
 
 var SVC_EXTRAS = ${JSON.stringify(SERVICE_FIELDS)};
 var SHARED_CFG = ${JSON.stringify(SHARED_FIELDS)};
+var SVC_CATALOG = ${JSON.stringify(SERVICES_CATALOG)};
 
 var cart = [];
 try { cart = JSON.parse(localStorage.getItem('flbc_svc_cart')||'[]'); if(!Array.isArray(cart)) cart=[]; } catch(e){ cart=[]; }
@@ -284,6 +346,7 @@ var COVERED_IN_FORMATION = { 'ein':1, 'operating-agreement':1, 'registered-agent
 var HIDE_KEYS_IN_FORMATION = { 'activity':1, 'mgmt':1, 'members':1, 'officers':1, 'raPref':1, 'shares':1, 'directors':1 };
 
 var coFormId = null; // 'llc-formation' | 'corp-formation' | null
+var coRaChoice = null; // 'ours' | 'own' | null — elección de Agente Registrado (paso Recomendado)
 function coFormationType(){ for(var i=0;i<cart.length;i++){ if(FORMATION_MAP[cart[i]]) return FORMATION_MAP[cart[i]]; } return null; }
 
 function coIsEs(){ return coLang==='es'; }
@@ -325,7 +388,7 @@ function repRowHtml(svcId, f){
       var lbl=isEs?col.es:col.en;
       var pctHook=(col.k==='pct');
       var inp = (col.type==='select')
-        ? '<select class="co-select rep-cell" data-col="'+col.k+'"'+(pctHook?' onchange="coOwnTotal()"':'')+'><option value="">'+lbl+'</option>'+(col.opts||[]).map(function(o){return '<option>'+o+'</option>';}).join('')+'</select>'
+        ? '<select class="co-select rep-cell" data-col="'+col.k+'"'+(pctHook?' onchange="coOwnTotal()"':'')+'>'+(col.opts||[]).map(function(o){return '<option>'+o+'</option>';}).join('')+'</select>'
         : '<input class="co-input rep-cell" data-col="'+col.k+'"'+(pctHook?' oninput="coOwnTotal()"':'')+' placeholder="'+lbl+'"/>';
       return '<div class="co-field'+(fullKeys[col.k]?' full':'')+'"><label class="co-label">'+lbl+'</label>'+inp+'</div>';
     }).join('');
@@ -548,7 +611,7 @@ function coSetupCompanyPanel(ft){
     var nl=$('co-name-label'); if(nl){ nl.setAttribute('data-en','Desired company name'); nl.setAttribute('data-es','Nombre deseado de la empresa'); nl.textContent=isEs?'Nombre deseado de la empresa':'Desired company name'; }
     var df=$('co-designator-field'), ds=$('f-designator');
     if(df&&ds){ df.style.display=''; ds.innerHTML=(DESIGNATORS[ft]||[]).map(function(o){return '<option>'+o+'</option>';}).join(''); }
-    if(extra){ var ah=''; ['activity','raPref'].forEach(function(k){ var fd=coFieldDef(coFormId,k); if(fd) ah+=fieldHtml(coFormId,fd); }); if(ah) extra.innerHTML='<div class="co-grid">'+ah+'</div>'; }
+    if(extra){ var ah=''; ['activity','activityDesc'].forEach(function(k){ var fd=coFieldDef(coFormId,k); if(fd) ah+=fieldHtml(coFormId,fd); }); if(ah) extra.innerHTML='<div class="co-grid">'+ah+'</div>'; }
     var sub=$('co-company-sub'); if(sub){ sub.setAttribute('data-en','Enter your new company name and details.'); sub.setAttribute('data-es','Ingresa el nombre y los datos de tu nueva empresa.'); sub.textContent=isEs?'Ingresa el nombre y los datos de tu nueva empresa.':'Enter your new company name and details.'; }
   } else {
     coFormId=null;
@@ -591,28 +654,90 @@ function coRenderContactShared(keys){
   host.innerHTML='<div class="co-grid" style="margin-top:14px;border-top:1px solid var(--gray200);padding-top:16px">'+fields+'</div>';
 }
 
-// Tarjetas de upsell (Registered Agent / Virtual Address) si NO están en el
-// carrito: explican qué son y por qué conviene, con botón Agregar.
+// Tarjetas de upsell (Registered Agent / Virtual Address). Explican qué son, por
+// qué conviene y QUÉ INCLUYEN (bullets, como en los paquetes) para que el cliente
+// vea el valor real. En formación, el Agente Registrado se presenta como dos
+// cajas (nuestro servicio +$99 / sé tu propio agente).
 var UPSELL = {
   'registered-agent': { icon:'&#127963;', price:'$99',
-    en:{name:'Registered Agent', desc:'Every Florida LLC & Corporation must have a Registered Agent with a physical FL address to receive legal & state documents.', why:'Keeps your home address private and off the public record.'},
-    es:{name:'Agente Registrado', desc:'Toda LLC y Corporation de Florida necesita un Agente Registrado con dirección física en FL para recibir documentos legales y del estado.', why:'Mantiene tu dirección personal privada y fuera del registro público.'} },
+    en:{name:'Registered Agent', desc:'Every Florida LLC & Corporation must have a Registered Agent with a physical FL address to receive legal & state documents.', why:'Keeps your home address private and off the public record.',
+      incl:['Official FL street address for your business','Accepts service of process & legal documents','Change of Registered Agent filed with the state','Document forwarding & email notifications']},
+    es:{name:'Agente Registrado', desc:'Toda LLC y Corporation de Florida debe tener un Agente Registrado con dirección física en FL para recibir documentos legales y del estado.', why:'Mantiene tu dirección personal privada y fuera del registro público.',
+      incl:['Dirección oficial en FL para tu negocio','Acepta notificaciones y documentos legales','Cambio de Agente Registrado tramitado ante el estado','Reenvío de documentos y notificación por correo']} },
   'virtual-address': { icon:'&#128236;', price:'$99',
-    en:{name:'Virtual Mailing Address', desc:'A professional Florida business address that receives and forwards your mail digitally.', why:'Use a real FL address without exposing your home address.'},
-    es:{name:'Dirección Virtual', desc:'Una dirección comercial profesional en Florida que recibe y reenvía tu correo digitalmente.', why:'Usa una dirección real en FL sin exponer la de tu casa.'} }
+    en:{name:'Virtual Mailing Address', desc:'A professional Florida business address that receives and forwards your mail digitally.', why:'Use a real FL address without exposing your home address.',
+      incl:['Professional FL mailing address','Mail receiving & digital forwarding','Home address stays private on public records','Available immediately after sign-up']},
+    es:{name:'Dirección Virtual', desc:'Una dirección comercial profesional en Florida que recibe y reenvía tu correo digitalmente.', why:'Usa una dirección real en FL sin exponer la de tu casa.',
+      incl:['Dirección postal profesional en Florida','Recepción de correo y reenvío digital','Tu dirección personal no aparece en registros públicos','Activo inmediatamente al inscribirte']} }
 };
 function coUpsellIds(){ return ['registered-agent','virtual-address'].filter(function(id){ return cart.indexOf(id)<0; }); }
-function coRenderUpsellPanel(ids){
+// Tarjeta enriquecida (con bullets) + botón Agregar — para upsells opcionales.
+function coUpsellCardHtml(id){
+  var u=UPSELL[id]; if(!u) return ''; var isEs=coIsEs(); var t=isEs?u.es:u.en;
+  var bullets=(t.incl||[]).map(function(b){ return '<div class="co-up-incl-item"><span class="co-up-incl-check">&#10003;</span><span>'+b+'</span></div>'; }).join('');
+  return '<div class="co-up-card"><div class="co-up-left"><div class="co-up-icon">'+u.icon+'</div>'
+    +'<div><div class="co-up-name">'+t.name+'</div><div class="co-up-desc">'+t.desc+'</div><div class="co-up-why">&#10003; '+t.why+'</div>'
+    +'<div class="co-up-incl">'+bullets+'</div></div></div>'
+    +'<div class="co-up-right"><div class="co-up-price">'+u.price+'</div><button class="co-up-add" onclick="coAddUpsell(\'' + id + '\')">'+(isEs?'Agregar':'Add')+'</button></div></div>';
+}
+// Agente Registrado en formación: dos cajas (nuestro servicio / propio agente).
+function coRaChoiceCardHtml(){
+  var isEs=coIsEs(); var u=UPSELL['registered-agent']; var t=isEs?u.es:u.en;
+  var oursSel=(coRaChoice==='ours')||(coRaChoice==null && cart.indexOf('registered-agent')>=0);
+  var ownSel=(coRaChoice==='own');
+  var bullets=(t.incl||[]).map(function(b){ return '<div class="co-up-incl-item"><span class="co-up-incl-check">&#10003;</span><span>'+b+'</span></div>'; }).join('');
+  var fid=coFormId;
+  var oursDesc=isEs?'Actuamos como tu Agente Registrado oficial. Tu dirección personal se mantiene 100% privada.':'We act as your official Registered Agent. Your personal address stays completely private.';
+  var ownDesc=isEs?'Tu dirección se registra públicamente en Florida y la ley exige que estés disponible de lunes a viernes de 9am a 5pm para recibir documentos legales.':'Your address is publicly registered with Florida and the law requires you to be available Mon-Fri 9am-5pm to receive legal documents.';
+  return '<div class="co-card">'
+    +'<div class="co-card-title">'+t.name+'</div>'
+    +'<div class="co-card-svc">'+(isEs?'Requerido por ley en Florida':'Required by Florida law')+'</div>'
+    +'<p class="co-up-desc" style="font-size:.82rem">'+t.desc+'</p>'
+    +'<div class="co-up-incl">'+bullets+'</div>'
+    +'<div class="co-choices">'
+      +'<div class="co-choice'+(oursSel?' sel':'')+'" id="co-ra-ours" onclick="coSetRaChoice(\'ours\')">'
+        +'<div class="co-choice-top"><span class="co-choice-title">&#127963; '+(isEs?'Usa nuestro servicio de Agente Registrado':'Use our Registered Agent service')+'</span><span class="co-choice-price">$99</span></div>'
+        +'<div class="co-choice-desc">'+oursDesc+'</div></div>'
+      +'<div class="co-choice'+(ownSel?' sel':'')+'" id="co-ra-own" onclick="coSetRaChoice(\'own\')">'
+        +'<div class="co-choice-top"><span class="co-choice-title">&#128100; '+(isEs?'Seré mi propio Agente Registrado':'I will be my own Registered Agent')+'</span><span class="co-choice-price">$0</span></div>'
+        +'<div class="co-choice-desc">'+ownDesc+'</div></div>'
+    +'</div>'
+    +'<input type="hidden" id="x-'+fid+'-raPref" value="'+(coRaChoice||'')+'"/>'
+    +'<div class="co-ra-form" id="co-ra-own-form" style="display:'+(ownSel?'':'none')+'">'
+      +'<div class="co-grid">'
+        +'<div class="co-field full"><label class="co-label">'+(isEs?'Nombre del agente registrado':'Registered Agent full name')+'</label><input class="co-input" id="x-'+fid+'-raName"/></div>'
+        +'<div class="co-field full"><label class="co-label">'+(isEs?'Dirección en Florida (sin PO Box)':'Florida street address (no PO Box)')+'</label><input class="co-input" id="x-'+fid+'-raStreet"/></div>'
+        +'<div class="co-field"><label class="co-label">'+(isEs?'Apt / Suite (opcional)':'Apt / Suite (optional)')+'</label><input class="co-input" id="x-'+fid+'-raApt"/></div>'
+        +'<div class="co-field"><label class="co-label">'+(isEs?'Ciudad':'City')+'</label><input class="co-input" id="x-'+fid+'-raCity"/></div>'
+        +'<div class="co-field"><label class="co-label">'+(isEs?'Código postal':'ZIP')+'</label><input class="co-input" id="x-'+fid+'-raZip"/></div>'
+      +'</div></div>'
+    +'</div>';
+}
+function coSetRaChoice(choice){
+  coRaChoice=choice;
+  var inCart=cart.indexOf('registered-agent')>=0;
+  if(choice==='ours'&&!inCart){ cart.push('registered-agent'); }
+  if(choice==='own'&&inCart){ cart.splice(cart.indexOf('registered-agent'),1); }
+  try{ localStorage.setItem('flbc_svc_cart',JSON.stringify(cart)); }catch(e){}
+  var bo=$('co-ra-ours'), bw=$('co-ra-own');
+  if(bo) bo.classList.toggle('sel',choice==='ours');
+  if(bw) bw.classList.toggle('sel',choice==='own');
+  var form=$('co-ra-own-form'); if(form) form.style.display=(choice==='own')?'':'none';
+  var prefEl=$('x-'+coFormId+'-raPref'); if(prefEl) prefEl.value=choice;
+  coUpdateOrderSummary();
+}
+function coRenderUpsellPanel(ft){
   var panel=$('panel-upsell'); if(!panel) return; var isEs=coIsEs();
-  if(!ids.length){ panel.innerHTML=''; return; }
-  var cards=ids.map(function(id){ var u=UPSELL[id]; if(!u) return ''; var t=isEs?u.es:u.en;
-    return '<div class="co-up-card"><div class="co-up-left"><div class="co-up-icon">'+u.icon+'</div>'
-      +'<div><div class="co-up-name">'+t.name+'</div><div class="co-up-desc">'+t.desc+'</div><div class="co-up-why">✓ '+t.why+'</div></div></div>'
-      +'<div class="co-up-right"><div class="co-up-price">'+u.price+'</div><button class="co-up-add" onclick="coAddUpsell(\'' + id + '\')">'+(isEs?'Agregar':'Add')+'</button></div></div>';
-  }).join('');
-  panel.innerHTML='<h1 class="co-h1" data-en="Recommended for you" data-es="Recomendado para ti">'+(isEs?'Recomendado para ti':'Recommended for you')+'</h1>'
-    +'<p class="co-sub" data-en="Optional services that most new businesses need." data-es="Servicios opcionales que la mayoría de negocios nuevos necesitan.">'+(isEs?'Servicios opcionales que la mayoría de negocios nuevos necesitan.':'Optional services that most new businesses need.')+'</p>'
-    +cards;
+  var html='<h1 class="co-h1">'+(isEs?'Recomendado para ti':'Recommended for you')+'</h1>'
+    +'<p class="co-sub">'+(isEs?'Servicios opcionales que la mayoría de negocios nuevos necesitan.':'Optional services that most new businesses need.')+'</p>';
+  if(ft){
+    if(coRaChoice==null && cart.indexOf('registered-agent')>=0) coRaChoice='ours';
+    html += coRaChoiceCardHtml();
+    if(cart.indexOf('virtual-address')<0) html += coUpsellCardHtml('virtual-address');
+  } else {
+    coUpsellIds().forEach(function(id){ html += coUpsellCardHtml(id); });
+  }
+  panel.innerHTML=html;
 }
 function coAddUpsell(id){
   if(cart.indexOf(id)<0){ cart.push(id); try{ localStorage.setItem('flbc_svc_cart',JSON.stringify(cart)); }catch(e){} }
@@ -622,6 +747,32 @@ function coAddUpsell(id){
   var idx=-1; coSteps.forEach(function(s,i){ if(s.id==='panel-upsell') idx=i; });
   if(idx<0) coSteps.forEach(function(s,i){ if(s.id==='panel-contact') idx=i; });
   coGoStep(idx<0?Math.min(coIdx,coSteps.length-1):idx);
+}
+// ── Resumen de orden persistente (visible en todos los pasos) ────────────────
+var _osumOpen=false;
+function coToggleOsum(){ _osumOpen=!_osumOpen; var el=$('co-osum'); if(el) el.classList.toggle('open',_osumOpen); }
+// Espeja computeServicesTotal (services-pricing.ts) para mostrar el total en vivo.
+// El cobro real siempre se recalcula server-side desde los IDs del carrito.
+function coComputeTotal(){
+  var lines=[], seen={}, total=0, isEs=coIsEs();
+  cart.forEach(function(id){
+    if(seen[id]) return; seen[id]=1; var s=SVC_CATALOG[id]; if(!s) return;
+    var nm=isEs?s.name_es:s.name_en;
+    lines.push({label:nm, amount:s.serviceFee}); total+=s.serviceFee;
+    if(s.stateFee>0){ lines.push({label:nm+(isEs?' (Tarifa estatal FL)':' (Florida State Fee)'), amount:s.stateFee}); total+=s.stateFee; }
+  });
+  return {lines:lines, total:total};
+}
+function coUpdateOrderSummary(){
+  var box=$('co-osum'); if(!box) return; var isEs=coIsEs();
+  var onPay=(coSteps[coIdx]&&coSteps[coIdx].id==='panel-pay');
+  box.style.display=onPay?'none':'';
+  if(onPay) return;
+  var r=coComputeTotal();
+  var n=0,seen={}; cart.forEach(function(id){ if(!seen[id]&&SVC_CATALOG[id]){ seen[id]=1; n++; } });
+  var cnt=$('co-osum-count'); if(cnt) cnt.textContent='· '+n+' '+(n===1?(isEs?'servicio':'service'):(isEs?'servicios':'services'));
+  var tot=$('co-osum-total'); if(tot) tot.textContent='$'+r.total;
+  var body=$('co-osum-body'); if(body) body.innerHTML=r.lines.map(function(l){ return '<div class="co-review-row"><span>'+l.label+'</span><span>$'+l.amount+'</span></div>'; }).join('');
 }
 // "Peso" aproximado de un servicio = cuánto espacio ocupa (para empacar tantos
 // como quepan por paso sin scroll, en vez de un número fijo). Un repeater pesa
@@ -669,9 +820,11 @@ function coBuildWizard(){
   coRenderServicePages(ft);
   coServicePages.forEach(function(p){ coSteps.push({id:p.id, title:{en:'Service details',es:'Datos del servicio'}}); });
 
-  // Upsell (RA / Virtual Address) antes del contacto, si no están en el carrito.
-  var ups=coUpsellIds(); coRenderUpsellPanel(ups);
-  if(ups.length){ coSteps.push({id:'panel-upsell', title:{en:'Recommended',es:'Recomendado'}}); }
+  // Recomendado: en formación, el Agente Registrado se decide aquí (dos cajas) +
+  // Dirección Virtual opcional. Sin formación, upsells opcionales si no están en
+  // el carrito. El paso se incluye si hay formación o algún upsell que ofrecer.
+  coRenderUpsellPanel(ft);
+  if(ft || coUpsellIds().length){ coSteps.push({id:'panel-upsell', title:{en:'Recommended',es:'Recomendado'}}); }
 
   // SSN/ITIN + EIN compartidos viven en el paso de contacto (con tooltip).
   coRenderContactShared(coSharedKeysActive());
@@ -699,6 +852,7 @@ function coGoStep(i){
   var isEs=coIsEs();
   $('co-next').innerHTML='<span>'+(nextIsPay ? (isEs?'Ir al pago':'Go to payment') : (isEs?'Continuar':'Continue'))+'</span> &#8594;';
   $('co-err').textContent='';
+  coUpdateOrderSummary();
   window.scrollTo(0,0);
 }
 function coDestroyStripe(){
@@ -720,6 +874,28 @@ function coValidateStep(i){
       if(coFormationType()){ err.textContent=isEs?'Escribe el nombre deseado de tu nueva empresa.':'Enter the desired name for your new company.'; }
       else { err.textContent=isEs?'Busca tu empresa por número, o ingrésala manualmente.':'Search your company, or enter it manually.'; coRevealManual(); }
       return false;
+    }
+    return true;
+  }
+  if(id==='panel-owners'){
+    if(coFormationType()==='llc'){
+      var host=document.getElementById('rep-llc-formation-members'); var sum=0;
+      if(host){ host.querySelectorAll('.rep-cell[data-col="pct"]').forEach(function(c){ var v=parseFloat(c.value); if(!isNaN(v)) sum+=v; }); }
+      if(Math.round(sum*100)/100!==100){
+        err.textContent=isEs?('La propiedad total debe sumar 100%. Ahora suma '+sum+'%.'):('Total ownership must add up to 100%. It currently adds up to '+sum+'%.');
+        return false;
+      }
+    }
+    return true;
+  }
+  if(id==='panel-upsell'){
+    if(coFormationType()){
+      if(coRaChoice!=='ours'&&coRaChoice!=='own'){ err.textContent=isEs?'Elige una opción de Agente Registrado para continuar.':'Choose a Registered Agent option to continue.'; return false; }
+      if(coRaChoice==='own'){
+        var raN=(($('x-'+coFormId+'-raName')||{}).value||'').trim();
+        var raS=(($('x-'+coFormId+'-raStreet')||{}).value||'').trim();
+        if(raN.length<2||raS.length<3){ err.textContent=isEs?'Ingresa el nombre y la dirección de tu agente registrado.':'Enter your registered agent name and address.'; return false; }
+      }
     }
     return true;
   }

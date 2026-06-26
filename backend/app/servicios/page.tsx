@@ -341,7 +341,7 @@ export default function ServiciosPage() {
           <div class="svc-acc-sub" data-en="${s.sub_en}" data-es="${s.sub_es}">${s.sub_es}</div>
         </div>
         <div class="svc-acc-price">${s.price}</div>
-        ${s.id === 'stripe-setup-guide' ? '' : `<button class="svc-add-btn svc-acc-add" data-svc="${s.id}" onclick="event.stopPropagation();toggleCart('${s.id}')"><span class="svc-add-lbl">Agregar al pedido</span></button>`}
+        ${s.id === 'stripe-setup-guide' ? '' : `<button class="svc-add-btn svc-acc-add" data-svc="${s.id}" onclick="event.stopPropagation();closeSvcPopup(this);toggleCart('${s.id}')"><span class="svc-add-lbl">Agregar al pedido</span></button>`}
         <div class="svc-acc-chevron">${svgIcons.chevron}</div>
       </div>
       <div class="svc-popup" onmouseenter="clearTimeout(_svcTimer)" onmouseleave="deactivateSvc()">
@@ -365,7 +365,7 @@ export default function ServiciosPage() {
             </div>
             ${s.id === 'stripe-setup-guide'
               ? `<button class="svc-popup-btn" data-en="${s.btn_en}" data-es="${s.btn_es}">${s.btn_es}</button>`
-              : `<button class="svc-popup-btn svc-add-btn" data-svc="${s.id}" onclick="event.stopPropagation();toggleCart('${s.id}')"><span class="svc-add-lbl">Agregar al pedido</span></button>`}
+              : ''}
           </div>
         </div>
       </div>
@@ -586,8 +586,8 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
 .svc-acc-title{font-family:var(--font-serif);font-size:.95rem;font-weight:700;color:var(--navy);line-height:1.25;margin-bottom:2px}
 .svc-acc-sub{font-size:.71rem;color:var(--gray500);line-height:1.3}
 .svc-acc-price{font-family:var(--font-serif);font-size:.93rem;font-weight:700;color:var(--navy);flex-shrink:0;white-space:nowrap}
-.svc-acc-add{flex-shrink:0;background:var(--blue);color:#fff;border:1.5px solid var(--blue);border-radius:8px;padding:7px 13px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:var(--font-sans);white-space:nowrap;transition:all .2s}
-.svc-acc-add:hover{background:#1d4ed8;border-color:#1d4ed8}
+.svc-acc-add{flex-shrink:0;background:#fff;color:var(--blue);border:1.5px solid var(--blue);border-radius:8px;padding:7px 13px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:var(--font-sans);white-space:nowrap;transition:all .2s}
+.svc-acc-add:hover{background:var(--blue-light)}
 .svc-acc-add.added{background:var(--green-light);color:var(--green-dark);border-color:var(--green)}
 .svc-acc-add.added:hover{background:var(--green);color:#fff;border-color:var(--green)}
 @media(max-width:560px){.svc-acc-add{display:none}}
@@ -2052,6 +2052,20 @@ function activateSvc(item){
     if(pr.right>window.innerWidth-margin)popup.style.maxWidth=(window.innerWidth-margin-pr.left)+'px';
     if(pr.left<margin)popup.style.maxWidth=(pr.right-margin)+'px';
   }
+}
+
+// Cierra el tip box (popup) de inmediato — usado al hacer clic en "Agregar al
+// pedido" desde el título, para que el popup no quede abierto encima.
+function closeSvcPopup(btn){
+  clearTimeout(_svcTimer);
+  var item=btn.closest('.svc-acc-item');
+  if(item){
+    var p=item.querySelector('.svc-popup');
+    if(p)p.style.maxWidth='';
+    item.classList.remove('active');
+    if(_activeItem===item)_activeItem=null;
+  }
+  if(!_isTouch)document.querySelectorAll('.svc-acc-item').forEach(function(a){a.style.pointerEvents='';});
 }
 
 function deactivateSvc(){
