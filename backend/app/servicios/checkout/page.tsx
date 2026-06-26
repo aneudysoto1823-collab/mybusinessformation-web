@@ -975,8 +975,18 @@ function coDestroyStripe(){
   var ec=$('embedded-checkout'); if(ec) ec.innerHTML='<div style="text-align:center;padding:60px 0"><div class="co-spinner"></div></div>';
 }
 function coBack(){ if(coSteps[coIdx].id==='panel-pay'){ coDestroyStripe(); } coGoStep(coIdx-1); }
+// Modo dev: salta la validación de campos para revisar el flujo rápido.
+// Se activa con Ctrl+Shift+D (igual que el form del home). La barra de progreso
+// se pone ámbar cuando está activo.
+var _coDevMode=false;
+function coToggleDevMode(){
+  _coDevMode=!_coDevMode;
+  var f=$('co-prog-fill'); if(f) f.style.background=_coDevMode?'#f59e0b':'';
+  var l=$('co-prog-label'); if(l) l.style.color=_coDevMode?'#b45309':'';
+}
+document.addEventListener('keydown', function(e){ if(e.ctrlKey&&e.shiftKey&&(e.key==='D'||e.key==='d')) coToggleDevMode(); });
 function coNext(){
-  if(!coValidateStep(coIdx)) return;
+  if(!_coDevMode && !coValidateStep(coIdx)) return;
   var nextIsPay=(coIdx+1<coSteps.length)&&coSteps[coIdx+1].id==='panel-pay';
   if(nextIsPay){ coGoStep(coIdx+1); coStartPayment(); return; }
   coGoStep(coIdx+1);
