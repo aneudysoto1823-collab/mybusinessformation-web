@@ -41,7 +41,28 @@ const COLS = [
 ] as const
 
 const PLACEHOLDERS = COLS.map(() => '?').join(', ')
-const UPSERT_SQL = `INSERT OR REPLACE INTO sunbiz_corps (${COLS.join(', ')}) VALUES (${PLACEHOLDERS})`
+
+// IMPORTANTE: NO usar INSERT OR REPLACE (bug confirmado en libsql/Turso:
+// el trigger AFTER DELETE no se dispara con REPLACE, lo que produce
+// duplicados en sunbiz_fts cuando se reinsertan filas existentes).
+//
+// Usamos UPSERT explicito con ON CONFLICT DO UPDATE — esto dispara el
+// trigger AFTER UPDATE (sunbiz_corps_au) que SI mantiene sunbiz_fts
+// limpia (hace DELETE FROM sunbiz_fts + INSERT en sunbiz_fts atomico).
+//
+// Cols EXCLUIDAS del UPDATE (no se pisan en caso de conflict):
+//  - document_number (es la PK, nunca cambia)
+//  - procesada (lo setea el Bloque 2 — no queremos que el cron
+//    pise procesada=1 -> 0 cuando re-procesa un record viejo)
+//  - fecha_contactada (lo setea el Bloque 4 — misma razon)
+const UPDATE_EXCLUDED = new Set(['document_number', 'procesada', 'fecha_contactada'])
+const UPDATE_SET = COLS
+  .filter(col => !UPDATE_EXCLUDED.has(col))
+  .map(col => `${col} = excluded.${col}`)
+  .join(', ')
+
+const UPSERT_SQL = `INSERT INTO sunbiz_corps (${COLS.join(', ')}) VALUES (${PLACEHOLDERS})
+ON CONFLICT(document_number) DO UPDATE SET ${UPDATE_SET}`
 
 export interface UpsertResult {
   inserted: number
