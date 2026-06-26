@@ -131,18 +131,15 @@ body{font-family:var(--font-sans),'Plus Jakarta Sans',system-ui,sans-serif;color
 .co-up-incl-item{display:flex;align-items:flex-start;gap:7px;font-size:.78rem;color:var(--gray600);line-height:1.45}
 .co-up-incl-check{color:var(--green);font-weight:700;flex-shrink:0}
 .co-ra-form{margin-top:14px;border-top:1px dashed var(--gray200);padding-top:14px}
-/* Resumen de orden persistente */
-.co-osum{background:#fff;border:1px solid var(--gray200);border-radius:12px;margin-bottom:18px;overflow:hidden}
-.co-osum-head{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;background:none;border:none;padding:12px 16px;cursor:pointer;font-family:inherit;text-align:left}
-.co-osum-head:hover{background:var(--gray50)}
-.co-osum-left{display:flex;align-items:baseline;gap:8px;font-size:.84rem;font-weight:700;color:var(--navy)}
-.co-osum-count{font-size:.74rem;font-weight:600;color:var(--gray500)}
-.co-osum-total{font-size:.98rem;font-weight:800;color:var(--navy);font-family:var(--font-serif),serif;display:flex;align-items:center;gap:9px}
-.co-osum-chev{font-size:.6rem;color:var(--gray400);transition:transform .2s}
-.co-osum.open .co-osum-chev{transform:rotate(180deg)}
-.co-osum-body{display:none;border-top:1px solid var(--gray100);padding:6px 16px 12px}
-.co-osum.open .co-osum-body{display:block}
-@media(max-width:760px){.co-grid{grid-template-columns:1fr}.co-pay-grid{grid-template-columns:1fr}.co-review{position:static}.co-choices{grid-template-columns:1fr}}
+/* Layout con resumen de orden a la derecha (visible en cada paso) */
+.co-layout{display:grid;grid-template-columns:1fr 300px;gap:24px;align-items:start}
+.co-layout.solo{grid-template-columns:1fr}
+.co-main{min-width:0}
+.co-side{position:sticky;top:90px}
+.co-side .co-review{position:static;top:auto}
+.co-side-note{font-size:.7rem;color:var(--gray400);margin-top:12px;line-height:1.5}
+@media(max-width:900px){.co-layout{grid-template-columns:1fr 260px}}
+@media(max-width:760px){.co-grid{grid-template-columns:1fr}.co-pay-grid{grid-template-columns:1fr}.co-review{position:static}.co-choices{grid-template-columns:1fr}.co-layout{grid-template-columns:1fr}.co-side{position:static;order:-1;margin-bottom:18px}}
 `
 
   const body = `
@@ -179,15 +176,8 @@ body{font-family:var(--font-sans),'Plus Jakarta Sans',system-ui,sans-serif;color
 
   <!-- WIZARD -->
   <div id="co-wizard" style="display:none">
-
-    <!-- RESUMEN DE ORDEN PERSISTENTE -->
-    <div class="co-osum" id="co-osum" style="display:none">
-      <button type="button" class="co-osum-head" onclick="coToggleOsum()">
-        <span class="co-osum-left"><span data-en="Order summary" data-es="Resumen del pedido">Resumen del pedido</span><span class="co-osum-count" id="co-osum-count"></span></span>
-        <span class="co-osum-total"><span id="co-osum-total">$0</span><span class="co-osum-chev">&#9660;</span></span>
-      </button>
-      <div class="co-osum-body" id="co-osum-body"></div>
-    </div>
+   <div class="co-layout" id="co-layout">
+    <div class="co-main">
 
     <!-- STEP: COMPANY -->
     <div class="co-panel" id="panel-company" style="display:none">
@@ -298,6 +288,18 @@ body{font-family:var(--font-sans),'Plus Jakarta Sans',system-ui,sans-serif;color
       <button class="co-btn-ghost" id="co-back" onclick="coBack()" style="display:none">&#8592; <span data-en="Back" data-es="Atrás">Atrás</span></button>
       <button class="co-btn" id="co-next" onclick="coNext()"><span data-en="Continue" data-es="Continuar">Continuar</span> &#8594;</button>
     </div>
+    </div><!-- /co-main -->
+
+    <!-- RESUMEN DE ORDEN (sidebar derecho, visible en cada paso) -->
+    <aside class="co-side" id="co-side">
+      <div class="co-review">
+        <div class="co-card-title" style="margin-bottom:12px" data-en="Order summary" data-es="Resumen del pedido">Resumen del pedido</div>
+        <div id="co-osum-body"></div>
+        <div class="co-review-total"><span data-en="Total" data-es="Total">Total</span><strong id="co-osum-total">$0</strong></div>
+        <div class="co-side-note" data-en="Estimate. Final taxes and state fees are confirmed at payment." data-es="Estimado. Los impuestos y tarifas estatales se confirman al pagar.">Estimado. Los impuestos y tarifas estatales se confirman al pagar.</div>
+      </div>
+    </aside>
+   </div><!-- /co-layout -->
   </div>
 
   <!-- SUCCESS -->
@@ -383,14 +385,15 @@ function repRowHtml(svcId, f){
   // rol, %, dirección por partes. Cada input conserva .rep-cell[data-col] para
   // que el colector genérico lo lea igual.
   if(f.block){
-    var fullKeys={street:1};
     var fields=(f.cols||[]).map(function(col){
       var lbl=isEs?col.es:col.en;
       var pctHook=(col.k==='pct');
+      var isFull=(col.full||col.k==='street');
+      var ph=col.defaultFirst?'':('<option value="">'+lbl+'</option>');
       var inp = (col.type==='select')
-        ? '<select class="co-select rep-cell" data-col="'+col.k+'"'+(pctHook?' onchange="coOwnTotal()"':'')+'>'+(col.opts||[]).map(function(o){return '<option>'+o+'</option>';}).join('')+'</select>'
+        ? '<select class="co-select rep-cell" data-col="'+col.k+'"'+(pctHook?' onchange="coOwnTotal()"':'')+'>'+ph+(col.opts||[]).map(function(o){return '<option>'+o+'</option>';}).join('')+'</select>'
         : '<input class="co-input rep-cell" data-col="'+col.k+'"'+(pctHook?' oninput="coOwnTotal()"':'')+' placeholder="'+lbl+'"/>';
-      return '<div class="co-field'+(fullKeys[col.k]?' full':'')+'"><label class="co-label">'+lbl+'</label>'+inp+'</div>';
+      return '<div class="co-field'+(isFull?' full':'')+'"><label class="co-label">'+lbl+'</label>'+inp+'</div>';
     }).join('');
     return '<div class="rep-row rep-block"><button type="button" class="rep-del rep-block-del" title="Quitar" onclick="coDelRepRow(this)">&#215;</button><div class="rep-grid">'+fields+'</div></div>';
   }
@@ -705,7 +708,8 @@ function coRaChoiceCardHtml(){
     +'<input type="hidden" id="x-'+fid+'-raPref" value="'+(coRaChoice||'')+'"/>'
     +'<div class="co-ra-form" id="co-ra-own-form" style="display:'+(ownSel?'':'none')+'">'
       +'<div class="co-grid">'
-        +'<div class="co-field full"><label class="co-label">'+(isEs?'Nombre del agente registrado':'Registered Agent full name')+'</label><input class="co-input" id="x-'+fid+'-raName"/></div>'
+        +'<div class="co-field"><label class="co-label">'+(isEs?'Nombre':'First name')+'</label><input class="co-input" id="x-'+fid+'-raFirstName"/></div>'
+        +'<div class="co-field"><label class="co-label">'+(isEs?'Apellido':'Last name')+'</label><input class="co-input" id="x-'+fid+'-raLastName"/></div>'
         +'<div class="co-field full"><label class="co-label">'+(isEs?'Dirección en Florida (sin PO Box)':'Florida street address (no PO Box)')+'</label><input class="co-input" id="x-'+fid+'-raStreet"/></div>'
         +'<div class="co-field"><label class="co-label">'+(isEs?'Apt / Suite (opcional)':'Apt / Suite (optional)')+'</label><input class="co-input" id="x-'+fid+'-raApt"/></div>'
         +'<div class="co-field"><label class="co-label">'+(isEs?'Ciudad':'City')+'</label><input class="co-input" id="x-'+fid+'-raCity"/></div>'
@@ -748,9 +752,7 @@ function coAddUpsell(id){
   if(idx<0) coSteps.forEach(function(s,i){ if(s.id==='panel-contact') idx=i; });
   coGoStep(idx<0?Math.min(coIdx,coSteps.length-1):idx);
 }
-// ── Resumen de orden persistente (visible en todos los pasos) ────────────────
-var _osumOpen=false;
-function coToggleOsum(){ _osumOpen=!_osumOpen; var el=$('co-osum'); if(el) el.classList.toggle('open',_osumOpen); }
+// ── Resumen de orden persistente (sidebar derecho, visible en cada paso) ─────
 // Espeja computeServicesTotal (services-pricing.ts) para mostrar el total en vivo.
 // El cobro real siempre se recalcula server-side desde los IDs del carrito.
 function coComputeTotal(){
@@ -764,15 +766,18 @@ function coComputeTotal(){
   return {lines:lines, total:total};
 }
 function coUpdateOrderSummary(){
-  var box=$('co-osum'); if(!box) return; var isEs=coIsEs();
+  var side=$('co-side'); if(!side) return; var isEs=coIsEs();
+  // En el paso de pago el resumen completo va dentro del panel; ocultamos el
+  // sidebar y la columna pasa a una sola.
   var onPay=(coSteps[coIdx]&&coSteps[coIdx].id==='panel-pay');
-  box.style.display=onPay?'none':'';
+  side.style.display=onPay?'none':'';
+  var layout=$('co-layout'); if(layout) layout.classList.toggle('solo',onPay);
   if(onPay) return;
   var r=coComputeTotal();
-  var n=0,seen={}; cart.forEach(function(id){ if(!seen[id]&&SVC_CATALOG[id]){ seen[id]=1; n++; } });
-  var cnt=$('co-osum-count'); if(cnt) cnt.textContent='· '+n+' '+(n===1?(isEs?'servicio':'service'):(isEs?'servicios':'services'));
   var tot=$('co-osum-total'); if(tot) tot.textContent='$'+r.total;
-  var body=$('co-osum-body'); if(body) body.innerHTML=r.lines.map(function(l){ return '<div class="co-review-row"><span>'+l.label+'</span><span>$'+l.amount+'</span></div>'; }).join('');
+  var body=$('co-osum-body'); if(body) body.innerHTML=r.lines.length
+    ? r.lines.map(function(l){ return '<div class="co-review-row"><span>'+l.label+'</span><span>$'+l.amount+'</span></div>'; }).join('')
+    : '<div class="co-review-row" style="border:none;color:#94a3b8">'+(isEs?'Aún sin servicios':'No services yet')+'</div>';
 }
 // "Peso" aproximado de un servicio = cuánto espacio ocupa (para empacar tantos
 // como quepan por paso sin scroll, en vez de un número fijo). Un repeater pesa
@@ -892,9 +897,10 @@ function coValidateStep(i){
     if(coFormationType()){
       if(coRaChoice!=='ours'&&coRaChoice!=='own'){ err.textContent=isEs?'Elige una opción de Agente Registrado para continuar.':'Choose a Registered Agent option to continue.'; return false; }
       if(coRaChoice==='own'){
-        var raN=(($('x-'+coFormId+'-raName')||{}).value||'').trim();
+        var raF=(($('x-'+coFormId+'-raFirstName')||{}).value||'').trim();
+        var raL=(($('x-'+coFormId+'-raLastName')||{}).value||'').trim();
         var raS=(($('x-'+coFormId+'-raStreet')||{}).value||'').trim();
-        if(raN.length<2||raS.length<3){ err.textContent=isEs?'Ingresa el nombre y la dirección de tu agente registrado.':'Enter your registered agent name and address.'; return false; }
+        if(raF.length<1||raL.length<1||raS.length<3){ err.textContent=isEs?'Ingresa el nombre, apellido y dirección de tu agente registrado.':'Enter your registered agent first name, last name and address.'; return false; }
       }
     }
     return true;

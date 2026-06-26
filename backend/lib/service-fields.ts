@@ -15,6 +15,11 @@ export interface RepeaterCol {
   es: string
   type: 'text' | 'select'
   opts?: string[]
+  /** solo para type:'select' en repeaters block — si true, NO muestra la opción
+   *  placeholder vacía (la primera opción queda seleccionada por defecto). */
+  defaultFirst?: boolean
+  /** fuerza ancho completo de la columna (ocupa toda la fila del grid) */
+  full?: boolean
 }
 
 export interface ServiceField {
@@ -83,22 +88,23 @@ export const SERVICE_FIELDS: Record<string, ServiceFieldDef> = {
     // Agente registrado: se decide en el paso "Recomendado" (dos cajas). Estos
     // campos se capturan ahí cuando el cliente elige ser su propio agente.
     { k: 'raPref', en: 'Registered Agent', es: 'Agente registrado', type: 'select', opts: ['ours', 'own'] },
-    { k: 'raName', en: 'Registered Agent name', es: 'Nombre del agente registrado', type: 'text' },
+    { k: 'raFirstName', en: 'First name', es: 'Nombre', type: 'text' },
+    { k: 'raLastName', en: 'Last name', es: 'Apellido', type: 'text' },
     { k: 'raStreet', en: 'Registered Agent street (FL)', es: 'Dirección del agente (FL)', type: 'text' },
     { k: 'raApt', en: 'Apt / Suite (optional)', es: 'Apt / Suite (opcional)', type: 'text' },
     { k: 'raCity', en: 'City', es: 'Ciudad', type: 'text' },
     { k: 'raZip', en: 'ZIP', es: 'ZIP', type: 'text' },
     { k: 'members', en: 'Owners / Members', es: 'Dueños / Miembros', type: 'repeater', block: true,
       countEn: 'How many owners/members?', countEs: '¿Cuántos dueños o miembros?', cols: [
-      { k: 'role', en: 'Role', es: 'Rol', type: 'select', opts: ['MGR (Manager)', 'MGRM (Manager & Member)', 'President', 'VP', 'Secretary', 'Treasurer', 'Director'] },
+      { k: 'role', en: 'Role', es: 'Rol', type: 'select', defaultFirst: true, full: true, opts: ['MGR (Manager)', 'MGRM (Manager & Member)', 'President', 'VP', 'Secretary', 'Treasurer', 'Director'] },
       { k: 'firstName', en: 'First name', es: 'Nombre', type: 'text' },
       { k: 'lastName', en: 'Last name', es: 'Apellido', type: 'text' },
       { k: 'pct', en: 'Ownership %', es: '% de propiedad', type: 'text' },
-      { k: 'country', en: 'Country', es: 'País', type: 'text' },
+      { k: 'country', en: 'Country', es: 'País', type: 'select', defaultFirst: true, opts: ['United States', 'Mexico', 'Argentina', 'Brazil', 'Chile', 'Colombia', 'Costa Rica', 'Cuba', 'Dominican Republic', 'Ecuador', 'El Salvador', 'Spain', 'Guatemala', 'Honduras', 'Nicaragua', 'Panama', 'Paraguay', 'Peru', 'Puerto Rico', 'Uruguay', 'Venezuela', 'Canada', 'United Kingdom', 'Other'] },
       { k: 'street', en: 'Street address', es: 'Dirección (calle)', type: 'text' },
       { k: 'apt', en: 'Apt / Suite (optional)', es: 'Apt / Suite (opcional)', type: 'text' },
       { k: 'city', en: 'City', es: 'Ciudad', type: 'text' },
-      { k: 'state', en: 'State', es: 'Estado', type: 'text' },
+      { k: 'state', en: 'State', es: 'Estado', type: 'select', opts: ['AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'DC', 'FL', 'GA', 'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'] },
       { k: 'zip', en: 'ZIP', es: 'ZIP', type: 'text' },
     ]},
   ]},
@@ -108,7 +114,8 @@ export const SERVICE_FIELDS: Record<string, ServiceFieldDef> = {
     { k: 'activityDesc', en: 'Briefly describe what your business does', es: 'Describe brevemente qué hace tu negocio', type: 'textarea' },
     // Agente registrado: se decide en el paso "Recomendado" (dos cajas).
     { k: 'raPref', en: 'Registered Agent', es: 'Agente registrado', type: 'select', opts: ['ours', 'own'] },
-    { k: 'raName', en: 'Registered Agent name', es: 'Nombre del agente registrado', type: 'text' },
+    { k: 'raFirstName', en: 'First name', es: 'Nombre', type: 'text' },
+    { k: 'raLastName', en: 'Last name', es: 'Apellido', type: 'text' },
     { k: 'raStreet', en: 'Registered Agent street (FL)', es: 'Dirección del agente (FL)', type: 'text' },
     { k: 'raApt', en: 'Apt / Suite (optional)', es: 'Apt / Suite (opcional)', type: 'text' },
     { k: 'raCity', en: 'City', es: 'Ciudad', type: 'text' },
@@ -116,14 +123,14 @@ export const SERVICE_FIELDS: Record<string, ServiceFieldDef> = {
     { k: 'shares', en: 'Authorized shares', es: 'Acciones autorizadas', type: 'select', opts: ['1,000', '10,000', '100,000', 'Other'] },
     { k: 'directors', en: 'Directors / Officers', es: 'Directores / Oficiales', type: 'repeater', block: true,
       countEn: 'How many directors/officers?', countEs: '¿Cuántos directores u oficiales?', cols: [
-      { k: 'role', en: 'Role', es: 'Cargo', type: 'select', opts: ['Director', 'President', 'VP', 'Secretary', 'Treasurer'] },
+      { k: 'role', en: 'Role', es: 'Cargo', type: 'select', defaultFirst: true, full: true, opts: ['Director', 'President', 'VP', 'Secretary', 'Treasurer'] },
       { k: 'firstName', en: 'First name', es: 'Nombre', type: 'text' },
       { k: 'lastName', en: 'Last name', es: 'Apellido', type: 'text' },
-      { k: 'country', en: 'Country', es: 'País', type: 'text' },
+      { k: 'country', en: 'Country', es: 'País', type: 'select', defaultFirst: true, opts: ['United States', 'Mexico', 'Argentina', 'Brazil', 'Chile', 'Colombia', 'Costa Rica', 'Cuba', 'Dominican Republic', 'Ecuador', 'El Salvador', 'Spain', 'Guatemala', 'Honduras', 'Nicaragua', 'Panama', 'Paraguay', 'Peru', 'Puerto Rico', 'Uruguay', 'Venezuela', 'Canada', 'United Kingdom', 'Other'] },
       { k: 'street', en: 'Street address', es: 'Dirección (calle)', type: 'text' },
       { k: 'apt', en: 'Apt / Suite (optional)', es: 'Apt / Suite (opcional)', type: 'text' },
       { k: 'city', en: 'City', es: 'Ciudad', type: 'text' },
-      { k: 'state', en: 'State', es: 'Estado', type: 'text' },
+      { k: 'state', en: 'State', es: 'Estado', type: 'select', opts: ['AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'DC', 'FL', 'GA', 'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'] },
       { k: 'zip', en: 'ZIP', es: 'ZIP', type: 'text' },
     ]},
   ]},
