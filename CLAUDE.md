@@ -372,6 +372,23 @@ El dominio redirige **`opabiz.com` (apex) → `www.opabiz.com`** con un **308**.
 
 ---
 
+## Checkout de servicios à la carte (`/servicios/checkout`) — 2026-06-27
+
+Wizard por pasos para comprar servicios sueltos o una formación LLC/Corp desde
+`/servicios`. Cobra con Stripe Embedded Checkout. **Doc canónica:
+`LOGICA_DE_NEGOCIO/32_checkout_servicios_alacarte.md`.**
+
+- **Archivos:** `backend/app/servicios/checkout/page.tsx` (wizard, CSS-in-JS + script inline `co*`), `lib/service-fields.ts` (campos por servicio + compartidos), `lib/services-pricing.ts` (`SERVICES_CATALOG` + `SERVICE_BUNDLES` + `computeServicesTotal`), `app/api/checkout/embedded-services/route.ts` (crea Order `package:'services'` + sesión Stripe; lee `intake.bundles`).
+- **Precio autoritativo server-side** desde IDs de carrito (`flbc_svc_cart`) + bundles (`flbc_svc_bundles`). El cliente solo espeja el total. Cambios de precio → `services-pricing.ts`.
+- **Orden de pasos (espeja el home):** Empresa → Tus datos (contacto) → Agente Registrado (dos cajas, +$99 / propio agente con reuso de dirección) → Dueños (valida 100%) → **Documentos esenciales** (combo 3 tiers) → **Protección y cumplimiento** (combo 3 tiers) → Datos del servicio (+ SSN/ITIN si aplica) → **Revisa tu orden + Stripe** (sin paso de firma; autorización al pagar, disclosure con links a /terms y /privacy).
+- **Combos (bundles):** un bundle reemplaza el cobro individual de sus servicios pero suma tarifas estatales. EIN y Operating Agreement salieron de `COVERED_IN_FORMATION` (ahora solo `registered-agent`) para que generen su paso de datos al comprarlos.
+- **Año fiscal del OA:** quitado del checkout, se asume 31 dic (`CHECKOUT_HIDE_KEYS`).
+- **Modo dev:** `Ctrl+Shift+D` salta validación (barra ámbar), igual que el home.
+- **Gotcha:** el script del cliente vive en `String.raw\`...\``; validar con `new Function(body)` tras extraer el template. No meter chars de control en comentarios.
+- **Pendiente LIVE:** confirmar precios placeholder ($99) y `stateFee` aproximadas.
+
+---
+
 ## Convenciones establecidas
 
 ### SDKs externos — NUNCA a nivel de módulo
