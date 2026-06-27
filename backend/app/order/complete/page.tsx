@@ -49,7 +49,7 @@ const ADDON_LABELS: Record<string, { en: string; es: string }> = {
   ein:  { en: 'EIN / Tax ID Number', es: 'EIN / Número de ID Fiscal' },
   oa:   { en: 'Operating Agreement', es: 'Acuerdo Operativo' },
   itin: { en: 'ITIN Application', es: 'Solicitud de ITIN' },
-  btr:  { en: 'Business Tax Receipt', es: 'Recibo de Impuesto Empresarial' },
+  btr:  { en: 'Local Business Tax Receipt', es: 'Licencia Comercial Local' },
   str:  { en: 'Sales Tax Registration', es: 'Registro de Impuesto sobre Ventas' },
   cc:   { en: 'Certified Copy', es: 'Copia Certificada' },
 }
@@ -70,6 +70,7 @@ function localizeLine(label: string, es: boolean): string {
     'Operating Agreement': 'Acuerdo Operativo',
     'ITIN Application': 'Solicitud de ITIN',
     'Business Tax Receipt': 'Recibo de Impuesto Empresarial',
+    'Local Business Tax Receipt': 'Licencia Comercial Local',
     'Sales Tax Registration': 'Registro de Impuesto sobre Ventas',
     'Certified Copy': 'Copia Certificada',
   }

@@ -38,7 +38,7 @@ const ADDON_LABELS: Record<AddonKey, string> = {
   ein:  'EIN / Tax ID Number',
   oa:   'Operating Agreement',
   itin: 'ITIN Application',
-  btr:  'Business Tax Receipt',
+  btr:  'Local Business Tax Receipt',
   str:  'Sales Tax Registration',
   cc:   'Certified Copy',
   dba:  'DBA / Fictitious Name',

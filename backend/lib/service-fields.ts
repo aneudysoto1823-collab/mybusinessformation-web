@@ -172,10 +172,9 @@ export const SERVICE_FIELDS: Record<string, ServiceFieldDef> = {
     { k: 'altName', en: 'Alternative name (optional)', es: 'Nombre alternativo (opcional)', type: 'text' },
     { k: 'reason', en: 'Why a DBA?', es: '¿Por qué un DBA?', type: 'select', opts: ['Brand / marketing name', 'Multiple business lines', 'Website / domain', 'Different county', 'Other'] },
   ]},
-  'virtual-address': { name_en: 'Virtual Mailing Address', name_es: 'Dirección Virtual', fields: [
-    { k: 'plan', en: 'Plan', es: 'Plan', type: 'select', opts: ['Digital forwarding', 'Digital + physical forwarding'] },
-    { k: 'forwarding', en: 'Physical forwarding address (optional)', es: 'Dirección de reenvío físico (opcional)', type: 'text' },
-  ]},
+  // Sin preguntas de reenvío en el checkout: el plan/forwarding se coordina con
+  // el cliente después de la compra.
+  'virtual-address': { name_en: 'Virtual Mailing Address', name_es: 'Dirección Virtual', fields: [] },
   'annual-report': { name_en: 'Annual Report', name_es: 'Declaración Anual', shared: ['ein'],
     note_en: 'Owners, officers, managers and directors', note_es: 'Dueños, oficiales, gerentes y directores', fields: [
     { k: 'officers', en: 'Owners / Officers / Managers / Directors', es: 'Dueños / Oficiales / Gerentes / Directores', type: 'repeater',
@@ -192,12 +191,11 @@ export const SERVICE_FIELDS: Record<string, ServiceFieldDef> = {
     { k: 'newInfo', en: 'New / updated information', es: 'Información nueva / actualizada', type: 'textarea' },
     { k: 'authName', en: 'Authorized person name', es: 'Nombre de la persona autorizada', type: 'text' },
   ]},
-  'banking-resolution': { name_en: 'Banking Resolution', name_es: 'Resolución Bancaria', shared: ['ein'], fields: [
-    { k: 'bankName', en: 'Bank name', es: 'Nombre del banco', type: 'text' },
-    { k: 'accountType', en: 'Account type', es: 'Tipo de cuenta', type: 'select', opts: ['Business Checking', 'Business Savings', 'Both'] },
-    { k: 'authName', en: 'Authorized person', es: 'Persona autorizada', type: 'text' },
-  ]},
-  'business-tax-receipt': { name_en: 'Business Tax Receipt', name_es: 'Recibo de Impuesto', shared: ['ein'], fields: [
+  // Sin formulario: la resolución bancaria es genérica (aplica a cualquier banco)
+  // y la persona autorizada depende de la estructura de miembros — se completa
+  // con el cliente después de la compra, no en el checkout.
+  'banking-resolution': { name_en: 'Banking Resolution', name_es: 'Resolución Bancaria', fields: [] },
+  'business-tax-receipt': { name_en: 'Local Business Tax Receipt', name_es: 'Licencia Comercial Local', shared: ['ein'], fields: [
     { k: 'county', en: 'Florida county', es: 'Condado de Florida', type: 'select', opts: ['Miami-Dade', 'Broward', 'Palm Beach', 'Orange', 'Hillsborough', 'Pinellas', 'Duval', 'Other'] },
     { k: 'industry', en: 'Type of business', es: 'Tipo de negocio', type: 'text' },
     { k: 'employees', en: 'Number of employees', es: 'Número de empleados', type: 'select', opts: ['0 (Owner only)', '1-5', '6-10', '11-25', '25+'] },

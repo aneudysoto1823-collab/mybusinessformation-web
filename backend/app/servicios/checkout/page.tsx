@@ -274,7 +274,7 @@ html.co-wide .co-tier{padding:20px 18px}
     <!-- STEP: OWNERS (solo formación) -->
     <div class="co-panel" id="panel-owners" style="display:none">
       <h1 class="co-h1" data-en="Owners &amp; management" data-es="Dueños y gestión">Dueños y gestión</h1>
-      <p class="co-sub" data-en="Who owns and runs the company. We only ask this once." data-es="Quién es dueño y maneja la empresa. Esto se pide una sola vez.">Quién es dueño y maneja la empresa. Esto se pide una sola vez.</p>
+      <p class="co-sub" data-en="Who owns and runs the company." data-es="Quién es dueño y maneja la empresa.">Quién es dueño y maneja la empresa.</p>
       <div class="co-card"><div id="co-owners-host"></div></div>
     </div>
 
@@ -304,7 +304,7 @@ html.co-wide .co-tier{padding:20px 18px}
     <!-- STEP: REVIEW + PAY -->
     <div class="co-panel" id="panel-pay" style="display:none">
       <h1 class="co-h1" data-en="Review your order" data-es="Revisa tu orden">Revisa tu orden</h1>
-      <p class="co-sub" data-en="Confirm your order and pay securely. You won't leave this page." data-es="Confirma tu pedido y paga de forma segura. No saldrás de esta página.">Confirma tu pedido y paga de forma segura. No saldrás de esta página.</p>
+      <p class="co-sub" data-en="Confirm your order and pay securely." data-es="Confirma tu pedido y paga de forma segura.">Confirma tu pedido y paga de forma segura.</p>
       <div class="co-pay-grid">
         <div class="co-review">
           <div class="co-card-title" style="margin-bottom:12px" data-en="Order summary" data-es="Resumen del pedido">Resumen del pedido</div>
@@ -414,7 +414,7 @@ var SVC_BLURBS = {
   'annual-report':       { nameEs:'Declaración Anual', nameEn:'Annual Report',
     es:['Obligatoria cada año para toda LLC y Corporation de FL','La preparamos y presentamos ante el estado por ti','Evita la multa de $400 por presentación tardía'],
     en:['Required every year for every FL LLC & Corporation','We prepare and file it with the state for you','Avoids the $400 late penalty'] },
-  'business-tax-receipt':{ nameEs:'Recibo de Impuesto', nameEn:'Business Tax Receipt',
+  'business-tax-receipt':{ nameEs:'Licencia Comercial Local', nameEn:'Local Business Tax Receipt',
     es:['Licencia local para operar tu negocio legalmente','La tramitamos ante tu condado de Florida','Requisito en muchas ciudades para abrir al público'],
     en:['Local license to operate your business legally','We process it with your Florida county','Required in many cities to open to the public'] }
 };
@@ -441,9 +441,14 @@ function coTranslateStatic(){
   $('co-es').classList.toggle('active', isEs);
   document.querySelectorAll('[data-en][data-es]').forEach(function(el){ el.textContent = isEs?el.getAttribute('data-es'):el.getAttribute('data-en'); });
   // Disclosure del pago: lleva enlaces, así que se setea como HTML (no textContent).
-  var dz=$('co-pay-disclosure'); if(dz){ dz.innerHTML = isEs
+  var dz=$('co-pay-disclosure'); if(dz){
+    var hasRec=false; try{ hasRec=coComputeTotal().recurring; }catch(e){}
+    var recTxt=hasRec?(isEs
+      ? ' Los servicios recurrentes (marcados /mes o /año) se renuevan automáticamente al precio vigente hasta que los canceles desde tu cuenta de cliente. El Agente Registrado es gratis el primer año al combinarlo con otro servicio; luego se renueva a $99/año.'
+      : ' Recurring services (marked /mo or /yr) renew automatically at the then-current rate until you cancel from your client account. Registered Agent is free the first year when combined with another service; then renews at $99/yr.'):'';
+    dz.innerHTML = (isEs
     ? 'Al completar tu pago autorizas a OpaBiz (Florida Business Formation Center) a preparar y presentar tus trámites en tu nombre, según nuestros <a href="/terms" target="_blank">Términos</a> y <a href="/privacy" target="_blank">Política de privacidad</a>. Las tarifas de servicio no son reembolsables una vez iniciado el trabajo.'
-    : 'By completing your payment you authorize OpaBiz (Florida Business Formation Center) to prepare and file your filings on your behalf, per our <a href="/terms" target="_blank">Terms</a> and <a href="/privacy" target="_blank">Privacy Policy</a>. Service fees are non-refundable once work begins.'; }
+    : 'By completing your payment you authorize OpaBiz (Florida Business Formation Center) to prepare and file your filings on your behalf, per our <a href="/terms" target="_blank">Terms</a> and <a href="/privacy" target="_blank">Privacy Policy</a>. Service fees are non-refundable once work begins.') + recTxt; }
 }
 
 function coSetLang(l){
@@ -784,8 +789,9 @@ function coRenderRaPanel(){
       +'<div class="co-ra-info">&#128221; '+infoTxt+'</div>'
       +'<div class="co-choices">'
         +'<div class="co-choice'+(oursSel?' sel':'')+'" id="co-ra-ours" onclick="coSetRaChoice(\'ours\')">'
-          +'<div class="co-choice-top"><span class="co-choice-title">&#127963; '+(isEs?'Usa nuestro servicio de Agente Registrado':'Use our Registered Agent service')+'</span><span class="co-choice-price">$99</span></div>'
-          +'<div class="co-choice-desc">'+oursDesc+'</div>'
+          +'<div class="co-choice-top"><span class="co-choice-title">&#127963; '+(isEs?'Usa nuestro servicio de Agente Registrado':'Use our Registered Agent service')+'</span><span class="co-choice-price">'+(isEs?'Gratis 1er año':'Free 1st yr')+'</span></div>'
+          +'<div class="co-choice-desc">'+oursDesc+' '+(isEs?'Primer año gratis; luego se renueva automáticamente a $99/año hasta que lo canceles.':'First year free; then renews automatically at $99/yr until you cancel.')+'</div>'
+          +'<div style="margin-top:8px;font-size:.72rem;color:#059669;font-weight:600">&#10003; '+(isEs?'Gratis al combinar con cualquier otro servicio':'Free when combined with any other service')+'</div>'
           +'<div class="co-up-incl" style="margin-top:10px">'+bullets+'</div></div>'
         +'<div class="co-choice'+(ownSel?' sel':'')+'" id="co-ra-own" onclick="coSetRaChoice(\'own\')">'
           +'<div class="co-choice-top"><span class="co-choice-title">&#128100; '+(isEs?'Seré mi propio Agente Registrado':'I will be my own Registered Agent')+'</span><span class="co-choice-price">$0</span></div>'
@@ -842,7 +848,8 @@ function coHubApplicable(hub){
 function coTierBullets(svcIds){
   var isEs=coIsEs(); var out='';
   svcIds.forEach(function(s){ var bl=SVC_BLURBS[s]; if(!bl) return;
-    out+='<div class="co-tier-svc">'+(isEs?bl.nameEs:bl.nameEn)+'</div>';
+    var svc=SVC_CATALOG[s]; var suf=svc?coBillingSuffix(svc.billing):'';
+    out+='<div class="co-tier-svc">'+(isEs?bl.nameEs:bl.nameEn)+(suf?' <em style="font-style:normal;color:#64748b;font-weight:600">'+suf+'</em>':'')+'</div>';
     (isEs?bl.es:bl.en).forEach(function(txt){
       out+='<div class="co-tier-incl-item"><span class="co-tier-incl-check">&#10003;</span><span>'+txt+'</span></div>';
     });
@@ -851,16 +858,20 @@ function coTierBullets(svcIds){
 }
 function coRenderHub(hub){
   var panel=$(HUBS[hub].panel); if(!panel) return; var isEs=coIsEs(); var cfg=HUBS[hub];
+  var hubRecurring=false;
   var tiers=cfg.tiers.map(function(bid, i){
     var b=BUNDLES_CLIENT[bid]; if(!b) return '';
     var indiv=0; b.services.forEach(function(s){ var svc=SVC_CATALOG[s]; if(svc) indiv+=svc.serviceFee; });
     var save=indiv-b.price;
+    // Cadencia del combo: sufijo solo si todos sus recurrentes comparten una.
+    var cad={}, ncad=0; b.services.forEach(function(s){ var sv=SVC_CATALOG[s]; if(sv&&sv.billing){ if(!cad[sv.billing]){cad[sv.billing]=1;ncad++;} hubRecurring=true; } });
+    var priceSuf=ncad===1?coBillingSuffix(Object.keys(cad)[0]):'';
     var best=(i===cfg.tiers.length-1);
     var sel=(coBundles.indexOf(bid)>=0);
     return '<div class="co-tier'+(best?' best':'')+(sel?' sel':'')+'">'
       +(best?'<div class="co-tier-badge">'+(isEs?'Mejor valor':'Best value')+'</div>':'')
       +'<div class="co-tier-name">'+(isEs?b.name_es:b.name_en)+'</div>'
-      +'<div class="co-tier-price">$'+b.price+'</div>'
+      +'<div class="co-tier-price">$'+b.price+(priceSuf?'<span style="font-size:.5em;color:#64748b;font-weight:600">'+priceSuf+'</span>':'')+'</div>'
       +(save>0?'<div class="co-tier-save">'+(isEs?'Ahorras $':'Save $')+save+'</div>':'<div style="height:10px"></div>')
       +'<div class="co-tier-incl">'+coTierBullets(b.services)+'</div>'
       +'<button class="co-tier-btn" onclick="coSelectTier(\''+hub+'\',\''+bid+'\')">'+(sel?(isEs?'&#10003; Seleccionado':'&#10003; Selected'):(isEs?'Seleccionar':'Select'))+'</button>'
@@ -869,6 +880,7 @@ function coRenderHub(hub){
   panel.innerHTML='<h1 class="co-h1">'+(isEs?cfg.titleEs:cfg.titleEn)+'</h1>'
     +'<p class="co-sub">'+(isEs?cfg.subEs:cfg.subEn)+'</p>'
     +'<div class="co-tiers">'+tiers+'</div>'
+    +(hubRecurring?'<div class="co-state-note" style="text-align:center;margin-top:10px">'+(isEs?'Los servicios marcados /mes o /año se renuevan automáticamente hasta que los canceles.':'Services marked /mo or /yr renew automatically until you cancel.')+'</div>':'')
     +'<button type="button" class="co-hub-nothanks" onclick="coHubNoThanks(\''+hub+'\')">'+(isEs?'No, gracias':'No thanks')+'</button>';
 }
 function coClearHub(hub){
@@ -905,34 +917,72 @@ function coRebuildTo(stepId){
 // ── Resumen de orden persistente (sidebar derecho, visible en cada paso) ─────
 // Espeja computeServicesTotal (services-pricing.ts) para mostrar el total en vivo.
 // El cobro real siempre se recalcula server-side desde los IDs del carrito.
+function coBillingSuffix(billing){
+  var isEs=coIsEs();
+  if(billing==='monthly') return isEs?'/mes':'/mo';
+  if(billing==='annual') return isEs?'/año':'/yr';
+  return '';
+}
 function coComputeTotal(){
-  var lines=[], total=0, isEs=coIsEs(), bundled={}, seenB={};
+  // Tarifas de servicio primero; las tarifas estatales se agrupan al final
+  // (antes del total) en vez de intercaladas tras cada servicio.
+  var lines=[], stateLines=[], total=0, isEs=coIsEs(), bundled={}, seenB={}, recurring=false;
   // 1) Bundles primero (precio combo + tarifas estatales de sus servicios)
   coBundles.forEach(function(bid){
     if(seenB[bid]) return; seenB[bid]=1; var b=BUNDLES_CLIENT[bid]; if(!b) return;
-    lines.push({label:isEs?b.name_es:b.name_en, amount:b.price}); total+=b.price;
-    b.services.forEach(function(sid){ bundled[sid]=1; var svc=SVC_CATALOG[sid]; if(svc&&svc.stateFee>0){ lines.push({label:(isEs?svc.name_es:svc.name_en), amount:svc.stateFee, state:true}); total+=svc.stateFee; } });
+    // Cadencia del combo: una sola etiqueta si todos sus servicios recurrentes la
+    // comparten; si hay mezcla va sin sufijo y el aviso lo explica.
+    var cad={}, ncad=0; b.services.forEach(function(sid){ var sv=SVC_CATALOG[sid]; if(sv&&sv.billing&&!cad[sv.billing]){ cad[sv.billing]=1; ncad++; } });
+    if(ncad>0) recurring=true;
+    var bb=ncad===1?Object.keys(cad)[0]:'';
+    lines.push({label:isEs?b.name_es:b.name_en, amount:b.price, billing:bb}); total+=b.price;
+    b.services.forEach(function(sid){ bundled[sid]=1; var svc=SVC_CATALOG[sid]; if(svc&&svc.stateFee>0){ stateLines.push({label:(isEs?svc.name_es:svc.name_en), amount:svc.stateFee, state:true}); total+=svc.stateFee; } });
   });
   // 2) Servicios individuales no cubiertos por un bundle
   var seen={};
   cart.forEach(function(id){
     if(seen[id]||bundled[id]) return; seen[id]=1; var s=SVC_CATALOG[id]; if(!s) return;
     var nm=isEs?s.name_es:s.name_en;
-    lines.push({label:nm, amount:s.serviceFee}); total+=s.serviceFee;
-    if(s.stateFee>0){ lines.push({label:nm, amount:s.stateFee, state:true}); total+=s.stateFee; }
+    if(s.billing) recurring=true;
+    // freeWithOther (Agente Registrado): gratis el 1er período si hay otro servicio/combo.
+    var hasOther=cart.some(function(o){ return o!==id && SVC_CATALOG[o]; })||coBundles.length>0;
+    var free=!!s.freeWithOther && hasOther;
+    lines.push({label:nm, amount:free?0:s.serviceFee, billing:s.billing, firstYearFree:free, renewalFee:s.renewalFee}); total+=(free?0:s.serviceFee);
+    if(s.stateFee>0){ stateLines.push({label:nm, amount:s.stateFee, state:true}); total+=s.stateFee; }
   });
-  return {lines:lines, total:total};
+  return {lines:lines.concat(stateLines), total:total, recurring:recurring};
 }
 // Una fila del resumen. Las tarifas estatales van atenuadas, con etiqueta y "*".
+// Los servicios recurrentes muestran su cadencia (/mes, /año) junto al precio.
 function coLineRow(l){
   var isEs=coIsEs();
   if(l.state){ return '<div class="co-review-row co-row-state"><span>'+l.label+' <em>'+(isEs?'tarifa estatal':'state fee')+'</em> *</span><span>$'+l.amount+'</span></div>'; }
-  return '<div class="co-review-row"><span>'+l.label+'</span><span>$'+l.amount+'</span></div>';
+  // Primer año gratis (ej. Agente Registrado): hoy $0, renovación luego.
+  if(l.firstYearFree){
+    var rf=l.renewalFee||0;
+    var renew=isEs?('luego $'+rf+'/año'):('then $'+rf+'/yr');
+    return '<div class="co-review-row"><span>'+l.label+'</span><span>'+(isEs?'Gratis 1er año':'Free 1st yr')+' <em style="font-style:normal;color:#64748b;font-weight:500;font-size:.82em">'+renew+'</em></span></div>';
+  }
+  var suf=coBillingSuffix(l.billing);
+  return '<div class="co-review-row"><span>'+l.label+'</span><span>$'+l.amount+(suf?'<em style="font-style:normal;color:#64748b;font-weight:500">'+suf+'</em>':'')+'</span></div>';
 }
 function coHasStateFee(lines){ for(var i=0;i<lines.length;i++){ if(lines[i].state) return true; } return false; }
 function coStateFootnote(lines){
   if(!coHasStateFee(lines)) return ''; var isEs=coIsEs();
   return '<div class="co-state-note">'+(isEs?'* Tarifa estatal de Florida — la cobra el Estado, es obligatoria.':'* Florida state fee — charged by the State, mandatory.')+'</div>';
+}
+// Aviso de autorrenovación (cuando hay algún servicio recurrente en la orden).
+function coAutoRenewNote(r){
+  if(!r||!r.recurring) return ''; var isEs=coIsEs();
+  return '<div class="co-state-note">'+(isEs?'Los servicios marcados /mes o /año se renuevan automáticamente hasta que los canceles.':'Services marked /mo or /yr renew automatically until you cancel.')+'</div>';
+}
+// Upsell: si el Agente Registrado va SOLO (sin otro servicio que lo haga gratis),
+// motiva a agregar algo para que el primer año salga gratis.
+function coRaUpsellNote(){
+  if(cart.indexOf('registered-agent')<0) return '';
+  var hasOther=cart.some(function(o){ return o!=='registered-agent' && SVC_CATALOG[o]; })||coBundles.length>0;
+  if(hasOther) return ''; var isEs=coIsEs();
+  return '<div class="co-state-note" style="color:#059669;font-weight:600">&#127881; '+(isEs?'Agrega cualquier otro servicio y tu Agente Registrado sale gratis el primer año.':'Add any other service and your Registered Agent is free the first year.')+'</div>';
 }
 function coUpdateOrderSummary(){
   var side=$('co-side'); if(!side) return; var isEs=coIsEs();
@@ -947,7 +997,7 @@ function coUpdateOrderSummary(){
   var body=$('co-osum-body'); if(body) body.innerHTML=r.lines.length
     ? r.lines.map(coLineRow).join('')
     : '<div class="co-review-row" style="border:none;color:#94a3b8">'+(isEs?'Aún sin servicios':'No services yet')+'</div>';
-  var note=$('co-side-note'); if(note) note.innerHTML=(r.lines.length?coStateFootnote(r.lines)+'<div style="margin-top:'+(coHasStateFee(r.lines)?'8px':'0')+'">':'<div>')+(isEs?'Estimado. Las tarifas estatales se confirman al pagar.':'Estimate. State fees are confirmed at payment.')+'</div>';
+  var note=$('co-side-note'); if(note) note.innerHTML=r.lines.length?(coStateFootnote(r.lines)+coAutoRenewNote(r)+coRaUpsellNote()):'';
 }
 // "Peso" aproximado de un servicio = cuánto espacio ocupa (para empacar tantos
 // como quepan por paso sin scroll, en vez de un número fijo). Un repeater pesa
@@ -1033,6 +1083,9 @@ function coGoStep(i){
   coRenderProgress();
   $('co-back').style.display = (i===0) ? 'none' : '';
   var isPay = coSteps[i].id==='panel-pay';
+  // Refresca el disclosure del pago para que la cláusula de servicios recurrentes
+  // refleje el carrito final al llegar a este paso.
+  if(isPay) coTranslateStatic();
   // Modo ancho en los hubs de tiers (cards más anchas, estilo LegalZoom).
   var isHub = coSteps[i].id.indexOf('panel-hub-')===0;
   try{ document.documentElement.classList.toggle('co-wide', isHub); }catch(e){}
@@ -1147,14 +1200,14 @@ function coRenderReviewNames(){
   var host=$('co-review-lines'); if(!host) return;
   // Reusa el cálculo del resumen (ya contempla bundles) para el desglose instantáneo.
   var r=coComputeTotal();
-  host.innerHTML=r.lines.map(coLineRow).join('')+coStateFootnote(r.lines);
+  host.innerHTML=r.lines.map(coLineRow).join('')+coStateFootnote(r.lines)+coAutoRenewNote(r)+coRaUpsellNote();
   var t=$('co-review-total'); if(t) t.textContent='$'+r.total;
 }
 // Muestra el desglose con el estilo unificado (mirror) y el TOTAL autoritativo del server.
 function coRenderReview(lines, total){
   var host=$('co-review-lines'); if(!host) return;
   var r=coComputeTotal();
-  host.innerHTML=r.lines.map(coLineRow).join('')+coStateFootnote(r.lines);
+  host.innerHTML=r.lines.map(coLineRow).join('')+coStateFootnote(r.lines)+coAutoRenewNote(r)+coRaUpsellNote();
   $('co-review-total').textContent='$'+((total!=null)?total:r.total);
 }
 function coMountStripe(clientSecret){

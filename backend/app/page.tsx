@@ -974,7 +974,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           <div class="svc-row"><span class="svc-name">BOI Filing (FinCEN)</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name" data-en="EIN / Tax ID Number" data-es="EIN / Número de ID Fiscal">EIN / Tax ID Number</span><span class="svc-status s-add">+ $79</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Banking Resolution" data-es="Resolución Bancaria">Banking Resolution</span><span class="svc-status s-add">+ $49</span></div>
-          <div class="svc-row"><span class="svc-name" data-en="Business Tax Receipt" data-es="Recibo de Impuesto Empresarial">Business Tax Receipt</span><span class="svc-status s-add">+ $79</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="Local Business Tax Receipt" data-es="Licencia Comercial Local">Local Business Tax Receipt</span><span class="svc-status s-add">+ $79</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Sales Tax Registration" data-es="Registro de Impuesto sobre Ventas">Sales Tax Registration</span><span class="svc-status s-add">+ $79</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Operating Agreement" data-es="Acuerdo Operativo">Operating Agreement</span><span class="svc-status s-add">+ $59</span></div>
           <div class="svc-row"><span class="svc-name" data-en="DBA / Fictitious Name" data-es="DBA / Nombre Ficticio">DBA / Fictitious Name</span><span class="svc-status s-add">+ $49</span></div>
@@ -1002,7 +1002,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           <div class="svc-row"><span class="svc-name" data-en="EIN / Tax ID Number" data-es="EIN / Número de ID Fiscal">EIN / Tax ID Number</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Banking Resolution" data-es="Resolución Bancaria">Banking Resolution</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name" data-en="DBA / Fictitious Name" data-es="DBA / Nombre Ficticio">DBA / Fictitious Name</span><span class="svc-status s-check">✓</span></div>
-          <div class="svc-row"><span class="svc-name" data-en="Business Tax Receipt" data-es="Recibo de Impuesto Empresarial">Business Tax Receipt</span><span class="svc-status s-add">+ $79</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="Local Business Tax Receipt" data-es="Licencia Comercial Local">Local Business Tax Receipt</span><span class="svc-status s-add">+ $79</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Sales Tax Registration" data-es="Registro de Impuesto sobre Ventas">Sales Tax Registration</span><span class="svc-status s-add">+ $79</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Operating Agreement" data-es="Acuerdo Operativo">Operating Agreement</span><span class="svc-status s-add">+ $59</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Articles of Amendment" data-es="Artículos de Enmienda">Articles of Amendment</span><span class="svc-status s-add">+ $59</span></div>
@@ -1030,7 +1030,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           <div class="svc-row"><span class="svc-name" data-en="DBA / Fictitious Name" data-es="DBA / Nombre Ficticio">DBA / Fictitious Name</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Operating Agreement" data-es="Acuerdo Operativo">Operating Agreement</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Articles of Amendment" data-es="Artículos de Enmienda">Articles of Amendment</span><span class="svc-status s-check">✓</span></div>
-          <div class="svc-row"><span class="svc-name" data-en="Business Tax Receipt" data-es="Recibo de Impuesto Empresarial">Business Tax Receipt</span><span class="svc-status s-add">+ $79</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="Local Business Tax Receipt" data-es="Licencia Comercial Local">Local Business Tax Receipt</span><span class="svc-status s-add">+ $79</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Sales Tax Registration" data-es="Registro de Impuesto sobre Ventas">Sales Tax Registration</span><span class="svc-status s-add">+ $79</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Registered Agent" data-es="Agente Registrado">Registered Agent</span><span class="svc-status" style="font-size:.68rem;color:#94a3b8" data-en="🕐 Coming Soon" data-es="🕐 Próximamente">🕐 Coming Soon</span></div>
         </div>
@@ -1194,7 +1194,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
         <div class="mini-svc-arrow">Ver servicio &#8594;</div>
       </a>
       <a class="mini-svc-card" href="/servicios?lang=${defaultLang}#business-tax-receipt">
-        <div class="mini-svc-top"><span class="mini-svc-icon">&#128203;</span><span class="mini-svc-name" data-en="Business Tax Receipt" data-es="Recibo de Impuesto Empresarial">Business Tax Receipt</span></div>
+        <div class="mini-svc-top"><span class="mini-svc-icon">&#128203;</span><span class="mini-svc-name" data-en="Local Business Tax Receipt" data-es="Licencia Comercial Local">Local Business Tax Receipt</span></div>
         <div class="mini-svc-price">$79</div>
         <div class="mini-svc-sub" data-en="+ county fee" data-es="+ tarifa del condado">+ county fee</div>
         <div class="mini-svc-arrow">Ver servicio &#8594;</div>
@@ -1317,7 +1317,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           <a href="/servicios?lang=${defaultLang}#amendment" data-en="Articles of Amendment" data-es="Artículos de Enmienda">Articles of Amendment</a>
           <a href="/servicios?lang=${defaultLang}#virtual-address" data-en="Virtual Mailing Address" data-es="Dirección Postal Virtual">Virtual Mailing Address</a>
           <a href="/servicios?lang=${defaultLang}#banking-resolution" data-en="Banking Resolution" data-es="Resolución Bancaria">Banking Resolution</a>
-          <a href="/servicios?lang=${defaultLang}#business-tax-receipt" data-en="Business Tax Receipt" data-es="Recibo de Impuesto Empresarial">Business Tax Receipt</a>
+          <a href="/servicios?lang=${defaultLang}#business-tax-receipt" data-en="Local Business Tax Receipt" data-es="Licencia Comercial Local">Local Business Tax Receipt</a>
           <a href="/servicios?lang=${defaultLang}#sales-tax-registration" data-en="Sales Tax Registration" data-es="Registro de Impuesto sobre Ventas">Sales Tax Registration</a>
           <a href="/servicios?lang=${defaultLang}#exclusive-guide" data-en="Exclusive Formation Guide" data-es="Guía Exclusiva de Formación">Exclusive Formation Guide</a>
           <a href="/servicios?lang=${defaultLang}#good-standing" data-en="Certificate of Good Standing" data-es="Certificado de Buena Fe">Certificate of Good Standing</a>
@@ -1613,7 +1613,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
               </div>
             </div>
             <div id="agent-ours-note" style="margin-top:10px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:9px;padding:12px 14px;font-size:.78rem;color:#1e40af;line-height:1.65">
-              &#8505; <span id="agent-ours-note-text">We will act as your Registered Agent and receive all official documents on your behalf. Your personal address will not appear on any public record.</span>
+              &#8505; <span id="agent-ours-note-text">We will act as your Registered Agent and receive all official documents on your behalf. Your personal address will not appear on any public record. Your first year is free; after that it renews automatically at $99/year until you cancel.</span>
             </div>
             <div id="agent-own-form" style="display:none;margin-top:14px">
               <div class="fm-group"><label class="fm-label" id="lbl-ra-name">Full Name *</label><input type="text" class="fm-input" id="inp-ra-name" placeholder="Full legal name" oninput="fmTitleCase(this)"/></div>
@@ -2020,7 +2020,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
               <div class="fm-addon-check" id="btr-check"></div>
               <div class="fm-addon-icon">&#127981;</div>
               <div>
-                <div class="fm-addon-name"><span id="addon-btr-name">Business Tax Receipt (BTR)</span> <span class="tt-wrap" style="vertical-align:middle"><span class="tt-icon" style="width:0;min-width:0;height:0;padding:0;margin:0;border:0;background:none;font-size:0;color:transparent"><span class="tt-box" id="tt-btr">A Business Tax Receipt (formerly known as an Occupational License) is required by most Florida counties and cities to legally operate a business. It must be renewed annually and is separate from your state formation filing.</span></span></span></div>
+                <div class="fm-addon-name"><span id="addon-btr-name">Local Business Tax Receipt (BTR)</span> <span class="tt-wrap" style="vertical-align:middle"><span class="tt-icon" style="width:0;min-width:0;height:0;padding:0;margin:0;border:0;background:none;font-size:0;color:transparent"><span class="tt-box" id="tt-btr">A Business Tax Receipt (formerly known as an Occupational License) is required by most Florida counties and cities to legally operate a business. It must be renewed annually and is separate from your state formation filing.</span></span></span></div>
                 <div class="fm-addon-desc" id="addon-btr-desc">Required by most FL counties to operate legally</div>
               </div>
             </div>
@@ -2060,7 +2060,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
               <div class="fm-addon-icon">&#128197;</div>
               <div>
                 <div class="fm-addon-name"><span id="addon-ar-name">Annual Report Filing Service</span> <span class="tt-wrap" style="vertical-align:middle"><span class="tt-icon" style="width:0;min-width:0;height:0;padding:0;margin:0;border:0;background:none;font-size:0;color:transparent"><span class="tt-box" id="tt-ar">Every Florida business must file an Annual Report each year to stay active — even if your business has not started operating yet. The law makes no exceptions. The deadline is May 1st. Miss it and Florida automatically charges a $400 late fee. Keep ignoring it and the State can administratively dissolve your company.</span></span></span></div>
-                <div class="fm-addon-desc" id="addon-ar-desc">We file your FL Annual Report each year — deadline May 1st</div>
+                <div class="fm-addon-desc" id="addon-ar-desc">We file your FL Annual Report each year (deadline May 1st). Renews automatically each year until you cancel.</div>
               </div>
             </div>
             <div class="fm-addon-price" id="addon-ar-price">Annual</div>
@@ -2280,7 +2280,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
         <div class="fm-sum-line sum-ein-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-ein">EIN / Tax ID</span><span class="fm-sum-val">$79</span></div>
         <div class="fm-sum-line sum-oa-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-oa">Operating Agreement</span><span class="fm-sum-val">$59</span></div>
         <div class="fm-sum-line sum-itin-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-itin">ITIN Application</span><span class="fm-sum-val">$69</span></div>
-        <div class="fm-sum-line sum-btr-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-btr">Business Tax Receipt</span><span class="fm-sum-val">$79</span></div>
+        <div class="fm-sum-line sum-btr-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-btr">Local Business Tax Receipt</span><span class="fm-sum-val">$79</span></div>
         <div class="fm-sum-line sum-str-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-str">Sales Tax Receipt</span><span class="fm-sum-val">$79</span></div>
         <div class="fm-sum-line sum-cc-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-cc">Certified Copy</span><span class="fm-sum-val">$49</span></div>
         <div class="fm-sum-line sum-ar-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-ar">Annual Report</span><span class="fm-sum-val">Annual</span></div>
@@ -5832,7 +5832,7 @@ function fmBuildReview() {
     if(fmData.addons.ein)  items.push('<div class="fm-review-field"><label>EIN / Tax ID</label><span>$79</span></div>');
     if(fmData.addons.oa)   items.push('<div class="fm-review-field"><label>Operating Agreement</label><span>$59</span></div>');
     if(fmData.addons.itin) items.push('<div class="fm-review-field"><label>ITIN Application</label><span>$69</span></div>');
-    if(fmData.addons.btr)  items.push('<div class="fm-review-field"><label>'+(isEs?'Recibo de Impuesto Empresarial':'Business Tax Receipt')+'</label><span>$79</span></div>');
+    if(fmData.addons.btr)  items.push('<div class="fm-review-field"><label>'+(isEs?'Licencia Comercial Local':'Local Business Tax Receipt')+'</label><span>$79</span></div>');
     if(fmData.addons.str)  items.push('<div class="fm-review-field"><label>'+(isEs?'Registro de Impuesto sobre Ventas':'Sales Tax Registration')+'</label><span>$79</span></div>');
     if(fmData.addons.cc)   items.push('<div class="fm-review-field"><label>'+(isEs?'Copia Certificada de Art\u00edculos':'Certified Copy of Articles')+'</label><span>$49</span></div>');
     if(fmData.addons.ar)   items.push('<div class="fm-review-field"><label>'+(isEs?'Declaración Anual':'Annual Report Service')+'</label><span>'+(isEs?'Anual':'Annual')+'</span></div>');
@@ -6422,7 +6422,7 @@ function fmTranslate(lang) {
     'sum-lbl-ein':isEs?'EIN / ID Fiscal':'EIN / Tax ID',
     'sum-lbl-oa':isEs?'Acuerdo Operativo':'Operating Agreement',
     'sum-lbl-itin':isEs?'Solicitud ITIN':'ITIN Application',
-    'sum-lbl-btr':isEs?'Licencia de Negocio (BTR)':'Business Tax Receipt',
+    'sum-lbl-btr':isEs?'Licencia Comercial Local':'Local Business Tax Receipt',
     'sum-lbl-str':isEs?'Permiso de Ventas (STR)':'Sales Tax Receipt',
     'sum-lbl-cc':isEs?'Copia Certificada':'Certified Copy',
     'sum-lbl-ar':isEs?'Declaraci\\u00f3n Anual':'Annual Report',
@@ -6451,7 +6451,7 @@ function fmTranslate(lang) {
     'agent-ours-desc':isEs?'Actuamos como tu Agente Registrado oficial. Tu dirección personal se mantiene completamente privada.':'We act as your official Registered Agent. Your personal address stays completely private.',
     'agent-own-lbl':isEs?'Seré mi propio Agente Registrado':'I will be my own Registered Agent',
     'agent-own-desc':isEs?'Tu dirección quedará registrada públicamente ante el Estado de Florida y la ley exige que deberas estar presente en esa dirección de lunes a viernes de 9am a 5pm para recibir documentos legales oficiales.':'Your address will be publicly registered with the State of Florida and the law requires you to be present at that address Monday through Friday from 9am to 5pm to receive official legal documents.',
-    'agent-ours-note-text':isEs?'Actuaremos como tu Agente Registrado y recibiremos todos los documentos en tu nombre. Tu dirección personal no aparecerá en ningún registro público.':'We will act as your Registered Agent and receive all official documents. Your personal address will not appear on any public record.',
+    'agent-ours-note-text':isEs?'Actuaremos como tu Agente Registrado y recibiremos todos los documentos en tu nombre. Tu dirección personal no aparecerá en ningún registro público. Tu primer año es gratis; después se renueva automáticamente a $99/año hasta que lo canceles.':'We will act as your Registered Agent and receive all official documents. Your personal address will not appear on any public record. Your first year is free; after that it renews automatically at $99/year until you cancel.',
     'ra-same-biz-lbl':isEs?'Usar misma dirección que Dirección Física del Negocio':'Use same as Physical Business Address',
     'agent-own-warn-text':isEs?'La dirección de tu Agente Registrado aparecerá en el registro público. Debe ser una dirección física en Florida.':'Your Registered Agent address will appear on the public record. It must be a physical Florida address, no PO Boxes.',
     's3-mail-divider':isEs?'Dirección Postal de la LLC':'LLC Mailing Address',
@@ -6588,14 +6588,14 @@ function fmTranslate(lang) {
     'addon-oa-desc':   isEs?'Requerido por los bancos para abrir una cuenta corriente empresarial':'Required by banks to open a business checking account',
     'addon-itin-name': isEs?'Solicitud de ITIN':'ITIN Application',
     'addon-itin-desc': isEs?'Para extranjeros sin Número de Seguro Social':'For foreign nationals without a Social Security Number',
-    'addon-btr-name':  isEs?'Recibo de Impuesto Empresarial (BTR)':'Business Tax Receipt (BTR)',
+    'addon-btr-name':  isEs?'Licencia Comercial Local (BTR)':'Local Business Tax Receipt (BTR)',
     'addon-btr-desc':  isEs?'Requerido por la mayoría de condados de FL para operar legalmente':'Required by most FL counties to operate legally',
     'addon-str-name':  isEs?'Registro de Impuesto sobre Ventas':'Sales Tax Registration',
     'addon-str-desc':  isEs?'Requerido si tu negocio vende bienes o servicios gravables en FL':'Required if your business sells taxable goods or services in FL',
     'addon-cc-name':   isEs?'Copia Certificada de Art\u00edculos de Organizaci\u00f3n / Incorporaci\u00f3n':'Certified Copy of Articles of Organization / Incorporation',
     'addon-cc-desc':   isEs?'Copia oficial certificada por el estado de tu documento de formaci\u00f3n &middot; + tarifa estatal':'Official state-certified copy of your formation document &middot; + state fee',
     'addon-ar-name':   isEs?'Servicio de Declaración Anual':'Annual Report Filing Service',
-    'addon-ar-desc':   isEs?'Presentamos tu Declaración Anual de FL cada año — fecha límite 1 de mayo':'We file your FL Annual Report each year — deadline May 1st',
+    'addon-ar-desc':   isEs?'Presentamos tu Declaración Anual de FL cada año (fecha límite 1 de mayo). Se renueva automáticamente cada año hasta que la canceles.':'We file your FL Annual Report each year (deadline May 1st). Renews automatically each year until you cancel.',
     // Addons nuevos 2026-06-26 (seccion expandible "Ver todos los servicios")
     'addon-dba-name':  isEs?'DBA / Nombre Ficticio':'DBA / Fictitious Name',
     'addon-dba-desc':  isEs?'Operar o vender bajo un nombre comercial distinto al legal':'Operate or brand under a different name from your legal entity',

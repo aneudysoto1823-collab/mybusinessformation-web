@@ -87,10 +87,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: isEs ? 'No se pudo crear la orden.' : 'Could not create order.' }, { status: 500 })
     }
 
-    const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = lines.map((l) => ({
-      price_data: { currency: 'usd', product_data: { name: l.label }, unit_amount: Math.round(l.amount * 100) },
-      quantity: 1,
-    }))
+    // Stripe rechaza líneas en $0 (ej. Agente Registrado gratis al combinar); se
+    // omiten del cobro pero quedan registradas en la orden (addons.lines).
+    const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = lines
+      .filter((l) => l.amount > 0)
+      .map((l) => ({
+        price_data: { currency: 'usd', product_data: { name: l.label }, unit_amount: Math.round(l.amount * 100) },
+        quantity: 1,
+      }))
 
     const origin = req.headers.get('origin') || 'https://opabiz.com'
 
