@@ -163,6 +163,10 @@ body{font-family:var(--font-sans),'Plus Jakarta Sans',system-ui,sans-serif;color
 .co-side-note{font-size:.7rem;color:var(--gray400);margin-top:12px;line-height:1.5}
 .co-pay-disclosure{font-size:.72rem;color:var(--gray500);margin-top:16px;padding-top:14px;border-top:1px solid var(--gray100);line-height:1.55}
 .co-pay-disclosure a{color:var(--blue);text-decoration:underline}
+.co-review-row.co-row-state{color:var(--gray400)}
+.co-review-row.co-row-state span:last-child{color:var(--gray400);font-weight:500}
+.co-review-row.co-row-state em{font-style:normal;font-size:.72rem;text-transform:uppercase;letter-spacing:.4px;color:var(--gray400)}
+.co-state-note{font-size:.68rem;color:var(--gray400);margin-top:8px;line-height:1.5}
 /* Modo ancho: en los hubs de tiers damos más espacio a las tarjetas */
 html.co-wide .co-wrap,html.co-wide .co-header-inner{max-width:1340px}
 html.co-wide .co-tier{padding:20px 18px}
@@ -286,8 +290,7 @@ html.co-wide .co-tier{padding:20px 18px}
 
     <!-- STEP: CONTACT (temprano, paso 2 — como el home) -->
     <div class="co-panel" id="panel-contact" style="display:none">
-      <h1 class="co-h1" data-en="Your details" data-es="Tus datos">Tus datos</h1>
-      <p class="co-sub" data-en="Tell us how to reach you." data-es="Dinos cómo contactarte.">Dinos cómo contactarte.</p>
+      <h1 class="co-h1" data-en="Personal information" data-es="Información personal">Información personal</h1>
       <div class="co-card">
         <div class="co-grid">
           <div class="co-field"><label class="co-label" data-en="First name" data-es="Nombre">Nombre</label><input class="co-input" id="f-firstName"/></div>
@@ -327,7 +330,7 @@ html.co-wide .co-tier{padding:20px 18px}
         <div class="co-card-title" style="margin-bottom:12px" data-en="Order summary" data-es="Resumen del pedido">Resumen del pedido</div>
         <div id="co-osum-body"></div>
         <div class="co-review-total"><span data-en="Total" data-es="Total">Total</span><strong id="co-osum-total">$0</strong></div>
-        <div class="co-side-note" data-en="Estimate. Final taxes and state fees are confirmed at payment." data-es="Estimado. Los impuestos y tarifas estatales se confirman al pagar.">Estimado. Los impuestos y tarifas estatales se confirman al pagar.</div>
+        <div class="co-side-note" id="co-side-note"></div>
       </div>
     </aside>
    </div><!-- /co-layout -->
@@ -397,14 +400,14 @@ var BUNDLE_HUB = {}; Object.keys(HUBS).forEach(function(h){ HUBS[h].tiers.forEac
 // tier. Cada servicio tiene nombre + lista de beneficios concretos.
 var SVC_BLURBS = {
   'operating-agreement': { nameEs:'Acuerdo Operativo', nameEn:'Operating Agreement',
-    es:['Define las reglas de tu LLC en vez de seguir las leyes por defecto del estado','Se vuelve un contrato vinculante entre socios para evitar disputas','Ayuda a proteger tus bienes manteniendo tu responsabilidad limitada'],
-    en:['Set your own rules for your LLC instead of default state laws','Becomes a binding contract among partners to avoid disputes','Helps protect your assets by maintaining limited liability'] },
+    es:['Define las reglas internas de tu LLC: cómo se maneja y cómo se toman las decisiones','Se vuelve un contrato vinculante entre socios para evitar disputas','Ayuda a proteger tus bienes manteniendo tu responsabilidad limitada'],
+    en:['Defines your LLC internal rules: how it is run and how decisions are made','Becomes a binding contract among partners to avoid disputes','Helps protect your assets by maintaining limited liability'] },
   'ein':                 { nameEs:'EIN (Tax ID)', nameEn:'EIN (Tax ID)',
-    es:['Número de identificación fiscal federal (el "SSN" de tu empresa)','Requerido por los bancos para abrir cuenta de negocio','Necesario para contratar empleados y declarar impuestos'],
-    en:['Federal tax ID number (like an SSN for your business)','Required by banks to open a business account','Needed to hire employees and file taxes'] },
+    es:['Número de identificación fiscal federal (el "SSN" de tu empresa)','Por ley lo necesita toda empresa con al menos un empleado o más de dos miembros','Requerido por los bancos para abrir cuenta de negocio'],
+    en:['Federal tax ID number (like an SSN for your business)','Required by law for any business with at least one employee or more than two members','Required by banks to open a business account'] },
   'banking-resolution':  { nameEs:'Resolución Bancaria', nameEn:'Banking Resolution',
-    es:['Autoriza formalmente quién puede manejar la cuenta del negocio','Documento que muchos bancos piden para abrir la cuenta','Da claridad legal sobre el control de los fondos'],
-    en:['Formally authorizes who can manage the business account','Document many banks require to open the account','Gives legal clarity over who controls the funds'] },
+    es:['Autoriza formalmente quién puede manejar la cuenta bancaria del negocio','Documento que muchos bancos piden para abrir la cuenta','Da claridad legal sobre el control de los fondos'],
+    en:['Formally authorizes who can manage the business bank account','Document many banks require to open the account','Gives legal clarity over who controls the funds'] },
   'virtual-address':     { nameEs:'Dirección Virtual', nameEn:'Virtual Mailing Address',
     es:['Dirección comercial profesional en Florida','Tu dirección personal se mantiene privada en registros públicos','Recibimos y reenviamos tu correo digitalmente'],
     en:['Professional Florida business address','Your home address stays private on public records','We receive and forward your mail digitally'] },
@@ -753,9 +756,9 @@ function coSharedFieldsHtml(){
 var UPSELL = {
   'registered-agent': { icon:'&#127963;', price:'$99',
     en:{name:'Registered Agent', desc:'Every Florida LLC & Corporation must have a Registered Agent with a physical FL address to receive legal & state documents.', why:'Keeps your home address private and off the public record.',
-      incl:['Official FL street address for your business','Accepts service of process & legal documents','Change of Registered Agent filed with the state','Document forwarding & email notifications']},
+      incl:['Official FL street address for your business','Accepts service of process & legal documents','Document forwarding & email notifications']},
     es:{name:'Agente Registrado', desc:'Toda LLC y Corporation de Florida debe tener un Agente Registrado con dirección física en FL para recibir documentos legales y del estado.', why:'Mantiene tu dirección personal privada y fuera del registro público.',
-      incl:['Dirección oficial en FL para tu negocio','Acepta notificaciones y documentos legales','Cambio de Agente Registrado tramitado ante el estado','Reenvío de documentos y notificación por correo']} },
+      incl:['Dirección oficial en FL para tu negocio','Acepta notificaciones y documentos legales','Reenvío de documentos y notificación por correo']} },
   'virtual-address': { icon:'&#128236;', price:'$99',
     en:{name:'Virtual Mailing Address', desc:'A professional Florida business address that receives and forwards your mail digitally.', why:'Use a real FL address without exposing your home address.',
       incl:['Professional FL mailing address','Mail receiving & digital forwarding','Home address stays private on public records','Available immediately after sign-up']},
@@ -908,7 +911,7 @@ function coComputeTotal(){
   coBundles.forEach(function(bid){
     if(seenB[bid]) return; seenB[bid]=1; var b=BUNDLES_CLIENT[bid]; if(!b) return;
     lines.push({label:isEs?b.name_es:b.name_en, amount:b.price}); total+=b.price;
-    b.services.forEach(function(sid){ bundled[sid]=1; var svc=SVC_CATALOG[sid]; if(svc&&svc.stateFee>0){ lines.push({label:(isEs?svc.name_es:svc.name_en)+(isEs?' (Tarifa estatal FL)':' (Florida State Fee)'), amount:svc.stateFee}); total+=svc.stateFee; } });
+    b.services.forEach(function(sid){ bundled[sid]=1; var svc=SVC_CATALOG[sid]; if(svc&&svc.stateFee>0){ lines.push({label:(isEs?svc.name_es:svc.name_en), amount:svc.stateFee, state:true}); total+=svc.stateFee; } });
   });
   // 2) Servicios individuales no cubiertos por un bundle
   var seen={};
@@ -916,9 +919,20 @@ function coComputeTotal(){
     if(seen[id]||bundled[id]) return; seen[id]=1; var s=SVC_CATALOG[id]; if(!s) return;
     var nm=isEs?s.name_es:s.name_en;
     lines.push({label:nm, amount:s.serviceFee}); total+=s.serviceFee;
-    if(s.stateFee>0){ lines.push({label:nm+(isEs?' (Tarifa estatal FL)':' (Florida State Fee)'), amount:s.stateFee}); total+=s.stateFee; }
+    if(s.stateFee>0){ lines.push({label:nm, amount:s.stateFee, state:true}); total+=s.stateFee; }
   });
   return {lines:lines, total:total};
+}
+// Una fila del resumen. Las tarifas estatales van atenuadas, con etiqueta y "*".
+function coLineRow(l){
+  var isEs=coIsEs();
+  if(l.state){ return '<div class="co-review-row co-row-state"><span>'+l.label+' <em>'+(isEs?'tarifa estatal':'state fee')+'</em> *</span><span>$'+l.amount+'</span></div>'; }
+  return '<div class="co-review-row"><span>'+l.label+'</span><span>$'+l.amount+'</span></div>';
+}
+function coHasStateFee(lines){ for(var i=0;i<lines.length;i++){ if(lines[i].state) return true; } return false; }
+function coStateFootnote(lines){
+  if(!coHasStateFee(lines)) return ''; var isEs=coIsEs();
+  return '<div class="co-state-note">'+(isEs?'* Tarifa estatal de Florida — la cobra el Estado, es obligatoria.':'* Florida state fee — charged by the State, mandatory.')+'</div>';
 }
 function coUpdateOrderSummary(){
   var side=$('co-side'); if(!side) return; var isEs=coIsEs();
@@ -931,8 +945,9 @@ function coUpdateOrderSummary(){
   var r=coComputeTotal();
   var tot=$('co-osum-total'); if(tot) tot.textContent='$'+r.total;
   var body=$('co-osum-body'); if(body) body.innerHTML=r.lines.length
-    ? r.lines.map(function(l){ return '<div class="co-review-row"><span>'+l.label+'</span><span>$'+l.amount+'</span></div>'; }).join('')
+    ? r.lines.map(coLineRow).join('')
     : '<div class="co-review-row" style="border:none;color:#94a3b8">'+(isEs?'Aún sin servicios':'No services yet')+'</div>';
+  var note=$('co-side-note'); if(note) note.innerHTML=(r.lines.length?coStateFootnote(r.lines)+'<div style="margin-top:'+(coHasStateFee(r.lines)?'8px':'0')+'">':'<div>')+(isEs?'Estimado. Las tarifas estatales se confirman al pagar.':'Estimate. State fees are confirmed at payment.')+'</div>';
 }
 // "Peso" aproximado de un servicio = cuánto espacio ocupa (para empacar tantos
 // como quepan por paso sin scroll, en vez de un número fijo). Un repeater pesa
@@ -982,8 +997,8 @@ function coBuildWizard(){
   coSteps.push({id:'panel-company', title:{en:'Your company',es:'Tu empresa'}});
   coSetupCompanyPanel(ft);
 
-  // Tus datos (nombre/email/teléfono) temprano, como el home.
-  coSteps.push({id:'panel-contact', title:{en:'Your details',es:'Tus datos'}});
+  // Información personal (nombre/email/teléfono) temprano, como el home.
+  coSteps.push({id:'panel-contact', title:{en:'Personal information',es:'Información personal'}});
 
   // En formación: Agente Registrado justo después de Empresa (reusa la dirección).
   if(ft){ coRenderRaPanel(); coSteps.push({id:'panel-ra', title:{en:'Registered Agent',es:'Agente Registrado'}}); }
@@ -1027,6 +1042,19 @@ function coGoStep(i){
   $('co-next').innerHTML='<span>'+(nextIsPay ? (isEs?'Ir al pago':'Go to payment') : (isEs?'Continuar':'Continue'))+'</span> &#8594;';
   $('co-err').textContent='';
   coUpdateOrderSummary();
+  // Alinea el resumen (sidebar) con el TOP del primer card del formulario, no con
+  // el título del paso (pedido del founder). Solo desktop.
+  try{
+    var sideEl=$('co-side');
+    if(sideEl){
+      if(!isPay && window.innerWidth>760){
+        var content=null;
+        if(cur){ var cards=cur.querySelectorAll('.co-card,.co-tiers'); for(var k=0;k<cards.length;k++){ if(cards[k].offsetParent!==null){ content=cards[k]; break; } } }
+        var off=content ? (content.getBoundingClientRect().top - cur.getBoundingClientRect().top) : 0;
+        sideEl.style.marginTop=(off>0?off:0)+'px';
+      } else { sideEl.style.marginTop=''; }
+    }
+  }catch(e){}
   window.scrollTo(0,0);
 }
 function coDestroyStripe(){
@@ -1094,9 +1122,13 @@ function coValidateStep(i){
 // (nombres de servicios) y crea la sesión + monta Stripe en el box de la derecha.
 function coStartPayment(){
   var isEs=coIsEs();
-  coRenderReviewNames();
   var ec=$('embedded-checkout'); if(ec) ec.innerHTML='<div style="text-align:center;padding:60px 0"><div class="co-spinner"></div></div>';
-  var intake=coGetIntake();
+  try{ coRenderReviewNames(); }catch(e){}
+  // Guarda: si por algún estado raro del carrito el total es 0, no cuelgues el
+  // spinner — avisa y deja volver.
+  var r; try{ r=coComputeTotal(); }catch(e){ r={total:0,lines:[]}; }
+  if(!r.total){ if(ec) ec.innerHTML='<p style="color:#dc2626;padding:24px;font-size:.86rem;line-height:1.6">'+(isEs?'Tu pedido está vacío o hubo un problema. Vuelve atrás y revisa tus servicios.':'Your order is empty or something went wrong. Go back and review your services.')+'</p>'; return; }
+  var intake; try{ intake=coGetIntake(); }catch(e){ if(ec) ec.innerHTML='<p style="color:#dc2626;padding:24px">'+(isEs?'No se pudieron leer tus datos. Intenta de nuevo.':'Could not read your details. Please try again.')+'</p>'; return; }
   fetch('/api/checkout/embedded-services',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({services:cart,intake:intake,lang:coLang})})
     .then(function(r){return r.json().then(function(d){return{ok:r.ok,d:d};});})
     .then(function(res){
@@ -1112,16 +1144,18 @@ function coStartPayment(){
 }
 // Resumen inmediato con los nombres de los servicios (sin esperar al servidor).
 function coRenderReviewNames(){
-  var host=$('co-review-lines'); if(!host) return; var isEs=coIsEs();
+  var host=$('co-review-lines'); if(!host) return;
   // Reusa el cálculo del resumen (ya contempla bundles) para el desglose instantáneo.
   var r=coComputeTotal();
-  host.innerHTML=r.lines.map(function(l){ return '<div class="co-review-row"><span>'+l.label+'</span><span>$'+l.amount+'</span></div>'; }).join('');
+  host.innerHTML=r.lines.map(coLineRow).join('')+coStateFootnote(r.lines);
   var t=$('co-review-total'); if(t) t.textContent='$'+r.total;
 }
+// Muestra el desglose con el estilo unificado (mirror) y el TOTAL autoritativo del server.
 function coRenderReview(lines, total){
   var host=$('co-review-lines'); if(!host) return;
-  host.innerHTML=(lines||[]).map(function(l){ return '<div class="co-review-row"><span>'+l.label+'</span><span>$'+l.amount+'</span></div>'; }).join('');
-  $('co-review-total').textContent='$'+(total||0);
+  var r=coComputeTotal();
+  host.innerHTML=r.lines.map(coLineRow).join('')+coStateFootnote(r.lines);
+  $('co-review-total').textContent='$'+((total!=null)?total:r.total);
 }
 function coMountStripe(clientSecret){
   var pk=window.__OPABIZ_PK__;
