@@ -62,6 +62,15 @@ salieron de `COVERED_IN_FORMATION`; ahora solo queda `registered-agent` ahí).
 - **String.raw gotcha:** todo el script del cliente vive en `return String.raw\`...\``. Los `\'` se preservan para el navegador. NO meter caracteres raros (un `\b` literal en un comentario rompió el script una vez). Validar con: extraer el body y `new Function(body)`.
 - El catálogo de campos (`SERVICE_FIELDS`) es la fuente compartida con el form autollenado del admin (`ServicesFilingForm`). Si cambian keys, mantener sincronizado.
 
+## Refinamientos UX (2026-06-27)
+
+- **Resumen alineado:** el sidebar se alinea con el TOP del primer card del paso (no con el título). Se calcula en `coGoStep` (mide el primer `.co-card`/`.co-tiers` visible; solo desktop).
+- **Paso 2 = "Información personal"** (sin subtítulo).
+- **Tarifas estatales** en el resumen: renglón atenuado + etiqueta "tarifa estatal" + `*` con nota al pie ("la cobra el Estado, obligatoria"). Se quitó la palabra "impuestos" del aviso (filing services no cobran taxes). Marcadas con `state:true` en `coComputeTotal`; render unificado vía `coLineRow`/`coStateFootnote`.
+- **Anti-cuelgue del pago:** `coStartPayment` muestra spinner primero, envuelve `coRenderReviewNames`/`coComputeTotal`/`coGetIntake` en try-catch y, si el total es 0, muestra mensaje en vez de spinner infinito. (El cuelgue reportado salía con total $0 estático + spinner por una excepción antes del fetch.)
+- **Conflicto EIN duplicado:** un hub se oculta si ya tienes uno de sus servicios, así que el duplicado no debería armarse. `computeServicesTotal` igual dedup (servicio en bundle no se cobra individual). Pendiente fino opcional: que el hub siga visible pero deshabilite los tiers que incluyen lo que ya tienes.
+- Blurbs ajustados: OA sin frase de "leyes del estado"; EIN con requisito legal (empleados / >2 miembros); Banking menciona "cuenta bancaria"; RA sin el bullet "Cambio de Agente Registrado tramitado ante el estado".
+
 ## Precios placeholder pendientes antes de LIVE
 
 `registered-agent`, `virtual-address`, `annual-report` están en $99 placeholder y
