@@ -48,6 +48,8 @@ body{font-family:var(--font-sans),'Plus Jakarta Sans',system-ui,sans-serif;color
 .co-card{background:#fff;border:1px solid var(--gray200);border-radius:14px;padding:22px 24px;margin-bottom:18px}
 .co-card-title{font-family:var(--font-serif),serif;font-size:1.1rem;font-weight:700;color:var(--navy);margin-bottom:4px}
 .co-card-svc{font-size:.72rem;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.6px;margin-bottom:16px}
+.co-svc-intro{font-size:.84rem;color:var(--gray600);line-height:1.6;margin:-6px 0 16px}
+.co-ra-info{background:var(--blue-light);border:1px solid #bfdbfe;border-radius:10px;padding:12px 14px;font-size:.82rem;color:#1e40af;line-height:1.6;margin-bottom:16px}
 .co-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .co-field{display:flex;flex-direction:column;gap:5px}
 .co-field.full{grid-column:1/-1}
@@ -159,8 +161,11 @@ body{font-family:var(--font-sans),'Plus Jakarta Sans',system-ui,sans-serif;color
 .co-side{position:sticky;top:90px}
 .co-side .co-review{position:static;top:auto}
 .co-side-note{font-size:.7rem;color:var(--gray400);margin-top:12px;line-height:1.5}
+.co-pay-disclosure{font-size:.72rem;color:var(--gray500);margin-top:16px;padding-top:14px;border-top:1px solid var(--gray100);line-height:1.55}
+.co-pay-disclosure a{color:var(--blue);text-decoration:underline}
 /* Modo ancho: en los hubs de tiers damos más espacio a las tarjetas */
-html.co-wide .co-wrap,html.co-wide .co-header-inner{max-width:1200px}
+html.co-wide .co-wrap,html.co-wide .co-header-inner{max-width:1340px}
+html.co-wide .co-tier{padding:20px 18px}
 @media(max-width:900px){.co-layout{grid-template-columns:1fr 260px}}
 @media(max-width:760px){.co-grid{grid-template-columns:1fr}.co-pay-grid{grid-template-columns:1fr}.co-review{position:static}.co-choices{grid-template-columns:1fr}.co-tiers{grid-template-columns:1fr}.co-layout{grid-template-columns:1fr}.co-side{position:static;order:-1;margin-bottom:18px}}
 `
@@ -293,27 +298,16 @@ html.co-wide .co-wrap,html.co-wide .co-header-inner{max-width:1200px}
       </div>
     </div>
 
-    <!-- STEP: FINAL (datos fiscales sensibles + firma, antes de pagar) -->
-    <div class="co-panel" id="panel-final" style="display:none">
-      <h1 class="co-h1" data-en="Confirm &amp; sign" data-es="Confirmar y firmar">Confirmar y firmar</h1>
-      <p class="co-sub" data-en="Review your tax details and authorize your filings." data-es="Revisa tus datos fiscales y autoriza tus trámites.">Revisa tus datos fiscales y autoriza tus trámites.</p>
-      <div class="co-card">
-        <div id="co-contact-shared"></div>
-        <div class="co-grid" style="margin-top:14px">
-          <div class="co-field full"><label class="co-label" data-en="Electronic signature (type your full legal name)" data-es="Firma electrónica (escribe tu nombre legal completo)">Firma electrónica (escribe tu nombre legal completo)</label><input class="co-input" id="f-signature"/></div>
-        </div>
-      </div>
-    </div>
-
     <!-- STEP: REVIEW + PAY -->
     <div class="co-panel" id="panel-pay" style="display:none">
-      <h1 class="co-h1" data-en="Review &amp; pay" data-es="Revisar y pagar">Revisar y pagar</h1>
+      <h1 class="co-h1" data-en="Review your order" data-es="Revisa tu orden">Revisa tu orden</h1>
       <p class="co-sub" data-en="Confirm your order and pay securely. You won't leave this page." data-es="Confirma tu pedido y paga de forma segura. No saldrás de esta página.">Confirma tu pedido y paga de forma segura. No saldrás de esta página.</p>
       <div class="co-pay-grid">
         <div class="co-review">
           <div class="co-card-title" style="margin-bottom:12px" data-en="Order summary" data-es="Resumen del pedido">Resumen del pedido</div>
           <div id="co-review-lines"></div>
           <div class="co-review-total"><span data-en="Total" data-es="Total">Total</span><strong id="co-review-total">$0</strong></div>
+          <div class="co-pay-disclosure" id="co-pay-disclosure"></div>
         </div>
         <div class="co-embed" id="embedded-checkout"><div style="text-align:center;padding:60px 0"><div class="co-spinner"></div></div></div>
       </div>
@@ -443,6 +437,10 @@ function coTranslateStatic(){
   $('co-en').classList.toggle('active', !isEs);
   $('co-es').classList.toggle('active', isEs);
   document.querySelectorAll('[data-en][data-es]').forEach(function(el){ el.textContent = isEs?el.getAttribute('data-es'):el.getAttribute('data-en'); });
+  // Disclosure del pago: lleva enlaces, así que se setea como HTML (no textContent).
+  var dz=$('co-pay-disclosure'); if(dz){ dz.innerHTML = isEs
+    ? 'Al completar tu pago autorizas a OpaBiz (Florida Business Formation Center) a preparar y presentar tus trámites en tu nombre, según nuestros <a href="/terms" target="_blank">Términos</a> y <a href="/privacy" target="_blank">Política de privacidad</a>. Las tarifas de servicio no son reembolsables una vez iniciado el trabajo.'
+    : 'By completing your payment you authorize OpaBiz (Florida Business Formation Center) to prepare and file your filings on your behalf, per our <a href="/terms" target="_blank">Terms</a> and <a href="/privacy" target="_blank">Privacy Policy</a>. Service fees are non-refundable once work begins.'; }
 }
 
 function coSetLang(l){
@@ -529,10 +527,16 @@ function fieldHtml(svcId, f){
 }
 
 // ── Campos visibles por servicio (aplica dedup en modo formación) ───────────
+// Campos que NO se preguntan en el checkout (se asumen por defecto). El año fiscal
+// del Acuerdo Operativo se asume 31 de diciembre (lo estándar) y no se pregunta.
+var CHECKOUT_HIDE_KEYS = { 'fiscalYear':1 };
 function coVisibleFields(svcId, ft){
   var def=SVC_EXTRAS[svcId]; if(!def||!def.fields) return [];
-  if(!ft) return def.fields.slice();
-  return def.fields.filter(function(f){ return !HIDE_KEYS_IN_FORMATION[f.k]; });
+  return def.fields.filter(function(f){
+    if(CHECKOUT_HIDE_KEYS[f.k]) return false;
+    if(ft && HIDE_KEYS_IN_FORMATION[f.k]) return false;
+    return true;
+  });
 }
 // Servicios que tendrán su propio paso (excluye la formación y los cubiertos).
 function coServiceIds(ft){
@@ -551,6 +555,7 @@ function coServiceCardHtml(svcId, ft){
     var noteEn=(def.note_en!=null)?def.note_en:'Specific details for this service';
     var noteEs=(def.note_es!=null)?def.note_es:'Detalles específicos de este servicio';
     html += '<div class="co-card-svc" data-en="'+noteEn+'" data-es="'+noteEs+'">'+(isEs?noteEs:noteEn)+'</div>';
+    if(def.intro_en||def.intro_es){ html += '<p class="co-svc-intro">'+(isEs?(def.intro_es||def.intro_en):(def.intro_en||def.intro_es))+'</p>'; }
     html += '<div class="co-grid">'+fields.map(function(f){return fieldHtml(svcId,f);}).join('')+'</div>';
   } else {
     html += '<div class="co-card-svc">'+(isEs?'No requiere datos adicionales':'No extra details required')+'</div>';
@@ -613,7 +618,7 @@ function restoreExtras(vals){
   });
 }
 function coSnapSimple(){
-  var ids=['f-flDoc','f-entityType','f-legalName','f-designator','f-street','f-apt','f-city','f-state','f-zip','f-country','f-firstName','f-lastName','f-email','f-phone','f-signature'];
+  var ids=['f-flDoc','f-entityType','f-legalName','f-designator','f-street','f-apt','f-city','f-state','f-zip','f-country','f-firstName','f-lastName','f-email','f-phone'];
   var o={}; ids.forEach(function(id){ var el=$(id); if(el) o[id]=el.value; }); return o;
 }
 function coRestoreSimple(o){ Object.keys(o).forEach(function(id){ var el=$(id); if(el) el.value=o[id]; }); }
@@ -659,8 +664,12 @@ function coGetIntake(){
   var ft=coFormationType();
   var name=$('f-legalName').value.trim();
   var desig=(ft && $('f-designator')) ? $('f-designator').value : '';
+  var fn=$('f-firstName').value.trim(), ln=$('f-lastName').value.trim();
+  // Ya no hay campo de firma: la autorización se da al completar el pago. Se
+  // guarda el nombre completo como firma electrónica para el registro.
+  var sig=(fn+' '+ln).trim();
   return {
-    firstName:$('f-firstName').value.trim(), lastName:$('f-lastName').value.trim(),
+    firstName:fn, lastName:ln,
     email:$('f-email').value.trim(), phone:$('f-phone').value.trim(),
     entityType:$('f-entityType').value,
     legalName:(ft && desig && name) ? (name+' '+desig) : name,
@@ -669,7 +678,7 @@ function coGetIntake(){
     apt:($('f-apt')?$('f-apt').value.trim():''), city:$('f-city').value.trim(),
     state:($('f-state')?$('f-state').value.trim():''), zip:$('f-zip').value.trim(),
     country:($('f-country')?$('f-country').value.trim():''),
-    signature:$('f-signature').value.trim(), extras:coCollectExtras(), shared:coCollectShared(), bundles:coBundles.slice()
+    signature:sig, authorizedByPayment:true, extras:coCollectExtras(), shared:coCollectShared(), bundles:coBundles.slice()
   };
 }
 
@@ -719,11 +728,11 @@ function coSetupOwnersPanel(ft){
     host.innerHTML=h2;
   }
 }
-// Campos compartidos (SSN/ITIN, EIN) ahora viven en el paso "Tus datos" con un
-// tooltip que explica para qué se necesitan (decisión 2026-06-25).
-function coRenderContactShared(keys){
-  var host=$('co-contact-shared'); if(!host) return; var isEs=coIsEs();
-  if(!keys.length){ host.innerHTML=''; return; }
+// Campos compartidos (SSN/ITIN) — se muestran como una tarjeta dentro del paso
+// "Datos del servicio" (solo si algún servicio elegido los requiere). Cada uno
+// trae un tooltip que explica para qué se necesita.
+function coSharedFieldsHtml(){
+  var keys=coSharedKeysActive(); if(!keys.length) return ''; var isEs=coIsEs();
   var fields=keys.map(function(k){ var f=SHARED_CFG[k]; if(!f) return ''; var lbl=isEs?f.es:f.en;
     var tip=isEs?(f.tipEs||''):(f.tipEn||'');
     var tipHtml = tip ? ' <span class="co-tip">?<span class="co-tip-box">'+tip+'</span></span>' : '';
@@ -732,7 +741,9 @@ function coRenderContactShared(keys){
       : '<input class="co-input" type="text" id="s-'+k+'"/>';
     return '<div class="co-field full"><label class="co-label">'+lbl+tipHtml+'</label>'+inner+'</div>';
   }).join('');
-  host.innerHTML='<div class="co-grid" style="margin-top:14px;border-top:1px solid var(--gray200);padding-top:16px">'+fields+'</div>';
+  return '<div class="co-card"><div class="co-card-title">'+(isEs?'Datos fiscales':'Tax details')+'</div>'
+    +'<div class="co-card-svc">'+(isEs?'Requerido para los servicios que elegiste':'Required for the services you chose')+'</div>'
+    +'<div class="co-grid">'+fields+'</div></div>';
 }
 
 // Tarjetas de upsell (Registered Agent / Virtual Address). Explican qué son, por
@@ -761,14 +772,18 @@ function coRenderRaPanel(){
   var fid=coFormId;
   var oursDesc=isEs?'Actuamos como tu Agente Registrado oficial. Tu dirección personal se mantiene 100% privada.':'We act as your official Registered Agent. Your personal address stays completely private.';
   var ownDesc=isEs?'Tu dirección se registra públicamente en Florida y la ley exige que estés disponible de lunes a viernes de 9am a 5pm para recibir documentos legales.':'Your address is publicly registered with Florida and the law requires you to be available Mon-Fri 9am-5pm to receive legal documents.';
+  var infoTxt=isEs
+    ? 'Un Agente Registrado es la persona o empresa designada para recibir documentos legales y avisos oficiales del estado en nombre de tu negocio. Por ley, toda LLC y Corporation de Florida debe tener uno en todo momento, con una dirección física en Florida.'
+    : 'A Registered Agent is the person or company designated to receive legal documents and official state notices on behalf of your business. By law, every Florida LLC and Corporation must have one at all times, with a physical Florida address.';
   panel.innerHTML='<h1 class="co-h1">'+(isEs?'Agente Registrado':'Registered Agent')+'</h1>'
-    +'<p class="co-sub">'+(isEs?'Toda LLC y Corporation de Florida necesita un Agente Registrado. Elige una opción.':'Every Florida LLC & Corporation needs a Registered Agent. Choose an option.')+'</p>'
+    +'<p class="co-sub">'+(isEs?'Elige cómo quieres manejar tu Agente Registrado.':'Choose how you want to handle your Registered Agent.')+'</p>'
     +'<div class="co-card">'
-      +'<div class="co-up-incl">'+bullets+'</div>'
+      +'<div class="co-ra-info">&#128221; '+infoTxt+'</div>'
       +'<div class="co-choices">'
         +'<div class="co-choice'+(oursSel?' sel':'')+'" id="co-ra-ours" onclick="coSetRaChoice(\'ours\')">'
           +'<div class="co-choice-top"><span class="co-choice-title">&#127963; '+(isEs?'Usa nuestro servicio de Agente Registrado':'Use our Registered Agent service')+'</span><span class="co-choice-price">$99</span></div>'
-          +'<div class="co-choice-desc">'+oursDesc+'</div></div>'
+          +'<div class="co-choice-desc">'+oursDesc+'</div>'
+          +'<div class="co-up-incl" style="margin-top:10px">'+bullets+'</div></div>'
         +'<div class="co-choice'+(ownSel?' sel':'')+'" id="co-ra-own" onclick="coSetRaChoice(\'own\')">'
           +'<div class="co-choice-top"><span class="co-choice-title">&#128100; '+(isEs?'Seré mi propio Agente Registrado':'I will be my own Registered Agent')+'</span><span class="co-choice-price">$0</span></div>'
           +'<div class="co-choice-desc">'+ownDesc+'</div></div>'
@@ -939,9 +954,13 @@ function coRenderServicePages(ft){
     cur.push(id); curW += w;
   });
   if(cur.length) pages.push(cur);
+  // Datos fiscales (SSN/ITIN) van como tarjeta extra en la última página de datos.
+  var sharedHtml=coSharedFieldsHtml();
+  if(!pages.length && sharedHtml) pages.push([]); // página propia si no hay servicios con datos
   pages.forEach(function(pageIds, idx){
     var pid='panel-svc-'+idx;
     var inner=pageIds.map(function(id){ return coServiceCardHtml(id, ft); }).join('');
+    if(idx===pages.length-1 && sharedHtml) inner+=sharedHtml;
     host.insertAdjacentHTML('beforeend','<div class="co-panel" id="'+pid+'" style="display:none"><h1 class="co-h1" data-en="Service details" data-es="Datos del servicio">'+(isEs?'Datos del servicio':'Service details')+'</h1>'+inner+'</div>');
     coServicePages.push({id:pid});
   });
@@ -979,10 +998,9 @@ function coBuildWizard(){
   coRenderServicePages(ft);
   coServicePages.forEach(function(p){ coSteps.push({id:p.id, title:{en:'Service details',es:'Datos del servicio'}}); });
 
-  // Confirmar y firmar: SSN/ITIN compartidos (si aplican) + firma electrónica.
-  coRenderContactShared(coSharedKeysActive());
-  coSteps.push({id:'panel-final', title:{en:'Confirm & sign',es:'Confirmar y firmar'}});
-  coSteps.push({id:'panel-pay', title:{en:'Review & pay',es:'Revisar y pagar'}});
+  // Último paso: revisar la orden + pagar (Stripe). La autorización se da al
+  // completar el pago (disclosure en el paso de pago); ya no hay paso de firma.
+  coSteps.push({id:'panel-pay', title:{en:'Review your order',es:'Revisa tu orden'}});
 }
 
 // ── Navegación ──────────────────────────────────────────────────────────────
@@ -1068,10 +1086,6 @@ function coValidateStep(i){
     if(($('f-firstName').value||'').trim().length<1||($('f-lastName').value||'').trim().length<1){ err.textContent=isEs?'Ingresa tu nombre y apellido.':'Enter your first and last name.'; return false; }
     if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(($('f-email').value||'').trim())){ err.textContent=isEs?'Ingresa un correo válido.':'Enter a valid email.'; return false; }
     if(($('f-phone').value||'').replace(/[^0-9]/g,'').length<7){ err.textContent=isEs?'Ingresa un teléfono válido.':'Enter a valid phone.'; return false; }
-    return true;
-  }
-  if(id==='panel-final'){
-    if(($('f-signature').value||'').trim().length<2){ err.textContent=isEs?'Escribe tu firma electrónica.':'Type your electronic signature.'; return false; }
     return true;
   }
   return true;

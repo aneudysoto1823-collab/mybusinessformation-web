@@ -52,6 +52,10 @@ export interface ServiceFieldDef {
    *  "Detalles específicos de este servicio". */
   note_en?: string
   note_es?: string
+  /** párrafo explicativo que se muestra ARRIBA de las preguntas del servicio
+   *  (qué es / para qué sirve). Opcional. */
+  intro_en?: string
+  intro_es?: string
 }
 
 // Campos compartidos entre servicios: se piden una sola vez (no por servicio).
@@ -181,7 +185,9 @@ export const SERVICE_FIELDS: Record<string, ServiceFieldDef> = {
       { k: 'address', en: 'Address', es: 'Dirección', type: 'text' },
     ]},
   ]},
-  'amendment': { name_en: 'Articles of Amendment', name_es: 'Artículos de Enmienda', fields: [
+  'amendment': { name_en: 'Articles of Amendment', name_es: 'Artículos de Enmienda',
+    intro_en: 'Articles of Amendment officially update your company record with the State of Florida — for example a name change, new address, change of registered agent, or changes to members/officers. Tell us what you need to change and we prepare and file it for you.',
+    intro_es: 'Los Artículos de Enmienda actualizan oficialmente el registro de tu empresa ante el Estado de Florida — por ejemplo un cambio de nombre, nueva dirección, cambio de agente registrado o cambios de miembros/oficiales. Dinos qué necesitas cambiar y lo preparamos y presentamos por ti.', fields: [
     { k: 'changes', en: 'What are you changing? (name, address, agent, officers...)', es: '¿Qué vas a cambiar? (nombre, dirección, agente, oficiales...)', type: 'textarea' },
     { k: 'newInfo', en: 'New / updated information', es: 'Información nueva / actualizada', type: 'textarea' },
     { k: 'authName', en: 'Authorized person name', es: 'Nombre de la persona autorizada', type: 'text' },
