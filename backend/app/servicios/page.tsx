@@ -657,6 +657,11 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
 .os-continue-btn:hover{background:#1d4ed8}
 .os-clear-btn{width:100%;background:none;border:none;color:var(--gray400);font-size:.78rem;font-weight:600;cursor:pointer;font-family:inherit;padding:9px 0 2px;margin-top:4px}
 .os-clear-btn:hover{color:#dc2626;text-decoration:underline}
+.os-clear-confirm{margin-top:8px;padding:10px 12px;background:#fef2f2;border:1px solid #fecaca;border-radius:9px;text-align:center}
+.os-clear-confirm > span{display:block;font-size:.78rem;font-weight:600;color:#b91c1c;margin-bottom:8px}
+.os-clear-actions{display:flex;gap:8px}
+.os-clear-yes{flex:1;background:#dc2626;color:#fff;border:none;border-radius:7px;padding:8px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit}
+.os-clear-no{flex:1;background:#fff;color:var(--gray600);border:1px solid var(--gray200);border-radius:7px;padding:8px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit}
 .os-nopay{text-align:center;font-size:.7rem;color:var(--green-dark);margin-top:9px}
 @media(max-width:860px){.services-layout{grid-template-columns:1fr}.order-summary{display:none}}
 /* FLOATING CART BAR */
@@ -766,6 +771,13 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
           <p class="os-var-note" id="osVarNote" data-en="Annual, monthly, and state-fee services are confirmed separately." data-es="Los servicios anuales, mensuales y las tarifas estatales se confirman aparte.">Los servicios anuales, mensuales y las tarifas estatales se confirman aparte.</p>
           <button class="os-continue-btn" onclick="openCart()"><span data-en="Continue" data-es="Continuar">Continuar</span> &#8594;</button>
           <button class="os-clear-btn" onclick="clearCart()" data-en="Clear cart" data-es="Vaciar carrito">Vaciar carrito</button>
+          <div class="os-clear-confirm" id="osClearConfirm" style="display:none">
+            <span data-en="Clear all services?" data-es="¿Vaciar todos los servicios?">¿Vaciar todos los servicios?</span>
+            <div class="os-clear-actions">
+              <button class="os-clear-yes" onclick="doClearCart()" data-en="Yes, clear" data-es="Sí, vaciar">Sí, vaciar</button>
+              <button class="os-clear-no" onclick="cancelClearCart()" data-en="Cancel" data-es="Cancelar">Cancelar</button>
+            </div>
+          </div>
         </div>
       </div>
     </aside>
@@ -936,7 +948,9 @@ function addToCart(id){
   if(changed){persistCart();renderCart();}
 }
 function removeFromCart(id){var i=cart.indexOf(id);if(i>-1){cart.splice(i,1);persistCart();renderCart();}}
-function clearCart(){if(cart.length===0)return;var isEs=svcIsEs();if(!confirm(isEs?'¿Vaciar el carrito? Se quitarán todos los servicios.':'Clear the cart? All services will be removed.'))return;cart=[];persistCart();renderCart();}
+function clearCart(){ if(cart.length===0)return; var c=document.getElementById('osClearConfirm'); if(c) c.style.display=''; }
+function cancelClearCart(){ var c=document.getElementById('osClearConfirm'); if(c) c.style.display='none'; }
+function doClearCart(){ cart=[]; persistCart(); renderCart(); var c=document.getElementById('osClearConfirm'); if(c) c.style.display='none'; }
 function cartTotals(){var fixed=0,hasVar=false;cart.forEach(function(id){var v=svcParsePrice((SVC_CATALOG[id]||{}).price);if(v!=null)fixed+=v;else hasVar=true;});return{fixed:fixed,hasVar:hasVar};}
 function renderCart(){
   var isEs=svcIsEs();
