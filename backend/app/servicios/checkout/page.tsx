@@ -298,6 +298,14 @@ html.co-wide .co-tier{padding:20px 18px}
           <div class="co-field"><label class="co-label" data-en="Email" data-es="Correo">Correo</label><input class="co-input" type="email" id="f-email"/></div>
           <div class="co-field"><label class="co-label" data-en="Phone / WhatsApp" data-es="Teléfono / WhatsApp">Teléfono / WhatsApp</label><input class="co-input" type="tel" id="f-phone"/></div>
         </div>
+        <div class="co-card-title" style="margin-top:16px" data-en="Your address" data-es="Tu dirección">Tu dirección</div>
+        <div class="co-grid">
+          <div class="co-field full"><label class="co-label" data-en="Street address" data-es="Dirección (calle)">Dirección (calle)</label><input class="co-input" id="p-street"/></div>
+          <div class="co-field"><label class="co-label" data-en="Apt / Suite (optional)" data-es="Apt / Suite (opcional)">Apt / Suite (opcional)</label><input class="co-input" id="p-apt"/></div>
+          <div class="co-field"><label class="co-label" data-en="City" data-es="Ciudad">Ciudad</label><input class="co-input" id="p-city"/></div>
+          <div class="co-field"><label class="co-label" data-en="State" data-es="Estado">Estado</label><input class="co-input" id="p-state"/></div>
+          <div class="co-field"><label class="co-label" data-en="ZIP" data-es="Código postal">Código postal</label><input class="co-input" id="p-zip"/></div>
+        </div>
       </div>
     </div>
 
@@ -626,7 +634,7 @@ function restoreExtras(vals){
   });
 }
 function coSnapSimple(){
-  var ids=['f-flDoc','f-entityType','f-legalName','f-designator','f-street','f-apt','f-city','f-state','f-zip','f-country','f-firstName','f-lastName','f-email','f-phone'];
+  var ids=['f-flDoc','f-entityType','f-legalName','f-designator','f-street','f-apt','f-city','f-state','f-zip','f-country','f-firstName','f-lastName','f-email','f-phone','p-street','p-apt','p-city','p-state','p-zip'];
   var o={}; ids.forEach(function(id){ var el=$(id); if(el) o[id]=el.value; }); return o;
 }
 function coRestoreSimple(o){ Object.keys(o).forEach(function(id){ var el=$(id); if(el) el.value=o[id]; }); }
@@ -686,6 +694,11 @@ function coGetIntake(){
     apt:($('f-apt')?$('f-apt').value.trim():''), city:$('f-city').value.trim(),
     state:($('f-state')?$('f-state').value.trim():''), zip:$('f-zip').value.trim(),
     country:($('f-country')?$('f-country').value.trim():''),
+    personalAddress:{
+      street:($('p-street')?$('p-street').value.trim():''), apt:($('p-apt')?$('p-apt').value.trim():''),
+      city:($('p-city')?$('p-city').value.trim():''), state:($('p-state')?$('p-state').value.trim():''),
+      zip:($('p-zip')?$('p-zip').value.trim():'')
+    },
     signature:sig, authorizedByPayment:true, extras:coCollectExtras(), shared:coCollectShared(), bundles:coBundles.slice()
   };
 }
@@ -789,9 +802,8 @@ function coRenderRaPanel(){
       +'<div class="co-ra-info">&#128221; '+infoTxt+'</div>'
       +'<div class="co-choices">'
         +'<div class="co-choice'+(oursSel?' sel':'')+'" id="co-ra-ours" onclick="coSetRaChoice(\'ours\')">'
-          +'<div class="co-choice-top"><span class="co-choice-title">&#127963; '+(isEs?'Usa nuestro servicio de Agente Registrado':'Use our Registered Agent service')+'</span><span class="co-choice-price">'+(isEs?'Gratis 1er año':'Free 1st yr')+'</span></div>'
+          +'<div class="co-choice-top"><span class="co-choice-title">&#127963; '+(isEs?'Usa nuestro servicio de Agente Registrado':'Use our Registered Agent service')+'</span><span class="co-choice-price"><s style="color:#94a3b8;font-weight:600">$99</s> <span style="color:#059669">'+(isEs?'Gratis 1er año':'Free 1st yr')+'</span></span></div>'
           +'<div class="co-choice-desc">'+oursDesc+' '+(isEs?'Primer año gratis; luego se renueva automáticamente a $99/año hasta que lo canceles.':'First year free; then renews automatically at $99/yr until you cancel.')+'</div>'
-          +'<div style="margin-top:8px;font-size:.72rem;color:#059669;font-weight:600">&#10003; '+(isEs?'Gratis al combinar con cualquier otro servicio':'Free when combined with any other service')+'</div>'
           +'<div class="co-up-incl" style="margin-top:10px">'+bullets+'</div></div>'
         +'<div class="co-choice'+(ownSel?' sel':'')+'" id="co-ra-own" onclick="coSetRaChoice(\'own\')">'
           +'<div class="co-choice-top"><span class="co-choice-title">&#128100; '+(isEs?'Seré mi propio Agente Registrado':'I will be my own Registered Agent')+'</span><span class="co-choice-price">$0</span></div>'
@@ -803,8 +815,8 @@ function coRenderRaPanel(){
           +'<div class="co-field"><label class="co-label">'+(isEs?'Nombre':'First name')+'</label><input class="co-input" id="x-'+fid+'-raFirstName"/></div>'
           +'<div class="co-field"><label class="co-label">'+(isEs?'Apellido':'Last name')+'</label><input class="co-input" id="x-'+fid+'-raLastName"/></div>'
         +'</div>'
-        +'<label class="co-ra-same"><input type="checkbox" id="co-ra-same" checked onchange="coRaSameAddr(this)"/> <span>'+(isEs?'Usar la dirección de mi empresa como dirección del agente':'Use my company address as the agent address')+'</span></label>'
-        +'<div id="co-ra-addr-block" style="display:none"><div class="co-grid">'
+        +'<div id="co-ra-addr-choice"></div>'
+        +'<div id="co-ra-manual" style="display:none"><div class="co-grid">'
           +'<div class="co-field full"><label class="co-label">'+(isEs?'Dirección en Florida (sin PO Box)':'Florida street address (no PO Box)')+'</label><input class="co-input" id="x-'+fid+'-raStreet"/></div>'
           +'<div class="co-field"><label class="co-label">'+(isEs?'Apt / Suite (opcional)':'Apt / Suite (optional)')+'</label><input class="co-input" id="x-'+fid+'-raApt"/></div>'
           +'<div class="co-field"><label class="co-label">'+(isEs?'Ciudad':'City')+'</label><input class="co-input" id="x-'+fid+'-raCity"/></div>'
@@ -812,15 +824,52 @@ function coRenderRaPanel(){
         +'</div></div>'
       +'</div>'
     +'</div>';
-  if(ownSel){ var cb=$('co-ra-same'); if(cb) coRaSameAddr(cb); }
+  if(ownSel){ coRenderRaAddrOptions(); }
 }
-function coRaSameAddr(cb){
-  var fid=coFormId;
-  var block=$('co-ra-addr-block'); if(block) block.style.display=cb.checked?'none':'';
-  if(cb.checked){
-    var set=function(k,src){ var el=$('x-'+fid+'-'+k), s=$(src); if(el&&s) el.value=s.value||''; };
-    set('raStreet','f-street'); set('raApt','f-apt'); set('raCity','f-city'); set('raZip','f-zip');
+// ¿La dirección es de Florida? (el agente registrado debe tener dirección física en FL)
+function coIsFL(s){ return /^(fl|florida)$/i.test((s||'').trim()); }
+function coSameAddr(a,b){
+  var n=function(x){ return (x||'').toLowerCase().replace(/\s+/g,' ').trim(); };
+  return n(a.street)===n(b.street) && n(a.zip)===n(b.zip);
+}
+// Direcciones candidatas (solo de Florida) para reusar como dirección del agente.
+function coRaAddrCandidates(){
+  var v=function(id){ var e=$(id); return e?e.value.trim():''; };
+  var isEs=coIsEs(); var out=[];
+  var biz={street:v('f-street'),apt:v('f-apt'),city:v('f-city'),state:v('f-state'),zip:v('f-zip')};
+  var per={street:v('p-street'),apt:v('p-apt'),city:v('p-city'),state:v('p-state'),zip:v('p-zip')};
+  if(biz.street && coIsFL(biz.state)) out.push({key:'biz', label:(isEs?'Mi dirección de empresa':'My company address'), a:biz});
+  if(per.street && coIsFL(per.state) && !coSameAddr(biz,per)) out.push({key:'per', label:(isEs?'Mi dirección personal':'My personal address'), a:per});
+  return out;
+}
+// Construye la elección de dirección del agente según las direcciones en FL.
+function coRenderRaAddrOptions(){
+  var host=$('co-ra-addr-choice'); if(!host) return; var isEs=coIsEs();
+  var cands=coRaAddrCandidates(); var html='';
+  if(cands.length){
+    html+='<div class="co-label" style="margin-top:8px">'+(isEs?'¿Qué dirección de Florida usamos para el agente?':'Which Florida address should we use for the agent?')+'</div>';
+    cands.forEach(function(c,i){
+      var line=[c.a.street,c.a.city,c.a.zip].filter(Boolean).join(', ');
+      html+='<label class="co-ra-same"><input type="radio" name="ra-addr" value="'+c.key+'"'+(i===0?' checked':'')+' onchange="coRaPickAddr(\''+c.key+'\')"/> <span><strong>'+c.label+'</strong>: '+line+'</span></label>';
+    });
+    html+='<label class="co-ra-same"><input type="radio" name="ra-addr" value="other" onchange="coRaPickAddr(\'other\')"/> <span>'+(isEs?'Otra dirección en Florida (la escribo)':'Another Florida address (I will type it)')+'</span></label>';
+  } else {
+    html+='<div class="co-state-note">'+(isEs?'El agente debe tener una dirección física en Florida. Escríbela abajo.':'The agent must have a physical Florida address. Type it below.')+'</div>';
   }
+  host.innerHTML=html;
+  coRaPickAddr(cands.length?cands[0].key:'other');
+}
+function coRaPickAddr(key){
+  var fid=coFormId; var manual=$('co-ra-manual');
+  if(key==='other'){
+    if(manual) manual.style.display='';
+    ['raStreet','raApt','raCity','raZip'].forEach(function(k){ var e=$('x-'+fid+'-'+k); if(e) e.value=''; });
+    return;
+  }
+  if(manual) manual.style.display='none';
+  var src = key==='biz' ? {street:'f-street',apt:'f-apt',city:'f-city',zip:'f-zip'} : {street:'p-street',apt:'p-apt',city:'p-city',zip:'p-zip'};
+  var set=function(k,s){ var e=$('x-'+fid+'-'+k), o=$(s); if(e&&o) e.value=o.value||''; };
+  set('raStreet',src.street); set('raApt',src.apt); set('raCity',src.city); set('raZip',src.zip);
 }
 function coSetRaChoice(choice){
   coRaChoice=choice;
@@ -833,7 +882,7 @@ function coSetRaChoice(choice){
   if(bw) bw.classList.toggle('sel',choice==='own');
   var form=$('co-ra-own-form'); if(form) form.style.display=(choice==='own')?'':'none';
   var prefEl=$('x-'+coFormId+'-raPref'); if(prefEl) prefEl.value=choice;
-  if(choice==='own'){ var cb=$('co-ra-same'); if(cb) coRaSameAddr(cb); }
+  if(choice==='own'){ coRenderRaAddrOptions(); }
   coUpdateOrderSummary();
 }
 // ── Hubs de upsell (3 tiers estilo LegalZoom) ───────────────────────────────
@@ -858,20 +907,19 @@ function coTierBullets(svcIds){
 }
 function coRenderHub(hub){
   var panel=$(HUBS[hub].panel); if(!panel) return; var isEs=coIsEs(); var cfg=HUBS[hub];
-  var hubRecurring=false;
   var tiers=cfg.tiers.map(function(bid, i){
     var b=BUNDLES_CLIENT[bid]; if(!b) return '';
     var indiv=0; b.services.forEach(function(s){ var svc=SVC_CATALOG[s]; if(svc) indiv+=svc.serviceFee; });
     var save=indiv-b.price;
     // Cadencia del combo: sufijo solo si todos sus recurrentes comparten una.
-    var cad={}, ncad=0; b.services.forEach(function(s){ var sv=SVC_CATALOG[s]; if(sv&&sv.billing){ if(!cad[sv.billing]){cad[sv.billing]=1;ncad++;} hubRecurring=true; } });
+    var cad={}, ncad=0; b.services.forEach(function(s){ var sv=SVC_CATALOG[s]; if(sv&&sv.billing){ if(!cad[sv.billing]){cad[sv.billing]=1;ncad++;} } });
     var priceSuf=ncad===1?coBillingSuffix(Object.keys(cad)[0]):'';
     var best=(i===cfg.tiers.length-1);
     var sel=(coBundles.indexOf(bid)>=0);
     return '<div class="co-tier'+(best?' best':'')+(sel?' sel':'')+'">'
       +(best?'<div class="co-tier-badge">'+(isEs?'Mejor valor':'Best value')+'</div>':'')
       +'<div class="co-tier-name">'+(isEs?b.name_es:b.name_en)+'</div>'
-      +'<div class="co-tier-price">$'+b.price+(priceSuf?'<span style="font-size:.5em;color:#64748b;font-weight:600">'+priceSuf+'</span>':'')+'</div>'
+      +'<div class="co-tier-price">$'+b.price+'</div>'+(priceSuf?'<div style="font-size:.72rem;color:#64748b;font-weight:600;margin-top:-4px">'+priceSuf+'</div>':'')
       +(save>0?'<div class="co-tier-save">'+(isEs?'Ahorras $':'Save $')+save+'</div>':'<div style="height:10px"></div>')
       +'<div class="co-tier-incl">'+coTierBullets(b.services)+'</div>'
       +'<button class="co-tier-btn" onclick="coSelectTier(\''+hub+'\',\''+bid+'\')">'+(sel?(isEs?'&#10003; Seleccionado':'&#10003; Selected'):(isEs?'Seleccionar':'Select'))+'</button>'
@@ -880,7 +928,6 @@ function coRenderHub(hub){
   panel.innerHTML='<h1 class="co-h1">'+(isEs?cfg.titleEs:cfg.titleEn)+'</h1>'
     +'<p class="co-sub">'+(isEs?cfg.subEs:cfg.subEn)+'</p>'
     +'<div class="co-tiers">'+tiers+'</div>'
-    +(hubRecurring?'<div class="co-state-note" style="text-align:center;margin-top:10px">'+(isEs?'Los servicios marcados /mes o /año se renuevan automáticamente hasta que los canceles.':'Services marked /mo or /yr renew automatically until you cancel.')+'</div>':'')
     +'<button type="button" class="co-hub-nothanks" onclick="coHubNoThanks(\''+hub+'\')">'+(isEs?'No, gracias':'No thanks')+'</button>';
 }
 function coClearHub(hub){
@@ -919,8 +966,8 @@ function coRebuildTo(stepId){
 // El cobro real siempre se recalcula server-side desde los IDs del carrito.
 function coBillingSuffix(billing){
   var isEs=coIsEs();
-  if(billing==='monthly') return isEs?'/mes':'/mo';
-  if(billing==='annual') return isEs?'/año':'/yr';
+  if(billing==='monthly') return isEs?'cargo mensual':'monthly charge';
+  if(billing==='annual') return isEs?'cargo anual':'annual charge';
   return '';
 }
 function coComputeTotal(){
@@ -952,29 +999,20 @@ function coComputeTotal(){
   });
   return {lines:lines.concat(stateLines), total:total, recurring:recurring};
 }
-// Una fila del resumen. Las tarifas estatales van atenuadas, con etiqueta y "*".
-// Los servicios recurrentes muestran su cadencia (/mes, /año) junto al precio.
+// Una fila del resumen. Las tarifas estatales van atenuadas con su etiqueta.
+// Los servicios recurrentes muestran su cargo (mensual/anual) junto al precio.
 function coLineRow(l){
   var isEs=coIsEs();
-  if(l.state){ return '<div class="co-review-row co-row-state"><span>'+l.label+' <em>'+(isEs?'tarifa estatal':'state fee')+'</em> *</span><span>$'+l.amount+'</span></div>'; }
-  // Primer año gratis (ej. Agente Registrado): hoy $0, renovación luego.
+  if(l.state){ return '<div class="co-review-row co-row-state"><span>'+l.label+' <em>'+(isEs?'tarifa estatal':'state fee')+'</em></span><span>$'+l.amount+'</span></div>'; }
+  // Primer año gratis (ej. Agente Registrado): hoy $0, renovación luego. Se muestra
+  // el precio normal tachado para que el cliente vea el valor del beneficio.
   if(l.firstYearFree){
     var rf=l.renewalFee||0;
-    var renew=isEs?('luego $'+rf+'/año'):('then $'+rf+'/yr');
-    return '<div class="co-review-row"><span>'+l.label+'</span><span>'+(isEs?'Gratis 1er año':'Free 1st yr')+' <em style="font-style:normal;color:#64748b;font-weight:500;font-size:.82em">'+renew+'</em></span></div>';
+    var renew=isEs?('renueva $'+rf+'/año'):('renews $'+rf+'/yr');
+    return '<div class="co-review-row"><span>'+l.label+'</span><span><s style="color:#94a3b8">$'+rf+'</s> <strong style="color:#059669">'+(isEs?'Gratis 1er año':'Free 1st yr')+'</strong> <em style="font-style:normal;color:#94a3b8;font-weight:500;font-size:.8em">'+renew+'</em></span></div>';
   }
   var suf=coBillingSuffix(l.billing);
-  return '<div class="co-review-row"><span>'+l.label+'</span><span>$'+l.amount+(suf?'<em style="font-style:normal;color:#64748b;font-weight:500">'+suf+'</em>':'')+'</span></div>';
-}
-function coHasStateFee(lines){ for(var i=0;i<lines.length;i++){ if(lines[i].state) return true; } return false; }
-function coStateFootnote(lines){
-  if(!coHasStateFee(lines)) return ''; var isEs=coIsEs();
-  return '<div class="co-state-note">'+(isEs?'* Tarifa estatal de Florida — la cobra el Estado, es obligatoria.':'* Florida state fee — charged by the State, mandatory.')+'</div>';
-}
-// Aviso de autorrenovación (cuando hay algún servicio recurrente en la orden).
-function coAutoRenewNote(r){
-  if(!r||!r.recurring) return ''; var isEs=coIsEs();
-  return '<div class="co-state-note">'+(isEs?'Los servicios marcados /mes o /año se renuevan automáticamente hasta que los canceles.':'Services marked /mo or /yr renew automatically until you cancel.')+'</div>';
+  return '<div class="co-review-row"><span>'+l.label+'</span><span>$'+l.amount+(suf?' <em style="font-style:normal;color:#64748b;font-weight:500;font-size:.85em">'+suf+'</em>':'')+'</span></div>';
 }
 // Upsell: si el Agente Registrado va SOLO (sin otro servicio que lo haga gratis),
 // motiva a agregar algo para que el primer año salga gratis.
@@ -997,7 +1035,7 @@ function coUpdateOrderSummary(){
   var body=$('co-osum-body'); if(body) body.innerHTML=r.lines.length
     ? r.lines.map(coLineRow).join('')
     : '<div class="co-review-row" style="border:none;color:#94a3b8">'+(isEs?'Aún sin servicios':'No services yet')+'</div>';
-  var note=$('co-side-note'); if(note) note.innerHTML=r.lines.length?(coStateFootnote(r.lines)+coAutoRenewNote(r)+coRaUpsellNote()):'';
+  var note=$('co-side-note'); if(note) note.innerHTML=r.lines.length?coRaUpsellNote():'';
 }
 // "Peso" aproximado de un servicio = cuánto espacio ocupa (para empacar tantos
 // como quepan por paso sin scroll, en vez de un número fijo). Un repeater pesa
@@ -1086,6 +1124,9 @@ function coGoStep(i){
   // Refresca el disclosure del pago para que la cláusula de servicios recurrentes
   // refleje el carrito final al llegar a este paso.
   if(isPay) coTranslateStatic();
+  // Al entrar al paso de Agente Registrado, recalcula las direcciones de Florida
+  // disponibles (la empresa y la personal ya se capturaron en pasos previos).
+  if(coSteps[i].id==='panel-ra' && coRaChoice==='own') coRenderRaAddrOptions();
   // Modo ancho en los hubs de tiers (cards más anchas, estilo LegalZoom).
   var isHub = coSteps[i].id.indexOf('panel-hub-')===0;
   try{ document.documentElement.classList.toggle('co-wide', isHub); }catch(e){}
@@ -1167,6 +1208,7 @@ function coValidateStep(i){
     if(($('f-firstName').value||'').trim().length<1||($('f-lastName').value||'').trim().length<1){ err.textContent=isEs?'Ingresa tu nombre y apellido.':'Enter your first and last name.'; return false; }
     if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(($('f-email').value||'').trim())){ err.textContent=isEs?'Ingresa un correo válido.':'Enter a valid email.'; return false; }
     if(($('f-phone').value||'').replace(/[^0-9]/g,'').length<7){ err.textContent=isEs?'Ingresa un teléfono válido.':'Enter a valid phone.'; return false; }
+    if(($('p-street').value||'').trim().length<3||($('p-city').value||'').trim().length<2||($('p-state').value||'').trim().length<2||($('p-zip').value||'').trim().length<3){ err.textContent=isEs?'Ingresa tu dirección (calle, ciudad, estado y código postal).':'Enter your address (street, city, state and ZIP).'; return false; }
     return true;
   }
   return true;
@@ -1200,14 +1242,14 @@ function coRenderReviewNames(){
   var host=$('co-review-lines'); if(!host) return;
   // Reusa el cálculo del resumen (ya contempla bundles) para el desglose instantáneo.
   var r=coComputeTotal();
-  host.innerHTML=r.lines.map(coLineRow).join('')+coStateFootnote(r.lines)+coAutoRenewNote(r)+coRaUpsellNote();
+  host.innerHTML=r.lines.map(coLineRow).join('')+coRaUpsellNote();
   var t=$('co-review-total'); if(t) t.textContent='$'+r.total;
 }
 // Muestra el desglose con el estilo unificado (mirror) y el TOTAL autoritativo del server.
 function coRenderReview(lines, total){
   var host=$('co-review-lines'); if(!host) return;
   var r=coComputeTotal();
-  host.innerHTML=r.lines.map(coLineRow).join('')+coStateFootnote(r.lines)+coAutoRenewNote(r)+coRaUpsellNote();
+  host.innerHTML=r.lines.map(coLineRow).join('')+coRaUpsellNote();
   $('co-review-total').textContent='$'+((total!=null)?total:r.total);
 }
 function coMountStripe(clientSecret){
