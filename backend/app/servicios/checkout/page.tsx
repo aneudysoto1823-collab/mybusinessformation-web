@@ -107,8 +107,7 @@ body{font-family:var(--font-sans),'Plus Jakarta Sans',system-ui,sans-serif;color
 .co-pay-grid{display:grid;grid-template-columns:1fr 1.2fr;gap:22px;align-items:start}
 .co-review{background:#fff;border:1px solid var(--gray200);border-radius:14px;padding:22px 24px;position:sticky;top:90px}
 .co-pay-grid .co-review{position:static;top:auto}
-.co-intake-review{background:#fff;border:1px solid var(--gray200);border-radius:14px;padding:18px 22px;margin-bottom:18px}
-.co-intake-review h3{font-size:.95rem;font-weight:700;color:var(--gray800);margin:0 0 12px}
+.co-ir-sub{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--gray400);margin:16px 0 8px;padding-top:14px;border-top:1px solid var(--gray200)}
 .co-ir-block{padding:10px 0;border-top:1px solid var(--gray100)}
 .co-ir-block:first-of-type{border-top:none}
 .co-ir-row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
@@ -323,10 +322,11 @@ html.co-wide .co-tier{padding:20px 18px}
       <h1 class="co-h1" data-en="Review your order" data-es="Revisa tu orden">Revisa tu orden</h1>
       <p class="co-sub" data-en="Confirm your order and pay securely." data-es="Confirma tu pedido y paga de forma segura.">Confirma tu pedido y paga de forma segura.</p>
       <button type="button" class="co-btn-ghost" onclick="coBack()" style="margin:0 0 14px;padding:0">&#8592; <span data-en="Back" data-es="Atrás">Atrás</span></button>
-      <div id="co-review-intake"></div>
       <div class="co-pay-grid">
         <div class="co-review">
-          <div class="co-card-title" style="margin-bottom:12px" data-en="Order summary" data-es="Resumen del pedido">Resumen del pedido</div>
+          <div class="co-card-title" style="margin-bottom:12px" data-en="Review order" data-es="Revisar orden">Revisar orden</div>
+          <div id="co-review-intake"></div>
+          <div class="co-ir-sub" data-en="Order summary" data-es="Resumen del pedido">Resumen del pedido</div>
           <div id="co-review-lines"></div>
           <div class="co-review-total"><span data-en="Total" data-es="Total">Total</span><strong id="co-review-total">$0</strong></div>
           <div class="co-pay-disclosure" id="co-pay-disclosure"></div>
@@ -820,9 +820,8 @@ var UPSELL = {
 // ── Paso Agente Registrado (formación): dos cajas + reuso de dirección ───────
 function coRenderRaPanel(){
   var panel=$('panel-ra'); if(!panel) return; var isEs=coIsEs();
-  // Por defecto recomendamos NUESTRO servicio (gratis el primer año al combinar):
-  // queda preseleccionado y el agente entra al carrito.
-  if(coRaChoice==null){ coRaChoice='ours'; if(cart.indexOf('registered-agent')<0){ cart.push('registered-agent'); coSaveCart(); } }
+  // La preselección de "nuestro servicio" se hace al ENTRAR al paso (coGoStep),
+  // no aquí, para no agregar el agente al carrito desde el paso 1.
   var u=UPSELL['registered-agent']; var t=isEs?u.es:u.en;
   var oursSel=(coRaChoice==='ours'); var ownSel=(coRaChoice==='own');
   var bullets=(t.incl||[]).map(function(b){ return '<div class="co-up-incl-item"><span class="co-up-incl-check">&#10003;</span><span>'+b+'</span></div>'; }).join('');
@@ -1165,9 +1164,13 @@ function coGoStep(i){
   // la sesión de Stripe + monta el formulario. Centralizado aquí para que funcione
   // sin importar cómo se llegue al paso (Continuar, "No gracias" de un hub, etc.).
   if(isPay){ coTranslateStatic(); coStartPayment(); }
-  // Al entrar al paso de Agente Registrado, recalcula las direcciones de Florida
-  // disponibles (la empresa y la personal ya se capturaron en pasos previos).
-  if(coSteps[i].id==='panel-ra' && coRaChoice==='own') coRenderRaAddrOptions();
+  // Al entrar al paso de Agente Registrado: si aún no hay elección, preselecciona
+  // "nuestro servicio" (recomendado) aquí — no antes — para no meterlo al carrito
+  // desde el paso 1. Si ya eligió "propio agente", recalcula las direcciones FL.
+  if(coSteps[i].id==='panel-ra'){
+    if(coRaChoice==null) coSetRaChoice('ours');
+    else if(coRaChoice==='own') coRenderRaAddrOptions();
+  }
   // Modo ancho en los hubs de tiers (cards más anchas, estilo LegalZoom).
   var isHub = coSteps[i].id.indexOf('panel-hub-')===0;
   try{ document.documentElement.classList.toggle('co-wide', isHub); }catch(e){}
@@ -1335,7 +1338,7 @@ function coRenderIntakeReview(){
     });
     if(list.length) out+=coIrBlock(isEs?'Dueños':'Owners', list.join('<br>'), 'panel-owners');
   }
-  host.innerHTML = out ? '<div class="co-intake-review"><h3>'+(isEs?'Tu información':'Your information')+'</h3>'+out+'</div>' : '';
+  host.innerHTML = out || '';
 }
 function coMountStripe(clientSecret){
   var pk=window.__OPABIZ_PK__;

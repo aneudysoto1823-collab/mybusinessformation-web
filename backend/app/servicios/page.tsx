@@ -950,7 +950,7 @@ function addToCart(id){
 function removeFromCart(id){var i=cart.indexOf(id);if(i>-1){cart.splice(i,1);persistCart();renderCart();}}
 function clearCart(){ if(cart.length===0)return; var c=document.getElementById('osClearConfirm'); if(c) c.style.display=''; }
 function cancelClearCart(){ var c=document.getElementById('osClearConfirm'); if(c) c.style.display='none'; }
-function doClearCart(){ cart=[]; persistCart(); renderCart(); var c=document.getElementById('osClearConfirm'); if(c) c.style.display='none'; }
+function doClearCart(){ cart=[]; persistCart(); try{ localStorage.removeItem('flbc_svc_bundles'); localStorage.removeItem('flbc_svc_order'); }catch(e){} renderCart(); var c=document.getElementById('osClearConfirm'); if(c) c.style.display='none'; }
 function cartTotals(){var fixed=0,hasVar=false;cart.forEach(function(id){var v=svcParsePrice((SVC_CATALOG[id]||{}).price);if(v!=null)fixed+=v;else hasVar=true;});return{fixed:fixed,hasVar:hasVar};}
 function renderCart(){
   var isEs=svcIsEs();
