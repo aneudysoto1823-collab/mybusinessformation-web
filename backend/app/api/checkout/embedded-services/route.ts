@@ -68,6 +68,7 @@ export async function POST(req: NextRequest) {
       lastName,
       email:           email.toLowerCase(),
       phone:           phone || null,
+      country:         String(intake.country || 'US'),
       companyName:     (legalName || `${firstName} ${lastName}`).toUpperCase(),
       entityType,
       package:         'services',
@@ -84,7 +85,7 @@ export async function POST(req: NextRequest) {
 
     if (orderError) {
       console.error('[checkout/embedded-services] order insert error:', orderError)
-      return NextResponse.json({ error: isEs ? 'No se pudo crear la orden.' : 'Could not create order.' }, { status: 500 })
+      return NextResponse.json({ error: isEs ? 'No se pudo crear la orden.' : 'Could not create order.', detail: orderError.message }, { status: 500 })
     }
 
     // Stripe rechaza líneas en $0 (ej. Agente Registrado gratis al combinar); se

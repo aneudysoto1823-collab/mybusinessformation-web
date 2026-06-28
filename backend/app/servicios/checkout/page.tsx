@@ -293,8 +293,8 @@ html.co-wide .co-tier{padding:20px 18px}
       <h1 class="co-h1" data-en="Personal information" data-es="Información personal">Información personal</h1>
       <div class="co-card">
         <div class="co-grid">
-          <div class="co-field"><label class="co-label" data-en="First name" data-es="Nombre">Nombre</label><input class="co-input" id="f-firstName"/></div>
-          <div class="co-field"><label class="co-label" data-en="Last name" data-es="Apellido">Apellido</label><input class="co-input" id="f-lastName"/></div>
+          <div class="co-field"><label class="co-label" data-en="First name" data-es="Nombre">Nombre</label><input class="co-input" id="f-firstName" oninput="coTitleCase(this)"/></div>
+          <div class="co-field"><label class="co-label" data-en="Last name" data-es="Apellido">Apellido</label><input class="co-input" id="f-lastName" oninput="coTitleCase(this)"/></div>
           <div class="co-field"><label class="co-label" data-en="Email" data-es="Correo">Correo</label><input class="co-input" type="email" id="f-email"/></div>
           <div class="co-field"><label class="co-label" data-en="Phone / WhatsApp" data-es="Teléfono / WhatsApp">Teléfono / WhatsApp</label><input class="co-input" type="tel" id="f-phone"/></div>
         </div>
@@ -303,7 +303,7 @@ html.co-wide .co-tier{padding:20px 18px}
           <div class="co-field full"><label class="co-label" data-en="Street address" data-es="Dirección (calle)">Dirección (calle)</label><input class="co-input" id="p-street"/></div>
           <div class="co-field"><label class="co-label" data-en="Apt / Suite (optional)" data-es="Apt / Suite (opcional)">Apt / Suite (opcional)</label><input class="co-input" id="p-apt"/></div>
           <div class="co-field"><label class="co-label" data-en="City" data-es="Ciudad">Ciudad</label><input class="co-input" id="p-city"/></div>
-          <div class="co-field"><label class="co-label" data-en="State" data-es="Estado">Estado</label><input class="co-input" id="p-state"/></div>
+          <div class="co-field"><label class="co-label" data-en="State" data-es="Estado">Estado</label><select class="co-select" id="p-state"><option value="" data-en="Select..." data-es="Selecciona...">Selecciona...</option><option>AL</option><option>AK</option><option>AZ</option><option>AR</option><option>CA</option><option>CO</option><option>CT</option><option>DE</option><option>DC</option><option>FL</option><option>GA</option><option>HI</option><option>ID</option><option>IL</option><option>IN</option><option>IA</option><option>KS</option><option>KY</option><option>LA</option><option>ME</option><option>MD</option><option>MA</option><option>MI</option><option>MN</option><option>MS</option><option>MO</option><option>MT</option><option>NE</option><option>NV</option><option>NH</option><option>NJ</option><option>NM</option><option>NY</option><option>NC</option><option>ND</option><option>OH</option><option>OK</option><option>OR</option><option>PA</option><option>RI</option><option>SC</option><option>SD</option><option>TN</option><option>TX</option><option>UT</option><option>VT</option><option>VA</option><option>WA</option><option>WV</option><option>WI</option><option>WY</option></select></div>
           <div class="co-field"><label class="co-label" data-en="ZIP" data-es="Código postal">Código postal</label><input class="co-input" id="p-zip"/></div>
         </div>
       </div>
@@ -480,19 +480,22 @@ function repRowHtml(svcId, f){
     var fields=(f.cols||[]).map(function(col){
       var lbl=isEs?col.es:col.en;
       var pctHook=(col.k==='pct');
+      var nameHook=(col.k==='firstName'||col.k==='lastName'||col.k==='name');
+      var oninput=pctHook?' oninput="coOwnTotal()"':(nameHook?' oninput="coTitleCase(this);coMaybeFillOwnerAddr(this)"':'');
       var isFull=(col.full||col.k==='street');
       var ph=col.defaultFirst?'':('<option value="">'+lbl+'</option>');
       var inp = (col.type==='select')
         ? '<select class="co-select rep-cell" data-col="'+col.k+'"'+(pctHook?' onchange="coOwnTotal()"':'')+'>'+ph+(col.opts||[]).map(function(o){return '<option>'+o+'</option>';}).join('')+'</select>'
-        : '<input class="co-input rep-cell" data-col="'+col.k+'"'+(pctHook?' oninput="coOwnTotal()"':'')+' placeholder="'+lbl+'"/>';
+        : '<input class="co-input rep-cell" data-col="'+col.k+'"'+oninput+' placeholder="'+lbl+'"/>';
       return '<div class="co-field'+(isFull?' full':'')+'"><label class="co-label">'+lbl+'</label>'+inp+'</div>';
     }).join('');
     return '<div class="rep-row rep-block"><button type="button" class="rep-del rep-block-del" title="Quitar" onclick="coDelRepRow(this)">&#215;</button><div class="rep-grid">'+fields+'</div></div>';
   }
   var cells=(f.cols||[]).map(function(col){
     var lbl=isEs?col.es:col.en;
+    var nameHook=(col.k==='firstName'||col.k==='lastName'||col.k==='name');
     if(col.type==='select'){ return '<select class="co-select rep-cell" data-col="'+col.k+'"><option value="">'+lbl+'</option>'+(col.opts||[]).map(function(o){return '<option>'+o+'</option>';}).join('')+'</select>'; }
-    return '<input class="co-input rep-cell" data-col="'+col.k+'" placeholder="'+lbl+'"/>';
+    return '<input class="co-input rep-cell" data-col="'+col.k+'"'+(nameHook?' oninput="coTitleCase(this)"':'')+' placeholder="'+lbl+'"/>';
   }).join('');
   return '<div class="rep-row">'+cells+'<button type="button" class="rep-del" title="Quitar" onclick="coDelRepRow(this)">&#215;</button></div>';
 }
@@ -503,6 +506,26 @@ function coOwnTotal(){
   if(host){ host.querySelectorAll('.rep-cell[data-col="pct"]').forEach(function(c){ var v=parseFloat(c.value); if(!isNaN(v)) sum+=v; }); }
   t.textContent=sum+'%';
   t.style.color=(sum===100)?'#16a34a':(sum>100?'#dc2626':'#64748b');
+}
+// Capitaliza la primera letra de cada palabra (campos de nombres). Conserva el caret.
+function coTitleCase(el){
+  if(!el) return; var s=el.selectionStart;
+  el.value=el.value.replace(/(^|[\s\-'])([a-záéíóúñ])/g, function(m,p,c){ return p+c.toUpperCase(); });
+  try{ el.setSelectionRange(s,s); }catch(e){}
+}
+// Paso Dueños: si el nombre del dueño coincide con el de "Información personal",
+// autollena su dirección con la dirección personal capturada antes (sin pisar lo ya escrito).
+function coMaybeFillOwnerAddr(el){
+  var row=el.closest('.rep-row'); if(!row) return;
+  var g=function(col){ return row.querySelector('.rep-cell[data-col="'+col+'"]'); };
+  var fn=((g('firstName')||{}).value||'').trim().toLowerCase();
+  var ln=((g('lastName')||{}).value||'').trim().toLowerCase();
+  var cfn=(($('f-firstName')||{}).value||'').trim().toLowerCase();
+  var cln=(($('f-lastName')||{}).value||'').trim().toLowerCase();
+  if(!fn||!ln||fn!==cfn||ln!==cln) return;
+  var set=function(col,src){ var c=g(col), s=$(src); if(c&&s&&!c.value) c.value=s.value||''; };
+  set('street','p-street'); set('apt','p-apt'); set('city','p-city'); set('state','p-state'); set('zip','p-zip');
+  var cc=g('country'); if(cc&&!cc.value) cc.value='United States';
 }
 function coRepField(svcId, fk){ return coFieldDef(svcId, fk); }
 function coSyncRepCount(host){
@@ -786,7 +809,9 @@ var UPSELL = {
 // ── Paso Agente Registrado (formación): dos cajas + reuso de dirección ───────
 function coRenderRaPanel(){
   var panel=$('panel-ra'); if(!panel) return; var isEs=coIsEs();
-  if(coRaChoice==null && cart.indexOf('registered-agent')>=0) coRaChoice='ours';
+  // Por defecto recomendamos NUESTRO servicio (gratis el primer año al combinar):
+  // queda preseleccionado y el agente entra al carrito.
+  if(coRaChoice==null){ coRaChoice='ours'; if(cart.indexOf('registered-agent')<0){ cart.push('registered-agent'); coSaveCart(); } }
   var u=UPSELL['registered-agent']; var t=isEs?u.es:u.en;
   var oursSel=(coRaChoice==='ours'); var ownSel=(coRaChoice==='own');
   var bullets=(t.incl||[]).map(function(b){ return '<div class="co-up-incl-item"><span class="co-up-incl-check">&#10003;</span><span>'+b+'</span></div>'; }).join('');
@@ -802,7 +827,8 @@ function coRenderRaPanel(){
       +'<div class="co-ra-info">&#128221; '+infoTxt+'</div>'
       +'<div class="co-choices">'
         +'<div class="co-choice'+(oursSel?' sel':'')+'" id="co-ra-ours" onclick="coSetRaChoice(\'ours\')">'
-          +'<div class="co-choice-top"><span class="co-choice-title">&#127963; '+(isEs?'Usa nuestro servicio de Agente Registrado':'Use our Registered Agent service')+'</span><span class="co-choice-price"><s style="color:#94a3b8;font-weight:600">$99</s> <span style="color:#059669">'+(isEs?'Gratis 1er año':'Free 1st yr')+'</span></span></div>'
+          +'<div class="co-choice-top"><span class="co-choice-title">&#127963; '+(isEs?'Usa nuestro servicio de Agente Registrado':'Use our Registered Agent service')+'</span><span class="co-choice-price"><s style="color:#94a3b8;font-weight:600">$99</s></span></div>'
+          +'<div style="color:#059669;font-weight:700;font-size:.8rem;margin-top:2px">&#10003; '+(isEs?'Gratis el primer año':'Free the first year')+'</div>'
           +'<div class="co-choice-desc">'+oursDesc+' '+(isEs?'Primer año gratis; luego se renueva automáticamente a $99/año hasta que lo canceles.':'First year free; then renews automatically at $99/yr until you cancel.')+'</div>'
           +'<div class="co-up-incl" style="margin-top:10px">'+bullets+'</div></div>'
         +'<div class="co-choice'+(ownSel?' sel':'')+'" id="co-ra-own" onclick="coSetRaChoice(\'own\')">'
@@ -812,8 +838,8 @@ function coRenderRaPanel(){
       +'<input type="hidden" id="x-'+fid+'-raPref" value="'+(coRaChoice||'')+'"/>'
       +'<div class="co-ra-form" id="co-ra-own-form" style="display:'+(ownSel?'':'none')+'">'
         +'<div class="co-grid">'
-          +'<div class="co-field"><label class="co-label">'+(isEs?'Nombre':'First name')+'</label><input class="co-input" id="x-'+fid+'-raFirstName"/></div>'
-          +'<div class="co-field"><label class="co-label">'+(isEs?'Apellido':'Last name')+'</label><input class="co-input" id="x-'+fid+'-raLastName"/></div>'
+          +'<div class="co-field"><label class="co-label">'+(isEs?'Nombre':'First name')+'</label><input class="co-input" id="x-'+fid+'-raFirstName" oninput="coTitleCase(this)"/></div>'
+          +'<div class="co-field"><label class="co-label">'+(isEs?'Apellido':'Last name')+'</label><input class="co-input" id="x-'+fid+'-raLastName" oninput="coTitleCase(this)"/></div>'
         +'</div>'
         +'<div id="co-ra-addr-choice"></div>'
         +'<div id="co-ra-manual" style="display:none"><div class="co-grid">'
@@ -1004,15 +1030,16 @@ function coComputeTotal(){
 function coLineRow(l){
   var isEs=coIsEs();
   if(l.state){ return '<div class="co-review-row co-row-state"><span>'+l.label+' <em>'+(isEs?'tarifa estatal':'state fee')+'</em></span><span>$'+l.amount+'</span></div>'; }
-  // Primer año gratis (ej. Agente Registrado): hoy $0, renovación luego. Se muestra
-  // el precio normal tachado para que el cliente vea el valor del beneficio.
+  // Primer año gratis (ej. Agente Registrado): hoy $0. Se muestra solo el precio
+  // normal tachado para que el cliente vea el valor (sin texto, para no desbordar).
   if(l.firstYearFree){
     var rf=l.renewalFee||0;
-    var renew=isEs?('renueva $'+rf+'/año'):('renews $'+rf+'/yr');
-    return '<div class="co-review-row"><span>'+l.label+'</span><span><s style="color:#94a3b8">$'+rf+'</s> <strong style="color:#059669">'+(isEs?'Gratis 1er año':'Free 1st yr')+'</strong> <em style="font-style:normal;color:#94a3b8;font-weight:500;font-size:.8em">'+renew+'</em></span></div>';
+    return '<div class="co-review-row"><span>'+l.label+'</span><span><s style="color:#94a3b8">$'+rf+'</s></span></div>';
   }
   var suf=coBillingSuffix(l.billing);
-  return '<div class="co-review-row"><span>'+l.label+'</span><span>$'+l.amount+(suf?' <em style="font-style:normal;color:#64748b;font-weight:500;font-size:.85em">'+suf+'</em>':'')+'</span></div>';
+  // El "cargo mensual/anual" va junto al nombre (izquierda) para que los precios
+  // queden alineados verticalmente a la derecha.
+  return '<div class="co-review-row"><span>'+l.label+(suf?' <em style="font-style:normal;color:#64748b;font-weight:500;font-size:.82em">'+suf+'</em>':'')+'</span><span>$'+l.amount+'</span></div>';
 }
 // Upsell: si el Agente Registrado va SOLO (sin otro servicio que lo haga gratis),
 // motiva a agregar algo para que el primer año salga gratis.
@@ -1121,9 +1148,10 @@ function coGoStep(i){
   coRenderProgress();
   $('co-back').style.display = (i===0) ? 'none' : '';
   var isPay = coSteps[i].id==='panel-pay';
-  // Refresca el disclosure del pago para que la cláusula de servicios recurrentes
-  // refleje el carrito final al llegar a este paso.
-  if(isPay) coTranslateStatic();
+  // Al entrar al paso de pago: refresca el disclosure (cláusula recurrente) y crea
+  // la sesión de Stripe + monta el formulario. Centralizado aquí para que funcione
+  // sin importar cómo se llegue al paso (Continuar, "No gracias" de un hub, etc.).
+  if(isPay){ coTranslateStatic(); coStartPayment(); }
   // Al entrar al paso de Agente Registrado, recalcula las direcciones de Florida
   // disponibles (la empresa y la personal ya se capturaron en pasos previos).
   if(coSteps[i].id==='panel-ra' && coRaChoice==='own') coRenderRaAddrOptions();
@@ -1168,8 +1196,6 @@ function coToggleDevMode(){
 document.addEventListener('keydown', function(e){ if(e.ctrlKey&&e.shiftKey&&(e.key==='D'||e.key==='d')) coToggleDevMode(); });
 function coNext(){
   if(!_coDevMode && !coValidateStep(coIdx)) return;
-  var nextIsPay=(coIdx+1<coSteps.length)&&coSteps[coIdx+1].id==='panel-pay';
-  if(nextIsPay){ coGoStep(coIdx+1); coStartPayment(); return; }
   coGoStep(coIdx+1);
 }
 function coValidateStep(i){

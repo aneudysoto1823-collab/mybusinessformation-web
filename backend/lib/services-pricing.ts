@@ -37,7 +37,7 @@ export const SERVICES_CATALOG: Record<string, ServiceDef> = {
   // de Florida (LLC $125 / Corp $70), igual que lib/pricing.ts del home.
   'llc-formation':         { name_en: 'LLC Formation',                     name_es: 'Formación de LLC',                     serviceFee: 99,  stateFee: 125 },
   'corp-formation':        { name_en: 'Corporation Formation',             name_es: 'Formación de Corporation',             serviceFee: 99,  stateFee: 70 },
-  'registered-agent':      { name_en: 'Registered Agent (Florida)',        name_es: 'Agente Registrado (Florida)',          serviceFee: 99,  stateFee: 0,   billing: 'annual', freeWithOther: true, renewalFee: 99 },
+  'registered-agent':      { name_en: 'Registered Agent',                  name_es: 'Agente Registrado',                    serviceFee: 99,  stateFee: 0,   billing: 'annual', freeWithOther: true, renewalFee: 99 },
   'ein':                   { name_en: 'EIN / Tax ID Number',               name_es: 'EIN / Número de Identificación Fiscal', serviceFee: 99,  stateFee: 0 },
   'operating-agreement':   { name_en: 'Operating Agreement',               name_es: 'Acuerdo Operativo',                    serviceFee: 79,  stateFee: 0 },
   'itin':                  { name_en: 'ITIN Application',                   name_es: 'Solicitud de ITIN',                    serviceFee: 135, stateFee: 0 },
