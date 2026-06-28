@@ -106,6 +106,15 @@ body{font-family:var(--font-sans),'Plus Jakarta Sans',system-ui,sans-serif;color
 .co-btn-ghost:hover{color:var(--navy)}
 .co-pay-grid{display:grid;grid-template-columns:1fr 1.2fr;gap:22px;align-items:start}
 .co-review{background:#fff;border:1px solid var(--gray200);border-radius:14px;padding:22px 24px;position:sticky;top:90px}
+.co-pay-grid .co-review{position:static;top:auto}
+.co-intake-review{background:#fff;border:1px solid var(--gray200);border-radius:14px;padding:18px 22px;margin-bottom:18px}
+.co-intake-review h3{font-size:.95rem;font-weight:700;color:var(--gray800);margin:0 0 12px}
+.co-ir-block{padding:10px 0;border-top:1px solid var(--gray100)}
+.co-ir-block:first-of-type{border-top:none}
+.co-ir-row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.co-ir-label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--gray400)}
+.co-ir-edit{background:none;border:none;color:var(--blue);font-size:.76rem;font-weight:600;cursor:pointer;font-family:inherit;padding:0;white-space:nowrap}
+.co-ir-val{font-size:.85rem;color:var(--gray700);line-height:1.5;margin-top:3px}
 .co-review-row{display:flex;justify-content:space-between;gap:10px;font-size:.86rem;padding:8px 0;border-bottom:1px solid var(--gray100);color:var(--gray600)}
 .co-review-row span:last-child{font-weight:600;color:var(--gray800);white-space:nowrap}
 .co-review-total{display:flex;justify-content:space-between;align-items:center;padding-top:14px;margin-top:6px;font-size:1rem;font-weight:700;color:var(--navy)}
@@ -313,6 +322,8 @@ html.co-wide .co-tier{padding:20px 18px}
     <div class="co-panel" id="panel-pay" style="display:none">
       <h1 class="co-h1" data-en="Review your order" data-es="Revisa tu orden">Revisa tu orden</h1>
       <p class="co-sub" data-en="Confirm your order and pay securely." data-es="Confirma tu pedido y paga de forma segura.">Confirma tu pedido y paga de forma segura.</p>
+      <button type="button" class="co-btn-ghost" onclick="coBack()" style="margin:0 0 14px;padding:0">&#8592; <span data-en="Back" data-es="Atrás">Atrás</span></button>
+      <div id="co-review-intake"></div>
       <div class="co-pay-grid">
         <div class="co-review">
           <div class="co-card-title" style="margin-bottom:12px" data-en="Order summary" data-es="Resumen del pedido">Resumen del pedido</div>
@@ -942,13 +953,13 @@ function coRenderHub(hub){
     var priceSuf=ncad===1?coBillingSuffix(Object.keys(cad)[0]):'';
     var best=(i===cfg.tiers.length-1);
     var sel=(coBundles.indexOf(bid)>=0);
-    return '<div class="co-tier'+(best?' best':'')+(sel?' sel':'')+'">'
+    return '<div class="co-tier'+(best?' best':'')+(sel?' sel':'')+'" style="cursor:pointer" onclick="coSelectTier(\''+hub+'\',\''+bid+'\')">'
       +(best?'<div class="co-tier-badge">'+(isEs?'Mejor valor':'Best value')+'</div>':'')
       +'<div class="co-tier-name">'+(isEs?b.name_es:b.name_en)+'</div>'
       +'<div class="co-tier-price">$'+b.price+'</div>'+(priceSuf?'<div style="font-size:.72rem;color:#64748b;font-weight:600;margin-top:-4px">'+priceSuf+'</div>':'')
       +(save>0?'<div class="co-tier-save">'+(isEs?'Ahorras $':'Save $')+save+'</div>':'<div style="height:10px"></div>')
       +'<div class="co-tier-incl">'+coTierBullets(b.services)+'</div>'
-      +'<button class="co-tier-btn" onclick="coSelectTier(\''+hub+'\',\''+bid+'\')">'+(sel?(isEs?'&#10003; Seleccionado':'&#10003; Selected'):(isEs?'Seleccionar':'Select'))+'</button>'
+      +'<button class="co-tier-btn" onclick="event.stopPropagation();coSelectTier(\''+hub+'\',\''+bid+'\')">'+(sel?(isEs?'&#10003; Seleccionado':'&#10003; Selected'):(isEs?'Seleccionar':'Select'))+'</button>'
       +'</div>';
   }).join('');
   panel.innerHTML='<h1 class="co-h1">'+(isEs?cfg.titleEs:cfg.titleEn)+'</h1>'
@@ -1146,8 +1157,10 @@ function coGoStep(i){
   coSteps.forEach(function(s){ var el=$(s.id); if(el) el.style.display='none'; });
   var cur=$(coSteps[i].id); if(cur) cur.style.display='';
   coRenderProgress();
-  $('co-back').style.display = (i===0) ? 'none' : '';
   var isPay = coSteps[i].id==='panel-pay';
+  // El "Atrás" inferior se muestra siempre (en el paso 1 vuelve a /servicios). En
+  // el paso de pago se oculta porque hay un "Atrás" propio arriba del panel.
+  $('co-back').style.display = isPay ? 'none' : '';
   // Al entrar al paso de pago: refresca el disclosure (cláusula recurrente) y crea
   // la sesión de Stripe + monta el formulario. Centralizado aquí para que funcione
   // sin importar cómo se llegue al paso (Continuar, "No gracias" de un hub, etc.).
@@ -1161,7 +1174,7 @@ function coGoStep(i){
   $('co-next').style.display = isPay ? 'none' : '';
   var nextIsPay = (i+1<coSteps.length) && coSteps[i+1].id==='panel-pay';
   var isEs=coIsEs();
-  $('co-next').innerHTML='<span>'+(nextIsPay ? (isEs?'Ir al pago':'Go to payment') : (isEs?'Continuar':'Continue'))+'</span> &#8594;';
+  $('co-next').innerHTML='<span>'+(nextIsPay ? (isEs?'Revisar orden':'Review order') : (isEs?'Continuar':'Continue'))+'</span> &#8594;';
   $('co-err').textContent='';
   coUpdateOrderSummary();
   // Alinea el resumen (sidebar) con el TOP del primer card del formulario, no con
@@ -1183,7 +1196,11 @@ function coDestroyStripe(){
   if(stripeCheckout){ try{ stripeCheckout.destroy(); }catch(e){} stripeCheckout=null; }
   var ec=$('embedded-checkout'); if(ec) ec.innerHTML='<div style="text-align:center;padding:60px 0"><div class="co-spinner"></div></div>';
 }
-function coBack(){ if(coSteps[coIdx].id==='panel-pay'){ coDestroyStripe(); } coGoStep(coIdx-1); }
+function coBack(){
+  if(coSteps[coIdx].id==='panel-pay'){ coDestroyStripe(); }
+  if(coIdx<=0){ try{ window.location.href='/servicios?lang='+coLang; }catch(e){} return; }
+  coGoStep(coIdx-1);
+}
 // Modo dev: salta la validación de campos para revisar el flujo rápido.
 // Se activa con Ctrl+Shift+D (igual que el form del home). La barra de progreso
 // se pone ámbar cuando está activo.
@@ -1245,6 +1262,7 @@ function coStartPayment(){
   var isEs=coIsEs();
   var ec=$('embedded-checkout'); if(ec) ec.innerHTML='<div style="text-align:center;padding:60px 0"><div class="co-spinner"></div></div>';
   try{ coRenderReviewNames(); }catch(e){}
+  try{ coRenderIntakeReview(); }catch(e){}
   // Guarda: si por algún estado raro del carrito el total es 0, no cuelgues el
   // spinner — avisa y deja volver.
   var r; try{ r=coComputeTotal(); }catch(e){ r={total:0,lines:[]}; }
@@ -1277,6 +1295,47 @@ function coRenderReview(lines, total){
   var r=coComputeTotal();
   host.innerHTML=r.lines.map(coLineRow).join('')+coRaUpsellNote();
   $('co-review-total').textContent='$'+((total!=null)?total:r.total);
+}
+// ── Revisión de lo que el cliente llenó (paso 8) con opción de editar ────────
+function coEsc(s){ return String(s||'').replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+function coEditStep(id){ var idx=-1; coSteps.forEach(function(s,i){ if(s.id===id) idx=i; }); if(idx<0) return; coDestroyStripe(); coGoStep(idx); }
+function coHasStep(id){ return coSteps.some(function(s){ return s.id===id; }); }
+function coIrBlock(label, val, stepId){
+  if(!val) return ''; var isEs=coIsEs();
+  return '<div class="co-ir-block"><div class="co-ir-row"><span class="co-ir-label">'+label+'</span>'
+    +(stepId?'<button type="button" class="co-ir-edit" onclick="coEditStep(\''+stepId+'\')">'+(isEs?'Editar':'Edit')+'</button>':'')
+    +'</div><div class="co-ir-val">'+val+'</div></div>';
+}
+function coRenderIntakeReview(){
+  var host=$('co-review-intake'); if(!host) return; var isEs=coIsEs();
+  var v=function(id){ var e=$(id); return e?(e.value||'').trim():''; };
+  var ft=coFormationType(); var out='';
+  // Empresa
+  var comp=v('f-legalName'); if(ft){ var d=$('f-designator'); comp=(comp+' '+(d?d.value:'')).trim(); }
+  out+=coIrBlock(isEs?'Empresa':'Company', coEsc(comp), 'panel-company');
+  var baddr=[v('f-street'),v('f-apt'),v('f-city'),v('f-state'),v('f-zip')].filter(Boolean).join(', ');
+  out+=coIrBlock(isEs?'Dirección de la empresa':'Business address', coEsc(baddr), 'panel-company');
+  // Contacto
+  var contact=[(v('f-firstName')+' '+v('f-lastName')).trim(), v('f-email'), v('f-phone')].filter(Boolean).join(' · ');
+  out+=coIrBlock(isEs?'Contacto':'Contact', coEsc(contact), 'panel-contact');
+  var paddr=[v('p-street'),v('p-apt'),v('p-city'),v('p-state'),v('p-zip')].filter(Boolean).join(', ');
+  out+=coIrBlock(isEs?'Tu dirección':'Your address', coEsc(paddr), 'panel-contact');
+  // Agente registrado
+  if(coHasStep('panel-ra')){
+    var ra = coRaChoice==='own' ? (isEs?'Seré mi propio agente':'I am my own agent') : (isEs?'Nuestro servicio (gratis el 1er año)':'Our service (free 1st year)');
+    if(coRaChoice==='own'){ var rn=(v('x-'+coFormId+'-raFirstName')+' '+v('x-'+coFormId+'-raLastName')).trim(); var rad=[v('x-'+coFormId+'-raStreet'),v('x-'+coFormId+'-raCity'),v('x-'+coFormId+'-raZip')].filter(Boolean).join(', '); ra+=(rn?' — '+rn:'')+(rad?' ('+rad+')':''); }
+    out+=coIrBlock(isEs?'Agente registrado':'Registered agent', coEsc(ra), 'panel-ra');
+  }
+  // Dueños / Directores
+  if(coHasStep('panel-owners')){
+    var list=[]; document.querySelectorAll('#panel-owners .rep-row').forEach(function(r){
+      var g=function(c){ var el=r.querySelector('.rep-cell[data-col="'+c+'"]'); return el?(el.value||'').trim():''; };
+      var nm=(g('firstName')+' '+g('lastName')).trim()||g('name'); var role=g('role'), pct=g('pct');
+      if(nm){ var extra=[role,pct?pct+'%':''].filter(Boolean).join(', '); list.push(coEsc(nm)+(extra?' ('+coEsc(extra)+')':'')); }
+    });
+    if(list.length) out+=coIrBlock(isEs?'Dueños':'Owners', list.join('<br>'), 'panel-owners');
+  }
+  host.innerHTML = out ? '<div class="co-intake-review"><h3>'+(isEs?'Tu información':'Your information')+'</h3>'+out+'</div>' : '';
 }
 function coMountStripe(clientSecret){
   var pk=window.__OPABIZ_PK__;
