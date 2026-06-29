@@ -142,3 +142,12 @@ los precios (individuales + bundles) antes de lanzar.
 - Precio mensual real del Virtual Address (quedó $99/mo placeholder).
 - Cablear **Stripe subscriptions reales** + botón de cancelación en el portal.
 - SSN: se decidió dejarlo como paso propio (no dentro del box de la oferta).
+- **EDITAR DESDE LA REVISIÓN — "estándar de oro" (FUTURO):** hoy "Editar" salta al
+  paso (`coEditStep`) y el cliente vuelve por el flujo normal. El gold standard
+  (Amazon/Shopify/Stripe Checkout) es **edición inline tipo acordeón**: toda la
+  revisión en una sola pantalla, cada sección (empresa, dirección, dueños, agente)
+  con "Editar" que la abre AHÍ mismo, se edita y se cierra de vuelta, sin navegar.
+  Implica reescribir el paso de revisión para editar in-situ (no saltar a pasos).
+  Mientras tanto, mejora rápida disponible (NO hecha): patrón "Volver a revisar
+  orden" — un botón en el paso editado que valida y salta directo a la revisión
+  (flag de origen en `coEditStep`).
