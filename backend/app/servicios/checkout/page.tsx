@@ -604,11 +604,11 @@ function coServiceIds(ft){
     return coVisibleFields(id, ft).length>0;
   });
 }
-function coServiceCardHtml(svcId, ft){
+function coServiceCardHtml(svcId, ft, hideTitle){
   var def=SVC_EXTRAS[svcId]; var isEs=coIsEs();
   var name = def ? (isEs?def.name_es:def.name_en) : svcId;
   var fields = coVisibleFields(svcId, ft);
-  var html='<div class="co-card"><div class="co-card-title">'+name+'</div>';
+  var html='<div class="co-card">'+(hideTitle?'':'<div class="co-card-title">'+name+'</div>');
   if(fields.length){
     var noteEn=(def.note_en!=null)?def.note_en:'Specific details for this service';
     var noteEs=(def.note_es!=null)?def.note_es:'Detalles específicos de este servicio';
@@ -942,7 +942,13 @@ function coSetRaChoice(choice){
   if(bw) bw.classList.toggle('sel',choice==='own');
   var form=$('co-ra-own-form'); if(form) form.style.display=(choice==='own')?'':'none';
   var prefEl=$('x-'+coFormId+'-raPref'); if(prefEl) prefEl.value=choice;
-  if(choice==='own'){ coRenderRaAddrOptions(); }
+  if(choice==='own'){
+    // Prellena el nombre del agente con el del contacto (paso 2) si está vacío.
+    var ff=$('x-'+coFormId+'-raFirstName'), fl=$('x-'+coFormId+'-raLastName');
+    if(ff&&!ff.value) ff.value=(($('f-firstName')||{}).value||'');
+    if(fl&&!fl.value) fl.value=(($('f-lastName')||{}).value||'');
+    coRenderRaAddrOptions();
+  }
   coUpdateOrderSummary();
 }
 // ── Hubs de upsell (3 tiers estilo LegalZoom) — combos DINÁMICOS ─────────────
@@ -969,21 +975,24 @@ function coTierBullets(svcIds, owned){
 }
 function coRenderHub(hub){
   var panel=$(HUBS[hub].panel); if(!panel) return; var isEs=coIsEs(); var cfg=HUBS[hub];
-  // Combos dinámicos: solo se muestran los tiers que AGREGAN algo nuevo (o el ya
-  // seleccionado, para poder cambiarlo). El precio se ajusta acreditando lo que el
-  // cliente ya tiene en el carrito ("precio del faltante").
+  // Servicios "pre-poseídos": están en el carrito pero NO por un combo seleccionado
+  // de ESTE hub (ej. agregados à la carte antes). Solo a ESOS se les acredita el
+  // precio. Así, elegir un tier del hub NO borra los otros ni descuenta de más.
+  var coveredSel={}; coBundles.forEach(function(x){ if(BUNDLE_HUB[x]===hub){ var bb=BUNDLES_CLIENT[x]; if(bb) bb.services.forEach(function(s){ coveredSel[s]=1; }); } });
+  var preOwned={}; cfg.services.forEach(function(s){ if(cart.indexOf(s)>=0 && !coveredSel[s]) preOwned[s]=1; });
+  // Tiers: el seleccionado siempre; los demás solo si agregan algo más allá de lo pre-poseído.
   var renderTiers=cfg.tiers.filter(function(bid){
     var b=BUNDLES_CLIENT[bid]; if(!b) return false;
     if(coBundles.indexOf(bid)>=0) return true;
-    return b.services.some(function(s){ return cart.indexOf(s)<0; });
+    return b.services.some(function(s){ return !preOwned[s]; });
   });
-  var anyOwned=cfg.services.some(function(s){ return cart.indexOf(s)>=0; }) && coBundles.filter(function(x){return BUNDLE_HUB[x]===hub;}).length===0;
+  var anyOwned=Object.keys(preOwned).length>0;
   var tiers=renderTiers.map(function(bid, i){
     var b=BUNDLES_CLIENT[bid];
     var sel=(coBundles.indexOf(bid)>=0);
     var owned={}, ownedFee=0;
-    b.services.forEach(function(s){ if(!sel && cart.indexOf(s)>=0){ owned[s]=1; var sv=SVC_CATALOG[s]; if(sv) ownedFee+=sv.serviceFee; } });
-    var price=Math.max(0, b.price-ownedFee);          // marginal: crédito de lo ya elegido
+    b.services.forEach(function(s){ if(preOwned[s]){ owned[s]=1; var sv=SVC_CATALOG[s]; if(sv) ownedFee+=sv.serviceFee; } });
+    var price=Math.max(0, b.price-ownedFee);          // marginal: crédito de lo pre-poseído
     var newIndiv=0; b.services.forEach(function(s){ if(!owned[s]){ var sv=SVC_CATALOG[s]; if(sv) newIndiv+=sv.serviceFee; } });
     var save=newIndiv-price;
     var cad={}, ncad=0; b.services.forEach(function(s){ var sv=SVC_CATALOG[s]; if(sv&&sv.billing){ if(!cad[sv.billing]){cad[sv.billing]=1;ncad++;} } });
@@ -1136,9 +1145,14 @@ function coRenderServicePages(ft){
   // Los datos fiscales (SSN/ITIN) ya NO van aquí: tienen su propio paso (panel-tax).
   pages.forEach(function(pageIds, idx){
     var pid='panel-svc-'+idx;
-    var inner=pageIds.map(function(id){ return coServiceCardHtml(id, ft); }).join('');
-    host.insertAdjacentHTML('beforeend','<div class="co-panel" id="'+pid+'" style="display:none"><h1 class="co-h1" data-en="Service details" data-es="Datos del servicio">'+(isEs?'Datos del servicio':'Service details')+'</h1>'+inner+'</div>');
-    coServicePages.push({id:pid});
+    // Si el paso tiene UN solo servicio, el título del paso es el nombre del
+    // servicio (contexto claro) y se omite el título repetido dentro del card.
+    var single = pageIds.length===1 ? SVC_EXTRAS[pageIds[0]] : null;
+    var tEn = single ? single.name_en : 'Service details';
+    var tEs = single ? single.name_es : 'Datos del servicio';
+    var inner=pageIds.map(function(id){ return coServiceCardHtml(id, ft, !!single); }).join('');
+    host.insertAdjacentHTML('beforeend','<div class="co-panel" id="'+pid+'" style="display:none"><h1 class="co-h1" data-en="'+tEn+'" data-es="'+tEs+'">'+(isEs?tEs:tEn)+'</h1>'+inner+'</div>');
+    coServicePages.push({id:pid, title:{en:tEn, es:tEs}});
   });
 }
 
@@ -1177,7 +1191,7 @@ function coBuildWizard(){
   if(!ft && coTaxNeeded){ coRenderTaxPanel(); coSteps.push({id:'panel-tax', title:{en:'Tax details',es:'Datos fiscales'}}); }
 
   coRenderServicePages(ft);
-  coServicePages.forEach(function(p){ coSteps.push({id:p.id, title:{en:'Service details',es:'Datos del servicio'}}); });
+  coServicePages.forEach(function(p){ coSteps.push({id:p.id, title:p.title||{en:'Service details',es:'Datos del servicio'}}); });
 
   // Último paso: revisar la orden + pagar (Stripe). La autorización se da al
   // completar el pago (disclosure en el paso de pago); ya no hay paso de firma.
