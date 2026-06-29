@@ -105,7 +105,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
       <a href="/#pricing" data-en="Packages" data-es="Paquetes">Packages</a>
       <a href="/servicios" data-en="Services" data-es="Servicios">Services</a>
       <a href="/#faq" data-en="FAQ" data-es="Preguntas">FAQ</a>
-      <a href="/#contact" data-en="Contact" data-es="Contacto">Contact</a>
+      <a href="/contact" data-en="Contact" data-es="Contacto">Contact</a>
     </nav>
     <div style="display:flex;align-items:center;gap:11px">
       <div class="lang-toggle">
