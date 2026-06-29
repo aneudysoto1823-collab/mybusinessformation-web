@@ -295,6 +295,9 @@ html.co-wide .co-tier{padding:20px 18px}
     <div class="co-panel" id="panel-hub-docs" style="display:none"></div>
     <div class="co-panel" id="panel-hub-protect" style="display:none"></div>
 
+    <!-- STEP: DATOS FISCALES (SSN/ITIN) — condicional, según servicios elegidos -->
+    <div class="co-panel" id="panel-tax" style="display:none"></div>
+
     <!-- STEPS: SERVICES (dinámico) -->
     <div id="co-svc-host"></div>
 
@@ -791,9 +794,9 @@ function coSetupOwnersPanel(ft){
 // Campos compartidos (SSN/ITIN) — se muestran como una tarjeta dentro del paso
 // "Datos del servicio" (solo si algún servicio elegido los requiere). Cada uno
 // trae un tooltip que explica para qué se necesita.
-function coSharedFieldsHtml(){
-  var keys=coSharedKeysActive(); if(!keys.length) return ''; var isEs=coIsEs();
-  var fields=keys.map(function(k){ var f=SHARED_CFG[k]; if(!f) return ''; var lbl=isEs?f.es:f.en;
+function coSharedFieldsInner(keys){
+  var isEs=coIsEs();
+  return keys.map(function(k){ var f=SHARED_CFG[k]; if(!f) return ''; var lbl=isEs?f.es:f.en;
     var tip=isEs?(f.tipEs||''):(f.tipEn||'');
     var tipHtml = tip ? ' <span class="co-tip">?<span class="co-tip-box">'+tip+'</span></span>' : '';
     var inner = (k==='ssnItin')
@@ -801,9 +804,24 @@ function coSharedFieldsHtml(){
       : '<input class="co-input" type="text" id="s-'+k+'"/>';
     return '<div class="co-field full"><label class="co-label">'+lbl+tipHtml+'</label>'+inner+'</div>';
   }).join('');
-  return '<div class="co-card"><div class="co-card-title">'+(isEs?'Datos fiscales':'Tax details')+'</div>'
-    +'<div class="co-card-svc">'+(isEs?'Requerido para los servicios que elegiste':'Required for the services you chose')+'</div>'
-    +'<div class="co-grid">'+fields+'</div></div>';
+}
+// Paso propio "Datos fiscales": aparece justo después de elegir un servicio que
+// requiere SSN/ITIN (ej. EIN), con el contexto fresco. Muestra el responsible
+// party ya cargado y deja solo el SSN/ITIN por llenar.
+function coRenderTaxPanel(){
+  var panel=$('panel-tax'); if(!panel) return; var isEs=coIsEs();
+  var keys=coSharedKeysActive(); if(!keys.length){ panel.innerHTML=''; return; }
+  // Servicios que disparan estos datos (para explicar el porqué).
+  var trig=[]; cart.forEach(function(svcId){ var def=SVC_EXTRAS[svcId]; if(def&&def.shared&&def.shared.some(function(k){return keys.indexOf(k)>=0;})){ trig.push(isEs?def.name_es:def.name_en); } });
+  var why = trig.length
+    ? (isEs?('Para tu '+trig.join(', ')+' necesitamos un dato más.'):('For your '+trig.join(', ')+' we need one more detail.'))
+    : (isEs?'Un dato más para tu trámite.':'One more detail for your filing.');
+  var rp=((($('f-firstName')||{}).value||'')+' '+(($('f-lastName')||{}).value||'')).trim();
+  panel.innerHTML='<h1 class="co-h1">'+(isEs?'Datos fiscales':'Tax details')+'</h1>'
+    +'<p class="co-sub">'+coEsc(why)+'</p>'
+    +'<div class="co-card">'
+    +(rp?'<div class="co-ir-block" style="border:none;padding:0 0 12px"><div class="co-ir-label">'+(isEs?'Responsible party':'Responsible party')+'</div><div class="co-ir-val">'+coEsc(rp)+'</div></div>':'')
+    +'<div class="co-grid">'+coSharedFieldsInner(keys)+'</div></div>';
 }
 
 // Tarjetas de upsell (Registered Agent / Virtual Address). Explican qué son, por
@@ -927,20 +945,22 @@ function coSetRaChoice(choice){
   if(choice==='own'){ coRenderRaAddrOptions(); }
   coUpdateOrderSummary();
 }
-// ── Hubs de upsell (3 tiers estilo LegalZoom) ───────────────────────────────
-// Un hub se ofrece si el cliente aún no tiene ninguno de sus servicios (o ya
-// eligió un tier de ese hub, para poder cambiarlo).
+// ── Hubs de upsell (3 tiers estilo LegalZoom) — combos DINÁMICOS ─────────────
+// El hub se ofrece mientras falte al menos un servicio suyo por agregar (o si ya
+// se eligió un tier, para poder cambiarlo). Si ya tiene todos, no se muestra.
 function coHubApplicable(hub){
   var cfg=HUBS[hub];
   for(var b=0;b<coBundles.length;b++){ if(BUNDLE_HUB[coBundles[b]]===hub) return true; }
-  for(var i=0;i<cfg.services.length;i++){ if(cart.indexOf(cfg.services[i])>=0) return false; }
-  return true;
+  for(var i=0;i<cfg.services.length;i++){ if(cart.indexOf(cfg.services[i])<0) return true; }
+  return false;
 }
-function coTierBullets(svcIds){
-  var isEs=coIsEs(); var out='';
+// owned: mapa {svcId:1} de servicios que el cliente ya tiene (se marcan con ✓).
+function coTierBullets(svcIds, owned){
+  owned=owned||{}; var isEs=coIsEs(); var out='';
   svcIds.forEach(function(s){ var bl=SVC_BLURBS[s]; if(!bl) return;
     var svc=SVC_CATALOG[s]; var suf=svc?coBillingSuffix(svc.billing):'';
-    out+='<div class="co-tier-svc">'+(isEs?bl.nameEs:bl.nameEn)+(suf?' <em style="font-style:normal;color:#64748b;font-weight:600">'+suf+'</em>':'')+'</div>';
+    var ownTag = owned[s] ? ' <em style="font-style:normal;color:#059669;font-weight:700">'+(isEs?'· ya lo tienes':'· already added')+'</em>' : '';
+    out+='<div class="co-tier-svc">'+(isEs?bl.nameEs:bl.nameEn)+(suf?' <em style="font-style:normal;color:#64748b;font-weight:600">'+suf+'</em>':'')+ownTag+'</div>';
     (isEs?bl.es:bl.en).forEach(function(txt){
       out+='<div class="co-tier-incl-item"><span class="co-tier-incl-check">&#10003;</span><span>'+txt+'</span></div>';
     });
@@ -949,26 +969,39 @@ function coTierBullets(svcIds){
 }
 function coRenderHub(hub){
   var panel=$(HUBS[hub].panel); if(!panel) return; var isEs=coIsEs(); var cfg=HUBS[hub];
-  var tiers=cfg.tiers.map(function(bid, i){
-    var b=BUNDLES_CLIENT[bid]; if(!b) return '';
-    var indiv=0; b.services.forEach(function(s){ var svc=SVC_CATALOG[s]; if(svc) indiv+=svc.serviceFee; });
-    var save=indiv-b.price;
-    // Cadencia del combo: sufijo solo si todos sus recurrentes comparten una.
+  // Combos dinámicos: solo se muestran los tiers que AGREGAN algo nuevo (o el ya
+  // seleccionado, para poder cambiarlo). El precio se ajusta acreditando lo que el
+  // cliente ya tiene en el carrito ("precio del faltante").
+  var renderTiers=cfg.tiers.filter(function(bid){
+    var b=BUNDLES_CLIENT[bid]; if(!b) return false;
+    if(coBundles.indexOf(bid)>=0) return true;
+    return b.services.some(function(s){ return cart.indexOf(s)<0; });
+  });
+  var anyOwned=cfg.services.some(function(s){ return cart.indexOf(s)>=0; }) && coBundles.filter(function(x){return BUNDLE_HUB[x]===hub;}).length===0;
+  var tiers=renderTiers.map(function(bid, i){
+    var b=BUNDLES_CLIENT[bid];
+    var sel=(coBundles.indexOf(bid)>=0);
+    var owned={}, ownedFee=0;
+    b.services.forEach(function(s){ if(!sel && cart.indexOf(s)>=0){ owned[s]=1; var sv=SVC_CATALOG[s]; if(sv) ownedFee+=sv.serviceFee; } });
+    var price=Math.max(0, b.price-ownedFee);          // marginal: crédito de lo ya elegido
+    var newIndiv=0; b.services.forEach(function(s){ if(!owned[s]){ var sv=SVC_CATALOG[s]; if(sv) newIndiv+=sv.serviceFee; } });
+    var save=newIndiv-price;
     var cad={}, ncad=0; b.services.forEach(function(s){ var sv=SVC_CATALOG[s]; if(sv&&sv.billing){ if(!cad[sv.billing]){cad[sv.billing]=1;ncad++;} } });
     var priceSuf=ncad===1?coBillingSuffix(Object.keys(cad)[0]):'';
-    var best=(i===cfg.tiers.length-1);
-    var sel=(coBundles.indexOf(bid)>=0);
+    var best=(i===renderTiers.length-1);
+    var pfx=ownedFee>0?'+':'';
     return '<div class="co-tier'+(best?' best':'')+(sel?' sel':'')+'" style="cursor:pointer" onclick="coSelectTier(\''+hub+'\',\''+bid+'\')">'
       +(best?'<div class="co-tier-badge">'+(isEs?'Mejor valor':'Best value')+'</div>':'')
       +'<div class="co-tier-name">'+(isEs?b.name_es:b.name_en)+'</div>'
-      +'<div class="co-tier-price">$'+b.price+'</div>'+(priceSuf?'<div style="font-size:.72rem;color:#64748b;font-weight:600;margin-top:-4px">'+priceSuf+'</div>':'')
+      +'<div class="co-tier-price">'+pfx+'$'+price+'</div>'+(priceSuf?'<div style="font-size:.72rem;color:#64748b;font-weight:600;margin-top:-4px">'+priceSuf+'</div>':'')
       +(save>0?'<div class="co-tier-save">'+(isEs?'Ahorras $':'Save $')+save+'</div>':'<div style="height:10px"></div>')
-      +'<div class="co-tier-incl">'+coTierBullets(b.services)+'</div>'
+      +'<div class="co-tier-incl">'+coTierBullets(b.services, owned)+'</div>'
       +'<button class="co-tier-btn" onclick="event.stopPropagation();coSelectTier(\''+hub+'\',\''+bid+'\')">'+(sel?(isEs?'&#10003; Seleccionado':'&#10003; Selected'):(isEs?'Seleccionar':'Select'))+'</button>'
       +'</div>';
   }).join('');
   panel.innerHTML='<h1 class="co-h1">'+(isEs?cfg.titleEs:cfg.titleEn)+'</h1>'
     +'<p class="co-sub">'+(isEs?cfg.subEs:cfg.subEn)+'</p>'
+    +(anyOwned?'<div class="co-state-note" style="text-align:center;margin:-4px 0 12px;color:#059669;font-weight:600">'+(isEs?'Ya tienes parte de este combo — el precio muestra solo lo que falta.':'You already have part of this combo — the price shows only what is missing.')+'</div>':'')
     +'<div class="co-tiers">'+tiers+'</div>'
     +'<button type="button" class="co-hub-nothanks" onclick="coHubNoThanks(\''+hub+'\')">'+(isEs?'No, gracias':'No thanks')+'</button>';
 }
@@ -1100,13 +1133,10 @@ function coRenderServicePages(ft){
     cur.push(id); curW += w;
   });
   if(cur.length) pages.push(cur);
-  // Datos fiscales (SSN/ITIN) van como tarjeta extra en la última página de datos.
-  var sharedHtml=coSharedFieldsHtml();
-  if(!pages.length && sharedHtml) pages.push([]); // página propia si no hay servicios con datos
+  // Los datos fiscales (SSN/ITIN) ya NO van aquí: tienen su propio paso (panel-tax).
   pages.forEach(function(pageIds, idx){
     var pid='panel-svc-'+idx;
     var inner=pageIds.map(function(id){ return coServiceCardHtml(id, ft); }).join('');
-    if(idx===pages.length-1 && sharedHtml) inner+=sharedHtml;
     host.insertAdjacentHTML('beforeend','<div class="co-panel" id="'+pid+'" style="display:none"><h1 class="co-h1" data-en="Service details" data-es="Datos del servicio">'+(isEs?'Datos del servicio':'Service details')+'</h1>'+inner+'</div>');
     coServicePages.push({id:pid});
   });
@@ -1139,7 +1169,12 @@ function coBuildWizard(){
   // Hubs de upsell (3 tiers). Van antes de los datos de servicios para que lo que
   // el cliente agregue genere su paso de datos a continuación.
   if(coHubApplicable('docs')){ coRenderHub('docs'); coSteps.push({id:'panel-hub-docs', title:{en:'Essential documents',es:'Documentos esenciales'}}); }
+  // Datos fiscales (SSN/ITIN): paso propio. En formación va ENTRE los dos hubs
+  // (contexto fresco tras elegir el EIN); à la carte va después de ambos hubs.
+  var coTaxNeeded=coSharedKeysActive().length>0;
+  if(ft && coTaxNeeded){ coRenderTaxPanel(); coSteps.push({id:'panel-tax', title:{en:'Tax details',es:'Datos fiscales'}}); }
   if(coHubApplicable('protect')){ coRenderHub('protect'); coSteps.push({id:'panel-hub-protect', title:{en:'Protection & compliance',es:'Protección y cumplimiento'}}); }
+  if(!ft && coTaxNeeded){ coRenderTaxPanel(); coSteps.push({id:'panel-tax', title:{en:'Tax details',es:'Datos fiscales'}}); }
 
   coRenderServicePages(ft);
   coServicePages.forEach(function(p){ coSteps.push({id:p.id, title:{en:'Service details',es:'Datos del servicio'}}); });
@@ -1174,6 +1209,9 @@ function coGoStep(i){
   // como recomendado (badge). El cliente debe hacer clic para seleccionarlo (recién
   // ahí entra al resumen). Si ya eligió "propio agente", recalcula direcciones FL.
   if(coSteps[i].id==='panel-ra' && coRaChoice==='own') coRenderRaAddrOptions();
+  // Datos fiscales: refresca el responsible party / contexto al entrar, sin borrar
+  // lo que ya escribió el cliente.
+  if(coSteps[i].id==='panel-tax'){ var _ssn=(($('s-ssnItin')||{}).value)||'', _ein=(($('s-ein')||{}).value)||''; coRenderTaxPanel(); if($('s-ssnItin')) $('s-ssnItin').value=_ssn; if($('s-ein')) $('s-ein').value=_ein; }
   // Modo ancho en los hubs de tiers (cards más anchas, estilo LegalZoom).
   var isHub = coSteps[i].id.indexOf('panel-hub-')===0;
   try{ document.documentElement.classList.toggle('co-wide', isHub); }catch(e){}
@@ -1251,6 +1289,12 @@ function coValidateStep(i){
       var raS=(($('x-'+coFormId+'-raStreet')||{}).value||'').trim();
       if(raF.length<1||raL.length<1||raS.length<3){ err.textContent=isEs?'Ingresa el nombre, apellido y dirección de tu agente registrado.':'Enter your registered agent first name, last name and address.'; return false; }
     }
+    return true;
+  }
+  if(id==='panel-tax'){
+    var ak=coSharedKeysActive();
+    if(ak.indexOf('ssnItin')>=0 && (($('s-ssnItin')||{}).value||'').trim().length<5){ err.textContent=isEs?'Ingresa tu SSN o ITIN.':'Enter your SSN or ITIN.'; return false; }
+    if(ak.indexOf('ein')>=0 && (($('s-ein')||{}).value||'').trim().length<3){ err.textContent=isEs?'Ingresa tu EIN.':'Enter your EIN.'; return false; }
     return true;
   }
   if(id==='panel-contact'){
