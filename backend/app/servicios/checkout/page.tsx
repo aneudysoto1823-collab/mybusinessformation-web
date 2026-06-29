@@ -130,9 +130,11 @@ body{font-family:var(--font-sans),'Plus Jakarta Sans',system-ui,sans-serif;color
 @keyframes cospin{to{transform:rotate(360deg)}}
 /* Recomendado: cajas de elección (estilo paquetes) */
 .co-choices{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0 0}
-.co-choice{border:1.5px solid var(--gray200);border-radius:12px;padding:15px 16px;cursor:pointer;transition:all .2s;background:#fff;display:flex;flex-direction:column;gap:6px}
+.co-choice{position:relative;border:1.5px solid var(--gray200);border-radius:12px;padding:15px 16px;cursor:pointer;transition:all .2s;background:#fff;display:flex;flex-direction:column;gap:6px}
 .co-choice:hover{border-color:#93c5fd}
 .co-choice.sel{border-color:var(--blue);background:var(--blue-light)}
+.co-choice-rec{border-color:#bfdbfe}
+.co-rec-badge{position:absolute;top:-9px;left:14px;background:var(--blue);color:#fff;font-size:.64rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:3px 9px;border-radius:20px}
 .co-choice-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .co-choice-title{font-size:.88rem;font-weight:700;color:var(--navy)}
 .co-choice-price{font-size:.85rem;font-weight:800;color:var(--navy);font-family:var(--font-serif),serif;flex-shrink:0}
@@ -439,7 +441,10 @@ var SVC_BLURBS = {
 };
 // Campos que la formación ya captura (en los pasos Empresa/Dueños): se ocultan en
 // los demás servicios para no duplicar.
-var HIDE_KEYS_IN_FORMATION = { 'activity':1, 'mgmt':1, 'members':1, 'officers':1, 'raPref':1, 'shares':1, 'directors':1 };
+// En formación ya capturamos: condado (de la dirección de la empresa), tipo de
+// negocio (actividad) y nº de empleados (card de la empresa). Por eso el Local
+// Business Tax Receipt no pide nada extra y no genera paso aparte.
+var HIDE_KEYS_IN_FORMATION = { 'activity':1, 'mgmt':1, 'members':1, 'officers':1, 'raPref':1, 'shares':1, 'directors':1, 'county':1, 'industry':1, 'employees':1 };
 
 var coFormId = null; // 'llc-formation' | 'corp-formation' | null
 var coRaChoice = null; // 'ours' | 'own' | null — elección de Agente Registrado (paso Recomendado)
@@ -756,7 +761,7 @@ function coSetupCompanyPanel(ft){
     var nl=$('co-name-label'); if(nl){ nl.setAttribute('data-en','Desired company name'); nl.setAttribute('data-es','Nombre deseado de la empresa'); nl.textContent=isEs?'Nombre deseado de la empresa':'Desired company name'; }
     var df=$('co-designator-field'), ds=$('f-designator');
     if(df&&ds){ df.style.display=''; ds.innerHTML=(DESIGNATORS[ft]||[]).map(function(o){return '<option>'+o+'</option>';}).join(''); }
-    if(extra){ var ah=''; ['activity','activityDesc'].forEach(function(k){ var fd=coFieldDef(coFormId,k); if(fd) ah+=fieldHtml(coFormId,fd); }); if(ah) extra.innerHTML='<div class="co-grid">'+ah+'</div>'; }
+    if(extra){ var ah=''; ['activity','activityDesc','employees'].forEach(function(k){ var fd=coFieldDef(coFormId,k); if(fd) ah+=fieldHtml(coFormId,fd); }); if(ah) extra.innerHTML='<div class="co-grid">'+ah+'</div>'; }
     var sub=$('co-company-sub'); if(sub){ sub.setAttribute('data-en','Enter your new company name and details.'); sub.setAttribute('data-es','Ingresa el nombre y los datos de tu nueva empresa.'); sub.textContent=isEs?'Ingresa el nombre y los datos de tu nueva empresa.':'Enter your new company name and details.'; }
   } else {
     coFormId=null;
@@ -836,7 +841,8 @@ function coRenderRaPanel(){
     +'<div class="co-card">'
       +'<div class="co-ra-info">&#128221; '+infoTxt+'</div>'
       +'<div class="co-choices">'
-        +'<div class="co-choice'+(oursSel?' sel':'')+'" id="co-ra-ours" onclick="coSetRaChoice(\'ours\')">'
+        +'<div class="co-choice co-choice-rec'+(oursSel?' sel':'')+'" id="co-ra-ours" onclick="coSetRaChoice(\'ours\')">'
+          +'<span class="co-rec-badge">'+(isEs?'Recomendado':'Recommended')+'</span>'
           +'<div class="co-choice-top"><span class="co-choice-title">&#127963; '+(isEs?'Usa nuestro servicio de Agente Registrado':'Use our Registered Agent service')+'</span><span class="co-choice-price"><s style="color:#94a3b8;font-weight:600">$99</s></span></div>'
           +'<div style="color:#059669;font-weight:700;font-size:.8rem;margin-top:2px">&#10003; '+(isEs?'Gratis el primer año':'Free the first year')+'</div>'
           +'<div class="co-choice-desc">'+oursDesc+' '+(isEs?'Primer año gratis; luego se renueva automáticamente a $99/año hasta que lo canceles.':'First year free; then renews automatically at $99/yr until you cancel.')+'</div>'
@@ -1164,13 +1170,10 @@ function coGoStep(i){
   // la sesión de Stripe + monta el formulario. Centralizado aquí para que funcione
   // sin importar cómo se llegue al paso (Continuar, "No gracias" de un hub, etc.).
   if(isPay){ coTranslateStatic(); coStartPayment(); }
-  // Al entrar al paso de Agente Registrado: si aún no hay elección, preselecciona
-  // "nuestro servicio" (recomendado) aquí — no antes — para no meterlo al carrito
-  // desde el paso 1. Si ya eligió "propio agente", recalcula las direcciones FL.
-  if(coSteps[i].id==='panel-ra'){
-    if(coRaChoice==null) coSetRaChoice('ours');
-    else if(coRaChoice==='own') coRenderRaAddrOptions();
-  }
+  // Agente Registrado: NO se preselecciona; "nuestro servicio" solo se muestra
+  // como recomendado (badge). El cliente debe hacer clic para seleccionarlo (recién
+  // ahí entra al resumen). Si ya eligió "propio agente", recalcula direcciones FL.
+  if(coSteps[i].id==='panel-ra' && coRaChoice==='own') coRenderRaAddrOptions();
   // Modo ancho en los hubs de tiers (cards más anchas, estilo LegalZoom).
   var isHub = coSteps[i].id.indexOf('panel-hub-')===0;
   try{ document.documentElement.classList.toggle('co-wide', isHub); }catch(e){}

@@ -89,6 +89,9 @@ export const SERVICE_FIELDS: Record<string, ServiceFieldDef> = {
     note_en: 'Owners and how the LLC is run', note_es: 'Dueños y cómo se maneja la LLC', fields: [
     { k: 'activity', en: 'Primary business activity', es: 'Actividad principal del negocio', type: 'select', opts: ['Retail & E-Commerce', 'Real Estate', 'Restaurant / Food', 'Construction', 'Technology', 'Consulting', 'Import / Export', 'Health & Wellness', 'Other'] },
     { k: 'activityDesc', en: 'Briefly describe what your business does', es: 'Describe brevemente qué hace tu negocio', type: 'textarea' },
+    // Nº de empleados: se pide en el card de la empresa para reusarlo en el Local
+    // Business Tax Receipt (así no genera un paso aparte cuando hay formación).
+    { k: 'employees', en: 'Number of employees', es: 'Número de empleados', type: 'select', opts: ['0 (Owner only)', '1-5', '6-10', '11-25', '25+'] },
     // Agente registrado: se decide en el paso "Recomendado" (dos cajas). Estos
     // campos se capturan ahí cuando el cliente elige ser su propio agente.
     { k: 'raPref', en: 'Registered Agent', es: 'Agente registrado', type: 'select', opts: ['ours', 'own'] },
@@ -116,6 +119,7 @@ export const SERVICE_FIELDS: Record<string, ServiceFieldDef> = {
     note_en: 'Directors, officers and shares', note_es: 'Directores, oficiales y acciones', fields: [
     { k: 'activity', en: 'Primary business activity', es: 'Actividad principal del negocio', type: 'select', opts: ['Retail & E-Commerce', 'Real Estate', 'Restaurant / Food', 'Construction', 'Technology', 'Consulting', 'Import / Export', 'Health & Wellness', 'Other'] },
     { k: 'activityDesc', en: 'Briefly describe what your business does', es: 'Describe brevemente qué hace tu negocio', type: 'textarea' },
+    { k: 'employees', en: 'Number of employees', es: 'Número de empleados', type: 'select', opts: ['0 (Owner only)', '1-5', '6-10', '11-25', '25+'] },
     // Agente registrado: se decide en el paso "Recomendado" (dos cajas).
     { k: 'raPref', en: 'Registered Agent', es: 'Agente registrado', type: 'select', opts: ['ours', 'own'] },
     { k: 'raFirstName', en: 'First name', es: 'Nombre', type: 'text' },
