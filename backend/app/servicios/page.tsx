@@ -729,7 +729,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
       <a href="/" data-en="Home" data-es="Inicio">Inicio</a>
       <a href="/#pricing" data-en="Formation Packages" data-es="Paquetes de Formación">Paquetes de Formación</a>
       <a href="/#faq" data-en="FAQ" data-es="Preguntas Frecuentes">Preguntas Frecuentes</a>
-      <a href="/#contact" data-en="Contact" data-es="Contacto">Contacto</a>
+      <a href="/contact" data-en="Contact" data-es="Contacto">Contacto</a>
     </nav>
     <div style="display:flex;align-items:center;gap:11px">
       <div class="lang-toggle">
@@ -811,7 +811,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
         <a href="/" data-en="Home" data-es="Inicio">Inicio</a>
         <a href="/#pricing" data-en="Packages" data-es="Paquetes">Paquetes</a>
         <a href="/#faq" data-en="FAQ" data-es="FAQ">FAQ</a>
-        <a href="/#contact" data-en="Contact" data-es="Contacto">Contacto</a>
+        <a href="/contact" data-en="Contact" data-es="Contacto">Contacto</a>
         <a href="/about" data-en="About Us" data-es="Nosotros">About Us</a>
       </div>
       <div class="footer-col">
