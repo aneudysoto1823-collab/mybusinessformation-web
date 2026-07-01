@@ -344,7 +344,10 @@ html.co-wide .co-tier{padding:20px 18px}
     <div class="co-err" id="co-err"></div>
     <div class="co-actions" id="co-nav">
       <button class="co-btn-ghost" id="co-back" onclick="coBack()" style="display:none">&#8592; <span data-en="Back" data-es="Atrás">Atrás</span></button>
-      <button class="co-btn" id="co-next" onclick="coNext()"><span data-en="Continue" data-es="Continuar">Continuar</span> &#8594;</button>
+      <div style="display:flex;gap:12px;align-items:center">
+        <button class="co-btn-ghost" id="co-review-return" onclick="coReturnToReview()" style="display:none;color:var(--blue)">&#8630; <span data-en="Back to review" data-es="Volver a revisar orden">Volver a revisar orden</span></button>
+        <button class="co-btn" id="co-next" onclick="coNext()"><span data-en="Continue" data-es="Continuar">Continuar</span> &#8594;</button>
+      </div>
     </div>
     </div><!-- /co-main -->
 
@@ -398,6 +401,7 @@ var coBundles = [];
 try { coBundles = JSON.parse(localStorage.getItem('flbc_svc_bundles')||'[]'); if(!Array.isArray(coBundles)) coBundles=[]; } catch(e){ coBundles=[]; }
 function coSaveCart(){ try{ localStorage.setItem('flbc_svc_cart',JSON.stringify(cart)); localStorage.setItem('flbc_svc_bundles',JSON.stringify(coBundles)); }catch(e){} }
 var stripeCheckout = null;
+var coEditReturn = false; // true si el cliente entró a un paso vía "Editar" desde la revisión
 
 // ── Formación de empresa NUEVA ──────────────────────────────────────────────
 // Si el carrito trae un servicio de formación, el checkout se adapta: no hay
@@ -1218,7 +1222,9 @@ function coGoStep(i){
   // Al entrar al paso de pago: refresca el disclosure (cláusula recurrente) y crea
   // la sesión de Stripe + monta el formulario. Centralizado aquí para que funcione
   // sin importar cómo se llegue al paso (Continuar, "No gracias" de un hub, etc.).
-  if(isPay){ coTranslateStatic(); coStartPayment(); }
+  if(isPay){ coTranslateStatic(); coStartPayment(); coEditReturn=false; }
+  // Si el cliente entró a editar desde la revisión, ofrece volver directo a ella.
+  var rr=$('co-review-return'); if(rr) rr.style.display=(coEditReturn && !isPay) ? '' : 'none';
   // Agente Registrado: NO se preselecciona; "nuestro servicio" solo se muestra
   // como recomendado (badge). El cliente debe hacer clic para seleccionarlo (recién
   // ahí entra al resumen). Si ya eligió "propio agente", recalcula direcciones FL.
@@ -1362,7 +1368,13 @@ function coRenderReview(lines, total){
 }
 // ── Revisión de lo que el cliente llenó (paso 8) con opción de editar ────────
 function coEsc(s){ return String(s||'').replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
-function coEditStep(id){ var idx=-1; coSteps.forEach(function(s,i){ if(s.id===id) idx=i; }); if(idx<0) return; coDestroyStripe(); coGoStep(idx); }
+function coEditStep(id){ var idx=-1; coSteps.forEach(function(s,i){ if(s.id===id) idx=i; }); if(idx<0) return; coEditReturn=true; coDestroyStripe(); coGoStep(idx); }
+// Vuelve directo a la revisión desde un paso al que se llegó por "Editar" (valida antes).
+function coReturnToReview(){
+  if(!_coDevMode && !coValidateStep(coIdx)) return;
+  var idx=-1; coSteps.forEach(function(s,i){ if(s.id==='panel-pay') idx=i; });
+  if(idx>=0){ coEditReturn=false; coGoStep(idx); }
+}
 function coHasStep(id){ return coSteps.some(function(s){ return s.id===id; }); }
 function coIrBlock(label, val, stepId){
   if(!val) return ''; var isEs=coIsEs();
