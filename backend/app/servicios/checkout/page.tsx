@@ -17,7 +17,7 @@
 export const dynamic = 'force-dynamic'
 
 import { SERVICE_FIELDS, SHARED_FIELDS } from '@/lib/service-fields'
-import { SERVICES_CATALOG, SERVICE_BUNDLES } from '@/lib/services-pricing'
+import { SERVICES_CATALOG, SERVICE_BUNDLES, EXPEDITED_FEE } from '@/lib/services-pricing'
 
 export default function ServiciosCheckoutPage() {
   const PK = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || ''
@@ -304,6 +304,9 @@ html.co-wide .co-tier{padding:20px 18px}
     <!-- STEP: DATOS FISCALES (SSN/ITIN) — condicional, según servicios elegidos -->
     <div class="co-panel" id="panel-tax" style="display:none"></div>
 
+    <!-- STEP: PROCESAMIENTO ACELERADO (opcional, una vez por orden) -->
+    <div class="co-panel" id="panel-expedited" style="display:none"></div>
+
     <!-- STEPS: SERVICES (dinámico) -->
     <div id="co-svc-host"></div>
 
@@ -399,13 +402,17 @@ var SVC_EXTRAS = ${JSON.stringify(SERVICE_FIELDS)};
 var SHARED_CFG = ${JSON.stringify(SHARED_FIELDS)};
 var SVC_CATALOG = ${JSON.stringify(SERVICES_CATALOG)};
 var BUNDLES_CLIENT = ${JSON.stringify(SERVICE_BUNDLES)};
+var EXPED_FEE = ${EXPEDITED_FEE};
 
 var cart = [];
 try { cart = JSON.parse(localStorage.getItem('flbc_svc_cart')||'[]'); if(!Array.isArray(cart)) cart=[]; } catch(e){ cart=[]; }
 // Bundles (combos) elegidos en los hubs de 3 tiers. Persisten junto al carrito.
 var coBundles = [];
 try { coBundles = JSON.parse(localStorage.getItem('flbc_svc_bundles')||'[]'); if(!Array.isArray(coBundles)) coBundles=[]; } catch(e){ coBundles=[]; }
-function coSaveCart(){ try{ localStorage.setItem('flbc_svc_cart',JSON.stringify(cart)); localStorage.setItem('flbc_svc_bundles',JSON.stringify(coBundles)); }catch(e){} }
+// Procesamiento acelerado (una vez por orden, aplica a toda la orden).
+var coExpedited = false;
+try { coExpedited = localStorage.getItem('flbc_svc_expedited')==='1'; } catch(e){ coExpedited=false; }
+function coSaveCart(){ try{ localStorage.setItem('flbc_svc_cart',JSON.stringify(cart)); localStorage.setItem('flbc_svc_bundles',JSON.stringify(coBundles)); localStorage.setItem('flbc_svc_expedited',coExpedited?'1':'0'); }catch(e){} }
 var stripeCheckout = null;
 var coEditReturn = false; // true si el cliente entró a un paso vía "Editar" desde la revisión
 
@@ -812,7 +819,7 @@ function coGetIntake(){
       city:($('p-city')?$('p-city').value.trim():''), state:($('p-state')?$('p-state').value.trim():''),
       zip:($('p-zip')?$('p-zip').value.trim():'')
     },
-    signature:sig, authorizedByPayment:true, extras:coCollectExtras(), shared:coCollectShared(), bundles:coBundles.slice()
+    signature:sig, authorizedByPayment:true, expedited:coExpedited, extras:coCollectExtras(), shared:coCollectShared(), bundles:coBundles.slice()
   };
 }
 
@@ -908,6 +915,23 @@ function coRenderTaxPanel(){
     +(rp?'<div class="co-ir-block" style="border:none;padding:0 0 12px"><div class="co-ir-label">'+(isEs?'Responsible party':'Responsible party')+'</div><div class="co-ir-val">'+coEsc(rp)+'</div></div>':'')
     +'<div class="co-grid">'+coSharedFieldsInner(keys)+'</div></div>';
 }
+// ── Procesamiento acelerado (paso propio, una vez, aplica a toda la orden) ────
+function coRenderExpedited(){
+  var panel=$('panel-expedited'); if(!panel) return; var isEs=coIsEs();
+  var exp=coExpedited, std=!coExpedited;
+  panel.innerHTML='<h1 class="co-h1">'+(isEs?'Procesamiento acelerado':'Faster processing')+'</h1>'
+    +'<p class="co-sub">'+(isEs?'¿Necesitas tu trámite más rápido? Aplica a toda tu orden.':'Need it faster? Applies to your whole order.')+'</p>'
+    +'<div class="co-card"><div class="co-choices">'
+      +'<div class="co-choice co-choice-rec'+(exp?' sel':'')+'" onclick="coSetExpedited(true)">'
+        +'<span class="co-rec-badge">'+(isEs?'Más rápido':'Fastest')+'</span>'
+        +'<div class="co-choice-top"><span class="co-choice-title">&#9889; '+(isEs?'Procesamiento acelerado':'Expedited processing')+'</span><span class="co-choice-price">+$'+EXPED_FEE+'</span></div>'
+        +'<div class="co-choice-desc">'+(isEs?'Damos prioridad y preparamos tu orden lo más rápido posible.':'We prioritize and prepare your order as fast as possible.')+'</div></div>'
+      +'<div class="co-choice'+(std?' sel':'')+'" onclick="coSetExpedited(false)">'
+        +'<div class="co-choice-top"><span class="co-choice-title">'+(isEs?'Procesamiento estándar':'Standard processing')+'</span><span class="co-choice-price">'+(isEs?'Incluido':'Included')+'</span></div>'
+        +'<div class="co-choice-desc">'+(isEs?'Tiempo de procesamiento normal.':'Normal processing time.')+'</div></div>'
+    +'</div></div>';
+}
+function coSetExpedited(v){ coExpedited=!!v; coSaveCart(); coRenderExpedited(); coUpdateOrderSummary(); }
 
 // Tarjetas de upsell (Registered Agent / Virtual Address). Explican qué son, por
 // qué conviene y QUÉ INCLUYEN (bullets, como en los paquetes) para que el cliente
@@ -1168,6 +1192,7 @@ function coComputeTotal(){
     lines.push({label:nm, amount:free?0:s.serviceFee, billing:s.billing, firstYearFree:free, renewalFee:s.renewalFee}); total+=(free?0:s.serviceFee);
     if(s.stateFee>0){ stateLines.push({label:nm, amount:s.stateFee, state:true}); total+=s.stateFee; }
   });
+  if(coExpedited){ lines.push({label:(isEs?'Procesamiento acelerado':'Expedited Processing'), amount:EXPED_FEE}); total+=EXPED_FEE; }
   return {lines:lines.concat(stateLines), total:total, recurring:recurring};
 }
 // Una fila del resumen. Las tarifas estatales van atenuadas con su etiqueta.
@@ -1279,6 +1304,9 @@ function coBuildWizard(){
 
   coRenderServicePages(ft);
   coServicePages.forEach(function(p){ coSteps.push({id:p.id, title:p.title||{en:'Service details',es:'Datos del servicio'}}); });
+
+  // Procesamiento acelerado: paso propio JUSTO antes de revisar (último upsell).
+  coRenderExpedited(); coSteps.push({id:'panel-expedited', title:{en:'Faster processing',es:'Procesamiento acelerado'}});
 
   // Último paso: revisar la orden + pagar (Stripe). La autorización se da al
   // completar el pago (disclosure en el paso de pago); ya no hay paso de firma.
@@ -1516,7 +1544,7 @@ function coMountStripe(clientSecret){
   if(paid){
     var num=''; try{ num=localStorage.getItem('flbc_svc_order')||''; }catch(e){}
     $('co-success-num').textContent=num||'—';
-    try{ localStorage.removeItem('flbc_svc_cart'); localStorage.removeItem('flbc_svc_bundles'); localStorage.removeItem('flbc_svc_order'); }catch(e){}
+    try{ localStorage.removeItem('flbc_svc_cart'); localStorage.removeItem('flbc_svc_bundles'); localStorage.removeItem('flbc_svc_order'); localStorage.removeItem('flbc_svc_expedited'); }catch(e){}
     coShowScreen('co-success'); return;
   }
   if(!cart.length){ coShowScreen('co-empty'); return; }

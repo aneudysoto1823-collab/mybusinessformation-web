@@ -50,7 +50,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: isEs ? 'Correo inválido.' : 'Invalid email.' }, { status: 400 })
     }
 
-    const { cents, lines, total } = computeServicesTotal(uniqueIds, bundleIds)
+    const expedited = intake.expedited === true
+    const { cents, lines, total } = computeServicesTotal(uniqueIds, bundleIds, expedited)
     if (cents < 50) {
       return NextResponse.json({ error: isEs ? 'Monto inválido.' : 'Invalid amount.' }, { status: 400 })
     }

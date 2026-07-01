@@ -113,7 +113,10 @@ export interface ServicesPrice {
  * un bundle se cobran al precio del bundle (no individualmente), pero sus tarifas
  * estatales sí se suman. Itemiza tarifa de servicio + tarifa estatal.
  */
-export function computeServicesTotal(serviceIds: string[], bundleIds: string[] = []): ServicesPrice {
+// Procesamiento acelerado: una sola vez por orden, aplica a toda la orden.
+// ⚠️ Precio placeholder — revisar antes de LIVE.
+export const EXPEDITED_FEE = 79
+export function computeServicesTotal(serviceIds: string[], bundleIds: string[] = [], expedited = false): ServicesPrice {
   // Tarifas de servicio primero; las tarifas estatales se agrupan al final
   // (antes del total), no intercaladas tras cada servicio.
   const lines: PriceLine[] = []
@@ -162,6 +165,7 @@ export function computeServicesTotal(serviceIds: string[], bundleIds: string[] =
     }
   }
 
+  if (expedited) lines.push({ label: 'Expedited Processing', amount: EXPEDITED_FEE })
   const allLines = lines.concat(stateLines)
   const total = allLines.reduce((sum, l) => sum + l.amount, 0)
   return { total, cents: Math.round(total * 100), lines: allLines, recurring }

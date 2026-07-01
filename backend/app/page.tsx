@@ -2275,7 +2275,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
         <div class="fm-sum-line"><span class="fm-sum-lbl" id="sum-lbl-entity">Entity</span><span class="fm-sum-val sum-entity-val">LLC</span></div>
         <div class="fm-sum-line"><span class="fm-sum-lbl" id="sum-lbl-pkg">Package</span><span class="fm-sum-val sum-pkg-val">Standard &#8212; $199</span></div>
         <div class="fm-sum-line"><span class="fm-sum-lbl sum-state-lbl" id="sum-lbl-state">FL State Fee</span><span class="fm-sum-val sum-state-val">$125</span></div>
-        <div class="fm-sum-line sum-exp-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-exp">Expedited Filing</span><span class="fm-sum-val">$99</span></div>
+        <div class="fm-sum-line sum-exp-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-exp">Expedited Filing</span><span class="fm-sum-val">$79</span></div>
         <div class="fm-sum-line sum-vma-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-vma">Virtual Address</span><span class="fm-sum-val free">1st Month Free</span></div>
         <div class="fm-sum-line sum-ein-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-ein">EIN / Tax ID</span><span class="fm-sum-val">$79</span></div>
         <div class="fm-sum-line sum-oa-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-oa">Operating Agreement</span><span class="fm-sum-val">$59</span></div>
@@ -3974,7 +3974,7 @@ function updateTotal() {
   if(formData.addons.oa)   extras += 59;
   if(formData.addons.itin) extras += 69;
   var expFree = formData.package === 'premium';
-  if(formData.delivery === 'expedited' && !expFree) extras += 99;
+  if(formData.delivery === 'expedited' && !expFree) extras += 79;
   var total = base + state + extras;
 
   var pkgNames = {basic:'Basic — $0',standard:'Standard — $199',premium:'Premium — $299'};
@@ -4001,7 +4001,7 @@ function updateTotal() {
   el=document.getElementById('sum-pkg-price');     if(el) el.textContent = '$' + base;
   el=document.getElementById('sum-state');         if(el) el.textContent = '$' + state;
   el=document.getElementById('summary-total-price');if(el) el.textContent = '$' + total;
-  el=document.getElementById('expedited-price');   if(el) el.textContent = expFree ? 'Free with Premium ✓' : '+$99 (Free w/Premium)';
+  el=document.getElementById('expedited-price');   if(el) el.textContent = expFree ? 'Free with Premium ✓' : '+$79 (Free w/Premium)';
 }
 var addons_selected = {};
 
@@ -5694,7 +5694,7 @@ function fmUpdateSummary() {
   if(fmData.addons.sc)   extras += 79;
   if(fmData.addons.bl)   extras += 99;
   var expFree = pkg === 'premium';
-  if(fmData.speed === 'expedited' && !expFree) extras += 99;
+  if(fmData.speed === 'expedited' && !expFree) extras += 79;
   var total = base + state + extras;
   var pkgNames = { basic:'Basic — $0', standard:'Standard — $199', premium:'Premium — $299' };
   // Update all summary panels
@@ -5915,7 +5915,7 @@ function fmBuildOrderPayload() {
   if(addons.btr)  extras += 79;
   if(addons.str)  extras += 79;
   if(addons.cc)   extras += 49;
-  if(speed === 'expedited' && pkg !== 'premium') extras += 99;
+  if(speed === 'expedited' && pkg !== 'premium') extras += 79;
   var amount = (pkg in pkgPrices ? pkgPrices[pkg] : 199) + stateFee + extras;
 
   // ── Agente registrado (si es propio, capturar sus datos) ──────────────────

@@ -31,7 +31,7 @@ export const ADDON_PRICES = {
 } as const
 export type AddonKey = keyof typeof ADDON_PRICES
 
-export const EXPEDITED_FEE = 99
+export const EXPEDITED_FEE = 79
 export const STATE_FEE: Record<EntityType, number> = { llc: 125, corp: 70 }
 
 const ADDON_LABELS: Record<AddonKey, string> = {
