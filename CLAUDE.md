@@ -143,7 +143,7 @@ LOB_ENABLED           # 'true' para activar. 'false' para apagar sin redeploy si
 - Respuesta genérica en `/api/client-auth` — no revela si el email existe
 - Toggle EN/ES con persistencia en `localStorage` (`portal_lang`)
 - **Idioma del portal sigue al del home:** prioridad `?lang=` URL → `portal_lang` → `flbc_lang`. El home pasa `?lang` al dashboard ("Mis órdenes" + redirect al entrar), y el dashboard persiste también `'en'` (antes solo `'es'`, dejando valores stale que lo dejaban pegado en español). NO depende de la orden ni el país (server `page.tsx` también lee `?lang` para `initialLang`, evita parpadeo).
-- Dashboard rendering delegado a `DashboardContent.tsx` (client component) — `page.tsx` es server-only para fetch de datos. `DashboardView.tsx` quedó **sin uso** (candidato a borrar).
+- Dashboard rendering delegado a `DashboardContent.tsx` (client component) — `page.tsx` es server-only para fetch de datos. (`DashboardView.tsx` se borró el 2026-07-01 en la limpieza de código muerto.)
 - Contacto: botones inline Email + WhatsApp (`wa.me/13528377755`) al hacer clic en "Contact us"
 
 #### Login del cliente en el home (popover) — 2026-06-23
@@ -333,7 +333,7 @@ Diseño: CSS-in-JS via `<style>` tag con clases BEM-style. Paleta: dark navy `#1
 ```
 
 ### ✅ HECHO y desplegado (commit 05d3e20)
-- **`lib/pricing.ts`** — cálculo de precio autoritativo server-side (anti-tampering). Espeja `updateTotal()`/`fmBuildPayload()` del form: paquetes (basic $0/standard $199/premium $299), state fee (LLC $125/Corp $70), expedited +$99 (gratis con premium), addons (ein $79, oa $59, itin $69, btr $79, str $79, cc $49). **Si cambian precios en page.tsx, actualizar aquí también.**
+- **`lib/pricing.ts`** — cálculo de precio autoritativo server-side (anti-tampering). Espeja `fmUpdateSummary()`/`fmBuildPayload()` del form: paquetes (basic $0/standard $199/premium $299), state fee (LLC $125/Corp $70), **expedited +$79** (`EXPEDITED_FEE`, gratis con premium), addons (ein $79, oa $59, itin $69, btr $79, str $79, cc $49). **Si cambian precios en page.tsx, actualizar aquí también.** (El precio del expedited también está hardcodeado en el prompt del chat `api/chat/route.ts` — mantener sincronizado; se corrigió de $99→$79 el 2026-07-01.)
 - **`/api/checkout/embedded`** — crea sesión `ui_mode:'embedded'` leyendo la orden de la DB (no confía en el navegador). line_items itemizados.
 - **`/api/checkout/status`** — GET estado de sesión para la página de retorno.
 - **`/order/complete`** — pantalla de confirmación post-pago (bilingüe, lee flbc_lang).
@@ -383,9 +383,36 @@ Wizard por pasos para comprar servicios sueltos o una formación LLC/Corp desde
 - **Orden de pasos (espeja el home):** Empresa → Tus datos (contacto) → Agente Registrado (dos cajas, +$99 / propio agente con reuso de dirección) → Dueños (valida 100%) → **Documentos esenciales** (combo 3 tiers) → **Protección y cumplimiento** (combo 3 tiers) → Datos del servicio (+ SSN/ITIN si aplica) → **Revisa tu orden + Stripe** (sin paso de firma; autorización al pagar, disclosure con links a /terms y /privacy).
 - **Combos (bundles):** un bundle reemplaza el cobro individual de sus servicios pero suma tarifas estatales. EIN y Operating Agreement salieron de `COVERED_IN_FORMATION` (ahora solo `registered-agent`) para que generen su paso de datos al comprarlos.
 - **Año fiscal del OA:** quitado del checkout, se asume 31 dic (`CHECKOUT_HIDE_KEYS`).
+- **SSN/ITIN:** campo `maxlength=9` + solo dígitos; valida **exactamente 9 dígitos** (error si no).
 - **Modo dev:** `Ctrl+Shift+D` salta validación (barra ámbar), igual que el home.
 - **Gotcha:** el script del cliente vive en `String.raw\`...\``; validar con `new Function(body)` tras extraer el template. No meter chars de control en comentarios.
 - **Pendiente LIVE:** confirmar precios placeholder ($99) y `stateFee` aproximadas.
+
+---
+
+## Paso de Procesamiento acelerado — patrón "oferta + declinar" (2026-07-01)
+
+Aplica **idéntico en home (`page.tsx`, paso `fms6`) y en `/servicios/checkout`** (`coRenderExpedited`).
+
+- **Una sola oferta destacada** (card "⚡ Expedited processing +$79 · 1-3 business days", badge "Fastest") + **un botón secundario "No thanks, I'll wait the standard time (7-14 business days)"** debajo (NO dos cajas iguales, NO un link). Clases: home `.fm-speed-decline`, servicios `.co-decline`. El botón se marca con ✓ azul cuando está elegido.
+- **La oferta viene PRE-SELECCIONADA** (más conversión): home `fmData.speed` default `'expedited'`; servicios `coExpedited` default `true` (si no hay elección previa en `localStorage flbc_svc_expedited`). Decisión de negocio: es honesto porque el +$79 sale como línea visible en el resumen y declinar es un clic. NO esconder el botón de declinar.
+- **Copy sin lenguaje de "prioridad"** (no "we prioritize your whole order" / "priority handling" — insinuaba abandonar otras órdenes). Estilo LegalZoom: "Upgrade to expedited state filing where applicable."
+- **Tiempo estándar = 7-14 días hábiles** en TODO el sitio (form, FAQ, schema SEO, review, tabla comparativa de paquetes, prompt del chat). Antes era 7-10.
+- **Expedited = $79** (`EXPEDITED_FEE` en `lib/pricing.ts` y `lib/services-pricing.ts`), gratis con Premium.
+- Bug corregido: el título del paso mostraba "Registered Agent" por un override stale en `fmTranslations.s6_title`; ahora "Faster processing" / "Procesamiento acelerado".
+
+## Patrón mobile de checkout (2026-07-01)
+
+Aplica al form del home y a `/servicios/checkout`:
+
+- **Resumen de orden COLAPSABLE arriba en mobile** (como Shopify/Stripe/LegalZoom): en desktop el resumen va a la derecha siempre expandido; en mobile va **arriba** (`order:-1`) y **colapsado por defecto** (solo header + Total visibles; el detalle se expande con un tap). Toggle: home `fmToggleSummary()` (clase `.fm-sum-open` en `.fm-summary`), servicios `coToggleSummary()` (clase `.co-sum-open` en `#co-side`). Solo visible/activo dentro del media query mobile (home ≤820px, servicios ≤760px).
+- **Inputs a `font-size:16px` en mobile** (`.fm-input/.form-input`, `.co-input/.co-select/.co-textarea`) para evitar el **auto-zoom de iOS** al enfocar un campo (dispara con <16px y deja la página ampliada/cortada). NO usar `maximum-scale` en el viewport (rompe el pinch-zoom del usuario).
+- **`overflow-x:clip` en el `body`** de `/servicios/checkout` como red de seguridad anti-overflow horizontal (clip, NO hidden — hidden rompería el header sticky). Grid items del layout con `min-width:0`.
+- **Espacio inferior extra en mobile** en el home (`.fm-wrap` padding-bottom 120px) para que el botón Continuar del footer no quede tapado por el widget flotante de Claudia (`ChatWidget`, `position:fixed` abajo-derecha, z-index 9999).
+
+### Prefetch de la sesión Stripe (`/servicios/checkout`)
+
+Para que el form de Stripe aparezca sin demora al llegar a "Revisa tu orden": al entrar al paso **previo** al pago se dispara `coPrefetchPayment()` (crea Order pending + `clientSecret` en background). El paso de pago reutiliza esa promesa si la clave de estado (`coPayKey` = servicios+bundles+expedited+idioma+datos) coincide, así que **no crea órdenes extra** en el caso feliz. Se re-dispara al togglear el acelerado.
 
 ---
 
@@ -707,7 +734,9 @@ Si se necesita recomprimir: `node -e "require('sharp')..."` — sharp está en d
 | TBT | 0ms | 40ms |
 | SEO | 100 | 100 |
 
-**Pendiente para siguiente iteración de performance:** Lazy-load del formulario en `page.tsx` (6,284 líneas inline). El LCP de 6-7s en ambos dispositivos se debe principalmente al tamaño del HTML generado — requiere refactor de componentes.
+**Limpieza de código muerto (2026-07-01, commit `654e94e`):** borradas **42 funciones huérfanas de `page.tsx` (~681 líneas)** del flujo viejo del form (nunca llamadas, `ref==0`: `submitForm`, `buildOrderReview`, `fmBuildUpgradeCards`, `fmRenderMemberCard`, `updateTotal/updateProgress`, `selectEntity/selectPkg/nextStep`, etc.) + `DashboardView.tsx` (462 líneas). Total 1143 líneas, cero cambios de comportamiento (verificado con `tsc` + `node --check` del script inline). Método y detalle en memoria `project_home_dead_code_cleanup.md`.
+
+**Pendiente para siguiente iteración de performance:** Lazy-load / componentizar el formulario en `page.tsx` (~6,800 líneas, HTML inline gigante). El LCP de 6-7s en ambos dispositivos se debe principalmente al tamaño del HTML generado — requiere refactor de componentes. **Es el premio real de performance y NO se ha tocado.**
 
 ---
 
