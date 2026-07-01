@@ -163,6 +163,7 @@ export const SERVICE_FIELDS: Record<string, ServiceFieldDef> = {
     { k: 'mgmt', en: 'Management type', es: 'Tipo de gestión', type: 'select', opts: ['Member-Managed', 'Manager-Managed'] },
     { k: 'members', en: 'Members / Owners', es: 'Miembros / Dueños', type: 'repeater', block: true,
       countEn: 'How many members (owners)?', countEs: '¿Cuántos miembros (dueños)?', cols: [
+      { k: 'role', en: 'Role / Title', es: 'Cargo / Título', type: 'select', defaultFirst: true, full: true, opts: ['MGR (Manager)', 'MGRM (Manager & Member)', 'President', 'VP', 'Secretary', 'Treasurer', 'Director'] },
       { k: 'firstName', en: 'First name', es: 'Nombre', type: 'text' },
       { k: 'lastName', en: 'Last name', es: 'Apellido', type: 'text' },
       { k: 'pct', en: 'Ownership %', es: '% de propiedad', type: 'text' },

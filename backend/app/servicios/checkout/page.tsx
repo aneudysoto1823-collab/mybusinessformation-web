@@ -600,6 +600,9 @@ function coVisibleFields(svcId, ft){
   return def.fields.filter(function(f){
     if(CHECKOUT_HIDE_KEYS[f.k]) return false;
     if(ft && HIDE_KEYS_IN_FORMATION[f.k]) return false;
+    // La Declaración Anual no vuelve a pedir dueños/oficiales si el Acuerdo Operativo
+    // (o una formación) ya los captura — se reutilizan esos (que ya traen el cargo).
+    if(svcId==='annual-report' && f.k==='officers' && (ft || cart.indexOf('operating-agreement')>=0)) return false;
     return true;
   });
 }
@@ -929,18 +932,20 @@ function coRaAddrCandidates(){
 function coRenderRaAddrOptions(){
   var host=$('co-ra-addr-choice'); if(!host) return; var isEs=coIsEs();
   var cands=coRaAddrCandidates(); var html='';
+  // Por default, como es SU PROPIO agente, se usa su dirección personal si es de FL.
+  var defKey = cands.some(function(c){return c.key==='per';}) ? 'per' : (cands.length?cands[0].key:'other');
   if(cands.length){
     html+='<div class="co-label" style="margin-top:8px">'+(isEs?'¿Qué dirección de Florida usamos para el agente?':'Which Florida address should we use for the agent?')+'</div>';
-    cands.forEach(function(c,i){
+    cands.forEach(function(c){
       var line=[c.a.street,c.a.city,c.a.zip].filter(Boolean).join(', ');
-      html+='<label class="co-ra-same"><input type="radio" name="ra-addr" value="'+c.key+'"'+(i===0?' checked':'')+' onchange="coRaPickAddr(\''+c.key+'\')"/> <span><strong>'+c.label+'</strong>: '+line+'</span></label>';
+      html+='<label class="co-ra-same"><input type="radio" name="ra-addr" value="'+c.key+'"'+(c.key===defKey?' checked':'')+' onchange="coRaPickAddr(\''+c.key+'\')"/> <span><strong>'+c.label+'</strong>: '+line+'</span></label>';
     });
-    html+='<label class="co-ra-same"><input type="radio" name="ra-addr" value="other" onchange="coRaPickAddr(\'other\')"/> <span>'+(isEs?'Otra dirección en Florida (la escribo)':'Another Florida address (I will type it)')+'</span></label>';
+    html+='<label class="co-ra-same"><input type="radio" name="ra-addr" value="other"'+(defKey==='other'?' checked':'')+' onchange="coRaPickAddr(\'other\')"/> <span>'+(isEs?'Otra dirección en Florida (la escribo)':'Another Florida address (I will type it)')+'</span></label>';
   } else {
     html+='<div class="co-state-note">'+(isEs?'El agente debe tener una dirección física en Florida. Escríbela abajo.':'The agent must have a physical Florida address. Type it below.')+'</div>';
   }
   host.innerHTML=html;
-  coRaPickAddr(cands.length?cands[0].key:'other');
+  coRaPickAddr(defKey);
 }
 function coRaPickAddr(key){
   var fid=coFormId; var manual=$('co-ra-manual');
