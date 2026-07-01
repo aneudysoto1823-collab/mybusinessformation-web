@@ -151,3 +151,27 @@ los precios (individuales + bundles) antes de lanzar.
   Mientras tanto, mejora rápida disponible (NO hecha): patrón "Volver a revisar
   orden" — un botón en el paso editado que valida y salta directo a la revisión
   (flag de origen en `coEditStep`).
+
+---
+
+## Cambios 2026-06-29/30 (sesión)
+
+- **Editar desde la revisión — botón "Volver a revisar orden" (HECHO):** al entrar a un paso vía "Editar" (`coEditStep` setea `coEditReturn=true`), aparece el botón `co-review-return` que valida y salta directo a la revisión (`coReturnToReview`). El gold standard (edición inline acordeón) sigue pendiente.
+- **SSN con confirmación + ver/ocultar (HECHO):** en `panel-tax` el SSN va oculto (type=password) con botón Ver/Ocultar (`coToggleSsn`) y un segundo campo `s-ssnItin-confirm`; valida que coincidan.
+- **No pedir EIN existente si compran el servicio EIN (HECHO):** `coSharedKeysActive` filtra `ein` si `coFormationType()` O `cart` incluye `ein`. El SSN sí se mantiene (IRS lo exige para la solicitud).
+- **Acuerdo Operativo — dueños en bloque detallado + Cargo/Título (HECHO):** `members` ahora `block:true` con role, nombre, apellido, %, país y dirección por partes. La **Declaración Anual reutiliza** esos dueños: su campo `officers` se oculta si hay formación o si `operating-agreement` está en el carrito (`coVisibleFields`).
+- **RA "propio agente" (HECHO):** prellena nombre/apellido del contacto (paso 2); la dirección personal (si es de FL) queda **seleccionada por default** entre las opciones FL.
+- **Datos del servicio con un solo servicio (HECHO):** el título del paso = nombre del servicio; se omite el título repetido del card (`hideTitle`).
+- **Artículos de Enmienda — formulario a la medida (HECHO):** `coAmendmentHtml` con checkboxes de qué cambiar (nombre, dir. principal, dir. postal, agente, miembros con agregar/quitar/reemplazar, propósito) + campos condicionales; captura vía keys `x-amendment-<key>` (definidas en `service-fields.ts`); estado restaurado tras rebuild (`coAmdRestore`), toggles (`coAmdToggle`).
+- **Vaciar carrito (HECHO):** confirmación inline (no `confirm()`), estilo **azul** (no rojo) para armonía; limpia `flbc_svc_bundles`/`flbc_svc_order`/`flbc_svc_expedited`.
+- **Revisar orden:** se quitó "y paga de forma segura" del subtítulo (genera más duda que confianza).
+
+### Procesamiento acelerado / Expedited (HECHO)
+- **Servicios:** paso propio `panel-expedited` JUSTO antes de Revisar (último upsell). Dos tarjetas: Acelerado **+$79** (recomendado) / Estándar incluido. Una vez por orden, aplica a toda la orden. `coExpedited` persiste en `flbc_svc_expedited`, va en `intake.expedited`, y el server lo suma: `computeServicesTotal(ids, bundles, expedited)` + `EXPEDITED_FEE=79` en `services-pricing.ts` (route `embedded-services` lee `intake.expedited`).
+- **Home:** `lib/pricing.ts` `EXPEDITED_FEE` 99→**79**. Además se **activó la UI** (antes `fmSetSpeed` existía pero sin HTML). B-seguro: se reusó el **paso 6** del wizard (antes saltado) como "Procesamiento acelerado" (`fms6`): `fmTotalSteps` 6→7, `fmVisualStep` incluye 6, títulos EN/ES, se quitaron los saltos del 6 en `fmNext`/`fmBack`, `fmSyncStep6` (muestra "Gratis con Premium" si Premium). ⚠️ Orden actual: el paso 6 queda ANTES del paso de addons (fms7); reevaluar posición si se quiere después de addons.
+
+### Cupones de descuento (PENDIENTE — acordado)
+- Activar los **códigos promocionales nativos de Stripe** (`allow_promotion_codes: true`) en `/api/checkout/embedded` y `/api/checkout/embedded-services` → aparece el campo "Add promotion code" dentro del form de Stripe; los cupones se crean en el dashboard de Stripe. NO implementado aún.
+
+### Pendientes de precio (revisión final antes de LIVE)
+- `EXPEDITED_FEE` $79 (servicios y home) es placeholder. Todos los precios (servicios, combos, tarifas estatales, mensual del Virtual Address, expedited) se revisan antes del lanzamiento.
