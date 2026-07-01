@@ -175,6 +175,7 @@ body{font-family:var(--font-sans),'Plus Jakarta Sans',system-ui,sans-serif;color
 .co-side{position:sticky;top:90px}
 .co-side .co-review{position:static;top:auto}
 .co-side-note{font-size:.7rem;color:var(--gray400);margin-top:12px;line-height:1.5}
+.co-sum-toggle{display:none;font-size:.9rem;color:var(--gray500);transition:transform .2s;line-height:1}
 .co-ssn-wrap{position:relative}
 .co-ssn-wrap .co-input{padding-right:64px}
 .co-ssn-eye{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--blue);font-size:.78rem;font-weight:600;cursor:pointer;font-family:inherit;padding:4px 6px}
@@ -191,7 +192,11 @@ body{font-family:var(--font-sans),'Plus Jakarta Sans',system-ui,sans-serif;color
 html.co-wide .co-wrap,html.co-wide .co-header-inner{max-width:1340px}
 html.co-wide .co-tier{padding:20px 18px}
 @media(max-width:900px){.co-layout{grid-template-columns:1fr 260px}}
-@media(max-width:760px){.co-grid{grid-template-columns:1fr}.co-pay-grid{grid-template-columns:1fr}.co-review{position:static}.co-choices{grid-template-columns:1fr}.co-tiers{grid-template-columns:1fr}.co-layout{grid-template-columns:1fr}.co-side{position:static;order:-1;margin-bottom:18px}.co-input,.co-select,.co-textarea{font-size:16px}}
+@media(max-width:760px){.co-grid{grid-template-columns:1fr}.co-pay-grid{grid-template-columns:1fr}.co-review{position:static}.co-choices{grid-template-columns:1fr}.co-tiers{grid-template-columns:1fr}.co-layout{grid-template-columns:1fr}.co-side{position:static;order:-1;margin-bottom:18px}.co-input,.co-select,.co-textarea{font-size:16px}
+  .co-sum-head{display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer}
+  .co-sum-toggle{display:block}
+  .co-side:not(.co-sum-open) #co-osum-body,.co-side:not(.co-sum-open) .co-side-note{display:none}
+  .co-side.co-sum-open .co-sum-toggle{transform:rotate(180deg)}}
 @media(max-width:480px){.co-wrap{padding-left:16px;padding-right:16px}.co-header-inner{padding-left:16px;padding-right:16px}.co-review{padding-left:18px;padding-right:18px}.co-card{padding-left:16px;padding-right:16px}.co-h1{font-size:1.45rem}}
 `
 
@@ -367,7 +372,7 @@ html.co-wide .co-tier{padding:20px 18px}
     <!-- RESUMEN DE ORDEN (sidebar derecho, visible en cada paso) -->
     <aside class="co-side" id="co-side">
       <div class="co-review">
-        <div class="co-card-title" style="margin-bottom:12px" data-en="Order summary" data-es="Resumen del pedido">Resumen del pedido</div>
+        <div class="co-card-title co-sum-head" style="margin-bottom:12px" onclick="coToggleSummary()"><span data-en="Order summary" data-es="Resumen del pedido">Resumen del pedido</span><span class="co-sum-toggle" aria-hidden="true">&#9662;</span></div>
         <div id="co-osum-body"></div>
         <div class="co-review-total"><span data-en="Total" data-es="Total">Total</span><strong id="co-osum-total">$0</strong></div>
         <div class="co-side-note" id="co-side-note"></div>
@@ -1224,6 +1229,8 @@ function coRaUpsellNote(){
   if(hasOther) return ''; var isEs=coIsEs();
   return '<div class="co-state-note" style="color:#059669;font-weight:600">&#127881; '+(isEs?'Agrega cualquier otro servicio y tu Agente Registrado sale gratis el primer año.':'Add any other service and your Registered Agent is free the first year.')+'</div>';
 }
+// En mobile el resumen va arriba y colapsado; este toggle lo abre/cierra.
+function coToggleSummary(){ var s=document.getElementById('co-side'); if(s) s.classList.toggle('co-sum-open'); }
 function coUpdateOrderSummary(){
   var side=$('co-side'); if(!side) return; var isEs=coIsEs();
   // En el paso de pago el resumen completo va dentro del panel; ocultamos el
