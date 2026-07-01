@@ -1055,10 +1055,10 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
   </div>
 </section>
 
-<!-- TODO [ ] GUARANTEE BADGE — entre pricing y "How It Works"
-     Pequeño badge de confianza: "100% Accuracy Guarantee — we'll fix any filing error at no charge"
-     Versión ES: "Garantía de Exactitud — corregimos cualquier error de presentación sin costo"
-     Colocarlo centrado, estilo sutil (similar a .sec-badge ya definido en el CSS) -->
+<!-- GUARANTEE BADGE — entre pricing y "How It Works" (estilo sutil, .sec-badge) -->
+<div style="text-align:center;margin:0 auto 8px;padding:0 20px">
+  <span class="sec-badge"><span aria-hidden="true">&#128077;</span><span data-en="100% Accuracy Guarantee. We'll fix any filing error at no charge." data-es="Garantía de Exactitud 100%. Corregimos cualquier error de presentación sin costo.">100% Accuracy Guarantee. We'll fix any filing error at no charge.</span></span>
+</div>
 
 <!-- HOW IT WORKS -->
 <section class="section how-bg" id="how">
