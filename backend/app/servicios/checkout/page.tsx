@@ -335,7 +335,6 @@ html.co-wide .co-tier{padding:20px 18px}
     <div class="co-panel" id="panel-pay" style="display:none">
       <h1 class="co-h1" data-en="Review your order" data-es="Revisa tu orden">Revisa tu orden</h1>
       <p class="co-sub" data-en="Confirm your order." data-es="Confirma tu pedido.">Confirma tu pedido.</p>
-      <button type="button" class="co-btn-ghost" onclick="coBack()" style="margin:0 0 14px;padding:0">&#8592; <span data-en="Back" data-es="Atrás">Atrás</span></button>
       <div class="co-pay-grid">
         <div class="co-review">
           <div class="co-card-title" style="margin-bottom:12px" data-en="Review order" data-es="Revisar orden">Revisar orden</div>
@@ -881,10 +880,10 @@ function coSharedFieldsInner(keys){
       // Oculto por defecto (type=password), botón Ver/Ocultar y un segundo campo
       // para confirmar que no haya errores de tipeo.
       return '<div class="co-field full"><label class="co-label">'+lbl+tipHtml+'</label>'
-        +'<div class="co-ssn-wrap"><input class="co-input" type="password" autocomplete="off" inputmode="numeric" id="s-ssnItin"/>'
+        +'<div class="co-ssn-wrap"><input class="co-input" type="password" autocomplete="off" inputmode="numeric" maxlength="9" oninput="this.value=this.value.replace(/[^0-9]/g,\'\')" id="s-ssnItin"/>'
         +'<button type="button" class="co-ssn-eye" onclick="coToggleSsn(this)">'+(isEs?'Ver':'Show')+'</button></div></div>'
         +'<div class="co-field full"><label class="co-label">'+(isEs?'Confirma tu SSN o ITIN':'Confirm your SSN or ITIN')+'</label>'
-        +'<input class="co-input" type="password" autocomplete="off" inputmode="numeric" id="s-ssnItin-confirm"/></div>';
+        +'<input class="co-input" type="password" autocomplete="off" inputmode="numeric" maxlength="9" oninput="this.value=this.value.replace(/[^0-9]/g,\'\')" id="s-ssnItin-confirm"/></div>';
     }
     return '<div class="co-field full"><label class="co-label">'+lbl+tipHtml+'</label><input class="co-input" type="text" id="s-'+k+'"/></div>';
   }).join('');
@@ -920,12 +919,12 @@ function coRenderExpedited(){
   var panel=$('panel-expedited'); if(!panel) return; var isEs=coIsEs();
   var exp=coExpedited, std=!coExpedited;
   panel.innerHTML='<h1 class="co-h1">'+(isEs?'Procesamiento acelerado':'Faster processing')+'</h1>'
-    +'<p class="co-sub">'+(isEs?'¿Necesitas tu trámite más rápido? Aplica a toda tu orden.':'Need it faster? Applies to your whole order.')+'</p>'
+    +'<p class="co-sub">'+(isEs?'¿Necesitas tu trámite más rápido?':'Need your filing faster?')+'</p>'
     +'<div class="co-card"><div class="co-choices">'
       +'<div class="co-choice co-choice-rec'+(exp?' sel':'')+'" onclick="coSetExpedited(true)">'
         +'<span class="co-rec-badge">'+(isEs?'Más rápido':'Fastest')+'</span>'
         +'<div class="co-choice-top"><span class="co-choice-title">&#9889; '+(isEs?'Procesamiento acelerado':'Expedited processing')+'</span><span class="co-choice-price">+$'+EXPED_FEE+'</span></div>'
-        +'<div class="co-choice-desc">'+(isEs?'Damos prioridad y preparamos tu orden lo más rápido posible.':'We prioritize and prepare your order as fast as possible.')+'</div></div>'
+        +'<div class="co-choice-desc">'+(isEs?'Preparamos tu orden en tiempo acelerado y aceleramos la presentación estatal cuando el estado lo permite.':'We prepare your order on an accelerated timeline and expedite the state filing where applicable.')+'</div></div>'
       +'<div class="co-choice'+(std?' sel':'')+'" onclick="coSetExpedited(false)">'
         +'<div class="co-choice-top"><span class="co-choice-title">'+(isEs?'Procesamiento estándar':'Standard processing')+'</span><span class="co-choice-price">'+(isEs?'Incluido':'Included')+'</span></div>'
         +'<div class="co-choice-desc">'+(isEs?'Tiempo de procesamiento normal.':'Normal processing time.')+'</div></div>'
@@ -1327,9 +1326,9 @@ function coGoStep(i){
   var cur=$(coSteps[i].id); if(cur) cur.style.display='';
   coRenderProgress();
   var isPay = coSteps[i].id==='panel-pay';
-  // El "Atrás" inferior se muestra siempre (en el paso 1 vuelve a /servicios). En
-  // el paso de pago se oculta porque hay un "Atrás" propio arriba del panel.
-  $('co-back').style.display = isPay ? 'none' : '';
+  // El "Atrás" inferior se muestra siempre (en el paso 1 vuelve a /servicios;
+  // en el paso de pago permite volver a editar). Queda abajo, como los demás pasos.
+  $('co-back').style.display = '';
   // Al entrar al paso de pago: refresca el disclosure (cláusula recurrente) y crea
   // la sesión de Stripe + monta el formulario. Centralizado aquí para que funcione
   // sin importar cómo se llegue al paso (Continuar, "No gracias" de un hub, etc.).
@@ -1427,9 +1426,9 @@ function coValidateStep(i){
   if(id==='panel-tax'){
     var ak=coSharedKeysActive();
     if(ak.indexOf('ssnItin')>=0){
-      var vSsn=(($('s-ssnItin')||{}).value||'').trim();
-      if(vSsn.length<5){ err.textContent=isEs?'Ingresa tu SSN o ITIN.':'Enter your SSN or ITIN.'; return false; }
-      if(vSsn!==(($('s-ssnItin-confirm')||{}).value||'').trim()){ err.textContent=isEs?'El SSN o ITIN no coincide. Verifícalo.':'The SSN or ITIN does not match. Please check.'; return false; }
+      var vSsn=(($('s-ssnItin')||{}).value||'').replace(/[^0-9]/g,'');
+      if(vSsn.length!==9){ err.textContent=isEs?'El SSN o ITIN debe tener exactamente 9 dígitos.':'The SSN or ITIN must be exactly 9 digits.'; return false; }
+      if(vSsn!==(($('s-ssnItin-confirm')||{}).value||'').replace(/[^0-9]/g,'')){ err.textContent=isEs?'El SSN o ITIN no coincide. Verifícalo.':'The SSN or ITIN does not match. Please check.'; return false; }
     }
     if(ak.indexOf('ein')>=0 && (($('s-ein')||{}).value||'').trim().length<3){ err.textContent=isEs?'Ingresa tu EIN.':'Enter your EIN.'; return false; }
     return true;
