@@ -414,6 +414,7 @@ try { coExpedited = localStorage.getItem('flbc_svc_expedited')==='1'; } catch(e)
 function coSaveCart(){ try{ localStorage.setItem('flbc_svc_cart',JSON.stringify(cart)); localStorage.setItem('flbc_svc_bundles',JSON.stringify(coBundles)); localStorage.setItem('flbc_svc_expedited',coExpedited?'1':'0'); }catch(e){} }
 var stripeCheckout = null;
 var coEditReturn = false; // true si el cliente entró a un paso vía "Editar" desde la revisión
+var coPrefetch = null; // {key, promise} — sesión de Stripe pre-creada en el paso previo al pago
 
 // ── Formación de empresa NUEVA ──────────────────────────────────────────────
 // Si el carrito trae un servicio de formación, el checkout se adapta: no hay
@@ -930,7 +931,7 @@ function coRenderExpedited(){
         +'<div class="co-choice-desc">'+(isEs?'Tiempo de procesamiento normal.':'Normal processing time.')+'</div></div>'
     +'</div></div>';
 }
-function coSetExpedited(v){ coExpedited=!!v; coSaveCart(); coRenderExpedited(); coUpdateOrderSummary(); }
+function coSetExpedited(v){ coExpedited=!!v; coSaveCart(); coRenderExpedited(); coUpdateOrderSummary(); try{ coPrefetchPayment(); }catch(e){} }
 
 // Tarjetas de upsell (Registered Agent / Virtual Address). Explican qué son, por
 // qué conviene y QUÉ INCLUYEN (bullets, como en los paquetes) para que el cliente
@@ -1349,6 +1350,9 @@ function coGoStep(i){
   try{ document.documentElement.classList.toggle('co-wide', isHub); }catch(e){}
   $('co-next').style.display = isPay ? 'none' : '';
   var nextIsPay = (i+1<coSteps.length) && coSteps[i+1].id==='panel-pay';
+  // Al entrar al paso previo al pago, pre-crea la sesión de Stripe en segundo
+  // plano para que "Revisa tu orden" cargue el formulario sin demora.
+  if(nextIsPay){ try{ coPrefetchPayment(); }catch(e){} }
   var isEs=coIsEs();
   $('co-next').innerHTML='<span>'+(nextIsPay ? (isEs?'Revisar orden':'Review order') : (isEs?'Continuar':'Continue'))+'</span> &#8594;';
   $('co-err').textContent='';
@@ -1444,6 +1448,28 @@ function coValidateStep(i){
 }
 // Ya estamos en el paso "Revisar y pagar": muestra el resumen al instante
 // (nombres de servicios) y crea la sesión + monta Stripe en el box de la derecha.
+// Clave de estado del pago: si cambia (servicios/datos/idioma/expedited), la
+// sesión pre-creada deja de servir y hay que recrearla.
+function coPayKey(intake){ try{ return JSON.stringify({s:cart,b:coBundles,x:coExpedited,l:coLang,i:intake}); }catch(e){ return 'k'+Math.random(); } }
+// Crea la sesión de Stripe en el servidor (Order pending + clientSecret).
+function coCreateSessionReq(intake){
+  return fetch('/api/checkout/embedded-services',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({services:cart,intake:intake,lang:coLang})})
+    .then(function(r){return r.json().then(function(d){return{ok:r.ok,d:d};});});
+}
+// Pre-crea la sesión en segundo plano mientras el cliente aún está en el paso
+// previo al pago, para que al llegar a "Revisa tu orden" el formulario de Stripe
+// aparezca de inmediato (sin esperar el round-trip). No crea órdenes extra en el
+// caso feliz: coStartPayment reutiliza esta misma promesa si la clave coincide.
+function coPrefetchPayment(){
+  var intake; try{ intake=coGetIntake(); }catch(e){ return; }
+  var r; try{ r=coComputeTotal(); }catch(e){ return; }
+  if(!r||!r.total) return;
+  var key=coPayKey(intake);
+  if(coPrefetch && coPrefetch.key===key) return; // ya en curso / lista
+  var p=coCreateSessionReq(intake);
+  p.catch(function(){}); // evita "unhandled rejection"; el error real se maneja al consumir
+  coPrefetch={ key:key, promise:p };
+}
 function coStartPayment(){
   var isEs=coIsEs();
   var ec=$('embedded-checkout'); if(ec) ec.innerHTML='<div style="text-align:center;padding:60px 0"><div class="co-spinner"></div></div>';
@@ -1454,10 +1480,13 @@ function coStartPayment(){
   var r; try{ r=coComputeTotal(); }catch(e){ r={total:0,lines:[]}; }
   if(!r.total){ if(ec) ec.innerHTML='<p style="color:#dc2626;padding:24px;font-size:.86rem;line-height:1.6">'+(isEs?'Tu pedido está vacío o hubo un problema. Vuelve atrás y revisa tus servicios.':'Your order is empty or something went wrong. Go back and review your services.')+'</p>'; return; }
   var intake; try{ intake=coGetIntake(); }catch(e){ if(ec) ec.innerHTML='<p style="color:#dc2626;padding:24px">'+(isEs?'No se pudieron leer tus datos. Intenta de nuevo.':'Could not read your details. Please try again.')+'</p>'; return; }
-  fetch('/api/checkout/embedded-services',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({services:cart,intake:intake,lang:coLang})})
-    .then(function(r){return r.json().then(function(d){return{ok:r.ok,d:d};});})
-    .then(function(res){
+  // Reutiliza la sesión pre-creada si el estado no cambió; si no, créala ahora.
+  var key=coPayKey(intake), p;
+  if(coPrefetch && coPrefetch.key===key){ p=coPrefetch.promise; }
+  else { p=coCreateSessionReq(intake); coPrefetch={ key:key, promise:p }; }
+  p.then(function(res){
       if(!res.ok||!res.d.clientSecret){
+        coPrefetch=null; // sesión inválida: no la reutilices
         if(ec) ec.innerHTML='<p style="color:#dc2626;padding:24px;font-size:.86rem;line-height:1.6">'+((res.d&&res.d.error)||(isEs?'No se pudo crear el pago. Revisa tus datos e intenta de nuevo.':'Could not create payment. Check your details and try again.'))+'</p>';
         return;
       }
@@ -1465,7 +1494,7 @@ function coStartPayment(){
       coRenderReview(res.d.lines, res.d.total);
       coMountStripe(res.d.clientSecret);
     })
-    .catch(function(){ if(ec) ec.innerHTML='<p style="color:#dc2626;padding:24px">'+(isEs?'Error de conexión. Intenta de nuevo.':'Connection error. Please try again.')+'</p>'; });
+    .catch(function(){ coPrefetch=null; if(ec) ec.innerHTML='<p style="color:#dc2626;padding:24px">'+(isEs?'Error de conexión. Intenta de nuevo.':'Connection error. Please try again.')+'</p>'; });
 }
 // Resumen inmediato con los nombres de los servicios (sin esperar al servidor).
 function coRenderReviewNames(){
