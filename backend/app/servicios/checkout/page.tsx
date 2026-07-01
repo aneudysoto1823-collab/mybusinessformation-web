@@ -328,7 +328,7 @@ html.co-wide .co-tier{padding:20px 18px}
     <!-- STEP: REVIEW + PAY -->
     <div class="co-panel" id="panel-pay" style="display:none">
       <h1 class="co-h1" data-en="Review your order" data-es="Revisa tu orden">Revisa tu orden</h1>
-      <p class="co-sub" data-en="Confirm your order and pay securely." data-es="Confirma tu pedido y paga de forma segura.">Confirma tu pedido y paga de forma segura.</p>
+      <p class="co-sub" data-en="Confirm your order." data-es="Confirma tu pedido.">Confirma tu pedido.</p>
       <button type="button" class="co-btn-ghost" onclick="coBack()" style="margin:0 0 14px;padding:0">&#8592; <span data-en="Back" data-es="Atrás">Atrás</span></button>
       <div class="co-pay-grid">
         <div class="co-review">
@@ -636,7 +636,9 @@ function sharedKeys(){
 }
 function coSharedKeysActive(){
   var k=sharedKeys();
-  if(coFormationType()) k=k.filter(function(x){ return x!=='ein'; });
+  // No pedir el EIN existente si es formación NUEVA o si el cliente está comprando
+  // el servicio de EIN (se lo generamos nosotros; los demás servicios usan ese).
+  if(coFormationType() || cart.indexOf('ein')>=0) k=k.filter(function(x){ return x!=='ein'; });
   return k;
 }
 function coCollectShared(){ var out={}; coSharedKeysActive().forEach(function(k){ var el=$('s-'+k); if(el) out[k]=el.value; }); return out; }
