@@ -810,6 +810,8 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 
 /* ── RESPONSIVE 768px ── */
 @media(max-width:768px){
+  /* iOS no hace zoom automatico al enfocar un campo si el input es >=16px */
+  .fm-input,.fm-select,.fm-textarea,.form-input,.select-input{font-size:16px}
   header{padding:0 16px}
   .header-inner{height:62px;position:relative}
   nav{display:none}
