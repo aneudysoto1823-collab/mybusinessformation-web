@@ -171,6 +171,9 @@ body{font-family:var(--font-sans),'Plus Jakarta Sans',system-ui,sans-serif;color
 .co-side{position:sticky;top:90px}
 .co-side .co-review{position:static;top:auto}
 .co-side-note{font-size:.7rem;color:var(--gray400);margin-top:12px;line-height:1.5}
+.co-ssn-wrap{position:relative}
+.co-ssn-wrap .co-input{padding-right:64px}
+.co-ssn-eye{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--blue);font-size:.78rem;font-weight:600;cursor:pointer;font-family:inherit;padding:4px 6px}
 .co-pay-disclosure{font-size:.72rem;color:var(--gray500);margin-top:16px;padding-top:14px;border-top:1px solid var(--gray100);line-height:1.55}
 .co-pay-disclosure a{color:var(--blue);text-decoration:underline}
 .co-review-row.co-row-state{color:var(--gray400)}
@@ -803,11 +806,25 @@ function coSharedFieldsInner(keys){
   return keys.map(function(k){ var f=SHARED_CFG[k]; if(!f) return ''; var lbl=isEs?f.es:f.en;
     var tip=isEs?(f.tipEs||''):(f.tipEn||'');
     var tipHtml = tip ? ' <span class="co-tip">?<span class="co-tip-box">'+tip+'</span></span>' : '';
-    var inner = (k==='ssnItin')
-      ? '<input class="co-input" type="password" autocomplete="off" id="s-'+k+'"/>'
-      : '<input class="co-input" type="text" id="s-'+k+'"/>';
-    return '<div class="co-field full"><label class="co-label">'+lbl+tipHtml+'</label>'+inner+'</div>';
+    if(k==='ssnItin'){
+      // Oculto por defecto (type=password), botón Ver/Ocultar y un segundo campo
+      // para confirmar que no haya errores de tipeo.
+      return '<div class="co-field full"><label class="co-label">'+lbl+tipHtml+'</label>'
+        +'<div class="co-ssn-wrap"><input class="co-input" type="password" autocomplete="off" inputmode="numeric" id="s-ssnItin"/>'
+        +'<button type="button" class="co-ssn-eye" onclick="coToggleSsn(this)">'+(isEs?'Ver':'Show')+'</button></div></div>'
+        +'<div class="co-field full"><label class="co-label">'+(isEs?'Confirma tu SSN o ITIN':'Confirm your SSN or ITIN')+'</label>'
+        +'<input class="co-input" type="password" autocomplete="off" inputmode="numeric" id="s-ssnItin-confirm"/></div>';
+    }
+    return '<div class="co-field full"><label class="co-label">'+lbl+tipHtml+'</label><input class="co-input" type="text" id="s-'+k+'"/></div>';
   }).join('');
+}
+// Mostrar/ocultar el SSN (afecta ambos campos: el principal y su confirmación).
+function coToggleSsn(btn){
+  var isEs=coIsEs(); var a=$('s-ssnItin'), b=$('s-ssnItin-confirm');
+  var show = a && a.type==='password';
+  if(a) a.type=show?'text':'password';
+  if(b) b.type=show?'text':'password';
+  btn.textContent = show ? (isEs?'Ocultar':'Hide') : (isEs?'Ver':'Show');
 }
 // Paso propio "Datos fiscales": aparece justo después de elegir un servicio que
 // requiere SSN/ITIN (ej. EIN), con el contexto fresco. Muestra el responsible
@@ -1231,7 +1248,7 @@ function coGoStep(i){
   if(coSteps[i].id==='panel-ra' && coRaChoice==='own') coRenderRaAddrOptions();
   // Datos fiscales: refresca el responsible party / contexto al entrar, sin borrar
   // lo que ya escribió el cliente.
-  if(coSteps[i].id==='panel-tax'){ var _ssn=(($('s-ssnItin')||{}).value)||'', _ein=(($('s-ein')||{}).value)||''; coRenderTaxPanel(); if($('s-ssnItin')) $('s-ssnItin').value=_ssn; if($('s-ein')) $('s-ein').value=_ein; }
+  if(coSteps[i].id==='panel-tax'){ var _ssn=(($('s-ssnItin')||{}).value)||'', _ssnc=(($('s-ssnItin-confirm')||{}).value)||'', _ein=(($('s-ein')||{}).value)||''; coRenderTaxPanel(); if($('s-ssnItin')) $('s-ssnItin').value=_ssn; if($('s-ssnItin-confirm')) $('s-ssnItin-confirm').value=_ssnc; if($('s-ein')) $('s-ein').value=_ein; }
   // Modo ancho en los hubs de tiers (cards más anchas, estilo LegalZoom).
   var isHub = coSteps[i].id.indexOf('panel-hub-')===0;
   try{ document.documentElement.classList.toggle('co-wide', isHub); }catch(e){}
@@ -1313,7 +1330,11 @@ function coValidateStep(i){
   }
   if(id==='panel-tax'){
     var ak=coSharedKeysActive();
-    if(ak.indexOf('ssnItin')>=0 && (($('s-ssnItin')||{}).value||'').trim().length<5){ err.textContent=isEs?'Ingresa tu SSN o ITIN.':'Enter your SSN or ITIN.'; return false; }
+    if(ak.indexOf('ssnItin')>=0){
+      var vSsn=(($('s-ssnItin')||{}).value||'').trim();
+      if(vSsn.length<5){ err.textContent=isEs?'Ingresa tu SSN o ITIN.':'Enter your SSN or ITIN.'; return false; }
+      if(vSsn!==(($('s-ssnItin-confirm')||{}).value||'').trim()){ err.textContent=isEs?'El SSN o ITIN no coincide. Verifícalo.':'The SSN or ITIN does not match. Please check.'; return false; }
+    }
     if(ak.indexOf('ein')>=0 && (($('s-ein')||{}).value||'').trim().length<3){ err.textContent=isEs?'Ingresa tu EIN.':'Enter your EIN.'; return false; }
     return true;
   }
