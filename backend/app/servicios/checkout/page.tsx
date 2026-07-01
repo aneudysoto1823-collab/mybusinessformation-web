@@ -174,6 +174,9 @@ body{font-family:var(--font-sans),'Plus Jakarta Sans',system-ui,sans-serif;color
 .co-ssn-wrap{position:relative}
 .co-ssn-wrap .co-input{padding-right:64px}
 .co-ssn-eye{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--blue);font-size:.78rem;font-weight:600;cursor:pointer;font-family:inherit;padding:4px 6px}
+.co-amd-opt{display:flex;align-items:center;gap:10px;cursor:pointer;padding:11px 14px;background:#fff;border:1.5px solid var(--gray200);border-radius:9px;margin-bottom:10px;font-size:.88rem;font-weight:600;color:var(--gray800)}
+.co-amd-opt input{width:17px;height:17px;cursor:pointer;accent-color:var(--blue)}
+.co-amd-sec{padding:0 2px 8px;margin:-2px 0 12px}
 .co-pay-disclosure{font-size:.72rem;color:var(--gray500);margin-top:16px;padding-top:14px;border-top:1px solid var(--gray100);line-height:1.55}
 .co-pay-disclosure a{color:var(--blue);text-decoration:underline}
 .co-review-row.co-row-state{color:var(--gray400)}
@@ -614,7 +617,10 @@ function coServiceIds(ft){
     return coVisibleFields(id, ft).length>0;
   });
 }
+// Opciones de estados de EE.UU. (reusable en direcciones à la medida).
+function coStateOpts(){ return '<option value="">--</option>'+['AL','AK','AZ','AR','CA','CO','CT','DE','DC','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY'].map(function(s){return '<option>'+s+'</option>';}).join(''); }
 function coServiceCardHtml(svcId, ft, hideTitle){
+  if(svcId==='amendment') return coAmendmentHtml(hideTitle);
   var def=SVC_EXTRAS[svcId]; var isEs=coIsEs();
   var name = def ? (isEs?def.name_es:def.name_en) : svcId;
   var fields = coVisibleFields(svcId, ft);
@@ -629,6 +635,59 @@ function coServiceCardHtml(svcId, ft, hideTitle){
     html += '<div class="co-card-svc">'+(isEs?'No requiere datos adicionales':'No extra details required')+'</div>';
   }
   return html+'</div>';
+}
+// ── Artículos de Enmienda: formulario a la medida (checkboxes + campos condicionales) ──
+var AMD_SECTIONS = ['name','prin','mail','agent','members','purpose'];
+function coAmdAddr(prefix, isEs, withState){
+  var f=function(k,lbl,full){ return '<div class="co-field'+(full?' full':'')+'"><label class="co-label">'+lbl+'</label><input class="co-input" id="x-amendment-'+prefix+k+'"'+((k==='Street'||k==='City')?' oninput="coTitleCase(this)"':'')+'/></div>'; };
+  var stateHtml = withState ? '<div class="co-field"><label class="co-label">'+(isEs?'Estado':'State')+'</label><select class="co-select" id="x-amendment-'+prefix+'State">'+coStateOpts()+'</select></div>' : '';
+  return '<div class="co-grid">'
+    +f('Street',(isEs?'Calle':'Street'),true)
+    +f('Apt',(isEs?'Apt / Suite (opcional)':'Apt / Suite (optional)'))
+    +f('City',(isEs?'Ciudad':'City'))
+    +stateHtml
+    +f('Zip',(isEs?'Código postal':'ZIP'))
+    +'</div>';
+}
+function coAmendmentHtml(hideTitle){
+  var isEs=coIsEs();
+  var chk=function(k,lbl){ return '<label class="co-amd-opt"><input type="checkbox" id="amd-cb-'+k+'" onchange="coAmdToggle(\''+k+'\')"/> <span>'+lbl+'</span></label>'; };
+  var sec=function(k,inner){ return '<div class="co-amd-sec" id="amd-sec-'+k+'" style="display:none">'+inner+'</div>'; };
+  var h='<div class="co-card">'+(hideTitle?'':'<div class="co-card-title">'+(isEs?'Artículos de Enmienda':'Articles of Amendment')+'</div>');
+  h+='<p class="co-svc-intro">'+(isEs?'Marca qué vas a cambiar y llena solo eso. Preparamos y presentamos la enmienda ante el Estado de Florida.':'Check what you are changing and fill in only that. We prepare and file the amendment with the State of Florida.')+'</p>';
+  // Nombre
+  h+=chk('name',(isEs?'Nombre de la empresa':'Company name'))
+    +sec('name','<div class="co-grid"><div class="co-field full"><label class="co-label">'+(isEs?'Nuevo nombre':'New name')+'</label><input class="co-input" id="x-amendment-newName"/></div></div>');
+  // Dirección principal
+  h+=chk('prin',(isEs?'Dirección principal':'Principal address'))+sec('prin',coAmdAddr('prin',isEs,true));
+  // Dirección postal
+  h+=chk('mail',(isEs?'Dirección postal (mailing)':'Mailing address'))+sec('mail',coAmdAddr('mail',isEs,true));
+  // Agente registrado
+  h+=chk('agent',(isEs?'Agente registrado':'Registered agent'))
+    +sec('agent','<div class="co-grid"><div class="co-field full"><label class="co-label">'+(isEs?'Nuevo agente (nombre)':'New agent (name)')+'</label><input class="co-input" id="x-amendment-agName" oninput="coTitleCase(this)"/></div></div>'+coAmdAddr('ag',isEs,false));
+  // Miembros / gerentes / oficiales
+  h+=chk('members',(isEs?'Miembros / gerentes / oficiales':'Members / managers / officers'))
+    +sec('members','<div class="co-grid"><div class="co-field full"><label class="co-label">'+(isEs?'¿Agregar o quitar?':'Add or remove?')+'</label><select class="co-select" id="x-amendment-membersAction"><option value="add">'+(isEs?'Agregar':'Add')+'</option><option value="remove">'+(isEs?'Quitar':'Remove')+'</option><option value="replace">'+(isEs?'Reemplazar':'Replace')+'</option></select></div>'
+      +'<div class="co-field full"><label class="co-label">'+(isEs?'¿Quién? (nombre completo y detalles)':'Who? (full name and details)')+'</label><textarea class="co-textarea" id="x-amendment-membersWho"></textarea></div></div>');
+  // Propósito
+  h+=chk('purpose',(isEs?'Propósito del negocio':'Business purpose'))
+    +sec('purpose','<div class="co-grid"><div class="co-field full"><label class="co-label">'+(isEs?'Nuevo propósito':'New purpose')+'</label><textarea class="co-textarea" id="x-amendment-purpose"></textarea></div></div>');
+  // Lista oculta de cambios seleccionados + persona autorizada (siempre)
+  h+='<input type="hidden" id="x-amendment-changes"/>';
+  h+='<div class="co-grid" style="margin-top:12px"><div class="co-field full"><label class="co-label">'+(isEs?'Nombre de la persona autorizada':'Authorized person name')+'</label><input class="co-input" id="x-amendment-authName" oninput="coTitleCase(this)"/></div></div>';
+  return h+'</div>';
+}
+function coAmdToggle(k){
+  var cb=document.getElementById('amd-cb-'+k), sec=document.getElementById('amd-sec-'+k);
+  if(sec) sec.style.display=(cb&&cb.checked)?'':'none';
+  var selArr=[]; AMD_SECTIONS.forEach(function(x){ var c=document.getElementById('amd-cb-'+x); if(c&&c.checked) selArr.push(x); });
+  var h=$('x-amendment-changes'); if(h) h.value=selArr.join(',');
+}
+// Restaura los checkboxes/secciones de la enmienda desde el valor guardado (tras rebuild).
+function coAmdRestore(){
+  var h=$('x-amendment-changes'); if(!h) return;
+  var sel=(h.value||'').split(',').filter(Boolean);
+  AMD_SECTIONS.forEach(function(k){ var on=sel.indexOf(k)>=0; var cb=document.getElementById('amd-cb-'+k); if(cb) cb.checked=on; var sec=document.getElementById('amd-sec-'+k); if(sec) sec.style.display=on?'':'none'; });
 }
 
 // ── Campos compartidos (EIN/SSN) — EIN no se pide si es formación ───────────
@@ -1249,6 +1308,8 @@ function coGoStep(i){
   if(isPay){ coTranslateStatic(); coStartPayment(); coEditReturn=false; }
   // Si el cliente entró a editar desde la revisión, ofrece volver directo a ella.
   var rr=$('co-review-return'); if(rr) rr.style.display=(coEditReturn && !isPay) ? '' : 'none';
+  // Restaura el estado de la enmienda (checkboxes/secciones) tras cualquier rebuild.
+  try{ coAmdRestore(); }catch(e){}
   // Agente Registrado: NO se preselecciona; "nuestro servicio" solo se muestra
   // como recomendado (badge). El cliente debe hacer clic para seleccionarlo (recién
   // ahí entra al resumen). Si ya eligió "propio agente", recalcula direcciones FL.

@@ -198,9 +198,18 @@ export const SERVICE_FIELDS: Record<string, ServiceFieldDef> = {
   ]},
   'amendment': { name_en: 'Articles of Amendment', name_es: 'Artículos de Enmienda',
     intro_en: 'Articles of Amendment officially update your company record with the State of Florida — for example a name change, new address, change of registered agent, or changes to members/officers. Tell us what you need to change and we prepare and file it for you.',
-    intro_es: 'Los Artículos de Enmienda actualizan oficialmente el registro de tu empresa ante el Estado de Florida — por ejemplo un cambio de nombre, nueva dirección, cambio de agente registrado o cambios de miembros/oficiales. Dinos qué necesitas cambiar y lo preparamos y presentamos por ti.', fields: [
-    { k: 'changes', en: 'What are you changing? (name, address, agent, officers...)', es: '¿Qué vas a cambiar? (nombre, dirección, agente, oficiales...)', type: 'textarea' },
-    { k: 'newInfo', en: 'New / updated information', es: 'Información nueva / actualizada', type: 'textarea' },
+    intro_es: 'Los Artículos de Enmienda actualizan oficialmente el registro de tu empresa ante el Estado de Florida — por ejemplo un cambio de nombre, nueva dirección, cambio de agente registrado o cambios de miembros/oficiales. Dinos qué necesitas cambiar y lo preparamos y presentamos por ti.',
+    // El checkout renderiza la enmienda con un formulario a la medida (checkboxes de
+    // qué cambiar + campos condicionales). Estas keys existen para la CAPTURA
+    // (coCollectExtras las lee por id x-amendment-<key>). Ver coAmendmentHtml.
+    fields: [
+    { k: 'changes', en: 'Selected changes', es: 'Cambios seleccionados', type: 'text' },
+    { k: 'newName', en: 'New company name', es: 'Nuevo nombre de la empresa', type: 'text' },
+    { k: 'prinStreet', en: 'Street', es: 'Calle', type: 'text' }, { k: 'prinApt', en: 'Apt/Suite', es: 'Apt/Suite', type: 'text' }, { k: 'prinCity', en: 'City', es: 'Ciudad', type: 'text' }, { k: 'prinState', en: 'State', es: 'Estado', type: 'text' }, { k: 'prinZip', en: 'ZIP', es: 'ZIP', type: 'text' },
+    { k: 'mailStreet', en: 'Street', es: 'Calle', type: 'text' }, { k: 'mailApt', en: 'Apt/Suite', es: 'Apt/Suite', type: 'text' }, { k: 'mailCity', en: 'City', es: 'Ciudad', type: 'text' }, { k: 'mailState', en: 'State', es: 'Estado', type: 'text' }, { k: 'mailZip', en: 'ZIP', es: 'ZIP', type: 'text' },
+    { k: 'agName', en: 'New registered agent', es: 'Nuevo agente registrado', type: 'text' }, { k: 'agStreet', en: 'Street (FL)', es: 'Calle (FL)', type: 'text' }, { k: 'agApt', en: 'Apt/Suite', es: 'Apt/Suite', type: 'text' }, { k: 'agCity', en: 'City', es: 'Ciudad', type: 'text' }, { k: 'agZip', en: 'ZIP', es: 'ZIP', type: 'text' },
+    { k: 'membersAction', en: 'Add or remove', es: 'Agregar o quitar', type: 'text' }, { k: 'membersWho', en: 'Who (names & details)', es: 'Quién (nombres y detalles)', type: 'textarea' },
+    { k: 'purpose', en: 'New business purpose', es: 'Nuevo propósito del negocio', type: 'textarea' },
     { k: 'authName', en: 'Authorized person name', es: 'Nombre de la persona autorizada', type: 'text' },
   ]},
   // Sin formulario: la resolución bancaria es genérica (aplica a cualquier banco)
