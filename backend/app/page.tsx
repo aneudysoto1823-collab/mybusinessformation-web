@@ -1836,6 +1836,32 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           </div>
         </div>
       </div>
+      <div class="fm-step" id="fms6">
+        <div class="fm-card">
+          <div class="fm-card-body">
+            <h2 class="fm-title" id="s6-title">Faster processing</h2>
+            <p class="fm-sub" id="s6-sub">Need your formation faster? We prioritize your whole order.</p>
+            <div class="fm-speed-cards">
+              <div class="fm-speed-card" id="speed-exp" onclick="fmSetSpeed('expedited',this)">
+                <div class="fm-speed-badge" id="s6-badge">Fastest</div>
+                <div class="fm-speed-top"><label id="s6-exp-lbl">&#9889; Expedited processing</label><span class="fm-speed-price" id="fms6-exp-price">+$79</span></div>
+                <div class="fm-speed-date" id="s6-exp-desc">Priority handling &middot; 1-3 business days</div>
+              </div>
+              <div class="fm-speed-card selected" id="speed-std" onclick="fmSetSpeed('standard',this)">
+                <div class="fm-speed-top"><label id="s6-std-lbl">Standard processing</label><span class="fm-speed-price" id="s6-std-price">Included</span></div>
+                <div class="fm-speed-date" id="s6-std-desc">Normal time &middot; 7-10 business days</div>
+              </div>
+            </div>
+          </div>
+          <div class="fm-card-footer">
+            <button class="btn-back-fm" onclick="fmBack()">&#8592; <span id="s6-back">Back</span></button>
+            <div style="display:flex;align-items:center;gap:10px">
+              <button class="save-btn" onclick="saveOrder()">&#x1F4BE; <span id="s6-save">Save</span></button>
+              <button class="btn-next-fm" onclick="fmNext()"><span id="s6-next">Continue</span> &#8594;</button>
+            </div>
+          </div>
+        </div>
+      </div>
       <div class="fm-step" id="fms7">
         <div class="fm-card">
           <div class="fm-card-body">
@@ -4832,7 +4858,7 @@ function setFilerForm(type, el) {
 
 var fmCurrentStep = 1;
 // 6 pasos: Review (fms8) es el último — el pago vive dentro de su Order Summary.
-var fmTotalSteps  = 6;
+var fmTotalSteps  = 7;
 var fmData = {
   entity: 'llc', bizAddrType: 'virtual', agentType: 'ours',
   bizName: '',
@@ -4853,22 +4879,23 @@ var fmStepTitles = [
   'Business Address',
   'Registered Agent & Mailing Address',
   'Ownership & Management',
+  'Faster Processing',
   'Boost Your Formation',
-  'Review Your Order',
-  'Secure Payment'
+  'Review Your Order'
 ];
 var fmStepTitlesEs = [
   'Configuración del Negocio',
   'Dirección de Negocio',
   'Agente Registrado y Dirección Postal',
   'Propiedad y Gestión',
+  'Procesamiento Acelerado',
   'Mejora Tu Formación',
-  'Revisa Tu Orden',
-  'Pago Seguro'
+  'Revisa Tu Orden'
 ];
-// Map actual step IDs (1,2,3,5,7,8,9) to visual step numbers (1-7)
+// Map actual step IDs (1,2,3,5,6,7,8) a visual step numbers (1-7). El paso 6
+// (procesamiento acelerado) reusa el slot antes saltado.
 function fmVisualStep(step) {
-  var m = {1:1,2:2,3:3,5:4,7:5,8:6,9:7};
+  var m = {1:1,2:2,3:3,5:4,6:5,7:6,8:7,9:8};
   return m[step] || step;
 }
 
@@ -4913,6 +4940,16 @@ function fmSyncStep3() {
   // RA address fields & same-biz checkbox
   fmSyncRaState();
 }
+function fmSyncStep6() {
+  // Procesamiento acelerado: gratis con Premium; refleja la selección actual.
+  var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
+  var premium = fmData.package === 'premium';
+  var priceEl = document.getElementById('fms6-exp-price');
+  if(priceEl) priceEl.textContent = premium ? (isEs?'Gratis con Premium':'Free with Premium') : '+$79';
+  var exp = document.getElementById('speed-exp'), std = document.getElementById('speed-std');
+  if(exp) exp.classList.toggle('selected', fmData.speed === 'expedited');
+  if(std) std.classList.toggle('selected', fmData.speed !== 'expedited');
+}
 function fmSyncStep5() {
   // Show/hide Company member type based on entity
   var coBtn = document.getElementById('s5-m1-co');
@@ -4947,6 +4984,7 @@ function fmGoToStep(n) {
   if(n === 2) fmSyncStep2();
   if(n === 3) fmSyncStep3();
   if(n === 5) fmSyncStep5();
+  if(n === 6) fmSyncStep6();
   if(n === 7) fmFilterAddons();
   if(n === 8) fmBuildReview();
   // Pago integrado en el Order Summary: solo aparece (y se monta) en el Review.
@@ -5007,7 +5045,7 @@ document.addEventListener('keydown', function(e) {
   if(e.ctrlKey && e.shiftKey && e.key === 'D') fmToggleDevMode();
 });
 function fmNext() {
-  if(_fmDevMode) { var dn=fmCurrentStep+1; if(dn===4)dn=5; if(dn===6)dn=7; fmGoToStep(dn); return; }
+  if(_fmDevMode) { var dn=fmCurrentStep+1; if(dn===4)dn=5; fmGoToStep(dn); return; }
   var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
   if(fmCurrentStep===1){
     var nameEl=document.getElementById('inp-bizname');
@@ -5351,11 +5389,11 @@ function fmNext() {
             }
           }
           if (typeof window.gtag === 'function') { window.gtag('event', 'step_completed', { step_number: fmCurrentStep, package: fmData.package, entity: fmData.entity }); }
-          var _next5=fmCurrentStep+1; if(_next5===4)_next5=5; if(_next5===6)_next5=7;
+          var _next5=fmCurrentStep+1; if(_next5===4)_next5=5;
           if(fmVisualStep(_next5)<=fmTotalSteps) fmGoToStep(_next5);
         } catch(e) {
           if (typeof window.gtag === 'function') { window.gtag('event', 'step_completed', { step_number: fmCurrentStep, package: fmData.package, entity: fmData.entity }); }
-          var _nx5=fmCurrentStep+1; if(_nx5===4)_nx5=5; if(_nx5===6)_nx5=7;
+          var _nx5=fmCurrentStep+1; if(_nx5===4)_nx5=5;
           if(fmVisualStep(_nx5)<=fmTotalSteps) fmGoToStep(_nx5);
         }
       })();
@@ -5414,9 +5452,8 @@ function fmNext() {
     window.gtag('event', 'step_completed', { step_number: fmCurrentStep, package: fmData.package, entity: fmData.entity });
   }
   var next=fmCurrentStep+1;
-  // Skip step 4 (upsell removed) and step 6 (RA now in step 3)
+  // Skip step 4 (upsell removed). Step 6 = Procesamiento acelerado (ya activo).
   if(next===4){next=5;}
-  if(next===6){next=7;}
   // El Review (fms8) es el último paso; el pago se completa con el botón Pay de
   // Stripe dentro del Order Summary, no avanzando a otro step.
   if(fmVisualStep(next)<=fmTotalSteps){fmGoToStep(next);}
@@ -5424,7 +5461,6 @@ function fmNext() {
 
 function fmBack() {
   var prev = fmCurrentStep - 1;
-  if(prev === 6) prev = 5;
   if(prev === 4) prev = 3;
   if(prev >= 1) fmGoToStep(prev);
 }
@@ -6413,6 +6449,18 @@ function fmTranslate(lang) {
     's6-info-note':isEs?'La dirección de tu Agente Registrado aparece en los registros de Florida, no la tuya personal. Esto protege tu privacidad.':'Your Registered Agent address appears on Florida public records, not your personal address. This protects your privacy.',
     'lbl-ra-name':isEs?'Nombre Completo *':'Full Name *',
     'lbl-ra-street':isEs?'Dirección en Florida *':'Florida Street Address *',
+    // Paso 6 — Procesamiento acelerado
+    's6-title':isEs?'Procesamiento acelerado':'Faster processing',
+    's6-sub':isEs?'¿Necesitas tu formación más rápido? Damos prioridad a toda tu orden.':'Need your formation faster? We prioritize your whole order.',
+    's6-badge':isEs?'Más rápido':'Fastest',
+    's6-exp-lbl':isEs?'&#9889; Procesamiento acelerado':'&#9889; Expedited processing',
+    's6-exp-desc':isEs?'Prioridad · 1-3 días hábiles':'Priority handling · 1-3 business days',
+    's6-std-lbl':isEs?'Procesamiento estándar':'Standard processing',
+    's6-std-price':isEs?'Incluido':'Included',
+    's6-std-desc':isEs?'Tiempo normal · 7-10 días hábiles':'Normal time · 7-10 business days',
+    's6-back':isEs?'Atrás':'Back',
+    's6-save':isEs?'Guardar':'Save',
+    's6-next':isEs?'Continuar':'Continue',
     // Summary labels
     'sum-lbl-entity':isEs?'Entidad':'Entity',
     'sum-lbl-pkg':isEs?'Paquete':'Package',
