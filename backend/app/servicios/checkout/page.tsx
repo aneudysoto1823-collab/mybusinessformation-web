@@ -130,6 +130,10 @@ body{font-family:var(--font-sans),'Plus Jakarta Sans',system-ui,sans-serif;color
 @keyframes cospin{to{transform:rotate(360deg)}}
 /* Recomendado: cajas de elección (estilo paquetes) */
 .co-choices{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0 0}
+.co-decline{display:block;width:100%;text-align:center;background:none;border:none;color:var(--gray600);font-size:.82rem;cursor:pointer;padding:12px 8px;margin:12px 0 0;font-family:inherit;text-decoration:underline;text-underline-offset:2px}
+.co-decline:hover{color:var(--blue)}
+.co-decline.sel{color:var(--navy);font-weight:700;text-decoration:none}
+.co-decline.sel::before{content:'\\2713 ';color:var(--blue)}
 .co-choice{position:relative;border:1.5px solid var(--gray200);border-radius:12px;padding:15px 16px;cursor:pointer;transition:all .2s;background:#fff;display:flex;flex-direction:column;gap:6px}
 .co-choice:hover{border-color:#93c5fd}
 .co-choice.sel{border-color:var(--blue);background:var(--blue-light)}
@@ -920,16 +924,16 @@ function coRenderExpedited(){
   var panel=$('panel-expedited'); if(!panel) return; var isEs=coIsEs();
   var exp=coExpedited, std=!coExpedited;
   panel.innerHTML='<h1 class="co-h1">'+(isEs?'Procesamiento acelerado':'Faster processing')+'</h1>'
-    +'<p class="co-sub">'+(isEs?'¿Necesitas tu trámite más rápido?':'Need your filing faster?')+'</p>'
-    +'<div class="co-card"><div class="co-choices">'
-      +'<div class="co-choice co-choice-rec'+(exp?' sel':'')+'" onclick="coSetExpedited(true)">'
-        +'<span class="co-rec-badge">'+(isEs?'Más rápido':'Fastest')+'</span>'
-        +'<div class="co-choice-top"><span class="co-choice-title">&#9889; '+(isEs?'Procesamiento acelerado':'Expedited processing')+'</span><span class="co-choice-price">+$'+EXPED_FEE+'</span></div>'
-        +'<div class="co-choice-desc">'+(isEs?'Preparamos tu orden en tiempo acelerado y aceleramos la presentación estatal cuando el estado lo permite.':'We prepare your order on an accelerated timeline and expedite the state filing where applicable.')+'</div></div>'
-      +'<div class="co-choice'+(std?' sel':'')+'" onclick="coSetExpedited(false)">'
-        +'<div class="co-choice-top"><span class="co-choice-title">'+(isEs?'Procesamiento estándar':'Standard processing')+'</span><span class="co-choice-price">'+(isEs?'Incluido':'Included')+'</span></div>'
-        +'<div class="co-choice-desc">'+(isEs?'Tiempo de procesamiento normal.':'Normal processing time.')+'</div></div>'
-    +'</div></div>';
+    +'<p class="co-sub">'+(isEs?'¿Lo quieres más rápido? Acelera la presentación estatal cuando aplica.':'Want it faster? Upgrade to expedited state filing where applicable.')+'</p>'
+    +'<div class="co-card">'
+      +'<div class="co-choices" style="grid-template-columns:1fr">'
+        +'<div class="co-choice co-choice-rec'+(exp?' sel':'')+'" onclick="coSetExpedited(true)">'
+          +'<span class="co-rec-badge">'+(isEs?'Más rápido':'Fastest')+'</span>'
+          +'<div class="co-choice-top"><span class="co-choice-title">&#9889; '+(isEs?'Procesamiento acelerado':'Expedited processing')+'</span><span class="co-choice-price">+$'+EXPED_FEE+'</span></div>'
+          +'<div class="co-choice-desc">'+(isEs?'1-3 días hábiles':'1-3 business days')+'</div></div>'
+      +'</div>'
+      +'<button type="button" class="co-decline'+(std?' sel':'')+'" onclick="coSetExpedited(false)">'+(isEs?'No gracias, esperaré el tiempo estándar (7-14 días hábiles)':'No thanks, I\'ll wait the standard time (7-14 business days)')+'</button>'
+    +'</div>';
 }
 function coSetExpedited(v){ coExpedited=!!v; coSaveCart(); coRenderExpedited(); coUpdateOrderSummary(); try{ coPrefetchPayment(); }catch(e){} }
 

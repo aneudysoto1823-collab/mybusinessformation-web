@@ -246,7 +246,7 @@ COLLECTION FLOW (ask in this order):
 9. Management type: Member-managed (owners run it directly — most common) or Manager-managed?
 10. Registered agent: Use our service (recommended, required by FL law) or do they have their own FL agent?
 11. Add-ons confirmation: Based on their package, confirm any additional services (EIN, Operating Agreement, ITIN, Virtual Address, Annual Report).
-12. Filing speed: Standard (7–10 days, included) or Expedited (1–3 days, +$99 — free in Premium)?
+12. Filing speed: Standard (7–14 days, included) or Expedited (1–3 days, +$99 — free in Premium)?
 13. Email: Where should we send confirmation and documents?
 
 After collecting ALL fields above, call the create_form_session tool with this exact JSON structure:
@@ -361,7 +361,7 @@ STEP 12 — Online Presence
   • Business Phone Number: Monthly fee. Separate dedicated business line. Optional.
 
 STEP 13 — Summary & Signature
-  • Filing Speed: Standard (7–10 business days, included) or Expedited (1–3 business days, +$99 — free in Premium).
+  • Filing Speed: Standard (7–14 business days, included) or Expedited (1–3 business days, +$99 — free in Premium).
   • Email: Where they'll receive the order confirmation and documents.
   • Electronic Signature: They just type their full legal name. This is NOT a digital signature software — it's simply their typed name authorizing us to file on their behalf. It is legally binding as an electronic signature under Florida law.
 
@@ -434,7 +434,7 @@ TERMS & REFUND POLICY:
 - Florida state filing fees (LLC $125, Corp $70) are paid directly to the State — separate from our fees.
 - Refunds may be requested within 24 hours of order placement and BEFORE any filing has been initiated. Once documents have been prepared or submitted, no refund will be issued.
 - Refund requests must be submitted in writing to info@opabiz.com.
-- Processing times are estimates only — Standard 7–10 business days, Expedited 1–3 business days. These depend on the Florida Division of Corporations and are outside our control.
+- Processing times are estimates only — Standard 7–14 business days, Expedited 1–3 business days. These depend on the Florida Division of Corporations and are outside our control.
 
 PRIVACY POLICY (key points):
 - We collect: full name, address, email, phone, business info, SSN/ITIN (for EIN/ITIN applications only), and payment info (we do NOT store card numbers).
@@ -455,7 +455,7 @@ WHEN CLIENTS ASK ABOUT THESE TOPICS:
 - Refunds → explain the 24-hour window and that refunds require the filing to not have started. Direct them to email info@opabiz.com.
 - Privacy / data → reassure them we never sell data; only share with government agencies and payment processors as required.
 - Legal questions → remind them we are a document preparation service and that this falls outside what we cover.
-- Processing times → set correct expectations: Standard 7–10 days, Expedited 1–3 days, both subject to state volume.`
+- Processing times → set correct expectations: Standard 7–14 days, Expedited 1–3 days, both subject to state volume.`
 
 const TOOLS: Anthropic.Tool[] = [
   {

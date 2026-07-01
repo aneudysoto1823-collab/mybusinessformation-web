@@ -95,7 +95,7 @@ const schemaOrg = {
         {
           '@type': 'Question',
           name: 'How long does it take to form my business in Florida?',
-          acceptedAnswer: { '@type': 'Answer', text: 'Standard processing typically takes 7-10 business days. With Expedited Filing, it can be reduced to 1-3 business days.' },
+          acceptedAnswer: { '@type': 'Answer', text: 'Standard processing typically takes 7-14 business days. With Expedited Filing, it can be reduced to 1-3 business days.' },
         },
         {
           '@type': 'Question',
@@ -663,10 +663,14 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 .fm-choice-price{font-size:.82rem;font-weight:700;color:#1e293b;margin-left:auto;flex-shrink:0}
 
 /* Filing speed cards */
-.fm-speed-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.fm-speed-cards{display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:10px}
 .fm-speed-card{border:1.5px solid #e5e7eb;border-radius:10px;padding:16px;cursor:pointer;transition:all .2s;position:relative}
 .fm-speed-card:hover{border-color:#93c5fd}
 .fm-speed-card.selected{border-color:#2563eb;background:#eff6ff}
+.fm-speed-decline{display:block;width:100%;text-align:center;background:none;border:none;color:#6b7280;font-size:.85rem;cursor:pointer;padding:10px 8px;font-family:inherit;text-decoration:underline;text-underline-offset:2px}
+.fm-speed-decline:hover{color:#2563eb}
+.fm-speed-decline.selected{color:#1e293b;font-weight:600;text-decoration:none}
+.fm-speed-decline.selected::before{content:'\\2713 ';color:#2563eb}
 .fm-speed-badge{position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#f97316;color:#fff;font-size:.65rem;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:.5px}
 .fm-speed-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
 .fm-speed-top label{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.88rem;font-weight:600;color:#1e293b}
@@ -1264,7 +1268,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
       </div>
       <div class="faq-item">
         <button class="faq-q" onclick="toggleFaq(this)"><span data-en="How long does it take to form my business in Florida?" data-es="¿Cuánto tiempo tarda en formarse mi negocio en Florida?">How long does it take to form my business in Florida?</span><span class="faq-icon">+</span></button>
-        <div class="faq-a" data-en="Standard processing typically takes 7-10 business days. With Expedited Filing, it can be reduced to 1-3 business days." data-es="El procesamiento estándar normalmente tarda 7-10 días hábiles. Con tramitación acelerada puede reducirse a 1-3 días hábiles.">Standard processing typically takes 7-10 business days. With Expedited Filing, it can be reduced to 1-3 business days.</div>
+        <div class="faq-a" data-en="Standard processing typically takes 7-14 business days. With Expedited Filing, it can be reduced to 1-3 business days." data-es="El procesamiento estándar normalmente tarda 7-14 días hábiles. Con tramitación acelerada puede reducirse a 1-3 días hábiles.">Standard processing typically takes 7-14 business days. With Expedited Filing, it can be reduced to 1-3 business days.</div>
       </div>
       <div class="faq-item">
         <button class="faq-q" onclick="toggleFaq(this)"><span data-en="What is a Registered Agent and do I really need one?" data-es="¿Qué es un Agente Registrado y realmente lo necesito?">What is a Registered Agent and do I really need one?</span><span class="faq-icon">+</span></button>
@@ -1840,18 +1844,15 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
         <div class="fm-card">
           <div class="fm-card-body">
             <h2 class="fm-title" id="s6-title">Faster processing</h2>
-            <p class="fm-sub" id="s6-sub">Need your formation faster? We prioritize your whole order.</p>
+            <p class="fm-sub" id="s6-sub">Want it faster? Upgrade to expedited state filing where applicable.</p>
             <div class="fm-speed-cards">
               <div class="fm-speed-card" id="speed-exp" onclick="fmSetSpeed('expedited',this)">
                 <div class="fm-speed-badge" id="s6-badge">Fastest</div>
                 <div class="fm-speed-top"><label id="s6-exp-lbl">&#9889; Expedited processing</label><span class="fm-speed-price" id="fms6-exp-price">+$79</span></div>
-                <div class="fm-speed-date" id="s6-exp-desc">Priority handling &middot; 1-3 business days</div>
-              </div>
-              <div class="fm-speed-card selected" id="speed-std" onclick="fmSetSpeed('standard',this)">
-                <div class="fm-speed-top"><label id="s6-std-lbl">Standard processing</label><span class="fm-speed-price" id="s6-std-price">Included</span></div>
-                <div class="fm-speed-date" id="s6-std-desc">Normal time &middot; 7-10 business days</div>
+                <div class="fm-speed-date" id="s6-exp-desc">1-3 business days</div>
               </div>
             </div>
+            <button type="button" class="fm-speed-decline selected" id="speed-std" onclick="fmSetSpeed('standard',this)"><span id="s6-std-desc">No thanks, I'll wait the standard time (7-14 business days)</span></button>
           </div>
           <div class="fm-card-footer">
             <button class="btn-back-fm" onclick="fmBack()">&#8592; <span id="s6-back">Back</span></button>
@@ -2210,7 +2211,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
                 <div class="fm-review-field"><label id="rev-state-lbl">State of Formation</label><span>Florida</span></div>
                 <div class="fm-review-field"><label id="rev-entity-lbl">Entity Type</label><span id="rev-entity-val">LLC</span></div>
                 <div class="fm-review-field"><label id="rev-pkg-lbl">Package</label><span id="rev-pkg-val">Standard</span></div>
-                <div class="fm-review-field"><label id="rev-speed-lbl">Filing Speed</label><span id="rev-speed-val">Standard (7-10 days)</span></div>
+                <div class="fm-review-field"><label id="rev-speed-lbl">Filing Speed</label><span id="rev-speed-val">Standard (7-14 days)</span></div>
               </div>
             </div>
           </div>
@@ -3752,9 +3753,9 @@ function setLang(lang) {
      'What is the difference between an LLC and a Corporation?',
      'An LLC offers flexible management and pass-through taxation — ideal for small businesses. A Corporation is a more formal structure suited for businesses seeking investors or planning to issue stock. Both protect your personal assets from business liabilities.'],
     ['¿Cuánto tiempo tarda la formación de mi negocio en Florida?',
-     'El procesamiento estándar con la División de Corporaciones de Florida toma 7–10 días hábiles. Con nuestro servicio Acelerado (incluido gratis en Premium, o disponible como add-on), el proceso puede reducirse a 1–3 días hábiles.',
+     'El procesamiento estándar con la División de Corporaciones de Florida toma 7–14 días hábiles. Con nuestro servicio Acelerado (incluido gratis en Premium, o disponible como add-on), el proceso puede reducirse a 1–3 días hábiles.',
      'How long does it take to form my business in Florida?',
-     'Standard processing typically takes 7–10 business days. With our Expedited Filing service (included free in Premium, or available as an add-on), processing can be reduced to 1–3 business days.'],
+     'Standard processing typically takes 7–14 business days. With our Expedited Filing service (included free in Premium, or available as an add-on), processing can be reduced to 1–3 business days.'],
     ['¿Qué es un Agente Registrado y realmente lo necesito?',
      'Sí — toda LLC y Corporación en Florida está legalmente obligada a tener un Agente Registrado con dirección física en el estado. El Agente Registrado recibe documentos legales oficiales y avisos fiscales en nombre de tu negocio.',
      'What is a Registered Agent and do I really need one?',
@@ -4650,7 +4651,7 @@ function translateFormContent(lang){
   var e;
   e=document.getElementById('lbl-filing-speed');  if(e) e.textContent=isEs?'Velocidad de Tramitación':'Filing Speed';
   e=document.getElementById('std-filing-lbl');    if(e) e.textContent=isEs?'Tramitación Estándar':'Standard Filing';
-  e=document.getElementById('std-days-lbl');      if(e) e.textContent=isEs?'7–10 días hábiles':'7–10 business days';
+  e=document.getElementById('std-days-lbl');      if(e) e.textContent=isEs?'7–14 días hábiles':'7–14 business days';
   e=document.getElementById('std-price-lbl');     if(e) e.textContent=isEs?'Incluido en todos los paquetes':'Included in all packages';
   e=document.getElementById('exp-filing-lbl');    if(e) e.innerHTML=isEs?'&#9889; Tramitación Acelerada':'&#9889; Expedited Filing';
   e=document.getElementById('exp-days-lbl');      if(e) e.textContent=isEs?'1–3 días hábiles':'1–3 business days';
@@ -5770,7 +5771,7 @@ function fmBuildReview() {
   // Formation info
   el = document.getElementById('rev-entity-val'); if(el) el.textContent = fmData.entity==='corp'?'Corporation':'LLC';
   el = document.getElementById('rev-pkg-val');    if(el) el.textContent = (fmData.package||'standard').charAt(0).toUpperCase()+(fmData.package||'standard').slice(1);
-  el = document.getElementById('rev-speed-val');  if(el) el.textContent = fmData.speed==='expedited'?(isEs?'Acelerado (1-3 días)':'Expedited (1-3 days)'):(isEs?'Estándar (7-10 días)':'Standard (7-10 days)');
+  el = document.getElementById('rev-speed-val');  if(el) el.textContent = fmData.speed==='expedited'?(isEs?'Acelerado (1-3 días)':'Expedited (1-3 days)'):(isEs?'Estándar (7-14 días)':'Standard (7-14 days)');
 
   // Contact info — correct field IDs
   var fn   = document.getElementById('inp-fname');
@@ -6308,12 +6309,12 @@ var fmTranslations = {
     s1_title: 'Company Information',
     s1_sub: 'Enter your business name below. Your name must end with LLC, Corp, or Inc.',
     s2_title: 'Your Information',
-    s2_sub: 'The typical state filing time for Florida is <strong>7–10 business days</strong>. In a hurry? Select expedited filing for faster processing.',
+    s2_sub: 'The typical state filing time for Florida is <strong>7–14 business days</strong>. In a hurry? Select expedited filing for faster processing.',
     s3_title: 'Business Address',
     s3_sub: 'Please provide the name of the person responsible for this order whom we may contact if additional information is needed.',
     s4_title: 'Your Formation Package',
     s5_title: 'Ownership & Management',
-    s6_title: 'Registered Agent',
+    s6_title: 'Faster processing',
     s7_title: 'Boost Your Formation',
     s8_title: 'Review Your Order',
     s9_title: 'Secure Payment',
@@ -6327,12 +6328,12 @@ var fmTranslations = {
     s1_title: 'Información de la Empresa',
     s1_sub: 'Ingresa el nombre de tu negocio. El nombre debe terminar con LLC, Corp o Inc.',
     s2_title: 'Tu Información',
-    s2_sub: 'El tiempo típico de tramitación en Florida es <strong>7–10 días hábiles</strong>. ¿Con prisa? Selecciona tramitación expedita.',
+    s2_sub: 'El tiempo típico de tramitación en Florida es <strong>7–14 días hábiles</strong>. ¿Con prisa? Selecciona tramitación expedita.',
     s3_title: 'Nombre y Dirección Agente Registrado',
     s3_sub: 'Por favor provee el nombre de la persona responsable de esta orden a quien podemos contactar si necesitamos información adicional.',
     s4_title: 'Tu Paquete de Formación',
     s5_title: 'Propiedad y Gestión',
-    s6_title: 'Agente Registrado',
+    s6_title: 'Procesamiento acelerado',
     s7_title: 'Mejora Tu Formación',
     s8_title: 'Revisa Tu Orden',
     s9_title: 'Pago Seguro',
@@ -6389,7 +6390,7 @@ function fmTranslate(lang) {
 'oa-extra-header':isEs?'Necesitamos un dato para completar tu Acuerdo Operativo':'We need one detail to complete your Operating Agreement','oa-extra-sub':isEs?'Solo tomará un momento':'This will only take a moment',
 'oa-own-why':isEs?'Para preparar tu Acuerdo Operativo necesitamos saber <strong>qué porcentaje de la empresa posee cada miembro</strong>. Es un requisito legal — el Acuerdo Operativo debe especificar el porcentaje de propiedad de cada miembro para ser válido ante bancos e instituciones.<br/><span style=\\'display:block;margin-top:8px;font-size:.76rem;color:#065f46\\'>&#10003; Ya tenemos la información de tus miembros. Solo llena el % de cada uno abajo.</span>':'To prepare your Operating Agreement we need to know <strong>how much of the company each member owns</strong>. This is a legal requirement — your Operating Agreement must specify the ownership percentage of every member so it is valid for banking and legal purposes.<br/><span style=\\'display:block;margin-top:8px;font-size:.76rem;color:#065f46\\'>&#10003; We already have your members\\' information. Just fill in the % for each one below.</span>',
 'tt-ar':isEs?'Cada negocio en Florida debe presentar un Reporte Anual para mantenerse activo ante el Estado. Esto aplica aunque tu negocio no haya iniciado operaciones — la ley no hace excepciones. La fecha l\\u00edmite es el 1 de mayo. Si no se presenta a tiempo, Florida cobra una multa de $400 autom\\u00e1tica. Si se ignora por completo, el Estado puede disolver tu empresa administrativamente.':'Every Florida business must file an Annual Report each year to stay active — even if your business has not started operating yet. The law makes no exceptions. The deadline is May 1st. Miss it and Florida automatically charges a $400 late fee. Keep ignoring it and the State can administratively dissolve your company.',
-'fp-home-lbl':isEs?'Inicio':'Back to Home','s2-speed-divider':isEs?'Velocidad de Procesamiento':'Processing Speed','s2-fast-badge':isEs?'R\\u00c1PIDO':'FAST','s2-exp-lbl':isEs?'&#9889; Procesamiento Prioritario':'&#9889; Priority Processing','s2-exp-days':isEs?'Entrega en 1-3 d\\u00edas h\\u00e1biles':'Delivered in 1-3 business days','s2-exp-note':isEs?'Incluido gratis con Premium':'Included free with Premium','s2-std-lbl':isEs?'Procesamiento Est\\u00e1ndar':'Standard Processing','s2-std-days':isEs?'Normalmente 7-10 d\\u00edas h\\u00e1biles':'Typically 7-10 business days','s2-std-note':isEs?'Sin cargo adicional':'No additional charge','s2-disclaimer':isEs?'* Las fechas son estimadas.':'* Estimated dates may vary.','s2-contact-divider':isEs?'Informaci\\u00f3n de Contacto':'Contact Information','lbl-fname':isEs?'Nombre *':'First Name *','lbl-lname':isEs?'Apellido *':'Last Name *','lbl-email':isEs?'Correo Electr\\u00f3nico *':'Email *','lbl-phone':isEs?'Tel\\u00e9fono *':'Phone Number *','lbl-sms':isEs?'Acepto recibir actualizaciones por mensaje y teléfono.':'I agree to receive order updates by text and phone.',
+'fp-home-lbl':isEs?'Inicio':'Back to Home','s2-speed-divider':isEs?'Velocidad de Procesamiento':'Processing Speed','s2-fast-badge':isEs?'R\\u00c1PIDO':'FAST','s2-exp-lbl':isEs?'&#9889; Procesamiento Prioritario':'&#9889; Priority Processing','s2-exp-days':isEs?'Entrega en 1-3 d\\u00edas h\\u00e1biles':'Delivered in 1-3 business days','s2-exp-note':isEs?'Incluido gratis con Premium':'Included free with Premium','s2-std-lbl':isEs?'Procesamiento Est\\u00e1ndar':'Standard Processing','s2-std-days':isEs?'Normalmente 7-14 d\\u00edas h\\u00e1biles':'Typically 7-14 business days','s2-std-note':isEs?'Sin cargo adicional':'No additional charge','s2-disclaimer':isEs?'* Las fechas son estimadas.':'* Estimated dates may vary.','s2-contact-divider':isEs?'Informaci\\u00f3n de Contacto':'Contact Information','lbl-fname':isEs?'Nombre *':'First Name *','lbl-lname':isEs?'Apellido *':'Last Name *','lbl-email':isEs?'Correo Electr\\u00f3nico *':'Email *','lbl-phone':isEs?'Tel\\u00e9fono *':'Phone Number *','lbl-sms':isEs?'Acepto recibir actualizaciones por mensaje y teléfono.':'I agree to receive order updates by text and phone.',
 'lbl-sms-opt':isEs?'(Opcional)':'(Optional)','sum-title-main':isEs?'Tu Orden':'Your Order',
     's3-sub':isEs?'La ley establece que todo negocio debe tener un Agente Registrado.':'The law requires every business to have a Registered Agent.',
     's4-div-addr':isEs?'Direcci\\u00f3n de Correspondencia':'Contact Address',
@@ -6451,13 +6452,13 @@ function fmTranslate(lang) {
     'lbl-ra-street':isEs?'Dirección en Florida *':'Florida Street Address *',
     // Paso 6 — Procesamiento acelerado
     's6-title':isEs?'Procesamiento acelerado':'Faster processing',
-    's6-sub':isEs?'¿Necesitas tu formación más rápido? Damos prioridad a toda tu orden.':'Need your formation faster? We prioritize your whole order.',
+    's6-sub':isEs?'¿Lo quieres más rápido? Acelera la presentación estatal cuando aplica.':'Want it faster? Upgrade to expedited state filing where applicable.',
     's6-badge':isEs?'Más rápido':'Fastest',
     's6-exp-lbl':isEs?'&#9889; Procesamiento acelerado':'&#9889; Expedited processing',
-    's6-exp-desc':isEs?'Prioridad · 1-3 días hábiles':'Priority handling · 1-3 business days',
+    's6-exp-desc':isEs?'1-3 días hábiles':'1-3 business days',
     's6-std-lbl':isEs?'Procesamiento estándar':'Standard processing',
     's6-std-price':isEs?'Incluido':'Included',
-    's6-std-desc':isEs?'Tiempo normal · 7-10 días hábiles':'Normal time · 7-10 business days',
+    's6-std-desc':isEs?'No gracias, esperaré el tiempo estándar (7-14 días hábiles)':'No thanks, I\\'ll wait the standard time (7-14 business days)',
     's6-back':isEs?'Atrás':'Back',
     's6-save':isEs?'Guardar':'Save',
     's6-next':isEs?'Continuar':'Continue',
@@ -6510,7 +6511,7 @@ function fmTranslate(lang) {
     'exp-upsell-title':isEs?'Un Último Detalle Antes de Pagar':'One Last Thing Before You Pay',
     'exp-upsell-sub':isEs?'Tu formación está en buenas manos.':'Your formation is in good hands. Want to make it official faster?',
     'rev-std-lbl':isEs?'Procesamiento Estándar':'Standard Processing',
-    'rev-std-days':isEs?'7-10 días hábiles':'7-10 business days',
+    'rev-std-days':isEs?'7-14 días hábiles':'7-14 business days',
     'rev-exp-lbl':isEs?'Procesamiento Prioritario':'Expedited Processing',
     'rev-exp-days':isEs?'1-3 días hábiles':'1-3 business days',
     'rev-exp-note':isEs?'Incluido GRATIS con Premium':'Included FREE with Premium',
