@@ -2566,11 +2566,6 @@ function fmSetMemberType(n, type, el) {
   }
 }
 
-function fmSetMemberTypeEl(el) {
-  var n    = parseInt(el.getAttribute('data-n'));
-  var type = el.getAttribute('data-type');
-  fmSetMemberType(n, type, el);
-}
 
 function fmInitStep5Ownership() {
   // Auto-fill 100% when only one member (no extra members added yet)
@@ -3047,164 +3042,6 @@ function fmApplyMailingAddrToMember(n, checked) {
   }
 }
 
-function fmBuildUpgradeCards() {
-  var container = document.getElementById('upgrade-cards-container');
-  if(!container) return;
-  var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
-  var pkg = fmData.package;
-  var titleEl = document.getElementById('s4-title');
-  var subEl   = document.getElementById('s4-sub');
-  var skipEl  = document.getElementById('s4-skip-lbl');
-
-  if(pkg === 'basic') {
-    if(titleEl) titleEl.innerHTML = isEs ? '?? Estás Casi Listo — Desbloquea Más' : '?? You’re Almost There — Unlock More';
-    if(subEl)   subEl.textContent = isEs
-      ? 'La mayoría de clientes mejoran antes de tramitar — ahorra tiempo y la molestia de ordenar servicios por separado después.'
-      : 'Most clients upgrade before filing — it saves time and the hassle of ordering services separately later.';
-  } else if(pkg === 'standard') {
-    if(titleEl) titleEl.innerHTML = isEs ? '⭐ Un Paso Más y Tendrás Todo' : '⭐ One Step Away from Everything';
-    if(subEl)   subEl.textContent = isEs
-      ? 'El paquete Premium te da todo lo que necesitas para arrancar desde el primer día, sin nada pendiente.'
-      : 'The Premium package gives you everything you need to launch from day one, with nothing left pending.';
-  }
-  if(skipEl) skipEl.textContent = isEs ? 'No gracias, me quedo con mi paquete actual →' : 'No thanks, keep my current package →';
-
-  // Full feature lists per package
-  var allFeatures = {
-    standard: isEs ? [
-      'Formación de LLC o Corporación en Florida',
-      'Artículos de Organización / Incorporación',
-      'Búsqueda de Disponibilidad de Nombre',
-      'Agente Registrado (Primer Año Gratis)',
-      'EIN / Número de Identificación Fiscal',
-      'Guía de Cuenta Bancaria'
-    ] : [
-      'LLC or Corporation Formation in Florida',
-      'Articles of Organization / Incorporation',
-      'Name Availability Search',
-      'Registered Agent (First Year Free)',
-      'EIN / Federal Tax ID Number',
-      'Bank Account Guide'
-    ],
-    premium: isEs ? [
-      'Formación de LLC o Corporación en Florida',
-      'Artículos de Organización / Incorporación',
-      'Búsqueda de Disponibilidad de Nombre',
-      'Agente Registrado (Primer Año Gratis)',
-      'EIN / Número de Identificación Fiscal',
-      'Guía de Cuenta Bancaria',
-      'Acuerdo Operativo',
-      'Tramitación Acelerada GRATIS (1-3 días)',
-      'Solicitud de ITIN',
-      'DBA / Nombre Ficticio',
-      'Artículos de Enmienda'
-    ] : [
-      'LLC or Corporation Formation in Florida',
-      'Articles of Organization / Incorporation',
-      'Name Availability Search',
-      'Registered Agent (First Year Free)',
-      'EIN / Federal Tax ID Number',
-      'Bank Account Guide',
-      'Operating Agreement',
-      'Expedited Filing FREE (1-3 days)',
-      'DBA / Fictitious Name',
-      'Articles of Amendment'
-    ]
-  };
-
-  function makeCard(name, price, features, btnText, pkg_key, isBest) {
-    var wrap = document.createElement('div');
-    wrap.style.cssText = 'border:1.5px solid ' + (isBest ? 'var(--blue,#2563eb)' : '#e2e8f0') + ';border-radius:14px;overflow:hidden;background:#fff;position:relative;display:flex;flex-direction:column;' + (isBest ? 'box-shadow:0 4px 24px rgba(37,99,235,0.10)' : 'box-shadow:0 2px 12px rgba(28,46,68,0.06)');
-
-    // Badge
-    if(isBest) {
-      var badge = document.createElement('div');
-      badge.style.cssText = 'position:absolute;top:0;right:0;background:#2563eb;color:#fff;font-size:.65rem;font-weight:700;padding:5px 14px;border-radius:0 14px 0 10px;letter-spacing:.5px;text-transform:uppercase';
-      badge.textContent = isEs ? 'MEJOR VALOR' : 'BEST VALUE';
-      wrap.appendChild(badge);
-    }
-
-    // Header
-    var head = document.createElement('div');
-    head.style.cssText = 'padding:20px 22px 14px';
-
-    var nameEl = document.createElement('div');
-    nameEl.style.cssText = 'font-family:var(--font-serif);font-size:1rem;font-weight:700;color:#1e293b;margin-bottom:6px';
-    nameEl.textContent = name;
-
-    var priceEl = document.createElement('div');
-    priceEl.style.cssText = 'display:flex;align-items:baseline;gap:3px;margin-bottom:4px';
-    priceEl.innerHTML = '<span style="font-family:var(--font-serif);font-size:2rem;font-weight:900;color:#2563eb;line-height:1">' + price + '</span><span style="font-size:.75rem;color:#94a3b8;margin-left:4px">+ FL state fee</span>';
-
-    var stateNote = document.createElement('div');
-    stateNote.style.cssText = 'font-size:.72rem;color:#94a3b8;margin-bottom:0';
-    stateNote.textContent = isEs ? 'Pago único — sin renovaciones sorpresa' : 'One-time fee — no surprise renewals';
-
-    head.appendChild(nameEl);
-    head.appendChild(priceEl);
-    head.appendChild(stateNote);
-
-    // Divider
-    var divider = document.createElement('hr');
-    divider.style.cssText = 'border:none;border-top:1px solid #f1f5f9;margin:0';
-
-    // Feature list
-    var body = document.createElement('div');
-    body.style.cssText = 'padding:16px 22px 18px;flex:1;display:flex;flex-direction:column';
-
-    var list = document.createElement('div');
-    list.style.cssText = 'margin-bottom:18px;flex:1';
-    features.forEach(function(f) {
-      var row = document.createElement('div');
-      row.style.cssText = 'display:flex;align-items:flex-start;gap:9px;margin-bottom:8px;font-size:.81rem;color:#374151;line-height:1.4';
-      row.innerHTML = '<span style="color:#059669;font-size:.85rem;flex-shrink:0;margin-top:1px">✓</span><span>' + f + '</span>';
-      list.appendChild(row);
-    });
-
-    // Button
-    var btn = document.createElement('button');
-    btn.style.cssText = 'width:100%;padding:11px;border-radius:9px;font-size:.88rem;font-weight:600;font-family:inherit;cursor:pointer;transition:all .2s;background:#fff;color:#1e293b;border:1.5px solid #cbd5e1';
-    btn.textContent = btnText;
-    btn.onmouseover = function() {
-      this.style.borderColor = '#2563eb';
-      this.style.color = '#2563eb';
-      this.style.background = '#f8faff';
-    };
-    btn.onmouseout = function() {
-      this.style.borderColor = '#cbd5e1';
-      this.style.color = '#1e293b';
-      this.style.background = '#fff';
-    };
-    btn.onclick = function() { fmUpgradePkg(pkg_key, this); fmNext(); };
-
-    body.appendChild(list);
-    body.appendChild(btn);
-    wrap.appendChild(head);
-    wrap.appendChild(divider);
-    wrap.appendChild(body);
-    return wrap;
-  }
-
-  container.innerHTML = '';
-
-  if(pkg === 'basic') {
-    container.style.gridTemplateColumns = 'repeat(2,1fr)';
-    container.style.gap = '20px';
-    container.style.alignItems = 'stretch';
-    container.style.maxWidth = '';
-    container.style.margin = '0 0 20px';
-    container.appendChild(makeCard('Standard', '$199', allFeatures.standard,
-      isEs ? 'Mejorar a Standard →' : 'Upgrade to Standard →', 'standard', false));
-    container.appendChild(makeCard('Premium',  '$299', allFeatures.premium,
-      isEs ? 'Mejorar a Premium →' : 'Upgrade to Premium →', 'premium', true));
-  } else if(pkg === 'standard') {
-    container.style.gridTemplateColumns = '1fr';
-    container.style.maxWidth = '420px';
-    container.style.margin = '0 auto 20px';
-    container.appendChild(makeCard('Premium', '$299', allFeatures.premium,
-      isEs ? 'Mejorar a Premium →' : 'Upgrade to Premium →', 'premium', true));
-  }
-}
 
 function fmFilterAddons() {
   var pkg = fmData.package;
@@ -3304,7 +3141,6 @@ function fmFormatPhone(input) {
     input.value = digits.substring(0, 15);
   }
 }
-function fmUpdatePhonePrefix(sel) {}
 /* ── DYNAMIC ADDRESS SYSTEM BY COUNTRY ── */
 var _addrFmt = {
   US:    {state:'select', stateLabel:{en:'State *',es:'Estado *'},           zip:true,  zipLabel:{en:'ZIP Code *',es:'Código Postal *'},      street2:true},
@@ -3460,14 +3296,6 @@ function fmToggleRaSameBiz(chk) {
     if(raAddrFields) raAddrFields.style.display = 'block';
   }
 }
-function openContinueModal() {
-  var modal = document.getElementById('continueModal');
-  if(modal) { modal.style.display='flex'; document.body.style.overflow='hidden'; }
-  var inp = document.getElementById('inp-continue-order');
-  if(inp) { inp.value=''; inp.focus(); }
-  var err = document.getElementById('cont-error');
-  if(err) err.style.display='none';
-}
 function closeContinueModal() {
   var modal = document.getElementById('continueModal');
   if(modal) { modal.style.display='none'; document.body.style.overflow=''; }
@@ -3490,98 +3318,7 @@ function findOrder() {
   }, 1200);
 }
 
-function fmGetTitlesForEntity() {
-  var entity = fmData.entity || 'llc';
-  var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
-  if(entity === 'corp') {
-    return [
-      {val:'P',    en:'P    (President)',           es:'P    (Presidente)'},
-      {val:'VP',   en:'VP   (Vice President)',       es:'VP   (Vicepresidente)'},
-      {val:'ST',   en:'ST   (Secretary/Treasurer)',  es:'ST   (Secretario/Tesorero)'},
-      {val:'D',    en:'D    (Director)',              es:'D    (Director)'},
-      {val:'RA',   en:'RA   (Registered Agent)',     es:'RA   (Agente Registrado)'},
-    ];
-  }
-  return [
-    {val:'MGR',  en:'MGR  (Manager)',               es:'MGR  (Gerente)'},
-    {val:'MGRM', en:'MGRM (Manager & Member)',      es:'MGRM (Gerente y Miembro)'},
-    {val:'RA',   en:'RA   (Registered Agent)',      es:'RA   (Agente Registrado)'},
-  ];
-}
 
-function fmRenderMemberCard(n, isEs) {
-  var titles = fmGetTitlesForEntity();
-  var titleOpts = '<option value="">' + (isEs ? '-- Seleccionar --' : '-- Select --') + '</option>' +
-    titles.map(function(t){ return '<option value="' + t.val + '">' + (isEs ? t.es : t.en) + '</option>'; }).join('');
-
-  var removeBtn = n > 1
-    ? '<button onclick="fmRemoveMember(' + n + ')" style="background:none;border:none;color:#ef4444;font-size:.75rem;font-weight:600;cursor:pointer;font-family:inherit;text-decoration:underline;padding:0">' + (isEs ? 'Eliminar' : 'Remove') + '</button>'
-    : '';
-
-  var memberLabel = (isEs ? 'Miembro / Propietario' : 'Member / Owner') + ' ' + n;
-  var indLabel    = isEs ? 'Individuo' : 'Individual';
-  var coLabel     = isEs ? 'Empresa'   : 'Company';
-  var fnLabel     = isEs ? 'Nombre *'  : 'First Name *';
-  var lnLabel     = isEs ? 'Apellido *': 'Last Name *';
-  var coNameLabel = isEs ? 'Nombre de la Empresa *' : 'Company Name *';
-  var coEinLabel  = isEs ? 'EIN / Tax ID de la Empresa' : 'Company EIN / Tax ID';
-  var coStLabel   = isEs ? 'Pa\\u00eds de Incorporaci\\u00f3n' : 'Country of Incorporation';
-  var titleLabel  = isEs ? 'T\\u00edtulo / Cargo *' : 'Title / Role *';
-  var ownLabel    = isEs ? '% de Propiedad *' : 'Ownership % *';
-  var addrLabel   = isEs ? 'Direcci\\u00f3n *' : 'Address *';
-  var fnPH        = isEs ? 'Nombre' : 'First name';
-  var lnPH        = isEs ? 'Apellido' : 'Last name';
-  var addrPH      = isEs ? 'Direcci\\u00f3n completa' : 'Full address';
-
-  return '<div class="fm-member-block" id="fm-member-' + n + '" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:18px;margin-bottom:14px">' +
-    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">' +
-      '<div style="font-size:.88rem;font-weight:700;color:#1e293b">' + memberLabel + '</div>' +
-      removeBtn +
-    '</div>' +
-    '<div class="fm-group" style="margin-bottom:12px">' +
-      '<label class="fm-label">' + (isEs ? 'Tipo *' : 'Type *') + '</label>' +
-      '<div style="display:flex;gap:10px">' +
-        '<div class="fm-choice selected" id="m' + n + '-type-ind" style="flex:1;padding:10px 14px;cursor:pointer" onclick="fmSetMemberType(' + n + ',this,false)">' +
-          '<div class="fm-choice-radio"></div>' +
-          '<div class="fm-choice-content"><strong>' + indLabel + '</strong></div>' +
-        '</div>' +
-        '<div class="fm-choice" id="m' + n + '-type-co" style="flex:1;padding:10px 14px;cursor:pointer" onclick="fmSetMemberType(' + n + ',this,true)">' +
-          '<div class="fm-choice-radio"></div>' +
-          '<div class="fm-choice-content"><strong>' + coLabel + '</strong></div>' +
-        '</div>' +
-      '</div>' +
-    '</div>' +
-    '<div id="m' + n + '-ind-fields">' +
-      '<div class="fm-row">' +
-        '<div class="fm-group"><label class="fm-label">' + fnLabel + '</label><input type="text" class="fm-input" id="m' + n + '-fname" placeholder="' + fnPH + '"/></div>' +
-        '<div class="fm-group"><label class="fm-label">' + lnLabel + '</label><input type="text" class="fm-input" id="m' + n + '-lname" placeholder="' + lnPH + '"/></div>' +
-      '</div>' +
-    '</div>' +
-    '<div id="m' + n + '-co-fields" style="display:none">' +
-      '<div class="fm-group"><label class="fm-label">' + coNameLabel + '</label><input type="text" class="fm-input" id="m' + n + '-coname" placeholder="Legal company name"/></div>' +
-      '<div class="fm-row">' +
-        '<div class="fm-group"><label class="fm-label">' + coEinLabel + '</label><input type="text" class="fm-input" id="m' + n + '-coein" placeholder="XX-XXXXXXX"/></div>' +
-        '<div class="fm-group"><label class="fm-label">' + coStLabel + '</label><input type="text" class="fm-input" id="m' + n + '-costate" placeholder="e.g. Florida, USA"/></div>' +
-      '</div>' +
-    '</div>' +
-    '<div class="fm-row" style="margin-top:4px">' +
-      '<div class="fm-group"><label class="fm-label">' + titleLabel + '</label>' +
-        '<select class="fm-select" id="m' + n + '-title">' + titleOpts + '</select>' +
-      '</div>' +
-      '<div class="fm-group"><label class="fm-label">' + ownLabel + '</label>' +
-        '<input type="number" class="fm-input" id="m' + n + '-own" placeholder="e.g. 100" min="1" max="100" oninput="fmUpdateOwnershipBar()"/>' +
-      '</div>' +
-    '</div>' +
-    '<div class="fm-group" style="margin-top:4px">' +
-      '<label class="fm-label">' + addrLabel + '</label>' +
-      '<input type="text" class="fm-input" id="m' + n + '-addr" placeholder="' + addrPH + '"/>' +
-    '</div>' +
-    '<div id="own-bar-wrap-' + n + '" style="margin-top:8px;display:none">' +
-      '<div style="font-size:.72rem;color:#6b7280;margin-bottom:4px" id="own-bar-lbl-' + n + '">0%</div>' +
-      '<div style="height:6px;background:#e2e8f0;border-radius:3px;overflow:hidden"><div id="own-bar-' + n + '" style="height:100%;background:#2563eb;border-radius:3px;transition:width .3s;width:0%"></div></div>' +
-    '</div>' +
-  '</div>';
-}
 
 
 
@@ -3606,12 +3343,6 @@ function fmUpdateOwnershipBar() {
   }
 }
 
-function fmInitMembers() {
-  fmMemberCount = 0;
-  var container = document.getElementById('members-container');
-  if(container) container.innerHTML = '';
-  fmAddMember();
-}
 
 
 
@@ -3621,21 +3352,6 @@ function fmRemoveMember(n) {
   fmUpdateOwnershipBar();
 }
 
-function fmSkipUpgrade() {
-  var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
-  var skipBtn = document.getElementById('s4-skip-lbl');
-  if(skipBtn) {
-    skipBtn.style.color = '#059669';
-    skipBtn.textContent = isEs ? '✓ De acuerdo, continuando con tu paquete actual' : '✓ Got it, continuing with your current package';
-    skipBtn.onclick = null;
-  }
-}
-function fmUpdateExpUpsell() {
-  var pkg = fmData.package;
-  var el = document.getElementById('expedited-upsell');
-  if(el) el.style.display = pkg === 'premium' ? 'none' : 'block';
-  fmUpdateSummary();
-}
 function setLang(lang) {
   var onEsRoute = window.location.pathname === '/es' || window.location.pathname.startsWith('/es/');
   if ((lang === 'es' && !onEsRoute) || (lang === 'en' && onEsRoute)) {
@@ -3870,167 +3586,17 @@ function setLang(lang) {
 }
 
 // ── FORM ──
-function setEntity(type) {
-  selectedEntity = type;
-  formData.entity = type;
-  var isEs = document.getElementById('btn-es').classList.contains('active');
-  var llcBtn = document.getElementById('et-llc');
-  var corpBtn = document.getElementById('et-corp');
-  if(llcBtn) {
-    llcBtn.style.background = type === 'llc' ? 'var(--navy)' : 'transparent';
-    llcBtn.style.color = type === 'llc' ? '#fff' : 'var(--gray600)';
-    llcBtn.style.boxShadow = type === 'llc' ? '0 2px 8px rgba(28,46,68,0.2)' : 'none';
-  }
-  if(corpBtn) {
-    corpBtn.style.background = type === 'corp' ? 'var(--navy)' : 'transparent';
-    corpBtn.style.color = type === 'corp' ? '#fff' : 'var(--gray600)';
-    corpBtn.style.boxShadow = type === 'corp' ? '0 2px 8px rgba(28,46,68,0.2)' : 'none';
-  }
-  var fee = type === 'llc' ? '$125 LLC' : (isEs ? '$70 Corporación' : '$70 Corporation');
-  var feeNote = document.getElementById('state-fee-note');
-  if(feeNote) feeNote.textContent = isEs
-    ? '* Cargo estatal de Florida: ' + fee + ' — pagado directamente al Estado, no incluido en el precio del paquete.'
-    : '* Florida state filing fee: ' + fee + ' — paid directly to the State, not included in package price.';
-}
 
 
 
-function openFormAddon(addon) {
-  formData.package = formData.package || 'standard';
-  document.getElementById('formOverlay').classList.add('active');
-  document.body.style.overflow = 'hidden';
-  generateOrderNumber();
-  goToStep(1);
-  updateTotal();
-}
 
 
-function openMgmtForm(type) {
-  var overlay = document.getElementById('mgmtOverlay');
-  if(!overlay) return;
-  overlay.style.display = 'flex';
-  document.body.style.overflow = 'hidden';
-  document.getElementById('mgmt-amendment').style.display = type === 'amendment' ? 'block' : 'none';
-  document.getElementById('mgmt-annual').style.display = type === 'annual' ? 'block' : 'none';
-  document.getElementById('mgmt-success').style.display = 'none';
-  document.getElementById('mgmt-title').textContent = type === 'amendment' ? 'Articles of Amendment' : 'Annual Report Filing';
-}
-function closeMgmtForm() {
-  var overlay = document.getElementById('mgmtOverlay');
-  if(overlay) overlay.style.display = 'none';
-  document.body.style.overflow = '';
-}
-function submitMgmtForm() {
-  document.getElementById('mgmt-amendment').style.display = 'none';
-  document.getElementById('mgmt-annual').style.display = 'none';
-  document.getElementById('mgmt-success').style.display = 'block';
-}
 function generateOrderNumber(id) {
   if(id) {
     orderNumber = 'FBFC-' + id.replace(/-/g, '').substring(0, 8).toUpperCase();
   } else if(!orderNumber) {
     orderNumber = 'FBFC-' + Math.floor(10000 + Math.random() * 90000);
   }
-}
-function goToStep(n) {
-  // pkg merged into step 1 — no skip needed
-  document.querySelectorAll('.form-step').forEach(function(s){ s.classList.remove('active'); });
-  var el=document.getElementById('step'+n);
-  if(el){
-    el.classList.add('active');
-    currentStep=n;
-    // Scroll left column to top
-    var lc = el.querySelector('.form-left-col');
-    if(lc) lc.scrollTop = 0;
-  }
-  updateProgress();
-  updateTotal();
-  if(document.getElementById('btn-es')&&document.getElementById('btn-es').classList.contains('active'))
-    setTimeout(function(){ translateFormContent('es'); },20);
-}
-function nextStep() {
-  var next = currentStep + 1;
-  if(next === 2 && skipPkgStep) next = 3;
-  if(next <= totalSteps) goToStep(next);
-}
-function prevStep() { if(currentStep > 1) goToStep(currentStep - 1); }
-function updateProgress() {
-  var pct = Math.round((currentStep / totalSteps) * 100);
-  document.getElementById('progressBar').style.width = pct + '%';
-  document.getElementById('progressText').textContent = 'Step ' + currentStep + ' of ' + totalSteps;
-  var titles = ['Entity & Package','Business Name & Purpose','Address & Privacy','Members & Ownership','Registered Agent & EIN','Additional Services','Annual Report','Review & Pay'];
-  document.getElementById('form-step-title').textContent = titles[currentStep-1] || 'Complete Your Order';
-}
-function selectChoice(el, key, val) {
-  var parent = el.parentElement;
-  parent.querySelectorAll('.choice-card').forEach(function(c){ c.classList.remove('selected'); });
-  el.classList.add('selected');
-  formData[key] = val;
-  if(key === 'filer') { var af = document.getElementById('agent-fields-s1') || document.getElementById('agent-fields'); if(af) af.style.display = val === 'company' ? 'block' : 'none'; }
-  if(key === 'ra' && val === false) { document.getElementById('own-agent-fields').style.display = 'block'; }
-  if(key === 'ra' && val === true) { document.getElementById('own-agent-fields').style.display = 'none'; }
-}
-function selectPkg(el, pkg) {
-  document.querySelectorAll('.pkg-choice').forEach(function(c){ c.classList.remove('selected'); });
-  el.classList.add('selected');
-  formData.package = pkg;
-}
-function selectAddon(btn, key, val) {
-  var btns = btn.parentElement.querySelectorAll('button');
-  btns.forEach(function(b){ b.classList.remove('selected'); });
-  btn.classList.add('selected');
-  formData.addons[key] = val;
-  var rowMap = {ein:'sum-ein-row', oa:'sum-oa-row', itin:'sum-itin-row', vma:'sum-vma-row', ar:'sum-ar-row', ra:'sum-ra-row'};
-  if(rowMap[key]) { var row = document.getElementById(rowMap[key]); if(row) row.style.display = val ? '' : 'none'; }
-  updateTotal();
-}
-function selectDelivery(el, type) {
-  document.querySelectorAll('.delivery-card').forEach(function(c){ c.classList.remove('selected'); });
-  el.classList.add('selected');
-  formData.delivery = type;
-  var expRow = document.getElementById('sum-exp-row');
-  if(type === 'expedited' && formData.package !== 'premium') {
-    if(expRow) expRow.style.display = '';
-  } else { if(expRow) expRow.style.display = 'none'; }
-  updateTotal();
-}
-function updateTotal() {
-  var prices = {basic:0, standard:199, premium:299};
-  var base  = (formData.package in prices ? prices[formData.package] : 199);
-  var state = formData.entity === 'corp' ? 70 : 125;
-  var extras = 0;
-  if(formData.addons.ein)  extras += 79;
-  if(formData.addons.oa)   extras += 59;
-  if(formData.addons.itin) extras += 69;
-  var expFree = formData.package === 'premium';
-  if(formData.delivery === 'expedited' && !expFree) extras += 79;
-  var total = base + state + extras;
-
-  var pkgNames = {basic:'Basic — $0',standard:'Standard — $199',premium:'Premium — $299'};
-  var pkgStr   = pkgNames[formData.package] || 'Standard — $199';
-  var entityStr= formData.entity === 'corp' ? 'Corporation' : 'LLC';
-
-  // Update ALL summary panels (class-based, works for all steps)
-  document.querySelectorAll('.sum-entity-val').forEach(function(el){ el.textContent = entityStr; });
-  document.querySelectorAll('.sum-pkg-val').forEach(function(el){ el.textContent = pkgStr; });
-  document.querySelectorAll('.sum-state-val').forEach(function(el){ el.textContent = '$' + state; });
-  document.querySelectorAll('.sum-total-val').forEach(function(el){ el.textContent = '$' + total; });
-
-  // Add-on rows
-  document.querySelectorAll('.sum-ein-line').forEach(function(el){ el.style.display = formData.addons.ein ? '' : 'none'; });
-  document.querySelectorAll('.sum-oa-line').forEach(function(el){  el.style.display = formData.addons.oa  ? '' : 'none'; });
-  document.querySelectorAll('.sum-itin-line').forEach(function(el){el.style.display = formData.addons.itin? '' : 'none'; });
-  document.querySelectorAll('.sum-vma-line').forEach(function(el){ el.style.display = formData.addons.vma ? '' : 'none'; });
-  document.querySelectorAll('.sum-ar-line').forEach(function(el){  el.style.display = formData.addons.ar  ? '' : 'none'; });
-  document.querySelectorAll('.sum-exp-line').forEach(function(el){ el.style.display = formData.delivery==='expedited'&&!expFree ? '' : 'none'; });
-
-  // Legacy IDs (step9 panel)
-  var el;
-  el=document.getElementById('sum-pkg');           if(el) el.textContent = pkgStr;
-  el=document.getElementById('sum-pkg-price');     if(el) el.textContent = '$' + base;
-  el=document.getElementById('sum-state');         if(el) el.textContent = '$' + state;
-  el=document.getElementById('summary-total-price');if(el) el.textContent = '$' + total;
-  el=document.getElementById('expedited-price');   if(el) el.textContent = expFree ? 'Free with Premium ✓' : '+$79 (Free w/Premium)';
 }
 var addons_selected = {};
 
@@ -4114,16 +3680,6 @@ function continueFromHome() {
   }
 }
 
-function submitForm() {
-  generateOrderNumber();
-  document.getElementById('finalOrderNum').textContent = orderNumber;
-  document.querySelectorAll('.form-step').forEach(function(s){ s.classList.remove('active'); });
-  document.getElementById('stepSuccess').classList.add('active');
-  document.getElementById('progressBar').style.width = '100%';
-  document.getElementById('progressText').textContent = 'Order Submitted ✓';
-  document.getElementById('form-step-title').textContent = 'Order Confirmed!';
-  document.querySelector('.form-modal').scrollTop = 0;
-}
 var _dm = document.getElementById('diffMailing');
 if(_dm) _dm.addEventListener('change', function(){
   var _mf = document.getElementById('mailing-fields');
@@ -4737,126 +4293,10 @@ function translateFormContent(lang){
 
 
 // ── Order Review Builder ──────────────────────────────────────────────────
-function buildOrderReview() {
-  var isEs = document.getElementById('btn-es').classList.contains('active');
-  var body = document.getElementById('order-review-body');
-  if(!body) return;
-
-  var pkgNames = {basic: 'Basic', standard: 'Standard', premium: 'Premium'};
-  var pkgPrices = {basic: '$0', standard: '$199', premium: '$299'};
-  var entityLabel = formData.entity === 'corp'
-    ? (isEs ? 'Corporaci\\u00f3n' : 'Corporation')
-    : 'LLC';
-  var pkgLabel = pkgNames[formData.package] || formData.package;
-  var pkgPrice = pkgPrices[formData.package] || '';
-
-  // Addon items
-  var addonLabels = {
-    ra:   {en:'Registered Agent Service', es:'Servicio de Agente Registrado', price:isEs?'Tarifa Anual':'Annual Fee'},
-    ein:  {en:'EIN / Tax ID',             es:'EIN / ID Fiscal',               price:'$79'},
-    oa:   {en:'Operating Agreement',      es:'Acuerdo Operativo',             price:'$59'},
-    vma:  {en:'Virtual Mailing Address',  es:'Dirección Postal Virtual', price:isEs?'$29/mes':'$29/mo'},
-    itin: {en:'ITIN Application',         es:'Solicitud de ITIN',             price:'$69'},
-    web:  {en:'Professional Website',     es:'Sitio Web Profesional',         price:isEs?'Personalizado':'Custom'},
-    phone:{en:'Business Phone Number',    es:'Número Empresarial',        price:isEs?'Mensual':'Monthly'},
-    ar:   {en:'Annual Report Filing',     es:'Declaración Anual',         price:isEs?'Anual':'Annual'},
-  };
-
-  // Business name
-  var bizName = '';
-  var nameInputs = document.querySelectorAll('#step3 .form-input[type="text"]');
-  if(nameInputs[0]) bizName = nameInputs[0].value.trim();
-
-  var stateFee = formData.entity === 'corp' ? '$70' : '$125';
-  var stateLabel = isEs ? 'Cargo Estatal de Florida' : 'Florida State Filing Fee';
-
-  // Build rows
-  var rows = '';
-  var totalNum = parseInt(pkgPrice.replace('$','')) || 0;
-
-  // Package row
-  rows += buildReviewRow(
-    (isEs ? 'Paquete ' : 'Package ') + pkgLabel,
-    pkgPrice,
-    'var(--blue)',
-    isEs ? 'Incluye: registro, verificaci\\u00f3n de nombre, certificado' : 'Includes: filing, name check, certificate'
-  );
-
-  // State fee row
-  rows += buildReviewRow(stateLabel, stateFee, '#6b7280', isEs ? 'Pagado directamente al Estado de Florida' : 'Paid directly to the State of Florida');
-
-  // Addons
-  Object.keys(addonLabels).forEach(function(key) {
-    if(formData.addons[key]) {
-      var a = addonLabels[key];
-      rows += buildReviewRow(isEs ? a.es : a.en, a.price, 'var(--green)', '');
-      if(key === 'ein' || key === 'oa' || key === 'itin') {
-        totalNum += parseInt(a.price.replace('$','')) || 0;
-      }
-    }
-  });
-
-  // Business name display
-  var nameSection = bizName ? '<div style="background:var(--blue-light);border-radius:10px;padding:12px 16px;margin-bottom:16px"><div style="font-size:.72rem;font-weight:600;color:var(--blue);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">'+(isEs?'Nombre del Negocio':'Business Name')+'</div><div style="font-size:1rem;font-weight:700;color:var(--navy)">'+bizName+'</div><div style="font-size:.72rem;color:var(--gray600);margin-top:2px">'+entityLabel+'</div></div>' : '';
-
-  // Total row
-  var totalLabel = isEs ? 'Total Estimado Hoy' : 'Estimated Total Today';
-  var totalDisplay = '$' + (parseInt(pkgPrice.replace('$','')) + (formData.entity==='corp'?70:125)) + '+';
-
-  body.innerHTML = nameSection +
-    '<div style="border:1.5px solid var(--gray200);border-radius:12px;overflow:hidden;margin-bottom:16px">' +
-    '<div style="background:var(--navy);color:#fff;padding:10px 16px;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px">'+(isEs?'Resumen de tu Orden':'Your Order Summary')+'</div>' +
-    rows +
-    '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:var(--gray50);border-top:2px solid var(--navy)">' +
-    '<strong style="font-size:.9rem;color:var(--navy)">' + totalLabel + '</strong>' +
-    '<strong style="font-size:1rem;color:var(--navy)">' + totalDisplay + '</strong>' +
-    '</div></div>';
-
-  // Translate notice if ES
-  var nt = document.getElementById('review-notice-title');
-  var np = document.getElementById('review-notice-text');
-  if(nt) nt.textContent = isEs ? 'Revisa Cuidadosamente Antes de Continuar' : 'Please Review Carefully Before Proceeding';
-  if(np) np.innerHTML = isEs
-    ? 'Por favor revisa toda la informaci\\u00f3n cuidadosamente antes de proceder al pago. Las tarifas estatales de Florida y nuestras tarifas de servicio se cobran al enviar la orden y son <strong>no reembolsables una vez procesada</strong>. Si tienes alguna duda o necesitas hacer cambios, cont\\u00e1ctanos por WhatsApp antes de enviar \\u2014 con gusto te ayudamos sin costo adicional.'
-    : 'Please review all information carefully before proceeding to payment. Florida state filing fees and our service fees are collected upon submission and are <strong>non-refundable once your order has been processed</strong>. If you have any questions or need to make changes, contact us via WhatsApp before submitting \\u2014 we are happy to help at no additional cost.';
-
-  // Translate proceed button
-  var proceedBtn = document.querySelector('#step9 .btn-next');
-  if(proceedBtn) proceedBtn.innerHTML = isEs ? 'Proceder al Pago &#8594;' : 'Proceed to Payment &#8594;';
-}
-
-function buildReviewRow(label, price, color, note) {
-  return '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-bottom:1px solid var(--gray100)">' +
-    '<div><div style="font-size:.85rem;font-weight:600;color:var(--navy)">' + label + '</div>' +
-    (note ? '<div style="font-size:.72rem;color:var(--gray500);margin-top:1px">' + note + '</div>' : '') +
-    '</div><span style="font-size:.85rem;font-weight:700;color:' + color + ';white-space:nowrap;margin-left:12px">' + price + '</span></div>';
-}
 
 
-function setEntityForm(type, el) {
-  selectedEntity = type;
-  formData.entity = type;
-  // Update UI
-  ['form-et-llc','form-et-corp'].forEach(function(id){
-    var c = document.getElementById(id);
-    if(c) c.classList.remove('active');
-  });
-  if(el) el.classList.add('active');
-  // Update main page entity buttons too
-  setEntity(type);
-  updateTotal();
-}
 
-function setFilerForm(type, el) {
-  formData.filer = type;
-  ['form-filer-ind','form-filer-co'].forEach(function(id){
-    var c = document.getElementById(id);
-    if(c) c.classList.remove('active');
-  });
-  if(el) el.classList.add('active');
-  var af = document.getElementById('agent-fields');
-  if(af) af.style.display = type === 'company' ? 'block' : 'none';
-}
+
 (function(){if(currentLang!=='en')setLang(currentLang);})();
 
 var fmCurrentStep = 1;
@@ -5614,17 +5054,6 @@ function fmSetSpeed(type, el) {
   fmUpdateSummary();
 }
 
-function fmSetVma(enabled, el) {
-  fmData.vma = enabled;
-  ['vma-yes','vma-no'].forEach(function(id){
-    var c = document.getElementById(id);
-    if(c) c.classList.remove('selected');
-  });
-  if(el) el.classList.add('selected');
-  var info = document.getElementById('vma-info');
-  if(info) info.style.display = enabled ? 'flex' : 'none';
-  fmUpdateSummary();
-}
 
 function fmUpgradePkg(pkg, el) {
   fmData.package = pkg;
@@ -5637,16 +5066,6 @@ function fmUpgradePkg(pkg, el) {
   fmUpdateSummary();
 }
 
-function fmSetRA(type, el) {
-  fmData.ra = type;
-  ['ra-us','ra-own'].forEach(function(id){
-    var c = document.getElementById(id);
-    if(c) c.classList.remove('selected');
-  });
-  if(el) el.classList.add('selected');
-  var own = document.getElementById('ra-own-fields');
-  if(own) own.style.display = type === 'own' ? 'block' : 'none';
-}
 
 function toggleMoreServices() {
   var wrap = document.getElementById('more-services-wrap');
@@ -5698,15 +5117,7 @@ function fmToggleAddon(key, el) {
 
 
 
-function fmToggleMemberAddr(n, chk) {
-  var own = document.getElementById('m' + n + '-own-addr');
-  if(own) own.style.display = chk.checked ? 'none' : 'block';
-}
 
-function fmUpdateMembers(count) {
-  var wrap = document.getElementById('add-member-wrap');
-  if(wrap) wrap.style.display = parseInt(count) > 1 ? 'block' : 'none';
-}
 
 
 
@@ -5882,22 +5293,7 @@ function fmBuildReview() {
 // ═══════════════════════════════════════════════════════
 // FAQ / ACCORDION
 // ═══════════════════════════════════════════════════════
-function fmToggleFaq(btn) {
-  var icon = btn.querySelector('.fm-faq-icon');
-  var body = btn.nextElementSibling;
-  if(!body) return;
-  var isOpen = body.classList.contains('open');
-  body.classList.toggle('open', !isOpen);
-  if(icon) icon.classList.toggle('open', !isOpen);
-}
 
-function fmToggleAcc(btn) {
-  var body = btn.nextElementSibling;
-  if(!body) return;
-  body.classList.toggle('open');
-  var arrow = btn.querySelector('span:last-child');
-  if(arrow) arrow.textContent = body.classList.contains('open') ? '&#9650;' : '&#9660;';
-}
 
 // ═══════════════════════════════════════════════════════
 // SUBMIT
@@ -6112,10 +5508,6 @@ function fmApplyDetectedCountry(code) {
   });
 }
 
-function fmBuildCountryOptions(selectEl) {
-  if(!selectEl) return;
-  fmApplyDetectedCountry(_detectedCountry);
-}
 
 /* ── IP-BASED COUNTRY DETECTION ── */
 var _ipCountry = 'US';
@@ -6172,11 +5564,6 @@ function openForm() {
   }, 50);
 }
 
-function openFormEntity(entity) {
-  selectedEntity = entity;
-  fmData.entity  = entity;
-  openForm();
-}
 
 function closeForm() {
   var overlay = document.getElementById('formOverlay');
@@ -7079,33 +6466,7 @@ function scrollToPackages() {
   var y = el.getBoundingClientRect().top + window.pageYOffset - 80;
   window.scrollTo({ top: y, behavior: 'smooth' });
 }
-function toggleEntityDropdown() {
-  var dd = document.getElementById('entityDropdown');
-  var arrow = document.getElementById('entity-arrow');
-  var isEs = currentLang === 'es';
-  var llcDesc = document.getElementById('llc-drop-desc');
-  var corpDesc = document.getElementById('corp-drop-desc');
-  if(llcDesc) llcDesc.textContent = isEs ? 'Flexible · Ideal para pequeños negocios' : 'Flexible · Ideal for small businesses';
-  if(corpDesc) corpDesc.textContent = isEs ? 'Formal · Ideal para inversores y acciones' : 'Formal · Ideal for investors & stock';
-  if(dd) {
-    var isOpen = dd.style.display === 'block';
-    dd.style.display = isOpen ? 'none' : 'block';
-    if(arrow) arrow.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
-  }
-}
 
-function selectEntity(type) {
-  var dd = document.getElementById('entityDropdown');
-  var arrow = document.getElementById('entity-arrow');
-  if(dd) dd.style.display = 'none';
-  if(arrow) arrow.style.transform = 'rotate(0deg)';
-  var pricing = document.getElementById('pricing');
-  if(pricing) pricing.scrollIntoView({behavior:'smooth'});
-  setTimeout(function() {
-    var btn = type === 'llc' ? document.getElementById('fms-et-llc') : document.getElementById('fms-et-corp');
-    if(btn) btn.click();
-  }, 800);
-}
 
 document.addEventListener('click', function(e) {
   var dd = document.getElementById('entityDropdown');
@@ -7117,46 +6478,8 @@ document.addEventListener('click', function(e) {
   }
 });
 
-function toggleContinueDropdown() {
-  var dd = document.getElementById('continueDropdown');
-  var arrow = document.getElementById('continue-arrow');
-  var isEs = currentLang === 'es';
-  var title = document.getElementById('cont-drop-title');
-  var btnLbl = document.getElementById('cont-drop-btn-lbl');
-  var inp = document.getElementById('inp-continue-order-drop');
-  if(title) title.textContent = isEs ? 'Número de Orden' : 'Order Number';
-  if(btnLbl) btnLbl.textContent = isEs ? 'Continuar' : 'Continue';
-  if(inp) inp.placeholder = 'E.G. FBFC-12345';
-  if(dd) {
-    var isOpen = dd.style.display === 'block';
-    dd.style.display = isOpen ? 'none' : 'block';
-    if(arrow) arrow.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
-  }
-}
 
-function closeContinueDropdown() {
-  var dd = document.getElementById('continueDropdown');
-  var arrow = document.getElementById('continue-arrow');
-  if(dd) dd.style.display = 'none';
-  if(arrow) arrow.style.transform = 'rotate(0deg)';
-}
 
-function findOrderDrop() {
-  var inp = document.getElementById('inp-continue-order-drop');
-  var errEl = document.getElementById('cont-drop-error');
-  var isEs = currentLang === 'es';
-  if(!inp || !inp.value.trim()) {
-    if(errEl) { errEl.textContent = isEs ? 'Por favor ingresa tu número de orden.' : 'Please enter your order number.'; errEl.style.display = 'block'; }
-    return;
-  }
-  if(errEl) errEl.style.display = 'none';
-  var orderNum = inp.value.trim().toUpperCase();
-  inp.value = orderNum;
-  closeContinueDropdown();
-  var existingInp = document.getElementById('inp-continue-order');
-  if(existingInp) existingInp.value = orderNum;
-  findOrder();
-}
 
 document.addEventListener('click', function(e) {
   var dd = document.getElementById('continueDropdown');
@@ -7191,10 +6514,6 @@ function claudiaPrefill(d){
   function setSelect(id,val){
     var el=document.getElementById(id);
     if(el&&val){el.value=val;el.dispatchEvent(new Event('change'));}
-  }
-  function clickEl(id){
-    var el=document.getElementById(id);
-    if(el)el.click();
   }
 
   // Entity type
