@@ -25,7 +25,7 @@ export default function ServiciosCheckoutPage() {
   const styles = `
 :root{--navy:#1C2E44;--blue:#2563EB;--blue-light:#EFF6FF;--green:#059669;--green-dark:#047857;--green-light:#ECFDF5;--white:#fff;--gray50:#F8FAFC;--gray100:#F1F5F9;--gray200:#E2E8F0;--gray400:#94A3B8;--gray500:#64748B;--gray600:#475569;--gray800:#1E293B;}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--font-sans),'Plus Jakarta Sans',system-ui,sans-serif;color:var(--gray800);background:var(--gray50);line-height:1.6;min-height:100vh}
+body{font-family:var(--font-sans),'Plus Jakarta Sans',system-ui,sans-serif;color:var(--gray800);background:var(--gray50);line-height:1.6;min-height:100vh;overflow-x:clip}
 .co-header{background:#fff;border-bottom:1px solid var(--gray200);position:sticky;top:0;z-index:50}
 .co-header-inner{max-width:880px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px}
 .co-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
@@ -171,7 +171,7 @@ body{font-family:var(--font-sans),'Plus Jakarta Sans',system-ui,sans-serif;color
 /* Layout con resumen de orden a la derecha (visible en cada paso) */
 .co-layout{display:grid;grid-template-columns:1fr 300px;gap:24px;align-items:start}
 .co-layout.solo{grid-template-columns:1fr}
-.co-main{min-width:0}
+.co-main,.co-side{min-width:0}
 .co-side{position:sticky;top:90px}
 .co-side .co-review{position:static;top:auto}
 .co-side-note{font-size:.7rem;color:var(--gray400);margin-top:12px;line-height:1.5}
@@ -192,6 +192,7 @@ html.co-wide .co-wrap,html.co-wide .co-header-inner{max-width:1340px}
 html.co-wide .co-tier{padding:20px 18px}
 @media(max-width:900px){.co-layout{grid-template-columns:1fr 260px}}
 @media(max-width:760px){.co-grid{grid-template-columns:1fr}.co-pay-grid{grid-template-columns:1fr}.co-review{position:static}.co-choices{grid-template-columns:1fr}.co-tiers{grid-template-columns:1fr}.co-layout{grid-template-columns:1fr}.co-side{position:static;order:-1;margin-bottom:18px}}
+@media(max-width:480px){.co-wrap{padding-left:16px;padding-right:16px}.co-header-inner{padding-left:16px;padding-right:16px}.co-review{padding-left:18px;padding-right:18px}.co-card{padding-left:16px;padding-right:16px}.co-h1{font-size:1.45rem}}
 `
 
   const body = `

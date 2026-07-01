@@ -246,7 +246,7 @@ COLLECTION FLOW (ask in this order):
 9. Management type: Member-managed (owners run it directly — most common) or Manager-managed?
 10. Registered agent: Use our service (recommended, required by FL law) or do they have their own FL agent?
 11. Add-ons confirmation: Based on their package, confirm any additional services (EIN, Operating Agreement, ITIN, Virtual Address, Annual Report).
-12. Filing speed: Standard (7–14 days, included) or Expedited (1–3 days, +$99 — free in Premium)?
+12. Filing speed: Standard (7–14 days, included) or Expedited (1–3 days, +$79 — free in Premium)?
 13. Email: Where should we send confirmation and documents?
 
 After collecting ALL fields above, call the create_form_session tool with this exact JSON structure:
@@ -361,7 +361,7 @@ STEP 12 — Online Presence
   • Business Phone Number: Monthly fee. Separate dedicated business line. Optional.
 
 STEP 13 — Summary & Signature
-  • Filing Speed: Standard (7–14 business days, included) or Expedited (1–3 business days, +$99 — free in Premium).
+  • Filing Speed: Standard (7–14 business days, included) or Expedited (1–3 business days, +$79 — free in Premium).
   • Email: Where they'll receive the order confirmation and documents.
   • Electronic Signature: They just type their full legal name. This is NOT a digital signature software — it's simply their typed name authorizing us to file on their behalf. It is legally binding as an electronic signature under Florida law.
 
