@@ -667,10 +667,10 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 .fm-speed-card{border:1.5px solid #e5e7eb;border-radius:10px;padding:16px;cursor:pointer;transition:all .2s;position:relative}
 .fm-speed-card:hover{border-color:#93c5fd}
 .fm-speed-card.selected{border-color:#2563eb;background:#eff6ff}
-.fm-speed-decline{display:block;width:100%;text-align:center;background:none;border:none;color:#6b7280;font-size:.85rem;cursor:pointer;padding:10px 8px;font-family:inherit;text-decoration:underline;text-underline-offset:2px}
-.fm-speed-decline:hover{color:#2563eb}
-.fm-speed-decline.selected{color:#1e293b;font-weight:600;text-decoration:none}
-.fm-speed-decline.selected::before{content:'\\2713 ';color:#2563eb}
+.fm-speed-decline{display:block;width:fit-content;max-width:100%;margin:14px auto 0;text-align:center;background:#fff;border:1.5px solid #d1d5db;border-radius:9px;color:#4b5563;font-size:.85rem;font-weight:600;cursor:pointer;padding:11px 22px;font-family:inherit;transition:all .2s}
+.fm-speed-decline:hover{border-color:#93c5fd;color:#2563eb}
+.fm-speed-decline.selected{border-color:#2563eb;background:#eff6ff;color:#1e293b}
+.fm-speed-decline.selected::before{content:'\\2713 ';color:#2563eb;font-weight:800}
 .fm-speed-badge{position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#f97316;color:#fff;font-size:.65rem;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:.5px}
 .fm-speed-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
 .fm-speed-top label{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.88rem;font-weight:600;color:#1e293b}
@@ -1846,13 +1846,13 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
             <h2 class="fm-title" id="s6-title">Faster processing</h2>
             <p class="fm-sub" id="s6-sub">Want it faster? Upgrade to expedited state filing where applicable.</p>
             <div class="fm-speed-cards">
-              <div class="fm-speed-card" id="speed-exp" onclick="fmSetSpeed('expedited',this)">
+              <div class="fm-speed-card selected" id="speed-exp" onclick="fmSetSpeed('expedited',this)">
                 <div class="fm-speed-badge" id="s6-badge">Fastest</div>
                 <div class="fm-speed-top"><label id="s6-exp-lbl">&#9889; Expedited processing</label><span class="fm-speed-price" id="fms6-exp-price">+$79</span></div>
                 <div class="fm-speed-date" id="s6-exp-desc">1-3 business days</div>
               </div>
             </div>
-            <button type="button" class="fm-speed-decline selected" id="speed-std" onclick="fmSetSpeed('standard',this)"><span id="s6-std-desc">No thanks, I'll wait the standard time (7-14 business days)</span></button>
+            <button type="button" class="fm-speed-decline" id="speed-std" onclick="fmSetSpeed('standard',this)"><span id="s6-std-desc">No thanks, I'll wait the standard time (7-14 business days)</span></button>
           </div>
           <div class="fm-card-footer">
             <button class="btn-back-fm" onclick="fmBack()">&#8592; <span id="s6-back">Back</span></button>
@@ -4864,7 +4864,7 @@ var fmData = {
   entity: 'llc', bizAddrType: 'virtual', agentType: 'ours',
   bizName: '',
   designator: 'LLC',
-  speed: 'standard',
+  speed: 'expedited',
   contact: { fname:'', lname:'', email:'', phone:'' },
   address: { street:'', street2:'', city:'', state:'', zip:'', country:'US' },
   vma: true,

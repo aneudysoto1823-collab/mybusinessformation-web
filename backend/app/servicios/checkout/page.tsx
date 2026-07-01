@@ -130,10 +130,10 @@ body{font-family:var(--font-sans),'Plus Jakarta Sans',system-ui,sans-serif;color
 @keyframes cospin{to{transform:rotate(360deg)}}
 /* Recomendado: cajas de elección (estilo paquetes) */
 .co-choices{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0 0}
-.co-decline{display:block;width:100%;text-align:center;background:none;border:none;color:var(--gray600);font-size:.82rem;cursor:pointer;padding:12px 8px;margin:12px 0 0;font-family:inherit;text-decoration:underline;text-underline-offset:2px}
-.co-decline:hover{color:var(--blue)}
-.co-decline.sel{color:var(--navy);font-weight:700;text-decoration:none}
-.co-decline.sel::before{content:'\\2713 ';color:var(--blue)}
+.co-decline{display:block;width:fit-content;max-width:100%;text-align:center;background:#fff;border:1.5px solid var(--gray200);border-radius:10px;color:var(--gray600);font-size:.84rem;font-weight:600;cursor:pointer;padding:11px 20px;margin:14px auto 0;font-family:inherit;transition:all .2s}
+.co-decline:hover{border-color:#93c5fd;color:var(--blue)}
+.co-decline.sel{border-color:var(--blue);background:var(--blue-light);color:var(--navy)}
+.co-decline.sel::before{content:'\\2713 ';color:var(--blue);font-weight:800}
 .co-choice{position:relative;border:1.5px solid var(--gray200);border-radius:12px;padding:15px 16px;cursor:pointer;transition:all .2s;background:#fff;display:flex;flex-direction:column;gap:6px}
 .co-choice:hover{border-color:#93c5fd}
 .co-choice.sel{border-color:var(--blue);background:var(--blue-light)}
@@ -414,8 +414,8 @@ try { cart = JSON.parse(localStorage.getItem('flbc_svc_cart')||'[]'); if(!Array.
 var coBundles = [];
 try { coBundles = JSON.parse(localStorage.getItem('flbc_svc_bundles')||'[]'); if(!Array.isArray(coBundles)) coBundles=[]; } catch(e){ coBundles=[]; }
 // Procesamiento acelerado (una vez por orden, aplica a toda la orden).
-var coExpedited = false;
-try { coExpedited = localStorage.getItem('flbc_svc_expedited')==='1'; } catch(e){ coExpedited=false; }
+var coExpedited = true; // oferta pre-seleccionada (recomendado); el cliente puede declinar
+try { var _rawExp=localStorage.getItem('flbc_svc_expedited'); coExpedited = (_rawExp===null ? true : _rawExp==='1'); } catch(e){ coExpedited=true; }
 function coSaveCart(){ try{ localStorage.setItem('flbc_svc_cart',JSON.stringify(cart)); localStorage.setItem('flbc_svc_bundles',JSON.stringify(coBundles)); localStorage.setItem('flbc_svc_expedited',coExpedited?'1':'0'); }catch(e){} }
 var stripeCheckout = null;
 var coEditReturn = false; // true si el cliente entró a un paso vía "Editar" desde la revisión
