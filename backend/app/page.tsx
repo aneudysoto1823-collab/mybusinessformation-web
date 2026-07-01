@@ -562,7 +562,15 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 .fm-wrap.fm-paystep .fm-paycol{display:block}
 .fm-paycol #fm-pay-area{border-top:none}
 #fm-left-col .fm-summary{width:100%;margin-top:20px}
-@media(max-width:820px){.fm-wrap{flex-direction:column;padding:0 14px 40px}.fm-paycol{width:100%}}
+@media(max-width:820px){.fm-wrap{flex-direction:column;padding:0 14px 120px}.fm-paycol{width:100%}
+  /* Resumen arriba y colapsable (compacto por defecto, como la mayoria de checkouts) */
+  .fm-summary{order:-1}
+  .fm-sum-head-row{cursor:pointer}
+  .fm-sum-toggle{display:block}
+  .fm-summary:not(.fm-sum-open) .fm-sum-body,
+  .fm-summary:not(.fm-sum-open) .fm-secure{display:none}
+  .fm-summary.fm-sum-open .fm-sum-toggle{transform:rotate(180deg)}
+}
 
 /* Form step visibility */
 .fm-step{display:none}
@@ -605,6 +613,8 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 .fm-pay-hint{font-size:.8rem;color:#2563eb;font-weight:600}
 @media(max-width:820px){.fm-pay-hint{display:none}}
 .fm-sum-head{padding:16px 20px;border-bottom:1px solid #f3f4f6}
+.fm-sum-head-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.fm-sum-toggle{display:none;font-size:.9rem;color:#64748b;transition:transform .2s;line-height:1}
 .fm-sum-title{font-size:.88rem;font-weight:700;color:#1e293b}
 .fm-sum-biz{background:#eff6ff;border-radius:7px;padding:7px 14px;text-align:center;font-size:.82rem;font-weight:600;color:#1e40af;margin-top:10px;display:none}
 .fm-sum-body{padding:4px 0 8px}
@@ -2297,7 +2307,10 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
     </div>
     <div class="fm-summary">
       <div class="fm-sum-head">
-        <div class="fm-sum-title" id="sum-title-main">Your Order</div>
+        <div class="fm-sum-head-row" onclick="fmToggleSummary()">
+          <div class="fm-sum-title" id="sum-title-main">Your Order</div>
+          <span class="fm-sum-toggle" id="fm-sum-toggle" aria-hidden="true">&#9662;</span>
+        </div>
         <div class="fm-sum-biz" id="sum-biz-name" style="display:none"></div>
       </div>
       <div class="fm-sum-body">
@@ -5124,6 +5137,8 @@ function fmToggleAddon(key, el) {
 // ═══════════════════════════════════════════════════════
 // ORDER SUMMARY UPDATE
 // ═══════════════════════════════════════════════════════
+// En mobile el resumen aparece arriba y colapsado; este toggle lo abre/cierra.
+function fmToggleSummary(){ var s=document.querySelector('.fm-summary'); if(s) s.classList.toggle('fm-sum-open'); }
 function fmUpdateSummary() {
   var pkg = fmData.package || 'standard';
   var prices = { basic:0, standard:199, premium:299 };
