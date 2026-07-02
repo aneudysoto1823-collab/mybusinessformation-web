@@ -298,8 +298,10 @@ Variables del template (`NewBusinessLetterData`): `documentId, companyName, regi
 
 **⚠️ Gotcha de pdf-lib (WinAnsi):** las `StandardFonts` de pdf-lib solo codifican WinAnsi (CP1252). NO usar caracteres especiales como `↑ ↓ → • ★ ✓` en el texto de la carta — rompen la generación con `WinAnsi cannot encode "X"`. Las rayas `— –`, el middot `·` y comillas curvas sí están soportados. Si se necesitan íconos, embeber una fuente con `pdfDoc.embedFont(bytes, { subset: true })`.
 
+**Logo real (HECHO 2026-07-01):** se reemplazó el círculo provisional "FBFC" por el **sello real FBFC** recoloreado al navy #1C2E44 del sitio. Vive embebido en base64 en `backend/lib/fbfc-seal.ts` (`FBFC_SEAL_PNG_BASE64`, PNG transparente 420px) y se dibuja con `doc.embedPng` en `new-business-letter.ts` (con fallback al círculo si el embed falla). El vector editable original está en `~/Desktop/DOCUMENTOS FBFC/alfredglover-attachments/Vector Editable Source Files.ai`. Decisión: el sello va solo en la carta, NO en el header web (que sigue con el logo "OB" de OpaBiz).
+
 **Pendientes de la carta:**
-- [ ] Sustituir logo provisional "FBFC" por logo real cuando esté disponible.
+- [ ] **(para 2026-07-02)** Bug de dato: si el `document_id` de una empresa es muy largo (ej. una de prueba tenía "CONFIRMATION NUMBER FBFC-A34B4036" tecleado a mano), el valor se **encima con la etiqueta "Document Number"** en el recuadro de registro. Solo afecta esa empresa de prueba (las reales tienen doc number corto de Sunbiz). El panel `/admin/campaigns` NO tiene botón de borrar/editar document_id (solo nota) → el usuario lo corrige en Supabase Table Editor, o se puede: (a) agregar botón de borrar/editar al panel, y/o (b) blindar el recuadro para que un valor largo se achique/oculte y nunca se encime.
 - [ ] Verificar en el deploy que el 301 de `mybusinessformation.com` funcione y que el QR autollene (el dominio ya apunta al proyecto en Vercel — confirmado por el usuario 2026-06-11).
 
 ---
