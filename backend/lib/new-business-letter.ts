@@ -1,5 +1,6 @@
 import { PDFDocument, StandardFonts, rgb, PDFFont, PDFPage } from 'pdf-lib'
 import QRCode from 'qrcode'
+import { FBFC_SEAL_PNG_BASE64 } from './fbfc-seal'
 
 // ── Colors ────────────────────────────────────────────────────────────────────
 const NAVY      = rgb(0.11, 0.18, 0.27)   // #1C2E44
@@ -206,13 +207,20 @@ export async function generateNewBusinessLetter(data: NewBusinessLetterData): Pr
   y -= 54
 
   // ── 2. SENDER / BRAND ─────────────────────────────────────────────────────
-  // Logo provisional: círculo navy "FBFC" (pendiente logo real)
+  // Sello real FBFC (navy) embebido desde ./fbfc-seal. Si por alguna razón falla
+  // el embed, cae al círculo provisional "FBFC" para no romper la generación.
   const logoR  = 26
   const logoCx = MX + logoR
   const logoCy = y - 22
-  page.drawCircle({ x: logoCx, y: logoCy, size: logoR, color: NAVY })
-  const fbfcW = bold.widthOfTextAtSize('FBFC', 9)
-  t('FBFC', logoCx - fbfcW / 2, logoCy - 3.5, bold, 9, WHITE)
+  const logoD  = logoR * 2
+  try {
+    const sealImg = await doc.embedPng(Buffer.from(FBFC_SEAL_PNG_BASE64, 'base64'))
+    page.drawImage(sealImg, { x: MX, y: logoCy - logoR, width: logoD, height: logoD })
+  } catch {
+    page.drawCircle({ x: logoCx, y: logoCy, size: logoR, color: NAVY })
+    const fbfcW = bold.widthOfTextAtSize('FBFC', 9)
+    t('FBFC', logoCx - fbfcW / 2, logoCy - 3.5, bold, 9, WHITE)
+  }
 
   const txtX = MX + logoR * 2 + 12
   t('FLORIDA BUSINESS FORMATION CENTER', txtX, y - 10, bold, 11, NAVY)
