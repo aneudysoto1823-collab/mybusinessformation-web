@@ -82,6 +82,13 @@ export const SERVICE_BUNDLES: Record<string, BundleDef> = {
   'bundle-protect-va':     { name_en: 'Virtual Mailing Address',              name_es: 'Dirección Virtual',                            services: ['virtual-address'], price: 99 },
   'bundle-protect-va-ar':  { name_en: 'Virtual Address + Annual Report',      name_es: 'Dirección Virtual + Declaración Anual',         services: ['virtual-address', 'annual-report'], price: 179 },
   'bundle-protect-full':   { name_en: 'Virtual Address + Annual Report + Local Business Tax Receipt', name_es: 'Dirección Virtual + Declaración Anual + Licencia Comercial Local', services: ['virtual-address', 'annual-report', 'business-tax-receipt'], price: 259 },
+  // Tier 1 alternativo del hub Protección, SOLO cuando el cliente compra à la
+  // carte (sin formación) y todavía no tiene Registered Agent — decisión negocio
+  // 2026-07-02: es el servicio de mayor valor recurrente (afiliación anual), así
+  // que va primero. Mismo precio que su serviceFee individual (sin descuento
+  // extra, igual que bundle-protect-va con virtual-address). Si el cliente ya
+  // tiene el agente, el hub vuelve a su tier 1 de siempre (bundle-protect-va).
+  'bundle-protect-ra':     { name_en: 'Registered Agent',                     name_es: 'Agente Registrado',                            services: ['registered-agent'], price: 99 },
 }
 
 export interface PriceLine {
@@ -116,6 +123,19 @@ export interface ServicesPrice {
 // Procesamiento acelerado: una sola vez por orden, aplica a toda la orden.
 // ⚠️ Precio placeholder — revisar antes de LIVE.
 export const EXPEDITED_FEE = 79
+
+// El acelerado solo tiene sentido si algo en el carrito realmente se presenta
+// ante el estado (una formación, o un servicio con stateFee > 0, ej. Annual
+// Report, DBA). Comprar solo un Operating Agreement (documento privado, sin
+// presentación estatal) no tiene nada que "acelerar" — cobrar el fee ahí sería
+// engañoso. Server-side es la fuente de verdad anti-tampering; el cliente
+// (checkout/page.tsx) espeja esta misma regla para no ofrecer el paso.
+export function isExpeditedApplicable(serviceIds: string[], bundleIds: string[] = []): boolean {
+  if (serviceIds.includes('llc-formation') || serviceIds.includes('corp-formation')) return true
+  const bundledServices = bundleIds.flatMap(bid => SERVICE_BUNDLES[bid]?.services ?? [])
+  return [...serviceIds, ...bundledServices].some(id => (SERVICES_CATALOG[id]?.stateFee ?? 0) > 0)
+}
+
 export function computeServicesTotal(serviceIds: string[], bundleIds: string[] = [], expedited = false): ServicesPrice {
   // Tarifas de servicio primero; las tarifas estatales se agrupan al final
   // (antes del total), no intercaladas tras cada servicio.
@@ -165,7 +185,7 @@ export function computeServicesTotal(serviceIds: string[], bundleIds: string[] =
     }
   }
 
-  if (expedited) lines.push({ label: 'Expedited Processing', amount: EXPEDITED_FEE })
+  if (expedited && isExpeditedApplicable(serviceIds, bundleIds)) lines.push({ label: 'Expedited Processing', amount: EXPEDITED_FEE })
   const allLines = lines.concat(stateLines)
   const total = allLines.reduce((sum, l) => sum + l.amount, 0)
   return { total, cents: Math.round(total * 100), lines: allLines, recurring }

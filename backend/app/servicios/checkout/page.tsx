@@ -130,10 +130,6 @@ body{font-family:var(--font-sans),'Plus Jakarta Sans',system-ui,sans-serif;color
 @keyframes cospin{to{transform:rotate(360deg)}}
 /* Recomendado: cajas de elección (estilo paquetes) */
 .co-choices{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0 0}
-.co-decline{display:block;width:fit-content;max-width:100%;text-align:center;background:#fff;border:1.5px solid var(--gray200);border-radius:10px;color:var(--gray600);font-size:.84rem;font-weight:600;cursor:pointer;padding:11px 20px;margin:14px auto 0;font-family:inherit;transition:all .2s}
-.co-decline:hover{border-color:#93c5fd;color:var(--blue)}
-.co-decline.sel{border-color:var(--blue);background:var(--blue-light);color:var(--navy)}
-.co-decline.sel::before{content:'\\2713 ';color:var(--blue);font-weight:800}
 .co-choice{position:relative;border:1.5px solid var(--gray200);border-radius:12px;padding:15px 16px;cursor:pointer;transition:all .2s;background:#fff;display:flex;flex-direction:column;gap:6px}
 .co-choice:hover{border-color:#93c5fd}
 .co-choice.sel{border-color:var(--blue);background:var(--blue-light)}
@@ -447,9 +443,15 @@ var HUBS = {
 };
 // A qué hub pertenece cada bundle (para limpiar/cambiar selección).
 var BUNDLE_HUB = {}; Object.keys(HUBS).forEach(function(h){ HUBS[h].tiers.forEach(function(b){ BUNDLE_HUB[b]=h; }); });
+// bundle-protect-ra no está en HUBS.protect.tiers (es el tier 1 alternativo, ver
+// coProtectTiers) pero igual pertenece al hub protect para poder limpiarlo/cambiarlo.
+BUNDLE_HUB['bundle-protect-ra']='protect';
 // Detalle por servicio (varios bullets, estilo LegalZoom) para las tarjetas de
 // tier. Cada servicio tiene nombre + lista de beneficios concretos.
 var SVC_BLURBS = {
+  'registered-agent': { nameEs:'Agente Registrado', nameEn:'Registered Agent',
+    es:['Recibe documentos legales y avisos oficiales del estado en tu nombre','Tu dirección personal se mantiene 100% privada en registros públicos','Obligatorio por ley para toda LLC y Corporation de Florida'],
+    en:['Receives legal documents and official state notices on your behalf','Your personal address stays 100% private on public records','Required by law for every Florida LLC and Corporation'] },
   'operating-agreement': { nameEs:'Acuerdo Operativo', nameEn:'Operating Agreement',
     es:['Define las reglas internas de tu LLC: cómo se maneja y cómo se toman las decisiones','Se vuelve un contrato vinculante entre socios para evitar disputas','Ayuda a proteger tus bienes manteniendo tu responsabilidad limitada'],
     en:['Defines your LLC internal rules: how it is run and how decisions are made','Becomes a binding contract among partners to avoid disputes','Helps protect your assets by maintaining limited liability'] },
@@ -479,6 +481,16 @@ var HIDE_KEYS_IN_FORMATION = { 'activity':1, 'mgmt':1, 'members':1, 'officers':1
 var coFormId = null; // 'llc-formation' | 'corp-formation' | null
 var coRaChoice = null; // 'ours' | 'own' | null — elección de Agente Registrado (paso Recomendado)
 function coFormationType(){ for(var i=0;i<cart.length;i++){ if(FORMATION_MAP[cart[i]]) return FORMATION_MAP[cart[i]]; } return null; }
+// Espeja isExpeditedApplicable (lib/services-pricing.ts, autoritativa server-side).
+// El acelerado solo aplica si algo en el carrito realmente se presenta ante el
+// estado — una formación, o un servicio con stateFee>0 (ej. Annual Report, DBA).
+// Comprar solo un Operating Agreement (documento privado) no tiene nada que
+// acelerar, así que el paso ni se ofrece ni se cobra en ese caso.
+function coExpeditedApplicable(){
+  if(coFormationType()) return true;
+  var bundledServices=[]; coBundles.forEach(function(bid){ var b=BUNDLES_CLIENT[bid]; if(b) bundledServices=bundledServices.concat(b.services); });
+  return cart.concat(bundledServices).some(function(id){ var s=SVC_CATALOG[id]; return s && s.stateFee>0; });
+}
 
 function coIsEs(){ return coLang==='es'; }
 function $(id){ return document.getElementById(id); }
@@ -932,13 +944,15 @@ function coRenderExpedited(){
   panel.innerHTML='<h1 class="co-h1">'+(isEs?'Procesamiento acelerado':'Faster processing')+'</h1>'
     +'<p class="co-sub">'+(isEs?'¿Lo quieres más rápido? Acelera la presentación estatal cuando aplica.':'Want it faster? Upgrade to expedited state filing where applicable.')+'</p>'
     +'<div class="co-card">'
-      +'<div class="co-choices" style="grid-template-columns:1fr">'
+      +'<div class="co-choices">'
         +'<div class="co-choice co-choice-rec'+(exp?' sel':'')+'" onclick="coSetExpedited(true)">'
           +'<span class="co-rec-badge">'+(isEs?'Más rápido':'Fastest')+'</span>'
           +'<div class="co-choice-top"><span class="co-choice-title">&#9889; '+(isEs?'Procesamiento acelerado':'Expedited processing')+'</span><span class="co-choice-price">+$'+EXPED_FEE+'</span></div>'
           +'<div class="co-choice-desc">'+(isEs?'1-3 días hábiles':'1-3 business days')+'</div></div>'
+        +'<div class="co-choice'+(std?' sel':'')+'" onclick="coSetExpedited(false)">'
+          +'<div class="co-choice-top"><span class="co-choice-title">'+(isEs?'Tiempo estándar':'Standard time')+'</span><span class="co-choice-price">$0</span></div>'
+          +'<div class="co-choice-desc">'+(isEs?'7-14 días hábiles':'7-14 business days')+'</div></div>'
       +'</div>'
-      +'<button type="button" class="co-decline'+(std?' sel':'')+'" onclick="coSetExpedited(false)">'+(isEs?'No gracias, esperaré el tiempo estándar (7-14 días hábiles)':'No thanks, I\'ll wait the standard time (7-14 business days)')+'</button>'
     +'</div>';
 }
 function coSetExpedited(v){ coExpedited=!!v; coSaveCart(); coRenderExpedited(); coUpdateOrderSummary(); try{ coPrefetchPayment(); }catch(e){} }
@@ -1094,6 +1108,18 @@ function coTierBullets(svcIds, owned){
   });
   return out;
 }
+// Tier 1 del hub "protect": normalmente Virtual Address (bundle-protect-va),
+// pero à la carte (sin formación) y sin Registered Agent en el carrito, ese
+// puesto lo toma el Agente Registrado — es el servicio recurrente de mayor
+// valor (afiliación anual), así que va primero. En formación (donde el agente
+// ya se decide en su propio paso obligatorio) esto NO aplica — queda igual.
+function coProtectTiers(){
+  var base=HUBS.protect.tiers;
+  if(!coFormationType() && cart.indexOf('registered-agent')<0){
+    return ['bundle-protect-ra'].concat(base.slice(1));
+  }
+  return base;
+}
 function coRenderHub(hub){
   var panel=$(HUBS[hub].panel); if(!panel) return; var isEs=coIsEs(); var cfg=HUBS[hub];
   // Servicios "pre-poseídos": están en el carrito pero NO por un combo seleccionado
@@ -1101,13 +1127,10 @@ function coRenderHub(hub){
   // precio. Así, elegir un tier del hub NO borra los otros ni descuenta de más.
   var coveredSel={}; coBundles.forEach(function(x){ if(BUNDLE_HUB[x]===hub){ var bb=BUNDLES_CLIENT[x]; if(bb) bb.services.forEach(function(s){ coveredSel[s]=1; }); } });
   var preOwned={}; cfg.services.forEach(function(s){ if(cart.indexOf(s)>=0 && !coveredSel[s]) preOwned[s]=1; });
-  // Tiers: el seleccionado siempre; los demás solo si agregan algo más allá de lo pre-poseído.
-  var renderTiers=cfg.tiers.filter(function(bid){
-    var b=BUNDLES_CLIENT[bid]; if(!b) return false;
-    if(coBundles.indexOf(bid)>=0) return true;
-    return b.services.some(function(s){ return !preOwned[s]; });
-  });
-  var anyOwned=Object.keys(preOwned).length>0;
+  // Siempre se muestran los 3 tiers (mismo layout, sin importar lo pre-poseído);
+  // el precio de cada uno ya descuenta lo que el cliente ya tiene (ver ownedFee).
+  var tierIds=(hub==='protect') ? coProtectTiers() : cfg.tiers;
+  var renderTiers=tierIds.filter(function(bid){ return !!BUNDLES_CLIENT[bid]; });
   var tiers=renderTiers.map(function(bid, i){
     var b=BUNDLES_CLIENT[bid];
     var sel=(coBundles.indexOf(bid)>=0);
@@ -1131,13 +1154,18 @@ function coRenderHub(hub){
   }).join('');
   panel.innerHTML='<h1 class="co-h1">'+(isEs?cfg.titleEs:cfg.titleEn)+'</h1>'
     +'<p class="co-sub">'+(isEs?cfg.subEs:cfg.subEn)+'</p>'
-    +(anyOwned?'<div class="co-state-note" style="text-align:center;margin:-4px 0 12px;color:#059669;font-weight:600">'+(isEs?'Ya tienes parte de este combo — el precio muestra solo lo que falta.':'You already have part of this combo — the price shows only what is missing.')+'</div>':'')
     +'<div class="co-tiers">'+tiers+'</div>'
     +'<button type="button" class="co-hub-nothanks" onclick="coHubNoThanks(\''+hub+'\')">'+(isEs?'No, gracias':'No thanks')+'</button>';
 }
 function coClearHub(hub){
   var cfg=HUBS[hub];
-  cart=cart.filter(function(id){ return cfg.services.indexOf(id)<0; });
+  var svcs=cfg.services.slice();
+  // registered-agent puede haber entrado a este carrito vía bundle-protect-ra
+  // (tier 1 alternativo, ver coProtectTiers) — limpiarlo también al cambiar de
+  // tier, para que no quede huérfano y se cobre aparte por error. Nunca en
+  // formación: ahí el agente lo maneja su propio paso obligatorio (panel-ra).
+  if(hub==='protect' && !coFormationType()) svcs.push('registered-agent');
+  cart=cart.filter(function(id){ return svcs.indexOf(id)<0; });
   coBundles=coBundles.filter(function(b){ return BUNDLE_HUB[b]!==hub; });
 }
 function coSelectTier(hub, bundleId){
@@ -1202,7 +1230,7 @@ function coComputeTotal(){
     lines.push({label:nm, amount:free?0:s.serviceFee, billing:s.billing, firstYearFree:free, renewalFee:s.renewalFee}); total+=(free?0:s.serviceFee);
     if(s.stateFee>0){ stateLines.push({label:nm, amount:s.stateFee, state:true}); total+=s.stateFee; }
   });
-  if(coExpedited){ lines.push({label:(isEs?'Procesamiento acelerado':'Expedited Processing'), amount:EXPED_FEE}); total+=EXPED_FEE; }
+  if(coExpedited && coExpeditedApplicable()){ lines.push({label:(isEs?'Procesamiento acelerado':'Expedited Processing'), amount:EXPED_FEE}); total+=EXPED_FEE; }
   return {lines:lines.concat(stateLines), total:total, recurring:recurring};
 }
 // Una fila del resumen. Las tarifas estatales van atenuadas con su etiqueta.
@@ -1318,7 +1346,13 @@ function coBuildWizard(){
   coServicePages.forEach(function(p){ coSteps.push({id:p.id, title:p.title||{en:'Service details',es:'Datos del servicio'}}); });
 
   // Procesamiento acelerado: paso propio JUSTO antes de revisar (último upsell).
-  coRenderExpedited(); coSteps.push({id:'panel-expedited', title:{en:'Faster processing',es:'Procesamiento acelerado'}});
+  // Solo si hay algo que presentar ante el estado (ver coExpeditedApplicable) —
+  // si no aplica, nunca se ofrece ni se cobra, aunque quedara elegido antes.
+  if(coExpeditedApplicable()){
+    coRenderExpedited(); coSteps.push({id:'panel-expedited', title:{en:'Faster processing',es:'Procesamiento acelerado'}});
+  } else if(coExpedited){
+    coExpedited=false; coSaveCart();
+  }
 
   // Último paso: revisar la orden + pagar (Stripe). La autorización se da al
   // completar el pago (disclosure en el paso de pago); ya no hay paso de firma.
