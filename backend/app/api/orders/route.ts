@@ -40,50 +40,79 @@ export async function POST(request: NextRequest) {
     }
     const body = parsed.data
 
+    const orderFields = {
+      updatedAt:       new Date().toISOString(),
+      // Contacto
+      firstName:       String(body.firstName),
+      lastName:        String(body.lastName),
+      email:           String(body.email),
+      phone:           body.phone           || null,
+      country:         body.country         || 'US',
+
+      // Empresa
+      companyName:     String(body.companyName),
+      companyName2:    body.companyName2    || null,
+      companyName3:    body.companyName3    || null,
+      entityType:      body.entityType      || 'llc',
+      businessAddress: body.businessAddress || null,
+
+      // Configuración del trámite
+      speed:           body.speed           || 'standard',
+      package:         body.package         || 'basic',
+      amount:          Number(body.amount)  || 0,
+      currency:        'USD',
+
+      // Datos adicionales (Json)
+      members:         body.members         ?? null,
+      registeredAgent: body.registeredAgent || 'us',
+      addons:          body.addons          ?? null,
+      orgSignature:    body.orgSignature     || null,
+
+      // Estado inicial
+      paymentStatus: 'pending',
+      status:        'pending',
+    }
+
+    // ── Si viene de un borrador (ver /api/orders/draft), promoverlo a orden
+    //    real en vez de insertar una fila duplicada. El filtro .eq('isDraft', true)
+    //    evita que este endpoint pueda pisar una orden ya promovida/pagada.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let order: any = null
+    let error: { message: string } | null = null
+
+    if (body.draftOrderId) {
+      const updateRes = await getSupabaseAdmin()
+        .from('Order')
+        .update({ ...orderFields, isDraft: false, draftSnapshot: null })
+        .eq('id', body.draftOrderId)
+        .eq('isDraft', true)
+        .select()
+        .maybeSingle()
+      order = updateRes.data
+      error = updateRes.error
+    }
+
     // ── Insertar orden en Supabase (HTTP, sin conexión directa a PostgreSQL) ──
-    const { data: order, error } = await getSupabaseAdmin()
-      .from('Order')
-      .insert({
-        id:              crypto.randomUUID(),
-        createdAt:       new Date().toISOString(),
-        updatedAt:       new Date().toISOString(),
-        // Contacto
-        firstName:       String(body.firstName),
-        lastName:        String(body.lastName),
-        email:           String(body.email),
-        phone:           body.phone           || null,
-        country:         body.country         || 'US',
+    // Camino normal, y fallback si el borrador ya no existía / no se pudo actualizar.
+    if (!order) {
+      const insertRes = await getSupabaseAdmin()
+        .from('Order')
+        .insert({
+          id:        crypto.randomUUID(),
+          createdAt: new Date().toISOString(),
+          isDraft:   false,
+          ...orderFields,
+        })
+        .select()
+        .single()
+      order = insertRes.data
+      error = insertRes.error
+    }
 
-        // Empresa
-        companyName:     String(body.companyName),
-        companyName2:    body.companyName2    || null,
-        companyName3:    body.companyName3    || null,
-        entityType:      body.entityType      || 'llc',
-        businessAddress: body.businessAddress || null,
-
-        // Configuración del trámite
-        speed:           body.speed           || 'standard',
-        package:         body.package         || 'basic',
-        amount:          Number(body.amount)  || 0,
-        currency:        'USD',
-
-        // Datos adicionales (Json)
-        members:         body.members         ?? null,
-        registeredAgent: body.registeredAgent || 'us',
-        addons:          body.addons          ?? null,
-        orgSignature:    body.orgSignature     || null,
-
-        // Estado inicial
-        paymentStatus: 'pending',
-        status:        'pending',
-      })
-      .select()
-      .single()
-
-    if (error) {
+    if (error || !order) {
       console.error('[/api/orders] Supabase insert error:', error)
       return NextResponse.json(
-        { success: false, error: 'Error saving order', detail: error.message },
+        { success: false, error: 'Error saving order', detail: error?.message },
         { status: 500 }
       )
     }

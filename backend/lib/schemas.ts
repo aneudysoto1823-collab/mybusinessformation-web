@@ -32,6 +32,44 @@ export const OrderInputSchema = z.object({
   registeredAgent: z.enum(['us', 'own']).optional(),
   addons: z.unknown().optional().nullable(),
   orgSignature: LongText.optional().nullable(),
+
+  // Promoción de un borrador (ver OrderDraftInputSchema) a orden real —
+  // si viene, /api/orders actualiza esa fila en vez de insertar una nueva.
+  draftOrderId: z.string().uuid().optional().nullable(),
+})
+
+// ── 1b. POST /api/orders/draft — guardado incremental del form en progreso ───
+// Se llama en cada paso del wizard (desde el paso "Tu Información" en adelante)
+// para que la orden sea recuperable desde cualquier dispositivo, no solo desde
+// el navegador donde se empezó. Validación permisiva: a mitad del formulario
+// muchos campos todavía no existen.
+export const OrderDraftInputSchema = z.object({
+  orderId: z.string().uuid().optional().nullable(),
+
+  firstName: ShortText.min(1),
+  lastName: ShortText.min(1),
+  email: Email,
+  phone: z.string().trim().max(50).optional().nullable(),
+  country: ShortText.optional().nullable(),
+
+  companyName: MedText.min(1),
+  companyName2: MedText.optional().nullable(),
+  companyName3: MedText.optional().nullable(),
+  entityType: z.enum(['llc', 'corp']).optional(),
+  businessAddress: LongText.optional().nullable(),
+
+  speed: z.enum(['standard', 'expedited']).optional(),
+  package: z.string().trim().max(50).optional(),
+  amount: z.number().nonnegative().max(10000).optional(),
+
+  members: z.unknown().optional().nullable(),
+  registeredAgent: z.enum(['us', 'own']).optional(),
+  addons: z.unknown().optional().nullable(),
+  orgSignature: LongText.optional().nullable(),
+
+  // Snapshot crudo del formulario (fmData + values de inputs) para restaurar
+  // exactamente donde el cliente quedó. Tamaño acotado — es un form, no un blob.
+  snapshot: z.unknown().optional().nullable(),
 })
 
 // ── 2. POST /api/chat — Claudia ──────────────────────────────────────────────
@@ -53,7 +91,11 @@ export const ChatInputSchema = z.object({
 // ── 3. POST /api/client-auth — login portal cliente ──────────────────────────
 // confirmationNumber: FBFC-XXXXXXXX (formacion) o FBNB-XXXXXXXX (new business).
 export const ClientAuthInputSchema = z.object({
-  email: Email,
+  // Email ya no es obligatorio para este modo — el número de orden alcanza
+  // (decisión negocio 2026-07-02: agiliza "Continue My Application"). Sigue
+  // siendo aceptado si viene (compatibilidad con los forms que lo piden), pero
+  // el backend ya no lo usa para filtrar.
+  email: Email.optional(),
   confirmationNumber: z
     .string()
     .trim()

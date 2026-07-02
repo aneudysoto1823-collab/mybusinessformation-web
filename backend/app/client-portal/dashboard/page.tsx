@@ -17,6 +17,7 @@ interface Order {
   paymentStatus: string
   status: string
   addons: unknown
+  isDraft?: boolean
 }
 
 function parseAddonServices(raw: unknown): string[] {
@@ -147,7 +148,7 @@ async function getDocuments(orderId: string, order: Order): Promise<DocumentItem
 async function getOrder(id: string): Promise<Order | null> {
   const { data } = await getSupabaseAdmin()
     .from('Order')
-    .select('id, createdAt, firstName, lastName, email, companyName, entityType, package, speed, amount, paymentStatus, status, addons, client_password_hash')
+    .select('id, createdAt, firstName, lastName, email, companyName, entityType, package, speed, amount, paymentStatus, status, addons, client_password_hash, isDraft')
     .eq('id', id)
     .single()
   return (data as (Order & { client_password_hash?: string | null }) | null)
@@ -156,7 +157,7 @@ async function getOrder(id: string): Promise<Order | null> {
 async function getOrdersByEmail(email: string): Promise<Order[]> {
   const { data } = await getSupabaseAdmin()
     .from('Order')
-    .select('id, createdAt, firstName, lastName, email, companyName, entityType, package, speed, amount, paymentStatus, status, addons')
+    .select('id, createdAt, firstName, lastName, email, companyName, entityType, package, speed, amount, paymentStatus, status, addons, isDraft')
     .eq('email', email.toLowerCase().trim())
     .order('createdAt', { ascending: false })
   return (data ?? []) as Order[]
@@ -203,11 +204,20 @@ export default async function ClientDashboardPage({
   const sessionOrder = await getOrder(sessionOrderId)
   if (!sessionOrder) redirect('/client-portal')
 
-  // Fetch all orders for this client's email
-  const allOrders = await getOrdersByEmail(sessionOrder.email)
+  // Orden todavía sin terminar de llenar — no hay nada que mostrar acá, se
+  // retoma el formulario donde quedó (ver ?resume=1 en app/page.tsx). Cubre el
+  // caso de una cookie de sesión vieja apuntando a un borrador.
+  const paramsForDraftCheck = await searchParams
+  if (sessionOrder.isDraft) {
+    const langQ = paramsForDraftCheck.lang ? `&lang=${paramsForDraftCheck.lang}` : ''
+    redirect(`/?resume=1${langQ}`)
+  }
+
+  // Fetch all orders for this client's email (sin borradores — no son órdenes reales)
+  const allOrders = (await getOrdersByEmail(sessionOrder.email)).filter(o => !o.isDraft)
 
   // Determine which order to display (URL param or default to session order)
-  const params = await searchParams
+  const params = paramsForDraftCheck
   const selectedId = params.order && allOrders.some(o => o.id === params.order)
     ? params.order
     : sessionOrderId

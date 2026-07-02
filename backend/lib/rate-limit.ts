@@ -94,6 +94,33 @@ export async function checkOrdersRateLimit(ip: string): Promise<RateLimitResult>
   return check(limiter, ip, 10)
 }
 
+// ── POST /api/client-auth: 20 intentos / hora / IP ───────────────────────────
+// El modo confirmationNumber ya no exige email (solo el número FBFC-XXXXXXXX,
+// decisión negocio 2026-07-02) — este límite es la defensa contra fuerza bruta
+// que compensa haber sacado el segundo factor.
+export async function checkClientAuthRateLimit(ip: string): Promise<RateLimitResult> {
+  const limiter = getLimiter({
+    cacheKey: 'client-auth',
+    prefix: 'rl:client-auth',
+    limit: 20,
+    window: '1 h',
+  })
+  return check(limiter, ip, 20)
+}
+
+// ── POST /api/orders/draft: 60 syncs / hora / IP ─────────────────────────────
+// Se llama en cada paso del wizard (más frecuente que el submit final), así que
+// el límite es más generoso que checkOrdersRateLimit.
+export async function checkOrdersDraftRateLimit(ip: string): Promise<RateLimitResult> {
+  const limiter = getLimiter({
+    cacheKey: 'orders-draft',
+    prefix: 'rl:orders-draft',
+    limit: 60,
+    window: '1 h',
+  })
+  return check(limiter, ip, 60)
+}
+
 // ── POST /api/chat: 30 requests / hora / IP ──────────────────────────────────
 // Claudia chatbot. Usa Claude API (caro). 30 mensajes/h es generoso para uso humano.
 export async function checkChatRateLimit(ip: string): Promise<RateLimitResult> {

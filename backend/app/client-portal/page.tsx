@@ -100,11 +100,15 @@ function LoginForm() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(usePassword ? { email, password } : { email, confirmationNumber }),
     })
+    const data = await res.json().catch(() => null)
     setLoading(false)
     if (res.ok) {
       // GA4 — solo eventos genéricos. NO incluir email ni FBFC en params (PII).
       trackEvent('client_login_success', { lang })
-      router.push('/client-portal/dashboard')
+      // Orden todavía sin terminar de llenar (isDraft) — no hay nada que mostrar
+      // en el dashboard, se retoma el formulario donde quedó.
+      if (data?.isDraft) router.push(`/?resume=1&lang=${lang}`)
+      else router.push('/client-portal/dashboard')
     } else {
       setError(t.error)
     }

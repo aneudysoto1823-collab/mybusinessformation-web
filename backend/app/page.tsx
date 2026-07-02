@@ -3313,22 +3313,56 @@ function closeContinueModal() {
   var modal = document.getElementById('continueModal');
   if(modal) { modal.style.display='none'; document.body.style.overflow=''; }
 }
+// Busca la orden solo por número FBFC (mismo endpoint que el login del
+// portal — el email dejó de ser obligatorio acá, decisión negocio 2026-07-02).
+// Si es un borrador (isDraft), restaura el formulario donde quedó — funciona
+// desde cualquier dispositivo, no solo el navegador donde se empezó. Si ya es
+// una orden real/pagada, manda al dashboard normal.
 function findOrder() {
+  var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
   var inp = document.getElementById('inp-continue-order');
   var err = document.getElementById('cont-error');
   if(!inp) return;
   var val = inp.value.trim().toUpperCase();
   if(!val || !val.startsWith('FBFC-') || val.length < 9) {
-    if(err) { err.textContent = 'Please enter a valid order number (e.g. FBFC-12345).'; err.style.display='block'; }
+    if(err) { err.textContent = isEs ? 'Ingresa un número de orden válido (ej. FBFC-12345678).' : 'Please enter a valid order number (e.g. FBFC-12345678).'; err.style.display='block'; }
     return;
   }
   err.style.display='none';
   var btn = document.getElementById('cont-submit-btn');
-  if(btn) btn.innerHTML='&#x23F3; Searching...';
-  setTimeout(function(){
-    closeContinueModal(); openForm();
-    if(btn) btn.innerHTML='&#x1F50D; Find My Application';
-  }, 1200);
+  if(btn) { btn.disabled = true; btn.innerHTML='&#x23F3; ' + (isEs ? 'Buscando...' : 'Searching...'); }
+  fetch('/api/client-auth', { method:'POST', headers:{'Content-Type':'application/json'}, credentials:'same-origin', body: JSON.stringify({ confirmationNumber: val }) })
+    .then(function(r){ return r.json().then(function(data){ return { ok: r.ok, data: data }; }); })
+    .then(function(res){
+      if(btn) { btn.disabled = false; btn.innerHTML='&#x1F50D; ' + (isEs ? 'Buscar Mi Solicitud' : 'Find My Application'); }
+      if(!res.ok) {
+        if(err) { err.textContent = isEs ? 'No encontramos una orden con esos datos.' : "We couldn't find an order matching those details."; err.style.display='block'; }
+        return;
+      }
+      if(typeof window.gtag==='function'){ window.gtag('event','client_login_success',{ lang: currentLang, source:'continue-modal' }); }
+      closeContinueModal();
+      refreshAccountUI();
+      if(res.data && res.data.isDraft) {
+        fetch('/api/orders/draft', { credentials:'same-origin' })
+          .then(function(r){ return r.json(); })
+          .then(function(d){
+            if(d && d.isDraft && d.snapshot) {
+              _fmDraftOrderId = d.orderId;
+              try { localStorage.setItem(FM_DRAFT_ID_KEY, d.orderId); } catch(e) {}
+              fmRestoreProgress(d.snapshot);
+            } else {
+              openForm();
+            }
+          })
+          .catch(function(){ openForm(); });
+      } else {
+        window.location.href = '/client-portal/dashboard?lang=' + currentLang;
+      }
+    })
+    .catch(function(){
+      if(btn) { btn.disabled = false; btn.innerHTML='&#x1F50D; ' + (isEs ? 'Buscar Mi Solicitud' : 'Find My Application'); }
+      if(err) { err.textContent = isEs ? 'Error de conexión. Intenta de nuevo.' : 'Connection error. Please try again.'; err.style.display='block'; }
+    });
 }
 
 
@@ -3674,23 +3708,28 @@ function saveOrder() {
 // progreso guardado en localStorage 'mbf_form_progress' (sistema existente
 // fmSaveProgress) y lo restaura con fmRestoreProgress. Si no hay, alert.
 // Texto del alert SIN newline (regla critica de escape chars en template JSX).
+// Camino rápido: si este navegador tiene el progreso local, restaura sin red.
+// Si no (otro dispositivo, cache borrado, etc.), abre el modal de búsqueda por
+// número de orden — la orden ya vive en el servidor desde el paso 2 (ver
+// fmSyncDraftToServer), así que se puede recuperar desde cualquier lugar.
 function continueFromHome() {
-  var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
   try {
     var raw = localStorage.getItem('mbf_form_progress');
-    if(!raw) {
-      alert(isEs ? 'No tenés órdenes guardadas en este dispositivo. Solo se conservan en el navegador desde el cual las iniciaste.' : "You don't have any saved orders on this device. Saved orders are kept only in the browser where you started them.");
-      return;
+    if(raw) {
+      var progress = JSON.parse(raw);
+      if(progress && (progress.step || 0) >= 2) { fmRestoreProgress(progress); return; }
     }
-    var progress = JSON.parse(raw);
-    if(!progress || (progress.step || 0) < 2) {
-      alert(isEs ? 'No tenés órdenes con progreso suficiente para continuar.' : "You don't have an order with enough progress to continue.");
-      return;
-    }
-    fmRestoreProgress(progress);
-  } catch(e) {
-    alert(isEs ? 'No pudimos recuperar tu orden anterior.' : "We couldn't recover your previous order.");
-  }
+  } catch(e) {}
+  openContinueModal();
+}
+
+function openContinueModal() {
+  var modal = document.getElementById('continueModal');
+  if(!modal) return;
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  var ordInp = document.getElementById('inp-continue-order');
+  if(ordInp) setTimeout(function(){ ordInp.focus(); }, 50);
 }
 
 var _dm = document.getElementById('diffMailing');
@@ -4933,6 +4972,7 @@ function fmUpdateProgress() {
   var isEsP = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
   var titles = isEsP ? fmStepTitlesEs : fmStepTitles;
   if(titleEl) titleEl.textContent = titles[vis - 1] || (isEsP ? 'Completar Orden' : 'Complete Your Order');
+  fmShowDraftOrderNumber();
 }
 
 // ═══════════════════════════════════════════════════════
@@ -5441,6 +5481,7 @@ async function fmMountPayment() {
   try {
     var payload = fmBuildOrderPayload();
     payload.deferEmails = true;
+    payload.draftOrderId = _fmDraftOrderId;
     var res = await fetch('/api/orders', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
     var data = await res.json();
     if(!(res.ok && data.success)) { throw new Error((data && data.error) ? data.error : 'Error desconocido'); }
@@ -5590,6 +5631,10 @@ function closeForm() {
 // LOCAL STORAGE — guardar y restaurar progreso del formulario
 // ═══════════════════════════════════════════════════════
 var FM_STORAGE_KEY = 'mbf_form_progress';
+var FM_DRAFT_ID_KEY = 'mbf_draft_order_id';
+var _fmDraftOrderId = null;
+try { _fmDraftOrderId = localStorage.getItem(FM_DRAFT_ID_KEY) || null; } catch(e) {}
+var _fmDraftSyncing = false;
 
 var FM_FIELD_IDS = [
   'inp-bizname','inp-designator',
@@ -5605,17 +5650,58 @@ function fmSaveProgress() {
     var el = document.getElementById(id);
     if(el) values[id] = el.value;
   });
-  try {
-    localStorage.setItem(FM_STORAGE_KEY, JSON.stringify({
-      step: fmCurrentStep,
-      fmData: JSON.parse(JSON.stringify(fmData)),
-      values: values
-    }));
-  } catch(e) {}
+  var snapshot = {
+    step: fmCurrentStep,
+    fmData: JSON.parse(JSON.stringify(fmData)),
+    values: values
+  };
+  try { localStorage.setItem(FM_STORAGE_KEY, JSON.stringify(snapshot)); } catch(e) {}
+  fmSyncDraftToServer(snapshot);
+}
+
+// Guarda la orden en el servidor (isDraft:true) para que sea recuperable desde
+// cualquier dispositivo con el número FBFC — no solo desde este navegador.
+// Fire-and-forget: si falla (offline, etc.) el localStorage ya guardó todo y
+// no se pierde nada, solo no queda disponible entre dispositivos hasta el
+// próximo paso exitoso.
+function fmSyncDraftToServer(snapshot) {
+  if(_fmDraftSyncing) return;
+  var payload;
+  try { payload = fmBuildOrderPayload(); } catch(e) { return; }
+  if(!payload.firstName || !payload.lastName || !payload.email || !payload.companyName) return;
+  payload.orderId = _fmDraftOrderId;
+  payload.snapshot = snapshot;
+  _fmDraftSyncing = true;
+  fetch('/api/orders/draft', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) })
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      _fmDraftSyncing = false;
+      if(data && data.success && data.orderId) {
+        _fmDraftOrderId = data.orderId;
+        try { localStorage.setItem(FM_DRAFT_ID_KEY, data.orderId); } catch(e) {}
+        generateOrderNumber(data.orderId);
+        fmShowDraftOrderNumber();
+      }
+    })
+    .catch(function(){ _fmDraftSyncing = false; });
+}
+
+// Muestra el número FBFC en el header del form apenas existe (desde el paso 2)
+// para que el cliente sepa que puede guardarlo y continuar desde otro dispositivo.
+// fmUpdateProgress() resetea fp-step-title en cada cambio de paso con el texto
+// limpio del paso — por eso acá solo hace falta anexar, sin guardar estado previo.
+function fmShowDraftOrderNumber() {
+  var el = document.getElementById('fp-step-title');
+  if(!el || !orderNumber) return;
+  if(el.textContent.indexOf(orderNumber) !== -1) return;
+  var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
+  el.textContent = el.textContent + '  ·  ' + (isEs ? 'Orden' : 'Order') + ' ' + orderNumber;
 }
 
 function fmClearProgress() {
   try { localStorage.removeItem(FM_STORAGE_KEY); } catch(e) {}
+  try { localStorage.removeItem(FM_DRAFT_ID_KEY); } catch(e) {}
+  _fmDraftOrderId = null;
 }
 
 function fmRestoreProgress(progress) {
@@ -6637,13 +6723,17 @@ function portalLoginSubmit(e){
   var btn=document.getElementById('plogin-btn');
   if(btn){ btn.disabled=true; btn.textContent = isEs ? 'Accediendo...' : 'Accessing...'; }
   fetch('/api/client-auth',{ method:'POST', headers:{'Content-Type':'application/json'}, credentials:'same-origin', body: JSON.stringify(body) })
-    .then(function(r){ return r.ok; })
-    .then(function(ok){
+    .then(function(r){ return r.json().then(function(data){ return { ok: r.ok, data: data }; }); })
+    .then(function(res){
       if(btn){ btn.disabled=false; btn.textContent = isEs ? 'Acceder a Mi Cuenta' : 'Access My Account'; }
-      if(ok){
+      if(res.ok){
         if(typeof window.gtag==='function'){ window.gtag('event','client_login_success',{ lang: currentLang, source:'home' }); }
         closePortalLogin();
-        refreshAccountUI();
+        if(res.data && res.data.isDraft){
+          window.location.href = '/?resume=1&lang=' + currentLang;
+        } else {
+          refreshAccountUI();
+        }
       } else {
         portalLoginError(isEs ? 'No encontramos una orden con esos datos.' : "We couldn't find an order matching those details.");
       }
@@ -6691,6 +6781,48 @@ document.addEventListener('click',function(e){
   closePortalLogin();
 });
 refreshAccountUI();
+
+// Recupera el snapshot del borrador (autenticado por la cookie client_session)
+// y reabre el form donde quedó. Usado tanto por ?resume=1 (ya logueado) como
+// por ?continue=FBFC-XXXX (link directo del email, ver más abajo).
+function fmFetchAndRestoreDraft() {
+  fetch('/api/orders/draft', { credentials: 'same-origin' })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if(d && d.isDraft && d.snapshot) {
+        _fmDraftOrderId = d.orderId;
+        try { localStorage.setItem(FM_DRAFT_ID_KEY, d.orderId); } catch(e) {}
+        fmRestoreProgress(d.snapshot);
+      }
+    })
+    .catch(function(){});
+}
+
+(function fmCheckResumeParam(){
+  try {
+    var p = new URLSearchParams(window.location.search);
+    var continueCode = p.get('continue');
+    var isResume = p.get('resume') === '1';
+    if(!continueCode && !isResume) return;
+
+    var url = new URL(window.location.href);
+    url.searchParams.delete('resume');
+    url.searchParams.delete('continue');
+    history.replaceState({}, '', url.toString());
+
+    // Tras un login con orden en progreso (ver findOrder() / portalLoginSubmit()),
+    // el redirect trae ?resume=1 — la sesión ya está autenticada.
+    if(isResume) { fmFetchAndRestoreDraft(); return; }
+
+    // Link directo del email "Continue My Application" (?continue=FBFC-XXXX) —
+    // se autentica con el número solo (mismo endpoint que el modal) y recién
+    // ahí se restaura. Si el código ya no es válido, no pasa nada visible.
+    fetch('/api/client-auth', { method:'POST', headers:{'Content-Type':'application/json'}, credentials:'same-origin', body: JSON.stringify({ confirmationNumber: continueCode }) })
+      .then(function(r){ return r.ok; })
+      .then(function(ok){ if(ok) { refreshAccountUI(); fmFetchAndRestoreDraft(); } })
+      .catch(function(){});
+  } catch(e) {}
+})();
 
 // === Lob address verification — popup + fetch al endpoint ===
 // (Funciones disponibles globalmente; los wirings al form vienen en commits 4-7).

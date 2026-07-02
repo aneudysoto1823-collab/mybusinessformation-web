@@ -2,9 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { ClientAuthInputSchema, parseOr400 } from '@/lib/schemas'
+import { checkClientAuthRateLimit, getClientIp } from '@/lib/rate-limit'
 
-function setSession(orderId: string) {
-  const response = NextResponse.json({ success: true })
+function setSession(orderId: string, isDraft?: boolean) {
+  const response = NextResponse.json({ success: true, isDraft: isDraft === true })
   response.cookies.set('client_session', orderId, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
@@ -16,6 +17,15 @@ function setSession(orderId: string) {
 }
 
 export async function POST(request: NextRequest) {
+  const ip = getClientIp(request)
+  const rl = await checkClientAuthRateLimit(ip)
+  if (!rl.success) {
+    return NextResponse.json(
+      { error: 'Demasiados intentos. Intentá de nuevo en unos minutos.' },
+      { status: 429, headers: { 'Retry-After': String(rl.retryAfterSeconds) } }
+    )
+  }
+
   const raw = await request.json()
 
   // ── Modo password: email + password (sin número de orden) ──────────────────
@@ -25,7 +35,7 @@ export async function POST(request: NextRequest) {
 
     const { data: orders, error } = await getSupabaseAdmin()
       .from('Order')
-      .select('id, email, client_password_hash')
+      .select('id, email, client_password_hash, isDraft')
       .eq('email', email)
       .limit(10)
 
@@ -37,15 +47,18 @@ export async function POST(request: NextRequest) {
     )
 
     if (!order) return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
-    return setSession(order.id)
+    return setSession(order.id, order.isDraft)
   }
 
-  // ── Modo número de orden: email + FBFC-XXXXXXXX (flujo original) ───────────
+  // ── Modo número de orden: FBFC-XXXXXXXX alcanza por sí solo (decisión negocio
+  //    2026-07-02 — antes exigía también el email). El código tiene suficiente
+  //    entropía (8 caracteres al azar) y checkClientAuthRateLimit arriba limita
+  //    los intentos por hora, así que no hace falta el segundo factor.
   const parsed = parseOr400(ClientAuthInputSchema, raw)
   if (!parsed.ok) {
     return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
   }
-  const { email, confirmationNumber } = parsed.data
+  const { confirmationNumber } = parsed.data
 
   const match = confirmationNumber.toUpperCase().match(/^(?:FBFC|FBNB)-([A-Z0-9]{8})$/)
   if (!match) return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
@@ -55,18 +68,15 @@ export async function POST(request: NextRequest) {
   try {
     const { data: orders, error } = await getSupabaseAdmin()
       .from('Order')
-      .select('id, email')
-      .eq('email', email.toLowerCase().trim())
-      .limit(10)
+      .select('id, email, isDraft')
+      .ilike('id', `${idPrefix}%`)
+      .limit(5)
 
     if (error) return NextResponse.json({ error: 'Internal error' }, { status: 500 })
 
-    const order = (orders ?? []).find(
-      (o: { id: string }) => o.id?.toLowerCase().startsWith(idPrefix)
-    )
-
+    const order = (orders ?? [])[0]
     if (!order) return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
-    return setSession(order.id)
+    return setSession(order.id, order.isDraft)
   } catch {
     return NextResponse.json({ error: 'Internal error' }, { status: 500 })
   }

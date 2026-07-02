@@ -45,18 +45,21 @@ interface Order {
   paymentStatus: string
   status: string
   nameCheck: NameCheck | null
+  isDraft?: boolean
 }
 
 async function getOrders(): Promise<Order[]> {
   const { data, error } = await getSupabaseAdmin()
     .from('Order')
-    .select('id, createdAt, updatedAt, firstName, lastName, email, companyName, package, amount, paymentStatus, status, nameCheck')
+    .select('id, createdAt, updatedAt, firstName, lastName, email, companyName, package, amount, paymentStatus, status, nameCheck, isDraft')
     .order('createdAt', { ascending: false })
   if (error) {
     console.error('[admin/getOrders] Supabase error:', error.message)
     return []
   }
-  return data ?? []
+  // Borradores (formularios sin terminar de llenar, ver isDraft) no son órdenes
+  // reales todavía — no deben mezclarse con el panel operativo del equipo.
+  return (data ?? []).filter((o: Order) => !o.isDraft)
 }
 
 export default async function AdminDashboard({
