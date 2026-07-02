@@ -268,8 +268,21 @@ export async function generateNewBusinessLetter(data: NewBusinessLetterData): Pr
   let by = topY - accent - boxPad - 4
   for (const [label, value] of boxRows) {
     t(label, boxX + 9, by, bold, 6.8, GRAY)
-    const vw = regular.widthOfTextAtSize(value, 7.5)
-    t(value, boxX + boxW - 9 - vw, by, regular, 7.5, BLACK)
+    // Blindaje: el valor se alinea a la derecha, así que un dato largo (ej. un
+    // document_id tecleado a mano) crecería hasta encimarse con la etiqueta.
+    // Se achica el tamaño hasta caber en el hueco libre; si aún no cabe al mínimo,
+    // se trunca con puntos suspensivos. Nunca se encima, sea cual sea el dato.
+    const labelW = bold.widthOfTextAtSize(label, 6.8)
+    const availW = boxW - 18 - labelW - 6   // hueco a la derecha de la etiqueta
+    let vSize = 7.5
+    let vStr  = value
+    while (vSize > 5 && regular.widthOfTextAtSize(vStr, vSize) > availW) vSize -= 0.5
+    if (regular.widthOfTextAtSize(vStr, vSize) > availW) {
+      while (vStr.length > 1 && regular.widthOfTextAtSize(vStr + '…', vSize) > availW) vStr = vStr.slice(0, -1)
+      vStr += '…'
+    }
+    const vw = regular.widthOfTextAtSize(vStr, vSize)
+    t(vStr, boxX + boxW - 9 - vw, by, regular, vSize, BLACK)
     by -= brH
   }
 
