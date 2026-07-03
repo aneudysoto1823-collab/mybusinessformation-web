@@ -305,6 +305,7 @@ html.co-wide .co-tier{padding:20px 18px}
 
     <!-- HUBS de upsell (3 tiers, estilo LegalZoom) -->
     <div class="co-panel" id="panel-hub-docs" style="display:none"></div>
+    <div class="co-panel" id="panel-hub-compliance" style="display:none"></div>
     <div class="co-panel" id="panel-hub-protect" style="display:none"></div>
 
     <!-- STEP: DATOS FISCALES (SSN/ITIN) — condicional, según servicios elegidos -->
@@ -432,20 +433,35 @@ var DESIGNATORS = { llc:['LLC','L.L.C.','Limited Liability Company'], corp:['Inc
 // Agreement ya NO están "cubiertos por la formación" gratis: se venden como
 // add-ons en el hub de Documentos esenciales, así que sí generan su paso de datos.
 var COVERED_IN_FORMATION = { 'registered-agent':1 };
-// Configuración de los hubs de upsell (3 tiers estilo LegalZoom).
+// Configuración de los hubs de upsell (tiers estilo LegalZoom). "protect" y
+// "compliance" tienen configuración EFECTIVA distinta en formación vs à la
+// carte — ver coProtectConfig() / coHubApplicable. Los tiers/services de acá
+// abajo son el caso FORMACIÓN (y el default de "docs", igual en ambos casos).
 var HUBS = {
   docs:    { panel:'panel-hub-docs',    services:['operating-agreement','ein','banking-resolution'], tiers:['bundle-docs-oa','bundle-docs-oa-ein','bundle-docs-full'],
              titleEs:'Documentos esenciales', titleEn:'Essential documents',
              subEs:'Ahorra tiempo y dinero en los documentos que tu negocio necesita.', subEn:'Save time and money on the documents your business needs.' },
+  // Solo à la carte (sin formación) — en formación el agente ya se resuelve en
+  // su propio paso obligatorio (panel-ra), así que este hub no aplica ahí.
+  compliance: { panel:'panel-hub-compliance', services:['registered-agent','annual-report'], tiers:['bundle-compliance-ra','bundle-compliance-ra-ar'],
+             titleEs:'Cumplimiento anual', titleEn:'Annual compliance',
+             subEs:'Los dos requisitos recurrentes que toda LLC y Corporation de Florida debe mantener al día.', subEn:'The two recurring requirements every Florida LLC and Corporation must keep current.' },
   protect: { panel:'panel-hub-protect', services:['virtual-address','annual-report','business-tax-receipt'], tiers:['bundle-protect-va','bundle-protect-va-ar','bundle-protect-full'],
-             titleEs:'Protección y cumplimiento', titleEn:'Protection & compliance',
+             titleEs:'Presencia y operación', titleEn:'Business presence & operations',
              subEs:'Mantén tu negocio protegido y al día con el estado.', subEn:'Keep your business protected and compliant with the state.' }
 };
-// A qué hub pertenece cada bundle (para limpiar/cambiar selección).
+// À la carte (sin formación), Annual Report se ofrece en "compliance" junto al
+// Agente Registrado — acá solo quedan Virtual Address + Business Tax Receipt
+// para no repetir el mismo servicio en dos pasos. En formación no cambia nada.
+function coProtectConfig(){
+  if(coFormationType()) return { services:HUBS.protect.services, tiers:HUBS.protect.tiers };
+  return { services:['virtual-address','business-tax-receipt'], tiers:['bundle-protect-va','bundle-protect-va-btr'] };
+}
+// A qué hub pertenece cada bundle (para limpiar/cambiar selección). Se registran
+// a mano (no solo desde HUBS[h].tiers) porque bundle-protect-va-btr no está en
+// la config de formación y los de compliance no están en HUBS.protect.
 var BUNDLE_HUB = {}; Object.keys(HUBS).forEach(function(h){ HUBS[h].tiers.forEach(function(b){ BUNDLE_HUB[b]=h; }); });
-// bundle-protect-ra no está en HUBS.protect.tiers (es el tier 1 alternativo, ver
-// coProtectTiers) pero igual pertenece al hub protect para poder limpiarlo/cambiarlo.
-BUNDLE_HUB['bundle-protect-ra']='protect';
+BUNDLE_HUB['bundle-protect-va-btr']='protect';
 // Detalle por servicio (varios bullets, estilo LegalZoom) para las tarjetas de
 // tier. Cada servicio tiene nombre + lista de beneficios concretos.
 var SVC_BLURBS = {
@@ -1090,7 +1106,10 @@ function coSetRaChoice(choice){
 // El hub se ofrece mientras falte al menos un servicio suyo por agregar (o si ya
 // se eligió un tier, para poder cambiarlo). Si ya tiene todos, no se muestra.
 function coHubApplicable(hub){
-  var cfg=HUBS[hub];
+  // "compliance" es solo à la carte — en formación el agente ya se resuelve en
+  // su propio paso obligatorio (panel-ra) y Annual Report vive en "protect".
+  if(hub==='compliance' && coFormationType()) return false;
+  var cfg=(hub==='protect') ? coProtectConfig() : HUBS[hub];
   for(var b=0;b<coBundles.length;b++){ if(BUNDLE_HUB[coBundles[b]]===hub) return true; }
   for(var i=0;i<cfg.services.length;i++){ if(cart.indexOf(cfg.services[i])<0) return true; }
   return false;
@@ -1108,29 +1127,23 @@ function coTierBullets(svcIds, owned){
   });
   return out;
 }
-// Tier 1 del hub "protect": normalmente Virtual Address (bundle-protect-va),
-// pero à la carte (sin formación) y sin Registered Agent en el carrito, ese
-// puesto lo toma el Agente Registrado — es el servicio recurrente de mayor
-// valor (afiliación anual), así que va primero. En formación (donde el agente
-// ya se decide en su propio paso obligatorio) esto NO aplica — queda igual.
-function coProtectTiers(){
-  var base=HUBS.protect.tiers;
-  if(!coFormationType() && cart.indexOf('registered-agent')<0){
-    return ['bundle-protect-ra'].concat(base.slice(1));
-  }
-  return base;
-}
 function coRenderHub(hub){
-  var panel=$(HUBS[hub].panel); if(!panel) return; var isEs=coIsEs(); var cfg=HUBS[hub];
+  var panel=$(HUBS[hub].panel); if(!panel) return; var isEs=coIsEs();
+  var cfg=(hub==='protect') ? coProtectConfig() : HUBS[hub];
   // Servicios "pre-poseídos": están en el carrito pero NO por un combo seleccionado
   // de ESTE hub (ej. agregados à la carte antes). Solo a ESOS se les acredita el
   // precio. Así, elegir un tier del hub NO borra los otros ni descuenta de más.
   var coveredSel={}; coBundles.forEach(function(x){ if(BUNDLE_HUB[x]===hub){ var bb=BUNDLES_CLIENT[x]; if(bb) bb.services.forEach(function(s){ coveredSel[s]=1; }); } });
   var preOwned={}; cfg.services.forEach(function(s){ if(cart.indexOf(s)>=0 && !coveredSel[s]) preOwned[s]=1; });
-  // Siempre se muestran los 3 tiers (mismo layout, sin importar lo pre-poseído);
-  // el precio de cada uno ya descuenta lo que el cliente ya tiene (ver ownedFee).
-  var tierIds=(hub==='protect') ? coProtectTiers() : cfg.tiers;
-  var renderTiers=tierIds.filter(function(bid){ return !!BUNDLES_CLIENT[bid]; });
+  // Se ocultan las columnas que no sumarían nada nuevo (todo lo suyo ya está en
+  // el carrito) — evita una columna redundante mostrando "$0" junto al total
+  // que ya se ve en el resumen. Puede dejar 1 o 2 columnas en vez de 3 si el
+  // cliente ya tiene varios de los servicios del combo (esperado y está bien).
+  var renderTiers=cfg.tiers.filter(function(bid){
+    var b=BUNDLES_CLIENT[bid]; if(!b) return false;
+    if(coBundles.indexOf(bid)>=0) return true;
+    return b.services.some(function(s){ return !preOwned[s]; });
+  });
   var tiers=renderTiers.map(function(bid, i){
     var b=BUNDLES_CLIENT[bid];
     var sel=(coBundles.indexOf(bid)>=0);
@@ -1152,20 +1165,14 @@ function coRenderHub(hub){
       +'<button class="co-tier-btn" onclick="event.stopPropagation();coSelectTier(\''+hub+'\',\''+bid+'\')">'+(sel?(isEs?'&#10003; Seleccionado':'&#10003; Selected'):(isEs?'Seleccionar':'Select'))+'</button>'
       +'</div>';
   }).join('');
-  panel.innerHTML='<h1 class="co-h1">'+(isEs?cfg.titleEs:cfg.titleEn)+'</h1>'
-    +'<p class="co-sub">'+(isEs?cfg.subEs:cfg.subEn)+'</p>'
+  panel.innerHTML='<h1 class="co-h1">'+(isEs?HUBS[hub].titleEs:HUBS[hub].titleEn)+'</h1>'
+    +'<p class="co-sub">'+(isEs?HUBS[hub].subEs:HUBS[hub].subEn)+'</p>'
     +'<div class="co-tiers">'+tiers+'</div>'
     +'<button type="button" class="co-hub-nothanks" onclick="coHubNoThanks(\''+hub+'\')">'+(isEs?'No, gracias':'No thanks')+'</button>';
 }
 function coClearHub(hub){
-  var cfg=HUBS[hub];
-  var svcs=cfg.services.slice();
-  // registered-agent puede haber entrado a este carrito vía bundle-protect-ra
-  // (tier 1 alternativo, ver coProtectTiers) — limpiarlo también al cambiar de
-  // tier, para que no quede huérfano y se cobre aparte por error. Nunca en
-  // formación: ahí el agente lo maneja su propio paso obligatorio (panel-ra).
-  if(hub==='protect' && !coFormationType()) svcs.push('registered-agent');
-  cart=cart.filter(function(id){ return svcs.indexOf(id)<0; });
+  var cfg=(hub==='protect') ? coProtectConfig() : HUBS[hub];
+  cart=cart.filter(function(id){ return cfg.services.indexOf(id)<0; });
   coBundles=coBundles.filter(function(b){ return BUNDLE_HUB[b]!==hub; });
 }
 function coSelectTier(hub, bundleId){
@@ -1335,11 +1342,14 @@ function coBuildWizard(){
   // Hubs de upsell (3 tiers). Van antes de los datos de servicios para que lo que
   // el cliente agregue genere su paso de datos a continuación.
   if(coHubApplicable('docs')){ coRenderHub('docs'); coSteps.push({id:'panel-hub-docs', title:{en:'Essential documents',es:'Documentos esenciales'}}); }
-  // Datos fiscales (SSN/ITIN): paso propio. En formación va ENTRE los dos hubs
-  // (contexto fresco tras elegir el EIN); à la carte va después de ambos hubs.
+  // Datos fiscales (SSN/ITIN): paso propio. En formación va ENTRE los hubs
+  // (contexto fresco tras elegir el EIN); à la carte va después de todos.
   var coTaxNeeded=coSharedKeysActive().length>0;
   if(ft && coTaxNeeded){ coRenderTaxPanel(); coSteps.push({id:'panel-tax', title:{en:'Tax details',es:'Datos fiscales'}}); }
-  if(coHubApplicable('protect')){ coRenderHub('protect'); coSteps.push({id:'panel-hub-protect', title:{en:'Protection & compliance',es:'Protección y cumplimiento'}}); }
+  // "Cumplimiento anual" (Agente + Annual Report): solo à la carte, sin
+  // formación — ahí el agente ya se resuelve en su propio paso obligatorio.
+  if(coHubApplicable('compliance')){ coRenderHub('compliance'); coSteps.push({id:'panel-hub-compliance', title:{en:'Annual compliance',es:'Cumplimiento anual'}}); }
+  if(coHubApplicable('protect')){ coRenderHub('protect'); coSteps.push({id:'panel-hub-protect', title:{en:'Business presence & operations',es:'Presencia y operación'}}); }
   if(!ft && coTaxNeeded){ coRenderTaxPanel(); coSteps.push({id:'panel-tax', title:{en:'Tax details',es:'Datos fiscales'}}); }
 
   coRenderServicePages(ft);

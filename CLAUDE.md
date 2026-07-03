@@ -374,6 +374,21 @@ El dominio redirige **`opabiz.com` (apex) → `www.opabiz.com`** con un **308**.
 
 ---
 
+## Recuperación de orden en progreso — "Continue My Application" (2026-07-02)
+
+Antes, el progreso del formulario de formación (home, `page.tsx`) se guardaba **solo en `localStorage`** del navegador donde el cliente empezó — si cerraba la pestaña o cambiaba de dispositivo, no había forma de continuar. Ahora la orden se guarda como **borrador real en Supabase** desde que completa "Tu Información" (paso 2), recuperable desde cualquier lugar con su número FBFC.
+
+- **Modelo `Order` — 2 columnas nuevas:** `isDraft BOOLEAN DEFAULT false` (true mientras el formulario está incompleto) y `draftSnapshot JSONB` (snapshot `{step, fmData, values}` para restaurar el form exacto donde quedó). Migración corrida en Supabase 2026-07-02.
+- **`isDraft` en vez de un nuevo `status`:** se descartó agregar un valor `'draft'` al `status` existente por el riesgo de que sea un enum nativo de Postgres (heredado de Prisma) — un booleano aparte es más seguro y no toca el pipeline de estados documentado arriba (`status` sigue siendo `'pending'` tanto para el borrador como para la orden real).
+- **`POST /api/orders/draft`** (nuevo) — crea/actualiza el borrador (fire-and-forget desde `fmSaveProgress()` en cada cambio de paso, vía `fmSyncDraftToServer()`). Nunca envía la confirmación de orden (A1) ni la alerta interna (A0) — eso sigue disparando solo cuando el cliente paga (`POST /api/orders` con `deferEmails:true`, sin cambios). El único email de este endpoint es uno nuevo, ver abajo. `GET` del mismo endpoint devuelve el snapshot, autenticado por la cookie `client_session` (nunca por un id en la URL).
+- **Email "Save your application number"** — se manda **una sola vez**, al crear el borrador (no en cada sync). Incluye el número FBFC y un botón **"Continue My Application →"** que apunta a `opabiz.com/?continue=FBFC-XXXXXXXX`: ese link auto-loguea con el código (ver `fmCheckResumeParam()` en `page.tsx`) y reabre el form restaurado, sin que el cliente tipee nada.
+- **Promoción a orden real:** al llegar al paso de pago, `fmMountPayment()` manda `draftOrderId` a `POST /api/orders`, que hace `UPDATE` (no `INSERT`) sobre esa misma fila — mismo id, sin duplicar. Ahí recién se dispara la alerta interna y (al confirmar el pago) la confirmación al cliente, exactamente como ya funcionaba.
+- **Recuperación por número de orden — decisión negocio 2026-07-02:** el modal "Continue My Application" (antes un placeholder que no buscaba nada real — solo simulaba una espera y abría un form en blanco) ahora pide **solo el número FBFC**, sin email. `POST /api/client-auth` en modo `confirmationNumber` ya no exige email — el código de 8 caracteres alcanza por sí solo (suficiente entropía + rate limit nuevo `checkClientAuthRateLimit`, 20/hora/IP, no existía antes). El modo `email+password` no se tocó, sigue igual.
+- **Panel admin:** los borradores (`isDraft:true`) se filtran de `getOrders()` (`app/admin/page.tsx`) — nunca se mezclan con las órdenes reales ni afectan los contadores.
+- **Login del portal (`/client-portal` y popover del home) redirige solo si es borrador:** si la orden de la sesión tiene `isDraft:true`, manda a `/?resume=1` (retoma el form) en vez de al dashboard — cubre también una cookie de sesión vieja apuntando a un borrador.
+
+---
+
 ## Checkout de servicios à la carte (`/servicios/checkout`) — 2026-06-27
 
 Wizard por pasos para comprar servicios sueltos o una formación LLC/Corp desde
@@ -382,13 +397,26 @@ Wizard por pasos para comprar servicios sueltos o una formación LLC/Corp desde
 
 - **Archivos:** `backend/app/servicios/checkout/page.tsx` (wizard, CSS-in-JS + script inline `co*`), `lib/service-fields.ts` (campos por servicio + compartidos), `lib/services-pricing.ts` (`SERVICES_CATALOG` + `SERVICE_BUNDLES` + `computeServicesTotal`), `app/api/checkout/embedded-services/route.ts` (crea Order `package:'services'` + sesión Stripe; lee `intake.bundles`).
 - **Precio autoritativo server-side** desde IDs de carrito (`flbc_svc_cart`) + bundles (`flbc_svc_bundles`). El cliente solo espeja el total. Cambios de precio → `services-pricing.ts`.
-- **Orden de pasos (espeja el home):** Empresa → Tus datos (contacto) → Agente Registrado (dos cajas, +$99 / propio agente con reuso de dirección) → Dueños (valida 100%) → **Documentos esenciales** (combo 3 tiers) → **Protección y cumplimiento** (combo 3 tiers) → Datos del servicio (+ SSN/ITIN si aplica) → **Revisa tu orden + Stripe** (sin paso de firma; autorización al pagar, disclosure con links a /terms y /privacy).
+- **Orden de pasos (espeja el home):** Empresa → Tus datos (contacto) → Agente Registrado *(solo en formación — dos cajas, +$99 / propio agente con reuso de dirección)* → Dueños *(solo en formación, valida 100%)* → **Documentos esenciales** (combo) → **Cumplimiento anual** *(combo, solo à la carte)* → **Presencia y operación** (combo) → Datos del servicio (+ SSN/ITIN si aplica) → **Revisa tu orden + Stripe** (sin paso de firma; autorización al pagar, disclosure con links a /terms y /privacy).
 - **Combos (bundles):** un bundle reemplaza el cobro individual de sus servicios pero suma tarifas estatales. EIN y Operating Agreement salieron de `COVERED_IN_FORMATION` (ahora solo `registered-agent`) para que generen su paso de datos al comprarlos.
+- **Los 3 hubs de combos (2026-07-02, ver abajo `Reorganización de combos`)** — `HUBS` en `checkout/page.tsx`:
+  - **Documentos esenciales** (`docs`): Operating Agreement → +EIN → +Banking Resolution. Igual en formación y à la carte.
+  - **Cumplimiento anual** (`compliance`): Agente Registrado ($99/año) → +Annual Report ($179). **Solo à la carte** — en formación el agente ya se resuelve en su paso obligatorio propio (`panel-ra`), así que este hub no aplica ahí (`coHubApplicable`).
+  - **Presencia y operación** (`protect`, antes "Protección y cumplimiento"): en **formación** sigue igual que siempre (Virtual Address → +Annual Report → +Business Tax Receipt, sin cambios). **À la carte** usa una config reducida vía `coProtectConfig()`: Virtual Address → +Business Tax Receipt (sin Annual Report, que vive en `compliance` para no repetir el mismo servicio en dos pasos).
+  - **Columnas redundantes se ocultan, no se fuerzan a 3:** si el cliente ya tiene todos los servicios de una columna, esa columna no se muestra (evita un "$0" confuso al lado del total que ya se ve en el resumen). Un hub puede terminar con 1, 2 o 3 columnas según cuánto tenga ya el cliente — es esperado.
 - **Año fiscal del OA:** quitado del checkout, se asume 31 dic (`CHECKOUT_HIDE_KEYS`).
 - **SSN/ITIN:** campo `maxlength=9` + solo dígitos; valida **exactamente 9 dígitos** (error si no).
 - **Modo dev:** `Ctrl+Shift+D` salta validación (barra ámbar), igual que el home.
 - **Gotcha:** el script del cliente vive en `String.raw\`...\``; validar con `new Function(body)` tras extraer el template. No meter chars de control en comentarios.
 - **Pendiente LIVE:** confirmar precios placeholder ($99) y `stateFee` aproximadas.
+
+### Reorganización de combos + fix de Expedited fantasma (2026-07-02)
+
+- **Bug corregido:** "Procesamiento acelerado" se ofrecía y cobraba ($79) aunque el carrito no tuviera nada que realmente se presente ante el estado (ej. comprar solo un Operating Agreement, un documento privado sin filing). Fix en `lib/services-pricing.ts` (`isExpeditedApplicable()`, autoritativa server-side) + espejo en cliente (`coExpeditedApplicable()`). El paso ni se ofrece ni se cobra si nada en el carrito es una formación o tiene `stateFee > 0`.
+- **Botones de Expedited/No gracias:** ahora dos tarjetas `.co-choice` del mismo tamaño y fondo blanco (antes una tarjeta grande + un botón pequeño tipo pill debajo). La pre-seleccionada sale resaltada (`.sel`) al entrar al paso.
+- **Reorganización de los hubs** (ver arriba): se sacó Annual Report + Agente Registrado del hub "Protección" hacia un hub nuevo "Cumplimiento anual" (solo à la carte) — decisión de negocio: son los 2 servicios recurrentes de mayor valor (afiliación anual) y estaban diluidos junto a servicios de un solo pago. La formación NO se tocó — sigue con su hub de 3 tiers de siempre.
+- **Precios nuevos:** `bundle-compliance-ra` ($99, = precio individual del agente), `bundle-compliance-ra-ar` ($179), `bundle-protect-va-btr` ($179, para la versión à la carte reducida del hub "Presencia"). Mismo ~10% de descuento que ya usaban los combos de 2 servicios existentes.
+- Bundle viejo `bundle-protect-ra` (hack intermedio de esta misma sesión) fue **removido** — superado por el hub `compliance` dedicado.
 
 ---
 
@@ -396,9 +424,11 @@ Wizard por pasos para comprar servicios sueltos o una formación LLC/Corp desde
 
 Aplica **idéntico en home (`page.tsx`, paso `fms6`) y en `/servicios/checkout`** (`coRenderExpedited`).
 
-- **Una sola oferta destacada** (card "⚡ Expedited processing +$79 · 1-3 business days", badge "Fastest") + **un botón secundario "No thanks, I'll wait the standard time (7-14 business days)"** debajo (NO dos cajas iguales, NO un link). Clases: home `.fm-speed-decline`, servicios `.co-decline`. El botón se marca con ✓ azul cuando está elegido.
+- **Home:** una sola oferta destacada (card "⚡ Expedited processing +$79 · 1-3 business days", badge "Fastest") + un botón secundario "No thanks..." debajo (clase `.fm-speed-decline`), sin cambios.
+- **Servicios checkout (rediseñado 2026-07-02):** ya NO es tarjeta grande + pill pequeño debajo — ahora son **dos tarjetas `.co-choice` del mismo tamaño y fondo blanco**, lado a lado, igual que el paso de Agente Registrado (`co-decline` quedó sin uso y se borró del CSS). La elegida sale resaltada (`.sel`) al entrar al paso.
 - **La oferta viene PRE-SELECCIONADA** (más conversión): home `fmData.speed` default `'expedited'`; servicios `coExpedited` default `true` (si no hay elección previa en `localStorage flbc_svc_expedited`). Decisión de negocio: es honesto porque el +$79 sale como línea visible en el resumen y declinar es un clic. NO esconder el botón de declinar.
 - **Copy sin lenguaje de "prioridad"** (no "we prioritize your whole order" / "priority handling" — insinuaba abandonar otras órdenes). Estilo LegalZoom: "Upgrade to expedited state filing where applicable."
+- **Solo se ofrece/cobra si aplica (servicios checkout, 2026-07-02):** `coExpeditedApplicable()` / `isExpeditedApplicable()` (`lib/services-pricing.ts`) — el carrito debe tener una formación o algo con `stateFee > 0`. Comprar solo un Operating Agreement (sin filing estatal) ya no ofrece ni cobra el acelerado. El home no tenía este bug (ahí siempre hay una formación con state fee de por medio).
 - **Tiempo estándar = 7-14 días hábiles** en TODO el sitio (form, FAQ, schema SEO, review, tabla comparativa de paquetes, prompt del chat). Antes era 7-10.
 - **Expedited = $79** (`EXPEDITED_FEE` en `lib/pricing.ts` y `lib/services-pricing.ts`), gratis con Premium.
 - Bug corregido: el título del paso mostraba "Registered Agent" por un override stale en `fmTranslations.s6_title`; ahora "Faster processing" / "Procesamiento acelerado".

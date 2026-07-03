@@ -78,17 +78,23 @@ export const SERVICE_BUNDLES: Record<string, BundleDef> = {
   'bundle-docs-oa':     { name_en: 'Operating Agreement',                      name_es: 'Acuerdo Operativo',                            services: ['operating-agreement'], price: 79 },
   'bundle-docs-oa-ein': { name_en: 'Operating Agreement + EIN',                name_es: 'Acuerdo Operativo + EIN',                      services: ['operating-agreement', 'ein'], price: 149 },
   'bundle-docs-full':   { name_en: 'Operating Agreement + EIN + Banking Resolution', name_es: 'Acuerdo Operativo + EIN + Resolución Bancaria', services: ['operating-agreement', 'ein', 'banking-resolution'], price: 189 },
-  // Hub 2 — Protección y cumplimiento (antes de pagar)
+  // Hub 2 — Protección y cumplimiento. EN FORMACIÓN (LLC/Corp) estos 3 tiers se
+  // usan tal cual, sin cambios. À LA CARTE (sin formación), Annual Report se
+  // ofrece en su propio hub "Cumplimiento anual" junto al Agente Registrado
+  // (decisión negocio 2026-07-02, ver bundle-compliance-*) — así este hub queda
+  // solo con Virtual Address + Business Tax Receipt para no repetir el mismo
+  // servicio en dos pasos (ver bundle-protect-va-btr más abajo).
   'bundle-protect-va':     { name_en: 'Virtual Mailing Address',              name_es: 'Dirección Virtual',                            services: ['virtual-address'], price: 99 },
   'bundle-protect-va-ar':  { name_en: 'Virtual Address + Annual Report',      name_es: 'Dirección Virtual + Declaración Anual',         services: ['virtual-address', 'annual-report'], price: 179 },
   'bundle-protect-full':   { name_en: 'Virtual Address + Annual Report + Local Business Tax Receipt', name_es: 'Dirección Virtual + Declaración Anual + Licencia Comercial Local', services: ['virtual-address', 'annual-report', 'business-tax-receipt'], price: 259 },
-  // Tier 1 alternativo del hub Protección, SOLO cuando el cliente compra à la
-  // carte (sin formación) y todavía no tiene Registered Agent — decisión negocio
-  // 2026-07-02: es el servicio de mayor valor recurrente (afiliación anual), así
-  // que va primero. Mismo precio que su serviceFee individual (sin descuento
-  // extra, igual que bundle-protect-va con virtual-address). Si el cliente ya
-  // tiene el agente, el hub vuelve a su tier 1 de siempre (bundle-protect-va).
-  'bundle-protect-ra':     { name_en: 'Registered Agent',                     name_es: 'Agente Registrado',                            services: ['registered-agent'], price: 99 },
+  'bundle-protect-va-btr': { name_en: 'Virtual Address + Local Business Tax Receipt', name_es: 'Dirección Virtual + Licencia Comercial Local', services: ['virtual-address', 'business-tax-receipt'], price: 179 },
+  // Hub 3 — Cumplimiento anual (NUEVO, solo à la carte sin formación — en
+  // formación el agente ya se decide en su propio paso obligatorio). Agrupa los
+  // dos requisitos recurrentes de mayor valor (afiliación anual) para que no
+  // queden diluidos dentro del hub de Protección. Mismo ~10% de descuento que
+  // ya usan los demás combos de 2 servicios (bundle-protect-va-ar).
+  'bundle-compliance-ra':    { name_en: 'Registered Agent',                    name_es: 'Agente Registrado',                           services: ['registered-agent'], price: 99 },
+  'bundle-compliance-ra-ar': { name_en: 'Registered Agent + Annual Report',    name_es: 'Agente Registrado + Declaración Anual',       services: ['registered-agent', 'annual-report'], price: 179 },
 }
 
 export interface PriceLine {
