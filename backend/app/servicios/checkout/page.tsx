@@ -1577,9 +1577,17 @@ function coValidateStep(i){
 // sesión pre-creada deja de servir y hay que recrearla.
 function coPayKey(intake){ try{ return JSON.stringify({s:cart,b:coBundles,x:coExpedited,l:coLang,i:intake}); }catch(e){ return 'k'+Math.random(); } }
 // Crea la sesión de Stripe en el servidor (Order pending + clientSecret).
+// 2026-07-04: el timeout de coMountStripe solo cubría si Stripe se colgaba
+// montando el iframe — pero si ESTE fetch (crear la orden + sesión) es el que
+// se cuelga (servidor lento, red), no había ningún límite y el spinner de
+// coStartPayment quedaba girando para siempre sin mensaje. Se agrega abort a
+// los 20s para que ese caso también termine en un error con reintento.
 function coCreateSessionReq(intake){
-  return fetch('/api/checkout/embedded-services',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({services:cart,intake:intake,lang:coLang})})
-    .then(function(r){return r.json().then(function(d){return{ok:r.ok,d:d};});});
+  var ctrl = (typeof AbortController!=='undefined') ? new AbortController() : null;
+  var timeoutId = setTimeout(function(){ if(ctrl) ctrl.abort(); }, 20000);
+  return fetch('/api/checkout/embedded-services',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({services:cart,intake:intake,lang:coLang}),signal:ctrl?ctrl.signal:undefined})
+    .then(function(r){ clearTimeout(timeoutId); return r.json().then(function(d){return{ok:r.ok,d:d};}); })
+    .catch(function(err){ clearTimeout(timeoutId); throw err; });
 }
 // Pre-crea la sesión en segundo plano mientras el cliente aún está en el paso
 // previo al pago, Y además monta el formulario de Stripe OCULTO dentro de
@@ -1624,14 +1632,24 @@ function coStartPayment(){
   p.then(function(res){
       if(!res.ok||!res.d.clientSecret){
         coPrefetch=null; // sesión inválida: no la reutilices
-        if(ec) ec.innerHTML='<p style="color:#dc2626;padding:24px;font-size:.86rem;line-height:1.6">'+((res.d&&res.d.error)||(isEs?'No se pudo crear el pago. Revisa tus datos e intenta de nuevo.':'Could not create payment. Check your details and try again.'))+'</p>';
+        coShowPayError((res.d&&res.d.error)||(isEs?'No se pudo crear el pago. Revisa tus datos e intenta de nuevo.':'Could not create payment. Check your details and try again.'));
         return;
       }
       try{ localStorage.setItem('flbc_svc_order', res.d.fbfc||''); }catch(e){}
       coRenderReview(res.d.lines, res.d.total);
       coMountStripe(res.d.clientSecret, key);
     })
-    .catch(function(){ coPrefetch=null; if(ec) ec.innerHTML='<p style="color:#dc2626;padding:24px">'+(isEs?'Error de conexión. Intenta de nuevo.':'Connection error. Please try again.')+'</p>'; });
+    .catch(function(){ coPrefetch=null; coShowPayError(isEs?'Error de conexión. Intenta de nuevo.':'Connection error. Please try again.'); });
+}
+// Mensaje de error + botón de reintentar, reusado por todas las formas en que
+// puede fallar la creación del pago (antes algunas dejaban solo texto sin
+// forma de reintentar sin recargar la página).
+function coShowPayError(msg){
+  var isEs=coIsEs(); var ec=$('embedded-checkout'); if(!ec) return;
+  ec.innerHTML='<div style="text-align:center;padding:24px 20px">'
+    +'<p style="color:#dc2626;font-size:.86rem;line-height:1.6;margin-bottom:16px">'+msg+'</p>'
+    +'<button type="button" class="co-btn" onclick="coRetryPayment()">'+(isEs?'Reintentar':'Try again')+'</button>'
+    +'</div>';
 }
 // Resumen inmediato con los nombres de los servicios (sin esperar al servidor).
 function coRenderReviewNames(){
@@ -1732,11 +1750,7 @@ function coMountFail(msg){
   var isEs=coIsEs();
   var onPayStep = coSteps[coIdx] && coSteps[coIdx].id==='panel-pay';
   if(!onPayStep || stripeCheckout) return;
-  var ec=$('embedded-checkout'); if(!ec) return;
-  ec.innerHTML='<div style="text-align:center;padding:40px 20px">'
-    +'<p style="color:#dc2626;font-size:.86rem;line-height:1.6;margin-bottom:16px">'+(msg||(isEs?'No se pudo cargar el formulario de pago. Puede deberse a tu conexión o a un bloqueador de anuncios.':'The payment form could not load. This can happen due to your connection or an ad blocker.'))+'</p>'
-    +'<button type="button" class="co-btn" onclick="coRetryPayment()">'+(isEs?'Reintentar':'Try again')+'</button>'
-    +'</div>';
+  coShowPayError(msg||(isEs?'No se pudo cargar el formulario de pago. Puede deberse a tu conexión o a un bloqueador de anuncios.':'The payment form could not load. This can happen due to your connection or an ad blocker.'));
 }
 function coRetryPayment(){ coPrefetch=null; coStartPayment(); }
 
