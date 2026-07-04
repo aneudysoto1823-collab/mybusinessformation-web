@@ -352,6 +352,7 @@ El paso de pago es el step `#fms9`. Implementado:
 3. Stripe.js (`https://js.stripe.com/v3/`) cargado antes del `<script>` inline; la publishable key se inyecta en `window.__OPABIZ_STRIPE_PK__` vía `${process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || ''}` (server component, template literal).
 4. **`fmSubmit()`** reescrito: valida T&C → POST `/api/orders` con `deferEmails:true` → POST `/api/checkout/embedded` → `stripe.initEmbeddedCheckout({clientSecret})` → `.mount('#embedded-checkout')`; oculta `#agree-row` + `#pay-footer`. El form de Stripe trae su propio botón Pay; al pagar redirige a `/order/complete`. El step `#fms-success` quedó sin uso para el flujo pagado.
 5. Las funciones `fmFormatCard`, `fmFormatExpiry`, `fmSelectPayMethod`, `fmToggleBillingAddr` quedaron huérfanas (nunca se invocan; se dejaron — no rompen). Los setters de idioma de los inputs eliminados son no-ops guardados con `if(el)`.
+6. **Prefetch (2026-07-03):** `fmPrefetchPayment()` adelanta el POST a `/api/orders` + `/api/checkout/embedded` (crea/actualiza la orden y pide el `clientSecret`) al entrar al step `#fms7` ("Boost Your Formation", el anterior al Review) y en cada cambio de velocidad (`fmSetSpeed`) o addon (`fmToggleAddon`). `fmMountPayment()` reutiliza esa promesa si el payload no cambió (clave `_fmPayKey`). **Ojo:** a diferencia del mismo mecanismo en `/servicios/checkout`, acá solo se adelantó el fetch — el mount de Stripe (`stripe.initEmbeddedCheckout`) sigue ocurriendo recién al llegar al Review. Ver sección "Prefetch de la sesión Stripe" más abajo — si el delay persiste acá también, portar el mismo mount-oculto.
 
 **✅ PROBADO OK EN TEST (2026-06-23):** flujo completo verificado (`4242…` → orden pending → webhook `200` → paid+in_review → emails → `/order/complete`). El bloqueo era el webhook sin `www` (ver gotcha abajo). El sitio en test usa el **sandbox `TkDfr`** (`acct_1TkDfrCJpzHlLzWq`), no el modo test de la cuenta live `TkDfg`. **Al lanzar: repetir todo en LIVE** (keys, webhook **con www**, statement descriptor, cupón Basic — configs separadas de test).
 
@@ -405,7 +406,7 @@ Wizard por pasos para comprar servicios sueltos o una formación LLC/Corp desde
   - **Presencia y operación** (`protect`, antes "Protección y cumplimiento"): en **formación** sigue igual que siempre (Virtual Address → +Annual Report → +Business Tax Receipt, sin cambios). **À la carte** usa una config reducida vía `coProtectConfig()`: Virtual Address → +Business Tax Receipt (sin Annual Report, que vive en `compliance` para no repetir el mismo servicio en dos pasos).
   - **Columnas redundantes se ocultan, no se fuerzan a 3:** si el cliente ya tiene todos los servicios de una columna, esa columna no se muestra (evita un "$0" confuso al lado del total que ya se ve en el resumen). Un hub puede terminar con 1, 2 o 3 columnas según cuánto tenga ya el cliente — es esperado.
 - **Año fiscal del OA:** quitado del checkout, se asume 31 dic (`CHECKOUT_HIDE_KEYS`).
-- **SSN/ITIN:** campo `maxlength=9` + solo dígitos; valida **exactamente 9 dígitos** (error si no).
+- **SSN/ITIN:** campo `maxlength=9` + solo dígitos; valida **exactamente 9 dígitos** (error si no). Input angosto (`max-width:220px`, 2026-07-03) — antes ocupaba toda la tarjeta para solo 9 dígitos.
 - **Modo dev:** `Ctrl+Shift+D` salta validación (barra ámbar), igual que el home.
 - **Gotcha:** el script del cliente vive en `String.raw\`...\``; validar con `new Function(body)` tras extraer el template. No meter chars de control en comentarios.
 - **Pendiente LIVE:** confirmar precios placeholder ($99) y `stateFee` aproximadas.
@@ -442,9 +443,13 @@ Aplica al form del home y a `/servicios/checkout`:
 - **`overflow-x:clip` en el `body`** de `/servicios/checkout` como red de seguridad anti-overflow horizontal (clip, NO hidden — hidden rompería el header sticky). Grid items del layout con `min-width:0`.
 - **Espacio inferior extra en mobile** en el home (`.fm-wrap` padding-bottom 120px) para que el botón Continuar del footer no quede tapado por el widget flotante de Claudia (`ChatWidget`, `position:fixed` abajo-derecha, z-index 9999).
 
-### Prefetch de la sesión Stripe (`/servicios/checkout`)
+### Prefetch de la sesión Stripe (`/servicios/checkout` y home) — mejorado 2026-07-03
 
 Para que el form de Stripe aparezca sin demora al llegar a "Revisa tu orden": al entrar al paso **previo** al pago se dispara `coPrefetchPayment()` (crea Order pending + `clientSecret` en background). El paso de pago reutiliza esa promesa si la clave de estado (`coPayKey` = servicios+bundles+expedited+idioma+datos) coincide, así que **no crea órdenes extra** en el caso feliz. Se re-dispara al togglear el acelerado.
+
+**Gotcha descubierto 2026-07-03:** ese prefetch solo adelantaba el *fetch* al servidor (orden + `clientSecret`). El delay que seguía sintiéndose al llegar a "Revisa tu orden" era el paso más lento: `stripe.initEmbeddedCheckout()` (el handshake del navegador con Stripe que arma el iframe) — eso seguía ocurriendo recién al entrar al Review. Fix: `coPrefetchPayment()` ahora **también monta el iframe de Stripe oculto** dentro de `#embedded-checkout` mientras el cliente sigue en el paso anterior (el panel-pay tiene `display:none` pero un iframe ya montado ahí adentro sigue cargando igual — solo no se pinta hasta que el panel se muestra). `coStartPayment()` detecta con `coMountedKey` si ya hay un iframe listo con el mismo estado y, si es así, no muestra spinner ni recrea nada — solo revela. Protegido contra condiciones de carrera vía el chequeo `stripeCheckout` activo + `coPrefetch.key`. Mismo patrón aplicado en el home (`fmPrefetchPayment()` en `page.tsx`, disparado al entrar a "Boost Your Formation" y en cada cambio de velocidad/addons) aunque ahí **solo se adelantó el fetch**, no el mount oculto — si el delay persiste ahí también, aplicar el mismo mount-oculto que en servicios.
+
+Probado en local con Playwright (sin keys de Stripe/Supabase configuradas, así que no se pudo confirmar visualmente el "sin spinner" — solo que el fetch dispara una vez, se reutiliza sin duplicar, y el error se maneja con gracia). Pendiente confirmar visualmente en preview/test con keys reales.
 
 ---
 
