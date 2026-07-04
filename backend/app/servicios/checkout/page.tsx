@@ -172,9 +172,10 @@ body{font-family:var(--font-sans),'Plus Jakarta Sans',system-ui,sans-serif;color
 .co-side .co-review{position:static;top:auto}
 .co-side-note{font-size:.7rem;color:var(--gray400);margin-top:12px;line-height:1.5}
 .co-sum-toggle{display:none;font-size:.9rem;color:var(--gray500);transition:transform .2s;line-height:1}
-.co-ssn-wrap{position:relative}
+.co-ssn-wrap{position:relative;max-width:220px}
 .co-ssn-wrap .co-input{padding-right:64px}
 .co-ssn-eye{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--blue);font-size:.78rem;font-weight:600;cursor:pointer;font-family:inherit;padding:4px 6px}
+#s-ssnItin-confirm{max-width:220px}
 .co-amd-opt{display:flex;align-items:center;gap:10px;cursor:pointer;padding:11px 14px;background:#fff;border:1.5px solid var(--gray200);border-radius:9px;margin-bottom:10px;font-size:.88rem;font-weight:600;color:var(--gray800)}
 .co-amd-opt input{width:17px;height:17px;cursor:pointer;accent-color:var(--blue)}
 .co-amd-sec{padding:0 2px 8px;margin:-2px 0 12px}
@@ -420,6 +421,7 @@ var coExpedited = true; // oferta pre-seleccionada (recomendado); el cliente pue
 try { var _rawExp=localStorage.getItem('flbc_svc_expedited'); coExpedited = (_rawExp===null ? true : _rawExp==='1'); } catch(e){ coExpedited=true; }
 function coSaveCart(){ try{ localStorage.setItem('flbc_svc_cart',JSON.stringify(cart)); localStorage.setItem('flbc_svc_bundles',JSON.stringify(coBundles)); localStorage.setItem('flbc_svc_expedited',coExpedited?'1':'0'); }catch(e){} }
 var stripeCheckout = null;
+var coMountedKey = null; // clave de coPayKey para la que stripeCheckout está montado (oculto o visible)
 var coEditReturn = false; // true si el cliente entró a un paso vía "Editar" desde la revisión
 var coPrefetch = null; // {key, promise} — sesión de Stripe pre-creada en el paso previo al pago
 
@@ -1430,6 +1432,7 @@ function coGoStep(i){
 }
 function coDestroyStripe(){
   if(stripeCheckout){ try{ stripeCheckout.destroy(); }catch(e){} stripeCheckout=null; }
+  coMountedKey=null;
   var ec=$('embedded-checkout'); if(ec) ec.innerHTML='<div style="text-align:center;padding:60px 0"><div class="co-spinner"></div></div>';
 }
 function coBack(){
@@ -1513,9 +1516,14 @@ function coCreateSessionReq(intake){
     .then(function(r){return r.json().then(function(d){return{ok:r.ok,d:d};});});
 }
 // Pre-crea la sesión en segundo plano mientras el cliente aún está en el paso
-// previo al pago, para que al llegar a "Revisa tu orden" el formulario de Stripe
-// aparezca de inmediato (sin esperar el round-trip). No crea órdenes extra en el
-// caso feliz: coStartPayment reutiliza esta misma promesa si la clave coincide.
+// previo al pago, Y además monta el formulario de Stripe OCULTO dentro de
+// #embedded-checkout (el panel-pay todavía tiene display:none — un iframe ya
+// montado ahí sigue cargando igual, solo no se pinta hasta que el panel se
+// muestra). Así al llegar a "Revisa tu orden" no solo se salta el round-trip
+// del servidor: el propio handshake con Stripe (que es la parte más lenta,
+// initEmbeddedCheckout) también ya corrió, y coStartPayment solo revela el
+// iframe. No crea órdenes extra en el caso feliz: reutiliza la misma promesa
+// si la clave coincide.
 function coPrefetchPayment(){
   var intake; try{ intake=coGetIntake(); }catch(e){ return; }
   var r; try{ r=coComputeTotal(); }catch(e){ return; }
@@ -1523,21 +1531,28 @@ function coPrefetchPayment(){
   var key=coPayKey(intake);
   if(coPrefetch && coPrefetch.key===key) return; // ya en curso / lista
   var p=coCreateSessionReq(intake);
+  p.then(function(res){ if(res.ok && res.d.clientSecret) coMountStripe(res.d.clientSecret, key); });
   p.catch(function(){}); // evita "unhandled rejection"; el error real se maneja al consumir
   coPrefetch={ key:key, promise:p };
 }
 function coStartPayment(){
   var isEs=coIsEs();
-  var ec=$('embedded-checkout'); if(ec) ec.innerHTML='<div style="text-align:center;padding:60px 0"><div class="co-spinner"></div></div>';
   try{ coRenderReviewNames(); }catch(e){}
   try{ coRenderIntakeReview(); }catch(e){}
   // Guarda: si por algún estado raro del carrito el total es 0, no cuelgues el
   // spinner — avisa y deja volver.
   var r; try{ r=coComputeTotal(); }catch(e){ r={total:0,lines:[]}; }
-  if(!r.total){ if(ec) ec.innerHTML='<p style="color:#dc2626;padding:24px;font-size:.86rem;line-height:1.6">'+(isEs?'Tu pedido está vacío o hubo un problema. Vuelve atrás y revisa tus servicios.':'Your order is empty or something went wrong. Go back and review your services.')+'</p>'; return; }
-  var intake; try{ intake=coGetIntake(); }catch(e){ if(ec) ec.innerHTML='<p style="color:#dc2626;padding:24px">'+(isEs?'No se pudieron leer tus datos. Intenta de nuevo.':'Could not read your details. Please try again.')+'</p>'; return; }
+  if(!r.total){ var ec0=$('embedded-checkout'); if(ec0) ec0.innerHTML='<p style="color:#dc2626;padding:24px;font-size:.86rem;line-height:1.6">'+(isEs?'Tu pedido está vacío o hubo un problema. Vuelve atrás y revisa tus servicios.':'Your order is empty or something went wrong. Go back and review your services.')+'</p>'; return; }
+  var intake; try{ intake=coGetIntake(); }catch(e){ var ec1=$('embedded-checkout'); if(ec1) ec1.innerHTML='<p style="color:#dc2626;padding:24px">'+(isEs?'No se pudieron leer tus datos. Intenta de nuevo.':'Could not read your details. Please try again.')+'</p>'; return; }
+  var key=coPayKey(intake);
+
+  // Caso feliz: el iframe ya está montado (oculto) desde el paso anterior con
+  // el mismo estado — nada que esperar, solo revelar.
+  if(stripeCheckout && coMountedKey===key){ coRenderReview(r.lines, r.total); return; }
+
+  var ec=$('embedded-checkout'); if(ec) ec.innerHTML='<div style="text-align:center;padding:60px 0"><div class="co-spinner"></div></div>';
   // Reutiliza la sesión pre-creada si el estado no cambió; si no, créala ahora.
-  var key=coPayKey(intake), p;
+  var p;
   if(coPrefetch && coPrefetch.key===key){ p=coPrefetch.promise; }
   else { p=coCreateSessionReq(intake); coPrefetch={ key:key, promise:p }; }
   p.then(function(res){
@@ -1548,7 +1563,7 @@ function coStartPayment(){
       }
       try{ localStorage.setItem('flbc_svc_order', res.d.fbfc||''); }catch(e){}
       coRenderReview(res.d.lines, res.d.total);
-      coMountStripe(res.d.clientSecret);
+      coMountStripe(res.d.clientSecret, key);
     })
     .catch(function(){ coPrefetch=null; if(ec) ec.innerHTML='<p style="color:#dc2626;padding:24px">'+(isEs?'Error de conexión. Intenta de nuevo.':'Connection error. Please try again.')+'</p>'; });
 }
@@ -1614,11 +1629,26 @@ function coRenderIntakeReview(){
   }
   host.innerHTML = out || '';
 }
-function coMountStripe(clientSecret){
+// Crea el checkout embebido de Stripe y lo monta en #embedded-checkout. Se usa
+// tanto para el prefetch oculto (panel-pay todavía no visible, ver
+// coPrefetchPayment) como para el montaje normal al llegar al Review — así el
+// handshake con Stripe (initEmbeddedCheckout) ya corrió en segundo plano y
+// "Revisa tu orden" solo revela un iframe que ya está listo, en vez de esperar
+// ese round-trip. Protegido contra carreras: si mientras esperábamos la
+// respuesta de Stripe alguien más ya montó, o el estado cambió de clave
+// (coPrefetch ya no coincide), se descarta el checkout recién creado sin tocar
+// el DOM.
+function coMountStripe(clientSecret, key){
+  if(stripeCheckout) return; // ya hay un checkout activo — no dupliques
   var pk=window.__OPABIZ_PK__;
   if(!pk||typeof Stripe==='undefined'){ $('embedded-checkout').innerHTML='<p style="color:#dc2626;padding:20px">Stripe no está configurado.</p>'; return; }
   var stripe=Stripe(pk);
-  stripe.initEmbeddedCheckout({clientSecret:clientSecret}).then(function(c){ stripeCheckout=c; $('embedded-checkout').innerHTML=''; c.mount('#embedded-checkout'); });
+  stripe.initEmbeddedCheckout({clientSecret:clientSecret}).then(function(c){
+    if(stripeCheckout || (key && coPrefetch && coPrefetch.key!==key)){ try{ c.destroy(); }catch(e){} return; }
+    stripeCheckout=c; coMountedKey=key||null;
+    var ec=$('embedded-checkout'); if(ec) ec.innerHTML='';
+    c.mount('#embedded-checkout');
+  }).catch(function(){});
 }
 
 // ── Init ─────────────────────────────────────────────────────────────────────
