@@ -965,6 +965,28 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
         <button class="btn-hero-new btn-hero-continue" onclick="continueFromHome()" id="btn-continue-app" style="display:flex;align-items:center;gap:8px">
           &#x1F50D; <span id="lbl-continue-app">Continue My Application</span>
         </button>
+        <!-- CONTINUE APPLICATION DROPDOWN — 2026-07-04: antes era un modal de pantalla
+             completa con fondo oscuro; ahora es un panel blanco anclado debajo del botón
+             (mismo wrapper position:relative), sin oscurecer el resto del home. -->
+        <div id="continueModal" style="display:none;position:absolute;top:calc(100% + 10px);left:50%;transform:translateX(-50%);width:340px;max-width:90vw;background:#fff;border-radius:14px;box-shadow:0 16px 48px rgba(15,23,42,0.18);border:1px solid #e5e7eb;z-index:500;text-align:left">
+          <div style="padding:20px 22px 4px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+            <div>
+              <div style="font-family:var(--font-serif);color:var(--navy);font-size:1.05rem;font-weight:700;margin-bottom:3px" id="cont-modal-title">Continue My Application</div>
+              <div style="font-size:.75rem;color:#6b7280" id="cont-modal-sub">Enter your order number to pick up where you left off</div>
+            </div>
+            <button onclick="closeContinueModal()" style="background:#f3f4f6;border:none;color:#6b7280;width:26px;height:26px;border-radius:50%;cursor:pointer;font-size:.85rem;line-height:1;flex-shrink:0">&#x2715;</button>
+          </div>
+          <div style="padding:14px 22px 22px">
+            <label style="display:block;font-size:.82rem;font-weight:600;color:#374151;margin-bottom:8px" id="cont-order-lbl">Order Number</label>
+            <input type="text" id="inp-continue-order" placeholder="e.g. FBFC-12345" style="width:100%;padding:12px 14px;border:1.5px solid #e5e7eb;border-radius:9px;font-size:1rem;font-family:inherit;color:#1e293b;box-sizing:border-box;text-transform:uppercase;letter-spacing:1px" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter')findOrder()"/>
+            <div id="cont-error" style="display:none;color:#ef4444;font-size:.78rem;margin-top:6px;padding:8px 12px;background:#fef2f2;border-radius:7px"></div>
+            <div style="font-size:.75rem;color:#9ca3af;margin-top:10px;line-height:1.6" id="cont-hint">Your order number starts with <strong>FBFC-</strong></div>
+            <button onclick="findOrder()" style="width:100%;margin-top:18px;background:#2563eb;color:#fff;padding:13px;border-radius:9px;font-size:.92rem;font-weight:700;border:none;cursor:pointer;font-family:inherit" id="cont-submit-btn">&#x1F50D; Find My Application</button>
+            <div style="text-align:center;margin-top:14px;font-size:.78rem;color:#9ca3af">
+              <button onclick="closeContinueModal();openForm();" style="background:none;border:none;color:#2563eb;font-size:.78rem;font-weight:600;cursor:pointer;font-family:inherit;text-decoration:underline" id="cont-start-new-lbl">Start a new application</button>
+            </div>
+          </div>
+        </div>
       </div>
       </div>
       <span class="section-label" id="price-label">Our Packages</span>
@@ -1381,29 +1403,6 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 <!-- FORM MODAL -->
 
 <!-- FORM OVERLAY -->
-<!-- CONTINUE APPLICATION MODAL -->
-<div id="continueModal" style="display:none;position:fixed;inset:0;z-index:3000;background:rgba(7,19,54,0.75);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px">
-  <div style="background:#fff;border-radius:16px;width:100%;max-width:440px;box-shadow:0 24px 80px rgba(0,0,0,0.35);overflow:hidden">
-    <div style="background:linear-gradient(135deg,var(--navy),#1e4db7);padding:22px 26px;display:flex;align-items:center;justify-content:space-between">
-      <div>
-        <div style="font-family:var(--font-serif);color:#fff;font-size:1.1rem;font-weight:700;margin-bottom:3px" id="cont-modal-title">Continue My Application</div>
-        <div style="font-size:.75rem;color:rgba(255,255,255,.6)" id="cont-modal-sub">Enter your order number to pick up where you left off</div>
-      </div>
-      <button onclick="closeContinueModal()" style="background:rgba(255,255,255,.15);border:none;color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:1rem;line-height:1">&#x2715;</button>
-    </div>
-    <div style="padding:28px">
-      <label style="display:block;font-size:.82rem;font-weight:600;color:#374151;margin-bottom:8px" id="cont-order-lbl">Order Number</label>
-      <input type="text" id="inp-continue-order" placeholder="e.g. FBFC-12345" style="width:100%;padding:12px 14px;border:1.5px solid #e5e7eb;border-radius:9px;font-size:1rem;font-family:inherit;color:#1e293b;box-sizing:border-box;text-transform:uppercase;letter-spacing:1px" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter')findOrder()"/>
-      <div id="cont-error" style="display:none;color:#ef4444;font-size:.78rem;margin-top:6px;padding:8px 12px;background:#fef2f2;border-radius:7px"></div>
-      <div style="font-size:.75rem;color:#9ca3af;margin-top:10px;line-height:1.6" id="cont-hint">Your order number starts with <strong>FBFC-</strong></div>
-      <button onclick="findOrder()" style="width:100%;margin-top:18px;background:#2563eb;color:#fff;padding:13px;border-radius:9px;font-size:.92rem;font-weight:700;border:none;cursor:pointer;font-family:inherit" id="cont-submit-btn">&#x1F50D; Find My Application</button>
-      <div style="text-align:center;margin-top:14px;font-size:.78rem;color:#9ca3af">
-        <button onclick="closeContinueModal();openForm();" style="background:none;border:none;color:#2563eb;font-size:.78rem;font-weight:600;cursor:pointer;font-family:inherit;text-decoration:underline" id="cont-start-new-lbl">Start a new application</button>
-      </div>
-    </div>
-  </div>
-</div>
-
 <div class="form-overlay" id="formOverlay">
   <div style="background:var(--navy);padding:10px 24px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(28,46,68,.25)">
     <a href="/" onclick="closeForm();return false;" style="display:flex;align-items:center;gap:8px;text-decoration:none;flex-shrink:0">
@@ -3311,7 +3310,7 @@ function fmToggleRaSameBiz(chk) {
 }
 function closeContinueModal() {
   var modal = document.getElementById('continueModal');
-  if(modal) { modal.style.display='none'; document.body.style.overflow=''; }
+  if(modal) modal.style.display='none';
 }
 // Busca la orden solo por número FBFC (mismo endpoint que el login del
 // portal — el email dejó de ser obligatorio acá, decisión negocio 2026-07-02).
@@ -3726,8 +3725,7 @@ function continueFromHome() {
 function openContinueModal() {
   var modal = document.getElementById('continueModal');
   if(!modal) return;
-  modal.style.display = 'flex';
-  document.body.style.overflow = 'hidden';
+  modal.style.display = 'block';
   var ordInp = document.getElementById('inp-continue-order');
   if(ordInp) setTimeout(function(){ ordInp.focus(); }, 50);
 }
@@ -6627,12 +6625,10 @@ document.addEventListener('click', function(e) {
 
 
 document.addEventListener('click', function(e) {
-  var dd = document.getElementById('continueDropdown');
+  var dd = document.getElementById('continueModal');
   var btn = document.getElementById('btn-continue-app');
-  if(dd && btn && !btn.parentNode.contains(e.target)) {
+  if(dd && btn && dd.style.display !== 'none' && !btn.parentNode.contains(e.target)) {
     dd.style.display = 'none';
-    var arrow = document.getElementById('continue-arrow');
-    if(arrow) arrow.style.transform = 'rotate(0deg)';
   }
 });
 
@@ -6817,6 +6813,7 @@ function refreshAccountUI(){
     .catch(function(){});
 }
 document.addEventListener('keydown',function(e){ if(e.key==='Escape') closePortalLogin(); });
+document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeContinueModal(); });
 // Cerrar el popover al hacer clic fuera (sin fondo oscuro que tape la página).
 document.addEventListener('click',function(e){
   var ov=document.getElementById('plogin-overlay');

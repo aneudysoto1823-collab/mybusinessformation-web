@@ -130,6 +130,7 @@ body{font-family:var(--font-sans),'Plus Jakarta Sans',system-ui,sans-serif;color
 @keyframes cospin{to{transform:rotate(360deg)}}
 /* Recomendado: cajas de elección (estilo paquetes) */
 .co-choices{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0 0}
+.co-choices-v{grid-template-columns:1fr}
 .co-choice{position:relative;border:1.5px solid var(--gray200);border-radius:12px;padding:15px 16px;cursor:pointer;transition:all .2s;background:#fff;display:flex;flex-direction:column;gap:6px}
 .co-choice:hover{border-color:#93c5fd}
 .co-choice.sel{border-color:var(--blue);background:var(--blue-light)}
@@ -887,7 +888,13 @@ function coSetupCompanyPanel(ft){
     var nl=$('co-name-label'); if(nl){ nl.setAttribute('data-en','Desired company name'); nl.setAttribute('data-es','Nombre deseado de la empresa'); nl.textContent=isEs?'Nombre deseado de la empresa':'Desired company name'; }
     var df=$('co-designator-field'), ds=$('f-designator');
     if(df&&ds){ df.style.display=''; ds.innerHTML=(DESIGNATORS[ft]||[]).map(function(o){return '<option>'+o+'</option>';}).join(''); }
-    if(extra){ var ah=''; ['activity','activityDesc','employees'].forEach(function(k){ var fd=coFieldDef(coFormId,k); if(fd) ah+=fieldHtml(coFormId,fd); }); if(ah) extra.innerHTML='<div class="co-grid">'+ah+'</div>'; }
+    if(extra){ var ah=''; ['activity','activityDesc','employees'].forEach(function(k){ var fd=coFieldDef(coFormId,k); if(!fd) return;
+      if(k==='activity'){
+        var aid='x-'+coFormId+'-activity';
+        var aopts='<option value="">'+(isEs?'— Selecciona —':'— Select —')+'</option>'+fd.opts.map(function(o){return '<option>'+o+'</option>';}).join('');
+        ah+='<div class="co-field"><label class="co-label">'+(isEs?fd.es:fd.en)+'</label><select class="co-select" id="'+aid+'">'+aopts+'</select></div>';
+      } else { ah+=fieldHtml(coFormId,fd); }
+    }); if(ah) extra.innerHTML='<div class="co-grid">'+ah+'</div>'; }
     var sub=$('co-company-sub'); if(sub){ sub.setAttribute('data-en','Enter your new company name and details.'); sub.setAttribute('data-es','Ingresa el nombre y los datos de tu nueva empresa.'); sub.textContent=isEs?'Ingresa el nombre y los datos de tu nueva empresa.':'Enter your new company name and details.'; }
   } else {
     coFormId=null;
@@ -953,28 +960,64 @@ function coRenderTaxPanel(){
   var why = trig.length
     ? (isEs?('Para tu '+trig.join(', ')+' necesitamos un dato más.'):('For your '+trig.join(', ')+' we need one more detail.'))
     : (isEs?'Un dato más para tu trámite.':'One more detail for your filing.');
-  var rp=((($('f-firstName')||{}).value||'')+' '+(($('f-lastName')||{}).value||'')).trim();
+  // Autorrellena con la información personal ya recolectada en "Información
+  // personal" (panel-contact, paso previo) — evita repetir preguntas y hace que
+  // este paso no se vea tan chico comparado con los demás.
+  var v=function(id){ var e=$(id); return e?(e.value||'').trim():''; };
+  var rp=(v('f-firstName')+' '+v('f-lastName')).trim();
+  var email=v('f-email'), phone=v('f-phone');
+  var addr=[v('p-street'),v('p-apt'),v('p-city'),v('p-state'),v('p-zip')].filter(Boolean).join(', ');
+  var summary=''
+    +coIrBlock(isEs?'Persona responsable':'Responsible party', coEsc(rp))
+    +coIrBlock(isEs?'Correo':'Email', coEsc(email))
+    +coIrBlock(isEs?'Teléfono':'Phone', coEsc(phone))
+    +coIrBlock(isEs?'Dirección':'Address', coEsc(addr));
+  // La nota del EIN solo aplica cuando lo que falta es el SSN/ITIN (disparado
+  // por el servicio EIN); si lo que falta es el número de EIN ya existente
+  // (ej. Annual Report solo) no aplica esta explicación.
+  var noteHtml = '';
+  if(keys.indexOf('ssnItin')>=0){
+    var note = isEs
+      ? 'Necesitamos un dato adicional (tu SSN o ITIN) para poder procesar tu EIN ante el IRS.'
+      : 'We need one additional detail (your SSN or ITIN) to process your EIN with the IRS.';
+    noteHtml = '<div style="background:#eff6ff;border-left:4px solid #2563eb;border-radius:0 8px 8px 0;padding:10px 14px;font-size:.8rem;color:#1e40af;line-height:1.6;margin-bottom:16px">'+coEsc(note)+'</div>';
+  }
   panel.innerHTML='<h1 class="co-h1">'+(isEs?'Datos fiscales':'Tax details')+'</h1>'
     +'<p class="co-sub">'+coEsc(why)+'</p>'
     +'<div class="co-card">'
-    +(rp?'<div class="co-ir-block" style="border:none;padding:0 0 12px"><div class="co-ir-label">'+(isEs?'Responsible party':'Responsible party')+'</div><div class="co-ir-val">'+coEsc(rp)+'</div></div>':'')
+    +(summary?'<div style="margin-bottom:16px">'+summary+'</div>':'')
+    +noteHtml
     +'<div class="co-grid">'+coSharedFieldsInner(keys)+'</div></div>';
 }
 // ── Procesamiento acelerado (paso propio, una vez, aplica a toda la orden) ────
 function coRenderExpedited(){
   var panel=$('panel-expedited'); if(!panel) return; var isEs=coIsEs();
   var exp=coExpedited, std=!coExpedited;
+  // 2026-07-04: antes eran dos cajas angostas lado a lado con poco contexto —
+  // se veía chico frente al Order Summary. Ahora se apilan verticalmente
+  // (co-choices-v) y suman una intro + bullets, como el paso de Agente
+  // Registrado, para llenar el espacio con contenido útil en vez de blanco.
+  var introTxt = isEs
+    ? 'Florida procesa las presentaciones estatales en el orden en que llegan. El procesamiento acelerado mueve tu presentación a la fila rápida del estado — no cambia nada más de tu pedido.'
+    : "Florida processes state filings in the order they arrive. Expedited processing moves your filing into the state's fast lane — nothing else about your order changes.";
+  var expBullets=[
+    isEs?'Se presenta ante el estado de Florida en 1-3 días hábiles':'Filed with the State of Florida in 1-3 business days',
+    isEs?'Ideal si necesitas tu EIN, abrir una cuenta bancaria u operar pronto':'Ideal if you need your EIN, a bank account, or to start operating soon',
+    isEs?'El cargo se refleja de inmediato en tu resumen — sin sorpresas al pagar':'The fee shows up in your summary right away — no surprises at checkout'
+  ].map(function(b){ return '<div class="co-up-incl-item"><span class="co-up-incl-check">&#10003;</span><span>'+b+'</span></div>'; }).join('');
   panel.innerHTML='<h1 class="co-h1">'+(isEs?'Procesamiento acelerado':'Faster processing')+'</h1>'
     +'<p class="co-sub">'+(isEs?'¿Lo quieres más rápido? Acelera la presentación estatal cuando aplica.':'Want it faster? Upgrade to expedited state filing where applicable.')+'</p>'
     +'<div class="co-card">'
-      +'<div class="co-choices">'
+      +'<div class="co-ra-info">&#9203; '+introTxt+'</div>'
+      +'<div class="co-choices co-choices-v">'
         +'<div class="co-choice co-choice-rec'+(exp?' sel':'')+'" onclick="coSetExpedited(true)">'
           +'<span class="co-rec-badge">'+(isEs?'Más rápido':'Fastest')+'</span>'
           +'<div class="co-choice-top"><span class="co-choice-title">&#9889; '+(isEs?'Procesamiento acelerado':'Expedited processing')+'</span><span class="co-choice-price">+$'+EXPED_FEE+'</span></div>'
-          +'<div class="co-choice-desc">'+(isEs?'1-3 días hábiles':'1-3 business days')+'</div></div>'
+          +'<div class="co-choice-desc">'+(isEs?'1-3 días hábiles':'1-3 business days')+'</div>'
+          +'<div class="co-up-incl" style="margin-top:10px">'+expBullets+'</div></div>'
         +'<div class="co-choice'+(std?' sel':'')+'" onclick="coSetExpedited(false)">'
           +'<div class="co-choice-top"><span class="co-choice-title">'+(isEs?'Tiempo estándar':'Standard time')+'</span><span class="co-choice-price">$0</span></div>'
-          +'<div class="co-choice-desc">'+(isEs?'7-14 días hábiles':'7-14 business days')+'</div></div>'
+          +'<div class="co-choice-desc">'+(isEs?'7-14 días hábiles — el tiempo normal de procesamiento del estado.':"7-14 business days — the state's normal processing time.")+'</div></div>'
       +'</div>'
     +'</div>';
 }
@@ -1472,6 +1515,12 @@ function coValidateStep(i){
       else { err.textContent=isEs?'Busca tu empresa por número, o ingrésala manualmente.':'Search your company, or enter it manually.'; coRevealManual(); }
       return false;
     }
+    if(coFormationType()){
+      var actEl=$('x-'+coFormId+'-activity');
+      if(actEl && !(actEl.value||'').trim()){ err.textContent=isEs?'Selecciona la actividad principal de tu negocio.':"Select your business's primary activity."; return false; }
+      var descEl=$('x-'+coFormId+'-activityDesc');
+      if(!descEl || (descEl.value||'').trim().length<3){ err.textContent=isEs?'Describe brevemente qué hace tu negocio.':'Briefly describe what your business does.'; return false; }
+    }
     return true;
   }
   if(id==='panel-owners'){
@@ -1650,15 +1699,38 @@ function coRenderIntakeReview(){
 function coMountStripe(clientSecret, key){
   if(stripeCheckout) return; // ya hay un checkout activo — no dupliques
   var pk=window.__OPABIZ_PK__;
-  if(!pk||typeof Stripe==='undefined'){ $('embedded-checkout').innerHTML='<p style="color:#dc2626;padding:20px">Stripe no está configurado.</p>'; return; }
+  if(!pk||typeof Stripe==='undefined'){ coMountFail(null); return; }
   var stripe=Stripe(pk);
+  var settled=false;
+  // Si Stripe nunca resuelve (bloqueador de anuncios, red lenta, colgado) no
+  // dejes el spinner girando para siempre — a los 15s se rinde y ofrece reintentar.
+  var timeoutId=setTimeout(function(){ if(settled) return; settled=true; coMountFail(null); }, 15000);
   stripe.initEmbeddedCheckout({clientSecret:clientSecret}).then(function(c){
+    if(settled){ try{ c.destroy(); }catch(e){} return; } // ya se venció el timeout de arriba
+    settled=true; clearTimeout(timeoutId);
     if(stripeCheckout || (key && coPrefetch && coPrefetch.key!==key)){ try{ c.destroy(); }catch(e){} return; }
     stripeCheckout=c; coMountedKey=key||null;
     var ec=$('embedded-checkout'); if(ec) ec.innerHTML='';
     c.mount('#embedded-checkout');
-  }).catch(function(){});
+  }).catch(function(){ if(settled) return; settled=true; clearTimeout(timeoutId); coMountFail(null); });
 }
+// Antes este fallo se tragaba en silencio (catch vacío) y el spinner del paso
+// de pago quedaba girando para siempre sin ningún mensaje — bug reportado
+// como "el paso de review se queda pensando". Si el cliente sigue viendo el
+// paso de pago cuando esto falla, muestra un error con botón de reintentar.
+// Si era un prefetch en segundo plano (el cliente todavía no llega a ese
+// paso), no toca el DOM — el próximo coStartPayment simplemente reintenta.
+function coMountFail(msg){
+  var isEs=coIsEs();
+  var onPayStep = coSteps[coIdx] && coSteps[coIdx].id==='panel-pay';
+  if(!onPayStep || stripeCheckout) return;
+  var ec=$('embedded-checkout'); if(!ec) return;
+  ec.innerHTML='<div style="text-align:center;padding:40px 20px">'
+    +'<p style="color:#dc2626;font-size:.86rem;line-height:1.6;margin-bottom:16px">'+(msg||(isEs?'No se pudo cargar el formulario de pago. Puede deberse a tu conexión o a un bloqueador de anuncios.':'The payment form could not load. This can happen due to your connection or an ad blocker.'))+'</p>'
+    +'<button type="button" class="co-btn" onclick="coRetryPayment()">'+(isEs?'Reintentar':'Try again')+'</button>'
+    +'</div>';
+}
+function coRetryPayment(){ coPrefetch=null; coStartPayment(); }
 
 // ── Init ─────────────────────────────────────────────────────────────────────
 (function init(){

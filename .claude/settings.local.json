@@ -34,7 +34,8 @@
       "Bash(grep -rn \"gtag\\\\|NEXT_PUBLIC_GA_ID\\\\|googletagmanager\\\\|google-analytics\\\\|G-[A-Z0-9]\\\\{8,\\\\}\" backend --include=\"*.ts\" --include=\"*.tsx\")",
       "Bash(npm audit *)",
       "Bash(node -e \"const s=require\\('@sentry/nextjs'\\); console.log\\(Object.keys\\(s\\).filter\\(k=>k.toLowerCase\\(\\).includes\\('event'\\)\\).join\\('\\\\n'\\)\\)\")",
-      "Bash(node -e \"try{ const t = require\\('@sentry/nextjs'\\); console.log\\('OK direct import works at runtime'\\); } catch\\(e\\){console.log\\(e.message\\)}\")"
+      "Bash(node -e \"try{ const t = require\\('@sentry/nextjs'\\); console.log\\('OK direct import works at runtime'\\); } catch\\(e\\){console.log\\(e.message\\)}\")",
+      "Bash(gh auth *)"
     ],
     "additionalDirectories": [
       "\\tmp"
