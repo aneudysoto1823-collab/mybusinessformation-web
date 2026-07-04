@@ -131,6 +131,7 @@ body{font-family:var(--font-sans),'Plus Jakarta Sans',system-ui,sans-serif;color
 /* Recomendado: cajas de elección (estilo paquetes) */
 .co-choices{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0 0}
 .co-choices-v{grid-template-columns:1fr}
+.co-choices-v .co-choice.sel{background:#fff}
 .co-choice{position:relative;border:1.5px solid var(--gray200);border-radius:12px;padding:15px 16px;cursor:pointer;transition:all .2s;background:#fff;display:flex;flex-direction:column;gap:6px}
 .co-choice:hover{border-color:#93c5fd}
 .co-choice.sel{border-color:var(--blue);background:var(--blue-light)}
@@ -1001,18 +1002,21 @@ function coRenderExpedited(){
   // presentando el trámite — Florida no tiene una "fila rápida" propia. Copy
   // corregido 2026-07-04 para no insinuar que el estado ofrece un servicio
   // express (lo ofrecemos nosotros, sobre nuestro propio tiempo de preparación).
+  // 2026-07-04: se quitó el cuadro azul de intro (se sentía "vendedor" / poco
+  // confiable) — queda como texto plano dentro de la card. También se quitó
+  // el bullet de "sin sorpresas al pagar" (mismo feedback: generaba
+  // desconfianza en vez de inspirarla).
   var introTxt = isEs
-    ? 'Nosotros preparamos y enviamos tu presentación ante el Estado de Florida. Nuestro procesamiento estándar toma de 7 a 14 días hábiles; con el acelerado, la preparamos y enviamos en 1 a 3 días hábiles.'
-    : 'We prepare and file your paperwork with the State of Florida. Our standard processing takes 7-14 business days; with expedited processing, we prepare and file it in 1-3 business days instead.';
+    ? 'Nuestro procesamiento estándar toma de 7 a 14 días hábiles; con el acelerado, la preparamos y enviamos en 1 a 3 días hábiles.'
+    : 'Our standard processing takes 7-14 business days; with expedited, we prepare and file it in 1-3 business days.';
   var expBullets=[
     isEs?'Lo preparamos y presentamos en 1-3 días hábiles':'We prepare and file it in 1-3 business days',
-    isEs?'Ideal si necesitas tu EIN, abrir una cuenta bancaria u operar pronto':'Ideal if you need your EIN, a bank account, or to start operating soon',
-    isEs?'El cargo se refleja de inmediato en tu resumen — sin sorpresas al pagar':'The fee shows up in your summary right away — no surprises at checkout'
+    isEs?'Ideal si necesitas tu EIN, abrir una cuenta bancaria u operar pronto':'Ideal if you need your EIN, a bank account, or to start operating soon'
   ].map(function(b){ return '<div class="co-up-incl-item"><span class="co-up-incl-check">&#10003;</span><span>'+b+'</span></div>'; }).join('');
   panel.innerHTML='<h1 class="co-h1">'+(isEs?'Procesamiento acelerado':'Faster processing')+'</h1>'
     +'<p class="co-sub">'+(isEs?'¿Lo quieres más rápido? Acelera la presentación estatal cuando aplica.':'Want it faster? Upgrade to expedited state filing where applicable.')+'</p>'
     +'<div class="co-card">'
-      +'<div class="co-ra-info">&#9203; '+introTxt+'</div>'
+      +'<p style="font-size:.85rem;color:var(--gray600);line-height:1.6;margin:0 0 16px">'+introTxt+'</p>'
       +'<div class="co-choices co-choices-v">'
         +'<div class="co-choice co-choice-rec'+(exp?' sel':'')+'" onclick="coSetExpedited(true)">'
           +'<span class="co-rec-badge">'+(isEs?'Más rápido':'Fastest')+'</span>'
