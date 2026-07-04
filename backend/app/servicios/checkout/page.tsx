@@ -419,6 +419,11 @@ try { coBundles = JSON.parse(localStorage.getItem('flbc_svc_bundles')||'[]'); if
 // Procesamiento acelerado (una vez por orden, aplica a toda la orden).
 var coExpedited = true; // oferta pre-seleccionada (recomendado); el cliente puede declinar
 try { var _rawExp=localStorage.getItem('flbc_svc_expedited'); coExpedited = (_rawExp===null ? true : _rawExp==='1'); } catch(e){ coExpedited=true; }
+// El cargo de Expedited no debe verse en el resumen ANTES de que el cliente
+// llegue al paso donde se lo ofrecemos (coGoStep lo pone en true al entrar a
+// panel-expedited) — evita que aparezca como un cargo sorpresa desde el paso 1
+// solo porque coExpedited viene pre-seleccionado en true por defecto.
+var coExpeditedSeen = false;
 function coSaveCart(){ try{ localStorage.setItem('flbc_svc_cart',JSON.stringify(cart)); localStorage.setItem('flbc_svc_bundles',JSON.stringify(coBundles)); localStorage.setItem('flbc_svc_expedited',coExpedited?'1':'0'); }catch(e){} }
 var stripeCheckout = null;
 var coMountedKey = null; // clave de coPayKey para la que stripeCheckout está montado (oculto o visible)
@@ -1239,7 +1244,7 @@ function coComputeTotal(){
     lines.push({label:nm, amount:free?0:s.serviceFee, billing:s.billing, firstYearFree:free, renewalFee:s.renewalFee}); total+=(free?0:s.serviceFee);
     if(s.stateFee>0){ stateLines.push({label:nm, amount:s.stateFee, state:true}); total+=s.stateFee; }
   });
-  if(coExpedited && coExpeditedApplicable()){ lines.push({label:(isEs?'Procesamiento acelerado':'Expedited Processing'), amount:EXPED_FEE}); total+=EXPED_FEE; }
+  if(coExpeditedSeen && coExpedited && coExpeditedApplicable()){ lines.push({label:(isEs?'Procesamiento acelerado':'Expedited Processing'), amount:EXPED_FEE}); total+=EXPED_FEE; }
   return {lines:lines.concat(stateLines), total:total, recurring:recurring};
 }
 // Una fila del resumen. Las tarifas estatales van atenuadas con su etiqueta.
@@ -1400,6 +1405,10 @@ function coGoStep(i){
   // como recomendado (badge). El cliente debe hacer clic para seleccionarlo (recién
   // ahí entra al resumen). Si ya eligió "propio agente", recalcula direcciones FL.
   if(coSteps[i].id==='panel-ra' && coRaChoice==='own') coRenderRaAddrOptions();
+  // Expedited: recién a partir de aquí puede aparecer en el resumen — antes de
+  // este paso no se le ha ofrecido la opción al cliente (mismo criterio que el
+  // Agente Registrado arriba: nada entra al resumen sin que el cliente lo vea).
+  if(coSteps[i].id==='panel-expedited') coExpeditedSeen=true;
   // Datos fiscales: refresca el responsible party / contexto al entrar, sin borrar
   // lo que ya escribió el cliente.
   if(coSteps[i].id==='panel-tax'){ var _ssn=(($('s-ssnItin')||{}).value)||'', _ssnc=(($('s-ssnItin-confirm')||{}).value)||'', _ein=(($('s-ein')||{}).value)||''; coRenderTaxPanel(); if($('s-ssnItin')) $('s-ssnItin').value=_ssn; if($('s-ssnItin-confirm')) $('s-ssnItin-confirm').value=_ssnc; if($('s-ein')) $('s-ein').value=_ein; }

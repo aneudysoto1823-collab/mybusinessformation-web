@@ -4354,6 +4354,11 @@ function translateFormContent(lang){
 var fmCurrentStep = 1;
 // 6 pasos: Review (fms8) es el último — el pago vive dentro de su Order Summary.
 var fmTotalSteps  = 7;
+// El cargo de Expedited no debe verse en el Order Summary ANTES de que el
+// cliente llegue al paso "Faster Processing" (step 6, ver fmGoToStep) — evita
+// que aparezca como un cargo sorpresa desde el paso 1 solo porque fmData.speed
+// viene pre-seleccionado en 'expedited' por defecto.
+var _fmSpeedSeen = false;
 var fmData = {
   entity: 'llc', bizAddrType: 'virtual', agentType: 'ours',
   bizName: '',
@@ -4479,7 +4484,7 @@ function fmGoToStep(n) {
   if(n === 2) fmSyncStep2();
   if(n === 3) fmSyncStep3();
   if(n === 5) fmSyncStep5();
-  if(n === 6) fmSyncStep6();
+  if(n === 6) { _fmSpeedSeen = true; fmSyncStep6(); }
   if(n === 7) { fmFilterAddons(); fmPrefetchPayment(); }
   if(n === 8) fmBuildReview();
   // Pago integrado en el Order Summary: solo aparece (y se monta) en el Review.
@@ -5201,7 +5206,7 @@ function fmUpdateSummary() {
   if(fmData.addons.sc)   extras += 79;
   if(fmData.addons.bl)   extras += 99;
   var expFree = pkg === 'premium';
-  if(fmData.speed === 'expedited' && !expFree) extras += 79;
+  if(_fmSpeedSeen && fmData.speed === 'expedited' && !expFree) extras += 79;
   var total = base + state + extras;
   var pkgNames = { basic:'Basic — $0', standard:'Standard — $199', premium:'Premium — $299' };
   // Update all summary panels
@@ -5209,7 +5214,7 @@ function fmUpdateSummary() {
   document.querySelectorAll('.sum-pkg-val').forEach(function(el){ el.textContent = pkgNames[pkg]; });
   document.querySelectorAll('.sum-state-val').forEach(function(el){ el.textContent = '$' + state; });
   document.querySelectorAll('.sum-total-val').forEach(function(el){ el.textContent = '$' + total; });
-  document.querySelectorAll('.sum-exp-line').forEach(function(el){ el.style.display = fmData.speed==='expedited'&&!expFree?'':'none'; });
+  document.querySelectorAll('.sum-exp-line').forEach(function(el){ el.style.display = _fmSpeedSeen&&fmData.speed==='expedited'&&!expFree?'':'none'; });
   document.querySelectorAll('.sum-vma-line').forEach(function(el){ el.style.display = fmData.vma?'':'none'; });
   document.querySelectorAll('.sum-ein-line').forEach(function(el){ el.style.display = fmData.addons.ein&&pkg==='basic'?'':'none'; });
   document.querySelectorAll('.sum-oa-line').forEach(function(el){ el.style.display = fmData.addons.oa&&pkg!=='premium'?'':'none'; });
