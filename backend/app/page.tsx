@@ -4480,7 +4480,7 @@ function fmGoToStep(n) {
   if(n === 3) fmSyncStep3();
   if(n === 5) fmSyncStep5();
   if(n === 6) fmSyncStep6();
-  if(n === 7) fmFilterAddons();
+  if(n === 7) { fmFilterAddons(); fmPrefetchPayment(); }
   if(n === 8) fmBuildReview();
   // Pago integrado en el Order Summary: solo aparece (y se monta) en el Review.
   // En ese paso Stripe ya muestra el desglose completo (con el cupón del Basic),
@@ -5105,6 +5105,7 @@ function fmSetSpeed(type, el) {
   });
   if(el) el.classList.add('selected');
   fmUpdateSummary();
+  try { fmPrefetchPayment(); } catch(e) {}
 }
 
 
@@ -5166,6 +5167,7 @@ function fmToggleAddon(key, el) {
   if(key === 'ein') fmShowEinFields(fmData.addons.ein);
   if(key === 'oa')  fmShowOaFields(fmData.addons.oa);
   fmUpdateSummary();
+  try { fmPrefetchPayment(); } catch(e) {}
 }
 
 
@@ -5447,12 +5449,51 @@ function fmBuildOrderPayload() {
 
 var _fmCheckout  = null;   // instancia de Stripe Embedded Checkout actual
 var _fmMounting  = false;  // guard contra montajes concurrentes
+var _fmPrefetch  = null;   // {key, promise} \u2014 sesi\u00f3n de Stripe pre-creada en el paso previo al Review
 
 // Destruye el form de Stripe montado (al salir del Review o antes de remontar).
 function fmDestroyPayment() {
   if(_fmCheckout) { try { _fmCheckout.destroy(); } catch(e) {} _fmCheckout = null; }
   var ec = document.getElementById('embedded-checkout');
   if(ec) ec.innerHTML = '';
+}
+
+// Clave de estado del pago: si el payload cambia (addons, velocidad, datos,
+// etc.) la sesi\u00f3n pre-creada deja de servir y hay que recrearla.
+function _fmPayKey(payload) { try { return JSON.stringify(payload); } catch(e) { return 'k' + Math.random(); } }
+
+// Los 2 fetches secuenciales de siempre: crea/actualiza la orden pending y
+// devuelve la sesi\u00f3n de Stripe. Usado tanto por el prefetch como por el mount.
+function _fmCreateSessionReq(payload) {
+  return fetch('/api/orders', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+    .then(function(res) { return res.json().then(function(data) { return { res: res, data: data }; }); })
+    .then(function(o) {
+      if(!(o.res.ok && o.data.success)) throw new Error((o.data && o.data.error) ? o.data.error : 'Error desconocido');
+      var orderId = o.data.orderId;
+      return fetch('/api/checkout/embedded', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ orderId: orderId }) })
+        .then(function(sres) { return sres.json().then(function(sdata) { return { sres: sres, sdata: sdata }; }); })
+        .then(function(s) {
+          if(!s.sres.ok || !s.sdata.clientSecret) throw new Error((s.sdata && s.sdata.error) ? s.sdata.error : 'No se pudo iniciar el pago');
+          return { orderId: orderId, clientSecret: s.sdata.clientSecret };
+        });
+    });
+}
+
+// Pre-crea la orden + sesi\u00f3n de Stripe en segundo plano mientras el cliente
+// todav\u00eda est\u00e1 en "Boost Your Formation" (el paso justo antes del Review), para
+// que al llegar al Review el form de Stripe aparezca de inmediato en vez de
+// esperar el round-trip de ambos fetches. fmMountPayment reutiliza esta misma
+// promesa si el payload no cambi\u00f3 entre medio (mismo patr\u00f3n que
+// coPrefetchPayment en /servicios/checkout).
+function fmPrefetchPayment() {
+  var payload; try { payload = fmBuildOrderPayload(); } catch(e) { return; }
+  payload.deferEmails = true;
+  payload.draftOrderId = _fmDraftOrderId;
+  var key = _fmPayKey(payload);
+  if(_fmPrefetch && _fmPrefetch.key === key) return; // ya en curso / lista
+  var p = _fmCreateSessionReq(payload);
+  p.catch(function(){}); // evita "unhandled rejection"; el error real se maneja al consumir en fmMountPayment
+  _fmPrefetch = { key: key, promise: p };
 }
 
 // Crea la orden pending + sesi\u00f3n de Stripe y monta el form dentro del Order
@@ -5482,25 +5523,23 @@ async function fmMountPayment() {
     var payload = fmBuildOrderPayload();
     payload.deferEmails = true;
     payload.draftOrderId = _fmDraftOrderId;
-    var res = await fetch('/api/orders', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-    var data = await res.json();
-    if(!(res.ok && data.success)) { throw new Error((data && data.error) ? data.error : 'Error desconocido'); }
-    var orderId = data.orderId;
+    var key = _fmPayKey(payload);
+    var p;
+    if(_fmPrefetch && _fmPrefetch.key === key) { p = _fmPrefetch.promise; }
+    else { p = _fmCreateSessionReq(payload); _fmPrefetch = { key: key, promise: p }; }
+    var result = await p;
     fmClearProgress();
-    generateOrderNumber(orderId);
+    generateOrderNumber(result.orderId);
     var numEl = document.getElementById('finalOrderNum'); if(numEl) numEl.textContent = orderNumber;
-
-    var sres = await fetch('/api/checkout/embedded', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ orderId: orderId }) });
-    var sdata = await sres.json();
-    if(!sres.ok || !sdata.clientSecret) { throw new Error((sdata && sdata.error) ? sdata.error : 'No se pudo iniciar el pago'); }
 
     if(typeof Stripe === 'undefined' || !window.__OPABIZ_STRIPE_PK__) { throw new Error('Stripe.js no disponible'); }
     var stripe = Stripe(window.__OPABIZ_STRIPE_PK__);
     if(ec) ec.innerHTML = '';
-    _fmCheckout = await stripe.initEmbeddedCheckout({ clientSecret: sdata.clientSecret });
+    _fmCheckout = await stripe.initEmbeddedCheckout({ clientSecret: result.clientSecret });
     _fmCheckout.mount('#embedded-checkout');
   } catch(err) {
     console.error('fmMountPayment error:', err);
+    _fmPrefetch = null; // sesi\u00f3n inv\u00e1lida: no la reutilices
     if(ec) ec.innerHTML = '<div style="padding:14px;color:#b91c1c;font-size:.8rem;text-align:center;line-height:1.5">' + (isEsS ? 'No se pudo cargar el pago. Usa Atr\u00e1s y vuelve a Continuar para reintentar.' : 'Could not load payment. Use Back, then Continue to retry.') + '</div>';
   } finally {
     _fmMounting = false;
