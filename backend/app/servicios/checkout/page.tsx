@@ -997,11 +997,15 @@ function coRenderExpedited(){
   // se veía chico frente al Order Summary. Ahora se apilan verticalmente
   // (co-choices-v) y suman una intro + bullets, como el paso de Agente
   // Registrado, para llenar el espacio con contenido útil en vez de blanco.
+  // Ojo: el que procesa más rápido o más lento es NUESTRO equipo preparando y
+  // presentando el trámite — Florida no tiene una "fila rápida" propia. Copy
+  // corregido 2026-07-04 para no insinuar que el estado ofrece un servicio
+  // express (lo ofrecemos nosotros, sobre nuestro propio tiempo de preparación).
   var introTxt = isEs
-    ? 'Florida procesa las presentaciones estatales en el orden en que llegan. El procesamiento acelerado mueve tu presentación a la fila rápida del estado — no cambia nada más de tu pedido.'
-    : "Florida processes state filings in the order they arrive. Expedited processing moves your filing into the state's fast lane — nothing else about your order changes.";
+    ? 'Nosotros preparamos y enviamos tu presentación ante el Estado de Florida. Nuestro procesamiento estándar toma de 7 a 14 días hábiles; con el acelerado, la preparamos y enviamos en 1 a 3 días hábiles.'
+    : 'We prepare and file your paperwork with the State of Florida. Our standard processing takes 7-14 business days; with expedited processing, we prepare and file it in 1-3 business days instead.';
   var expBullets=[
-    isEs?'Se presenta ante el estado de Florida en 1-3 días hábiles':'Filed with the State of Florida in 1-3 business days',
+    isEs?'Lo preparamos y presentamos en 1-3 días hábiles':'We prepare and file it in 1-3 business days',
     isEs?'Ideal si necesitas tu EIN, abrir una cuenta bancaria u operar pronto':'Ideal if you need your EIN, a bank account, or to start operating soon',
     isEs?'El cargo se refleja de inmediato en tu resumen — sin sorpresas al pagar':'The fee shows up in your summary right away — no surprises at checkout'
   ].map(function(b){ return '<div class="co-up-incl-item"><span class="co-up-incl-check">&#10003;</span><span>'+b+'</span></div>'; }).join('');
@@ -1016,8 +1020,8 @@ function coRenderExpedited(){
           +'<div class="co-choice-desc">'+(isEs?'1-3 días hábiles':'1-3 business days')+'</div>'
           +'<div class="co-up-incl" style="margin-top:10px">'+expBullets+'</div></div>'
         +'<div class="co-choice'+(std?' sel':'')+'" onclick="coSetExpedited(false)">'
-          +'<div class="co-choice-top"><span class="co-choice-title">'+(isEs?'Tiempo estándar':'Standard time')+'</span><span class="co-choice-price">$0</span></div>'
-          +'<div class="co-choice-desc">'+(isEs?'7-14 días hábiles — el tiempo normal de procesamiento del estado.':"7-14 business days — the state's normal processing time.")+'</div></div>'
+          +'<div class="co-choice-top"><span class="co-choice-title">'+(isEs?'No gracias, esperaré el tiempo estándar':"No thanks, I'll wait the standard time")+'</span><span class="co-choice-price">$0</span></div>'
+          +'<div class="co-choice-desc">'+(isEs?'7-14 días hábiles para que preparemos y enviemos tu presentación.':'7-14 business days for us to prepare and file it.')+'</div></div>'
       +'</div>'
     +'</div>';
 }
