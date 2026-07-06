@@ -3691,7 +3691,11 @@ function toggleFaq(btn) {
 // 2026-04-19 (commit 0c55c4e) por una razon. Si se reactiva, preguntar
 // primero al founder.
 function saveOrder() {
-  try { fmSaveProgress(); } catch(e) {}
+  // Cambio 2026-07-06 (doc 34, escenario 1): antes llamaba fmSaveProgress
+  // que sincronizaba al server. Ahora llama fmSaveProgressAndSync explicito:
+  // fuerza el POST /api/orders/draft -> crea Order isDraft:true en Supabase
+  // -> genera FBFC -> envia email al cliente (solo la primera vez).
+  try { fmSaveProgressAndSync(); } catch(e) {}
   var existing = document.getElementById('save-toast');
   if(existing) existing.remove();
   var t = document.createElement('div');
@@ -5685,6 +5689,14 @@ var FM_FIELD_IDS = [
   'inp-org-sig','inp-ra-name','inp-ra-street','inp-ra-street2','inp-ra-city','inp-ra-state','inp-ra-zip'
 ];
 
+// Cambio 2026-07-06 (doc 34): fmSaveProgress solo guarda localStorage.
+// Ya NO sincroniza al servidor (Order.isDraft), NO genera FBFC, NO envia
+// email. Ese sync solo se dispara desde saveOrder() (boton Save explicito).
+// Motivo: avanzar de paso sin darle a Save NO debe crear una orden real
+// en Supabase ni enviar email al cliente — es fricción no pedida por el
+// negocio. El cliente decide cuando quiere guardar cross-device.
+// Escenario 2 doc 34: cliente avanza pasos + cierra browser sin Save
+// -> solo localStorage, popup 'Continuar/Empezar' al volver.
 function fmSaveProgress() {
   if(fmCurrentStep < 2) return; // nothing meaningful to save at step 1
   var values = {};
@@ -5698,6 +5710,24 @@ function fmSaveProgress() {
     values: values
   };
   try { localStorage.setItem(FM_STORAGE_KEY, JSON.stringify(snapshot)); } catch(e) {}
+}
+
+// Escenario 1 doc 34: solo llamada explícita desde saveOrder() (boton Save).
+// Genera el snapshot y lo sincroniza al servidor -> crea Order isDraft:true
+// -> genera FBFC -> envia email al cliente (primera vez).
+function fmSaveProgressAndSync() {
+  fmSaveProgress();
+  if(fmCurrentStep < 2) return;
+  var values = {};
+  FM_FIELD_IDS.forEach(function(id) {
+    var el = document.getElementById(id);
+    if(el) values[id] = el.value;
+  });
+  var snapshot = {
+    step: fmCurrentStep,
+    fmData: JSON.parse(JSON.stringify(fmData)),
+    values: values
+  };
   fmSyncDraftToServer(snapshot);
 }
 

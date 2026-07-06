@@ -9,14 +9,14 @@ const T = {
   en: {
     title: 'Administration Panel', sub: 'opabiz.com',
     campaigns: 'Campaigns', appointments: 'Appointments',
-    accounting: 'Accounting', security: 'Security', logout: 'Log out',
+    accounting: 'Accounting', security: 'Security', drafts: 'OrderDraft', logout: 'Log out',
     totalOrders: 'Total Orders', unpaid: 'Unpaid',
     inReview: 'In Review', revenue: 'Total Revenue',
   },
   es: {
     title: 'Panel de Administración', sub: 'opabiz.com',
     campaigns: 'Campaigns', appointments: 'Citas',
-    accounting: 'Contabilidad', security: 'Seguridad', logout: 'Cerrar sesión',
+    accounting: 'Contabilidad', security: 'Seguridad', drafts: 'OrderDraft', logout: 'Cerrar sesión',
     totalOrders: 'Total Órdenes', unpaid: 'Sin Pagar',
     inReview: 'En Revisión', revenue: 'Ingresos Totales',
   },
@@ -149,6 +149,9 @@ export default async function AdminDashboard({
             </a>
             <a href={`/admin/security?lang=${lang}`} style={{ fontSize: '13px', color: '#6b7280', textDecoration: 'none', padding: '7px 14px', border: '1.5px solid #e5e7eb', borderRadius: '8px', fontWeight: 600 }}>
               {t.security}
+            </a>
+            <a href={`/admin/drafts?lang=${lang}`} style={{ fontSize: '13px', color: '#6b7280', textDecoration: 'none', padding: '7px 14px', border: '1.5px solid #e5e7eb', borderRadius: '8px', fontWeight: 600 }}>
+              {t.drafts}
             </a>
             <LogoutButton lang={lang} />
           </div>
