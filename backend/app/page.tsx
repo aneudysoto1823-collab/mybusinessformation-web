@@ -212,6 +212,7 @@ nav a:hover{color:var(--navy);background:var(--gray100)}
 .et-toggle-btn{padding:10px 0;width:140px;text-align:center;border-radius:9px;font-size:.88rem;font-weight:600;font-family:var(--font-sans);cursor:pointer;transition:all .25s;background:#fff;color:var(--navy);border:2px solid var(--gray200);box-shadow:0 2px 8px rgba(28,46,68,0.06)}
 .et-toggle-btn:hover{border-color:var(--blue);color:var(--blue);transform:translateY(-1px);box-shadow:0 4px 14px rgba(37,99,235,0.15)}
 @keyframes pulse{0%,100%{box-shadow:0 4px 20px rgba(5,150,105,0.35)}50%{box-shadow:0 4px 28px rgba(5,150,105,0.6)}}
+@keyframes _saveSpin{to{transform:rotate(360deg)}}
 .trust-bar{background:var(--gray50);border-bottom:1px solid var(--gray200);padding:13px 32px}
 .trust-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:28px;flex-wrap:wrap}
 .trust-item{display:flex;align-items:center;gap:6px;font-size:0.75rem;font-weight:500;color:var(--gray600)}
@@ -3690,21 +3691,72 @@ function toggleFaq(btn) {
 // NO se activa fmCheckProgress automatico — Fabian lo desactivo el
 // 2026-04-19 (commit 0c55c4e) por una razon. Si se reactiva, preguntar
 // primero al founder.
+// Cierra el toast de guardado (llamado por el boton X).
+function closeSaveToast() {
+  var t = document.getElementById('save-toast');
+  if(t && t.parentNode) t.remove();
+}
+
+// Actualiza el toast mostrando el numero de orden. Se llama desde
+// fmSyncDraftToServer cuando llega la respuesta del server con el orderId.
+// NO se auto-cierra: el usuario tiene que darle a la X para tener tiempo
+// de copiar el FBFC.
+function _saveToastShowFbfc(fbfc) {
+  var t = document.getElementById('save-toast');
+  if(!t) return; // el user cerro el toast antes que llegara la respuesta
+  var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
+  var titleTxt = isEs ? 'Orden guardada' : 'Order saved';
+  var descTxt = isEs
+    ? 'Tu numero de orden es. Copialo para volver despues:'
+    : 'Your order number is. Copy it to come back later:';
+  t.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#10b981;color:#fff;padding:16px 44px 16px 22px;border-radius:12px;font-size:.92rem;font-weight:600;box-shadow:0 8px 26px rgba(16,185,129,0.42);z-index:99999;font-family:var(--font-sans);max-width:420px;position:fixed';
+  t.innerHTML =
+    '<button onclick="closeSaveToast()" aria-label="Close" style="position:absolute;top:8px;right:10px;background:transparent;border:none;color:#fff;font-size:20px;line-height:1;cursor:pointer;padding:4px 8px;border-radius:6px;font-family:inherit;font-weight:700">&times;</button>' +
+    '<div style="display:flex;align-items:center;gap:9px;margin-bottom:8px;font-size:.98rem">&#10004; ' + titleTxt + '</div>' +
+    '<div style="font-size:.82rem;font-weight:500;opacity:0.95;line-height:1.55;margin-bottom:8px">' + descTxt + '</div>' +
+    '<div style="background:rgba(255,255,255,0.16);border:1px solid rgba(255,255,255,0.28);border-radius:8px;padding:9px 12px;font-family:var(--font-mono, monospace);font-size:1.05rem;font-weight:700;letter-spacing:1.2px;text-align:center">' + fbfc + '</div>';
+}
+
+// Cambia el toast a estado error (server fallo). El user lo cierra manual.
+function _saveToastShowError() {
+  var t = document.getElementById('save-toast');
+  if(!t) return;
+  var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
+  t.style.background = '#dc2626';
+  t.style.boxShadow = '0 8px 26px rgba(220,38,38,0.42)';
+  t.style.padding = '16px 44px 16px 22px';
+  t.innerHTML =
+    '<button onclick="closeSaveToast()" aria-label="Close" style="position:absolute;top:8px;right:10px;background:transparent;border:none;color:#fff;font-size:20px;line-height:1;cursor:pointer;padding:4px 8px;border-radius:6px;font-family:inherit;font-weight:700">&times;</button>' +
+    '<div style="font-size:.94rem">&#9888; ' + (isEs ? 'No pudimos guardar tu orden. Intenta de nuevo.' : "We couldn't save your order. Please try again.") + '</div>';
+}
+
 function saveOrder() {
   // Cambio 2026-07-06 (doc 34, escenario 1): antes llamaba fmSaveProgress
   // que sincronizaba al server. Ahora llama fmSaveProgressAndSync explicito:
   // fuerza el POST /api/orders/draft -> crea Order isDraft:true en Supabase
   // -> genera FBFC -> envia email al cliente (solo la primera vez).
+  //
+  // El toast se muestra inmediato con 'Guardando...' (sin auto-close, sin X)
+  // y se ACTUALIZA cuando el server responde:
+  //   - success -> _saveToastShowFbfc(orderNumber) con boton X para copiar
+  //   - error   -> _saveToastShowError() con boton X
   try { fmSaveProgressAndSync(); } catch(e) {}
   var existing = document.getElementById('save-toast');
   if(existing) existing.remove();
   var t = document.createElement('div');
   t.id = 'save-toast';
-  t.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#10b981;color:#fff;padding:13px 24px;border-radius:10px;font-size:.92rem;font-weight:600;box-shadow:0 6px 22px rgba(16,185,129,0.38);z-index:99999;font-family:var(--font-sans);display:flex;align-items:center;gap:8px;transition:opacity 0.4s';
+  t.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#10b981;color:#fff;padding:13px 24px;border-radius:10px;font-size:.92rem;font-weight:600;box-shadow:0 6px 22px rgba(16,185,129,0.38);z-index:99999;font-family:var(--font-sans);display:flex;align-items:center;gap:8px';
   var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
-  t.innerHTML = '&#10004; ' + (isEs ? 'Guardado — podés volver cuando quieras' : 'Saved — come back anytime');
+  t.innerHTML = '<span style="display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.4);border-top-color:#fff;border-radius:50%;animation:_saveSpin 0.7s linear infinite"></span> ' + (isEs ? 'Guardando...' : 'Saving...');
   document.body.appendChild(t);
-  setTimeout(function(){ t.style.opacity = '0'; setTimeout(function(){ if(t.parentNode) t.remove(); }, 500); }, 2600);
+  // Fallback: si el _saveToastShowFbfc nunca se llama (server no responde en 8s)
+  // -> cerramos el toast solo para no dejar el 'Guardando...' colgado eterno.
+  setTimeout(function(){
+    var stillLoading = document.getElementById('save-toast');
+    if(stillLoading && stillLoading.textContent.indexOf(isEs ? 'Guardando' : 'Saving') >= 0) {
+      _saveToastShowError();
+    }
+  }, 8000);
 }
 
 // Llamado desde el home al click "Continue My Application". Verifica si hay
@@ -5753,9 +5805,18 @@ function fmSyncDraftToServer(snapshot) {
         try { localStorage.setItem(FM_DRAFT_ID_KEY, data.orderId); } catch(e) {}
         generateOrderNumber(data.orderId);
         fmShowDraftOrderNumber();
+        // Cambio 2026-07-06: si hay un save-toast en pantalla (el usuario dio
+        // al boton Save), actualizarlo con el FBFC + boton X para cerrar manual.
+        try { _saveToastShowFbfc(orderNumber); } catch(e) {}
+      } else {
+        // Response OK pero sin orderId (validation error del server, etc.)
+        try { _saveToastShowError(); } catch(e) {}
       }
     })
-    .catch(function(){ _fmDraftSyncing = false; });
+    .catch(function(){
+      _fmDraftSyncing = false;
+      try { _saveToastShowError(); } catch(e) {}
+    });
 }
 
 // Muestra el número FBFC en el header del form apenas existe (desde el paso 2)
