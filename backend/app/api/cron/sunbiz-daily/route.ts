@@ -116,6 +116,27 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(summary)
   } catch (e) {
     const err = e instanceof Error ? e : new Error(String(e))
+    const errMsg = err.message || ''
+
+    // Florida NO publica daily files sábados, domingos ni feriados US.
+    // Cuando el SFTP no encuentra el archivo, el error viene con "cannot find
+    // the file specified" (Windows) o "No such file" (Unix). En ese caso NO
+    // alertamos — es esperable. Cualquier otro error SI alerta como siempre.
+    const isFileNotFound =
+      errMsg.includes('cannot find the file') ||
+      errMsg.includes('No such file') ||
+      /doc\/cor\/\d{8}c\.txt/.test(errMsg)
+
+    if (isFileNotFound) {
+      console.log(`[sunbiz-daily] SKIPPED ${date}: Florida no publico daily (fin de semana o feriado)`)
+      return NextResponse.json({
+        date,
+        skipped: true,
+        reason: 'Florida did not publish a daily file for this date (weekend or US holiday)',
+        durationMs: Date.now() - t0,
+      })
+    }
+
     console.error(`[sunbiz-daily] FATAL ${date}:`, err.message)
     await sendAlert(
       `FATAL al procesar ${date}`,
