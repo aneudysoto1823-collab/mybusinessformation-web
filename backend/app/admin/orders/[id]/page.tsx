@@ -113,6 +113,7 @@ const PAYMENT_BADGE: Record<string, { label: string; bg: string; color: string }
   paid:     { label: 'Pagado',    bg: '#dcfce7', color: '#16a34a' },
   failed:   { label: 'Fallido',   bg: '#fee2e2', color: '#b91c1c' },
   refunded: { label: 'Reembolso', bg: '#ffedd5', color: '#c2410c' },
+  disputed: { label: 'En disputa', bg: '#fecdd3', color: '#9f1239' },
 }
 
 function Badge({ map, value }: { map: Record<string, { label: string; bg: string; color: string }>; value: string }) {

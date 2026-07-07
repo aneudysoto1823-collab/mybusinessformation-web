@@ -31,6 +31,20 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
   }
 
+  // ── Reembolsos y chargebacks ────────────────────────────────────────────
+  // Antes esto no se manejaba en absoluto: un reembolso hecho a mano en el
+  // Dashboard de Stripe (o un chargeback abierto por el banco del cliente)
+  // nunca se reflejaba en la orden ni en la contabilidad interna.
+  if (event.type === 'charge.refunded') {
+    return handleChargeRefunded(event.data.object as Stripe.Charge)
+  }
+  if (event.type === 'charge.dispute.created') {
+    return handleDisputeCreated(event.data.object as Stripe.Dispute)
+  }
+  if (event.type === 'charge.dispute.closed') {
+    return handleDisputeClosed(event.data.object as Stripe.Dispute)
+  }
+
   if (event.type !== 'checkout.session.completed') {
     return NextResponse.json({ received: true })
   }
@@ -107,6 +121,7 @@ export async function POST(req: NextRequest) {
     status:          'in_review',
     speed:           'standard',
     registeredAgent: 'us',
+    stripePaymentId: (session.payment_intent as string) ?? null,
   })
 
   if (orderError) {
@@ -264,10 +279,11 @@ async function handleFormationPaid(orderId: string, session: Stripe.Checkout.Ses
   const { data: order, error } = await supabase
     .from('Order')
     .update({
-      paymentStatus: 'paid',
-      status:        'in_review',
-      amount:        amountPaid,
-      updatedAt:     new Date().toISOString(),
+      paymentStatus:   'paid',
+      status:          'in_review',
+      amount:          amountPaid,
+      stripePaymentId: (session.payment_intent as string) ?? null,
+      updatedAt:       new Date().toISOString(),
     })
     .eq('id', orderId)
     .select()
@@ -390,10 +406,11 @@ async function handleServicesPaid(orderId: string, session: Stripe.Checkout.Sess
   const { data: order, error } = await supabase
     .from('Order')
     .update({
-      paymentStatus: 'paid',
-      status:        'in_review',
-      amount:        amountPaid,
-      updatedAt:     new Date().toISOString(),
+      paymentStatus:   'paid',
+      status:          'in_review',
+      amount:          amountPaid,
+      stripePaymentId: (session.payment_intent as string) ?? null,
+      updatedAt:       new Date().toISOString(),
     })
     .eq('id', orderId)
     .select()
@@ -485,4 +502,145 @@ async function handleServicesPaid(orderId: string, session: Stripe.Checkout.Sess
   }).catch(err => console.error('[stripe-webhook] services admin alert error (non-fatal):', err))
 
   return NextResponse.json({ received: true, orderId, fbfc })
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Reembolsos (`charge.refunded`). La orden se busca por `stripePaymentId`
+// (= payment_intent), guardado al marcar la orden como pagada más arriba —
+// órdenes pagadas ANTES de que existiera ese campo no se pueden emparejar.
+// Se recalcula siempre desde los montos ACUMULADOS de Stripe (charge.amount /
+// charge.amount_refunded), nunca por incremento — así es seguro si Stripe
+// reintenta el mismo evento (idempotente).
+// ─────────────────────────────────────────────────────────────────────────────
+async function handleChargeRefunded(charge: Stripe.Charge) {
+  const supabase = getSupabaseAdmin()
+  const paymentIntentId = (charge.payment_intent as string) ?? null
+  if (!paymentIntentId) return NextResponse.json({ received: true, skipped: 'no_payment_intent' })
+
+  const { data: order } = await supabase
+    .from('Order')
+    .select('id, notes')
+    .eq('stripePaymentId', paymentIntentId)
+    .maybeSingle()
+
+  if (!order) {
+    console.error('[stripe-webhook] refund: no order found for payment_intent', paymentIntentId)
+    return NextResponse.json({ received: true, skipped: 'no_order' })
+  }
+
+  const isFull  = charge.amount_refunded >= charge.amount
+  const netPaid = (charge.amount - charge.amount_refunded) / 100
+  const refundedAmount = charge.amount_refunded / 100
+
+  if (isFull) {
+    await supabase.from('Order').update({ paymentStatus: 'refunded', updatedAt: new Date().toISOString() }).eq('id', order.id)
+  } else {
+    const note = `[${new Date().toISOString().slice(0, 10)}] Reembolso parcial de $${refundedAmount.toFixed(2)} aplicado en Stripe (queda neto $${netPaid.toFixed(2)}).`
+    await supabase.from('Order').update({ notes: order.notes ? `${order.notes}\n${note}` : note, updatedAt: new Date().toISOString() }).eq('id', order.id)
+  }
+
+  await supabase.from('accounting_income')
+    .update({
+      payment_status: isFull ? 'refunded' : 'partial',
+      amount_paid:    netPaid,
+      updated_at:     new Date().toISOString(),
+    })
+    .eq('order_id', order.id)
+
+  return NextResponse.json({ received: true, orderId: order.id, full: isFull, refunded: refundedAmount })
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Chargebacks — el cliente reclamó el cargo ante su banco (no algo que
+// nosotros iniciamos, a diferencia del reembolso). `charge.dispute.created`
+// solo marca la orden como "En disputa" y avisa por email — NO toca todavía
+// la contabilidad, porque el resultado de la disputa aún no se sabe (evita
+// ajustar dos veces si la ganamos). Stripe da un plazo corto para responder
+// con evidencia, por eso el aviso — antes nadie se enteraba de que existía.
+// ─────────────────────────────────────────────────────────────────────────────
+async function handleDisputeCreated(dispute: Stripe.Dispute) {
+  const supabase = getSupabaseAdmin()
+  const paymentIntentId = (dispute.payment_intent as string) ?? null
+  if (!paymentIntentId) return NextResponse.json({ received: true, skipped: 'no_payment_intent' })
+
+  const { data: order } = await supabase
+    .from('Order')
+    .select('id, firstName, lastName, email, companyName')
+    .eq('stripePaymentId', paymentIntentId)
+    .maybeSingle()
+
+  if (!order) {
+    console.error('[stripe-webhook] dispute: no order found for payment_intent', paymentIntentId)
+    return NextResponse.json({ received: true, skipped: 'no_order' })
+  }
+
+  await supabase.from('Order').update({ paymentStatus: 'disputed', updatedAt: new Date().toISOString() }).eq('id', order.id)
+
+  const disputeAmount = dispute.amount / 100
+  getResend().emails.send({
+    from: FROM_OPABIZ_ALERTS,
+    replyTo: REPLY_TO,
+    to: ADMIN_EMAIL,
+    subject: `OpaBiz Alerts: ⚠️ Chargeback abierto — ${order.companyName}`,
+    html: `
+      <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;color:#1e293b">
+        <div style="background:#9f1239;padding:20px 28px;border-radius:10px 10px 0 0">
+          <h1 style="color:#fff;font-size:18px;margin:0">⚠️ Cliente abrió un chargeback</h1>
+        </div>
+        <div style="background:#fff;padding:24px 28px;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 10px 10px;font-size:14px">
+          <table style="width:100%;border-collapse:collapse">
+            <tr><td style="padding:6px 0;color:#64748b;width:40%">Empresa</td><td style="padding:6px 0;font-weight:600">${order.companyName}</td></tr>
+            <tr style="background:#f8fafc"><td style="padding:6px 4px;color:#64748b">Cliente</td><td style="padding:6px 4px;font-weight:600">${order.firstName} ${order.lastName}</td></tr>
+            <tr><td style="padding:6px 0;color:#64748b">Email</td><td style="padding:6px 0"><a href="mailto:${order.email}" style="color:#2563eb">${order.email}</a></td></tr>
+            <tr style="background:#f8fafc"><td style="padding:6px 4px;color:#64748b">Monto en disputa</td><td style="padding:6px 4px;font-weight:700">$${disputeAmount.toFixed(2)} USD</td></tr>
+          </table>
+          <div style="margin-top:16px;padding:12px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;font-size:13px;color:#991b1b">
+            Stripe da un plazo corto para responder con evidencia (Dashboard → Payments → Disputes). Si no se responde a tiempo, se pierde automáticamente.
+          </div>
+          <div style="text-align:center;margin:18px 0 4px">
+            <a href="https://opabiz.com/admin/orders/${order.id}" style="display:inline-block;background:#1d4ed8;color:#fff;text-decoration:none;padding:11px 22px;border-radius:8px;font-size:14px;font-weight:700">Abrir en el panel admin →</a>
+          </div>
+        </div>
+      </div>
+    `,
+  }).catch(err => console.error('[stripe-webhook] dispute alert error (non-fatal):', err))
+
+  return NextResponse.json({ received: true, orderId: order.id })
+}
+
+// `charge.dispute.closed` — se resolvió. 'lost' se trata igual que un
+// reembolso total (la plata ya no está); cualquier otro resultado ('won',
+// 'warning_closed', etc.) vuelve la orden a 'paid'.
+async function handleDisputeClosed(dispute: Stripe.Dispute) {
+  const supabase = getSupabaseAdmin()
+  const paymentIntentId = (dispute.payment_intent as string) ?? null
+  if (!paymentIntentId) return NextResponse.json({ received: true, skipped: 'no_payment_intent' })
+
+  const { data: order } = await supabase
+    .from('Order')
+    .select('id, notes')
+    .eq('stripePaymentId', paymentIntentId)
+    .maybeSingle()
+
+  if (!order) {
+    console.error('[stripe-webhook] dispute closed: no order found for payment_intent', paymentIntentId)
+    return NextResponse.json({ received: true, skipped: 'no_order' })
+  }
+
+  const lost = dispute.status === 'lost'
+  const note = `[${new Date().toISOString().slice(0, 10)}] Chargeback ${lost ? 'perdido' : 'resuelto a favor'} (Stripe status: ${dispute.status}).`
+
+  await supabase.from('Order').update({
+    paymentStatus: lost ? 'refunded' : 'paid',
+    notes:         order.notes ? `${order.notes}\n${note}` : note,
+    updatedAt:     new Date().toISOString(),
+  }).eq('id', order.id)
+
+  if (lost) {
+    await supabase.from('accounting_income')
+      .update({ payment_status: 'refunded', amount_paid: 0, updated_at: new Date().toISOString() })
+      .eq('order_id', order.id)
+  }
+
+  return NextResponse.json({ received: true, orderId: order.id, lost })
 }

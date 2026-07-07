@@ -26,7 +26,9 @@ export async function GET(request: NextRequest) {
       getSupabaseAdmin().from('accounting_expenses').select('amount')
         .gte('expense_date', firstOfMonth).lte('expense_date', lastOfMonth),
       getSupabaseAdmin().from('accounting_clients').select('id', { count: 'exact', head: true }).eq('status', 'active'),
-      getSupabaseAdmin().from('accounting_income').select('amount, amount_paid').neq('payment_status', 'paid'),
+      // Excluye 'paid' Y 'refunded' — una fila reembolsada no es plata que
+      // nos deban, es plata que ya devolvimos (antes se contaba mal como pendiente).
+      getSupabaseAdmin().from('accounting_income').select('amount, amount_paid').not('payment_status', 'in', '("paid","refunded")'),
       getSupabaseAdmin().from('accounting_income')
         .select('id, invoice_number, invoice_date, service_type, amount, payment_status, accounting_clients(name)')
         .order('created_at', { ascending: false }).limit(5),

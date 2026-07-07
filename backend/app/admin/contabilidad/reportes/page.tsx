@@ -77,6 +77,7 @@ tr:last-child td { border-bottom: none; }
 .badge-green { background: #d1fae5; color: #065f46; }
 .badge-yellow { background: #fef3c7; color: #92400e; }
 .badge-blue { background: #dbeafe; color: #1e40af; }
+.badge-orange { background: #ffedd5; color: #c2410c; }
 @media (max-width: 768px) { .page { padding: 16px 12px; } .cols { grid-template-columns: 1fr; } .stats-grid { grid-template-columns: 1fr 1fr; } }
 `
 
@@ -223,7 +224,7 @@ export default function ReportesPage() {
                         <td>{r.accounting_clients?.name ?? '—'}</td>
                         <td>{SERVICE_LABELS[r.service_type] ?? r.service_type}</td>
                         <td style={{ fontWeight: 700, color: '#059669' }}>{fmt(r.amount)}</td>
-                        <td><span className={`badge ${r.payment_status === 'paid' ? 'badge-green' : r.payment_status === 'partial' ? 'badge-blue' : 'badge-yellow'}`}>{r.payment_status === 'paid' ? 'Pagado' : r.payment_status === 'partial' ? 'Parcial' : 'Pendiente'}</span></td>
+                        <td><span className={`badge ${r.payment_status === 'paid' ? 'badge-green' : r.payment_status === 'partial' ? 'badge-blue' : r.payment_status === 'refunded' ? 'badge-orange' : 'badge-yellow'}`}>{r.payment_status === 'paid' ? 'Pagado' : r.payment_status === 'partial' ? 'Parcial' : r.payment_status === 'refunded' ? 'Reembolso' : 'Pendiente'}</span></td>
                       </tr>
                     ))}
                   </tbody>

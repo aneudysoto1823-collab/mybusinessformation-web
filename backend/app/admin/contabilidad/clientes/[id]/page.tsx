@@ -14,8 +14,8 @@ interface Income {
 
 const STATUS_LABEL: Record<string, string> = { active: 'Activo', pending: 'Pendiente', completed: 'Completado' }
 const STATUS_CLASS: Record<string, string> = { active: 'badge-green', pending: 'badge-yellow', completed: 'badge-gray' }
-const PAY_LABEL: Record<string, string> = { paid: 'Pagado', pending: 'Pendiente', partial: 'Parcial' }
-const PAY_CLASS: Record<string, string> = { paid: 'badge-green', pending: 'badge-yellow', partial: 'badge-blue' }
+const PAY_LABEL: Record<string, string> = { paid: 'Pagado', pending: 'Pendiente', partial: 'Parcial', refunded: 'Reembolso' }
+const PAY_CLASS: Record<string, string> = { paid: 'badge-green', pending: 'badge-yellow', partial: 'badge-blue', refunded: 'badge-orange' }
 const SERVICE_LABELS: Record<string, string> = {
   llc: 'LLC', corp: 'Corp', ein: 'EIN', itin: 'ITIN',
   addon: 'Add-on', new_business_letter: 'New Biz Letter', other: 'Otro',
@@ -40,6 +40,7 @@ body { background: #f4f6f9; font-family: var(--font-sans); }
 .badge-yellow { background: #fef3c7; color: #92400e; }
 .badge-gray { background: #f3f4f6; color: #374151; }
 .badge-blue { background: #dbeafe; color: #1e40af; }
+.badge-orange { background: #ffedd5; color: #c2410c; }
 .form-group { margin-bottom: 14px; }
 .form-group label { display: block; font-size: 12px; font-weight: 600; color: #6b7280; margin-bottom: 5px; }
 .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 8px 12px; border: 1.5px solid #e5e7eb; border-radius: 8px; font-size: 13px; color: #1a1a2e; font-family: inherit; outline: none; }

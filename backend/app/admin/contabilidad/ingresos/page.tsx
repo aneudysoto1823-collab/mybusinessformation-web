@@ -21,9 +21,9 @@ const SERVICE_OPTS = ['llc', 'corp', 'ein', 'itin', 'addon', 'new_business_lette
 const SERVICE_LABELS: Record<string, string> = { llc: 'LLC', corp: 'Corp', ein: 'EIN', itin: 'ITIN', addon: 'Add-on', new_business_letter: 'New Biz Letter', other: 'Otro' }
 const METHOD_OPTS = ['cash', 'zelle', 'card', 'stripe', 'check', 'other']
 const METHOD_LABELS: Record<string, string> = { cash: 'Efectivo', zelle: 'Zelle', card: 'Tarjeta', stripe: 'Stripe', check: 'Cheque', other: 'Otro' }
-const STATUS_OPTS = ['paid', 'pending', 'partial']
-const STATUS_LABEL: Record<string, string> = { paid: 'Pagado', pending: 'Pendiente', partial: 'Parcial' }
-const STATUS_CLASS: Record<string, string> = { paid: 'badge-green', pending: 'badge-yellow', partial: 'badge-blue' }
+const STATUS_OPTS = ['paid', 'pending', 'partial', 'refunded']
+const STATUS_LABEL: Record<string, string> = { paid: 'Pagado', pending: 'Pendiente', partial: 'Parcial', refunded: 'Reembolso' }
+const STATUS_CLASS: Record<string, string> = { paid: 'badge-green', pending: 'badge-yellow', partial: 'badge-blue', refunded: 'badge-orange' }
 
 const fmt = (n: number) => `$${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 const today = () => new Date().toISOString().split('T')[0]
@@ -62,6 +62,7 @@ tr:last-child td { border-bottom: none; }
 .badge-green { background: #d1fae5; color: #065f46; }
 .badge-yellow { background: #fef3c7; color: #92400e; }
 .badge-blue { background: #dbeafe; color: #1e40af; }
+.badge-orange { background: #ffedd5; color: #c2410c; }
 .empty { padding: 40px; text-align: center; color: #9ca3af; font-size: 14px; }
 .loading { text-align: center; padding: 40px; color: #9ca3af; font-size: 14px; }
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.5); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 16px; }
