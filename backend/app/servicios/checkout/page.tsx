@@ -385,9 +385,8 @@ html.co-wide .co-tier{padding:20px 18px}
   <div class="co-success" id="co-success" style="display:none">
     <div class="co-success-icon">&#9989;</div>
     <h2 data-en="Order received" data-es="Orden recibida">Orden recibida</h2>
-    <p data-en="Thank you! We received your payment. Our team will contact you within 1 business day with the next steps." data-es="¡Gracias! Recibimos tu pago. Nuestro equipo te contactará en 1 día hábil con los próximos pasos.">¡Gracias! Recibimos tu pago. Nuestro equipo te contactará en 1 día hábil con los próximos pasos.</p>
+    <p data-en="Thank you! We received your payment. You'll receive a confirmation email with your order details shortly." data-es="¡Gracias! Recibimos tu pago. Recibirás un correo de confirmación con los detalles de tu orden en los próximos minutos.">¡Gracias! Recibimos tu pago. Recibirás un correo de confirmación con los detalles de tu orden en los próximos minutos.</p>
     <div class="co-success-num"><span data-en="Your order number" data-es="Tu número de orden">Tu número de orden</span><strong id="co-success-num">—</strong></div>
-    <div><a href="/client-portal" class="co-btn" style="display:inline-block;text-decoration:none" data-en="Go to client portal" data-es="Ir al portal de clientes">Ir al portal de clientes</a></div>
   </div>
 </div>
 
@@ -1590,14 +1589,16 @@ function coCreateSessionReq(intake){
     .catch(function(err){ clearTimeout(timeoutId); throw err; });
 }
 // Pre-crea la sesión en segundo plano mientras el cliente aún está en el paso
-// previo al pago, Y además monta el formulario de Stripe OCULTO dentro de
-// #embedded-checkout (el panel-pay todavía tiene display:none — un iframe ya
-// montado ahí sigue cargando igual, solo no se pinta hasta que el panel se
-// muestra). Así al llegar a "Revisa tu orden" no solo se salta el round-trip
-// del servidor: el propio handshake con Stripe (que es la parte más lenta,
-// initEmbeddedCheckout) también ya corrió, y coStartPayment solo revela el
-// iframe. No crea órdenes extra en el caso feliz: reutiliza la misma promesa
-// si la clave coincide.
+// previo al pago (Order + clientSecret), para que al llegar a "Revisa tu
+// orden" ya no haya que esperar ese round-trip del servidor. El mount()
+// del iframe de Stripe se hace deliberadamente DESPUÉS, recién en
+// coStartPayment cuando panel-pay ya es visible — 2026-07-08: se probó
+// montar también aquí (oculto, con panel-pay en display:none) para eliminar
+// hasta el spinner del handshake de Stripe, pero causaba cuelgues
+// intermitentes: con el contenedor en display:none el navegador no puede
+// calcular las dimensiones del iframe y el mount a veces nunca resuelve.
+// No crea órdenes extra en el caso feliz: reutiliza la misma promesa si la
+// clave coincide.
 function coPrefetchPayment(){
   var intake; try{ intake=coGetIntake(); }catch(e){ return; }
   var r; try{ r=coComputeTotal(); }catch(e){ return; }
@@ -1605,7 +1606,6 @@ function coPrefetchPayment(){
   var key=coPayKey(intake);
   if(coPrefetch && coPrefetch.key===key) return; // ya en curso / lista
   var p=coCreateSessionReq(intake);
-  p.then(function(res){ if(res.ok && res.d.clientSecret) coMountStripe(res.d.clientSecret, key); });
   p.catch(function(){}); // evita "unhandled rejection"; el error real se maneja al consumir
   coPrefetch={ key:key, promise:p };
 }
@@ -1713,15 +1713,12 @@ function coRenderIntakeReview(){
   }
   host.innerHTML = out || '';
 }
-// Crea el checkout embebido de Stripe y lo monta en #embedded-checkout. Se usa
-// tanto para el prefetch oculto (panel-pay todavía no visible, ver
-// coPrefetchPayment) como para el montaje normal al llegar al Review — así el
-// handshake con Stripe (initEmbeddedCheckout) ya corrió en segundo plano y
-// "Revisa tu orden" solo revela un iframe que ya está listo, en vez de esperar
-// ese round-trip. Protegido contra carreras: si mientras esperábamos la
-// respuesta de Stripe alguien más ya montó, o el estado cambió de clave
-// (coPrefetch ya no coincide), se descarta el checkout recién creado sin tocar
-// el DOM.
+// Crea el checkout embebido de Stripe y lo monta en #embedded-checkout. Se
+// llama solo desde coStartPayment, con panel-pay ya visible (ver el gotcha en
+// coPrefetchPayment sobre por qué no se monta antes, oculto). Protegido
+// contra carreras: si mientras esperábamos la respuesta de Stripe el estado
+// cambió de clave (coPrefetch ya no coincide), se descarta el checkout recién
+// creado sin tocar el DOM.
 function coMountStripe(clientSecret, key){
   if(stripeCheckout) return; // ya hay un checkout activo — no dupliques
   var pk=window.__OPABIZ_PK__;
