@@ -577,7 +577,11 @@ async function handleDisputeCreated(dispute: Stripe.Dispute) {
   await supabase.from('Order').update({ paymentStatus: 'disputed', updatedAt: new Date().toISOString() }).eq('id', order.id)
 
   const disputeAmount = dispute.amount / 100
-  getResend().emails.send({
+  // Awaited (a diferencia de otros emails de este archivo): es la única alerta
+  // de chargeback que existe, sin botón de reenvío manual como el A1 — si el
+  // contenedor de Vercel se mata antes de que Resend termine (fire-and-forget),
+  // el email se pierde sin rastro.
+  await getResend().emails.send({
     from: FROM_OPABIZ_ALERTS,
     replyTo: REPLY_TO,
     to: ADMIN_EMAIL,
