@@ -14,6 +14,10 @@ const getResend = () => new Resend(process.env.RESEND_API_KEY)
 const FROM          = process.env.RESEND_FROM_TRANSACTIONAL || 'onboarding@resend.dev'
 const REPLY_TO      = process.env.RESEND_REPLY_TO || 'info@opabiz.com'
 const PORTAL        = 'https://opabiz.com/client-portal'
+// El login real hoy vive en el home (popover), no en /client-portal (ver
+// CLAUDE.md "Login del cliente en el home") — los links "Track My Order"
+// deben mandar aquí, no al landing viejo.
+const PORTAL_HOME   = 'https://opabiz.com'
 const ADMIN_EMAIL   = process.env.INTERNAL_ALERT_EMAIL || 'aneurysoto@gmail.com'
 // Display Names: "OpaBiz" para el cliente, "OpaBiz Alerts" para alertas internas.
 const FROM_OPABIZ        = `OpaBiz <${FROM}>`
@@ -432,6 +436,9 @@ async function handleServicesPaid(orderId: string, session: Stripe.Checkout.Sess
   const servicesPlain = (addons.services ?? []).join(', ')
 
   // Confirmación al cliente
+  const servicesRowsHtml = serviceLines
+    .map(l => `<tr><td style="padding:5px 0;font-size:14px;color:#475569">${l.label}</td><td style="padding:5px 0;font-size:14px;color:#1e293b;font-weight:600;text-align:right;white-space:nowrap">$${l.amount}</td></tr>`)
+    .join('') || '<tr><td style="padding:5px 0;font-size:14px;color:#475569">—</td><td></td></tr>'
   getResend().emails.send({
     from: FROM_OPABIZ,
     replyTo: REPLY_TO,
@@ -440,28 +447,33 @@ async function handleServicesPaid(orderId: string, session: Stripe.Checkout.Sess
     html: `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#1e293b">
         <div style="background:#1C2E44;padding:24px 32px;border-radius:10px 10px 0 0">
-          <h1 style="color:#fff;font-size:22px;margin:0">Florida Business Formation Center</h1>
+          <h1 style="color:#fff;font-size:22px;margin:0">OpaBiz</h1>
+          <p style="color:rgba(255,255,255,0.7);font-size:13px;margin:4px 0 0">Florida Business Formation Center</p>
         </div>
         <div style="background:#fff;padding:32px;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 10px 10px">
-          <h2 style="color:#1C2E44;font-size:20px">Hi ${order.firstName}, your payment is confirmed! 🎉</h2>
+          <h2 style="color:#1C2E44;font-size:20px">Thank you for your purchase, ${order.firstName}!</h2>
           <p style="color:#475569;line-height:1.7">
-            Thank you for choosing OpaBiz. Here's a summary of the services you ordered:
+            Here's a summary of the services you ordered:
           </p>
           <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:20px;margin:20px 0">
-            <ul style="margin:6px 0 6px 18px;font-size:14px;color:#475569">${servicesListHtml}</ul>
-            <p style="margin:6px 0;font-size:14px"><strong>Total paid:</strong> $${amountPaid.toFixed(2)} USD</p>
-            <p style="margin:12px 0 6px;font-size:14px;background:#EFF6FF;padding:10px 14px;border-radius:6px;border-left:3px solid #2563EB">
+            <table style="width:100%;border-collapse:collapse">${servicesRowsHtml}
+              <tr><td style="padding:10px 0 0;border-top:1px solid #e2e8f0;font-size:14px;font-weight:700;color:#1e293b">Total paid</td><td style="padding:10px 0 0;border-top:1px solid #e2e8f0;font-size:14px;font-weight:700;color:#1e293b;text-align:right;white-space:nowrap">$${amountPaid.toFixed(2)} USD</td></tr>
+            </table>
+            <p style="margin:16px 0 0;font-size:14px;background:#EFF6FF;padding:10px 14px;border-radius:6px;border-left:3px solid #2563EB">
               <strong>Confirmation Number:</strong>
               <span style="font-size:16px;font-weight:800;color:#2563EB;letter-spacing:.5px"> ${fbfc}</span>
             </p>
           </div>
           <p style="color:#475569;line-height:1.7">
-            Our team is reviewing your information and will be in touch within <strong>1 business day</strong>
-            to move your order forward.
+            Our team is now reviewing your order and will be in touch with the next steps.
+          </p>
+          <p style="color:#475569;line-height:1.7">
+            To follow up on your order anytime, go to <a href="${PORTAL_HOME}" style="color:#2563EB">opabiz.com</a> and click
+            <strong>Login</strong> — just enter your confirmation number above, no password needed.
           </p>
           <div style="text-align:center;margin:24px 0">
-            <a href="${PORTAL}" style="background:linear-gradient(135deg,#2563EB,#1C2E44);color:#fff;text-decoration:none;padding:13px 32px;border-radius:8px;font-weight:700;font-size:15px;display:inline-block">
-              Access Client Portal
+            <a href="${PORTAL_HOME}" style="background:linear-gradient(135deg,#2563EB,#1C2E44);color:#fff;text-decoration:none;padding:13px 32px;border-radius:8px;font-weight:700;font-size:15px;display:inline-block">
+              Track My Order
             </a>
           </div>
           <p style="margin-top:24px;color:#94a3b8;font-size:12px;line-height:1.6">

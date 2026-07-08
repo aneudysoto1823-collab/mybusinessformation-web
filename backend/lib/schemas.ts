@@ -96,10 +96,20 @@ export const ClientAuthInputSchema = z.object({
   // siendo aceptado si viene (compatibilidad con los forms que lo piden), pero
   // el backend ya no lo usa para filtrar.
   email: Email.optional(),
+  // El guion es opcional al tipear (FBFC-XXXXXXXX o FBFCXXXXXXXX) — al cliente
+  // le genera duda si va o no, y no aporta nada a la validación real.
   confirmationNumber: z
     .string()
     .trim()
-    .regex(/^(?:FBFC|FBNB)-[A-Z0-9]{8}$/i, 'Formato invalido — esperado FBFC-XXXXXXXX o FBNB-XXXXXXXX'),
+    .regex(/^(?:FBFC|FBNB)-?[A-Z0-9]{8}$/i, 'Formato invalido — esperado FBFC-XXXXXXXX o FBNB-XXXXXXXX'),
+})
+
+// ── 3b. POST /api/client-auth/signup — crear cuenta sin haber empezado
+//         ninguna orden todavia (ver [[project_client_account_signup]]).
+export const ClientSignupInputSchema = z.object({
+  firstName: ShortText.min(1),
+  email: Email,
+  password: z.string().min(8).max(100),
 })
 
 // ── 4. POST /api/sunbiz/checkout — Stripe Checkout para New Business Letter ──

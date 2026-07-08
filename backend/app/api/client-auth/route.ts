@@ -60,7 +60,8 @@ export async function POST(request: NextRequest) {
   }
   const { confirmationNumber } = parsed.data
 
-  const match = confirmationNumber.toUpperCase().match(/^(?:FBFC|FBNB)-([A-Z0-9]{8})$/)
+  // Guion opcional (ver ClientAuthInputSchema): acepta FBFC-XXXXXXXX o FBFCXXXXXXXX.
+  const match = confirmationNumber.toUpperCase().match(/^(?:FBFC|FBNB)-?([A-Z0-9]{8})$/)
   if (!match) return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
 
   const idPrefix = match[1].toLowerCase()

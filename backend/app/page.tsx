@@ -193,6 +193,9 @@ html.portal-authed #header-account{display:flex}
 .plogin-error{background:#fef2f2;border:1px solid #fecaca;color:#b91c1c;border-radius:8px;padding:10px 13px;font-size:13px;font-weight:600;margin-bottom:14px;line-height:1.5}
 .plogin-terms{text-align:center;font-size:11px;color:#cbd5e1;line-height:1.55;margin:16px 0 0}
 .plogin-terms a{color:#94a3b8;text-decoration:underline}
+.plogin-switch{text-align:center;font-size:12.5px;color:#64748b;margin:14px 0 0}
+.plogin-switch a{color:#2563eb;font-weight:600;text-decoration:none;cursor:pointer}
+.plogin-switch a:hover{text-decoration:underline}
 nav a:hover{color:var(--navy);background:var(--gray100)}
 .lang-toggle{display:flex;align-items:center;background:var(--gray100);border-radius:20px;padding:3px;gap:2px}
 .lang-btn{padding:5px 14px;border-radius:16px;border:none;cursor:pointer;font-size:0.78rem;font-weight:600;font-family:var(--font-sans);transition:all 0.2s;color:var(--gray400);background:transparent}
@@ -2366,6 +2369,23 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
         <input id="plogin-cred" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="FBFC-00000000 or your password">
       </div>
       <button type="submit" class="plogin-btn" id="plogin-btn">Access My Account</button>
+      <p class="plogin-switch" id="plogin-switch-to-signup"><a href="#" onclick="ploginShowSignup(event)">New here? Create an account</a></p>
+    </form>
+    <form id="plogin-signup-form" onsubmit="portalSignupSubmit(event)" style="display:none">
+      <div class="plogin-group">
+        <label for="plogin-signup-name" id="plogin-lbl-name">First name</label>
+        <input id="plogin-signup-name" type="text" autocomplete="given-name" placeholder="Your first name">
+      </div>
+      <div class="plogin-group">
+        <label for="plogin-signup-email" id="plogin-lbl-signup-email">Email address</label>
+        <input id="plogin-signup-email" type="text" autocomplete="username" autocapitalize="off" spellcheck="false" placeholder="Your email">
+      </div>
+      <div class="plogin-group">
+        <label for="plogin-signup-pw" id="plogin-lbl-signup-pw">Password</label>
+        <input id="plogin-signup-pw" type="password" autocomplete="new-password" placeholder="At least 8 characters">
+      </div>
+      <button type="submit" class="plogin-btn" id="plogin-signup-btn">Create Account</button>
+      <p class="plogin-switch" id="plogin-switch-to-login"><a href="#" onclick="ploginShowLogin(event)">Already have an account? Log in</a></p>
     </form>
     <p class="plogin-terms" id="plogin-terms">By accessing this portal you agree to our <a href="/terms">Terms of Service</a> and <a href="/privacy">Privacy Policy</a>.</p>
   </div>
@@ -3460,13 +3480,25 @@ function setLang(lang) {
   el=document.getElementById('header-logout-btn'); if(el) el.textContent = isEs ? 'Salir' : 'Logout';
   el=document.querySelector('.nav-orders-mobile'); if(el) el.textContent = isEs ? 'Mis órdenes' : 'My Orders';
   el=document.querySelector('.nav-logout-mobile'); if(el) el.textContent = isEs ? 'Salir' : 'Logout';
-  el=document.getElementById('plogin-title'); if(el) el.textContent = isEs ? 'Accede a tu cuenta' : 'Access your account';
   el=document.getElementById('plogin-lbl-email'); if(el) el.textContent = isEs ? 'Correo electrónico' : 'Email address';
   el=document.getElementById('plogin-lbl-cred'); if(el) el.textContent = isEs ? 'Número de confirmación o contraseña' : 'Confirmation number or password';
   el=document.getElementById('plogin-btn'); if(el) el.textContent = isEs ? 'Acceder a Mi Cuenta' : 'Access My Account';
   el=document.getElementById('plogin-acct'); if(el) el.placeholder = isEs ? 'Tu correo' : 'Your email';
   el=document.getElementById('plogin-cred'); if(el) el.placeholder = isEs ? 'FBFC-00000000 o tu contraseña' : 'FBFC-00000000 or your password';
   el=document.getElementById('plogin-terms'); if(el) el.innerHTML = isEs ? 'Al acceder aceptas nuestros <a href="/terms">Términos de Servicio</a> y la <a href="/privacy">Política de Privacidad</a>.' : 'By accessing this portal you agree to our <a href="/terms">Terms of Service</a> and <a href="/privacy">Privacy Policy</a>.';
+  el=document.getElementById('plogin-switch-to-signup'); if(el) el.innerHTML = isEs ? '<a href="#" onclick="ploginShowSignup(event)">¿Nuevo aquí? Crea una cuenta</a>' : '<a href="#" onclick="ploginShowSignup(event)">New here? Create an account</a>';
+  el=document.getElementById('plogin-switch-to-login'); if(el) el.innerHTML = isEs ? '<a href="#" onclick="ploginShowLogin(event)">¿Ya tienes cuenta? Inicia sesión</a>' : '<a href="#" onclick="ploginShowLogin(event)">Already have an account? Log in</a>';
+  el=document.getElementById('plogin-lbl-name'); if(el) el.textContent = isEs ? 'Nombre' : 'First name';
+  el=document.getElementById('plogin-lbl-signup-email'); if(el) el.textContent = isEs ? 'Correo electrónico' : 'Email address';
+  el=document.getElementById('plogin-lbl-signup-pw'); if(el) el.textContent = isEs ? 'Contraseña' : 'Password';
+  el=document.getElementById('plogin-signup-name'); if(el) el.placeholder = isEs ? 'Tu nombre' : 'Your first name';
+  el=document.getElementById('plogin-signup-email'); if(el) el.placeholder = isEs ? 'Tu correo' : 'Your email';
+  el=document.getElementById('plogin-signup-pw'); if(el) el.placeholder = isEs ? 'Mínimo 8 caracteres' : 'At least 8 characters';
+  el=document.getElementById('plogin-signup-btn'); if(el) el.textContent = isEs ? 'Crear Cuenta' : 'Create Account';
+  // El título sigue al form que este visible (login o signup), no se fuerza
+  // siempre a "Access your account" al cambiar de idioma.
+  var _pSignupVisible = document.getElementById('plogin-signup-form') && document.getElementById('plogin-signup-form').style.display !== 'none';
+  el=document.getElementById('plogin-title'); if(el) el.textContent = _pSignupVisible ? (isEs?'Crea tu cuenta':'Create your account') : (isEs?'Accede a tu cuenta':'Access your account');
   el=document.getElementById('lbl-new-app');       if(el) el.textContent = isEs ? 'Nueva Aplicación' : 'Start New Application';
   el=document.getElementById('lbl-continue-app');  if(el) el.textContent = isEs ? 'Continuar Mi Aplicación' : 'Continue My Application';
   // How it works steps
@@ -6840,6 +6872,10 @@ function openPortalLogin(e){
 function closePortalLogin(){
   var ov=document.getElementById('plogin-overlay'); if(ov) ov.classList.remove('open');
   portalLoginError('');
+  // Vuelve al form de Login para la próxima vez que se abra el popover.
+  var sf=document.getElementById('plogin-signup-form'); if(sf) sf.style.display='none';
+  var lf=document.getElementById('plogin-form'); if(lf) lf.style.display='';
+  var ti=document.getElementById('plogin-title'); if(ti) ti.textContent = currentLang==='es' ? 'Accede a tu cuenta' : 'Access your account';
 }
 function portalLoginError(msg){
   var el=document.getElementById('plogin-error');
@@ -6876,6 +6912,54 @@ function portalLoginSubmit(e){
     })
     .catch(function(){
       if(btn){ btn.disabled=false; btn.textContent = isEs ? 'Acceder a Mi Cuenta' : 'Access My Account'; }
+      portalLoginError(isEs ? 'Error de conexión. Intenta de nuevo.' : 'Connection error. Please try again.');
+    });
+}
+// Alterna entre el form de Login y el de Crear cuenta dentro del mismo popover
+// (ver plogin-form / plogin-signup-form). No son modales separados para no
+// perder el contexto (el cliente ya abrió "Login" pensando en su cuenta).
+function ploginShowSignup(e){
+  if(e && e.preventDefault) e.preventDefault();
+  portalLoginError('');
+  var isEs = currentLang==='es';
+  document.getElementById('plogin-form').style.display='none';
+  document.getElementById('plogin-signup-form').style.display='';
+  document.getElementById('plogin-title').textContent = isEs ? 'Crea tu cuenta' : 'Create your account';
+  var em=document.getElementById('plogin-signup-name'); if(em) setTimeout(function(){em.focus();},50);
+}
+function ploginShowLogin(e){
+  if(e && e.preventDefault) e.preventDefault();
+  portalLoginError('');
+  var isEs = currentLang==='es';
+  document.getElementById('plogin-signup-form').style.display='none';
+  document.getElementById('plogin-form').style.display='';
+  document.getElementById('plogin-title').textContent = isEs ? 'Accede a tu cuenta' : 'Access your account';
+  var em=document.getElementById('plogin-acct'); if(em) setTimeout(function(){em.focus();},50);
+}
+function portalSignupSubmit(e){
+  if(e && e.preventDefault) e.preventDefault();
+  var isEs = currentLang==='es';
+  var firstName=((document.getElementById('plogin-signup-name')||{}).value || '').trim();
+  var email=((document.getElementById('plogin-signup-email')||{}).value || '').trim();
+  var password=((document.getElementById('plogin-signup-pw')||{}).value || '');
+  if(!firstName || !email || !password){ portalLoginError(isEs?'Completa todos los campos.':'Please fill in all fields.'); return; }
+  if(password.length<8){ portalLoginError(isEs?'La contraseña debe tener al menos 8 caracteres.':'Password must be at least 8 characters.'); return; }
+  var btn=document.getElementById('plogin-signup-btn');
+  if(btn){ btn.disabled=true; btn.textContent = isEs ? 'Creando...' : 'Creating...'; }
+  fetch('/api/client-auth/signup',{ method:'POST', headers:{'Content-Type':'application/json'}, credentials:'same-origin', body: JSON.stringify({ firstName:firstName, email:email, password:password }) })
+    .then(function(r){ return r.json().then(function(data){ return { ok: r.ok, data: data }; }); })
+    .then(function(res){
+      if(btn){ btn.disabled=false; btn.textContent = isEs ? 'Crear Cuenta' : 'Create Account'; }
+      if(res.ok){
+        if(typeof window.gtag==='function'){ window.gtag('event','client_signup_success',{ lang: currentLang, source:'home' }); }
+        closePortalLogin();
+        window.location.href = '/?resume=1&lang=' + currentLang;
+      } else {
+        portalLoginError((res.data && res.data.error) || (isEs ? 'No se pudo crear la cuenta.' : 'Could not create account.'));
+      }
+    })
+    .catch(function(){
+      if(btn){ btn.disabled=false; btn.textContent = isEs ? 'Crear Cuenta' : 'Create Account'; }
       portalLoginError(isEs ? 'Error de conexión. Intenta de nuevo.' : 'Connection error. Please try again.');
     });
 }
@@ -6926,10 +7010,13 @@ function fmFetchAndRestoreDraft() {
   fetch('/api/orders/draft', { credentials: 'same-origin' })
     .then(function(r){ return r.json(); })
     .then(function(d){
-      if(d && d.isDraft && d.snapshot) {
+      // El orderId se guarda aunque no haya snapshot (cuenta creada por
+      // signup, sin nada llenado todavia) para que al empezar el form mas
+      // tarde se actualice ESTA orden en vez de crear una nueva.
+      if(d && d.isDraft && d.orderId) {
         _fmDraftOrderId = d.orderId;
         try { localStorage.setItem(FM_DRAFT_ID_KEY, d.orderId); } catch(e) {}
-        fmRestoreProgress(d.snapshot);
+        if(d.snapshot) fmRestoreProgress(d.snapshot);
       }
     })
     .catch(function(){});
