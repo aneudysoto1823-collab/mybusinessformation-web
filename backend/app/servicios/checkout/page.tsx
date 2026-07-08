@@ -426,6 +426,11 @@ try { var _rawExp=localStorage.getItem('flbc_svc_expedited'); coExpedited = (_ra
 // solo porque coExpedited viene pre-seleccionado en true por defecto.
 var coExpeditedSeen = false;
 function coSaveCart(){ try{ localStorage.setItem('flbc_svc_cart',JSON.stringify(cart)); localStorage.setItem('flbc_svc_bundles',JSON.stringify(coBundles)); localStorage.setItem('flbc_svc_expedited',coExpedited?'1':'0'); }catch(e){} }
+// Id de la orden ya creada en esta sesión (ver coCreateSessionReq) — se manda
+// de vuelta en cada llamada siguiente para que el servidor actualice esa
+// misma fila en vez de insertar una nueva cada vez que se edita/reintenta.
+var coOrderId = null;
+try { coOrderId = localStorage.getItem('flbc_svc_orderid') || null; } catch(e){}
 var stripeCheckout = null;
 var coMountedKey = null; // clave de coPayKey para la que stripeCheckout está montado (oculto o visible)
 var coEditReturn = false; // true si el cliente entró a un paso vía "Editar" desde la revisión
@@ -1584,8 +1589,13 @@ function coPayKey(intake){ try{ return JSON.stringify({s:cart,b:coBundles,x:coEx
 function coCreateSessionReq(intake){
   var ctrl = (typeof AbortController!=='undefined') ? new AbortController() : null;
   var timeoutId = setTimeout(function(){ if(ctrl) ctrl.abort(); }, 20000);
-  return fetch('/api/checkout/embedded-services',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({services:cart,intake:intake,lang:coLang}),signal:ctrl?ctrl.signal:undefined})
-    .then(function(r){ clearTimeout(timeoutId); return r.json().then(function(d){return{ok:r.ok,d:d};}); })
+  return fetch('/api/checkout/embedded-services',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({services:cart,intake:intake,lang:coLang,orderId:coOrderId}),signal:ctrl?ctrl.signal:undefined})
+    .then(function(r){ clearTimeout(timeoutId); return r.json().then(function(d){
+      // Recuerda el orderId para que la próxima llamada actualice esta misma
+      // fila en vez de crear una orden nueva (ver coOrderId arriba).
+      if(d && d.orderId){ coOrderId=d.orderId; try{ localStorage.setItem('flbc_svc_orderid', d.orderId); }catch(e){} }
+      return{ok:r.ok,d:d};
+    }); })
     .catch(function(err){ clearTimeout(timeoutId); throw err; });
 }
 // Pre-crea la sesión en segundo plano mientras el cliente aún está en el paso
@@ -1758,7 +1768,7 @@ function coRetryPayment(){ coPrefetch=null; coStartPayment(); }
   if(paid){
     var num=''; try{ num=localStorage.getItem('flbc_svc_order')||''; }catch(e){}
     $('co-success-num').textContent=num||'—';
-    try{ localStorage.removeItem('flbc_svc_cart'); localStorage.removeItem('flbc_svc_bundles'); localStorage.removeItem('flbc_svc_order'); localStorage.removeItem('flbc_svc_expedited'); }catch(e){}
+    try{ localStorage.removeItem('flbc_svc_cart'); localStorage.removeItem('flbc_svc_bundles'); localStorage.removeItem('flbc_svc_order'); localStorage.removeItem('flbc_svc_expedited'); localStorage.removeItem('flbc_svc_orderid'); }catch(e){}
     coShowScreen('co-success'); return;
   }
   if(!cart.length){ coShowScreen('co-empty'); return; }

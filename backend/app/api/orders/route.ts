@@ -73,9 +73,11 @@ export async function POST(request: NextRequest) {
       status:        'pending',
     }
 
-    // ── Si viene de un borrador (ver /api/orders/draft), promoverlo a orden
-    //    real en vez de insertar una fila duplicada. El filtro .eq('isDraft', true)
-    //    evita que este endpoint pueda pisar una orden ya promovida/pagada.
+    // ── Si viene de un borrador (ver /api/orders/draft) o de una orden pending
+    //    ya creada por un prefetch anterior en esta misma sesión (ver
+    //    _fmDraftOrderId en page.tsx), actualizarla en vez de insertar una fila
+    //    duplicada. El filtro paymentStatus:'pending' es el blindaje: cubre
+    //    ambos casos (draft real o prefetch) y nunca pisa una orden ya pagada.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let order: any = null
     let error: { message: string } | null = null
@@ -85,7 +87,7 @@ export async function POST(request: NextRequest) {
         .from('Order')
         .update({ ...orderFields, isDraft: false, draftSnapshot: null })
         .eq('id', body.draftOrderId)
-        .eq('isDraft', true)
+        .eq('paymentStatus', 'pending')
         .select()
         .maybeSingle()
       order = updateRes.data

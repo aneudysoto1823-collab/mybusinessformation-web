@@ -56,14 +56,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: isEs ? 'Monto inválido.' : 'Invalid amount.' }, { status: 400 })
     }
 
-    // Crear la orden pending en Supabase
+    // Crea la orden pending en Supabase, o la actualiza si ya existe una de
+    // esta misma sesión (ver body.orderId) — antes cada llamada (prefetch,
+    // reintento, volver a editar un paso) insertaba una fila nueva, dejando
+    // huérfanas todas las anteriores en 'pending'. El guard paymentStatus
+    // 'pending' evita pisar una orden que ya se pagó.
     const supabase = getSupabaseAdmin()
-    const orderId = crypto.randomUUID()
     const now = new Date().toISOString()
-
-    const { error: orderError } = await supabase.from('Order').insert({
-      id:              orderId,
-      createdAt:       now,
+    const fields = {
       updatedAt:       now,
       firstName,
       lastName,
@@ -72,21 +72,42 @@ export async function POST(req: NextRequest) {
       country:         String(intake.country || 'US'),
       companyName:     (legalName || `${firstName} ${lastName}`).toUpperCase(),
       entityType,
-      package:         'services',
       // Guardamos TODO lo capturado (servicios + intake + desglose) en addons
       // (JSON) para que el equipo procese cada servicio. members queda null.
       addons:          { services: uniqueIds, bundles: bundleIds, intake, lines },
       amount:          total,
-      currency:        'USD',
-      paymentStatus:   'pending',
-      status:          'pending',
-      speed:           'standard',
-      registeredAgent: 'us',
-    })
+    }
 
-    if (orderError) {
-      console.error('[checkout/embedded-services] order insert error:', orderError)
-      return NextResponse.json({ error: isEs ? 'No se pudo crear la orden.' : 'Could not create order.', detail: orderError.message }, { status: 500 })
+    let orderId: string | null = null
+    if (typeof body.orderId === 'string' && body.orderId) {
+      const { data: updated } = await supabase
+        .from('Order')
+        .update(fields)
+        .eq('id', body.orderId)
+        .eq('paymentStatus', 'pending')
+        .select('id')
+        .maybeSingle()
+      orderId = updated?.id ?? null
+    }
+
+    if (!orderId) {
+      orderId = crypto.randomUUID()
+      const { error: orderError } = await supabase.from('Order').insert({
+        id:              orderId,
+        createdAt:       now,
+        package:         'services',
+        currency:        'USD',
+        paymentStatus:   'pending',
+        status:          'pending',
+        speed:           'standard',
+        registeredAgent: 'us',
+        ...fields,
+      })
+
+      if (orderError) {
+        console.error('[checkout/embedded-services] order insert error:', orderError)
+        return NextResponse.json({ error: isEs ? 'No se pudo crear la orden.' : 'Could not create order.', detail: orderError.message }, { status: 500 })
+      }
     }
 
     // Stripe rechaza líneas en $0 (ej. Agente Registrado gratis al combinar); se

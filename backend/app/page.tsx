@@ -5529,6 +5529,11 @@ function _fmCreateSessionReq(payload) {
     .then(function(o) {
       if(!(o.res.ok && o.data.success)) throw new Error((o.data && o.data.error) ? o.data.error : 'Error desconocido');
       var orderId = o.data.orderId;
+      // Recuerda el orderId aunque el cliente nunca haya usado "Save" — si no,
+      // togglear un addon despues de este punto volvia a mandar draftOrderId
+      // vacio y /api/orders insertaba una fila nueva en vez de actualizar esta.
+      _fmDraftOrderId = orderId;
+      try { localStorage.setItem(FM_DRAFT_ID_KEY, orderId); } catch(e) {}
       return fetch('/api/checkout/embedded', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ orderId: orderId }) })
         .then(function(sres) { return sres.json().then(function(sdata) { return { sres: sres, sdata: sdata }; }); })
         .then(function(s) {
