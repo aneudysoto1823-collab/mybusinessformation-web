@@ -373,6 +373,21 @@ El dominio redirige **`opabiz.com` (apex) → `www.opabiz.com`** con un **308**.
 
 > **Estructura de cuentas Stripe:** 1 sola cuenta "Florida Business Formation Center" = `acct_1TkDfgCSqYWERc9A` (live, `pk_live_51TkDfg…`) + 1 **sandbox** con id propio `acct_1TkDfrCJpzHlLzWq` (`pk_test_51TkDfr…`). El sitio en test usa las keys del **sandbox** (`TkDfr`) — ahí van los pagos de prueba y el webhook de test. No son cuentas duplicadas; el sandbox del modelo nuevo de Stripe tiene su propio `acct_` id.
 
+#### Stripe LIVE — preparado, NO activado (2026-07-07)
+
+Se completó toda la preparación del lado de Stripe para pasar a Live, **sin cargar todavía las llaves en Vercel** (decisión explícita — se activa en un paso aparte cuando se decida lanzar de verdad, ver checklist que se armó como artifact durante la sesión):
+- ✅ Cuenta cambiada a modo Live, webhook creado (`https://www.opabiz.com/api/webhooks/stripe`, con `www`), llaves `pk_live_.../sk_live_...` obtenidas.
+- ✅ Statement descriptor ya venía cargado (`OPABIZ.COM`, heredado del perfil de verificación de la cuenta — no hubo que configurarlo).
+- ✅ Cupón `basic-package-free` creado en Live ($99 fixed amount off, duration Once) → futuro `STRIPE_BASIC_COUPON_ID`.
+- ✅ Payment methods revisados: Card/Apple Pay/Cash App Pay/Link activos; Google Pay activado; Affirm sale "Ineligible" (Stripe no aprobó la cuenta todavía, no bloqueante). **Link se deja activo a propósito** (ver decisión previa) aunque a veces aparece antes que la tarjeta para clientes que ya tienen cuenta Link en otro comercio — es un comportamiento de la red de Link, no configurable por orden de lista.
+- ✅ Teléfono de la cuenta verificado (requisito de Stripe para procesar pagos).
+- **Pendiente antes de activar de verdad:** confirmar los precios placeholder de `/servicios/checkout` (ver sección de esa página más abajo) — si se cargan las llaves Live sin resolver eso, se le cobra a un cliente real un precio sin confirmar.
+- **Para activar:** cargar las 4 variables (`STRIPE_SECRET_KEY`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_BASIC_COUPON_ID`) en Vercel → Production, y redeploy. Es reversible (volver a las keys de test), pero mientras está cargado se cobran tarjetas reales en todo el sitio — no hay ambiente de prueba separado, es un interruptor único.
+
+#### Reembolsos y chargebacks — se reflejan solos (2026-07-07)
+
+Antes no existía ningún manejo: un reembolso hecho a mano en Stripe (o un chargeback del banco del cliente) nunca se reflejaba en el sitio — la orden quedaba `paid` para siempre y la plata se seguía contando en contabilidad. Ahora el webhook escucha también `charge.refunded`, `charge.dispute.created` y `charge.dispute.closed`, actualiza `Order.paymentStatus` (`refunded` / `disputed`) y la fila correspondiente de `accounting_income`, y manda alerta interna por email solo cuando se **abre** un chargeback (no en reembolsos, que el founder ya sabe que hizo). No hay botón de reembolso en el sitio — sigue haciéndose en Stripe como siempre. Doc completa: `LOGICA_DE_NEGOCIO/35_reembolsos_y_chargebacks.md`. Limitación conocida: órdenes pagadas antes del 2026-07-07 no tienen `stripePaymentId` guardado, así que un reembolso sobre esas no se puede emparejar automáticamente.
+
 ---
 
 ## Recuperación de orden en progreso — "Continue My Application" (2026-07-02)
