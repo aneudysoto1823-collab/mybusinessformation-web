@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
 export interface NameCheck {
@@ -152,6 +153,16 @@ export default function OrdersTable({ orders, lang = 'es' }: { orders: Order[]; 
   const [search, setSearch] = useState('')
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
+
+  // Refresca la data del server cada 20s (router.refresh() re-corre el server
+  // component AdminDashboard, que vuelve a leer Order de Supabase) para que
+  // órdenes/cambios de estado nuevos aparezcan solos, sin recargar la página
+  // ni perder los filtros locales de arriba.
+  const router = useRouter()
+  useEffect(() => {
+    const id = setInterval(() => router.refresh(), 20000)
+    return () => clearInterval(id)
+  }, [router])
 
   const countFor = (key: string) => {
     if (key === 'all') return orders.length

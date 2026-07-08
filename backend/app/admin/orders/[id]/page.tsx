@@ -203,6 +203,25 @@ export default function OrderDetailPage() {
       .finally(() => setLoading(false))
   }, [id])
 
+  // Refresca solo el objeto "order" (paymentStatus, status, etc.) cada 20s
+  // para que un cambio disparado por webhook (ej. un reembolso o chargeback)
+  // aparezca solo, sin recargar la página. No toca notes/selectedStatus para
+  // no pisar una edición en curso del admin.
+  useEffect(() => {
+    const poll = () => {
+      fetch(`${PROXY}/orders/${id}`)
+        .then(r => (r.ok ? r.json() : null))
+        .then(data => {
+          if (!data) return
+          const o = data.order ?? data.data ?? data
+          setOrder(o)
+        })
+        .catch(() => {})
+    }
+    const intervalId = setInterval(poll, 20000)
+    return () => clearInterval(intervalId)
+  }, [id])
+
   // ── Guardar notas (Func 6) ───────────────────────────────────────────────
   async function handleSaveNotes() {
     setNotesSaving(true)
