@@ -3,6 +3,7 @@ import { getSupabaseAdmin } from '@/lib/supabase'
 import { sendOrderApprovalUpdate } from '@/lib/notifications'
 import { logAdminAction } from '@/lib/audit-log'
 import { verifyAdminToken } from '@/lib/session'
+import { getOrderItemKeys } from '@/lib/order-items'
 
 async function verifyAdmin(request: NextRequest): Promise<boolean> {
   const session = request.cookies.get('admin_session')
@@ -79,8 +80,7 @@ export async function POST(request: NextRequest) {
     // 2. Calcular qué queda pendiente: universo de ítems = formación + addons
     //    marcados true en la orden, menos lo que ya está entregado acumulado.
     const existingDelivered = (order.deliveredItems ?? {}) as Record<string, boolean>
-    const addons = (order.addons ?? {}) as Record<string, boolean>
-    const allItemKeys = ['formation', ...Object.keys(addons).filter(k => addons[k])]
+    const allItemKeys = getOrderItemKeys(order.package, order.addons)
     const newDelivered: Record<string, boolean> = { ...existingDelivered }
     for (const key of approvedItems) newDelivered[key] = true
     const pendingItems = allItemKeys.filter(k => !newDelivered[k])

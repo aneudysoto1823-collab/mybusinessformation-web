@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { getOrderItemKeys, getOrderItemLabel } from '@/lib/order-items'
 
 interface Order {
   id: string
@@ -217,6 +218,14 @@ export default function DashboardContent({
   ]
   const activeAddons = addonItems.filter(a => addons[a.key])
   const pkgServices = PACKAGE_SERVICES[pkgKey] ?? []
+  // Órdenes à la carte de /servicios/checkout (package:'services') — el shape
+  // de order.addons es {services, bundles, intake, lines, lang}, no el mapa de
+  // booleanos de formación. getOrderItemKeys ya sabe resolver ambos shapes (y
+  // el de marketing) a etiquetas legibles sin mostrar claves crudas.
+  const isServicesOrder = pkgKey === 'services'
+  const servicesOrderLabels = isServicesOrder
+    ? getOrderItemKeys('services', order.addons).map(k => getOrderItemLabel(k, { entityType: order.entityType, lang: es ? 'es' : 'en' }))
+    : []
 
   return (
     <div className="cp-wrapper">
@@ -327,7 +336,9 @@ export default function DashboardContent({
           <div className="my-orders-grid">
             {allOrders.map(o => {
               const num = getConfirmationNumber(o.id, o.package)
-              const pkgLabel = PACKAGE_INFO[o.package?.toLowerCase()]?.[es ? 'es' : 'en'] ?? o.package
+              const oPkgKey = o.package?.toLowerCase()
+              const pkgLabel = PACKAGE_INFO[oPkgKey]?.[es ? 'es' : 'en']
+                ?? (oPkgKey === 'services' ? (es ? 'Servicios a la Carta' : 'À La Carte Services') : o.package)
               const isActive = o.id === order.id
               const sl = STATUS_LABELS[o.status] ?? { en: o.status, es: o.status }
               return (
@@ -408,10 +419,13 @@ export default function DashboardContent({
       <div className="cp-card">
         <h2>{isAddon ? (es ? 'Tus Servicios' : 'Your Services') : (es ? 'Tu Paquete y Servicios' : 'Your Package & Services')}</h2>
         <div>
-          <span className="pkg-name">{pkgInfo ? (es ? pkgInfo.es : pkgInfo.en) : order.package}</span>
+          <span className="pkg-name">
+            {pkgInfo ? (es ? pkgInfo.es : pkgInfo.en) : isServicesOrder ? (es ? 'Servicios a la Carta' : 'À La Carte Services') : order.package}
+          </span>
           {pkgInfo?.popular && <span className="pkg-popular">{es ? 'Más Popular' : 'Most Popular'}</span>}
         </div>
         {pkgInfo?.price && <div className="pkg-price">{pkgInfo.price}</div>}
+        {isServicesOrder && <div className="pkg-price">{es ? `Total pagado: $${order.amount.toFixed(2)}` : `Total paid: $${order.amount.toFixed(2)}`}</div>}
         {order.speed === 'expedited' && (
           <div className="pkg-speed-badge">⚡ {es ? 'Procesamiento Prioritario (1–3 días)' : 'Priority Processing (1–3 days)'}</div>
         )}
@@ -422,6 +436,17 @@ export default function DashboardContent({
               <ul className="pkg-services">
                 {addonServices.map(s => (
                   <li key={s}><span className="chk">✓</span>{(ADDON_SERVICE_LABELS[s] ?? { en: s, es: s })[es ? 'es' : 'en']}</li>
+                ))}
+              </ul>
+            </>
+          )
+        ) : isServicesOrder ? (
+          servicesOrderLabels.length > 0 && (
+            <>
+              <div className="pkg-sublabel">{es ? 'Servicios Comprados' : 'Services Purchased'}</div>
+              <ul className="pkg-services">
+                {servicesOrderLabels.map(l => (
+                  <li key={l}><span className="chk">✓</span>{l}</li>
                 ))}
               </ul>
             </>

@@ -1,4 +1,5 @@
 import { Resend } from 'resend'
+import { getOrderItemLabel, FORMATION_ADDON_NAMES } from './order-items'
 
 // Lazy init: se crea al primer uso, cuando dotenv ya cargó el .env
 const getResend = () => new Resend(process.env.RESEND_API_KEY)
@@ -295,23 +296,10 @@ export const sendSuggestNames = async (order: {
 }
 
 // Nombres de add-ons de formación (order.addons = {ein, oa, itin, btr, str, cc,
-// dba, br, gd, gs, sc, bl} booleanos — ver lib/pricing.ts ADDON_PRICES). Mapa
-// propio acá (no el de lib/pricing.ts) porque ese es de precios en inglés
-// nada más — este es solo para mostrar el nombre en el idioma del email.
-const ADDON_NAMES: Record<string, { en: string; es: string }> = {
-  ein:  { en: 'EIN / Tax ID Number', es: 'EIN / Número de Identificación Fiscal' },
-  oa:   { en: 'Operating Agreement', es: 'Acuerdo Operativo' },
-  itin: { en: 'ITIN Application', es: 'Solicitud de ITIN' },
-  btr:  { en: 'Local Business Tax Receipt', es: 'Licencia Comercial Local' },
-  str:  { en: 'Sales Tax Registration', es: 'Registro de Impuesto sobre Ventas' },
-  cc:   { en: 'Certified Copy', es: 'Copia Certificada' },
-  dba:  { en: 'DBA / Fictitious Name', es: 'DBA / Nombre Ficticio' },
-  br:   { en: 'Banking Resolution', es: 'Resolución Bancaria' },
-  gd:   { en: 'Exclusive Formation Guide', es: 'Guía Exclusiva de Formación' },
-  gs:   { en: 'Certificate of Good Standing', es: 'Certificado de Buena Reputación' },
-  sc:   { en: 'S-Corp Election', es: 'Elección de S-Corp' },
-  bl:   { en: 'Business License', es: 'Licencia de Negocios' },
-}
+// dba, br, gd, gs, sc, bl} booleanos — ver lib/pricing.ts ADDON_PRICES).
+// Fuente única en lib/order-items.ts (compartida con el checklist admin y el
+// portal del cliente).
+const ADDON_NAMES = FORMATION_ADDON_NAMES
 
 // Qué incluye cada tier de paquete — mismo contenido que PACKAGE_SERVICES en
 // app/order/complete/page.tsx (mantener sincronizado si cambian los paquetes).
@@ -455,18 +443,13 @@ export const sendOrderProcessed = async (order: {
   })
 }
 
-// Nombre del ítem "formation" (la LLC/Corp en sí) — se combina con ADDON_NAMES
-// para armar las listas de "aprobado ahora" / "todavía en proceso" del email
-// unificado de abajo. entityType decide si dice LLC o Corporation.
-function formationItemName(entityType: string | undefined, lang: 'en' | 'es'): string {
-  const isCorp = (entityType ?? 'llc').toLowerCase() === 'corp'
-  if (lang === 'es') return isCorp ? 'Formación de Corporation (Artículos de Incorporación)' : 'Formación de LLC (Artículos de Organización)'
-  return isCorp ? 'Corporation Formation (Articles of Incorporation)' : 'LLC Formation (Articles of Organization)'
-}
-
+// Resuelve cualquier clave de ítem (formación, addon de formación, servicio o
+// bundle à la carte, o servicio de marketing — ver lib/order-items.ts) a su
+// nombre legible en el idioma del email. Reemplaza la versión local que solo
+// conocía 'formation' + los 12 addons de formación (mostraba la clave cruda
+// para órdenes de /servicios/checkout o de marketing).
 function itemLabel(key: string, entityType: string | undefined, lang: 'en' | 'es'): string {
-  if (key === 'formation') return formationItemName(entityType, lang)
-  return ADDON_NAMES[key]?.[lang] ?? key
+  return getOrderItemLabel(key, { entityType, lang })
 }
 
 // ── 5/6 unificados — Aprobación + entrega de documento(s) ────────────────────

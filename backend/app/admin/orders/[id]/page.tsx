@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import ServicesFilingForm from './ServicesFilingForm'
+import { getOrderItemKeys, getOrderItemLabel } from '@/lib/order-items'
 
 const PROXY = '/api/proxy'
 
@@ -54,24 +55,6 @@ const PACKAGE_INFO: Record<string, { name: string; price: string; popular?: bool
   standard: { name: 'Standard',            price: '$149 + state fee', popular: true },
   premium:  { name: 'Premium',             price: '$249 + state fee' },
   addon:    { name: 'New Business Letter',  price: 'Variable' },
-}
-
-// Etiquetas para el checklist de "Enviar documento(s) al cliente" — mismas
-// claves que Order.addons (ver lib/pricing.ts ADDON_PRICES) + 'formation'.
-const DELIVERY_ITEM_LABELS: Record<string, string> = {
-  formation: 'LLC/Corp Formation (Certificate)',
-  ein: 'EIN / Tax ID Number',
-  oa: 'Operating Agreement',
-  itin: 'ITIN Application',
-  btr: 'Local Business Tax Receipt',
-  str: 'Sales Tax Registration',
-  cc: 'Certified Copy',
-  dba: 'DBA / Fictitious Name',
-  br: 'Banking Resolution',
-  gd: 'Exclusive Formation Guide',
-  gs: 'Certificate of Good Standing',
-  sc: 'S-Corp Election',
-  bl: 'Business License',
 }
 
 const PACKAGE_SERVICES: Record<string, string[]> = {
@@ -331,8 +314,7 @@ export default function OrderDetailPage() {
   function pendingDeliveryItems(): string[] {
     if (!order) return []
     const delivered = order.deliveredItems ?? {}
-    const addons = (order.addons ?? {}) as Record<string, boolean>
-    const all = ['formation', ...Object.keys(addons).filter(k => addons[k])]
+    const all = getOrderItemKeys(order.package, order.addons)
     return all.filter(k => !delivered[k])
   }
 
@@ -1075,13 +1057,13 @@ export default function OrderDetailPage() {
                     checked={!!deliveryChecked[key]}
                     onChange={e => setDeliveryChecked(prev => ({ ...prev, [key]: e.target.checked }))}
                   />
-                  {DELIVERY_ITEM_LABELS[key] ?? key}
+                  {getOrderItemLabel(key, { entityType: order.entityType })}
                 </label>
               ))}
               {Object.keys(order.deliveredItems ?? {}).filter(k => order.deliveredItems?.[k]).map(key => (
                 <label key={key} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13.5px', color: '#9ca3af' }}>
                   <input type="checkbox" checked disabled />
-                  {DELIVERY_ITEM_LABELS[key] ?? key} <span style={{ fontSize: '12px' }}>(ya entregado)</span>
+                  {getOrderItemLabel(key, { entityType: order.entityType })} <span style={{ fontSize: '12px' }}>(ya entregado)</span>
                 </label>
               ))}
             </div>
