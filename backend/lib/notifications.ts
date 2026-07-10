@@ -306,7 +306,7 @@ const ADDON_NAMES = FORMATION_ADDON_NAMES
 // Antes el email solo decía "Package: Standard" sin decir qué trae ese tier;
 // esto lo hace explícito para que el cliente vea el detalle completo de lo
 // que compró, no solo el nombre del paquete.
-const PACKAGE_SERVICES: Record<string, { en: string; es: string }[]> = {
+export const PACKAGE_SERVICES: Record<string, { en: string; es: string }[]> = {
   basic: [
     { en: 'Business Formation Filing', es: 'Registro de Formación Empresarial' },
     { en: 'Name Availability Search', es: 'Verificación de Disponibilidad de Nombre' },

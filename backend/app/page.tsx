@@ -635,6 +635,9 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 .fm-sum-val{font-weight:600;color:#1e293b}
 .fm-sum-val.free{color:#059669}
 .fm-sum-check{color:#f97316}
+.fm-sum-pkg-incl{padding:0 20px 10px;display:flex;flex-direction:column;gap:4px}
+.fm-sum-pkg-incl-item{display:flex;align-items:flex-start;gap:6px;font-size:.71rem;color:#6b7280;line-height:1.45}
+.fm-sum-pkg-incl-item span:first-child{color:#16a34a;font-weight:700;flex-shrink:0}
 .fm-sum-foot{padding:12px 20px;border-top:2px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center}
 .fm-sum-total-lbl{font-size:.86rem;font-weight:700;color:#1e293b}
 .fm-sum-total-val{font-size:1.1rem;font-weight:900;color:#2563eb;font-family:var(--font-serif)}
@@ -689,10 +692,10 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 .fm-speed-card{border:1.5px solid #e5e7eb;border-radius:10px;padding:16px;cursor:pointer;transition:all .2s;position:relative}
 .fm-speed-card:hover{border-color:#93c5fd}
 .fm-speed-card.selected{border-color:#2563eb;background:#eff6ff}
-.fm-speed-decline{display:block;width:fit-content;max-width:100%;margin:14px auto 0;text-align:center;background:#fff;border:1.5px solid #d1d5db;border-radius:9px;color:#4b5563;font-size:.85rem;font-weight:600;cursor:pointer;padding:11px 22px;font-family:inherit;transition:all .2s}
-.fm-speed-decline:hover{border-color:#93c5fd;color:#2563eb}
-.fm-speed-decline.selected{border-color:#2563eb;background:#eff6ff;color:#1e293b}
-.fm-speed-decline.selected::before{content:'\\2713 ';color:#2563eb;font-weight:800}
+.fm-speed-intro{font-size:.85rem;color:#6b7280;line-height:1.6;margin:-6px 0 16px}
+.fm-speed-bullets{margin-top:10px;display:flex;flex-direction:column;gap:6px}
+.fm-speed-bullet-item{display:flex;align-items:flex-start;gap:7px;font-size:.78rem;color:#6b7280;line-height:1.45}
+.fm-speed-bullet-item span:first-child{color:#16a34a;font-weight:700;flex-shrink:0}
 .fm-speed-badge{position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#f97316;color:#fff;font-size:.65rem;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:.5px}
 .fm-speed-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
 .fm-speed-top label{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.88rem;font-weight:600;color:#1e293b}
@@ -774,6 +777,15 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 .fm-review-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .fm-review-field label{font-size:.72rem;color:#9ca3af;display:block;margin-bottom:2px}
 .fm-review-field span{font-size:.82rem;color:#1e293b;font-weight:500}
+.fm-review-pkg-incl{margin-top:12px;padding-top:12px;border-top:1px solid #f0f0f0;display:flex;flex-direction:column;gap:6px}
+.fm-review-pkg-incl-title{font-size:.68rem;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px}
+.fm-review-pkg-incl-item{display:flex;align-items:flex-start;gap:7px;font-size:.8rem;color:#374151}
+.fm-review-pkg-incl-item span:first-child{color:#16a34a;font-weight:700;flex-shrink:0}
+.fm-review-services-list{display:flex;flex-direction:column}
+.fm-review-service-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f3f4f6;font-size:.85rem}
+.fm-review-service-row:last-child{border-bottom:none}
+.fm-review-service-name{color:#374151}
+.fm-review-service-price{color:#1e293b;font-weight:700;white-space:nowrap}
 
 /* Payment */
 .fm-pay-option{border:1.5px solid #e5e7eb;border-radius:9px;padding:13px 16px;margin-bottom:10px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:space-between}
@@ -1868,14 +1880,22 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           <div class="fm-card-body">
             <h2 class="fm-title" id="s6-title">Faster processing</h2>
             <p class="fm-sub" id="s6-sub">Want it faster? Upgrade to expedited state filing where applicable.</p>
+            <p class="fm-speed-intro" id="s6-intro">Our standard processing takes 7-14 business days; with expedited, we prepare and file it in 1-3 business days.</p>
             <div class="fm-speed-cards">
               <div class="fm-speed-card selected" id="speed-exp" onclick="fmSetSpeed('expedited',this)">
                 <div class="fm-speed-badge" id="s6-badge">Fastest</div>
                 <div class="fm-speed-top"><label id="s6-exp-lbl">&#9889; Expedited processing</label><span class="fm-speed-price" id="fms6-exp-price">+$79</span></div>
                 <div class="fm-speed-date" id="s6-exp-desc">1-3 business days</div>
+                <div class="fm-speed-bullets">
+                  <div class="fm-speed-bullet-item"><span>&#10003;</span><span id="s6-bullet-1">We prepare and file it in 1-3 business days</span></div>
+                  <div class="fm-speed-bullet-item"><span>&#10003;</span><span id="s6-bullet-2">Ideal if you need your EIN, a bank account, or to start operating soon</span></div>
+                </div>
+              </div>
+              <div class="fm-speed-card" id="speed-std" onclick="fmSetSpeed('standard',this)">
+                <div class="fm-speed-top"><label id="s6-std-lbl">No thanks, I'll wait the standard time</label><span class="fm-speed-price" id="s6-std-price">$0</span></div>
+                <div class="fm-speed-date" id="s6-std-desc">7-14 business days for us to prepare and file it.</div>
               </div>
             </div>
-            <button type="button" class="fm-speed-decline" id="speed-std" onclick="fmSetSpeed('standard',this)"><span id="s6-std-desc">No thanks, I'll wait the standard time (7-14 business days)</span></button>
           </div>
           <div class="fm-card-footer">
             <button class="btn-back-fm" onclick="fmBack()">&#8592; <span id="s6-back">Back</span></button>
@@ -2236,6 +2256,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
                 <div class="fm-review-field"><label id="rev-pkg-lbl">Package</label><span id="rev-pkg-val">Standard</span></div>
                 <div class="fm-review-field"><label id="rev-speed-lbl">Filing Speed</label><span id="rev-speed-val">Standard (7-14 days)</span></div>
               </div>
+              <div class="fm-review-pkg-incl" id="rev-pkg-incl"></div>
             </div>
           </div>
           <!-- Contact Info -->
@@ -2327,6 +2348,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
       <div class="fm-sum-body">
         <div class="fm-sum-line"><span class="fm-sum-lbl" id="sum-lbl-entity">Entity</span><span class="fm-sum-val sum-entity-val">LLC</span></div>
         <div class="fm-sum-line"><span class="fm-sum-lbl" id="sum-lbl-pkg">Package</span><span class="fm-sum-val sum-pkg-val">Standard &#8212; $199</span></div>
+        <div class="fm-sum-pkg-incl sum-pkg-incl"></div>
         <div class="fm-sum-line"><span class="fm-sum-lbl sum-state-lbl" id="sum-lbl-state">FL State Fee</span><span class="fm-sum-val sum-state-val">$125</span></div>
         <div class="fm-sum-line sum-exp-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-exp">Expedited Filing</span><span class="fm-sum-val">$79</span></div>
         <div class="fm-sum-line sum-vma-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-vma">Virtual Address</span><span class="fm-sum-val free">1st Month Free</span></div>
@@ -5280,7 +5302,42 @@ function fmToggleAddon(key, el) {
 // ═══════════════════════════════════════════════════════
 // En mobile el resumen aparece arriba y colapsado; este toggle lo abre/cierra.
 function fmToggleSummary(){ var s=document.querySelector('.fm-summary'); if(s) s.classList.toggle('fm-sum-open'); }
+// Qué incluye cada tier de paquete — mismo contenido que PACKAGE_SERVICES en
+// lib/notifications.ts / app/order/complete/page.tsx (mantener sincronizado
+// si cambian los paquetes). Usado por el sidebar (fmUpdateSummary) y por
+// "Formation Info" del Review (fmBuildReview) para mostrar el detalle real
+// de lo que incluye el paquete, no solo su nombre.
+var FM_PACKAGE_ITEMS = {
+  basic: [
+    {en:'Business Formation Filing', es:'Registro de Formación Empresarial'},
+    {en:'Name Availability Search', es:'Verificación de Disponibilidad de Nombre'},
+    {en:'Articles of Organization / Incorporation', es:'Artículos de Organización / Incorporación'}
+  ],
+  standard: [
+    {en:'Business Formation Filing', es:'Registro de Formación Empresarial'},
+    {en:'Name Availability Search', es:'Verificación de Disponibilidad de Nombre'},
+    {en:'Articles of Organization / Incorporation', es:'Artículos de Organización / Incorporación'},
+    {en:'EIN / Tax ID Number', es:'EIN / Número de ID Fiscal'},
+    {en:'Bank Account Guide', es:'Guía para Abrir Cuenta Bancaria'},
+    {en:'Registered Agent (1st year free)', es:'Agente Registrado (1er año gratis)'}
+  ],
+  premium: [
+    {en:'Business Formation Filing', es:'Registro de Formación Empresarial'},
+    {en:'Name Availability Search', es:'Verificación de Disponibilidad de Nombre'},
+    {en:'Articles of Organization / Incorporation', es:'Artículos de Organización / Incorporación'},
+    {en:'EIN / Tax ID Number', es:'EIN / Número de ID Fiscal'},
+    {en:'Bank Account Guide', es:'Guía para Abrir Cuenta Bancaria'},
+    {en:'Registered Agent (1st year free)', es:'Agente Registrado (1er año gratis)'},
+    {en:'Operating Agreement', es:'Acuerdo Operativo'},
+    {en:'Expedited Filing (1–3 days)', es:'Registro Prioritario (1–3 días)'},
+    {en:'ITIN Application', es:'Solicitud de ITIN'},
+    {en:'DBA / Fictitious Name', es:'DBA / Nombre Ficticio'},
+    {en:'Articles of Amendment', es:'Artículos de Enmienda'}
+  ]
+};
+
 function fmUpdateSummary() {
+  var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
   var pkg = fmData.package || 'standard';
   var prices = { basic:0, standard:199, premium:299 };
   var base   = (pkg in prices ? prices[pkg] : 199);
@@ -5306,6 +5363,10 @@ function fmUpdateSummary() {
   // Update all summary panels
   document.querySelectorAll('.sum-entity-val').forEach(function(el){ el.textContent = fmData.entity === 'corp' ? 'Corporation' : 'LLC'; });
   document.querySelectorAll('.sum-pkg-val').forEach(function(el){ el.textContent = pkgNames[pkg]; });
+  var pkgIncl = FM_PACKAGE_ITEMS[pkg] || [];
+  document.querySelectorAll('.sum-pkg-incl').forEach(function(el){
+    el.innerHTML = pkgIncl.map(function(it){ return '<div class="fm-sum-pkg-incl-item"><span>&#10003;</span><span>'+(isEs?it.es:it.en)+'</span></div>'; }).join('');
+  });
   document.querySelectorAll('.sum-state-val').forEach(function(el){ el.textContent = '$' + state; });
   document.querySelectorAll('.sum-total-val').forEach(function(el){ el.textContent = '$' + total; });
   document.querySelectorAll('.sum-exp-line').forEach(function(el){ el.style.display = _fmSpeedSeen&&fmData.speed==='expedited'&&!expFree?'':'none'; });
@@ -5341,6 +5402,12 @@ function fmBuildReview() {
   el = document.getElementById('rev-entity-val'); if(el) el.textContent = fmData.entity==='corp'?'Corporation':'LLC';
   el = document.getElementById('rev-pkg-val');    if(el) el.textContent = (fmData.package||'standard').charAt(0).toUpperCase()+(fmData.package||'standard').slice(1);
   el = document.getElementById('rev-speed-val');  if(el) el.textContent = fmData.speed==='expedited'?(isEs?'Acelerado (1-3 días)':'Expedited (1-3 days)'):(isEs?'Estándar (7-14 días)':'Standard (7-14 days)');
+  el = document.getElementById('rev-pkg-incl');
+  if(el) {
+    var revPkgIncl = FM_PACKAGE_ITEMS[fmData.package || 'standard'] || [];
+    el.innerHTML = '<div class="fm-review-pkg-incl-title">'+(isEs?'Este paquete incluye':'This package includes')+'</div>'
+      + revPkgIncl.map(function(it){ return '<div class="fm-review-pkg-incl-item"><span>&#10003;</span><span>'+(isEs?it.es:it.en)+'</span></div>'; }).join('');
+  }
 
   // Contact info — correct field IDs
   var fn   = document.getElementById('inp-fname');
@@ -5429,20 +5496,28 @@ function fmBuildReview() {
     membersBody.innerHTML = '<div class="fm-review-grid">'+mHtml+'</div>';
   }
 
-  // Add-ons
-  var anyAddon = fmData.addons.ein||fmData.addons.oa||fmData.addons.itin||fmData.addons.ar||fmData.addons.btr||fmData.addons.str||fmData.addons.cc;
+  // Add-ons — lista tipo factura (nombre a la izq, precio a la der). Incluye
+  // TODOS los addons cobrables (antes faltaban dba/br/gd/gs/sc/bl).
+  var anyAddon = fmData.addons.ein||fmData.addons.oa||fmData.addons.itin||fmData.addons.ar||fmData.addons.btr||fmData.addons.str||fmData.addons.cc||fmData.addons.dba||fmData.addons.br||fmData.addons.gd||fmData.addons.gs||fmData.addons.sc||fmData.addons.bl;
   var addSec = document.getElementById('rev-addons-section'); if(addSec) addSec.style.display = anyAddon?'block':'none';
   var addBody = document.getElementById('rev-addons-body');
   if(addBody && anyAddon) {
+    function addonRow(name, price){ return '<div class="fm-review-service-row"><span class="fm-review-service-name">'+name+'</span><span class="fm-review-service-price">'+price+'</span></div>'; }
     var items=[];
-    if(fmData.addons.ein)  items.push('<div class="fm-review-field"><label>EIN / Tax ID</label><span>$79</span></div>');
-    if(fmData.addons.oa)   items.push('<div class="fm-review-field"><label>Operating Agreement</label><span>$59</span></div>');
-    if(fmData.addons.itin) items.push('<div class="fm-review-field"><label>ITIN Application</label><span>$69</span></div>');
-    if(fmData.addons.btr)  items.push('<div class="fm-review-field"><label>'+(isEs?'Licencia Comercial Local':'Local Business Tax Receipt')+'</label><span>$79</span></div>');
-    if(fmData.addons.str)  items.push('<div class="fm-review-field"><label>'+(isEs?'Registro de Impuesto sobre Ventas':'Sales Tax Registration')+'</label><span>$79</span></div>');
-    if(fmData.addons.cc)   items.push('<div class="fm-review-field"><label>'+(isEs?'Copia Certificada de Art\u00edculos':'Certified Copy of Articles')+'</label><span>$49</span></div>');
-    if(fmData.addons.ar)   items.push('<div class="fm-review-field"><label>'+(isEs?'Declaración Anual':'Annual Report Service')+'</label><span>'+(isEs?'Anual':'Annual')+'</span></div>');
-    addBody.innerHTML='<div class="fm-review-grid">'+items.join('')+'</div>';
+    if(fmData.addons.ein)  items.push(addonRow('EIN / Tax ID', '$79'));
+    if(fmData.addons.oa)   items.push(addonRow(isEs?'Acuerdo Operativo':'Operating Agreement', '$59'));
+    if(fmData.addons.itin) items.push(addonRow(isEs?'Solicitud de ITIN':'ITIN Application', '$69'));
+    if(fmData.addons.btr)  items.push(addonRow(isEs?'Licencia Comercial Local':'Local Business Tax Receipt', '$79'));
+    if(fmData.addons.str)  items.push(addonRow(isEs?'Registro de Impuesto sobre Ventas':'Sales Tax Registration', '$79'));
+    if(fmData.addons.cc)   items.push(addonRow(isEs?'Copia Certificada de Art\u00edculos':'Certified Copy of Articles', '$49'));
+    if(fmData.addons.dba)  items.push(addonRow(isEs?'DBA / Nombre Ficticio':'DBA / Fictitious Name', '$49'));
+    if(fmData.addons.br)   items.push(addonRow(isEs?'Resoluci\u00f3n Bancaria':'Banking Resolution', '$49'));
+    if(fmData.addons.gd)   items.push(addonRow(isEs?'Gu\u00eda Exclusiva de Formaci\u00f3n':'Exclusive Formation Guide', '$49'));
+    if(fmData.addons.gs)   items.push(addonRow(isEs?'Certificado de Buena Reputaci\u00f3n':'Certificate of Good Standing', '$49'));
+    if(fmData.addons.sc)   items.push(addonRow(isEs?'Elecci\u00f3n de S-Corp':'S-Corp Election', '$79'));
+    if(fmData.addons.bl)   items.push(addonRow(isEs?'Licencia de Negocios':'Business License', '$99'));
+    if(fmData.addons.ar)   items.push(addonRow(isEs?'Declaración Anual':'Annual Report Service', isEs?'Anual':'Annual'));
+    addBody.innerHTML='<div class="fm-review-services-list">'+items.join('')+'</div>';
   }
 }
 
@@ -6121,12 +6196,15 @@ function fmTranslate(lang) {
     // Paso 6 — Procesamiento acelerado
     's6-title':isEs?'Procesamiento acelerado':'Faster processing',
     's6-sub':isEs?'¿Lo quieres más rápido? Acelera la presentación estatal cuando aplica.':'Want it faster? Upgrade to expedited state filing where applicable.',
+    's6-intro':isEs?'Nuestro procesamiento estándar toma de 7 a 14 días hábiles; con el acelerado, la preparamos y enviamos en 1 a 3 días hábiles.':'Our standard processing takes 7-14 business days; with expedited, we prepare and file it in 1-3 business days.',
     's6-badge':isEs?'Más rápido':'Fastest',
     's6-exp-lbl':isEs?'&#9889; Procesamiento acelerado':'&#9889; Expedited processing',
     's6-exp-desc':isEs?'1-3 días hábiles':'1-3 business days',
-    's6-std-lbl':isEs?'Procesamiento estándar':'Standard processing',
-    's6-std-price':isEs?'Incluido':'Included',
-    's6-std-desc':isEs?'No gracias, esperaré el tiempo estándar (7-14 días hábiles)':'No thanks, I\\'ll wait the standard time (7-14 business days)',
+    's6-bullet-1':isEs?'Lo preparamos y presentamos en 1-3 días hábiles':'We prepare and file it in 1-3 business days',
+    's6-bullet-2':isEs?'Ideal si necesitas tu EIN, abrir una cuenta bancaria u operar pronto':'Ideal if you need your EIN, a bank account, or to start operating soon',
+    's6-std-lbl':isEs?'No gracias, esperaré el tiempo estándar':"No thanks, I'll wait the standard time",
+    's6-std-price':'$0',
+    's6-std-desc':isEs?'7-14 días hábiles para que preparemos y enviemos tu presentación.':'7-14 business days for us to prepare and file it.',
     's6-back':isEs?'Atrás':'Back',
     's6-save':isEs?'Guardar':'Save',
     's6-next':isEs?'Continuar':'Continue',

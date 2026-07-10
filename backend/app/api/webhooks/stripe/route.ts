@@ -4,6 +4,8 @@ import { getSupabaseAdmin } from '@/lib/supabase'
 import { Resend } from 'resend'
 import { nameCheckHtmlLine, NameCheckResult } from '@/lib/sunbiz-namecheck'
 import { SERVICES_CATALOG, SERVICE_BUNDLES } from '@/lib/services-pricing'
+import { FORMATION_ADDON_NAMES } from '@/lib/order-items'
+import { PACKAGE_SERVICES } from '@/lib/notifications'
 
 export const dynamic = 'force-dynamic'
 
@@ -313,7 +315,23 @@ async function handleFormationPaid(orderId: string, session: Stripe.Checkout.Ses
   try { nameCheckHtml = nameCheckHtmlLine((order.nameCheck as NameCheckResult | null) ?? null) }
   catch (e) { console.error('[stripe-webhook] nameCheckHtmlLine error (non-fatal):', e) }
 
-  // Confirmación al cliente (pago confirmado) — NO incluye name-check
+  // Confirmación al cliente (pago confirmado) — NO incluye name-check.
+  // Mismas convenciones del rediseño 2026-07-09 (ver notifications.ts /
+  // handleServicesPaid más abajo): header blanco + logo OB, "Order Number"
+  // en su caja propia, nombre completo, detalle real del paquete comprado
+  // (PACKAGE_SERVICES), sin prometer plazos que no controlamos.
+  // ⚠️ Este email todavía no tiene rama de idioma (isEs) — Order (formación)
+  // no guarda el idioma del cliente en ningún campo hoy. Queda en inglés
+  // hasta que se decida cómo persistir ese dato en el flujo del home.
+  const formationAddons = (order.addons ?? {}) as Record<string, boolean>
+  const addonNames = Object.entries(formationAddons)
+    .filter(([, v]) => !!v)
+    .map(([k]) => FORMATION_ADDON_NAMES[k]?.en ?? k)
+  const hasAddons = addonNames.length > 0
+  const packageKey = (order.package ?? '').toLowerCase().trim()
+  const packageItems = PACKAGE_SERVICES[packageKey] ?? []
+  const speedLabel = order.speed === 'expedited' ? 'Expedited (1-3 business days)' : 'Standard (7-14 business days)'
+
   getResend().emails.send({
     from: FROM_OPABIZ,
     replyTo: REPLY_TO,
@@ -321,37 +339,52 @@ async function handleFormationPaid(orderId: string, session: Stripe.Checkout.Ses
     subject: `OpaBiz: ✅ Payment confirmed — ${order.companyName}`,
     html: `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#1e293b">
-        <div style="background:#1C2E44;padding:24px 32px;border-radius:10px 10px 0 0">
-          <h1 style="color:#fff;font-size:22px;margin:0">Florida Business Formation Center</h1>
-        </div>
-        <div style="background:#fff;padding:32px;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 10px 10px">
-          <h2 style="color:#1C2E44;font-size:20px">Hi ${order.firstName} ${order.lastName}, your payment is confirmed! 🎉</h2>
-          <p style="color:#475569;line-height:1.7">
-            Thank you for choosing Florida Business Formation Center. Here's a summary of your order:
-          </p>
-          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:20px;margin:20px 0">
-            <p style="margin:6px 0;font-size:14px"><strong>Company Name:</strong> ${order.companyName}</p>
-            <p style="margin:6px 0;font-size:14px"><strong>Entity Type:</strong> ${(order.entityType ?? 'llc').toUpperCase()}</p>
-            <p style="margin:6px 0;font-size:14px"><strong>Package:</strong> ${order.package}</p>
-            <p style="margin:6px 0;font-size:14px"><strong>Total paid:</strong> $${amountPaid.toFixed(2)} USD</p>
-            <p style="margin:12px 0 6px;font-size:14px;background:#EFF6FF;padding:10px 14px;border-radius:6px;border-left:3px solid #2563EB">
-              <strong>Order Number:</strong>
-              <span style="font-size:16px;font-weight:800;color:#2563EB;letter-spacing:.5px"> ${fbfc}</span>
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden">
+          <div style="padding:22px 32px;border-bottom:1px solid #e2e8f0">
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+              <td style="width:42px;padding-right:12px">
+                <div style="width:42px;height:42px;background:linear-gradient(135deg,#1C2E44,#2563EB);border-radius:10px;text-align:center;line-height:42px;color:#fff;font-family:Georgia,serif;font-size:16px;font-weight:700">OB</div>
+              </td>
+              <td style="vertical-align:middle">
+                <div style="font-family:Georgia,serif;font-size:21px;font-weight:700;line-height:1.2"><span style="color:#1C2E44">Opa</span><span style="color:#2563EB">Biz</span></div>
+                <div style="font-size:11px;color:#94A3B8;letter-spacing:.3px;margin-top:2px">Florida Business Formation Center</div>
+              </td>
+            </tr></table>
+          </div>
+          <div style="padding:32px">
+            <p style="font-size:12px;font-weight:700;color:#1C2E44;text-transform:uppercase;letter-spacing:.5px;margin:0 0 10px">Payment Confirmed</p>
+            <h2 style="color:#1C2E44;font-size:20px;margin-top:0">Your payment is confirmed, ${order.firstName} ${order.lastName}! 🎉</h2>
+            <div style="background:#EFF6FF;border-radius:8px;padding:14px 18px;margin:4px 0 22px;text-align:center">
+              <div style="font-size:11px;color:#2563EB;text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:4px">Order Number</div>
+              <div style="font-size:21px;font-weight:800;color:#1C2E44;letter-spacing:.5px">${fbfc}</div>
+            </div>
+            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:20px;margin:20px 0">
+              <p style="margin:6px 0;font-size:14px"><strong>Company Name:</strong> ${order.companyName}</p>
+              <p style="margin:6px 0;font-size:14px"><strong>Entity Type:</strong> ${(order.entityType ?? 'llc').toUpperCase()}</p>
+              ${order.package ? `
+              <p style="margin:6px 0 4px;font-size:14px"><strong>Package:</strong> ${order.package}</p>
+              ${packageItems.length ? `<table style="width:100%;border-collapse:collapse;margin:0 0 10px">${packageItems.map(item => `<tr><td style="padding:2px 8px 2px 0;vertical-align:top;width:10px;font-size:12.5px;color:#94a3b8;font-weight:800">·</td><td style="padding:2px 0;font-size:12.5px;color:#64748b;line-height:1.6">${item.en}</td></tr>`).join('')}</table>` : ''}
+              ` : ''}
+              <p style="margin:6px 0;font-size:14px"><strong>Filing Speed:</strong> ${speedLabel}</p>
+              ${hasAddons ? `<p style="margin:6px 0 0;font-size:14px"><strong>Additional Services:</strong> ${addonNames.join(', ')}</p>` : ''}
+              <p style="margin:12px 0 0;font-size:14px"><strong>Total paid:</strong> $${amountPaid.toFixed(2)} USD</p>
+            </div>
+            <p style="color:#475569;line-height:1.7">
+              Our team is now reviewing your information and will verify name availability with the Florida Division of Corporations. We'll notify you by email as soon as your filing is submitted.
+            </p>
+            <div style="text-align:center;margin:24px 0">
+              <a href="${PORTAL_HOME}" style="background:linear-gradient(135deg,#2563EB,#1C2E44);color:#fff;text-decoration:none;padding:13px 32px;border-radius:8px;font-weight:700;font-size:15px;display:inline-block">
+                Track My Order
+              </a>
+            </div>
+            <p style="color:#475569;line-height:1.7">
+              Questions? Reach us on <a href="https://wa.me/13528377755" style="color:#059669">WhatsApp</a> or reply to this email.
+            </p>
+            <p style="margin-top:24px;color:#94a3b8;font-size:12px;line-height:1.6">
+              OpaBiz · opabiz.com<br/>
+              This is a transactional email. We are a document preparation service, not a law firm.
             </p>
           </div>
-          <p style="color:#475569;line-height:1.7">
-            Our team is now reviewing your information and will verify name availability with the
-            Florida Division of Corporations. We'll be in touch within <strong>1 business day</strong>.
-          </p>
-          <div style="text-align:center;margin:24px 0">
-            <a href="${PORTAL}" style="background:linear-gradient(135deg,#2563EB,#1C2E44);color:#fff;text-decoration:none;padding:13px 32px;border-radius:8px;font-weight:700;font-size:15px;display:inline-block">
-              Access Client Portal
-            </a>
-          </div>
-          <p style="margin-top:24px;color:#94a3b8;font-size:12px;line-height:1.6">
-            Florida Business Formation Center · opabiz.com<br/>
-            This is a transactional email. We are a document preparation service, not a law firm.
-          </p>
         </div>
       </div>
     `,
