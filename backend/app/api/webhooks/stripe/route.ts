@@ -6,6 +6,7 @@ import { nameCheckHtmlLine, NameCheckResult } from '@/lib/sunbiz-namecheck'
 import { SERVICES_CATALOG, SERVICE_BUNDLES } from '@/lib/services-pricing'
 import { FORMATION_ADDON_NAMES } from '@/lib/order-items'
 import { PACKAGE_SERVICES } from '@/lib/notifications'
+import { computeFormationTotal } from '@/lib/pricing'
 
 export const dynamic = 'force-dynamic'
 
@@ -316,21 +317,29 @@ async function handleFormationPaid(orderId: string, session: Stripe.Checkout.Ses
   catch (e) { console.error('[stripe-webhook] nameCheckHtmlLine error (non-fatal):', e) }
 
   // Confirmación al cliente (pago confirmado) — NO incluye name-check.
-  // Mismas convenciones del rediseño 2026-07-09 (ver notifications.ts /
-  // handleServicesPaid más abajo): header blanco + logo OB, "Order Number"
-  // en su caja propia, nombre completo, detalle real del paquete comprado
-  // (PACKAGE_SERVICES), sin prometer plazos que no controlamos.
+  // Espeja handleServicesPaid() (más abajo) para que ambos emails de "pago
+  // confirmado" se vean/lean igual, punto por punto (2026-07-10): mismo saludo
+  // sin eyebrow ni emoji, tabla de precios itemizada (computeFormationTotal —
+  // misma fuente que /order/complete, ya no texto plano sin precios), sección
+  // "What's included", 3 pasos numerados de "What happens next", mismo cierre.
   // ⚠️ Este email todavía no tiene rama de idioma (isEs) — Order (formación)
   // no guarda el idioma del cliente en ningún campo hoy. Queda en inglés
   // hasta que se decida cómo persistir ese dato en el flujo del home.
+  const packageKey = (order.package ?? '').toLowerCase().trim()
+  const packageItems = PACKAGE_SERVICES[packageKey] ?? []
   const formationAddons = (order.addons ?? {}) as Record<string, boolean>
   const addonNames = Object.entries(formationAddons)
     .filter(([, v]) => !!v)
     .map(([k]) => FORMATION_ADDON_NAMES[k]?.en ?? k)
-  const hasAddons = addonNames.length > 0
-  const packageKey = (order.package ?? '').toLowerCase().trim()
-  const packageItems = PACKAGE_SERVICES[packageKey] ?? []
-  const speedLabel = order.speed === 'expedited' ? 'Expedited (1-3 business days)' : 'Standard (7-14 business days)'
+  const { lines: formationLines } = computeFormationTotal({
+    package: order.package, entityType: order.entityType, speed: order.speed, addons: formationAddons,
+  })
+  const formationRowsHtml = formationLines
+    .map(l => `<tr><td style="padding:5px 0;font-size:14px;color:#475569">${l.label}</td><td style="padding:5px 0;font-size:14px;color:#1e293b;font-weight:600;text-align:right;white-space:nowrap">$${l.amount}</td></tr>`)
+    .join('')
+  const includedHtml = [...packageItems.map(i => i.en), ...addonNames]
+    .map(name => `<tr><td style="padding:6px 8px 6px 0;vertical-align:top;width:14px;font-size:13.5px;color:#2563EB;font-weight:800">·</td><td style="padding:6px 0;font-size:13.5px;color:#1e293b;font-weight:600;line-height:1.6">${name}</td></tr>`)
+    .join('')
 
   getResend().emails.send({
     from: FROM_OPABIZ,
@@ -352,34 +361,50 @@ async function handleFormationPaid(orderId: string, session: Stripe.Checkout.Ses
             </tr></table>
           </div>
           <div style="padding:32px">
-            <p style="font-size:12px;font-weight:700;color:#1C2E44;text-transform:uppercase;letter-spacing:.5px;margin:0 0 10px">Payment Confirmed</p>
-            <h2 style="color:#1C2E44;font-size:20px;margin-top:0">Your payment is confirmed, ${order.firstName} ${order.lastName}! 🎉</h2>
+            <h2 style="color:#1C2E44;font-size:20px;margin-top:0">Thank you for your purchase, ${order.firstName} ${order.lastName}!</h2>
             <div style="background:#EFF6FF;border-radius:8px;padding:14px 18px;margin:4px 0 22px;text-align:center">
               <div style="font-size:11px;color:#2563EB;text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:4px">Order Number</div>
               <div style="font-size:21px;font-weight:800;color:#1C2E44;letter-spacing:.5px">${fbfc}</div>
             </div>
+            <p style="color:#475569;line-height:1.7">
+              Here's a summary of your order:
+            </p>
             <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:20px;margin:20px 0">
               <p style="margin:6px 0;font-size:14px"><strong>Company Name:</strong> ${order.companyName}</p>
-              <p style="margin:6px 0;font-size:14px"><strong>Entity Type:</strong> ${(order.entityType ?? 'llc').toUpperCase()}</p>
-              ${order.package ? `
-              <p style="margin:6px 0 4px;font-size:14px"><strong>Package:</strong> ${order.package}</p>
-              ${packageItems.length ? `<table style="width:100%;border-collapse:collapse;margin:0 0 10px">${packageItems.map(item => `<tr><td style="padding:2px 8px 2px 0;vertical-align:top;width:10px;font-size:12.5px;color:#94a3b8;font-weight:800">·</td><td style="padding:2px 0;font-size:12.5px;color:#64748b;line-height:1.6">${item.en}</td></tr>`).join('')}</table>` : ''}
-              ` : ''}
-              <p style="margin:6px 0;font-size:14px"><strong>Filing Speed:</strong> ${speedLabel}</p>
-              ${hasAddons ? `<p style="margin:6px 0 0;font-size:14px"><strong>Additional Services:</strong> ${addonNames.join(', ')}</p>` : ''}
-              <p style="margin:12px 0 0;font-size:14px"><strong>Total paid:</strong> $${amountPaid.toFixed(2)} USD</p>
+              <p style="margin:6px 0 0;font-size:14px"><strong>Entity Type:</strong> ${(order.entityType ?? 'llc').toUpperCase()}</p>
             </div>
+            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:20px;margin:20px 0">
+              <table style="width:100%;border-collapse:collapse">${formationRowsHtml}
+                <tr><td style="padding:10px 0 0;border-top:1px solid #e2e8f0;font-size:14px;font-weight:700;color:#1e293b">Total paid</td><td style="padding:10px 0 0;border-top:1px solid #e2e8f0;font-size:14px;font-weight:700;color:#1e293b;text-align:right;white-space:nowrap">$${amountPaid.toFixed(2)} USD</td></tr>
+              </table>
+            </div>
+            ${includedHtml ? `
+            <p style="font-size:12px;font-weight:700;color:#1C2E44;text-transform:uppercase;letter-spacing:.5px;margin:0 0 10px">What's included</p>
+            <table style="width:100%;border-collapse:collapse;margin-bottom:24px">${includedHtml}</table>
+            ` : ''}
+            <p style="font-size:12px;font-weight:700;color:#1C2E44;text-transform:uppercase;letter-spacing:.5px;margin:0 0 12px">What happens next</p>
+            <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;margin-bottom:24px">
+              <tr>
+                <td style="width:26px;vertical-align:top;padding:2px 10px 14px 0"><div style="width:20px;height:20px;background:#EFF6FF;color:#2563EB;border-radius:50%;text-align:center;line-height:20px;font-size:11px;font-weight:800">1</div></td>
+                <td style="padding:0 0 14px;font-size:13.5px;color:#475569;line-height:1.6">We review your information and verify your company name with the Florida Division of Corporations</td>
+              </tr>
+              <tr>
+                <td style="width:26px;vertical-align:top;padding:2px 10px 14px 0"><div style="width:20px;height:20px;background:#EFF6FF;color:#2563EB;border-radius:50%;text-align:center;line-height:20px;font-size:11px;font-weight:800">2</div></td>
+                <td style="padding:0 0 14px;font-size:13.5px;color:#475569;line-height:1.6">We prepare and file your paperwork</td>
+              </tr>
+              <tr>
+                <td style="width:26px;vertical-align:top;padding:2px 10px 0 0"><div style="width:20px;height:20px;background:#EFF6FF;color:#2563EB;border-radius:50%;text-align:center;line-height:20px;font-size:11px;font-weight:800">3</div></td>
+                <td style="font-size:13.5px;color:#475569;line-height:1.6">We'll notify you as soon as your business is approved by the State of Florida</td>
+              </tr>
+            </table>
             <p style="color:#475569;line-height:1.7">
-              Our team is now reviewing your information and will verify name availability with the Florida Division of Corporations. We'll notify you by email as soon as your filing is submitted.
+              To follow up on your order anytime, click below and log in with your email and the order number above.
             </p>
             <div style="text-align:center;margin:24px 0">
               <a href="${PORTAL_HOME}" style="background:linear-gradient(135deg,#2563EB,#1C2E44);color:#fff;text-decoration:none;padding:13px 32px;border-radius:8px;font-weight:700;font-size:15px;display:inline-block">
                 Track My Order
               </a>
             </div>
-            <p style="color:#475569;line-height:1.7">
-              Questions? Reach us on <a href="https://wa.me/13528377755" style="color:#059669">WhatsApp</a> or reply to this email.
-            </p>
             <p style="margin-top:24px;color:#94a3b8;font-size:12px;line-height:1.6">
               OpaBiz · opabiz.com<br/>
               This is a transactional email. We are a document preparation service, not a law firm.

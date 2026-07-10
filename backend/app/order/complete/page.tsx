@@ -45,13 +45,13 @@ const PACKAGE_SERVICES: Record<string, { en: string; es: string }[]> = {
   ],
 }
 
-const ADDON_LABELS: Record<string, { en: string; es: string }> = {
-  ein:  { en: 'EIN / Tax ID Number', es: 'EIN / Número de ID Fiscal' },
-  oa:   { en: 'Operating Agreement', es: 'Acuerdo Operativo' },
-  itin: { en: 'ITIN Application', es: 'Solicitud de ITIN' },
-  btr:  { en: 'Local Business Tax Receipt', es: 'Licencia Comercial Local' },
-  str:  { en: 'Sales Tax Registration', es: 'Registro de Impuesto sobre Ventas' },
-  cc:   { en: 'Certified Copy', es: 'Copia Certificada' },
+// Distingue líneas "base" (paquete + tarifa estatal + acelerado) de líneas de
+// addon dentro de order.lines (computeFormationTotal, lib/pricing.ts) — así
+// derivamos qué es "adicional" directo del desglose de precios en vez de la
+// lista `order.addons` de /api/checkout/status, que solo cubre 6 de los 12
+// addons posibles (bug lateral, se resuelve solo al usar `lines` como fuente).
+function isBaseLine(label: string): boolean {
+  return label.endsWith('Formation Package') || label.startsWith('Florida State Filing Fee') || label === 'Expedited Processing'
 }
 
 // Las etiquetas de las líneas vienen en inglés desde lib/pricing (fuente de
@@ -119,7 +119,6 @@ function CompleteContent() {
       company: 'Company', entity: 'Entity type', pkg: 'Package',
       includesTitle: (p: string) => `Your ${p} package includes`,
       addonsTitle: 'Additional services you added',
-      summary: 'Payment summary',
       total: 'Total paid',
       next: 'Our team is reviewing your order and will verify your company name with the Florida Division of Corporations. We will be in touch with the next steps.',
       emailNote: (e: string | null) => e ? `A confirmation has been sent to ${e}.` : 'A confirmation has been sent to your email.',
@@ -137,7 +136,6 @@ function CompleteContent() {
       company: 'Empresa', entity: 'Tipo de entidad', pkg: 'Paquete',
       includesTitle: (p: string) => `Tu Paquete ${p} incluye`,
       addonsTitle: 'Servicios adicionales que agregaste',
-      summary: 'Resumen de pago',
       total: 'Total pagado',
       next: 'Nuestro equipo está revisando tu orden y verificará el nombre de tu empresa ante la División de Corporaciones de Florida. Te contactaremos con los próximos pasos.',
       emailNote: (e: string | null) => e ? `Enviamos una confirmación a ${e}.` : 'Enviamos una confirmación a tu correo.',
@@ -222,41 +220,45 @@ function CompleteContent() {
               )}
             </div>
 
-            {/* Lo que incluye tu paquete + add-ons */}
-            {pkgName && (
-              <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 12, padding: '16px 18px', margin: '0 0 14px', textAlign: 'left', fontSize: '0.88rem' }}>
-                <div style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.5px', textTransform: 'uppercase', color: '#94a3b8', marginBottom: 10 }}>{t.includesTitle(pkgName)}</div>
-                {(PACKAGE_SERVICES[order.package ?? ''] ?? []).map((s, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, padding: '4px 0', color: '#334155' }}>
-                    <span style={{ color: '#16a34a', fontWeight: 800, flexShrink: 0 }}>✓</span><span>{es ? s.es : s.en}</span>
+            {/* Lo que incluye tu paquete + servicios adicionales (con precio) +
+                desglose de cargos base + total — un solo box (antes el addon
+                aparecía duplicado: un check sin precio acá y la misma línea
+                con precio en un box de "Payment summary" aparte). */}
+            {pkgName && (() => {
+              const addonLines = order.lines.filter(l => !isBaseLine(l.label))
+              const baseLines = order.lines.filter(l => isBaseLine(l.label))
+              return (
+                <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 12, padding: '16px 18px', margin: '0 0 18px', textAlign: 'left', fontSize: '0.88rem' }}>
+                  <div style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.5px', textTransform: 'uppercase', color: '#94a3b8', marginBottom: 10 }}>{t.includesTitle(pkgName)}</div>
+                  {(PACKAGE_SERVICES[order.package ?? ''] ?? []).map((s, i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, padding: '4px 0', color: '#334155' }}>
+                      <span style={{ color: '#16a34a', fontWeight: 800, flexShrink: 0 }}>✓</span><span>{es ? s.es : s.en}</span>
+                    </div>
+                  ))}
+                  {addonLines.length > 0 && (
+                    <>
+                      <div style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.5px', textTransform: 'uppercase', color: '#94a3b8', margin: '14px 0 10px' }}>{t.addonsTitle}</div>
+                      {addonLines.map((l, i) => (
+                        <div key={i} style={{ display: 'flex', justifyContent: 'space-between', gap: 8, padding: '4px 0', color: '#334155' }}>
+                          <span style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}><span style={{ color: '#16a34a', fontWeight: 800, flexShrink: 0 }}>✓</span><span>{localizeLine(l.label, es)}</span></span>
+                          <span style={{ whiteSpace: 'nowrap' }}>${l.amount.toFixed(2)}</span>
+                        </div>
+                      ))}
+                    </>
+                  )}
+                  <div style={{ borderTop: '1px solid #e2e8f0', margin: '14px 0 8px' }} />
+                  {baseLines.map((l, i) => (
+                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', gap: 12, padding: '4px 0', color: '#475569' }}>
+                      <span>{localizeLine(l.label, es)}</span><span>${l.amount.toFixed(2)}</span>
+                    </div>
+                  ))}
+                  <div style={{ borderTop: '1px solid #e2e8f0', margin: '10px 0 8px' }} />
+                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, fontWeight: 800, color: '#1C2E44', fontSize: '0.98rem' }}>
+                    <span>{t.total}</span><span>${order.total.toFixed(2)} USD</span>
                   </div>
-                ))}
-                {order.addons.length > 0 && (
-                  <>
-                    <div style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.5px', textTransform: 'uppercase', color: '#94a3b8', margin: '14px 0 10px' }}>{t.addonsTitle}</div>
-                    {order.addons.filter(k => ADDON_LABELS[k]).map((k, i) => (
-                      <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, padding: '4px 0', color: '#334155' }}>
-                        <span style={{ color: '#16a34a', fontWeight: 800, flexShrink: 0 }}>✓</span><span>{es ? ADDON_LABELS[k].es : ADDON_LABELS[k].en}</span>
-                      </div>
-                    ))}
-                  </>
-                )}
-              </div>
-            )}
-
-            {/* Resumen de pago (recibo) */}
-            <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 12, padding: '16px 18px', margin: '0 0 18px', textAlign: 'left', fontSize: '0.88rem' }}>
-              <div style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.5px', textTransform: 'uppercase', color: '#94a3b8', marginBottom: 10 }}>{t.summary}</div>
-              {order.lines.map((l, i) => (
-                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', gap: 12, padding: '4px 0', color: '#475569' }}>
-                  <span>{localizeLine(l.label, es)}</span><span>${l.amount.toFixed(2)}</span>
                 </div>
-              ))}
-              <div style={{ borderTop: '1px solid #e2e8f0', margin: '10px 0 8px' }} />
-              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, fontWeight: 800, color: '#1C2E44', fontSize: '0.98rem' }}>
-                <span>{t.total}</span><span>${order.total.toFixed(2)} USD</span>
-              </div>
-            </div>
+              )
+            })()}
           </>
         )}
 

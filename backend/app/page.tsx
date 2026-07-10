@@ -2259,6 +2259,16 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
               <div class="fm-review-pkg-incl" id="rev-pkg-incl"></div>
             </div>
           </div>
+          <!-- Add-ons — pegado a Formation Info para que todo lo comprado
+               (paquete + adicionales) quede junto al principio, antes de los
+               datos de contacto/agente/miembros (2026-07-10). -->
+          <div class="fm-review-section" id="rev-addons-section" style="display:none">
+            <div class="fm-review-section-head">
+              <span class="fm-review-section-title" id="rev-addons-title">Additional Services</span>
+              <button class="fm-review-edit" onclick="fmGoToStep(7)" id="rev-edit-7b">Edit</button>
+            </div>
+            <div class="fm-review-body" id="rev-addons-body"></div>
+          </div>
           <!-- Contact Info -->
           <div class="fm-review-section">
             <div class="fm-review-section-head">
@@ -2293,14 +2303,6 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
             <div class="fm-review-body" id="rev-members-body">
               <div class="fm-review-field"><label id="rev-m1-lbl">Member 1</label><span id="rev-m1-val">—</span></div>
             </div>
-          </div>
-          <!-- Add-ons -->
-          <div class="fm-review-section" id="rev-addons-section" style="display:none">
-            <div class="fm-review-section-head">
-              <span class="fm-review-section-title" id="rev-addons-title">Additional Services</span>
-              <button class="fm-review-edit" onclick="fmGoToStep(7)" id="rev-edit-7b">Edit</button>
-            </div>
-            <div class="fm-review-body" id="rev-addons-body"></div>
           </div>
           </div>
           </div>
@@ -3477,6 +3479,11 @@ function setLang(lang) {
   if(document.getElementById('formOverlay') && document.getElementById('formOverlay').classList.contains('active')){
     if(typeof fmTranslate !== 'undefined') fmTranslate(lang);
     if(typeof translateFormContent !== 'undefined') translateFormContent(lang);
+    // Re-generar el Order Summary (label de paquete + inclusiones) en el nuevo
+    // idioma — fmTranslate ya no toca 'sum-lbl-pkg' (lo genera fmUpdateSummary
+    // dinámicamente con el nombre real del tier), y sin este llamado quedaría
+    // en el idioma viejo hasta el próximo cambio de paso.
+    if(typeof fmUpdateSummary !== 'undefined') fmUpdateSummary();
   }
 
   // Page sections using translations object
@@ -5359,10 +5366,16 @@ function fmUpdateSummary() {
   var expFree = pkg === 'premium';
   if(_fmSpeedSeen && fmData.speed === 'expedited' && !expFree) extras += 79;
   var total = base + state + extras;
-  var pkgNames = { basic:'Basic — $0', standard:'Standard — $199', premium:'Premium — $299' };
   // Update all summary panels
   document.querySelectorAll('.sum-entity-val').forEach(function(el){ el.textContent = fmData.entity === 'corp' ? 'Corporation' : 'LLC'; });
-  document.querySelectorAll('.sum-pkg-val').forEach(function(el){ el.textContent = pkgNames[pkg]; });
+  // Label = "Standard Package"/"Paquete Standard" (nombre real del tier);
+  // valor = solo el precio, en negro, igual que el resto de las líneas
+  // (FL State Fee, Expedited Filing) — antes mezclaba nombre+precio con un
+  // guion largo en un solo texto, inconsistente con las demás líneas.
+  var pkgTierNames = { basic: isEs?'Básico':'Basic', standard:'Standard', premium:'Premium' };
+  var pkgLblEl = document.getElementById('sum-lbl-pkg');
+  if(pkgLblEl) pkgLblEl.textContent = isEs?('Paquete '+pkgTierNames[pkg]):(pkgTierNames[pkg]+' Package');
+  document.querySelectorAll('.sum-pkg-val').forEach(function(el){ el.textContent = '$' + base; });
   var pkgIncl = FM_PACKAGE_ITEMS[pkg] || [];
   document.querySelectorAll('.sum-pkg-incl').forEach(function(el){
     el.innerHTML = pkgIncl.map(function(it){ return '<div class="fm-sum-pkg-incl-item"><span>&#10003;</span><span>'+(isEs?it.es:it.en)+'</span></div>'; }).join('');
@@ -6210,7 +6223,9 @@ function fmTranslate(lang) {
     's6-next':isEs?'Continuar':'Continue',
     // Summary labels
     'sum-lbl-entity':isEs?'Entidad':'Entity',
-    'sum-lbl-pkg':isEs?'Paquete':'Package',
+    // 'sum-lbl-pkg' NO va acá — fmUpdateSummary() lo genera dinámicamente con
+    // el nombre real del tier ("Standard Package"/"Paquete Standard"), no un
+    // "Package" genérico.
     'sum-lbl-state':isEs?'Cargo Estatal FL':'FL State Fee',
     'sum-lbl-exp':isEs?'Tramitaci\\u00f3n Prioritaria':'Expedited Filing',
     'sum-lbl-vma':isEs?'Direcci\\u00f3n Virtual':'Virtual Address',
