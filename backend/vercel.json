@@ -9,6 +9,10 @@
     {
       "path": "/api/cron/sunbiz-daily",
       "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/cron/priority-filing-notice",
+      "schedule": "*/30 * * * *"
     }
   ]
 }

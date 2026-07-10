@@ -1,6 +1,14 @@
 import type { Metadata } from 'next'
 import ChatWidget from '@/components/ChatWidget'
 
+// TODO(performance, pendiente): este archivo tiene ~6,800 líneas de HTML inline
+// (marketing + los 9 pasos del formulario de formación, todos generados de una
+// sola vez aunque el cliente vea uno a la vez). Es la causa principal del LCP
+// de 6.5-6.7s en Lighthouse (mobile y desktop) — ver sección "Performance" de
+// CLAUDE.md. Fix identificado y NO hecho: lazy-load / componentizar el
+// formulario para que el navegador no descargue/renderice los 9 pasos de una.
+// No agregar más secciones/HTML grande a esta página hasta resolver esto.
+
 export const metadata: Metadata = {
   title: 'Florida LLC & Corporation Formation — Online, Bilingual',
   description: 'Form your Florida LLC or Corporation online in minutes. Bilingual service EN/ES. Packages from $0 + state fee. EIN, Operating Agreement, BOI Filing included.',
@@ -2296,7 +2304,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
             <h2 style="font-family:var(--font-serif);font-size:1.5rem;color:#1e293b;margin-bottom:12px" id="suc-title">Your Application Is Confirmed!</h2>
             <p style="font-size:.88rem;color:#6b7280;line-height:1.7;margin-bottom:20px" id="suc-desc">We&rsquo;ve received everything we need. Our team will start the filing with the Florida Division of Corporations promptly.</p>
             <div style="background:#eff6ff;border-radius:10px;padding:14px 20px;margin-bottom:20px;display:inline-block">
-              <div style="font-size:.75rem;color:#6b7280;margin-bottom:4px" id="suc-order-lbl">Confirmation Number</div>
+              <div style="font-size:.75rem;color:#6b7280;margin-bottom:4px" id="suc-order-lbl">Order Number</div>
               <div style="font-size:1.15rem;font-weight:800;color:#1e40af;font-family:var(--font-serif)" id="finalOrderNum">FBFC-00000</div>
             </div>
             <p style="font-size:.8rem;color:#6b7280;margin-bottom:24px" id="suc-note">Expect a follow-up within <strong>1 business day</strong> regarding your name availability and next steps.</p>
@@ -2365,7 +2373,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
         <input id="plogin-acct" name="username" type="text" autocomplete="username" autocapitalize="off" spellcheck="false" placeholder="Your email">
       </div>
       <div class="plogin-group">
-        <label for="plogin-cred" id="plogin-lbl-cred">Confirmation number or password</label>
+        <label for="plogin-cred" id="plogin-lbl-cred">Order number or password</label>
         <input id="plogin-cred" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="FBFC-00000000 or your password">
       </div>
       <button type="submit" class="plogin-btn" id="plogin-btn">Access My Account</button>
@@ -3481,7 +3489,7 @@ function setLang(lang) {
   el=document.querySelector('.nav-orders-mobile'); if(el) el.textContent = isEs ? 'Mis órdenes' : 'My Orders';
   el=document.querySelector('.nav-logout-mobile'); if(el) el.textContent = isEs ? 'Salir' : 'Logout';
   el=document.getElementById('plogin-lbl-email'); if(el) el.textContent = isEs ? 'Correo electrónico' : 'Email address';
-  el=document.getElementById('plogin-lbl-cred'); if(el) el.textContent = isEs ? 'Número de confirmación o contraseña' : 'Confirmation number or password';
+  el=document.getElementById('plogin-lbl-cred'); if(el) el.textContent = isEs ? 'Número de orden o contraseña' : 'Order number or password';
   el=document.getElementById('plogin-btn'); if(el) el.textContent = isEs ? 'Acceder a Mi Cuenta' : 'Access My Account';
   el=document.getElementById('plogin-acct'); if(el) el.placeholder = isEs ? 'Tu correo' : 'Your email';
   el=document.getElementById('plogin-cred'); if(el) el.placeholder = isEs ? 'FBFC-00000000 o tu contraseña' : 'FBFC-00000000 or your password';
@@ -6888,7 +6896,7 @@ function portalLoginSubmit(e){
   var email=((document.getElementById('plogin-acct')||{}).value || '').trim();
   var cred=((document.getElementById('plogin-cred')||{}).value || '').trim();
   if(!email || !cred){ portalLoginError(isEs?'Completa todos los campos.':'Please fill in all fields.'); return; }
-  // El número de confirmación tiene formato FBFC-/FBNB-; cualquier otra cosa = contraseña.
+  // El número de orden tiene formato FBFC-/FBNB-; cualquier otra cosa = contraseña.
   var body = /^(fbfc|fbnb)/i.test(cred)
     ? { email: email, confirmationNumber: cred.toUpperCase() }
     : { email: email, password: cred };

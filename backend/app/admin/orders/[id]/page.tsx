@@ -33,6 +33,9 @@ interface Order {
   paymentStatus: string
   status: string
   notes: string
+  orderProcessedEmailSentAt?: string | null
+  deliveredItems?: Record<string, boolean> | null
+  deliveredFiles?: { url: string; filename: string; uploadedAt: string }[] | null
   nameCheck?: {
     available?: boolean
     exactCount?: number
@@ -51,6 +54,24 @@ const PACKAGE_INFO: Record<string, { name: string; price: string; popular?: bool
   standard: { name: 'Standard',            price: '$149 + state fee', popular: true },
   premium:  { name: 'Premium',             price: '$249 + state fee' },
   addon:    { name: 'New Business Letter',  price: 'Variable' },
+}
+
+// Etiquetas para el checklist de "Enviar documento(s) al cliente" — mismas
+// claves que Order.addons (ver lib/pricing.ts ADDON_PRICES) + 'formation'.
+const DELIVERY_ITEM_LABELS: Record<string, string> = {
+  formation: 'LLC/Corp Formation (Certificate)',
+  ein: 'EIN / Tax ID Number',
+  oa: 'Operating Agreement',
+  itin: 'ITIN Application',
+  btr: 'Local Business Tax Receipt',
+  str: 'Sales Tax Registration',
+  cc: 'Certified Copy',
+  dba: 'DBA / Fictitious Name',
+  br: 'Banking Resolution',
+  gd: 'Exclusive Formation Guide',
+  gs: 'Certificate of Good Standing',
+  sc: 'S-Corp Election',
+  bl: 'Business License',
 }
 
 const PACKAGE_SERVICES: Record<string, string[]> = {
@@ -178,8 +199,10 @@ export default function OrderDetailPage() {
   const [suggestLoading, setSuggestLoading] = useState(false)
   const [suggestMsg, setSuggestMsg] = useState('')
 
-  // Subida de Certificate (Func 4)
-  const [certFile, setCertFile] = useState<File | null>(null)
+  // Enviar documento(s) al cliente — unifica lo que antes era Approved+Certificate (Func 4)
+  const [deliveryChecked, setDeliveryChecked] = useState<Record<string, boolean>>({})
+  const [deliveryFiles, setDeliveryFiles] = useState<File[]>([])
+  const [sendWithoutFile, setSendWithoutFile] = useState(false)
   const [certLoading, setCertLoading] = useState(false)
   const [certMsg, setCertMsg] = useState('')
 
@@ -257,7 +280,7 @@ export default function OrderDetailPage() {
   }
 
   // ── Emails manuales ───────────────────────────────────────────────────────
-  async function triggerEmail(type: 'names-taken' | 'certificate' | 'order-confirmation') {
+  async function triggerEmail(type: 'names-taken' | 'order-confirmation') {
     setEmailLoading(type)
     setEmailMsg('')
     const res = await fetch(`${PROXY}/notifications/${type}`, {
@@ -302,25 +325,49 @@ export default function OrderDetailPage() {
     setTimeout(() => setSuggestMsg(''), 5000)
   }
 
-  // ── Subida de Certificate PDF (Func 4) ───────────────────────────────────
-  async function handleUploadCertificate() {
-    if (!certFile || !order) return
+  // ── Enviar documento(s) al cliente (Func 4) ──────────────────────────────
+  // Ítems disponibles para marcar: formación + addons en true, menos los que
+  // ya se entregaron en una ronda anterior (order.deliveredItems).
+  function pendingDeliveryItems(): string[] {
+    if (!order) return []
+    const delivered = order.deliveredItems ?? {}
+    const addons = (order.addons ?? {}) as Record<string, boolean>
+    const all = ['formation', ...Object.keys(addons).filter(k => addons[k])]
+    return all.filter(k => !delivered[k])
+  }
+
+  async function handleSendApprovalUpdate() {
+    if (!order) return
+    const itemsToSend = Object.keys(deliveryChecked).filter(k => deliveryChecked[k])
+    if (itemsToSend.length === 0) return
+    const hasFiles = deliveryFiles.length > 0
+    if (!hasFiles && !sendWithoutFile) return
+    if (!hasFiles && sendWithoutFile) {
+      const ok = window.confirm('¿Estás seguro que quieres enviar sin adjuntar archivo?')
+      if (!ok) return
+    }
     setCertLoading(true)
     setCertMsg('')
     const formData = new FormData()
-    formData.append('file', certFile)
     formData.append('orderId', order.id)
-    const res = await fetch('/api/admin/upload-certificate', {
+    formData.append('approvedItems', JSON.stringify(itemsToSend))
+    formData.append('sendWithoutFile', String(sendWithoutFile))
+    deliveryFiles.forEach(f => formData.append('files', f))
+    const res = await fetch('/api/admin/send-approval-update', {
       method: 'POST',
       body: formData,
     })
     const data = await res.json()
     setCertLoading(false)
     if (res.ok) {
-      setCertMsg('✅ Certificate subido y enviado al cliente. Orden marcada como completed.')
-      setOrder(prev => prev ? { ...prev, status: 'completed' } : prev)
-      setSelectedStatus('completed')
-      setCertFile(null)
+      setCertMsg(data.pendingItems?.length ? '✅ Enviado. Todavía quedan ítems pendientes.' : '✅ Enviado. Orden marcada como completed.')
+      setOrder(prev => prev
+        ? { ...prev, status: data.status, deliveredItems: { ...(prev.deliveredItems ?? {}), ...Object.fromEntries(itemsToSend.map(k => [k, true])) } }
+        : prev)
+      setSelectedStatus(data.status)
+      setDeliveryChecked({})
+      setDeliveryFiles([])
+      setSendWithoutFile(false)
       if (fileInputRef.current) fileInputRef.current.value = ''
     } else {
       setCertMsg(`Error: ${data.error ?? 'No se pudo completar la operación.'}`)
@@ -343,9 +390,11 @@ export default function OrderDetailPage() {
       setSelectedStatus(newStatus)
       setStatusMsg(`Estado actualizado a "${newStatus}".`)
 
+      // "approved" ya NO dispara email (2026-07-09) — es puramente interno.
+      // El aviso al cliente se maneja aparte con "Enviar documento(s) al
+      // cliente" (checklist + archivos), ver handleSendApprovalUpdate.
       const notifMap: Record<string, string> = {
-        filed:    'order-processed',
-        approved: 'order-approved',
+        filed: 'order-processed',
       }
       if (notifMap[newStatus]) {
         fetch(`${PROXY}/notifications/${notifMap[newStatus]}`, {
@@ -895,6 +944,11 @@ export default function OrderDetailPage() {
                 <button className="btn btn-red" onClick={() => advanceStatus('names_taken')} disabled={statusLoading}>
                   ✗ Nombres tomados → Names taken
                 </button>
+                {order.orderProcessedEmailSentAt && (
+                  <span style={{ fontSize: '12px', color: '#16a34a', fontWeight: 600 }}>
+                    ✓ Email &quot;Orden Procesada&quot; ya enviado automáticamente (Priority) el {new Date(order.orderProcessedEmailSentAt).toLocaleString()}
+                  </span>
+                )}
               </>
             )}
 
@@ -905,26 +959,38 @@ export default function OrderDetailPage() {
             )}
 
             {order.status === 'ready_to_file' && (
-              <button className="btn btn-blue" onClick={() => advanceStatus('filed')} disabled={statusLoading}>
-                → Filed (enviado al Estado de Florida)
-              </button>
+              <>
+                <button className="btn btn-blue" onClick={() => advanceStatus('filed')} disabled={statusLoading}>
+                  → Filed (enviado al Estado de Florida)
+                </button>
+                {order.orderProcessedEmailSentAt && (
+                  <span style={{ fontSize: '12px', color: '#16a34a', fontWeight: 600 }}>
+                    ✓ Email &quot;Orden Procesada&quot; ya enviado automáticamente (Priority) el {new Date(order.orderProcessedEmailSentAt).toLocaleString()} — este botón no lo va a reenviar.
+                  </span>
+                )}
+              </>
             )}
 
             {order.status === 'filed' && (
-              <button className="btn btn-green" onClick={() => advanceStatus('approved')} disabled={statusLoading}>
-                → Approved (Florida aprobó)
-              </button>
+              <>
+                <button className="btn btn-green" onClick={() => advanceStatus('approved')} disabled={statusLoading}>
+                  → Approved (solo interno, no manda email)
+                </button>
+                <span style={{ fontSize: '12px', color: '#9ca3af' }}>
+                  Para avisarle al cliente, usá &quot;Enviar documento(s) al cliente&quot; abajo.
+                </span>
+              </>
             )}
 
             {order.status === 'approved' && (
               <span style={{ fontSize: '13px', color: '#6b7280' }}>
-                Sube el Certificate PDF abajo para marcar como completed.
+                Usá &quot;Enviar documento(s) al cliente&quot; abajo para avisarle y/o marcar como completed.
               </span>
             )}
 
             {order.status === 'completed' && (
               <span style={{ fontSize: '13px', color: '#16a34a', fontWeight: 600 }}>
-                ✅ Orden cerrada — Certificate entregado al cliente.
+                ✅ Orden cerrada — todo lo entregado al cliente.
               </span>
             )}
 
@@ -993,31 +1059,58 @@ export default function OrderDetailPage() {
           </Section>
         )}
 
-        {/* ── FUNC 4 — Subida de Certificate PDF (solo cuando approved) ───── */}
-        {order.status === 'approved' && (
-          <Section title="📄 Articles of Organization / Incorporation">
+        {/* ── FUNC 4 — Enviar documento(s) al cliente (filed/approved) ────── */}
+        {(order.status === 'filed' || order.status === 'approved') && (
+          <Section title="📄 Enviar documento(s) al cliente">
             <p style={{ fontSize: '13px', color: '#6b7280', marginBottom: '16px', lineHeight: 1.6 }}>
-              Sube el PDF aprobado por el Estado de Florida. Al subir, el sistema lo guardará en Supabase Storage,
-              enviará el email al cliente y marcará la orden como <strong>completed</strong> automáticamente.
+              Marcá qué ítems quedaron aprobados/entregados en esta ronda. El email le dice al cliente
+              qué está listo y qué sigue en proceso — funciona para formación y/o cualquier addon
+              (no asume que siempre hay un Certificate de por medio).
             </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
+              {pendingDeliveryItems().map(key => (
+                <label key={key} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13.5px', color: '#374151' }}>
+                  <input
+                    type="checkbox"
+                    checked={!!deliveryChecked[key]}
+                    onChange={e => setDeliveryChecked(prev => ({ ...prev, [key]: e.target.checked }))}
+                  />
+                  {DELIVERY_ITEM_LABELS[key] ?? key}
+                </label>
+              ))}
+              {Object.keys(order.deliveredItems ?? {}).filter(k => order.deliveredItems?.[k]).map(key => (
+                <label key={key} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13.5px', color: '#9ca3af' }}>
+                  <input type="checkbox" checked disabled />
+                  {DELIVERY_ITEM_LABELS[key] ?? key} <span style={{ fontSize: '12px' }}>(ya entregado)</span>
+                </label>
+              ))}
+            </div>
             <input
               ref={fileInputRef}
               type="file"
-              accept=".pdf,application/pdf"
-              onChange={e => setCertFile(e.target.files?.[0] ?? null)}
+              multiple
+              onChange={e => setDeliveryFiles(Array.from(e.target.files ?? []))}
             />
-            {certFile && (
+            {deliveryFiles.length > 0 && (
               <div style={{ marginTop: '8px', fontSize: '13px', color: '#4f46e5', fontWeight: 500 }}>
-                Archivo seleccionado: {certFile.name} ({(certFile.size / 1024).toFixed(1)} KB)
+                {deliveryFiles.map(f => `${f.name} (${(f.size / 1024).toFixed(1)} KB)`).join(', ')}
               </div>
             )}
+            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#6b7280', marginTop: '12px' }}>
+              <input type="checkbox" checked={sendWithoutFile} onChange={e => setSendWithoutFile(e.target.checked)} />
+              Enviar sin adjuntar archivo
+            </label>
             <div style={{ marginTop: '14px', display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
               <button
                 className="btn btn-green"
-                onClick={handleUploadCertificate}
-                disabled={!certFile || certLoading}
+                onClick={handleSendApprovalUpdate}
+                disabled={
+                  certLoading ||
+                  Object.values(deliveryChecked).every(v => !v) ||
+                  (deliveryFiles.length === 0 && !sendWithoutFile)
+                }
               >
-                {certLoading ? 'Subiendo y enviando…' : '🚀 Subir y enviar al cliente'}
+                {certLoading ? 'Enviando…' : '🚀 Enviar al cliente'}
               </button>
               {certMsg && (
                 <span className={certMsg.startsWith('Error') ? 'msg-err' : 'msg-ok'}>{certMsg}</span>
@@ -1057,9 +1150,6 @@ export default function OrderDetailPage() {
                   </button>
                   <button className="btn btn-yellow" onClick={() => triggerEmail('names-taken')} disabled={emailLoading !== null}>
                     {emailLoading === 'names-taken' ? 'Enviando…' : '⚠️ Email: Nombres Tomados'}
-                  </button>
-                  <button className="btn btn-green" onClick={() => triggerEmail('certificate')} disabled={emailLoading !== null}>
-                    {emailLoading === 'certificate' ? 'Enviando…' : '🎉 Email: Certificate'}
                   </button>
                 </>
               )}

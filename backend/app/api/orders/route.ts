@@ -161,7 +161,7 @@ export async function POST(request: NextRequest) {
             <h1 style="color:#fff;font-size:22px;margin:0">Florida Business Formation Center</h1>
           </div>
           <div style="background:#fff;padding:32px;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 10px 10px">
-            <h2 style="color:#1C2E44;font-size:20px">Hi ${order.firstName}, we got your order! 🎉</h2>
+            <h2 style="color:#1C2E44;font-size:20px">Hi ${order.firstName} ${order.lastName}, we got your order! 🎉</h2>
             <p style="color:#475569;line-height:1.7">
               Thank you for choosing Florida Business Formation Center. Here's a summary of your order:
             </p>
@@ -170,7 +170,7 @@ export async function POST(request: NextRequest) {
               <p style="margin:6px 0;font-size:14px"><strong>Entity Type:</strong> ${(order.entityType ?? 'llc').toUpperCase()}</p>
               <p style="margin:6px 0;font-size:14px"><strong>Package:</strong> ${order.package}</p>
               <p style="margin:6px 0;font-size:14px"><strong>Filing Speed:</strong> ${order.speed}</p>
-              <p style="margin:6px 0;font-size:14px"><strong>Confirmation Number:</strong> FBFC-${order.id.replace(/-/g, '').substring(0, 8).toUpperCase()}</p>
+              <p style="margin:6px 0;font-size:14px"><strong>Order Number:</strong> FBFC-${order.id.replace(/-/g, '').substring(0, 8).toUpperCase()}</p>
             </div>
             <p style="color:#475569;line-height:1.7">
               Our team is now reviewing your information and will verify name availability with the

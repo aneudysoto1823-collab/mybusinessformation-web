@@ -16,7 +16,7 @@ const FROM_OPABIZ = `OpaBiz <${FROM_EMAIL}>`
 // de orden (A1) — esa sigue disparando solo cuando paga.
 const SITE_URL = process.env.NEXT_PUBLIC_URL || 'https://opabiz.com'
 
-function sendDraftSavedEmail(order: { id: string; email: string; firstName: string; companyName: string }) {
+function sendDraftSavedEmail(order: { id: string; email: string; firstName: string; lastName: string; companyName: string }) {
   const fbfcNumber = `FBFC-${order.id.replace(/-/g, '').substring(0, 8).toUpperCase()}`
   // El link auto-loguea con el número (ver ?continue= en app/page.tsx) y
   // reabre el formulario ya restaurado — el cliente no tiene que tipear nada.
@@ -32,7 +32,7 @@ function sendDraftSavedEmail(order: { id: string; email: string; firstName: stri
           <h1 style="color:#fff;font-size:22px;margin:0">Florida Business Formation Center</h1>
         </div>
         <div style="background:#fff;padding:32px;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 10px 10px">
-          <h2 style="color:#1C2E44;font-size:20px">Hi ${order.firstName}, your application is saved</h2>
+          <h2 style="color:#1C2E44;font-size:20px">Hi ${order.firstName} ${order.lastName}, your application is saved</h2>
           <p style="color:#475569;line-height:1.7">
             You started forming <strong>${order.companyName}</strong> with us. Whenever you're ready to continue,
             just click the button below — it'll take you right back to where you left off.
@@ -143,7 +143,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Error saving draft' }, { status: 500 })
     }
 
-    sendDraftSavedEmail({ id: created.id, email: fields.email, firstName: fields.firstName, companyName: fields.companyName })
+    sendDraftSavedEmail({ id: created.id, email: fields.email, firstName: fields.firstName, lastName: fields.lastName, companyName: fields.companyName })
 
     return NextResponse.json({ success: true, orderId: created.id }, { status: 201 })
   } catch (error) {

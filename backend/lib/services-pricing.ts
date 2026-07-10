@@ -15,6 +15,11 @@
 export interface ServiceDef {
   name_en: string
   name_es: string
+  /** una línea describiendo qué recibe el cliente — usada en el email de confirmación
+   *  ("What's included"). Copy tomado/condensado de los bullets ya aprobados en
+   *  /servicios (icEn/icEs en servicios/page.tsx), no texto nuevo. */
+  desc_en: string
+  desc_es: string
   /** tarifa de servicio (lo que cobramos nosotros), en dólares */
   serviceFee: number
   /** tarifa estatal aprox. en dólares (0 = no aplica / se paga aparte) */
@@ -35,27 +40,27 @@ export interface ServiceDef {
 export const SERVICES_CATALOG: Record<string, ServiceDef> = {
   // Formación de empresa nueva (à la carte). stateFee = tarifa de presentación
   // de Florida (LLC $125 / Corp $70), igual que lib/pricing.ts del home.
-  'llc-formation':         { name_en: 'LLC Formation',                     name_es: 'Formación de LLC',                     serviceFee: 99,  stateFee: 125 },
-  'corp-formation':        { name_en: 'Corporation Formation',             name_es: 'Formación de Corporation',             serviceFee: 99,  stateFee: 70 },
-  'registered-agent':      { name_en: 'Registered Agent',                  name_es: 'Agente Registrado',                    serviceFee: 99,  stateFee: 0,   billing: 'annual', freeWithOther: true, renewalFee: 99 },
-  'ein':                   { name_en: 'EIN / Tax ID Number',               name_es: 'EIN / Número de Identificación Fiscal', serviceFee: 99,  stateFee: 0 },
-  'operating-agreement':   { name_en: 'Operating Agreement',               name_es: 'Acuerdo Operativo',                    serviceFee: 79,  stateFee: 0 },
-  'itin':                  { name_en: 'ITIN Application',                   name_es: 'Solicitud de ITIN',                    serviceFee: 135, stateFee: 0 },
-  'dba':                   { name_en: 'DBA / Fictitious Name',             name_es: 'DBA / Nombre Ficticio',                serviceFee: 49,  stateFee: 50 },
-  'virtual-address':       { name_en: 'Virtual Mailing Address',           name_es: 'Dirección Postal Virtual',             serviceFee: 99,  stateFee: 0,   billing: 'monthly' },
-  'annual-report':         { name_en: 'Annual Report Filing',              name_es: 'Declaración Anual',                    serviceFee: 99,  stateFee: 139, billing: 'annual' },
-  'amendment':             { name_en: 'Articles of Amendment',             name_es: 'Artículos de Enmienda',                serviceFee: 59,  stateFee: 25 },
-  'banking-resolution':    { name_en: 'Banking Resolution',                name_es: 'Resolución Bancaria',                  serviceFee: 49,  stateFee: 0 },
-  'business-tax-receipt':  { name_en: 'Local Business Tax Receipt',        name_es: 'Licencia Comercial Local',             serviceFee: 99,  stateFee: 0 },
-  'sales-tax-registration':{ name_en: 'Sales Tax Registration',           name_es: 'Registro de Impuesto sobre Ventas',    serviceFee: 99,  stateFee: 0 },
-  'exclusive-guide':       { name_en: 'Exclusive Formation Guide',         name_es: 'Guía Exclusiva de Formación',          serviceFee: 49,  stateFee: 0 },
-  'good-standing':         { name_en: 'Certificate of Good Standing',      name_es: 'Certificado de Buena Reputación',      serviceFee: 49,  stateFee: 9 },
-  'scorp-election':        { name_en: 'S-Corp Election (Form 2553)',       name_es: 'Elección de S-Corp (Formulario 2553)', serviceFee: 79,  stateFee: 0 },
-  'foreign-llc':           { name_en: 'Foreign LLC / Corp Registration',   name_es: 'Registro de LLC / Corp Extranjera',    serviceFee: 99,  stateFee: 0 },
-  'business-license':      { name_en: 'Business License',                  name_es: 'Licencia de Negocios',                 serviceFee: 99,  stateFee: 0 },
-  'dissolution':           { name_en: 'Business Dissolution',              name_es: 'Disolución del Negocio',               serviceFee: 79,  stateFee: 25 },
-  'cierre-fiscal':         { name_en: 'Tax Account Closure',               name_es: 'Cierre de Cuentas Fiscales',           serviceFee: 79,  stateFee: 0 },
-  'certified-copy':        { name_en: 'Certified Copy of Articles',        name_es: 'Copia Certificada de Artículos',       serviceFee: 59,  stateFee: 30 },
+  'llc-formation':         { name_en: 'LLC Formation',                     name_es: 'Formación de LLC',                     desc_en: 'Articles of Organization filed with the State of Florida',            desc_es: 'Artículos de Organización presentados ante el Estado de Florida',                    serviceFee: 99,  stateFee: 125 },
+  'corp-formation':        { name_en: 'Corporation Formation',             name_es: 'Formación de Corporation',             desc_en: 'Articles of Incorporation filed with the State of Florida',           desc_es: 'Artículos de Incorporación presentados ante el Estado de Florida',                    serviceFee: 99,  stateFee: 70 },
+  'registered-agent':      { name_en: 'Registered Agent',                  name_es: 'Agente Registrado',                    desc_en: 'Official FL address to receive legal documents on your behalf',       desc_es: 'Dirección oficial en FL para recibir documentos legales en su nombre',                serviceFee: 99,  stateFee: 0,   billing: 'annual', freeWithOther: true, renewalFee: 99 },
+  'ein':                   { name_en: 'EIN / Tax ID Number',               name_es: 'EIN / Número de Identificación Fiscal', desc_en: 'Federal Tax ID (EIN) application filed with the IRS',                desc_es: 'Solicitud del Número de Identificación Fiscal (EIN) ante el IRS',                     serviceFee: 99,  stateFee: 0 },
+  'operating-agreement':   { name_en: 'Operating Agreement',               name_es: 'Acuerdo Operativo',                    desc_en: 'Custom, bank-ready LLC Operating Agreement',                          desc_es: 'Acuerdo Operativo personalizado, listo para el banco',                               serviceFee: 79,  stateFee: 0 },
+  'itin':                  { name_en: 'ITIN Application',                   name_es: 'Solicitud de ITIN',                    desc_en: 'ITIN application (IRS Form W-7) filed on your behalf',                desc_es: 'Solicitud de ITIN (Formulario W-7 del IRS) presentada en su nombre',                  serviceFee: 135, stateFee: 0 },
+  'dba':                   { name_en: 'DBA / Fictitious Name',             name_es: 'DBA / Nombre Ficticio',                desc_en: 'Fictitious Name registered with the FL Division of Corporations',     desc_es: 'Nombre Ficticio registrado ante la División de Corporaciones de FL',                  serviceFee: 49,  stateFee: 50 },
+  'virtual-address':       { name_en: 'Virtual Mailing Address',           name_es: 'Dirección Postal Virtual',             desc_en: 'Professional FL mailing address with mail scanning & forwarding',     desc_es: 'Dirección postal profesional en FL con escaneo y reenvío de correo',                  serviceFee: 99,  stateFee: 0,   billing: 'monthly' },
+  'annual-report':         { name_en: 'Annual Report Filing',              name_es: 'Declaración Anual',                    desc_en: 'Annual Report filed with Sunbiz to keep your entity active',          desc_es: 'Declaración Anual presentada ante Sunbiz para mantener su entidad activa',            serviceFee: 99,  stateFee: 139, billing: 'annual' },
+  'amendment':             { name_en: 'Articles of Amendment',             name_es: 'Artículos de Enmienda',                desc_en: 'Articles of Amendment filed with the FL Division of Corporations',    desc_es: 'Artículos de Enmienda presentados ante la División de Corporaciones de FL',           serviceFee: 59,  stateFee: 25 },
+  'banking-resolution':    { name_en: 'Banking Resolution',                name_es: 'Resolución Bancaria',                  desc_en: 'Authorizes opening a business bank account for your LLC/Corp',        desc_es: 'Autoriza la apertura de una cuenta bancaria para su LLC/Corp',                        serviceFee: 49,  stateFee: 0 },
+  'business-tax-receipt':  { name_en: 'Local Business Tax Receipt',        name_es: 'Licencia Comercial Local',             desc_en: 'Local Business Tax Receipt application filed with your county',      desc_es: 'Solicitud de Licencia Comercial Local presentada ante su condado',                    serviceFee: 99,  stateFee: 0 },
+  'sales-tax-registration':{ name_en: 'Sales Tax Registration',           name_es: 'Registro de Impuesto sobre Ventas',    desc_en: 'Sales tax certificate registered with the FL Dept. of Revenue',       desc_es: 'Certificado de impuesto sobre ventas registrado ante el FL Dept. of Revenue',         serviceFee: 99,  stateFee: 0 },
+  'exclusive-guide':       { name_en: 'Exclusive Formation Guide',         name_es: 'Guía Exclusiva de Formación',          desc_en: 'Step-by-step post-formation checklist delivered by email',            desc_es: 'Lista de verificación post-formación entregada por correo',                           serviceFee: 49,  stateFee: 0 },
+  'good-standing':         { name_en: 'Certificate of Good Standing',      name_es: 'Certificado de Buena Reputación',      desc_en: 'Certified Certificate of Good Standing from the State of Florida',    desc_es: 'Certificado de Buena Reputación certificado por el Estado de Florida',                serviceFee: 49,  stateFee: 9 },
+  'scorp-election':        { name_en: 'S-Corp Election (Form 2553)',       name_es: 'Elección de S-Corp (Formulario 2553)', desc_en: 'S-Corp election filed with the IRS (Form 2553)',                      desc_es: 'Elección de S-Corp presentada ante el IRS (Formulario 2553)',                         serviceFee: 79,  stateFee: 0 },
+  'foreign-llc':           { name_en: 'Foreign LLC / Corp Registration',   name_es: 'Registro de LLC / Corp Extranjera',    desc_en: 'Foreign qualification filed to operate in another state',             desc_es: 'Calificación extranjera presentada para operar en otro estado',                       serviceFee: 99,  stateFee: 0 },
+  'business-license':      { name_en: 'Business License',                  name_es: 'Licencia de Negocios',                 desc_en: 'Business license application prepared for your industry & location',  desc_es: 'Solicitud de licencia de negocios preparada según su industria y ubicación',          serviceFee: 99,  stateFee: 0 },
+  'dissolution':           { name_en: 'Business Dissolution',              name_es: 'Disolución del Negocio',               desc_en: 'Articles of Dissolution filed to formally close your entity',         desc_es: 'Artículos de Disolución presentados para cerrar formalmente su entidad',              serviceFee: 79,  stateFee: 25 },
+  'cierre-fiscal':         { name_en: 'Tax Account Closure',               name_es: 'Cierre de Cuentas Fiscales',           desc_en: 'IRS & FL account closure letters prepared on your behalf',            desc_es: 'Cartas de cierre de cuentas ante el IRS y FL preparadas en su nombre',                serviceFee: 79,  stateFee: 0 },
+  'certified-copy':        { name_en: 'Certified Copy of Articles',        name_es: 'Copia Certificada de Artículos',       desc_en: 'State-certified copy of your Articles from the FL Division of Corporations', desc_es: 'Copia certificada de sus Artículos por la División de Corporaciones de FL',    serviceFee: 59,  stateFee: 30 },
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -142,7 +147,9 @@ export function isExpeditedApplicable(serviceIds: string[], bundleIds: string[] 
   return [...serviceIds, ...bundledServices].some(id => (SERVICES_CATALOG[id]?.stateFee ?? 0) > 0)
 }
 
-export function computeServicesTotal(serviceIds: string[], bundleIds: string[] = [], expedited = false): ServicesPrice {
+export function computeServicesTotal(serviceIds: string[], bundleIds: string[] = [], expedited = false, lang: 'en' | 'es' = 'en'): ServicesPrice {
+  const isEs = lang === 'es'
+  const stateFeeLabel = (name: string) => isEs ? `${name} — Tarifa Estatal de Florida` : `${name} — Florida State Fee`
   // Tarifas de servicio primero; las tarifas estatales se agrupan al final
   // (antes del total), no intercaladas tras cada servicio.
   const lines: PriceLine[] = []
@@ -163,12 +170,12 @@ export function computeServicesTotal(serviceIds: string[], bundleIds: string[] =
     const cadences = new Set(b.services.map(s => SERVICES_CATALOG[s]?.billing).filter(Boolean))
     if (cadences.size > 0) recurring = true
     const bundleBilling = cadences.size === 1 ? [...cadences][0] as 'monthly' | 'annual' : undefined
-    lines.push({ label: b.name_en, amount: b.price, billing: bundleBilling })
+    lines.push({ label: isEs ? b.name_es : b.name_en, amount: b.price, billing: bundleBilling })
     for (const s of b.services) {
       bundled.add(s)
       const svc = SERVICES_CATALOG[s]
       if (svc && svc.stateFee > 0) {
-        stateLines.push({ label: `${svc.name_en} — Florida State Fee`, amount: svc.stateFee })
+        stateLines.push({ label: stateFeeLabel(isEs ? svc.name_es : svc.name_en), amount: svc.stateFee })
       }
     }
   }
@@ -185,13 +192,13 @@ export function computeServicesTotal(serviceIds: string[], bundleIds: string[] =
     // incluye al menos otro servicio o combo; suelto se cobra normal.
     const hasOther = serviceIds.some(o => o !== id && !!SERVICES_CATALOG[o]) || bundleIds.length > 0
     const free = !!svc.freeWithOther && hasOther
-    lines.push({ label: svc.name_en, amount: free ? 0 : svc.serviceFee, billing: svc.billing, firstYearFree: free, renewalFee: svc.renewalFee })
+    lines.push({ label: isEs ? svc.name_es : svc.name_en, amount: free ? 0 : svc.serviceFee, billing: svc.billing, firstYearFree: free, renewalFee: svc.renewalFee })
     if (svc.stateFee > 0) {
-      stateLines.push({ label: `${svc.name_en} — Florida State Fee`, amount: svc.stateFee })
+      stateLines.push({ label: stateFeeLabel(isEs ? svc.name_es : svc.name_en), amount: svc.stateFee })
     }
   }
 
-  if (expedited && isExpeditedApplicable(serviceIds, bundleIds)) lines.push({ label: 'Expedited Processing', amount: EXPEDITED_FEE })
+  if (expedited && isExpeditedApplicable(serviceIds, bundleIds)) lines.push({ label: isEs ? 'Procesamiento Acelerado' : 'Expedited Processing', amount: EXPEDITED_FEE })
   const allLines = lines.concat(stateLines)
   const total = allLines.reduce((sum, l) => sum + l.amount, 0)
   return { total, cents: Math.round(total * 100), lines: allLines, recurring }

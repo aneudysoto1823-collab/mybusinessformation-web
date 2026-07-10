@@ -3,6 +3,7 @@ import Stripe from 'stripe'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { Resend } from 'resend'
 import { nameCheckHtmlLine, NameCheckResult } from '@/lib/sunbiz-namecheck'
+import { SERVICES_CATALOG, SERVICE_BUNDLES } from '@/lib/services-pricing'
 
 export const dynamic = 'force-dynamic'
 
@@ -197,7 +198,7 @@ export async function POST(req: NextRequest) {
             <ul style="margin:6px 0 6px 18px;font-size:14px;color:#475569">${servicesHtml}</ul>
             <p style="margin:6px 0;font-size:14px"><strong>Total:</strong> $${amountPaid.toFixed(2)} USD</p>
             <p style="margin:12px 0 6px;font-size:14px;background:#EFF6FF;padding:10px 14px;border-radius:6px;border-left:3px solid #2563EB">
-              <strong>${isEs ? 'Número de confirmación' : 'Confirmation Number'}:</strong>
+              <strong>${isEs ? 'Número de orden' : 'Order Number'}:</strong>
               <span style="font-size:16px;font-weight:800;color:#2563EB;letter-spacing:.5px"> ${fbfcNumber}</span>
             </p>
           </div>
@@ -280,6 +281,7 @@ async function handleFormationPaid(orderId: string, session: Stripe.Checkout.Ses
     return NextResponse.json({ received: true, duplicate: true })
   }
 
+  const now = new Date().toISOString()
   const { data: order, error } = await supabase
     .from('Order')
     .update({
@@ -287,7 +289,11 @@ async function handleFormationPaid(orderId: string, session: Stripe.Checkout.Ses
       status:          'in_review',
       amount:          amountPaid,
       stripePaymentId: (session.payment_intent as string) ?? null,
-      updatedAt:       new Date().toISOString(),
+      // paidAt: fecha exacta del pago, usada por el cron de auto-envío de
+      // "Orden Procesada" en órdenes Priority (updatedAt no sirve para esto,
+      // se pisa con cualquier otra edición de la orden más adelante).
+      paidAt:          now,
+      updatedAt:       now,
     })
     .eq('id', orderId)
     .select()
@@ -319,7 +325,7 @@ async function handleFormationPaid(orderId: string, session: Stripe.Checkout.Ses
           <h1 style="color:#fff;font-size:22px;margin:0">Florida Business Formation Center</h1>
         </div>
         <div style="background:#fff;padding:32px;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 10px 10px">
-          <h2 style="color:#1C2E44;font-size:20px">Hi ${order.firstName}, your payment is confirmed! 🎉</h2>
+          <h2 style="color:#1C2E44;font-size:20px">Hi ${order.firstName} ${order.lastName}, your payment is confirmed! 🎉</h2>
           <p style="color:#475569;line-height:1.7">
             Thank you for choosing Florida Business Formation Center. Here's a summary of your order:
           </p>
@@ -329,7 +335,7 @@ async function handleFormationPaid(orderId: string, session: Stripe.Checkout.Ses
             <p style="margin:6px 0;font-size:14px"><strong>Package:</strong> ${order.package}</p>
             <p style="margin:6px 0;font-size:14px"><strong>Total paid:</strong> $${amountPaid.toFixed(2)} USD</p>
             <p style="margin:12px 0 6px;font-size:14px;background:#EFF6FF;padding:10px 14px;border-radius:6px;border-left:3px solid #2563EB">
-              <strong>Confirmation Number:</strong>
+              <strong>Order Number:</strong>
               <span style="font-size:16px;font-weight:800;color:#2563EB;letter-spacing:.5px"> ${fbfc}</span>
             </p>
           </div>
@@ -428,14 +434,30 @@ async function handleServicesPaid(orderId: string, session: Stripe.Checkout.Sess
   const fbfc = `FBFC-${order.id.replace(/-/g, '').substring(0, 8).toUpperCase()}`
 
   // Lista de servicios comprados (desde addons.services / addons.lines)
-  const addons = (order.addons ?? {}) as { services?: string[]; lines?: { label: string; amount: number }[] }
+  const addons = (order.addons ?? {}) as { services?: string[]; bundles?: string[]; lines?: { label: string; amount: number }[]; lang?: string }
   const serviceLines = Array.isArray(addons.lines) ? addons.lines : []
-  const servicesListHtml = serviceLines
-    .map(l => `<li style="margin:4px 0">${l.label} — $${l.amount}</li>`)
-    .join('') || '<li>—</li>'
   const servicesPlain = (addons.services ?? []).join(', ')
 
-  // Confirmación al cliente
+  // Idioma en el que el cliente hizo la orden (guardado en addons.lang desde
+  // /api/checkout/embedded-services). Si no está (órdenes viejas), default EN.
+  const isEs = addons.lang === 'es'
+
+  // "What's included" — expande los bundles a sus servicios reales + los
+  // comprados sueltos, sin duplicar, y trae la descripción de 1 línea de cada
+  // uno desde el catálogo compartido (lib/services-pricing.ts). No incluye
+  // tarifas estatales ni Expedited: no son "servicios" que el cliente reciba.
+  const includedIds = Array.from(new Set([
+    ...(addons.bundles ?? []).flatMap(bid => SERVICE_BUNDLES[bid]?.services ?? []),
+    ...(addons.services ?? []),
+  ]))
+  const includedHtml = includedIds
+    .map(id => SERVICES_CATALOG[id])
+    .filter((svc): svc is NonNullable<typeof svc> => !!svc)
+    .map(svc => `<tr><td style="padding:6px 8px 6px 0;vertical-align:top;width:14px;font-size:13.5px;color:#2563EB;font-weight:800">·</td><td style="padding:6px 0;font-size:13.5px;color:#475569;line-height:1.6"><strong style="color:#1e293b">${isEs ? svc.name_es : svc.name_en}</strong> — ${isEs ? svc.desc_es : svc.desc_en}</td></tr>`)
+    .join('')
+
+  // Confirmación al cliente. Los labels de servicesRowsHtml ya vienen en el
+  // idioma correcto (addons.lines se guardó localizado desde computeServicesTotal).
   const servicesRowsHtml = serviceLines
     .map(l => `<tr><td style="padding:5px 0;font-size:14px;color:#475569">${l.label}</td><td style="padding:5px 0;font-size:14px;color:#1e293b;font-weight:600;text-align:right;white-space:nowrap">$${l.amount}</td></tr>`)
     .join('') || '<tr><td style="padding:5px 0;font-size:14px;color:#475569">—</td><td></td></tr>'
@@ -443,43 +465,67 @@ async function handleServicesPaid(orderId: string, session: Stripe.Checkout.Sess
     from: FROM_OPABIZ,
     replyTo: REPLY_TO,
     to: order.email,
-    subject: `OpaBiz: ✅ Payment confirmed — ${fbfc}`,
+    subject: isEs ? `OpaBiz: ✅ Pago confirmado — ${fbfc}` : `OpaBiz: ✅ Payment confirmed — ${fbfc}`,
     html: `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#1e293b">
-        <div style="background:#1C2E44;padding:24px 32px;border-radius:10px 10px 0 0">
-          <h1 style="color:#fff;font-size:22px;margin:0">OpaBiz</h1>
-          <p style="color:rgba(255,255,255,0.7);font-size:13px;margin:4px 0 0">Florida Business Formation Center</p>
-        </div>
-        <div style="background:#fff;padding:32px;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 10px 10px">
-          <h2 style="color:#1C2E44;font-size:20px">Thank you for your purchase, ${order.firstName}!</h2>
-          <p style="color:#475569;line-height:1.7">
-            Here's a summary of the services you ordered:
-          </p>
-          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:20px;margin:20px 0">
-            <table style="width:100%;border-collapse:collapse">${servicesRowsHtml}
-              <tr><td style="padding:10px 0 0;border-top:1px solid #e2e8f0;font-size:14px;font-weight:700;color:#1e293b">Total paid</td><td style="padding:10px 0 0;border-top:1px solid #e2e8f0;font-size:14px;font-weight:700;color:#1e293b;text-align:right;white-space:nowrap">$${amountPaid.toFixed(2)} USD</td></tr>
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden">
+          <div style="padding:22px 32px;border-bottom:1px solid #e2e8f0">
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+              <td style="width:42px;padding-right:12px">
+                <div style="width:42px;height:42px;background:linear-gradient(135deg,#1C2E44,#2563EB);border-radius:10px;text-align:center;line-height:42px;color:#fff;font-family:Georgia,serif;font-size:16px;font-weight:700">OB</div>
+              </td>
+              <td style="vertical-align:middle">
+                <div style="font-family:Georgia,serif;font-size:21px;font-weight:700;line-height:1.2"><span style="color:#1C2E44">Opa</span><span style="color:#2563EB">Biz</span></div>
+                <div style="font-size:11px;color:#94A3B8;letter-spacing:.3px;margin-top:2px">Florida Business Formation Center</div>
+              </td>
+            </tr></table>
+          </div>
+          <div style="padding:32px">
+            <h2 style="color:#1C2E44;font-size:20px;margin-top:0">${isEs ? `¡Gracias por su compra, ${order.firstName} ${order.lastName}!` : `Thank you for your purchase, ${order.firstName} ${order.lastName}!`}</h2>
+            <div style="background:#EFF6FF;border-radius:8px;padding:14px 18px;margin:4px 0 22px;text-align:center">
+              <div style="font-size:11px;color:#2563EB;text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:4px">${isEs ? 'Número de Orden' : 'Order Number'}</div>
+              <div style="font-size:21px;font-weight:800;color:#1C2E44;letter-spacing:.5px">${fbfc}</div>
+            </div>
+            <p style="color:#475569;line-height:1.7">
+              ${isEs ? 'Aquí tiene el resumen de los servicios que ordenó:' : "Here's a summary of the services you ordered:"}
+            </p>
+            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:20px;margin:20px 0">
+              <table style="width:100%;border-collapse:collapse">${servicesRowsHtml}
+                <tr><td style="padding:10px 0 0;border-top:1px solid #e2e8f0;font-size:14px;font-weight:700;color:#1e293b">${isEs ? 'Total pagado' : 'Total paid'}</td><td style="padding:10px 0 0;border-top:1px solid #e2e8f0;font-size:14px;font-weight:700;color:#1e293b;text-align:right;white-space:nowrap">$${amountPaid.toFixed(2)} USD</td></tr>
+              </table>
+            </div>
+            ${includedHtml ? `
+            <p style="font-size:12px;font-weight:700;color:#1C2E44;text-transform:uppercase;letter-spacing:.5px;margin:0 0 10px">${isEs ? 'Qué incluye su compra' : "What's included"}</p>
+            <table style="width:100%;border-collapse:collapse;margin-bottom:24px">${includedHtml}</table>
+            ` : ''}
+            <p style="font-size:12px;font-weight:700;color:#1C2E44;text-transform:uppercase;letter-spacing:.5px;margin:0 0 12px">${isEs ? 'Qué sigue' : 'What happens next'}</p>
+            <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;margin-bottom:24px">
+              <tr>
+                <td style="width:26px;vertical-align:top;padding:2px 10px 14px 0"><div style="width:20px;height:20px;background:#EFF6FF;color:#2563EB;border-radius:50%;text-align:center;line-height:20px;font-size:11px;font-weight:800">1</div></td>
+                <td style="padding:0 0 14px;font-size:13.5px;color:#475569;line-height:1.6">${isEs ? 'Revisamos su orden y verificamos todos los detalles' : 'We review your order and verify all details'}</td>
+              </tr>
+              <tr>
+                <td style="width:26px;vertical-align:top;padding:2px 10px 14px 0"><div style="width:20px;height:20px;background:#EFF6FF;color:#2563EB;border-radius:50%;text-align:center;line-height:20px;font-size:11px;font-weight:800">2</div></td>
+                <td style="padding:0 0 14px;font-size:13.5px;color:#475569;line-height:1.6">${isEs ? 'Preparamos y presentamos sus documentos' : 'We prepare and file your paperwork'}</td>
+              </tr>
+              <tr>
+                <td style="width:26px;vertical-align:top;padding:2px 10px 0 0"><div style="width:20px;height:20px;background:#EFF6FF;color:#2563EB;border-radius:50%;text-align:center;line-height:20px;font-size:11px;font-weight:800">3</div></td>
+                <td style="font-size:13.5px;color:#475569;line-height:1.6">${isEs ? 'Le avisaremos en cuanto quede procesada ante el Estado de Florida' : "We'll notify you as soon as it's processed with the State of Florida"}</td>
+              </tr>
             </table>
-            <p style="margin:16px 0 0;font-size:14px;background:#EFF6FF;padding:10px 14px;border-radius:6px;border-left:3px solid #2563EB">
-              <strong>Confirmation Number:</strong>
-              <span style="font-size:16px;font-weight:800;color:#2563EB;letter-spacing:.5px"> ${fbfc}</span>
+            <p style="color:#475569;line-height:1.7">
+              ${isEs ? 'Para dar seguimiento a su orden cuando quiera, haga clic abajo e inicie sesión con su correo y el número de orden de arriba.' : 'To follow up on your order anytime, click below and log in with your email and the order number above.'}
+            </p>
+            <div style="text-align:center;margin:24px 0">
+              <a href="${PORTAL_HOME}" style="background:linear-gradient(135deg,#2563EB,#1C2E44);color:#fff;text-decoration:none;padding:13px 32px;border-radius:8px;font-weight:700;font-size:15px;display:inline-block">
+                ${isEs ? 'Rastrear Mi Orden' : 'Track My Order'}
+              </a>
+            </div>
+            <p style="margin-top:24px;color:#94a3b8;font-size:12px;line-height:1.6">
+              OpaBiz · opabiz.com<br/>
+              ${isEs ? 'Este es un correo transaccional. Somos un servicio de preparación de documentos, no un despacho de abogados.' : 'This is a transactional email. We are a document preparation service, not a law firm.'}
             </p>
           </div>
-          <p style="color:#475569;line-height:1.7">
-            Our team is now reviewing your order and will be in touch with the next steps.
-          </p>
-          <p style="color:#475569;line-height:1.7">
-            To follow up on your order anytime, go to <a href="${PORTAL_HOME}" style="color:#2563EB">opabiz.com</a> and click
-            <strong>Login</strong> — just enter your confirmation number above, no password needed.
-          </p>
-          <div style="text-align:center;margin:24px 0">
-            <a href="${PORTAL_HOME}" style="background:linear-gradient(135deg,#2563EB,#1C2E44);color:#fff;text-decoration:none;padding:13px 32px;border-radius:8px;font-weight:700;font-size:15px;display:inline-block">
-              Track My Order
-            </a>
-          </div>
-          <p style="margin-top:24px;color:#94a3b8;font-size:12px;line-height:1.6">
-            OpaBiz · opabiz.com<br/>
-            This is a transactional email. We are a document preparation service, not a law firm.
-          </p>
         </div>
       </div>
     `,

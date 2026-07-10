@@ -114,7 +114,7 @@ function CompleteContent() {
       processingTitle: 'Order received',
       errorTitle: 'Something went wrong',
       errorSub: 'We could not confirm your payment status. If you were charged, please contact us and we will help right away.',
-      confLabel: 'Confirmation number',
+      confLabel: 'Order number',
       copy: 'Copy', copied: 'Copied!',
       company: 'Company', entity: 'Entity type', pkg: 'Package',
       includesTitle: (p: string) => `Your ${p} package includes`,
@@ -132,7 +132,7 @@ function CompleteContent() {
       processingTitle: 'Orden recibida',
       errorTitle: 'Algo salió mal',
       errorSub: 'No pudimos confirmar el estado de tu pago. Si se te cobró, contáctanos y te ayudamos enseguida.',
-      confLabel: 'Número de confirmación',
+      confLabel: 'Número de orden',
       copy: 'Copiar', copied: '¡Copiado!',
       company: 'Empresa', entity: 'Tipo de entidad', pkg: 'Paquete',
       includesTitle: (p: string) => `Tu Paquete ${p} incluye`,
@@ -197,7 +197,7 @@ function CompleteContent() {
         {/* Resumen de la orden */}
         {status !== 'loading' && status !== 'error' && order && (
           <>
-            {/* Número de confirmación */}
+            {/* Número de orden */}
             <div style={{ background: '#EFF6FF', border: '1px solid #bfdbfe', borderRadius: 12, padding: '16px 18px', margin: '20px 0 16px' }}>
               <div style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.6px', textTransform: 'uppercase', color: '#2563EB', marginBottom: 6 }}>{t.confLabel}</div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>

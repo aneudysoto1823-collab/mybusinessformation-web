@@ -10,7 +10,7 @@ const getStripe = () => new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion:
 // Consulta el estado de una sesión de Checkout (para la página de retorno del
 // Embedded Checkout). NO crea ni modifica nada — el webhook es el que cumple la
 // orden. Esto permite mostrar al cliente si su pago se completó y un resumen de
-// su orden (número de confirmación + desglose itemizado, recalculado con la
+// su orden (número de orden + desglose itemizado, recalculado con la
 // misma lógica del cobro). El resumen está disponible aunque el webhook aún no
 // haya marcado la orden como pagada (se lee directo por el orderId de la sesión).
 export async function GET(req: NextRequest) {

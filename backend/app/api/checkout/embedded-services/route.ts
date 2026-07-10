@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
     }
 
     const expedited = intake.expedited === true
-    const { cents, lines, total } = computeServicesTotal(uniqueIds, bundleIds, expedited)
+    const { cents, lines, total } = computeServicesTotal(uniqueIds, bundleIds, expedited, lang)
     if (cents < 50) {
       return NextResponse.json({ error: isEs ? 'Monto inválido.' : 'Invalid amount.' }, { status: 400 })
     }
@@ -74,7 +74,10 @@ export async function POST(req: NextRequest) {
       entityType,
       // Guardamos TODO lo capturado (servicios + intake + desglose) en addons
       // (JSON) para que el equipo procese cada servicio. members queda null.
-      addons:          { services: uniqueIds, bundles: bundleIds, intake, lines },
+      // lang se guarda para que el webhook de Stripe sepa en qué idioma mandar
+      // el email de confirmación de pago (antes se perdía: solo se usaba acá
+      // para los mensajes de error, nunca se persistía en la orden).
+      addons:          { services: uniqueIds, bundles: bundleIds, intake, lines, lang },
       amount:          total,
     }
 

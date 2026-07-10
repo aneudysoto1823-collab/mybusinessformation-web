@@ -19,6 +19,10 @@ const INTERNAL_EMAIL = process.env.INTERNAL_ALERT_EMAIL       || 'aneurysoto@gma
 const FROM_OPABIZ         = `OpaBiz <${FROM_EMAIL}>`
 const FROM_OPABIZ_SUPPORT = `OpaBiz Support <${FROM_SUPPORT}>`
 const FROM_OPABIZ_ALERTS  = `OpaBiz Alerts <${FROM_EMAIL}>`
+// El login real vive en el home (popover), no en /client-portal (ver
+// CLAUDE.md "Login del cliente en el home") — los botones "Track My Order"
+// deben mandar aquí, igual que en webhooks/stripe/route.ts.
+const PORTAL_HOME = 'https://opabiz.com'
 
 function unsubscribeFooter(email: string): string {
   return `
@@ -52,14 +56,14 @@ export const sendOrderConfirmation = async (order: {
           <h1 style="color:#fff;font-size:22px;margin:0">Florida Business Formation Center</h1>
         </div>
         <div style="background:#fff;padding:32px;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 10px 10px">
-          <h2 style="color:#1C2E44;font-size:20px">Hi ${order.firstName}, we got your order! 🎉</h2>
+          <h2 style="color:#1C2E44;font-size:20px">Hi ${order.firstName} ${order.lastName}, we got your order! 🎉</h2>
           <p style="color:#475569;line-height:1.7">
             Thank you for choosing Florida Business Formation Center. Here's a summary of your order:
           </p>
           <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:20px;margin:20px 0">
             <p style="margin:6px 0;font-size:14px"><strong>Company Name:</strong> ${order.companyName}</p>
             <p style="margin:6px 0;font-size:14px"><strong>Package:</strong> ${order.package}</p>
-            <p style="margin:6px 0;font-size:14px"><strong>Confirmation Number:</strong> FBFC-${order.id.replace(/-/g, '').substring(0, 8).toUpperCase()}</p>
+            <p style="margin:6px 0;font-size:14px"><strong>Order Number:</strong> FBFC-${order.id.replace(/-/g, '').substring(0, 8).toUpperCase()}</p>
           </div>
           <div style="text-align:center;margin:28px 0">
             <a href="https://opabiz.com/client-portal?email=${encodeURIComponent(order.email)}&order=FBFC-${order.id.replace(/-/g, '').substring(0, 8).toUpperCase()}"
@@ -98,17 +102,37 @@ export const sendAllNamesTaken = async (order: {
   names: string[]
   id: string
   unsubscribed?: boolean
+  lang?: 'en' | 'es'
 }) => {
   if (order.unsubscribed) {
     return { success: false, reason: 'unsubscribed' }
   }
 
-  // Texto adaptado a la cantidad real de nombres propuestos por el cliente.
+  const isEs = order.lang === 'es'
+  const fbfc = `FBFC-${order.id.replace(/-/g, '').substring(0, 8).toUpperCase()}`
   const n = order.names.length
-  const enQty = n === 1 ? 'the company name' : n === 2 ? 'both company names' : 'all three company names'
+  // Usado solo en la alerta interna al admin (siempre en español, sin cambios de tono).
   const esQty = n === 1 ? 'el nombre propuesto está registrado' : `los ${n} nombres propuestos están registrados`
+
+  // Texto adaptado a la cantidad real de nombres propuestos por el cliente
+  // (1, 2 o 3). Tono neutro/factual a propósito — nada de "⚠️ we need your
+  // help" ni colores rojo/ámbar: ese patrón (alerta + urgencia) es el mismo
+  // que usan los emails de phishing, y queríamos evitarlo (feedback founder).
+  const introText = {
+    en: [
+      "We checked with the Florida Division of Corporations and found that the company name you submitted is already registered by another business:",
+      "We checked with the Florida Division of Corporations and found that both company names you submitted are already registered by another business:",
+      "We checked with the Florida Division of Corporations and found that all three company names you submitted are already registered by another business:",
+    ],
+    es: [
+      'Verificamos con la División de Corporaciones de Florida y encontramos que el nombre de empresa que envió ya está registrado por otra empresa:',
+      'Verificamos con la División de Corporaciones de Florida y encontramos que los dos nombres de empresa que envió ya están registrados por otra empresa:',
+      'Verificamos con la División de Corporaciones de Florida y encontramos que los tres nombres de empresa que envió ya están registrados por otra empresa:',
+    ],
+  }[isEs ? 'es' : 'en'][Math.min(order.names.length, 3) - 1]
+
   const clientList = order.names
-    .map(name => `<p style="margin:6px 0;font-size:14px;color:#92400e">❌ &nbsp;<strong>${name}</strong> — already taken</p>`)
+    .map(name => `<tr><td style="padding:6px 8px 6px 0;vertical-align:top;width:14px;font-size:13.5px;color:#94a3b8;font-weight:800">·</td><td style="padding:6px 0;font-size:13.5px;color:#475569;line-height:1.6"><strong style="color:#1e293b">${name}</strong> — ${isEs ? 'ya registrado' : 'already registered'}</td></tr>`)
     .join('')
   const adminList = order.names
     .map(name => `<p style="margin:6px 0;color:#991b1b">❌ ${name}</p>`)
@@ -122,33 +146,48 @@ export const sendAllNamesTaken = async (order: {
       from: FROM_OPABIZ_SUPPORT,
       replyTo: REPLY_TO,
       to: order.email,
-      subject: `OpaBiz: ⚠️ Action needed — your name options are taken`,
+      subject: isEs ? 'OpaBiz: Siguiente paso para continuar su orden' : 'OpaBiz: Next step to continue your order',
       html: `
         <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#1e293b">
-          <div style="background:#1C2E44;padding:24px 32px;border-radius:10px 10px 0 0">
-            <h1 style="color:#fff;font-size:22px;margin:0">Florida Business Formation Center</h1>
-          </div>
-          <div style="background:#fff;padding:32px;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 10px 10px">
-            <h2 style="color:#b45309;font-size:20px">Hi ${order.firstName}, we need your help ⚠️</h2>
-            <p style="color:#475569;line-height:1.7">
-              We checked the <strong>Florida Division of Corporations</strong> and unfortunately ${enQty}
-              you submitted ${n === 1 ? 'is' : 'are'} already registered:
-            </p>
-            <div style="background:#fefce8;border:1px solid #fde68a;border-radius:8px;padding:20px;margin:20px 0">
-              ${clientList}
+          <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden">
+            <div style="padding:22px 32px;border-bottom:1px solid #e2e8f0">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+                <td style="width:42px;padding-right:12px">
+                  <div style="width:42px;height:42px;background:linear-gradient(135deg,#1C2E44,#2563EB);border-radius:10px;text-align:center;line-height:42px;color:#fff;font-family:Georgia,serif;font-size:16px;font-weight:700">OB</div>
+                </td>
+                <td style="vertical-align:middle">
+                  <div style="font-family:Georgia,serif;font-size:21px;font-weight:700;line-height:1.2"><span style="color:#1C2E44">Opa</span><span style="color:#2563EB">Biz</span></div>
+                  <div style="font-size:11px;color:#94A3B8;letter-spacing:.3px;margin-top:2px">Florida Business Formation Center</div>
+                </td>
+              </tr></table>
             </div>
-            <p style="color:#475569;line-height:1.7">
-              Please reply to this email with <strong>3 new company name options</strong> so we can verify their
-              availability with Florida and continue with your filing.
-            </p>
-            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin:20px 0;font-size:14px">
-              <strong>Order:</strong> ${order.id}
+            <div style="padding:32px">
+              <p style="font-size:12px;font-weight:700;color:#1C2E44;text-transform:uppercase;letter-spacing:.5px;margin:0 0 10px">${isEs ? 'Siguiente Paso' : 'Next Step'}</p>
+              <h2 style="color:#1C2E44;font-size:20px;margin-top:0">${isEs ? `Sigamos con su orden, ${order.firstName} ${order.lastName}` : `Let's continue with your order, ${order.firstName} ${order.lastName}`}</h2>
+              <div style="background:#EFF6FF;border-radius:8px;padding:14px 18px;margin:4px 0 22px;text-align:center">
+                <div style="font-size:11px;color:#2563EB;text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:4px">${isEs ? 'Número de Orden' : 'Order Number'}</div>
+                <div style="font-size:21px;font-weight:800;color:#1C2E44;letter-spacing:.5px">${fbfc}</div>
+              </div>
+              <p style="color:#475569;line-height:1.7">
+                ${introText}
+              </p>
+              <table style="width:100%;border-collapse:collapse;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;margin:20px 0">
+                <tr><td style="padding:14px 20px 4px" colspan="2">${clientList}</td></tr>
+              </table>
+              <p style="color:#475569;line-height:1.7">
+                ${isEs
+                  ? 'Para continuar con su orden, responda este correo con 3 nuevas opciones de nombre. Verificaremos su disponibilidad ante el Estado de Florida y seguiremos con su trámite.'
+                  : "To continue with your order, please reply to this email with 3 new company name options. We'll check their availability with the State of Florida and move forward with your filing."}
+              </p>
+              <p style="color:#475569;line-height:1.7">
+                ${isEs ? '¿Necesita ayuda eligiendo un nombre?' : 'Need help choosing a name?'}
+                <a href="https://wa.me/13528377755" style="color:#059669">${isEs ? 'Escríbanos por WhatsApp' : 'Chat with us on WhatsApp'}</a>
+              </p>
+              <p style="margin-top:24px;color:#94a3b8;font-size:12px;line-height:1.6">
+                OpaBiz · opabiz.com<br/>
+                ${isEs ? 'Este es un correo transaccional. Somos un servicio de preparación de documentos, no un despacho de abogados.' : 'This is a transactional email. We are a document preparation service, not a law firm.'}
+              </p>
             </div>
-            <p style="color:#475569;line-height:1.7">
-              Need help choosing a name?
-              <a href="https://wa.me/13528377755" style="color:#059669">Chat with us on WhatsApp</a>
-            </p>
-            ${unsubscribeFooter(order.email)}
           </div>
         </div>
       `
@@ -203,6 +242,7 @@ export const sendAllNamesTaken = async (order: {
 // ── 3. Nombres sugeridos disponibles — el equipo encontró alternativas ───────
 export const sendSuggestNames = async (order: {
   firstName: string
+  lastName: string
   email: string
   companyName: string
   id: string
@@ -223,7 +263,7 @@ export const sendSuggestNames = async (order: {
           <h1 style="color:#fff;font-size:22px;margin:0">Florida Business Formation Center</h1>
         </div>
         <div style="background:#fff;padding:32px;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 10px 10px">
-          <h2 style="color:#1C2E44;font-size:20px">Hi ${order.firstName}, we found available names! 🎉</h2>
+          <h2 style="color:#1C2E44;font-size:20px">Hi ${order.firstName} ${order.lastName}, we found available names! 🎉</h2>
           <p style="color:#475569;line-height:1.7">
             Our team searched the Florida Division of Corporations database and found the following
             names that are <strong>currently available</strong> for registration:
@@ -254,168 +294,295 @@ export const sendSuggestNames = async (order: {
   })
 }
 
+// Nombres de add-ons de formación (order.addons = {ein, oa, itin, btr, str, cc,
+// dba, br, gd, gs, sc, bl} booleanos — ver lib/pricing.ts ADDON_PRICES). Mapa
+// propio acá (no el de lib/pricing.ts) porque ese es de precios en inglés
+// nada más — este es solo para mostrar el nombre en el idioma del email.
+const ADDON_NAMES: Record<string, { en: string; es: string }> = {
+  ein:  { en: 'EIN / Tax ID Number', es: 'EIN / Número de Identificación Fiscal' },
+  oa:   { en: 'Operating Agreement', es: 'Acuerdo Operativo' },
+  itin: { en: 'ITIN Application', es: 'Solicitud de ITIN' },
+  btr:  { en: 'Local Business Tax Receipt', es: 'Licencia Comercial Local' },
+  str:  { en: 'Sales Tax Registration', es: 'Registro de Impuesto sobre Ventas' },
+  cc:   { en: 'Certified Copy', es: 'Copia Certificada' },
+  dba:  { en: 'DBA / Fictitious Name', es: 'DBA / Nombre Ficticio' },
+  br:   { en: 'Banking Resolution', es: 'Resolución Bancaria' },
+  gd:   { en: 'Exclusive Formation Guide', es: 'Guía Exclusiva de Formación' },
+  gs:   { en: 'Certificate of Good Standing', es: 'Certificado de Buena Reputación' },
+  sc:   { en: 'S-Corp Election', es: 'Elección de S-Corp' },
+  bl:   { en: 'Business License', es: 'Licencia de Negocios' },
+}
+
+// Qué incluye cada tier de paquete — mismo contenido que PACKAGE_SERVICES en
+// app/order/complete/page.tsx (mantener sincronizado si cambian los paquetes).
+// Antes el email solo decía "Package: Standard" sin decir qué trae ese tier;
+// esto lo hace explícito para que el cliente vea el detalle completo de lo
+// que compró, no solo el nombre del paquete.
+const PACKAGE_SERVICES: Record<string, { en: string; es: string }[]> = {
+  basic: [
+    { en: 'Business Formation Filing', es: 'Registro de Formación Empresarial' },
+    { en: 'Name Availability Search', es: 'Verificación de Disponibilidad de Nombre' },
+    { en: 'Articles of Organization / Incorporation', es: 'Artículos de Organización / Incorporación' },
+  ],
+  standard: [
+    { en: 'Business Formation Filing', es: 'Registro de Formación Empresarial' },
+    { en: 'Name Availability Search', es: 'Verificación de Disponibilidad de Nombre' },
+    { en: 'Articles of Organization / Incorporation', es: 'Artículos de Organización / Incorporación' },
+    { en: 'EIN / Tax ID Number', es: 'EIN / Número de ID Fiscal' },
+    { en: 'Bank Account Guide', es: 'Guía para Abrir Cuenta Bancaria' },
+    { en: 'Registered Agent (1st year free)', es: 'Agente Registrado (1er año gratis)' },
+  ],
+  premium: [
+    { en: 'Business Formation Filing', es: 'Registro de Formación Empresarial' },
+    { en: 'Name Availability Search', es: 'Verificación de Disponibilidad de Nombre' },
+    { en: 'Articles of Organization / Incorporation', es: 'Artículos de Organización / Incorporación' },
+    { en: 'EIN / Tax ID Number', es: 'EIN / Número de ID Fiscal' },
+    { en: 'Bank Account Guide', es: 'Guía para Abrir Cuenta Bancaria' },
+    { en: 'Registered Agent (1st year free)', es: 'Agente Registrado (1er año gratis)' },
+    { en: 'Operating Agreement', es: 'Acuerdo Operativo' },
+    { en: 'Expedited Filing (1–3 days)', es: 'Registro Prioritario (1–3 días)' },
+    { en: 'ITIN Application', es: 'Solicitud de ITIN' },
+    { en: 'DBA / Fictitious Name', es: 'DBA / Nombre Ficticio' },
+    { en: 'Articles of Amendment', es: 'Artículos de Enmienda' },
+  ],
+}
+
 // ── 4. Orden procesada ante el Estado de Florida (status: filed) ─────────────
 //    Cliente avisa: tus documentos fueron presentados, esperá la aprobación.
 export const sendOrderProcessed = async (order: {
   firstName: string
+  lastName: string
   email: string
   companyName: string
+  entityType?: string
+  package?: string
   id: string
   speed?: string
+  addons?: Record<string, boolean> | null
   unsubscribed?: boolean
+  lang?: 'en' | 'es'
 }) => {
   if (order.unsubscribed) {
     return { success: false, reason: 'unsubscribed' }
   }
 
-  const eta = order.speed === 'expedited'
-    ? '1–2 business days'
-    : '3–5 business days'
+  const isEs = order.lang === 'es'
+  const fbfc = `FBFC-${order.id.replace(/-/g, '').substring(0, 8).toUpperCase()}`
+  const speedLabel = order.speed === 'expedited'
+    ? (isEs ? 'Acelerado' : 'Expedited')
+    : (isEs ? 'Estándar' : 'Standard')
+  // Nombres de los add-ons realmente comprados por ESTE cliente (no una lista
+  // fija) — filtra order.addons por los que están en true.
+  const addonNames = Object.entries(order.addons ?? {})
+    .filter(([, v]) => !!v)
+    .map(([k]) => ADDON_NAMES[k]?.[isEs ? 'es' : 'en'] ?? k)
+  const hasAddons = addonNames.length > 0
+  // Detalle de qué trae el paquete comprado (no solo el nombre del tier) —
+  // feedback: "un email que solo dice 'compraste paquete estándar' no me dice
+  // nada como cliente". packageKey normaliza mayúsculas/espacios por si acaso.
+  const packageKey = (order.package ?? '').toLowerCase().trim()
+  const packageItems = (PACKAGE_SERVICES[packageKey] ?? []).map(i => isEs ? i.es : i.en)
 
   await getResend().emails.send({
     from: FROM_OPABIZ,
     replyTo: REPLY_TO,
     to: order.email,
-    subject: `OpaBiz: 📋 Your Florida filing is in — ${order.companyName}`,
+    subject: isEs ? `OpaBiz: 📋 Enviamos su trámite a Florida — ${order.companyName}` : `OpaBiz: 📋 Your filing was submitted to Florida — ${order.companyName}`,
     html: `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#1e293b">
-        <div style="background:#1C2E44;padding:24px 32px;border-radius:10px 10px 0 0">
-          <h1 style="color:#fff;font-size:22px;margin:0">Florida Business Formation Center</h1>
-        </div>
-        <div style="background:#fff;padding:32px;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 10px 10px">
-          <h2 style="color:#1C2E44;font-size:20px">Hi ${order.firstName}, your filing is in! 📋</h2>
-          <p style="color:#475569;line-height:1.7">
-            We've submitted your formation documents to the
-            <strong>Florida Division of Corporations</strong>. The next step is on the State's side
-            — they review and approve new entities, typically within <strong>${eta}</strong>.
-          </p>
-          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:20px;margin:20px 0">
-            <p style="margin:6px 0;font-size:14px"><strong>Company:</strong> ${order.companyName}</p>
-            <p style="margin:6px 0;font-size:14px"><strong>Filing speed:</strong> ${order.speed ?? 'standard'}</p>
-            <p style="margin:6px 0;font-size:14px"><strong>Order:</strong> ${order.id}</p>
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden">
+          <div style="padding:22px 32px;border-bottom:1px solid #e2e8f0">
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+              <td style="width:42px;padding-right:12px">
+                <div style="width:42px;height:42px;background:linear-gradient(135deg,#1C2E44,#2563EB);border-radius:10px;text-align:center;line-height:42px;color:#fff;font-family:Georgia,serif;font-size:16px;font-weight:700">OB</div>
+              </td>
+              <td style="vertical-align:middle">
+                <div style="font-family:Georgia,serif;font-size:21px;font-weight:700;line-height:1.2"><span style="color:#1C2E44">Opa</span><span style="color:#2563EB">Biz</span></div>
+                <div style="font-size:11px;color:#94A3B8;letter-spacing:.3px;margin-top:2px">Florida Business Formation Center</div>
+              </td>
+            </tr></table>
           </div>
-          <p style="color:#475569;line-height:1.7">
-            <strong>What's next?</strong> When the State approves your business, you'll get another
-            email from us. After that, your Articles of Organization / Incorporation go out the same week.
-          </p>
-          <p style="color:#475569;line-height:1.7">
-            You can track the status anytime in your
-            <a href="https://opabiz.com/client-portal" style="color:#2563eb">client portal</a>.
-          </p>
-          <p style="color:#475569;line-height:1.7">
-            Questions? Reach us on <a href="https://wa.me/13528377755" style="color:#059669">WhatsApp</a> or
-            reply to this email.
-          </p>
-          ${unsubscribeFooter(order.email)}
+          <div style="padding:32px">
+            <p style="font-size:12px;font-weight:700;color:#1C2E44;text-transform:uppercase;letter-spacing:.5px;margin:0 0 10px">${isEs ? 'Actualización de su Trámite' : 'Filing Update'}</p>
+            <h2 style="color:#1C2E44;font-size:20px;margin-top:0">${isEs ? `Su trámite fue enviado al Estado de Florida, ${order.firstName} ${order.lastName}` : `Your filing has been submitted to the State of Florida, ${order.firstName} ${order.lastName}`}</h2>
+            <div style="background:#EFF6FF;border-radius:8px;padding:14px 18px;margin:4px 0 22px;text-align:center">
+              <div style="font-size:11px;color:#2563EB;text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:4px">${isEs ? 'Número de Orden' : 'Order Number'}</div>
+              <div style="font-size:21px;font-weight:800;color:#1C2E44;letter-spacing:.5px">${fbfc}</div>
+            </div>
+            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:20px;margin:20px 0">
+              <p style="margin:6px 0;font-size:14px"><strong>${isEs ? 'Empresa' : 'Company Name'}:</strong> ${order.companyName}</p>
+              ${order.entityType ? `<p style="margin:6px 0;font-size:14px"><strong>${isEs ? 'Tipo de Entidad' : 'Entity Type'}:</strong> ${order.entityType.toUpperCase()}</p>` : ''}
+              ${order.package ? `
+              <p style="margin:6px 0 4px;font-size:14px"><strong>${isEs ? 'Paquete' : 'Package'}:</strong> ${order.package}</p>
+              ${packageItems.length ? `<table style="width:100%;border-collapse:collapse;margin:0 0 10px">${packageItems.map(item => `<tr><td style="padding:2px 8px 2px 0;vertical-align:top;width:10px;font-size:12.5px;color:#94a3b8;font-weight:800">·</td><td style="padding:2px 0;font-size:12.5px;color:#64748b;line-height:1.6">${item}</td></tr>`).join('')}</table>` : ''}
+              ` : ''}
+              <p style="margin:6px 0;font-size:14px"><strong>${isEs ? 'Velocidad de trámite' : 'Filing Speed'}:</strong> ${speedLabel}</p>
+              ${hasAddons ? `<p style="margin:6px 0 0;font-size:14px"><strong>${isEs ? 'Servicios Adicionales' : 'Additional Services'}:</strong> ${addonNames.join(', ')}</p>` : ''}
+            </div>
+            <p style="color:#475569;line-height:1.7">
+              ${isEs
+                ? 'Nuestro equipo completó sus documentos y los presentó ante la División de Corporaciones de Florida. Le avisaremos por correo en cuanto el Estado apruebe su negocio.'
+                : "Our team has completed your paperwork and submitted it to the Florida Division of Corporations. We'll notify you by email as soon as the State approves your business."}
+            </p>
+            <p style="color:#475569;line-height:1.7">
+              ${hasAddons
+                ? (isEs
+                    ? 'Una vez aprobado, le enviaremos su Certificado oficial (Artículos de Organización / Incorporación). Seguiremos trabajando en los servicios adicionales de arriba y se los entregaremos por separado a medida que estén listos.'
+                    : "Once approved, we'll send you your official Certificate (Articles of Organization / Incorporation). We'll continue processing the additional services listed above and deliver each one separately as it's completed.")
+                : (isEs
+                    ? 'Una vez aprobado, le enviaremos su Certificado oficial (Artículos de Organización / Incorporación).'
+                    : "Once approved, we'll send you your official Certificate (Articles of Organization / Incorporation).")}
+            </p>
+            <p style="color:#475569;line-height:1.7">
+              ${isEs ? 'Para dar seguimiento a su orden cuando quiera, haga clic abajo e inicie sesión con su correo y el número de orden de arriba.' : 'To follow up on your order anytime, click below and log in with your email and the order number above.'}
+            </p>
+            <div style="text-align:center;margin:24px 0">
+              <a href="${PORTAL_HOME}" style="background:linear-gradient(135deg,#2563EB,#1C2E44);color:#fff;text-decoration:none;padding:13px 32px;border-radius:8px;font-weight:700;font-size:15px;display:inline-block">
+                ${isEs ? 'Rastrear Mi Orden' : 'Track My Order'}
+              </a>
+            </div>
+            <p style="color:#475569;line-height:1.7">
+              ${isEs ? '¿Preguntas? Escríbanos por' : 'Questions? Reach us on'} <a href="https://wa.me/13528377755" style="color:#059669">WhatsApp</a> ${isEs ? 'o responda este correo.' : 'or reply to this email.'}
+            </p>
+            <p style="margin-top:24px;color:#94a3b8;font-size:12px;line-height:1.6">
+              OpaBiz · opabiz.com<br/>
+              ${isEs ? 'Este es un correo transaccional. Somos un servicio de preparación de documentos, no un despacho de abogados.' : 'This is a transactional email. We are a document preparation service, not a law firm.'}
+            </p>
+          </div>
         </div>
       </div>
     `,
   })
 }
 
-// ── 5. Orden aprobada por Florida (status: approved) ─────────────────────────
-//    Cliente avisa: Florida aprobó tu negocio, certificate viene en camino.
-export const sendOrderApproved = async (order: {
-  firstName: string
-  email: string
-  companyName: string
-  id: string
-  unsubscribed?: boolean
-}) => {
+// Nombre del ítem "formation" (la LLC/Corp en sí) — se combina con ADDON_NAMES
+// para armar las listas de "aprobado ahora" / "todavía en proceso" del email
+// unificado de abajo. entityType decide si dice LLC o Corporation.
+function formationItemName(entityType: string | undefined, lang: 'en' | 'es'): string {
+  const isCorp = (entityType ?? 'llc').toLowerCase() === 'corp'
+  if (lang === 'es') return isCorp ? 'Formación de Corporation (Artículos de Incorporación)' : 'Formación de LLC (Artículos de Organización)'
+  return isCorp ? 'Corporation Formation (Articles of Incorporation)' : 'LLC Formation (Articles of Organization)'
+}
+
+function itemLabel(key: string, entityType: string | undefined, lang: 'en' | 'es'): string {
+  if (key === 'formation') return formationItemName(entityType, lang)
+  return ADDON_NAMES[key]?.[lang] ?? key
+}
+
+// ── 5/6 unificados — Aprobación + entrega de documento(s) ────────────────────
+// Reemplaza los antiguos sendOrderApproved (A6) y sendCertificateDelivery (A7),
+// que eran dos emails separados y asumían que SIEMPRE era una formación LLC/Corp
+// con Certificate adjunto. Ahora es un solo email genérico que sirve para
+// cualquier tipo de orden (formación y/o servicios à la carte), con o sin
+// archivos adjuntos, y que le dice al cliente qué quedó aprobado/entregado en
+// esta ronda y qué sigue en proceso (decisión founder 2026-07-09: el botón
+// "Approved" del admin pasa a ser solo interno; este email lo dispara un botón
+// aparte "Enviar documento(s) al cliente" con un checklist de ítems).
+export const sendOrderApprovalUpdate = async (
+  order: {
+    firstName: string
+    lastName: string
+    email: string
+    companyName: string
+    entityType?: string
+    id: string
+    unsubscribed?: boolean
+    lang?: 'en' | 'es'
+  },
+  delivery: {
+    /** claves de items aprobados/entregados EN ESTA RONDA (ej. ['formation','ein']) */
+    approvedItems: string[]
+    /** claves de items que todavía faltan (se seguirán procesando aparte) */
+    pendingItems: string[]
+    /** archivos adjuntos de esta ronda (Resend attachment format) */
+    attachments?: { filename: string; content: Buffer }[]
+  }
+) => {
   if (order.unsubscribed) {
     return { success: false, reason: 'unsubscribed' }
   }
+
+  const isEs = order.lang === 'es'
+  const lang: 'en' | 'es' = isEs ? 'es' : 'en'
+  const fbfc = `FBFC-${order.id.replace(/-/g, '').substring(0, 8).toUpperCase()}`
+  const approvedLabels = delivery.approvedItems.map(k => itemLabel(k, order.entityType, lang))
+  const pendingLabels = delivery.pendingItems.map(k => itemLabel(k, order.entityType, lang))
+  const hasFiles = (delivery.attachments?.length ?? 0) > 0
+  const hasPending = pendingLabels.length > 0
+  const hasFormation = delivery.approvedItems.includes('formation')
+
+  const heading = hasFiles
+    ? (isEs ? `¡Buenas noticias, ${order.firstName} ${order.lastName}!` : `Great news, ${order.firstName} ${order.lastName}!`)
+    : (isEs ? `Actualización de su orden, ${order.firstName} ${order.lastName}` : `Update on your order, ${order.firstName} ${order.lastName}`)
+
+  // Menciona explícitamente la aprobación del Estado cuando corresponde
+  // (feedback founder: decir "fue aprobado por el Estado y adjunto su copia
+  // del..." en vez de un genérico "great news"/"documents are ready").
+  const introText = (() => {
+    if (isEs) {
+      if (hasFormation && hasFiles) return 'Su negocio fue aprobado por el Estado de Florida, y adjunto encontrará su copia del documento oficial.'
+      if (hasFormation) return 'Su negocio fue aprobado por el Estado de Florida. Su documento oficial le llegará por separado.'
+      if (hasFiles) return 'Adjunto encontrará su copia del/de los documento(s).'
+      return 'Le escribimos para contarle el avance de su orden.'
+    }
+    if (hasFormation && hasFiles) return 'Your business was approved by the State of Florida, and attached you will find your copy of the official document.'
+    if (hasFormation) return 'Your business was approved by the State of Florida. Your official document will follow separately.'
+    if (hasFiles) return 'Attached you will find your copy of the document(s).'
+    return "We're writing to update you on your order's progress."
+  })()
 
   await getResend().emails.send({
     from: FROM_OPABIZ,
     replyTo: REPLY_TO,
     to: order.email,
-    subject: `OpaBiz: 🎉 Florida approved your business — ${order.companyName}`,
+    subject: hasFiles
+      ? (isEs ? `OpaBiz: 🏆 Sus documentos están listos — ${order.companyName}` : `OpaBiz: 🏆 Your documents are ready — ${order.companyName}`)
+      : (isEs ? `OpaBiz: 🎉 Actualización de su orden — ${order.companyName}` : `OpaBiz: 🎉 Update on your order — ${order.companyName}`),
+    attachments: delivery.attachments,
     html: `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#1e293b">
-        <div style="background:#1C2E44;padding:24px 32px;border-radius:10px 10px 0 0">
-          <h1 style="color:#fff;font-size:22px;margin:0">Florida Business Formation Center</h1>
-        </div>
-        <div style="background:#fff;padding:32px;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 10px 10px">
-          <h2 style="color:#059669;font-size:22px;text-align:center">🎉 Approved by the State of Florida!</h2>
-          <p style="color:#475569;line-height:1.7;text-align:center">
-            <strong>${order.companyName}</strong> is now an officially registered entity
-            in Florida. Congratulations, ${order.firstName}!
-          </p>
-          <div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:10px;padding:20px;margin:24px 0;text-align:center">
-            <p style="color:#166534;font-weight:600;margin:0 0 8px;font-size:15px">What's coming next</p>
-            <p style="color:#166534;font-size:13px;margin:0;line-height:1.6">
-              We're preparing your official <strong>Articles of Organization / Incorporation</strong>.
-              Expect it in your inbox within the next <strong>24–48 hours</strong>, along
-              with any add-ons you ordered (EIN, Operating Agreement, ITIN, etc.).
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden">
+          <div style="padding:22px 32px;border-bottom:1px solid #e2e8f0">
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+              <td style="width:42px;padding-right:12px">
+                <div style="width:42px;height:42px;background:linear-gradient(135deg,#1C2E44,#2563EB);border-radius:10px;text-align:center;line-height:42px;color:#fff;font-family:Georgia,serif;font-size:16px;font-weight:700">OB</div>
+              </td>
+              <td style="vertical-align:middle">
+                <div style="font-family:Georgia,serif;font-size:21px;font-weight:700;line-height:1.2"><span style="color:#1C2E44">Opa</span><span style="color:#2563EB">Biz</span></div>
+                <div style="font-size:11px;color:#94A3B8;letter-spacing:.3px;margin-top:2px">Florida Business Formation Center</div>
+              </td>
+            </tr></table>
+          </div>
+          <div style="padding:32px">
+            <h2 style="color:#1C2E44;font-size:20px;margin-top:0">${heading}</h2>
+            <div style="background:#EFF6FF;border-radius:8px;padding:14px 18px;margin:4px 0 22px;text-align:center">
+              <div style="font-size:11px;color:#2563EB;text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:4px">${isEs ? 'Número de Orden' : 'Order Number'}</div>
+              <div style="font-size:21px;font-weight:800;color:#1C2E44;letter-spacing:.5px">${fbfc}</div>
+            </div>
+            <p style="color:#475569;line-height:1.7">${introText}</p>
+            ${approvedLabels.length ? `
+            <p style="font-size:12px;font-weight:700;color:#166534;text-transform:uppercase;letter-spacing:.5px;margin:16px 0 10px">${isEs ? 'Aprobado' : 'Approved'}</p>
+            <table style="width:100%;border-collapse:collapse;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;margin-bottom:16px">
+              <tr><td style="padding:14px 18px">${approvedLabels.map(l => `<div style="font-size:13.5px;color:#166534;padding:3px 0"><strong>✓</strong> ${l}</div>`).join('')}</td></tr>
+            </table>` : ''}
+            ${hasPending ? `
+            <p style="font-size:12px;font-weight:700;color:#1C2E44;text-transform:uppercase;letter-spacing:.5px;margin:16px 0 10px">${isEs ? 'Todavía en proceso' : 'Still in process'}</p>
+            <table style="width:100%;border-collapse:collapse;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:16px">
+              <tr><td style="padding:14px 18px">${pendingLabels.map(l => `<div style="font-size:13.5px;color:#475569;padding:3px 0">· ${l}</div>`).join('')}</td></tr>
+            </table>
+            <p style="color:#475569;line-height:1.7">
+              ${isEs ? 'Le avisaremos por separado a medida que cada uno de estos quede listo.' : "We'll notify you separately as each of these is ready."}
+            </p>` : ''}
+            <p style="color:#475569;line-height:1.7">
+              ${isEs ? '¿Preguntas? Escríbanos por' : 'Questions? Reach us on'} <a href="https://wa.me/13528377755" style="color:#059669">WhatsApp</a> ${isEs ? 'o responda este correo.' : 'or reply to this email.'}
+            </p>
+            <p style="margin-top:24px;color:#94a3b8;font-size:12px;line-height:1.6">
+              OpaBiz · opabiz.com<br/>
+              ${isEs ? 'Este es un correo transaccional. Somos un servicio de preparación de documentos, no un despacho de abogados.' : 'This is a transactional email. We are a document preparation service, not a law firm.'}
             </p>
           </div>
-          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin:20px 0;font-size:14px">
-            <strong>Company:</strong> ${order.companyName}<br/>
-            <strong>Order:</strong> ${order.id}
-          </div>
-          <p style="color:#475569;line-height:1.7">
-            You can also follow progress in your
-            <a href="https://opabiz.com/client-portal" style="color:#2563eb">client portal</a>.
-          </p>
-          <p style="color:#475569;line-height:1.7">
-            Questions? Reach us on <a href="https://wa.me/13528377755" style="color:#059669">WhatsApp</a> or
-            reply to this email.
-          </p>
-          ${unsubscribeFooter(order.email)}
         </div>
       </div>
     `,
-  })
-}
-
-// ── 6. Articles of Organization / Incorporation — entrega final al cliente ───────────────────
-export const sendCertificateDelivery = async (order: {
-  firstName: string
-  email: string
-  companyName: string
-  id: string
-  unsubscribed?: boolean
-}) => {
-  if (order.unsubscribed) {
-    return { success: false, reason: 'unsubscribed' }
-  }
-
-  await getResend().emails.send({
-    from: FROM_OPABIZ,
-    replyTo: REPLY_TO,
-    to: order.email,
-    subject: `OpaBiz: 🏆 Your Articles of Organization are ready — ${order.companyName}`,
-    html: `
-      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#1e293b">
-        <div style="background:#1C2E44;padding:24px 32px;border-radius:10px 10px 0 0">
-          <h1 style="color:#fff;font-size:22px;margin:0">Florida Business Formation Center</h1>
-        </div>
-        <div style="background:#fff;padding:32px;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 10px 10px">
-          <h2 style="color:#059669;font-size:22px;text-align:center">🎉 Congratulations, ${order.firstName}!</h2>
-          <p style="color:#475569;line-height:1.7;text-align:center">
-            <strong>${order.companyName}</strong> is now an officially registered business entity
-            in the State of Florida.
-          </p>
-          <div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:10px;padding:20px;margin:24px 0;text-align:center">
-            <p style="color:#166534;font-weight:600;margin:0 0 8px">Your Articles of Organization / Incorporation</p>
-            <p style="color:#166534;font-size:13px;margin:0">
-              Your official document is attached to this email. Keep it in a safe place —
-              you will need it to open your business bank account.
-            </p>
-          </div>
-          <h3 style="color:#1C2E44;font-size:16px">What's next?</h3>
-          <ul style="color:#475569;line-height:2;padding-left:20px">
-            <li>Open your <strong>business bank account</strong> using your Certificate + EIN</li>
-            <li>Set up your <strong>accounting software</strong> (QuickBooks, Wave)</li>
-            <li>File your <strong>Annual Report</strong> each year before May 1st</li>
-          </ul>
-          <p style="color:#475569;line-height:1.7">
-            Thank you for trusting us with your business formation. We wish you great success!
-          </p>
-          ${unsubscribeFooter(order.email)}
-        </div>
-      </div>
-    `
   })
 }
