@@ -21,7 +21,10 @@ const PORTAL        = 'https://opabiz.com/client-portal'
 // El login real hoy vive en el home (popover), no en /client-portal (ver
 // CLAUDE.md "Login del cliente en el home") — los links "Track My Order"
 // deben mandar aquí, no al landing viejo.
-const PORTAL_HOME   = 'https://opabiz.com'
+// ?login=1 abre el popover de login directo al cargar el home (ver
+// fmCheckResumeParam en page.tsx) — antes "Track My Order" dejaba al cliente
+// en el landing teniendo que encontrar el botón "Login" de nuevo.
+const PORTAL_HOME   = 'https://opabiz.com/?login=1'
 const ADMIN_EMAIL   = process.env.INTERNAL_ALERT_EMAIL || 'aneurysoto@gmail.com'
 // Display Names: "OpaBiz" para el cliente, "OpaBiz Alerts" para alertas internas.
 const FROM_OPABIZ        = `OpaBiz <${FROM}>`

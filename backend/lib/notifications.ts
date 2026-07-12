@@ -1,5 +1,6 @@
 import { Resend } from 'resend'
 import { getOrderItemLabel, FORMATION_ADDON_NAMES } from './order-items'
+import { computeFormationTotal } from './pricing'
 
 // Lazy init: se crea al primer uso, cuando dotenv ya cargó el .env
 const getResend = () => new Resend(process.env.RESEND_API_KEY)
@@ -23,7 +24,10 @@ const FROM_OPABIZ_ALERTS  = `OpaBiz Alerts <${FROM_EMAIL}>`
 // El login real vive en el home (popover), no en /client-portal (ver
 // CLAUDE.md "Login del cliente en el home") — los botones "Track My Order"
 // deben mandar aquí, igual que en webhooks/stripe/route.ts.
-const PORTAL_HOME = 'https://opabiz.com'
+// ?login=1 abre el popover de login directo al cargar el home (ver
+// fmCheckResumeParam en page.tsx) — antes "Track My Order" dejaba al cliente
+// en el landing teniendo que encontrar el botón "Login" de nuevo.
+const PORTAL_HOME = 'https://opabiz.com/?login=1'
 
 function unsubscribeFooter(email: string): string {
   return `
@@ -62,6 +66,16 @@ export const sendOrderConfirmation = async (order: {
     .map(name => `<tr><td style="padding:6px 8px 6px 0;vertical-align:top;width:14px;font-size:13.5px;color:#2563EB;font-weight:800">·</td><td style="padding:6px 0;font-size:13.5px;color:#1e293b;font-weight:600;line-height:1.6">${name}</td></tr>`)
     .join('')
   const speedLabel = order.speed === 'expedited' ? 'Expedited (1-3 business days)' : 'Standard (7-14 business days)'
+  // Tabla de precios real por ítem — mismo cálculo (computeFormationTotal) que
+  // handleFormationPaid (webhook) y el email de servicios, para que los tres
+  // muestren el mismo nivel de detalle (feedback: este quedó sin precios/total
+  // mientras los otros dos sí los tenían).
+  const { lines: formationLines, total } = computeFormationTotal({
+    package: order.package, entityType: order.entityType, speed: order.speed, addons: order.addons,
+  })
+  const formationRowsHtml = formationLines
+    .map(l => `<tr><td style="padding:5px 0;font-size:14px;color:#475569">${l.label}</td><td style="padding:5px 0;font-size:14px;color:#1e293b;font-weight:600;text-align:right;white-space:nowrap">$${l.amount}</td></tr>`)
+    .join('')
 
   await getResend().emails.send({
     from: FROM_OPABIZ,
@@ -93,6 +107,11 @@ export const sendOrderConfirmation = async (order: {
               <p style="margin:6px 0;font-size:14px"><strong>Company Name:</strong> ${order.companyName}</p>
               ${order.entityType ? `<p style="margin:6px 0;font-size:14px"><strong>Entity Type:</strong> ${order.entityType.toUpperCase()}</p>` : ''}
               <p style="margin:6px 0 0;font-size:14px"><strong>Filing Speed:</strong> ${speedLabel}</p>
+            </div>
+            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:20px;margin:20px 0">
+              <table style="width:100%;border-collapse:collapse">${formationRowsHtml}
+                <tr><td style="padding:10px 0 0;border-top:1px solid #e2e8f0;font-size:14px;font-weight:700;color:#1e293b">Total</td><td style="padding:10px 0 0;border-top:1px solid #e2e8f0;font-size:14px;font-weight:700;color:#1e293b;text-align:right;white-space:nowrap">$${total.toFixed(2)} USD</td></tr>
+              </table>
             </div>
             ${includedHtml ? `
             <p style="font-size:12px;font-weight:700;color:#1C2E44;text-transform:uppercase;letter-spacing:.5px;margin:0 0 10px">What's included</p>

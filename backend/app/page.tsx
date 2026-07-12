@@ -7128,12 +7128,21 @@ function fmFetchAndRestoreDraft() {
     var p = new URLSearchParams(window.location.search);
     var continueCode = p.get('continue');
     var isResume = p.get('resume') === '1';
-    if(!continueCode && !isResume) return;
+    var wantsLogin = p.get('login') === '1';
+    if(!continueCode && !isResume && !wantsLogin) return;
 
     var url = new URL(window.location.href);
     url.searchParams.delete('resume');
     url.searchParams.delete('continue');
+    url.searchParams.delete('login');
     history.replaceState({}, '', url.toString());
+
+    // Botones "Track My Order" de los emails (?login=1) — abre el popover de
+    // login directo en vez de dejar al cliente en el home teniendo que buscar
+    // el botón "Login" de nuevo. Si ya tiene sesión activa, openPortalLogin()
+    // lo manda directo al dashboard. El delay le da tiempo a refreshAccountUI()
+    // (llamado arriba, async) a confirmar si ya está logueado antes de decidir.
+    if(wantsLogin) { setTimeout(function(){ openPortalLogin(); }, 300); return; }
 
     // Tras un login con orden en progreso (ver findOrder() / portalLoginSubmit()),
     // el redirect trae ?resume=1 — la sesión ya está autenticada.
