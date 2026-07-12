@@ -37,7 +37,10 @@ function unsubscribeFooter(email: string): string {
 }
 
 // ── 1. Confirmación al cliente cuando su orden es recibida ───────────────────
-//    SIEMPRE se envía — es una confirmación transaccional crítica (no verifica unsubscribed)
+//    SIEMPRE se envía — es una confirmación transaccional crítica (no verifica
+//    unsubscribed). Rediseñado 2026-07-11 con las mismas convenciones que el
+//    resto de los templates: header OB, Order Number en su caja, detalle real
+//    del paquete (PACKAGE_SERVICES + addons), sin promesa de plazo.
 export const sendOrderConfirmation = async (order: {
   firstName: string
   lastName: string
@@ -45,7 +48,21 @@ export const sendOrderConfirmation = async (order: {
   companyName: string
   package: string
   id: string
+  entityType?: string | null
+  speed?: string | null
+  addons?: Record<string, boolean> | null
 }) => {
+  const fbfc = `FBFC-${order.id.replace(/-/g, '').substring(0, 8).toUpperCase()}`
+  const packageKey = (order.package ?? '').toLowerCase().trim()
+  const packageItems = PACKAGE_SERVICES[packageKey] ?? []
+  const addonNames = Object.entries(order.addons ?? {})
+    .filter(([, v]) => !!v)
+    .map(([k]) => FORMATION_ADDON_NAMES[k]?.en ?? k)
+  const includedHtml = [...packageItems.map(i => i.en), ...addonNames]
+    .map(name => `<tr><td style="padding:6px 8px 6px 0;vertical-align:top;width:14px;font-size:13.5px;color:#2563EB;font-weight:800">·</td><td style="padding:6px 0;font-size:13.5px;color:#1e293b;font-weight:600;line-height:1.6">${name}</td></tr>`)
+    .join('')
+  const speedLabel = order.speed === 'expedited' ? 'Expedited (1-3 business days)' : 'Standard (7-14 business days)'
+
   await getResend().emails.send({
     from: FROM_OPABIZ,
     replyTo: REPLY_TO,
@@ -53,37 +70,44 @@ export const sendOrderConfirmation = async (order: {
     subject: `OpaBiz: ✅ Your Florida LLC order is in — ${order.companyName}`,
     html: `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#1e293b">
-        <div style="background:#1C2E44;padding:24px 32px;border-radius:10px 10px 0 0">
-          <h1 style="color:#fff;font-size:22px;margin:0">Florida Business Formation Center</h1>
-        </div>
-        <div style="background:#fff;padding:32px;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 10px 10px">
-          <h2 style="color:#1C2E44;font-size:20px">Hi ${order.firstName} ${order.lastName}, we got your order! 🎉</h2>
-          <p style="color:#475569;line-height:1.7">
-            Thank you for choosing Florida Business Formation Center. Here's a summary of your order:
-          </p>
-          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:20px;margin:20px 0">
-            <p style="margin:6px 0;font-size:14px"><strong>Company Name:</strong> ${order.companyName}</p>
-            <p style="margin:6px 0;font-size:14px"><strong>Package:</strong> ${order.package}</p>
-            <p style="margin:6px 0;font-size:14px"><strong>Order Number:</strong> FBFC-${order.id.replace(/-/g, '').substring(0, 8).toUpperCase()}</p>
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden">
+          <div style="padding:22px 32px;border-bottom:1px solid #e2e8f0">
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+              <td style="width:42px;padding-right:12px">
+                <div style="width:42px;height:42px;background:linear-gradient(135deg,#1C2E44,#2563EB);border-radius:10px;text-align:center;line-height:42px;color:#fff;font-family:Georgia,serif;font-size:16px;font-weight:700">OB</div>
+              </td>
+              <td style="vertical-align:middle">
+                <div style="font-family:Georgia,serif;font-size:21px;font-weight:700;line-height:1.2"><span style="color:#1C2E44">Opa</span><span style="color:#2563EB">Biz</span></div>
+                <div style="font-size:11px;color:#94A3B8;letter-spacing:.3px;margin-top:2px">Florida Business Formation Center</div>
+              </td>
+            </tr></table>
           </div>
-          <div style="text-align:center;margin:28px 0">
-            <a href="https://opabiz.com/client-portal?email=${encodeURIComponent(order.email)}&order=FBFC-${order.id.replace(/-/g, '').substring(0, 8).toUpperCase()}"
-               style="display:inline-block;background:#4f46e5;color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:8px;font-size:15px;font-weight:700;letter-spacing:0.2px">
-              Track Your Order →
-            </a>
-            <p style="color:#94a3b8;font-size:12px;margin-top:10px">
-              View your order status in real time at any time
+          <div style="padding:32px">
+            <p style="font-size:12px;font-weight:700;color:#1C2E44;text-transform:uppercase;letter-spacing:.5px;margin:0 0 10px">Order Received</p>
+            <h2 style="color:#1C2E44;font-size:20px;margin-top:0">Thank you for your order, ${order.firstName} ${order.lastName}!</h2>
+            <div style="background:#EFF6FF;border-radius:8px;padding:14px 18px;margin:4px 0 22px;text-align:center">
+              <div style="font-size:11px;color:#2563EB;text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:4px">Order Number</div>
+              <div style="font-size:21px;font-weight:800;color:#1C2E44;letter-spacing:.5px">${fbfc}</div>
+            </div>
+            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:20px;margin:20px 0">
+              <p style="margin:6px 0;font-size:14px"><strong>Company Name:</strong> ${order.companyName}</p>
+              ${order.entityType ? `<p style="margin:6px 0;font-size:14px"><strong>Entity Type:</strong> ${order.entityType.toUpperCase()}</p>` : ''}
+              <p style="margin:6px 0 0;font-size:14px"><strong>Filing Speed:</strong> ${speedLabel}</p>
+            </div>
+            ${includedHtml ? `
+            <p style="font-size:12px;font-weight:700;color:#1C2E44;text-transform:uppercase;letter-spacing:.5px;margin:0 0 10px">What's included</p>
+            <table style="width:100%;border-collapse:collapse;margin-bottom:24px">${includedHtml}</table>
+            ` : ''}
+            <p style="color:#475569;line-height:1.7">
+              Our team is now reviewing your information and will verify name availability with the Florida Division of Corporations. We'll notify you by email as soon as your filing is submitted.
             </p>
+            <div style="text-align:center;margin:24px 0">
+              <a href="${PORTAL_HOME}" style="background:linear-gradient(135deg,#2563EB,#1C2E44);color:#fff;text-decoration:none;padding:13px 32px;border-radius:8px;font-weight:700;font-size:15px;display:inline-block">
+                Track My Order
+              </a>
+            </div>
+            ${unsubscribeFooter(order.email)}
           </div>
-          <p style="color:#475569;line-height:1.7">
-            Our team is now reviewing your information and will verify name availability with the
-            Florida Division of Corporations. We'll be in touch within <strong>1 business day</strong>.
-          </p>
-          <p style="color:#475569;line-height:1.7">
-            Questions? Reach us on <a href="https://wa.me/13528377755" style="color:#059669">WhatsApp</a> or
-            reply to this email.
-          </p>
-          ${unsubscribeFooter(order.email)}
         </div>
       </div>
     `
@@ -247,9 +271,12 @@ export const sendSuggestNames = async (order: {
   email: string
   companyName: string
   id: string
+  lang?: 'en' | 'es'
 }, availableNames: string[]) => {
+  const isEs = order.lang === 'es'
+  const fbfc = `FBFC-${order.id.replace(/-/g, '').substring(0, 8).toUpperCase()}`
   const nameList = availableNames
-    .map(n => `<li style="margin:8px 0;font-size:14px;color:#166534"><strong>✅ ${n}</strong></li>`)
+    .map(n => `<tr><td style="padding:6px 8px 6px 0;vertical-align:top;width:14px;font-size:13.5px;color:#16a34a;font-weight:800">✓</td><td style="padding:6px 0;font-size:13.5px;color:#166534;font-weight:700;line-height:1.6">${n}</td></tr>`)
     .join('')
 
   // FROM_OPABIZ_SUPPORT — el cliente debe confirmar cuál nombre prefiere.
@@ -257,38 +284,50 @@ export const sendSuggestNames = async (order: {
     from: FROM_OPABIZ_SUPPORT,
     replyTo: REPLY_TO,
     to: order.email,
-    subject: `OpaBiz: ✅ We found available names for your LLC`,
+    subject: isEs ? 'OpaBiz: ✅ Encontramos nombres disponibles para su LLC' : `OpaBiz: ✅ We found available names for your LLC`,
     html: `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#1e293b">
-        <div style="background:#1C2E44;padding:24px 32px;border-radius:10px 10px 0 0">
-          <h1 style="color:#fff;font-size:22px;margin:0">Florida Business Formation Center</h1>
-        </div>
-        <div style="background:#fff;padding:32px;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 10px 10px">
-          <h2 style="color:#1C2E44;font-size:20px">Hi ${order.firstName} ${order.lastName}, we found available names! 🎉</h2>
-          <p style="color:#475569;line-height:1.7">
-            Our team searched the Florida Division of Corporations database and found the following
-            names that are <strong>currently available</strong> for registration:
-          </p>
-          <div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:10px;padding:20px;margin:20px 0">
-            <p style="color:#166534;font-weight:700;margin:0 0 10px;font-size:14px">Available names:</p>
-            <ul style="margin:0;padding-left:20px">
-              ${nameList}
-            </ul>
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden">
+          <div style="padding:22px 32px;border-bottom:1px solid #e2e8f0">
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+              <td style="width:42px;padding-right:12px">
+                <div style="width:42px;height:42px;background:linear-gradient(135deg,#1C2E44,#2563EB);border-radius:10px;text-align:center;line-height:42px;color:#fff;font-family:Georgia,serif;font-size:16px;font-weight:700">OB</div>
+              </td>
+              <td style="vertical-align:middle">
+                <div style="font-family:Georgia,serif;font-size:21px;font-weight:700;line-height:1.2"><span style="color:#1C2E44">Opa</span><span style="color:#2563EB">Biz</span></div>
+                <div style="font-size:11px;color:#94A3B8;letter-spacing:.3px;margin-top:2px">Florida Business Formation Center</div>
+              </td>
+            </tr></table>
           </div>
-          <p style="color:#475569;line-height:1.7">
-            Please <strong>reply to this email</strong> and let us know which name you'd like to use
-            for your business. Once we hear back from you, we'll move forward with the registration
-            right away.
-          </p>
-          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin:20px 0;font-size:14px">
-            <strong>Your original company name:</strong> ${order.companyName}<br/>
-            <strong>Order:</strong> ${order.id}
+          <div style="padding:32px">
+            <p style="font-size:12px;font-weight:700;color:#1C2E44;text-transform:uppercase;letter-spacing:.5px;margin:0 0 10px">${isEs ? 'Nombres Disponibles' : 'Available Names'}</p>
+            <h2 style="color:#1C2E44;font-size:20px;margin-top:0">${isEs ? `Encontramos nombres disponibles, ${order.firstName} ${order.lastName}` : `We found available names, ${order.firstName} ${order.lastName}`}</h2>
+            <div style="background:#EFF6FF;border-radius:8px;padding:14px 18px;margin:4px 0 22px;text-align:center">
+              <div style="font-size:11px;color:#2563EB;text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:4px">${isEs ? 'Número de Orden' : 'Order Number'}</div>
+              <div style="font-size:21px;font-weight:800;color:#1C2E44;letter-spacing:.5px">${fbfc}</div>
+            </div>
+            <p style="color:#475569;line-height:1.7">
+              ${isEs
+                ? 'Nuestro equipo buscó en la base de datos de la División de Corporaciones de Florida y encontró los siguientes nombres, actualmente disponibles para registro:'
+                : 'Our team searched the Florida Division of Corporations database and found the following names, currently available for registration:'}
+            </p>
+            <table style="width:100%;border-collapse:collapse;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;margin:20px 0">
+              <tr><td style="padding:14px 20px 4px" colspan="2">${nameList}</td></tr>
+            </table>
+            <p style="color:#475569;line-height:1.7">
+              ${isEs
+                ? 'Responda este correo indicándonos cuál nombre prefiere para su negocio. En cuanto tengamos su respuesta, seguiremos con el registro.'
+                : "Please reply to this email and let us know which name you'd like to use for your business. Once we hear back from you, we'll move forward with the registration."}
+            </p>
+            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin:20px 0;font-size:14px">
+              <strong>${isEs ? 'Nombre original de la empresa:' : 'Original company name:'}</strong> ${order.companyName}
+            </div>
+            <p style="color:#475569;line-height:1.7">
+              ${isEs ? '¿Tiene preguntas o necesita ayuda para elegir?' : 'Have questions or need help deciding?'}
+              <a href="https://wa.me/13528377755" style="color:#059669">${isEs ? 'Escríbanos por WhatsApp' : 'Chat with us on WhatsApp'}</a>.
+            </p>
+            ${unsubscribeFooter(order.email)}
           </div>
-          <p style="color:#475569;line-height:1.7">
-            If you have questions or need help deciding,
-            <a href="https://wa.me/13528377755" style="color:#059669">chat with us on WhatsApp</a>.
-          </p>
-          ${unsubscribeFooter(order.email)}
         </div>
       </div>
     `

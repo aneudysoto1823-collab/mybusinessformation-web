@@ -4,6 +4,7 @@ import { Resend } from 'resend'
 import { checkOrdersRateLimit, getClientIp } from '@/lib/rate-limit'
 import { OrderInputSchema, parseOr400 } from '@/lib/schemas'
 import { checkNameAvailability, nameCheckHtmlLine, NameCheckResult } from '@/lib/sunbiz-namecheck'
+import { sendOrderConfirmation } from '@/lib/notifications'
 
 const getResend = () => new Resend(process.env.RESEND_API_KEY)
 // Mismo patrón que lib/notifications.ts: FROM/Reply-To centralizados en env
@@ -12,8 +13,8 @@ const getResend = () => new Resend(process.env.RESEND_API_KEY)
 const FROM_EMAIL = process.env.RESEND_FROM_TRANSACTIONAL || 'onboarding@resend.dev'
 const REPLY_TO   = process.env.RESEND_REPLY_TO || 'info@opabiz.com'
 const INTERNAL_ALERT = process.env.INTERNAL_ALERT_EMAIL || 'alert@opabiz.com'
-// Display Names: para el cliente "OpaBiz", para la alerta al admin "OpaBiz Alerts".
-const FROM_OPABIZ        = `OpaBiz <${FROM_EMAIL}>`
+// Display Name para la alerta interna al admin (el email al cliente lo maneja
+// sendOrderConfirmation() en lib/notifications.ts, que ya trae el suyo).
 const FROM_OPABIZ_ALERTS = `OpaBiz Alerts <${FROM_EMAIL}>`
 
 export async function POST(request: NextRequest) {
@@ -149,44 +150,19 @@ export async function POST(request: NextRequest) {
     // ── Emails — se omiten en el flujo Embedded Checkout (los manda el webhook
     //    al confirmarse el pago, ver deferEmails arriba) ────────────────────────
     if (!deferEmails) {
-    // ── Email de confirmación — non-blocking ──────────────────────────────────
-    getResend().emails.send({
-      from: FROM_OPABIZ,
-      replyTo: REPLY_TO,
-      to: order.email,
-      subject: `OpaBiz: ✅ Your Florida LLC order is in — ${order.companyName}`,
-      html: `
-        <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#1e293b">
-          <div style="background:#1C2E44;padding:24px 32px;border-radius:10px 10px 0 0">
-            <h1 style="color:#fff;font-size:22px;margin:0">Florida Business Formation Center</h1>
-          </div>
-          <div style="background:#fff;padding:32px;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 10px 10px">
-            <h2 style="color:#1C2E44;font-size:20px">Hi ${order.firstName} ${order.lastName}, we got your order! 🎉</h2>
-            <p style="color:#475569;line-height:1.7">
-              Thank you for choosing Florida Business Formation Center. Here's a summary of your order:
-            </p>
-            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:20px;margin:20px 0">
-              <p style="margin:6px 0;font-size:14px"><strong>Company Name:</strong> ${order.companyName}</p>
-              <p style="margin:6px 0;font-size:14px"><strong>Entity Type:</strong> ${(order.entityType ?? 'llc').toUpperCase()}</p>
-              <p style="margin:6px 0;font-size:14px"><strong>Package:</strong> ${order.package}</p>
-              <p style="margin:6px 0;font-size:14px"><strong>Filing Speed:</strong> ${order.speed}</p>
-              <p style="margin:6px 0;font-size:14px"><strong>Order Number:</strong> FBFC-${order.id.replace(/-/g, '').substring(0, 8).toUpperCase()}</p>
-            </div>
-            <p style="color:#475569;line-height:1.7">
-              Our team is now reviewing your information and will verify name availability with the
-              Florida Division of Corporations. We'll be in touch within <strong>1 business day</strong>.
-            </p>
-            <p style="color:#475569;line-height:1.7">
-              Questions? Reach us on <a href="https://wa.me/13528377755" style="color:#059669">WhatsApp</a> or
-              reply to this email.
-            </p>
-            <p style="margin-top:32px;color:#94a3b8;font-size:12px">
-              Florida Business Formation Center · opabiz.com<br/>
-              This is a transactional email. We are a document preparation service, not a law firm.
-            </p>
-          </div>
-        </div>
-      `
+    // ── Email de confirmación — non-blocking. Usa sendOrderConfirmation() de
+    //    lib/notifications.ts (antes duplicaba el HTML acá adentro, con riesgo
+    //    de que este template y el del botón "Reenviar" en el admin divergieran).
+    sendOrderConfirmation({
+      id: order.id,
+      firstName: order.firstName,
+      lastName: order.lastName,
+      email: order.email,
+      companyName: order.companyName,
+      package: order.package,
+      entityType: order.entityType,
+      speed: order.speed,
+      addons: order.addons as Record<string, boolean> | null,
     }).catch(err => console.error('Email confirmation error (non-fatal):', err))
 
     // ── Alerta interna "🆕 NUEVA ORDEN CREADA" → alert@opabiz.com ──────────────

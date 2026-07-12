@@ -56,6 +56,9 @@ export async function POST(
         email: order.email,
         companyName: order.companyName,
         package: order.package,
+        entityType: order.entityType,
+        speed: order.speed,
+        addons: order.addons as Record<string, boolean> | null,
       })
       await logAdminAction({ action: 'email.order-confirmation-resent', entity: 'Order', entityId: order.id, request })
       return NextResponse.json({ success: true, message: `Confirmación reenviada a ${order.email}` })
@@ -91,14 +94,14 @@ export async function POST(
     // ── suggest-names ───────────────────────────────────────────────────────
     // Body esperado: { orderId, availableNames: string[] }
     if (type === 'suggest-names') {
-      const { orderId, availableNames } = body
+      const { orderId, availableNames, lang } = body
       if (!orderId || !Array.isArray(availableNames) || availableNames.length === 0) {
         return NextResponse.json({ success: false, message: 'Faltan campos: orderId, availableNames (array no vacío)' }, { status: 400 })
       }
       const order = await getOrder(orderId)
       if (!order) return NextResponse.json({ success: false, message: 'Orden no encontrada' }, { status: 404 })
       await sendSuggestNames(
-        { id: order.id, firstName: order.firstName, lastName: order.lastName, email: order.email, companyName: order.companyName },
+        { id: order.id, firstName: order.firstName, lastName: order.lastName, email: order.email, companyName: order.companyName, lang: lang === 'es' ? 'es' : 'en' },
         availableNames as string[]
       )
       await logAdminAction({

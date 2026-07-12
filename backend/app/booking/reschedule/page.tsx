@@ -125,7 +125,7 @@ function RescheduleContent() {
     const res = await fetch('/api/booking/reschedule', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id, date: selectedDate, time: selectedTime }),
+      body: JSON.stringify({ id, date: selectedDate, time: selectedTime, lang }),
     })
     const data = await res.json()
     if (!res.ok) setError(data.error === 'slot_taken' ? t.slotTaken : t.genericError)

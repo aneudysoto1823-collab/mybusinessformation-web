@@ -102,7 +102,7 @@ function CancelContent() {
     const res = await fetch('/api/booking/cancel', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id }),
+      body: JSON.stringify({ id, lang }),
     })
     const data = await res.json()
     if (!res.ok) setError(data.error === 'already_cancelled' ? t.alreadyError : t.genericError)

@@ -6,8 +6,28 @@ export const dynamic = 'force-dynamic'
 
 const getResend = () => new Resend(process.env.RESEND_API_KEY)
 
-function formatDate(date: string) {
-  return new Date(date + 'T12:00:00').toLocaleDateString('en-US', {
+// Mismo patrón de FROM/Reply-To que app/api/booking/route.ts — antes se
+// mandaba desde 'onboarding@resend.dev' (sandbox de Resend).
+const FROM_EMAIL = process.env.RESEND_FROM_TRANSACTIONAL || 'onboarding@resend.dev'
+const REPLY_TO   = process.env.RESEND_REPLY_TO || 'info@opabiz.com'
+const FROM_OPABIZ = `OpaBiz <${FROM_EMAIL}>`
+
+const emailHeader = `
+  <div style="padding:22px 32px;border-bottom:1px solid #e2e8f0">
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+      <td style="width:42px;padding-right:12px">
+        <div style="width:42px;height:42px;background:linear-gradient(135deg,#1C2E44,#2563EB);border-radius:10px;text-align:center;line-height:42px;color:#fff;font-family:Georgia,serif;font-size:16px;font-weight:700">OB</div>
+      </td>
+      <td style="vertical-align:middle">
+        <div style="font-family:Georgia,serif;font-size:21px;font-weight:700;line-height:1.2"><span style="color:#1C2E44">Opa</span><span style="color:#2563EB">Biz</span></div>
+        <div style="font-size:11px;color:#94A3B8;letter-spacing:.3px;margin-top:2px">Florida Business Formation Center</div>
+      </td>
+    </tr></table>
+  </div>
+`
+
+function formatDate(date: string, lang: 'en' | 'es' = 'en') {
+  return new Date(date + 'T12:00:00').toLocaleDateString(lang === 'es' ? 'es-US' : 'en-US', {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
   })
 }
@@ -36,7 +56,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const { id, date, time } = await req.json()
+  const { id, date, time, lang } = await req.json()
+  const isEs = lang === 'es'
   if (!id || !date || !time) return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
 
   const supabase = getSupabaseAdmin()
@@ -69,34 +90,40 @@ export async function POST(req: NextRequest) {
     .update({ date, time, status: 'pending' })
     .eq('id', id)
 
-  const dateFormatted = formatDate(date)
+  const dateFormatted = formatDate(date, isEs ? 'es' : 'en')
   const timeFormatted = formatTime(time)
 
   // Email al cliente
   await getResend().emails.send({
-    from: 'onboarding@resend.dev',
+    from: FROM_OPABIZ,
+    replyTo: REPLY_TO,
     to: appt.email,
-    subject: '📅 Your appointment has been rescheduled — OpaBiz',
+    subject: isEs ? '📅 Su cita fue reprogramada — OpaBiz' : '📅 Your appointment has been rescheduled — OpaBiz',
     html: `
-      <div style="font-family:sans-serif;max-width:560px;margin:0 auto;color:#1a1a2e">
-        <div style="background:#1C2E44;padding:24px;text-align:center;border-radius:8px 8px 0 0">
-          <p style="color:#fff;font-size:1.1rem;font-weight:700;margin:0">OpaBiz</p>
-        </div>
-        <div style="background:#fff;padding:32px;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px">
-          <h2 style="color:#1C2E44;margin-bottom:8px">Appointment Rescheduled</h2>
-          <p style="color:#6b7280;margin-bottom:24px">Hi ${appt.name}, your consultation has been moved to:</p>
-          <div style="background:#f0f4f8;border-radius:8px;padding:20px;margin-bottom:24px">
-            <p style="margin:0 0 8px 0"><strong>📅 New Date:</strong> ${dateFormatted}</p>
-            <p style="margin:0"><strong>🕐 New Time:</strong> ${timeFormatted}</p>
+      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#1e293b">
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden">
+          ${emailHeader}
+          <div style="padding:32px">
+            <p style="font-size:12px;font-weight:700;color:#1C2E44;text-transform:uppercase;letter-spacing:.5px;margin:0 0 10px">${isEs ? 'Cita Reprogramada' : 'Appointment Rescheduled'}</p>
+            <h2 style="color:#1C2E44;font-size:20px;margin-top:0">${isEs ? `Su consulta fue movida, ${appt.name}` : `Your consultation has been moved, ${appt.name}`}</h2>
+            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:20px;margin:20px 0">
+              <p style="margin:6px 0;font-size:14px"><strong>📅 ${isEs ? 'Nueva Fecha' : 'New Date'}:</strong> ${dateFormatted}</p>
+              <p style="margin:6px 0 0;font-size:14px"><strong>🕐 ${isEs ? 'Nueva Hora' : 'New Time'}:</strong> ${timeFormatted}</p>
+            </div>
+            <p style="color:#475569;line-height:1.7">${isEs ? 'Si necesita hacer algún otro cambio, puede responder este correo.' : 'If you need to make any further changes, you can reply to this email.'}</p>
+            <p style="margin-top:24px;color:#94a3b8;font-size:12px;line-height:1.6">
+              OpaBiz · opabiz.com<br/>
+              ${isEs ? 'Este es un correo transaccional. Somos un servicio de preparación de documentos, no un despacho de abogados.' : 'This is a transactional email. We are a document preparation service, not a law firm.'}
+            </p>
           </div>
-          <p style="color:#6b7280;font-size:0.9rem">If you need to make any further changes, you can reply to this email.</p>
         </div>
       </div>`,
   })
 
   // Notificación al admin
   await getResend().emails.send({
-    from: 'onboarding@resend.dev',
+    from: FROM_OPABIZ,
+    replyTo: REPLY_TO,
     to: 'info@opabiz.com',
     subject: `📅 Cita reprogramada: ${appt.name} → ${dateFormatted} ${timeFormatted}`,
     html: `<p><strong>${appt.name}</strong> reprogramó su cita para el <strong>${dateFormatted}</strong> a las <strong>${timeFormatted}</strong>.</p><p>Email: ${appt.email}</p>`,
