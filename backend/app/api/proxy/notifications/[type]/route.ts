@@ -58,7 +58,10 @@ export async function POST(
         package: order.package,
         entityType: order.entityType,
         speed: order.speed,
-        addons: order.addons as Record<string, boolean> | null,
+        // Sin cast — order.addons puede ser boolean-map (formación),
+        // {services,bundles,lines} (à la carte) o array plano (marketing)
+        // según order.package; sendOrderConfirmation ya sabe normalizar los 3.
+        addons: order.addons,
       })
       await logAdminAction({ action: 'email.order-confirmation-resent', entity: 'Order', entityId: order.id, request })
       return NextResponse.json({ success: true, message: `Confirmación reenviada a ${order.email}` })
@@ -136,7 +139,7 @@ export async function POST(
         entityType: order.entityType ?? undefined,
         package: order.package,
         speed: order.speed ?? undefined,
-        addons: (order.addons ?? null) as Record<string, boolean> | null,
+        addons: order.addons ?? null,
         unsubscribed: order.unsubscribed ?? false,
         lang: body.lang === 'es' ? 'es' : 'en',
       })

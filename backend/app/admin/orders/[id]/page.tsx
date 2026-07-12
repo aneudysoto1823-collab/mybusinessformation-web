@@ -51,9 +51,9 @@ interface Order {
 const STATUS_OPTIONS = ['pending', 'in_review', 'names_taken', 'ready_to_file', 'filed', 'approved', 'completed']
 
 const PACKAGE_INFO: Record<string, { name: string; price: string; popular?: boolean }> = {
-  basic:    { name: 'Basic',                price: '$49 + state fee' },
-  standard: { name: 'Standard',            price: '$149 + state fee', popular: true },
-  premium:  { name: 'Premium',             price: '$249 + state fee' },
+  basic:    { name: 'Basic',                price: '$0 + state fee' },
+  standard: { name: 'Standard',            price: '$199 + state fee', popular: true },
+  premium:  { name: 'Premium',             price: '$299 + state fee' },
   addon:    { name: 'New Business Letter',  price: 'Variable' },
 }
 
@@ -1130,9 +1130,13 @@ export default function OrderDetailPage() {
                   <button className="btn btn-blue" onClick={() => triggerEmail('order-confirmation')} disabled={emailLoading !== null} title="Reenviar el email de confirmación al cliente (útil cuando el envío automático original se perdió).">
                     {emailLoading === 'order-confirmation' ? 'Enviando…' : '🔁 Reenviar: Confirmación de Orden'}
                   </button>
-                  <button className="btn btn-yellow" onClick={() => triggerEmail('names-taken')} disabled={emailLoading !== null}>
-                    {emailLoading === 'names-taken' ? 'Enviando…' : '⚠️ Email: Nombres Tomados'}
-                  </button>
+                  {/* Nombres Tomados no aplica a órdenes de servicios à la carte
+                      (no hay chequeo de nombre de empresa ahí). */}
+                  {order.package !== 'services' && (
+                    <button className="btn btn-yellow" onClick={() => triggerEmail('names-taken')} disabled={emailLoading !== null}>
+                      {emailLoading === 'names-taken' ? 'Enviando…' : '⚠️ Email: Nombres Tomados'}
+                    </button>
+                  )}
                 </>
               )}
               {emailMsg && <span className="msg-inf">{emailMsg}</span>}

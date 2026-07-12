@@ -954,6 +954,43 @@ Florida Division of Corporations publica el layout completo: https://dos.sunbiz.
 
 ---
 
+## Auditoría de código (2026-07-12)
+
+Auditoría general del proyecto (no ligada a un diff puntual) pedida por el founder: "incongruencias, errores de código, código muerto, todo cuanto sea necesario corregir". Se corrió con 3 agentes en paralelo, cada uno cubriendo un área: **backend API** (`app/api/**` + `modules/**`), **frontend** (`page.tsx`, admin, client-portal, servicios/checkout), y **`lib/*.ts`** (utilidades compartidas). Encontraron 18 problemas concretos. Se resolvieron los 5 críticos (los que tocan clientes o plata real) en la misma sesión; quedan 13 pendientes (importantes + menores) para una sesión aparte.
+
+### ✅ Resueltos hoy
+
+1. **Buscador de nombres del admin usaba datos mock** (`modules/names/names.route.ts` — lista hardcodeada de 10 nombres, nunca conectada a Sunbiz real pese al comentario "se reemplaza en Etapa 5"). Ahora usa `checkNameAvailability()` de `lib/sunbiz-namecheck.ts` (Turso, mismo chequeo que `/api/orders`). Requirió cambiar los imports de `sunbiz-namecheck.ts` de `@/lib/...` a rutas relativas (`./turso`, `./sunbiz-normalize`) porque `tsconfig.server.json` (build de Railway) no tiene el alias `@/` configurado — con imports relativos el archivo compila igual en ambos runtimes (Next.js y Express). **⚠️ Pendiente de verificar:** `TURSO_DATABASE_URL` y `TURSO_AUTH_TOKEN` deben estar cargadas en las env vars de **Railway** además de Vercel — si faltan, `checkNameAvailability()` no rompe pero degrada a `available:true` en silencio (mismo comportamiento defensivo que en Next.js).
+
+2. **`sendOrderProcessed` (A5) y `sendOrderConfirmation` (A1) mostraban claves crudas** para órdenes de servicios/marketing — mismo bug de shape-unsafe `Object.entries(order.addons)` que `lib/order-items.ts` (creado el 2026-07-11) ya había resuelto en otros lugares, pero no se aplicó acá. Ahora ambas usan `getOrderItemKeys`/`getOrderItemLabel`. De paso: el parámetro `addons` de ambas funciones pasó de `Record<string, boolean> | null` (mentira de tipo para órdenes no-formación) a `unknown`, y se sacaron los casts falsos en los 3 call sites (`api/orders/route.ts`, `api/proxy/notifications/[type]/route.ts`, `api/cron/priority-filing-notice/route.ts`). También se ocultó el botón "⚠️ Email: Nombres Tomados" en `/admin/orders/[id]` para órdenes `package==='services'` (no aplica, no hay concepto de nombre de empresa ahí).
+
+3. **Bug de precio al retomar una orden guardada** — `fmRestoreProgress()` (`page.tsx`) saltaba directo al paso guardado (7 u 8) sin pasar por el paso 6 (Faster Processing), así que `_fmSpeedSeen` quedaba en `false` y el Order Summary ocultaba el cargo de Expedited aunque `computeFormationTotal`/Stripe sí lo cobran sin ese gate. Fix: si `progress.step > 6`, `_fmSpeedSeen = true` antes de restaurar.
+
+4. **Precios de paquetes desactualizados** ($49/$149/$249 en vez de $0/$199/$299) en 4 lugares: `PACKAGE_INFO` de `client-portal/dashboard/DashboardContent.tsx` y de `admin/orders/[id]/page.tsx`, la sección 4.1 de `/terms`, y el banner `topbar` del home (la versión en inglés decía "$49" mientras la española ya decía "GRATIS" — quedaron desincronizadas, señal de que el fix en español no se replicó en inglés).
+
+5. **Paquete Basic ($0) se quedaba sin lista de "qué incluye"** en los emails — regresión del 2026-07-12 mismo día: al anidar las inclusiones bajo la línea de precio del paquete, Basic nunca genera esa línea (`computeFormationTotal` omite paquetes con precio $0). Fix: `withBasicDisplayLine()` (nuevo, `lib/pricing.ts`) inyecta dos líneas de **display únicamente** — "Basic Formation Package $99" + "Basic Package Discount -$99" (netea $0, no cambia el total real) — mismo truco visual que ya usa `/api/checkout/embedded` cuando el cupón de Stripe está configurado. A propósito se implementó **separado** de `computeFormationTotal`, no dentro: esa función también arma los line items reales que Stripe cobra, que ya tienen su propia lógica de cupón (gated por `STRIPE_BASIC_COUPON_ID`) — meterlo ahí hubiera duplicado la línea en el checkout real.
+
+### ⏳ Pendientes (quedaron para otra sesión)
+
+**Importantes:**
+- Etiquetas de addons duplicadas y ya desincronizadas en 3-4 lugares (`sc`/`bl` dicen distinto en `lib/pricing.ts` `ADDON_LABELS` vs `lib/order-items.ts` `FORMATION_ADDON_NAMES`; `MARKETING_ADDON_NAMES` duplicado en 4 archivos con texto en español ya divergente).
+- `computeFormationTotal` cae en silencio a precio "standard" si `package` no se reconoce — enmascara bugs de datos en vez de fallar visible.
+- Constantes de email (FROM/Reply-To/FROM_OPABIZ) redeclaradas en 9 archivos en vez de un solo lugar compartido.
+- Rutas de citas del admin (`booking/appointments`, `booking/blocked`, y sus `[id]`) reimplementan verificación JWT en vez de `verifyAdminToken` de `lib/session.ts` — no chequean rol, es una copia más débil que puede divergir.
+- Numeración de facturas en contabilidad (`api/contabilidad/ingresos/route.ts` `generateInvoiceNumber`) tiene condición de carrera (SELECT count + insert no atómico) y no resetea por año pese al formato "INV-2026-N". Segunda copia divergente en `sync-orders/route.ts`.
+- Convención "usted" (no "tú") solo se aplicó en los emails transaccionales — el formulario del home (`page.tsx`) y `/servicios/checkout` siguen casi enteramente en "tú" en español.
+
+**Menores:**
+- CSS muerto (~10 clases: `.fp-bar`, `.fp-label`, `.fp-track`, `.fp-fill`, `.order-card-title`, etc.) en `page.tsx`, sobrantes de una versión anterior del Order Summary/progress bar.
+- Dos escrituras fire-and-forget a Supabase que tragan errores sin loguear (`conversions` en `webhooks/stripe/route.ts`, `qr_scans.converted` en `sunbiz/checkout/route.ts`).
+- Rutas de contabilidad (`gastos`, `ingresos`, `clientes`) aceptan JSON sin Zod — `amount` solo chequea truthy y puede terminar en `NaN` en la base.
+- Exports sin consumidores externos: `PACKAGE_PRICES`, `STATE_FEE`, `AddonKey` en `lib/pricing.ts`; `MARKETING_ADDON_NAMES`, `formationItemLabel` en `lib/order-items.ts`.
+- Código inalcanzable vestigial en `page.tsx` (`if(_next===6)_next=7` dentro de bloques donde `_next` nunca puede ser 6 — leftover del refactor del paso Faster Processing).
+- Campo `addons: string[]` de `/api/checkout/status` ya no se lee en `/order/complete` desde el refactor a `order.lines`/`isBaseLine()` — candidato a podar.
+- El chatbot (`api/chat/route.ts`, tool `get_order_info`) devuelve PII completo (nombre, email, teléfono, dirección, miembros, addons) con solo el prefijo de 8 caracteres del número de orden — confirmar que el rate-limit (`checkChatRateLimit`) sea suficientemente estricto para esa superficie.
+
+---
+
 ## Deploy
 
 - `git push origin main` — Vercel detecta cambios en `backend/` y hace deploy automático

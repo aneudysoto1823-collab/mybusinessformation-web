@@ -162,7 +162,7 @@ export async function POST(request: NextRequest) {
       package: order.package,
       entityType: order.entityType,
       speed: order.speed,
-      addons: order.addons as Record<string, boolean> | null,
+      addons: order.addons,
     }).catch(err => console.error('Email confirmation error (non-fatal):', err))
 
     // ── Alerta interna "🆕 NUEVA ORDEN CREADA" → alert@opabiz.com ──────────────

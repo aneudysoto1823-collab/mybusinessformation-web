@@ -114,3 +114,28 @@ export function computeFormationTotal(input: FormationPricingInput): FormationPr
   const total = lines.reduce((sum, l) => sum + l.amount, 0)
   return { total, cents: total * 100, lines }
 }
+
+/**
+ * Solo para mostrar en emails/recibos: si el paquete es Basic ($0), agrega
+ * dos líneas de DISPLAY — "Basic Formation Package $99" + "Basic Package
+ * Discount -$99" — para que exista una fila de precio de la que colgar el
+ * detalle de inclusiones del tier (antes Basic quedaba sin ninguna lista de
+ * "qué incluye" en los emails, porque computeFormationTotal omite la línea
+ * del paquete entera cuando su precio es $0 — no hay fila de la que colgar
+ * nada). Netea $0, no cambia el total real cobrado.
+ *
+ * A propósito NO se mete dentro de computeFormationTotal: esa función
+ * también arma los line items reales que Stripe cobra (/api/checkout/embedded),
+ * que ya tiene su PROPIA lógica de precio de lista + cupón real (gated por
+ * STRIPE_BASIC_COUPON_ID) — agregar esto ahí duplicaría la línea "Basic
+ * Formation Package" en el checkout de Stripe.
+ */
+export function withBasicDisplayLine(pkg: string | null | undefined, lines: PriceLine[]): PriceLine[] {
+  const pkgKey = (pkg ?? '').toLowerCase().trim()
+  if (pkgKey !== 'basic' || lines.some(l => l.label.endsWith('Formation Package'))) return lines
+  return [
+    { label: 'Basic Formation Package', amount: BASIC_PACKAGE_LIST_PRICE },
+    { label: 'Basic Package Discount', amount: -BASIC_PACKAGE_LIST_PRICE },
+    ...lines,
+  ]
+}

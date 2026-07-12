@@ -47,9 +47,9 @@ interface Props {
 }
 
 const PACKAGE_INFO: Record<string, { en: string; es: string; price: string; popular?: boolean }> = {
-  basic:    { en: 'Basic',               es: 'Básico',   price: '$49 + state fee' },
-  standard: { en: 'Standard',           es: 'Estándar', price: '$149 + state fee', popular: true },
-  premium:  { en: 'Premium',            es: 'Premium',  price: '$249 + state fee' },
+  basic:    { en: 'Basic',               es: 'Básico',   price: '$0 + state fee' },
+  standard: { en: 'Standard',           es: 'Estándar', price: '$199 + state fee', popular: true },
+  premium:  { en: 'Premium',            es: 'Premium',  price: '$299 + state fee' },
   addon:    { en: 'New Business Letter', es: 'New Business Letter', price: 'Variable' },
 }
 

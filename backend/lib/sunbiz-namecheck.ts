@@ -10,8 +10,12 @@
 // se devuelven en `error?` para que el caller decida (orders → guardar null
 // y seguir; endpoint → degradar a {ok:false}).
 
-import { getTurso } from '@/lib/turso'
-import { normalizeName, ftsSanitize } from '@/lib/sunbiz-normalize'
+// Imports relativos (no '@/lib/...') a propósito: este archivo también se
+// compila para el server Express (Railway, ver tsconfig.server.json), que no
+// tiene configurado el alias '@/' en su build — solo paths relativos
+// funcionan en ambos runtimes (Next.js y Express).
+import { getTurso } from './turso'
+import { normalizeName, ftsSanitize } from './sunbiz-normalize'
 
 export type NameCheckResult = {
   /** Nombre tal cual lo dio el caller (post-trim). */

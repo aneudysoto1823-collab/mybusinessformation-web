@@ -5,7 +5,7 @@ import { Resend } from 'resend'
 import { nameCheckHtmlLine, NameCheckResult } from '@/lib/sunbiz-namecheck'
 import { SERVICES_CATALOG, SERVICE_BUNDLES } from '@/lib/services-pricing'
 import { PACKAGE_SERVICES } from '@/lib/notifications'
-import { computeFormationTotal } from '@/lib/pricing'
+import { computeFormationTotal, withBasicDisplayLine } from '@/lib/pricing'
 
 export const dynamic = 'force-dynamic'
 
@@ -333,13 +333,14 @@ async function handleFormationPaid(orderId: string, session: Stripe.Checkout.Ses
   const packageKey = (order.package ?? '').toLowerCase().trim()
   const packageItems = PACKAGE_SERVICES[packageKey] ?? []
   const formationAddons = (order.addons ?? {}) as Record<string, boolean>
-  const { lines: formationLines } = computeFormationTotal({
+  const { lines: rawFormationLines } = computeFormationTotal({
     package: order.package, entityType: order.entityType, speed: order.speed, addons: formationAddons,
   })
+  const formationLines = withBasicDisplayLine(order.package, rawFormationLines)
   const packageInclHtml = packageItems.map(i => `<div>${i.en}</div>`).join('')
   const formationRowsHtml = formationLines
     .map(l => {
-      const priceRow = `<tr><td style="padding:5px 0;font-size:14px;color:#475569">${l.label}</td><td style="padding:5px 0;font-size:14px;color:#1e293b;font-weight:600;text-align:right;white-space:nowrap">$${l.amount}</td></tr>`
+      const priceRow = `<tr><td style="padding:5px 0;font-size:14px;color:#475569">${l.label}</td><td style="padding:5px 0;font-size:14px;color:#1e293b;font-weight:600;text-align:right;white-space:nowrap">${l.amount < 0 ? '-$' + Math.abs(l.amount) : '$' + l.amount}</td></tr>`
       const isPackageRow = l.label.endsWith('Formation Package')
       const inclRow = isPackageRow && packageInclHtml
         ? `<tr><td colspan="2" style="padding:0 0 8px;font-size:12.5px;color:#64748b;line-height:1.6">${packageInclHtml}</td></tr>`

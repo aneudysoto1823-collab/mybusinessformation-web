@@ -2489,7 +2489,7 @@ var orderNumber = '';
 
 var translations = {
   en: {
-    topbar: "🌟 Florida's trusted business formation experts — <strong>LLC & Corporation</strong> filing made simple. Start today from <strong>$49 + state fee.</strong>",
+    topbar: "🌟 Florida's trusted business formation experts — <strong>LLC & Corporation</strong> filing made simple. Start today from <strong>FREE + state fee.</strong>",
     heroTitle: 'Create Your <em>Florida Business</em>, fast and easy',
     heroSub: "",
     heroBadge: "Trusted by Entrepreneurs Across Florida",
@@ -5976,6 +5976,15 @@ function fmRestoreProgress(progress) {
   if(overlay) overlay.classList.add('active');
   document.body.style.overflow = 'hidden';
   _fmRestoring = true;
+  // _fmSpeedSeen normalmente se prende al PASAR por el paso 6 (Faster
+  // Processing) dentro de fmGoToStep. Al retomar un borrador guardado en el
+  // paso 7 u 8 (Continue My Application, links ?resume=1/?continue= del
+  // email), fmGoToStep salta directo ahí sin pasar por el 6 — _fmSpeedSeen se
+  // quedaba en false, y el Order Summary ocultaba el cargo de Expedited
+  // aunque Stripe SÍ lo cobra (fmBuildOrderPayload/computeFormationTotal no
+  // tienen ese gate). Si el paso guardado es posterior al 6, el cliente ya
+  // pasó por esa elección en su sesión original — hay que mostrarla.
+  if((progress.step || 1) > 6) _fmSpeedSeen = true;
   fmGoToStep(progress.step || 1);
   _fmRestoring = false;
   setTimeout(function() {

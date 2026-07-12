@@ -1,6 +1,6 @@
 import { Resend } from 'resend'
-import { getOrderItemLabel, FORMATION_ADDON_NAMES } from './order-items'
-import { computeFormationTotal } from './pricing'
+import { getOrderItemKeys, getOrderItemLabel } from './order-items'
+import { computeFormationTotal, withBasicDisplayLine } from './pricing'
 
 // Lazy init: se crea al primer uso, cuando dotenv ya cargó el .env
 const getResend = () => new Resend(process.env.RESEND_API_KEY)
@@ -54,38 +54,68 @@ export const sendOrderConfirmation = async (order: {
   id: string
   entityType?: string | null
   speed?: string | null
-  addons?: Record<string, boolean> | null
+  // unknown a propósito: Order.addons tiene un shape distinto según
+  // order.package (boolean-map en formación, {services,bundles,lines} en à
+  // la carte, array plano en marketing) — getOrderItemKeys() abajo sabe
+  // normalizar los 3. Antes este parámetro se tipaba (y castaba en el
+  // caller) como Record<string, boolean>, lo cual era directamente falso
+  // para los otros dos shapes y producía "addons" con basura (2026-07-12).
+  addons?: unknown
 }) => {
   const fbfc = `FBFC-${order.id.replace(/-/g, '').substring(0, 8).toUpperCase()}`
   const packageKey = (order.package ?? '').toLowerCase().trim()
-  const packageItems = PACKAGE_SERVICES[packageKey] ?? []
+  const isFormationPackage = packageKey in PACKAGE_SERVICES
   const speedLabel = order.speed === 'expedited' ? 'Expedited (1-3 business days)' : 'Standard (7-14 business days)'
-  // Tabla de precios real por ítem — mismo cálculo (computeFormationTotal) que
-  // handleFormationPaid (webhook) y el email de servicios, para que los tres
-  // muestren el mismo nivel de detalle. Las inclusiones del paquete van
-  // anidadas bajo su propia línea de precio (no en una sección "What's
-  // included" aparte — quedaba repitiendo los addons que ya se ven arriba
-  // con precio, 2026-07-12).
-  const { lines: formationLines, total } = computeFormationTotal({
-    package: order.package, entityType: order.entityType, speed: order.speed, addons: order.addons,
-  })
-  const packageInclHtml = packageItems.map(i => `<div>${i.en}</div>`).join('')
-  const formationRowsHtml = formationLines
-    .map(l => {
-      const priceRow = `<tr><td style="padding:5px 0;font-size:14px;color:#475569">${l.label}</td><td style="padding:5px 0;font-size:14px;color:#1e293b;font-weight:600;text-align:right;white-space:nowrap">$${l.amount}</td></tr>`
-      const isPackageRow = l.label.endsWith('Formation Package')
-      const inclRow = isPackageRow && packageInclHtml
-        ? `<tr><td colspan="2" style="padding:0 0 8px;font-size:12.5px;color:#64748b;line-height:1.6">${packageInclHtml}</td></tr>`
-        : ''
-      return priceRow + inclRow
+
+  // Solo los paquetes de formación reales (basic/standard/premium) tienen un
+  // desglose de precio calculable vía computeFormationTotal — para órdenes de
+  // servicios/marketing ese cálculo no aplica (caería en 'standard' por
+  // default, mostrando un precio inventado). Para esos casos se lista el
+  // detalle real de ítems con getOrderItemKeys/getOrderItemLabel (mismo
+  // helper que ya usa el checklist admin), sin inventar una tabla de precios.
+  let summaryBoxHtml: string
+  if (isFormationPackage) {
+    const packageItems = PACKAGE_SERVICES[packageKey] ?? []
+    const { lines: rawFormationLines, total } = computeFormationTotal({
+      package: order.package, entityType: order.entityType, speed: order.speed, addons: order.addons as Record<string, boolean> | null,
     })
-    .join('')
+    const formationLines = withBasicDisplayLine(order.package, rawFormationLines)
+    const packageInclHtml = packageItems.map(i => `<div>${i.en}</div>`).join('')
+    const formationRowsHtml = formationLines
+      .map(l => {
+        const priceRow = `<tr><td style="padding:5px 0;font-size:14px;color:#475569">${l.label}</td><td style="padding:5px 0;font-size:14px;color:#1e293b;font-weight:600;text-align:right;white-space:nowrap">${l.amount < 0 ? '-$' + Math.abs(l.amount) : '$' + l.amount}</td></tr>`
+        const isPackageRow = l.label.endsWith('Formation Package')
+        const inclRow = isPackageRow && packageInclHtml
+          ? `<tr><td colspan="2" style="padding:0 0 8px;font-size:12.5px;color:#64748b;line-height:1.6">${packageInclHtml}</td></tr>`
+          : ''
+        return priceRow + inclRow
+      })
+      .join('')
+    summaryBoxHtml = `
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:20px;margin:20px 0">
+        <table style="width:100%;border-collapse:collapse">${formationRowsHtml}
+          <tr><td style="padding:10px 0 0;border-top:1px solid #e2e8f0;font-size:14px;font-weight:700;color:#1e293b">Total</td><td style="padding:10px 0 0;border-top:1px solid #e2e8f0;font-size:14px;font-weight:700;color:#1e293b;text-align:right;white-space:nowrap">$${total.toFixed(2)} USD</td></tr>
+        </table>
+      </div>`
+  } else {
+    const itemLabels = getOrderItemKeys(order.package, order.addons)
+      .filter(k => k !== 'formation')
+      .map(k => getOrderItemLabel(k, { entityType: order.entityType ?? undefined, lang: 'en' }))
+    summaryBoxHtml = itemLabels.length
+      ? `
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:20px;margin:20px 0">
+        <table style="width:100%;border-collapse:collapse">${itemLabels.map(name => `<tr><td style="padding:6px 8px 6px 0;vertical-align:top;width:14px;font-size:13.5px;color:#2563EB;font-weight:800">·</td><td style="padding:6px 0;font-size:13.5px;color:#1e293b;font-weight:600;line-height:1.6">${name}</td></tr>`).join('')}</table>
+      </div>`
+      : ''
+  }
 
   await getResend().emails.send({
     from: FROM_OPABIZ,
     replyTo: REPLY_TO,
     to: order.email,
-    subject: `OpaBiz: ✅ Your Florida LLC order is in — ${order.companyName}`,
+    subject: isFormationPackage
+      ? `OpaBiz: ✅ Your Florida LLC order is in — ${order.companyName}`
+      : `OpaBiz: ✅ Your order is in — ${order.companyName}`,
     html: `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#1e293b">
         <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden">
@@ -109,16 +139,14 @@ export const sendOrderConfirmation = async (order: {
             </div>
             <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:20px;margin:20px 0">
               <p style="margin:6px 0;font-size:14px"><strong>Company Name:</strong> ${order.companyName}</p>
-              ${order.entityType ? `<p style="margin:6px 0;font-size:14px"><strong>Entity Type:</strong> ${order.entityType.toUpperCase()}</p>` : ''}
-              <p style="margin:6px 0 0;font-size:14px"><strong>Filing Speed:</strong> ${speedLabel}</p>
+              ${order.entityType && isFormationPackage ? `<p style="margin:6px 0;font-size:14px"><strong>Entity Type:</strong> ${order.entityType.toUpperCase()}</p>` : ''}
+              ${isFormationPackage ? `<p style="margin:6px 0 0;font-size:14px"><strong>Filing Speed:</strong> ${speedLabel}</p>` : ''}
             </div>
-            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:20px;margin:20px 0">
-              <table style="width:100%;border-collapse:collapse">${formationRowsHtml}
-                <tr><td style="padding:10px 0 0;border-top:1px solid #e2e8f0;font-size:14px;font-weight:700;color:#1e293b">Total</td><td style="padding:10px 0 0;border-top:1px solid #e2e8f0;font-size:14px;font-weight:700;color:#1e293b;text-align:right;white-space:nowrap">$${total.toFixed(2)} USD</td></tr>
-              </table>
-            </div>
+            ${summaryBoxHtml}
             <p style="color:#475569;line-height:1.7">
-              Our team is now reviewing your information and will verify name availability with the Florida Division of Corporations. We'll notify you by email as soon as your filing is submitted.
+              ${isFormationPackage
+                ? "Our team is now reviewing your information and will verify name availability with the Florida Division of Corporations. We'll notify you by email as soon as your filing is submitted."
+                : "Our team is now reviewing your order. We'll notify you by email as soon as it's processed."}
             </p>
             <div style="text-align:center;margin:24px 0">
               <a href="${PORTAL_HOME}" style="background:linear-gradient(135deg,#2563EB,#1C2E44);color:#fff;text-decoration:none;padding:13px 32px;border-radius:8px;font-weight:700;font-size:15px;display:inline-block">
@@ -353,12 +381,6 @@ export const sendSuggestNames = async (order: {
   })
 }
 
-// Nombres de add-ons de formación (order.addons = {ein, oa, itin, btr, str, cc,
-// dba, br, gd, gs, sc, bl} booleanos — ver lib/pricing.ts ADDON_PRICES).
-// Fuente única en lib/order-items.ts (compartida con el checklist admin y el
-// portal del cliente).
-const ADDON_NAMES = FORMATION_ADDON_NAMES
-
 // Qué incluye cada tier de paquete — mismo contenido que PACKAGE_SERVICES en
 // app/order/complete/page.tsx (mantener sincronizado si cambian los paquetes).
 // Antes el email solo decía "Package: Standard" sin decir qué trae ese tier;
@@ -404,7 +426,8 @@ export const sendOrderProcessed = async (order: {
   package?: string
   id: string
   speed?: string
-  addons?: Record<string, boolean> | null
+  // unknown a propósito — ver mismo comentario en sendOrderConfirmation.
+  addons?: unknown
   unsubscribed?: boolean
   lang?: 'en' | 'es'
 }) => {
@@ -417,17 +440,25 @@ export const sendOrderProcessed = async (order: {
   const speedLabel = order.speed === 'expedited'
     ? (isEs ? 'Acelerado' : 'Expedited')
     : (isEs ? 'Estándar' : 'Standard')
-  // Nombres de los add-ons realmente comprados por ESTE cliente (no una lista
-  // fija) — filtra order.addons por los que están en true.
-  const addonNames = Object.entries(order.addons ?? {})
-    .filter(([, v]) => !!v)
-    .map(([k]) => ADDON_NAMES[k]?.[isEs ? 'es' : 'en'] ?? k)
+  // Nombres de los ítems realmente comprados por ESTE cliente. Usa
+  // getOrderItemKeys/getOrderItemLabel (order-items.ts) en vez de
+  // Object.entries(order.addons) directo — order.addons tiene un shape
+  // distinto según order.package (mapa de booleanos en formación,
+  // {services,bundles,lines} en à la carte, array plano en marketing), y
+  // Object.entries sobre los shapes no-formación filtraba basura ("services",
+  // "bundles", índices de array) hacia este email real (bug, 2026-07-12).
+  const addonNames = getOrderItemKeys(order.package, order.addons)
+    .filter(k => k !== 'formation')
+    .map(k => getOrderItemLabel(k, { entityType: order.entityType, lang: isEs ? 'es' : 'en' }))
   const hasAddons = addonNames.length > 0
   // Detalle de qué trae el paquete comprado (no solo el nombre del tier) —
   // feedback: "un email que solo dice 'compraste paquete estándar' no me dice
-  // nada como cliente". packageKey normaliza mayúsculas/espacios por si acaso.
+  // nada como cliente". Solo aplica a paquetes de formación reales — para
+  // órdenes de servicios/marketing el "paquete" no es un tier con inclusiones
+  // fijas, ya se listan todos sus ítems arriba en addonNames.
   const packageKey = (order.package ?? '').toLowerCase().trim()
-  const packageItems = (PACKAGE_SERVICES[packageKey] ?? []).map(i => isEs ? i.es : i.en)
+  const isFormationPackage = packageKey in PACKAGE_SERVICES
+  const packageItems = isFormationPackage ? (PACKAGE_SERVICES[packageKey] ?? []).map(i => isEs ? i.es : i.en) : []
 
   await getResend().emails.send({
     from: FROM_OPABIZ,
@@ -458,7 +489,7 @@ export const sendOrderProcessed = async (order: {
             <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:20px;margin:20px 0">
               <p style="margin:6px 0;font-size:14px"><strong>${isEs ? 'Empresa' : 'Company Name'}:</strong> ${order.companyName}</p>
               ${order.entityType ? `<p style="margin:6px 0;font-size:14px"><strong>${isEs ? 'Tipo de Entidad' : 'Entity Type'}:</strong> ${order.entityType.toUpperCase()}</p>` : ''}
-              ${order.package ? `
+              ${isFormationPackage ? `
               <p style="margin:6px 0 4px;font-size:14px"><strong>${isEs ? 'Paquete' : 'Package'}:</strong> ${order.package}</p>
               ${packageItems.length ? `<table style="width:100%;border-collapse:collapse;margin:0 0 10px">${packageItems.map(item => `<tr><td style="padding:2px 8px 2px 0;vertical-align:top;width:10px;font-size:12.5px;color:#94a3b8;font-weight:800">·</td><td style="padding:2px 0;font-size:12.5px;color:#64748b;line-height:1.6">${item}</td></tr>`).join('')}</table>` : ''}
               ` : ''}

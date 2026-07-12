@@ -225,7 +225,7 @@ export async function GET(req: NextRequest) {
         entityType: order.entityType ?? undefined,
         package: order.package,
         speed: order.speed ?? undefined,
-        addons: (order.addons ?? null) as Record<string, boolean> | null,
+        addons: order.addons ?? null,
         unsubscribed: order.unsubscribed ?? false,
         // Sin columna de idioma para órdenes de formación todavía -> default EN,
         // igual que el envío manual desde el admin hoy.
