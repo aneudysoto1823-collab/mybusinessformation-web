@@ -4,7 +4,6 @@ import { getSupabaseAdmin } from '@/lib/supabase'
 import { Resend } from 'resend'
 import { nameCheckHtmlLine, NameCheckResult } from '@/lib/sunbiz-namecheck'
 import { SERVICES_CATALOG, SERVICE_BUNDLES } from '@/lib/services-pricing'
-import { FORMATION_ADDON_NAMES } from '@/lib/order-items'
 import { PACKAGE_SERVICES } from '@/lib/notifications'
 import { computeFormationTotal } from '@/lib/pricing'
 
@@ -321,34 +320,39 @@ async function handleFormationPaid(orderId: string, session: Stripe.Checkout.Ses
 
   // Confirmación al cliente (pago confirmado) — NO incluye name-check.
   // Espeja handleServicesPaid() (más abajo) para que ambos emails de "pago
-  // confirmado" se vean/lean igual, punto por punto (2026-07-10): mismo saludo
-  // sin eyebrow ni emoji, tabla de precios itemizada (computeFormationTotal —
-  // misma fuente que /order/complete, ya no texto plano sin precios), sección
-  // "What's included", 3 pasos numerados de "What happens next", mismo cierre.
+  // confirmado" se vean/lean igual, punto por punto (2026-07-10, ajustado
+  // 2026-07-12): mismo saludo sin eyebrow ni emoji, tabla de precios
+  // itemizada (computeFormationTotal — misma fuente que /order/complete),
+  // 3 pasos numerados de "What happens next", mismo cierre. Las inclusiones
+  // del paquete van anidadas bajo su propia línea de precio (no en una
+  // sección "What's included" aparte — quedaba repitiendo los addons que ya
+  // se ven arriba con precio).
   // ⚠️ Este email todavía no tiene rama de idioma (isEs) — Order (formación)
   // no guarda el idioma del cliente en ningún campo hoy. Queda en inglés
   // hasta que se decida cómo persistir ese dato en el flujo del home.
   const packageKey = (order.package ?? '').toLowerCase().trim()
   const packageItems = PACKAGE_SERVICES[packageKey] ?? []
   const formationAddons = (order.addons ?? {}) as Record<string, boolean>
-  const addonNames = Object.entries(formationAddons)
-    .filter(([, v]) => !!v)
-    .map(([k]) => FORMATION_ADDON_NAMES[k]?.en ?? k)
   const { lines: formationLines } = computeFormationTotal({
     package: order.package, entityType: order.entityType, speed: order.speed, addons: formationAddons,
   })
+  const packageInclHtml = packageItems.map(i => `<div>${i.en}</div>`).join('')
   const formationRowsHtml = formationLines
-    .map(l => `<tr><td style="padding:5px 0;font-size:14px;color:#475569">${l.label}</td><td style="padding:5px 0;font-size:14px;color:#1e293b;font-weight:600;text-align:right;white-space:nowrap">$${l.amount}</td></tr>`)
-    .join('')
-  const includedHtml = [...packageItems.map(i => i.en), ...addonNames]
-    .map(name => `<tr><td style="padding:6px 8px 6px 0;vertical-align:top;width:14px;font-size:13.5px;color:#2563EB;font-weight:800">·</td><td style="padding:6px 0;font-size:13.5px;color:#1e293b;font-weight:600;line-height:1.6">${name}</td></tr>`)
+    .map(l => {
+      const priceRow = `<tr><td style="padding:5px 0;font-size:14px;color:#475569">${l.label}</td><td style="padding:5px 0;font-size:14px;color:#1e293b;font-weight:600;text-align:right;white-space:nowrap">$${l.amount}</td></tr>`
+      const isPackageRow = l.label.endsWith('Formation Package')
+      const inclRow = isPackageRow && packageInclHtml
+        ? `<tr><td colspan="2" style="padding:0 0 8px;font-size:12.5px;color:#64748b;line-height:1.6">${packageInclHtml}</td></tr>`
+        : ''
+      return priceRow + inclRow
+    })
     .join('')
 
   getResend().emails.send({
     from: FROM_OPABIZ,
     replyTo: REPLY_TO,
     to: order.email,
-    subject: `OpaBiz: ✅ Payment confirmed — ${order.companyName}`,
+    subject: `OpaBiz: ✅ Order confirmed — ${order.companyName}`,
     html: `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#1e293b">
         <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden">
@@ -364,7 +368,7 @@ async function handleFormationPaid(orderId: string, session: Stripe.Checkout.Ses
             </tr></table>
           </div>
           <div style="padding:32px">
-            <h2 style="color:#1C2E44;font-size:20px;margin-top:0">Thank you for your purchase, ${order.firstName} ${order.lastName}!</h2>
+            <h2 style="color:#1C2E44;font-size:20px;margin-top:0">Thank you for your order, ${order.firstName} ${order.lastName}!</h2>
             <div style="background:#EFF6FF;border-radius:8px;padding:14px 18px;margin:4px 0 22px;text-align:center">
               <div style="font-size:11px;color:#2563EB;text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:4px">Order Number</div>
               <div style="font-size:21px;font-weight:800;color:#1C2E44;letter-spacing:.5px">${fbfc}</div>
@@ -381,10 +385,6 @@ async function handleFormationPaid(orderId: string, session: Stripe.Checkout.Ses
                 <tr><td style="padding:10px 0 0;border-top:1px solid #e2e8f0;font-size:14px;font-weight:700;color:#1e293b">Total paid</td><td style="padding:10px 0 0;border-top:1px solid #e2e8f0;font-size:14px;font-weight:700;color:#1e293b;text-align:right;white-space:nowrap">$${amountPaid.toFixed(2)} USD</td></tr>
               </table>
             </div>
-            ${includedHtml ? `
-            <p style="font-size:12px;font-weight:700;color:#1C2E44;text-transform:uppercase;letter-spacing:.5px;margin:0 0 10px">What's included</p>
-            <table style="width:100%;border-collapse:collapse;margin-bottom:24px">${includedHtml}</table>
-            ` : ''}
             <p style="font-size:12px;font-weight:700;color:#1C2E44;text-transform:uppercase;letter-spacing:.5px;margin:0 0 12px">What happens next</p>
             <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;margin-bottom:24px">
               <tr>
@@ -503,30 +503,44 @@ async function handleServicesPaid(orderId: string, session: Stripe.Checkout.Sess
   // /api/checkout/embedded-services). Si no está (órdenes viejas), default EN.
   const isEs = addons.lang === 'es'
 
-  // "What's included" — expande los bundles a sus servicios reales + los
-  // comprados sueltos, sin duplicar, y trae la descripción de 1 línea de cada
-  // uno desde el catálogo compartido (lib/services-pricing.ts). No incluye
-  // tarifas estatales ni Expedited: no son "servicios" que el cliente reciba.
-  const includedIds = Array.from(new Set([
-    ...(addons.bundles ?? []).flatMap(bid => SERVICE_BUNDLES[bid]?.services ?? []),
-    ...(addons.services ?? []),
-  ]))
-  const includedHtml = includedIds
-    .map(id => SERVICES_CATALOG[id])
-    .filter((svc): svc is NonNullable<typeof svc> => !!svc)
-    .map(svc => `<tr><td style="padding:6px 8px 6px 0;vertical-align:top;width:14px;font-size:13.5px;color:#2563EB;font-weight:800">·</td><td style="padding:6px 0;font-size:13.5px;color:#475569;line-height:1.6"><strong style="color:#1e293b">${isEs ? svc.name_es : svc.name_en}</strong> — ${isEs ? svc.desc_es : svc.desc_en}</td></tr>`)
-    .join('')
+  // Descripción de 1 línea por servicio (catálogo compartido, lib/services-pricing.ts),
+  // anidada bajo la fila de precio correspondiente en vez de repetida en una
+  // sección aparte "What's included" (quedaba duplicado — el mismo ítem una
+  // vez con precio y otra vez sin precio). Para un bundle, se listan las
+  // descripciones de cada servicio que incluye bajo la fila del combo.
+  const descByLabel = new Map<string, string>()
+  for (const bid of (addons.bundles ?? [])) {
+    const b = SERVICE_BUNDLES[bid]
+    if (!b) continue
+    const html = b.services
+      .map(sid => SERVICES_CATALOG[sid])
+      .filter((s): s is NonNullable<typeof s> => !!s)
+      .map(svc => `<div><strong style="color:#1e293b">${isEs ? svc.name_es : svc.name_en}</strong> — ${isEs ? svc.desc_es : svc.desc_en}</div>`)
+      .join('')
+    descByLabel.set(isEs ? b.name_es : b.name_en, html)
+  }
+  for (const sid of (addons.services ?? [])) {
+    const svc = SERVICES_CATALOG[sid]
+    if (!svc) continue
+    const label = isEs ? svc.name_es : svc.name_en
+    if (!descByLabel.has(label)) descByLabel.set(label, `<div>${isEs ? svc.desc_es : svc.desc_en}</div>`)
+  }
 
   // Confirmación al cliente. Los labels de servicesRowsHtml ya vienen en el
   // idioma correcto (addons.lines se guardó localizado desde computeServicesTotal).
   const servicesRowsHtml = serviceLines
-    .map(l => `<tr><td style="padding:5px 0;font-size:14px;color:#475569">${l.label}</td><td style="padding:5px 0;font-size:14px;color:#1e293b;font-weight:600;text-align:right;white-space:nowrap">$${l.amount}</td></tr>`)
+    .map(l => {
+      const priceRow = `<tr><td style="padding:5px 0;font-size:14px;color:#475569">${l.label}</td><td style="padding:5px 0;font-size:14px;color:#1e293b;font-weight:600;text-align:right;white-space:nowrap">$${l.amount}</td></tr>`
+      const desc = descByLabel.get(l.label)
+      const descRow = desc ? `<tr><td colspan="2" style="padding:0 0 8px;font-size:12.5px;color:#64748b;line-height:1.5">${desc}</td></tr>` : ''
+      return priceRow + descRow
+    })
     .join('') || '<tr><td style="padding:5px 0;font-size:14px;color:#475569">—</td><td></td></tr>'
   getResend().emails.send({
     from: FROM_OPABIZ,
     replyTo: REPLY_TO,
     to: order.email,
-    subject: isEs ? `OpaBiz: ✅ Pago confirmado — ${fbfc}` : `OpaBiz: ✅ Payment confirmed — ${fbfc}`,
+    subject: isEs ? `OpaBiz: ✅ Orden confirmada — ${fbfc}` : `OpaBiz: ✅ Order confirmed — ${fbfc}`,
     html: `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#1e293b">
         <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden">
@@ -542,7 +556,7 @@ async function handleServicesPaid(orderId: string, session: Stripe.Checkout.Sess
             </tr></table>
           </div>
           <div style="padding:32px">
-            <h2 style="color:#1C2E44;font-size:20px;margin-top:0">${isEs ? `¡Gracias por su compra, ${order.firstName} ${order.lastName}!` : `Thank you for your purchase, ${order.firstName} ${order.lastName}!`}</h2>
+            <h2 style="color:#1C2E44;font-size:20px;margin-top:0">${isEs ? `¡Gracias por su orden, ${order.firstName} ${order.lastName}!` : `Thank you for your order, ${order.firstName} ${order.lastName}!`}</h2>
             <div style="background:#EFF6FF;border-radius:8px;padding:14px 18px;margin:4px 0 22px;text-align:center">
               <div style="font-size:11px;color:#2563EB;text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:4px">${isEs ? 'Número de Orden' : 'Order Number'}</div>
               <div style="font-size:21px;font-weight:800;color:#1C2E44;letter-spacing:.5px">${fbfc}</div>
@@ -555,10 +569,6 @@ async function handleServicesPaid(orderId: string, session: Stripe.Checkout.Sess
                 <tr><td style="padding:10px 0 0;border-top:1px solid #e2e8f0;font-size:14px;font-weight:700;color:#1e293b">${isEs ? 'Total pagado' : 'Total paid'}</td><td style="padding:10px 0 0;border-top:1px solid #e2e8f0;font-size:14px;font-weight:700;color:#1e293b;text-align:right;white-space:nowrap">$${amountPaid.toFixed(2)} USD</td></tr>
               </table>
             </div>
-            ${includedHtml ? `
-            <p style="font-size:12px;font-weight:700;color:#1C2E44;text-transform:uppercase;letter-spacing:.5px;margin:0 0 10px">${isEs ? 'Qué incluye su compra' : "What's included"}</p>
-            <table style="width:100%;border-collapse:collapse;margin-bottom:24px">${includedHtml}</table>
-            ` : ''}
             <p style="font-size:12px;font-weight:700;color:#1C2E44;text-transform:uppercase;letter-spacing:.5px;margin:0 0 12px">${isEs ? 'Qué sigue' : 'What happens next'}</p>
             <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;margin-bottom:24px">
               <tr>

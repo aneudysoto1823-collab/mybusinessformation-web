@@ -59,22 +59,26 @@ export const sendOrderConfirmation = async (order: {
   const fbfc = `FBFC-${order.id.replace(/-/g, '').substring(0, 8).toUpperCase()}`
   const packageKey = (order.package ?? '').toLowerCase().trim()
   const packageItems = PACKAGE_SERVICES[packageKey] ?? []
-  const addonNames = Object.entries(order.addons ?? {})
-    .filter(([, v]) => !!v)
-    .map(([k]) => FORMATION_ADDON_NAMES[k]?.en ?? k)
-  const includedHtml = [...packageItems.map(i => i.en), ...addonNames]
-    .map(name => `<tr><td style="padding:6px 8px 6px 0;vertical-align:top;width:14px;font-size:13.5px;color:#2563EB;font-weight:800">·</td><td style="padding:6px 0;font-size:13.5px;color:#1e293b;font-weight:600;line-height:1.6">${name}</td></tr>`)
-    .join('')
   const speedLabel = order.speed === 'expedited' ? 'Expedited (1-3 business days)' : 'Standard (7-14 business days)'
   // Tabla de precios real por ítem — mismo cálculo (computeFormationTotal) que
   // handleFormationPaid (webhook) y el email de servicios, para que los tres
-  // muestren el mismo nivel de detalle (feedback: este quedó sin precios/total
-  // mientras los otros dos sí los tenían).
+  // muestren el mismo nivel de detalle. Las inclusiones del paquete van
+  // anidadas bajo su propia línea de precio (no en una sección "What's
+  // included" aparte — quedaba repitiendo los addons que ya se ven arriba
+  // con precio, 2026-07-12).
   const { lines: formationLines, total } = computeFormationTotal({
     package: order.package, entityType: order.entityType, speed: order.speed, addons: order.addons,
   })
+  const packageInclHtml = packageItems.map(i => `<div>${i.en}</div>`).join('')
   const formationRowsHtml = formationLines
-    .map(l => `<tr><td style="padding:5px 0;font-size:14px;color:#475569">${l.label}</td><td style="padding:5px 0;font-size:14px;color:#1e293b;font-weight:600;text-align:right;white-space:nowrap">$${l.amount}</td></tr>`)
+    .map(l => {
+      const priceRow = `<tr><td style="padding:5px 0;font-size:14px;color:#475569">${l.label}</td><td style="padding:5px 0;font-size:14px;color:#1e293b;font-weight:600;text-align:right;white-space:nowrap">$${l.amount}</td></tr>`
+      const isPackageRow = l.label.endsWith('Formation Package')
+      const inclRow = isPackageRow && packageInclHtml
+        ? `<tr><td colspan="2" style="padding:0 0 8px;font-size:12.5px;color:#64748b;line-height:1.6">${packageInclHtml}</td></tr>`
+        : ''
+      return priceRow + inclRow
+    })
     .join('')
 
   await getResend().emails.send({
@@ -113,10 +117,6 @@ export const sendOrderConfirmation = async (order: {
                 <tr><td style="padding:10px 0 0;border-top:1px solid #e2e8f0;font-size:14px;font-weight:700;color:#1e293b">Total</td><td style="padding:10px 0 0;border-top:1px solid #e2e8f0;font-size:14px;font-weight:700;color:#1e293b;text-align:right;white-space:nowrap">$${total.toFixed(2)} USD</td></tr>
               </table>
             </div>
-            ${includedHtml ? `
-            <p style="font-size:12px;font-weight:700;color:#1C2E44;text-transform:uppercase;letter-spacing:.5px;margin:0 0 10px">What's included</p>
-            <table style="width:100%;border-collapse:collapse;margin-bottom:24px">${includedHtml}</table>
-            ` : ''}
             <p style="color:#475569;line-height:1.7">
               Our team is now reviewing your information and will verify name availability with the Florida Division of Corporations. We'll notify you by email as soon as your filing is submitted.
             </p>
