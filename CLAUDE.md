@@ -972,6 +972,9 @@ Auditoría general del proyecto (no ligada a un diff puntual) pedida por el foun
 
 ### ⏳ Pendientes (quedaron para otra sesión)
 
+**Acción de infraestructura (no es código):**
+- ⚠️ Confirmar que `TURSO_DATABASE_URL` y `TURSO_AUTH_TOKEN` estén cargadas en las env vars de **Railway** (no solo Vercel) — el buscador de nombres del admin (fix #1 de arriba) las necesita para consultar Sunbiz real. Si faltan, no rompe pero degrada a "disponible" en silencio, lo que puede llevar al staff a confiar en un resultado incorrecto.
+
 **Importantes:**
 - Etiquetas de addons duplicadas y ya desincronizadas en 3-4 lugares (`sc`/`bl` dicen distinto en `lib/pricing.ts` `ADDON_LABELS` vs `lib/order-items.ts` `FORMATION_ADDON_NAMES`; `MARKETING_ADDON_NAMES` duplicado en 4 archivos con texto en español ya divergente).
 - `computeFormationTotal` cae en silencio a precio "standard" si `package` no se reconoce — enmascara bugs de datos en vez de fallar visible.
