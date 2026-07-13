@@ -10,15 +10,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { checkContactRateLimit, getClientIp } from '@/lib/rate-limit'
+import { INTERNAL_ALERT_EMAIL as TO_TEAM, REPLY_TO as REPLY_TO_DEFAULT, FROM_OPABIZ_ALERTS, FROM_OPABIZ } from '@/lib/email-constants'
 
 const getResend = () => new Resend(process.env.RESEND_API_KEY)
-
-// Alerta interna → buzón unificado de alertas (mismo que A0 nueva orden, C2 NBL).
-const TO_TEAM = process.env.INTERNAL_ALERT_EMAIL || 'alert@opabiz.com'
-const FROM_EMAIL = process.env.CONTACT_FROM_EMAIL || process.env.RESEND_FROM_TRANSACTIONAL || 'onboarding@resend.dev'
-const REPLY_TO_DEFAULT = process.env.RESEND_REPLY_TO || 'info@opabiz.com'
-const FROM_OPABIZ_ALERTS = `OpaBiz Alerts <${FROM_EMAIL}>`
-const FROM_OPABIZ = `OpaBiz <${FROM_EMAIL}>`
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 

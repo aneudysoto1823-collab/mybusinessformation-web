@@ -5,17 +5,9 @@ import { checkOrdersRateLimit, getClientIp } from '@/lib/rate-limit'
 import { OrderInputSchema, parseOr400 } from '@/lib/schemas'
 import { checkNameAvailability, nameCheckHtmlLine, NameCheckResult } from '@/lib/sunbiz-namecheck'
 import { sendOrderConfirmation } from '@/lib/notifications'
+import { REPLY_TO, INTERNAL_ALERT_EMAIL as INTERNAL_ALERT, FROM_OPABIZ_ALERTS } from '@/lib/email-constants'
 
 const getResend = () => new Resend(process.env.RESEND_API_KEY)
-// Mismo patrón que lib/notifications.ts: FROM/Reply-To centralizados en env
-// vars. Sin esto, Resend rechaza el envío porque onboarding@resend.dev solo
-// permite enviar al dueño de la cuenta de Resend (modo sandbox).
-const FROM_EMAIL = process.env.RESEND_FROM_TRANSACTIONAL || 'onboarding@resend.dev'
-const REPLY_TO   = process.env.RESEND_REPLY_TO || 'info@opabiz.com'
-const INTERNAL_ALERT = process.env.INTERNAL_ALERT_EMAIL || 'alert@opabiz.com'
-// Display Name para la alerta interna al admin (el email al cliente lo maneja
-// sendOrderConfirmation() en lib/notifications.ts, que ya trae el suyo).
-const FROM_OPABIZ_ALERTS = `OpaBiz Alerts <${FROM_EMAIL}>`
 
 export async function POST(request: NextRequest) {
   try {

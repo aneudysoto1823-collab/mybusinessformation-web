@@ -86,13 +86,6 @@ const PACKAGE_SERVICES: Record<string, string[]> = {
   ],
 }
 
-const ADDON_SERVICE_LABELS: Record<string, string> = {
-  ein:                   'EIN / Tax ID Number',
-  labor_law_poster:      'Labor Law Poster 2026',
-  certificate_of_status: 'Certificate of Status (FL)',
-  bundle:                'Business Essentials Bundle (EIN + Labor Poster + Certificate)',
-}
-
 function parseAddonServices(raw: unknown): string[] {
   if (!raw) return []
   if (Array.isArray(raw)) return raw as string[]
@@ -595,7 +588,7 @@ export default function OrderDetailPage() {
                         {services.map(s => (
                           <li key={s} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#374151' }}>
                             <span style={{ color: '#c2410c', fontWeight: 700 }}>✓</span>
-                            {ADDON_SERVICE_LABELS[s] ?? s}
+                            {getOrderItemLabel(`mkt:${s}`, { lang: 'en' })}
                           </li>
                         ))}
                       </ul>

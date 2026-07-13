@@ -1322,7 +1322,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
     <div class="faq-list">
       <div class="faq-item">
         <button class="faq-q" onclick="toggleFaq(this)"><span data-en="What is the difference between an LLC and a Corporation?" data-es="¿Cuál es la diferencia entre una LLC y una Corporación?">What is the difference between an LLC and a Corporation?</span><span class="faq-icon">+</span></button>
-        <div class="faq-a" data-en="An LLC offers flexible management and pass-through taxation, ideal for small businesses. A Corporation is suited for businesses seeking investors or planning to issue stock. Both protect your personal assets." data-es="Una LLC ofrece gestión flexible e impuestos directos al propietario, ideal para pequeños negocios. Una Corporación es más formal y adecuada para negocios que buscan inversores o emitir acciones. Ambas protegen tus activos personales.">An LLC offers flexible management and pass-through taxation, ideal for small businesses. A Corporation is suited for businesses seeking investors or planning to issue stock. Both protect your personal assets.</div>
+        <div class="faq-a" data-en="An LLC offers flexible management and pass-through taxation, ideal for small businesses. A Corporation is suited for businesses seeking investors or planning to issue stock. Both protect your personal assets." data-es="Una LLC ofrece gestión flexible e impuestos directos al propietario, ideal para pequeños negocios. Una Corporación es más formal y adecuada para negocios que buscan inversores o emitir acciones. Ambas protegen sus activos personales.">An LLC offers flexible management and pass-through taxation, ideal for small businesses. A Corporation is suited for businesses seeking investors or planning to issue stock. Both protect your personal assets.</div>
       </div>
       <div class="faq-item">
         <button class="faq-q" onclick="toggleFaq(this)"><span data-en="How long does it take to form my business in Florida?" data-es="¿Cuánto tiempo tarda en formarse mi negocio en Florida?">How long does it take to form my business in Florida?</span><span class="faq-icon">+</span></button>
@@ -1342,11 +1342,11 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
       </div>
       <div class="faq-item">
         <button class="faq-q" onclick="toggleFaq(this)"><span data-en="What is an Operating Agreement and why does the bank require" data-es="¿Qué es un Acuerdo Operativo y por qué lo requiere el banco?">What is an Operating Agreement and why does the bank require it?</span><span class="faq-icon">+</span></button>
-        <div class="faq-a" data-en="An Operating Agreement outlines the ownership structure and operating procedures of your LLC. Most banks require it to open a business checking account." data-es="Un Acuerdo Operativo describe la estructura de propiedad y los procedimientos operativos de tu LLC. La mayoría de los bancos lo requieren para abrir una cuenta empresarial.">An Operating Agreement outlines the ownership structure and operating procedures of your LLC. Most banks require it to open a business checking account.</div>
+        <div class="faq-a" data-en="An Operating Agreement outlines the ownership structure and operating procedures of your LLC. Most banks require it to open a business checking account." data-es="Un Acuerdo Operativo describe la estructura de propiedad y los procedimientos operativos de su LLC. La mayoría de los bancos lo requieren para abrir una cuenta empresarial.">An Operating Agreement outlines the ownership structure and operating procedures of your LLC. Most banks require it to open a business checking account.</div>
       </div>
       <div class="faq-item">
         <button class="faq-q" onclick="toggleFaq(this)"><span data-en="Can I save my application and complete it later?" data-es="¿Puedo guardar mi solicitud y completarla más tarde?">Can I save my application and complete it later?</span><span class="faq-icon">+</span></button>
-        <div class="faq-a" data-en="Yes! You can save your progress at any step and return using your order number. Your information is securely stored." data-es="¡Sí! Puedes guardar tu progreso en cualquier paso y regresar usando tu número de orden. Tu información se almacena de forma segura.">Yes! You can save your progress at any step and return using your order number. Your information is securely stored.</div>
+        <div class="faq-a" data-en="Yes! You can save your progress at any step and return using your order number. Your information is securely stored." data-es="¡Sí! Puede guardar su progreso en cualquier paso y regresar usando su número de orden. Su información se almacena de forma segura.">Yes! You can save your progress at any step and return using your order number. Your information is securely stored.</div>
       </div>
       <div class="faq-item">
         <button class="faq-q" onclick="toggleFaq(this)"><span data-en="Are you a law firm? Do you provide legal advice?" data-es="¿Son una firma de abogados? ¿Brindan asesoría legal?">Are you a law firm? Do you provide legal advice?</span><span class="faq-icon">+</span></button>
@@ -1395,7 +1395,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
         <a href="/about?lang=${defaultLang}" class="lang-link" data-href="/about" data-en="About Us" data-es="Nosotros">About Us</a>
         <a href="#how" data-en="How It Works" data-es="Cómo Funciona">How It Works</a>
         <a href="#faq" data-en="FAQ" data-es="Preguntas">FAQ</a>
-        <a href="/contact?lang=${defaultLang}" class="lang-link" data-href="/contact" data-en="Contact Us" data-es="Contáctanos">Contact Us</a>
+        <a href="/contact?lang=${defaultLang}" class="lang-link" data-href="/contact" data-en="Contact Us" data-es="Contáctenos">Contact Us</a>
         <a href="/terms?lang=${defaultLang}" class="lang-link" data-href="/terms" style="margin-top:12px" data-en="Terms &amp; Conditions" data-es="Términos y Condiciones">Terms &amp; Conditions</a>
         <a href="/privacy?lang=${defaultLang}" class="lang-link" data-href="/privacy" data-en="Privacy Policy" data-es="Política de Privacidad">Privacy Policy</a>
         <a href="/legal?lang=${defaultLang}" class="lang-link" data-href="/legal" data-en="Legal Disclaimer" data-es="Aviso Legal">Legal Disclaimer</a>
@@ -2521,35 +2521,35 @@ var translations = {
     faqTitle:"Answers to Your Most Important Questions",
   es: {
     topbar: "🌟 Expertos de confianza en formación de negocios en Florida — <strong>LLC y Corporación</strong> de manera simple. Empieza hoy desde <strong>GRATIS + tarifas estatales.</strong>",
-    heroTitle: 'Crea Tu <em>Negocio en Florida</em>, rápido y fácil',
+    heroTitle: 'Cree Su <em>Negocio en Florida</em>, rápido y fácil',
     heroSub: '',
     heroBadge: "La confianza de cientos de emprendedores en Florida",
     heroBtn1: "Iniciar Mi Negocio Hoy →", heroBtn2: "Cómo Funciona",
     stat1:"Negocios Formados", stat2:"Tiempo de Procesamiento", stat4:"Precio desde",
     howLabel:"Cómo Funciona", howTitle:"De Idea a Negocio Oficial<br/>en 4 Sencillos Pasos",
     howSub:"Manejamos todos los documentos y trámites con el Estado de Florida.",
-    s1h:"Elige Tu Paquete", s1p:"Selecciona el paquete de formación que se adapte a tus necesidades y presupuesto.",
-    s2h:"Completa Tu Orden", s2p:"Nuestro formulario paso a paso hace el proceso simple y directo. En cualquier momento puedes contactar a uno de nuestros agentes en línea o a través de WhatsApp para recibir orientación personalizada.",
-    s3h:"Nosotros Tramitamos", s3p:"Nuestros expertos revisan tus documentos y los envían a la División de Corporaciones de Florida.",
-    s4h:"Tu Negocio Es Oficial", s4p:"Recibe tus Artículos de Organización / Incorporación y nuestra Guía Exclusiva, creada por expertos, con los pasos clave para mantener tu negocio activo y en regla ante el estado.",
-    priceLabel:"Nuestros Paquetes", priceTitle:"Elige Tu Paquete de Formación",
-    priceSub:"Cada paquete incluye el manejo experto de tu trámite ante el Estado de Florida.",
+    s1h:"Elija Su Paquete", s1p:"Selecciona el paquete de formación que se adapte a sus necesidades y presupuesto.",
+    s2h:"Complete Su Orden", s2p:"Nuestro formulario paso a paso hace el proceso simple y directo. En cualquier momento puede contactar a uno de nuestros agentes en línea o a través de WhatsApp para recibir orientación personalizada.",
+    s3h:"Nosotros Tramitamos", s3p:"Nuestros expertos revisan sus documentos y los envían a la División de Corporaciones de Florida.",
+    s4h:"Su Negocio Es Oficial", s4p:"Reciba sus Artículos de Organización / Incorporación y nuestra Guía Exclusiva, creada por expertos, con los pasos clave para mantener su negocio activo y en regla ante el estado.",
+    priceLabel:"Nuestros Paquetes", priceTitle:"Elija Su Paquete de Formación",
+    priceSub:"Cada paquete incluye el manejo experto de su trámite ante el Estado de Florida.",
     testiLabel:"Historias de Clientes", testiTitle:"Emprendedores Reales.<br/>Resultados Reales.",
     testiSub:"Desde fundadores primerizos hasta inversionistas experimentados — ayudamos a cada negocio a comenzar bien.",
-    svcLabel:"Servicios Adicionales", svcTitle:"Todo lo que tu Negocio <em>Necesita</em>",
-    svcSub:"Servicios individuales para cada necesidad de tu negocio — ordena cualquier servicio individualmente o ahorra con un paquete de formación.",
+    svcLabel:"Servicios Adicionales", svcTitle:"Todo lo que su Negocio <em>Necesita</em>",
+    svcSub:"Servicios individuales para cada necesidad de su negocio — ordene cualquier servicio individualmente o ahorre con un paquete de formación.",
     svcViewAll:"Ver Todos los Servicios &rarr;",
-    faqLabel:"Preguntas Frecuentes", faqTitle:"Respuestas a Tus Preguntas<br/>Más Importantes",
+    faqLabel:"Preguntas Frecuentes", faqTitle:"Respuestas a Sus Preguntas<br/>Más Importantes",
     startBtn:"Iniciar Mi Negocio →",
-    etLabel:"Elige Tu Tipo de Entidad",
+    etLabel:"Elija Su Tipo de Entidad",
     stat2:"Tiempo de Tramitación", stat4:"Precio Desde",
-    s1p:"Selecciona el paquete de formación que se adapte a tus necesidades y presupuesto.",
-    s2p:"Nuestro formulario paso a paso hace el proceso simple y directo. En cualquier momento puedes contactar a uno de nuestros agentes en línea o a través de WhatsApp para recibir orientación personalizada.",
-    s3p:"Nuestros expertos revisan tus documentos y los envían a la División de Corporaciones de Florida.",
-    s4p:"Recibe tus Artículos de Organización / Incorporación y nuestra Guía Exclusiva, creada por expertos, con los pasos clave para mantener tu negocio activo y en regla ante el estado.",
-    priceTitle:"Elige Tu Paquete de Formación",
+    s1p:"Selecciona el paquete de formación que se adapte a sus necesidades y presupuesto.",
+    s2p:"Nuestro formulario paso a paso hace el proceso simple y directo. En cualquier momento puede contactar a uno de nuestros agentes en línea o a través de WhatsApp para recibir orientación personalizada.",
+    s3p:"Nuestros expertos revisan sus documentos y los envían a la División de Corporaciones de Florida.",
+    s4p:"Reciba sus Artículos de Organización / Incorporación y nuestra Guía Exclusiva, creada por expertos, con los pasos clave para mantener su negocio activo y en regla ante el estado.",
+    priceTitle:"Elija Su Paquete de Formación",
     testiTitle:"Emprendedores Reales. Resultados Reales.",
-    faqTitle:"Respuestas a Tus Preguntas Más Importantes"
+    faqTitle:"Respuestas a Sus Preguntas Más Importantes"
   }
 };
 
@@ -3126,14 +3126,14 @@ function fmFilterAddons() {
   var titleEl = document.getElementById('s7-title');
   var subEl = document.getElementById('s7-sub');
   if(pkg === 'premium') {
-    if(titleEl) titleEl.textContent = isEs ? 'Completa Tu Paquete' : 'Complete Your Package';
-    if(subEl) subEl.textContent = isEs ? 'Tu paquete Premium ya incluye EIN y Acuerdo Operativo. Precios exclusivos para nuevos negocios: mantén tu empresa en regla y evita contratiempos con el Estado.' : 'Your Premium package already includes EIN and Operating Agreement. Exclusive prices for new businesses: keep your company compliant and avoid setbacks with the State.';
+    if(titleEl) titleEl.textContent = isEs ? 'Complete Su Paquete' : 'Complete Your Package';
+    if(subEl) subEl.textContent = isEs ? 'Su paquete Premium ya incluye EIN y Acuerdo Operativo. Precios exclusivos para nuevos negocios: mantenga su empresa en regla y evite contratiempos con el Estado.' : 'Your Premium package already includes EIN and Operating Agreement. Exclusive prices for new businesses: keep your company compliant and avoid setbacks with the State.';
   } else if(pkg === 'standard') {
-    if(titleEl) titleEl.textContent = isEs ? 'Mejora Tu Formación' : 'Boost Your Formation';
-    if(subEl) subEl.textContent = isEs ? 'Tu paquete Standard ya incluye EIN. Precios exclusivos para nuevos negocios: mantén tu empresa en regla y evita contratiempos con el Estado.' : 'Your Standard package already includes EIN. Exclusive prices for new businesses: keep your company compliant and avoid setbacks with the State.';
+    if(titleEl) titleEl.textContent = isEs ? 'Mejore Su Formación' : 'Boost Your Formation';
+    if(subEl) subEl.textContent = isEs ? 'Su paquete Standard ya incluye EIN. Precios exclusivos para nuevos negocios: mantenga su empresa en regla y evite contratiempos con el Estado.' : 'Your Standard package already includes EIN. Exclusive prices for new businesses: keep your company compliant and avoid setbacks with the State.';
   } else {
-    if(titleEl) titleEl.textContent = isEs ? 'Mejora Tu Formación' : 'Boost Your Formation';
-    if(subEl) subEl.textContent = isEs ? 'Precios exclusivos para nuevos negocios: agrega estos servicios ahora, mantén tu empresa en regla y evita contratiempos con el Estado.' : 'Exclusive prices for new businesses: add these services now, keep your company compliant and avoid setbacks with the State.';
+    if(titleEl) titleEl.textContent = isEs ? 'Mejore Su Formación' : 'Boost Your Formation';
+    if(subEl) subEl.textContent = isEs ? 'Precios exclusivos para nuevos negocios: agregue estos servicios ahora, mantenga su empresa en regla y evite contratiempos con el Estado.' : 'Exclusive prices for new businesses: add these services now, keep your company compliant and avoid setbacks with the State.';
   }
 }
 
@@ -3520,26 +3520,26 @@ function setLang(lang) {
   el=document.getElementById('plogin-lbl-email'); if(el) el.textContent = isEs ? 'Correo electrónico' : 'Email address';
   el=document.getElementById('plogin-lbl-cred'); if(el) el.textContent = isEs ? 'Número de orden o contraseña' : 'Order number or password';
   el=document.getElementById('plogin-btn'); if(el) el.textContent = isEs ? 'Acceder a Mi Cuenta' : 'Access My Account';
-  el=document.getElementById('plogin-acct'); if(el) el.placeholder = isEs ? 'Tu correo' : 'Your email';
-  el=document.getElementById('plogin-cred'); if(el) el.placeholder = isEs ? 'FBFC-00000000 o tu contraseña' : 'FBFC-00000000 or your password';
+  el=document.getElementById('plogin-acct'); if(el) el.placeholder = isEs ? 'Su correo' : 'Your email';
+  el=document.getElementById('plogin-cred'); if(el) el.placeholder = isEs ? 'FBFC-00000000 o su contraseña' : 'FBFC-00000000 or your password';
   el=document.getElementById('plogin-terms'); if(el) el.innerHTML = isEs ? 'Al acceder aceptas nuestros <a href="/terms">Términos de Servicio</a> y la <a href="/privacy">Política de Privacidad</a>.' : 'By accessing this portal you agree to our <a href="/terms">Terms of Service</a> and <a href="/privacy">Privacy Policy</a>.';
   el=document.getElementById('plogin-switch-to-signup'); if(el) el.innerHTML = isEs ? '<a href="#" onclick="ploginShowSignup(event)">¿Nuevo aquí? Crea una cuenta</a>' : '<a href="#" onclick="ploginShowSignup(event)">New here? Create an account</a>';
-  el=document.getElementById('plogin-switch-to-login'); if(el) el.innerHTML = isEs ? '<a href="#" onclick="ploginShowLogin(event)">¿Ya tienes cuenta? Inicia sesión</a>' : '<a href="#" onclick="ploginShowLogin(event)">Already have an account? Log in</a>';
+  el=document.getElementById('plogin-switch-to-login'); if(el) el.innerHTML = isEs ? '<a href="#" onclick="ploginShowLogin(event)">¿Ya tiene cuenta? Inicie sesión</a>' : '<a href="#" onclick="ploginShowLogin(event)">Already have an account? Log in</a>';
   el=document.getElementById('plogin-lbl-name'); if(el) el.textContent = isEs ? 'Nombre' : 'First name';
   el=document.getElementById('plogin-lbl-signup-email'); if(el) el.textContent = isEs ? 'Correo electrónico' : 'Email address';
   el=document.getElementById('plogin-lbl-signup-pw'); if(el) el.textContent = isEs ? 'Contraseña' : 'Password';
-  el=document.getElementById('plogin-signup-name'); if(el) el.placeholder = isEs ? 'Tu nombre' : 'Your first name';
-  el=document.getElementById('plogin-signup-email'); if(el) el.placeholder = isEs ? 'Tu correo' : 'Your email';
+  el=document.getElementById('plogin-signup-name'); if(el) el.placeholder = isEs ? 'Su nombre' : 'Your first name';
+  el=document.getElementById('plogin-signup-email'); if(el) el.placeholder = isEs ? 'Su correo' : 'Your email';
   el=document.getElementById('plogin-signup-pw'); if(el) el.placeholder = isEs ? 'Mínimo 8 caracteres' : 'At least 8 characters';
   el=document.getElementById('plogin-signup-btn'); if(el) el.textContent = isEs ? 'Crear Cuenta' : 'Create Account';
   // El título sigue al form que este visible (login o signup), no se fuerza
   // siempre a "Access your account" al cambiar de idioma.
   var _pSignupVisible = document.getElementById('plogin-signup-form') && document.getElementById('plogin-signup-form').style.display !== 'none';
-  el=document.getElementById('plogin-title'); if(el) el.textContent = _pSignupVisible ? (isEs?'Crea tu cuenta':'Create your account') : (isEs?'Accede a tu cuenta':'Access your account');
+  el=document.getElementById('plogin-title'); if(el) el.textContent = _pSignupVisible ? (isEs?'Cree su cuenta':'Create your account') : (isEs?'Acceda a su cuenta':'Access your account');
   el=document.getElementById('lbl-new-app');       if(el) el.textContent = isEs ? 'Nueva Aplicación' : 'Start New Application';
   el=document.getElementById('lbl-continue-app');  if(el) el.textContent = isEs ? 'Continuar Mi Aplicación' : 'Continue My Application';
   // How it works steps
-  var hSteps=[{id:'s1h',en:'Choose Your Package',es:'Elige Tu Paquete'},{id:'s1p',en:'Select the formation package that fits your needs.',es:'Selecciona el paquete de formación que se adapte a tus necesidades.'},{id:'s2h',en:'Complete Your Order',es:'Completa Tu Orden'},{id:'s2p',en:'Our step-by-step form makes the process simple and straightforward. At any point, you can reach one of our agents online or through WhatsApp for personalized guidance.',es:'Nuestro formulario paso a paso hace el proceso simple y directo. En cualquier momento puedes contactar a uno de nuestros agentes en línea o a través de WhatsApp para recibir orientación personalizada.'},{id:'s3h',en:'We File With the State',es:'Tramitamos Ante el Estado'},{id:'s3p',en:'Our experts submit everything to the Florida Division of Corporations.',es:'Nuestros expertos presentan todo ante la División de Corporaciones de Florida.'},{id:'s4h',en:'Your Business Is Official',es:'Tu Negocio Es Oficial'},{id:'s4p',en:'Receive your Articles of Organization / Incorporation and our Exclusive Expert-Crafted Guide, with the key steps to keep your business active and compliant with the state.',es:'Recibe tus Artículos de Organización / Incorporación y nuestra Guía Exclusiva, creada por expertos, con los pasos clave para mantener tu negocio activo y en regla ante el estado.'}];
+  var hSteps=[{id:'s1h',en:'Choose Your Package',es:'Elija Su Paquete'},{id:'s1p',en:'Select the formation package that fits your needs.',es:'Selecciona el paquete de formación que se adapte a sus necesidades.'},{id:'s2h',en:'Complete Your Order',es:'Complete Su Orden'},{id:'s2p',en:'Our step-by-step form makes the process simple and straightforward. At any point, you can reach one of our agents online or through WhatsApp for personalized guidance.',es:'Nuestro formulario paso a paso hace el proceso simple y directo. En cualquier momento puede contactar a uno de nuestros agentes en línea o a través de WhatsApp para recibir orientación personalizada.'},{id:'s3h',en:'We File With the State',es:'Tramitamos Ante el Estado'},{id:'s3p',en:'Our experts submit everything to the Florida Division of Corporations.',es:'Nuestros expertos presentan todo ante la División de Corporaciones de Florida.'},{id:'s4h',en:'Your Business Is Official',es:'Su Negocio Es Oficial'},{id:'s4p',en:'Receive your Articles of Organization / Incorporation and our Exclusive Expert-Crafted Guide, with the key steps to keep your business active and compliant with the state.',es:'Reciba sus Artículos de Organización / Incorporación y nuestra Guía Exclusiva, creada por expertos, con los pasos clave para mantener su negocio activo y en regla ante el estado.'}];
   hSteps.forEach(function(s){var e2=document.getElementById(s.id);if(e2)e2.textContent=isEs?s.es:s.en;});
   // FAQ
   document.querySelectorAll('.faq-item').forEach(function(item){var q=item.querySelector('.faq-q span');var a=item.querySelector('.faq-a');if(q&&q.getAttribute('data-es'))q.textContent=isEs?q.getAttribute('data-es'):q.getAttribute('data-en');if(a&&a.getAttribute('data-es'))a.innerHTML=isEs?a.getAttribute('data-es'):a.getAttribute('data-en');});
@@ -3548,7 +3548,7 @@ function setLang(lang) {
   el=document.getElementById('price-label');
         if(el) el.textContent = t.priceLabel;
   el=document.getElementById('price-title');        if(el) el.textContent = t.priceTitle;
-  el=document.getElementById('pkg-advice');         if(el) el.innerHTML   = isEs ? '¿No sabes cuál elegir? La mayoría de nuestros clientes eligen <strong>Standard</strong> — incluye EIN y nuestra Guía Exclusiva de Formación, diseñada para darte el mejor comienzo posible.' : 'Not sure which to choose? Most of our clients choose <strong>Standard</strong> — it includes EIN and our Exclusive Formation Guide, designed to give you the best possible start.';
+  el=document.getElementById('pkg-advice');         if(el) el.innerHTML   = isEs ? '¿No sabe cuál elegir? La mayoría de nuestros clientes eligen <strong>Standard</strong> — incluye EIN y nuestra Guía Exclusiva de Formación, diseñada para darle el mejor comienzo posible.' : 'Not sure which to choose? Most of our clients choose <strong>Standard</strong> — it includes EIN and our Exclusive Formation Guide, designed to give you the best possible start.';
   el=document.getElementById('testi-label');        if(el) el.textContent = t.testiLabel;
   el=document.getElementById('testi-title');        if(el) el.innerHTML   = t.testiTitle;
   el=document.getElementById('testi-sub');          if(el) el.textContent = t.testiSub;
@@ -3569,7 +3569,7 @@ function setLang(lang) {
 
   // Pricing hint
   var ph = document.querySelector('[style*="background:var(--blue-light)"] strong');
-  if(ph) ph.textContent = isEs ? '¿No sabes cuál elegir?' : 'Not sure which to choose?';
+  if(ph) ph.textContent = isEs ? '¿No sabe cuál elegir?' : 'Not sure which to choose?';
   var phP = document.querySelector('[style*="background:var(--blue-light)"]');
   if(phP && phP.id !== 'formOverlay') {
     var phStrong = phP.querySelector('strong');
@@ -3583,7 +3583,7 @@ function setLang(lang) {
   // FAQ questions and answers
   var faqData = [
     ['¿Cuál es la diferencia entre una LLC y una Corporación?',
-     'Una LLC ofrece gestión flexible e impuestos directos al propietario — ideal para pequeños negocios. Una Corporación es una estructura más formal, adecuada para negocios que buscan inversionistas o emitir acciones. Ambas protegen tus bienes personales de las deudas del negocio.',
+     'Una LLC ofrece gestión flexible e impuestos directos al propietario — ideal para pequeños negocios. Una Corporación es una estructura más formal, adecuada para negocios que buscan inversionistas o emitir acciones. Ambas protegen sus bienes personales de las deudas del negocio.',
      'What is the difference between an LLC and a Corporation?',
      'An LLC offers flexible management and pass-through taxation — ideal for small businesses. A Corporation is a more formal structure suited for businesses seeking investors or planning to issue stock. Both protect your personal assets from business liabilities.'],
     ['¿Cuánto tiempo tarda la formación de mi negocio en Florida?',
@@ -3591,11 +3591,11 @@ function setLang(lang) {
      'How long does it take to form my business in Florida?',
      'Standard processing typically takes 7–14 business days. With our Expedited Filing service (included free in Premium, or available as an add-on), processing can be reduced to 1–3 business days.'],
     ['¿Qué es un Agente Registrado y realmente lo necesito?',
-     'Sí — toda LLC y Corporación en Florida está legalmente obligada a tener un Agente Registrado con dirección física en el estado. El Agente Registrado recibe documentos legales oficiales y avisos fiscales en nombre de tu negocio.',
+     'Sí — toda LLC y Corporación en Florida está legalmente obligada a tener un Agente Registrado con dirección física en el estado. El Agente Registrado recibe documentos legales oficiales y avisos fiscales en nombre de su negocio.',
      'What is a Registered Agent and do I really need one?',
      'Yes — every LLC and Corporation in Florida is legally required to have a Registered Agent with a physical street address in the state. The Registered Agent receives official legal documents and tax notices on behalf of your business.'],
     ['¿Necesito un EIN si soy una LLC de un solo miembro?',
-     'Aunque una LLC de un solo miembro puede usar el SSN del propietario, recomendamos obtener un EIN. Los bancos generalmente lo requieren para abrir una cuenta empresarial, y separa tus finanzas personales de las del negocio.',
+     'Aunque una LLC de un solo miembro puede usar el SSN del propietario, recomendamos obtener un EIN. Los bancos generalmente lo requieren para abrir una cuenta empresarial, y separe sus finanzas personales de las del negocio.',
      'Do I need an EIN if I\\'m a single-member LLC?',
      'While a single-member LLC can technically use the owner\\'s SSN, we recommend getting an EIN. Banks typically require it to open a business account, and it separates personal and business finances.'],
     ['¿Puedo formar una LLC en Florida si vivo en otro país?',
@@ -3603,11 +3603,11 @@ function setLang(lang) {
      'Can I start a Florida LLC if I live in another country?',
      'Absolutely. There are no residency requirements to form an LLC or Corporation in Florida. We regularly handle formations for international clients.'],
     ['¿Qué es un Acuerdo Operativo y por qué lo requiere el banco?',
-     'Un Acuerdo Operativo es un documento interno que define las reglas de tu LLC: propiedad, gestión, distribución de ganancias y cómo se toman decisiones. Los bancos suelen requerirlo para abrir una cuenta empresarial.',
+     'Un Acuerdo Operativo es un documento interno que define las reglas de su LLC: propiedad, gestión, distribución de ganancias y cómo se toman decisiones. Los bancos suelen requerirlo para abrir una cuenta empresarial.',
      'What is an Operating Agreement and why does the bank require it?',
      'An Operating Agreement is an internal document that defines the rules of your LLC: ownership, management, profit distribution, and how decisions are made. Banks typically require it to open a business account.'],
     ['¿Puedo guardar mi solicitud y completarla más tarde?',
-     '¡Sí! En cualquier momento puedes hacer clic en "Guardar y Continuar Después" para guardar tu progreso. También puedes usar WhatsApp o Calendly para hablar con un experto antes de continuar.',
+     '¡Sí! En cualquier momento puede hacer clic en "Guardar y Continuar Después" para guardar su progreso. También puede usar WhatsApp o Calendly para hablar con un experto antes de continuar.',
      'Can I save my application and complete it later?',
      'Yes! At any point during your application you can click "Save & Continue Later" to save your progress. You can also use WhatsApp or Calendly to speak with an expert before continuing.'],
     ['¿Son una firma legal? ¿Brindan asesoría legal?',
@@ -3648,7 +3648,7 @@ function setLang(lang) {
 
   // Footer brand description
   el=document.getElementById('footer-brand-desc'); if(el) el.textContent = isEs
-    ? 'Servicios profesionales de formación empresarial para emprendedores e inversionistas. Tramitamos tu LLC o Corporación ante el Estado de Florida — con precisión, eficiencia y atención personalizada.'
+    ? 'Servicios profesionales de formación empresarial para emprendedores e inversionistas. Tramitamos su LLC o Corporación ante el Estado de Florida — con precisión, eficiencia y atención personalizada.'
     : 'Professional business formation services for entrepreneurs and investors. We file your LLC or Corporation with the State of Florida — accurately, efficiently, and with personal attention.';
   // Footer disclaimer
   var fd = document.querySelector('.footer-disclaimer');
@@ -3776,7 +3776,7 @@ function _saveToastShowFbfc(fbfc) {
   var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
   var titleTxt = isEs ? 'Orden guardada' : 'Order saved';
   var descTxt = isEs
-    ? 'Tu numero de orden es. Copialo para volver despues:'
+    ? 'Su numero de orden es. Copielo para volver despues:'
     : 'Your order number is. Copy it to come back later:';
   t.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#10b981;color:#fff;padding:16px 44px 16px 22px;border-radius:12px;font-size:.92rem;font-weight:600;box-shadow:0 8px 26px rgba(16,185,129,0.42);z-index:99999;font-family:var(--font-sans);max-width:420px;position:fixed';
   t.innerHTML =
@@ -3796,7 +3796,7 @@ function _saveToastShowError() {
   t.style.padding = '16px 44px 16px 22px';
   t.innerHTML =
     '<button onclick="closeSaveToast()" aria-label="Close" style="position:absolute;top:8px;right:10px;background:transparent;border:none;color:#fff;font-size:20px;line-height:1;cursor:pointer;padding:4px 8px;border-radius:6px;font-family:inherit;font-weight:700">&times;</button>' +
-    '<div style="font-size:.94rem">&#9888; ' + (isEs ? 'No pudimos guardar tu orden. Intenta de nuevo.' : "We couldn't save your order. Please try again.") + '</div>';
+    '<div style="font-size:.94rem">&#9888; ' + (isEs ? 'No pudimos guardar su orden. Intente de nuevo.' : "We couldn't save your order. Please try again.") + '</div>';
 }
 
 function saveOrder() {
@@ -3980,12 +3980,12 @@ var formTranslations = {
   },
   es: {
     steps: ['Entidad y Paquete','Nombre y Propósito','Dirección y Privacidad','Miembros y Propiedad','Agente Registrado y EIN','Servicios Adicionales','Declaración Anual','Revisión y Pago'],
-    stepSubs: ['Esto nos ayuda a preparar correctamente tus documentos de propiedad.','El nombre debe terminar con "LLC" o "Corp/Inc". Verificamos la disponibilidad antes de tramitar.','Esta será la dirección de la oficina principal en tus documentos de formación. Debe ser una dirección física.','','','','Florida requiere que toda LLC y Corporación presente una Declaración Anual para mantenerse activa.',''],
+    stepSubs: ['Esto nos ayuda a preparar correctamente sus documentos de propiedad.','El nombre debe terminar con "LLC" o "Corp/Inc". Verificamos la disponibilidad antes de tramitar.','Esta será la dirección de la oficina principal en sus documentos de formación. Debe ser una dirección física.','','','','Florida requiere que toda LLC y Corporación presente una Declaración Anual para mantenerse activa.',''],
     choice1: ['Persona Natural / Individual','Una o m\\u00e1s personas ser\\u00e1n due\\u00f1as del negocio. Lo m\\u00e1s com\\u00fan.'],
     choice2: ['Propiedad de una Empresa Existente','Otra entidad empresarial ser\\u00e1 due\\u00f1a de este nuevo negocio.'],
     memberManaged: ['Gestionado por Miembros','Los propietarios gestionan directamente. Lo m\\u00e1s com\\u00fan.'],
     managerManaged: ['Gestionado por Gerente','Un gerente designado maneja las operaciones.'],
-    nameHelper: 'Verificamos tu nombre. Confirmamos la disponibilidad con la Divisi\\u00f3n de Corporaciones de Florida antes de tramitar \\u2014 no necesitas hacer nada de tu parte.',
+    nameHelper: 'Verificamos su nombre. Confirmamos la disponibilidad con la Divisi\\u00f3n de Corporaciones de Florida antes de tramitar \\u2014 no necesita hacer nada de su parte.',
     labels: {
       'Name of the Owning Company':'Nombre de la Empresa Propietaria',
       'Authorized Representative Name':'Nombre del Representante Autorizado',
@@ -4044,9 +4044,9 @@ var formTranslations = {
       'e.g. 25':'ej. 25',
       'Full legal name or company name':'Nombre legal completo o nombre de empresa',
       'Street address in Florida':'Dirección física en Florida',
-      'Type full name as electronic signature':'Escribe tu nombre legal completo — sirve como firma electrónica',
-      'Type full legal name':'Escribe tu nombre legal completo',
-      'Type your full legal name':'Escribe tu nombre legal completo',
+      'Type full name as electronic signature':'Escriba su nombre legal completo — sirve como firma electrónica',
+      'Type full legal name':'Escriba su nombre legal completo',
+      'Type your full legal name':'Escriba su nombre legal completo',
       'your@email.com':'tucorreo@email.com',
       'email@example.com':'tucorreo@ejemplo.com',
       '(305) 000-0000':'(305) 000-0000',
@@ -4060,17 +4060,17 @@ var formTranslations = {
     continueBtn: 'Continuar \\u2192',
     backBtn: '\\u2190 Atr\\u00e1s',
     notSure: '\\u00bfNo est\\u00e1s seguro?',
-    happyGuide: 'Con gusto te orientamos.',
+    happyGuide: 'Con gusto le orientamos.',
     waBtn: '\\uD83D\\uDCAC WhatsApp',
     calBtn: '\\uD83D\\uDCC5 Programar una Llamada',
-    raUse: '\\u2713 S\\u00ed \\u2014 Usar Vuestro Servicio',
+    raUse: '\\u2713 S\\u00ed \\u2014 Usar Su Servicio',
     raOwn: 'Tengo mi propio agente',
-    raDesc: 'Recibe todos los documentos legales oficiales, avisos fiscales y notificaciones en tu nombre.',
-    raBenefit: '\\uD83C\\uDFE6 Requerido por ley en Florida. Sin uno, tu empresa puede ser disuelta.',
+    raDesc: 'Reciba todos los documentos legales oficiales, avisos fiscales y notificaciones en su nombre.',
+    raBenefit: '\\uD83C\\uDFE6 Requerido por ley en Florida. Sin uno, su empresa puede ser disuelta.',
     einAdd: '\\u2713 Agregar EIN \\u2014 $49',
     einNo: 'No gracias',
-    einDesc: 'N\\u00famero de 9 d\\u00edgitos del IRS que identifica tu negocio para efectos fiscales federales.',
-    einBenefit: '\\uD83C\\uDFE6 Los bancos requieren tu EIN para abrir una cuenta empresarial.',
+    einDesc: 'N\\u00famero de 9 d\\u00edgitos del IRS que identifica su negocio para efectos fiscales federales.',
+    einBenefit: '\\uD83C\\uDFE6 Los bancos requieren su EIN para abrir una cuenta empresarial.',
     oaAdd: '\\u2713 Agregar Acuerdo Operativo \\u2014 $79',
     oaNo: 'No gracias',
     oaDesc: 'Documenta porcentajes de propiedad, toma de decisiones, distribuci\\u00f3n de ganancias y derechos de los miembros.',
@@ -4081,35 +4081,35 @@ var formTranslations = {
     itinBenefit: '\\uD83D\\uDCCB Requerido para presentar impuestos federales en EE.UU. sin SSN.',
     vmaTitle: 'Direcci\\u00f3n Postal Virtual', vmaPrice: '$29/mes',
     vmaAdd: '\\u2713 Agregar \\u2014 $29/mes', vmaNo: 'No gracias',
-    vmaDesc: 'Direcci\\u00f3n empresarial profesional en FL. Recibimos y reenviamos tu correo digitalmente.',
-    vmaBenefit: '\\uD83D\\uDD12 Tu direcci\\u00f3n personal permanece privada en todos los registros p\\u00fablicos de Florida.',
+    vmaDesc: 'Direcci\\u00f3n empresarial profesional en FL. Recibimos y reenviamos su correo digitalmente.',
+    vmaBenefit: '\\uD83D\\uDD12 Su direcci\\u00f3n personal permanece privada en todos los registros p\\u00fablicos de Florida.',
     arTitle: 'Declaraci\\u00f3n Anual', arPrice: 'Anual',
     arAdd: '\\u2713 Agregar Declaraci\\u00f3n Anual', arNo: 'Lo manejar\\u00e9 yo',
     arDesc: 'Todo negocio en FL debe presentar una Declaraci\\u00f3n Anual entre el 1 ene \\u2013 1 may. Si se omite = $400 de mora + posible disoluci\\u00f3n.',
     arBenefit: '\\uD83D\\uDCC5 Tramitamos autom\\u00e1ticamente cada a\\u00f1o \\u2014 a tiempo, siempre.',
     webTitle: 'Sitio Web Profesional', webPrice: 'Personalizado',
     webAdd: '\\u2713 Me Interesa', webNo: 'Ahora no',
-    webDesc: 'Sitio web moderno y adaptable a m\\u00f3viles, personalizado seg\\u00fan tu industria y marca.',
+    webDesc: 'Sitio web moderno y adaptable a m\\u00f3viles, personalizado seg\\u00fan su industria y marca.',
     webBenefit: '\\uD83C\\uDF10 Un sitio web profesional genera credibilidad instant\\u00e1nea.',
     phoneTitle: 'N\\u00famero de Tel\\u00e9fono Empresarial', phonePrice: 'Mensual',
     phoneAdd: '\\u2713 Me Interesa', phoneNo: 'Ahora no',
-    phoneDesc: 'N\\u00famero local o gratuito dedicado. Separa tus llamadas personales de las empresariales.',
+    phoneDesc: 'N\\u00famero local o gratuito dedicado. Separe sus llamadas personales de las empresariales.',
     phoneBenefit: '\\uD83D\\uDCDE Luce m\\u00e1s profesional en tarjetas de presentaci\\u00f3n y sitios web.',
     stdFiling: 'Tramitaci\\u00f3n Est\\u00e1ndar', stdDays: '7\\u201310 d\\u00edas h\\u00e1biles', stdIncl: 'Incluido en todos los paquetes',
     expFiling: '\\u26A1 Tramitaci\\u00f3n Acelerada', expDays: '1\\u20133 d\\u00edas h\\u00e1biles',
     orderSummaryLabel: 'Resumen de Orden',
     stateFeeLbl: 'Cargo Estatal de Florida',
     totalDue: 'Total a Pagar Hoy',
-    bySigningNote: 'Al firmar, confirmas que la informaci\\u00f3n es correcta y nos autorizas a tramitar en tu nombre.',
+    bySigningNote: 'Al firmar, confirma que la informaci\\u00f3n es correcta y nos autoriza a tramitar en su nombre.',
     submitBtn: '\\uD83D\\uDE80 Enviar Orden y Pagar',
     savePayLater: '\\uD83D\\uDCBE Guardar y Pagar Despu\\u00e9s',
     successTitle: '\\u00a1Orden Enviada!',
-    successMsg: 'Tu solicitud est\\u00e1 en manos expertas. Comenzaremos el tr\\u00e1mite con la Divisi\\u00f3n de Corporaciones de Florida de inmediato.',
-    orderNumLbl: 'Tu N\\u00famero de Orden',
+    successMsg: 'Su solicitud est\\u00e1 en manos expertas. Comenzaremos el tr\\u00e1mite con la Divisi\\u00f3n de Corporaciones de Florida de inmediato.',
+    orderNumLbl: 'Su N\\u00famero de Orden',
     saveNumNote: 'Guarda este n\\u00famero para consultar el estado o continuar cuando quieras.',
     waUs: '\\uD83D\\uDCAC Consulta por WhatsApp',
     backToPkg: 'Volver a Paquetes',
-    indOptions: ['Selecciona tu industria...','Retail y Comercio Electr\\u00f3nico','Restaurante y Servicio de Comida','Bienes Ra\\u00edces','Construcci\\u00f3n y Contrataci\\u00f3n','Tecnolog\\u00eda y Software','Consultor\\u00eda y Servicios Profesionales','Salud y Bienestar','Transporte y Log\\u00edstica','Importaci\\u00f3n / Exportaci\\u00f3n','Belleza y Cuidado Personal','Finanzas y Contabilidad','Otro'],
+    indOptions: ['Seleccione su industria...','Retail y Comercio Electr\\u00f3nico','Restaurante y Servicio de Comida','Bienes Ra\\u00edces','Construcci\\u00f3n y Contrataci\\u00f3n','Tecnolog\\u00eda y Software','Consultor\\u00eda y Servicios Profesionales','Salud y Bienestar','Transporte y Log\\u00edstica','Importaci\\u00f3n / Exportaci\\u00f3n','Belleza y Cuidado Personal','Finanzas y Contabilidad','Otro'],
     roleOptions: ['Gerente (MGR)','Representante Autorizado (AR)','Oficial','Director'],
     purposePlaceholder: 'ej. Dedicarse a cualquier actividad empresarial l\\u00edcita permitida por la ley de Florida...',
   }
@@ -4187,7 +4187,7 @@ function translateFormContent(lang){
 
   // Name helper
   var nh = modal.querySelector('.name-helper');
-  if(nh){ var strong=nh.querySelector('strong'); if(strong)strong.textContent=lang==='es'?'\\u2705 Verificamos tu nombre.':'\\u2705 We verify your name.'; nh.lastChild.textContent=' '+t.nameHelper; }
+  if(nh){ var strong=nh.querySelector('strong'); if(strong)strong.textContent=lang==='es'?'\\u2705 Verificamos su nombre.':'\\u2705 We verify your name.'; nh.lastChild.textContent=' '+t.nameHelper; }
 
   // Different mailing checkbox label
   var ml = modal.querySelector('label[for="diffMailing"], label:has(#diffMailing)');
@@ -4227,13 +4227,13 @@ function translateFormContent(lang){
     p.childNodes.forEach(function(n){ if(n.nodeType===3 && n.textContent.trim()) textNode=n; });
 
     var map = [
-      {en:"Not sure how to answer",         es:"¿No estás seguro cómo responder?",   sub_en:" We're happy to guide you.",                                    sub_es:" Con gusto te orientamos."},
-      {en:"Questions about packages",        es:"¿Preguntas sobre los paquetes?",               sub_en:" Let us help you pick the right one.",                          sub_es:" Te ayudamos a elegir el más adecuado."},
-      {en:"Need help with naming",           es:"¿Necesitas ayuda con el nombre?",              sub_en:" We can guide you in minutes.",                                  sub_es:" Te orientamos en minutos."},
-      {en:"No physical address",             es:"¿Aún no tienes dirección física?",sub_en:" Ask us about our Virtual Mailing Address service.",            sub_es:" Pregúntanos sobre nuestra Dirección Postal Virtual."},
-      {en:"Operating Agreement required",    es:"¿El Acuerdo Operativo es obligatorio?",        sub_en:" Most banks require it. Ask us!",                                sub_es:" La mayoría de los bancos lo requieren. ¡Pregúntanos!"},
-      {en:"Not sure about these",            es:"¿No estás seguro sobre estos?",           sub_en:" Both are essential for your business — ask us!",            sub_es:" Ambos son esenciales para tu negocio — ¡pregúntanos!"},
-      {en:"Not sure which apply",            es:"¿No sabes cuáles aplican?",               sub_en:" We can help you decide in minutes.",                             sub_es:" Te ayudamos a decidir en minutos."},
+      {en:"Not sure how to answer",         es:"¿No está seguro cómo responder?",   sub_en:" We're happy to guide you.",                                    sub_es:" Con gusto le orientamos."},
+      {en:"Questions about packages",        es:"¿Preguntas sobre los paquetes?",               sub_en:" Let us help you pick the right one.",                          sub_es:" Le ayudamos a elegir el más adecuado."},
+      {en:"Need help with naming",           es:"¿Necesita ayuda con el nombre?",              sub_en:" We can guide you in minutes.",                                  sub_es:" Le orientamos en minutos."},
+      {en:"No physical address",             es:"¿Aún no tiene dirección física?",sub_en:" Ask us about our Virtual Mailing Address service.",            sub_es:" Pregúntenos sobre nuestra Dirección Postal Virtual."},
+      {en:"Operating Agreement required",    es:"¿El Acuerdo Operativo es obligatorio?",        sub_en:" Most banks require it. Ask us!",                                sub_es:" La mayoría de los bancos lo requieren. ¡Pregúntenos!"},
+      {en:"Not sure about these",            es:"¿No está seguro sobre estos?",           sub_en:" Both are essential for your business — ask us!",            sub_es:" Ambos son esenciales para su negocio — ¡pregúntenos!"},
+      {en:"Not sure which apply",            es:"¿No sabe cuáles aplican?",               sub_en:" We can help you decide in minutes.",                             sub_es:" Le ayudamos a decidir en minutos."},
       {en:"filing deadline",                 es:"fecha límite de presentación",            sub_en:" Between January 1 and May 1 every year — $400 late fee after May 1.",sub_es:" Entre el 1 de enero y el 1 de mayo cada año — $400 de multa después del 1 de mayo."},
       {en:"Something look wrong",            es:"¿Algo luce mal?",                               sub_en:" Go back and correct it before submitting.",                      sub_es:" Regresa y corrígelo antes de enviar."},
       {en:"Almost there",                    es:"¡Ya casi!",                                     sub_en:" Questions before submitting?",                                   sub_es:" ¿Preguntas antes de enviar?"},
@@ -4348,10 +4348,10 @@ function translateFormContent(lang){
 
   // Targeted ID translations for contextual offer sections
   var e;
-  e=document.getElementById('vma-offer-title'); if(e) e.innerHTML=isEs?'¿No tienes dirección permanente? — ¿O quieres mantener tu dirección personal privada?':"Don&#39;t have a permanent address? &#8212; Or want to keep your home address private?";
+  e=document.getElementById('vma-offer-title'); if(e) e.innerHTML=isEs?'¿No tiene dirección permanente? — ¿O quiere mantener su dirección personal privada?':"Don&#39;t have a permanent address? &#8212; Or want to keep your home address private?";
   e=document.getElementById('vma-addon-title'); if(e) e.textContent=isEs?'Dirección Postal Virtual':'Virtual Mailing Address';
-  e=document.getElementById('vma-addon-desc'); if(e) e.textContent=isEs?'Obtén una dirección postal profesional en Florida sin necesidad de una oficina física. Recibimos tu correo, lo escaneamos y te notificamos digitalmente — manteniendo tu dirección personal privada en todos los registros públicos.':'Get a professional Florida mailing address without a physical office. We receive your mail, scan it, and notify you digitally — keeping your home address private on all public records.';
-  e=document.getElementById('vma-addon-ben'); if(e) e.textContent=isEs?'Tu dirección personal no aparecerá en los registros públicos de la División de Corporaciones de Florida.':'Your home address stays off all public Florida Division of Corporations records.';
+  e=document.getElementById('vma-addon-desc'); if(e) e.textContent=isEs?'Obtén una dirección postal profesional en Florida sin necesidad de una oficina física. Recibimos su correo, lo escaneamos y le notificamos digitalmente — manteniendo su dirección personal privada en todos los registros públicos.':'Get a professional Florida mailing address without a physical office. We receive your mail, scan it, and notify you digitally — keeping your home address private on all public records.';
+  e=document.getElementById('vma-addon-ben'); if(e) e.textContent=isEs?'Su dirección personal no aparecerá en los registros públicos de la División de Corporaciones de Florida.':'Your home address stays off all public Florida Division of Corporations records.';
   e=document.getElementById('vma-btn-yes'); if(e) e.textContent=isEs?'Agregar Dirección Virtual — $29/mes':'Add Virtual Address — $29/mo';
   e=document.getElementById('vma-btn-no'); if(e) e.textContent=isEs?'No gracias, tengo una dirección':'No thanks, I have an address';
   // Phone offer label in step5
@@ -4363,16 +4363,16 @@ function translateFormContent(lang){
         : '&#128222; Want a dedicated business phone number?';
   });
 
-  e=document.getElementById('oa-offer-title'); if(e) e.textContent=isEs?'Protege tu estructura de propiedad — agrega un Acuerdo Operativo':'Protect your ownership structure — add an Operating Agreement';
-  e=document.getElementById('ra-addon-title'); if(e) e.textContent=isEs?'¿Deseas que seamos tu Agente Registrado?':'Would you like us to be your Registered Agent?';
-  e=document.getElementById('ra-addon-desc'); if(e) e.textContent=isEs?'Tu Agente Registrado recibe todos los documentos legales oficiales, avisos fiscales y notificaciones en nombre de tu negocio durante el horario comercial normal.':'Your Registered Agent receives all official legal documents, tax notices, and service of process on behalf of your business during normal business hours.';
-  e=document.getElementById('ra-addon-ben'); if(e) e.textContent=isEs?'Requerido para mantener tu negocio en regla con el Estado de Florida. Sin un Agente Registrado válido, tu empresa puede ser disuelta.':'Required to maintain your business in good standing with the State of Florida. Without a valid Registered Agent, your company can be dissolved.';
-  e=document.getElementById('ra-btn-yes'); if(e) e.textContent=isEs?'Sí — Usar Vuestro Servicio':'Yes — Use Your Service';
+  e=document.getElementById('oa-offer-title'); if(e) e.textContent=isEs?'Proteja su estructura de propiedad — agregue un Acuerdo Operativo':'Protect your ownership structure — add an Operating Agreement';
+  e=document.getElementById('ra-addon-title'); if(e) e.textContent=isEs?'¿Desea que seamos su Agente Registrado?':'Would you like us to be your Registered Agent?';
+  e=document.getElementById('ra-addon-desc'); if(e) e.textContent=isEs?'Su Agente Registrado recibe todos los documentos legales oficiales, avisos fiscales y notificaciones en nombre de su negocio durante el horario comercial normal.':'Your Registered Agent receives all official legal documents, tax notices, and service of process on behalf of your business during normal business hours.';
+  e=document.getElementById('ra-addon-ben'); if(e) e.textContent=isEs?'Requerido para mantener su negocio en regla con el Estado de Florida. Sin un Agente Registrado válido, su empresa puede ser disuelta.':'Required to maintain your business in good standing with the State of Florida. Without a valid Registered Agent, your company can be dissolved.';
+  e=document.getElementById('ra-btn-yes'); if(e) e.textContent=isEs?'Sí — Usar Su Servicio':'Yes — Use Your Service';
   e=document.getElementById('ra-btn-no'); if(e) e.textContent=isEs?'Tengo mi propio agente':'I have my own agent';
-  e=document.getElementById('ein-offer-title'); if(e) e.textContent=isEs?'¿Necesitas un ID Fiscal Federal (EIN) para tu negocio?':'Need a Federal Tax ID (EIN) for your business?';
+  e=document.getElementById('ein-offer-title'); if(e) e.textContent=isEs?'¿Necesita un ID Fiscal Federal (EIN) para su negocio?':'Need a Federal Tax ID (EIN) for your business?';
   e=document.getElementById('ein-addon-title'); if(e) e.textContent=isEs?'Agregar Servicio de Solicitud EIN':'Add EIN Application Service';
-  e=document.getElementById('ein-addon-desc'); if(e) e.textContent=isEs?'Tu EIN es el número de 9 dígitos que el IRS asigna para identificar tu negocio para efectos fiscales. Funciona como el Número de Seguro Social de tu empresa.':'Your EIN is the nine-digit number the IRS assigns to identify your business for tax purposes. It works like a Social Security Number for your company.';
-  e=document.getElementById('ein-addon-ben'); if(e) e.textContent=isEs?'Los bancos requieren tu EIN para abrir una cuenta corriente empresarial. También es necesario para contratar empleados, presentar impuestos y solicitar licencias.':'Banks require your EIN to open a business checking account. Also needed to hire employees, file business taxes, and apply for business licenses.';
+  e=document.getElementById('ein-addon-desc'); if(e) e.textContent=isEs?'Su EIN es el número de 9 dígitos que el IRS asigna para identificar su negocio para efectos fiscales. Funciona como el Número de Seguro Social de su empresa.':'Your EIN is the nine-digit number the IRS assigns to identify your business for tax purposes. It works like a Social Security Number for your company.';
+  e=document.getElementById('ein-addon-ben'); if(e) e.textContent=isEs?'Los bancos requieren su EIN para abrir una cuenta corriente empresarial. También es necesario para contratar empleados, presentar impuestos y solicitar licencias.':'Banks require your EIN to open a business checking account. Also needed to hire employees, file business taxes, and apply for business licenses.';
   e=document.getElementById('ein-btn-yes'); if(e) e.textContent=isEs?'Agregar Servicio EIN — $49':'Add EIN Service — $49';
   e=document.getElementById('ein-btn-no'); if(e) e.textContent=isEs?'No gracias, lo haré yo mismo':"No thanks, I'll handle it";
   modal.querySelectorAll('[style*="text-transform:uppercase"]').forEach(function(el){
@@ -4388,7 +4388,7 @@ function translateFormContent(lang){
   e=document.getElementById('std-price-lbl');     if(e) e.textContent=isEs?'Incluido en todos los paquetes':'Included in all packages';
   e=document.getElementById('exp-filing-lbl');    if(e) e.innerHTML=isEs?'&#9889; Tramitación Acelerada':'&#9889; Expedited Filing';
   e=document.getElementById('exp-days-lbl');      if(e) e.textContent=isEs?'1–3 días hábiles':'1–3 business days';
-  e=document.getElementById('sum-label-hd');      if(e) e.textContent=isEs?'Resumen de tu Orden':'Order Summary';
+  e=document.getElementById('sum-label-hd');      if(e) e.textContent=isEs?'Resumen de su Orden':'Order Summary';
   e=document.getElementById('sum-state-lbl');     if(e) e.textContent=isEs?'Cargo Estatal de Florida':'Florida State Filing Fee';
   e=document.getElementById('sum-ra-lbl');        if(e) e.textContent=isEs?'Servicio de Agente Registrado':'Registered Agent Service';
   e=document.getElementById('sum-ein-lbl');       if(e) e.textContent=isEs?'EIN / ID Fiscal':'EIN / Tax ID Number';
@@ -4398,11 +4398,11 @@ function translateFormContent(lang){
   e=document.getElementById('sum-ar-lbl');        if(e) e.textContent=isEs?'Declaración Anual':'Annual Report Filing';
   e=document.getElementById('sum-exp-lbl');       if(e) e.textContent=isEs?'Tramitación Acelerada':'Expedited Filing';
   e=document.getElementById('sum-total-lbl');     if(e) e.textContent=isEs?'Total a Pagar Hoy':'Total Due Today';
-  e=document.getElementById('sig-note');          if(e) e.textContent=isEs?'Al firmar, confirmas que la información es precisa y nos autorizas a tramitar en tu nombre.':'By signing, you confirm all information is accurate and authorize us to file on your behalf.';
+  e=document.getElementById('sig-note');          if(e) e.textContent=isEs?'Al firmar, confirma que la información es precisa y nos autoriza a tramitar en su nombre.':'By signing, you confirm all information is accurate and authorize us to file on your behalf.';
   e=document.getElementById('refund-title');      if(e) e.textContent=isEs?'No Reembolsable:':'Non-Refundable:';
-  e=document.getElementById('refund-text');       if(e) e.innerHTML=isEs?'<strong id="refund-title">No Reembolsable:</strong> Las tarifas se cobran al enviar y no pueden ser devueltas una vez iniciado el proceso. ¿Preguntas? Contáctanos por WhatsApp antes de enviar.':'<strong id="refund-title">Non-Refundable:</strong> Fees are collected upon submission and cannot be refunded once processing begins. Questions? Contact us via WhatsApp before submitting.';
+  e=document.getElementById('refund-text');       if(e) e.innerHTML=isEs?'<strong id="refund-title">No Reembolsable:</strong> Las tarifas se cobran al enviar y no pueden ser devueltas una vez iniciado el proceso. ¿Preguntas? Contáctenos por WhatsApp antes de enviar.':'<strong id="refund-title">Non-Refundable:</strong> Fees are collected upon submission and cannot be refunded once processing begins. Questions? Contact us via WhatsApp before submitting.';
   e=document.getElementById('pay-methods-lbl');   if(e) e.textContent=isEs?'Métodos de Pago Aceptados':'Accepted Payment Methods';
-  e=document.getElementById('pay-contact-note');  if(e) e.textContent=isEs?'Al enviar tu orden, nuestro equipo te contactará dentro de 1 hora hábil con instrucciones de pago seguras.':'After submitting, our team will contact you within 1 business hour with secure payment instructions.';
+  e=document.getElementById('pay-contact-note');  if(e) e.textContent=isEs?'Al enviar su orden, nuestro equipo le contactará dentro de 1 hora hábil con instrucciones de pago seguras.':'After submitting, our team will contact you within 1 business hour with secure payment instructions.';
   ['sec1','sec2','sec3','sec4'].forEach(function(id){
     var secMap={'sec1':isEs?'Cifrado SSL':'SSL Encrypted','sec2':isEs?'Pago Seguro':'Secure Checkout','sec3':isEs?'Sin Cargos Ocultos':'No Hidden Fees','sec4':isEs?'Recibo por Correo':'Receipt by Email'};
     var el=document.getElementById(id); if(el) el.textContent=secMap[id];
@@ -4445,7 +4445,7 @@ function translateFormContent(lang){
     'lbl-card-num':   isEs?'Número de Tarjeta':'Card Number',
     'lbl-card-exp':   isEs?'Fecha de Vencimiento':'Expiry Date',
     'lbl-card-cvv':   'CVV',
-    'card-note':      isEs?'ኂ74 Tus datos de tarjeta se recopilan de forma segura y son procesados por nuestro procesador de pagos. No almacenamos números de tarjeta.':'ኂ74 Your card details are collected securely and processed by our payment processor. We do not store card numbers.',
+    'card-note':      isEs?'ኂ74 Sus datos de tarjeta se recopilan de forma segura y son procesados por nuestro procesador de pagos. No almacenamos números de tarjeta.':'ኂ74 Your card details are collected securely and processed by our payment processor. We do not store card numbers.',
     'pm-lbl-card':    isEs?'Crédito / Débito':'Credit / Debit',
   };
   Object.keys(ccids).forEach(function(id){
@@ -4512,8 +4512,8 @@ var fmStepTitlesEs = [
   'Agente Registrado y Dirección Postal',
   'Propiedad y Gestión',
   'Procesamiento Acelerado',
-  'Mejora Tu Formación',
-  'Revisa Tu Orden'
+  'Mejore Su Formación',
+  'Revise Su Orden'
 ];
 // Map actual step IDs (1,2,3,5,6,7,8) a visual step numbers (1-7). El paso 6
 // (procesamiento acelerado) reusa el slot antes saltado.
@@ -4673,7 +4673,7 @@ function fmNext() {
   if(fmCurrentStep===1){
     var nameEl=document.getElementById('inp-bizname');
     var desEl=document.getElementById('inp-designator');
-    if(!nameEl||!nameEl.value.trim()){nameEl.style.borderColor='#ef4444';nameEl.focus();alert(isEs?'Por favor ingresa el nombre de tu negocio.':'Please enter your business name.');return;}
+    if(!nameEl||!nameEl.value.trim()){nameEl.style.borderColor='#ef4444';nameEl.focus();alert(isEs?'Por favor ingrese el nombre de su negocio.':'Please enter your business name.');return;}
     if(!desEl||!desEl.value){desEl.style.borderColor='#ef4444';desEl.focus();alert(isEs?'Por favor selecciona cómo debe terminar el nombre.':'Please select how your business name must end.');return;}
     nameEl.style.borderColor='';desEl.style.borderColor='';
     // Validate authorized shares for Corporation
@@ -4692,10 +4692,10 @@ function fmNext() {
   }
   if(fmCurrentStep===2){
     var req2=[
-      {id:'inp-fname',msg:isEs?'Por favor ingresa tu nombre.':'Please enter your first name.'},
-      {id:'inp-lname',msg:isEs?'Por favor ingresa tu apellido.':'Please enter your last name.'},
-      {id:'inp-email',msg:isEs?'Por favor ingresa tu correo.':'Please enter your email.'},
-      {id:'inp-phone',msg:isEs?'Por favor ingresa tu teléfono.':'Please enter your phone number.'},
+      {id:'inp-fname',msg:isEs?'Por favor ingrese su nombre.':'Please enter your first name.'},
+      {id:'inp-lname',msg:isEs?'Por favor ingrese su apellido.':'Please enter your last name.'},
+      {id:'inp-email',msg:isEs?'Por favor ingrese su correo.':'Please enter your email.'},
+      {id:'inp-phone',msg:isEs?'Por favor ingrese su teléfono.':'Please enter your phone number.'},
     ];
     for(var fi=0;fi<req2.length;fi++){
       var fe=document.getElementById(req2[fi].id);
@@ -5029,22 +5029,22 @@ function fmNext() {
     if(fmData.addons.ein) {
       // Check ID type selected
       var idType = document.querySelector('input[name="ein-id-type"]:checked');
-      if(!idType) { alert(isEs7?'Por favor indica si tienes SSN, ITIN, o ninguno.':'Please indicate if you have an SSN, ITIN, or neither.'); return; }
+      if(!idType) { alert(isEs7?'Por favor indique si tiene SSN, ITIN, o ninguno.':'Please indicate if you have an SSN, ITIN, or neither.'); return; }
       if(idType.value === 'ssn') {
         var ssnEl = document.getElementById('inp-ein-ssn');
         var ssnConfEl = document.getElementById('inp-ein-ssn-confirm');
-        if(!ssnEl||ssnEl.value.replace(/[^0-9]/g,'').length < 9) { if(ssnEl){ssnEl.style.borderColor='#ef4444';ssnEl.focus();} alert(isEs7?'Por favor ingresa tu SSN completo (9 dígitos).':'Please enter your complete SSN (9 digits).'); return; }
+        if(!ssnEl||ssnEl.value.replace(/[^0-9]/g,'').length < 9) { if(ssnEl){ssnEl.style.borderColor='#ef4444';ssnEl.focus();} alert(isEs7?'Por favor ingrese su SSN completo (9 dígitos).':'Please enter your complete SSN (9 digits).'); return; }
         if(ssnEl) ssnEl.style.borderColor='';
-        if(!ssnConfEl||ssnConfEl.value.replace(/[^0-9]/g,'').length < 9) { if(ssnConfEl){ssnConfEl.style.borderColor='#ef4444';ssnConfEl.focus();} alert(isEs7?'Por favor confirma tu SSN.':'Please confirm your SSN.'); return; }
+        if(!ssnConfEl||ssnConfEl.value.replace(/[^0-9]/g,'').length < 9) { if(ssnConfEl){ssnConfEl.style.borderColor='#ef4444';ssnConfEl.focus();} alert(isEs7?'Por favor confirme su SSN.':'Please confirm your SSN.'); return; }
         if(ssnEl.value.replace(/[^0-9]/g,'') !== ssnConfEl.value.replace(/[^0-9]/g,'')) { ssnConfEl.style.borderColor='#ef4444'; ssnConfEl.focus(); alert(isEs7?'Los SSN no coinciden. Por favor verifica.':'SSNs do not match. Please check and try again.'); return; }
         if(ssnConfEl) ssnConfEl.style.borderColor='';
       }
       if(idType.value === 'itin') {
         var itinEl = document.getElementById('inp-ein-itin');
         var itinConfEl = document.getElementById('inp-ein-itin-confirm');
-        if(!itinEl||itinEl.value.replace(/[^0-9]/g,'').length < 9) { if(itinEl){itinEl.style.borderColor='#ef4444';itinEl.focus();} alert(isEs7?'Por favor ingresa tu ITIN completo (9 dígitos).':'Please enter your complete ITIN (9 digits).'); return; }
+        if(!itinEl||itinEl.value.replace(/[^0-9]/g,'').length < 9) { if(itinEl){itinEl.style.borderColor='#ef4444';itinEl.focus();} alert(isEs7?'Por favor ingrese su ITIN completo (9 dígitos).':'Please enter your complete ITIN (9 digits).'); return; }
         if(itinEl) itinEl.style.borderColor='';
-        if(!itinConfEl||itinConfEl.value.replace(/[^0-9]/g,'').length < 9) { if(itinConfEl){itinConfEl.style.borderColor='#ef4444';itinConfEl.focus();} alert(isEs7?'Por favor confirma tu ITIN.':'Please confirm your ITIN.'); return; }
+        if(!itinConfEl||itinConfEl.value.replace(/[^0-9]/g,'').length < 9) { if(itinConfEl){itinConfEl.style.borderColor='#ef4444';itinConfEl.focus();} alert(isEs7?'Por favor confirme su ITIN.':'Please confirm your ITIN.'); return; }
         if(itinEl.value.replace(/[^0-9]/g,'') !== itinConfEl.value.replace(/[^0-9]/g,'')) { itinConfEl.style.borderColor='#ef4444'; itinConfEl.focus(); alert(isEs7?'Los ITIN no coinciden. Por favor verifica.':'ITINs do not match. Please check and try again.'); return; }
         if(itinConfEl) itinConfEl.style.borderColor='';
       }
@@ -5053,12 +5053,12 @@ function fmNext() {
       if(!actVal||!actVal.value) {
         var srch = document.getElementById('ein-activity-search');
         if(srch){srch.style.borderColor='#ef4444';srch.focus();}
-        alert(isEs7?'Por favor selecciona la actividad principal de tu negocio.':'Please select your business principal activity.'); return;
+        alert(isEs7?'Por favor seleccione la actividad principal de su negocio.':'Please select your business principal activity.'); return;
       }
       if(actVal) { var srch2=document.getElementById('ein-activity-search'); if(srch2) srch2.style.borderColor=''; }
       // Check description
       var descEl = document.getElementById('inp-ein-activity-desc');
-      if(!descEl||!descEl.value.trim()) { if(descEl){descEl.style.borderColor='#ef4444';descEl.focus();} alert(isEs7?'Por favor describe tu producto o servicio específico.':'Please describe your specific product or service.'); return; }
+      if(!descEl||!descEl.value.trim()) { if(descEl){descEl.style.borderColor='#ef4444';descEl.focus();} alert(isEs7?'Por favor describa su producto o servicio específico.':'Please describe your specific product or service.'); return; }
       if(descEl) descEl.style.borderColor='';
     }
     if(fmData.addons.oa) {
@@ -6091,16 +6091,16 @@ var fmTranslations = {
   es: {
     fp_close: '✕ Cerrar',
     s1_title: 'Información de la Empresa',
-    s1_sub: 'Ingresa el nombre de tu negocio. El nombre debe terminar con LLC, Corp o Inc.',
-    s2_title: 'Tu Información',
+    s1_sub: 'Ingrese el nombre de su negocio. El nombre debe terminar con LLC, Corp o Inc.',
+    s2_title: 'Su Información',
     s2_sub: 'El tiempo típico de tramitación en Florida es <strong>7–14 días hábiles</strong>. ¿Con prisa? Selecciona tramitación expedita.',
     s3_title: 'Nombre y Dirección Agente Registrado',
     s3_sub: 'Por favor provee el nombre de la persona responsable de esta orden a quien podemos contactar si necesitamos información adicional.',
-    s4_title: 'Tu Paquete de Formación',
+    s4_title: 'Su Paquete de Formación',
     s5_title: 'Propiedad y Gestión',
     s6_title: 'Procesamiento acelerado',
-    s7_title: 'Mejora Tu Formación',
-    s8_title: 'Revisa Tu Orden',
+    s7_title: 'Mejore Su Formación',
+    s8_title: 'Revise Su Orden',
     s9_title: 'Pago Seguro',
     s10_title: 'Información de Pago',
     continue: 'Continuar',
@@ -6111,7 +6111,7 @@ var fmTranslations = {
 
 function fmTranslate(lang) {
   var isEs=lang==='es';
-  var tm={'s1-entity-divider':isEs?'\\u00bfQu\\u00e9 tipo de entidad est\\u00e1s formando?':'What type of entity are you forming?','s1-llc-desc':isEs?'Gesti\\u00f3n flexible \\u00b7 Pass-through \\u00b7 La m\\u00e1s popular':'Flexible management \\u00b7 Pass-through taxes \\u00b7 Most popular','s1-corp-lbl':isEs?'&#128202; Corporaci\\u00f3n':'&#128202; Corporation','s1-corp-desc':isEs?'Ideal para inversores \\u00b7 Emite acciones \\u00b7 Estructura formal':'Ideal for investors \\u00b7 Issue stock \\u00b7 Formal structure','s1-name-divider':isEs?'Nombre del Negocio':'Business Name','lbl-bizname':isEs?'Nombre Preferido *':'Preferred Business Name *','lbl-designator':isEs?'Debe terminar con *':'Must end with *','s1-fl-note-title':isEs?'Exigido por Florida:':'Required by Florida:','s1-fl-note-text':isEs?'Las LLC deben terminar con LLC, L.L.C. o Limited Liability Company. Las Corp con Corp, Inc, Corporation o Incorporated.':'LLCs must end with LLC, L.L.C., or Limited Liability Company. Corps must end with Corp, Inc, Corporation, or Incorporated.','lbl-preview':isEs?'Tu nombre oficial aparecer\\u00e1 como':'Your official name will appear as',
+  var tm={'s1-entity-divider':isEs?'\\u00bfQu\\u00e9 tipo de entidad est\\u00e1 formando?':'What type of entity are you forming?','s1-llc-desc':isEs?'Gesti\\u00f3n flexible \\u00b7 Pass-through \\u00b7 La m\\u00e1s popular':'Flexible management \\u00b7 Pass-through taxes \\u00b7 Most popular','s1-corp-lbl':isEs?'&#128202; Corporaci\\u00f3n':'&#128202; Corporation','s1-corp-desc':isEs?'Ideal para inversores \\u00b7 Emite acciones \\u00b7 Estructura formal':'Ideal for investors \\u00b7 Issue stock \\u00b7 Formal structure','s1-name-divider':isEs?'Nombre del Negocio':'Business Name','lbl-bizname':isEs?'Nombre Preferido *':'Preferred Business Name *','lbl-designator':isEs?'Debe terminar con *':'Must end with *','s1-fl-note-title':isEs?'Exigido por Florida:':'Required by Florida:','s1-fl-note-text':isEs?'Las LLC deben terminar con LLC, L.L.C. o Limited Liability Company. Las Corp con Corp, Inc, Corporation o Incorporated.':'LLCs must end with LLC, L.L.C., or Limited Liability Company. Corps must end with Corp, Inc, Corporation, or Incorporated.','lbl-preview':isEs?'Su nombre oficial aparecer\\u00e1 como':'Your official name will appear as',
 'name-acc-title':isEs?'Informaci\\u00f3n Adicional':'Additional Explanation',
 'name-acc-1-q':isEs?'\\u00bfQu\\u00e9 pasa si el nombre no est\\u00e1 disponible?':'What if my company name is unavailable?',
 'name-acc-1-a':isEs?'Si el nombre que elija es rechazado por la Divisi\\u00f3n de Corporaciones de Florida despu\\u00e9s de presentar el tr\\u00e1mite, lo contactaremos para solicitar un nombre alternativo y reenviaremos sin cargo de servicio adicional de nuestra parte. La tarifa estatal original pagada a Florida no es reembolsable. Cualquier tarifa estatal nueva cobrada por el reenv\\u00edo es su responsabilidad.':'If the name you choose is rejected by the Florida Division of Corporations after we submit your filing, we will contact you to request an alternative name and will resubmit at no additional service fee from us. The original state filing fee paid to Florida is non-refundable. Any new state filing fee charged for the resubmission is your responsibility.',
@@ -6124,49 +6124,49 @@ function fmTranslate(lang) {
 's1-shares-info-text':isEs?'Florida exige que cada Corporaci\\u00f3n declare el n\\u00famero total de acciones que est\\u00e1 autorizada a emitir. Este n\\u00famero queda registrado p\\u00fablicamente en los Art\\u00edculos de Incorporaci\\u00f3n. La mayor\\u00eda de corporaciones peque\\u00f1as usan 1,000 acciones o m\\u00e1s.':'Florida requires every Corporation to declare the total number of shares it is authorized to issue. Most small corporations use 1,000 or more shares.',
 's1-effdate-divider':isEs?'Fecha Efectiva':'Effective Date',
 's1-effdate-opt':isEs?'(Opcional)':'(Optional)',
-'s1-effdate-info-text':isEs?'D\\u00e9jalo en blanco para usar la fecha en que Florida apruebe tu tr\\u00e1mite. Puedes solicitar una fecha hasta 5 d\\u00edas h\\u00e1biles antes de enviar o hasta 90 d\\u00edas despu\\u00e9s.':'Leave blank to use the date Florida approves your filing. You may request a date up to 5 business days before submission or up to 90 days after.',
+'s1-effdate-info-text':isEs?'D\\u00e9jalo en blanco para usar la fecha en que Florida apruebe su tr\\u00e1mite. Puede solicitar una fecha hasta 5 d\\u00edas h\\u00e1biles antes de enviar o hasta 90 d\\u00edas despu\\u00e9s.':'Leave blank to use the date Florida approves your filing. You may request a date up to 5 business days before submission or up to 90 days after.',
 'lbl-effdate':isEs?'Fecha Efectiva Solicitada':'Requested Effective Date',
 's2-sig-divider':isEs?'Firma Electr\\u00f3nica':'Electronic Signature',
-'s2-sig-info-text':isEs?'La ley de Florida requiere que el Organizador (LLC) o Incorporador (Corporaci\\u00f3n) firme el documento de formaci\\u00f3n. Al escribir tu nombre legal completo est\\u00e1s firmando electr\\u00f3nicamente los Art\\u00edculos bajo pena de perjurio.':'Florida law requires the Organizer (LLC) or Incorporator (Corporation) to sign the formation document. By typing your full legal name below you are electronically signing the Articles of Organization / Incorporation under penalty of perjury.',
+'s2-sig-info-text':isEs?'La ley de Florida requiere que el Organizador (LLC) o Incorporador (Corporaci\\u00f3n) firme el documento de formaci\\u00f3n. Al escribir su nombre legal completo est\\u00e1 firmando electr\\u00f3nicamente los Art\\u00edculos bajo pena de perjurio.':'Florida law requires the Organizer (LLC) or Incorporator (Corporation) to sign the formation document. By typing your full legal name below you are electronically signing the Articles of Organization / Incorporation under penalty of perjury.',
 'lbl-org-sig':isEs?'Firma Electr\\u00f3nica \\u2014 Organizador / Incorporador *':'Electronic Signature \\u2014 Organizer / Incorporator *',
-'tt-shares':isEs?'Este es el n\\u00famero total de acciones que tu Corporaci\\u00f3n est\\u00e1 legalmente autorizada a emitir. Pi\\u00e9nsalo como el m\\u00e1ximo de "partes" en que puede dividirse tu empresa. La mayor\\u00eda de negocios peque\\u00f1os usan 1,000 acciones — da flexibilidad sin complicar las cosas.':'This is the total number of shares your Corporation is legally allowed to issue. Think of it like the maximum number of "ownership pieces" your company can ever have. Most small businesses use 1,000 shares — it gives you flexibility without overcomplicating things.',
-'tt-effdate':isEs?'Esta es la fecha oficial en que tu negocio nace ante el Estado de Florida. Si la dejas en blanco, usamos el d\\u00eda en que Florida apruebe tu tr\\u00e1mite, lo cual funciona perfectamente para la mayor\\u00eda. Solo c\\u00e1mbiala si necesitas que tu empresa comience en una fecha espec\\u00edfica, como el 1 de enero por razones fiscales.':'This is the official date your business comes to life in Florida\\'s records. If you leave it blank, we use the day Florida approves your filing — which works perfectly for most people. You\\'d only change this if you need your business to start on a specific date, like January 1st for tax reasons.',
-'tt-org-sig':isEs?'La ley de Florida requiere que la persona que forma el negocio firme el documento oficial. Al escribir tu nombre legal completo aqu\\u00ed, est\\u00e1s firmando electr\\u00f3nicamente los Art\\u00edculos de Organizaci\\u00f3n (LLC) o de Incorporaci\\u00f3n (Corporaci\\u00f3n) \\u2014 esto tiene el mismo valor legal que una firma de pu\\u00f1o y letra.':'Florida law requires the person forming the business to sign the official document. By typing your full legal name here, you are electronically signing the Articles of Organization (LLC) or Articles of Incorporation (Corporation) — this has the same legal value as a handwritten signature.',
-'tt-ra':isEs?'El Agente Registrado es el punto de contacto oficial entre tu negocio y el Estado de Florida. Recibe notificaciones legales, demandas y correspondencia gubernamental en tu nombre. Toda LLC y Corporaci\\u00f3n en Florida est\\u00e1 obligada por ley a tener uno en todo momento.':'A Registered Agent is the official point of contact between your business and the State of Florida. They receive legal notices, lawsuits, and government mail on your behalf. Every Florida LLC and Corporation is required by law to have one at all times.',
-'tt-ein':isEs?'El EIN es el n\\u00famero de identificaci\\u00f3n fiscal federal de tu negocio. El IRS lo exige para contratar empleados y declarar impuestos federales, y la mayor\\u00eda de los bancos lo piden para abrir una cuenta bancaria empresarial. Mientras el EIN identifica a tu negocio, el ITIN te identifica a ti como persona sin N\\u00famero de Seguro Social de EE.UU. Muchos due\\u00f1os extranjeros necesitan ambos.':'An EIN is your business\\'s federal tax ID. The IRS requires it to hire employees and file federal taxes, and most banks require it to open a business bank account. While the EIN identifies your business, the ITIN identifies you as a person without a U.S. Social Security Number. Many foreign owners need both.',
-'tt-oa':isEs?'Es el reglamento interno de tu negocio: define qui\\u00e9n posee qu\\u00e9, c\\u00f3mo se toman las decisiones y c\\u00f3mo se reparten las ganancias. Los bancos suelen pedirlo para abrir una cuenta corriente empresarial, y te protege legalmente si alg\\u00fan d\\u00eda hay una disputa entre socios.':'This is your business\\'s internal rulebook — it defines who owns what, how decisions are made, and how profits are divided. Banks typically ask for it when you open a business checking account, and it protects you legally if there\\'s ever a dispute between partners.',
-'tt-itin':isEs?'El ITIN es tu número de identificación fiscal si no tienes Número de Seguro Social de EE.UU. <strong>La mayoría de los bancos de EE.UU. lo exigen para abrir una cuenta bancaria empresarial</strong> — sin él, la mayoría de los bancos te rechazarán. También es obligatorio para declarar tus impuestos federales como dueño de negocio extranjero. Si planeas abrir una cuenta bancaria u operar en EE.UU., obtener tu ITIN ahora evita retrasos más adelante.':'An ITIN (Individual Taxpayer Identification Number) is your tax ID if you don\\'t have a U.S. Social Security Number. <strong>The majority of U.S. banks require it to open a business bank account</strong> — without one, most banks will turn you away. It\\'s also required to file your federal taxes as a foreign national business owner. If you plan to open a bank account or operate in the U.S., getting your ITIN now avoids delays later.',
-'tt-btr':isEs?'El Business Tax Receipt (antes conocido como Licencia Ocupacional) es requerido por la mayoría de los condados y ciudades de Florida para operar un negocio legalmente. Debe renovarse cada año y es independiente de tu registro de formación ante el Estado.':'A Business Tax Receipt (formerly known as an Occupational License) is required by most Florida counties and cities to legally operate a business. It must be renewed annually and is separate from your state formation filing.',
-'tt-str':isEs?'Si tu negocio vende productos o servicios gravables en Florida, debes registrarte ante el Departamento de Ingresos de Florida para cobrar y remitir el impuesto sobre ventas. Los negocios que venden sin registrarse pueden enfrentar multas e impuestos atrasados.':'If your business sells taxable goods or services in Florida, you are required to register with the Florida Department of Revenue to collect and remit sales tax. Businesses that sell without registering may face penalties and back taxes.',
-'tt-cc':isEs?'Una copia certificada por el estado de tus Art\u00edculos de Organizaci\u00f3n (LLC) o Incorporaci\u00f3n (Corporaci\u00f3n), sellada por la Divisi\u00f3n de Corporaciones de Florida. Bancos, tribunales y algunas agencias exigen una copia certificada en lugar de una copia simple. La tarifa estatal de Florida se paga por separado.':'A state-certified copy of your Articles of Organization (LLC) or Incorporation (Corporation), stamped by the Florida Division of Corporations. Banks, courts, and some agencies require a certified copy instead of a plain copy. The Florida state fee is paid separately.',
-'ein-extra-header':isEs?'&#128203; Información adicional requerida para tu solicitud de EIN':'&#128203; Additional info needed for your EIN application',
+'tt-shares':isEs?'Este es el n\\u00famero total de acciones que su Corporaci\\u00f3n est\\u00e1 legalmente autorizada a emitir. Pi\\u00e9nselo como el m\\u00e1ximo de "partes" en que puede dividirse su empresa. La mayor\\u00eda de negocios peque\\u00f1os usan 1,000 acciones — da flexibilidad sin complicar las cosas.':'This is the total number of shares your Corporation is legally allowed to issue. Think of it like the maximum number of "ownership pieces" your company can ever have. Most small businesses use 1,000 shares — it gives you flexibility without overcomplicating things.',
+'tt-effdate':isEs?'Esta es la fecha oficial en que su negocio nace ante el Estado de Florida. Si la deja en blanco, usamos el d\\u00eda en que Florida apruebe su tr\\u00e1mite, lo cual funciona perfectamente para la mayor\\u00eda. Solo c\\u00e1mbiela si necesita que su empresa comience en una fecha espec\\u00edfica, como el 1 de enero por razones fiscales.':'This is the official date your business comes to life in Florida\\'s records. If you leave it blank, we use the day Florida approves your filing — which works perfectly for most people. You\\'d only change this if you need your business to start on a specific date, like January 1st for tax reasons.',
+'tt-org-sig':isEs?'La ley de Florida requiere que la persona que forma el negocio firme el documento oficial. Al escribir su nombre legal completo aqu\\u00ed, est\\u00e1 firmando electr\\u00f3nicamente los Art\\u00edculos de Organizaci\\u00f3n (LLC) o de Incorporaci\\u00f3n (Corporaci\\u00f3n) \\u2014 esto tiene el mismo valor legal que una firma de pu\\u00f1o y letra.':'Florida law requires the person forming the business to sign the official document. By typing your full legal name here, you are electronically signing the Articles of Organization (LLC) or Articles of Incorporation (Corporation) — this has the same legal value as a handwritten signature.',
+'tt-ra':isEs?'El Agente Registrado es el punto de contacto oficial entre su negocio y el Estado de Florida. Recibe notificaciones legales, demandas y correspondencia gubernamental en su nombre. Toda LLC y Corporaci\\u00f3n en Florida est\\u00e1 obligada por ley a tener uno en todo momento.':'A Registered Agent is the official point of contact between your business and the State of Florida. They receive legal notices, lawsuits, and government mail on your behalf. Every Florida LLC and Corporation is required by law to have one at all times.',
+'tt-ein':isEs?'El EIN es el n\\u00famero de identificaci\\u00f3n fiscal federal de su negocio. El IRS lo exige para contratar empleados y declarar impuestos federales, y la mayor\\u00eda de los bancos lo piden para abrir una cuenta bancaria empresarial. Mientras el EIN identifica a su negocio, el ITIN lo identifica a usted como persona sin N\\u00famero de Seguro Social de EE.UU. Muchos due\\u00f1os extranjeros necesitan ambos.':'An EIN is your business\\'s federal tax ID. The IRS requires it to hire employees and file federal taxes, and most banks require it to open a business bank account. While the EIN identifies your business, the ITIN identifies you as a person without a U.S. Social Security Number. Many foreign owners need both.',
+'tt-oa':isEs?'Es el reglamento interno de su negocio: define qui\\u00e9n posee qu\\u00e9, c\\u00f3mo se toman las decisiones y c\\u00f3mo se reparten las ganancias. Los bancos suelen pedirlo para abrir una cuenta corriente empresarial, y lo protege legalmente si alg\\u00fan d\\u00eda hay una disputa entre socios.':'This is your business\\'s internal rulebook — it defines who owns what, how decisions are made, and how profits are divided. Banks typically ask for it when you open a business checking account, and it protects you legally if there\\'s ever a dispute between partners.',
+'tt-itin':isEs?'El ITIN es su número de identificación fiscal si no tiene Número de Seguro Social de EE.UU. <strong>La mayoría de los bancos de EE.UU. lo exigen para abrir una cuenta bancaria empresarial</strong> — sin él, la mayoría de los bancos lo rechazarán. También es obligatorio para declarar sus impuestos federales como dueño de negocio extranjero. Si planea abrir una cuenta bancaria u operar en EE.UU., obtener su ITIN ahora evita retrasos más adelante.':'An ITIN (Individual Taxpayer Identification Number) is your tax ID if you don\\'t have a U.S. Social Security Number. <strong>The majority of U.S. banks require it to open a business bank account</strong> — without one, most banks will turn you away. It\\'s also required to file your federal taxes as a foreign national business owner. If you plan to open a bank account or operate in the U.S., getting your ITIN now avoids delays later.',
+'tt-btr':isEs?'El Business Tax Receipt (antes conocido como Licencia Ocupacional) es requerido por la mayoría de los condados y ciudades de Florida para operar un negocio legalmente. Debe renovarse cada año y es independiente de su registro de formación ante el Estado.':'A Business Tax Receipt (formerly known as an Occupational License) is required by most Florida counties and cities to legally operate a business. It must be renewed annually and is separate from your state formation filing.',
+'tt-str':isEs?'Si su negocio vende productos o servicios gravables en Florida, debe registrarse ante el Departamento de Ingresos de Florida para cobrar y remitir el impuesto sobre ventas. Los negocios que venden sin registrarse pueden enfrentar multas e impuestos atrasados.':'If your business sells taxable goods or services in Florida, you are required to register with the Florida Department of Revenue to collect and remit sales tax. Businesses that sell without registering may face penalties and back taxes.',
+'tt-cc':isEs?'Una copia certificada por el estado de sus Art\u00edculos de Organizaci\u00f3n (LLC) o Incorporaci\u00f3n (Corporaci\u00f3n), sellada por la Divisi\u00f3n de Corporaciones de Florida. Bancos, tribunales y algunas agencias exigen una copia certificada en lugar de una copia simple. La tarifa estatal de Florida se paga por separado.':'A state-certified copy of your Articles of Organization (LLC) or Incorporation (Corporation), stamped by the Florida Division of Corporations. Banks, courts, and some agencies require a certified copy instead of a plain copy. The Florida state fee is paid separately.',
+'ein-extra-header':isEs?'&#128203; Información adicional requerida para su solicitud de EIN':'&#128203; Additional info needed for your EIN application',
 'lbl-ein-rp-id':isEs?'SSN / ITIN del Responsable Principal *':'SSN / ITIN of Responsible Party *',
 'ein-no-id-txt':isEs?'Soy extranjero, no poseo SSN ni ITIN':'I\\'m a foreigner, I don\\'t have an SSN or ITIN',
-'lbl-ssn-1':isEs?'SSN *':'SSN *','lbl-ssn-2':isEs?'Confirmar SSN *':'Confirm SSN *','lbl-itin-1':isEs?'ITIN *':'ITIN *','lbl-itin-2':isEs?'Confirmar ITIN *':'Confirm ITIN *','ssn-privacy-note':isEs?'&#128274; Tu SSN está encriptado y nunca se almacena en texto simple.':'&#128274; Your SSN is encrypted and never stored in plain text.',
-'itin-privacy-note':isEs?'&#128274; Tu ITIN está encriptado y nunca se almacena en texto simple.':'&#128274; Your ITIN is encrypted and never stored in plain text.',
-'ein-warn-title':isEs?'Solicitud de ITIN agregada a tu orden':'ITIN Application added to your order',
-'ein-warn-body':isEs?'Agregamos automáticamente la <strong>Solicitud de ITIN ($69)</strong> a tu orden. Los procesaremos juntos — una vez que el IRS te asigne tu ITIN, solicitaremos tu EIN de inmediato.':'We\\'ve automatically added the <strong>ITIN Application ($69)</strong> to your order. We\\'ll process both together — once your ITIN is issued by the IRS, we\\'ll immediately apply for your EIN.',
-'ein-warn-itin-cta':isEs?'Tu información personal está protegida.':'Your personal information is protected.',
-'ein-warn-itin-body':isEs?'Puedes eliminar el servicio de ITIN en cualquier momento antes de enviar tu orden.':'You can remove the ITIN service at any time before submitting your order.',
+'lbl-ssn-1':isEs?'SSN *':'SSN *','lbl-ssn-2':isEs?'Confirmar SSN *':'Confirm SSN *','lbl-itin-1':isEs?'ITIN *':'ITIN *','lbl-itin-2':isEs?'Confirmar ITIN *':'Confirm ITIN *','ssn-privacy-note':isEs?'&#128274; Su SSN está encriptado y nunca se almacena en texto simple.':'&#128274; Your SSN is encrypted and never stored in plain text.',
+'itin-privacy-note':isEs?'&#128274; Su ITIN está encriptado y nunca se almacena en texto simple.':'&#128274; Your ITIN is encrypted and never stored in plain text.',
+'ein-warn-title':isEs?'Solicitud de ITIN agregada a su orden':'ITIN Application added to your order',
+'ein-warn-body':isEs?'Agregamos automáticamente la <strong>Solicitud de ITIN ($69)</strong> a su orden. Los procesaremos juntos — una vez que el IRS le asigne su ITIN, solicitaremos su EIN de inmediato.':'We\\'ve automatically added the <strong>ITIN Application ($69)</strong> to your order. We\\'ll process both together — once your ITIN is issued by the IRS, we\\'ll immediately apply for your EIN.',
+'ein-warn-itin-cta':isEs?'Su información personal está protegida.':'Your personal information is protected.',
+'ein-warn-itin-body':isEs?'Puede eliminar el servicio de ITIN en cualquier momento antes de enviar su orden.':'You can remove the ITIN service at any time before submitting your order.',
 'lbl-ein-activity':isEs?'Actividad Principal del Negocio *':'Principal Business Activity *',
-'lbl-ein-activity-desc':isEs?'Describe tu producto o servicio específico *':'Describe your specific product or service *',
-'ein-desc-hint':isEs?'Sé específico — unas pocas palabras que describan exactamente qué vendes o haces.':'Be specific — a few words describing exactly what you sell or do.',
+'lbl-ein-activity-desc':isEs?'Describa su producto o servicio específico *':'Describe your specific product or service *',
+'ein-desc-hint':isEs?'Sea específico — unas pocas palabras que describan exactamente qué vende o hace.':'Be specific — a few words describing exactly what you sell or do.',
 'lbl-ein-fiscal':isEs?'Mes de Cierre del Año Fiscal *':'Closing Month of Fiscal Year *',
-'oa-extra-header':isEs?'Necesitamos un dato para completar tu Acuerdo Operativo':'We need one detail to complete your Operating Agreement','oa-extra-sub':isEs?'Solo tomará un momento':'This will only take a moment',
-'oa-own-why':isEs?'Para preparar tu Acuerdo Operativo necesitamos saber <strong>qué porcentaje de la empresa posee cada miembro</strong>. Es un requisito legal — el Acuerdo Operativo debe especificar el porcentaje de propiedad de cada miembro para ser válido ante bancos e instituciones.<br/><span style=\\'display:block;margin-top:8px;font-size:.76rem;color:#065f46\\'>&#10003; Ya tenemos la información de tus miembros. Solo llena el % de cada uno abajo.</span>':'To prepare your Operating Agreement we need to know <strong>how much of the company each member owns</strong>. This is a legal requirement — your Operating Agreement must specify the ownership percentage of every member so it is valid for banking and legal purposes.<br/><span style=\\'display:block;margin-top:8px;font-size:.76rem;color:#065f46\\'>&#10003; We already have your members\\' information. Just fill in the % for each one below.</span>',
-'tt-ar':isEs?'Cada negocio en Florida debe presentar un Reporte Anual para mantenerse activo ante el Estado. Esto aplica aunque tu negocio no haya iniciado operaciones — la ley no hace excepciones. La fecha l\\u00edmite es el 1 de mayo. Si no se presenta a tiempo, Florida cobra una multa de $400 autom\\u00e1tica. Si se ignora por completo, el Estado puede disolver tu empresa administrativamente.':'Every Florida business must file an Annual Report each year to stay active — even if your business has not started operating yet. The law makes no exceptions. The deadline is May 1st. Miss it and Florida automatically charges a $400 late fee. Keep ignoring it and the State can administratively dissolve your company.',
+'oa-extra-header':isEs?'Necesitamos un dato para completar su Acuerdo Operativo':'We need one detail to complete your Operating Agreement','oa-extra-sub':isEs?'Solo tomará un momento':'This will only take a moment',
+'oa-own-why':isEs?'Para preparar su Acuerdo Operativo necesitamos saber <strong>qué porcentaje de la empresa posee cada miembro</strong>. Es un requisito legal — el Acuerdo Operativo debe especificar el porcentaje de propiedad de cada miembro para ser válido ante bancos e instituciones.<br/><span style=\\'display:block;margin-top:8px;font-size:.76rem;color:#065f46\\'>&#10003; Ya tenemos la información de sus miembros. Solo llene el % de cada uno abajo.</span>':'To prepare your Operating Agreement we need to know <strong>how much of the company each member owns</strong>. This is a legal requirement — your Operating Agreement must specify the ownership percentage of every member so it is valid for banking and legal purposes.<br/><span style=\\'display:block;margin-top:8px;font-size:.76rem;color:#065f46\\'>&#10003; We already have your members\\' information. Just fill in the % for each one below.</span>',
+'tt-ar':isEs?'Cada negocio en Florida debe presentar un Reporte Anual para mantenerse activo ante el Estado. Esto aplica aunque su negocio no haya iniciado operaciones — la ley no hace excepciones. La fecha l\\u00edmite es el 1 de mayo. Si no se presenta a tiempo, Florida cobra una multa de $400 autom\\u00e1tica. Si se ignora por completo, el Estado puede disolver su empresa administrativamente.':'Every Florida business must file an Annual Report each year to stay active — even if your business has not started operating yet. The law makes no exceptions. The deadline is May 1st. Miss it and Florida automatically charges a $400 late fee. Keep ignoring it and the State can administratively dissolve your company.',
 'fp-home-lbl':isEs?'Inicio':'Back to Home','s2-speed-divider':isEs?'Velocidad de Procesamiento':'Processing Speed','s2-fast-badge':isEs?'R\\u00c1PIDO':'FAST','s2-exp-lbl':isEs?'&#9889; Procesamiento Prioritario':'&#9889; Priority Processing','s2-exp-days':isEs?'Entrega en 1-3 d\\u00edas h\\u00e1biles':'Delivered in 1-3 business days','s2-exp-note':isEs?'Incluido gratis con Premium':'Included free with Premium','s2-std-lbl':isEs?'Procesamiento Est\\u00e1ndar':'Standard Processing','s2-std-days':isEs?'Normalmente 7-14 d\\u00edas h\\u00e1biles':'Typically 7-14 business days','s2-std-note':isEs?'Sin cargo adicional':'No additional charge','s2-disclaimer':isEs?'* Las fechas son estimadas.':'* Estimated dates may vary.','s2-contact-divider':isEs?'Informaci\\u00f3n de Contacto':'Contact Information','lbl-fname':isEs?'Nombre *':'First Name *','lbl-lname':isEs?'Apellido *':'Last Name *','lbl-email':isEs?'Correo Electr\\u00f3nico *':'Email *','lbl-phone':isEs?'Tel\\u00e9fono *':'Phone Number *','lbl-sms':isEs?'Acepto recibir actualizaciones por mensaje y teléfono.':'I agree to receive order updates by text and phone.',
-'lbl-sms-opt':isEs?'(Opcional)':'(Optional)','sum-title-main':isEs?'Tu Orden':'Your Order',
+'lbl-sms-opt':isEs?'(Opcional)':'(Optional)','sum-title-main':isEs?'Su Orden':'Your Order',
     's3-sub':isEs?'La ley establece que todo negocio debe tener un Agente Registrado.':'The law requires every business to have a Registered Agent.',
     's4-div-addr':isEs?'Direcci\\u00f3n de Correspondencia':'Contact Address',
     's4-addr-desc':isEs?'Esta direcci\\u00f3n se usa para correspondencia oficial del Estado, IRS y otras agencias.':'This address is used for official correspondence from the State, IRS, and other agencies.',
-    'vma-info-text':isEs?'El USPS requiere verificar tu identidad antes de abrir tu correo. Lo completas desde tu panel de control.':'USPS requires identity verification before we can open and scan your mail. Complete this from your dashboard.',
+    'vma-info-text':isEs?'El USPS requiere verificar su identidad antes de abrir su correo. Lo completa desde su panel de control.':'USPS requires identity verification before we can open and scan your mail. Complete this from your dashboard.',
     'lbl-street2':isEs?'Apto / Suite':'Address (Cont)',
     's4-sub':isEs?'Cada nivel incluye todo lo del nivel anterior.':'Each tier includes everything from the one below it.',
-    's5-sub':isEs?'Cu\\u00e9ntanos qui\\u00e9n es due\\u00f1o y dirige este negocio.':'Tell us who owns and runs this business.',
+    's5-sub':isEs?'Cu\\u00e9ntenos qui\\u00e9n es due\\u00f1o y dirige este negocio.':'Tell us who owns and runs this business.',
     's6-sub':isEs?'La ley de Florida requiere que cada negocio tenga un Agente Registrado.':'Florida law requires every business to have a Registered Agent on file.',
-    's7-sub':isEs?'Precios exclusivos para nuevos negocios: agrega estos servicios ahora, mantén tu empresa en regla y evita contratiempos con el Estado.':'Exclusive prices for new businesses: add these services now, keep your company compliant and avoid setbacks with the State.',
-    's8-sub':isEs?'Confirma tus datos antes del pago.':'Confirm your details before payment.',
+    's7-sub':isEs?'Precios exclusivos para nuevos negocios: agregue estos servicios ahora, mantenga su empresa en regla y evite contratiempos con el Estado.':'Exclusive prices for new businesses: add these services now, keep your company compliant and avoid setbacks with the State.',
+    's8-sub':isEs?'Confirme sus datos antes del pago.':'Confirm your details before payment.',
     's9-submit':isEs?'Procesar Mi Orden':'Process My Order',
     // Step 9 - Payment translations
     's10-card-lbl':isEs?'&#128179; Pagar con Tarjeta de Cr\\u00e9dito o D\\u00e9bito':'&#128179; Add a Credit Card',
@@ -6202,17 +6202,17 @@ function fmTranslate(lang) {
     // Terms checkbox
     'lbl-agree':isEs?'Acepto el <a href="/legal" target="_blank" style="color:#2563eb">Aviso Legal</a> y los <a href="/terms" target="_blank" style="color:#2563eb">Términos de Servicio</a>.':'I agree to the <a href="/legal" target="_blank" style="color:#2563eb">Legal Statement</a> and <a href="/terms" target="_blank" style="color:#2563eb">Terms of Service</a>.',
     's10-warn-title':isEs?'\\u26a0\\ufe0f No Reembolsable:':'\\u26a0\\ufe0f Non-Refundable:',
-    's10-warn-text':isEs?'Los cargos estatales no son reembolsables una vez iniciado el proceso. Nuestra tarifa de servicio es reembolsable dentro de las 24 horas si el tr\\u00e1mite no ha comenzado. \\u00bfPreguntas? Cont\\u00e1ctanos por WhatsApp antes de enviar.':'State fees cannot be refunded once processing begins. Our service fee is refundable within 24 hours if filing has not started. Questions? Contact us via WhatsApp before submitting.',
+    's10-warn-text':isEs?'Los cargos estatales no son reembolsables una vez iniciado el proceso. Nuestra tarifa de servicio es reembolsable dentro de las 24 horas si el tr\\u00e1mite no ha comenzado. \\u00bfPreguntas? Cont\\u00e1ctenos por WhatsApp antes de enviar.':'State fees cannot be refunded once processing begins. Our service fee is refundable within 24 hours if filing has not started. Questions? Contact us via WhatsApp before submitting.',
     // Step 6 - Registered Agent
     's6-sub':isEs?'La ley de Florida exige que toda LLC y Corporaci\\u00f3n designe un Agente Registrado para recibir documentos oficiales en nombre del negocio.':'Florida law requires every LLC and Corporation to designate a Registered Agent to receive official legal and government documents on behalf of your business.',
     's6-b1':isEs?'Recibe demandas, órdenes judiciales y documentos oficiales del estado':'Receives lawsuits, court orders, and official state documents',
     's6-b2':isEs?'Debe tener una dirección física en Florida — no apartados postales':'Must have a physical Florida address — no PO Boxes',
     's6-b3':isEs?'Debe estar disponible en horario laboral normal':'Must be available during normal business hours',
     'ra-us-lbl':isEs?'&#127968; Usar Nuestro Servicio de Agente Registrado':'&#127968; Use Our Registered Agent Service',
-    'ra-us-desc':isEs?'Actuamos como tu Agente Registrado y manejamos todos los documentos oficiales en tu nombre.':'We act as your Registered Agent and handle all official documents on your behalf.',
+    'ra-us-desc':isEs?'Actuamos como su Agente Registrado y manejamos todos los documentos oficiales en su nombre.':'We act as your Registered Agent and handle all official documents on your behalf.',
     'ra-own-lbl':isEs?'Yo Seré Mi Propio Agente':'I Will Be My Own Agent',
-    'ra-own-desc':isEs?'Tu dirección quedará registrada públicamente ante el Estado de Florida y la ley exige que deberas estar presente en esa dirección de lunes a viernes de 9am a 5pm para recibir documentos legales oficiales.':'Your address will be publicly registered with the State of Florida and the law requires you to be present at that address Monday through Friday from 9am to 5pm to receive official legal documents.',
-    's6-info-note':isEs?'La dirección de tu Agente Registrado aparece en los registros de Florida, no la tuya personal. Esto protege tu privacidad.':'Your Registered Agent address appears on Florida public records, not your personal address. This protects your privacy.',
+    'ra-own-desc':isEs?'Su dirección quedará registrada públicamente ante el Estado de Florida y la ley exige que deberá estar presente en esa dirección de lunes a viernes de 9am a 5pm para recibir documentos legales oficiales.':'Your address will be publicly registered with the State of Florida and the law requires you to be present at that address Monday through Friday from 9am to 5pm to receive official legal documents.',
+    's6-info-note':isEs?'La dirección de su Agente Registrado aparece en los registros de Florida, no la suya personal. Esto protege su privacidad.':'Your Registered Agent address appears on Florida public records, not your personal address. This protects your privacy.',
     'lbl-ra-name':isEs?'Nombre Completo *':'Full Name *',
     'lbl-ra-street':isEs?'Dirección en Florida *':'Florida Street Address *',
     // Paso 6 — Procesamiento acelerado
@@ -6223,10 +6223,10 @@ function fmTranslate(lang) {
     's6-exp-lbl':isEs?'&#9889; Procesamiento acelerado':'&#9889; Expedited processing',
     's6-exp-desc':isEs?'1-3 días hábiles':'1-3 business days',
     's6-bullet-1':isEs?'Lo preparamos y presentamos en 1-3 días hábiles':'We prepare and file it in 1-3 business days',
-    's6-bullet-2':isEs?'Ideal si necesitas tu EIN, abrir una cuenta bancaria u operar pronto':'Ideal if you need your EIN, a bank account, or to start operating soon',
+    's6-bullet-2':isEs?'Ideal si necesita su EIN, abrir una cuenta bancaria u operar pronto':'Ideal if you need your EIN, a bank account, or to start operating soon',
     's6-std-lbl':isEs?'No gracias, esperaré el tiempo estándar':"No thanks, I'll wait the standard time",
     's6-std-price':'$0',
-    's6-std-desc':isEs?'7-14 días hábiles para que preparemos y enviemos tu presentación.':'7-14 business days for us to prepare and file it.',
+    's6-std-desc':isEs?'7-14 días hábiles para que preparemos y enviemos su presentación.':'7-14 business days for us to prepare and file it.',
     's6-back':isEs?'Atrás':'Back',
     's6-save':isEs?'Guardar':'Save',
     's6-next':isEs?'Continuar':'Continue',
@@ -6253,33 +6253,33 @@ function fmTranslate(lang) {
     's8-pay-hint':isEs?'Completa el pago a la derecha &#8594;':'Complete payment on the right &#8594;',
     'sum-sec-nofees':isEs?'&#10003; Sin Cargos Ocultos':'&#10003; No Hidden Fees',
     'sum-sec-email':isEs?'&#128196; Recibo por Correo':'&#128196; Receipt by Email',
-    's2-sub':isEs?'Cuéntanos cómo contactarte y dónde estará ubicado tu negocio.':'Tell us how to reach you and where your business will be located.',
+    's2-sub':isEs?'Cuéntenos cómo contactarlo y dónde estará ubicado su negocio.':'Tell us how to reach you and where your business will be located.',
     's2-biz-addr-divider':isEs?'Dirección Física del Negocio':'Physical Business Address',
     's2-biz-addr-info-title':isEs?'¿Qué es la Dirección Física del Negocio?':'What is the Physical Business Address?',
-    's2-biz-addr-info-text':isEs?'Esta es la dirección oficial de tu LLC o Corporación presentada ante el Estado de Florida. Puede estar en cualquier parte del mundo.':'This is the official address of your LLC or Corporation filed with the State of Florida. It can be located anywhere in the world.',
+    's2-biz-addr-info-text':isEs?'Esta es la dirección oficial de su LLC o Corporación presentada ante el Estado de Florida. Puede estar en cualquier parte del mundo.':'This is the official address of your LLC or Corporation filed with the State of Florida. It can be located anywhere in the world.',
     'biz-virtual-lbl':isEs?'Usar Dirección Virtual':'Use Virtual Address',
-    'biz-virtual-desc':isEs?'Te asignamos una dirección profesional en Florida. Tu dirección personal se mantiene completamente privada.':'We assign you a professional Florida address. Your personal address stays completely private.',
+    'biz-virtual-desc':isEs?'Le asignamos una dirección profesional en Florida. Su dirección personal se mantiene completamente privada.':'We assign you a professional Florida address. Your personal address stays completely private.',
     'biz-own-lbl':isEs?'Usaré mi propia dirección':'I will use my own address',
-    'biz-own-desc':isEs?'Tu dirección quedará en el registro público de Florida. Si prefieres mantener tu privacidad, nuestra dirección virtual protege tus datos personales.':'Your address will be on the Florida public record. If you prefer privacy, our virtual address keeps your personal information protected.',
-    'biz-virtual-confirm-title':isEs?'Todo listo — no necesitamos tu dirección.':'You are all set &mdash; no address needed from you.',
-    'biz-virtual-confirm-text':isEs?'Una vez confirmada tu orden, te asignaremos tu dirección virtual y la enviaremos a tu correo. Tu negocio tendrá una dirección profesional desde el primer día.':'Once your order is confirmed, we will assign your Florida virtual address and deliver it to your email. Your business will have a professional address from day one.',
+    'biz-own-desc':isEs?'Su dirección quedará en el registro público de Florida. Si prefiere mantener su privacidad, nuestra dirección virtual protege sus datos personales.':'Your address will be on the Florida public record. If you prefer privacy, our virtual address keeps your personal information protected.',
+    'biz-virtual-confirm-title':isEs?'Todo listo — no necesitamos su dirección.':'You are all set &mdash; no address needed from you.',
+    'biz-virtual-confirm-text':isEs?'Una vez confirmada su orden, le asignaremos su dirección virtual y la enviaremos a su correo. Su negocio tendrá una dirección profesional desde el primer día.':'Once your order is confirmed, we will assign your Florida virtual address and deliver it to your email. Your business will have a professional address from day one.',
     'biz-virtual-badge':isEs?'1er Mes GRATIS':'1st Month FREE',
     's3-agent-info-title':isEs?'¿Qué es un Agente Registrado?':'What is a Registered Agent?',
-    's3-agent-info-text':isEs?'El Agente Registrado es la persona o entidad designada ante el Estado de Florida para recibir documentos legales oficiales en nombre de tu negocio.':'The Registered Agent is the person or entity designated with the State of Florida to receive official legal documents on behalf of your business.',
+    's3-agent-info-text':isEs?'El Agente Registrado es la persona o entidad designada ante el Estado de Florida para recibir documentos legales oficiales en nombre de su negocio.':'The Registered Agent is the person or entity designated with the State of Florida to receive official legal documents on behalf of your business.',
     'agent-ours-lbl':isEs?'Usar Nuestro Servicio de Agente Registrado':'Use Our Registered Agent Service',
-    'agent-ours-desc':isEs?'Actuamos como tu Agente Registrado oficial. Tu dirección personal se mantiene completamente privada.':'We act as your official Registered Agent. Your personal address stays completely private.',
+    'agent-ours-desc':isEs?'Actuamos como su Agente Registrado oficial. Su dirección personal se mantiene completamente privada.':'We act as your official Registered Agent. Your personal address stays completely private.',
     'agent-own-lbl':isEs?'Seré mi propio Agente Registrado':'I will be my own Registered Agent',
-    'agent-own-desc':isEs?'Tu dirección quedará registrada públicamente ante el Estado de Florida y la ley exige que deberas estar presente en esa dirección de lunes a viernes de 9am a 5pm para recibir documentos legales oficiales.':'Your address will be publicly registered with the State of Florida and the law requires you to be present at that address Monday through Friday from 9am to 5pm to receive official legal documents.',
-    'agent-ours-note-text':isEs?'Actuaremos como tu Agente Registrado y recibiremos todos los documentos en tu nombre. Tu dirección personal no aparecerá en ningún registro público. Tu primer año es gratis; después se renueva automáticamente a $99/año hasta que lo canceles.':'We will act as your Registered Agent and receive all official documents. Your personal address will not appear on any public record. Your first year is free; after that it renews automatically at $99/year until you cancel.',
+    'agent-own-desc':isEs?'Su dirección quedará registrada públicamente ante el Estado de Florida y la ley exige que deberá estar presente en esa dirección de lunes a viernes de 9am a 5pm para recibir documentos legales oficiales.':'Your address will be publicly registered with the State of Florida and the law requires you to be present at that address Monday through Friday from 9am to 5pm to receive official legal documents.',
+    'agent-ours-note-text':isEs?'Actuaremos como su Agente Registrado y recibiremos todos los documentos en su nombre. Su dirección personal no aparecerá en ningún registro público. Su primer año es gratis; después se renueva automáticamente a $99/año hasta que lo cancele.':'We will act as your Registered Agent and receive all official documents. Your personal address will not appear on any public record. Your first year is free; after that it renews automatically at $99/year until you cancel.',
     'ra-same-biz-lbl':isEs?'Usar misma dirección que Dirección Física del Negocio':'Use same as Physical Business Address',
-    'agent-own-warn-text':isEs?'La dirección de tu Agente Registrado aparecerá en el registro público. Debe ser una dirección física en Florida.':'Your Registered Agent address will appear on the public record. It must be a physical Florida address, no PO Boxes.',
+    'agent-own-warn-text':isEs?'La dirección de su Agente Registrado aparecerá en el registro público. Debe ser una dirección física en Florida.':'Your Registered Agent address will appear on the public record. It must be a physical Florida address, no PO Boxes.',
     's3-mail-divider':isEs?'Dirección Postal de la LLC':'LLC Mailing Address',
-    's3-mail-opt':isEs?'(Opcional — separada de tu dirección de Agente Registrado)':'(Optional — separate from your Registered Agent address)',
+    's3-mail-opt':isEs?'(Opcional — separada de su dirección de Agente Registrado)':'(Optional — separate from your Registered Agent address)',
     's3-mail-info-sub':isEs?'<span style=\\"display:block\\"><strong style=\\"color:#374151\\">Dirección del Agente Registrado</strong> recibe <em>documentos legales y críticos</em> — demandas, órdenes judiciales, citaciones. Debe ser física en Florida.</span><span style=\\"display:block;margin-top:4px\\"><strong style=\\"color:#374151\\">Dirección Postal</strong> recibe <em>correspondencia general</em> — recordatorios del Reporte Anual, confirmaciones de trámites, avisos del Estado. <strong>Se acepta PO Box. Puede ser cualquier dirección del mundo.</strong></span>':'<span style=\\"display:block\\"><strong style=\\"color:#374151\\">Registered Agent address</strong> receives <em>legal &amp; critical documents</em> — lawsuits, court orders, government summons. Must be a physical Florida address.</span><span style=\\"display:block;margin-top:4px\\"><strong style=\\"color:#374151\\">Mailing Address</strong> receives <em>general correspondence</em> — Annual Report reminders, filing confirmations, state notices. <strong>A PO Box is accepted. Any address worldwide is valid.</strong></span>',
     'lbl-same-mail':isEs?(fmData.bizAddrType==='virtual'?'Igual que la dirección de arriba (dirección del agente)':'Igual que la dirección del negocio'):(fmData.bizAddrType==='virtual'?'Same as above (agent address)':'Same as business address'),
     's4-skip-lbl':isEs?'No gracias, me quedo con mi paquete actual':'No thanks, keep my current package',
     'exp-upsell-title':isEs?'Un Último Detalle Antes de Pagar':'One Last Thing Before You Pay',
-    'exp-upsell-sub':isEs?'Tu formación está en buenas manos.':'Your formation is in good hands. Want to make it official faster?',
+    'exp-upsell-sub':isEs?'Su formación está en buenas manos.':'Your formation is in good hands. Want to make it official faster?',
     'rev-std-lbl':isEs?'Procesamiento Estándar':'Standard Processing',
     'rev-std-days':isEs?'7-14 días hábiles':'7-14 business days',
     'rev-exp-lbl':isEs?'Procesamiento Prioritario':'Expedited Processing',
@@ -6294,7 +6294,7 @@ function fmTranslate(lang) {
     'lbl-ra-city':isEs?'Ciudad *':'City *',
     'lbl-ra-zip':isEs?'ZIP *':'ZIP *',
     'lbl-region':isEs?'Estado / Región *':'State / Region *',
-    'suc-title':isEs?'Tu Aplicación Está Confirmada':'Your Application Is Confirmed!',
+    'suc-title':isEs?'Su Aplicación Está Confirmada':'Your Application Is Confirmed!',
     'suc-wa-lbl':isEs?'Consulta por WhatsApp':'WhatsApp Consultation',
     'suc-home-lbl':isEs?'Volver al Inicio':'Return to Homepage',
     's5-title':isEs?'Propietarios y Miembros del Negocio':'Business Owners & Members',
@@ -6325,7 +6325,7 @@ function fmTranslate(lang) {
     's5-own-total-lbl':isEs?'Propiedad Total':'Total Ownership',
     's5-m1-addr-virtual-text':isEs?'Usar la dirección virtual asignada por OpaBiz':'Use the assigned company address provided by OpaBiz',
     's5-add-lbl':isEs?'Agregar Otro Miembro / Propietario':'Add Another Member / Owner',
-    's2-title':isEs?'Tu Información':'Your Information',
+    's2-title':isEs?'Su Información':'Your Information',
   };
   Object.keys(tm).forEach(function(id){var e=document.getElementById(id);if(e)e.innerHTML=tm[id];});
   var llcLbl=document.getElementById('s1-llc-lbl');if(llcLbl)llcLbl.innerHTML=isEs?'&#127963; LLC - Sociedad de Responsabilidad Limitada':'&#127963; LLC - Limited Liability Company';
@@ -6343,7 +6343,7 @@ function fmTranslate(lang) {
   document.querySelectorAll('[id$="-back"]').forEach(function(e){e.textContent=isEs?'Volver':'Back';});
   document.querySelectorAll('[id$="-next"]').forEach(function(e){e.textContent=isEs?'Continuar':'Continue';});
   document.querySelectorAll('.fm-review-edit').forEach(function(e){e.textContent=isEs?'Editar':'Edit';});
-  document.querySelectorAll('.fm-sum-title').forEach(function(e){e.textContent=isEs?'Tu Orden':'Your Order';});
+  document.querySelectorAll('.fm-sum-title').forEach(function(e){e.textContent=isEs?'Su Orden':'Your Order';});
   var t = fmTranslations[lang] || fmTranslations.en;
   var isEs = lang === 'es';
   var el;
@@ -6410,11 +6410,11 @@ function fmTranslate(lang) {
     'addon-btr-name':  isEs?'Licencia Comercial Local (BTR)':'Local Business Tax Receipt (BTR)',
     'addon-btr-desc':  isEs?'Requerido por la mayoría de condados de FL para operar legalmente':'Required by most FL counties to operate legally',
     'addon-str-name':  isEs?'Registro de Impuesto sobre Ventas':'Sales Tax Registration',
-    'addon-str-desc':  isEs?'Requerido si tu negocio vende bienes o servicios gravables en FL':'Required if your business sells taxable goods or services in FL',
+    'addon-str-desc':  isEs?'Requerido si su negocio vende bienes o servicios gravables en FL':'Required if your business sells taxable goods or services in FL',
     'addon-cc-name':   isEs?'Copia Certificada de Art\u00edculos de Organizaci\u00f3n / Incorporaci\u00f3n':'Certified Copy of Articles of Organization / Incorporation',
-    'addon-cc-desc':   isEs?'Copia oficial certificada por el estado de tu documento de formaci\u00f3n &middot; + tarifa estatal':'Official state-certified copy of your formation document &middot; + state fee',
+    'addon-cc-desc':   isEs?'Copia oficial certificada por el estado de su documento de formaci\u00f3n &middot; + tarifa estatal':'Official state-certified copy of your formation document &middot; + state fee',
     'addon-ar-name':   isEs?'Servicio de Declaración Anual':'Annual Report Filing Service',
-    'addon-ar-desc':   isEs?'Presentamos tu Declaración Anual de FL cada año (fecha límite 1 de mayo). Se renueva automáticamente cada año hasta que la canceles.':'We file your FL Annual Report each year (deadline May 1st). Renews automatically each year until you cancel.',
+    'addon-ar-desc':   isEs?'Presentamos su Declaración Anual de FL cada año (fecha límite 1 de mayo). Se renueva automáticamente cada año hasta que la canceles.':'We file your FL Annual Report each year (deadline May 1st). Renews automatically each year until you cancel.',
     // Addons nuevos 2026-06-26 (seccion expandible "Ver todos los servicios")
     'addon-dba-name':  isEs?'DBA / Nombre Ficticio':'DBA / Fictitious Name',
     'addon-dba-desc':  isEs?'Operar o vender bajo un nombre comercial distinto al legal':'Operate or brand under a different name from your legal entity',
@@ -6423,18 +6423,18 @@ function fmTranslate(lang) {
     'addon-gd-name':   isEs?'Guía Exclusiva de Formación':'Exclusive Formation Guide',
     'addon-gd-desc':   isEs?'Guía bilingüe post-formación para mantener el negocio en regla':'Bilingual post-formation guide to keep your business compliant',
     'addon-gs-name':   isEs?'Certificate of Good Standing':'Certificate of Good Standing',
-    'addon-gs-desc':   isEs?'Prueba oficial de que tu empresa FL está activa y al día':'Official proof your FL business is active &amp; compliant',
+    'addon-gs-desc':   isEs?'Prueba oficial de que su empresa FL está activa y al día':'Official proof your FL business is active &amp; compliant',
     'addon-sc-name':   isEs?'Elección S-Corp (Formulario 2553)':'S-Corp Election (Form 2553)',
     'addon-sc-desc':   isEs?'Elección IRS para tributación pass-through (puede reducir self-employment tax)':'IRS election for pass-through taxation (can reduce self-employment tax)',
     'addon-bl-name':   isEs?'Investigación y Trámite de Licencias':'Business License Research &amp; Filing',
-    'addon-bl-desc':   isEs?'Identificamos y tramitamos licencias federales/estatales/locales que tu negocio necesita':'We identify &amp; file federal/state/local licenses your business needs',
+    'addon-bl-desc':   isEs?'Identificamos y tramitamos licencias federales/estatales/locales que su negocio necesita':'We identify &amp; file federal/state/local licenses your business needs',
   };
   Object.keys(addonMap).forEach(function(id){
     var e = document.getElementById(id);
     if(e) e.textContent = addonMap[id];
   });
   var vmaEN=['Keep your address off public records','Real FL address for your business','Meets state mail requirements','Mail scans with instant alerts','FIRST MONTH FREE','Virtual Address','Use Virtual Address','1st month free then $29/month','Use my own address','Your address will be on public record'];
-  var vmaES=['Tu direcci\\u00f3n no aparece en registros','Direcci\\u00f3n real en Florida','Cumple requisitos del estado','Esc\\u00e1neos con alertas','PRIMER MES GRATIS','Direcci\\u00f3n Virtual','Usar Direcci\\u00f3n Virtual','1er mes gratis luego $29/mes','Usar mi propia direcci\\u00f3n','Tu direcci\\u00f3n en registros p\\u00fablicos'];
+  var vmaES=['Su direcci\\u00f3n no aparece en registros','Direcci\\u00f3n real en Florida','Cumple requisitos del estado','Esc\\u00e1neos con alertas','PRIMER MES GRATIS','Direcci\\u00f3n Virtual','Usar Direcci\\u00f3n Virtual','1er mes gratis luego $29/mes','Usar mi propia direcci\\u00f3n','Su direcci\\u00f3n en registros p\\u00fablicos'];
   ['vma-f1','vma-f2','vma-f3','vma-f4','s4-vma-badge','s4-vma-title','vma-yes-lbl','vma-yes-desc','vma-no-lbl','vma-no-desc'].forEach(function(id,i){var e=document.getElementById(id);if(e)e.innerHTML=isEs?vmaES[i]:vmaEN[i];});}
 
 
@@ -6782,7 +6782,7 @@ function fmShowOaFields(show) {
     r += '<div style="background:' + (ownMissing ? '#fef9c3' : '#f0fdf4') + ';border:1.5px solid ' + (ownMissing ? '#fde68a' : '#bbf7d0') + ';border-radius:8px;padding:10px 12px">';
     r += '<div style="font-size:.73rem;font-weight:700;color:' + (ownMissing ? '#92400e' : '#166534') + ';margin-bottom:6px">';
     r += ownMissing
-      ? (isEs ? '⚠ % de Propiedad — requerido para tu Acuerdo Operativo' : '⚠ Ownership % — required for your Operating Agreement')
+      ? (isEs ? '⚠ % de Propiedad — requerido para su Acuerdo Operativo' : '⚠ Ownership % — required for your Operating Agreement')
       : (isEs ? '✓ % de Propiedad' : '✓ Ownership %');
     r += '</div>';
     r += '<div style="display:flex;align-items:center;gap:10px">';
@@ -6953,7 +6953,7 @@ function claudiaPrefill(d){
     banner.style.cssText='position:fixed;top:0;left:0;right:0;z-index:2000;background:#2563EB;color:#fff;text-align:center;padding:10px 20px;font-size:.84rem;font-weight:600;font-family:inherit;';
     var lang=localStorage.getItem('flbc_lang');
     banner.textContent=lang==='es'
-      ?'✓ Claudia pre-llenó tu formulario. Revisa cada paso, confirma y paga.'
+      ?'✓ Claudia pre-llenó su formulario. Revise cada paso, confirme y pague.'
       :'✓ Claudia pre-filled your form. Review each step, confirm and pay.';
     document.body.prepend(banner);
     setTimeout(function(){if(banner.parentNode)banner.parentNode.removeChild(banner);},7000);
@@ -6985,7 +6985,7 @@ function closePortalLogin(){
   // Vuelve al form de Login para la próxima vez que se abra el popover.
   var sf=document.getElementById('plogin-signup-form'); if(sf) sf.style.display='none';
   var lf=document.getElementById('plogin-form'); if(lf) lf.style.display='';
-  var ti=document.getElementById('plogin-title'); if(ti) ti.textContent = currentLang==='es' ? 'Accede a tu cuenta' : 'Access your account';
+  var ti=document.getElementById('plogin-title'); if(ti) ti.textContent = currentLang==='es' ? 'Acceda a su cuenta' : 'Access your account';
 }
 function portalLoginError(msg){
   var el=document.getElementById('plogin-error');
@@ -7034,7 +7034,7 @@ function ploginShowSignup(e){
   var isEs = currentLang==='es';
   document.getElementById('plogin-form').style.display='none';
   document.getElementById('plogin-signup-form').style.display='';
-  document.getElementById('plogin-title').textContent = isEs ? 'Crea tu cuenta' : 'Create your account';
+  document.getElementById('plogin-title').textContent = isEs ? 'Cree su cuenta' : 'Create your account';
   var em=document.getElementById('plogin-signup-name'); if(em) setTimeout(function(){em.focus();},50);
 }
 function ploginShowLogin(e){
@@ -7043,7 +7043,7 @@ function ploginShowLogin(e){
   var isEs = currentLang==='es';
   document.getElementById('plogin-signup-form').style.display='none';
   document.getElementById('plogin-form').style.display='';
-  document.getElementById('plogin-title').textContent = isEs ? 'Accede a tu cuenta' : 'Access your account';
+  document.getElementById('plogin-title').textContent = isEs ? 'Acceda a su cuenta' : 'Access your account';
   var em=document.getElementById('plogin-acct'); if(em) setTimeout(function(){em.focus();},50);
 }
 function portalSignupSubmit(e){
@@ -7189,7 +7189,7 @@ function fmLobPopupShow(opts) {
     var closeBtn = document.getElementById('lob-popup-close');
     var titleEl = document.getElementById('lob-popup-title');
     var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
-    if (titleEl) titleEl.textContent = isEs?'Confirma tu direccion':'Confirm your address';
+    if (titleEl) titleEl.textContent = isEs?'Confirme su direccion':'Confirm your address';
     if (useEnteredBtn) useEnteredBtn.textContent = isEs?'Usar la mia':'Use Entered';
     if (enteredLbl) enteredLbl.textContent = opts.enteredLabel || (isEs?'Direccion ingresada':'Entered Address');
     if (enteredVal) enteredVal.innerHTML = (opts.enteredLines||[]).map(function(l){return String(l).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}).join('<br>');
@@ -7199,7 +7199,7 @@ function fmLobPopupShow(opts) {
       var nft = document.getElementById('lob-popup-notfound-title');
       var nfs = document.getElementById('lob-popup-notfound-sub');
       if (nft) nft.textContent = isEs?'Direccion sugerida no encontrada':'Suggested address not found';
-      if (nfs) nfs.textContent = isEs?'Por favor verifica y confirma tu direccion.':'Please verify and confirm your address.';
+      if (nfs) nfs.textContent = isEs?'Por favor verifique y confirme su direccion.':'Please verify and confirm your address.';
       if (primaryBtn) {
         primaryBtn.textContent = isEs?'Re-ingresar direccion':'Re-enter Address';
         primaryBtn.onclick = function(){ var r=_lobPopupResolver; _lobPopupResolver=null; document.getElementById('lob-popup-backdrop').classList.remove('open'); if(r) r({action:'re-enter'}); };

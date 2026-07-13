@@ -34,8 +34,8 @@ export const FORMATION_ADDON_NAMES: Record<string, { en: string; es: string }> =
   br:   { en: 'Banking Resolution', es: 'Resolución Bancaria' },
   gd:   { en: 'Exclusive Formation Guide', es: 'Guía Exclusiva de Formación' },
   gs:   { en: 'Certificate of Good Standing', es: 'Certificado de Buena Reputación' },
-  sc:   { en: 'S-Corp Election', es: 'Elección de S-Corp' },
-  bl:   { en: 'Business License', es: 'Licencia de Negocios' },
+  sc:   { en: 'S-Corp Election (Form 2553)', es: 'Elección de S-Corp (Formulario 2553)' },
+  bl:   { en: 'Business License Research & Filing', es: 'Investigación y Presentación de Licencias de Negocio' },
 }
 
 // Servicios ofrecidos en el flujo de marketing /new-business (ver

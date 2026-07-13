@@ -1,26 +1,10 @@
 import { Resend } from 'resend'
 import { getOrderItemKeys, getOrderItemLabel } from './order-items'
 import { computeFormationTotal, withBasicDisplayLine } from './pricing'
+import { REPLY_TO, INTERNAL_ALERT_EMAIL as INTERNAL_EMAIL, FROM_OPABIZ, FROM_OPABIZ_SUPPORT, FROM_OPABIZ_ALERTS } from './email-constants'
 
 // Lazy init: se crea al primer uso, cuando dotenv ya cargó el .env
 const getResend = () => new Resend(process.env.RESEND_API_KEY)
-
-// FROM / Reply-To / alertas internas centralizados en env vars (Vercel).
-// Fallback al sandbox de Resend / Gmail viejo para que en dev local sin .env el
-// código no rompa — el deploy productivo siempre debe tener las 4 seteadas.
-const FROM_EMAIL    = process.env.RESEND_FROM_TRANSACTIONAL || 'onboarding@resend.dev'
-const FROM_SUPPORT  = process.env.RESEND_FROM_SUPPORT       || 'support@opabiz.com'
-const REPLY_TO      = process.env.RESEND_REPLY_TO            || 'info@opabiz.com'
-const INTERNAL_EMAIL = process.env.INTERNAL_ALERT_EMAIL       || 'aneurysoto@gmail.com'
-
-// Display Name en el campo "From" — lo que el cliente ve en su inbox.
-// Sin esto el cliente solo ve "noreply" como remitente y no sabe que es de OpaBiz.
-//   FROM_OPABIZ        → emails informativos (confirmación, certificate, etc.)
-//   FROM_OPABIZ_SUPPORT → emails que REQUIEREN respuesta del cliente (nombres tomados, sugerencias)
-//   FROM_OPABIZ_ALERTS  → alertas internas que solo lee el admin
-const FROM_OPABIZ         = `OpaBiz <${FROM_EMAIL}>`
-const FROM_OPABIZ_SUPPORT = `OpaBiz Support <${FROM_SUPPORT}>`
-const FROM_OPABIZ_ALERTS  = `OpaBiz Alerts <${FROM_EMAIL}>`
 // El login real vive en el home (popover), no en /client-portal (ver
 // CLAUDE.md "Login del cliente en el home") — los botones "Track My Order"
 // deben mandar aquí, igual que en webhooks/stripe/route.ts.

@@ -4,11 +4,9 @@ import { Resend } from 'resend'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { ClientSignupInputSchema, parseOr400 } from '@/lib/schemas'
 import { checkClientAuthRateLimit, getClientIp } from '@/lib/rate-limit'
+import { REPLY_TO, FROM_OPABIZ } from '@/lib/email-constants'
 
 const getResend = () => new Resend(process.env.RESEND_API_KEY)
-const FROM_EMAIL = process.env.RESEND_FROM_TRANSACTIONAL || 'onboarding@resend.dev'
-const REPLY_TO   = process.env.RESEND_REPLY_TO || 'info@opabiz.com'
-const FROM_OPABIZ = `OpaBiz <${FROM_EMAIL}>`
 const SITE_URL = process.env.NEXT_PUBLIC_URL || 'https://opabiz.com'
 
 function setSession(orderId: string) {

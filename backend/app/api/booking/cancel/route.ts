@@ -1,16 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { Resend } from 'resend'
+import { REPLY_TO, FROM_OPABIZ } from '@/lib/email-constants'
 
 export const dynamic = 'force-dynamic'
 
 const getResend = () => new Resend(process.env.RESEND_API_KEY)
-
-// Mismo patrón de FROM/Reply-To que app/api/booking/route.ts — antes se
-// mandaba desde 'onboarding@resend.dev' (sandbox de Resend).
-const FROM_EMAIL = process.env.RESEND_FROM_TRANSACTIONAL || 'onboarding@resend.dev'
-const REPLY_TO   = process.env.RESEND_REPLY_TO || 'info@opabiz.com'
-const FROM_OPABIZ = `OpaBiz <${FROM_EMAIL}>`
 
 const emailHeader = `
   <div style="padding:22px 32px;border-bottom:1px solid #e2e8f0">

@@ -6,16 +6,13 @@ import { nameCheckHtmlLine, NameCheckResult } from '@/lib/sunbiz-namecheck'
 import { SERVICES_CATALOG, SERVICE_BUNDLES } from '@/lib/services-pricing'
 import { PACKAGE_SERVICES } from '@/lib/notifications'
 import { computeFormationTotal, withBasicDisplayLine } from '@/lib/pricing'
+import { getOrderItemLabel } from '@/lib/order-items'
+import { REPLY_TO, INTERNAL_ALERT_EMAIL as ADMIN_EMAIL, FROM_OPABIZ, FROM_OPABIZ_ALERTS } from '@/lib/email-constants'
 
 export const dynamic = 'force-dynamic'
 
 const getStripe = () => new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2026-02-25.clover' })
 const getResend = () => new Resend(process.env.RESEND_API_KEY)
-// Webhook envía 2 emails: confirmación al cliente + alerta interna al admin.
-// FROM y Reply-To centralizados en env vars (mismo patrón que lib/notifications.ts).
-// ADMIN_EMAIL ahora va al buzón admin@opabiz.com de Zoho (configurable).
-const FROM          = process.env.RESEND_FROM_TRANSACTIONAL || 'onboarding@resend.dev'
-const REPLY_TO      = process.env.RESEND_REPLY_TO || 'info@opabiz.com'
 const PORTAL        = 'https://opabiz.com/client-portal'
 // El login real hoy vive en el home (popover), no en /client-portal (ver
 // CLAUDE.md "Login del cliente en el home") — los links "Track My Order"
@@ -24,10 +21,6 @@ const PORTAL        = 'https://opabiz.com/client-portal'
 // fmCheckResumeParam en page.tsx) — antes "Track My Order" dejaba al cliente
 // en el landing teniendo que encontrar el botón "Login" de nuevo.
 const PORTAL_HOME   = 'https://opabiz.com/?login=1'
-const ADMIN_EMAIL   = process.env.INTERNAL_ALERT_EMAIL || 'aneurysoto@gmail.com'
-// Display Names: "OpaBiz" para el cliente, "OpaBiz Alerts" para alertas internas.
-const FROM_OPABIZ        = `OpaBiz <${FROM}>`
-const FROM_OPABIZ_ALERTS = `OpaBiz Alerts <${FROM}>`
 
 export async function POST(req: NextRequest) {
   const body      = await req.text()
@@ -163,15 +156,9 @@ export async function POST(req: NextRequest) {
 
   // Send confirmation email
   const isEs = lang === 'es'
-  const serviceLabels: Record<string, { en: string; es: string }> = {
-    labor_law_poster:      { en: 'Labor Law Poster 2026',      es: 'Póster de Leyes Laborales 2026' },
-    ein:                   { en: 'EIN / Tax ID Number',         es: 'EIN / Número de Identificación Fiscal' },
-    certificate_of_status: { en: 'Certificate of Status (FL)', es: 'Certificado de Estado (FL)' },
-    bundle:                { en: 'Business Essentials Bundle',  es: 'Bundle Esencial de Negocios' },
-  }
 
   const servicesHtml = selectedServices
-    .map(s => `<li style="margin:4px 0">${serviceLabels[s]?.[lang] ?? s}</li>`)
+    .map(s => `<li style="margin:4px 0">${getOrderItemLabel(`mkt:${s}`, { lang })}</li>`)
     .join('')
 
   await getResend().emails.send({
@@ -333,21 +320,34 @@ async function handleFormationPaid(orderId: string, session: Stripe.Checkout.Ses
   const packageKey = (order.package ?? '').toLowerCase().trim()
   const packageItems = PACKAGE_SERVICES[packageKey] ?? []
   const formationAddons = (order.addons ?? {}) as Record<string, boolean>
-  const { lines: rawFormationLines } = computeFormationTotal({
-    package: order.package, entityType: order.entityType, speed: order.speed, addons: formationAddons,
-  })
-  const formationLines = withBasicDisplayLine(order.package, rawFormationLines)
-  const packageInclHtml = packageItems.map(i => `<div>${i.en}</div>`).join('')
-  const formationRowsHtml = formationLines
-    .map(l => {
-      const priceRow = `<tr><td style="padding:5px 0;font-size:14px;color:#475569">${l.label}</td><td style="padding:5px 0;font-size:14px;color:#1e293b;font-weight:600;text-align:right;white-space:nowrap">${l.amount < 0 ? '-$' + Math.abs(l.amount) : '$' + l.amount}</td></tr>`
-      const isPackageRow = l.label.endsWith('Formation Package')
-      const inclRow = isPackageRow && packageInclHtml
-        ? `<tr><td colspan="2" style="padding:0 0 8px;font-size:12.5px;color:#64748b;line-height:1.6">${packageInclHtml}</td></tr>`
-        : ''
-      return priceRow + inclRow
+
+  // computeFormationTotal ahora lanza si `package` no es basic/standard/premium
+  // (antes caía en silencio a 'standard' — ver lib/pricing.ts). El pago y el
+  // marcado paid+in_review de arriba YA se hicieron, así que si esto falla por
+  // una orden con datos corruptos, no debe tumbar el webhook entero (Stripe
+  // reintentaría sin efecto, ver guard de duplicate arriba) — solo se salta el
+  // email de confirmación (mismo criterio que nameCheckHtmlLine más arriba).
+  let formationRowsHtml = ''
+  try {
+    const { lines: rawFormationLines } = computeFormationTotal({
+      package: order.package, entityType: order.entityType, speed: order.speed, addons: formationAddons,
     })
-    .join('')
+    const formationLines = withBasicDisplayLine(order.package, rawFormationLines)
+    const packageInclHtml = packageItems.map(i => `<div>${i.en}</div>`).join('')
+    formationRowsHtml = formationLines
+      .map(l => {
+        const priceRow = `<tr><td style="padding:5px 0;font-size:14px;color:#475569">${l.label}</td><td style="padding:5px 0;font-size:14px;color:#1e293b;font-weight:600;text-align:right;white-space:nowrap">${l.amount < 0 ? '-$' + Math.abs(l.amount) : '$' + l.amount}</td></tr>`
+        const isPackageRow = l.label.endsWith('Formation Package')
+        const inclRow = isPackageRow && packageInclHtml
+          ? `<tr><td colspan="2" style="padding:0 0 8px;font-size:12.5px;color:#64748b;line-height:1.6">${packageInclHtml}</td></tr>`
+          : ''
+        return priceRow + inclRow
+      })
+      .join('')
+  } catch (e) {
+    console.error('[stripe-webhook] computeFormationTotal error (order paid, email skipped):', orderId, e)
+    return NextResponse.json({ received: true, orderId, fbfc, warning: 'pricing_error_email_skipped' })
+  }
 
   getResend().emails.send({
     from: FROM_OPABIZ,

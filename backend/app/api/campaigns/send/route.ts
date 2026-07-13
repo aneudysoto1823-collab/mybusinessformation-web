@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { verifyAdminToken } from '@/lib/session'
+import { REPLY_TO, FROM_OPABIZ_MARKETING as FROM_OPABIZ } from '@/lib/email-constants'
 
 async function verifyAdmin(request: NextRequest): Promise<boolean> {
   const session = request.cookies.get('admin_session')
@@ -10,13 +11,6 @@ async function verifyAdmin(request: NextRequest): Promise<boolean> {
 }
 
 const getResend = () => new Resend(process.env.RESEND_API_KEY)
-// Marketing FROM separado del transaccional (best practice: si una campaña
-// recibe spam complaints, no afecta la reputación de los emails de órdenes).
-// Reply-To apunta a info@ para que las respuestas lleguen a un buzón leído.
-const FROM_EMAIL = process.env.RESEND_FROM_MARKETING || 'marketing@opabiz.com'
-const REPLY_TO   = process.env.RESEND_REPLY_TO || 'info@opabiz.com'
-// Display Name "OpaBiz" en el inbox del lead — sin esto solo se ve "marketing".
-const FROM_OPABIZ = `OpaBiz <${FROM_EMAIL}>`
 const BASE_URL   = 'https://opabiz.com'
 
 // ─── Email template (basado en la carta de cumplimiento) ─────────────────────

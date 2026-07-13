@@ -1,20 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdminToken } from '@/lib/session'
 import { getSupabaseAdmin } from '@/lib/supabase'
+import { insertIncomeWithInvoiceNumber } from '@/lib/invoice-number'
 
 async function verifyAdmin(req: NextRequest): Promise<boolean> {
   const session = req.cookies.get('admin_session')
   if (!session?.value) return false
   return verifyAdminToken(session.value)
-}
-
-async function generateInvoiceNumber(): Promise<string> {
-  const year = new Date().getFullYear()
-  const { count } = await getSupabaseAdmin()
-    .from('accounting_income')
-    .select('*', { count: 'exact', head: true })
-  const n = ((count ?? 0) + 1).toString().padStart(3, '0')
-  return `INV-${year}-${n}`
 }
 
 export async function GET(request: NextRequest) {
@@ -52,25 +44,19 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'service_type, amount y payment_method son requeridos' }, { status: 400 })
   }
 
-  const invoice_number = await generateInvoiceNumber()
-
-  const { data, error } = await getSupabaseAdmin()
-    .from('accounting_income')
-    .insert({
-      client_id: client_id || null,
-      order_id: order_id || null,
-      invoice_number,
-      invoice_date: invoice_date || new Date().toISOString().split('T')[0],
-      service_type,
-      description: description || null,
-      amount: parseFloat(amount),
-      payment_method,
-      payment_status,
-      amount_paid: parseFloat(amount_paid),
-      notes: notes || null,
-    })
-    .select()
-    .single()
+  const { data, error } = await insertIncomeWithInvoiceNumber(getSupabaseAdmin(), invoice_number => ({
+    client_id: client_id || null,
+    order_id: order_id || null,
+    invoice_number,
+    invoice_date: invoice_date || new Date().toISOString().split('T')[0],
+    service_type,
+    description: description || null,
+    amount: parseFloat(amount),
+    payment_method,
+    payment_status,
+    amount_paid: parseFloat(amount_paid),
+    notes: notes || null,
+  }))
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ income: data }, { status: 201 })

@@ -9,6 +9,8 @@
 // Si cambian los precios del formulario, actualizar también estas constantes.
 // ─────────────────────────────────────────────────────────────────────────────
 
+import { FORMATION_ADDON_NAMES } from './order-items'
+
 export type EntityType = 'llc' | 'corp'
 export type Speed = 'standard' | 'expedited'
 export type PackageId = 'basic' | 'standard' | 'premium'
@@ -34,20 +36,12 @@ export type AddonKey = keyof typeof ADDON_PRICES
 export const EXPEDITED_FEE = 79
 export const STATE_FEE: Record<EntityType, number> = { llc: 125, corp: 70 }
 
-const ADDON_LABELS: Record<AddonKey, string> = {
-  ein:  'EIN / Tax ID Number',
-  oa:   'Operating Agreement',
-  itin: 'ITIN Application',
-  btr:  'Local Business Tax Receipt',
-  str:  'Sales Tax Registration',
-  cc:   'Certified Copy',
-  dba:  'DBA / Fictitious Name',
-  br:   'Banking Resolution',
-  gd:   'Exclusive Formation Guide',
-  gs:   'Certificate of Good Standing',
-  sc:   'S-Corp Election (Form 2553)',
-  bl:   'Business License Research & Filing',
-}
+// Etiquetas EN — derivadas de FORMATION_ADDON_NAMES (lib/order-items.ts), única
+// fuente de verdad bilingüe. Antes se duplicaban acá y quedaron desincronizadas
+// (ver auditoría 2026-07-12, hallazgo #1).
+const ADDON_LABELS: Record<AddonKey, string> = Object.fromEntries(
+  (Object.keys(ADDON_PRICES) as AddonKey[]).map(key => [key, FORMATION_ADDON_NAMES[key].en])
+) as Record<AddonKey, string>
 
 const PACKAGE_LABELS: Record<PackageId, string> = {
   basic:    'Basic Formation Package',
@@ -82,9 +76,13 @@ export interface FormationPrice {
  * Replica exactamente updateTotal()/fmBuildPayload() del formulario.
  */
 export function computeFormationTotal(input: FormationPricingInput): FormationPrice {
-  const pkg: PackageId = (input.package as PackageId) in PACKAGE_PRICES
-    ? (input.package as PackageId)
-    : 'standard'
+  // Antes un `package` no reconocido caía en silencio a 'standard' — enmascaraba
+  // bugs de datos (orden corrupta/legacy) cobrando o mostrando un precio
+  // inventado en vez de fallar visible (auditoría 2026-07-12, hallazgo #2).
+  if (!(input.package as string in PACKAGE_PRICES)) {
+    throw new Error(`computeFormationTotal: package no reconocido: ${JSON.stringify(input.package)}`)
+  }
+  const pkg = input.package as PackageId
   const entity: EntityType = input.entityType === 'corp' ? 'corp' : 'llc'
   const speed: Speed = input.speed === 'expedited' ? 'expedited' : 'standard'
   const addons = (input.addons ?? {}) as Record<string, unknown>

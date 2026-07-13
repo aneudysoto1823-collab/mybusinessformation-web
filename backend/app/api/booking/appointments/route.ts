@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { cookies } from 'next/headers'
-import { jwtVerify } from 'jose'
+import { verifyAdminToken } from '@/lib/session'
 
 export const dynamic = 'force-dynamic'
 
@@ -9,10 +9,7 @@ async function isAdmin() {
   const cookieStore = await cookies()
   const token = cookieStore.get('admin_session')?.value
   if (!token) return false
-  try {
-    await jwtVerify(token, new TextEncoder().encode(process.env.SESSION_SECRET!))
-    return true
-  } catch { return false }
+  return verifyAdminToken(token)
 }
 
 export async function GET() {

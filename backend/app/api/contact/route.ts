@@ -11,20 +11,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { checkContactRateLimit, getClientIp } from '@/lib/rate-limit'
+import { CONTACT_TO_EMAIL as TO_EMAIL, REPLY_TO as REPLY_TO_DEFAULT, FROM_OPABIZ_CONTACT, FROM_OPABIZ } from '@/lib/email-constants'
 
 const getResend = () => new Resend(process.env.RESEND_API_KEY)
-
-// Form de contacto público. TO = info@opabiz.com (buzón Zoho monitoreado).
-// FROM cae al transaccional compartido (noreply@) si CONTACT_FROM_EMAIL no
-// está seteado — así una sola env var maneja todos los emails de "noreply".
-// Reply-To se setea al email del cliente al momento de enviar (linea más abajo)
-// para que al admin responder con un click vaya al cliente.
-const TO_EMAIL = process.env.CONTACT_TO_EMAIL || 'info@opabiz.com'
-const FROM_EMAIL = process.env.CONTACT_FROM_EMAIL || process.env.RESEND_FROM_TRANSACTIONAL || 'onboarding@resend.dev'
-const REPLY_TO_DEFAULT = process.env.RESEND_REPLY_TO || 'info@opabiz.com'
-// Display Names: para el admin "OpaBiz Contact", para el visitor "OpaBiz".
-const FROM_OPABIZ_CONTACT = `OpaBiz Contact <${FROM_EMAIL}>`
-const FROM_OPABIZ = `OpaBiz <${FROM_EMAIL}>`
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 

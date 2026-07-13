@@ -82,13 +82,6 @@ const PACKAGE_SERVICES: Record<string, { en: string; es: string }[]> = {
   ],
 }
 
-const ADDON_SERVICE_LABELS: Record<string, { en: string; es: string }> = {
-  ein:                   { en: 'EIN / Tax ID Number',                                              es: 'EIN / Número de ID Fiscal' },
-  labor_law_poster:      { en: 'Labor Law Poster 2026',                                            es: 'Póster de Ley Laboral 2026' },
-  certificate_of_status: { en: 'Certificate of Status (FL)',                                       es: 'Certificado de Buena Reputación (FL)' },
-  bundle:                { en: 'Business Essentials Bundle (EIN + Labor Poster + Certificate)',    es: 'Paquete Esencial (EIN + Póster + Certificado)' },
-}
-
 const STATUS_LABELS: Record<string, { en: string; es: string }> = {
   pending:        { en: 'Pending',       es: 'Pendiente' },
   in_review:      { en: 'In Review',     es: 'En Revisión' },
@@ -435,7 +428,7 @@ export default function DashboardContent({
               <div className="pkg-sublabel">{es ? 'Servicios Comprados' : 'Services Purchased'}</div>
               <ul className="pkg-services">
                 {addonServices.map(s => (
-                  <li key={s}><span className="chk">✓</span>{(ADDON_SERVICE_LABELS[s] ?? { en: s, es: s })[es ? 'es' : 'en']}</li>
+                  <li key={s}><span className="chk">✓</span>{getOrderItemLabel(`mkt:${s}`, { lang: es ? 'es' : 'en' })}</li>
                 ))}
               </ul>
             </>

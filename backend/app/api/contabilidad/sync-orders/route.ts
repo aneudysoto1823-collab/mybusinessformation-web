@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdminToken } from '@/lib/session'
 import { getSupabaseAdmin } from '@/lib/supabase'
+import { insertIncomeWithInvoiceNumber } from '@/lib/invoice-number'
 
 async function verifyAdmin(req: NextRequest): Promise<boolean> {
   const session = req.cookies.get('admin_session')
@@ -14,11 +15,6 @@ function resolveServiceType(order: { entityType: string; package: string }): str
   if (order.entityType === 'llc') return 'llc'
   if (order.entityType === 'corp') return 'corp'
   return 'other'
-}
-
-async function generateInvoiceNumber(base: number): Promise<string> {
-  const year = new Date().getFullYear()
-  return `INV-${year}-${(base + 1).toString().padStart(3, '0')}`
 }
 
 export async function POST(request: NextRequest) {
@@ -49,14 +45,8 @@ export async function POST(request: NextRequest) {
   const syncedIncomeOrderIds = new Set((existingIncome ?? []).map(r => r.order_id))
   const syncedClientOrderIds = new Set((existingClients ?? []).map(r => r.order_id))
 
-  // Count existing income records to generate invoice numbers in sequence
-  const { count: incomeCount } = await supabase
-    .from('accounting_income')
-    .select('*', { count: 'exact', head: true })
-
   let imported = 0
   let skipped = 0
-  let invoiceSeq = incomeCount ?? 0
 
   for (const order of orders) {
     if (syncedIncomeOrderIds.has(order.id)) {
@@ -88,17 +78,14 @@ export async function POST(request: NextRequest) {
       clientId = existingClient?.id ?? null
     }
 
-    const invoiceNumber = await generateInvoiceNumber(invoiceSeq)
-    invoiceSeq++
-
     const isPaid = order.paymentStatus === 'paid'
     const paymentMethod = order.stripePaymentId ? 'stripe' : 'other'
     const invoiceDate = order.createdAt ? order.createdAt.split('T')[0] : new Date().toISOString().split('T')[0]
 
-    await supabase.from('accounting_income').insert({
+    await insertIncomeWithInvoiceNumber(supabase, invoice_number => ({
       client_id: clientId,
       order_id: order.id,
-      invoice_number: invoiceNumber,
+      invoice_number,
       invoice_date: invoiceDate,
       service_type: resolveServiceType(order),
       amount: order.amount ?? 0,
@@ -106,7 +93,7 @@ export async function POST(request: NextRequest) {
       payment_status: isPaid ? 'paid' : 'pending',
       amount_paid: isPaid ? (order.amount ?? 0) : 0,
       notes: null,
-    })
+    }))
 
     imported++
   }

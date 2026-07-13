@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { getSupabaseAdmin } from '@/lib/supabase'
+import { getOrderItemLabel } from '@/lib/order-items'
 import DashboardContent from './DashboardContent'
 
 interface Order {
@@ -88,13 +89,15 @@ async function getDocuments(orderId: string, order: Order): Promise<DocumentItem
     })
     if (hasCert) docs.push({
       key: 'certificate-of-status',
-      label: 'Certificate of Status (FL)', labelEs: 'Certificado de Buena Reputación (FL)',
+      label: getOrderItemLabel('mkt:certificate_of_status', { lang: 'en' }),
+      labelEs: getOrderItemLabel('mkt:certificate_of_status', { lang: 'es' }),
       url: await signedUrl(`orders/${orderId}/certificate-of-status.pdf`),
       pending: 'Pending — being processed', pendingEs: 'Pendiente — en proceso',
     })
     if (hasLabor) docs.push({
       key: 'labor-poster',
-      label: 'Labor Law Poster 2026', labelEs: 'Póster de Ley Laboral 2026',
+      label: getOrderItemLabel('mkt:labor_law_poster', { lang: 'en' }),
+      labelEs: getOrderItemLabel('mkt:labor_law_poster', { lang: 'es' }),
       url: await signedUrl(`orders/${orderId}/labor-poster.pdf`),
       pending: 'Pending — being prepared', pendingEs: 'Pendiente — siendo preparado',
     })

@@ -1,20 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { Resend } from 'resend'
+import { CONTACT_TO_EMAIL as ADMIN_EMAIL, REPLY_TO, FROM_OPABIZ } from '@/lib/email-constants'
 
 export const dynamic = 'force-dynamic'
 
 const getResend = () => new Resend(process.env.RESEND_API_KEY)
 
-const ADMIN_EMAIL = 'info@opabiz.com'
 const ADMIN_WHATSAPP = '13528377755'
 const BASE_URL = process.env.NEXT_PUBLIC_URL ?? 'https://opabiz.com'
-// Antes se mandaba desde 'onboarding@resend.dev' (el sandbox de Resend) — el
-// cliente veía "onboarding" como remitente en vez de "OpaBiz". Mismo patrón de
-// env vars que el resto de los emails transaccionales (lib/notifications.ts).
-const FROM_EMAIL = process.env.RESEND_FROM_TRANSACTIONAL || 'onboarding@resend.dev'
-const REPLY_TO   = process.env.RESEND_REPLY_TO || 'info@opabiz.com'
-const FROM_OPABIZ = `OpaBiz <${FROM_EMAIL}>`
 
 // Header blanco + logo OB — mismo bloque que el resto de los templates
 // rediseñados (ver lib/notifications.ts).
