@@ -46,6 +46,7 @@ export default function OpabizAdminPage() {
   const [telefono, setTelefono] = useState('')
   const [nivel, setNivel]       = useState('basico')
   const [resendingId, setResendingId] = useState<string | null>(null)
+  const [togglingEstadoId, setTogglingEstadoId] = useState<string | null>(null)
 
   const cargarEmpleados = useCallback(async () => {
     setLoading(true)
@@ -77,6 +78,23 @@ export default function OpabizAdminPage() {
     } else {
       const d = await res.json().catch(() => ({}))
       setMsg({ ok: false, text: d.error ?? 'No se pudo crear el empleado.' })
+    }
+  }
+
+  async function toggleEstado(usuarioId: string, estadoActual: string) {
+    const nuevoEstado = estadoActual === 'activo' ? 'inactivo' : 'activo'
+    setTogglingEstadoId(usuarioId)
+    const res = await fetch(`/api/opabiz/employees/${usuarioId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ estado: nuevoEstado }),
+    })
+    setTogglingEstadoId(null)
+    if (res.ok) {
+      setEmpleados(prev => prev.map(e => e.id === usuarioId ? { ...e, estado: nuevoEstado } : e))
+    } else {
+      const d = await res.json().catch(() => ({}))
+      setMsg({ ok: false, text: d.error ?? 'No se pudo cambiar el estado.' })
     }
   }
 
@@ -197,6 +215,7 @@ export default function OpabizAdminPage() {
                   <th>Disponibilidad</th>
                   <th>Inactividades</th>
                   <th>Acceso</th>
+                  <th>Cuenta</th>
                 </tr>
               </thead>
               <tbody>
@@ -230,6 +249,21 @@ export default function OpabizAdminPage() {
                             {resendingId === emp.id ? 'Enviando…' : '📧 Reenviar invitación'}
                           </button>
                         )}
+                      </td>
+                      <td>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <span className="badge" style={emp.estado === 'activo' ? { color: '#059669', background: '#ECFDF5' } : { color: '#dc2626', background: '#FEF2F2' }}>
+                            {emp.estado === 'activo' ? 'Activo' : 'Inactivo'}
+                          </span>
+                          <button
+                            className="btn"
+                            style={{ padding: '5px 10px', fontSize: '.72rem', border: '1.5px solid #E2E8F0', background: '#fff', color: '#374151' }}
+                            disabled={togglingEstadoId === emp.id}
+                            onClick={() => toggleEstado(emp.id, emp.estado)}
+                          >
+                            {togglingEstadoId === emp.id ? '…' : emp.estado === 'activo' ? 'Desactivar' : 'Reactivar'}
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   )

@@ -17,7 +17,9 @@ Esto no es opcional, es la causa de un bug real que hubo que corregir el 2026-07
 - **`usuarios.id`** → identidad de login (email, `password_hash`, `rol`: admin/empleado/cliente). Es lo que usa `historial_actividad.usuario_id`.
 - **`EMPLEADOS.id`** (tabla en **mayúsculas**, así se llama literal) → registro operativo del empleado. Es lo que usan `empleado_perfil.empleado_id`, `ordenes_opabiz.empleado_id`, `puntajes.empleado_id`, `inactividades.empleado_id`.
 
-`EMPLEADOS.usuario_id` conecta ambas (FK agregada el 2026-07-13, no existía antes — sin ella el join automático de Supabase no funcionaba).
+`EMPLEADOS.usuario_id` conecta ambas.
+
+**⚠️ Bug real 2026-07-14 (corregido):** la sesión del 2026-07-13 creyó que esta FK faltaba y la agregó (`empleados_usuario_id_fkey`) — en realidad ya existía una autogenerada (`EMPLEADOS_usuario_id_fkey`, con mayúsculas), y terminaron **dos constraints idénticas** en la misma columna. Eso rompió el embed automático de Supabase/PostgREST (`GET /api/opabiz/employees`, `.select('...EMPLEADOS(...)...')`) con el error *"Could not embed because more than one relationship was found for 'usuarios' and 'EMPLEADOS'"* — recién se detectó al crear el primer empleado real, el 2026-07-14. Fix: `ALTER TABLE "EMPLEADOS" DROP CONSTRAINT empleados_usuario_id_fkey;` (se dejó la original). Lección: antes de agregar una FK "que falta", confirmar con una query a `information_schema.table_constraints` que realmente no exista — no confiar en el error de Supabase al pie de la letra sin verificar.
 
 Antes de tocar cualquier tabla de OpaBiz Connect, verificar con una query a `information_schema.table_constraints` cuál id corresponde — no asumir.
 
