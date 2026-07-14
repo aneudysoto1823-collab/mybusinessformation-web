@@ -956,7 +956,7 @@ Florida Division of Corporations publica el layout completo: https://dos.sunbiz.
 
 ## Auditoría de código (2026-07-12)
 
-Auditoría general del proyecto (no ligada a un diff puntual) pedida por el founder: "incongruencias, errores de código, código muerto, todo cuanto sea necesario corregir". Se corrió con 3 agentes en paralelo, cada uno cubriendo un área: **backend API** (`app/api/**` + `modules/**`), **frontend** (`page.tsx`, admin, client-portal, servicios/checkout), y **`lib/*.ts`** (utilidades compartidas). Encontraron 18 problemas concretos. Se resolvieron los 5 críticos (los que tocan clientes o plata real) en la misma sesión; quedan 13 pendientes (importantes + menores) para una sesión aparte.
+Auditoría general del proyecto (no ligada a un diff puntual) pedida por el founder: "incongruencias, errores de código, código muerto, todo cuanto sea necesario corregir". Se corrió con 3 agentes en paralelo, cada uno cubriendo un área: **backend API** (`app/api/**` + `modules/**`), **frontend** (`page.tsx`, admin, client-portal, servicios/checkout), y **`lib/*.ts`** (utilidades compartidas). Encontraron 18 problemas concretos. Se resolvieron los 5 críticos el 2026-07-12 y los 6 importantes el 2026-07-13; quedan 7 menores + "usted" en `/servicios/checkout` para otra sesión.
 
 ### ✅ Resueltos hoy
 
@@ -970,18 +970,22 @@ Auditoría general del proyecto (no ligada a un diff puntual) pedida por el foun
 
 5. **Paquete Basic ($0) se quedaba sin lista de "qué incluye"** en los emails — regresión del 2026-07-12 mismo día: al anidar las inclusiones bajo la línea de precio del paquete, Basic nunca genera esa línea (`computeFormationTotal` omite paquetes con precio $0). Fix: `withBasicDisplayLine()` (nuevo, `lib/pricing.ts`) inyecta dos líneas de **display únicamente** — "Basic Formation Package $99" + "Basic Package Discount -$99" (netea $0, no cambia el total real) — mismo truco visual que ya usa `/api/checkout/embedded` cuando el cupón de Stripe está configurado. A propósito se implementó **separado** de `computeFormationTotal`, no dentro: esa función también arma los line items reales que Stripe cobra, que ya tienen su propia lógica de cupón (gated por `STRIPE_BASIC_COUPON_ID`) — meterlo ahí hubiera duplicado la línea en el checkout real.
 
+### ✅ Resueltos 2026-07-13 (los 6 importantes)
+
+1. **Etiquetas de addons duplicadas** → unificadas: `lib/pricing.ts` `ADDON_LABELS` ahora deriva de `lib/order-items.ts` `FORMATION_ADDON_NAMES`; 4 archivos que reimplementaban `MARKETING_ADDON_NAMES` (`admin/orders/[id]/page.tsx`, `DashboardContent.tsx`, `client-portal/dashboard/page.tsx`, `webhooks/stripe/route.ts`) ahora usan `getOrderItemLabel()`.
+2. **`computeFormationTotal`** ahora **lanza** si `package` no es basic/standard/premium en vez de caer a 'standard' en silencio — `handleFormationPaid` en el webhook lo envuelve en try/catch (el pago ya se marcó antes, solo se salta el email si falla).
+3. **Constantes de email centralizadas** en `lib/email-constants.ts` (nuevo) — reemplaza redeclaraciones en 9 route.ts + `lib/notifications.ts`. Corrigió de paso un fallback de alerta interna con typo (`aneurysoto@gmail.com`) que solo activaba en dev sin env vars.
+4. **Rutas de citas admin** (`booking/appointments`, `booking/blocked` + `[id]`) usan `verifyAdminToken` de `lib/session.ts` en vez de `jwtVerify` directo — antes no chequeaban `role:'admin'`, aceptando también un token `admin_pending` de 2FA a medio completar.
+5. **Numeración de facturas**: `lib/invoice-number.ts` (nuevo) centraliza `insertIncomeWithInvoiceNumber()` — cuenta solo facturas del año actual y reintenta con el siguiente número si hay conflicto de unicidad. Requirió `supabase_migration_invoice_number_unique.sql` (constraint UNIQUE en `invoice_number`, ya corrida).
+6. **Convención "usted"** aplicada en `page.tsx` (home) — ~170 líneas, pronombres y conjugaciones (imperativos tú→usted). De paso se corrigieron 2 usos de "Vuestro" (registro vosotros de España). **`/servicios/checkout` queda pendiente** — decisión explícita de hacerlo en otra sesión.
+
 ### ⏳ Pendientes (quedaron para otra sesión)
 
 **Acción de infraestructura (no es código):**
 - ⚠️ Confirmar que `TURSO_DATABASE_URL` y `TURSO_AUTH_TOKEN` estén cargadas en las env vars de **Railway** (no solo Vercel) — el buscador de nombres del admin (fix #1 de arriba) las necesita para consultar Sunbiz real. Si faltan, no rompe pero degrada a "disponible" en silencio, lo que puede llevar al staff a confiar en un resultado incorrecto.
 
-**Importantes:**
-- Etiquetas de addons duplicadas y ya desincronizadas en 3-4 lugares (`sc`/`bl` dicen distinto en `lib/pricing.ts` `ADDON_LABELS` vs `lib/order-items.ts` `FORMATION_ADDON_NAMES`; `MARKETING_ADDON_NAMES` duplicado en 4 archivos con texto en español ya divergente).
-- `computeFormationTotal` cae en silencio a precio "standard" si `package` no se reconoce — enmascara bugs de datos en vez de fallar visible.
-- Constantes de email (FROM/Reply-To/FROM_OPABIZ) redeclaradas en 9 archivos en vez de un solo lugar compartido.
-- Rutas de citas del admin (`booking/appointments`, `booking/blocked`, y sus `[id]`) reimplementan verificación JWT en vez de `verifyAdminToken` de `lib/session.ts` — no chequean rol, es una copia más débil que puede divergir.
-- Numeración de facturas en contabilidad (`api/contabilidad/ingresos/route.ts` `generateInvoiceNumber`) tiene condición de carrera (SELECT count + insert no atómico) y no resetea por año pese al formato "INV-2026-N". Segunda copia divergente en `sync-orders/route.ts`.
-- Convención "usted" (no "tú") solo se aplicó en los emails transaccionales — el formulario del home (`page.tsx`) y `/servicios/checkout` siguen casi enteramente en "tú" en español.
+**Importante (no resuelto):**
+- Convención "usted" en `/servicios/checkout` (~63 instancias de tuteo, pendiente a propósito — ver punto 6 arriba).
 
 **Menores:**
 - CSS muerto (~10 clases: `.fp-bar`, `.fp-label`, `.fp-track`, `.fp-fill`, `.order-card-title`, etc.) en `page.tsx`, sobrantes de una versión anterior del Order Summary/progress bar.
@@ -991,6 +995,29 @@ Auditoría general del proyecto (no ligada a un diff puntual) pedida por el foun
 - Código inalcanzable vestigial en `page.tsx` (`if(_next===6)_next=7` dentro de bloques donde `_next` nunca puede ser 6 — leftover del refactor del paso Faster Processing).
 - Campo `addons: string[]` de `/api/checkout/status` ya no se lee en `/order/complete` desde el refactor a `order.lines`/`isBaseLine()` — candidato a podar.
 - El chatbot (`api/chat/route.ts`, tool `get_order_info`) devuelve PII completo (nombre, email, teléfono, dirección, miembros, addons) con solo el prefijo de 8 caracteres del número de orden — confirmar que el rate-limit (`checkChatRateLimit`) sea suficientemente estricto para esa superficie.
+
+---
+
+## OPABIZ — sistema interno de despacho a empleados (retomado 2026-07-13)
+
+App interna de Florida Business Formation Center para asignar órdenes a empleados de campo — **distinta** del sitio público que ven los clientes. Había arrancado en una sesión previa con otra IA (no documentada en su momento); se retomó y se construyó el motor de asignación + arranque del panel admin. Detalle completo en `LOGICA_DE_NEGOCIO/17_opabiz_integracion.md` y memoria `project_opabiz_sistema_interno`.
+
+**⚠️ Lo más importante para no romper nada:** hay dos ids de "empleado" distintos, confirmado vía foreign keys reales (no vía docs, que no lo mencionaban):
+- `usuarios.id` → identidad de login (email/password_hash/rol). Usado por `historial_actividad.usuario_id`.
+- `EMPLEADOS.id` (tabla en mayúsculas) → registro operativo. Usado por `empleado_perfil.empleado_id`, `ordenes_opabiz.empleado_id`, `puntajes.empleado_id`, `inactividades.empleado_id`.
+
+**Construido:**
+- `backend/lib/opabiz-assignment.ts` — `pickBestEmployee()`: elige por disponibilidad + nivel jerárquico, ordena por puntaje → inactividades → tiempo de respuesta → fairness. Soporta `es_urgente` y exclusión de empleados.
+- `backend/lib/opabiz-empleados.ts` — `registrarPuntaje()`/`registrarInactividad()`, único lugar autorizado para escribir en las bitácoras `puntajes`/`inactividades` (mantienen `EMPLEADOS` sincronizada). **Sin triggers de Postgres** — se verificó que no existe ninguno en toda la base; todo vive en código TypeScript, mismo patrón que el resto del proyecto.
+- `POST/GET /api/opabiz/employees` — alta y listado de empleados (admin crea, sin autoservicio).
+- `POST /api/opabiz/orders/[id]/assign` (manual) y `/auto-assign` (motor) — coexisten, el admin siempre puede pisar al motor.
+- Cron cada 5 min (`/api/opabiz/cron/reassign-timeouts`) — reasigna si un empleado no acepta en 10 min.
+- Panel visual en `/admin/opabiz` (listado + alta), linkeado desde la barra de `/admin`.
+
+**Pendiente:**
+- Login del empleado + PWA (Etapa 4) — JWT propio (no Supabase Auth, para seguir el patrón del resto del sitio), falta el flujo de invitación completo y la app en sí.
+- Integración real con el pago — hoy nada crea `ordenes_opabiz` automáticamente cuando un cliente paga; se decidió no usar un DB trigger, se construirá como código de aplicación enganchado al webhook de Stripe cuando se retome.
+- Definir `NIVEL_MINIMO_POR_SERVICIO` en el motor — hoy no restringe nada por tipo de servicio.
 
 ---
 

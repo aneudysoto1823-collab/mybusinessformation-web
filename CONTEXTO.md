@@ -541,9 +541,11 @@ Ver troubleshooting en `TROUBLESHOOTING/13_responsive_design.md`
 
 ---
 
-### Etapa 18 — OPABIZ: App On-Demand para Empleados (POSTLANZAMIENTO — etapa futura)
+### Etapa 18 — OPABIZ: App On-Demand para Empleados (RETOMADA 2026-07-13)
 
-> **NOTA (2026-05-18):** OPABIZ queda DESCARTADA del scope pre-launch. Se retoma después del lanzamiento oficial del sitio público, cuando haya volumen real de órdenes que justifique automatizar la asignación a empleados. La Etapa 1 de OPABIZ (tablas Supabase) ya está creada y queda lista para cuando se retome; el resto (Edge Functions, panel admin OPABIZ, app empleado, integraciones) se posponen sine die. **No se invertirá tiempo aquí hasta post-launch.**
+> **NOTA (2026-05-18, superada):** OPABIZ quedó descartada del scope pre-launch. ~~Se retoma después del lanzamiento~~
+>
+> **ACTUALIZACIÓN (2026-07-13):** se retomó antes de lo previsto. El founder ya había arrancado esto en una sesión previa con otra IA (no documentada acá) — el esquema real de Supabase difiere bastante de lo que describe este archivo (tabla `EMPLEADOS` en mayúsculas no listada abajo, ENUMs con valores distintos, `EMPLEADOS.id` — no `usuarios.id` — es la clave real que usan `empleado_perfil`/`ordenes_opabiz`/`puntajes`/`inactividades`). Se construyó el motor de asignación (Etapa 2) + arranque del panel admin (Etapa 3, alta de empleados en `/admin/opabiz`) + cron de timeout/reasignación. Detalle completo y actualizado en `LOGICA_DE_NEGOCIO/17_opabiz_integracion.md` y memoria `project_opabiz_sistema_interno`. **Este bloque de abajo (checklist original) quedó desactualizado — no confiar en los nombres de tabla/campos sin verificar contra Supabase primero.**
 
 
 ```diff
