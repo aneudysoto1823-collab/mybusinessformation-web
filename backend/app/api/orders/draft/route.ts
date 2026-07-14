@@ -4,6 +4,9 @@ import { getSupabaseAdmin } from '@/lib/supabase'
 import { checkOrdersDraftRateLimit, getClientIp } from '@/lib/rate-limit'
 import { OrderDraftInputSchema, parseOr400 } from '@/lib/schemas'
 import { REPLY_TO, FROM_OPABIZ } from '@/lib/email-constants'
+import { getEmployeeSession } from '@/lib/opabiz-session'
+import { findOrCreateClienteUsuario } from '@/lib/opabiz-clientes'
+import { registrarPuntaje } from '@/lib/opabiz-empleados'
 
 const getResend = () => new Resend(process.env.RESEND_API_KEY)
 
@@ -54,6 +57,67 @@ function sendDraftSavedEmail(order: { id: string; email: string; firstName: stri
       </div>
     `
   }).catch(err => console.error('[/api/orders/draft] draft-saved email error (non-fatal):', err))
+}
+
+const PUNTOS_INTAKE_ASISTIDA = 10
+
+// Intake asistida (OpaBiz Connect): un empleado logueado puede usar este
+// mismo formulario público para armarle la solicitud a un cliente por
+// teléfono (ver LOGICA_DE_NEGOCIO/17 — decisión 2026-07-14 de reusar el form
+// real en vez de mantener uno propio aparte). Se atribuye SOLO cuando el
+// guardado llega desde el paso final (Review, snapshot.step===8) — un
+// guardado a mitad de la llamada no cuenta como "completado" — y solo una
+// vez por orden (chequea que Order.assistedByEmpleadosId no esté seteado
+// todavía, por si el agente guarda dos veces desde ese paso).
+//
+// La detección de "modo agente" en page.tsx (cliente) es puramente cosmética
+// (mostrar/ocultar el área de pago) — ESTA función, que revalida la cookie
+// opabiz_session server-side, es la única fuente de verdad para puntaje y
+// trazabilidad.
+async function trackAgentAssistedIntake(
+  request: NextRequest,
+  orderId: string,
+  body: { snapshot?: unknown; firstName: string; lastName: string; email: string; companyName: string },
+) {
+  const step = (body.snapshot as { step?: number } | null)?.step
+  if (step !== 8) return
+
+  const session = await getEmployeeSession(request)
+  if (!session) return
+
+  try {
+    const supabase = getSupabaseAdmin()
+
+    const { data: order } = await supabase
+      .from('Order')
+      .select('assistedByEmpleadosId')
+      .eq('id', orderId)
+      .maybeSingle()
+    if (!order || order.assistedByEmpleadosId) return
+
+    const clienteId = await findOrCreateClienteUsuario(supabase, {
+      email: body.email, nombre: `${body.firstName} ${body.lastName}`,
+    })
+
+    const now = new Date().toISOString()
+    await supabase.from('ordenes_opabiz').insert({
+      cliente_id: clienteId,
+      empleado_id: session.empleadosId,
+      tipo_servicio: 'Intake asistida',
+      notas: body.companyName,
+      estado: 'completada',
+      es_urgente: false,
+      fecha_asignacion: now,
+      fecha_inicio: now,
+      fecha_completada: now,
+    })
+
+    await supabase.from('Order').update({ assistedByEmpleadosId: session.empleadosId }).eq('id', orderId)
+
+    await registrarPuntaje(supabase, session.empleadosId, PUNTOS_INTAKE_ASISTIDA, 'intake_asistida')
+  } catch (err) {
+    console.error('[/api/orders/draft] agent intake tracking error (non-fatal):', err)
+  }
 }
 
 // Guarda el progreso del formulario de formación como una orden real
@@ -119,6 +183,7 @@ export async function POST(request: NextRequest) {
         .maybeSingle()
 
       if (!updateErr && updated) {
+        await trackAgentAssistedIntake(request, updated.id, body)
         return NextResponse.json({ success: true, orderId: updated.id }, { status: 200 })
       }
       // Si no se pudo actualizar (id viejo, ya promovido, etc.) cae al insert de abajo.
@@ -142,6 +207,7 @@ export async function POST(request: NextRequest) {
     }
 
     sendDraftSavedEmail({ id: created.id, email: fields.email, firstName: fields.firstName, lastName: fields.lastName, companyName: fields.companyName })
+    await trackAgentAssistedIntake(request, created.id, body)
 
     return NextResponse.json({ success: true, orderId: created.id }, { status: 201 })
   } catch (error) {

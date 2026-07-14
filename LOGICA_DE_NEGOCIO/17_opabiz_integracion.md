@@ -108,23 +108,28 @@ abre un mini-formulario (tipo de servicio, notas prefilled con la nota de la
 cita, urgente, empleado a asignar). Se deshabilita si la cita ya tiene una
 orden vinculada (`GET /api/opabiz/orders?appointmentId=`).
 
-### Intake asistida (agente arma la solicitud, cliente solo paga)
+### Intake asistida (agente arma la solicitud, cliente solo paga) — rediseñada mismo día
 
-**El agente NUNCA toca el pago del cliente (riesgo PCI).** Decisión de diseño
-clave: NO reusa el flujo `?continue=FBFC-XXXX` del home — ese link restaura el
-form gigante de `page.tsx` (~6800 líneas) leyendo un `snapshot` con shape
-interna del form (`FM_FIELD_IDS`, `fmData`); sin ese snapshot exacto (inviable
-de armar desde afuera) el cliente cae en un form en blanco y el próximo
-autosave puede pisar con blancos los datos que cargó el agente (confirmado
-leyendo `fmFetchAndRestoreDraft()` en `page.tsx`).
+**El agente NUNCA toca el pago del cliente (riesgo PCI).**
 
-En cambio:
-1. `backend/app/opabiz/dashboard/intake/page.tsx` — form de una sola pantalla dentro de la PWA del empleado (contacto, empresa, dirección, agente registrado, miembros dinámicos, paquete, addons, velocidad). Link "📞 Nueva intake asistida" en `/opabiz/dashboard`.
-2. `POST /api/opabiz/me/intake` — valida con `OrderDraftInputSchema` (mismo contrato que usa el resto del sistema), inserta el `Order` **directamente** (sin llamar a `/api/orders/draft`, para no depender de su email de "continuar aplicación"), crea/resuelve el `usuarios` cliente, crea la orden en `ordenes_opabiz` (`tipo_servicio:'Intake asistida'`, `estado:'completada'` de una — el trabajo del agente termina al enviar, no depende de que el cliente pague), setea `Order.assistedByEmpleadosId`, suma +10 puntos (`registrarPuntaje`, mismo award que completar una orden de campo — una bonificación proporcional a lo vendido queda pendiente), y manda un email propio (no el de `/api/orders/draft`) con link a `/confirm/[fbfc]`.
-3. `GET /api/orders/summary-by-fbfc?fbfc=...` — resuelve el FBFC al `Order` real, setea `client_session` y devuelve el resumen (`computeFormationTotal`, `lib/pricing.ts`). Endpoint propio (no reusa `/api/client-auth` + un GET separado) porque es un link de un solo uso, no una sesión de portal.
-4. `backend/app/confirm/[fbfc]/page.tsx` — página pública liviana: muestra el resumen (empresa, paquete, addons, total) y un botón "Confirmar y pagar" que monta Stripe Embedded Checkout (`POST /api/checkout/embedded`, mismo patrón que `fmMountPayment()` del home) — sin el resto del wizard alrededor. Sin edición inline a propósito; correcciones van por contacto humano (mailto).
+**Primer diseño (descartado el mismo día):** un formulario propio dentro de
+la PWA (`/opabiz/dashboard/intake`) + una página de confirmación propia
+(`/confirm/[fbfc]`) con su propio endpoint de creación de `Order`. Funcionaba,
+pero mantenía dos formularios en paralelo (el real de `page.tsx` y esta
+versión simplificada) que con el tiempo se desincronizarían en precios/addons/
+campos. El founder pidió en cambio que el agente use **la página pública real**.
 
-**Pendiente:** bonificación de puntos proporcional a lo vendido (hoy flat +10); auto-crear orden al agendar cita (hoy 100% manual).
+**Diseño final:** el agente usa `opabiz.com` tal cual, exactamente como lo
+haría un cliente, pero en el paso final (Review) en vez de pagar le da
+"Guardar" — el cliente recibe el mismo email "Continue My Application" de
+siempre para revisar y pagar cuando quiera.
+
+- **Detección de "modo agente" — 100% client-side, nunca lee la cookie server-side en `page.tsx`.** Leer `opabiz_session` en el server component forzaría a Next.js a renderizar la home dinámica en cada visita, inaceptable para una página cuyo LCP ya es un problema conocido (ver sección Performance). En cambio: al cargar la página, si la URL tiene `?agent=1`, un `fetch('/api/opabiz/auth/me')` en segundo plano confirma si hay sesión de empleado válida → variable JS `_fmAgentMode`. El link "📞 Nueva intake asistida" de `/opabiz/dashboard` apunta a `/?agent=1` (nueva pestaña) — sin ese query param, un empleado que visita el sitio público por cualquier otro motivo nunca ve la UI alterada.
+- **`fmGoToStep()` (paso 8, Review):** si `_fmAgentMode`, no llama a `fmMountPayment()` — oculta `#embedded-checkout`/`#sum-pay-notice`/`#sum-pay-consent` y muestra un aviso ("Agent mode: saving will email your client...") en el mismo lugar donde iría Stripe. El botón "Save" del paso 8 **ya existía** (`id="s8-save"`, `onclick="saveOrder()"`) — cero cambios ahí.
+- **Atribución + tracking en OpaBiz Connect — toda la lógica vive en `POST /api/orders/draft`** (`trackAgentAssistedIntake()`), no en el cliente: revalida `getEmployeeSession(request)` server-side (la detección del cliente es puramente cosmética), y solo actúa si `body.snapshot?.step === 8` (llegó desde el paso final, no un guardado a mitad de la llamada) y `Order.assistedByEmpleadosId` todavía no está seteado (evita duplicar si el agente guarda dos veces desde ese paso). Ahí: `findOrCreateClienteUsuario()`, crea la orden en `ordenes_opabiz` (`tipo_servicio:'Intake asistida'`, `estado:'completada'` — el trabajo del agente termina al guardar, no depende de que el cliente pague), setea `Order.assistedByEmpleadosId`, suma +10 puntos (`registrarPuntaje` — bonificación proporcional a lo vendido queda pendiente).
+- **Cero cambios** a `saveOrder()`, `fmSaveProgressAndSync()`, `fmSyncDraftToServer()`, el email "Continue My Application", ni al flujo de pago normal — todo lo que ya funcionaba para clientes reales sigue exactamente igual.
+
+**Pendiente:** bonificación de puntos proporcional a lo vendido (hoy flat +10); auto-crear orden al agendar cita (hoy 100% manual); copy diferenciado en el email para el caso agente-asistido (hoy genérico pero correcto).
 
 ---
 

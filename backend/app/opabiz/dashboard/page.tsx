@@ -117,7 +117,10 @@ export default function OpabizDashboardPage() {
           <p className="op-empty">Cargando…</p>
         ) : (
           <>
-            <Link href="/opabiz/dashboard/intake" className="op-intake-link">📞 Nueva intake asistida</Link>
+            {/* Intake asistida usa el formulario público real (opabiz.com), no uno
+                propio — ver LOGICA_DE_NEGOCIO/17. ?agent=1 activa el modo agente
+                (oculta el pago; al Guardar le llega el link al cliente). */}
+            <a href="/?agent=1" target="_blank" rel="noopener noreferrer" className="op-intake-link">📞 Nueva intake asistida</a>
 
             {me && (
               <div className="op-me">

@@ -2376,6 +2376,12 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
       <div id="fm-pay-area" style="display:none">
         <div class="fm-sum-pay-title" id="sum-pay-title">Secure Payment</div>
         <div id="embedded-checkout"></div>
+        <!-- Modo agente (OpaBiz Connect): un empleado logueado armando la
+             solicitud por un cliente nunca ve ni monta el formulario de
+             Stripe — ver fmDetectAgentMode()/fmGoToStep(). -->
+        <div id="fm-agent-notice" style="display:none;padding:16px 18px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;font-size:.85rem;color:#1e3a5f;line-height:1.6">
+          <strong>Agent mode:</strong> saving will email your client a link to review and pay — nothing is charged here.
+        </div>
         <div class="fm-sum-pay-notice" id="sum-pay-notice"><strong>&#9888; Non-Refundable:</strong> State fees cannot be refunded once processing begins. Our service fee is refundable within 24 hours if filing has not started.</div>
         <div class="fm-sum-pay-consent" id="sum-pay-consent">By completing payment you agree to our <a href="/legal" target="_blank">Legal Statement</a> and <a href="/terms" target="_blank">Terms of Service</a>.</div>
       </div>
@@ -4626,7 +4632,15 @@ function fmGoToStep(n) {
     if(_leftCol && _sum && _sum.parentNode !== _leftCol) _leftCol.appendChild(_sum);
     if(_secure) _secure.style.display = 'none'; // badges nuestros (Stripe ya trae los suyos)
     if(_wrap) _wrap.classList.add('fm-paystep');
-    fmMountPayment();
+    if(_fmAgentMode) {
+      var _ec = document.getElementById('embedded-checkout'); if(_ec) _ec.style.display = 'none';
+      var _payNotice = document.getElementById('sum-pay-notice'); if(_payNotice) _payNotice.style.display = 'none';
+      var _payConsent = document.getElementById('sum-pay-consent'); if(_payConsent) _payConsent.style.display = 'none';
+      var _agentNotice = document.getElementById('fm-agent-notice'); if(_agentNotice) _agentNotice.style.display = 'block';
+      var _payTitle = document.getElementById('sum-pay-title'); if(_payTitle) _payTitle.textContent = 'Agent Mode';
+    } else {
+      fmMountPayment();
+    }
   } else {
     // Restaurar: Stripe vuelve dentro del summary y el summary vuelve a la derecha.
     if(_sum && _payArea && _payArea.parentNode !== _sum) _sum.appendChild(_payArea);
@@ -5866,6 +5880,23 @@ var FM_DRAFT_ID_KEY = 'mbf_draft_order_id';
 var _fmDraftOrderId = null;
 try { _fmDraftOrderId = localStorage.getItem(FM_DRAFT_ID_KEY) || null; } catch(e) {}
 var _fmDraftSyncing = false;
+
+// Modo agente (OpaBiz Connect) — un empleado logueado usa este mismo form
+// para armarle la solicitud a un cliente por teléfono. Detección 100%
+// client-side (nunca lee la cookie opabiz_session server-side en page.tsx,
+// eso forzaría la home a renderizar dinámica en cada visita — inaceptable
+// para el LCP). Requiere ADEMÁS ?agent=1 en la URL (el link "Nueva intake
+// asistida" de /opabiz/dashboard apunta ahí) para que un empleado que visita
+// el sitio público por cualquier otro motivo nunca vea la UI alterada.
+var _fmAgentMode = false;
+(function fmDetectAgentMode(){
+  try {
+    if(new URLSearchParams(window.location.search).get('agent') !== '1') return;
+  } catch(e) { return; }
+  fetch('/api/opabiz/auth/me', { credentials: 'same-origin' })
+    .then(function(r){ if(r.ok) _fmAgentMode = true; })
+    .catch(function(){});
+})();
 
 var FM_FIELD_IDS = [
   'inp-bizname','inp-designator',
