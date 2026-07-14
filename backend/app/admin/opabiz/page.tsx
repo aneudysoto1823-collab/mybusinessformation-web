@@ -48,17 +48,28 @@ export default function OpabizAdminPage() {
   const [resendingId, setResendingId] = useState<string | null>(null)
   const [togglingEstadoId, setTogglingEstadoId] = useState<string | null>(null)
 
-  const cargarEmpleados = useCallback(async () => {
-    setLoading(true)
+  // silent=true se usa en el polling de fondo — no muestra el spinner de
+  // "Cargando…" para no repintar la tabla cada 20s, mismo patrón que
+  // /admin (OrdersTable.tsx) y /admin/orders/[id].
+  const cargarEmpleados = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true)
     const res = await fetch('/api/opabiz/employees')
     if (res.ok) {
       const data = await res.json()
       setEmpleados(data.empleados ?? [])
     }
-    setLoading(false)
+    if (!silent) setLoading(false)
   }, [])
 
   useEffect(() => { cargarEmpleados() }, [cargarEmpleados])
+
+  // Polling en segundo plano cada 20s — la disponibilidad/puntaje/etc. de un
+  // empleado cambian desde su propia PWA (/opabiz/dashboard), no desde acá,
+  // así que sin esto el admin solo lo ve al recargar la página a mano.
+  useEffect(() => {
+    const interval = setInterval(() => { cargarEmpleados(true) }, 20000)
+    return () => clearInterval(interval)
+  }, [cargarEmpleados])
 
   async function crearEmpleado(e: React.FormEvent) {
     e.preventDefault()
