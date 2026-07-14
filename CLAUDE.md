@@ -998,26 +998,31 @@ Auditoría general del proyecto (no ligada a un diff puntual) pedida por el foun
 
 ---
 
-## OPABIZ — sistema interno de despacho a empleados (retomado 2026-07-13)
+## OpaBiz Connect — sistema interno de despacho a empleados (retomado 2026-07-13, gran avance 2026-07-14)
 
-App interna de Florida Business Formation Center para asignar órdenes a empleados de campo — **distinta** del sitio público que ven los clientes. Había arrancado en una sesión previa con otra IA (no documentada en su momento); se retomó y se construyó el motor de asignación + arranque del panel admin. Detalle completo en `LOGICA_DE_NEGOCIO/17_opabiz_integracion.md` y memoria `project_opabiz_sistema_interno`.
+App interna de Florida Business Formation Center para asignar órdenes a empleados de campo — **distinta** del sitio público que ven los clientes. Había arrancado en una sesión previa con otra IA (no documentada en su momento); se retomó el 2026-07-13 (motor de asignación + panel admin) y el 2026-07-14 se construyeron login+PWA, dos casos de uso reales, y notificaciones quedaron a mitad de camino. Detalle completo en `LOGICA_DE_NEGOCIO/17_opabiz_integracion.md` y memoria `project_opabiz_sistema_interno`.
+
+**Nombre visible: "OpaBiz Connect"** (login, PWA, panel admin, emails) — deliberadamente distinto de "OpaBiz" (la marca que ve el cliente del sitio público). Por dentro, el código sigue usando `opabiz` en rutas/archivos/tablas sin cambios (renombrar solo lo visible fue decisión explícita de bajo riesgo).
 
 **⚠️ Lo más importante para no romper nada:** hay dos ids de "empleado" distintos, confirmado vía foreign keys reales (no vía docs, que no lo mencionaban):
-- `usuarios.id` → identidad de login (email/password_hash/rol). Usado por `historial_actividad.usuario_id`.
+- `usuarios.id` → identidad de login (email/password_hash/rol: admin/empleado/cliente). Usado por `historial_actividad.usuario_id`.
 - `EMPLEADOS.id` (tabla en mayúsculas) → registro operativo. Usado por `empleado_perfil.empleado_id`, `ordenes_opabiz.empleado_id`, `puntajes.empleado_id`, `inactividades.empleado_id`.
 
+**⚠️ Bug real corregido 2026-07-14:** la sesión 2026-07-13 agregó una FK duplicada (`EMPLEADOS.usuario_id → usuarios.id`) creyendo que faltaba — ya existía una autogenerada con otro nombre. Rompía el embed automático de Supabase con "more than one relationship was found", detectado recién al crear el primer empleado real. Antes de "agregar una FK que falta", **siempre verificar primero con `information_schema.table_constraints`** que de verdad no exista ya.
+
 **Construido:**
-- `backend/lib/opabiz-assignment.ts` — `pickBestEmployee()`: elige por disponibilidad + nivel jerárquico, ordena por puntaje → inactividades → tiempo de respuesta → fairness. Soporta `es_urgente` y exclusión de empleados.
-- `backend/lib/opabiz-empleados.ts` — `registrarPuntaje()`/`registrarInactividad()`, único lugar autorizado para escribir en las bitácoras `puntajes`/`inactividades` (mantienen `EMPLEADOS` sincronizada). **Sin triggers de Postgres** — se verificó que no existe ninguno en toda la base; todo vive en código TypeScript, mismo patrón que el resto del proyecto.
-- `POST/GET /api/opabiz/employees` — alta y listado de empleados (admin crea, sin autoservicio).
-- `POST /api/opabiz/orders/[id]/assign` (manual) y `/auto-assign` (motor) — coexisten, el admin siempre puede pisar al motor.
-- Cron cada 5 min (`/api/opabiz/cron/reassign-timeouts`) — reasigna si un empleado no acepta en 10 min.
-- Panel visual en `/admin/opabiz` (listado + alta), linkeado desde la barra de `/admin`.
+- Motor de asignación (`lib/opabiz-assignment.ts`, `pickBestEmployee()`) + bitácoras de puntaje/inactividad (`lib/opabiz-empleados.ts`) — sin triggers de Postgres, todo en código TypeScript.
+- **Login de empleado + invitación por email + PWA** (`/opabiz/login`, `/opabiz/invite/[token]`, `/opabiz/dashboard`) — JWT propio (`lib/opabiz-session.ts`, cookie `opabiz_session`), invitación con token Redis 72h. Activar/desactivar cuenta desde `/admin/opabiz` (con confirmación).
+- **Panel admin ampliado** (`/admin/opabiz`): tabla de empleados (con auto-refresh cada 20s) + tabla de **Órdenes** (cliente, empleado asignado, estado — antes no había ninguna vista para esto).
+- **Citas → orden manual:** botón en `/admin/citas` crea y asigna una orden de OpaBiz Connect a partir de una cita agendada (`POST /api/opabiz/orders`, admin-only, empleado obligatorio porque `ordenes_opabiz.empleado_id` es `NOT NULL`).
+- **Intake asistida — usa el formulario público real (`opabiz.com/?agent=1`), no uno propio:** un agente logueado en OpaBiz Connect entra a la página real del sitio (misma cuenta, misma cookie de dominio — no hay login separado) y llena el formulario como si fuera el cliente. En el paso final (Review), en modo agente no se monta Stripe — se oculta y aparece un aviso; el botón "Save" que **ya existía** ahí dispara todo sin cambios (crea el `Order` + manda el email "Continue My Application" de siempre). Detección de modo agente 100% client-side (nunca lee la cookie server-side en `page.tsx`, para no forzar la home a renderizar dinámica y matar el LCP). La atribución real (puntaje +10, fila en `ordenes_opabiz`) se decide solo server-side en `POST /api/orders/draft` (`trackAgentAssistedIntake()`), exigiendo que el guardado venga del paso final (`snapshot.step===8`) y que no esté ya atribuida.
+- `lib/opabiz-clientes.ts` (`findOrCreateClienteUsuario()`) — resuelve `ordenes_opabiz.cliente_id`/`assistedByEmpleadosId` a partir de un email, compartido por citas e intake asistida.
 
 **Pendiente:**
-- Login del empleado + PWA (Etapa 4) — JWT propio (no Supabase Auth, para seguir el patrón del resto del sitio), falta el flujo de invitación completo y la app en sí.
+- **Notificaciones (a mitad de camino):** `web-push` ya instalado (`package.json`), pero la infraestructura de push (tabla de suscripciones, service worker, claves VAPID) y el email al asignar una orden todavía no se construyeron — plan completo ya diseñado, queda para la próxima sesión.
 - Integración real con el pago — hoy nada crea `ordenes_opabiz` automáticamente cuando un cliente paga; se decidió no usar un DB trigger, se construirá como código de aplicación enganchado al webhook de Stripe cuando se retome.
 - Definir `NIVEL_MINIMO_POR_SERVICIO` en el motor — hoy no restringe nada por tipo de servicio.
+- Recordatorio de cita 1h antes (diseñado, no construido — parte del plan de notificaciones pausado).
 
 ---
 
