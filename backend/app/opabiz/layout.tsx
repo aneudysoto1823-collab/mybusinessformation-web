@@ -1,11 +1,11 @@
 import type { Metadata, Viewport } from 'next'
 
 export const metadata: Metadata = {
-  title: 'OPABIZ',
+  title: 'OpaBiz Connect',
   manifest: '/opabiz-manifest.webmanifest',
   appleWebApp: {
     capable: true,
-    title: 'OPABIZ',
+    title: 'OpaBiz Connect',
     statusBarStyle: 'black-translucent',
   },
   icons: {

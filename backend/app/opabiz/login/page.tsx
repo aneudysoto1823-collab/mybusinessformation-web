@@ -52,7 +52,7 @@ export default function OpabizLoginPage() {
         .op-error{color:#ef4444;font-size:.8rem;margin-top:10px;text-align:center}
       `}</style>
       <div className="op-wrap">
-        <div className="op-brand">OPA<span>BIZ</span></div>
+        <div className="op-brand">OpaBiz <span>Connect</span></div>
         <div className="op-card">
           <div className="op-title">Acceso de empleados</div>
           <form onSubmit={handleSubmit}>

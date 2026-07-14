@@ -3,8 +3,8 @@ import { Resend } from 'resend'
 import crypto from 'crypto'
 import { FROM_OPABIZ_INTERNAL } from './email-constants'
 
-// Invitación por email para que un empleado de OPABIZ (sistema interno) cree su
-// propia contraseña — mismo patrón que la recuperación de contraseña del admin
+// Invitación por email para que un empleado de OpaBiz Connect (sistema interno)
+// cree su propia contraseña — mismo patrón que la recuperación de contraseña del admin
 // (/api/auth/recover), pero TTL más generoso (72h en vez de 15min) porque un
 // empleado no revisa el mail al instante como sí lo hace un admin recuperando
 // acceso urgente.
@@ -47,15 +47,15 @@ export async function sendInviteEmail(opts: { email: string; nombre: string; tok
   await getResend().emails.send({
     from: FROM_OPABIZ_INTERNAL,
     to: opts.email,
-    subject: 'OPABIZ: Creá tu contraseña de acceso',
+    subject: 'OpaBiz Connect: Creá tu contraseña de acceso',
     html: `
       <div style="font-family:sans-serif;max-width:480px;margin:0 auto">
         <div style="background:#1C2E44;padding:20px;text-align:center;border-radius:8px 8px 0 0">
-          <p style="color:#fff;font-size:1.1rem;font-weight:700;margin:0">OPABIZ</p>
+          <p style="color:#fff;font-size:1.1rem;font-weight:700;margin:0">OpaBiz Connect</p>
         </div>
         <div style="background:#f8fafc;padding:28px;border-radius:0 0 8px 8px;border:1px solid #e2e8f0">
           <p style="color:#1e293b;font-size:.95rem">Hola ${opts.nombre},</p>
-          <p style="color:#1e293b;font-size:.95rem">Se creó tu cuenta de empleado en OPABIZ. Hacé clic en el botón para crear tu contraseña y acceder a tus órdenes asignadas.</p>
+          <p style="color:#1e293b;font-size:.95rem">Se creó tu cuenta de empleado en OpaBiz Connect. Hacé clic en el botón para crear tu contraseña y acceder a tus órdenes asignadas.</p>
           <div style="text-align:center;margin:24px 0">
             <a href="${link}" style="background:#2563EB;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:.95rem">
               Crear mi contraseña →

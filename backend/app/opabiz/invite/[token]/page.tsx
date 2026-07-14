@@ -79,14 +79,14 @@ export default function OpabizInvitePage() {
         .op-msg{font-size:.85rem;color:#374151;text-align:center}
       `}</style>
       <div className="op-wrap">
-        <div className="op-brand">OPA<span>BIZ</span></div>
+        <div className="op-brand">OpaBiz <span>Connect</span></div>
         <div className="op-card">
           {check === 'loading' && <p className="op-msg">Verificando invitación…</p>}
           {check === 'invalid' && <p className="op-msg">Este link ya no es válido o expiró. Pedile al admin que te reenvíe la invitación.</p>}
           {check === 'valid' && (
             <>
               <div className="op-title">Creá tu contraseña</div>
-              <div className="op-sub">{nombre ? `Hola, ${nombre}` : 'Bienvenido a OPABIZ'}</div>
+              <div className="op-sub">{nombre ? `Hola, ${nombre}` : 'Bienvenido a OpaBiz Connect'}</div>
               <form onSubmit={handleSubmit}>
                 <div className="op-field">
                   <label>Contraseña</label>

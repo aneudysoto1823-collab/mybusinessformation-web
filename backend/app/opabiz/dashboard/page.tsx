@@ -107,7 +107,7 @@ export default function OpabizDashboardPage() {
       `}</style>
 
       <div className="op-header">
-        <div className="op-brand">OPA<span>BIZ</span></div>
+        <div className="op-brand">OpaBiz <span>Connect</span></div>
         <button className="op-logout" onClick={logout}>Salir</button>
       </div>
 

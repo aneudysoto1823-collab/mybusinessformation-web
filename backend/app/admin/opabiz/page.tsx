@@ -135,9 +135,9 @@ export default function OpabizAdminPage() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
               <Link href="/admin" style={{ color: '#94A3B8', fontSize: '.8rem', textDecoration: 'none' }}>← Admin</Link>
               <span style={{ color: '#CBD5E1' }}>/</span>
-              <span style={{ color: '#1C2E44', fontSize: '.8rem', fontWeight: 600 }}>OPABIZ</span>
+              <span style={{ color: '#1C2E44', fontSize: '.8rem', fontWeight: 600 }}>OpaBiz Connect</span>
             </div>
-            <h1 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#1C2E44' }}>OPABIZ — Empleados</h1>
+            <h1 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#1C2E44' }}>OpaBiz Connect — Empleados</h1>
             <p style={{ fontSize: '.8rem', color: '#94A3B8', marginTop: 2 }}>Gestión de empleados internos y su estado de asignación</p>
           </div>
           <button className="btn btn-primary" onClick={() => setShowForm(v => !v)}>

@@ -1,7 +1,7 @@
 {
-  "name": "OPABIZ",
-  "short_name": "OPABIZ",
-  "description": "Sistema interno de despacho de órdenes — Florida Business Formation Center",
+  "name": "OpaBiz Connect",
+  "short_name": "Connect",
+  "description": "Sistema interno de servicio, ventas asistidas y despacho de órdenes — Florida Business Formation Center",
   "start_url": "/opabiz/dashboard",
   "scope": "/opabiz",
   "display": "standalone",

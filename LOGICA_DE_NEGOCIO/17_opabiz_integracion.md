@@ -1,10 +1,12 @@
-# Proceso 17 — OPABIZ: Sistema de Gestión Interna de Órdenes
+# Proceso 17 — OpaBiz Connect: Sistema de Gestión Interna de Órdenes
 
-## ¿Qué es OPABIZ?
+## ¿Qué es OpaBiz Connect?
 
-OPABIZ es la aplicación interna de Florida Business Formation Center para gestionar y asignar órdenes a empleados de campo. Es un sistema **separado** del sitio público (`opabiz.com`, lo que ven los clientes) — comparte el mismo proyecto de Supabase, pero es un panel/app propia para el equipo interno.
+OpaBiz Connect es la aplicación interna de Florida Business Formation Center para gestionar y asignar órdenes a empleados de campo. Es un sistema **separado** del sitio público (`opabiz.com`, lo que ven los clientes) — comparte el mismo proyecto de Supabase, pero es un panel/app propia para el equipo interno.
 
 **Historia:** arrancó en una sesión previa (con otra IA, no documentada en su momento) que dejó creadas las tablas de la base. Se retomó el 2026-07-13 y se construyó el motor de asignación + arranque del panel admin. Ver memoria `project_opabiz_sistema_interno` para el detalle completo de esa sesión.
+
+**Sobre el nombre (2026-07-14):** el nombre visible para el equipo es **"OpaBiz Connect"** (login, PWA, emails de invitación, panel admin). Por dentro, rutas (`/opabiz/*`, `/api/opabiz/*`), archivos (`lib/opabiz-*.ts`) y tablas de Supabase (`ordenes_opabiz`, `EMPLEADOS`, etc.) siguen usando `opabiz` sin cambios — fue una decisión deliberada de bajo riesgo (renombrar solo lo visible, no tocar rutas/tablas). Este documento sigue usando "OPABIZ"/`opabiz` para lo técnico y "OpaBiz Connect" para lo que ve el usuario.
 
 ---
 
@@ -17,7 +19,7 @@ Esto no es opcional, es la causa de un bug real que hubo que corregir el 2026-07
 
 `EMPLEADOS.usuario_id` conecta ambas (FK agregada el 2026-07-13, no existía antes — sin ella el join automático de Supabase no funcionaba).
 
-Antes de tocar cualquier tabla de OPABIZ, verificar con una query a `information_schema.table_constraints` cuál id corresponde — no asumir.
+Antes de tocar cualquier tabla de OpaBiz Connect, verificar con una query a `information_schema.table_constraints` cuál id corresponde — no asumir.
 
 ---
 
@@ -50,23 +52,23 @@ El plan original de esta misma sesión previa proponía un **trigger de PostgreS
 - Se verificó que **ningún trigger de Postgres existe en toda la base** — el patrón real y consistente de todo el proyecto es lógica en código TypeScript (`backend/lib/`), nunca en la base de datos (numeración de facturas, emails automáticos, renovaciones — todo vive en código de aplicación).
 - Por la misma razón, el motor de asignación es una ruta de Next.js (`backend/app/api/opabiz/...`), no una Edge Function — mismo stack que el resto del proyecto, sin agregar una plataforma de despliegue nueva.
 
-**Todavía no existe** la integración real "cliente paga en opabiz.com → se crea la orden en OPABIZ automáticamente" — eso queda pendiente para cuando se decida enganchar el webhook de Stripe (`handleFormationPaid` en `backend/app/api/webhooks/stripe/route.ts`) con la creación de `ordenes_opabiz`. Mientras tanto, las órdenes de OPABIZ se crean manualmente (por SQL/admin) para pruebas.
+**Todavía no existe** la integración real "cliente paga en opabiz.com → se crea la orden en OpaBiz Connect automáticamente" — eso queda pendiente para cuando se decida enganchar el webhook de Stripe (`handleFormationPaid` en `backend/app/api/webhooks/stripe/route.ts`) con la creación de `ordenes_opabiz`. Mientras tanto, las órdenes de OpaBiz Connect se crean manualmente (por SQL/admin) para pruebas.
 
 ---
 
 ## Login del empleado + PWA — Etapa 4, CONSTRUIDA 2026-07-14
 
-Decisión: JWT propio (mismo patrón que `admin_session`/`client_session`), **no Supabase Auth** — el resto del sitio nunca usa `auth.uid()`, toda la autorización vive en código de ruta con la key `service_role`. RLS está activado en las 8 tablas de OPABIZ (heredado, sin políticas) — es consistente con el resto de tablas del proyecto (`Order`, `accounting_income`, etc. también tienen RLS on + 0 políticas), así que no hace falta agregar políticas mientras la auth siga siendo JWT propio + `service_role`.
+Decisión: JWT propio (mismo patrón que `admin_session`/`client_session`), **no Supabase Auth** — el resto del sitio nunca usa `auth.uid()`, toda la autorización vive en código de ruta con la key `service_role`. RLS está activado en las 8 tablas de OpaBiz Connect (heredado, sin políticas) — es consistente con el resto de tablas del proyecto (`Order`, `accounting_income`, etc. también tienen RLS on + 0 políticas), así que no hace falta agregar políticas mientras la auth siga siendo JWT propio + `service_role`.
 
-**Schema real confirmado ese día** (antes solo existía el plan viejo de `CONTEXTO.md`, marcado explícitamente como no confiable): `ordenes_opabiz` tiene `cliente_id` (→ `usuarios.id`, no al `Order` del sitio público — OPABIZ tiene su propio concepto de cliente) `NOT NULL` y `empleado_id` (→ `EMPLEADOS.id`) también `NOT NULL`. Tablas `documentos` (`order_id, tipo_documento, url_archivo`) y `niveles` (tiers de desempeño) sí existen, sin la tabla `clientes` que sugería el plan viejo.
+**Schema real confirmado ese día** (antes solo existía el plan viejo de `CONTEXTO.md`, marcado explícitamente como no confiable): `ordenes_opabiz` tiene `cliente_id` (→ `usuarios.id`, no al `Order` del sitio público — OpaBiz Connect tiene su propio concepto de cliente) `NOT NULL` y `empleado_id` (→ `EMPLEADOS.id`) también `NOT NULL`. Tablas `documentos` (`order_id, tipo_documento, url_archivo`) y `niveles` (tiers de desempeño) sí existen, sin la tabla `clientes` que sugería el plan viejo.
 
 **Sesión (JWT):** `backend/lib/opabiz-session.ts` — `createEmployeeToken`/`verifyEmployeeToken`/`getEmployeeSession` (payload `{usuarioId, empleadosId}`, cookie `opabiz_session`, 8h, mismo `SESSION_SECRET`). `backend/proxy.ts` protege `/opabiz/dashboard/:path*`.
 
-**Invitación:** `POST /api/opabiz/employees` (alta del admin) ahora dispara automáticamente un email de invitación — token en Redis (`lib/opabiz-invite.ts`, `opabiz-invite:{token}`, TTL 72h) con link a `/opabiz/invite/[token]`, donde el empleado crea su contraseña (`GET/POST /api/opabiz/auth/accept-invite`) y queda logueado directo. El panel `/admin/opabiz` muestra columna "Acceso" con botón **"📧 Reenviar invitación"** para empleados sin `password_hash` (`POST /api/opabiz/employees/[usuarioId]/resend-invite`). Branding deliberadamente **"OPABIZ"**, no "OpaBiz" (marca que ve el cliente) — ver `lib/email-constants.ts` → `FROM_OPABIZ_INTERNAL`.
+**Invitación:** `POST /api/opabiz/employees` (alta del admin) ahora dispara automáticamente un email de invitación — token en Redis (`lib/opabiz-invite.ts`, `opabiz-invite:{token}`, TTL 72h) con link a `/opabiz/invite/[token]`, donde el empleado crea su contraseña (`GET/POST /api/opabiz/auth/accept-invite`) y queda logueado directo. El panel `/admin/opabiz` muestra columna "Acceso" con botón **"📧 Reenviar invitación"** para empleados sin `password_hash` (`POST /api/opabiz/employees/[usuarioId]/resend-invite`). Branding deliberadamente **"OpaBiz Connect"**, no "OpaBiz" (marca que ve el cliente) — ver `lib/email-constants.ts` → `FROM_OPABIZ_INTERNAL` (nombre de la constante en código sigue siendo `OPABIZ`, solo cambió su valor de display).
 
 **Login:** `POST /api/opabiz/auth/login` (email+password, rate limit 5/15min como el admin), `POST /api/opabiz/auth/logout`, `GET /api/opabiz/auth/me` (bootstrap de la PWA).
 
-**PWA MVP:** `/opabiz/login`, `/opabiz/dashboard` (lista de órdenes del empleado + toggle "Disponible/No disponible" — **sin este toggle nadie podía llegar nunca a `estado_disponibilidad='disponible'`, así que el motor de asignación era imposible de probar de punta a punta**), `/opabiz/dashboard/[id]` (detalle + Aceptar/Completar/subir documentos). Manifest estático en `public/opabiz-manifest.webmanifest` (Next 16 solo soporta la convención `app/manifest.ts` en la raíz de `app/`, no anidada — se intentó y no generó ruta) + iconos placeholder navy "OP" (`public/opabiz-icon-192.png`/`512.png`, generados con sharp). Sin service worker de caché offline — solo "Add to Home Screen".
+**PWA MVP:** `/opabiz/login`, `/opabiz/dashboard` (lista de órdenes del empleado + toggle "Disponible/No disponible" — **sin este toggle nadie podía llegar nunca a `estado_disponibilidad='disponible'`, así que el motor de asignación era imposible de probar de punta a punta**), `/opabiz/dashboard/[id]` (detalle + Aceptar/Completar/subir documentos). Manifest estático en `public/opabiz-manifest.webmanifest` (Next 16 solo soporta la convención `app/manifest.ts` en la raíz de `app/`, no anidada — se intentó y no generó ruta) + iconos placeholder navy "OC" (`public/opabiz-icon-192.png`/`512.png`, generados con sharp). Sin service worker de caché offline — solo "Add to Home Screen".
 
 **Rutas empleado-scoped** (`backend/app/api/opabiz/me/*`, todas verifican que `ordenes_opabiz.empleado_id` sea el de la sesión): `GET orders`, `GET orders/[id]`, `POST orders/[id]/accept` (asignada→en_progreso), `POST orders/[id]/complete` (en_progreso→completada + `registrarPuntaje(+10)`), `POST orders/[id]/documents` (multipart, bucket público `opabiz-documentos` — migración `supabase_migration_opabiz_documentos_bucket.sql`), `POST disponibilidad`.
 
@@ -82,4 +84,4 @@ Decisión: JWT propio (mismo patrón que `admin_session`/`client_session`), **no
 
 - Memoria de la sesión 2026-07-13: `project_opabiz_sistema_interno`
 - Sistema de emails MBF: `LOGICA_DE_NEGOCIO/02_emails_automaticos.md`
-- Panel admin de OPABIZ: `backend/app/admin/opabiz/page.tsx`
+- Panel admin de OpaBiz Connect: `backend/app/admin/opabiz/page.tsx`
