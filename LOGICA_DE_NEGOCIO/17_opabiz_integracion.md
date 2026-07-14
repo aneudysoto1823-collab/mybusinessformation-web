@@ -54,11 +54,27 @@ El plan original de esta misma sesión previa proponía un **trigger de PostgreS
 
 ---
 
-## Login del empleado — Etapa 4, pendiente
+## Login del empleado + PWA — Etapa 4, CONSTRUIDA 2026-07-14
 
 Decisión: JWT propio (mismo patrón que `admin_session`/`client_session`), **no Supabase Auth** — el resto del sitio nunca usa `auth.uid()`, toda la autorización vive en código de ruta con la key `service_role`. RLS está activado en las 8 tablas de OPABIZ (heredado, sin políticas) — es consistente con el resto de tablas del proyecto (`Order`, `accounting_income`, etc. también tienen RLS on + 0 políticas), así que no hace falta agregar políticas mientras la auth siga siendo JWT propio + `service_role`.
 
-**Flujo de alta:** el admin crea la cuenta del empleado desde `/admin/opabiz` (nombre/email/teléfono/nivel) — no hay autoservicio. El empleado define su propia contraseña después. Ya existe la columna `usuarios.password_hash` (nullable), pero **falta construir**: el email de invitación con link de token de un solo uso (mismo patrón que la recuperación de contraseña del admin), el endpoint que lo consume, el endpoint de login (`POST /api/opabiz/auth/login`), y la PWA en sí (dashboard de órdenes asignadas, aceptar/completar, subir documentos).
+**Schema real confirmado ese día** (antes solo existía el plan viejo de `CONTEXTO.md`, marcado explícitamente como no confiable): `ordenes_opabiz` tiene `cliente_id` (→ `usuarios.id`, no al `Order` del sitio público — OPABIZ tiene su propio concepto de cliente) `NOT NULL` y `empleado_id` (→ `EMPLEADOS.id`) también `NOT NULL`. Tablas `documentos` (`order_id, tipo_documento, url_archivo`) y `niveles` (tiers de desempeño) sí existen, sin la tabla `clientes` que sugería el plan viejo.
+
+**Sesión (JWT):** `backend/lib/opabiz-session.ts` — `createEmployeeToken`/`verifyEmployeeToken`/`getEmployeeSession` (payload `{usuarioId, empleadosId}`, cookie `opabiz_session`, 8h, mismo `SESSION_SECRET`). `backend/proxy.ts` protege `/opabiz/dashboard/:path*`.
+
+**Invitación:** `POST /api/opabiz/employees` (alta del admin) ahora dispara automáticamente un email de invitación — token en Redis (`lib/opabiz-invite.ts`, `opabiz-invite:{token}`, TTL 72h) con link a `/opabiz/invite/[token]`, donde el empleado crea su contraseña (`GET/POST /api/opabiz/auth/accept-invite`) y queda logueado directo. El panel `/admin/opabiz` muestra columna "Acceso" con botón **"📧 Reenviar invitación"** para empleados sin `password_hash` (`POST /api/opabiz/employees/[usuarioId]/resend-invite`). Branding deliberadamente **"OPABIZ"**, no "OpaBiz" (marca que ve el cliente) — ver `lib/email-constants.ts` → `FROM_OPABIZ_INTERNAL`.
+
+**Login:** `POST /api/opabiz/auth/login` (email+password, rate limit 5/15min como el admin), `POST /api/opabiz/auth/logout`, `GET /api/opabiz/auth/me` (bootstrap de la PWA).
+
+**PWA MVP:** `/opabiz/login`, `/opabiz/dashboard` (lista de órdenes del empleado + toggle "Disponible/No disponible" — **sin este toggle nadie podía llegar nunca a `estado_disponibilidad='disponible'`, así que el motor de asignación era imposible de probar de punta a punta**), `/opabiz/dashboard/[id]` (detalle + Aceptar/Completar/subir documentos). Manifest estático en `public/opabiz-manifest.webmanifest` (Next 16 solo soporta la convención `app/manifest.ts` en la raíz de `app/`, no anidada — se intentó y no generó ruta) + iconos placeholder navy "OP" (`public/opabiz-icon-192.png`/`512.png`, generados con sharp). Sin service worker de caché offline — solo "Add to Home Screen".
+
+**Rutas empleado-scoped** (`backend/app/api/opabiz/me/*`, todas verifican que `ordenes_opabiz.empleado_id` sea el de la sesión): `GET orders`, `GET orders/[id]`, `POST orders/[id]/accept` (asignada→en_progreso), `POST orders/[id]/complete` (en_progreso→completada + `registrarPuntaje(+10)`), `POST orders/[id]/documents` (multipart, bucket público `opabiz-documentos` — migración `supabase_migration_opabiz_documentos_bucket.sql`), `POST disponibilidad`.
+
+**Bug corregido de paso:** el cron `reassign-timeouts` hacía `update({empleado_id: null, ...})` cuando no había candidato, pero `ordenes_opabiz.empleado_id` es `NOT NULL` — el update fallaba en silencio, la orden nunca salía de `estado='asignada'`, y el cron volvía a penalizar al mismo empleado cada 5 min indefinidamente. Fix: ya no intenta vaciar `empleado_id`, solo cambia `estado` (lo saca del filtro del cron) y loguea el error si el update falla.
+
+**Pendiente de correr en Supabase:** `supabase_migration_opabiz_documentos_bucket.sql` (crea el bucket `opabiz-documentos`).
+
+**Explícitamente fuera de esta sesión:** push/WhatsApp al empleado, service worker offline, integración webhook Stripe → crear `ordenes_opabiz` automáticamente (necesita resolver el mapeo cliente→`usuarios.id` primero), `NIVEL_MINIMO_POR_SERVICIO`, página de perfil/métricas del empleado.
 
 ---
 

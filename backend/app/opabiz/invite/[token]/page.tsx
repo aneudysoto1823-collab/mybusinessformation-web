@@ -1,0 +1,110 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { useRouter, useParams } from 'next/navigation'
+
+type CheckState = 'loading' | 'valid' | 'invalid'
+
+export default function OpabizInvitePage() {
+  const router = useRouter()
+  const params = useParams<{ token: string }>()
+  const token = params.token
+
+  const [check, setCheck] = useState<CheckState>('loading')
+  const [nombre, setNombre] = useState<string | null>(null)
+  const [password, setPassword] = useState('')
+  const [confirm, setConfirm] = useState('')
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    fetch(`/api/opabiz/auth/accept-invite?token=${encodeURIComponent(token)}`)
+      .then(res => res.json())
+      .then(data => {
+        setCheck(data.valid ? 'valid' : 'invalid')
+        setNombre(data.nombre ?? null)
+      })
+      .catch(() => setCheck('invalid'))
+  }, [token])
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    setError('')
+    if (password.length < 8) {
+      setError('La contraseña debe tener al menos 8 caracteres.')
+      return
+    }
+    if (password !== confirm) {
+      setError('Las contraseñas no coinciden.')
+      return
+    }
+    setLoading(true)
+    try {
+      const res = await fetch('/api/opabiz/auth/accept-invite', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, password }),
+      })
+      if (res.ok) {
+        router.push('/opabiz/dashboard')
+        return
+      }
+      const data = await res.json().catch(() => ({}))
+      setError(data.error ?? 'No se pudo crear la contraseña.')
+    } catch {
+      setError('Error de conexión. Intentá de nuevo.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <>
+      <style>{`
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        body{background:#0f1c2e}
+        .op-wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;font-family:var(--font-sans)}
+        .op-brand{color:#fff;font-size:1.3rem;font-weight:800;letter-spacing:.5px;margin-bottom:24px}
+        .op-brand span{color:#2563EB}
+        .op-card{background:#fff;border-radius:14px;padding:28px 24px;width:100%;max-width:360px;box-shadow:0 10px 40px rgba(0,0,0,.3)}
+        .op-title{font-size:1.05rem;font-weight:700;color:#1C2E44;margin-bottom:6px}
+        .op-sub{font-size:.82rem;color:#64748B;margin-bottom:18px}
+        .op-field{margin-bottom:14px}
+        .op-field label{display:block;font-size:.78rem;font-weight:600;color:#374151;margin-bottom:5px}
+        .op-field input{width:100%;padding:11px 12px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:16px;font-family:inherit;color:#1E293B;outline:none}
+        .op-field input:focus{border-color:#2563EB}
+        .op-btn{width:100%;padding:12px;border-radius:8px;background:#2563EB;color:#fff;font-weight:700;font-size:.9rem;border:none;cursor:pointer;margin-top:6px}
+        .op-btn:disabled{opacity:.6;cursor:not-allowed}
+        .op-error{color:#ef4444;font-size:.8rem;margin-top:10px;text-align:center}
+        .op-msg{font-size:.85rem;color:#374151;text-align:center}
+      `}</style>
+      <div className="op-wrap">
+        <div className="op-brand">OPA<span>BIZ</span></div>
+        <div className="op-card">
+          {check === 'loading' && <p className="op-msg">Verificando invitación…</p>}
+          {check === 'invalid' && <p className="op-msg">Este link ya no es válido o expiró. Pedile al admin que te reenvíe la invitación.</p>}
+          {check === 'valid' && (
+            <>
+              <div className="op-title">Creá tu contraseña</div>
+              <div className="op-sub">{nombre ? `Hola, ${nombre}` : 'Bienvenido a OPABIZ'}</div>
+              <form onSubmit={handleSubmit}>
+                <div className="op-field">
+                  <label>Contraseña</label>
+                  <input type="password" autoComplete="new-password" value={password} onChange={e => setPassword(e.target.value)} required />
+                </div>
+                <div className="op-field">
+                  <label>Confirmar contraseña</label>
+                  <input type="password" autoComplete="new-password" value={confirm} onChange={e => setConfirm(e.target.value)} required />
+                </div>
+                <button type="submit" className="op-btn" disabled={loading}>
+                  {loading ? 'Guardando…' : 'Crear contraseña y entrar'}
+                </button>
+                {error && <p className="op-error">{error}</p>}
+              </form>
+            </>
+          )}
+        </div>
+      </div>
+    </>
+  )
+}

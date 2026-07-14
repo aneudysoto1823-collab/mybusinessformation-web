@@ -1,0 +1,14 @@
+{
+  "name": "OPABIZ",
+  "short_name": "OPABIZ",
+  "description": "Sistema interno de despacho de órdenes — Florida Business Formation Center",
+  "start_url": "/opabiz/dashboard",
+  "scope": "/opabiz",
+  "display": "standalone",
+  "background_color": "#0f1c2e",
+  "theme_color": "#1C2E44",
+  "icons": [
+    { "src": "/opabiz-icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/opabiz-icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

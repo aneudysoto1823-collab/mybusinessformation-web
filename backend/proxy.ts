@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdminToken, verifyPendingToken } from '@/lib/session'
+import { verifyEmployeeToken } from '@/lib/opabiz-session'
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -23,9 +24,16 @@ export async function proxy(request: NextRequest) {
     if (!session) return NextResponse.redirect(new URL('/client-portal', request.url))
   }
 
+  if (pathname.startsWith('/opabiz/dashboard')) {
+    const session = request.cookies.get('opabiz_session')
+    if (!session?.value || !(await verifyEmployeeToken(session.value))) {
+      return NextResponse.redirect(new URL('/opabiz/login', request.url))
+    }
+  }
+
   return NextResponse.next()
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/login/verify', '/client-portal/dashboard/:path*'],
+  matcher: ['/admin/:path*', '/login/verify', '/client-portal/dashboard/:path*', '/opabiz/dashboard/:path*'],
 }

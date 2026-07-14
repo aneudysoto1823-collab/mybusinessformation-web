@@ -546,6 +546,8 @@ Ver troubleshooting en `TROUBLESHOOTING/13_responsive_design.md`
 > **NOTA (2026-05-18, superada):** OPABIZ quedó descartada del scope pre-launch. ~~Se retoma después del lanzamiento~~
 >
 > **ACTUALIZACIÓN (2026-07-13):** se retomó antes de lo previsto. El founder ya había arrancado esto en una sesión previa con otra IA (no documentada acá) — el esquema real de Supabase difiere bastante de lo que describe este archivo (tabla `EMPLEADOS` en mayúsculas no listada abajo, ENUMs con valores distintos, `EMPLEADOS.id` — no `usuarios.id` — es la clave real que usan `empleado_perfil`/`ordenes_opabiz`/`puntajes`/`inactividades`). Se construyó el motor de asignación (Etapa 2) + arranque del panel admin (Etapa 3, alta de empleados en `/admin/opabiz`) + cron de timeout/reasignación. Detalle completo y actualizado en `LOGICA_DE_NEGOCIO/17_opabiz_integracion.md` y memoria `project_opabiz_sistema_interno`. **Este bloque de abajo (checklist original) quedó desactualizado — no confiar en los nombres de tabla/campos sin verificar contra Supabase primero.**
+>
+> **ACTUALIZACIÓN (2026-07-14):** se construyó la Etapa 4 (login de empleado + invitación por email + PWA MVP: dashboard, aceptar/completar orden, subir documentos, toggle de disponibilidad). Sin este toggle nadie podía llegar nunca a `estado_disponibilidad='disponible'`, así que el motor de asignación era imposible de probar de punta a punta hasta ahora. También se confirmó el schema real de `ordenes_opabiz`/`documentos`/`niveles` (`cliente_id` apunta a `usuarios.id`, no al `Order` del sitio público) y se corrigió un bug del cron de reasignación que violaba una constraint `NOT NULL` en silencio. Pendiente correr `supabase_migration_opabiz_documentos_bucket.sql`. Detalle en `LOGICA_DE_NEGOCIO/17_opabiz_integracion.md` y memoria `project_opabiz_sistema_interno`.
 
 
 ```diff
@@ -610,11 +612,13 @@ Cliente paga → Order creada (Stripe webhook)
 - [ ] Gestión de órdenes: crear manual, asignar manual, ver documentos, ver historial
 - [ ] Configuración: tiempos de emergencia, reglas de asignación, puntos por acción
 
-🔲 ETAPA 4 — App del Empleado (PWA / Expo)
-- [ ] Autenticación: login, recuperación, verificación
-- [ ] Dashboard: órdenes asignadas, en progreso, historial
-- [ ] Flujo de orden: aceptar, iniciar, subir documentos, completar, notas internas
-- [ ] Perfil: nivel jerárquico, puntaje, tier, inactividades, métricas
+🟦 ETAPA 4 — App del Empleado (PWA) — MVP CONSTRUIDO 2026-07-14
+- [x] Autenticación: login, invitación por email (token Redis 72h), sin recuperación de contraseña propia todavía (el admin reenvía la invitación)
+- [x] Dashboard: órdenes asignadas + toggle de disponibilidad
+- [x] Flujo de orden: aceptar, subir documentos, completar
+- [ ] Perfil: nivel jerárquico, puntaje, tier, inactividades, métricas (fácil de agregar, `getTierForScore()` ya existe)
+- [ ] Notas internas del empleado sobre una orden
+- Detalle completo: `LOGICA_DE_NEGOCIO/17_opabiz_integracion.md` y memoria `project_opabiz_sistema_interno`
 
 🔲 ETAPA 5 — Integraciones
 - [ ] DB trigger: Order de MBF → crea ordenes_opabiz

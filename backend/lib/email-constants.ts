@@ -21,3 +21,9 @@ export const FROM_OPABIZ_MARKETING = `OpaBiz <${FROM_MARKETING}>`
 export const FROM_OPABIZ_SUPPORT = `OpaBiz Support <${FROM_SUPPORT}>`
 export const FROM_OPABIZ_ALERTS = `OpaBiz Alerts <${FROM_TRANSACTIONAL}>`
 export const FROM_OPABIZ_CONTACT = `OpaBiz Contact <${FROM_TRANSACTIONAL}>`
+
+// Sistema interno OPABIZ (despacho de empleados) — deliberadamente distinto del
+// display name "OpaBiz" de arriba, que es la marca que ve el cliente. Un
+// empleado no debería confundir este email con algo que le llegaría a un
+// cliente del sitio público.
+export const FROM_OPABIZ_INTERNAL = `OPABIZ <${FROM_TRANSACTIONAL}>`

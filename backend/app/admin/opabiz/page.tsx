@@ -17,6 +17,7 @@ type Empleado = {
   telefono: string
   estado: string
   fecha_creacion: string
+  tieneClave: boolean
   EMPLEADOS: EmpleadoDetalle | EmpleadoDetalle[] | null
 }
 
@@ -44,6 +45,7 @@ export default function OpabizAdminPage() {
   const [email, setEmail]       = useState('')
   const [telefono, setTelefono] = useState('')
   const [nivel, setNivel]       = useState('basico')
+  const [resendingId, setResendingId] = useState<string | null>(null)
 
   const cargarEmpleados = useCallback(async () => {
     setLoading(true)
@@ -75,6 +77,18 @@ export default function OpabizAdminPage() {
     } else {
       const d = await res.json().catch(() => ({}))
       setMsg({ ok: false, text: d.error ?? 'No se pudo crear el empleado.' })
+    }
+  }
+
+  async function reenviarInvitacion(usuarioId: string) {
+    setResendingId(usuarioId)
+    const res = await fetch(`/api/opabiz/employees/${usuarioId}/resend-invite`, { method: 'POST' })
+    setResendingId(null)
+    if (res.ok) {
+      setMsg({ ok: true, text: 'Invitación reenviada.' })
+    } else {
+      const d = await res.json().catch(() => ({}))
+      setMsg({ ok: false, text: d.error ?? 'No se pudo reenviar la invitación.' })
     }
   }
 
@@ -182,6 +196,7 @@ export default function OpabizAdminPage() {
                   <th>Puntaje</th>
                   <th>Disponibilidad</th>
                   <th>Inactividades</th>
+                  <th>Acceso</th>
                 </tr>
               </thead>
               <tbody>
@@ -202,6 +217,20 @@ export default function OpabizAdminPage() {
                         </span>
                       </td>
                       <td>{det?.inactividades_totales ?? 0}</td>
+                      <td>
+                        {emp.tieneClave ? (
+                          <span className="badge" style={{ color: '#059669', background: '#ECFDF5' }}>Activo</span>
+                        ) : (
+                          <button
+                            className="btn btn-primary"
+                            style={{ padding: '5px 10px', fontSize: '.72rem' }}
+                            disabled={resendingId === emp.id}
+                            onClick={() => reenviarInvitacion(emp.id)}
+                          >
+                            {resendingId === emp.id ? 'Enviando…' : '📧 Reenviar invitación'}
+                          </button>
+                        )}
+                      </td>
                     </tr>
                   )
                 })}

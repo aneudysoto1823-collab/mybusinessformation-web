@@ -81,12 +81,20 @@ export async function GET(req: NextRequest) {
       })
       reasignadas++
     } else {
-      // No hay nadie más disponible — la orden queda sin empleado hasta que
-      // alguien se marque disponible o un admin la asigne a mano.
-      await supabase
+      // No hay nadie más disponible. ordenes_opabiz.empleado_id es NOT NULL,
+      // así que no se puede vaciar — se deja el último empleado conocido (ya
+      // penalizado arriba) y solo cambia `estado`, lo que la saca del filtro
+      // `estado='asignada'` del cron y frena el loop de inactividades
+      // repetidas cada 5 min. Queda pendiente de que un admin la reasigne a
+      // mano o que alguien se marque disponible y se vuelva a intentar.
+      const { error: liberarErr } = await supabase
         .from('ordenes_opabiz')
-        .update({ empleado_id: null, estado: 'pendiente' })
+        .update({ estado: 'pendiente' })
         .eq('id', orden.id)
+
+      if (liberarErr) {
+        console.error('[opabiz/cron/reassign-timeouts] error al liberar orden sin candidato:', liberarErr.message)
+      }
 
       if (usuarioIdAnterior) {
         await supabase.from('historial_actividad').insert({

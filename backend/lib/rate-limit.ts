@@ -175,3 +175,16 @@ export async function checkContactRateLimit(ip: string): Promise<RateLimitResult
   })
   return check(limiter, ip, 5)
 }
+
+// ── Login empleado OPABIZ: 5 intentos / 15 min / IP ──────────────────────────
+// Mismo límite que el login admin — es la única defensa de fuerza bruta ya que
+// no hay 2FA para empleados.
+export async function checkOpabizLoginRateLimit(ip: string): Promise<RateLimitResult> {
+  const limiter = getLimiter({
+    cacheKey: 'opabiz-login',
+    prefix: 'rl:opabiz-login',
+    limit: 5,
+    window: '15 m',
+  })
+  return check(limiter, ip, 5)
+}
