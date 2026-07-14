@@ -11,16 +11,21 @@ async function verifyAdmin(req: NextRequest): Promise<boolean> {
   return verifyAdminToken(session.value)
 }
 
-// GET /api/opabiz/orders?appointmentId=... — listado liviano, hoy solo se usa
-// desde /admin/citas para saber si una cita ya tiene una orden vinculada (evita
-// crear duplicados). Sin appointmentId, no filtra (no se usa así todavía).
+// GET /api/opabiz/orders?appointmentId=... — con appointmentId: chequeo
+// liviano usado por /admin/citas para evitar duplicados. Sin filtro: listado
+// completo con cliente + empleado asignado, usado por la sección "Órdenes" de
+// /admin/opabiz (antes no había ninguna vista para ver a quién se le asignó
+// cada orden — solo se veía desde el propio dashboard del empleado).
 export async function GET(req: NextRequest) {
   if (!(await verifyAdmin(req))) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const appointmentId = req.nextUrl.searchParams.get('appointmentId')
   const supabase = getSupabaseAdmin()
 
-  let query = supabase.from('ordenes_opabiz').select('id, appointment_id, estado')
+  let query = supabase
+    .from('ordenes_opabiz')
+    .select('id, tipo_servicio, estado, es_urgente, notas, fecha_creacion, fecha_asignacion, appointment_id, usuarios(nombre, email), EMPLEADOS(nivel, usuarios(nombre))')
+    .order('fecha_creacion', { ascending: false })
   if (appointmentId) query = query.eq('appointment_id', appointmentId)
 
   const { data, error } = await query

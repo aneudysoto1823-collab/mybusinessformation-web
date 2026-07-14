@@ -34,6 +34,40 @@ function empleadoDetalle(e: Empleado): EmpleadoDetalle | null {
   return Array.isArray(e.EMPLEADOS) ? e.EMPLEADOS[0] ?? null : e.EMPLEADOS
 }
 
+type ClienteRef = { nombre: string; email: string }
+type EmpleadoRef = { nivel: string; usuarios: { nombre: string } | { nombre: string }[] | null }
+
+type Orden = {
+  id: string
+  tipo_servicio: string
+  estado: string
+  es_urgente: boolean
+  notas: string | null
+  fecha_creacion: string
+  fecha_asignacion: string | null
+  usuarios: ClienteRef | ClienteRef[] | null
+  EMPLEADOS: EmpleadoRef | EmpleadoRef[] | null
+}
+
+const ESTADO_ORDEN_META: Record<string, { label: string; color: string; bg: string }> = {
+  asignada:    { label: 'Asignada',    color: '#d97706', bg: '#fffbeb' },
+  en_progreso: { label: 'En progreso', color: '#2563EB', bg: '#eff6ff' },
+  completada:  { label: 'Completada',  color: '#059669', bg: '#ECFDF5' },
+  pendiente:   { label: 'Sin asignar', color: '#64748b', bg: '#F1F5F9' },
+}
+
+function unwrap<T>(v: T | T[] | null): T | null {
+  if (!v) return null
+  return Array.isArray(v) ? v[0] ?? null : v
+}
+
+function nombreEmpleadoDe(o: Orden): string {
+  const emp = unwrap(o.EMPLEADOS)
+  if (!emp) return '—'
+  const usr = unwrap(emp.usuarios)
+  return usr?.nombre ?? '—'
+}
+
 export default function OpabizAdminPage() {
   const [empleados, setEmpleados] = useState<Empleado[]>([])
   const [loading, setLoading]     = useState(true)
@@ -47,6 +81,8 @@ export default function OpabizAdminPage() {
   const [nivel, setNivel]       = useState('basico')
   const [resendingId, setResendingId] = useState<string | null>(null)
   const [togglingEstadoId, setTogglingEstadoId] = useState<string | null>(null)
+  const [ordenes, setOrdenes] = useState<Orden[]>([])
+  const [loadingOrdenes, setLoadingOrdenes] = useState(true)
 
   // silent=true se usa en el polling de fondo — no muestra el spinner de
   // "Cargando…" para no repintar la tabla cada 20s, mismo patrón que
@@ -61,15 +97,25 @@ export default function OpabizAdminPage() {
     if (!silent) setLoading(false)
   }, [])
 
-  useEffect(() => { cargarEmpleados() }, [cargarEmpleados])
+  const cargarOrdenes = useCallback(async (silent = false) => {
+    if (!silent) setLoadingOrdenes(true)
+    const res = await fetch('/api/opabiz/orders')
+    if (res.ok) {
+      const data = await res.json()
+      setOrdenes(data.ordenes ?? [])
+    }
+    if (!silent) setLoadingOrdenes(false)
+  }, [])
 
-  // Polling en segundo plano cada 20s — la disponibilidad/puntaje/etc. de un
-  // empleado cambian desde su propia PWA (/opabiz/dashboard), no desde acá,
-  // así que sin esto el admin solo lo ve al recargar la página a mano.
+  useEffect(() => { cargarEmpleados(); cargarOrdenes() }, [cargarEmpleados, cargarOrdenes])
+
+  // Polling en segundo plano cada 20s — la disponibilidad/puntaje/estado de
+  // las órdenes cambian desde la propia PWA del empleado, no desde acá, así
+  // que sin esto el admin no lo ve hasta recargar la página a mano.
   useEffect(() => {
-    const interval = setInterval(() => { cargarEmpleados(true) }, 20000)
+    const interval = setInterval(() => { cargarEmpleados(true); cargarOrdenes(true) }, 20000)
     return () => clearInterval(interval)
-  }, [cargarEmpleados])
+  }, [cargarEmpleados, cargarOrdenes])
 
   async function crearEmpleado(e: React.FormEvent) {
     e.preventDefault()
@@ -92,8 +138,10 @@ export default function OpabizAdminPage() {
     }
   }
 
-  async function toggleEstado(usuarioId: string, estadoActual: string) {
+  async function toggleEstado(usuarioId: string, estadoActual: string, nombre: string) {
     const nuevoEstado = estadoActual === 'activo' ? 'inactivo' : 'activo'
+    const accion = nuevoEstado === 'inactivo' ? 'desactivar' : 'reactivar'
+    if (!confirm(`¿Seguro que querés ${accion} a ${nombre}?`)) return
     setTogglingEstadoId(usuarioId)
     const res = await fetch(`/api/opabiz/employees/${usuarioId}`, {
       method: 'PATCH',
@@ -270,12 +318,55 @@ export default function OpabizAdminPage() {
                             className="btn"
                             style={{ padding: '5px 10px', fontSize: '.72rem', border: '1.5px solid #E2E8F0', background: '#fff', color: '#374151' }}
                             disabled={togglingEstadoId === emp.id}
-                            onClick={() => toggleEstado(emp.id, emp.estado)}
+                            onClick={() => toggleEstado(emp.id, emp.estado, emp.nombre)}
                           >
                             {togglingEstadoId === emp.id ? '…' : emp.estado === 'activo' ? 'Desactivar' : 'Reactivar'}
                           </button>
                         </div>
                       </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          )}
+        </div>
+
+        <div className="card">
+          <div className="card-head"><span className="card-title">Órdenes ({ordenes.length})</span></div>
+          {loadingOrdenes ? (
+            <div className="empty">Cargando…</div>
+          ) : ordenes.length === 0 ? (
+            <div className="empty">Todavía no hay ninguna orden creada.</div>
+          ) : (
+            <table>
+              <thead>
+                <tr>
+                  <th>Cliente</th>
+                  <th>Tipo de servicio</th>
+                  <th>Asignada a</th>
+                  <th>Estado</th>
+                  <th>Urgente</th>
+                  <th>Creada</th>
+                </tr>
+              </thead>
+              <tbody>
+                {ordenes.map(o => {
+                  const cliente = unwrap(o.usuarios)
+                  const meta = ESTADO_ORDEN_META[o.estado] ?? ESTADO_ORDEN_META.pendiente
+                  return (
+                    <tr key={o.id}>
+                      <td>
+                        <div style={{ fontWeight: 600, color: '#1C2E44' }}>{cliente?.nombre ?? '—'}</div>
+                        <div style={{ fontSize: '.75rem', color: '#94A3B8' }}>{cliente?.email ?? ''}</div>
+                      </td>
+                      <td>{o.tipo_servicio}{o.notas ? <div style={{ fontSize: '.75rem', color: '#94A3B8' }}>{o.notas}</div> : null}</td>
+                      <td style={{ fontWeight: 600 }}>{nombreEmpleadoDe(o)}</td>
+                      <td>
+                        <span className="badge" style={{ color: meta.color, background: meta.bg }}>{meta.label}</span>
+                      </td>
+                      <td>{o.es_urgente ? '⚡ Sí' : '—'}</td>
+                      <td>{new Date(o.fecha_creacion).toLocaleDateString()}</td>
                     </tr>
                   )
                 })}
