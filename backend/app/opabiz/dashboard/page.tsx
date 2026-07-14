@@ -104,6 +104,7 @@ export default function OpabizDashboardPage() {
         .op-cliente{color:#374151;font-size:.82rem}
         .op-fecha{color:#94A3B8;font-size:.74rem;margin-top:4px}
         .op-empty{text-align:center;color:#94A3B8;font-size:.85rem;padding:40px 20px}
+        .op-intake-link{display:block;text-align:center;background:#EFF6FF;color:#1d4ed8;border:1.5px solid #bfdbfe;border-radius:10px;padding:13px;font-weight:700;font-size:.85rem;text-decoration:none;margin-bottom:16px;min-height:44px}
       `}</style>
 
       <div className="op-header">
@@ -116,6 +117,8 @@ export default function OpabizDashboardPage() {
           <p className="op-empty">Cargando…</p>
         ) : (
           <>
+            <Link href="/opabiz/dashboard/intake" className="op-intake-link">📞 Nueva intake asistida</Link>
+
             {me && (
               <div className="op-me">
                 <div className="op-me-name">{me.nombre}</div>

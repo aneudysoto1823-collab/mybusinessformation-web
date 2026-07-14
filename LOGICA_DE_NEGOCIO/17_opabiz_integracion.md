@@ -80,6 +80,52 @@ Decisión: JWT propio (mismo patrón que `admin_session`/`client_session`), **no
 
 ---
 
+## Citas manuales + Intake asistida — 2026-07-14
+
+Dos primeros usos reales de OpaBiz Connect, ambos **100% manuales** (el
+founder quiere evaluar el desempeño de los agentes antes de automatizar
+asignación — el motor `pickBestEmployee` sigue existiendo, no se dispara desde
+ninguna de las dos).
+
+**Migración:** `supabase_migration_opabiz_citas_intake.sql` — agrega
+`ordenes_opabiz.notas` (TEXT, contexto libre de la tarea) y
+`ordenes_opabiz.appointment_id` (FK a `appointments.id`), más
+`"Order"."assistedByEmpleadosId"` (FK a `EMPLEADOS.id`).
+
+### Citas → orden (manual)
+
+`POST /api/opabiz/orders` (nuevo, admin-only) crea una orden de OpaBiz Connect.
+`empleadoUsuarioId` es **obligatorio** — `ordenes_opabiz.empleado_id` es
+`NOT NULL` en la base real, así que no existe la posibilidad de crear una
+orden "sin asignar" (calza con la decisión de asignar todo a mano). Resuelve
+o crea un `usuarios` cliente por email (`lib/opabiz-clientes.ts`,
+`findOrCreateClienteUsuario()` — reusado también por intake asistida).
+
+`/admin/citas` tiene un botón **"🧭 Crear orden OpaBiz Connect"** por fila que
+abre un mini-formulario (tipo de servicio, notas prefilled con la nota de la
+cita, urgente, empleado a asignar). Se deshabilita si la cita ya tiene una
+orden vinculada (`GET /api/opabiz/orders?appointmentId=`).
+
+### Intake asistida (agente arma la solicitud, cliente solo paga)
+
+**El agente NUNCA toca el pago del cliente (riesgo PCI).** Decisión de diseño
+clave: NO reusa el flujo `?continue=FBFC-XXXX` del home — ese link restaura el
+form gigante de `page.tsx` (~6800 líneas) leyendo un `snapshot` con shape
+interna del form (`FM_FIELD_IDS`, `fmData`); sin ese snapshot exacto (inviable
+de armar desde afuera) el cliente cae en un form en blanco y el próximo
+autosave puede pisar con blancos los datos que cargó el agente (confirmado
+leyendo `fmFetchAndRestoreDraft()` en `page.tsx`).
+
+En cambio:
+1. `backend/app/opabiz/dashboard/intake/page.tsx` — form de una sola pantalla dentro de la PWA del empleado (contacto, empresa, dirección, agente registrado, miembros dinámicos, paquete, addons, velocidad). Link "📞 Nueva intake asistida" en `/opabiz/dashboard`.
+2. `POST /api/opabiz/me/intake` — valida con `OrderDraftInputSchema` (mismo contrato que usa el resto del sistema), inserta el `Order` **directamente** (sin llamar a `/api/orders/draft`, para no depender de su email de "continuar aplicación"), crea/resuelve el `usuarios` cliente, crea la orden en `ordenes_opabiz` (`tipo_servicio:'Intake asistida'`, `estado:'completada'` de una — el trabajo del agente termina al enviar, no depende de que el cliente pague), setea `Order.assistedByEmpleadosId`, suma +10 puntos (`registrarPuntaje`, mismo award que completar una orden de campo — una bonificación proporcional a lo vendido queda pendiente), y manda un email propio (no el de `/api/orders/draft`) con link a `/confirm/[fbfc]`.
+3. `GET /api/orders/summary-by-fbfc?fbfc=...` — resuelve el FBFC al `Order` real, setea `client_session` y devuelve el resumen (`computeFormationTotal`, `lib/pricing.ts`). Endpoint propio (no reusa `/api/client-auth` + un GET separado) porque es un link de un solo uso, no una sesión de portal.
+4. `backend/app/confirm/[fbfc]/page.tsx` — página pública liviana: muestra el resumen (empresa, paquete, addons, total) y un botón "Confirmar y pagar" que monta Stripe Embedded Checkout (`POST /api/checkout/embedded`, mismo patrón que `fmMountPayment()` del home) — sin el resto del wizard alrededor. Sin edición inline a propósito; correcciones van por contacto humano (mailto).
+
+**Pendiente:** bonificación de puntos proporcional a lo vendido (hoy flat +10); auto-crear orden al agendar cita (hoy 100% manual).
+
+---
+
 ## Referencias
 
 - Memoria de la sesión 2026-07-13: `project_opabiz_sistema_interno`

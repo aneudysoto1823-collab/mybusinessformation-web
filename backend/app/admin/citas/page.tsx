@@ -22,6 +22,11 @@ interface BlockedSlot {
   reason: string | null
 }
 
+interface EmpleadoOption {
+  id: string // usuarios.id
+  nombre: string
+}
+
 const ALL_SLOTS = [
   '09:00','09:40','10:20','11:00','11:40',
   '12:20','13:00','13:40','14:20','15:00',
@@ -58,18 +63,79 @@ export default function CitasPage() {
   const [blocking, setBlocking] = useState(false)
   const [tab, setTab] = useState<'appointments' | 'blocked'>('appointments')
 
+  // Crear orden de OpaBiz Connect a partir de una cita (manual, ver
+  // LOGICA_DE_NEGOCIO/17). `linkedAppointmentIds` evita crear duplicados.
+  const [empleados, setEmpleados] = useState<EmpleadoOption[]>([])
+  const [linkedAppointmentIds, setLinkedAppointmentIds] = useState<Set<string>>(new Set())
+  const [creatingFor, setCreatingFor] = useState<Appointment | null>(null)
+  const [orderTipoServicio, setOrderTipoServicio] = useState('Consulta agendada')
+  const [orderNotas, setOrderNotas] = useState('')
+  const [orderEsUrgente, setOrderEsUrgente] = useState(false)
+  const [orderEmpleadoId, setOrderEmpleadoId] = useState('')
+  const [creatingOrder, setCreatingOrder] = useState(false)
+  const [orderMsg, setOrderMsg] = useState<{ ok: boolean; text: string } | null>(null)
+
   const load = useCallback(async () => {
     setLoading(true)
-    const [apptRes, blockedRes] = await Promise.all([
+    const [apptRes, blockedRes, empleadosRes, ordenesRes] = await Promise.all([
       fetch('/api/booking/appointments'),
       fetch('/api/booking/blocked'),
+      fetch('/api/opabiz/employees'),
+      fetch('/api/opabiz/orders'),
     ])
     setAppointments(await apptRes.json())
     setBlocked(await blockedRes.json())
+    if (empleadosRes.ok) {
+      const d = await empleadosRes.json()
+      setEmpleados((d.empleados ?? []).map((e: { id: string; nombre: string }) => ({ id: e.id, nombre: e.nombre })))
+    }
+    if (ordenesRes.ok) {
+      const d = await ordenesRes.json()
+      setLinkedAppointmentIds(new Set((d.ordenes ?? []).map((o: { appointment_id: string | null }) => o.appointment_id).filter(Boolean)))
+    }
     setLoading(false)
   }, [])
 
   useEffect(() => { load() }, [load])
+
+  function openCreateOrder(a: Appointment) {
+    setCreatingFor(a)
+    setOrderTipoServicio('Consulta agendada')
+    setOrderNotas(a.note || '')
+    setOrderEsUrgente(false)
+    setOrderEmpleadoId('')
+    setOrderMsg(null)
+  }
+
+  async function submitCreateOrder() {
+    if (!creatingFor || !orderEmpleadoId) return
+    setCreatingOrder(true)
+    setOrderMsg(null)
+    const res = await fetch('/api/opabiz/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        clienteEmail: creatingFor.email,
+        clienteNombre: creatingFor.name,
+        clienteTelefono: creatingFor.phone,
+        tipoServicio: orderTipoServicio,
+        esUrgente: orderEsUrgente,
+        fechaHoraCita: `${creatingFor.date}T${creatingFor.time}:00`,
+        notas: orderNotas,
+        appointmentId: creatingFor.id,
+        empleadoUsuarioId: orderEmpleadoId,
+      }),
+    })
+    setCreatingOrder(false)
+    if (res.ok) {
+      setLinkedAppointmentIds(prev => new Set(prev).add(creatingFor.id))
+      setOrderMsg({ ok: true, text: 'Orden creada y asignada.' })
+      setTimeout(() => setCreatingFor(null), 1200)
+    } else {
+      const d = await res.json().catch(() => ({}))
+      setOrderMsg({ ok: false, text: d.error ?? 'No se pudo crear la orden.' })
+    }
+  }
 
   async function updateStatus(id: string, status: string) {
     await fetch(`/api/booking/appointments/${id}`, {
@@ -271,6 +337,14 @@ export default function CitasPage() {
                             <button className="action-btn" style={{ borderColor: '#fee2e2', color: '#991b1b' }} onClick={() => updateStatus(a.id, 'cancelled')}>✕ Cancel</button>
                           )}
                           <button className="action-btn" style={{ borderColor: '#e5e7eb', color: '#6b7280' }} onClick={() => deleteAppointment(a.id)}>🗑</button>
+                          <button
+                            className="action-btn"
+                            style={{ borderColor: '#bfdbfe', color: '#2563EB' }}
+                            disabled={linkedAppointmentIds.has(a.id)}
+                            onClick={() => openCreateOrder(a)}
+                          >
+                            {linkedAppointmentIds.has(a.id) ? '✓ Orden creada' : '🧭 Crear orden OpaBiz Connect'}
+                          </button>
                         </td>
                       </tr>
                     )
@@ -324,6 +398,43 @@ export default function CitasPage() {
               </div>
             )}
           </>
+        )}
+
+        {creatingFor && (
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: 20 }}>
+            <div style={{ background: '#fff', borderRadius: 14, padding: 24, width: '100%', maxWidth: 420, boxShadow: '0 20px 60px rgba(0,0,0,.25)' }}>
+              <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#1C2E44', marginBottom: 4 }}>Crear orden OpaBiz Connect</h3>
+              <p style={{ fontSize: '.8rem', color: '#6b7280', marginBottom: 16 }}>{creatingFor.name} — {formatDate(creatingFor.date)} {formatTime(creatingFor.time)}</p>
+
+              <label className="block-label">Tipo de servicio</label>
+              <input className="block-input" style={{ marginBottom: 12 }} value={orderTipoServicio} onChange={e => setOrderTipoServicio(e.target.value)} />
+
+              <label className="block-label">Notas</label>
+              <textarea className="block-input" style={{ marginBottom: 12, minHeight: 70, resize: 'vertical' }} value={orderNotas} onChange={e => setOrderNotas(e.target.value)} />
+
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '.85rem', color: '#374151', marginBottom: 12 }}>
+                <input type="checkbox" checked={orderEsUrgente} onChange={e => setOrderEsUrgente(e.target.checked)} />
+                Urgente
+              </label>
+
+              <label className="block-label">Asignar a *</label>
+              <select className="block-input" style={{ marginBottom: 16 }} value={orderEmpleadoId} onChange={e => setOrderEmpleadoId(e.target.value)}>
+                <option value="">— Elegir empleado —</option>
+                {empleados.map(e => <option key={e.id} value={e.id}>{e.nombre}</option>)}
+              </select>
+
+              {orderMsg && (
+                <p style={{ fontSize: '.8rem', marginBottom: 12, color: orderMsg.ok ? '#059669' : '#dc2626' }}>{orderMsg.text}</p>
+              )}
+
+              <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+                <button className="action-btn" style={{ borderColor: '#e5e7eb', color: '#6b7280' }} onClick={() => setCreatingFor(null)}>Cancelar</button>
+                <button className="btn-block" disabled={!orderEmpleadoId || creatingOrder} onClick={submitCreateOrder}>
+                  {creatingOrder ? 'Creando…' : 'Crear y asignar'}
+                </button>
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </>

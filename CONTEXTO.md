@@ -620,6 +620,11 @@ Cliente paga → Order creada (Stripe webhook)
 - [ ] Notas internas del empleado sobre una orden
 - Detalle completo: `LOGICA_DE_NEGOCIO/17_opabiz_integracion.md` y memoria `project_opabiz_sistema_interno`
 
+🟦 Primeros usos reales — CONSTRUIDOS 2026-07-14 (mismo día, 100% manuales)
+- [x] Citas → orden: botón en `/admin/citas` crea y asigna una orden a mano (empleado obligatorio, `ordenes_opabiz.empleado_id` es NOT NULL)
+- [x] Intake asistida: agente arma la solicitud del cliente por teléfono en `/opabiz/dashboard/intake` sin tocar el pago — cliente confirma y paga en `/confirm/[fbfc]`
+- [ ] Auto-crear orden al agendar cita / al pagar — a propósito manual por ahora, se automatiza cuando evalúen el desempeño de los agentes
+
 🔲 ETAPA 5 — Integraciones
 - [ ] DB trigger: Order de MBF → crea ordenes_opabiz
 - [ ] Sync de status de vuelta a mybusinessformation
