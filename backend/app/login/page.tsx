@@ -159,7 +159,7 @@ export default function LoginPage() {
           line-height: 1.1;
           text-align: left;
         }
-        .login-header-name span {
+        .login-header-name .login-header-caption {
           display: block;
           font-family: var(--font-sans);
           font-size: 11px; font-weight: 600;
@@ -243,7 +243,7 @@ export default function LoginPage() {
           font-family: var(--font-serif); font-size: 13px;
           font-weight: 700; color: #0f172a; line-height: 1.15;
         }
-        .brand-name span {
+        .brand-name .brand-caption {
           display: block; font-size: 10px;
           font-family: var(--font-sans);
           font-weight: 600; color: #94a3b8;
@@ -331,7 +331,7 @@ export default function LoginPage() {
             <div className="login-header-icon">OB</div>
             <div className="login-header-name">
               <span style={{fontFamily:'var(--font-serif)',fontWeight:700,fontSize:'1.5rem'}}>Opa</span><span style={{fontFamily:'var(--font-serif)',fontWeight:700,fontSize:'1.5rem',color:'#2563EB'}}>Biz</span>
-              <span>Admin Panel</span>
+              <span className="login-header-caption">Admin Panel</span>
             </div>
           </div>
           <div className="login-header-rule" />
@@ -354,7 +354,7 @@ export default function LoginPage() {
               <div className="brand-icon">OB</div>
               <div className="brand-name">
                 <span style={{fontFamily:'var(--font-serif)',fontWeight:700,fontSize:'1.5rem'}}>Opa</span><span style={{fontFamily:'var(--font-serif)',fontWeight:700,fontSize:'1.5rem',color:'#2563EB'}}>Biz</span>
-                <span>Admin Panel</span>
+                <span className="brand-caption">Admin Panel</span>
               </div>
             </div>
 
