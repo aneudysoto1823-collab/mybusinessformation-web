@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
 
   let query = supabase
     .from('ordenes_opabiz')
-    .select('id, tipo_servicio, estado, es_urgente, notas, fecha_creacion, fecha_asignacion, appointment_id, usuarios(nombre, email), EMPLEADOS(nivel, usuarios(nombre))')
+    .select('id, tipo_servicio, estado, es_urgente, notas, fecha_creacion, fecha_asignacion, appointment_id, usuarios(nombre, email), EMPLEADOS(nivel, usuarios(id, nombre))')
     .order('fecha_creacion', { ascending: false })
   if (appointmentId) query = query.eq('appointment_id', appointmentId)
 

@@ -12,19 +12,23 @@ async function verifyAdmin(req: NextRequest): Promise<boolean> {
 
 // POST /api/opabiz/orders/[id]/assign — asignación MANUAL de una orden de
 // OPABIZ a un empleado específico, elegido por el admin desde el panel. Pisa
-// cualquier asignación previa (automática o manual anterior). El motor
-// automático (pickBestEmployee, lib/opabiz-assignment.ts) es un endpoint
-// aparte — este siempre respeta la elección explícita del admin.
+// cualquier asignación previa (automática o manual anterior) — sirve tanto
+// para la primera asignación como para reasignar. El motor automático
+// (pickBestEmployee, lib/opabiz-assignment.ts) es un endpoint aparte — este
+// siempre respeta la elección explícita del admin.
 //
 // El body recibe `usuarioId` (usuarios.id — el id que ve el admin en la lista
-// de empleados). internamente se resuelve el EMPLEADOS.id correspondiente,
-// que es la clave real que usan ordenes_opabiz/puntajes/inactividades (ver
-// lib/opabiz-empleados.ts para el detalle de por qué son dos ids distintos).
+// de empleados) y, opcionalmente, `notas` (nota libre del admin sobre la
+// asignación/reasignación, ej. instrucciones para el empleado — pisa la nota
+// anterior si se manda). Internamente se resuelve el EMPLEADOS.id
+// correspondiente, que es la clave real que usan
+// ordenes_opabiz/puntajes/inactividades (ver lib/opabiz-empleados.ts para el
+// detalle de por qué son dos ids distintos).
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   if (!(await verifyAdmin(req))) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { id: ordenId } = await params
-  const { usuarioId } = await req.json().catch(() => ({}))
+  const { usuarioId, notas } = await req.json().catch(() => ({}))
 
   if (!usuarioId || typeof usuarioId !== 'string') {
     return NextResponse.json({ error: 'usuarioId requerido' }, { status: 400 })
@@ -55,9 +59,12 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   }
 
   const now = new Date().toISOString()
+  const updatePayload: Record<string, unknown> = { empleado_id: empleadoRow.id, estado: 'asignada', fecha_asignacion: now }
+  if (typeof notas === 'string') updatePayload.notas = notas || null
+
   const { data: orden, error: ordenErr } = await supabase
     .from('ordenes_opabiz')
-    .update({ empleado_id: empleadoRow.id, estado: 'asignada', fecha_asignacion: now })
+    .update(updatePayload)
     .eq('id', ordenId)
     .select()
     .single()

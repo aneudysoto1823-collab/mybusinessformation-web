@@ -35,7 +35,7 @@ function empleadoDetalle(e: Empleado): EmpleadoDetalle | null {
 }
 
 type ClienteRef = { nombre: string; email: string }
-type EmpleadoRef = { nivel: string; usuarios: { nombre: string } | { nombre: string }[] | null }
+type EmpleadoRef = { nivel: string; usuarios: { id: string; nombre: string } | { id: string; nombre: string }[] | null }
 
 type Orden = {
   id: string
@@ -68,6 +68,13 @@ function nombreEmpleadoDe(o: Orden): string {
   return usr?.nombre ?? '—'
 }
 
+function usuarioIdEmpleadoDe(o: Orden): string {
+  const emp = unwrap(o.EMPLEADOS)
+  if (!emp) return ''
+  const usr = unwrap(emp.usuarios)
+  return usr?.id ?? ''
+}
+
 export default function OpabizAdminPage() {
   const [empleados, setEmpleados] = useState<Empleado[]>([])
   const [loading, setLoading]     = useState(true)
@@ -83,6 +90,11 @@ export default function OpabizAdminPage() {
   const [togglingEstadoId, setTogglingEstadoId] = useState<string | null>(null)
   const [ordenes, setOrdenes] = useState<Orden[]>([])
   const [loadingOrdenes, setLoadingOrdenes] = useState(true)
+  const [reasignando, setReasignando] = useState<Orden | null>(null)
+  const [reasignEmpleadoId, setReasignEmpleadoId] = useState('')
+  const [reasignNotas, setReasignNotas] = useState('')
+  const [reasignSaving, setReasignSaving] = useState(false)
+  const [reasignMsg, setReasignMsg] = useState<{ ok: boolean; text: string } | null>(null)
 
   // silent=true se usa en el polling de fondo — no muestra el spinner de
   // "Cargando…" para no repintar la tabla cada 20s, mismo patrón que
@@ -154,6 +166,32 @@ export default function OpabizAdminPage() {
     } else {
       const d = await res.json().catch(() => ({}))
       setMsg({ ok: false, text: d.error ?? 'No se pudo cambiar el estado.' })
+    }
+  }
+
+  function abrirReasignar(o: Orden) {
+    setReasignando(o)
+    setReasignEmpleadoId(usuarioIdEmpleadoDe(o))
+    setReasignNotas(o.notas ?? '')
+    setReasignMsg(null)
+  }
+
+  async function confirmarReasignar() {
+    if (!reasignando || !reasignEmpleadoId) return
+    setReasignSaving(true)
+    setReasignMsg(null)
+    const res = await fetch(`/api/opabiz/orders/${reasignando.id}/assign`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ usuarioId: reasignEmpleadoId, notas: reasignNotas }),
+    })
+    setReasignSaving(false)
+    if (res.ok) {
+      setReasignando(null)
+      cargarOrdenes()
+    } else {
+      const d = await res.json().catch(() => ({}))
+      setReasignMsg({ ok: false, text: d.error ?? 'No se pudo reasignar la orden.' })
     }
   }
 
@@ -348,6 +386,7 @@ export default function OpabizAdminPage() {
                   <th>Estado</th>
                   <th>Urgente</th>
                   <th>Creada</th>
+                  <th>Acciones</th>
                 </tr>
               </thead>
               <tbody>
@@ -367,6 +406,15 @@ export default function OpabizAdminPage() {
                       </td>
                       <td>{o.es_urgente ? '⚡ Sí' : '—'}</td>
                       <td>{new Date(o.fecha_creacion).toLocaleDateString()}</td>
+                      <td>
+                        <button
+                          className="btn"
+                          style={{ padding: '5px 10px', fontSize: '.72rem', border: '1.5px solid #E2E8F0', background: '#fff', color: '#374151' }}
+                          onClick={() => abrirReasignar(o)}
+                        >
+                          {nombreEmpleadoDe(o) === '—' ? 'Asignar' : 'Reasignar'}
+                        </button>
+                      </td>
                     </tr>
                   )
                 })}
@@ -374,6 +422,58 @@ export default function OpabizAdminPage() {
             </table>
           )}
         </div>
+
+        {reasignando && (
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: 20 }}>
+            <div style={{ background: '#fff', borderRadius: 14, padding: 24, width: '100%', maxWidth: 420, boxShadow: '0 20px 60px rgba(0,0,0,.25)' }}>
+              <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#1C2E44', marginBottom: 4 }}>
+                {nombreEmpleadoDe(reasignando) === '—' ? 'Asignar orden' : 'Reasignar orden'}
+              </h3>
+              <p style={{ fontSize: '.8rem', color: '#6b7280', marginBottom: 16 }}>
+                {unwrap(reasignando.usuarios)?.nombre ?? '—'} — {reasignando.tipo_servicio}
+              </p>
+
+              <div className="form-field" style={{ marginBottom: 12 }}>
+                <label>Asignar a *</label>
+                <select value={reasignEmpleadoId} onChange={e => setReasignEmpleadoId(e.target.value)}>
+                  <option value="">— Elegir empleado —</option>
+                  {empleados.filter(e => e.estado === 'activo').map(e => (
+                    <option key={e.id} value={e.id}>{e.nombre}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-field" style={{ marginBottom: 16 }}>
+                <label>Nota (opcional)</label>
+                <textarea
+                  style={{ width: '100%', padding: '9px 12px', border: '1.5px solid #E2E8F0', borderRadius: 8, fontSize: '.85rem', fontFamily: 'inherit', color: '#1E293B', outline: 'none', minHeight: 70, resize: 'vertical' }}
+                  value={reasignNotas}
+                  onChange={e => setReasignNotas(e.target.value)}
+                  placeholder="Instrucciones o contexto para el empleado…"
+                />
+              </div>
+
+              {reasignMsg && <p style={{ fontSize: '.8rem', marginBottom: 12, color: reasignMsg.ok ? '#059669' : '#dc2626' }}>{reasignMsg.text}</p>}
+
+              <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+                <button
+                  className="btn"
+                  style={{ border: '1.5px solid #E2E8F0', background: '#fff', color: '#6b7280' }}
+                  onClick={() => setReasignando(null)}
+                >
+                  Cancelar
+                </button>
+                <button
+                  className="btn btn-primary"
+                  disabled={!reasignEmpleadoId || reasignSaving}
+                  onClick={confirmarReasignar}
+                >
+                  {reasignSaving ? 'Guardando…' : 'Guardar'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </>
   )
