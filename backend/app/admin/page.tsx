@@ -46,12 +46,13 @@ interface Order {
   status: string
   nameCheck: NameCheck | null
   isDraft?: boolean
+  notes: string | null
 }
 
 async function getOrders(): Promise<Order[]> {
   const { data, error } = await getSupabaseAdmin()
     .from('Order')
-    .select('id, createdAt, updatedAt, firstName, lastName, email, companyName, package, amount, paymentStatus, status, nameCheck, isDraft')
+    .select('id, createdAt, updatedAt, firstName, lastName, email, companyName, package, amount, paymentStatus, status, nameCheck, isDraft, notes')
     .order('createdAt', { ascending: false })
   if (error) {
     console.error('[admin/getOrders] Supabase error:', error.message)

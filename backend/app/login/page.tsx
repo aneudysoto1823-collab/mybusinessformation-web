@@ -331,7 +331,7 @@ export default function LoginPage() {
             <div className="login-header-icon">OB</div>
             <div className="login-header-name">
               <span style={{fontFamily:'var(--font-serif)',fontWeight:700,fontSize:'1.5rem'}}>Opa</span><span style={{fontFamily:'var(--font-serif)',fontWeight:700,fontSize:'1.5rem',color:'#2563EB'}}>Biz</span>
-              <span>Staff Portal</span>
+              <span>Admin Panel</span>
             </div>
           </div>
           <div className="login-header-rule" />
@@ -354,7 +354,7 @@ export default function LoginPage() {
               <div className="brand-icon">OB</div>
               <div className="brand-name">
                 <span style={{fontFamily:'var(--font-serif)',fontWeight:700,fontSize:'1.5rem'}}>Opa</span><span style={{fontFamily:'var(--font-serif)',fontWeight:700,fontSize:'1.5rem',color:'#2563EB'}}>Biz</span>
-                <span>Staff Portal</span>
+                <span>Admin Panel</span>
               </div>
             </div>
 

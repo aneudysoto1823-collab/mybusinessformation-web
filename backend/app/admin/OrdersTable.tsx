@@ -27,6 +27,7 @@ export interface Order {
   paymentStatus: string
   status: string
   nameCheck?: NameCheck | null
+  notes?: string | null
 }
 
 // Badge inline del chequeo Sunbiz al lado del nombre de empresa.
@@ -108,6 +109,10 @@ function Badge({ map, value }: { map: Record<string, { label: string; bg: string
   )
 }
 
+function noteFor(order: Order, overrides: Record<string, string | null>): string | null {
+  return order.id in overrides ? overrides[order.id] : (order.notes ?? null)
+}
+
 function isStale(order: Order): boolean {
   if (order.status === 'completed' || order.status === 'approved') return false
   if (!order.updatedAt) return false
@@ -153,6 +158,33 @@ export default function OrdersTable({ orders, lang = 'es' }: { orders: Order[]; 
   const [search, setSearch] = useState('')
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
+
+  // Nota interna rápida por orden — mismo patrón que el 📝 de /admin/campaigns.
+  // noteOverrides guarda ediciones locales para reflejarlas al instante sin
+  // esperar el próximo router.refresh() (cada 20s), que sí trae el valor real.
+  const [noteEdit, setNoteEdit] = useState<{ id: string; label: string; text: string } | null>(null)
+  const [savingNote, setSavingNote] = useState(false)
+  const [noteOverrides, setNoteOverrides] = useState<Record<string, string | null>>({})
+
+  async function saveNote() {
+    if (!noteEdit) return
+    setSavingNote(true)
+    try {
+      const res = await fetch(`/api/proxy/orders/${noteEdit.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notes: noteEdit.text }),
+      })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const cleaned = noteEdit.text.trim() || null
+      setNoteOverrides(prev => ({ ...prev, [noteEdit.id]: cleaned }))
+      setNoteEdit(null)
+    } catch (e) {
+      alert('Error al guardar la nota: ' + (e instanceof Error ? e.message : String(e)))
+    } finally {
+      setSavingNote(false)
+    }
+  }
 
   // Refresca la data del server cada 20s (router.refresh() re-corre el server
   // component AdminDashboard, que vuelve a leer Order de Supabase) para que
@@ -316,7 +348,14 @@ export default function OrdersTable({ orders, lang = 'es' }: { orders: Order[]; 
         col.col-pago    { width: 88px;  }
         col.col-estado  { width: 148px; }
         col.col-fecha   { width: 76px;  }
+        col.col-nota    { width: 40px;  }
         col.col-accion  { width: 56px;  }
+        .note-btn {
+          background: none; border: none; cursor: pointer; padding: 4px;
+          display: inline-flex; align-items: center; justify-content: center;
+          border-radius: 6px;
+        }
+        .note-btn:hover { background: #f1f5f9; }
         tr:hover td { background: #f8fafc; }
         .link-fbfc {
           color: #4f46e5; font-weight: 700; text-decoration: none;
@@ -538,6 +577,7 @@ export default function OrdersTable({ orders, lang = 'es' }: { orders: Order[]; 
                 <col className="col-pago" />
                 <col className="col-estado" />
                 <col className="col-fecha" />
+                <col className="col-nota" />
                 <col className="col-accion" />
               </colgroup>
               <thead>
@@ -551,10 +591,13 @@ export default function OrdersTable({ orders, lang = 'es' }: { orders: Order[]; 
                   <th>{tbl.colStatus}</th>
                   <th>{tbl.colDate}</th>
                   <th></th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
-                {visible.map(order => (
+                {visible.map(order => {
+                  const note = noteFor(order, noteOverrides)
+                  return (
                   <tr key={order.id}>
                     <td>
                       <Link href={`/admin/orders/${order.id}`} className="link-fbfc">
@@ -577,15 +620,66 @@ export default function OrdersTable({ orders, lang = 'es' }: { orders: Order[]; 
                       {new Date(order.createdAt).toLocaleDateString('en-US')}
                     </td>
                     <td>
+                      <button
+                        className="note-btn"
+                        title={note ? note : (lang === 'en' ? 'Add note' : 'Agregar nota')}
+                        onClick={() => setNoteEdit({
+                          id: order.id,
+                          label: `${order.firstName} ${order.lastName} — ${(order.package === 'addon' ? 'FBNB-' : 'FBFC-') + order.id.replace(/-/g, '').substring(0, 8).toUpperCase()}`,
+                          text: note ?? '',
+                        })}
+                      >
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill={note ? '#f59e0b' : 'none'} stroke={note ? '#f59e0b' : '#9ca3af'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                      </button>
+                    </td>
+                    <td>
                       <Link href={`/admin/orders/${order.id}`} className="link-ver">{tbl.view}</Link>
                     </td>
                   </tr>
-                ))}
+                  )
+                })}
               </tbody>
             </table>
           </div>
         )}
       </div>
+
+      {noteEdit && (
+        <div
+          onClick={() => !savingNote && setNoteEdit(null)}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(15,28,46,.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 20 }}
+        >
+          <div onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: 12, width: '100%', maxWidth: 460, padding: 22, boxShadow: '0 20px 60px rgba(0,0,0,.25)' }}>
+            <div style={{ fontWeight: 700, color: '#111827', fontSize: '.95rem', marginBottom: 4 }}>
+              📝 {lang === 'en' ? 'Internal note' : 'Nota interna'}
+            </div>
+            <div style={{ fontSize: '.78rem', color: '#6b7280', marginBottom: 12 }}>{noteEdit.label}</div>
+            <textarea
+              value={noteEdit.text}
+              onChange={e => setNoteEdit({ ...noteEdit, text: e.target.value })}
+              placeholder={lang === 'en' ? 'e.g: called on 6/18, waiting on documents...' : 'Ej: Llamé el 18/06, esperando documentos...'}
+              autoFocus
+              style={{ width: '100%', minHeight: 130, padding: 12, border: '1.5px solid #e5e7eb', borderRadius: 9, fontSize: '.85rem', fontFamily: 'inherit', color: '#1e293b', boxSizing: 'border-box', resize: 'vertical' }}
+            />
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 14 }}>
+              <button
+                onClick={() => setNoteEdit(null)}
+                disabled={savingNote}
+                style={{ padding: '7px 14px', borderRadius: 7, border: '1.5px solid #e5e7eb', background: '#fff', color: '#6b7280', fontSize: '.82rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
+              >
+                {lang === 'en' ? 'Cancel' : 'Cancelar'}
+              </button>
+              <button
+                onClick={saveNote}
+                disabled={savingNote}
+                style={{ padding: '7px 14px', borderRadius: 7, border: 'none', background: '#4f46e5', color: '#fff', fontSize: '.82rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}
+              >
+                {savingNote ? (lang === 'en' ? 'Saving…' : 'Guardando…') : (lang === 'en' ? 'Save note' : 'Guardar nota')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   )
 }
