@@ -622,8 +622,6 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 .fm-sum-pay-notice strong{color:#b45309}
 .fm-sum-pay-consent{margin-top:10px;font-size:.7rem;line-height:1.5;color:#6b7280}
 .fm-sum-pay-consent a{color:#2563eb;text-decoration:none}
-.fm-pay-hint{font-size:.8rem;color:#2563eb;font-weight:600}
-@media(max-width:820px){.fm-pay-hint{display:none}}
 .fm-sum-head{padding:16px 20px;border-bottom:1px solid #f3f4f6}
 .fm-sum-head-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .fm-sum-toggle{display:none;font-size:.9rem;color:#64748b;transition:transform .2s;line-height:1}
@@ -2309,10 +2307,14 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           <div class="fm-card-footer">
             <button class="btn-back-fm" onclick="fmBack()">&#8592; <span id="s8-back">Back</span></button>
             <div style="display:flex;align-items:center;gap:10px">
-              <button class="save-btn" onclick="saveOrder()">&#x1F4BE; <span id="s8-save">Save</span></button>
               <!-- Sin botón Continue: el pago se completa con el botón Pay del
                    formulario de Stripe que vive en el Order Summary (derecha). -->
-              <span class="fm-pay-hint" id="s8-pay-hint">Complete payment on the right &#8594;</span>
+              <button class="save-btn" id="s8-save-btn" onclick="saveOrder()">&#x1F4BE; <span id="s8-save">Save</span></button>
+              <!-- Solo en modo agente (ver fmGoToStep): reemplaza el botón Save
+                   de arriba. Misma función (saveOrder), pero con una confirmación
+                   previa del email del cliente para no perder todo el trabajo por
+                   un typo — ver fmAgentConfirmSave(). -->
+              <button class="save-btn" id="s8-agent-save-btn" onclick="fmAgentConfirmSave()" style="display:none">&#x1F4E7; <span id="s8-agent-save">Save &amp; Send to Client</span></button>
             </div>
           </div>
         </div>
@@ -2378,10 +2380,8 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
         <div id="embedded-checkout"></div>
         <!-- Modo agente (OpaBiz Connect): un empleado logueado armando la
              solicitud por un cliente nunca ve ni monta el formulario de
-             Stripe — ver fmDetectAgentMode()/fmGoToStep(). -->
-        <div id="fm-agent-notice" style="display:none;padding:16px 18px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;font-size:.85rem;color:#1e3a5f;line-height:1.6">
-          <strong>Agent mode:</strong> saving will email your client a link to review and pay — nothing is charged here.
-        </div>
+             Stripe — ver fmDetectAgentMode()/fmGoToStep(). El botón
+             #s8-agent-save-btn (footer del Review) reemplaza a Save. -->
         <div class="fm-sum-pay-notice" id="sum-pay-notice"><strong>&#9888; Non-Refundable:</strong> State fees cannot be refunded once processing begins. Our service fee is refundable within 24 hours if filing has not started.</div>
         <div class="fm-sum-pay-consent" id="sum-pay-consent">By completing payment you agree to our <a href="/legal" target="_blank">Legal Statement</a> and <a href="/terms" target="_blank">Terms of Service</a>.</div>
       </div>
@@ -3805,6 +3805,22 @@ function _saveToastShowError() {
     '<div style="font-size:.94rem">&#9888; ' + (isEs ? 'No pudimos guardar su orden. Intente de nuevo.' : "We couldn't save your order. Please try again.") + '</div>';
 }
 
+// Modo agente (OpaBiz Connect) — el botón #s8-agent-save-btn del Review llama
+// a esto en vez de saveOrder() directo. Guardar en este flujo dispara el
+// email "Continue My Application" al email del cliente que el AGENTE tipeó
+// (no el propio cliente revisándolo) — un typo pierde todo el trabajo sin que
+// nadie lo note hasta que el cliente nunca llega. Este confirm() muestra el
+// valor exacto tipeado para que el agente lo revise antes de guardar.
+function fmAgentConfirmSave() {
+  var emailEl = document.getElementById('inp-email');
+  var email = emailEl ? emailEl.value.trim() : '';
+  var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
+  var msg = isEs
+    ? ('El enlace para revisar y pagar la orden se enviará a:\\n\\n' + email + '\\n\\n¿Confirma que este email es correcto?')
+    : ('The link to review and pay for the order will be sent to:\\n\\n' + email + '\\n\\nDo you confirm this email is correct?');
+  if (window.confirm(msg)) saveOrder();
+}
+
 function saveOrder() {
   // Cambio 2026-07-06 (doc 34, escenario 1): antes llamaba fmSaveProgress
   // que sincronizaba al server. Ahora llama fmSaveProgressAndSync explicito:
@@ -4636,7 +4652,8 @@ function fmGoToStep(n) {
       var _ec = document.getElementById('embedded-checkout'); if(_ec) _ec.style.display = 'none';
       var _payNotice = document.getElementById('sum-pay-notice'); if(_payNotice) _payNotice.style.display = 'none';
       var _payConsent = document.getElementById('sum-pay-consent'); if(_payConsent) _payConsent.style.display = 'none';
-      var _agentNotice = document.getElementById('fm-agent-notice'); if(_agentNotice) _agentNotice.style.display = 'block';
+      var _saveBtn = document.getElementById('s8-save-btn'); if(_saveBtn) _saveBtn.style.display = 'none';
+      var _agentSaveBtn = document.getElementById('s8-agent-save-btn'); if(_agentSaveBtn) _agentSaveBtn.style.display = '';
       var _payTitle = document.getElementById('sum-pay-title'); if(_payTitle) _payTitle.textContent = 'Agent Mode';
     } else {
       fmMountPayment();
@@ -6260,6 +6277,7 @@ function fmTranslate(lang) {
     's6-std-desc':isEs?'7-14 días hábiles para que preparemos y enviemos su presentación.':'7-14 business days for us to prepare and file it.',
     's6-back':isEs?'Atrás':'Back',
     's6-save':isEs?'Guardar':'Save',
+    's8-agent-save':isEs?'Guardar y Enviar al Cliente':'Save &amp; Send to Client',
     's6-next':isEs?'Continuar':'Continue',
     // Summary labels
     'sum-lbl-entity':isEs?'Entidad':'Entity',
@@ -6281,7 +6299,6 @@ function fmTranslate(lang) {
     'sum-pay-title':isEs?'Pago Seguro':'Secure Payment',
     'sum-pay-notice':isEs?'<strong>&#9888; No reembolsable:</strong> Los cargos estatales no son reembolsables una vez iniciado el proceso. Nuestra tarifa de servicio es reembolsable dentro de las 24 horas si el tr\\u00e1mite no ha comenzado.':'<strong>&#9888; Non-Refundable:</strong> State fees cannot be refunded once processing begins. Our service fee is refundable within 24 hours if filing has not started.',
     'sum-pay-consent':isEs?'Al completar el pago aceptas nuestro <a href="/legal" target="_blank">Aviso Legal</a> y los <a href="/terms" target="_blank">T\\u00e9rminos de Servicio</a>.':'By completing payment you agree to our <a href="/legal" target="_blank">Legal Statement</a> and <a href="/terms" target="_blank">Terms of Service</a>.',
-    's8-pay-hint':isEs?'Completa el pago a la derecha &#8594;':'Complete payment on the right &#8594;',
     'sum-sec-nofees':isEs?'&#10003; Sin Cargos Ocultos':'&#10003; No Hidden Fees',
     'sum-sec-email':isEs?'&#128196; Recibo por Correo':'&#128196; Receipt by Email',
     's2-sub':isEs?'Cuéntenos cómo contactarlo y dónde estará ubicado su negocio.':'Tell us how to reach you and where your business will be located.',
