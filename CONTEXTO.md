@@ -137,11 +137,11 @@ Pendientes de higiene técnica:
 - [x] Supabase conectado a Vercel con cliente HTTP
 - [x] Órdenes guardándose en Supabase al hacer submit
 
-### Etapa 4 — Pagos con Stripe (1 semana)
-- [ ] Crear cuenta Stripe y obtener claves API
-- [ ] Integrar Stripe Elements
-- [ ] Guardar transacciones en base de datos
-- [ ] Probar con tarjetas de prueba
+### Etapa 4 — Pagos con Stripe (1 semana) — ✅ HECHO
+- [x] Crear cuenta Stripe y obtener claves API — cuenta live `acct_1TkDfg` + sandbox `acct_1TkDfr` (2026-06-23)
+- [x] Integrar Stripe Elements — **se optó por Stripe Embedded Checkout** (más simple, PCI seguro). Ver CLAUDE.md sección "Cobro del home"
+- [x] Guardar transacciones en base de datos — `Order.stripePaymentId` + `Order.paymentStatus`
+- [x] Probar con tarjetas de prueba — ✅ PROBADO OK EN TEST 2026-06-23 (flujo completo `4242…` → webhook 200 → paid+in_review → emails → `/order/complete`)
 
 ### Etapa 5 — Búsqueda de Nombres Sunbiz Florida (1-2 días — antes 2 semanas) ⚠️ CRÍTICA
 
@@ -153,12 +153,12 @@ Pendientes de higiene técnica:
 - El daily file pesa ~3 MB y se procesa en <1 min — dentro del límite de 5 min de Vercel Cron Pro. **Railway ya no es necesario.**
 
 **Plan de implementación (5 fases — ver detalle en doc 26):**
-- [ ] **Fase 0** — Founder crea cuentas Turso + Cloudflare R2 (ver doc 26 sección "Plan de implementación")
-- [ ] **Fase 1** — Carga inicial 3.5M desde la PC del founder a Turso (1 vez, 1-2 horas)
-- [ ] **Fase 2** — Vercel Cron nocturno descarga daily file + UPSERT a Turso
-- [ ] **Fase 3** — Migrar Path B (`/api/proxy/names/check`) y Path C (Claudia chat) a consultar Turso real
-- [ ] **Fase 4** — GitHub Actions backup diario de Supabase + PDFs → Cloudflare R2 (30 días retención)
-- [ ] **Fase 5** — Cancelar Railway
+- [x] **Fase 0** — Founder crea cuentas Turso + Cloudflare R2 — ✅ HECHO 2026-06-25
+- [x] **Fase 1** — Carga inicial 3.5M desde la PC del founder a Turso — ✅ HECHO (3,956,123 filas indexadas en `opabiz-sunbiz-search`)
+- [x] **Fase 2** — Vercel Cron nocturno descarga daily file + UPSERT a Turso — ✅ HECHO 2026-06-26 (`/api/cron/sunbiz-daily`, cron `0 6 * * *` UTC)
+- [x] **Fase 3** — Migrar Path B (`/api/proxy/names/check`) y Path C (Claudia chat) a consultar Turso real — ✅ HECHO (Path B: `checkNameAvailability` en `lib/sunbiz-namecheck.ts` conectada a `/api/orders` y `modules/names/names.route.ts` la sesión 2026-07-12; Path C: tool `check_name_availability` de Claudia usa el mismo endpoint)
+- [x] **Fase 4** — GitHub Actions backup diario de Supabase + PDFs → Cloudflare R2 (30 días retención) — ✅ HECHO 2026-06-25 (`.github/workflows/backup-daily.yml`, cron `30 4 * * *`, buckets `opabiz-backups` + `opabiz-pdfs`)
+- [x] **Fase 5** — Cancelar Railway — ✅ decisión ratificada por el founder (2026-07-13: "no me hablaes de railway, eso ya no existe"). Los módulos Express de `backend/modules/` quedan como código legacy sin runtime activo.
 
 **Lo que se descarta del plan original (porque Railway se cancela):**
 - ~~Instalar `@sentry/node` en `backend/server.ts`~~
@@ -263,7 +263,7 @@ SEO Técnico:
 - [x] backend/app/robots.ts con Disallow: /admin/, /api/, /client-portal/dashboard + referencia al sitemap
 - [x] backend/app/opengraph-image.tsx — autogenera 1200×630 PNG con logo "FL" + wordmark + tagline (Next.js ImageResponse)
 - [x] Schema.org JSON-LD en home y páginas clave — completado en 2 fases: (1) home + /new-business con `@graph` rico (Organization, WebSite, Service, LocalBusiness/ProfessionalService, FAQPage, BreadcrumbList) — pre-existente. (2) **Completado 2026-06-04 commit `5b0c3d4`**: agregado JSON-LD a `/about` (AboutPage + BreadcrumbList), `/servicios` (CollectionPage + ItemList de 18 Services con Offer USD numérico cuando hay precio fijo + BreadcrumbList), `/wiki` + `/wiki/es` + `/guias` + `/guias/es` (helper `buildHubSchema()` con CollectionPage + BreadcrumbList + Article ItemList). Todos los `@id` apex sin www; reuso de `#organization`/`#website` del home para coherencia del grafo.
-- [ ] Favicon set completo: 16×16, 32×32, 192×192, 512×512, apple-touch-icon — bloqueado por logo MBF en alta resolución
+- [ ] Favicon set completo: 16×16, 32×32, 192×192, 512×512, apple-touch-icon — 🔓 **desbloqueado 2026-07-13**: los assets del logo ya están en `backend/public/brand/opabiz-emblem-{256,400,512}.png` + SVG editable. Falta solo generar el set con las medidas exactas (16/32/192/512 + apple-touch-icon 180×180) y wire en `layout.tsx`.
 - [x] Meta titles únicos + meta descriptions únicas por página (cada page.tsx exporta su propio metadata)
 - [x] Audit de alt text en todas las imágenes — PASS: el sitio no usa etiquetas <img>, solo SVG inline y CSS
 - [x] Core Web Vitals: font preconnect a fonts.gstatic.com, lazy loading de imágenes below-fold, width/height explícitos para evitar CLS — preconnect implementado; lazy loading y CLS N/A (sin imágenes externas)
@@ -480,14 +480,14 @@ Servicios vendidos (precios en centavos en Stripe):
 - Business Essentials Bundle (los 3): $189.99 (ahorro de $30 vs separados)
 
 Variables de entorno pendientes en Vercel:
-- [ ] `STRIPE_SECRET_KEY` — clave secreta de Stripe (obtener en dashboard.stripe.com → Developers → API Keys)
-- [ ] `STRIPE_WEBHOOK_SECRET` — clave de firma del webhook (obtener al registrar el endpoint en Stripe: https://opabiz.com/api/webhooks/stripe, evento: checkout.session.completed)
+- [x] `STRIPE_SECRET_KEY` — ✅ cargada en Vercel Production+Preview (test/sandbox activa)
+- [x] `STRIPE_WEBHOOK_SECRET` — ✅ cargada en Vercel (webhook `opabiz-checkout` firmando con este secret)
 
 Pendiente:
-- [ ] Agregar STRIPE_SECRET_KEY y STRIPE_WEBHOOK_SECRET en Vercel env vars
-- [ ] Registrar webhook en Stripe dashboard apuntando a /api/webhooks/stripe (evento: checkout.session.completed)
+- [x] Agregar STRIPE_SECRET_KEY y STRIPE_WEBHOOK_SECRET en Vercel env vars — ✅ hecho 2026-06-23
+- [x] Registrar webhook en Stripe dashboard apuntando a /api/webhooks/stripe (evento: checkout.session.completed) — ✅ hecho ⚠️ CON `www.opabiz.com` (el apex `opabiz.com` redirige 308 y Stripe no sigue redirects — ver CLAUDE.md GOTCHA)
 - [x] Validar que las 4 tablas Supabase fueron creadas correctamente — CONFIRMADO 2026-05-01
-- [ ] Probar flujo completo end-to-end con empresa de prueba
+- [x] Probar flujo completo end-to-end con empresa de prueba — ✅ PROBADO OK 2026-06-23 (test/sandbox). **Pendiente aparte: activar LIVE cargando las keys `pk_live_.../sk_live_...` en Vercel Production** (todo el resto del setup live ya está — ver CLAUDE.md "Stripe LIVE — preparado, NO activado")
 - [x] Documentar en LOGICA_DE_NEGOCIO/12_marketing_automation_campanas.md + TROUBLESHOOTING/12_marketing_automation_campanas.md
 
 ### Etapa 17 — Responsive Design Mobile-First (COMPLETADA 2026-05-12)
