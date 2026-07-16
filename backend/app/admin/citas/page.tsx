@@ -75,6 +75,12 @@ export default function CitasPage() {
   const [creatingOrder, setCreatingOrder] = useState(false)
   const [orderMsg, setOrderMsg] = useState<{ ok: boolean; text: string } | null>(null)
 
+  // Nota interna de la cita (appointments.note) — mismo patrón 📝 que /admin y
+  // /admin/campaigns. Distinto de orderNotas de arriba (esa es la nota de la
+  // orden de OpaBiz Connect, ordenes_opabiz.notas).
+  const [noteEdit, setNoteEdit] = useState<{ id: string; label: string; text: string } | null>(null)
+  const [savingNote, setSavingNote] = useState(false)
+
   const load = useCallback(async () => {
     setLoading(true)
     const [apptRes, blockedRes, empleadosRes, ordenesRes] = await Promise.all([
@@ -144,6 +150,24 @@ export default function CitasPage() {
       body: JSON.stringify({ status }),
     })
     setAppointments(prev => prev.map(a => a.id === id ? { ...a, status: status as Appointment['status'] } : a))
+  }
+
+  async function saveNote() {
+    if (!noteEdit) return
+    setSavingNote(true)
+    const res = await fetch(`/api/booking/appointments/${noteEdit.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ note: noteEdit.text }),
+    })
+    setSavingNote(false)
+    if (res.ok) {
+      const cleaned = noteEdit.text.trim() || null
+      setAppointments(prev => prev.map(a => a.id === noteEdit.id ? { ...a, note: cleaned } : a))
+      setNoteEdit(null)
+    } else {
+      alert('No se pudo guardar la nota.')
+    }
   }
 
   async function deleteAppointment(id: string) {
@@ -315,8 +339,14 @@ export default function CitasPage() {
                         <td style={{ fontSize: '0.82rem', fontWeight: 600 }}>
                           {a.meeting_method === 'whatsapp' ? '💬 WhatsApp' : '📞 Phone'}
                         </td>
-                        <td style={{ maxWidth: '180px', fontSize: '0.8rem', color: '#6b7280' }}>
-                          {a.note || '—'}
+                        <td style={{ maxWidth: '180px' }}>
+                          <button
+                            onClick={() => setNoteEdit({ id: a.id, label: `${a.name} — ${formatDate(a.date)} ${formatTime(a.time)}`, text: a.note || '' })}
+                            title={a.note || 'Agregar nota'}
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', padding: 0, fontSize: '0.8rem', color: a.note ? '#374151' : '#9ca3af', maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}
+                          >
+                            {a.note ? `📝 ${a.note}` : '+ Agregar nota'}
+                          </button>
                         </td>
                         <td>
                           <span className="status-pill" style={{ ...Object.fromEntries(STATUS_COLORS[a.status].split(';').map(s => s.split(':').map(x => x.trim()))) }}>
@@ -432,6 +462,27 @@ export default function CitasPage() {
                 <button className="btn-block" disabled={!orderEmpleadoId || creatingOrder} onClick={submitCreateOrder}>
                   {creatingOrder ? 'Creando…' : 'Crear y asignar'}
                 </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {noteEdit && (
+          <div onClick={() => !savingNote && setNoteEdit(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: 20 }}>
+            <div onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: 14, padding: 24, width: '100%', maxWidth: 420, boxShadow: '0 20px 60px rgba(0,0,0,.25)' }}>
+              <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#1a1a2e', marginBottom: 4 }}>📝 Nota de la cita</h3>
+              <p style={{ fontSize: '.8rem', color: '#6b7280', marginBottom: 16 }}>{noteEdit.label}</p>
+              <textarea
+                className="block-input"
+                style={{ minHeight: 100, resize: 'vertical' }}
+                value={noteEdit.text}
+                onChange={e => setNoteEdit({ ...noteEdit, text: e.target.value })}
+                placeholder="Ej: Cliente preguntó por EIN, quiere que lo llamen antes de la cita..."
+                autoFocus
+              />
+              <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 14 }}>
+                <button className="action-btn" style={{ borderColor: '#e5e7eb', color: '#6b7280' }} onClick={() => setNoteEdit(null)} disabled={savingNote}>Cancelar</button>
+                <button className="btn-block" onClick={saveNote} disabled={savingNote}>{savingNote ? 'Guardando…' : 'Guardar nota'}</button>
               </div>
             </div>
           </div>

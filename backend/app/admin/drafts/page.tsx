@@ -19,14 +19,14 @@ import { getSupabaseAdmin } from '@/lib/supabase'
 const T = {
   en: {
     title: 'Draft Orders', sub: 'Applications saved but not yet paid',
-    home: 'Dashboard', logout: 'Log out',
+    logout: 'Log out',
     totalDrafts: 'Total Drafts', last24h: 'Last 24h', last7d: 'Last 7 days',
     fbfc: 'FBFC Number', company: 'Company', client: 'Client', email: 'Email',
     phone: 'Phone', step: 'Step', updated: 'Last Update', empty: 'No drafts yet.',
   },
   es: {
     title: 'Órdenes en Borrador', sub: 'Formularios guardados sin pagar',
-    home: 'Dashboard', logout: 'Cerrar sesión',
+    logout: 'Cerrar sesión',
     totalDrafts: 'Total Borradores', last24h: 'Últimas 24h', last7d: 'Últimos 7 días',
     fbfc: 'Número FBFC', company: 'Empresa', client: 'Cliente', email: 'Email',
     phone: 'Teléfono', step: 'Paso', updated: 'Última Actualización', empty: 'Aún no hay borradores.',
@@ -130,14 +130,16 @@ export default async function DraftsPage({
       <div className="admin-wrapper">
         <div className="admin-header">
           <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
+              <a href={`/admin?lang=${lang}`} style={{ color: '#94A3B8', fontSize: '.8rem', textDecoration: 'none' }}>← Admin</a>
+              <span style={{ color: '#CBD5E1' }}>/</span>
+              <span style={{ color: '#1C2E44', fontSize: '.8rem', fontWeight: 600 }}>{t.title}</span>
+            </div>
             <h1>{t.title}</h1>
             <p>{t.sub}</p>
           </div>
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
             <AdminLangToggle />
-            <a href={`/admin?lang=${lang}`} style={{ fontSize: '13px', color: '#6b7280', textDecoration: 'none', padding: '7px 14px', border: '1.5px solid #e5e7eb', borderRadius: '8px', fontWeight: 600 }}>
-              {t.home}
-            </a>
             <LogoutButton lang={lang} />
           </div>
         </div>

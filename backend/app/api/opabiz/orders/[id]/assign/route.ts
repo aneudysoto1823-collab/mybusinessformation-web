@@ -18,17 +18,16 @@ async function verifyAdmin(req: NextRequest): Promise<boolean> {
 // siempre respeta la elección explícita del admin.
 //
 // El body recibe `usuarioId` (usuarios.id — el id que ve el admin en la lista
-// de empleados) y, opcionalmente, `notas` (nota libre del admin sobre la
-// asignación/reasignación, ej. instrucciones para el empleado — pisa la nota
-// anterior si se manda). Internamente se resuelve el EMPLEADOS.id
-// correspondiente, que es la clave real que usan
-// ordenes_opabiz/puntajes/inactividades (ver lib/opabiz-empleados.ts para el
-// detalle de por qué son dos ids distintos).
+// de empleados). Internamente se resuelve el EMPLEADOS.id correspondiente,
+// que es la clave real que usan ordenes_opabiz/puntajes/inactividades (ver
+// lib/opabiz-empleados.ts para el detalle de por qué son dos ids distintos).
+// La nota interna (`notas`) es una acción separada — ver PATCH
+// /api/opabiz/orders/[id], no requiere elegir un empleado.
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   if (!(await verifyAdmin(req))) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { id: ordenId } = await params
-  const { usuarioId, notas } = await req.json().catch(() => ({}))
+  const { usuarioId } = await req.json().catch(() => ({}))
 
   if (!usuarioId || typeof usuarioId !== 'string') {
     return NextResponse.json({ error: 'usuarioId requerido' }, { status: 400 })
@@ -59,12 +58,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   }
 
   const now = new Date().toISOString()
-  const updatePayload: Record<string, unknown> = { empleado_id: empleadoRow.id, estado: 'asignada', fecha_asignacion: now }
-  if (typeof notas === 'string') updatePayload.notas = notas || null
-
   const { data: orden, error: ordenErr } = await supabase
     .from('ordenes_opabiz')
-    .update(updatePayload)
+    .update({ empleado_id: empleadoRow.id, estado: 'asignada', fecha_asignacion: now })
     .eq('id', ordenId)
     .select()
     .single()

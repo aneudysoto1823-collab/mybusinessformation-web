@@ -92,9 +92,10 @@ export default function OpabizAdminPage() {
   const [loadingOrdenes, setLoadingOrdenes] = useState(true)
   const [reasignando, setReasignando] = useState<Orden | null>(null)
   const [reasignEmpleadoId, setReasignEmpleadoId] = useState('')
-  const [reasignNotas, setReasignNotas] = useState('')
   const [reasignSaving, setReasignSaving] = useState(false)
   const [reasignMsg, setReasignMsg] = useState<{ ok: boolean; text: string } | null>(null)
+  const [noteEdit, setNoteEdit] = useState<{ id: string; label: string; text: string } | null>(null)
+  const [savingNote, setSavingNote] = useState(false)
 
   // silent=true se usa en el polling de fondo — no muestra el spinner de
   // "Cargando…" para no repintar la tabla cada 20s, mismo patrón que
@@ -172,7 +173,6 @@ export default function OpabizAdminPage() {
   function abrirReasignar(o: Orden) {
     setReasignando(o)
     setReasignEmpleadoId(usuarioIdEmpleadoDe(o))
-    setReasignNotas(o.notas ?? '')
     setReasignMsg(null)
   }
 
@@ -183,7 +183,7 @@ export default function OpabizAdminPage() {
     const res = await fetch(`/api/opabiz/orders/${reasignando.id}/assign`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ usuarioId: reasignEmpleadoId, notas: reasignNotas }),
+      body: JSON.stringify({ usuarioId: reasignEmpleadoId }),
     })
     setReasignSaving(false)
     if (res.ok) {
@@ -192,6 +192,24 @@ export default function OpabizAdminPage() {
     } else {
       const d = await res.json().catch(() => ({}))
       setReasignMsg({ ok: false, text: d.error ?? 'No se pudo reasignar la orden.' })
+    }
+  }
+
+  async function saveNote() {
+    if (!noteEdit) return
+    setSavingNote(true)
+    const res = await fetch(`/api/opabiz/orders/${noteEdit.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ notas: noteEdit.text }),
+    })
+    setSavingNote(false)
+    if (res.ok) {
+      const cleaned = noteEdit.text.trim() || null
+      setOrdenes(prev => prev.map(o => o.id === noteEdit.id ? { ...o, notas: cleaned } : o))
+      setNoteEdit(null)
+    } else {
+      alert('No se pudo guardar la nota.')
     }
   }
 
@@ -386,6 +404,7 @@ export default function OpabizAdminPage() {
                   <th>Estado</th>
                   <th>Urgente</th>
                   <th>Creada</th>
+                  <th>Nota</th>
                   <th>Acciones</th>
                 </tr>
               </thead>
@@ -399,13 +418,23 @@ export default function OpabizAdminPage() {
                         <div style={{ fontWeight: 600, color: '#1C2E44' }}>{cliente?.nombre ?? '—'}</div>
                         <div style={{ fontSize: '.75rem', color: '#94A3B8' }}>{cliente?.email ?? ''}</div>
                       </td>
-                      <td>{o.tipo_servicio}{o.notas ? <div style={{ fontSize: '.75rem', color: '#94A3B8' }}>{o.notas}</div> : null}</td>
+                      <td>{o.tipo_servicio}</td>
                       <td style={{ fontWeight: 600 }}>{nombreEmpleadoDe(o)}</td>
                       <td>
                         <span className="badge" style={{ color: meta.color, background: meta.bg }}>{meta.label}</span>
                       </td>
                       <td>{o.es_urgente ? '⚡ Sí' : '—'}</td>
                       <td>{new Date(o.fecha_creacion).toLocaleDateString()}</td>
+                      <td>
+                        <button
+                          className="btn"
+                          title={o.notas ? o.notas : 'Agregar nota'}
+                          style={{ padding: '4px', background: 'none', border: 'none' }}
+                          onClick={() => setNoteEdit({ id: o.id, label: `${cliente?.nombre ?? '—'} — ${o.tipo_servicio}`, text: o.notas ?? '' })}
+                        >
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill={o.notas ? '#f59e0b' : 'none'} stroke={o.notas ? '#f59e0b' : '#9ca3af'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        </button>
+                      </td>
                       <td>
                         <button
                           className="btn"
@@ -443,16 +472,6 @@ export default function OpabizAdminPage() {
                 </select>
               </div>
 
-              <div className="form-field" style={{ marginBottom: 16 }}>
-                <label>Nota (opcional)</label>
-                <textarea
-                  style={{ width: '100%', padding: '9px 12px', border: '1.5px solid #E2E8F0', borderRadius: 8, fontSize: '.85rem', fontFamily: 'inherit', color: '#1E293B', outline: 'none', minHeight: 70, resize: 'vertical' }}
-                  value={reasignNotas}
-                  onChange={e => setReasignNotas(e.target.value)}
-                  placeholder="Instrucciones o contexto para el empleado…"
-                />
-              </div>
-
               {reasignMsg && <p style={{ fontSize: '.8rem', marginBottom: 12, color: reasignMsg.ok ? '#059669' : '#dc2626' }}>{reasignMsg.text}</p>}
 
               <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
@@ -469,6 +488,35 @@ export default function OpabizAdminPage() {
                   onClick={confirmarReasignar}
                 >
                   {reasignSaving ? 'Guardando…' : 'Guardar'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {noteEdit && (
+          <div onClick={() => !savingNote && setNoteEdit(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: 20 }}>
+            <div onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: 14, padding: 24, width: '100%', maxWidth: 420, boxShadow: '0 20px 60px rgba(0,0,0,.25)' }}>
+              <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#1C2E44', marginBottom: 4 }}>📝 Nota interna</h3>
+              <p style={{ fontSize: '.8rem', color: '#6b7280', marginBottom: 16 }}>{noteEdit.label}</p>
+              <textarea
+                style={{ width: '100%', padding: '9px 12px', border: '1.5px solid #E2E8F0', borderRadius: 8, fontSize: '.85rem', fontFamily: 'inherit', color: '#1E293B', outline: 'none', minHeight: 100, resize: 'vertical', boxSizing: 'border-box' }}
+                value={noteEdit.text}
+                onChange={e => setNoteEdit({ ...noteEdit, text: e.target.value })}
+                placeholder="Instrucciones o contexto para el empleado…"
+                autoFocus
+              />
+              <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 14 }}>
+                <button
+                  className="btn"
+                  style={{ border: '1.5px solid #E2E8F0', background: '#fff', color: '#6b7280' }}
+                  onClick={() => setNoteEdit(null)}
+                  disabled={savingNote}
+                >
+                  Cancelar
+                </button>
+                <button className="btn btn-primary" onClick={saveNote} disabled={savingNote}>
+                  {savingNote ? 'Guardando…' : 'Guardar nota'}
                 </button>
               </div>
             </div>

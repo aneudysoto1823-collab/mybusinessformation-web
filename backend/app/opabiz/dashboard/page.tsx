@@ -18,6 +18,7 @@ type Orden = {
   tipo_servicio: string
   estado: string
   es_urgente: boolean
+  notas: string | null
   fecha_hora_cita: string | null
   fecha_creacion: string
   fecha_asignacion: string | null
@@ -103,6 +104,7 @@ export default function OpabizDashboardPage() {
         .op-urgente{color:#dc2626;font-size:.7rem;font-weight:700;margin-bottom:4px}
         .op-cliente{color:#374151;font-size:.82rem}
         .op-fecha{color:#94A3B8;font-size:.74rem;margin-top:4px}
+        .op-nota{color:#92400e;background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:6px 8px;font-size:.78rem;margin-top:6px}
         .op-empty{text-align:center;color:#94A3B8;font-size:.85rem;padding:40px 20px}
         .op-intake-link{display:block;text-align:center;background:#EFF6FF;color:#1d4ed8;border:1.5px solid #bfdbfe;border-radius:10px;padding:13px;font-weight:700;font-size:.85rem;text-decoration:none;margin-bottom:16px;min-height:44px}
       `}</style>
@@ -155,6 +157,7 @@ export default function OpabizDashboardPage() {
                     {o.es_urgente && <div className="op-urgente">⚡ URGENTE</div>}
                     {cliente && <div className="op-cliente">{cliente.nombre}</div>}
                     <div className="op-fecha">Asignada: {o.fecha_asignacion ? new Date(o.fecha_asignacion).toLocaleString() : '—'}</div>
+                    {o.notas && <div className="op-nota">📝 {o.notas}</div>}
                   </Link>
                 )
               })

@@ -15,7 +15,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
   const { data: orden, error } = await supabase
     .from('ordenes_opabiz')
-    .select('id, tipo_servicio, estado, es_urgente, fecha_hora_cita, fecha_creacion, fecha_asignacion, fecha_inicio, fecha_completada, empleado_id, usuarios(nombre, email, telefono)')
+    .select('id, tipo_servicio, estado, es_urgente, notas, fecha_hora_cita, fecha_creacion, fecha_asignacion, fecha_inicio, fecha_completada, empleado_id, usuarios(nombre, email, telefono)')
     .eq('id', id)
     .maybeSingle()
 

@@ -9,6 +9,7 @@ type Orden = {
   tipo_servicio: string
   estado: string
   es_urgente: boolean
+  notas: string | null
   fecha_hora_cita: string | null
   fecha_creacion: string
   fecha_asignacion: string | null
@@ -130,6 +131,7 @@ export default function OpabizOrderDetailPage() {
         .op-doc-item a{color:#2563EB;text-decoration:none}
         .op-upload-label{display:block;width:100%;text-align:center;padding:13px;border-radius:8px;border:1.5px dashed #CBD5E1;color:#374151;font-size:.85rem;font-weight:600;cursor:pointer;min-height:44px}
         .op-empty{color:#94A3B8;font-size:.82rem;padding:8px 0}
+        .op-nota{color:#92400e;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px 12px;font-size:.85rem;margin-top:12px}
       `}</style>
 
       <div className="op-header">
@@ -158,6 +160,7 @@ export default function OpabizOrderDetailPage() {
                 <div className="op-row"><span className="op-row-label">Cita</span><span className="op-row-value">{new Date(orden.fecha_hora_cita).toLocaleString()}</span></div>
               )}
               <div className="op-row"><span className="op-row-label">Asignada</span><span className="op-row-value">{orden.fecha_asignacion ? new Date(orden.fecha_asignacion).toLocaleString() : '—'}</span></div>
+              {orden.notas && <div className="op-nota">📝 {orden.notas}</div>}
             </div>
 
             {error && <p className="op-error">{error}</p>}

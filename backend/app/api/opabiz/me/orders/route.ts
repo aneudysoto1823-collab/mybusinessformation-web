@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
 
   const { data, error } = await getSupabaseAdmin()
     .from('ordenes_opabiz')
-    .select('id, tipo_servicio, estado, es_urgente, fecha_hora_cita, fecha_creacion, fecha_asignacion, usuarios(nombre, email, telefono)')
+    .select('id, tipo_servicio, estado, es_urgente, notas, fecha_hora_cita, fecha_creacion, fecha_asignacion, usuarios(nombre, email, telefono)')
     .eq('empleado_id', session.empleadosId)
     .order('fecha_asignacion', { ascending: false })
 
