@@ -1692,6 +1692,14 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
                   <span style="display:block;margin-top:4px"><strong style="color:#374151">Mailing Address</strong> receives <em>general correspondence</em> — Annual Report reminders, filing confirmations, state notices. <strong>A PO Box is accepted. Any address worldwide is valid.</strong></span>
                 </div>
               </div>
+              <!-- Vista previa read-only de la dirección que se está "cotejando"
+                   cuando chk-same-mail está marcado — la dirección se pide en
+                   varios pasos del form, así que mostrarla acá evita que el
+                   cliente confirme algo que no puede ver. Se llena en
+                   fmSyncStep3()/fmToggleMailAddr() con fmBusinessAddrText(). -->
+              <div id="mail-addr-preview" style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:9px;padding:12px 14px;font-size:.85rem;color:#1e3a5f;line-height:1.6">
+                <span id="mail-addr-preview-text">—</span>
+              </div>
               <div id="mail-addr-fields" style="display:none">
                 <div class="fm-group"><label class="fm-label" id="lbl-mail-country">Country *</label>
                   <select class="fm-select" id="inp-mail-country"><option value="US">United States</option><option value="AR">Argentina</option><option value="BR">Brazil</option><option value="CL">Chile</option><option value="CO">Colombia</option><option value="CR">Costa Rica</option><option value="CU">Cuba</option><option value="DO">Dominican Republic</option><option value="EC">Ecuador</option><option value="ES">Spain</option><option value="GB">United Kingdom</option><option value="GT">Guatemala</option><option value="HN">Honduras</option><option value="MX">Mexico</option><option value="NI">Nicaragua</option><option value="PE">Peru</option><option value="VE">Venezuela</option><option value="other">Other</option></select>
@@ -3274,7 +3282,30 @@ function fmMemberAddrChange(prefix, sel) {
 }
 function fmToggleMailAddr(chk) {
   var f = document.getElementById('mail-addr-fields');
+  var p = document.getElementById('mail-addr-preview');
   if(f) f.style.display = chk.checked ? 'none' : 'block';
+  if(p) p.style.display = chk.checked ? 'block' : 'none';
+  if(chk.checked) fmUpdateMailAddrPreview();
+}
+// Llena la vista previa read-only con la dirección del negocio (Paso 2) —
+// para que el cliente vea EXACTAMENTE qué dirección está cotejando al dejar
+// "Same as business address" marcado, en vez de solo confiar a ciegas.
+function fmUpdateMailAddrPreview() {
+  var el = document.getElementById('mail-addr-preview-text');
+  if(!el) return;
+  var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
+  // Dirección virtual: el cliente nunca tipea nada, se la asignamos después de
+  // confirmar la orden — no hay texto de #inp-addr que mostrar, así que
+  // explicamos qué va a pasar en vez del placeholder genérico de abajo.
+  var addrType = fmData.bizAddrType || 'virtual';
+  if(addrType === 'virtual') {
+    el.textContent = isEs
+      ? 'Será la misma dirección virtual asignada a su negocio (se la enviaremos por correo una vez confirmada la orden).'
+      : 'Will be the same virtual address assigned to your business (we will email it to you once your order is confirmed).';
+    return;
+  }
+  var text = fmBusinessAddrText();
+  el.textContent = text || (isEs ? 'Complete la dirección del negocio en el paso anterior.' : 'Complete the business address in the previous step.');
 }
 function fmSetBizAddr(type, el) {
   fmData.bizAddrType = type;
@@ -4582,6 +4613,10 @@ function fmSyncStep3() {
   // Sync mailing divider entity label
   var mailEnt = document.getElementById('s3-mail-divider-entity');
   if(mailEnt) mailEnt.textContent = fmData.entity === 'corp' ? 'Corporation' : 'LLC';
+  // Refresca la vista previa read-only por si el cliente volvió al Paso 2 y
+  // cambió la dirección del negocio (ver fmUpdateMailAddrPreview/fmToggleMailAddr).
+  var mailSameChk = document.getElementById('chk-same-mail');
+  if(mailSameChk && mailSameChk.checked) fmUpdateMailAddrPreview();
   // RA address fields & same-biz checkbox
   fmSyncRaState();
 }

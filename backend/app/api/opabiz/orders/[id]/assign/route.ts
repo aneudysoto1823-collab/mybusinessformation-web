@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdminToken } from '@/lib/session'
 import { getSupabaseAdmin } from '@/lib/supabase'
+import { notifyEmployeeAssignment } from '@/lib/opabiz-notify'
 
 export const dynamic = 'force-dynamic'
 
@@ -75,6 +76,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     tipo_evento: 'asignacion_manual',
     detalle: 'Asignada manualmente por un administrador desde el panel.',
   })
+
+  await notifyEmployeeAssignment(supabase, empleadoRow.id, ordenId)
 
   return NextResponse.json({ orden })
 }

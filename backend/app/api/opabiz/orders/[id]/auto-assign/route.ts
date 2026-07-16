@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdminToken } from '@/lib/session'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { pickBestEmployee } from '@/lib/opabiz-assignment'
+import { notifyEmployeeAssignment } from '@/lib/opabiz-notify'
 
 export const dynamic = 'force-dynamic'
 
@@ -60,6 +61,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     tipo_evento: 'asignacion_automatica',
     detalle: 'Asignada automáticamente por el motor de asignación.',
   })
+
+  await notifyEmployeeAssignment(supabase, elegido.empleadosId, ordenId)
 
   return NextResponse.json({ orden: ordenActualizada })
 }

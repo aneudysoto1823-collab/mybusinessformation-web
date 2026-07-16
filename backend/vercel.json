@@ -17,6 +17,10 @@
     {
       "path": "/api/opabiz/cron/reassign-timeouts",
       "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/opabiz/cron/appointment-reminders",
+      "schedule": "*/15 * * * *"
     }
   ]
 }

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { pickBestEmployee } from '@/lib/opabiz-assignment'
 import { registrarInactividad } from '@/lib/opabiz-empleados'
+import { notifyEmployeeAssignment } from '@/lib/opabiz-notify'
 
 export const dynamic = 'force-dynamic'
 
@@ -79,6 +80,7 @@ export async function GET(req: NextRequest) {
         tipo_evento: 'reasignacion_automatica',
         detalle: `Reasignada tras ${TIMEOUT_MINUTOS} min sin respuesta del empleado anterior.`,
       })
+      await notifyEmployeeAssignment(supabase, siguiente.empleadosId, orden.id)
       reasignadas++
     } else {
       // No hay nadie más disponible. ordenes_opabiz.empleado_id es NOT NULL,

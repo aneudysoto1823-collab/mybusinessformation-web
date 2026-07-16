@@ -37,12 +37,26 @@ function clienteDe(o: Orden) {
   return Array.isArray(o.usuarios) ? o.usuarios[0] ?? null : o.usuarios
 }
 
+// Boilerplate estándar de Web Push: la VAPID public key viene en base64url,
+// pero pushManager.subscribe() exige un Uint8Array — no hay forma de saltarse
+// esta conversión, es parte del spec.
+function urlBase64ToUint8Array(base64String: string): Uint8Array {
+  const padding = '='.repeat((4 - (base64String.length % 4)) % 4)
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/')
+  const rawData = window.atob(base64)
+  const outputArray = new Uint8Array(rawData.length)
+  for (let i = 0; i < rawData.length; i++) outputArray[i] = rawData.charCodeAt(i)
+  return outputArray
+}
+
 export default function OpabizDashboardPage() {
   const router = useRouter()
   const [me, setMe] = useState<Me | null>(null)
   const [ordenes, setOrdenes] = useState<Orden[]>([])
   const [loading, setLoading] = useState(true)
   const [togglingDisp, setTogglingDisp] = useState(false)
+  const [showPushBanner, setShowPushBanner] = useState(false)
+  const [subscribingPush, setSubscribingPush] = useState(false)
 
   const cargar = useCallback(async () => {
     const [meRes, ordersRes] = await Promise.all([
@@ -59,6 +73,43 @@ export default function OpabizDashboardPage() {
   }, [router])
 
   useEffect(() => { cargar() }, [cargar])
+
+  // Banner "Activar notificaciones" — solo si el navegador soporta push Y el
+  // empleado todavía no concedió (ni negó) el permiso. iOS Safari solo
+  // soporta esto si la PWA fue instalada a pantalla de inicio (iOS 16.4+).
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) return
+    if (Notification.permission === 'default') setShowPushBanner(true)
+  }, [])
+
+  async function activarNotificaciones() {
+    setSubscribingPush(true)
+    try {
+      const permiso = await Notification.requestPermission()
+      if (permiso !== 'granted') { setShowPushBanner(false); return }
+
+      const registration = await navigator.serviceWorker.register('/opabiz-sw.js')
+      const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
+      if (!vapidKey) { setShowPushBanner(false); return }
+
+      const subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(vapidKey) as BufferSource,
+      })
+
+      await fetch('/api/opabiz/me/push-subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(subscription.toJSON()),
+      })
+      setShowPushBanner(false)
+    } catch (err) {
+      console.error('[opabiz] activarNotificaciones error:', err)
+    } finally {
+      setSubscribingPush(false)
+    }
+  }
 
   async function toggleDisponibilidad() {
     if (!me) return
@@ -107,6 +158,10 @@ export default function OpabizDashboardPage() {
         .op-nota{color:#92400e;background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:6px 8px;font-size:.78rem;margin-top:6px}
         .op-empty{text-align:center;color:#94A3B8;font-size:.85rem;padding:40px 20px}
         .op-intake-link{display:block;text-align:center;background:#EFF6FF;color:#1d4ed8;border:1.5px solid #bfdbfe;border-radius:10px;padding:13px;font-weight:700;font-size:.85rem;text-decoration:none;margin-bottom:16px;min-height:44px}
+        .op-push-banner{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#ECFDF5;border:1.5px solid #a7f3d0;border-radius:10px;padding:12px 14px;margin-bottom:16px}
+        .op-push-text{font-size:.8rem;color:#065f46;font-weight:600;line-height:1.4}
+        .op-push-btn{background:#059669;color:#fff;border:none;border-radius:8px;padding:9px 14px;font-size:.78rem;font-weight:700;cursor:pointer;white-space:nowrap;min-height:36px}
+        .op-push-btn:disabled{opacity:.6;cursor:not-allowed}
       `}</style>
 
       <div className="op-header">
@@ -123,6 +178,15 @@ export default function OpabizDashboardPage() {
                 propio — ver LOGICA_DE_NEGOCIO/17. ?agent=1 activa el modo agente
                 (oculta el pago; al Guardar le llega el link al cliente). */}
             <a href="/?agent=1" target="_blank" rel="noopener noreferrer" className="op-intake-link">📞 Nueva intake asistida</a>
+
+            {showPushBanner && (
+              <div className="op-push-banner">
+                <span className="op-push-text">🔔 Activá las notificaciones para enterarte al instante cuando te asignen una orden.</span>
+                <button className="op-push-btn" onClick={activarNotificaciones} disabled={subscribingPush}>
+                  {subscribingPush ? '...' : 'Activar'}
+                </button>
+              </div>
+            )}
 
             {me && (
               <div className="op-me">

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdminToken } from '@/lib/session'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { findOrCreateClienteUsuario } from '@/lib/opabiz-clientes'
+import { notifyEmployeeAssignment } from '@/lib/opabiz-notify'
 
 export const dynamic = 'force-dynamic'
 
@@ -106,6 +107,8 @@ export async function POST(req: NextRequest) {
     tipo_evento: 'asignacion_manual',
     detalle: 'Orden creada y asignada manualmente por un administrador desde el panel.',
   })
+
+  await notifyEmployeeAssignment(supabase, empleadoId, orden.id)
 
   return NextResponse.json({ orden }, { status: 201 })
 }
