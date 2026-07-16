@@ -1788,6 +1788,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
                   <div class="fm-group"><label class="fm-label" id="s5-m1-own-lbl">Ownership % <span style="font-size:.68rem;font-weight:500;color:#f59e0b;background:#fef3c7;padding:1px 6px;border-radius:4px" id="s5-own-rec-lbl">Recommended</span></label><input type="number" class="fm-input" id="s5-m1-own" placeholder="e.g. 100" min="0" max="100" oninput="fmUpdateOwnership()"/></div>
                 </div>
                 <!-- Address presets: reuse business/virtual + RA + Mailing (segun reglas 2026-06-25) -->
+                <div class="fm-label" id="s5-m1-addr-lbl" style="margin-top:14px;margin-bottom:4px">Address</div>
                 <div class="fm-addr-presets" id="s5-m1-addr-presets" style="display:none">
                   <label class="fm-addr-preset" id="s5-m1-addr-biz-wrap" style="display:none">
                     <input type="checkbox" class="fm-addr-preset-chk" id="s5-m1-addr-biz" onchange="fmApplyBizAddrToMember(1,this.checked)"/>
@@ -2751,6 +2752,7 @@ function fmAddMember() {
         '<div class="fm-group"><label class="fm-label">' + (isEs ? 'Título / Rol *' : 'Title / Role *') + '</label><select class="fm-select" id="s5-m' + n + '-role">' + titleOpts + '</select></div>' +
         '<div class="fm-group"><label class="fm-label">' + (isEs ? '% de Propiedad *' : 'Ownership % *') + '</label><input type="number" class="fm-input" id="s5-m' + n + '-own" placeholder="e.g. 50" min="0" max="100" oninput="fmUpdateOwnership()"/></div>' +
       '</div>' +
+      '<div class="fm-label" id="s5-m' + n + '-addr-lbl" style="margin-top:14px;margin-bottom:4px">' + (isEs ? 'Dirección' : 'Address') + '</div>' +
       '<div class="fm-addr-presets" id="s5-m' + n + '-addr-presets" style="display:none">' +
         '<label class="fm-addr-preset" id="s5-m' + n + '-addr-biz-wrap" style="display:none">' +
           '<input type="checkbox" class="fm-addr-preset-chk" id="s5-m' + n + '-addr-biz" onchange="fmApplyBizAddrToMember(' + n + ',this.checked)"/>' +
@@ -6398,6 +6400,7 @@ function fmTranslate(lang) {
     's5-m1-lname-lbl':isEs?'Apellido *':'Last Name *',
     's5-m1-title-lbl':isEs?'Título / Rol *':'Title / Role *',
     's5-m1-own-lbl':isEs?'% de Propiedad *':'Ownership % *',
+    's5-m1-addr-lbl':isEs?'Dirección':'Address',
     's5-m1-addr-lbl':isEs?'Dirección *':'Address *',
     's5-m1-coname-lbl':isEs?'Nombre de la Empresa *':'Company Name *',
     's5-m1-coein-lbl':isEs?'EIN / Tax ID':'EIN / Tax ID',
@@ -6778,6 +6781,23 @@ function fmShowOaFields(show) {
     panel.style.display = 'none';
     if(card){ card.style.borderRadius=''; card.style.borderBottom=''; }
     return;
+  }
+
+  // Dueño único ya al 100% (fmInitStep5Ownership ya lo autocompletó en el
+  // Paso 5) — no hay nada que confirmar, un solo miembro siempre posee el
+  // 100% de la empresa. Evita abrir este panel sin necesidad.
+  var _oaExtra = document.getElementById('s5-extra-members');
+  var _oaHasExtra = _oaExtra && _oaExtra.children.length > 0;
+  if(!_oaHasExtra) {
+    var _oaIsInd = document.getElementById('s5-m1-ind') && document.getElementById('s5-m1-ind').classList.contains('selected');
+    var _oaOwnVal = _oaIsInd
+      ? ((document.getElementById('s5-m1-own')    || {}).value || '')
+      : ((document.getElementById('s5-m1-coown')  || {}).value || '');
+    if(parseFloat(_oaOwnVal) === 100) {
+      panel.style.display = 'none';
+      if(card){ card.style.borderRadius=''; card.style.borderBottom=''; }
+      return;
+    }
   }
 
   // Always show panel when OA selected

@@ -177,7 +177,7 @@ export default function OpabizDashboardPage() {
             {/* Intake asistida usa el formulario público real (opabiz.com), no uno
                 propio — ver LOGICA_DE_NEGOCIO/17. ?agent=1 activa el modo agente
                 (oculta el pago; al Guardar le llega el link al cliente). */}
-            <a href="/?agent=1" target="_blank" rel="noopener noreferrer" className="op-intake-link">📞 Nueva intake asistida</a>
+            <a href="/?agent=1" target="_blank" rel="noopener noreferrer" className="op-intake-link">Crear orden asistida</a>
 
             {showPushBanner && (
               <div className="op-push-banner">
