@@ -54,13 +54,61 @@ Es la misma filosofía que ya usa opabiz (el form llama a un endpoint que llama 
 
 ### Cómo se ve un lunes en la mañana
 
+**Filosofía: todo es pull.** El único paso automático es el cron nocturno del Bloque 1 — trae LLC nuevas a la Base B y las deja marcadas `procesada = no`. Nada más corre solo. En el panel yo decido cuándo y sobre cuántas trabajar, poniendo el número en cada input.
+
 1. Abro el **panel de admin** (la pantalla "Marketing Campaigns") desde cualquier navegador.
-2. Aprieto **"Clasificar últimos 2 días"** → el sistema lee las LLC nuevas, las scorea con Claude Haiku, y me dice "3,000 procesadas, 700 score A". (Gratis.)
-3. Aprieto **"Enriquecer 300 score A"** → el sistema llama en cadena Google → Enformion → ZeroBounce, y me deja 300 enriquecidas. (Aquí gasto, solo lo de 300.)
-4. Aprieto **"Enviar 300 cartas"** → conecta con el sistema de cartas físicas. *(Bloque 4, segunda parte.)*
-5. Aprieto **"Enviar 2,000 emails"** → usa **Resend** para mandar la campaña. *(Bloque 4, segunda parte.)*
+2. En el bloque de **Clasificación** escribo `500` y aprieto **"Clasificar"** → el sistema toma las **500 más nuevas sin clasificar** (FIFO por `filing_date`), las scorea con Claude Haiku, y me devuelve "500 procesadas, 120 score A". (Gratis — centavos de tokens.)
+3. En el bloque de **Enriquecimiento** escribo `300`, elijo score `A`, y aprieto **"Enriquecer"** → el sistema toma las **300 más nuevas clasificadas A sin enriquecer** y corre Google → Enformion → ZeroBounce en cadena. Antes de disparar me muestra el costo estimado (~$36). (Aquí gasto, solo lo de 300.)
+4. En el bloque de **Campañas** aplico filtros (vertical, fecha, `nunca contactado`), veo cuántas coinciden (ej. 847), escribo `200` y aprieto **"Enviar cartas"** → conecta con el sistema de cartas físicas. Costo estimado ~$150 antes de confirmar. *(Bloque 4, segunda parte.)*
+5. Mismo filtro, escribo `2000` y aprieto **"Enviar emails"** → usa **Resend** para mandar la campaña. Costo prácticamente cero. *(Bloque 4, segunda parte.)*
 
 Todo con botones, sin PC, sin Code, sin servidor extra. Yo decido los números, la app ejecuta.
+
+### Diseño del panel — los 3 bloques operativos
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  Bloque 2 — Clasificación (Claude Haiku)                    │
+├─────────────────────────────────────────────────────────────┤
+│  Sin clasificar en la Base B: 2,847                         │
+│                                                             │
+│  Clasificar  [   500  ]   [ Clasificar ahora ]              │
+│  Costo estimado: ~$0.15 (Claude Haiku, tokens)              │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│  Bloque 3 — Enriquecimiento (Google + Enformion + ZeroBounce)│
+├─────────────────────────────────────────────────────────────┤
+│  Clasificadas sin enriquecer: A=412, B=1,203, C=987         │
+│                                                             │
+│  Enriquecer  [   300  ]   score [ A ▾ ]                     │
+│  [ Enriquecer ahora ]                                       │
+│  Costo estimado: ~$36 (Google $6 + Enformion $24 + ZB $6)   │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│  Bloque 4 — Campañas (cartas + emails)                      │
+├─────────────────────────────────────────────────────────────┤
+│  Filtros: [vertical ▾] [score ▾] [fecha desde/hasta]        │
+│           [☑ nunca contactado] [☑ dirección validada]       │
+│                                                             │
+│  Coinciden con el filtro actual: 847                        │
+│                                                             │
+│  Enviar  [   200  ] cartas   [ Enviar cartas ]              │
+│  Costo estimado: ~$150 (papel + franqueo)                   │
+│                                                             │
+│  Enviar  [ 2,000  ] emails   [ Enviar emails ]              │
+│  Costo estimado: ~$0.40 (Resend por 2K envíos)              │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Reglas del diseño**:
+
+- **El número lo pone el operador**, el sistema no lo sugiere. Simetría entre los 3 bloques.
+- **El sistema elige QUÉ registros** procesar aplicando siempre el mismo criterio: **más nuevos primero** (FIFO por `filing_date`). Respeta la regla de oro "la data fresca vale".
+- **Costo estimado visible** antes de cada botón. Confirmación explícita antes de disparar el gasto.
+- **Contador de disponibles** en cada bloque (cuántas sin clasificar / cuántas sin enriquecer / cuántas matchean el filtro) para que el operador sepa si tiene sentido correr el paso.
+- **El filtro del Bloque 4** solo se aplica al Bloque 4 — Bloques 2 y 3 usan FIFO puro, sin filtros complicados (mantiene el flujo simple: si querés priorizar otro vertical, es porque ya hiciste enriquecimiento y estás decidiendo qué mandar).
 
 ---
 
@@ -114,14 +162,19 @@ El sistema se construye en bloques separados. Cada bloque es independiente y se 
 ### Bloque 1 — El cron nocturno *(el que se construye primero)*
 Cada noche, en Vercel, trae las LLC nuevas de Sunbiz con todos sus datos crudos y las deposita en la Base B con `procesada = no`. Además actualiza el status de las LLC que se desactivan (para que la búsqueda de nombres de opabiz libere nombres según los plazos de Florida). **El cron solo trae y marca; no clasifica ni enriquece.**
 
-### Bloque 2 — Clasificación *(se diseña después)*
-Cuando disparo "clasifica los últimos N días", el sistema lee las LLC `procesada = no` de ese rango y les calcula score, vertical, perfil del dueño y tipo de dirección. Pasan a `procesada = sí`. **Gratis** (no llama APIs de pago). Me dice "de 3,000, estas 700 son A".
+### Bloque 2 — Clasificación *(diseño acordado, pendiente implementar)*
+Yo escribo un número `N` en el input y aprieto "Clasificar". El sistema toma las **N más nuevas con `procesada = no`** (FIFO por `filing_date`), las manda a Claude Haiku, y les calcula score (A/B/C), vertical, perfil del dueño (probable extranjero vs ciudadano) y tipo de dirección (residencial/comercial/virtual). Al terminar quedan `procesada = sí` y me devuelve el resumen ("500 procesadas, 120 A, 250 B, 130 C"). **Gratis** (no llama APIs de pago, solo tokens de Haiku).
 
-### Bloque 3 — Enriquecimiento *(se diseña después)*
-Sobre las clase A que elijo (por presupuesto), corre las APIs en cadena (dirección → email → validación), de barato a caro con filtros. Las que consiguen contacto válido quedan listas para campaña. **Aquí se gasta**, solo sobre las que elegí.
+### Bloque 3 — Enriquecimiento *(diseño acordado, pendiente implementar)*
+Yo escribo `N` + elijo score (A por default) y aprieto "Enriquecer". El sistema toma las **N más nuevas clasificadas de ese score con enriquecimiento vacío** y corre las APIs en cadena, de barato a caro con filtros:
+1. **Google** valida y normaliza dirección
+2. Solo las que pasaron el filtro anterior → **Enformion** busca email del dueño
+3. Solo las que consiguieron email → **ZeroBounce** valida que ese email exista y reciba
+
+Las que consiguen contacto válido en toda la cadena quedan listas para campaña. **Antes de disparar el sistema muestra el costo estimado** (basado en el N + costos unitarios de cada API) y pide confirmación. **Aquí se gasta**, solo sobre las N que elegí.
 
 ### Bloque 4 — Campañas *(segunda parte, más adelante)*
-Desde el panel filtro por estado + criterios (vertical, fecha, nunca contactado) y disparo: "estas 300, carta" / "estas 2,000, email con esta oferta". Conecta con el sistema de cartas físicas y con **Resend** para los emails.
+Vista con filtros en la tabla (vertical, score, fecha, `nunca contactado`, `dirección validada`). El filtro me muestra cuántos registros coinciden. Después yo escribo cuántos mandar (puede ser menos que los que coinciden — subset) y aprieto "Enviar cartas" o "Enviar emails". Cada acción muestra costo estimado antes de confirmar. Conecta con el sistema de cartas físicas y con **Resend** (dominio de marketing separado — ver nota abajo) para los emails.
 
 ---
 
@@ -162,9 +215,9 @@ Desde el panel filtro por estado + criterios (vertical, fecha, nunca contactado)
 | Bloque | Estado |
 |---|---|
 | **Bloque 1 — Cron nocturno** | ✅ **IMPLEMENTADO 2026-06-26** — corre todas las noches a las 06 UTC sin intervención. Ver doc 26 sección "Implementación del cron Sunbiz Bloque 1" para detalle técnico. Base actual: 3,956,123 registros, integridad verificada (sunbiz_corps == sunbiz_fts, 0 duplicados). |
-| **Bloque 2 — Clasificación** | Diseñado en concepto. Se detalla cuando arranque. |
-| **Bloque 3 — Enriquecimiento** | Diseñado en concepto. Se detalla cuando arranque. |
-| **Bloque 4 — Campañas (cartas + emails)** | Segunda parte. Diferido. Incluye el tema de dominio de marketing para Resend. |
+| **Bloque 2 — Clasificación** | **Diseño acordado 2026-07-16.** Input `N` + botón "Clasificar" → FIFO por `filing_date` sobre las `procesada = no`. Ver sección "Diseño del panel" arriba. Pendiente implementar (Claude Haiku + endpoint + UI en `/admin/campaigns`). |
+| **Bloque 3 — Enriquecimiento** | **Diseño acordado 2026-07-16.** Input `N` + score + botón "Enriquecer" → cadena Google → Enformion → ZeroBounce con filtros de barato a caro. Costo estimado antes de disparar. Pendiente implementar. |
+| **Bloque 4 — Campañas (cartas + emails)** | **Diseño acordado 2026-07-16** (filtros en tabla + input `N` + botón por canal). Segunda parte diferida. Incluye el tema de dominio de marketing para Resend. |
 
 ---
 
