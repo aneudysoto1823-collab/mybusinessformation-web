@@ -184,20 +184,33 @@ Esta sección describe **cómo corre el sistema hoy en producción** y qué hace
 - El endpoint `POST /api/marketing/classify` recibe `{n}` con N entre 1 y 500.
 - Verifica que estés autenticado como admin (cookie `admin_session`).
 
-**Paso 2.2 — Sync automático de Base A → Base B**:
+**Paso 2.2 — Auto-expirar pendientes viejas** (regla de oro "data fresca vale"):
+
+- Antes de sincronizar nuevas, el sistema hace un UPDATE:
+  ```sql
+  UPDATE marketing_leads
+  SET descartada = 1, descarte_razon = 'expirada (>3 dias desde filing)'
+  WHERE procesada = 0 AND descartada = 0
+    AND filing_date < date('now', '-3 days')
+  ```
+- Umbral: **3 días** desde `filing_date` (constante `MAX_STALE_DAYS` en `/api/marketing/classify/route.ts`).
+- Sin este paso las pendientes viejas se acumulan como basura en Base B y nunca se procesan (nunca ganan el FIFO contra las frescas).
+- Reporta cuántas expiraron (`expired` en el response). Si no hay viejas, expired=0.
+
+**Paso 2.3 — Sync automático de Base A → Base B**:
 
 - El sistema hace `SELECT ... LIMIT N×2` sobre `sunbiz_corps` de Base A, ordenado por `filing_date DESC` (más nuevas primero — regla de oro).
 - Cada fila se inserta en `marketing_leads` de Base B con `INSERT OR IGNORE` (dedupe por `document_number` UNIQUE), con `procesada=0`.
 - El multiplicador ×2 es por si algunas ya existían en Base B (para asegurar ≥ N nuevas disponibles después del dedupe).
 - Reporta cuántas se insertaron efectivamente (`sync_inserted`).
 
-**Paso 2.3 — Cargar settings de scores y verticales activos**:
+**Paso 2.4 — Cargar settings de scores y verticales activos**:
 
 - `SELECT score, active FROM marketing_score_settings` (default: A=on, B=on, C=off).
 - `SELECT vertical, active FROM marketing_vertical_settings` (default: 11 verticales on + `other`+`unknown` off).
 - Estos toggles los controlás vos desde el panel (secciones amarillas arriba).
 
-**Paso 2.4 — Clasificación con Claude Haiku**:
+**Paso 2.5 — Clasificación con Claude Haiku**:
 
 - `SELECT ... LIMIT N` sobre `marketing_leads` de Base B, filtrando `procesada=0`, ordenado por `filing_date DESC`.
 - Batching: manda las N a Claude Haiku en tandas de 20 leads/prompt (1 llamada por tanda).
@@ -209,14 +222,14 @@ Esta sección describe **cómo corre el sistema hoy en producción** y qué hace
   - `has_good_address`: bool
   - `notes`: opcional (≤80 chars)
 
-**Paso 2.5 — UPDATE fila por fila + auto-descarte**:
+**Paso 2.6 — UPDATE fila por fila + auto-descarte**:
 
 - Por cada clasificación devuelta, UPDATE en Base B:
   - Setea `score, vertical, vertical_priority, owner_profile, address_type, has_good_address, classification_notes`
   - Marca `procesada=1, fecha_procesada=now()`
   - **Auto-descarte**: si el vertical asignado NO está activo O si el score no está activo → `descartada=1, descarte_razon="vertical inactivo: X" | "score inactivo: Y" | "vertical y score inactivos"`
 
-**Paso 2.6 — Log de corrida + response**:
+**Paso 2.7 — Log de corrida + response**:
 
 - Escribe fila en `block_runs` con `n_requested, n_processed, result_summary (JSON), status='ok'`.
 - Devuelve `{processed, sync_inserted, discarded, distribution: {A,B,C}, vertical_distribution, elapsed_ms, run_id}`.
@@ -352,7 +365,7 @@ Por cada lead:
 | **Bloque 2 — Clasificación** | ✅ **IMPLEMENTADO 2026-07-16**. `POST /api/marketing/classify` (sync + Haiku + auto-descarte por vertical/score inactivo). Panel `/admin/marketing` con input N + botón + toggles de scores y verticales. Techo: 500/corrida. Costo real: ~$0.0008/lead. |
 | **Bloque 3 — Enriquecimiento** | ✅ **IMPLEMENTADO 2026-07-17**. `POST /api/marketing/enrich` (solo Google Address Validation — Enformion/ZeroBounce descartados 2026-07-16 por costo). Marca `address_validated`, `address_type`, `enriched_at`. Techo: 500/corrida. Costo: 1,000/mes gratis + $25/1,000 después. |
 | **Bloque 4 — Campañas (solo cartas)** | Pendiente implementar. Filtros + input N + costo estimado + confirmación + disparo. Emails fuera de scope hasta conseguir email finder económico. Requiere elegir proveedor de envío físico (Lob / Click2Mail / Postgrid). |
-| **Auto-expirar pendientes viejas** | Pendiente decisión (propuesta 2026-07-17): al correr clasificación, marcar como descartada las pendientes con `filing_date` > N días (regla de oro "data fresca vale"). Sin esto las pendientes viejas se acumulan como basura en Base B. |
+| **Auto-expirar pendientes viejas** | ✅ **IMPLEMENTADO 2026-07-17**. Umbral: **3 días** desde `filing_date`. Se ejecuta al inicio de cada corrida de `/api/marketing/classify` antes del sync. Constante `MAX_STALE_DAYS` en el endpoint (facil de cambiar). |
 
 ---
 

@@ -22,6 +22,7 @@ export const maxDuration = 300
 
 const MAX_N = 500 // Techo por corrida — pedidos mayores requieren varias corridas
 const SYNC_MULTIPLIER = 2 // Trae 2x lo pedido de Base A para asegurar N nuevos en Base B despues de INSERT OR IGNORE
+const MAX_STALE_DAYS = 3 // Auto-descartar pendientes con filing_date mas viejo que esto (regla de oro: data fresca vale)
 
 function jsonError(status: number, error: string) {
   return NextResponse.json({ error }, { status })
@@ -53,6 +54,22 @@ export async function POST(req: Request) {
     const msg = e instanceof Error ? e.message : String(e)
     return jsonError(500, 'config invalida: ' + msg)
   }
+
+  // ===== 0) EXPIRAR PENDIENTES VIEJAS =====
+  // Antes de traer nuevas, marcar como descartadas las pendientes con filing_date > MAX_STALE_DAYS.
+  // Coherente con la regla de oro "data fresca vale" (doc 31): una LLC vieja no sirve para marketing
+  // de "LLC nueva". Sin este paso las pendientes se acumulan como basura en Base B.
+  const expireRes = await marketing.execute({
+    sql: `UPDATE marketing_leads
+          SET descartada = 1,
+              descarte_razon = 'expirada (>' || ? || ' dias desde filing)'
+          WHERE procesada = 0
+            AND descartada = 0
+            AND filing_date IS NOT NULL
+            AND filing_date < date('now', '-' || ? || ' days')`,
+    args: [MAX_STALE_DAYS, MAX_STALE_DAYS],
+  })
+  const expired = Number(expireRes.rowsAffected || 0)
 
   // ===== 1) SYNC de Base A -> Base B =====
   // Traigo las 2N mas nuevas de sunbiz_corps y hago INSERT OR IGNORE en marketing_leads.
@@ -135,11 +152,12 @@ export async function POST(req: Request) {
     await marketing.execute({
       sql: `UPDATE block_runs SET n_processed = 0, status = 'ok', finished_at = datetime('now'),
             result_summary = ? WHERE id = ?`,
-      args: [JSON.stringify({ sync_inserted: inserted, note: 'no pending leads to classify' }), runId],
+      args: [JSON.stringify({ sync_inserted: inserted, expired, note: 'no pending leads to classify' }), runId],
     })
     return NextResponse.json({
       processed: 0,
       sync_inserted: inserted,
+      expired,
       distribution: {},
       elapsed_ms: Date.now() - started,
       run_id: runId,
@@ -209,12 +227,13 @@ export async function POST(req: Request) {
   await marketing.execute({
     sql: `UPDATE block_runs SET n_processed = ?, status = 'ok', finished_at = datetime('now'),
           result_summary = ? WHERE id = ?`,
-    args: [classifications.length, JSON.stringify({ sync_inserted: inserted, score: distribution, vertical: verticalDist, discarded }), runId],
+    args: [classifications.length, JSON.stringify({ sync_inserted: inserted, expired, score: distribution, vertical: verticalDist, discarded }), runId],
   })
 
   return NextResponse.json({
     processed: classifications.length,
     sync_inserted: inserted,
+    expired,
     discarded,
     distribution,
     vertical_distribution: verticalDist,

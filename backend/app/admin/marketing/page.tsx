@@ -76,7 +76,7 @@ export default function MarketingPage() {
   const [loading, setLoading]     = useState(true)
   const [n, setN]                 = useState<number>(50)
   const [running, setRunning]     = useState(false)
-  const [runResult, setRunResult] = useState<null | { processed: number; sync_inserted: number; discarded?: number; distribution: Record<string, number>; vertical_distribution: Record<string, number>; elapsed_ms: number }>(null)
+  const [runResult, setRunResult] = useState<null | { processed: number; sync_inserted: number; expired?: number; discarded?: number; distribution: Record<string, number>; vertical_distribution: Record<string, number>; elapsed_ms: number }>(null)
   const [verticals, setVerticals] = useState<VerticalSetting[]>([])
   const [verticalsOpen, setVerticalsOpen] = useState(false)
   const [togglingVertical, setTogglingVertical] = useState<string | null>(null)
@@ -179,12 +179,12 @@ export default function MarketingPage() {
         body: JSON.stringify({ n }),
       })
       const text = await res.text()
-      let data: { error?: string; processed?: number; sync_inserted?: number; distribution?: Record<string, number>; vertical_distribution?: Record<string, number>; elapsed_ms?: number } = {}
+      let data: { error?: string; processed?: number; sync_inserted?: number; expired?: number; discarded?: number; distribution?: Record<string, number>; vertical_distribution?: Record<string, number>; elapsed_ms?: number } = {}
       try { data = text ? JSON.parse(text) : {} } catch {}
       if (!res.ok) {
         throw new Error(data.error || text.slice(0, 200) || `HTTP ${res.status}`)
       }
-      setRunResult(data as { processed: number; sync_inserted: number; distribution: Record<string, number>; vertical_distribution: Record<string, number>; elapsed_ms: number })
+      setRunResult(data as { processed: number; sync_inserted: number; expired?: number; discarded?: number; distribution: Record<string, number>; vertical_distribution: Record<string, number>; elapsed_ms: number })
       await loadStats()
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e))
@@ -428,8 +428,11 @@ export default function MarketingPage() {
                   <div style={S.resultGrid}>
                     <div><b>{runResult.processed}</b> clasificadas</div>
                     <div><b>{runResult.sync_inserted}</b> nuevas sincronizadas de Sunbiz</div>
+                    {runResult.expired !== undefined && runResult.expired > 0 && (
+                      <div style={{color: '#6b7280'}}><b>{runResult.expired}</b> expiradas (&gt;3 días)</div>
+                    )}
                     {runResult.discarded !== undefined && runResult.discarded > 0 && (
-                      <div style={{color: '#dc2626'}}><b>{runResult.discarded}</b> descartadas (vertical inactivo)</div>
+                      <div style={{color: '#dc2626'}}><b>{runResult.discarded}</b> descartadas (vertical/score inactivo)</div>
                     )}
                     <div><b>{(runResult.elapsed_ms / 1000).toFixed(1)}s</b> tiempo total</div>
                   </div>
