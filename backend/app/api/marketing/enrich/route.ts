@@ -63,7 +63,9 @@ export async function POST(req: Request) {
   })
   const runId = Number(runIns.lastInsertRowid)
 
-  // Traer los N candidatos: score=X, address_validated IS NULL, NO descartados, has_good_address ok
+  // Traer los N candidatos: score=X, address_validated IS NULL, NO descartados, has_good_address ok,
+  // Y con dir minima completa (addr1 + city + state) — sin esos 3 Google Address Validation no puede
+  // hacer nada y era la fuente de los "2 errores de API" que en realidad eran validacion local.
   const candidatesRes = await marketing.execute({
     sql: `SELECT document_number, entity_name,
                  principal_addr1, principal_addr2, principal_city, principal_state, principal_zip, principal_country
@@ -72,7 +74,9 @@ export async function POST(req: Request) {
             AND descartada = 0
             AND address_validated IS NULL
             AND (has_good_address IS NULL OR has_good_address = 1)
-            AND principal_addr1 IS NOT NULL
+            AND principal_addr1 IS NOT NULL AND TRIM(principal_addr1) != ''
+            AND principal_city  IS NOT NULL AND TRIM(principal_city)  != ''
+            AND principal_state IS NOT NULL AND TRIM(principal_state) != ''
           ORDER BY filing_date DESC
           LIMIT ?`,
     args: [score, n],
@@ -187,7 +191,9 @@ export async function GET() {
                           WHERE score IS NOT NULL AND address_validated IS NULL
                           AND descartada = 0
                           AND (has_good_address IS NULL OR has_good_address = 1)
-                          AND principal_addr1 IS NOT NULL
+                          AND principal_addr1 IS NOT NULL AND TRIM(principal_addr1) != ''
+                          AND principal_city  IS NOT NULL AND TRIM(principal_city)  != ''
+                          AND principal_state IS NOT NULL AND TRIM(principal_state) != ''
                           GROUP BY score`),
       marketing.execute(`SELECT * FROM block_runs WHERE block = 'enrich' ORDER BY started_at DESC LIMIT 1`),
       marketing.execute(`SELECT
