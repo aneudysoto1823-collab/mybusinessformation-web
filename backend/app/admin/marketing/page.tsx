@@ -9,7 +9,7 @@ import Link from 'next/link'
 
 type ClassifyStats = {
   pending: number
-  totals: { total: number; classified: number; score_a: number; score_b: number; score_c: number }
+  totals: { total: number; classified: number; discarded: number; score_a: number; score_b: number; score_c: number }
   last_run: {
     id: number
     block: string
@@ -22,6 +22,16 @@ type ClassifyStats = {
     error_message: string | null
   } | null
   max_n: number
+}
+
+type VerticalSetting = {
+  vertical: string
+  label: string
+  priority: number
+  active: boolean
+  lead_count: number
+  descartadas: number
+  validated: number
 }
 
 type EnrichStats = {
@@ -59,7 +69,10 @@ export default function MarketingPage() {
   const [loading, setLoading]     = useState(true)
   const [n, setN]                 = useState<number>(50)
   const [running, setRunning]     = useState(false)
-  const [runResult, setRunResult] = useState<null | { processed: number; sync_inserted: number; distribution: Record<string, number>; vertical_distribution: Record<string, number>; elapsed_ms: number }>(null)
+  const [runResult, setRunResult] = useState<null | { processed: number; sync_inserted: number; discarded?: number; distribution: Record<string, number>; vertical_distribution: Record<string, number>; elapsed_ms: number }>(null)
+  const [verticals, setVerticals] = useState<VerticalSetting[]>([])
+  const [verticalsOpen, setVerticalsOpen] = useState(false)
+  const [togglingVertical, setTogglingVertical] = useState<string | null>(null)
   const [error, setError]         = useState<string | null>(null)
 
   // Bloque 3 state
@@ -71,14 +84,16 @@ export default function MarketingPage() {
 
   const loadStats = useCallback(async () => {
     try {
-      const [r1, r2] = await Promise.all([
+      const [r1, r2, r3] = await Promise.all([
         fetch('/api/marketing/classify'),
         fetch('/api/marketing/enrich'),
+        fetch('/api/marketing/verticals'),
       ])
-      const [t1, t2] = await Promise.all([r1.text(), r2.text()])
-      let d1: unknown = null, d2: unknown = null
+      const [t1, t2, t3] = await Promise.all([r1.text(), r2.text(), r3.text()])
+      let d1: unknown = null, d2: unknown = null, d3: unknown = null
       try { d1 = t1 ? JSON.parse(t1) : null } catch {}
       try { d2 = t2 ? JSON.parse(t2) : null } catch {}
+      try { d3 = t3 ? JSON.parse(t3) : null } catch {}
       if (!r1.ok) {
         const msg = (d1 && typeof d1 === 'object' && 'error' in d1)
           ? String((d1 as { error: unknown }).error)
@@ -87,12 +102,35 @@ export default function MarketingPage() {
       }
       setStats(d1 as ClassifyStats)
       if (r2.ok) setEnrichStats(d2 as EnrichStats)
+      if (r3.ok && d3 && typeof d3 === 'object' && 'verticals' in d3) {
+        setVerticals((d3 as { verticals: VerticalSetting[] }).verticals)
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e))
     } finally {
       setLoading(false)
     }
   }, [])
+
+  const toggleVertical = async (vertical: string, active: boolean) => {
+    setTogglingVertical(vertical)
+    // Optimistic
+    setVerticals(prev => prev.map(v => v.vertical === vertical ? { ...v, active } : v))
+    try {
+      const res = await fetch('/api/marketing/verticals', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ vertical, active }),
+      })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    } catch (e) {
+      // Rollback
+      setVerticals(prev => prev.map(v => v.vertical === vertical ? { ...v, active: !active } : v))
+      alert('Error al cambiar el vertical: ' + (e instanceof Error ? e.message : String(e)))
+    } finally {
+      setTogglingVertical(null)
+    }
+  }
 
   useEffect(() => { loadStats() }, [loadStats])
 
@@ -183,9 +221,13 @@ export default function MarketingPage() {
                 <div style={S.statSub}>{stats?.totals.classified?.toLocaleString() ?? 0} ya clasificadas</div>
               </div>
               <div style={S.statCard}>
-                <div style={S.statLabel}>Pendientes de clasificar</div>
-                <div style={S.statValue}>{stats?.pending?.toLocaleString() ?? 0}</div>
-                <div style={S.statSub}>procesada = 0</div>
+                <div style={S.statLabel}>Pendientes / Descartadas</div>
+                <div style={S.statValue}>
+                  <span>{stats?.pending?.toLocaleString() ?? 0}</span>
+                  {' / '}
+                  <span style={{color:'#dc2626', fontSize: 20}}>{stats?.totals.discarded?.toLocaleString() ?? 0}</span>
+                </div>
+                <div style={S.statSub}>pendiente / descartadas</div>
               </div>
               <div style={S.statCard}>
                 <div style={S.statLabel}>Score A (mejores)</div>
@@ -201,6 +243,59 @@ export default function MarketingPage() {
                 </div>
                 <div style={S.statSub}>B normales / C bajo valor</div>
               </div>
+            </div>
+
+            {/* ── Configuracion de verticales activos ────────────── */}
+            <div style={{...S.block, background: '#fefce8', border: '1px solid #fde047'}}>
+              <div style={{...S.blockHeader, marginBottom: verticalsOpen ? 16 : 0}}>
+                <div style={{cursor: 'pointer'}} onClick={() => setVerticalsOpen(v => !v)}>
+                  <div style={S.blockTitle}>
+                    ⚙️ Verticales activos ({verticals.filter(v => v.active).length}/{verticals.length})
+                  </div>
+                  <div style={S.blockDesc}>
+                    Los desactivados NO se procesarán: al clasificar quedan marcados <b>descartada=1</b> (fuera del Bloque 3 en adelante).
+                    <b> Click para {verticalsOpen ? 'ocultar' : 'ver y configurar'}.</b>
+                  </div>
+                </div>
+                <button onClick={() => setVerticalsOpen(v => !v)} style={S.btnGhost}>
+                  {verticalsOpen ? 'Ocultar' : 'Configurar'}
+                </button>
+              </div>
+
+              {verticalsOpen && (
+                <div style={{display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8}}>
+                  {verticals.map(v => (
+                    <label key={v.vertical} style={{
+                      display: 'flex', alignItems: 'center', gap: 12,
+                      padding: '10px 12px', background: '#fff',
+                      border: `1px solid ${v.active ? '#86efac' : '#fecaca'}`,
+                      borderRadius: 6, cursor: 'pointer',
+                      opacity: togglingVertical === v.vertical ? 0.5 : 1,
+                    }}>
+                      <input
+                        type="checkbox"
+                        checked={v.active}
+                        onChange={e => toggleVertical(v.vertical, e.target.checked)}
+                        disabled={togglingVertical === v.vertical}
+                        style={{width: 18, height: 18, cursor: 'pointer'}}
+                      />
+                      <div style={{flex: 1}}>
+                        <div style={{fontWeight: 600, fontSize: 14, color: '#111827'}}>
+                          <span style={{color: '#9ca3af', marginRight: 6}}>#{v.priority}</span>
+                          {v.label}
+                        </div>
+                        <div style={{fontSize: 11, color: '#6b7280', marginTop: 2, fontFamily: 'monospace'}}>
+                          {v.vertical}
+                        </div>
+                      </div>
+                      <div style={{fontSize: 11, color: '#6b7280', textAlign: 'right', whiteSpace: 'nowrap'}}>
+                        <div>{v.lead_count} clasif.</div>
+                        {v.descartadas > 0 && <div style={{color: '#dc2626'}}>{v.descartadas} desc.</div>}
+                      </div>
+                    </label>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* ── Bloque 2: Clasificacion ────────────────────────── */}
@@ -249,6 +344,9 @@ export default function MarketingPage() {
                   <div style={S.resultGrid}>
                     <div><b>{runResult.processed}</b> clasificadas</div>
                     <div><b>{runResult.sync_inserted}</b> nuevas sincronizadas de Sunbiz</div>
+                    {runResult.discarded !== undefined && runResult.discarded > 0 && (
+                      <div style={{color: '#dc2626'}}><b>{runResult.discarded}</b> descartadas (vertical inactivo)</div>
+                    )}
                     <div><b>{(runResult.elapsed_ms / 1000).toFixed(1)}s</b> tiempo total</div>
                   </div>
                   <div style={S.dist}>
@@ -461,6 +559,7 @@ const S = {
   cost:        { fontSize: 13, color: '#6b7280' } as const,
   btnPrimary:  { padding: '10px 20px', background: '#2563EB', color: '#fff', border: 'none', borderRadius: 6, fontSize: 14, fontWeight: 600, cursor: 'pointer' } as const,
   btnDisabled: { padding: '10px 20px', background: '#e5e7eb', color: '#9ca3af', border: 'none', borderRadius: 6, fontSize: 14, fontWeight: 600, cursor: 'not-allowed' } as const,
+  btnGhost:    { padding: '8px 14px', background: 'transparent', color: '#4b5563', border: '1px solid #d1d5db', borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' as const } as const,
   errBox:      { marginTop: 12, padding: '10px 14px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 6, color: '#b91c1c', fontSize: 13 } as const,
   resultBox:   { marginTop: 14, padding: '14px 16px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 8 } as const,
   resultTitle: { fontSize: 12, fontWeight: 700, color: '#065f46', textTransform: 'uppercase' as const, letterSpacing: 0.4, marginBottom: 8 } as const,

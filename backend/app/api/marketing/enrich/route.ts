@@ -63,12 +63,13 @@ export async function POST(req: Request) {
   })
   const runId = Number(runIns.lastInsertRowid)
 
-  // Traer los N candidatos: score=X, address_validated IS NULL, priorizando has_good_address=1
+  // Traer los N candidatos: score=X, address_validated IS NULL, NO descartados, has_good_address ok
   const candidatesRes = await marketing.execute({
     sql: `SELECT document_number, entity_name,
                  principal_addr1, principal_addr2, principal_city, principal_state, principal_zip, principal_country
           FROM marketing_leads
           WHERE score = ?
+            AND descartada = 0
             AND address_validated IS NULL
             AND (has_good_address IS NULL OR has_good_address = 1)
             AND principal_addr1 IS NOT NULL
@@ -184,6 +185,7 @@ export async function GET() {
     const [pendingByScore, lastRun, totals] = await Promise.all([
       marketing.execute(`SELECT score, COUNT(*) as n FROM marketing_leads
                           WHERE score IS NOT NULL AND address_validated IS NULL
+                          AND descartada = 0
                           AND (has_good_address IS NULL OR has_good_address = 1)
                           AND principal_addr1 IS NOT NULL
                           GROUP BY score`),

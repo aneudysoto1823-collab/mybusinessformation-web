@@ -159,35 +159,48 @@ export async function POST(req: Request) {
     return jsonError(500, 'haiku falló: ' + msg)
   }
 
-  // ===== 4) UPDATE cada fila con su clasificacion + procesada=1 =====
+  // ===== 3.5) Cargar settings de verticales activos (default: activo si no existe row) =====
+  const settingsRes = await marketing.execute('SELECT vertical, active FROM marketing_vertical_settings')
+  const verticalActive = new Map<string, boolean>()
+  settingsRes.rows.forEach(r => verticalActive.set(String(r.vertical), Number(r.active) === 1))
+  const isActive = (v: string) => verticalActive.has(v) ? verticalActive.get(v)! : true
+
+  // ===== 4) UPDATE cada fila con su clasificacion + procesada=1 (+ descartada si vertical inactivo) =====
   const distribution = { A: 0, B: 0, C: 0 } as Record<string, number>
   const verticalDist = {} as Record<string, number>
+  let discarded = 0
   for (const c of classifications) {
+    const shouldDiscard = !isActive(c.vertical)
     await marketing.execute({
       sql: `UPDATE marketing_leads
             SET score = ?, vertical = ?, vertical_priority = ?,
                 owner_profile = ?, address_type = ?, has_good_address = ?,
-                classification_notes = ?, procesada = 1, fecha_procesada = datetime('now')
+                classification_notes = ?, procesada = 1, fecha_procesada = datetime('now'),
+                descartada = ?, descarte_razon = ?
             WHERE document_number = ?`,
       args: [
         c.score, c.vertical, c.vertical_priority,
         c.owner_profile, c.address_type, c.has_good_address ? 1 : 0,
-        c.notes, c.document_number,
+        c.notes, shouldDiscard ? 1 : 0,
+        shouldDiscard ? `vertical inactivo: ${c.vertical}` : null,
+        c.document_number,
       ],
     })
     distribution[c.score] = (distribution[c.score] || 0) + 1
     verticalDist[c.vertical] = (verticalDist[c.vertical] || 0) + 1
+    if (shouldDiscard) discarded += 1
   }
 
   await marketing.execute({
     sql: `UPDATE block_runs SET n_processed = ?, status = 'ok', finished_at = datetime('now'),
           result_summary = ? WHERE id = ?`,
-    args: [classifications.length, JSON.stringify({ sync_inserted: inserted, score: distribution, vertical: verticalDist }), runId],
+    args: [classifications.length, JSON.stringify({ sync_inserted: inserted, score: distribution, vertical: verticalDist, discarded }), runId],
   })
 
   return NextResponse.json({
     processed: classifications.length,
     sync_inserted: inserted,
+    discarded,
     distribution,
     vertical_distribution: verticalDist,
     elapsed_ms: Date.now() - started,
@@ -216,9 +229,10 @@ export async function GET() {
       marketing.execute(`SELECT
         COUNT(*) as total,
         SUM(CASE WHEN procesada = 1 THEN 1 ELSE 0 END) as classified,
-        SUM(CASE WHEN score = 'A' THEN 1 ELSE 0 END) as score_a,
-        SUM(CASE WHEN score = 'B' THEN 1 ELSE 0 END) as score_b,
-        SUM(CASE WHEN score = 'C' THEN 1 ELSE 0 END) as score_c
+        SUM(CASE WHEN descartada = 1 THEN 1 ELSE 0 END) as discarded,
+        SUM(CASE WHEN score = 'A' AND descartada = 0 THEN 1 ELSE 0 END) as score_a,
+        SUM(CASE WHEN score = 'B' AND descartada = 0 THEN 1 ELSE 0 END) as score_b,
+        SUM(CASE WHEN score = 'C' AND descartada = 0 THEN 1 ELSE 0 END) as score_c
         FROM marketing_leads`),
     ])
 
@@ -227,6 +241,7 @@ export async function GET() {
       totals: {
         total: Number(totals.rows[0]?.total ?? 0),
         classified: Number(totals.rows[0]?.classified ?? 0),
+        discarded: Number(totals.rows[0]?.discarded ?? 0),
         score_a: Number(totals.rows[0]?.score_a ?? 0),
         score_b: Number(totals.rows[0]?.score_b ?? 0),
         score_c: Number(totals.rows[0]?.score_c ?? 0),
