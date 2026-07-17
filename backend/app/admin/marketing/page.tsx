@@ -2,7 +2,7 @@
 
 // Panel del sistema de marketing saliente (doc 31).
 // 3 bloques operativos: Clasificacion (Bloque 2) — Enriquecimiento (Bloque 3) — Campanas (Bloque 4).
-// Hoy solo Bloque 2 esta funcional; los otros dos muestran boton deshabilitado con nota "proximamente".
+// Bloques 2 y 3 activos; Bloque 4 pendiente.
 
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
@@ -24,29 +24,69 @@ type ClassifyStats = {
   max_n: number
 }
 
+type EnrichStats = {
+  pending_by_score: { A: number; B: number; C: number }
+  totals: {
+    enriched: number
+    valid_addresses: number
+    invalid_addresses: number
+    residential: number
+    commercial: number
+    pobox: number
+    virtual: number
+  }
+  last_run: ClassifyStats['last_run']
+  max_n: number
+  cost_per_lead_usd: number
+}
+
+type EnrichRunResult = {
+  enriched: number
+  validated_count: number
+  invalid_count: number
+  address_type_distribution: Record<string, number>
+  api_error_count: number
+  last_api_error: string | null
+  elapsed_ms: number
+  note?: string
+}
+
 const HAIKU_COST_PER_LEAD_USD = 0.0008 // observado en smoke test 2026-07-16 (~$0.80/1000)
 
 export default function MarketingPage() {
-  const [stats, setStats]     = useState<ClassifyStats | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [n, setN]             = useState<number>(50)
-  const [running, setRunning] = useState(false)
+  const [stats, setStats]         = useState<ClassifyStats | null>(null)
+  const [enrichStats, setEnrichStats] = useState<EnrichStats | null>(null)
+  const [loading, setLoading]     = useState(true)
+  const [n, setN]                 = useState<number>(50)
+  const [running, setRunning]     = useState(false)
   const [runResult, setRunResult] = useState<null | { processed: number; sync_inserted: number; distribution: Record<string, number>; vertical_distribution: Record<string, number>; elapsed_ms: number }>(null)
-  const [error, setError]     = useState<string | null>(null)
+  const [error, setError]         = useState<string | null>(null)
+
+  // Bloque 3 state
+  const [enrichN, setEnrichN]       = useState<number>(50)
+  const [enrichScore, setEnrichScore] = useState<'A' | 'B' | 'C'>('A')
+  const [enrichRunning, setEnrichRunning] = useState(false)
+  const [enrichResult, setEnrichResult]   = useState<EnrichRunResult | null>(null)
+  const [enrichError, setEnrichError]     = useState<string | null>(null)
 
   const loadStats = useCallback(async () => {
     try {
-      const res = await fetch('/api/marketing/classify')
-      const text = await res.text()
-      let data: unknown = null
-      try { data = text ? JSON.parse(text) : null } catch {}
-      if (!res.ok) {
-        const msg = (data && typeof data === 'object' && 'error' in data)
-          ? String((data as { error: unknown }).error)
-          : (text.slice(0, 200) || `HTTP ${res.status}`)
-        throw new Error(`GET stats: ${msg}`)
+      const [r1, r2] = await Promise.all([
+        fetch('/api/marketing/classify'),
+        fetch('/api/marketing/enrich'),
+      ])
+      const [t1, t2] = await Promise.all([r1.text(), r2.text()])
+      let d1: unknown = null, d2: unknown = null
+      try { d1 = t1 ? JSON.parse(t1) : null } catch {}
+      try { d2 = t2 ? JSON.parse(t2) : null } catch {}
+      if (!r1.ok) {
+        const msg = (d1 && typeof d1 === 'object' && 'error' in d1)
+          ? String((d1 as { error: unknown }).error)
+          : (t1.slice(0, 200) || `HTTP ${r1.status}`)
+        throw new Error(`GET classify stats: ${msg}`)
       }
-      setStats(data as ClassifyStats)
+      setStats(d1 as ClassifyStats)
+      if (r2.ok) setEnrichStats(d2 as EnrichStats)
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e))
     } finally {
@@ -81,8 +121,39 @@ export default function MarketingPage() {
     }
   }
 
+  const runEnrich = async () => {
+    if (enrichRunning) return
+    if (!Number.isInteger(enrichN) || enrichN < 1) { setEnrichError('N debe ser entero >= 1'); return }
+    // Confirmacion explicita del gasto (aunque este dentro del free tier de 10K/mes)
+    const estCost = (enrichN * (enrichStats?.cost_per_lead_usd ?? 0.017)).toFixed(2)
+    if (!confirm(`Enriquecer ${enrichN} leads score ${enrichScore}?\n\nCosto maximo estimado: $${estCost} USD (gratis dentro del free tier de 10K/mes de Google).\n\nConfirmar?`)) return
+    setEnrichRunning(true); setEnrichError(null); setEnrichResult(null)
+    try {
+      const res = await fetch('/api/marketing/enrich', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ n: enrichN, score: enrichScore }),
+      })
+      const text = await res.text()
+      let data: EnrichRunResult & { error?: string } = {} as EnrichRunResult & { error?: string }
+      try { data = text ? JSON.parse(text) : {} } catch {}
+      if (!res.ok) {
+        throw new Error(data.error || text.slice(0, 200) || `HTTP ${res.status}`)
+      }
+      setEnrichResult(data as EnrichRunResult)
+      await loadStats()
+    } catch (e) {
+      setEnrichError(e instanceof Error ? e.message : String(e))
+    } finally {
+      setEnrichRunning(false)
+    }
+  }
+
   const costEstimate = (n * HAIKU_COST_PER_LEAD_USD).toFixed(4)
+  const enrichCostEst = (enrichN * (enrichStats?.cost_per_lead_usd ?? 0.017)).toFixed(2)
   const maxN = stats?.max_n ?? 500
+  const enrichMaxN = enrichStats?.max_n ?? 500
+  const enrichPending = enrichStats?.pending_by_score[enrichScore] ?? 0
 
   return (
     <div style={S.page}>
@@ -210,30 +281,124 @@ export default function MarketingPage() {
               )}
             </div>
 
-            {/* ── Bloque 3: Enriquecimiento (proximamente) ────────── */}
-            <div style={{...S.block, opacity: 0.6}}>
+            {/* ── Bloque 3: Enriquecimiento (Google Address Validation) ────────── */}
+            <div style={S.block}>
               <div style={S.blockHeader}>
                 <div>
-                  <div style={S.blockTitle}>Bloque 3 — Enriquecimiento</div>
+                  <div style={S.blockTitle}>Bloque 3 — Enriquecimiento (dirección)</div>
                   <div style={S.blockDesc}>
-                    Sobre las clasificadas score A, corre Google (direccion) → Enformion (email) → ZeroBounce (validacion) en cadena.
-                    Costo estimado: ~$0.12/lead. Se dispara con confirmacion del gasto.
+                    Sobre las clasificadas del score elegido, valida y normaliza la dirección con Google Address Validation.
+                    Marca las que califican para carta física (dirección completa, granularidad calle o más fina, sin componentes no confirmados).
+                    Costo: ~${(enrichStats?.cost_per_lead_usd ?? 0.017).toFixed(3)}/lead — <b>primeros 10,000/mes gratis</b> (free tier permanente de Google).
+                    Techo por corrida: {enrichMaxN}.
                   </div>
                 </div>
-                <div style={{...S.blockStatus, color:'#6b7280', background:'#f3f4f6'}}>
-                  <span style={{...S.blockStatusDot, background:'#9ca3af'}}></span>
-                  Proximamente
+                <div style={S.blockStatus}>
+                  <span style={S.blockStatusDot}></span>
+                  Activo
                 </div>
               </div>
+
+              {/* Stats de enriquecimiento */}
+              {enrichStats && (
+                <div style={{...S.statsRow, gridTemplateColumns: 'repeat(4, 1fr)', marginBottom: 16, marginTop: 4}}>
+                  <div style={S.miniStat}>
+                    <div style={S.miniStatLabel}>Enriquecidas</div>
+                    <div style={S.miniStatValue}>{enrichStats.totals.enriched.toLocaleString()}</div>
+                  </div>
+                  <div style={S.miniStat}>
+                    <div style={S.miniStatLabel}>Válidas</div>
+                    <div style={{...S.miniStatValue, color: '#059669'}}>{enrichStats.totals.valid_addresses.toLocaleString()}</div>
+                  </div>
+                  <div style={S.miniStat}>
+                    <div style={S.miniStatLabel}>Inválidas</div>
+                    <div style={{...S.miniStatValue, color: '#dc2626'}}>{enrichStats.totals.invalid_addresses.toLocaleString()}</div>
+                  </div>
+                  <div style={S.miniStat}>
+                    <div style={S.miniStatLabel}>Res / Com / PoBox</div>
+                    <div style={{...S.miniStatValue, fontSize: 15}}>
+                      <span style={{color:'#059669'}}>{enrichStats.totals.residential}</span>{' / '}
+                      <span style={{color:'#d97706'}}>{enrichStats.totals.commercial}</span>{' / '}
+                      <span style={{color:'#6b7280'}}>{enrichStats.totals.pobox}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div style={S.controlRow}>
                 <div style={S.controlGroup}>
                   <label style={S.inputLabel}>Enriquecer</label>
-                  <input type="number" defaultValue={300} disabled style={S.numInput} />
+                  <input
+                    type="number"
+                    min={1}
+                    max={enrichMaxN}
+                    value={enrichN}
+                    onChange={e => setEnrichN(Number(e.target.value))}
+                    disabled={enrichRunning}
+                    style={S.numInput}
+                  />
                   <span style={S.inputHint}>score</span>
-                  <select disabled style={S.select}><option>A</option></select>
+                  <select
+                    value={enrichScore}
+                    onChange={e => setEnrichScore(e.target.value as 'A' | 'B' | 'C')}
+                    disabled={enrichRunning}
+                    style={S.select}
+                  >
+                    <option value="A">A ({enrichStats?.pending_by_score.A ?? 0} pendientes)</option>
+                    <option value="B">B ({enrichStats?.pending_by_score.B ?? 0} pendientes)</option>
+                    <option value="C">C ({enrichStats?.pending_by_score.C ?? 0} pendientes)</option>
+                  </select>
                 </div>
-                <button disabled style={S.btnDisabled}>Enriquecer ahora</button>
+                <div style={S.controlGroup}>
+                  <span style={S.cost}>Costo máx: <b>${enrichCostEst}</b> · <span style={{color:'#059669'}}>gratis en free tier</span></span>
+                </div>
+                <button onClick={runEnrich} disabled={enrichRunning || enrichPending === 0} style={enrichRunning || enrichPending === 0 ? S.btnDisabled : S.btnPrimary}>
+                  {enrichRunning ? 'Enriqueciendo...' : `Enriquecer ${enrichPending === 0 ? '(no hay pendientes)' : 'ahora'}`}
+                </button>
               </div>
+
+              {enrichError && <div style={S.errBox}>Error: {enrichError}</div>}
+
+              {enrichResult && (
+                <div style={S.resultBox}>
+                  <div style={S.resultTitle}>Última corrida</div>
+                  <div style={S.resultGrid}>
+                    <div><b>{enrichResult.enriched}</b> enriquecidas</div>
+                    <div style={{color:'#059669'}}><b>{enrichResult.validated_count}</b> válidas</div>
+                    <div style={{color:'#dc2626'}}><b>{enrichResult.invalid_count}</b> inválidas</div>
+                    <div><b>{(enrichResult.elapsed_ms / 1000).toFixed(1)}s</b> total</div>
+                  </div>
+                  {enrichResult.address_type_distribution && Object.keys(enrichResult.address_type_distribution).length > 0 && (
+                    <div style={S.verticalDist}>
+                      <div style={S.verticalDistLabel}>Tipos:</div>
+                      {Object.entries(enrichResult.address_type_distribution).sort((a,b) => b[1] - a[1]).map(([k, v]) => (
+                        <span key={k} style={S.verticalPill}>{k}: {v}</span>
+                      ))}
+                    </div>
+                  )}
+                  {enrichResult.api_error_count > 0 && (
+                    <div style={{...S.errBox, marginTop: 10}}>
+                      {enrichResult.api_error_count} errores de API. Último: {enrichResult.last_api_error}
+                    </div>
+                  )}
+                  {enrichResult.note && <div style={{...S.lastRun, marginTop: 8}}>{enrichResult.note}</div>}
+                </div>
+              )}
+
+              {enrichStats?.last_run && !enrichResult && (
+                <div style={S.lastRun}>
+                  Última corrida:{' '}
+                  {enrichStats.last_run.status === 'ok' ? (
+                    <span style={{color:'#059669'}}>
+                      OK — {enrichStats.last_run.n_processed} enriquecidas ({new Date(enrichStats.last_run.finished_at || enrichStats.last_run.started_at).toLocaleString()})
+                    </span>
+                  ) : enrichStats.last_run.status === 'error' ? (
+                    <span style={{color:'#dc2626'}}>ERROR — {enrichStats.last_run.error_message}</span>
+                  ) : (
+                    <span style={{color:'#6b7280'}}>{enrichStats.last_run.status}</span>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* ── Bloque 4: Campanas (proximamente) ───────────────── */}
@@ -278,6 +443,9 @@ const S = {
   statLabel:   { fontSize: 12, color: '#6b7280', textTransform: 'uppercase' as const, letterSpacing: 0.4, marginBottom: 6 } as const,
   statValue:   { fontSize: 26, fontWeight: 700, color: '#111827' } as const,
   statSub:     { fontSize: 12, color: '#9ca3af', marginTop: 4 } as const,
+  miniStat:    { background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: 8, padding: '10px 12px' } as const,
+  miniStatLabel:{ fontSize: 11, color: '#6b7280', textTransform: 'uppercase' as const, letterSpacing: 0.3, marginBottom: 3 } as const,
+  miniStatValue:{ fontSize: 20, fontWeight: 700, color: '#111827' } as const,
   block:       { background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: '20px 22px', marginBottom: 18 } as const,
   blockHeader: { display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, marginBottom: 16 } as const,
   blockTitle:  { fontSize: 17, fontWeight: 700, color: '#111827', marginBottom: 4 } as const,
