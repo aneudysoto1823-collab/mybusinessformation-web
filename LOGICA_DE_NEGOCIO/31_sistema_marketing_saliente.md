@@ -155,26 +155,160 @@ Cada LLC en la Base B va llenando columnas según la etapa. No se mueve de lugar
 
 ---
 
-## Los 4 bloques (cómo se construye, por partes)
+## Flujo completo paso a paso (Bloque 1 → Bloque 4)
 
-El sistema se construye en bloques separados. Cada bloque es independiente y se prueba antes de seguir.
+Esta sección describe **cómo corre el sistema hoy en producción** y qué hace cada bloque en orden. Es la fuente de verdad — si algo del código difiere, se corrige el código.
 
-### Bloque 1 — El cron nocturno *(el que se construye primero)*
-Cada noche, en Vercel, trae las LLC nuevas de Sunbiz con todos sus datos crudos y las deposita en la Base B con `procesada = no`. Además actualiza el status de las LLC que se desactivan (para que la búsqueda de nombres de opabiz libere nombres según los plazos de Florida). **El cron solo trae y marca; no clasifica ni enriquece.**
+### 🌙 Bloque 1 — Cron nocturno Sunbiz *(automático, único paso sin intervención)*
 
-### Bloque 2 — Clasificación *(diseño acordado, pendiente implementar)*
-Yo escribo un número `N` en el input y aprieto "Clasificar". El sistema toma las **N más nuevas con `procesada = no`** (FIFO por `filing_date`), las manda a Claude Haiku, y les calcula score (A/B/C), vertical, perfil del dueño (probable extranjero vs ciudadano) y tipo de dirección (residencial/comercial/virtual). Al terminar quedan `procesada = sí` y me devuelve el resumen ("500 procesadas, 120 A, 250 B, 130 C"). **Gratis** (no llama APIs de pago, solo tokens de Haiku).
+**Estado**: ✅ implementado 2026-06-26. Corre solo cada noche.
 
-### Bloque 3 — Enriquecimiento *(diseño acordado, pendiente implementar)*
-Yo escribo `N` + elijo score (A por default) y aprieto "Enriquecer". El sistema toma las **N más nuevas clasificadas de ese score con enriquecimiento vacío** y corre las APIs en cadena, de barato a caro con filtros:
-1. **Google** valida y normaliza dirección
-2. Solo las que pasaron el filtro anterior → **Enformion** busca email del dueño
-3. Solo las que consiguieron email → **ZeroBounce** valida que ese email exista y reciba
+- Vercel Cron ejecuta `/api/cron/sunbiz-daily` a las **06:00 UTC** (02:00 EST) todos los días, incluidos weekends y feriados.
+- Se conecta por SFTP público a `sftp.floridados.gov` (user `Public`) y descarga el archivo `YYYYMMDDc.txt` del día anterior (~1,500 LLC nuevas).
+- Parsea el fixed-width de Florida (layout oficial 1440 chars/registro) — extrae nombre, document_number, filing_date, dirección principal, agente registrado, hasta 6 officers, FEI y last_tx_date.
+- Escribe a **Base A** (`opabiz-sunbiz-search`) — la base de producción que consulta el form del sitio para verificar disponibilidad de nombres. Usa `ON CONFLICT DO UPDATE` (nunca `INSERT OR REPLACE`, que genera duplicados en libsql).
+- **NO toca la Base B.** Base B se llena bajo demanda (ver Bloque 2 abajo).
+- **NO clasifica ni enriquece.** Solo trae y marca.
+- Días sin publicación (weekends que Florida omite, feriados): responde HTTP 200 con `{skipped:true}` — no dispara alerta.
 
-Las que consiguen contacto válido en toda la cadena quedan listas para campaña. **Antes de disparar el sistema muestra el costo estimado** (basado en el N + costos unitarios de cada API) y pide confirmación. **Aquí se gasta**, solo sobre las N que elegí.
+**Resultado**: Base A queda siempre actualizada con la última noche. Total actual: ~3.96M registros.
 
-### Bloque 4 — Campañas *(segunda parte, más adelante)*
-Vista con filtros en la tabla (vertical, score, fecha, `nunca contactado`, `dirección validada`). El filtro me muestra cuántos registros coinciden. Después yo escribo cuántos mandar (puede ser menos que los que coinciden — subset) y aprieto "Enviar cartas" o "Enviar emails". Cada acción muestra costo estimado antes de confirmar. Conecta con el sistema de cartas físicas y con **Resend** (dominio de marketing separado — ver nota abajo) para los emails.
+---
+
+### 🎯 Bloque 2 — Clasificación *(manual, gratis)*
+
+**Estado**: ✅ implementado 2026-07-16. Se dispara desde `/admin/marketing`.
+
+**Paso 2.1 — Vos apretás "Clasificar N"** (input + botón en el panel):
+
+- El endpoint `POST /api/marketing/classify` recibe `{n}` con N entre 1 y 500.
+- Verifica que estés autenticado como admin (cookie `admin_session`).
+
+**Paso 2.2 — Sync automático de Base A → Base B**:
+
+- El sistema hace `SELECT ... LIMIT N×2` sobre `sunbiz_corps` de Base A, ordenado por `filing_date DESC` (más nuevas primero — regla de oro).
+- Cada fila se inserta en `marketing_leads` de Base B con `INSERT OR IGNORE` (dedupe por `document_number` UNIQUE), con `procesada=0`.
+- El multiplicador ×2 es por si algunas ya existían en Base B (para asegurar ≥ N nuevas disponibles después del dedupe).
+- Reporta cuántas se insertaron efectivamente (`sync_inserted`).
+
+**Paso 2.3 — Cargar settings de scores y verticales activos**:
+
+- `SELECT score, active FROM marketing_score_settings` (default: A=on, B=on, C=off).
+- `SELECT vertical, active FROM marketing_vertical_settings` (default: 11 verticales on + `other`+`unknown` off).
+- Estos toggles los controlás vos desde el panel (secciones amarillas arriba).
+
+**Paso 2.4 — Clasificación con Claude Haiku**:
+
+- `SELECT ... LIMIT N` sobre `marketing_leads` de Base B, filtrando `procesada=0`, ordenado por `filing_date DESC`.
+- Batching: manda las N a Claude Haiku en tandas de 20 leads/prompt (1 llamada por tanda).
+- Prompt en `lib/marketing-classify.ts`: por cada LLC devuelve JSON con:
+  - `score`: A/B/C
+  - `vertical`: uno de los 13 keys canónicos (`real_estate`, `construction`, `trucking`, `restaurant`, `ecommerce`, `professional_services`, `cleaning`, `beauty`, `healthcare`, `tech`, `import_export`, `other`, `unknown`)
+  - `owner_profile`: `likely_foreign`, `likely_us`, o `unknown`
+  - `address_type`: `residential`, `commercial`, `virtual`, o `unknown`
+  - `has_good_address`: bool
+  - `notes`: opcional (≤80 chars)
+
+**Paso 2.5 — UPDATE fila por fila + auto-descarte**:
+
+- Por cada clasificación devuelta, UPDATE en Base B:
+  - Setea `score, vertical, vertical_priority, owner_profile, address_type, has_good_address, classification_notes`
+  - Marca `procesada=1, fecha_procesada=now()`
+  - **Auto-descarte**: si el vertical asignado NO está activo O si el score no está activo → `descartada=1, descarte_razon="vertical inactivo: X" | "score inactivo: Y" | "vertical y score inactivos"`
+
+**Paso 2.6 — Log de corrida + response**:
+
+- Escribe fila en `block_runs` con `n_requested, n_processed, result_summary (JSON), status='ok'`.
+- Devuelve `{processed, sync_inserted, discarded, distribution: {A,B,C}, vertical_distribution, elapsed_ms, run_id}`.
+
+**Costo real observado**: ~$0.0008/lead (tokens Haiku). 20 leads clasificadas en 6-25 seg.
+
+---
+
+### 📮 Bloque 3 — Enriquecimiento de dirección *(manual, Free Tier alcanza para casi todo)*
+
+**Estado**: ✅ implementado 2026-07-17. Solo dirección — **Enformion y ZeroBounce salieron del scope** (decisión founder 2026-07-16: Enformion muy caro para email, y sin email no tiene sentido ZeroBounce). Emails quedan pendientes para otra iteración con email finder más económico.
+
+**Paso 3.1 — Vos apretás "Enriquecer N" con un score seleccionado**:
+
+- Input N (1-500) + dropdown score (default A) en `/admin/marketing`.
+- Antes de disparar, `window.confirm()` con el costo máximo estimado ("$X.XX o gratis si estás dentro del Free Tier"). Cancelable.
+- `POST /api/marketing/enrich` recibe `{n, score}`.
+
+**Paso 3.2 — Traer candidatos de Base B**:
+
+```sql
+SELECT ... FROM marketing_leads
+WHERE score = ?           -- el score elegido
+  AND descartada = 0       -- respeta descartes del Bloque 2
+  AND address_validated IS NULL   -- no enriquecidas todavía
+  AND (has_good_address IS NULL OR has_good_address = 1)  -- las que Haiku vio con dirección
+  AND principal_addr1 IS NOT NULL
+ORDER BY filing_date DESC   -- regla de oro
+LIMIT N
+```
+
+Si no hay pendientes: devuelve 0 procesados sin llamar Google. El botón del panel se deshabilita cuando el dropdown muestra "0 pendientes".
+
+**Paso 3.3 — Loop por lead: llamar Google Address Validation**:
+
+Por cada lead:
+- `lib/google-address.ts` arma el request contra `POST https://addressvalidation.googleapis.com/v1:validateAddress?key=API_KEY`.
+- Body con `addressLines, locality, administrativeArea, postalCode, regionCode="US"`.
+- Google devuelve un `result.verdict` con:
+  - `possibleNextAction`: `ACCEPT` / `CONFIRM` / `FIX`
+  - `addressComplete`, `hasUnconfirmedComponents`, `hasInferredComponents`
+  - `validationGranularity`: `ROUTE` / `PREMISE` / `SUB_PREMISE` / etc.
+- Y un `result.metadata` con `business`, `residential`, `poBox`.
+
+**Criterio de "dirección buena para carta"** (`is_valid=true`):
+- Primero: si Google trae `possibleNextAction`, es válida solo si `= 'ACCEPT'` Y `addressComplete=true` (recomendación oficial de Google).
+- Fallback si falta `possibleNextAction`: `addressComplete=true` + granularidad `ROUTE/PREMISE/SUB_PREMISE` + sin componentes no confirmados.
+
+**Paso 3.4 — UPDATE por lead**:
+
+- `address_validated = 0 o 1`
+- `address_validation_json = {verdict, metadata, formattedAddress, possibleNextAction}` (parseado, no la respuesta cruda entera — evita llenar Turso).
+- `address_type` = **sobreescribe** el que puso Haiku por el que trae Google (más confiable: `residential` / `commercial` / `poBox` / `unknown`).
+- `enriched_at = now()`
+- `enrichment_cost_usd = 0.025`
+
+**Paso 3.5 — Log de corrida + response**:
+
+- `block_runs` con distribución de tipos + api_errors si hubo.
+- Devuelve `{enriched, validated_count, invalid_count, address_type_distribution, api_error_count, last_api_error, elapsed_ms, run_id}`.
+
+**Costo real de Google Address Validation**:
+- **Primeras 1,000 validaciones/mes: siempre gratis** (Free Tier permanente, no depende del trial de $300).
+- **Validación 1,001 en adelante: $25 por cada 1,000 adicionales**, prorrateado ($0.025/lookup).
+- Ejemplo: 1,500 validaciones/mes = $12.50 (las 500 excedentes × $0.025). 3,000 = $50 (las 2,000 excedentes).
+
+**Anti-abuso implementado**: la API key de Google Cloud está restringida a **solo Address Validation API** (nada más). Si se filtra, no pueden usarla para Places/Directions/Geocoding.
+
+---
+
+### 📬 Bloque 4 — Campañas *(pendiente implementar)*
+
+**Estado**: pendiente. Diseño acordado.
+
+**Filosofía**: mismo patrón pull que Bloques 2 y 3. Vos filtrás en el panel + escribís cuántas mandar + costo estimado + confirmación + disparo.
+
+**Filtros previstos**:
+- Score (respeta los activos)
+- Vertical (respeta los activos)
+- Fecha (últimos N días)
+- Estado: `dirección validada` (sí/no), `nunca contactado` (fecha_contactada IS NULL)
+
+**Acción — cartas físicas**:
+- El filtro muestra "X coinciden" en tiempo real.
+- Input N (≤ X) + botón "Enviar N cartas".
+- Sistema toma las N más nuevas del filtro (regla de oro), genera el PDF de carta con datos personalizados (reusa `lib/new-business-letter.ts`), y encola en el proveedor de envío físico (a definir: Lob, Click2Mail, Postgrid, etc.).
+- Setea `fecha_contactada, canal_contactado='letter', campaign_id`.
+- Costo por carta: papel + franqueo (~$0.50–$0.75 según proveedor).
+
+**Acción — emails** *(fuera del scope actual — depende de conseguir email finder)*:
+- Requiere: email finder + dominio de marketing separado en Resend (ej. `mkt.opabiz.com`) para no dañar reputación del dominio transaccional (`opabiz.com`).
+- Diseño pendiente.
 
 ---
 
@@ -182,13 +316,13 @@ Vista con filtros en la tabla (vertical, score, fecha, `nunca contactado`, `dire
 
 | API | Para qué | Cuándo se llama | Cuesta |
 |---|---|---|---|
-| **Claude Haiku** | Clasificar (score, vertical, perfil del dueño) | Bloque 2 | Centavos (tokens) |
-| **Google API** | Validar/normalizar dirección | Bloque 3 | Por consulta |
-| **Enformion (u otra)** | Conseguir el email del dueño | Bloque 3 | Por consulta |
-| **ZeroBounce** | Validar que el email exista y reciba | Bloque 3 | Por consulta |
-| **Resend** | Enviar los emails de campaña | Bloque 4 | Por envío |
+| **Sunbiz SFTP** | Bajar el daily file de LLC nuevas | Bloque 1 (cron) | Gratis (público) |
+| **Claude Haiku 4.5** | Clasificar (score, vertical, perfil, tipo dir.) | Bloque 2 | ~$0.0008/lead (tokens) |
+| **Google Address Validation API** | Validar/normalizar dirección | Bloque 3 | 1,000/mes gratis, después $0.025/lookup |
+| **Resend** | Enviar emails de campaña | Bloque 4 (pendiente) | Por envío ($20/mes plan) |
+| **Proveedor de envío físico** *(a decidir)* | Imprimir + enviar carta | Bloque 4 (pendiente) | Papel + franqueo por carta |
 
-> **Nota sobre Resend y el envío masivo:** Resend ya manda los emails de confirmación de opabiz. Pero mandar miles de emails de **marketing** es distinto a los de confirmación: hay temas de **reputación de dominio y entregabilidad**. Si se manda una campaña grande desde el mismo dominio que usan los correos de clientes, se puede dañar la entrega de los emails importantes. Esto se maneja con un **dominio separado para marketing** y envíos escalonados. Se diseña en el Bloque 4, pero queda anotado desde ya.
+> **Nota sobre Resend y el envío masivo:** Resend ya manda los emails de confirmación de opabiz. Pero mandar miles de emails de **marketing** es distinto a los de confirmación: hay temas de **reputación de dominio y entregabilidad**. Si se manda una campaña grande desde el mismo dominio que usan los correos de clientes, se puede dañar la entrega de los emails importantes. Esto se maneja con un **dominio separado para marketing** y envíos escalonados. Se diseña en el Bloque 4.
 
 ---
 
@@ -215,9 +349,10 @@ Vista con filtros en la tabla (vertical, score, fecha, `nunca contactado`, `dire
 | Bloque | Estado |
 |---|---|
 | **Bloque 1 — Cron nocturno** | ✅ **IMPLEMENTADO 2026-06-26** — corre todas las noches a las 06 UTC sin intervención. Ver doc 26 sección "Implementación del cron Sunbiz Bloque 1" para detalle técnico. Base actual: 3,956,123 registros, integridad verificada (sunbiz_corps == sunbiz_fts, 0 duplicados). |
-| **Bloque 2 — Clasificación** | **Diseño acordado 2026-07-16.** Input `N` + botón "Clasificar" → FIFO por `filing_date` sobre las `procesada = no`. Ver sección "Diseño del panel" arriba. Pendiente implementar (Claude Haiku + endpoint + UI en `/admin/campaigns`). |
-| **Bloque 3 — Enriquecimiento** | **Diseño acordado 2026-07-16.** Input `N` + score + botón "Enriquecer" → cadena Google → Enformion → ZeroBounce con filtros de barato a caro. Costo estimado antes de disparar. Pendiente implementar. |
-| **Bloque 4 — Campañas (cartas + emails)** | **Diseño acordado 2026-07-16** (filtros en tabla + input `N` + botón por canal). Segunda parte diferida. Incluye el tema de dominio de marketing para Resend. |
+| **Bloque 2 — Clasificación** | ✅ **IMPLEMENTADO 2026-07-16**. `POST /api/marketing/classify` (sync + Haiku + auto-descarte por vertical/score inactivo). Panel `/admin/marketing` con input N + botón + toggles de scores y verticales. Techo: 500/corrida. Costo real: ~$0.0008/lead. |
+| **Bloque 3 — Enriquecimiento** | ✅ **IMPLEMENTADO 2026-07-17**. `POST /api/marketing/enrich` (solo Google Address Validation — Enformion/ZeroBounce descartados 2026-07-16 por costo). Marca `address_validated`, `address_type`, `enriched_at`. Techo: 500/corrida. Costo: 1,000/mes gratis + $25/1,000 después. |
+| **Bloque 4 — Campañas (solo cartas)** | Pendiente implementar. Filtros + input N + costo estimado + confirmación + disparo. Emails fuera de scope hasta conseguir email finder económico. Requiere elegir proveedor de envío físico (Lob / Click2Mail / Postgrid). |
+| **Auto-expirar pendientes viejas** | Pendiente decisión (propuesta 2026-07-17): al correr clasificación, marcar como descartada las pendientes con `filing_date` > N días (regla de oro "data fresca vale"). Sin esto las pendientes viejas se acumulan como basura en Base B. |
 
 ---
 

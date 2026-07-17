@@ -471,8 +471,7 @@ export default function MarketingPage() {
                   <div style={S.blockDesc}>
                     Sobre las clasificadas del score elegido, valida y normaliza la dirección con Google Address Validation.
                     Marca las que califican para carta física (dirección completa, granularidad calle o más fina, sin componentes no confirmados).
-                    Costo: ~${(enrichStats?.cost_per_lead_usd ?? 0.017).toFixed(3)}/lead — <b>primeros 10,000/mes gratis</b> (free tier permanente de Google).
-                    Techo por corrida: {enrichMaxN}.
+                    Costo: <b>primeras 1,000/mes gratis</b> (Free Tier permanente); después $25 por cada 1,000 adicionales = ~$0.025/lead. Techo por corrida: {enrichMaxN}.
                   </div>
                 </div>
                 <div style={S.blockStatus}>
@@ -530,9 +529,6 @@ export default function MarketingPage() {
                     <option value="B">B ({enrichStats?.pending_by_score.B ?? 0} pendientes)</option>
                     <option value="C">C ({enrichStats?.pending_by_score.C ?? 0} pendientes)</option>
                   </select>
-                </div>
-                <div style={S.controlGroup}>
-                  <span style={S.cost}>Costo máx: <b>${enrichCostEst}</b> · <span style={{color:'#059669'}}>gratis en free tier</span></span>
                 </div>
                 <button onClick={runEnrich} disabled={enrichRunning || enrichPending === 0} style={enrichRunning || enrichPending === 0 ? S.btnDisabled : S.btnPrimary}>
                   {enrichRunning ? 'Enriqueciendo...' : `Enriquecer ${enrichPending === 0 ? '(no hay pendientes)' : 'ahora'}`}

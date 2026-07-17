@@ -1,7 +1,8 @@
 // Google Address Validation API — Bloque 3 del sistema de marketing (doc 31).
 // Solo dirección: NO buscamos email (Enformion descartado 2026-07-16 por costo).
 //
-// Costo: 10,000 llamadas/mes GRATIS (free tier permanente). Después $0.017/llamada.
+// Costo: 1,000 llamadas/mes GRATIS (Free Tier permanente, no depende del trial).
+// Después: $25 por cada 1,000 adicionales prorrateado = $0.025/lookup.
 // Docs: https://developers.google.com/maps/documentation/address-validation
 
 const ENDPOINT = 'https://addressvalidation.googleapis.com/v1:validateAddress'
@@ -126,6 +127,6 @@ export async function validateAddress(input: AddressInput): Promise<ValidationRe
   }
 }
 
-// Costo unitario para estimar antes de disparar (post free tier)
-// Precio: $17 per 1000 requests despues de los primeros 10K/mes gratis
-export const GOOGLE_ADDR_COST_PER_LEAD_USD = 0.017
+// Costo unitario despues del free tier: $25 por cada 1,000 requests = $0.025/lookup.
+// Primeras 1,000 llamadas/mes: gratis (Free Tier permanente).
+export const GOOGLE_ADDR_COST_PER_LEAD_USD = 0.025
