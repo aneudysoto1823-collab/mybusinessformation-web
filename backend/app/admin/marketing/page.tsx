@@ -34,6 +34,13 @@ type VerticalSetting = {
   validated: number
 }
 
+type ScoreSetting = {
+  score: 'A' | 'B' | 'C'
+  active: boolean
+  lead_count: number
+  descartadas: number
+}
+
 type EnrichStats = {
   pending_by_score: { A: number; B: number; C: number }
   totals: {
@@ -73,6 +80,10 @@ export default function MarketingPage() {
   const [verticals, setVerticals] = useState<VerticalSetting[]>([])
   const [verticalsOpen, setVerticalsOpen] = useState(false)
   const [togglingVertical, setTogglingVertical] = useState<string | null>(null)
+
+  // Scores activos (mismo patron que verticals)
+  const [scores, setScores] = useState<ScoreSetting[]>([])
+  const [togglingScore, setTogglingScore] = useState<string | null>(null)
   const [error, setError]         = useState<string | null>(null)
 
   // Bloque 3 state
@@ -84,16 +95,18 @@ export default function MarketingPage() {
 
   const loadStats = useCallback(async () => {
     try {
-      const [r1, r2, r3] = await Promise.all([
+      const [r1, r2, r3, r4] = await Promise.all([
         fetch('/api/marketing/classify'),
         fetch('/api/marketing/enrich'),
         fetch('/api/marketing/verticals'),
+        fetch('/api/marketing/scores'),
       ])
-      const [t1, t2, t3] = await Promise.all([r1.text(), r2.text(), r3.text()])
-      let d1: unknown = null, d2: unknown = null, d3: unknown = null
+      const [t1, t2, t3, t4] = await Promise.all([r1.text(), r2.text(), r3.text(), r4.text()])
+      let d1: unknown = null, d2: unknown = null, d3: unknown = null, d4: unknown = null
       try { d1 = t1 ? JSON.parse(t1) : null } catch {}
       try { d2 = t2 ? JSON.parse(t2) : null } catch {}
       try { d3 = t3 ? JSON.parse(t3) : null } catch {}
+      try { d4 = t4 ? JSON.parse(t4) : null } catch {}
       if (!r1.ok) {
         const msg = (d1 && typeof d1 === 'object' && 'error' in d1)
           ? String((d1 as { error: unknown }).error)
@@ -105,12 +118,33 @@ export default function MarketingPage() {
       if (r3.ok && d3 && typeof d3 === 'object' && 'verticals' in d3) {
         setVerticals((d3 as { verticals: VerticalSetting[] }).verticals)
       }
+      if (r4.ok && d4 && typeof d4 === 'object' && 'scores' in d4) {
+        setScores((d4 as { scores: ScoreSetting[] }).scores)
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e))
     } finally {
       setLoading(false)
     }
   }, [])
+
+  const toggleScore = async (score: 'A' | 'B' | 'C', active: boolean) => {
+    setTogglingScore(score)
+    setScores(prev => prev.map(s => s.score === score ? { ...s, active } : s))
+    try {
+      const res = await fetch('/api/marketing/scores', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ score, active }),
+      })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    } catch (e) {
+      setScores(prev => prev.map(s => s.score === score ? { ...s, active: !active } : s))
+      alert('Error al cambiar el score: ' + (e instanceof Error ? e.message : String(e)))
+    } finally {
+      setTogglingScore(null)
+    }
+  }
 
   const toggleVertical = async (vertical: string, active: boolean) => {
     setTogglingVertical(vertical)
@@ -242,6 +276,56 @@ export default function MarketingPage() {
                   <span style={{color:'#6b7280'}}>{stats?.totals.score_c?.toLocaleString() ?? 0}</span>
                 </div>
                 <div style={S.statSub}>B normales / C bajo valor</div>
+              </div>
+            </div>
+
+            {/* ── Configuracion de Scores activos ────────────────── */}
+            <div style={{...S.block, background: '#fefce8', border: '1px solid #fde047'}}>
+              <div style={S.blockHeader}>
+                <div>
+                  <div style={S.blockTitle}>
+                    🎯 Scores activos ({scores.filter(s => s.active).length}/3)
+                  </div>
+                  <div style={S.blockDesc}>
+                    Elegí qué scores procesar en Bloque 3 (enriquecimiento) y Bloque 4 (campañas).
+                    Los desactivados quedan como <b>descartada=1</b> al clasificar y no salen en las corridas siguientes.
+                  </div>
+                </div>
+              </div>
+              <div style={{display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginTop: 4}}>
+                {(['A', 'B', 'C'] as const).map(sc => {
+                  const s = scores.find(x => x.score === sc) ?? { score: sc, active: true, lead_count: 0, descartadas: 0 }
+                  const pillColor = sc === 'A' ? '#059669' : sc === 'B' ? '#d97706' : '#6b7280'
+                  const activeColor = sc === 'A' ? '#86efac' : sc === 'B' ? '#fcd34d' : '#d1d5db'
+                  return (
+                    <label key={sc} style={{
+                      display: 'flex', alignItems: 'center', gap: 14,
+                      padding: '14px 18px', background: '#fff',
+                      border: `2px solid ${s.active ? activeColor : '#fecaca'}`,
+                      borderRadius: 8, cursor: 'pointer',
+                      opacity: togglingScore === sc ? 0.5 : 1,
+                    }}>
+                      <input
+                        type="checkbox"
+                        checked={s.active}
+                        onChange={e => toggleScore(sc, e.target.checked)}
+                        disabled={togglingScore === sc}
+                        style={{width: 20, height: 20, cursor: 'pointer'}}
+                      />
+                      <div style={{flex: 1}}>
+                        <div style={{display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4}}>
+                          <span style={{fontSize: 22, fontWeight: 700, color: pillColor}}>{sc}</span>
+                          <span style={{fontSize: 12, color: '#6b7280'}}>
+                            {sc === 'A' ? 'Alta necesidad' : sc === 'B' ? 'Normal' : 'Bajo valor'}
+                          </span>
+                        </div>
+                        <div style={{fontSize: 12, color: '#6b7280'}}>
+                          {s.lead_count} clasificadas · {s.descartadas > 0 && <span style={{color: '#dc2626'}}>{s.descartadas} descartadas</span>}
+                        </div>
+                      </div>
+                    </label>
+                  )
+                })}
               </div>
             </div>
 
@@ -499,6 +583,7 @@ export default function MarketingPage() {
               )}
             </div>
 
+
             {/* ── Bloque 4: Campanas (proximamente) ───────────────── */}
             <div style={{...S.block, opacity: 0.6}}>
               <div style={S.blockHeader}>
@@ -560,6 +645,8 @@ const S = {
   btnPrimary:  { padding: '10px 20px', background: '#2563EB', color: '#fff', border: 'none', borderRadius: 6, fontSize: 14, fontWeight: 600, cursor: 'pointer' } as const,
   btnDisabled: { padding: '10px 20px', background: '#e5e7eb', color: '#9ca3af', border: 'none', borderRadius: 6, fontSize: 14, fontWeight: 600, cursor: 'not-allowed' } as const,
   btnGhost:    { padding: '8px 14px', background: 'transparent', color: '#4b5563', border: '1px solid #d1d5db', borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' as const } as const,
+  th:          { padding: '10px 12px', fontSize: 12, fontWeight: 600, color: '#374151', textTransform: 'uppercase' as const, letterSpacing: 0.3, borderBottom: '1px solid #e5e7eb' } as const,
+  td:          { padding: '10px 12px', fontSize: 13, color: '#374151', verticalAlign: 'top' as const } as const,
   errBox:      { marginTop: 12, padding: '10px 14px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 6, color: '#b91c1c', fontSize: 13 } as const,
   resultBox:   { marginTop: 14, padding: '14px 16px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 8 } as const,
   resultTitle: { fontSize: 12, fontWeight: 700, color: '#065f46', textTransform: 'uppercase' as const, letterSpacing: 0.4, marginBottom: 8 } as const,

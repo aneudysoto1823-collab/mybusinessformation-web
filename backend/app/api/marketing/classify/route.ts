@@ -159,18 +159,33 @@ export async function POST(req: Request) {
     return jsonError(500, 'haiku falló: ' + msg)
   }
 
-  // ===== 3.5) Cargar settings de verticales activos (default: activo si no existe row) =====
-  const settingsRes = await marketing.execute('SELECT vertical, active FROM marketing_vertical_settings')
+  // ===== 3.5) Cargar settings de verticales + scores activos (default: activo si no existe row) =====
+  const [vSettingsRes, sSettingsRes] = await Promise.all([
+    marketing.execute('SELECT vertical, active FROM marketing_vertical_settings'),
+    marketing.execute('SELECT score, active FROM marketing_score_settings'),
+  ])
   const verticalActive = new Map<string, boolean>()
-  settingsRes.rows.forEach(r => verticalActive.set(String(r.vertical), Number(r.active) === 1))
-  const isActive = (v: string) => verticalActive.has(v) ? verticalActive.get(v)! : true
+  vSettingsRes.rows.forEach(r => verticalActive.set(String(r.vertical), Number(r.active) === 1))
+  const isVerticalActive = (v: string) => verticalActive.has(v) ? verticalActive.get(v)! : true
+  const scoreActive = new Map<string, boolean>()
+  sSettingsRes.rows.forEach(r => scoreActive.set(String(r.score), Number(r.active) === 1))
+  const isScoreActive = (s: string) => scoreActive.has(s) ? scoreActive.get(s)! : true
 
-  // ===== 4) UPDATE cada fila con su clasificacion + procesada=1 (+ descartada si vertical inactivo) =====
+  // ===== 4) UPDATE cada fila con su clasificacion + procesada=1 (+ descartada si vertical o score inactivo) =====
   const distribution = { A: 0, B: 0, C: 0 } as Record<string, number>
   const verticalDist = {} as Record<string, number>
   let discarded = 0
   for (const c of classifications) {
-    const shouldDiscard = !isActive(c.vertical)
+    const vInactive = !isVerticalActive(c.vertical)
+    const sInactive = !isScoreActive(c.score)
+    const shouldDiscard = vInactive || sInactive
+    const reason = vInactive && sInactive
+      ? `vertical y score inactivos: ${c.vertical}, ${c.score}`
+      : vInactive
+        ? `vertical inactivo: ${c.vertical}`
+        : sInactive
+          ? `score inactivo: ${c.score}`
+          : null
     await marketing.execute({
       sql: `UPDATE marketing_leads
             SET score = ?, vertical = ?, vertical_priority = ?,
@@ -182,7 +197,7 @@ export async function POST(req: Request) {
         c.score, c.vertical, c.vertical_priority,
         c.owner_profile, c.address_type, c.has_good_address ? 1 : 0,
         c.notes, shouldDiscard ? 1 : 0,
-        shouldDiscard ? `vertical inactivo: ${c.vertical}` : null,
+        reason,
         c.document_number,
       ],
     })
