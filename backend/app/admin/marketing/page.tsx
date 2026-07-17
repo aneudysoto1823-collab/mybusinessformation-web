@@ -41,6 +41,35 @@ type ScoreSetting = {
   descartadas: number
 }
 
+type PrepareStats = {
+  ready: number
+  target_max: number
+  max_iterations: number
+  last_run: ClassifyStats['last_run']
+}
+
+type PrepareResult = {
+  target: number
+  ready_start: number
+  ready_end: number
+  gained: number
+  iterations_used: number
+  elapsed_ms: number
+  completed: boolean
+  iterations: Array<{
+    iteration: number
+    expired: number
+    synced: number
+    classified: number
+    score_dist: Record<string, number>
+    discarded_by_settings: number
+    enriched_by_score: Record<string, { enriched: number; validated: number; invalid: number; api_errors: number }>
+    ready_after: number
+    gained: number
+  }>
+  run_id: number
+}
+
 type EnrichStats = {
   pending_by_score: { A: number; B: number; C: number }
   totals: {
@@ -84,6 +113,14 @@ export default function MarketingPage() {
   // Scores activos (mismo patron que verticals)
   const [scores, setScores] = useState<ScoreSetting[]>([])
   const [togglingScore, setTogglingScore] = useState<string | null>(null)
+
+  // Preparacion loop-until-N
+  const [prepareStats, setPrepareStats] = useState<PrepareStats | null>(null)
+  const [prepareTarget, setPrepareTarget] = useState<number>(60)
+  const [prepareRunning, setPrepareRunning] = useState(false)
+  const [prepareResult, setPrepareResult] = useState<PrepareResult | null>(null)
+  const [prepareError, setPrepareError] = useState<string | null>(null)
+  const [showAdvanced, setShowAdvanced] = useState(false)
   const [error, setError]         = useState<string | null>(null)
 
   // Bloque 3 state
@@ -95,18 +132,20 @@ export default function MarketingPage() {
 
   const loadStats = useCallback(async () => {
     try {
-      const [r1, r2, r3, r4] = await Promise.all([
+      const [r1, r2, r3, r4, r5] = await Promise.all([
         fetch('/api/marketing/classify'),
         fetch('/api/marketing/enrich'),
         fetch('/api/marketing/verticals'),
         fetch('/api/marketing/scores'),
+        fetch('/api/marketing/prepare'),
       ])
-      const [t1, t2, t3, t4] = await Promise.all([r1.text(), r2.text(), r3.text(), r4.text()])
-      let d1: unknown = null, d2: unknown = null, d3: unknown = null, d4: unknown = null
+      const [t1, t2, t3, t4, t5] = await Promise.all([r1.text(), r2.text(), r3.text(), r4.text(), r5.text()])
+      let d1: unknown = null, d2: unknown = null, d3: unknown = null, d4: unknown = null, d5: unknown = null
       try { d1 = t1 ? JSON.parse(t1) : null } catch {}
       try { d2 = t2 ? JSON.parse(t2) : null } catch {}
       try { d3 = t3 ? JSON.parse(t3) : null } catch {}
       try { d4 = t4 ? JSON.parse(t4) : null } catch {}
+      try { d5 = t5 ? JSON.parse(t5) : null } catch {}
       if (!r1.ok) {
         const msg = (d1 && typeof d1 === 'object' && 'error' in d1)
           ? String((d1 as { error: unknown }).error)
@@ -121,12 +160,39 @@ export default function MarketingPage() {
       if (r4.ok && d4 && typeof d4 === 'object' && 'scores' in d4) {
         setScores((d4 as { scores: ScoreSetting[] }).scores)
       }
+      if (r5.ok) setPrepareStats(d5 as PrepareStats)
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e))
     } finally {
       setLoading(false)
     }
   }, [])
+
+  const runPrepare = async () => {
+    if (prepareRunning) return
+    if (!Number.isInteger(prepareTarget) || prepareTarget < 1) { setPrepareError('Target debe ser entero >= 1'); return }
+    if (!confirm(`Preparar ${prepareTarget} leads listos para carta?\n\nEl sistema hará sync + clasificar + enriquecer en loop hasta llegar (o hasta 6 iteraciones). Puede tardar 3-5 min.\n\nConfirmar?`)) return
+    setPrepareRunning(true); setPrepareError(null); setPrepareResult(null)
+    try {
+      const res = await fetch('/api/marketing/prepare', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ target: prepareTarget }),
+      })
+      const text = await res.text()
+      let data: PrepareResult & { error?: string } = {} as PrepareResult & { error?: string }
+      try { data = text ? JSON.parse(text) : {} } catch {}
+      if (!res.ok) {
+        throw new Error(data.error || text.slice(0, 200) || `HTTP ${res.status}`)
+      }
+      setPrepareResult(data as PrepareResult)
+      await loadStats()
+    } catch (e) {
+      setPrepareError(e instanceof Error ? e.message : String(e))
+    } finally {
+      setPrepareRunning(false)
+    }
+  }
 
   const toggleScore = async (score: 'A' | 'B' | 'C', active: boolean) => {
     setTogglingScore(score)
@@ -297,9 +363,15 @@ export default function MarketingPage() {
                   const s = scores.find(x => x.score === sc) ?? { score: sc, active: true, lead_count: 0, descartadas: 0 }
                   const pillColor = sc === 'A' ? '#059669' : sc === 'B' ? '#d97706' : '#6b7280'
                   const activeColor = sc === 'A' ? '#86efac' : sc === 'B' ? '#fcd34d' : '#d1d5db'
+                  const scoreDesc = sc === 'A'
+                    ? 'Alta necesidad de múltiples servicios. LLC con dueños que probablemente necesitan EIN, ITIN, agente registrado, licencias. Ej: extranjero recién llegado formando negocio.'
+                    : sc === 'B'
+                      ? 'LLC con perfil normal. Probablemente ya tiene algunos servicios pero puede necesitar otros.'
+                      : 'LLC con perfil que probablemente NO necesita nuestros servicios. Ej: ya representada por abogado, holding solo de propiedades, sin dueño identificable.'
+                  const scoreShort = sc === 'A' ? 'Alta necesidad' : sc === 'B' ? 'Normal' : 'Bajo valor'
                   return (
                     <label key={sc} style={{
-                      display: 'flex', alignItems: 'center', gap: 14,
+                      display: 'flex', alignItems: 'flex-start', gap: 14,
                       padding: '14px 18px', background: '#fff',
                       border: `2px solid ${s.active ? activeColor : '#fecaca'}`,
                       borderRadius: 8, cursor: 'pointer',
@@ -310,17 +382,18 @@ export default function MarketingPage() {
                         checked={s.active}
                         onChange={e => toggleScore(sc, e.target.checked)}
                         disabled={togglingScore === sc}
-                        style={{width: 20, height: 20, cursor: 'pointer'}}
+                        style={{width: 20, height: 20, cursor: 'pointer', marginTop: 3}}
                       />
                       <div style={{flex: 1}}>
                         <div style={{display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4}}>
                           <span style={{fontSize: 22, fontWeight: 700, color: pillColor}}>{sc}</span>
-                          <span style={{fontSize: 12, color: '#6b7280'}}>
-                            {sc === 'A' ? 'Alta necesidad' : sc === 'B' ? 'Normal' : 'Bajo valor'}
-                          </span>
+                          <span style={{fontSize: 12, color: '#6b7280', fontWeight: 600}}>{scoreShort}</span>
                         </div>
-                        <div style={{fontSize: 12, color: '#6b7280'}}>
-                          {s.lead_count} clasificadas · {s.descartadas > 0 && <span style={{color: '#dc2626'}}>{s.descartadas} descartadas</span>}
+                        <div style={{fontSize: 11, color: '#4b5563', lineHeight: 1.45, marginBottom: 6}}>
+                          {scoreDesc}
+                        </div>
+                        <div style={{fontSize: 11, color: '#6b7280', fontWeight: 500}}>
+                          {s.lead_count} clasificadas{s.descartadas > 0 && <> · <span style={{color: '#dc2626'}}>{s.descartadas} descartadas</span></>}
                         </div>
                       </div>
                     </label>
@@ -381,6 +454,90 @@ export default function MarketingPage() {
                 </div>
               )}
             </div>
+
+            {/* ── Preparacion loop-until-N (nuevo, flujo recomendado) ── */}
+            <div style={{...S.block, background: '#eff6ff', border: '2px solid #2563EB'}}>
+              <div style={S.blockHeader}>
+                <div style={{flex: 1}}>
+                  <div style={{...S.blockTitle, color: '#1d4ed8'}}>
+                    🚀 Preparar N leads listos (recomendado)
+                  </div>
+                  <div style={S.blockDesc}>
+                    Un solo botón. Escribís cuántas cartas querés mandar y el sistema hace loop de sync → clasificar → enriquecer hasta llegar (o hasta {prepareStats?.max_iterations ?? 6} iteraciones).
+                    <b> Cuando ves el resultado, tenés <span style={{color: '#1d4ed8'}}>N leads listos</span> con dirección validada, dueño identificado y NO contactados todavía.</b>
+                  </div>
+                </div>
+                <div style={{textAlign: 'center', padding: '8px 16px', background: '#dbeafe', borderRadius: 8, minWidth: 130}}>
+                  <div style={{fontSize: 11, color: '#1d4ed8', textTransform: 'uppercase', letterSpacing: 0.4, fontWeight: 700}}>Listos ahora</div>
+                  <div style={{fontSize: 28, fontWeight: 700, color: '#1d4ed8'}}>{prepareStats?.ready ?? 0}</div>
+                </div>
+              </div>
+
+              <div style={S.controlRow}>
+                <div style={S.controlGroup}>
+                  <label style={S.inputLabel}>Preparar</label>
+                  <input
+                    type="number"
+                    min={1}
+                    max={prepareStats?.target_max ?? 500}
+                    value={prepareTarget}
+                    onChange={e => setPrepareTarget(Number(e.target.value))}
+                    disabled={prepareRunning}
+                    style={S.numInput}
+                  />
+                  <span style={S.inputHint}>leads</span>
+                </div>
+                <button onClick={runPrepare} disabled={prepareRunning} style={prepareRunning ? S.btnDisabled : {...S.btnPrimary, background: '#1d4ed8'}}>
+                  {prepareRunning ? 'Preparando… (puede tardar 3-5 min)' : 'Preparar ahora'}
+                </button>
+              </div>
+
+              {prepareError && <div style={S.errBox}>Error: {prepareError}</div>}
+
+              {prepareResult && (
+                <div style={{...S.resultBox, background: prepareResult.completed ? '#f0fdf4' : '#fefce8', border: '1px solid ' + (prepareResult.completed ? '#bbf7d0' : '#fde047')}}>
+                  <div style={S.resultTitle}>
+                    {prepareResult.completed
+                      ? `✅ Objetivo alcanzado: ${prepareResult.ready_end} listos`
+                      : `⚠️ ${prepareResult.ready_end}/${prepareResult.target} listos (agotó ${prepareResult.iterations_used} iteraciones)`}
+                  </div>
+                  <div style={S.resultGrid}>
+                    <div><b>{prepareResult.ready_start}</b> ya listos antes</div>
+                    <div><b>{prepareResult.gained}</b> nuevos agregados</div>
+                    <div><b>{prepareResult.iterations_used}</b> iteraciones</div>
+                    <div><b>{(prepareResult.elapsed_ms / 1000).toFixed(1)}s</b> total</div>
+                  </div>
+                  {!prepareResult.completed && (
+                    <div style={{fontSize: 12, color: '#92400e', marginTop: 8}}>
+                      Podés apretar de nuevo para seguir preparando, o revisar los settings (scores/verticales activos) por si estás filtrando demasiado.
+                    </div>
+                  )}
+                  {prepareResult.iterations.length > 0 && (
+                    <details style={{marginTop: 10, fontSize: 12, color: '#4b5563'}}>
+                      <summary style={{cursor: 'pointer', fontWeight: 600}}>Ver detalle por iteración</summary>
+                      <div style={{marginTop: 8, fontFamily: 'monospace', fontSize: 11}}>
+                        {prepareResult.iterations.map(it => (
+                          <div key={it.iteration} style={{padding: '4px 0', borderTop: '1px dashed #e5e7eb'}}>
+                            <b>Iter {it.iteration}:</b> expiró {it.expired}, sync {it.synced}, clasificó {it.classified} ({Object.entries(it.score_dist).map(([k,v])=>`${k}:${v}`).join(' ')}), descartó {it.discarded_by_settings}.
+                            Enriqueció: {Object.entries(it.enriched_by_score).map(([sc, e]) => `${sc}:${e.enriched}(✓${e.validated}/✗${e.invalid})`).join(', ')}.
+                            <span style={{color: it.gained > 0 ? '#059669' : '#dc2626'}}> Ganó +{it.gained} listos (total: {it.ready_after})</span>
+                          </div>
+                        ))}
+                      </div>
+                    </details>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* ── Modo avanzado: Bloques 2 y 3 individuales ─────── */}
+            <div style={{marginTop: 8, marginBottom: 12}}>
+              <button onClick={() => setShowAdvanced(v => !v)} style={S.btnGhost}>
+                {showAdvanced ? '▼ Ocultar modo avanzado' : '▶ Modo avanzado (Bloques 2 y 3 por separado)'}
+              </button>
+            </div>
+
+            {showAdvanced && <>
 
             {/* ── Bloque 2: Clasificacion ────────────────────────── */}
             <div style={S.block}>
@@ -587,6 +744,8 @@ export default function MarketingPage() {
               )}
             </div>
 
+
+            </>}
 
             {/* ── Bloque 4: Campanas (proximamente) ───────────────── */}
             <div style={{...S.block, opacity: 0.6}}>
