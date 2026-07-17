@@ -44,9 +44,15 @@ export async function POST(req: Request) {
     return jsonError(400, `n debe ser un entero entre 1 y ${MAX_N}`)
   }
 
-  const marketing = getMarketingClient()
-  const sunbiz = getTurso()
-  // (getTurso apunta a Base A `opabiz-sunbiz-search` via TURSO_DATABASE_URL)
+  let marketing, sunbiz
+  try {
+    marketing = getMarketingClient()
+    sunbiz = getTurso()
+    // (getTurso apunta a Base A `opabiz-sunbiz-search` via TURSO_DATABASE_URL)
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e)
+    return jsonError(500, 'config invalida: ' + msg)
+  }
 
   // ===== 1) SYNC de Base A -> Base B =====
   // Traigo las 2N mas nuevas de sunbiz_corps y hago INSERT OR IGNORE en marketing_leads.
@@ -196,29 +202,40 @@ export async function GET() {
   const ok = token ? await verifyAdminToken(token) : false
   if (!ok) return jsonError(401, 'unauthorized')
 
-  const marketing = getMarketingClient()
-  const [pending, lastRun, totals] = await Promise.all([
-    marketing.execute(`SELECT COUNT(*) as n FROM marketing_leads WHERE procesada = 0`),
-    marketing.execute(`SELECT * FROM block_runs WHERE block = 'classify' ORDER BY started_at DESC LIMIT 1`),
-    marketing.execute(`SELECT
-      COUNT(*) as total,
-      SUM(CASE WHEN procesada = 1 THEN 1 ELSE 0 END) as classified,
-      SUM(CASE WHEN score = 'A' THEN 1 ELSE 0 END) as score_a,
-      SUM(CASE WHEN score = 'B' THEN 1 ELSE 0 END) as score_b,
-      SUM(CASE WHEN score = 'C' THEN 1 ELSE 0 END) as score_c
-      FROM marketing_leads`),
-  ])
+  let marketing
+  try {
+    marketing = getMarketingClient()
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e)
+    return jsonError(500, 'config invalida: ' + msg)
+  }
+  try {
+    const [pending, lastRun, totals] = await Promise.all([
+      marketing.execute(`SELECT COUNT(*) as n FROM marketing_leads WHERE procesada = 0`),
+      marketing.execute(`SELECT * FROM block_runs WHERE block = 'classify' ORDER BY started_at DESC LIMIT 1`),
+      marketing.execute(`SELECT
+        COUNT(*) as total,
+        SUM(CASE WHEN procesada = 1 THEN 1 ELSE 0 END) as classified,
+        SUM(CASE WHEN score = 'A' THEN 1 ELSE 0 END) as score_a,
+        SUM(CASE WHEN score = 'B' THEN 1 ELSE 0 END) as score_b,
+        SUM(CASE WHEN score = 'C' THEN 1 ELSE 0 END) as score_c
+        FROM marketing_leads`),
+    ])
 
-  return NextResponse.json({
-    pending: Number(pending.rows[0]?.n ?? 0),
-    totals: {
-      total: Number(totals.rows[0]?.total ?? 0),
-      classified: Number(totals.rows[0]?.classified ?? 0),
-      score_a: Number(totals.rows[0]?.score_a ?? 0),
-      score_b: Number(totals.rows[0]?.score_b ?? 0),
-      score_c: Number(totals.rows[0]?.score_c ?? 0),
-    },
-    last_run: lastRun.rows[0] ?? null,
-    max_n: MAX_N,
-  })
+    return NextResponse.json({
+      pending: Number(pending.rows[0]?.n ?? 0),
+      totals: {
+        total: Number(totals.rows[0]?.total ?? 0),
+        classified: Number(totals.rows[0]?.classified ?? 0),
+        score_a: Number(totals.rows[0]?.score_a ?? 0),
+        score_b: Number(totals.rows[0]?.score_b ?? 0),
+        score_c: Number(totals.rows[0]?.score_c ?? 0),
+      },
+      last_run: lastRun.rows[0] ?? null,
+      max_n: MAX_N,
+    })
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e)
+    return jsonError(500, 'db error: ' + msg)
+  }
 }

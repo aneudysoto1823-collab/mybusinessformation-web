@@ -37,9 +37,16 @@ export default function MarketingPage() {
   const loadStats = useCallback(async () => {
     try {
       const res = await fetch('/api/marketing/classify')
-      if (!res.ok) throw new Error(`GET stats: HTTP ${res.status}`)
-      const data = await res.json()
-      setStats(data)
+      const text = await res.text()
+      let data: unknown = null
+      try { data = text ? JSON.parse(text) : null } catch {}
+      if (!res.ok) {
+        const msg = (data && typeof data === 'object' && 'error' in data)
+          ? String((data as { error: unknown }).error)
+          : (text.slice(0, 200) || `HTTP ${res.status}`)
+        throw new Error(`GET stats: ${msg}`)
+      }
+      setStats(data as ClassifyStats)
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e))
     } finally {
@@ -59,9 +66,13 @@ export default function MarketingPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ n }),
       })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`)
-      setRunResult(data)
+      const text = await res.text()
+      let data: { error?: string; processed?: number; sync_inserted?: number; distribution?: Record<string, number>; vertical_distribution?: Record<string, number>; elapsed_ms?: number } = {}
+      try { data = text ? JSON.parse(text) : {} } catch {}
+      if (!res.ok) {
+        throw new Error(data.error || text.slice(0, 200) || `HTTP ${res.status}`)
+      }
+      setRunResult(data as { processed: number; sync_inserted: number; distribution: Record<string, number>; vertical_distribution: Record<string, number>; elapsed_ms: number })
       await loadStats()
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e))
