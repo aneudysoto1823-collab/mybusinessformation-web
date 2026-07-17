@@ -248,6 +248,19 @@ Esta sección describe **cómo corre el sistema hoy en producción** y qué hace
 - Antes de disparar, `window.confirm()` con el costo máximo estimado ("$X.XX o gratis si estás dentro del Free Tier"). Cancelable.
 - `POST /api/marketing/enrich` recibe `{n, score}`.
 
+**Paso 3.1.5 — Contexto: qué dirección validamos** (elegida en el Bloque 2):
+
+Sunbiz trae 4 direcciones por LLC (principal, mail, registered agent, y una por owner/officer). Cada LLC tiene una **target address** ya elegida al momento del sync, con esta prioridad determinística (algoritmo en `lib/marketing-target-address.ts`):
+
+1. **Owner** — primer officer type='P' (persona) con dirección completa parseable → **llega al dueño real** (mejor conversión)
+2. **Mail** — la mail address de la LLC, **SIEMPRE QUE** no coincida con la del Registered Agent (evita mandar al abogado)
+3. **Principal** — como fallback → puede ser oficina virtual, contador, etc.
+4. **None** — no hay dirección utilizable → el lead queda `descartada=1, razon='sin direccion target'`
+
+La `registered_agent_address` **nunca se usa** — es un intermediario legal que va a filtrar la carta.
+
+La columna `target_addr_source` en Base B guarda cuál fue elegida (`owner` / `mail` / `principal` / `none`), útil para segmentar el Bloque 4 en el futuro ("solo mando cartas a target_addr_source='owner'").
+
 **Paso 3.2 — Traer candidatos de Base B**:
 
 ```sql
@@ -255,8 +268,10 @@ SELECT ... FROM marketing_leads
 WHERE score = ?           -- el score elegido
   AND descartada = 0       -- respeta descartes del Bloque 2
   AND address_validated IS NULL   -- no enriquecidas todavía
-  AND (has_good_address IS NULL OR has_good_address = 1)  -- las que Haiku vio con dirección
-  AND principal_addr1 IS NOT NULL
+  AND target_addr_source IS NOT NULL AND target_addr_source != 'none'
+  AND target_addr1 IS NOT NULL AND TRIM(target_addr1) != ''
+  AND target_city  IS NOT NULL AND TRIM(target_city)  != ''
+  AND target_state IS NOT NULL AND TRIM(target_state) != ''
 ORDER BY filing_date DESC   -- regla de oro
 LIMIT N
 ```
@@ -366,6 +381,7 @@ Por cada lead:
 | **Bloque 3 — Enriquecimiento** | ✅ **IMPLEMENTADO 2026-07-17**. `POST /api/marketing/enrich` (solo Google Address Validation — Enformion/ZeroBounce descartados 2026-07-16 por costo). Marca `address_validated`, `address_type`, `enriched_at`. Techo: 500/corrida. Costo: 1,000/mes gratis + $25/1,000 después. |
 | **Bloque 4 — Campañas (solo cartas)** | Pendiente implementar. Filtros + input N + costo estimado + confirmación + disparo. Emails fuera de scope hasta conseguir email finder económico. Requiere elegir proveedor de envío físico (Lob / Click2Mail / Postgrid). |
 | **Auto-expirar pendientes viejas** | ✅ **IMPLEMENTADO 2026-07-17**. Umbral: **3 días** desde `filing_date`. Se ejecuta al inicio de cada corrida de `/api/marketing/classify` antes del sync. Constante `MAX_STALE_DAYS` en el endpoint (facil de cambiar). |
+| **Target address selection (owner > mail > principal)** | ✅ **IMPLEMENTADO 2026-07-17** (Opción B). `lib/marketing-target-address.ts` elige la mejor dirección al sync y la guarda en columnas `target_addr_*` de Base B. Bloque 3 valida la target address (no la principal). Distribución observada en el primer batch: 23 owner, 1 mail, 22 sin dirección (descartadas). |
 
 ---
 

@@ -63,20 +63,20 @@ export async function POST(req: Request) {
   })
   const runId = Number(runIns.lastInsertRowid)
 
-  // Traer los N candidatos: score=X, address_validated IS NULL, NO descartados, has_good_address ok,
-  // Y con dir minima completa (addr1 + city + state) — sin esos 3 Google Address Validation no puede
-  // hacer nada y era la fuente de los "2 errores de API" que en realidad eran validacion local.
+  // Traer los N candidatos: score=X, NO descartados, sin enriquecer, con target_addr* valido.
+  // Usa la target address elegida en el Bloque 2 (owner/mail/principal segun disponibilidad).
+  // Ver lib/marketing-target-address.ts.
   const candidatesRes = await marketing.execute({
     sql: `SELECT document_number, entity_name,
-                 principal_addr1, principal_addr2, principal_city, principal_state, principal_zip, principal_country
+                 target_addr_source, target_addr1, target_addr2, target_city, target_state, target_zip, target_country
           FROM marketing_leads
           WHERE score = ?
             AND descartada = 0
             AND address_validated IS NULL
-            AND (has_good_address IS NULL OR has_good_address = 1)
-            AND principal_addr1 IS NOT NULL AND TRIM(principal_addr1) != ''
-            AND principal_city  IS NOT NULL AND TRIM(principal_city)  != ''
-            AND principal_state IS NOT NULL AND TRIM(principal_state) != ''
+            AND target_addr_source IS NOT NULL AND target_addr_source != 'none'
+            AND target_addr1 IS NOT NULL AND TRIM(target_addr1) != ''
+            AND target_city  IS NOT NULL AND TRIM(target_city)  != ''
+            AND target_state IS NOT NULL AND TRIM(target_state) != ''
           ORDER BY filing_date DESC
           LIMIT ?`,
     args: [score, n],
@@ -105,12 +105,12 @@ export async function POST(req: Request) {
     let result: ValidationResult
     try {
       result = await validateAddress({
-        addr1: row.principal_addr1 as string | null,
-        addr2: row.principal_addr2 as string | null,
-        city: row.principal_city as string | null,
-        state: row.principal_state as string | null,
-        zip: row.principal_zip as string | null,
-        country: row.principal_country as string | null,
+        addr1: row.target_addr1 as string | null,
+        addr2: row.target_addr2 as string | null,
+        city: row.target_city as string | null,
+        state: row.target_state as string | null,
+        zip: row.target_zip as string | null,
+        country: row.target_country as string | null,
       })
     } catch (e) {
       result = {
@@ -190,10 +190,10 @@ export async function GET() {
       marketing.execute(`SELECT score, COUNT(*) as n FROM marketing_leads
                           WHERE score IS NOT NULL AND address_validated IS NULL
                           AND descartada = 0
-                          AND (has_good_address IS NULL OR has_good_address = 1)
-                          AND principal_addr1 IS NOT NULL AND TRIM(principal_addr1) != ''
-                          AND principal_city  IS NOT NULL AND TRIM(principal_city)  != ''
-                          AND principal_state IS NOT NULL AND TRIM(principal_state) != ''
+                          AND target_addr_source IS NOT NULL AND target_addr_source != 'none'
+                          AND target_addr1 IS NOT NULL AND TRIM(target_addr1) != ''
+                          AND target_city  IS NOT NULL AND TRIM(target_city)  != ''
+                          AND target_state IS NOT NULL AND TRIM(target_state) != ''
                           GROUP BY score`),
       marketing.execute(`SELECT * FROM block_runs WHERE block = 'enrich' ORDER BY started_at DESC LIMIT 1`),
       marketing.execute(`SELECT

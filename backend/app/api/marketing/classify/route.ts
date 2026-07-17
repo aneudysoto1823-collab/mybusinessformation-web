@@ -15,6 +15,7 @@ import { verifyAdminToken } from '@/lib/session'
 import { getMarketingClient } from '@/lib/turso-marketing'
 import { getTurso } from '@/lib/turso'
 import { classifyLeadsWithHaiku, type LeadInput } from '@/lib/marketing-classify'
+import { pickTargetAddress } from '@/lib/marketing-target-address'
 import { cookies } from 'next/headers'
 
 export const dynamic = 'force-dynamic'
@@ -90,14 +91,33 @@ export async function POST(req: Request) {
 
   let inserted = 0
   for (const row of sunbizRows.rows) {
+    // Elegir mejor direccion (owner > mail > principal, ver lib/marketing-target-address.ts)
+    const target = pickTargetAddress({
+      officers_json: row.officers as string | null,
+      mailing_addr1: row.mail_addr1 as string | null,
+      mailing_addr2: row.mail_addr2 as string | null,
+      mailing_city:  row.mail_city  as string | null,
+      mailing_state: row.mail_state as string | null,
+      mailing_zip:   row.mail_zip   as string | null,
+      mailing_country: row.mail_country as string | null,
+      agent_addr1: row.registered_agent_address as string | null,
+      principal_addr1: row.principal_addr1 as string | null,
+      principal_addr2: row.principal_addr2 as string | null,
+      principal_city:  row.principal_city  as string | null,
+      principal_state: row.principal_state as string | null,
+      principal_zip:   row.principal_zip   as string | null,
+      principal_country: row.principal_country as string | null,
+    })
+
     const r = await marketing.execute({
       sql: `INSERT OR IGNORE INTO marketing_leads (
               document_number, entity_name, entity_type, status, filing_date,
               principal_addr1, principal_addr2, principal_city, principal_state, principal_zip, principal_country,
               mailing_addr1, mailing_addr2, mailing_city, mailing_state, mailing_zip, mailing_country,
               agent_name, agent_type, agent_addr1, agent_city, agent_state, agent_zip,
-              officers_json, fei_number, last_tx_date, procesada
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)`,
+              officers_json, fei_number, last_tx_date, procesada,
+              target_addr_source, target_addr1, target_addr2, target_city, target_state, target_zip, target_country
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?)`,
       args: [
         String(row.document_number), String(row.entity_name),
         row.entity_type ?? null, row.status ?? null, row.filing_date ?? null,
@@ -109,9 +129,20 @@ export async function POST(req: Request) {
         row.registered_agent_address ?? null, row.registered_agent_city ?? null,
         row.registered_agent_state ?? null, row.registered_agent_zip ?? null,
         row.officers ?? null, row.fei ?? null, row.last_tx_date ?? null,
+        target.source, target.addr1, target.addr2, target.city, target.state, target.zip, target.country,
       ],
     })
     if (r.rowsAffected > 0) inserted += 1
+
+    // Si la fila ya existia (INSERT OR IGNORE la skipeo) y no tiene target todavia, poblarlo ahora.
+    // Idempotente: si ya tiene target_addr_source seteado, WHERE lo skipea sin costo.
+    await marketing.execute({
+      sql: `UPDATE marketing_leads
+            SET target_addr_source = ?, target_addr1 = ?, target_addr2 = ?,
+                target_city = ?, target_state = ?, target_zip = ?, target_country = ?
+            WHERE document_number = ? AND target_addr_source IS NULL`,
+      args: [target.source, target.addr1, target.addr2, target.city, target.state, target.zip, target.country, String(row.document_number)],
+    })
   }
 
   // ===== 2) SELECT N leads pendientes de Base B =====
