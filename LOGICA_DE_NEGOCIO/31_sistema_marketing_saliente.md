@@ -252,14 +252,18 @@ Esta sección describe **cómo corre el sistema hoy en producción** y qué hace
 
 Sunbiz trae 4 direcciones por LLC (principal, mail, registered agent, y una por owner/officer). Cada LLC tiene una **target address** ya elegida al momento del sync, con esta prioridad determinística (algoritmo en `lib/marketing-target-address.ts`):
 
-1. **Owner** — primer officer type='P' (persona) con dirección completa parseable → **llega al dueño real** (mejor conversión)
-2. **Mail** — la mail address de la LLC, **SIEMPRE QUE** no coincida con la del Registered Agent (evita mandar al abogado)
-3. **Principal** — como fallback → puede ser oficina virtual, contador, etc.
-4. **None** — no hay dirección utilizable → el lead queda `descartada=1, razon='sin direccion target'`
+1. **Mail** — la mail address de la LLC, **SIEMPRE QUE** no coincida con la del Registered Agent → es la que el dueño designó **explícitamente** para correspondencia comercial
+2. **Principal** — dirección declarada del negocio (a nombre de la LLC, no del owner personal)
+3. **None** — no hay dirección de la LLC utilizable → el lead queda `descartada=1, razon='sin direccion de la LLC (privacy)'`
 
-La `registered_agent_address` **nunca se usa** — es un intermediario legal que va a filtrar la carta.
+**NUNCA** se usan estas direcciones:
 
-La columna `target_addr_source` en Base B guarda cuál fue elegida (`owner` / `mail` / `principal` / `none`), útil para segmentar el Bloque 4 en el futuro ("solo mando cartas a target_addr_source='owner'").
+- **Owner personal address** (dentro de `officers[]`) — es la CASA del dueño. Si designó una mail_address distinta, es EXACTAMENTE porque no quiere correo comercial en su casa. Respetar eso es ético + legal + mejor para reputación. Cambio aplicado 2026-07-18 por decisión founder.
+- **Registered agent address** — siempre es un intermediario legal (abogado/contador) que filtra la carta.
+
+**Trade-off cuantitativo**: solo ~13% de las LLC de Sunbiz declaran una mail_address de la LLC distinta al owner personal, así que la mayoría queda descartada por privacidad. El loop-until-N del `/api/marketing/prepare` compensa procesando más volumen.
+
+La columna `target_addr_source` en Base B guarda cuál fue elegida (`mail` / `principal` / `none`), útil para segmentar el Bloque 4 en el futuro.
 
 **Paso 3.2 — Traer candidatos de Base B**:
 

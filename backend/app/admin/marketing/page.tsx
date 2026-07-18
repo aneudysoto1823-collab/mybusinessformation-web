@@ -630,10 +630,10 @@ export default function MarketingPage() {
                   <div style={S.blockTitle}>Bloque 3 — Enriquecimiento (dirección)</div>
                   <div style={S.blockDesc}>
                     Sobre las clasificadas del score elegido, valida la <b>target address</b> con Google Address Validation.
-                    La target address se elige automáticamente al clasificar con esta prioridad:
-                    <b> 1) dirección del owner</b> (primer officer type=persona con dirección completa — <i>llega al dueño real</i>) →
-                    <b> 2) mail address</b> de la LLC si difiere de la del Registered Agent (<i>llega donde reciben correspondencia</i>) →
-                    <b> 3) principal address</b> como fallback (<i>puede ser oficina virtual o intermediario</i>).
+                    La target address se elige automáticamente al clasificar con esta prioridad (respeta privacidad del dueño):
+                    <b> 1) mail address</b> de la LLC si difiere de la del Registered Agent (<i>es la que el dueño designó explícitamente para correspondencia</i>) →
+                    <b> 2) principal address</b> como fallback (<i>dirección declarada del negocio</i>).
+                    <b>NUNCA</b> se usa la dirección personal del owner (respeta privacidad — si el dueño puso otra mail address, es porque NO quiere correo comercial en su casa).
                     Nunca se usa la dirección del Registered Agent (es un abogado/contador que filtra la carta).
                     Marca las direcciones que califican para carta física (`possibleNextAction=ACCEPT` según Google).
                     Costo: <b>primeras 1,000/mes gratis</b> (Free Tier permanente); después $25 por cada 1,000 adicionales = ~$0.025/lead. Techo por corrida: {enrichMaxN}.

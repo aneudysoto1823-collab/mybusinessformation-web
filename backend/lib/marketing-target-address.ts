@@ -1,17 +1,21 @@
-// Algoritmo de seleccion de "mejor direccion" para carta fisica (doc 31, Opcion B).
+// Algoritmo de seleccion de "mejor direccion" para carta fisica (doc 31, Opcion B v2).
 //
-// Prioridad (2026-07-17):
-//   1. Owner = primer officer type='P' (persona) con direccion completa parseable
-//      → llega al dueño real, mejor conversion
-//   2. Mail address de la LLC, SIEMPRE QUE no coincida con la del Registered Agent
-//      → llega donde reciben correspondencia oficial (probable dueño)
-//   3. Principal address (fallback)
-//      → puede ser oficina virtual/abogado — menor conversion pero mejor que nada
-//   4. Nada → target_addr_source='none', el lead queda descartado en Bloque 3
+// Prioridad (actualizado 2026-07-18 por decision founder — privacy fix):
+//   1. Mail address de la LLC, SI difiere del Registered Agent
+//      → es la direccion que el dueño DESIGNO EXPLICITAMENTE para correspondencia
+//   2. Principal address de la LLC
+//      → direccion del negocio declarada (a nombre de la LLC, no del owner personal)
+//   3. Nada → target_addr_source='none', el lead queda descartado en Bloque 3
 //
-// Nunca se usa registered_agent_address (siempre es un intermediario legal).
+// NUNCA se usa:
+// - Owner personal address (dentro de officers[]) — es la CASA del dueño, privada.
+//   Si el dueño designo una mail_address distinta, es EXACTAMENTE porque no quiere
+//   correspondencia comercial en su casa. Respetar eso es etico + legal + mejor para
+//   la reputacion. La direccion personal en Sunbiz es dato publico pero usarla para
+//   direct mail comercial es turbio.
+// - Registered agent address — siempre es un intermediario legal (abogado/contador).
 
-export type TargetSource = 'owner' | 'mail' | 'principal' | 'none'
+export type TargetSource = 'mail' | 'principal' | 'none'
 
 export interface TargetAddress {
   source: TargetSource
@@ -44,60 +48,9 @@ function normalize(s: string | null | undefined): string {
   return s ? String(s).trim().toUpperCase().replace(/\s+/g, ' ') : ''
 }
 
-// Parsea el address string de un officer (formato Sunbiz: "STREET, [SUITE], CITY, STATE, ZIP")
-// Devuelve null si no se puede armar addr+city+state min viable.
-function parseOfficerAddress(addrStr: string): TargetAddress | null {
-  if (!addrStr) return null
-  const parts = addrStr.split(',').map(s => s.trim()).filter(Boolean)
-  if (parts.length < 3) return null
-
-  // Zip: ultima parte si matchea 5 digitos (o 5+4)
-  const last = parts[parts.length - 1]
-  const isZip = /^\d{5}(-\d{4})?$/.test(last)
-  const zip = isZip ? last : null
-  const noZip = isZip ? parts.slice(0, -1) : parts
-  if (noZip.length < 3) return null
-
-  // State: ultima antes del zip, debe ser 2 letras uppercase
-  const stateIdx = noZip.length - 1
-  const state = noZip[stateIdx]
-  if (!/^[A-Z]{2}$/.test(state)) return null
-
-  const city = noZip[stateIdx - 1]
-  const addrParts = noZip.slice(0, stateIdx - 1)
-  if (addrParts.length === 0) return null
-  const addr1 = addrParts[0]
-  const addr2 = addrParts.length > 1 ? addrParts.slice(1).join(', ') : null
-
-  return {
-    source: 'owner',
-    addr1, addr2, city, state, zip, country: 'US',
-  }
-}
-
 export function pickTargetAddress(row: LeadForTargeting): TargetAddress {
-  // 1) OWNER — primer officer type='P' con address parseable
-  if (row.officers_json) {
-    try {
-      const officers = JSON.parse(row.officers_json) as Array<{
-        type?: string; address?: string; title?: string; name?: string
-      }>
-      if (Array.isArray(officers)) {
-        for (const off of officers) {
-          if (off?.type === 'P' && off.address) {
-            const parsed = parseOfficerAddress(off.address)
-            if (parsed && parsed.addr1 && parsed.city && parsed.state) {
-              return parsed
-            }
-          }
-        }
-      }
-    } catch {
-      // JSON invalido — ignoro y sigo con mail/principal
-    }
-  }
-
-  // 2) MAIL address — si tiene minimo Y difiere de RA
+  // 1) MAIL address — si tiene minimo Y difiere de RA
+  // Es la direccion que el dueño designo EXPLICITAMENTE para correspondencia comercial.
   const raAddr = normalize(row.agent_addr1)
   const mailAddr = normalize(row.mailing_addr1)
   const mailIsRA = raAddr && mailAddr && raAddr === mailAddr
@@ -113,7 +66,8 @@ export function pickTargetAddress(row: LeadForTargeting): TargetAddress {
     }
   }
 
-  // 3) PRINCIPAL address (fallback)
+  // 2) PRINCIPAL address (fallback)
+  // Direccion declarada del negocio (a nombre de la LLC, no del owner personal).
   if (row.principal_addr1 && row.principal_city && row.principal_state) {
     return {
       source: 'principal',
@@ -126,6 +80,7 @@ export function pickTargetAddress(row: LeadForTargeting): TargetAddress {
     }
   }
 
-  // 4) Nada usable
+  // 3) Sin mail ni principal usable — NO usamos la owner address personal a proposito.
+  //    El lead queda con target='none' y sera descartado antes del Bloque 3.
   return { source: 'none', addr1: null, addr2: null, city: null, state: null, zip: null, country: null }
 }
