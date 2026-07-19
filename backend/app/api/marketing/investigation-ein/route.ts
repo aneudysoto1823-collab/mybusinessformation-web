@@ -162,19 +162,25 @@ export async function GET() {
   const logs: string[] = []
   const log = (m: string) => { logs.push(`[${Date.now() - started}ms] ${m}`); console.log(m) }
 
-  // ═══ PASO 1 ═══ 300 LLC con EIN (ligeras, últimos 180 días)
-  log('PASO 1: query 300 LLC con EIN, columnas ligeras')
-  const withEIN = await sunbiz.execute({
+  // ═══ PASO 1 ═══ Traer 2000 LLC recientes ordenadas por filing_date (usa index existente).
+  // Filtro fei se aplica en JS (no hay indice en fei y hacer scan explota Turso).
+  log('PASO 1: query 2000 LLC recientes ORDER BY filing_date DESC (usa index)')
+  const recientes = await sunbiz.execute({
     sql: `SELECT document_number, entity_name, filing_date, fei
           FROM sunbiz_corps
-          WHERE filing_date >= date('now', '-180 days')
+          WHERE filing_date >= date('now', '-60 days')
             AND status = 'ACTIVE'
-            AND fei IS NOT NULL AND fei != '' AND fei != 'NONE' AND fei != 'APPLIED FOR'
-            AND officers IS NOT NULL AND officers != '[]'
-          ORDER BY filing_date DESC LIMIT 300`,
+          ORDER BY filing_date DESC LIMIT 2000`,
     args: [],
   })
-  log(`  ${withEIN.rows.length} traidas`)
+  log(`  ${recientes.rows.length} recientes traidas`)
+
+  // Filtro EIN en JS (rapido, ya en memoria)
+  const withEIN = { rows: recientes.rows.filter(r => {
+    const f = String(r.fei || '').trim().toUpperCase()
+    return f && f !== 'NONE' && f !== 'APPLIED FOR'
+  }).slice(0, 300) }
+  log(`  ${withEIN.rows.length} con EIN (filtrado en JS)`)
 
   // ═══ PASO 2 ═══ filter por vertical
   type RawRow = { document_number: string; entity_name: string; filing_date: string | null; fei: string; vertical: string | null }
