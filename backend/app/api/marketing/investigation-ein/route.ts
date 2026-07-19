@@ -169,7 +169,7 @@ export async function GET() {
     sql: `SELECT document_number, entity_name, filing_date, fei
           FROM sunbiz_corps
           WHERE filing_date >= date('now', '-60 days')
-            AND status = 'ACTIVE'
+            AND status = 'A'
           ORDER BY filing_date DESC LIMIT 2000`,
     args: [],
   })
