@@ -1752,7 +1752,7 @@ function highlightCard(svcId){
   setTimeout(function(){card.classList.remove('highlighted');},5000);
 }
 
-(function(){var p=new URLSearchParams(window.location.search);var l=p.get('lang')||localStorage.getItem('flbc_lang')||'es';setLang(l);})();
+(function(){var p=new URLSearchParams(window.location.search);var l=p.get('lang')||localStorage.getItem('flbc_lang')||'es';setLang(l);var open=p.get('open');if(open&&serviceForms[open])openServiceForm(open);})();
 window.addEventListener('scroll',function(){var h=document.getElementById('mainHeader');if(h)h.classList.toggle('scrolled',window.scrollY>30);});
 
 

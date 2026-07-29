@@ -7048,6 +7048,37 @@ function claudiaPrefill(d){
     if(raEl&&typeof fmSetAgentChoice==='function') fmSetAgentChoice(raChoice,raEl);
   }
 
+  // Business address (step 2)
+  if(d.bizAddrType&&typeof fmSetBizAddr==='function'){
+    var addrEl=document.getElementById('biz-addr-'+d.bizAddrType);
+    fmSetBizAddr(d.bizAddrType,addrEl);
+    if(d.bizAddrType==='own'&&d.address){
+      setVal('inp-addr',d.address.street);
+      setVal('inp-street2',d.address.street2);
+      setVal('inp-city',d.address.city);
+      setSelect('inp-state',d.address.state);
+      setVal('inp-zip',d.address.zip);
+    }
+  }
+
+  // Filing speed (step 6)
+  if(d.filingSpeed&&typeof fmSetSpeed==='function'){
+    var speedEl=document.getElementById(d.filingSpeed==='expedited'?'speed-exp':'speed-std');
+    fmSetSpeed(d.filingSpeed,speedEl);
+  }
+
+  // Add-ons (step 6) — se saltan los ya incluidos en el paquete para no disparar
+  // el alert() de fmToggleAddon ("ya incluido en su paquete X").
+  if(d.addons&&typeof fmToggleAddon==='function'){
+    Object.keys(d.addons).forEach(function(key){
+      if(!d.addons[key]) return;
+      if(key==='ein'&&(fmData.package==='standard'||fmData.package==='premium')) return;
+      if(key==='oa'&&fmData.package==='premium') return;
+      var addonEl=document.getElementById('addon-'+key);
+      if(addonEl&&!fmData.addons[key]) fmToggleAddon(key,addonEl);
+    });
+  }
+
   // Show banner
   var existing=document.getElementById('claudia-prefill-banner');
   if(!existing){

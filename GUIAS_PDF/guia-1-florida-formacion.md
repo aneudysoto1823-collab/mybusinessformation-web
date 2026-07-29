@@ -1,4 +1,4 @@
-# Formar tu LLC o Corporación en Florida
+# Formar su LLC o Corporación en Florida
 ### Guía práctica de OpaBiz — Guía I · Edición Florida
 
 *Trámites, licencias y estructura básica para su nuevo negocio, explicados paso a paso.*
@@ -19,9 +19,11 @@ OpaBiz y Florida Business Formation Center no asumen responsabilidad alguna por 
 
 ## Introducción
 
-Si está leyendo esto, probablemente ya tiene una idea de negocio, o incluso ya está facturando de manera informal, y se está preguntando cuál es el siguiente paso. Esta guía existe para responder exactamente esa pregunta: qué significa formar una empresa en Florida, qué pasos reales conlleva, y qué debe tener en cuenta antes de firmar nada.
+**¡Felicitaciones!** Si esta guía llegó a sus manos, es porque ya está dando el paso de formar su empresa, o ya está en el proceso posterior al registro de la misma ante el Estado. Esta guía existe para acompañarlo en ese camino: qué significa formar una empresa en Florida, qué pasos reales conlleva, y qué debe tener en cuenta para poder mantener su negocio en cumplimiento con el Estado.
 
 No vamos a llenarla de teoría de negocios ni de motivación genérica. Vamos directo a lo que necesita saber: nombres, papeles, plazos, costos y las decisiones que sí importan. Y en cada tema que suele generar dudas, le vamos a explicar con un ejemplo simple, no solo con la definición técnica.
+
+Esta guía es su punto de partida, pero el camino no tiene que recorrerlo solo. Si en algún momento le surge una duda, nuestro equipo está a un mensaje de distancia: escríbanos por WhatsApp y un especialista le responde directamente. Si prefiere hablar en persona, agende una cita sin costo y lo orientamos en vivo; incluso podemos completar por usted la formación de su LLC, Corporación o cualquier otro servicio que necesite. Y si busca una respuesta rápida mientras navega el sitio, Claudia, nuestra asistente virtual, está disponible las 24 horas para ayudarlo en el momento.
 
 ---
 
@@ -60,31 +62,7 @@ Antes de comparar LLC contra Corporación, vale la pena ver el panorama completo
 - **LLC (Limited Liability Company):** una entidad formal que sí separa sus bienes personales del negocio, con una gestión simple y flexible.
 - **Corporation:** una entidad formal más estructurada, pensada para negocios que buscan inversores externos o eventualmente cotizar en bolsa.
 
-Para la gran mayoría de negocios pequeños y medianos, la conversación real es entre LLC y Corporación, así que profundizamos en esas dos a continuación.
-
----
-
-## LLC vs. C-Corporation vs. S-Corp
-
-Cuando alguien dice "Corporación", casi siempre se refiere a una **C-Corporation**, que es el tipo de corporación por defecto. **S-Corp no es un tipo de entidad aparte: es una elección de impuestos** que se aplica sobre una LLC o una C-Corp ya formada.
-
-| | LLC | C-Corporation | S-Corp (elección) |
-|---|---|---|---|
-| Protección de bienes personales | Sí | Sí | Sí |
-| Cómo se pagan los impuestos | Pass-through | La empresa paga impuesto corporativo, y luego usted paga otra vez sobre lo que retira ("doble imposición") | Pass-through |
-| Flexibilidad de gestión | Alta, pocas formalidades | Requiere directores que se reúnan formalmente y dejen constancia por escrito de sus decisiones (actas) | Depende de la entidad base |
-| Límites | Ninguno relevante | Ninguno | Máximo 100 accionistas, todos deben ser ciudadanos o residentes de EE. UU. |
-| Ideal para | La mayoría de negocios pequeños y medianos | Negocios que buscan inversores externos o salir a bolsa | Negocios con ganancias estables que buscan ahorrar en impuestos de autoempleo |
-
-**¿Qué significa "pass-through"?** Es la forma más simple de pagar impuestos: la empresa en sí no paga impuesto sobre la ganancia; esa ganancia "pasa directo" a usted, y la declara en su propia declaración de impuestos personal, como si fuera un ingreso más. Es lo que hacen por defecto tanto la LLC como la S-Corp.
-
-La C-Corp funciona distinto: la empresa paga impuesto sobre sus ganancias primero, y si después le paga un dividendo a usted como dueño, usted paga impuesto otra vez sobre ese dividendo en su declaración personal. Por eso se le llama "doble imposición": el mismo dinero paga impuesto dos veces, una a nivel de la empresa y otra a nivel personal.
-
-**Imagine que abre un taller de mecánica.** Quiere simplicidad, sin juntas directivas ni actas. Una LLC le da la protección legal que necesita sin la carga administrativa de una corporación. Ese es el caso típico de LLC.
-
-**Ahora imagine que en cambio tiene una startup de tecnología** y planea buscar inversión de fondos de capital de riesgo el próximo año. Los inversores institucionales casi siempre exigen una C-Corp, así que forma una C-Corp desde el día uno para no tener que convertir la estructura más adelante.
-
-**Volviendo al taller de mecánica:** después de dos años, su LLC ya gana $60,000 al año de ganancia neta. Sin elección S-Corp, paga impuesto de autoempleo (aproximadamente 15.3%) sobre toda esa ganancia. Con la elección S-Corp, se asigna un salario razonable (digamos $35,000, sobre el cual sí paga impuesto de autoempleo como cualquier sueldo) y el resto ($25,000) lo recibe como **distribución**: un retiro de ganancias de la empresa, distinto de un sueldo, que no paga ese impuesto adicional. El resultado: ahorra varios miles de dólares al año frente a pagar el impuesto de autoempleo sobre el monto completo. **Nota importante:** si usted no fuera ciudadano ni residente de Estados Unidos, no podría elegir S-Corp; esa opción queda reservada solo para su LLC o C-Corp.
+Para la gran mayoría de negocios pequeños y medianos, la conversación real es entre LLC y Corporación. Vea el paso 2 más adelante para la comparativa completa entre LLC, C-Corporation y S-Corp.
 
 ---
 
@@ -115,38 +93,77 @@ El nombre debe cumplir algunas reglas antes de poder registrarse:
 
 ### 2. Elegir el tipo de entidad
 
-Con la comparativa de arriba ya debería tener una idea clara de si necesita una LLC o una Corporación. Si todavía tiene dudas, en OpaBiz puede escribirnos y lo ayudamos a decidir, sin costo ni compromiso.
+Cuando alguien dice "Corporación", casi siempre se refiere a una **C-Corporation**, que es el tipo de corporación por defecto. **S-Corp no es un tipo de entidad aparte: es una elección de impuestos** que se aplica sobre una LLC o una C-Corp ya formada.
+
+| | LLC | C-Corporation | S-Corp (elección) |
+|---|---|---|---|
+| Protección de bienes personales | Sí | Sí | Sí |
+| Cómo se pagan los impuestos | Pass-through | La empresa paga impuesto corporativo, y luego usted paga otra vez sobre lo que retira ("doble imposición") | Pass-through |
+| Flexibilidad de gestión | Alta, pocas formalidades | Requiere directores que se reúnan formalmente y dejen constancia por escrito de sus decisiones (actas) | Depende de la entidad base |
+| Límites | Ninguno relevante | Ninguno | Máximo 100 accionistas, todos deben ser ciudadanos o residentes de EE. UU. |
+| Ideal para | La mayoría de negocios pequeños y medianos | Negocios que buscan inversores externos o salir a bolsa | Negocios con ganancias estables que buscan ahorrar en impuestos de autoempleo |
+
+**¿Qué significa "pass-through"?** Es la forma más simple de pagar impuestos: la empresa en sí no paga impuesto sobre la ganancia; esa ganancia "pasa directo" a usted, y la declara en su propia declaración de impuestos personal, como si fuera un ingreso más. Es lo que hacen por defecto tanto la LLC como la S-Corp.
+
+La C-Corp funciona distinto: la empresa paga impuesto sobre sus ganancias primero, y si después le paga un dividendo a usted como dueño, usted paga impuesto otra vez sobre ese dividendo en su declaración personal. Por eso se le llama "doble imposición": el mismo dinero paga impuesto dos veces, una a nivel de la empresa y otra a nivel personal.
+
+**Imagine que abre un taller de mecánica.** Quiere simplicidad, sin juntas directivas ni actas. Una LLC le da la protección legal que necesita sin la carga administrativa de una corporación. Ese es el caso típico de LLC.
+
+**Ahora imagine que en cambio tiene una startup de tecnología** y planea buscar inversión de fondos de capital de riesgo el próximo año. Los inversores institucionales casi siempre exigen una C-Corp, así que forma una C-Corp desde el día uno para no tener que convertir la estructura más adelante.
+
+**Volviendo al taller de mecánica:** después de dos años, su LLC ya gana $60,000 al año de ganancia neta. Sin elección S-Corp, paga impuesto de autoempleo (aproximadamente 15.3%) sobre toda esa ganancia. Con la elección S-Corp, se asigna un salario razonable (digamos $35,000, sobre el cual sí paga impuesto de autoempleo como cualquier sueldo) y el resto ($25,000) lo recibe como **distribución**: un retiro de ganancias de la empresa, distinto de un sueldo, que no paga ese impuesto adicional. El resultado: ahorra varios miles de dólares al año frente a pagar el impuesto de autoempleo sobre el monto completo. **Nota importante:** si usted no fuera ciudadano ni residente de Estados Unidos, no podría elegir S-Corp; esa opción queda reservada solo para su LLC o C-Corp.
+
+**Requisitos de elegibilidad para elegir S-Corp.** No cualquier LLC o C-Corp puede hacerlo. Debe cumplir todo esto:
+- Máximo 100 accionistas o miembros.
+- Todos los dueños deben ser personas físicas ciudadanas o residentes de Estados Unidos (no puede ser dueño otra empresa, ni un extranjero no residente).
+- Solo puede tener una clase de acciones (todos los dueños con los mismos derechos económicos, aunque el derecho a voto sí puede variar).
+
+**Cómo se tramita la elección S-Corp.** Se presenta el Formulario 2553 ante el IRS, y el plazo importa tanto como el trámite en sí: debe presentarlo a más tardar dos meses y quince días después de que comience el año fiscal en el que quiere que la elección tome efecto. Si lo presenta después de esa fecha, la elección recién aplica desde el año fiscal siguiente, no el actual.
+
+**Lo que implica en la práctica, no solo en el papel:** al elegir S-Corp se compromete a pagarse a usted mismo un salario razonable por su trabajo en la empresa (procesado como nómina formal, con sus propias retenciones), y solo el resto de la ganancia se retira como distribución. Esto significa llevar contabilidad de nómina que antes no necesitaba, y el IRS sí revisa que ese salario sea razonable para su industria, no un monto artificialmente bajo solo para ahorrar impuestos.
+
+Si todavía tiene dudas sobre cuál le conviene, en OpaBiz.com puede escribirnos y lo ayudamos a decidir, sin costo ni compromiso.
 
 ### 3. Designar un Agente Registrado
 
-Todo negocio formado en Florida debe tener un Agente Registrado: una persona o empresa con una dirección física en Florida (no un apartado postal, tiene que ser una dirección de calle real) autorizada para recibir documentos legales y notificaciones oficiales en nombre de su empresa.
+**Qué es.** Es la persona o empresa con una dirección física en Florida (no un apartado postal, tiene que ser una dirección de calle real) autorizada para recibir documentos legales y notificaciones oficiales en nombre de su empresa. Piénselo como el "buzón oficial" de su negocio ante el Estado y ante cualquier corte. Todo negocio formado en Florida debe designar uno desde el momento de la presentación inicial, sin excepción, y mantenerlo activo mientras la empresa exista.
 
-Esto incluye, entre otras cosas, la notificación de una **demanda**: si alguien demanda a su empresa, el documento legal que le avisa (el "service of process") se entrega físicamente en la dirección de su Agente Registrado, no por correo electrónico ni por teléfono.
+**Ejemplo:** imagine que un cliente demanda a su empresa. El documento legal que notifica la demanda ("service of process") se entrega físicamente en la dirección de su Agente Registrado, no por correo electrónico ni por teléfono. Si nadie lo recibe ahí, el tribunal puede fallar en su contra automáticamente por no haber respondido a tiempo, aunque usted tuviera una buena defensa y ni se hubiera enterado de la demanda.
 
-Puede ser usted mismo, si vive en Florida y tiene una dirección física, o puede contratar un servicio de Agente Registrado. Si decide ser su propio agente, tenga en cuenta lo que realmente implica:
+**Opciones y sus ventajas/desventajas:**
 
-- **Debe estar disponible en esa dirección durante el horario comercial estándar**, típicamente de lunes a viernes, de 9:00 a.m. a 5:00 p.m., los 365 días del año. No es "cuando pueda revisar el correo": es estar físicamente presente, o tener a alguien que sí lo esté, para recibir en persona cualquier documento que llegue.
-- **Si no está quien reciba el documento en ese horario**, ni usted ni el mensajero pueden simplemente reprogramar como con un paquete. Dependiendo del caso, esto puede resultar en que la empresa nunca se entere de una demanda a tiempo, y el tribunal falle en su contra automáticamente por no haber respondido ("juicio en rebeldía"), incluso si usted tenía una buena defensa.
-- **La dirección de su Agente Registrado queda pública** en el registro del Estado, visible para cualquiera que busque su empresa. Si usa su casa como dirección de Agente Registrado, su dirección personal queda expuesta.
-- **Si se muda, sale de vacaciones largas, o deja de estar disponible en esa dirección**, tiene la obligación de actualizar el Agente Registrado ante el Estado. Olvidar hacerlo es una de las causas más comunes de que una empresa pierda su estatus activo sin que el dueño se entere hasta meses después.
+- **Ser su propio agente.** Ventaja: se ahorra el costo anual del servicio. Desventaja: debe estar físicamente disponible en esa dirección de lunes a viernes, de 9:00 a.m. a 5:00 p.m., los 365 días del año, y su dirección personal queda pública en el registro del Estado.
+- **Contratar un servicio de Agente Registrado.** Ventaja: su dirección personal no queda expuesta, y no depende de que usted esté físicamente presente todos los días hábiles del año. Desventaja: tiene un costo anual recurrente.
 
-*¿Le conviene ser su propio agente, o contratar uno? Depende: si usted mismo va a estar en esa dirección todos los días hábiles del año, en ese horario, sin excepción, puede ahorrarse el costo. Pero si viaja seguido, no vive en Florida, trabaja fuera de casa, o simplemente prefiere que su dirección personal no quede pública en un registro estatal, contratar el servicio resuelve todos esos problemas a la vez.*
+*¿Cuál le conviene? Si usted mismo va a estar en esa dirección todos los días hábiles del año, en ese horario, sin excepción, puede ahorrarse el costo. Pero si viaja seguido, no vive en Florida, trabaja fuera de casa, o simplemente prefiere que su dirección personal no quede pública, contratar el servicio resuelve todos esos problemas a la vez.*
+
+**Un detalle que muchos pasan por alto:** si se muda, sale de vacaciones largas, o deja de estar disponible en esa dirección, tiene la obligación de actualizar el Agente Registrado ante el Estado. Olvidarlo es una de las causas más comunes de que una empresa pierda su estatus activo sin que el dueño se entere hasta meses después.
+
+**[Contratar mi Agente Registrado](https://opabiz.com/servicios?open=registered-agent)**
 
 ### 4. Definir su domicilio
 
 Hay tres direcciones distintas que suelen confundirse:
 
-- **Dirección principal del negocio:** dónde opera realmente su empresa.
+- **Dirección principal del negocio:** dónde opera realmente su empresa. No tiene que estar en Florida: puede ser en otro estado o incluso en un país extranjero, siempre que sea una dirección física real, no un apartado postal.
 - **Dirección de correspondencia (mailing address):** dónde quiere recibir su correo, que puede ser distinta de la anterior.
-- **Dirección del Agente Registrado:** la dirección legal donde se reciben documentos oficiales.
+- **Dirección del Agente Registrado:** la dirección legal donde se reciben documentos oficiales (ver paso anterior).
 
-Si trabaja desde casa y no quiere que su dirección personal quede pública en el registro del Estado, una dirección postal virtual resuelve la parte de negocio y correspondencia. Para que su dirección personal tampoco quede expuesta como Agente Registrado, ese es un servicio aparte (ver paso siguiente).
+**Dirección Postal Virtual, a fondo.** Es una dirección física real en Florida (no un apartado postal / PO Box) que usa como dirección de negocio y de correspondencia, con un servicio que escanea y le reenvía el correo que llega ahí. No tiene que alquilar ni pisar una oficina física para tenerla. Si trabaja desde casa, atiende clientes en distintos lugares, o simplemente no quiere que su dirección personal quede expuesta en facturas, su sitio web o registros públicos, esta es la solución.
+
+**Ejemplo:** imagine que da servicios de consultoría de forma remota, desde su casa. Sin dirección postal virtual, su dirección personal termina apareciendo en su sitio web, en facturas, y potencialmente en el registro de su empresa. Con ella, tiene una dirección profesional real en Florida para todo eso, y su correo de negocio llega escaneado a su email en vez de a su buzón personal.
+
+**Ventajas:** protege su privacidad (su dirección personal no queda expuesta al público ni a sus clientes), da una imagen más profesional que usar una dirección residencial, y no requiere alquilar ni mantener una oficina física.
+
+**Lo que NO hace:** no reemplaza al Agente Registrado. Son dos servicios distintos, aunque a veces se contratan juntos: la dirección postal virtual es para su correspondencia general de negocio, el Agente Registrado es específicamente quien recibe notificaciones legales y demandas en su nombre.
+
+**[Obtener mi Dirección Postal Virtual](https://opabiz.com/servicios?open=virtual-address)**
 
 ### 5. Presentar los documentos de formación ante el Estado
 
 Este es el trámite central: presentar los **Articles of Organization** (LLC) o **Articles of Incorporation** (Corporación) ante la Secretaría de Estado de Florida. Es el documento que oficialmente crea su entidad.
 
-En OpaBiz ofrecemos presentación **Standard** (7 a 14 días hábiles) y **Expedited** (1 a 3 días hábiles, con un cargo adicional). Si necesita abrir una cuenta bancaria o firmar un contrato pronto, el acelerado suele valer la pena; si no hay apuro, el estándar cumple exactamente lo mismo.
+**Nosotros nos encargamos de presentar completo este trámite ante el Estado en su nombre**: usted no tiene que lidiar con formularios, portales ni procesos burocráticos por su cuenta. Y si en el camino le surge una duda, nuestro servicio de atención al cliente está ahí para acompañarlo: escríbanos por WhatsApp en cualquier momento, agende una cita sin costo si prefiere resolverlo en vivo con un especialista, o converse con Claudia, nuestra asistente virtual, disponible las 24 horas.
 
 ### 6. Definir la estructura interna
 
@@ -155,35 +172,127 @@ En OpaBiz ofrecemos presentación **Standard** (7 a 14 días hábiles) y **Exped
 
 **Imagine que usted y dos socios abren un restaurante como LLC.** Como los tres van a estar involucrados en la operación diaria, eligen member-managed. Si en cambio hubieran traído a un cuarto socio inversor que no participa del día a día, hubiera tenido más sentido manager-managed, designando solo a quienes sí operan como gerentes.
 
-### 7. Solicitar el EIN (Número de Identificación Fiscal)
+### 7. Solicitar el EIN
 
-El EIN es el equivalente al número de seguro social, pero para su empresa. Lo pide el IRS y lo necesita para abrir cuenta bancaria, contratar empleados, presentar impuestos y prácticamente cualquier trámite financiero de su negocio.
+**Qué es.** Es el equivalente al número de seguro social, pero para su empresa: un número único que el IRS le asigna a su LLC o Corporación para identificarla en todo trámite fiscal y financiero. Lo necesita para abrir cuenta bancaria, contratar empleados, presentar impuestos y en la práctica para casi cualquier trámite financiero de su negocio.
+
+**Ejemplo:** imagine que factura por su cuenta usando su número de seguro social personal, y luego forma su LLC. Sin EIN, no puede abrir una cuenta bancaria a nombre de la empresa, así que termina mezclando otra vez el dinero del negocio con el personal, justo lo que la LLC está pensada para evitar.
+
+**Ventajas:** separa su identidad fiscal personal de la del negocio (menos exposición a robo de identidad con su número de seguro social), es requisito de facto para casi cualquier banco o proveedor que le pida identificación fiscal de la empresa, y no vence ni se renueva: una vez asignado, es permanente mientras la entidad exista.
+
+**Lo que NO hace:** el EIN no le da ninguna protección legal por sí solo, es solo un número de identificación fiscal. La protección de sus bienes personales la da la LLC o Corporación, no el EIN.
+
+**Preguntas frecuentes:**
+- *¿Tiene costo?* No, solicitarlo directamente ante el IRS es gratis. (En OpaBiz.com lo incluimos dentro de la gestión del trámite completo para que no tenga que hacerlo usted mismo.)
+- *¿Necesito estar en Estados Unidos o tener seguro social para solicitarlo?* No. Puede solicitarlo sin estar físicamente en el país y sin tener número de seguro social, usando en su lugar su ITIN o el proceso alternativo del IRS para solicitantes extranjeros.
+
+**[Solicitar mi EIN](https://opabiz.com/servicios?open=ein)**
 
 ### 8. Redactar el Operating Agreement
 
-Es el documento interno que establece cómo se reparten las ganancias, quién toma qué decisiones, y qué pasa si un socio quiere salir o si la empresa se disuelve. Florida no lo exige por ley para operar, pero la mayoría de los bancos sí lo piden para abrir una cuenta empresarial, y sin él, cualquier desacuerdo entre socios se resuelve según la ley genérica del estado, no según lo que ustedes realmente acordaron.
+**Qué es.** Es el documento interno que establece cómo se maneja y se reparte su LLC: quién es dueño de qué porcentaje, cómo se dividen las ganancias, quién toma qué decisiones, y qué pasa si un socio quiere salir o si la empresa se disuelve. A diferencia de los Articles of Organization, este documento no se presenta ante el Estado, queda en poder de la empresa. Florida no lo exige por ley para operar, pero la mayoría de los bancos sí lo piden para abrir una cuenta empresarial.
+
+**Ejemplo:** imagine dos socios, uno pone 60% del capital inicial y el otro 40%. Sin Operating Agreement, si más adelante discuten cómo repartir una ganancia inesperada o qué pasa si uno quiere vender su parte, no hay nada firmado que lo resuelva del modo que ambos esperaban, todo queda sujeto a la ley por defecto del estado.
+
+**Qué debería incluir, como mínimo:** porcentaje de propiedad y aportes de capital de cada miembro, cómo se reparten ganancias y pérdidas, quién toma qué decisiones y cómo se vota, qué pasa si un miembro se quiere ir o vender su parte, procedimiento de disolución de la empresa, y cómo se resuelven las disputas entre miembros.
+
+**Ventajas:** evita que un desacuerdo futuro se resuelva por ley genérica en vez de por lo que ustedes acordaron, refuerza la separación legal entre usted y su empresa, y lo exigen la mayoría de los bancos para abrir la cuenta empresarial.
+
+**Lo que NO hace:** no reemplaza el registro de la LLC ante el Estado ni ninguna otra obligación de cumplimiento, es un documento interno, no un filing público.
+
+**[Redactar mi Operating Agreement](https://opabiz.com/servicios?open=operating-agreement)**
 
 ### 9. Abrir una cuenta bancaria de negocio
 
-Con su entidad formada, su EIN y su Operating Agreement (si tiene socios), ya puede abrir una cuenta bancaria a nombre de la empresa. Es un paso que muchos bancos condicionan a una **Resolución Bancaria**, un documento corto que autoriza formalmente a abrir la cuenta en nombre del negocio.
+Con su entidad formada, su EIN y su Operating Agreement (si tiene socios), ya puede abrir una cuenta bancaria a nombre de la empresa.
+
+**Resolución Bancaria, a fondo.** Es un documento corto que autoriza formalmente a una o más personas específicas a abrir y manejar la cuenta en nombre de su LLC o Corporación. Al igual que el Operating Agreement, no se presenta ante el Estado, es para uso del banco. Muchos bancos lo piden como prueba de quién específicamente está autorizado a firmar y operar la cuenta, especialmente si su empresa tiene más de un dueño o más de un officer.
+
+**Ejemplo:** imagine una LLC con dos socios. Sin Resolución Bancaria, cuando van al banco a abrir la cuenta, no hay nada firmado que aclare si ambos deben firmar cada transacción, o si uno solo puede operar la cuenta sin el otro. La Resolución Bancaria resuelve esa duda antes de que se vuelva un problema.
+
+**Ventajas:** agiliza la apertura de la cuenta, evita idas y vueltas con el banco pidiendo aclaraciones, y deja constancia clara de quién está autorizado a operar la cuenta.
+
+**Lo que NO hace:** no reemplaza al Operating Agreement. El Operating Agreement rige cómo se maneja la empresa en general; la Resolución Bancaria es específica para autorizar la cuenta bancaria.
+
+**[Solicitar mi Resolución Bancaria](https://opabiz.com/servicios?open=banking-resolution)**
 
 ### 10. Licencias locales y del condado
 
-Dependiendo de dónde y en qué rubro opere, es probable que necesite una **Licencia Comercial Local (Business Tax Receipt)** de su condado o ciudad, independientemente de haber formado su LLC o Corporación a nivel estatal.
+**Qué es.** La Licencia Comercial Local (Business Tax Receipt), a pesar del nombre, no es un impuesto sobre sus ganancias: es el permiso que su condado (y a veces también su ciudad) exige para operar legalmente un negocio en esa jurisdicción. Antes se llamaba "Occupational License", y aunque cambió de nombre, la función es la misma. Casi cualquier negocio que opera físicamente en Florida lo necesita, independientemente de haber formado su LLC o Corporación a nivel estatal: son dos trámites completamente distintos y ambos son necesarios.
+
+**Ejemplo:** imagine que abre un local físico en Miami-Dade. Además de haber formado su LLC ante el Estado, necesita la Licencia Comercial Local del condado, y en algunos casos también una de la ciudad si su local está dentro de los límites de una municipalidad con su propio requisito.
+
+**Ventajas:** lo pone en regla frente a inspecciones y fiscalización local, y muchos arrendadores y clientes corporativos la piden como prueba de que su negocio opera legalmente antes de firmar contrato.
+
+**Lo que NO cubre:** no reemplaza ninguna licencia específica de su industria. Restaurantes, contratistas, salones de belleza y otros rubros regulados necesitan además sus propias licencias específicas.
+
+**Cómo se tramita:** se solicita directamente ante la oficina de impuestos de su condado (y de su ciudad, si aplica), y se renueva cada año.
+
+**[Solicitar mi Licencia Comercial Local](https://opabiz.com/servicios?open=business-tax-receipt)**
 
 ### 11. Registro de Impuesto sobre Ventas, si aplica
 
-Si va a vender productos físicos, o ciertos servicios sujetos a impuesto, necesita registrarse para cobrar y remitir el Sales Tax ante el Estado. Si su negocio es puramente de servicios profesionales, es probable que no aplique. Ante la duda, es mejor confirmar antes de facturar su primera venta.
+**Qué es.** Es el registro ante el Departamento de Rentas de Florida (una agencia distinta a la que registra su empresa) que lo autoriza, y lo obliga, a cobrarles impuesto sobre ventas a sus clientes por productos o servicios gravados, y a remitir ese dinero periódicamente al Estado. Si vende productos físicos, alquila propiedad comercial, o presta ciertos servicios específicos sujetos a impuesto en Florida, lo necesita. Si su negocio es puramente de servicios profesionales, probablemente no aplica, pero conviene confirmarlo antes de facturar su primera venta.
+
+**Ejemplo:** imagine que abre una tienda en línea vendiendo productos físicos a clientes en Florida. Necesita registrarse, cobrar el impuesto correspondiente en cada venta, y remitirlo al Estado periódicamente. Si en cambio ofrece únicamente asesoría de negocios sin vender ningún producto físico, lo más probable es que no le aplique.
+
+**Ventajas:** le permite operar dentro de la ley y evitar multas e intereses, y con el registro puede comprar su inventario a proveedores sin pagar impuesto sobre ventas usted mismo (mediante un certificado de reventa), ya que ese impuesto se cobra recién en la venta final al cliente.
+
+**Lo que debe tener en cuenta:** la tasa no es un número único: Florida tiene una tasa estatal base, y la mayoría de los condados agregan un recargo local (surtax) encima. La tasa correcta depende de dónde se realiza la venta.
+
+**Cómo se tramita:** se registra directamente ante el Departamento de Rentas de Florida, y una vez registrado debe presentar y remitir el impuesto cobrado con la frecuencia que el Estado le asigne (mensual, trimestral o anual, según su volumen de ventas).
+
+**[Registrar mi Sales Tax](https://opabiz.com/servicios?open=sales-tax-registration)**
 
 ### 12. Si es extranjero o no residente
 
-No necesita ser ciudadano ni residente de Estados Unidos para formar una LLC o Corporación en Florida. La diferencia principal está en el número fiscal: si no califica para un número de seguro social, en su lugar solicita un **ITIN** (Número de Identificación Personal del Contribuyente) ante el IRS, que cumple una función equivalente para fines fiscales.
+No necesita ser ciudadano ni residente de Estados Unidos para formar una LLC o Corporación en Florida. La diferencia principal está en el número fiscal: si no califica para un número de seguro social, en su lugar solicita un **ITIN**.
+
+**ITIN, a fondo.** Es el número fiscal que el IRS asigna a una persona que necesita declarar impuestos en Estados Unidos pero no califica para un número de seguro social. No debe confundirse con el EIN: el EIN identifica a su empresa, el ITIN lo identifica a usted como persona ante el IRS. Si es dueño (parcial o total) de una LLC formada en Florida y no tiene número de seguro social, necesita un ITIN para declarar en su propia declaración de impuestos personal la ganancia que le llega de la empresa (recuerde: la LLC es "pass-through", esa ganancia pasa directo a su declaración personal).
+
+**Ejemplo:** imagine que vive fuera de Estados Unidos y forma una LLC en Florida para vender productos en línea. La LLC en sí obtiene su EIN sin problema. Pero cuando llega el momento de declarar la ganancia que le corresponde a usted como dueño, no puede hacerlo sin un número fiscal personal, y como no califica para seguro social, ese número es el ITIN.
+
+**Ventajas:** le permite cumplir con su obligación de declarar impuestos personales sin necesitar seguro social, y es el mismo número que muchos bancos piden para abrir ciertas cuentas a nombre suyo.
+
+**Lo que NO hace:** no lo autoriza a trabajar en Estados Unidos ni le da ningún estatus migratorio, y no lo hace elegible para beneficios de seguro social ni créditos fiscales reservados a quienes sí tienen SSN.
+
+**Cómo se tramita:** se solicita ante el IRS, adjuntando prueba de identidad y de su condición de extranjero, generalmente junto con la declaración de impuestos donde se usará por primera vez.
+
+**Un detalle que muchos pasan por alto:** el ITIN vence si no se usa en una declaración de impuestos durante tres años consecutivos. Si no declaró en un tiempo, conviene confirmar que su ITIN siga activo antes de asumir que puede usarlo.
+
+**[Solicitar mi ITIN](https://opabiz.com/servicios?open=itin)**
+
+### 13. Si quiere operar bajo un nombre distinto (DBA)
+
+**Qué es.** Es el permiso para operar públicamente bajo un nombre distinto al nombre legal de su empresa, algo así como un "también conocido como" oficial. Su LLC puede llamarse legalmente "Rodríguez Enterprises LLC" ante el Estado, mientras el público conoce su cafetería como "Café Sunrise": el DBA (*Doing Business As*, o Nombre Ficticio) es el trámite que hace esa segunda identidad legal. Lo necesita en cuanto empiece a facturar, poner letreros o hacer publicidad bajo un nombre distinto al que registró: Florida exige registrarlo antes de usar ese nombre en público, no después.
+
+**Ejemplo:** además del caso de la cafetería, imagine que tiene una sola LLC de servicios generales ("García Holdings LLC") pero opera dos negocios distintos bajo ella: una marca de limpieza residencial y otra de jardinería. Con dos DBAs registrados bajo la misma LLC, evita crear y mantener dos entidades separadas solo para tener dos nombres comerciales.
+
+**Ventajas:** le permite usar un nombre comercial más atractivo sin crear una entidad nueva, una misma LLC puede tener varios DBA si opera varias líneas de negocio, y el costo y trámite son mucho más simples que formar una entidad adicional.
+
+**Lo que NO hace:** no crea ninguna protección legal nueva (su responsabilidad sigue siendo la de la LLC o Corporación de base, el DBA es solo un nombre), y no le da exclusividad del nombre a nivel nacional ni protección de marca: para eso necesita una marca registrada federal, un trámite aparte.
+
+**Cómo se tramita:** antes de registrar el nombre, debe publicar un aviso de intención en un periódico del condado donde está la dirección principal de su negocio (lo exige la ley de Florida). Después de eso, se registra el DBA ante el Estado. No necesita enviar la prueba de esa publicación, pero al presentar el registro usted certifica que ya la hizo. La vigencia dura hasta el 31 de diciembre del quinto año desde su registro.
+
+**Preguntas frecuentes:**
+- *¿Si ya formé mi LLC, igual necesito un DBA?* Solo si va a operar bajo un nombre distinto al que registró.
+- *¿Un DBA me protege el nombre para que nadie más lo use?* No. Le permite usarlo a usted, pero no le impide legalmente a otro negocio usar un nombre parecido salvo que tenga una marca registrada.
+
+**[Obtener mi DBA](https://opabiz.com/servicios?open=dba)**
 
 ---
 
 ## Una aclaración sobre el reporte BOI / FinCEN
 
-Es posible que haya escuchado sobre un reporte federal de "beneficiarios finales" (Beneficial Ownership Information, o BOI) que las empresas debían presentar ante FinCEN. Para que no le queden dudas: **hoy, la gran mayoría de las empresas formadas dentro de Estados Unidos están exentas de este reporte.** Solo aplica a ciertas empresas extranjeras registradas para operar en el país. Como esta es un área que ha cambiado más de una vez, siempre vale la pena confirmar el estado vigente antes de asumir que le aplica o no.
+**Qué es.** BOI son las siglas de *Beneficial Ownership Information* (información de beneficiarios finales): un reporte federal que ciertas empresas debían presentar ante FinCEN, la agencia del Tesoro que combate el lavado de dinero, identificando quiénes son los dueños reales detrás de la empresa.
+
+**Por qué genera tanta confusión.** Esta ley cambió más de una vez en poco tiempo: primero se exigió a la gran mayoría de las empresas de EE. UU., después hubo demandas y órdenes judiciales que la pausaron, y finalmente quedó, al día de hoy, limitada solo a ciertas empresas extranjeras registradas para operar en el país. La mayoría de los dueños de negocio que preguntan por esto en realidad ya están exentos, pero como el tema hizo tanto ruido en medios y redes, sigue generando dudas.
+
+**¿Le aplica a usted?** Si formó su LLC o Corporación dentro de Estados Unidos (que es el caso de la enorme mayoría de nuestros clientes), hoy está exento. Solo podría aplicarle si su empresa fue registrada originalmente en otro país y luego se registró para operar en Estados Unidos.
+
+**Un cuidado importante:** como el tema generó tanta cobertura mediática, también aparecieron servicios de terceros cobrando por "cumplimiento BOI obligatorio" a empresas que en realidad ya están exentas. Antes de pagarle a alguien por este trámite, confirme primero si de verdad le aplica.
+
+**Nuestra recomendación:** como esta es un área que ha cambiado más de una vez y podría volver a cambiar, no asuma que lo que leyó hace un tiempo sigue vigente, siempre vale la pena confirmar el estado actual antes de actuar.
 
 ---
 
@@ -194,12 +303,7 @@ Es posible que haya escuchado sobre un reporte federal de "beneficiarios finales
 | Tarifa estatal de formación (LLC) | $125 |
 | Tarifa estatal de formación (Corporación) | $70 |
 
-Estas son las únicas tarifas fijas que cobra el Estado de Florida, y las paga independientemente de con quién forme su empresa. El resto depende del nivel de ayuda que necesite, así que para ver los precios actualizados de nuestros paquetes y servicios, lo mejor es visitarnos directamente en **[opabiz.com/servicios](https://opabiz.com/servicios)**: el sitio está pensado para navegarse solo, sin necesidad de hablar con nadie si no lo prefiere.
-
-Y si prefiere que lo acompañemos:
-
-- Puede **escribirnos por WhatsApp** en cualquier momento y le respondemos directamente sus dudas.
-- Puede **agendar una cita sin costo** en **[opabiz.com/booking](https://opabiz.com/booking)** y completar todo el trámite en vivo, paso a paso, junto a uno de nuestros agentes.
+Estas son las únicas tarifas fijas que cobra el Estado de Florida, y las paga independientemente de con quién forme su empresa. El resto depende del nivel de ayuda que necesite, así que para ver los precios actualizados de nuestros paquetes y servicios, lo mejor es visitarnos directamente en **[opabiz.com/servicios](https://opabiz.com/servicios)**. ¿Prefiere que lo acompañemos en el proceso? Revise las opciones al inicio de esta guía.
 
 ---
 
@@ -207,19 +311,9 @@ Y si prefiere que lo acompañemos:
 
 Más allá de la presentación estatal en sí, una formación bien hecha típicamente cubre: el filing ante el Estado, el Agente Registrado, el EIN, el Operating Agreement, y el primer año de cumplimiento resuelto. Hacer esto por su cuenta, pieza por pieza, suele terminar costando más en tiempo (y a veces también en dinero) que resolverlo todo junto desde el principio.
 
-En OpaBiz resolvemos todo esto en un solo paso, sin que tenga que ir armándolo por su cuenta pieza por pieza. Puede ver cómo en **[opabiz.com](https://opabiz.com)**.
+En OpaBiz.com resolvemos todo esto en un solo paso, sin que tenga que ir armándolo por su cuenta pieza por pieza.
 
----
-
-## Servicios adicionales que la mayoría de los negocios termina necesitando
-
-- **ITIN.** Si no califica para un número de seguro social (por ejemplo, porque no es ciudadano ni residente de Estados Unidos), el ITIN es el número que el IRS le exige de todas formas para poder declarar impuestos, abrir ciertas cuentas y operar su empresa con normalidad. Sin él, buena parte del papeleo financiero de su negocio queda trabado.
-
-- **DBA / Nombre Ficticio.** El nombre legal de su LLC o Corporación no siempre es el nombre con el que quiere que el público la conozca. Por ejemplo, puede tener registrada "Rodríguez Enterprises LLC" y querer operar su cafetería bajo el nombre "Café Sunrise". Para eso existe el DBA (*Doing Business As*, o Nombre Ficticio): le permite usar legalmente ese segundo nombre comercial, en facturas, letreros y publicidad, sin tener que crear una entidad nueva. Florida exige registrarlo formalmente ante el Estado antes de usarlo.
-
-- **Dirección Postal Virtual.** Si trabaja desde casa, atiende clientes en distintos lugares, o simplemente no quiere que su dirección personal aparezca en registros públicos ni en la correspondencia de su negocio, una dirección postal virtual le da una dirección profesional real en Florida, con escaneo y reenvío de su correo, sin necesidad de alquilar una oficina física.
-
-**[Ver todos los servicios →](https://opabiz.com/servicios)**
+Y si además necesita más de uno de los servicios que vimos en el proceso paso a paso (por ejemplo, Operating Agreement + EIN, o Agente Registrado + Declaración Anual), casi siempre conviene revisar nuestras opciones de paquetes en vez de comprarlos por separado. Los combos en **[opabiz.com/servicios](https://opabiz.com/servicios)** agrupan los servicios que más se piden juntos, con descuento frente al precio individual.
 
 ---
 
@@ -241,7 +335,7 @@ Una vez formada la entidad, estos son los siguientes pasos naturales, sin necesi
 - **Cuenta bancaria de negocio:** el primer paso, ya cubierto arriba.
 - **Tarjeta o línea de crédito corporativa:** ayuda a separar gastos personales de los del negocio y a construir historial crediticio para la empresa.
 - **Software de contabilidad:** aunque sea algo simple, lleva su facturación e ingresos ordenados desde el principio, en vez de intentar reconstruir todo en marzo del año siguiente.
-- **Pasarela de pago:** si va a cobrar en línea, necesita una forma de aceptar tarjetas o transferencias directamente en su web o punto de venta (por ejemplo, Stripe). En OpaBiz podemos orientarlo en la configuración inicial cuando forma su empresa con nosotros.
+- **Pasarela de pago:** si va a cobrar en línea, necesita una forma de aceptar tarjetas o transferencias directamente en su web o punto de venta (por ejemplo, Stripe). En OpaBiz.com podemos orientarlo en la configuración inicial cuando forma su empresa con nosotros.
 - **Teléfono comercial:** separar el número personal del del negocio es más profesional y protege su privacidad. La opción gratuita más simple es Google Voice, un número propio vinculado a su celular sin costo. Si busca algo más robusto, con buzón de voz automatizado y varias extensiones, existen proveedores de **VoIP** (telefonía por internet: su línea funciona a través de una app o un teléfono conectado a internet, en vez de una línea física tradicional) pensados para negocios pequeños.
 
 **¿Le conviene un número 1-800?** Depende de a quién le vende. Si tiene un negocio local (una cafetería, una peluquería), no lo necesita: sus clientes son del barrio y un número local genera más confianza. Pero si vende en línea a todo el país, o da servicios remotos, un 1-800 transmite una sensación de "empresa establecida" desde el primer día. Se consigue a través de un proveedor de VoIP (los mismos mencionados arriba), que le deja elegir un prefijo gratuito disponible (800, 833, 844, 855, 866, 877 u 888), normalmente con un costo mensual más un cargo por minuto entrante.
@@ -262,7 +356,7 @@ Una vez formada la entidad, estos son los siguientes pasos naturales, sin necesi
 
 Formar su LLC o Corporación es el primer paso, pero no el único. Una vez que su empresa está activa, empiezan las obligaciones que la mantienen así: presentaciones con plazos que no dan segunda oportunidad, y algunos errores silenciosos que pueden llevar a que el Estado disuelva su empresa sin que usted se entere hasta meses después.
 
-Por eso, en cuanto complete su formación con OpaBiz, le enviamos sin costo adicional la **Guía II** de esta serie: *Mantén tu Empresa al Día en Florida*. Ahí cubrimos, entre otras cosas, cuándo vence su primera Declaración Anual, qué pasa si no la presenta a tiempo, cómo evitar perder su Agente Registrado sin darse cuenta, y la lista completa de errores que con más frecuencia le cuestan a un dueño de negocio su estatus activo.
+Por eso, en cuanto complete su formación con OpaBiz.com, le enviamos sin costo adicional la **Guía II** de esta serie: *Mantén tu Empresa al Día en Florida*. Ahí cubrimos, entre otras cosas, cuándo vence su primera Declaración Anual, qué pasa si no la presenta a tiempo, cómo evitar perder su Agente Registrado sin darse cuenta, y la lista completa de errores que con más frecuencia le cuestan a un dueño de negocio su estatus activo.
 
 Por ahora, concentrémonos en completar la formación.
 
@@ -281,9 +375,10 @@ Por ahora, concentrémonos en completar la formación.
 - [ ] Abrir cuenta bancaria de negocio
 - [ ] Verificar si necesita licencia local
 - [ ] Verificar si necesita registro de Sales Tax
+- [ ] Verificar si necesita un DBA (nombre comercial distinto)
 - [ ] Considerar seguro comercial si aplica
 
-**[Empezar mi formación ahora →](https://opabiz.com)**
+**[Empezar mi formación ahora](https://opabiz.com)**
 
 ---
 
