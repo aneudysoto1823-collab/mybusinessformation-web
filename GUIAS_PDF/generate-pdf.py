@@ -81,11 +81,12 @@ CSS = """
   th { background: #f0f4f8; color: #1C2E44; }
   code { background: #f0f4f8; padding: 1px 4px; border-radius: 3px; font-size: 11px; }
   a { color: #2563EB; text-decoration: none; }
-  a[href*="opabiz.com/servicios"], a[href*="opabiz.com/booking"], a[href="https://opabiz.com"] {
+  a[href^="https://opabiz.com"] {
     display: inline-block;
-    background: #2563EB;
-    color: #fff !important;
-    padding: 7px 16px;
+    background: #fff;
+    color: #2563EB !important;
+    border: 1.5px solid #2563EB;
+    padding: 6px 15.5px;
     border-radius: 6px;
     font-weight: 600;
     font-size: 12px;
@@ -94,6 +95,22 @@ CSS = """
   li { margin-bottom: 3px; }
   em { color: #475569; }
   strong { color: #1C2E44; }
+
+  /* Pie de página repetido en TODAS las páginas impresas (marca/recordación,
+     no navegación) — Chrome repite los elementos position:fixed en cada hoja
+     al imprimir, a diferencia de position:absolute que solo aparece una vez.
+     Vive dentro del margen inferior de 20mm del @page, no pisa el contenido. */
+  .pdf-footer {
+    position: fixed;
+    bottom: 3mm;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-family: -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+    font-size: 9px;
+    letter-spacing: .4px;
+    color: #94a3b8;
+  }
 
   /* Cada paso de "El proceso paso a paso" no se corta entre dos páginas salvo
      que el tema en sí sea más largo que una hoja completa (inevitable). */
@@ -360,6 +377,7 @@ def main() -> None:
 <html lang="es">
 <head><meta charset="utf-8"><title>{md_path.stem}</title>{font_faces}{css}</head>
 <body>
+<div class="pdf-footer">opabiz.com</div>
 {cover_html}
 {body}
 </body>

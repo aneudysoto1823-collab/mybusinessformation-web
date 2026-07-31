@@ -25,14 +25,18 @@ La mayoría de los negocios que pierden su estatus activo ante el Estado no lo p
 
 Como en la Guía I, vamos directo a lo que necesita saber, con ejemplos simples en cada tema. Y recuerde que no tiene que resolver esto solo: escríbanos por WhatsApp, agende una cita sin costo, o converse con Claudia, nuestra asistente virtual disponible las 24 horas, si en cualquier punto de esta guía le surge una duda.
 
+**¿Todavía no tiene la Guía I?** Si le compartieron este documento sin haber recibido la primera guía de nuestra serie, puede solicitarla gratis acá abajo. En las próximas páginas hacemos referencia a varios de los términos más importantes que explicamos a fondo en la Guía I — Agente Registrado, EIN, Operating Agreement, Licencia Comercial Local, Resolución Bancaria, entre otros — y le dejamos un recordatorio breve de qué es cada uno la primera vez que aparece, para que pueda seguir esta guía igual aunque no la haya leído.
+
+**[Solicitar la Guía I gratis](https://opabiz.com/guia-gratis)**
+
 ---
 
 ## Sus primeros 30 días
 
 Si todavía no completó alguno de estos pasos de la Guía I, son la prioridad antes de seguir:
 
-- **EIN.** Si aún no lo solicitó, es el primer trámite pendiente: sin él no puede abrir cuenta bancaria ni contratar a nadie.
-- **Operating Agreement.** Si tiene socios (o incluso si no), tenerlo firmado desde el principio evita disputas más adelante.
+- **EIN** (el número de identificación fiscal federal de su empresa, emitido por el IRS). Si aún no lo solicitó, es el primer trámite pendiente: sin él no puede abrir cuenta bancaria ni contratar a nadie.
+- **Operating Agreement** (el documento interno que define cómo se maneja y se reparte su LLC entre los dueños). Si tiene socios (o incluso si no), tenerlo firmado desde el principio evita disputas más adelante.
 - **Cuenta bancaria de negocio.** Cubrimos el detalle más abajo en esta misma guía.
 
 **Si opera fuera de Florida:** formó su empresa en Florida, pero si tiene una oficina física, empleados, o presencia sustancial en otro estado, es probable que también deba registrarla ahí como **"foreign LLC"** (empresa extranjera, en el sentido de que es de "afuera" de ese estado, no del país). Es un trámite de calificación en el estado donde realmente opera, separado del registro original en Florida.
@@ -57,11 +61,13 @@ Formar la empresa fue un trámite único. Mantenerla activa es un compromiso anu
 
 **Ejemplo:** imagine que formó su LLC en marzo de 2026. Su primera Declaración Anual vence el 1 de mayo de 2027, y luego cada 1 de mayo de los años siguientes, indefinidamente, mientras la empresa exista. Si en 2027 la presenta el 15 de mayo, ya paga los $400 de multa aunque hayan sido solo dos semanas de atraso.
 
+**Tranquilidad, sin tener que acordarse cada año.** Si contrata nuestra Declaración Anual como suscripción, nosotros nos encargamos de presentarla y renovarla a tiempo cada año — usted no tiene que llevar la cuenta de la fecha límite ni hacer el trámite personalmente, nosotros nos ocupamos de que su empresa nunca quede expuesta a la multa por atraso ni al riesgo de disolución administrativa.
+
 **[Presentar mi Declaración Anual](https://opabiz.com/servicios?open=annual-report)**
 
 ### Mantener su Agente Registrado activo
 
-Ya lo cubrimos en profundidad en la Guía I, pero vale la pena repetirlo acá porque es, junto con la Declaración Anual, la causa más común de que una empresa pierda su estatus activo sin que el dueño se entere hasta meses después. Si usted mismo es su Agente Registrado y se muda, deja de estar disponible en esa dirección en el horario exigido, o simplemente deja de revisar ese correo, el Estado puede notificarlo por no tener un agente activo, y usted no se entera hasta que ya es tarde.
+El **Agente Registrado** es la persona o empresa con dirección física en Florida autorizada a recibir documentos legales y notificaciones oficiales en nombre de su empresa — lo cubrimos en profundidad en la Guía I, pero vale la pena repetirlo acá porque es, junto con la Declaración Anual, la causa más común de que una empresa pierda su estatus activo sin que el dueño se entere hasta meses después. Si usted mismo es su Agente Registrado y se muda, deja de estar disponible en esa dirección en el horario exigido, o simplemente deja de revisar ese correo, el Estado puede notificarlo por no tener un agente activo, y usted no se entera hasta que ya es tarde.
 
 **La forma más simple de evitar este error por completo:** contratar el servicio de Agente Registrado, para no depender de su propia disponibilidad todos los días hábiles del año.
 
@@ -101,7 +107,7 @@ Si su empresa es pass-through (LLC o S-Corp, el caso más común), la ganancia d
 
 ## Licencias locales que se renuevan cada año
 
-Ya cubrimos en la Guía I qué es la Licencia Comercial Local (Business Tax Receipt) y por qué la necesita. Lo nuevo acá es un detalle operativo: a diferencia del registro de su empresa ante el Estado (que no vence ni se renueva), la Licencia Comercial Local **se renueva todos los años** ante su condado (y su ciudad, si aplica), generalmente antes del 30 de septiembre. Márquelo en su calendario junto con la Declaración Anual: son dos renovaciones anuales distintas, de dos agencias distintas, y ambas tienen consecuencia real si se le pasan.
+La **Licencia Comercial Local (Business Tax Receipt)** — el permiso que su condado, y a veces también su ciudad, exige para operar legalmente un negocio en esa jurisdicción, sin importar que ya haya formado su LLC o Corporación a nivel estatal — ya la cubrimos en la Guía I. Lo nuevo acá es un detalle operativo: a diferencia del registro de su empresa ante el Estado (que no vence ni se renueva), la Licencia Comercial Local **se renueva todos los años** ante su condado (y su ciudad, si aplica), generalmente antes del 30 de septiembre. Márquelo en su calendario junto con la Declaración Anual: son dos renovaciones anuales distintas, de dos agencias distintas, y ambas tienen consecuencia real si se le pasan.
 
 **[Renovar/solicitar mi Licencia Comercial Local](https://opabiz.com/servicios?open=business-tax-receipt)**
 
@@ -122,7 +128,7 @@ Ninguna de estas prácticas cuesta dinero. Cuestan disciplina, y son la diferenc
 
 ## Abrir su cuenta bancaria de negocio y construir crédito empresarial
 
-Con su entidad formada, su EIN, y su Operating Agreement (si tiene socios) o su Resolución Bancaria, ya puede abrir la cuenta bancaria de su empresa. Algunos puntos generales a tener en cuenta:
+Con su entidad formada, su EIN, y su Operating Agreement (si tiene socios) o su **Resolución Bancaria** (el documento corto que autoriza formalmente a una o más personas específicas a abrir y manejar la cuenta en nombre de su LLC o Corporación), ya puede abrir la cuenta bancaria de su empresa. Algunos puntos generales a tener en cuenta:
 
 - **Elija un banco que entienda negocios pequeños o su tipo de industria** — no todos los bancos ofrecen las mismas condiciones para cuentas empresariales nuevas.
 - **Lleve todos sus documentos de formación, EIN y Operating Agreement/Resolución Bancaria** a la cita, la mayoría de los bancos los piden todos juntos.

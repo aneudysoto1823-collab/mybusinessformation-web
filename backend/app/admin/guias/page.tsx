@@ -89,6 +89,26 @@ export default function GuiasAdminPage() {
           </div>
         </div>
 
+        <div className="card" style={{ marginBottom: 24 }}>
+          <div className="card-head">
+            <span className="card-title">Archivos de las Guías</span>
+          </div>
+          <div style={{ padding: '16px 22px', display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+            <a href="/guias/guia-1-florida-formacion.pdf" target="_blank" rel="noreferrer" className="btn btn-ghost btn-sm">
+              👁 Ver Guía I
+            </a>
+            <a href="/guias/guia-1-florida-formacion.pdf" download className="btn btn-ghost btn-sm">
+              📄 Descargar Guía I
+            </a>
+            <a href="/guias/guia-2-despues-de-formar.pdf" target="_blank" rel="noreferrer" className="btn btn-ghost btn-sm">
+              👁 Ver Guía II
+            </a>
+            <a href="/guias/guia-2-despues-de-formar.pdf" download className="btn btn-ghost btn-sm">
+              📄 Descargar Guía II
+            </a>
+          </div>
+        </div>
+
         <div className="card">
           <div className="card-head">
             <span className="card-title">Leads ({leads.length})</span>
