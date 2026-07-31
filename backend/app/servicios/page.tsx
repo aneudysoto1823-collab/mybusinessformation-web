@@ -578,6 +578,8 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
 @media(max-width:860px){.services-accordion{grid-template-columns:1fr}}
 .svc-acc-item{border:1.5px solid var(--gray200);border-radius:12px;overflow:visible;background:#fff;transition:border-color .2s,box-shadow .2s,transform .18s;cursor:pointer;position:relative}
 .svc-acc-item:hover,.svc-acc-item.active{border-color:var(--blue);box-shadow:0 6px 24px rgba(37,99,235,.12);transform:translateY(-2px);z-index:10}
+.svc-acc-item.highlighted{border-color:var(--blue);box-shadow:0 0 0 4px rgba(37,99,235,.18),0 10px 28px rgba(37,99,235,.20);animation:svcHighlightPulse 1.4s ease-in-out 2}
+@keyframes svcHighlightPulse{0%,100%{box-shadow:0 0 0 4px rgba(37,99,235,.18),0 10px 28px rgba(37,99,235,.20)}50%{box-shadow:0 0 0 9px rgba(37,99,235,.10),0 10px 28px rgba(37,99,235,.20)}}
 .svc-acc-item:hover .svc-acc-icon,.svc-acc-item.active .svc-acc-icon{background:var(--blue);color:#fff}
 .svc-acc-header{padding:14px 16px;display:flex;align-items:center;gap:13px;background:#fff;user-select:none;border-radius:12px}
 .svc-acc-icon{width:40px;height:40px;border-radius:10px;background:var(--blue-light);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--blue);transition:background .2s,color .2s}
@@ -1752,7 +1754,7 @@ function highlightCard(svcId){
   setTimeout(function(){card.classList.remove('highlighted');},5000);
 }
 
-(function(){var p=new URLSearchParams(window.location.search);var l=p.get('lang')||localStorage.getItem('flbc_lang')||'es';setLang(l);var open=p.get('open');if(open&&serviceForms[open])openServiceForm(open);})();
+(function(){var p=new URLSearchParams(window.location.search);var l=p.get('lang')||localStorage.getItem('flbc_lang')||'es';setLang(l);var open=p.get('open');if(open&&document.getElementById(open))setTimeout(function(){highlightCard(open);},300);})();
 window.addEventListener('scroll',function(){var h=document.getElementById('mainHeader');if(h)h.classList.toggle('scrolled',window.scrollY>30);});
 
 
