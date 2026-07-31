@@ -176,6 +176,19 @@ export async function checkContactRateLimit(ip: string): Promise<RateLimitResult
   return check(limiter, ip, 5)
 }
 
+// ── POST /api/guides/request: 5 requests / hora / IP ─────────────────────────
+// Form público "guía gratis" (leads de redes sociales). Mismo criterio que
+// checkContactRateLimit: un visitante legítimo no lo envía más de una vez.
+export async function checkGuideRequestRateLimit(ip: string): Promise<RateLimitResult> {
+  const limiter = getLimiter({
+    cacheKey: 'guide-request',
+    prefix: 'rl:guide-request',
+    limit: 5,
+    window: '1 h',
+  })
+  return check(limiter, ip, 5)
+}
+
 // ── Login empleado OPABIZ: 5 intentos / 15 min / IP ──────────────────────────
 // Mismo límite que el login admin — es la única defensa de fuerza bruta ya que
 // no hay 2FA para empleados.

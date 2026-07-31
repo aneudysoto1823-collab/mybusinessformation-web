@@ -7,6 +7,7 @@ import { SERVICES_CATALOG, SERVICE_BUNDLES } from '@/lib/services-pricing'
 import { PACKAGE_SERVICES } from '@/lib/notifications'
 import { computeFormationTotal, withBasicDisplayLine } from '@/lib/pricing'
 import { getOrderItemLabel } from '@/lib/order-items'
+import { hasReceivedGuide, recordGuideSent, getGuideAttachments, buildGuideBonusHtml, type GuideKey } from '@/lib/guides'
 import { REPLY_TO, INTERNAL_ALERT_EMAIL as ADMIN_EMAIL, FROM_OPABIZ, FROM_OPABIZ_ALERTS } from '@/lib/email-constants'
 
 export const dynamic = 'force-dynamic'
@@ -349,11 +350,30 @@ async function handleFormationPaid(orderId: string, session: Stripe.Checkout.Ses
     return NextResponse.json({ received: true, orderId, fbfc, warning: 'pricing_error_email_skipped' })
   }
 
+  // Regalo de Guía I y/o II — solo se manda la I si este email todavía no la
+  // recibió por ningún canal (ver backend/lib/guides.ts). La II siempre se
+  // manda acá, es exclusiva de la confirmación de pago de formación.
+  let guidesToSend: GuideKey[] = []
+  let guideAttachments: { filename: string; content: Buffer }[] = []
+  let guideBonusHtml = ''
+  try {
+    const guide1AlreadySent = await hasReceivedGuide(order.email, 'guide1')
+    guidesToSend = guide1AlreadySent ? ['guide2'] : ['guide1', 'guide2']
+    guideAttachments = await getGuideAttachments(guidesToSend)
+    guideBonusHtml = buildGuideBonusHtml(guidesToSend, 'en')
+  } catch (e) {
+    console.error('[stripe-webhook] guide attachments error (non-fatal, email sent without guides):', e)
+    guidesToSend = []
+    guideAttachments = []
+    guideBonusHtml = ''
+  }
+
   getResend().emails.send({
     from: FROM_OPABIZ,
     replyTo: REPLY_TO,
     to: order.email,
     subject: `OpaBiz: ✅ Order confirmed — ${order.companyName}`,
+    attachments: guideAttachments,
     html: `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#1e293b">
         <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden">
@@ -409,6 +429,7 @@ async function handleFormationPaid(orderId: string, session: Stripe.Checkout.Ses
                 Track My Order
               </a>
             </div>
+            ${guideBonusHtml}
             <p style="margin-top:24px;color:#94a3b8;font-size:12px;line-height:1.6">
               OpaBiz · opabiz.com<br/>
               This is a transactional email. We are a document preparation service, not a law firm.
@@ -417,6 +438,10 @@ async function handleFormationPaid(orderId: string, session: Stripe.Checkout.Ses
         </div>
       </div>
     `,
+  }).then(() => {
+    if (guidesToSend.length > 0) {
+      return Promise.all(guidesToSend.map(g => recordGuideSent(order.email, g, 'order', `${order.firstName} ${order.lastName}`)))
+    }
   }).catch(err => console.error('[stripe-webhook] formation email error (non-fatal):', err))
 
   // Alerta interna (orden pagada)

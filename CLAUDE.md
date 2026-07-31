@@ -1026,6 +1026,59 @@ App interna de Florida Business Formation Center para asignar órdenes a emplead
 
 ---
 
+## Guía I (PDF de marketing) + fixes de sesión (2026-07-29)
+
+### Guía I — Formar su LLC o Corporación en Florida (`GUIAS_PDF/`)
+
+Contenido fuente en `GUIAS_PDF/guia-1-florida-formacion.md`. Reescrita esta sesión: los temas que antes vivían en una sección aparte ("Temas en profundidad": Agente Registrado, EIN, Operating Agreement, ITIN, Dirección Postal Virtual, Sales Tax, Business Tax Receipt, Resolución Bancaria, DBA) quedaron **fusionados directamente en cada paso** de "El proceso paso a paso", con formato ampliado (qué es, cuándo se necesita, ejemplo, ventajas, cómo se tramita, botón al servicio real vía deep-link). Decisión explícita del founder: todo en un solo lugar, sin "vea más adelante".
+
+**Generador de PDF — `GUIAS_PDF/generate-pdf.py`:** script Python que convierte el `.md` a PDF usando Chrome headless (`--headless --print-to-pdf --no-pdf-header-footer`, sin pandoc/wkhtmltopdf/puppeteer). Uso: `python3 GUIAS_PDF/generate-pdf.py GUIAS_PDF/guia-1-florida-formacion.md GUIAS_PDF/guia-1-florida-formacion.pdf`.
+- Arma una **portada real** (foto de `/client-portal-bg.jpg` recortada y con degradé pre-horneado vía Pillow, no CSS mask — el mask-image no se renderizaba de forma confiable en el pipeline de impresión de Chrome), tipografía Fraunces + Plus Jakarta Sans embebida en base64 (assets en `GUIAS_PDF/_cover_assets.py`, descargados una sola vez de Google Fonts, no requiere red en runs futuros), título a dos tonos (frase clave en azul vía `HIGHLIGHT_PHRASES`), filete navy translúcido, logo OB + "Edición Florida · I" al pie.
+- Cada sección `##` se envuelve en un contenedor `page-break-inside:avoid` (dos secciones cortas comparten hoja si entran juntas; una sección larga nunca se corta a la mitad, salvo que sea más larga que una hoja entera). Salto de página forzado puntual antes de "¿Está listo para formalizar?" (separa Aviso legal + Introducción del contenido real).
+- `@page margin: 30mm 16mm 20mm 16mm` (margen superior más grande a pedido del founder). Si se cambia, ajustar también `.cover-page { height }` en el mismo archivo para que la portada no se desborde a una segunda hoja.
+
+Ver memoria `project_guias_pdf_marketing.md` para el contexto completo de contenido/diseño.
+
+### Fixes técnicos encontrados y corregidos esta sesión
+
+1. **Claudia (chat) desincronizada con el formulario actual.** La función de "Claudia arma un link con el formulario pre-llenado" (`create_form_session` en `api/chat/route.ts` + `claudiaPrefill()` en `page.tsx`) se construyó en abril y quedó desactualizada tras los rediseños de junio-julio: el prompt le pedía al cliente 5 campos que ya no existen en el form (nombres alternativos, industria, propósito del negocio, tipo de gestión, filer type/owning company), y `claudiaPrefill()` nunca aplicaba la dirección del negocio, los addons ni la velocidad de filing aunque Claudia sí los recolectara. Corregido: prompt actualizado a los campos reales, `claudiaPrefill()` ahora también llama `fmSetBizAddr`, `fmSetSpeed` y `fmToggleAddon`.
+2. **Deep-link `/servicios?open=<id>`** — antes no existía forma de abrir un servicio específico por URL (todo requería clic manual en la tarjeta). Ahora `/servicios?open=dba` (u otro id del catálogo) abre automáticamente ese formulario al cargar. Usado por los botones CTA de la Guía I.
+
+---
+
+## Sistema de envío de Guías I y II por email (2026-07-31)
+
+Resuelve el pendiente de infraestructura de la sección anterior: ambas guías ahora se **envían de verdad**, con adjunto PDF directo + link de respaldo en el mismo correo (decisión founder: adjunto directo genera más confianza que un link, "la gente no le gusta abrir muchos links"). Único requisito: **nunca duplicar el envío de la Guía I** a un mismo email, sin importar el canal.
+
+**Guía II — Mantenga su Empresa al Día en Florida** (`GUIAS_PDF/guia-2-despues-de-formar.md` → `.pdf`): contenido nuevo, mismo formato que la Guía I. Cubre: primeros 30 días (incluye Foreign LLC, prometido desde la Guía I), calendario de cumplimiento (Declaración Anual, Agente Registrado, recordatorio BOI), impuestos (S-Corp, Sales Tax, pagos trimestrales IRS), Licencia Comercial Local, proteger el velo corporativo, cuenta bancaria/crédito empresarial, configurar Stripe, contratar 1099 vs W-2, errores comunes, checklist y glosario. **Las secciones de cuenta bancaria y Stripe están con contenido general/best-practice a propósito** — el socio tiene un paso a paso propio para ambas pero los archivos no estaban disponibles esta sesión; quedan marcadas `pendiente de enriquecer` en el propio texto de la guía cuando comparta ese material.
+
+**Tabla nueva `guide_sends`** (única fuente de verdad de qué se envió a quién):
+```sql
+CREATE TABLE guide_sends (
+  id uuid primary key default gen_random_uuid(),
+  name text,
+  email text not null,
+  guide text not null check (guide in ('guide1','guide2')),
+  source text not null check (source in ('campaign','landing','order')),
+  note text,
+  sent_at timestamptz not null default now(),
+  unique (email, guide)
+);
+```
+
+**`backend/lib/guides.ts`** — módulo único que toca esa tabla: `hasReceivedGuide(email, guide)`, `recordGuideSent(email, guide, source, name?)` (idempotente, ignora conflicto 23505; `name` se guarda cuando el origen lo tiene a mano — form de la landing, `owner_name` de la campaña, o `firstName+lastName` de la orden), `getGuideUrl`/`getGuideAttachments` (los PDFs viven como asset estático en `backend/public/guias/*.pdf`, mismo patrón que `admin-bg.jpg`; el adjunto se arma con un `fetch()` al propio link público en vez de leer con `fs` desde el bundle serverless, para no depender del tracing de Vercel), y `buildGuideBonusHtml()` (bloque HTML bilingüe reusable, "🎁 De regalo, su Guía gratuita").
+
+**Seguimiento de leads — `/admin/guias`:** panel admin nuevo que lista los leads de `guide_sends` con `source:'landing'` (los de campaña/orden ya se administran en sus propios paneles — `/admin/campaigns` y `/admin/orders`). Muestra nombre, email, fecha, y una nota libre editable por lead (mismo patrón de botón 📝 + modal que ya usa `/admin/campaigns` para `prospective_companies.note`). API: `GET/PATCH /api/admin/guide-leads`.
+
+**3 puntos de disparo, todos vía `lib/guides.ts`:**
+1. **Landing pública `/guia-gratis`** (nueva, un solo campo email, bilingüe EN/ES) — pensada para links en bio de Instagram/TikTok/Facebook (un link normal funciona igual en cualquier red social). Envía `POST /api/guides/request` → si el email nunca recibió la Guía I, la manda (adjunta + link) y registra `source:'landing'`; si ya la tiene, responde éxito sin reenviar ("revisá tu correo, ya te la enviamos antes"). Rate limit `checkGuideRequestRateLimit` (5/h/IP, `lib/rate-limit.ts`).
+2. **Email de campaña B1** (`/api/campaigns/send`) — si el `prospective_companies.email` de destino no recibió la Guía I todavía, se adjunta a ese mismo envío (no es un email aparte) y se agrega el bloque de regalo antes del disclosure legal, vía el marcador `<!--GUIDE_BONUS-->` en el template. `source:'campaign'`.
+3. **Confirmación de pago de formación** (`handleFormationPaid` en `webhooks/stripe/route.ts`) — calcula `guidesToSend` (`['guide2']` si ya tenía la I, `['guide1','guide2']` si no) y adjunta ambas al email "Order confirmed" existente, con el bloque de regalo antes del footer. `source:'order'`. **Alcance a propósito: solo formación LLC/Corp, no `handleServicesPaid`** (à la carte) — el contenido de ambas guías no aplica a quien solo compró, por ejemplo, un EIN suelto.
+
+No se usa Supabase Storage para los PDFs — son un asset de marketing estático versionado en git, no contenido dinámico subido por usuario/admin (los buckets `certificates`/`expense-receipts` son para eso).
+
+---
+
 ## Deploy
 
 - `git push origin main` — Vercel detecta cambios en `backend/` y hace deploy automático

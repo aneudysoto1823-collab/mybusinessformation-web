@@ -3,6 +3,7 @@ import { Resend } from 'resend'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { verifyAdminToken } from '@/lib/session'
 import { REPLY_TO, FROM_OPABIZ_MARKETING as FROM_OPABIZ } from '@/lib/email-constants'
+import { hasReceivedGuide, recordGuideSent, getGuideAttachments, buildGuideBonusHtml, type GuideKey } from '@/lib/guides'
 
 async function verifyAdmin(request: NextRequest): Promise<boolean> {
   const session = request.cookies.get('admin_session')
@@ -216,6 +217,9 @@ function buildEmail(company: {
           </td>
         </tr>
 
+        <!-- Guide bonus (dynamic, agregado por route handler si aplica) -->
+        <!--GUIDE_BONUS-->
+
         <!-- Aviso Importante (disclosure) -->
         <tr>
           <td style="background:#fff;padding:18px 36px 26px">
@@ -282,7 +286,18 @@ export async function POST(req: NextRequest) {
         const trackUrl = `${BASE_URL}/api/campaigns/track-scan?doc=${encodeURIComponent(company.document_id)}&cid=${company.id}`
 
         // Build email
-        const { subject, html } = buildEmail(company, trackUrl, lang as 'en' | 'es')
+        const { subject, html: baseHtml } = buildEmail(company, trackUrl, lang as 'en' | 'es')
+
+        // Regalo de la Guía I — solo si este email todavía no la recibió por
+        // ningún canal (ver backend/lib/guides.ts).
+        const guideKeys: GuideKey[] = (await hasReceivedGuide(company.email, 'guide1')) ? [] : ['guide1']
+        const html = guideKeys.length > 0
+          ? baseHtml.replace(
+              '<!--GUIDE_BONUS-->',
+              `<tr><td style="background:#fff;padding:0 36px 16px">${buildGuideBonusHtml(guideKeys, lang as 'en' | 'es')}</td></tr>`
+            )
+          : baseHtml
+        const attachments = guideKeys.length > 0 ? await getGuideAttachments(guideKeys) : undefined
 
         // Send via Resend
         await getResend().emails.send({
@@ -291,7 +306,12 @@ export async function POST(req: NextRequest) {
           to:      company.email,
           subject,
           html,
+          ...(attachments ? { attachments } : {}),
         })
+
+        if (guideKeys.length > 0) {
+          await recordGuideSent(company.email, 'guide1', 'campaign', company.owner_name)
+        }
 
         // Save campaign record
         await supabase.from('email_campaigns').insert({

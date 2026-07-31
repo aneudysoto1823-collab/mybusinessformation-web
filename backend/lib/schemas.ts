@@ -137,6 +137,13 @@ export const CampaignsCompaniesInputSchema = z.object({
   registration_date: z.string().trim().max(50).optional().nullable(),
 })
 
+// ── 6. POST /api/guides/request — landing pública "guía gratis" ─────────────
+export const GuideRequestInputSchema = z.object({
+  name: ShortText.min(1),
+  email: Email,
+  lang: z.enum(['en', 'es']).optional(),
+})
+
 // ── Helper: parsea y devuelve un error 400 estructurado si falla ────────────
 export function parseOr400<T>(
   schema: z.ZodType<T>,
