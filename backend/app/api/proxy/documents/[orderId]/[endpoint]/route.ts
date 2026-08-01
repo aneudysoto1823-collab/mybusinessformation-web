@@ -9,6 +9,7 @@ import {
   generateDBA,
   type OrderForPdf,
 } from '@/lib/pdf-generator'
+import { decryptEinTaxId, formatEinTaxId } from '@/lib/ein-tax-id'
 
 async function verifyAdmin(request: NextRequest): Promise<boolean> {
   const session = request.cookies.get('admin_session')
@@ -53,7 +54,16 @@ export async function GET(
     return NextResponse.json({ error: 'Order not found' }, { status: 404 })
   }
 
-  const buffer = await generate(order)
+  // El SSN/ITIN se guarda encriptado (einTaxIdEnc) — se desencripta acá porque
+  // esta ruta ya exige sesión de admin (verifyAdmin arriba). Nunca se expone
+  // al cliente ni se guarda desencriptado en ningún otro lugar.
+  const decryptedDigits = decryptEinTaxId(order.einTaxIdEnc)
+  const orderForPdf: OrderForPdf = {
+    ...order,
+    einTaxId: decryptedDigits ? formatEinTaxId(decryptedDigits) : null,
+  }
+
+  const buffer = await generate(orderForPdf)
   const inline = request.nextUrl.searchParams.get('view') === '1'
   const filename = `${endpoint}-${safeName(order.companyName)}.pdf`
   const disposition = inline
