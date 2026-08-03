@@ -1,7 +1,9 @@
 // Provisioning del servicio de Registered Agent para una Order.
 //
 // Cadena automatica disparada desde el webhook Stripe (handleFormationPaid)
-// cuando la orden tiene addons.ra === true. Corre en fire-and-forget — no
+// cuando la orden tiene registeredAgent === 'us' (el cliente eligio que le
+// provemos el RA — aplica a Standard/Premium por default y a Basic cuando el
+// cliente lo pide explicitamente). Corre en fire-and-forget — no
 // bloquea la confirmacion del pago ni el email A1 al cliente.
 //
 // Secuencia:
@@ -38,7 +40,7 @@ type OrderRow = {
   email: string
   companyName: string
   entityType: string | null
-  addons: unknown
+  registeredAgent: string | null
   raCompanyId: string | null
   raServiceId: string | null
   raInvoiceId: string | null
@@ -62,7 +64,7 @@ export type ProvisionResult = {
   serviceId?: string
   invoiceId?: string
   address?: RaAddress
-  skipped?: 'no-ra-addon' | 'already-provisioned'
+  skipped?: 'client-uses-own-agent' | 'already-provisioned'
   error?: string
 }
 
@@ -143,7 +145,7 @@ export async function provisionRaForOrder(
 
   const { data: orderRaw, error: fetchErr } = await supabase
     .from('Order')
-    .select('id, firstName, lastName, email, companyName, entityType, addons, raCompanyId, raServiceId, raInvoiceId, raAddress, raProvisionedAt, raAddressEmailSentAt')
+    .select('id, firstName, lastName, email, companyName, entityType, registeredAgent, raCompanyId, raServiceId, raInvoiceId, raAddress, raProvisionedAt, raAddressEmailSentAt')
     .eq('id', orderId)
     .single()
 
@@ -152,10 +154,18 @@ export async function provisionRaForOrder(
   }
   const order = orderRaw as OrderRow
 
-  // Guardia 1: la orden tiene el addon de RA?
-  const hasRaAddon = (order.addons as { ra?: boolean } | null)?.ra === true
-  if (!hasRaAddon) {
-    return { ok: true, orderId, skipped: 'no-ra-addon' }
+  // Guardia 1: el cliente eligio que le provemos el RA?
+  // registeredAgent='us' -> "Nuestro servicio (incluido)" (Standard/Premium por
+  // default + Basic con addon RA). registeredAgent='own' -> el cliente puso su
+  // propio agente, no hay que hacer nada del lado de RAI.
+  //
+  // Bug historico: la version original de este trigger chequeaba addons.ra ===
+  // true, pero fmBuildOrderPayload nunca setea esa propiedad — el flag real de
+  // "queremos ser el RA" siempre estuvo en la columna registeredAgent, no en
+  // el mapa de addons. Fix aplicado 2026-08-03 despues de que una orden real
+  // (Standard) no disparara la cadena por este bug.
+  if (order.registeredAgent !== 'us') {
+    return { ok: true, orderId, skipped: 'client-uses-own-agent' }
   }
 
   // Guardia 2: idempotencia (a menos que force)
