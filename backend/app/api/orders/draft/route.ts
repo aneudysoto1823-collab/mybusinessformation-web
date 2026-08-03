@@ -7,6 +7,7 @@ import { REPLY_TO, FROM_OPABIZ } from '@/lib/email-constants'
 import { getEmployeeSession } from '@/lib/opabiz-session'
 import { findOrCreateClienteUsuario } from '@/lib/opabiz-clientes'
 import { registrarPuntaje } from '@/lib/opabiz-empleados'
+import { encryptEinTaxId } from '@/lib/ein-tax-id'
 
 const getResend = () => new Resend(process.env.RESEND_API_KEY)
 
@@ -166,6 +167,10 @@ export async function POST(request: NextRequest) {
       registeredAgent: body.registeredAgent || 'us',
       addons:          body.addons          ?? null,
       orgSignature:    body.orgSignature     || null,
+      einIdType:       body.einIdType        || null,
+      einTaxIdEnc:     encryptEinTaxId(body.einIdType, body.einTaxId),
+      einActivity:     body.einActivity      || null,
+      einActivityDesc: body.einActivityDesc  || null,
       isDraft:         true,
       draftSnapshot:   body.snapshot         ?? null,
     }

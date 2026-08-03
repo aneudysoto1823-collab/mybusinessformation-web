@@ -1083,6 +1083,35 @@ No se usa Supabase Storage para los PDFs — son un asset de marketing estático
 
 ---
 
+## Fix: SSN/ITIN para el EIN nunca se pedía (Standard/Premium) ni se guardaba (2026-08-01)
+
+Bug encontrado por el founder: los paquetes Standard y Premium incluyen un EIN gratis, pero el form nunca pedía el SSN/ITIN del responsable — el paso 7 ("Boost Your Formation") oculta la tarjeta de EIN para esos paquetes (`fmFilterAddons()`) porque ya está incluido, y esa tarjeta era el único lugar que revelaba el bloque de captura de SSN/ITIN.
+
+**Hallazgo adicional al investigar:** incluso cuando el bloque SÍ aparecía (Basic + EIN agregado como addon), el SSN/ITIN y la actividad del negocio se validaban en el navegador pero **nunca se leían en `fmBuildOrderPayload()`** — se descartaban por completo. El generador del SS-4 (`lib/pdf-generator.ts`) tenía el campo 7b fijo en `"(to be completed by applicant)"` porque el dato jamás llegaba a la orden. Decisión del founder: arreglar ambos problemas, guardando el SSN/ITIN **encriptado**.
+
+**Cambios:**
+- **Nuevo bloque en el paso 2 ("Your Information")** — `pkg-ein-tax-section` en `page.tsx`, visible solo cuando `fmData.package` es `standard`/`premium` (`fmRenderPkgEinSection()`, llamado desde `fmSyncStep2()` y desde `setLang()`). Mismo patrón de SSN/ITIN/"soy extranjero" + actividad del negocio que ya existía en el paso 7, pero como bloque independiente con ids prefijados `pkg-` (no se movió el bloque original del paso 7, que sigue sirviendo al flujo Basic+addon sin cambios).
+- **Funciones compartidas generalizadas con un parámetro `scope`** (`fmCheckIdMatch`, `fmEinIdTypeChange`, `fmFormatSSN`) — mismo código para ambos bloques (paso 2 y paso 7), sin duplicar la lógica de validación/formato/mask-toggle. `fmToggleMask` ya era genérica (ids explícitos) y no necesitó cambios.
+- **Actividad del negocio en el paso 2**: se simplificó a un `<select>` nativo con las mismas ~55 categorías de `_einActivities` (en vez del dropdown buscable del paso 7) — mismo dato, UI más simple al ser la segunda instancia del campo.
+- **`fmBuildOrderPayload()`** ahora sí lee el SSN/ITIN/actividad — del bloque `pkg-` si el paquete lo incluye, o del bloque original si es Basic+addon — y los manda en el payload (`einIdType`, `einTaxId`, `einActivity`, `einActivityDesc`).
+- **Nunca toca `fmData` ni `FM_FIELD_IDS`** — el SSN se lee directo del DOM recién al armar el payload, igual que `firstName`/`lastName`. Esto es a propósito: `fmSaveProgress()` (localStorage) y el `draftSnapshot` JSONB de `/api/orders/draft` clonan `fmData`, así que si el SSN viviera ahí terminaría en texto plano en Supabase con cada "Save". Verificado que `FM_FIELD_IDS` no incluye los ids de SSN/ITIN.
+- **`lib/ein-tax-id.ts`** (nuevo) — `encryptEinTaxId()`/`decryptEinTaxId()`, reusa `lib/encryption.ts` (mismo `ENCRYPTION_KEY` que ya usa 2FA). El texto plano nunca toca la DB — se encripta server-side en `/api/orders` y `/api/orders/draft` antes del insert/update, en una columna dedicada (`Order.einTaxIdEnc`), no dentro del JSON `addons` (que otros lugares del código iteran con `Object.keys()` para armar listados de "qué compró el cliente" — meter ahí un string sensible hubiera sido fácil de exponer por accidente).
+- **`/api/proxy/documents/[orderId]/[endpoint]` (admin-only)** desencripta `einTaxIdEnc` al generar el SS-4 y completa el campo 7b real (antes el placeholder). También se agregó el campo "16. Principal Business Activity" al PDF, que tampoco existía.
+
+**Migración SQL pendiente de correr en Supabase** (no se corrió automáticamente — requiere acceso al dashboard):
+```sql
+ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "einIdType" TEXT;
+ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "einTaxIdEnc" TEXT;
+ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "einActivity" TEXT;
+ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "einActivityDesc" TEXT;
+```
+
+**Pendiente de confirmar:** que `ENCRYPTION_KEY` esté cargada en Vercel Production — ya es requerida por el 2FA del admin (`lib/twofa.ts`), así que debería existir, pero no se verificó en esta sesión (sin acceso al dashboard de Vercel). Sin ella, `encrypt()` lanza excepción y la creación de la orden fallaría en el paso de guardar el SSN — probar un pedido de prueba con paquete Standard/Premium en producción tras el deploy antes de darlo por cerrado.
+
+**No tocado a propósito (fuera de alcance):** el aviso "we've automatically added the ITIN Application" que aparece al elegir "no tengo SSN ni ITIN" nunca estuvo realmente cableado (el div correspondiente nunca se muestra, en ninguno de los dos bloques) — es un bug preexistente, no introducido por este fix. Tampoco se tocó que `/servicios/checkout` (à la carte) guarda su propio `ssnItin` en texto plano dentro de `Order.addons.intake` (`lib/service-fields.ts`) — mismo tipo de dato sensible, sin encriptar, pero es un flujo distinto y no fue parte de lo reportado.
+
+---
+
 ## Deploy
 
 - `git push origin main` — Vercel detecta cambios en `backend/` y hace deploy automático

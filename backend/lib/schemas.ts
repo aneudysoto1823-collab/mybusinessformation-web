@@ -33,6 +33,15 @@ export const OrderInputSchema = z.object({
   addons: z.unknown().optional().nullable(),
   orgSignature: LongText.optional().nullable(),
 
+  // Tax ID del responsible party para el EIN (Standard/Premium lo incluyen de
+  // fábrica; Basic solo si agrega el addon). einTaxId llega en texto plano por
+  // HTTPS y se encripta server-side antes de guardarse (ver lib/ein-tax-id.ts)
+  // — nunca se persiste el valor crudo.
+  einIdType: z.enum(['ssn', 'itin', 'none']).optional().nullable(),
+  einTaxId: z.string().trim().max(20).optional().nullable(),
+  einActivity: ShortText.optional().nullable(),
+  einActivityDesc: MedText.optional().nullable(),
+
   // Promoción de un borrador (ver OrderDraftInputSchema) a orden real —
   // si viene, /api/orders actualiza esa fila en vez de insertar una nueva.
   draftOrderId: z.string().uuid().optional().nullable(),
@@ -67,8 +76,16 @@ export const OrderDraftInputSchema = z.object({
   addons: z.unknown().optional().nullable(),
   orgSignature: LongText.optional().nullable(),
 
+  einIdType: z.enum(['ssn', 'itin', 'none']).optional().nullable(),
+  einTaxId: z.string().trim().max(20).optional().nullable(),
+  einActivity: ShortText.optional().nullable(),
+  einActivityDesc: MedText.optional().nullable(),
+
   // Snapshot crudo del formulario (fmData + values de inputs) para restaurar
   // exactamente donde el cliente quedó. Tamaño acotado — es un form, no un blob.
+  // NUNCA debe incluir einTaxId (ver fmSaveProgress en page.tsx — SSN/ITIN no
+  // vive en fmData ni en FM_FIELD_IDS a propósito, así el snapshot nunca lo
+  // guarda en texto plano).
   snapshot: z.unknown().optional().nullable(),
 })
 

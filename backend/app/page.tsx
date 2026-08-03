@@ -1572,6 +1572,94 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
               <input type="checkbox" id="chk-sms" checked style="width:16px;height:16px;cursor:pointer"/>
               <label for="chk-sms" style="cursor:pointer" id="lbl-sms">I agree to receive order updates by text and phone. <span style="font-size:.7rem;color:#9ca3af;font-weight:400" id="lbl-sms-opt">(Optional)</span></label>
             </div>
+
+            <!-- Tax ID para el EIN incluido en Standard/Premium (2026-08-01).
+                 Oculto por defecto; fmRenderPkgEinSection() lo muestra al entrar
+                 al paso 2 si fmData.package es standard/premium. Mismo backend
+                 que el bloque de EIN-como-addon del paso 7 (fmBuildOrderPayload
+                 decide cuál leer según el paquete) — ver lib/ein-tax-id.ts. -->
+            <div id="pkg-ein-tax-section" style="display:none;margin-top:6px">
+              <div class="fm-divider" id="pkg-ein-divider" style="margin-top:12px;color:#1e293b;font-size:.85rem;letter-spacing:0;text-transform:none;font-weight:700">Tax ID for Your EIN</div>
+              <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:9px;padding:11px 14px;font-size:.77rem;color:#1e40af;line-height:1.65;margin-bottom:14px" id="pkg-ein-intro">&#128204; Your package includes a free EIN application. The IRS requires the tax ID of the person responsible for the business to process it.</div>
+              <div class="fm-group">
+                <label class="fm-label">
+                  <span class="tt-wrap">
+                    <span id="pkg-lbl-ein-rp-id">SSN / ITIN of Responsible Party *</span>
+                    <span class="tt-icon">?<span class="tt-box" id="pkg-tt-ein-rp-id">The IRS requires the tax ID (SSN or ITIN) of the person who controls and manages this business. Without this, the IRS cannot process your EIN application online.</span></span>
+                  </span>
+                </label>
+                <div style="display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap">
+                  <div style="display:flex;gap:8px;flex:1;min-width:200px">
+                    <label style="display:flex;align-items:center;gap:6px;font-size:.83rem;cursor:pointer;padding:9px 14px;border:1.5px solid #e2e8f0;border-radius:8px;flex:1;transition:all .2s" id="pkg-ein-has-ssn-lbl">
+                      <input type="radio" name="pkg-ein-id-type" id="pkg-ein-has-ssn" value="ssn" onchange="fmEinIdTypeChange(this,'pkg')" style="cursor:pointer"/> SSN
+                    </label>
+                    <label style="display:flex;align-items:center;gap:6px;font-size:.83rem;cursor:pointer;padding:9px 14px;border:1.5px solid #e2e8f0;border-radius:8px;flex:1;transition:all .2s" id="pkg-ein-has-itin-lbl">
+                      <input type="radio" name="pkg-ein-id-type" id="pkg-ein-has-itin" value="itin" onchange="fmEinIdTypeChange(this,'pkg')" style="cursor:pointer"/> ITIN
+                    </label>
+                    <label style="display:flex;align-items:center;gap:6px;font-size:.83rem;cursor:pointer;padding:9px 14px;border:1.5px solid #e2e8f0;border-radius:8px;flex:1;transition:all .2s;background:#fff" id="pkg-ein-no-id-lbl">
+                      <input type="radio" name="pkg-ein-id-type" id="pkg-ein-no-id" value="none" onchange="fmEinIdTypeChange(this,'pkg')" style="cursor:pointer"/> <span id="pkg-ein-no-id-txt">I'm a foreigner, I don't have an SSN or ITIN</span>
+                    </label>
+                  </div>
+                </div>
+                <div id="pkg-ein-ssn-field" style="display:none;margin-top:10px">
+                  <label class="fm-label" style="margin-bottom:5px" id="pkg-lbl-ssn-1">SSN *</label>
+                  <div style="position:relative;margin-bottom:10px">
+                    <input type="password" class="fm-input" id="pkg-inp-ein-ssn" placeholder="XXX-XX-XXXX" maxlength="11" oninput="fmFormatSSN(this,'pkg');fmCheckIdMatch('ssn','pkg')" autocomplete="off" style="padding-right:42px;letter-spacing:2px"/>
+                    <button type="button" onclick="fmToggleMask('pkg-inp-ein-ssn','pkg-eye-ssn')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#9ca3af;padding:4px;display:flex;align-items:center" title="Show/Hide">
+                      <svg id="pkg-eye-ssn" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </button>
+                  </div>
+                  <label class="fm-label" style="margin-bottom:5px" id="pkg-lbl-ssn-2">Confirm SSN *</label>
+                  <div style="position:relative">
+                    <input type="password" class="fm-input" id="pkg-inp-ein-ssn-confirm" placeholder="Re-enter your SSN" maxlength="11" autocomplete="off" style="padding-right:42px;letter-spacing:2px"
+                      onpaste="return false" oncopy="return false" oncut="return false"
+                      oninput="fmFormatSSN(this,'pkg');fmCheckIdMatch('ssn','pkg')"/>
+                    <button type="button" onclick="fmToggleMask('pkg-inp-ein-ssn-confirm','pkg-eye-ssn-c')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#9ca3af;padding:4px;display:flex;align-items:center" title="Show/Hide">
+                      <svg id="pkg-eye-ssn-c" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </button>
+                  </div>
+                  <div id="pkg-ssn-match-msg" style="font-size:.73rem;margin-top:4px;display:none"></div>
+                  <div style="font-size:.72rem;color:#9ca3af;margin-top:4px" id="pkg-ssn-privacy-note">&#128274; Your SSN is encrypted and never stored in plain text.</div>
+                </div>
+                <div id="pkg-ein-itin-field" style="display:none;margin-top:10px">
+                  <label class="fm-label" style="margin-bottom:5px" id="pkg-lbl-itin-1">ITIN *</label>
+                  <div style="position:relative;margin-bottom:10px">
+                    <input type="password" class="fm-input" id="pkg-inp-ein-itin" placeholder="9XX-XX-XXXX" maxlength="11" oninput="fmFormatSSN(this,'pkg');fmCheckIdMatch('itin','pkg')" autocomplete="off" style="padding-right:42px;letter-spacing:2px"/>
+                    <button type="button" onclick="fmToggleMask('pkg-inp-ein-itin','pkg-eye-itin')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#9ca3af;padding:4px;display:flex;align-items:center" title="Show/Hide">
+                      <svg id="pkg-eye-itin" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </button>
+                  </div>
+                  <label class="fm-label" style="margin-bottom:5px" id="pkg-lbl-itin-2">Confirm ITIN *</label>
+                  <div style="position:relative">
+                    <input type="password" class="fm-input" id="pkg-inp-ein-itin-confirm" placeholder="Re-enter your ITIN" maxlength="11" autocomplete="off" style="padding-right:42px;letter-spacing:2px"
+                      onpaste="return false" oncopy="return false" oncut="return false"
+                      oninput="fmFormatSSN(this,'pkg');fmCheckIdMatch('itin','pkg')"/>
+                    <button type="button" onclick="fmToggleMask('pkg-inp-ein-itin-confirm','pkg-eye-itin-c')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#9ca3af;padding:4px;display:flex;align-items:center" title="Show/Hide">
+                      <svg id="pkg-eye-itin-c" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </button>
+                  </div>
+                  <div id="pkg-itin-match-msg" style="font-size:.73rem;margin-top:4px;display:none"></div>
+                  <div style="font-size:.72rem;color:#9ca3af;margin-top:4px" id="pkg-itin-privacy-note">&#128274; Your ITIN is encrypted and never stored in plain text.</div>
+                </div>
+                <div id="pkg-ein-no-id-warning" style="display:none;margin-top:10px;background:#f0fdf4;border:1.5px solid #86efac;border-radius:9px;padding:14px 16px">
+                  <div style="font-size:.82rem;font-weight:700;color:#065f46" id="pkg-ein-warn-title">Noted — we'll follow up on the best path to get your EIN as a foreign applicant.</div>
+                </div>
+              </div>
+              <div class="fm-group" style="margin-top:14px">
+                <label class="fm-label" id="pkg-lbl-ein-activity">
+                  <span class="tt-wrap">
+                    <span>Principal Business Activity *</span>
+                    <span class="tt-icon">?<span class="tt-box" id="pkg-tt-ein-activity">The IRS uses this to classify your business for tax purposes.</span></span>
+                  </span>
+                </label>
+                <select class="fm-select" id="pkg-ein-activity-select"></select>
+              </div>
+              <div class="fm-group" style="margin-top:10px">
+                <label class="fm-label" id="pkg-lbl-ein-activity-desc">Describe your specific product or service *</label>
+                <input type="text" class="fm-input" id="pkg-inp-ein-activity-desc" placeholder="e.g. &quot;Online retail clothing store&quot; or &quot;Graphic design services&quot;"/>
+              </div>
+            </div>
+
             <div class="fm-divider" id="s2-biz-addr-divider" style="margin-top:12px;color:#1e293b;font-size:.85rem;letter-spacing:0;text-transform:none;font-weight:700">Business Address</div>
             <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:9px;padding:11px 14px;font-size:.77rem;color:#475569;line-height:1.65;margin-bottom:14px">
               &#128204; <strong id="s2-biz-addr-info-title">What is the Business Address?</strong><br/>
@@ -3523,6 +3611,7 @@ function setLang(lang) {
     // dinámicamente con el nombre real del tier), y sin este llamado quedaría
     // en el idioma viejo hasta el próximo cambio de paso.
     if(typeof fmUpdateSummary !== 'undefined') fmUpdateSummary();
+    if(typeof fmRenderPkgEinSection !== 'undefined') fmRenderPkgEinSection();
   }
 
   // Page sections using translations object
@@ -4591,6 +4680,68 @@ function fmSyncStep2() {
   if(ownBtn)  ownBtn.classList.toggle('selected',  type === 'own');
   if(note) note.style.display = type === 'virtual' ? 'flex' : 'none';
   if(form) form.style.display = type === 'own'     ? 'block' : 'none';
+  fmRenderPkgEinSection();
+}
+
+// Muestra/oculta y traduce la sección "Tax ID for Your EIN" del paso 2 —
+// aplica solo cuando el paquete elegido en el paso 1 ya incluye el EIN
+// (Standard/Premium). El paquete Basic sigue pidiéndolo solo si el cliente
+// agrega el addon EIN en el paso 7 (bloque #ein-extra-fields, sin tocar).
+function fmRenderPkgEinSection() {
+  var section = document.getElementById('pkg-ein-tax-section');
+  if(!section) return;
+  var pkg = fmData.package;
+  var applies = (pkg === 'standard' || pkg === 'premium');
+  section.style.display = applies ? 'block' : 'none';
+  if(!applies) return;
+  var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
+  var pkgName = pkg === 'premium' ? (isEs?'Premium':'Premium') : (isEs?'Standard':'Standard');
+  // REGLA CRITICA aprendida del hard-crash 2026-08-01: strings JS con apostrofe
+  // dentro de este template literal exterior DEBEN usar comillas dobles. Escapar
+  // el apostrofe con backslash compila pero al servirse via SSR el backslash se
+  // colapsa y el apostrofe cierra el string, rompiendo TODO el script inline y
+  // dejando el form muerto. Comillas dobles evitan el problema completamente.
+  var t = {
+    "pkg-ein-divider":      isEs ? "Necesitamos esta información para tramitar su EIN" : "We need this info to file your EIN",
+    "pkg-ein-intro":        isEs
+      ? ("&#128204; Su paquete <strong>" + pkgName + "</strong> incluye un EIN gratis. El IRS exige el ID fiscal (SSN o ITIN) del responsable del negocio para procesarlo.")
+      : ("&#128204; Your <strong>" + pkgName + "</strong> package includes a free EIN. The IRS requires the responsible party's tax ID (SSN or ITIN) to process it."),
+    "pkg-lbl-ein-rp-id":    isEs ? "SSN / ITIN del Responsable Principal *" : "SSN / ITIN of Responsible Party *",
+    "pkg-tt-ein-rp-id":     isEs ? "El IRS exige el ID fiscal (SSN o ITIN) de la persona que controla y administra este negocio. Sin esto, el IRS no puede procesar su solicitud de EIN en línea." : "The IRS requires the tax ID (SSN or ITIN) of the person who controls and manages this business. Without this, the IRS cannot process your EIN application online.",
+    "pkg-ein-no-id-txt":    isEs ? "Soy extranjero, no poseo SSN ni ITIN" : "I'm a foreigner, I don't have an SSN or ITIN",
+    "pkg-lbl-ssn-1":        isEs ? "SSN *" : "SSN *",
+    "pkg-lbl-ssn-2":        isEs ? "Confirmar SSN *" : "Confirm SSN *",
+    "pkg-ssn-privacy-note": isEs ? "&#128274; Su SSN está encriptado y nunca se almacena en texto simple." : "&#128274; Your SSN is encrypted and never stored in plain text.",
+    "pkg-lbl-itin-1":       isEs ? "ITIN *" : "ITIN *",
+    "pkg-lbl-itin-2":       isEs ? "Confirmar ITIN *" : "Confirm ITIN *",
+    "pkg-itin-privacy-note":isEs ? "&#128274; Su ITIN está encriptado y nunca se almacena en texto simple." : "&#128274; Your ITIN is encrypted and never stored in plain text.",
+    "pkg-ein-warn-title":   isEs ? "Anotado — le daremos seguimiento sobre la mejor vía para obtener su EIN como solicitante extranjero." : "Noted — we'll follow up on the best path to get your EIN as a foreign applicant.",
+    "pkg-lbl-ein-activity": isEs ? "Actividad Principal del Negocio *" : "Principal Business Activity *",
+    "pkg-tt-ein-activity":  isEs ? "El IRS usa esto para clasificar su negocio con fines fiscales." : "The IRS uses this to classify your business for tax purposes.",
+    "pkg-lbl-ein-activity-desc": isEs ? "Describa su producto o servicio específico *" : "Describe your specific product or service *"
+  };
+  Object.keys(t).forEach(function(id){ var e=document.getElementById(id); if(e) e.innerHTML=t[id]; });
+  var descInp = document.getElementById('pkg-inp-ein-activity-desc');
+  if(descInp) descInp.placeholder = isEs ? 'ej. "Tienda de ropa en línea" o "Servicios de diseño gráfico"' : 'e.g. "Online retail clothing store" or "Graphic design services"';
+  fmPkgRenderActivityOptions(isEs);
+}
+
+// Repuebla el <select> de actividad con las mismas ~55 categorías que usa el
+// bloque del paso 7 (_einActivities), pero como select nativo en vez del
+// dropdown buscable — mismo dato, UI más simple ya que es la segunda
+// instancia de este campo. El value es siempre el label en inglés (canónico
+// para el SS-4), independiente del idioma mostrado.
+function fmPkgRenderActivityOptions(isEs) {
+  var sel = document.getElementById('pkg-ein-activity-select');
+  if(!sel) return;
+  var current = sel.value;
+  var opts = '<option value="">' + (isEs?'-- Selecciona --':'-- Select --') + '</option>';
+  _einActivities.forEach(function(a){
+    var label = (isEs ? a.es : a.en).replace(/</g,'&lt;');
+    opts += '<option value="' + a.en.replace(/"/g,'&quot;') + '">' + label + '</option>';
+  });
+  sel.innerHTML = opts;
+  if(current) sel.value = current;
 }
 function fmSyncStep3() {
   var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
@@ -4779,6 +4930,35 @@ function fmNext() {
     var phoneEl=document.getElementById('inp-phone');
     if(phoneEl&&/[a-zA-Z]/.test(phoneEl.value)){phoneEl.style.borderColor='#ef4444';phoneEl.focus();alert(isEs?'El teléfono solo debe contener números.':'Phone must contain only digits.');return;}
     if(phoneEl)phoneEl.style.borderColor='';
+    // Tax ID para el EIN incluido en Standard/Premium (ver fmRenderPkgEinSection).
+    if(fmData.package==='standard'||fmData.package==='premium'){
+      var pkgIdType=document.querySelector('input[name="pkg-ein-id-type"]:checked');
+      if(!pkgIdType){alert(isEs?'Por favor indique si tiene SSN, ITIN, o ninguno.':'Please indicate if you have an SSN, ITIN, or neither.');document.getElementById('pkg-ein-tax-section').scrollIntoView({behavior:'smooth',block:'center'});return;}
+      if(pkgIdType.value==='ssn'){
+        var pSsnEl=document.getElementById('pkg-inp-ein-ssn');
+        var pSsnConfEl=document.getElementById('pkg-inp-ein-ssn-confirm');
+        if(!pSsnEl||pSsnEl.value.replace(/[^0-9]/g,'').length<9){if(pSsnEl){pSsnEl.style.borderColor='#ef4444';pSsnEl.focus();}alert(isEs?'Por favor ingrese su SSN completo (9 dígitos).':'Please enter your complete SSN (9 digits).');return;}
+        if(pSsnEl)pSsnEl.style.borderColor='';
+        if(!pSsnConfEl||pSsnConfEl.value.replace(/[^0-9]/g,'').length<9){if(pSsnConfEl){pSsnConfEl.style.borderColor='#ef4444';pSsnConfEl.focus();}alert(isEs?'Por favor confirme su SSN.':'Please confirm your SSN.');return;}
+        if(pSsnEl.value.replace(/[^0-9]/g,'')!==pSsnConfEl.value.replace(/[^0-9]/g,'')){pSsnConfEl.style.borderColor='#ef4444';pSsnConfEl.focus();alert(isEs?'Los SSN no coinciden. Por favor verifica.':'SSNs do not match. Please check and try again.');return;}
+        if(pSsnConfEl)pSsnConfEl.style.borderColor='';
+      }
+      if(pkgIdType.value==='itin'){
+        var pItinEl=document.getElementById('pkg-inp-ein-itin');
+        var pItinConfEl=document.getElementById('pkg-inp-ein-itin-confirm');
+        if(!pItinEl||pItinEl.value.replace(/[^0-9]/g,'').length<9){if(pItinEl){pItinEl.style.borderColor='#ef4444';pItinEl.focus();}alert(isEs?'Por favor ingrese su ITIN completo (9 dígitos).':'Please enter your complete ITIN (9 digits).');return;}
+        if(pItinEl)pItinEl.style.borderColor='';
+        if(!pItinConfEl||pItinConfEl.value.replace(/[^0-9]/g,'').length<9){if(pItinConfEl){pItinConfEl.style.borderColor='#ef4444';pItinConfEl.focus();}alert(isEs?'Por favor confirme su ITIN.':'Please confirm your ITIN.');return;}
+        if(pItinEl.value.replace(/[^0-9]/g,'')!==pItinConfEl.value.replace(/[^0-9]/g,'')){pItinConfEl.style.borderColor='#ef4444';pItinConfEl.focus();alert(isEs?'Los ITIN no coinciden. Por favor verifica.':'ITINs do not match. Please check and try again.');return;}
+        if(pItinConfEl)pItinConfEl.style.borderColor='';
+      }
+      var pActEl=document.getElementById('pkg-ein-activity-select');
+      if(!pActEl||!pActEl.value){if(pActEl)pActEl.style.borderColor='#ef4444';alert(isEs?'Por favor seleccione la actividad principal de su negocio.':'Please select your business principal activity.');return;}
+      if(pActEl)pActEl.style.borderColor='';
+      var pDescEl=document.getElementById('pkg-inp-ein-activity-desc');
+      if(!pDescEl||!pDescEl.value.trim()){if(pDescEl){pDescEl.style.borderColor='#ef4444';pDescEl.focus();}alert(isEs?'Por favor describa su producto o servicio específico.':'Please describe your specific product or service.');return;}
+      if(pDescEl)pDescEl.style.borderColor='';
+    }
     if(!fmData.bizAddrType||fmData.bizAddrType==='own'){
       // Fix 2026-06-25: ZIP solo se exige si el país lo usa (_addrFmt[country].zip).
       // Antes el array siempre exigía inp-zip incluso para países sin ZIP (DR,
@@ -5665,6 +5845,28 @@ function fmBuildOrderPayload() {
   if(speed === 'expedited' && pkg !== 'premium') extras += 79;
   var amount = (pkg in pkgPrices ? pkgPrices[pkg] : 199) + stateFee + extras;
 
+  // ── Tax ID del responsible party para el EIN ──────────────────────────────
+  // Standard/Premium lo incluyen de fábrica (bloque del paso 2, prefijo 'pkg-');
+  // Basic solo si el cliente agrega el addon EIN (bloque del paso 7, sin
+  // prefijo). Nunca se guarda en fmData — se lee del DOM recién acá, igual
+  // que firstName/lastName, para que jamás termine en el draftSnapshot.
+  var einIdType = null, einTaxId = null, einActivity = null, einActivityDesc = null;
+  if(pkg === 'standard' || pkg === 'premium') {
+    var pkgIdTypeEl = document.querySelector('input[name="pkg-ein-id-type"]:checked');
+    einIdType = pkgIdTypeEl ? pkgIdTypeEl.value : null;
+    if(einIdType === 'ssn') einTaxId = val('pkg-inp-ein-ssn');
+    else if(einIdType === 'itin') einTaxId = val('pkg-inp-ein-itin');
+    einActivity = val('pkg-ein-activity-select') || null;
+    einActivityDesc = val('pkg-inp-ein-activity-desc') || null;
+  } else if(addons.ein) {
+    var stdIdTypeEl = document.querySelector('input[name="ein-id-type"]:checked');
+    einIdType = stdIdTypeEl ? stdIdTypeEl.value : null;
+    if(einIdType === 'ssn') einTaxId = val('inp-ein-ssn');
+    else if(einIdType === 'itin') einTaxId = val('inp-ein-itin');
+    einActivity = val('ein-activity-val') || null;
+    einActivityDesc = val('inp-ein-activity-desc') || null;
+  }
+
   // ── Agente registrado (si es propio, capturar sus datos) ──────────────────
   var raInfo = null;
   if(ra === 'own') {
@@ -5696,7 +5898,11 @@ function fmBuildOrderPayload() {
     members:         members,
     registeredAgent: ra,
     addons:          { ein: !!addons.ein, oa: !!addons.oa, itin: !!addons.itin, ar: !!addons.ar, btr: !!addons.btr, str: !!addons.str, cc: !!addons.cc, dba: !!addons.dba, br: !!addons.br, gd: !!addons.gd, gs: !!addons.gs, sc: !!addons.sc, bl: !!addons.bl, raInfo: raInfo },
-    orgSignature:    orgSignature
+    orgSignature:    orgSignature,
+    einIdType:       einIdType,
+    einTaxId:        einTaxId,
+    einActivity:     einActivity,
+    einActivityDesc: einActivityDesc
   };
 
   return payload;
@@ -6649,10 +6855,13 @@ function fmEinActivityFilter(q) {
   });
 }
 
-function fmCheckIdMatch(type) {
-  var v1El = document.getElementById(type === 'ssn' ? 'inp-ein-ssn' : 'inp-ein-itin');
-  var v2El = document.getElementById(type === 'ssn' ? 'inp-ein-ssn-confirm' : 'inp-ein-itin-confirm');
-  var msg  = document.getElementById(type === 'ssn' ? 'ssn-match-msg' : 'itin-match-msg');
+// scope: '' (default) = bloque de step 7 (addon EIN de Basic). 'pkg' = bloque
+// de step 2 (Standard/Premium, EIN ya incluido) — mismos ids con prefijo 'pkg-'.
+function fmCheckIdMatch(type, scope) {
+  var p = scope ? scope + '-' : '';
+  var v1El = document.getElementById(p + (type === 'ssn' ? 'inp-ein-ssn' : 'inp-ein-itin'));
+  var v2El = document.getElementById(p + (type === 'ssn' ? 'inp-ein-ssn-confirm' : 'inp-ein-itin-confirm'));
+  var msg  = document.getElementById(p + (type === 'ssn' ? 'ssn-match-msg' : 'itin-match-msg'));
   if(!v1El || !v2El || !msg) return;
   var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
   var v1 = v1El.value.replace(/[^0-9]/g,'');
@@ -6688,18 +6897,19 @@ function fmEinClearActivity() {
   fmEinActivityFilter('');
 }
 
-function fmEinIdTypeChange(radio) {
+function fmEinIdTypeChange(radio, scope) {
   var val = radio.value;
+  var p = scope ? scope + '-' : '';
   var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
-  document.getElementById('ein-ssn-field').style.display    = val === 'ssn'  ? 'block' : 'none';
-  document.getElementById('ein-itin-field').style.display   = val === 'itin' ? 'block' : 'none';
-  document.getElementById('ein-no-id-warning').style.display = 'none';
+  document.getElementById(p+'ein-ssn-field').style.display    = val === 'ssn'  ? 'block' : 'none';
+  document.getElementById(p+'ein-itin-field').style.display   = val === 'itin' ? 'block' : 'none';
+  document.getElementById(p+'ein-no-id-warning').style.display = 'none';
   // Style the selected radio label
-  ['ein-has-ssn-lbl','ein-has-itin-lbl','ein-no-id-lbl'].forEach(function(id){
+  [p+'ein-has-ssn-lbl',p+'ein-has-itin-lbl',p+'ein-no-id-lbl'].forEach(function(id){
     var lbl = document.getElementById(id);
     if(lbl) { lbl.style.borderColor='#e2e8f0'; lbl.style.background='#fff'; lbl.style.color=''; }
   });
-  var selLbl = val==='ssn'?'ein-has-ssn-lbl':val==='itin'?'ein-has-itin-lbl':'ein-no-id-lbl';
+  var selLbl = val==='ssn'?p+'ein-has-ssn-lbl':val==='itin'?p+'ein-has-itin-lbl':p+'ein-no-id-lbl';
   var activeLabel = document.getElementById(selLbl);
   if(activeLabel) {
     if(val === 'none') {
@@ -6712,14 +6922,15 @@ function fmEinIdTypeChange(radio) {
   }
 }
 
-function fmFormatSSN(inp) {
+function fmFormatSSN(inp, scope) {
   var v = inp.value.replace(/[^0-9]/g,'').substring(0,9);
   if(v.length > 5) inp.value = v.substring(0,3)+'-'+v.substring(3,5)+'-'+v.substring(5);
   else if(v.length > 3) inp.value = v.substring(0,3)+'-'+v.substring(3);
   else inp.value = v;
   // Live validation feedback
   var isComplete = v.length === 9;
-  var feedbackId = inp.id === 'inp-ein-ssn' ? 'ssn-valid-msg' : 'itin-valid-msg';
+  var p = scope ? scope + '-' : '';
+  var feedbackId = p + (inp.id.indexOf('itin') > -1 ? 'itin-valid-msg' : 'ssn-valid-msg');
   var existing = document.getElementById(feedbackId);
   var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
   if(!existing) {
