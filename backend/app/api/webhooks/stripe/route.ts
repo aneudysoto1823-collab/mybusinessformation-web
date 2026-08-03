@@ -9,6 +9,7 @@ import { computeFormationTotal, withBasicDisplayLine } from '@/lib/pricing'
 import { getOrderItemLabel } from '@/lib/order-items'
 import { hasReceivedGuide, recordGuideSent, getGuideAttachments, buildGuideBonusHtml, type GuideKey } from '@/lib/guides'
 import { REPLY_TO, INTERNAL_ALERT_EMAIL as ADMIN_EMAIL, FROM_OPABIZ, FROM_OPABIZ_ALERTS } from '@/lib/email-constants'
+import { provisionRaForOrder } from '@/lib/ra-provisioning'
 
 export const dynamic = 'force-dynamic'
 
@@ -472,6 +473,14 @@ async function handleFormationPaid(orderId: string, session: Stripe.Checkout.Ses
       </div>
     `,
   }).catch(err => console.error('[stripe-webhook] formation admin alert error (non-fatal):', err))
+
+  // Provisioning de Registered Agent (fire-and-forget, no bloquea la
+  // confirmacion del pago ni el email A1). Chequea internamente si la orden
+  // tiene addons.ra=true — si no, hace no-op. Si algo falla, manda alerta a
+  // alert@opabiz.com y deja la orden lista para retry manual desde el panel
+  // admin. Idempotente: safe si el webhook se reintenta (guard por
+  // raProvisionedAt en la cadena).
+  provisionRaForOrder(order.id).catch(err => console.error('[stripe-webhook] ra-provision error (non-fatal):', err))
 
   return NextResponse.json({ received: true, orderId, fbfc })
 }
