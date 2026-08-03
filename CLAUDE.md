@@ -1112,6 +1112,23 @@ ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "einActivityDesc" TEXT;
 
 ---
 
+## Integración RegisteredAgentsInc (Corporate Tools) — provisioning de RA (2026-08-03)
+
+Cuando una orden con `addons.ra === true` se paga en Stripe, el webhook dispara automáticamente la cadena `provisionRaForOrder` (fire-and-forget, no bloquea la confirmación del pago ni el email A1) que crea la company en RAI, asigna el servicio de RA para Florida, obtiene el invoice_id y le manda al cliente un segundo email con la dirección oficial de su Registered Agent — todo en segundos. **Doc canónica:** `LOGICA_DE_NEGOCIO/37_registered_agent_service.md`.
+
+- **Archivos nuevos:** `backend/lib/corporate-tools.ts` (cliente JWT HS256 con separación TEST/PROD según `CORPTOOLS_ENV`), `backend/lib/ra-provisioning.ts` (la cadena principal + alerta interna), `backend/app/api/admin/orders/[id]/ra-retry/route.ts` (endpoint retry protegido con admin auth).
+- **Archivos modificados:** `backend/app/api/webhooks/stripe/route.ts` (trigger fire-and-forget al final de `handleFormationPaid`), `backend/lib/notifications.ts` (nueva función `sendRaAddressReady()` bilingüe EN/ES), `backend/app/admin/orders/[id]/page.tsx` (sección "🏢 Registered Agent (RAI Provisioning)" visible solo si `addons.ra=true`, con badge de estado + IDs copiables + invoice + dirección + botón Retry idempotente).
+- **Migración Supabase:** `supabase_migration_ra_provisioning.sql` — 7 columnas nuevas en `Order` (`raCompanyId`, `raServiceId`, `raInvoiceId`, `raInvoicePaid`, `raAddress`, `raProvisionedAt`, `raAddressEmailSentAt`) + partial index para el cron pendiente.
+- **Env vars en Vercel (separación estricta):** Development + Preview usan `CORPTOOLS_ENV=test` + keys TEST; Production usa `CORPTOOLS_ENV=prod` + keys PROD. Cero cross-contamination. `CORPTOOLS_WEBSITE_URL_*` es `www.registeredagentsinc.com` — **string exacto sin protocolo ni slash** (el API hace matching de texto estricto, verificado en Fase 0).
+- **Hallazgo clave de Fase 1:** el `POST /services` devuelve la dirección del RA **inmediata** en el response, sin necesidad de esperar el pago de la factura. Florida NO requiere el paso extra "Services Requiring Attention" que la doc de RAI menciona para Wyoming.
+- **Pago de la factura al proveedor = 100% manual** — el staff usa el `invoice_id` que ve en el panel admin para pagarla desde el portal de RAI cuando quiere. Explícitamente NO se automatiza `POST /invoices/pay` en este mandato (decisión: hablar con el account manager de RAI primero).
+- **El cliente recibe 2 emails cuando compra formación con addon RA:** (1) A1 "Payment confirmed" — normal, cualquier orden lo recibe, incluye Order Number + tabla de precios + inclusiones del paquete; (2) `sendRaAddressReady()` "Your Registered Agent is active" — nuevo, incluye la dirección completa en card azul destacada + explicación de dónde usarla. **NUNCA menciona a "RAI" ni al proveedor** — para el cliente, OpaBiz le está proveyendo el servicio.
+- **Cuando falla:** alerta interna a `alert@opabiz.com` con la fase que falló (POST /companies / POST /services / etc.) + botón "Retry RA provisioning" en el panel admin. La cadena es **idempotente** — el retry solo re-ejecuta los pasos cuyos IDs falten en la orden, nunca crea companies duplicadas ni cobra facturas nuevas.
+- **Scripts de smoke test** en `backend/scripts/` (todos usan keys TEST del `.env.local`, guardias que exigen `CORPTOOLS_ENV=test` + nombre con prefijo `TEST `): `corptools-test-fase0.mjs` (3 GETs read-only, cero costo), `corptools-manual-flow.mjs` (dry-run/confirm del flujo completo), `corptools-service-info.mjs` (consulta puntual), `corptools-test-e2e.mjs` (E2E creando Order de test en Supabase + verifica idempotencia + genera preview HTML del email).
+- **Pendientes (deferidos, no bloquean):** cron de auditoría diario (endpoint TBD — hay que descubrir qué endpoint de RAI da el estado "vivo" del service, porque `GET /services/:id/info` devuelve `{}` pre-pago), rotación de keys PROD, automatización del pago de facturas al proveedor.
+
+---
+
 ## Deploy
 
 - `git push origin main` — Vercel detecta cambios en `backend/` y hace deploy automático
