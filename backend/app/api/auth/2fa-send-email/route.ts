@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyPendingToken } from '@/lib/session'
 import { saveEmailCode } from '@/lib/twofa'
 import { Resend } from 'resend'
+import { FROM_OPABIZ, REPLY_TO } from '@/lib/email-constants'
 
 const getResend = () => new Resend(process.env.RESEND_API_KEY)
 
@@ -22,7 +23,8 @@ export async function POST(request: NextRequest) {
 
   const adminEmail = process.env.ADMIN_EMAIL ?? process.env.ADMIN_USER ?? ''
   await getResend().emails.send({
-    from: 'onboarding@resend.dev',
+    from: FROM_OPABIZ,
+    replyTo: REPLY_TO,
     to: adminEmail,
     subject: `${code} — Tu código de verificación OpaBiz`,
     html: `
