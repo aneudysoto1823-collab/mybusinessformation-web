@@ -21,6 +21,20 @@ export default function SecurityPage() {
   // Toggle messages
   const [toggleMsg, setToggleMsg] = useState('')
 
+  // Change password
+  const [currentPassword, setCurrentPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [pwStage, setPwStage] = useState<'form' | 'verify'>('form')
+  const [pwMethods, setPwMethods] = useState<string[]>([])
+  const [pwMethod, setPwMethod] = useState<'totp' | 'email' | null>(null)
+  const [pwCode, setPwCode] = useState('')
+  const [pwEmailSent, setPwEmailSent] = useState(false)
+  const [pwLoading, setPwLoading] = useState(false)
+  const [pwSending, setPwSending] = useState(false)
+  const [pwError, setPwError] = useState('')
+  const [pwSuccess, setPwSuccess] = useState('')
+
   useEffect(() => {
     fetch('/api/auth/2fa-config')
       .then(r => r.json())
@@ -58,6 +72,76 @@ export default function SecurityPage() {
       setTotpMsg('')
     } else {
       setTotpMsg('Error al generar el QR.')
+    }
+  }
+
+  function resetPasswordForm() {
+    setCurrentPassword('')
+    setNewPassword('')
+    setConfirmPassword('')
+    setPwStage('form')
+    setPwMethods([])
+    setPwMethod(null)
+    setPwCode('')
+    setPwEmailSent(false)
+  }
+
+  async function submitPasswordChange(e: React.FormEvent) {
+    e.preventDefault()
+    setPwError('')
+    setPwSuccess('')
+    if (newPassword.length < 8) { setPwError('La nueva contraseña debe tener al menos 8 caracteres.'); return }
+    if (newPassword !== confirmPassword) { setPwError('Las contraseñas nuevas no coinciden.'); return }
+    setPwLoading(true)
+    const res = await fetch('/api/auth/change-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ currentPassword, newPassword }),
+    })
+    setPwLoading(false)
+    const data = await res.json()
+    if (!res.ok) { setPwError(data.error ?? 'Error al cambiar la contraseña.'); return }
+    if (data.applied) {
+      setPwSuccess('✅ Contraseña actualizada.')
+      resetPasswordForm()
+      return
+    }
+    if (data.requiresVerification) {
+      setPwMethods(data.methods)
+      setPwMethod(data.methods.length === 1 ? data.methods[0] : null)
+      setPwStage('verify')
+    }
+  }
+
+  async function sendPwEmailCode() {
+    setPwSending(true)
+    setPwError('')
+    const res = await fetch('/api/auth/change-password/send-email', { method: 'POST' })
+    setPwSending(false)
+    if (res.ok) { setPwEmailSent(true) } else {
+      const d = await res.json()
+      setPwError(d.error ?? 'Error al enviar el código.')
+    }
+  }
+
+  async function confirmPasswordChange(e: React.FormEvent) {
+    e.preventDefault()
+    if (!pwMethod || pwCode.length < 6) return
+    setPwLoading(true)
+    setPwError('')
+    const res = await fetch('/api/auth/change-password/verify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ method: pwMethod, code: pwCode.trim() }),
+    })
+    setPwLoading(false)
+    if (res.ok) {
+      setPwSuccess('✅ Contraseña actualizada.')
+      resetPasswordForm()
+    } else {
+      const d = await res.json()
+      setPwError(d.error ?? 'Código incorrecto.')
+      setPwCode('')
     }
   }
 
@@ -129,6 +213,32 @@ export default function SecurityPage() {
         }
         .status-on { background: #dcfce7; color: #16a34a; }
         .status-off { background: #f3f4f6; color: #6b7280; }
+
+        .pw-label { font-size: 12px; font-weight: 700; color: #6b7280; margin-bottom: 6px; display: block; }
+        .pw-input {
+          width: 100%; padding: 10px 14px; border: 1.5px solid #e5e7eb;
+          border-radius: 8px; font-size: 14px; font-family: inherit;
+          outline: none; transition: border-color 0.15s; margin-bottom: 14px;
+        }
+        .pw-input:focus { border-color: #4f46e5; }
+        .method-btns { display: flex; gap: 10px; margin-bottom: 16px; }
+        .method-btn {
+          flex: 1; padding: 11px; border-radius: 8px; font-size: 13px;
+          font-weight: 600; cursor: pointer; border: 2px solid #e5e7eb;
+          background: #fff; color: #374151; font-family: inherit;
+          transition: all 0.15s;
+        }
+        .method-btn.active { border-color: #4f46e5; background: #eef2ff; color: #4f46e5; }
+        .code-input {
+          width: 100%; padding: 13px 16px; border: 2px solid #e5e7eb;
+          border-radius: 9px; font-size: 22px; font-weight: 700; letter-spacing: 8px;
+          text-align: center; font-family: monospace; color: #1a1a2e;
+          outline: none; transition: border-color 0.15s; margin-bottom: 14px;
+        }
+        .code-input:focus { border-color: #4f46e5; }
+        .info-box { background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; border-radius: 8px; padding: 10px 14px; font-size: 13px; margin-bottom: 14px; line-height: 1.5; }
+        .error-box { background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; border-radius: 8px; padding: 10px 14px; font-size: 13px; font-weight: 600; margin-bottom: 14px; }
+        .btn-link { background: none; border: none; color: #6b7280; font-size: 13px; cursor: pointer; font-family: inherit; text-decoration: underline; margin-top: 4px; }
       `}</style>
 
       <div className="wrap">
@@ -137,6 +247,101 @@ export default function SecurityPage() {
         <p className="subtitle">Activa uno o ambos métodos. Al hacer login se pedirá el segundo factor.</p>
 
         {toggleMsg && <p className="msg" style={{ marginBottom: 16 }}>{toggleMsg}</p>}
+
+        {/* ── Cambiar contraseña ── */}
+        <div className="card">
+          <div className="card-header">
+            <div className="card-title">🔑 Contraseña</div>
+          </div>
+          <div className="card-body">
+            {pwStage === 'form' && (
+              <form onSubmit={submitPasswordChange}>
+                <p className="card-desc">
+                  Si tienes un método de 2FA activo, vamos a pedirte que confirmes el cambio con un código antes de aplicarlo.
+                </p>
+                <label className="pw-label">Contraseña actual</label>
+                <input
+                  className="pw-input" type="password" autoComplete="current-password"
+                  value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} required
+                />
+                <label className="pw-label">Nueva contraseña</label>
+                <input
+                  className="pw-input" type="password" autoComplete="new-password"
+                  value={newPassword} onChange={e => setNewPassword(e.target.value)} required
+                />
+                <label className="pw-label">Confirmar nueva contraseña</label>
+                <input
+                  className="pw-input" type="password" autoComplete="new-password"
+                  value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required
+                />
+                {pwError && <div className="error-box">{pwError}</div>}
+                {pwSuccess && <p className="msg">{pwSuccess}</p>}
+                <button className="btn btn-primary" type="submit" disabled={pwLoading}>
+                  {pwLoading ? 'Verificando…' : 'Cambiar contraseña'}
+                </button>
+              </form>
+            )}
+
+            {pwStage === 'verify' && (
+              <>
+                <p className="card-desc">Confirma el cambio de contraseña con tu segundo factor.</p>
+
+                {pwMethods.length > 1 && (
+                  <div className="method-btns">
+                    <button
+                      type="button"
+                      className={`method-btn${pwMethod === 'totp' ? ' active' : ''}`}
+                      onClick={() => { setPwMethod('totp'); setPwCode(''); setPwError(''); setPwEmailSent(false) }}
+                    >
+                      📱 App
+                    </button>
+                    <button
+                      type="button"
+                      className={`method-btn${pwMethod === 'email' ? ' active' : ''}`}
+                      onClick={() => { setPwMethod('email'); setPwCode(''); setPwError(''); setPwEmailSent(false) }}
+                    >
+                      ✉️ Email
+                    </button>
+                  </div>
+                )}
+
+                {pwMethod === 'email' && !pwEmailSent && (
+                  <button className="btn btn-primary" type="button" onClick={sendPwEmailCode} disabled={pwSending}>
+                    {pwSending ? 'Enviando…' : 'Enviar código a mi email'}
+                  </button>
+                )}
+
+                {pwMethod === 'email' && pwEmailSent && (
+                  <p className="info-box">✅ Código enviado. Revisa tu email y escríbelo aquí abajo.</p>
+                )}
+
+                {pwMethod && (pwMethod === 'totp' || pwEmailSent) && (
+                  <form onSubmit={confirmPasswordChange}>
+                    <label className="pw-label">Código de 6 dígitos</label>
+                    <input
+                      className="code-input" type="text" inputMode="numeric" maxLength={6}
+                      value={pwCode} onChange={e => setPwCode(e.target.value.replace(/\D/g, ''))}
+                      placeholder="000000" autoComplete="one-time-code" autoFocus
+                    />
+                    <button className="btn btn-primary" type="submit" disabled={pwLoading || pwCode.length < 6}>
+                      {pwLoading ? 'Confirmando…' : 'Confirmar cambio'}
+                    </button>
+                  </form>
+                )}
+
+                {pwMethod === 'email' && pwEmailSent && (
+                  <button className="btn btn-secondary" type="button" onClick={sendPwEmailCode} disabled={pwSending} style={{ marginTop: 8 }}>
+                    {pwSending ? 'Enviando…' : 'Reenviar código'}
+                  </button>
+                )}
+
+                {pwError && <div className="error-box" style={{ marginTop: 12 }}>{pwError}</div>}
+
+                <button className="btn-link" type="button" onClick={resetPasswordForm}>← Cancelar</button>
+              </>
+            )}
+          </div>
+        </div>
 
         {/* ── Email 2FA ── */}
         <div className="card">

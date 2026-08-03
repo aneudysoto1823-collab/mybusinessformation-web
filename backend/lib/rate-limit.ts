@@ -201,3 +201,16 @@ export async function checkOpabizLoginRateLimit(ip: string): Promise<RateLimitRe
   })
   return check(limiter, ip, 5)
 }
+
+// ── Cambio de contraseña admin: 5 intentos / 15 min / IP ─────────────────────
+// Protege tanto la verificación de la contraseña actual como el código 2FA
+// de confirmación del cambio.
+export async function checkChangePasswordRateLimit(ip: string): Promise<RateLimitResult> {
+  const limiter = getLimiter({
+    cacheKey: 'change-password',
+    prefix: 'rl:change-password',
+    limit: 5,
+    window: '15 m',
+  })
+  return check(limiter, ip, 5)
+}

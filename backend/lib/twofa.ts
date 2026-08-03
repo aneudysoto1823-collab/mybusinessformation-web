@@ -70,3 +70,60 @@ export async function verifyEmailCode(code: string): Promise<boolean> {
   }
   return valid
 }
+
+// ── Cambio de contraseña (self-service, sin depender de ADMIN_PASSWORD_HASH
+//    en Vercel — ver CLAUDE.md "Cambio de contraseña admin" 2026-08-03) ──────
+// Si password_hash está seteado en la DB, login/route.ts lo usa en vez del env
+// var. El hash nuevo queda "pending" hasta que se confirma con el 2FA ya
+// activo (TOTP o email, reusa verifyTotpCode/verifyEmailCode de arriba) —
+// evita que alguien con la contraseña actual pero sin el segundo factor pueda
+// cambiarla.
+export async function getAdminPasswordHash(): Promise<string | null> {
+  const { data } = await getSupabaseAdmin()
+    .from(TABLE)
+    .select('password_hash')
+    .eq('id', ROW_ID)
+    .single()
+  return data?.password_hash ?? null
+}
+
+export async function stagePasswordChange(newHash: string) {
+  const expires = new Date(Date.now() + 10 * 60 * 1000).toISOString() // 10 min
+  await getSupabaseAdmin()
+    .from(TABLE)
+    .update({ password_change_pending_hash: newHash, password_change_expires_at: expires, updated_at: new Date().toISOString() })
+    .eq('id', ROW_ID)
+}
+
+export async function hasPendingPasswordChange(): Promise<boolean> {
+  const { data } = await getSupabaseAdmin()
+    .from(TABLE)
+    .select('password_change_pending_hash, password_change_expires_at')
+    .eq('id', ROW_ID)
+    .single()
+  if (!data?.password_change_pending_hash || !data?.password_change_expires_at) return false
+  return new Date(data.password_change_expires_at) >= new Date()
+}
+
+// Aplica el hash pendiente como password_hash real y limpia el estado
+// pendiente. Devuelve false si no había un cambio pendiente vigente (ya
+// expiró o nunca se inició) — el caller no debe reportar éxito en ese caso.
+export async function applyPendingPasswordChange(): Promise<boolean> {
+  const { data } = await getSupabaseAdmin()
+    .from(TABLE)
+    .select('password_change_pending_hash, password_change_expires_at')
+    .eq('id', ROW_ID)
+    .single()
+  if (!data?.password_change_pending_hash || !data?.password_change_expires_at) return false
+  if (new Date(data.password_change_expires_at) < new Date()) return false
+  await getSupabaseAdmin()
+    .from(TABLE)
+    .update({
+      password_hash: data.password_change_pending_hash,
+      password_change_pending_hash: null,
+      password_change_expires_at: null,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', ROW_ID)
+  return true
+}

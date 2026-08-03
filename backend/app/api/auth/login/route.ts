@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 import { createAdminToken, createPendingToken } from '@/lib/session'
 import { checkAdminLoginRateLimit, getClientIp } from '@/lib/rate-limit'
-import { getTwoFAConfig } from '@/lib/twofa'
+import { getTwoFAConfig, getAdminPasswordHash } from '@/lib/twofa'
 
 export async function POST(request: NextRequest) {
   const ip = getClientIp(request)
@@ -17,15 +17,21 @@ export async function POST(request: NextRequest) {
   const { user, password } = await request.json()
 
   const expectedUser = process.env.ADMIN_USER
-  const rawHash = process.env.ADMIN_PASSWORD_HASH ?? ''
-
-  if (!expectedUser || !rawHash) {
+  if (!expectedUser) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const passwordHash = rawHash.startsWith('$2') && rawHash.length >= 50
-    ? rawHash
-    : Buffer.from(rawHash, 'base64').toString('utf-8')
+  // Prioridad: contraseña cambiada desde /admin/security (Supabase, se aplica
+  // al instante) — si nunca se cambió, cae al ADMIN_PASSWORD_HASH de Vercel
+  // (comportamiento original, requiere redeploy para actualizarse).
+  const dbHash = await getAdminPasswordHash()
+  const rawHash = process.env.ADMIN_PASSWORD_HASH ?? ''
+  if (!dbHash && !rawHash) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+  const passwordHash = dbHash
+    ? dbHash
+    : (rawHash.startsWith('$2') && rawHash.length >= 50 ? rawHash : Buffer.from(rawHash, 'base64').toString('utf-8'))
 
   if (!(user === expectedUser && bcrypt.compareSync(password, passwordHash))) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
