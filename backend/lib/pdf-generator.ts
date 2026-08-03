@@ -15,13 +15,6 @@ export type OrderForPdf = {
   registeredAgent?: string | null
   orgSignature?: string | null
   members?: unknown
-  // Tax ID del responsible party, ya desencriptado por el caller (admin-only —
-  // ver app/api/proxy/documents/[orderId]/[endpoint]/route.ts). Nunca pasar
-  // el valor encriptado (einTaxIdEnc) acá.
-  einIdType?: string | null
-  einTaxId?: string | null
-  einActivity?: string | null
-  einActivityDesc?: string | null
 }
 
 type MemberForPdf = {
@@ -287,13 +280,6 @@ export async function generateOperatingAgreement(order: OrderForPdf): Promise<Bu
   return b.toBuffer()
 }
 
-function einTaxIdField(order: OrderForPdf): string {
-  if (order.einIdType === 'ssn' && order.einTaxId) return `${order.einTaxId} (SSN)`
-  if (order.einIdType === 'itin' && order.einTaxId) return `${order.einTaxId} (ITIN)`
-  if (order.einIdType === 'none') return 'Foreign applicant — no SSN/ITIN (Form 8821 / Third Party Designee may be required)'
-  return '(to be completed by applicant)'
-}
-
 // ── 2. EIN SS-4 ───────────────────────────────────────────────────────────────
 export async function generateEINSS4(order: OrderForPdf): Promise<Buffer> {
   const b = await DocBuilder.create()
@@ -312,7 +298,7 @@ export async function generateEINSS4(order: OrderForPdf): Promise<Buffer> {
   b.field('5a. County and State (principal business)', 'Florida, USA')
   b.field('6. County where entity is located', 'Florida')
   b.field('7a. Responsible Party Name', `${order.firstName} ${order.lastName}`)
-  b.field('7b. SSN / ITIN of Responsible Party', einTaxIdField(order))
+  b.field('7b. SSN / ITIN of Responsible Party', '(to be completed by applicant)')
   b.skip(4)
 
   b.sectionHeader('Part II — Type of Entity')
@@ -325,8 +311,6 @@ export async function generateEINSS4(order: OrderForPdf): Promise<Buffer> {
   b.field('13. Highest # of Employees (next 12 months)', '—')
   b.field('14. Employment tax liability under $1,000?', 'Yes')
   b.field('15. First Date Excise Tax Liability', '(if applicable)')
-  b.field('16. Principal Business Activity', order.einActivity || '(to be completed by applicant)')
-  if (order.einActivityDesc) b.field('17. Principal Line of Merchandise / Services', order.einActivityDesc)
   b.skip(4)
 
   b.sectionHeader('Part III — Members / Officers')
