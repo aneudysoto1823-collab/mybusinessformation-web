@@ -132,7 +132,8 @@ LOB_ENABLED           # 'true' para activar. 'false' para apagar sin redeploy si
 - Cookie `admin_session` (httpOnly, 8h)
 - Proxy en `proxy.ts` (raíz del proyecto Next.js) protege `/admin` — antes se llamaba `middleware.ts`; Next.js 16.2 renombró la convención
 - **Show/hide password** con ícono SVG en el campo de contraseña
-- **Recuperación de contraseña:** `POST /api/auth/recover` valida contra `ADMIN_EMAIL`, genera token Redis (15 min, un solo uso), envía link al correo. Página `/login/recover/[token]` valida y crea sesión directa.
+- **Recuperación de contraseña:** `POST /api/auth/recover` valida contra `ADMIN_EMAIL`, genera token Redis (15 min, un solo uso), envía link al correo. Página `/login/recover/[token]` valida y crea sesión directa — **ojo: esto NO permite setear una contraseña nueva, solo loguea saltándose el password** (la contraseña vieja sigue activa después).
+- **Cambiar contraseña (2026-08-03):** tarjeta "🔑 Contraseña" en `/admin/security` — `POST /api/auth/change-password` (valida la actual + hashea la nueva con bcrypt) → si hay 2FA activo (TOTP/email) queda "pending" en `admin_security_config.password_change_pending_hash` hasta confirmarse en `/change-password/verify` con el mismo código que ya usa el login; sin 2FA se aplica directo. `login/route.ts` prioriza `admin_security_config.password_hash` (Supabase, cambia al instante) y solo cae al env var `ADMIN_PASSWORD_HASH` de Vercel si nunca se usó esta opción (compat con el estado anterior, sin redeploy).
 
 ### Cliente (`/client-portal/dashboard/*`)
 - **Login principal: en el HOME** (popover anclado al botón Login, clases `.plogin-*` en `page.tsx`) — ver detalle abajo. `/client-portal` se conserva como **fallback** (deep-links + redirect de sesión expirada del middleware).
