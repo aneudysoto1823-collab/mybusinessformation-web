@@ -19,3 +19,16 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ success: true })
 }
+
+// Pausa/reactiva un bloqueo sin borrarlo — pensado para los bloqueos por día
+// de la semana ("Fijo" hasta que se le haga uncheck), pero funciona igual
+// para cualquier fila.
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  if (!await isAdmin()) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const { id } = await params
+  const { active } = await req.json()
+  if (typeof active !== 'boolean') return NextResponse.json({ error: 'active required' }, { status: 400 })
+  const { error } = await getSupabaseAdmin().from('blocked_slots').update({ active }).eq('id', id)
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json({ success: true })
+}

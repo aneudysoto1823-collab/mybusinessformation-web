@@ -29,11 +29,13 @@ export async function GET(req: NextRequest) {
 
   const bookedTimes = new Set((booked ?? []).map((a: { time: string }) => a.time))
 
-  // Slots bloqueados en esa fecha
+  // Slots bloqueados en esa fecha específica O por regla recurrente de ese
+  // día de la semana (ej. "todos los lunes"), ver /admin/citas.
   const { data: blocked } = await supabase
     .from('blocked_slots')
     .select('time')
-    .eq('date', date)
+    .eq('active', true)
+    .or(`date.eq.${date},weekday.eq.${dayOfWeek}`)
 
   const blockedTimes = new Set((blocked ?? []).map((b: { time: string | null }) => b.time))
   const fullDayBlocked = (blocked ?? []).some((b: { time: string | null }) => b.time === null)

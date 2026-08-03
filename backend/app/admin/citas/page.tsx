@@ -17,9 +17,20 @@ interface Appointment {
 
 interface BlockedSlot {
   id: string
-  date: string
+  date: string | null
+  weekday: number | null // 0=domingo…6=sábado, null si el bloqueo es por fecha
   time: string | null
   reason: string | null
+  active: boolean
+}
+
+const WEEKDAY_LABELS = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']
+// Domingo (0) ya está siempre cerrado (ver /api/booking/slots) — no tiene
+// sentido ofrecerlo acá.
+const WEEKDAY_OPTIONS = [1, 2, 3, 4, 5, 6]
+
+function formatBlockedLabel(b: BlockedSlot) {
+  return b.date ? formatDate(b.date) : `Todos los ${WEEKDAY_LABELS[b.weekday!]}`
 }
 
 interface EmpleadoOption {
@@ -57,7 +68,11 @@ export default function CitasPage() {
   const [blocked, setBlocked] = useState<BlockedSlot[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<'all' | 'pending' | 'confirmed' | 'cancelled'>('all')
-  const [blockDate, setBlockDate] = useState('')
+  const [blockMode, setBlockMode] = useState<'dates' | 'weekday'>('dates')
+  const [blockFrom, setBlockFrom] = useState('')
+  const [blockTo, setBlockTo] = useState('')
+  const [pendingDates, setPendingDates] = useState<string[]>([])
+  const [blockWeekday, setBlockWeekday] = useState('')
   const [blockTime, setBlockTime] = useState('')
   const [blockReason, setBlockReason] = useState('')
   const [blocking, setBlocking] = useState(false)
@@ -176,23 +191,57 @@ export default function CitasPage() {
     setAppointments(prev => prev.filter(a => a.id !== id))
   }
 
+  // Expande el rango "Desde/Hasta" (o una sola fecha si "Hasta" queda vacío)
+  // a fechas individuales y las suma a la lista acumulada — así se pueden
+  // agregar varios rangos/días sueltos no consecutivos antes de bloquear
+  // todo junto con un solo click.
+  function addDateToList() {
+    if (!blockFrom) return
+    const start = new Date(blockFrom + 'T12:00:00')
+    const end = blockTo ? new Date(blockTo + 'T12:00:00') : start
+    if (end < start) return
+    const list: string[] = []
+    const cur = new Date(start)
+    while (cur <= end) {
+      list.push(cur.toISOString().split('T')[0])
+      cur.setDate(cur.getDate() + 1)
+    }
+    setPendingDates(prev => Array.from(new Set([...prev, ...list])).sort())
+    setBlockFrom(''); setBlockTo('')
+  }
+
+  function removePendingDate(d: string) {
+    setPendingDates(prev => prev.filter(x => x !== d))
+  }
+
   async function addBlock() {
-    if (!blockDate) return
     setBlocking(true)
+    const body = blockMode === 'weekday'
+      ? { weekday: Number(blockWeekday), time: blockTime || null, reason: blockReason || null }
+      : { dates: pendingDates, time: blockTime || null, reason: blockReason || null }
     const res = await fetch('/api/booking/blocked', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ date: blockDate, time: blockTime || null, reason: blockReason || null }),
+      body: JSON.stringify(body),
     })
     const data = await res.json()
-    setBlocked(prev => [...prev, data])
-    setBlockDate(''); setBlockTime(''); setBlockReason('')
+    if (res.ok) setBlocked(prev => [...prev, ...data])
+    setPendingDates([]); setBlockWeekday(''); setBlockTime(''); setBlockReason('')
     setBlocking(false)
   }
 
   async function removeBlock(id: string) {
     await fetch(`/api/booking/blocked/${id}`, { method: 'DELETE' })
     setBlocked(prev => prev.filter(b => b.id !== id))
+  }
+
+  async function toggleBlockActive(id: string, active: boolean) {
+    const res = await fetch(`/api/booking/blocked/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ active }),
+    })
+    if (res.ok) setBlocked(prev => prev.map(b => (b.id === id ? { ...b, active } : b)))
   }
 
   const filtered = appointments.filter(a => filter === 'all' || a.status === filter)
@@ -240,6 +289,14 @@ export default function CitasPage() {
         .block-label { font-size: 0.78rem; font-weight: 600; color: #6b7280; display: block; margin-bottom: 5px; }
         .btn-block { background: #1C2E44; color: #fff; border: none; border-radius: 8px; padding: 9px 18px; font-size: 0.85rem; font-weight: 600; cursor: pointer; white-space: nowrap; }
         .btn-block:hover { background: #2d3f5c; }
+        .btn-block:disabled { opacity: 0.5; cursor: not-allowed; }
+        .mode-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+        .mode-tab { padding: 8px 14px; border-radius: 20px; border: 1.5px solid #e5e7eb; background: #fff; font-size: 0.8rem; font-weight: 600; cursor: pointer; color: #6b7280; }
+        .mode-tab.active { background: #eff6ff; color: #2563EB; border-color: #2563EB; }
+        .date-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 4px; }
+        .date-chip { display: inline-flex; align-items: center; gap: 6px; background: #eff6ff; color: #1d4ed8; border-radius: 20px; padding: 5px 8px 5px 12px; font-size: 0.78rem; font-weight: 600; }
+        .date-chip button { background: none; border: none; color: #1d4ed8; cursor: pointer; font-size: 1rem; line-height: 1; padding: 0 4px; }
+        .date-chip button:hover { color: #b91c1c; }
         .blocked-list { display: flex; flex-direction: column; gap: 8px; }
         .blocked-item { display: flex; align-items: center; justify-content: space-between; background: #fff; border-radius: 8px; padding: 12px 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.04); gap: 12px; }
         .blocked-info { font-size: 0.85rem; color: #374151; }
@@ -389,11 +446,69 @@ export default function CitasPage() {
           <>
             <div className="block-form">
               <h3>🚫 Bloquear horario o día completo</h3>
-              <div className="block-row">
-                <div>
-                  <label className="block-label">Fecha *</label>
-                  <input type="date" className="block-input" value={blockDate} onChange={e => setBlockDate(e.target.value)} />
+
+              <div className="mode-tabs">
+                <button
+                  type="button"
+                  className={`mode-tab${blockMode === 'dates' ? ' active' : ''}`}
+                  onClick={() => setBlockMode('dates')}
+                >
+                  📅 Fecha(s) específicas
+                </button>
+                <button
+                  type="button"
+                  className={`mode-tab${blockMode === 'weekday' ? ' active' : ''}`}
+                  onClick={() => setBlockMode('weekday')}
+                >
+                  🔁 Día de la semana (fijo)
+                </button>
+              </div>
+
+              {blockMode === 'dates' && (
+                <>
+                  <div className="block-row" style={{ gridTemplateColumns: '1fr 1fr auto' }}>
+                    <div>
+                      <label className="block-label">Desde *</label>
+                      <input type="date" className="block-input" value={blockFrom} onChange={e => setBlockFrom(e.target.value)} />
+                    </div>
+                    <div>
+                      <label className="block-label">Hasta (opcional — rango)</label>
+                      <input type="date" className="block-input" value={blockTo} onChange={e => setBlockTo(e.target.value)} />
+                    </div>
+                    <button type="button" className="btn-block" style={{ background: '#fff', color: '#1C2E44', border: '1.5px solid #1C2E44' }} onClick={addDateToList} disabled={!blockFrom}>
+                      + Agregar a la lista
+                    </button>
+                  </div>
+
+                  {pendingDates.length > 0 && (
+                    <div className="date-chips">
+                      {pendingDates.map(d => (
+                        <span key={d} className="date-chip">
+                          {formatDate(d)}
+                          <button type="button" onClick={() => removePendingDate(d)}>&times;</button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </>
+              )}
+
+              {blockMode === 'weekday' && (
+                <div className="block-row" style={{ gridTemplateColumns: '1fr' }}>
+                  <div>
+                    <label className="block-label">Día de la semana *</label>
+                    <select className="block-input" value={blockWeekday} onChange={e => setBlockWeekday(e.target.value)}>
+                      <option value="">— Selecciona —</option>
+                      {WEEKDAY_OPTIONS.map(w => <option key={w} value={w}>{WEEKDAY_LABELS[w]}</option>)}
+                    </select>
+                    <p style={{ fontSize: '0.75rem', color: '#9ca3af', marginTop: 6 }}>
+                      Queda fijo (bloqueado todas las semanas) hasta que lo pauses o lo elimines de la lista de abajo.
+                    </p>
+                  </div>
                 </div>
+              )}
+
+              <div className="block-row" style={{ gridTemplateColumns: '1fr 2fr auto', marginTop: 14 }}>
                 <div>
                   <label className="block-label">Hora (vacío = día completo)</label>
                   <select className="block-input" value={blockTime} onChange={e => setBlockTime(e.target.value)}>
@@ -405,8 +520,12 @@ export default function CitasPage() {
                   <label className="block-label">Motivo (opcional)</label>
                   <input className="block-input" placeholder="ej. Vacaciones, reunión interna..." value={blockReason} onChange={e => setBlockReason(e.target.value)} />
                 </div>
-                <button className="btn-block" onClick={addBlock} disabled={!blockDate || blocking}>
-                  {blocking ? '...' : 'Bloquear'}
+                <button
+                  className="btn-block"
+                  onClick={addBlock}
+                  disabled={blocking || (blockMode === 'weekday' ? !blockWeekday : pendingDates.length === 0)}
+                >
+                  {blocking ? '...' : blockMode === 'weekday' ? 'Bloquear' : `Bloquear ${pendingDates.length || ''} día(s)`}
                 </button>
               </div>
             </div>
@@ -418,9 +537,18 @@ export default function CitasPage() {
                 {blocked.map(b => (
                   <div key={b.id} className="blocked-item">
                     <div className="blocked-info">
-                      <strong>{formatDate(b.date)}</strong>
+                      <strong>{formatBlockedLabel(b)}</strong>
                       {b.time ? ` · ${formatTime(b.time)}` : ' · Día completo'}
                       {b.reason && <span style={{ color: '#6b7280', marginLeft: '8px' }}>— {b.reason}</span>}
+                      {b.weekday !== null && (
+                        <span
+                          style={{ marginLeft: '10px', fontSize: '0.72rem', fontWeight: 700, padding: '2px 8px', borderRadius: 20, background: b.active ? '#d1fae5' : '#f3f4f6', color: b.active ? '#065f46' : '#6b7280', cursor: 'pointer' }}
+                          onClick={() => toggleBlockActive(b.id, !b.active)}
+                          title="Click para pausar/reactivar"
+                        >
+                          {b.active ? '● Activo' : '○ Pausado'}
+                        </span>
+                      )}
                     </div>
                     <button className="btn-remove" onClick={() => removeBlock(b.id)}>Eliminar</button>
                   </div>

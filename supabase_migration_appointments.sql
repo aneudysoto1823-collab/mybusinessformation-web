@@ -68,6 +68,15 @@ CREATE INDEX IF NOT EXISTS idx_blocked_slots_date ON blocked_slots(date);
 ALTER TABLE appointments ADD COLUMN IF NOT EXISTS meeting_method text DEFAULT 'zoom';
 
 
+-- Bloqueos por rango/varios días + día de la semana recurrente + toggle
+-- activo/pausado — agregado 2026-08-03 (ver /admin/citas)
+-- -------------------------------------------------------------
+ALTER TABLE blocked_slots ALTER COLUMN date DROP NOT NULL;
+ALTER TABLE blocked_slots ADD COLUMN IF NOT EXISTS weekday INTEGER; -- 0=domingo … 6=sábado, null si es por fecha
+ALTER TABLE blocked_slots ADD COLUMN IF NOT EXISTS active BOOLEAN NOT NULL DEFAULT true;
+CREATE INDEX IF NOT EXISTS idx_blocked_slots_weekday ON blocked_slots(weekday);
+
+
 -- =============================================================
 -- PENDIENTES FUTUROS (no correr todavía):
 -- =============================================================
