@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
+import HowItWorksModal from '../HowItWorksModal'
 
 type EmpleadoDetalle = {
   nivel: string
@@ -79,6 +80,7 @@ export default function OpabizAdminPage() {
   const [empleados, setEmpleados] = useState<Empleado[]>([])
   const [loading, setLoading]     = useState(true)
   const [showForm, setShowForm]   = useState(false)
+  const [showHowItWorks, setShowHowItWorks] = useState(false)
   const [saving, setSaving]       = useState(false)
   const [msg, setMsg]             = useState<{ ok: boolean; text: string } | null>(null)
 
@@ -273,10 +275,47 @@ export default function OpabizAdminPage() {
             <h1 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#1C2E44' }}>OpaBiz Connect — Empleados</h1>
             <p style={{ fontSize: '.8rem', color: '#94A3B8', marginTop: 2 }}>Gestión de empleados internos y su estado de asignación</p>
           </div>
-          <button className="btn btn-primary" onClick={() => setShowForm(v => !v)}>
-            {showForm ? '✕ Cancelar' : '+ Crear Empleado'}
-          </button>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button className="btn" style={{ background: '#fff', color: '#1C2E44', border: '1.5px solid #1C2E44' }} onClick={() => setShowHowItWorks(true)}>
+              ℹ️ Cómo funciona
+            </button>
+            <button className="btn btn-primary" onClick={() => setShowForm(v => !v)}>
+              {showForm ? '✕ Cancelar' : '+ Crear Empleado'}
+            </button>
+          </div>
         </div>
+
+        {showHowItWorks && (
+          <HowItWorksModal title="🧭 Cómo funciona OpaBiz Connect" onClose={() => setShowHowItWorks(false)}>
+            <p>App interna para el equipo de campo (empleados) — separada del sitio público que ve el cliente. Sirve para repartir el trabajo real (trámites, seguimientos) entre el equipo y llevar registro de quién hizo qué.</p>
+
+            <h3>1. Cómo entra una orden hoy (100% manual)</h3>
+            <ul>
+              <li><strong>Desde una cita agendada:</strong> en <code>/admin/citas</code>, el botón &quot;🧭 Crear orden OpaBiz Connect&quot; en cada fila convierte esa consulta en una tarea real asignada a un empleado.</li>
+              <li><strong>Intake asistida:</strong> un empleado logueado en OpaBiz Connect puede llenar el formulario público real (opabiz.com) por teléfono con un cliente, hasta el paso de pago — ahí en vez de cobrar, guarda la solicitud y el cliente recibe el email de siempre para pagar cuando quiera. El agente nunca toca la tarjeta del cliente.</li>
+              <li>Todavía <strong>no</strong> está conectado al pago real (Stripe) — cuando un cliente paga solo en el sitio público, hoy no se crea sola una orden acá. Es un pendiente a futuro.</li>
+            </ul>
+
+            <h3>2. Cómo se reparten las órdenes</h3>
+            <ul>
+              <li>Existe un motor de asignación automática (por puntaje, disponibilidad y carga de cada empleado) pero <strong>hoy está apagado a propósito</strong> — se asigna todo a mano desde el panel mientras evaluamos el desempeño real del equipo.</li>
+              <li>Cada empleado tiene un nivel (básico/intermedio/avanzado/administrador), un puntaje que sube al completar trabajo, y un estado de disponibilidad.</li>
+            </ul>
+
+            <h3>3. El lado del empleado</h3>
+            <ul>
+              <li>Login propio (nada que ver con el login del admin del sitio), pensado como una app en el celular (&quot;Agregar a inicio&quot;, sin necesidad de instalar nada de una tienda de apps).</li>
+              <li>Ve solo sus propias órdenes asignadas, marca Aceptar → Completar, sube documentos, y prende/apaga un toggle de &quot;Disponible / No disponible&quot;.</li>
+              <li>Si acepta una orden y no la mueve de estado en 10 minutos, un proceso automático se la reasigna a otro y lo penaliza en el puntaje.</li>
+            </ul>
+
+            <h3>Este panel (lo que ves acá)</h3>
+            <ul>
+              <li><strong>Empleados:</strong> alta de nuevos (manda invitación por email para que se cree su contraseña), nivel, puntaje, disponibilidad, reenviar invitación si no la usó.</li>
+              <li><strong>Órdenes:</strong> lista de todo lo asignado — cliente, empleado, estado, si es urgente, notas.</li>
+            </ul>
+          </HowItWorksModal>
+        )}
 
         {showForm && (
           <div className="card">

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import HowItWorksModal from '../HowItWorksModal'
 
 interface Appointment {
   id: string
@@ -77,6 +78,7 @@ export default function CitasPage() {
   const [blockReason, setBlockReason] = useState('')
   const [blocking, setBlocking] = useState(false)
   const [tab, setTab] = useState<'appointments' | 'blocked'>('appointments')
+  const [showHowItWorks, setShowHowItWorks] = useState(false)
 
   // Crear orden de OpaBiz Connect a partir de una cita (manual, ver
   // LOGICA_DE_NEGOCIO/17). `linkedAppointmentIds` evita crear duplicados.
@@ -321,10 +323,49 @@ export default function CitasPage() {
               <span>Gestión de consultas agendadas</span>
             </h1>
           </div>
-          <a href="/booking" target="_blank" rel="noopener noreferrer" className="btn-booking">
-            📅 Ver Página de Citas
-          </a>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <button type="button" onClick={() => setShowHowItWorks(true)} className="btn-booking" style={{ background: '#fff', color: '#1C2E44', border: '1.5px solid #1C2E44', cursor: 'pointer' }}>
+              ℹ️ Cómo funciona
+            </button>
+            <a href="/booking" target="_blank" rel="noopener noreferrer" className="btn-booking">
+              📅 Ver Página de Citas
+            </a>
+          </div>
         </div>
+
+        {showHowItWorks && (
+          <HowItWorksModal title="📅 Cómo funciona el Sistema de Citas" onClose={() => setShowHowItWorks(false)}>
+            <p>Sistema propio de agendamiento para consultas gratuitas — reemplazó a Cal.com para tener control total de horarios, marca y emails, y para que el cliente nunca salga de opabiz.com.</p>
+
+            <h3>1. El cliente agenda en /booking</h3>
+            <ul>
+              <li>Elige un día en el calendario (Lunes a Sábado — <strong>Domingo siempre cerrado</strong>) y un horario entre 9:00am y 7:00pm, en bloques de 40 min (15 citas máx. por día).</li>
+              <li>Completa nombre, email, teléfono (obligatorio) y elige cómo prefiere que lo contactemos: llamada o WhatsApp.</li>
+              <li>Si es para hoy mismo, el sistema exige al menos 1 hora de anticipación — no deja agendar el próximo slot en 5 minutos.</li>
+              <li>Al confirmar, el cliente recibe un email con fecha/hora y botones para <strong>Reprogramar</strong> o <strong>Cancelar</strong> (sin necesidad de loguearse — el link ya lo autoriza).</li>
+            </ul>
+
+            <h3>2. El equipo se entera al instante</h3>
+            <ul>
+              <li>Llega un email interno con todos los datos del cliente + un botón de WhatsApp directo y otro para responder por email.</li>
+              <li>La cita aparece acá mismo, en la pestaña <strong>&quot;Citas&quot;</strong>, con estado <em>Pendiente</em> hasta que alguien del equipo confirma el contacto.</li>
+            </ul>
+
+            <h3>3. Gestión desde este panel</h3>
+            <ul>
+              <li>Pestaña &quot;Citas&quot;: filtrar por estado, confirmar, cancelar, borrar, agregar una nota interna (📝), o abrir WhatsApp con el cliente.</li>
+              <li>Pestaña &quot;Horarios Bloqueados&quot;: bloquear fechas puntuales, un rango de días, varios días sueltos a la vez, o un día de la semana fijo (ej. &quot;todos los lunes&quot;) que queda activo hasta que lo pausás o lo borrás — nada de esto es visible para el cliente, simplemente esos horarios dejan de aparecer disponibles en /booking.</li>
+              <li>Botón <strong>&quot;🧭 Crear orden OpaBiz Connect&quot;</strong> en cada cita: la convierte en una orden asignada a un empleado del equipo (ver el otro panel) — útil cuando la consulta termina en un trámite real.</li>
+            </ul>
+
+            <h3>Reglas clave</h3>
+            <ul>
+              <li>Es <strong>gratis</strong> — no se cobra nada por agendar, es un lead magnet.</li>
+              <li>Nada de esto usa un calendario externo (Google/Outlook) — todo vive en Supabase.</li>
+              <li>Si el cliente reprograma o cancela, se actualiza la misma cita (no crea una nueva) y se avisa al equipo por email también.</li>
+            </ul>
+          </HowItWorksModal>
+        )}
 
         {/* Stats */}
         <div className="stats">
