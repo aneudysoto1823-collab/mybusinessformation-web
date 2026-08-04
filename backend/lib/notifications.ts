@@ -642,3 +642,100 @@ export const sendOrderApprovalUpdate = async (
     `,
   })
 }
+
+// ── Registered Agent — direccion asignada ────────────────────────────────────
+// Se dispara desde el trigger del webhook Stripe (handleFormationPaid), en la
+// misma cadena automatica que confirma el pago — apenas se asigna el servicio
+// de RA, la direccion viene inmediata en el response de POST /services y este
+// email sale al cliente en segundos. NUNCA menciona "RAI" ni "provisioning" ni
+// "company created" — para el cliente, OpaBiz le esta proveyendo el servicio.
+// Idempotencia: el caller (provisionRaForOrder) solo lo invoca si
+// raAddressEmailSentAt IS NULL, para no reenviar si el cron encuentra la
+// direccion en una corrida posterior.
+export const sendRaAddressReady = async (order: {
+  firstName: string
+  lastName: string
+  email: string
+  companyName: string
+  id: string
+  entityType?: string | null
+  lang?: 'en' | 'es'
+  raAddress: {
+    line1: string
+    line2?: string | null
+    city: string
+    state: string
+    zip: string
+  }
+}) => {
+  const isEs = order.lang === 'es'
+  const fbfc = `FBFC-${order.id.replace(/-/g, '').substring(0, 8).toUpperCase()}`
+  const addr = order.raAddress
+  const addrLine2Html = addr.line2 ? `<div>${addr.line2}</div>` : ''
+
+  await getResend().emails.send({
+    from: FROM_OPABIZ,
+    replyTo: REPLY_TO,
+    to: order.email,
+    subject: isEs
+      ? `OpaBiz: 📬 Su Agente Registrado está activo — ${order.companyName}`
+      : `OpaBiz: 📬 Your Registered Agent is active — ${order.companyName}`,
+    html: `
+      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#1e293b">
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden">
+          <div style="padding:22px 32px;border-bottom:1px solid #e2e8f0">
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+              <td style="width:42px;padding-right:12px">
+                <div style="width:42px;height:42px;background:linear-gradient(135deg,#1C2E44,#2563EB);border-radius:10px;text-align:center;line-height:42px;color:#fff;font-family:Georgia,serif;font-size:16px;font-weight:700">OB</div>
+              </td>
+              <td style="vertical-align:middle">
+                <div style="font-family:Georgia,serif;font-size:21px;font-weight:700;line-height:1.2"><span style="color:#1C2E44">Opa</span><span style="color:#2563EB">Biz</span></div>
+                <div style="font-size:11px;color:#94A3B8;letter-spacing:.3px;margin-top:2px">Florida Business Formation Center</div>
+              </td>
+            </tr></table>
+          </div>
+          <div style="padding:32px">
+            <p style="font-size:12px;font-weight:700;color:#1C2E44;text-transform:uppercase;letter-spacing:.5px;margin:0 0 10px">${isEs ? 'Servicio de Agente Registrado' : 'Registered Agent Service'}</p>
+            <h2 style="color:#1C2E44;font-size:20px;margin-top:0">${isEs ? `Su Agente Registrado está activo, ${order.firstName} ${order.lastName}` : `Your Registered Agent is active, ${order.firstName} ${order.lastName}`}</h2>
+            <div style="background:#EFF6FF;border-radius:8px;padding:14px 18px;margin:4px 0 22px;text-align:center">
+              <div style="font-size:11px;color:#2563EB;text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:4px">${isEs ? 'Número de Orden' : 'Order Number'}</div>
+              <div style="font-size:21px;font-weight:800;color:#1C2E44;letter-spacing:.5px">${fbfc}</div>
+            </div>
+            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:20px;margin:20px 0">
+              <p style="margin:6px 0;font-size:14px"><strong>${isEs ? 'Empresa' : 'Company'}:</strong> ${order.companyName}</p>
+              ${order.entityType ? `<p style="margin:6px 0 0;font-size:14px"><strong>${isEs ? 'Tipo de Entidad' : 'Entity Type'}:</strong> ${order.entityType.toUpperCase()}</p>` : ''}
+            </div>
+            <p style="font-size:12px;font-weight:700;color:#1C2E44;text-transform:uppercase;letter-spacing:.5px;margin:16px 0 10px">${isEs ? 'Dirección de su Agente Registrado' : 'Your Registered Agent Address'}</p>
+            <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:20px;margin:0 0 20px;font-size:15px;line-height:1.6;color:#0c4a6e">
+              <div style="font-weight:700">${addr.line1}</div>
+              ${addrLine2Html}
+              <div>${addr.city}, ${addr.state} ${addr.zip}</div>
+            </div>
+            <p style="color:#475569;line-height:1.7">
+              ${isEs
+                ? 'Esta es la dirección oficial que usará su empresa para recibir documentos legales y correspondencia del gobierno. Puede usarla en cualquier trámite oficial: cuentas bancarias, IRS, licencias comerciales, contratos y formularios estatales.'
+                : 'This is the official address your business will use to receive legal documents and government correspondence. You can use it on any official filing: bank accounts, IRS, business licenses, contracts, and state forms.'}
+            </p>
+            <p style="color:#475569;line-height:1.7">
+              ${isEs
+                ? 'Cualquier documento legal que llegue a esta dirección lo procesamos y se lo enviamos por correo electrónico el mismo día.'
+                : 'Any legal document that arrives at this address will be processed and forwarded to you by email the same day.'}
+            </p>
+            <div style="text-align:center;margin:24px 0">
+              <a href="${PORTAL_HOME}" style="background:linear-gradient(135deg,#2563EB,#1C2E44);color:#fff;text-decoration:none;padding:13px 32px;border-radius:8px;font-weight:700;font-size:15px;display:inline-block">
+                ${isEs ? 'Rastrear Mi Orden' : 'Track My Order'}
+              </a>
+            </div>
+            <p style="color:#475569;line-height:1.7">
+              ${isEs ? '¿Preguntas? Escríbanos por' : 'Questions? Reach us on'} <a href="https://wa.me/13528377755" style="color:#059669">WhatsApp</a> ${isEs ? 'o responda este correo.' : 'or reply to this email.'}
+            </p>
+            <p style="margin-top:24px;color:#94a3b8;font-size:12px;line-height:1.6">
+              OpaBiz · opabiz.com<br/>
+              ${isEs ? 'Este es un correo transaccional. Somos un servicio de preparación de documentos, no un despacho de abogados.' : 'This is a transactional email. We are a document preparation service, not a law firm.'}
+            </p>
+          </div>
+        </div>
+      </div>
+    `,
+  })
+}

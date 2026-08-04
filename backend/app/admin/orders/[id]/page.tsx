@@ -37,6 +37,19 @@ interface Order {
   orderProcessedEmailSentAt?: string | null
   deliveredItems?: Record<string, boolean> | null
   deliveredFiles?: { url: string; filename: string; uploadedAt: string }[] | null
+  // Registered Agent provisioning (RAI / Corporate Tools)
+  raCompanyId?: string | null
+  raServiceId?: string | null
+  raInvoiceId?: string | null
+  raInvoicePaid?: boolean | null
+  raAddress?: { line1: string; line2?: string | null; city: string; state: string; zip: string } | null
+  raProvisionedAt?: string | null
+  raAddressEmailSentAt?: string | null
+  // EIN application info (SSN/ITIN va enmascarado; se desencripta bajo demanda
+  // via /api/admin/orders/[id]/ein-tax-id — audit log en cada reveal).
+  einIdType?: 'ssn' | 'itin' | 'none' | null
+  einActivity?: string | null
+  einActivityDesc?: string | null
   nameCheck?: {
     available?: boolean
     exactCount?: number
@@ -185,6 +198,14 @@ export default function OrderDetailPage() {
   // Botones de avance de estado (Func 5)
   const [statusLoading, setStatusLoading] = useState(false)
   const [statusMsg, setStatusMsg] = useState('')
+
+  // Retry manual del provisioning de Registered Agent (RAI)
+  const [raRetryLoading, setRaRetryLoading] = useState(false)
+  const [raRetryMsg, setRaRetryMsg] = useState('')
+
+  // Reveal del SSN/ITIN encriptado — vacio = enmascarado. Se limpia solo tras 30s.
+  const [revealedTaxId, setRevealedTaxId] = useState<string | null>(null)
+  const [revealLoading, setRevealLoading] = useState(false)
 
   useEffect(() => {
     fetch(`${PROXY}/orders/${id}`)
@@ -382,6 +403,53 @@ export default function OrderDetailPage() {
       setStatusMsg('Error al actualizar el estado.')
     }
     setTimeout(() => setStatusMsg(''), 4000)
+  }
+
+  // Retry manual del provisioning de RA (llama a provisionRaForOrder con
+  // force:true). Idempotente: solo re-ejecuta los pasos cuyo ID falte en la DB.
+  async function handleRaRetry() {
+    if (!id) return
+    setRaRetryLoading(true)
+    setRaRetryMsg('')
+    try {
+      const res = await fetch(`/api/admin/orders/${id}/ra-retry`, { method: 'POST' })
+      const data = await res.json()
+      if (res.ok && data.ok) {
+        setRaRetryMsg('✓ Retry OK — refrescando datos…')
+        // Refrescar el order para ver los nuevos IDs/dirección
+        const orderRes = await fetch(`${PROXY}/orders/${id}`)
+        if (orderRes.ok) {
+          const orderData = await orderRes.json()
+          setOrder(orderData.order ?? orderData.data ?? orderData)
+        }
+      } else {
+        setRaRetryMsg(`Error: ${data.error ?? 'desconocido'}`)
+      }
+    } catch (err) {
+      setRaRetryMsg(`Error: ${err instanceof Error ? err.message : String(err)}`)
+    }
+    setRaRetryLoading(false)
+    setTimeout(() => setRaRetryMsg(''), 8000)
+  }
+
+  // Reveal del SSN/ITIN. Cada click escribe a admin_audit_log server-side. El
+  // numero queda visible 30s y despues vuelve al masked por default.
+  async function handleRevealSsn() {
+    if (!id || revealLoading) return
+    setRevealLoading(true)
+    try {
+      const res = await fetch(`/api/admin/orders/${id}/ein-tax-id`)
+      const data = await res.json()
+      if (res.ok && data.taxId) {
+        setRevealedTaxId(data.taxId)
+        setTimeout(() => setRevealedTaxId(null), 30000)
+      } else {
+        alert(`No se pudo revelar: ${data.error ?? 'desconocido'}`)
+      }
+    } catch (err) {
+      alert(`Error: ${err instanceof Error ? err.message : String(err)}`)
+    }
+    setRevealLoading(false)
   }
 
   if (loading) return (
@@ -689,6 +757,169 @@ export default function OrderDetailPage() {
             <Field label="Dirección comercial" value={order.businessAddress} />
           </div>
         </Section>
+
+        {/* RA Provisioning (RAI) — solo visible si el addon esta comprado.
+            Data operacional interna: IDs para lookup en portal RAI, direccion
+            asignada, estado de la factura (que el staff paga manualmente). */}
+        {(() => {
+          // El cliente eligio que le provemos el RA?
+          // 'us' = "Nuestro servicio (incluido)" — Standard/Premium por default
+          // + Basic con addon RA. 'own' = agente propio, no aplica.
+          // Bug historico: chequeabamos addons.ra pero fmBuildOrderPayload nunca
+          // setea esa propiedad; el flag real siempre estuvo en registeredAgent.
+          if (order.registeredAgent !== 'us') return null
+
+          const hasAddress = !!order.raAddress?.line1
+          let statusLabel = 'Sin provisionar'
+          let statusBg = '#f3f4f6'
+          let statusColor = '#6b7280'
+          if (order.raProvisionedAt && hasAddress) {
+            statusLabel = 'Activo (dirección asignada)'
+            statusBg = '#dcfce7'
+            statusColor = '#166534'
+          } else if (order.raProvisionedAt && !hasAddress) {
+            statusLabel = 'Provisionado (sin dirección)'
+            statusBg = '#fef9c3'
+            statusColor = '#92400e'
+          } else if (order.raCompanyId && !order.raServiceId) {
+            statusLabel = 'Company creada (falta service)'
+            statusBg = '#fee2e2'
+            statusColor = '#b91c1c'
+          }
+
+          const invoicePaidLabel = order.raInvoicePaid ? 'Pagada (marcada por auditoría)' : 'Sin pagar — el staff paga en el portal RAI'
+          const invoicePaidBg = order.raInvoicePaid ? '#dcfce7' : '#fef9c3'
+          const invoicePaidColor = order.raInvoicePaid ? '#166534' : '#92400e'
+
+          return (
+            <Section title="🏢 Registered Agent (RAI Provisioning)">
+              <div style={{ marginBottom: '18px', display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
+                <span style={{ background: statusBg, color: statusColor, padding: '4px 12px', borderRadius: '999px', fontSize: '13px', fontWeight: 600 }}>
+                  {statusLabel}
+                </span>
+                {order.raProvisionedAt && (
+                  <span style={{ fontSize: '12px', color: '#6b7280' }}>
+                    · Provisionado: {new Date(order.raProvisionedAt).toLocaleString('es-ES')}
+                  </span>
+                )}
+                {order.raAddressEmailSentAt && (
+                  <span style={{ fontSize: '12px', color: '#059669' }}>
+                    ✉ Email al cliente: {new Date(order.raAddressEmailSentAt).toLocaleString('es-ES')}
+                  </span>
+                )}
+              </div>
+
+              <div className="grid-2">
+                <Field label="Company ID (RAI)" value={order.raCompanyId ?? undefined} />
+                <Field label="Service ID (RAI)" value={order.raServiceId ?? undefined} />
+              </div>
+
+              {/* Invoice — bloque destacado porque es lo que el staff necesita para pagar */}
+              <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '14px 16px', marginTop: '12px', marginBottom: '12px' }}>
+                <div style={{ fontSize: '11px', fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: '6px' }}>
+                  Invoice ID (buscar en el portal RAI para pagar)
+                </div>
+                <div style={{ fontFamily: 'monospace', fontSize: '14px', color: '#111827', wordBreak: 'break-all', marginBottom: '8px' }}>
+                  {order.raInvoiceId ?? '—'}
+                </div>
+                <span style={{ display: 'inline-block', background: invoicePaidBg, color: invoicePaidColor, padding: '3px 10px', borderRadius: '999px', fontSize: '12px', fontWeight: 600 }}>
+                  {invoicePaidLabel}
+                </span>
+              </div>
+
+              {/* Dirección asignada */}
+              {hasAddress && order.raAddress && (
+                <div style={{ background: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: '8px', padding: '14px 16px', marginBottom: '12px' }}>
+                  <div style={{ fontSize: '11px', fontWeight: 700, color: '#0369a1', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: '6px' }}>
+                    Dirección asignada por RAI
+                  </div>
+                  <div style={{ fontSize: '14px', color: '#0c4a6e', lineHeight: '1.6' }}>
+                    <div style={{ fontWeight: 600 }}>{order.raAddress.line1}</div>
+                    {order.raAddress.line2 && <div>{order.raAddress.line2}</div>}
+                    <div>{order.raAddress.city}, {order.raAddress.state} {order.raAddress.zip}</div>
+                  </div>
+                </div>
+              )}
+
+              {/* Botón Retry */}
+              <div style={{ marginTop: '14px' }}>
+                <button
+                  onClick={handleRaRetry}
+                  disabled={raRetryLoading}
+                  style={{
+                    background: raRetryLoading ? '#9ca3af' : '#1d4ed8',
+                    color: '#fff',
+                    border: 'none',
+                    padding: '9px 18px',
+                    borderRadius: '8px',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    cursor: raRetryLoading ? 'not-allowed' : 'pointer',
+                  }}
+                >
+                  {raRetryLoading ? 'Reintentando…' : '🔁 Retry RA provisioning'}
+                </button>
+                {raRetryMsg && (
+                  <span style={{ marginLeft: '12px', fontSize: '13px', color: raRetryMsg.startsWith('✓') ? '#059669' : '#b91c1c' }}>
+                    {raRetryMsg}
+                  </span>
+                )}
+                <p style={{ fontSize: '12px', color: '#6b7280', marginTop: '10px', lineHeight: '1.5' }}>
+                  Idempotente: solo re-ejecuta los pasos cuyos IDs falten arriba. Safe reintentarlo varias veces.
+                </p>
+              </div>
+            </Section>
+          )
+        })()}
+
+        {/* EIN Application Info — solo si el cliente lleno algo del bloque nuevo
+            del paso 2 (Standard/Premium) o del addon EIN de Basic (paso 7).
+            SSN/ITIN se muestra enmascarado por default; el boton Reveal llama
+            al endpoint que desencripta y escribe admin_audit_log. */}
+        {order.einIdType && (() => {
+          const idType = order.einIdType
+          const idLabel = idType === 'ssn' ? 'SSN' : idType === 'itin' ? 'ITIN' : 'Sin ID (extranjero)'
+          return (
+            <Section title="🧾 EIN Application Info">
+              <div className="grid-2">
+                <Field label="Tipo de ID" value={idLabel} />
+                {(idType === 'ssn' || idType === 'itin') && (
+                  <div style={{ marginBottom: '12px' }}>
+                    <div style={{ fontSize: '11px', fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: '4px' }}>
+                      {idLabel} del Responsible Party
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                      <span style={{ fontFamily: 'monospace', fontSize: '15px', fontWeight: 700, color: '#111827', background: '#f8fafc', padding: '6px 12px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+                        {revealedTaxId ?? '•••-••-••••'}
+                      </span>
+                      <button
+                        onClick={handleRevealSsn}
+                        disabled={revealLoading || !!revealedTaxId}
+                        style={{
+                          background: revealedTaxId ? '#059669' : revealLoading ? '#9ca3af' : '#1d4ed8',
+                          color: '#fff',
+                          border: 'none',
+                          padding: '6px 14px',
+                          borderRadius: '6px',
+                          fontSize: '12px',
+                          fontWeight: 700,
+                          cursor: (revealLoading || revealedTaxId) ? 'not-allowed' : 'pointer',
+                        }}
+                      >
+                        {revealedTaxId ? '✓ Visible 30s' : revealLoading ? 'Revelando…' : '🔓 Reveal'}
+                      </button>
+                    </div>
+                    <p style={{ fontSize: '11px', color: '#6b7280', marginTop: '6px', lineHeight: '1.5' }}>
+                      Se registra quién y cuándo se revela (admin_audit_log). Vuelve a enmascarado en 30 seg. También aparece completo en el PDF SS-4 pre-filled.
+                    </p>
+                  </div>
+                )}
+              </div>
+              {order.einActivity && <Field label="Principal Business Activity" value={order.einActivity} />}
+              {order.einActivityDesc && <Field label="Descripción de la actividad" value={order.einActivityDesc} />}
+            </Section>
+          )
+        })()}
 
         {/* Miembros / Organizers */}
         {(() => {

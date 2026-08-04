@@ -1039,7 +1039,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           <div class="svc-row"><span class="svc-name" data-en="Operating Agreement" data-es="Acuerdo Operativo">Operating Agreement</span><span class="svc-status s-add">+ $59</span></div>
           <div class="svc-row"><span class="svc-name" data-en="DBA / Fictitious Name" data-es="DBA / Nombre Ficticio">DBA / Fictitious Name</span><span class="svc-status s-add">+ $49</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Articles of Amendment" data-es="Artículos de Enmienda">Articles of Amendment</span><span class="svc-status s-add">+ $59</span></div>
-          <div class="svc-row"><span class="svc-name" data-en="Registered Agent" data-es="Agente Registrado">Registered Agent</span><span class="svc-status" style="font-size:.68rem;color:#94a3b8" data-en="🕐 Coming Soon" data-es="🕐 Próximamente">🕐 Coming Soon</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="Registered Agent" data-es="Agente Registrado">Registered Agent</span><span class="svc-status s-add" data-en="+ $99/year" data-es="+ $99/año">+ $99/year</span></div>
         </div>
       </div>
 
@@ -1066,7 +1066,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           <div class="svc-row"><span class="svc-name" data-en="Sales Tax Registration" data-es="Registro de Impuesto sobre Ventas">Sales Tax Registration</span><span class="svc-status s-add">+ $79</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Operating Agreement" data-es="Acuerdo Operativo">Operating Agreement</span><span class="svc-status s-add">+ $59</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Articles of Amendment" data-es="Artículos de Enmienda">Articles of Amendment</span><span class="svc-status s-add">+ $59</span></div>
-          <div class="svc-row"><span class="svc-name" data-en="Registered Agent" data-es="Agente Registrado">Registered Agent</span><span class="svc-status" style="font-size:.68rem;color:#94a3b8" data-en="🕐 Coming Soon" data-es="🕐 Próximamente">🕐 Coming Soon</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="Registered Agent" data-es="Agente Registrado">Registered Agent</span><span class="svc-status s-add" data-en="+ $99/year" data-es="+ $99/año">+ $99/year</span></div>
         </div>
       </div>
 
@@ -1092,7 +1092,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           <div class="svc-row"><span class="svc-name" data-en="Articles of Amendment" data-es="Artículos de Enmienda">Articles of Amendment</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Local Business Tax Receipt" data-es="Licencia Comercial Local">Local Business Tax Receipt</span><span class="svc-status s-add">+ $79</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Sales Tax Registration" data-es="Registro de Impuesto sobre Ventas">Sales Tax Registration</span><span class="svc-status s-add">+ $79</span></div>
-          <div class="svc-row"><span class="svc-name" data-en="Registered Agent" data-es="Agente Registrado">Registered Agent</span><span class="svc-status" style="font-size:.68rem;color:#94a3b8" data-en="🕐 Coming Soon" data-es="🕐 Próximamente">🕐 Coming Soon</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="Registered Agent" data-es="Agente Registrado">Registered Agent</span><span class="svc-status s-add" data-en="+ $99/year" data-es="+ $99/año">+ $99/year</span></div>
         </div>
       </div>
     </div>
@@ -1481,7 +1481,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
               </select>
             </div>
           </div>
-          <div style="background:#eff6ff;border-left:4px solid #2563eb;border-radius:0 8px 8px 0;padding:9px 13px;font-size:.76rem;color:#1e40af;line-height:1.6;margin:10px 0 14px" id="s1-fl-note">&#127987;&#65039; <strong id="s1-fl-note-title">Required by Florida:</strong> <span id="s1-fl-note-text">LLCs must end with <em>LLC</em>, <em>L.L.C.</em>, or <em>Limited Liability Company</em>. Corporations must end with <em>Corp</em>, <em>Inc</em>, <em>Corporation</em>, or <em>Incorporated</em>.</span></div>
+          <div style="background:#eff6ff;border-left:4px solid #2563eb;border-radius:0 8px 8px 0;padding:9px 13px;font-size:.76rem;color:#1e40af;line-height:1.6;margin:10px 0 14px" id="s1-fl-note">&#127987;&#65039; <strong id="s1-fl-note-title">By law:</strong> <span id="s1-fl-note-text">the business name must end with a valid designator — choose one from the dropdown above.</span></div>
           <div class="fm-group" id="bizname-preview-wrap" style="display:none">
             <div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:9px;padding:9px 13px;font-size:.88rem;font-weight:600;color:#15803d;display:flex;align-items:center;justify-content:space-between">
               <span id="bizname-preview"></span><span>&#10003;</span>
@@ -1500,17 +1500,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
                 <span class="fm-nameacc-chev">&#9662;</span>
               </button>
               <div class="fm-nameacc-body" id="name-acc-1-body">
-                <p id="name-acc-1-a">If the name you choose is rejected by the Florida Division of Corporations after we submit your filing, we will contact you to request an alternative name and will resubmit at no additional service fee from us. The original state filing fee paid to Florida is non-refundable. Any new state filing fee charged for the resubmission is your responsibility.</p>
-              </div>
-            </div>
-
-            <div class="fm-nameacc-item" id="name-acc-2">
-              <button type="button" class="fm-nameacc-head" onclick="this.parentElement.classList.toggle('open')">
-                <span id="name-acc-2-q">Does the company name end with &quot;LLC&quot; or &quot;Inc.&quot;?</span>
-                <span class="fm-nameacc-chev">&#9662;</span>
-              </button>
-              <div class="fm-nameacc-body" id="name-acc-2-body">
-                <p id="name-acc-2-a">Yes. Florida requires every entity name to include a designator. For LLCs you can use: <em>LLC</em>, <em>L.L.C.</em>, <em>Limited Liability Company</em>, or <em>Ltd. Liability Co.</em> For Corporations: <em>Inc.</em>, <em>Corp.</em>, <em>Corporation</em>, or <em>Incorporated</em>. You select the designator from the dropdown above — <strong>you do not need to type it in the name field.</strong> We add it automatically when we file.</p>
+                <p id="name-acc-1-a">No worries if the first name isn&apos;t available — we&apos;ll review options together until we land on one Florida approves.</p>
               </div>
             </div>
 
@@ -1520,7 +1510,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
                 <span class="fm-nameacc-chev">&#9662;</span>
               </button>
               <div class="fm-nameacc-body" id="name-acc-3-body">
-                <p id="name-acc-3-a">No. The check we perform while you type is a <strong>preliminary search</strong> against Florida's public Sunbiz database. A name shown as available may still be rejected by Florida for reasons not visible in the public records, including: 120-day name reservations not yet public, names requiring special licensing (such as &ldquo;Bank&rdquo;, &ldquo;Trust&rdquo;, &ldquo;Insurance&rdquo;), federally trademarked names, or examiner discretion regarding similarity to existing entities. See our <a href="/terms#name-availability" target="_blank" rel="noopener">Terms of Service &sect;14</a> for the full policy.</p>
+                <p id="name-acc-3-a">No. The check we perform while you type is a <strong>preliminary search</strong> against the public records of the Florida Division of Corporations. A name shown as available may still be rejected by Florida for reasons not visible in the public records, including: 120-day name reservations not yet public, names requiring special licensing (such as &ldquo;Bank&rdquo;, &ldquo;Trust&rdquo;, &ldquo;Insurance&rdquo;), federally trademarked names, or examiner discretion regarding similarity to existing entities. See our <a href="/terms#name-availability" target="_blank" rel="noopener">Terms of Service &sect;14</a> for the full policy.</p>
               </div>
             </div>
           </div>
@@ -1726,7 +1716,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
                 <div class="fm-choice-radio"></div>
                 <div class="fm-choice-content">
                   <strong id="agent-ours-lbl">&#127963; Use Our Registered Agent Service</strong>
-                  <p id="agent-ours-desc">We act as your official Registered Agent. Your personal address stays completely private &mdash; we handle all official correspondence.</p>
+                  <p id="agent-ours-desc">We act as your official Registered Agent and receive all official documents on your behalf. Your personal address will not appear on any public record.</p>
                 </div>
               </div>
               <div class="fm-choice" id="agent-use-own" onclick="fmSetAgentChoice('own',this)">
@@ -1736,9 +1726,6 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
                   <p id="agent-own-desc">Your address will be publicly registered with the State of Florida and the law requires you to be present at that address Monday through Friday from 9am to 5pm to receive official legal documents.</p>
                 </div>
               </div>
-            </div>
-            <div id="agent-ours-note" style="margin-top:10px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:9px;padding:12px 14px;font-size:.78rem;color:#1e40af;line-height:1.65">
-              &#8505; <span id="agent-ours-note-text">We will act as your Registered Agent and receive all official documents on your behalf. Your personal address will not appear on any public record. Your first year is free; after that it renews automatically at $99/year until you cancel.</span>
             </div>
             <div id="agent-own-form" style="display:none;margin-top:14px">
               <div class="fm-group"><label class="fm-label" id="lbl-ra-name">Full Name *</label><input type="text" class="fm-input" id="inp-ra-name" placeholder="Full legal name" oninput="fmTitleCase(this)"/></div>
@@ -1771,7 +1758,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
                 <div style="font-size:.68rem;color:#9ca3af;margin-top:2px" id="s3-mail-opt">Optional — separate from your Registered Agent address</div>
                 <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px 14px;background:#fff;border:1.5px solid #e2e8f0;border-radius:9px;margin-top:8px">
                   <input type="checkbox" id="chk-same-mail" checked onchange="fmToggleMailAddr(this)" style="width:17px;height:17px;cursor:pointer;accent-color:#2563eb"/>
-                  <span id="lbl-same-mail" style="font-size:.83rem;font-weight:600;color:#374151">Same as business address</span>
+                  <span id="lbl-same-mail" style="font-size:.83rem;font-weight:600;color:#374151">Use my business address for mailing</span>
                 </label>
               </div>
               <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:9px;padding:10px 14px;font-size:.76rem;color:#475569;line-height:1.6;margin-bottom:12px">
@@ -3405,15 +3392,13 @@ function fmSetBizAddr(type, el) {
   var form = document.getElementById('biz-own-form');
   if(note) note.style.display = type === 'virtual' ? 'flex' : 'none';
   if(form) form.style.display = type === 'own' ? 'block' : 'none';
-  // Update mailing address checkbox label based on address type
+  // Update mailing address checkbox label (mismo texto sin importar virtual vs own —
+  // el label anterior variaba entre "Same as business address" y "Same as above (agent
+  // address)" pero esa distincion confundia al cliente sugiriendo que mailing = RA).
   var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
   var mailLbl = document.getElementById('lbl-same-mail');
   if(mailLbl) {
-    if(type === 'virtual') {
-      mailLbl.textContent = isEs ? 'Igual que la dirección de arriba (dirección del agente)' : 'Same as above (agent address)';
-    } else {
-      mailLbl.textContent = isEs ? 'Igual que la dirección del negocio' : 'Same as business address';
-    }
+    mailLbl.textContent = isEs ? 'Usar mi dirección de negocio para correspondencia' : 'Use my business address for mailing';
   }
   fmUpdateSummary();
 }
@@ -3421,9 +3406,7 @@ function fmSetAgentChoice(type, el) {
   fmData.agentType = type;
   document.querySelectorAll('#agent-use-ours,#agent-use-own').forEach(function(c){ c.classList.remove('selected'); });
   if(el) el.classList.add('selected');
-  var on = document.getElementById('agent-ours-note');
   var of2 = document.getElementById('agent-own-form');
-  if(on) on.style.display = type === 'ours' ? 'block' : 'none';
   if(of2) of2.style.display = type === 'own' ? 'block' : 'none';
   if(type === 'own') {
     // Regla 2026-06-25: el checkbox "Same as Physical Business Address" solo
@@ -4696,24 +4679,29 @@ function fmRenderPkgEinSection() {
   if(!applies) return;
   var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
   var pkgName = pkg === 'premium' ? (isEs?'Premium':'Premium') : (isEs?'Standard':'Standard');
+  // REGLA CRITICA aprendida del hard-crash 2026-08-01: strings JS con apostrofe
+  // dentro de este template literal exterior DEBEN usar comillas dobles. Escapar
+  // el apostrofe con backslash compila pero al servirse via SSR el backslash se
+  // colapsa y el apostrofe cierra el string, rompiendo TODO el script inline y
+  // dejando el form muerto. Comillas dobles evitan el problema completamente.
   var t = {
-    'pkg-ein-divider':      isEs ? 'ID Fiscal para su EIN' : 'Tax ID for Your EIN',
-    'pkg-ein-intro':        isEs
-      ? ('&#128204; Su paquete <strong>'+pkgName+'</strong> incluye un EIN gratis. El IRS exige el número de identificación fiscal (SSN o ITIN) de la persona responsable del negocio para procesar la solicitud.')
-      : ('&#128204; Your <strong>'+pkgName+'</strong> package includes a free EIN application. The IRS requires the tax ID (SSN or ITIN) of the person responsible for the business to process it.'),
-    'pkg-lbl-ein-rp-id':    isEs?'SSN / ITIN del Responsable Principal *':'SSN / ITIN of Responsible Party *',
-    'pkg-tt-ein-rp-id':     isEs?'El IRS exige el ID fiscal (SSN o ITIN) de la persona que controla y administra este negocio. Sin esto, el IRS no puede procesar su solicitud de EIN en línea.':'The IRS requires the tax ID (SSN or ITIN) of the person who controls and manages this business. Without this, the IRS cannot process your EIN application online.',
-    'pkg-ein-no-id-txt':    isEs?'Soy extranjero, no poseo SSN ni ITIN':'I\'m a foreigner, I don\'t have an SSN or ITIN',
-    'pkg-lbl-ssn-1':        isEs?'SSN *':'SSN *',
-    'pkg-lbl-ssn-2':        isEs?'Confirmar SSN *':'Confirm SSN *',
-    'pkg-ssn-privacy-note': isEs?'&#128274; Su SSN está encriptado y nunca se almacena en texto simple.':'&#128274; Your SSN is encrypted and never stored in plain text.',
-    'pkg-lbl-itin-1':       isEs?'ITIN *':'ITIN *',
-    'pkg-lbl-itin-2':       isEs?'Confirmar ITIN *':'Confirm ITIN *',
-    'pkg-itin-privacy-note':isEs?'&#128274; Su ITIN está encriptado y nunca se almacena en texto simple.':'&#128274; Your ITIN is encrypted and never stored in plain text.',
-    'pkg-ein-warn-title':   isEs?'Anotado — le daremos seguimiento sobre la mejor vía para obtener su EIN como solicitante extranjero.':'Noted — we\'ll follow up on the best path to get your EIN as a foreign applicant.',
-    'pkg-lbl-ein-activity': isEs?'Actividad Principal del Negocio *':'Principal Business Activity *',
-    'pkg-tt-ein-activity':  isEs?'El IRS usa esto para clasificar su negocio con fines fiscales.':'The IRS uses this to classify your business for tax purposes.',
-    'pkg-lbl-ein-activity-desc': isEs?'Describa su producto o servicio específico *':'Describe your specific product or service *'
+    "pkg-ein-divider":      isEs ? "Necesitamos esta información para tramitar su EIN" : "We need this info to file your EIN",
+    "pkg-ein-intro":        isEs
+      ? ("&#128204; Su paquete <strong>" + pkgName + "</strong> incluye un EIN gratis. El IRS exige el ID fiscal (SSN o ITIN) del responsable del negocio para procesarlo.")
+      : ("&#128204; Your <strong>" + pkgName + "</strong> package includes a free EIN. The IRS requires the responsible party's tax ID (SSN or ITIN) to process it."),
+    "pkg-lbl-ein-rp-id":    isEs ? "SSN / ITIN del Responsable Principal *" : "SSN / ITIN of Responsible Party *",
+    "pkg-tt-ein-rp-id":     isEs ? "El IRS exige el ID fiscal (SSN o ITIN) de la persona que controla y administra este negocio. Sin esto, el IRS no puede procesar su solicitud de EIN en línea." : "The IRS requires the tax ID (SSN or ITIN) of the person who controls and manages this business. Without this, the IRS cannot process your EIN application online.",
+    "pkg-ein-no-id-txt":    isEs ? "Soy extranjero, no poseo SSN ni ITIN" : "I'm a foreigner, I don't have an SSN or ITIN",
+    "pkg-lbl-ssn-1":        isEs ? "SSN *" : "SSN *",
+    "pkg-lbl-ssn-2":        isEs ? "Confirmar SSN *" : "Confirm SSN *",
+    "pkg-ssn-privacy-note": isEs ? "&#128274; Su SSN está encriptado y nunca se almacena en texto simple." : "&#128274; Your SSN is encrypted and never stored in plain text.",
+    "pkg-lbl-itin-1":       isEs ? "ITIN *" : "ITIN *",
+    "pkg-lbl-itin-2":       isEs ? "Confirmar ITIN *" : "Confirm ITIN *",
+    "pkg-itin-privacy-note":isEs ? "&#128274; Su ITIN está encriptado y nunca se almacena en texto simple." : "&#128274; Your ITIN is encrypted and never stored in plain text.",
+    "pkg-ein-warn-title":   isEs ? "Anotado — le daremos seguimiento sobre la mejor vía para obtener su EIN como solicitante extranjero." : "Noted — we'll follow up on the best path to get your EIN as a foreign applicant.",
+    "pkg-lbl-ein-activity": isEs ? "Actividad Principal del Negocio *" : "Principal Business Activity *",
+    "pkg-tt-ein-activity":  isEs ? "El IRS usa esto para clasificar su negocio con fines fiscales." : "The IRS uses this to classify your business for tax purposes.",
+    "pkg-lbl-ein-activity-desc": isEs ? "Describa su producto o servicio específico *" : "Describe your specific product or service *"
   };
   Object.keys(t).forEach(function(id){ var e=document.getElementById(id); if(e) e.innerHTML=t[id]; });
   var descInp = document.getElementById('pkg-inp-ein-activity-desc');
@@ -4744,19 +4732,15 @@ function fmSyncStep3() {
   var agentType = fmData.agentType || 'ours';
   var oursBtn  = document.getElementById('agent-use-ours');
   var ownBtn   = document.getElementById('agent-use-own');
-  var oursNote = document.getElementById('agent-ours-note');
   var ownForm  = document.getElementById('agent-own-form');
   if(oursBtn)  oursBtn.classList.toggle('selected',  agentType === 'ours');
   if(ownBtn)   ownBtn.classList.toggle('selected',   agentType === 'own');
-  if(oursNote) oursNote.style.display = agentType === 'ours' ? 'block' : 'none';
   if(ownForm)  ownForm.style.display  = agentType === 'own'  ? 'block' : 'none';
-  // Sync mailing address label based on address type chosen in step 2
+  // Sync mailing address label (mismo texto sin importar virtual vs own — ver
+  // fmSetAddrChoice mas arriba para el racional del cambio).
   var mailLbl = document.getElementById('lbl-same-mail');
   if(mailLbl) {
-    var addrType = fmData.bizAddrType || 'virtual';
-    mailLbl.textContent = addrType === 'virtual'
-      ? (isEs ? 'Igual que la dirección de arriba (dirección del agente)' : 'Same as above (agent address)')
-      : (isEs ? 'Igual que la dirección del negocio' : 'Same as business address');
+    mailLbl.textContent = isEs ? 'Usar mi dirección de negocio para correspondencia' : 'Use my business address for mailing';
   }
   // Sync mailing divider entity label
   var mailEnt = document.getElementById('s3-mail-divider-entity');
@@ -6397,14 +6381,12 @@ var fmTranslations = {
 
 function fmTranslate(lang) {
   var isEs=lang==='es';
-  var tm={'s1-entity-divider':isEs?'\\u00bfQu\\u00e9 tipo de entidad est\\u00e1 formando?':'What type of entity are you forming?','s1-llc-desc':isEs?'Gesti\\u00f3n flexible \\u00b7 Pass-through \\u00b7 La m\\u00e1s popular':'Flexible management \\u00b7 Pass-through taxes \\u00b7 Most popular','s1-corp-lbl':isEs?'&#128202; Corporaci\\u00f3n':'&#128202; Corporation','s1-corp-desc':isEs?'Ideal para inversores \\u00b7 Emite acciones \\u00b7 Estructura formal':'Ideal for investors \\u00b7 Issue stock \\u00b7 Formal structure','s1-name-divider':isEs?'Nombre del Negocio':'Business Name','lbl-bizname':isEs?'Nombre Preferido *':'Preferred Business Name *','lbl-designator':isEs?'Debe terminar con *':'Must end with *','s1-fl-note-title':isEs?'Exigido por Florida:':'Required by Florida:','s1-fl-note-text':isEs?'Las LLC deben terminar con LLC, L.L.C. o Limited Liability Company. Las Corp con Corp, Inc, Corporation o Incorporated.':'LLCs must end with LLC, L.L.C., or Limited Liability Company. Corps must end with Corp, Inc, Corporation, or Incorporated.','lbl-preview':isEs?'Su nombre oficial aparecer\\u00e1 como':'Your official name will appear as',
+  var tm={'s1-entity-divider':isEs?'\\u00bfQu\\u00e9 tipo de entidad est\\u00e1 formando?':'What type of entity are you forming?','s1-llc-desc':isEs?'Gesti\\u00f3n flexible \\u00b7 Pass-through \\u00b7 La m\\u00e1s popular':'Flexible management \\u00b7 Pass-through taxes \\u00b7 Most popular','s1-corp-lbl':isEs?'&#128202; Corporaci\\u00f3n':'&#128202; Corporation','s1-corp-desc':isEs?'Ideal para inversores \\u00b7 Emite acciones \\u00b7 Estructura formal':'Ideal for investors \\u00b7 Issue stock \\u00b7 Formal structure','s1-name-divider':isEs?'Nombre del Negocio':'Business Name','lbl-bizname':isEs?'Nombre Preferido *':'Preferred Business Name *','lbl-designator':isEs?'Debe terminar con *':'Must end with *','s1-fl-note-title':isEs?'Por ley:':'By law:','s1-fl-note-text':isEs?'el nombre del negocio debe terminar con un designador válido — elige uno del menú de arriba.':'the business name must end with a valid designator — choose one from the dropdown above.','lbl-preview':isEs?'Su nombre oficial aparecer\\u00e1 como':'Your official name will appear as',
 'name-acc-title':isEs?'Informaci\\u00f3n Adicional':'Additional Explanation',
 'name-acc-1-q':isEs?'\\u00bfQu\\u00e9 pasa si el nombre no est\\u00e1 disponible?':'What if my company name is unavailable?',
-'name-acc-1-a':isEs?'Si el nombre que elija es rechazado por la Divisi\\u00f3n de Corporaciones de Florida despu\\u00e9s de presentar el tr\\u00e1mite, lo contactaremos para solicitar un nombre alternativo y reenviaremos sin cargo de servicio adicional de nuestra parte. La tarifa estatal original pagada a Florida no es reembolsable. Cualquier tarifa estatal nueva cobrada por el reenv\\u00edo es su responsabilidad.':'If the name you choose is rejected by the Florida Division of Corporations after we submit your filing, we will contact you to request an alternative name and will resubmit at no additional service fee from us. The original state filing fee paid to Florida is non-refundable. Any new state filing fee charged for the resubmission is your responsibility.',
-'name-acc-2-q':isEs?'\\u00bfEl nombre debe terminar con &quot;LLC&quot; o &quot;Inc.&quot;?':'Does the company name end with &quot;LLC&quot; or &quot;Inc.&quot;?',
-'name-acc-2-a':isEs?'S\\u00ed. Florida requiere que cada nombre incluya un designador. Para LLCs puede usar: <em>LLC</em>, <em>L.L.C.</em>, <em>Limited Liability Company</em> o <em>Ltd. Liability Co.</em> Para Corporaciones: <em>Inc.</em>, <em>Corp.</em>, <em>Corporation</em> o <em>Incorporated</em>. Usted selecciona el designador en el men\\u00fa desplegable de arriba \\u2014 <strong>no necesita escribirlo en el campo del nombre.</strong> Lo agregamos autom\\u00e1ticamente al presentar.':'Yes. Florida requires every entity name to include a designator. For LLCs you can use: <em>LLC</em>, <em>L.L.C.</em>, <em>Limited Liability Company</em>, or <em>Ltd. Liability Co.</em> For Corporations: <em>Inc.</em>, <em>Corp.</em>, <em>Corporation</em>, or <em>Incorporated</em>. You select the designator from the dropdown above \\u2014 <strong>you do not need to type it in the name field.</strong> We add it automatically when we file.',
+'name-acc-1-a':isEs?'Sin preocupaciones si el primer nombre no est\\u00e1 disponible \\u2014 revisaremos opciones juntos hasta encontrar uno que Florida apruebe.':"No worries if the first name isn't available — we'll review options together until we land on one Florida approves.",
 'name-acc-3-q':isEs?'\\u00bfLa verificaci\\u00f3n de disponibilidad es garantizada?':'Is the name availability check guaranteed?',
-'name-acc-3-a':isEs?'No. La verificaci\\u00f3n que hacemos mientras usted escribe es una <strong>b\\u00fasqueda preliminar</strong> contra la base de datos p\\u00fablica de Sunbiz de Florida. Un nombre que aparezca como disponible a\\u00fan podr\\u00eda ser rechazado por Florida por razones no visibles en los registros p\\u00fablicos, incluyendo: reservas de nombres por 120 d\\u00edas que a\\u00fan no son p\\u00fablicas, nombres que requieren licencia especial (como &ldquo;Bank&rdquo;, &ldquo;Trust&rdquo;, &ldquo;Insurance&rdquo;), nombres con marca registrada federal, o discreci\\u00f3n del examinador respecto a similitud con entidades existentes. Vea nuestros <a href="/terms#name-availability" target="_blank" rel="noopener">T\\u00e9rminos de Servicio &sect;14</a> para la pol\\u00edtica completa.':'No. The check we perform while you type is a <strong>preliminary search</strong> against Florida\\u2019s public Sunbiz database. A name shown as available may still be rejected by Florida for reasons not visible in the public records, including: 120-day name reservations not yet public, names requiring special licensing (such as &ldquo;Bank&rdquo;, &ldquo;Trust&rdquo;, &ldquo;Insurance&rdquo;), federally trademarked names, or examiner discretion regarding similarity to existing entities. See our <a href="/terms#name-availability" target="_blank" rel="noopener">Terms of Service &sect;14</a> for the full policy.',
+'name-acc-3-a':isEs?'No. La verificaci\\u00f3n que hacemos mientras usted escribe es una <strong>b\\u00fasqueda preliminar</strong> contra los registros p\\u00fablicos de la Divisi\\u00f3n de Corporaciones de Florida. Un nombre que aparezca como disponible a\\u00fan podr\\u00eda ser rechazado por Florida por razones no visibles en los registros p\\u00fablicos, incluyendo: reservas de nombres por 120 d\\u00edas que a\\u00fan no son p\\u00fablicas, nombres que requieren licencia especial (como &ldquo;Bank&rdquo;, &ldquo;Trust&rdquo;, &ldquo;Insurance&rdquo;), nombres con marca registrada federal, o discreci\\u00f3n del examinador respecto a similitud con entidades existentes. Vea nuestros <a href="/terms#name-availability" target="_blank" rel="noopener">T\\u00e9rminos de Servicio &sect;14</a> para la pol\\u00edtica completa.':'No. The check we perform while you type is a <strong>preliminary search</strong> against the public records of the Florida Division of Corporations. A name shown as available may still be rejected by Florida for reasons not visible in the public records, including: 120-day name reservations not yet public, names requiring special licensing (such as &ldquo;Bank&rdquo;, &ldquo;Trust&rdquo;, &ldquo;Insurance&rdquo;), federally trademarked names, or examiner discretion regarding similarity to existing entities. See our <a href="/terms#name-availability" target="_blank" rel="noopener">Terms of Service &sect;14</a> for the full policy.',
 's1-shares-divider':isEs?'Acciones Autorizadas':'Authorized Shares',
 'lbl-shares':isEs?'N\\u00famero de Acciones Autorizadas *':'Number of Authorized Shares *',
 's1-shares-info-text':isEs?'Florida exige que cada Corporaci\\u00f3n declare el n\\u00famero total de acciones que est\\u00e1 autorizada a emitir. Este n\\u00famero queda registrado p\\u00fablicamente en los Art\\u00edculos de Incorporaci\\u00f3n. La mayor\\u00eda de corporaciones peque\\u00f1as usan 1,000 acciones o m\\u00e1s.':'Florida requires every Corporation to declare the total number of shares it is authorized to issue. Most small corporations use 1,000 or more shares.',
@@ -6553,16 +6535,15 @@ function fmTranslate(lang) {
     's3-agent-info-title':isEs?'¿Qué es un Agente Registrado?':'What is a Registered Agent?',
     's3-agent-info-text':isEs?'El Agente Registrado es la persona o entidad designada ante el Estado de Florida para recibir documentos legales oficiales en nombre de su negocio.':'The Registered Agent is the person or entity designated with the State of Florida to receive official legal documents on behalf of your business.',
     'agent-ours-lbl':isEs?'Usar Nuestro Servicio de Agente Registrado':'Use Our Registered Agent Service',
-    'agent-ours-desc':isEs?'Actuamos como su Agente Registrado oficial. Su dirección personal se mantiene completamente privada.':'We act as your official Registered Agent. Your personal address stays completely private.',
+    'agent-ours-desc':isEs?'Actuamos como su Agente Registrado oficial y recibimos todos los documentos oficiales por usted. Su dirección personal no aparecerá en ningún registro público.':'We act as your official Registered Agent and receive all official documents on your behalf. Your personal address will not appear on any public record.',
     'agent-own-lbl':isEs?'Seré mi propio Agente Registrado':'I will be my own Registered Agent',
     'agent-own-desc':isEs?'Su dirección quedará registrada públicamente ante el Estado de Florida y la ley exige que deberá estar presente en esa dirección de lunes a viernes de 9am a 5pm para recibir documentos legales oficiales.':'Your address will be publicly registered with the State of Florida and the law requires you to be present at that address Monday through Friday from 9am to 5pm to receive official legal documents.',
-    'agent-ours-note-text':isEs?'Actuaremos como su Agente Registrado y recibiremos todos los documentos en su nombre. Su dirección personal no aparecerá en ningún registro público. Su primer año es gratis; después se renueva automáticamente a $99/año hasta que lo cancele.':'We will act as your Registered Agent and receive all official documents. Your personal address will not appear on any public record. Your first year is free; after that it renews automatically at $99/year until you cancel.',
     'ra-same-biz-lbl':isEs?'Usar misma dirección que Dirección Física del Negocio':'Use same as Physical Business Address',
     'agent-own-warn-text':isEs?'La dirección de su Agente Registrado aparecerá en el registro público. Debe ser una dirección física en Florida.':'Your Registered Agent address will appear on the public record. It must be a physical Florida address, no PO Boxes.',
     's3-mail-divider':isEs?'Dirección Postal de la LLC':'LLC Mailing Address',
     's3-mail-opt':isEs?'(Opcional — separada de su dirección de Agente Registrado)':'(Optional — separate from your Registered Agent address)',
     's3-mail-info-sub':isEs?'<span style=\\"display:block\\"><strong style=\\"color:#374151\\">Dirección del Agente Registrado</strong> recibe <em>documentos legales y críticos</em> — demandas, órdenes judiciales, citaciones. Debe ser física en Florida.</span><span style=\\"display:block;margin-top:4px\\"><strong style=\\"color:#374151\\">Dirección Postal</strong> recibe <em>correspondencia general</em> — recordatorios del Reporte Anual, confirmaciones de trámites, avisos del Estado. <strong>Se acepta PO Box. Puede ser cualquier dirección del mundo.</strong></span>':'<span style=\\"display:block\\"><strong style=\\"color:#374151\\">Registered Agent address</strong> receives <em>legal &amp; critical documents</em> — lawsuits, court orders, government summons. Must be a physical Florida address.</span><span style=\\"display:block;margin-top:4px\\"><strong style=\\"color:#374151\\">Mailing Address</strong> receives <em>general correspondence</em> — Annual Report reminders, filing confirmations, state notices. <strong>A PO Box is accepted. Any address worldwide is valid.</strong></span>',
-    'lbl-same-mail':isEs?(fmData.bizAddrType==='virtual'?'Igual que la dirección de arriba (dirección del agente)':'Igual que la dirección del negocio'):(fmData.bizAddrType==='virtual'?'Same as above (agent address)':'Same as business address'),
+    'lbl-same-mail':isEs?'Usar mi dirección de negocio para correspondencia':'Use my business address for mailing',
     's4-skip-lbl':isEs?'No gracias, me quedo con mi paquete actual':'No thanks, keep my current package',
     'exp-upsell-title':isEs?'Un Último Detalle Antes de Pagar':'One Last Thing Before You Pay',
     'exp-upsell-sub':isEs?'Su formación está en buenas manos.':'Your formation is in good hands. Want to make it official faster?',
