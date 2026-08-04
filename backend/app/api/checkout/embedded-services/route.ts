@@ -128,6 +128,13 @@ export async function POST(req: NextRequest) {
       ui_mode: 'embedded',
       mode: 'payment',
       line_items: lineItems,
+      // Colores de marca OpaBiz (blanco + azul) en vez del default de Stripe —
+      // ver mismo cambio en /api/checkout/embedded/route.ts.
+      branding_settings: {
+        background_color: '#FFFFFF',
+        button_color:     '#2563EB',
+        border_style:     'rounded',
+      },
       customer_email: email.toLowerCase(),
       billing_address_collection: 'required',
       return_url: `${origin}/servicios/checkout?paid=1&session_id={CHECKOUT_SESSION_ID}`,

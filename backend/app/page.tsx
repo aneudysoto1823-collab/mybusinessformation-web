@@ -1715,16 +1715,17 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
             <h2 class="fm-title" id="s3-title">Registered Agent &amp; Mailing Address</h2>
             <p class="fm-sub" id="s3-sub">The law requires every business to have a Registered Agent.</p>
             <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:9px;padding:11px 14px;font-size:.77rem;color:#475569;line-height:1.65;margin-bottom:14px">
-              &#128204; <strong id="s3-agent-info-title">What is a Registered Agent? <span class="tt-wrap" style="vertical-align:middle"><span class="tt-icon">?<span class="tt-box" id="tt-ra" style="left:0;transform:none">A Registered Agent is the official point of contact between your business and the State of Florida. They receive legal notices, lawsuits, and government mail on your behalf. Every Florida LLC and Corporation is required by law to have one at all times.</span></span></span></strong><br/>
+              <strong id="s3-agent-info-title">What is a Registered Agent? <span class="tt-wrap" style="vertical-align:middle"><span class="tt-icon">?<span class="tt-box" id="tt-ra" style="left:0;transform:none">A Registered Agent is the official point of contact between your business and the State of Florida. They receive legal notices, lawsuits, and government mail on your behalf. Every Florida LLC and Corporation is required by law to have one at all times.</span></span></span></strong><br/>
               <span id="s3-agent-info-text">The Registered Agent is the person or entity designated with the State of Florida to receive official legal documents on behalf of your business.</span>
             </div>
             <div class="fm-choices">
               <div class="fm-choice selected" id="agent-use-ours" onclick="fmSetAgentChoice('ours',this)">
                 <div class="fm-choice-radio"></div>
                 <div class="fm-choice-content">
-                  <strong id="agent-ours-lbl">&#127963; Use Our Registered Agent Service</strong>
-                  <p id="agent-ours-desc">We act as your official Registered Agent and receive all official documents on your behalf. Your personal address will not appear on any public record.</p>
+                  <strong id="agent-ours-lbl">Use Our Registered Agent Service</strong>
+                  <p id="agent-ours-desc">We act as your official Registered Agent and receive all official documents on your behalf. Your personal address will not appear on any public record. Included free your first year. Renews automatically at $99/year after that.</p>
                 </div>
+                <div class="fm-choice-price"><span class="fm-addon-was">$99</span><span id="agent-ours-price">Included</span></div>
               </div>
               <div class="fm-choice" id="agent-use-own" onclick="fmSetAgentChoice('own',this)">
                 <div class="fm-choice-radio"></div>
@@ -2219,13 +2220,10 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
               <div class="fm-addon-icon">&#128197;</div>
               <div>
                 <div class="fm-addon-name"><span id="addon-ar-name">Annual Report Filing Service</span> <span class="tt-wrap" style="vertical-align:middle"><span class="tt-icon" style="width:0;min-width:0;height:0;padding:0;margin:0;border:0;background:none;font-size:0;color:transparent"><span class="tt-box" id="tt-ar">Every Florida business must file an Annual Report each year to stay active — even if your business has not started operating yet. The law makes no exceptions. The deadline is May 1st. Miss it and Florida automatically charges a $400 late fee. Keep ignoring it and the State can administratively dissolve your company.</span></span></span></div>
-                <div class="fm-addon-desc" id="addon-ar-desc">We file your FL Annual Report each year (deadline May 1st). Renews automatically each year until you cancel.</div>
+                <div class="fm-addon-desc" id="addon-ar-desc">Required by Florida law. We file your FL Annual Report each year (deadline May 1st, $400 late penalty after). Renews automatically each year until you cancel.</div>
               </div>
             </div>
             <div class="fm-addon-price" id="addon-ar-price">$99</div>
-          </div>
-          <div class="fm-warn" style="margin-top:-4px;margin-bottom:14px">
-            <strong id="ar-warn-title">&#9888; Required by Florida law:</strong> <span id="ar-warn-text">Annual Reports must be filed between January 1 and May 1. After May 1, Florida imposes a $400 late penalty.</span>
           </div>
 
           <!-- Toggle: Ver todos los servicios (despliega 6 mas) -->
@@ -2379,7 +2377,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
               <button class="fm-review-edit" onclick="fmGoToStep(3)" id="rev-edit-3">Edit</button>
             </div>
             <div class="fm-review-body">
-              <div class="fm-review-field"><label id="rev-ra-lbl">Registered Agent</label><span id="rev-ra-val">Florida Business Formation Center — First Year Free</span></div>
+              <div class="fm-review-field"><label id="rev-ra-lbl">Registered Agent</label><span id="rev-ra-val">OpaBiz (First Year Free)</span></div>
             </div>
           </div>
           <!-- Members -->
@@ -5671,7 +5669,7 @@ function fmBuildReview() {
       var raAddr = [raStreet?raStreet.value:'',raCity?raCity.value:'','FL',raZip?raZip.value:''].filter(Boolean).join(', ');
       el.textContent = [raNameVal,raAddr].filter(Boolean).join(' — ')||'—';
     } else {
-      el.textContent = isEs?'Florida Business Formation Center — Primer Año Gratis':'Florida Business Formation Center — First Year Free';
+      el.textContent = isEs?'OpaBiz (Primer Año Gratis)':'OpaBiz (First Year Free)';
     }
   }
 
@@ -6527,7 +6525,8 @@ function fmTranslate(lang) {
     's3-agent-info-title':isEs?'¿Qué es un Agente Registrado?':'What is a Registered Agent?',
     's3-agent-info-text':isEs?'El Agente Registrado es la persona o entidad designada ante el Estado de Florida para recibir documentos legales oficiales en nombre de su negocio.':'The Registered Agent is the person or entity designated with the State of Florida to receive official legal documents on behalf of your business.',
     'agent-ours-lbl':isEs?'Usar Nuestro Servicio de Agente Registrado':'Use Our Registered Agent Service',
-    'agent-ours-desc':isEs?'Actuamos como su Agente Registrado oficial y recibimos todos los documentos oficiales por usted. Su dirección personal no aparecerá en ningún registro público.':'We act as your official Registered Agent and receive all official documents on your behalf. Your personal address will not appear on any public record.',
+    'agent-ours-desc':isEs?'Actuamos como su Agente Registrado oficial y recibimos todos los documentos oficiales por usted. Su dirección personal no aparecerá en ningún registro público. Incluido gratis su primer año. Se renueva automáticamente a $99/año después.':'We act as your official Registered Agent and receive all official documents on your behalf. Your personal address will not appear on any public record. Included free your first year. Renews automatically at $99/year after that.',
+    'agent-ours-price':isEs?'Incluido':'Included',
     'agent-own-lbl':isEs?'Seré mi propio Agente Registrado':'I will be my own Registered Agent',
     'agent-own-desc':isEs?'Su dirección quedará registrada públicamente ante el Estado de Florida y la ley exige que deberá estar presente en esa dirección de lunes a viernes de 9am a 5pm para recibir documentos legales oficiales.':'Your address will be publicly registered with the State of Florida and the law requires you to be present at that address Monday through Friday from 9am to 5pm to receive official legal documents.',
     'ra-same-biz-lbl':isEs?'Usar misma dirección que Dirección Física del Negocio':'Use same as Physical Business Address',
@@ -6674,9 +6673,7 @@ function fmTranslate(lang) {
     'addon-cc-name':   isEs?'Copia Certificada de Art\u00edculos de Organizaci\u00f3n / Incorporaci\u00f3n':'Certified Copy of Articles of Organization / Incorporation',
     'addon-cc-desc':   isEs?'Copia oficial certificada por el estado de su documento de formaci\u00f3n &middot; + tarifa estatal':'Official state-certified copy of your formation document &middot; + state fee',
     'addon-ar-name':   isEs?'Servicio de Declaración Anual':'Annual Report Filing Service',
-    'addon-ar-desc':   isEs?'Presentamos su Declaración Anual de FL cada año (fecha límite 1 de mayo). Se renueva automáticamente cada año hasta que la canceles.':'We file your FL Annual Report each year (deadline May 1st). Renews automatically each year until you cancel.',
-    'ar-warn-title':   isEs?'&#9888; Exigido por ley de Florida:':'&#9888; Required by Florida law:',
-    'ar-warn-text':    isEs?'Las Declaraciones Anuales deben presentarse entre el 1 de enero y el 1 de mayo. Después del 1 de mayo, Florida impone una multa de $400 por atraso.':'Annual Reports must be filed between January 1 and May 1. After May 1, Florida imposes a $400 late penalty.',
+    'addon-ar-desc':   isEs?'Exigido por ley de Florida. Presentamos su Declaración Anual de FL cada año (fecha límite 1 de mayo, multa de $400 por atraso). Se renueva automáticamente cada año hasta que la canceles.':'Required by Florida law. We file your FL Annual Report each year (deadline May 1st, $400 late penalty after). Renews automatically each year until you cancel.',
     // Addons nuevos 2026-06-26 (seccion expandible "Ver todos los servicios")
     'addon-dba-name':  isEs?'DBA / Nombre Ficticio':'DBA / Fictitious Name',
     'addon-dba-desc':  isEs?'Operar o vender bajo un nombre comercial distinto al legal':'Operate or brand under a different name from your legal entity',

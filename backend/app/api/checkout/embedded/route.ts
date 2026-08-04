@@ -71,6 +71,13 @@ export async function POST(req: NextRequest) {
       mode: 'payment',
       line_items: lineItems,
       ...(discounts.length ? { discounts } : {}),
+      // Colores de marca OpaBiz (blanco + azul) en vez del default de Stripe —
+      // no afecta el widget de Link (producto propio de Stripe, no themeable).
+      branding_settings: {
+        background_color: '#FFFFFF',
+        button_color:     '#2563EB',
+        border_style:     'rounded',
+      },
       customer_email: order.email || undefined,
       // 'required' → Stripe pide la dirección de facturación completa (nombre +
       // dirección) dentro del Embedded Checkout. Con 'auto' solo pedía lo mínimo.
