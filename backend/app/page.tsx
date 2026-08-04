@@ -3893,12 +3893,15 @@ function _saveToastShowFbfc(fbfc) {
   var descTxt = isEs
     ? 'Su numero de orden es. Copielo para volver despues:'
     : 'Your order number is. Copy it to come back later:';
-  t.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#10b981;color:#fff;padding:16px 44px 16px 22px;border-radius:12px;font-size:.92rem;font-weight:600;box-shadow:0 8px 26px rgba(16,185,129,0.42);z-index:99999;font-family:var(--font-sans);max-width:420px;position:fixed';
+  t.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#fff;color:#1C2E44;padding:16px 44px 16px 22px;border-radius:12px;font-size:.92rem;font-weight:600;box-shadow:0 10px 32px rgba(15,28,46,0.18);border:1px solid #e2e8f0;z-index:99999;font-family:var(--font-sans);max-width:420px;position:fixed';
   t.innerHTML =
-    '<button onclick="closeSaveToast()" aria-label="Close" style="position:absolute;top:8px;right:10px;background:transparent;border:none;color:#fff;font-size:20px;line-height:1;cursor:pointer;padding:4px 8px;border-radius:6px;font-family:inherit;font-weight:700">&times;</button>' +
-    '<div style="display:flex;align-items:center;gap:9px;margin-bottom:8px;font-size:.98rem">&#10004; ' + titleTxt + '</div>' +
-    '<div style="font-size:.82rem;font-weight:500;opacity:0.95;line-height:1.55;margin-bottom:8px">' + descTxt + '</div>' +
-    '<div style="background:rgba(255,255,255,0.16);border:1px solid rgba(255,255,255,0.28);border-radius:8px;padding:9px 12px;font-family:var(--font-mono, monospace);font-size:1.05rem;font-weight:700;letter-spacing:1.2px;text-align:center">' + fbfc + '</div>';
+    '<button onclick="closeSaveToast()" aria-label="Close" style="position:absolute;top:8px;right:10px;background:transparent;border:none;color:#94a3b8;font-size:20px;line-height:1;cursor:pointer;padding:4px 8px;border-radius:6px;font-family:inherit;font-weight:700">&times;</button>' +
+    '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">' +
+      '<div style="width:24px;height:24px;background:#2563EB;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.7rem;flex-shrink:0">OB</div>' +
+      '<div style="font-size:.98rem;font-weight:700;color:#1C2E44">' + titleTxt + '</div>' +
+    '</div>' +
+    '<div style="font-size:.82rem;font-weight:500;color:#64748b;line-height:1.55;margin-bottom:8px">' + descTxt + '</div>' +
+    '<div style="background:#EFF6FF;border:1px solid #bfdbfe;border-radius:8px;padding:9px 12px;font-family:var(--font-mono, monospace);font-size:1.05rem;font-weight:800;letter-spacing:1.2px;text-align:center;color:#1C2E44">' + fbfc + '</div>';
 }
 
 // Cambia el toast a estado error (server fallo). El user lo cierra manual.
@@ -3907,6 +3910,8 @@ function _saveToastShowError() {
   if(!t) return;
   var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
   t.style.background = '#dc2626';
+  t.style.color = '#fff';
+  t.style.border = '1px solid #dc2626';
   t.style.boxShadow = '0 8px 26px rgba(220,38,38,0.42)';
   t.style.padding = '16px 44px 16px 22px';
   t.innerHTML =
@@ -3945,9 +3950,9 @@ function saveOrder() {
   if(existing) existing.remove();
   var t = document.createElement('div');
   t.id = 'save-toast';
-  t.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#10b981;color:#fff;padding:13px 24px;border-radius:10px;font-size:.92rem;font-weight:600;box-shadow:0 6px 22px rgba(16,185,129,0.38);z-index:99999;font-family:var(--font-sans);display:flex;align-items:center;gap:8px';
+  t.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#fff;color:#1C2E44;padding:13px 24px;border-radius:10px;font-size:.92rem;font-weight:600;box-shadow:0 10px 32px rgba(15,28,46,0.18);border:1px solid #e2e8f0;z-index:99999;font-family:var(--font-sans);display:flex;align-items:center;gap:8px';
   var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
-  t.innerHTML = '<span style="display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.4);border-top-color:#fff;border-radius:50%;animation:_saveSpin 0.7s linear infinite"></span> ' + (isEs ? 'Guardando...' : 'Saving...');
+  t.innerHTML = '<span style="display:inline-block;width:14px;height:14px;border:2px solid #dbeafe;border-top-color:#2563EB;border-radius:50%;animation:_saveSpin 0.7s linear infinite"></span> ' + (isEs ? 'Guardando...' : 'Saving...');
   document.body.appendChild(t);
   // Fallback: si el _saveToastShowFbfc nunca se llama (server no responde en 8s)
   // -> cerramos el toast solo para no dejar el 'Guardando...' colgado eterno.
