@@ -1,6 +1,6 @@
 # SERVICIOS EXTERNOS — OpaBiz (opabiz.com)
 
-**Última actualización:** 22 junio 2026 _(por Javier — actualizó tabla de costos, removió Railway de costos al lanzamiento, agregó Turso + Cloudflare R2 + GitHub Actions a la sección de infraestructura)_
+**Última actualización:** 4 agosto 2026 _(agregado Upstash Redis en sección 5 + RegisteredAgentsInc/Corporate Tools en sección 6, ambos con estado actual y costos en las tablas de resumen)_
 **Propósito:** Inventario completo de TODOS los servicios externos que usa o usará el proyecto. Para cada uno: qué hace, plan actual, si necesita upgrade al lanzamiento, costo mensual estimado.
 
 > **Cómo leer esta tabla:** Cada servicio tiene un estado: 🟢 ACTIVO (ya en uso) · 🟡 PENDIENTE (planeado pre-launch) · 🔵 FUTURO (post-launch o nice-to-have).
@@ -20,7 +20,9 @@
 | Cloudflare R2 | Pay-as-you-go (bajo 10 GB) | ~$0 |
 | GitHub Actions | Free (bajo 2000 min/mes) | $0 |
 | Resend | Free tier | $0 |
-| ZeroBounce | Free tier (100 validaciones/mes) | $0 |
+| ZeroBounce | Free tier (100 validaciones/mes) — DORMIDO, cero uso real | $0 |
+| Upstash Redis | Free tier (10K comandos/día) | $0 |
+| RegisteredAgentsInc (Corporate Tools) | Pay-per-company — **DESCONECTADO desde 2026-08-03** | $0 |
 | Zoho Mail | 6 buzones plan free | $0 |
 | GitHub | Free | $0 |
 | Stripe | Pay-per-transaction | $0 fijo |
@@ -42,6 +44,8 @@
 | GitHub Actions | Free (2000 min/mes) | $0 |
 | Resend | Pro (50K emails/mes) | $20 |
 | ZeroBounce | Free (100/mes) o pay-as-you-go $15 (2K) si crece | $0 → $15 |
+| Upstash Redis | Free (10K comandos/día alcanza sobrado) | $0 |
+| RegisteredAgentsInc | Pay-per-company $45 wholesale × órdenes con RA | $900-$2,250 si 20-50 RA/mes |
 | Zoho Mail | 6 buzones plan free | $0 |
 | Stripe | Pay-per-transaction | ~3% revenue (~$50-100 si ventas $2-3K) |
 | Cloudflare (DNS+WAF) | Free | $0 |
@@ -67,11 +71,13 @@
 | Resend | Scale | $90-200 |
 | Sentry | Team o Business | $26-80 |
 | BetterStack | Pro o Business | $29-199 |
+| Upstash Redis | Pay-as-you-go (poco tráfico esperado, quizás $5-20) | $0-20 |
+| RegisteredAgentsInc | Pay-per-company $45 × volumen | Variable con órdenes |
 | Google Workspace o Zoho Pro | Plan adecuado | $14-30 |
 | Cloudflare (DNS+WAF) | Pro | $20 |
 | Twilio (SMS/WhatsApp) | Pay-per-msg | $50-200 |
 | Ads (Google + Meta + TikTok) | Variable | $5K-20K |
-| **TOTAL ESCALADO (sin ads)** | | **$250-950/mes** |
+| **TOTAL ESCALADO (sin ads ni RAI)** | | **$250-970/mes** |
 
 ---
 
@@ -258,6 +264,24 @@
 
 ---
 
+### 🟢 Upstash Redis — Rate limiting y tokens temporales
+
+- **Qué hace:** Redis serverless usado desde Vercel para dos cosas críticas de seguridad:
+  1. **Rate limiting del login admin** — 5 intentos por 15 min por IP en `/api/auth/login` (evita brute-force de credenciales). Implementado en Etapa 14.
+  2. **Tokens de recovery de password admin** — cuando el admin pide reset por email, se genera un token que vive 15 min en Redis, un solo uso. Página `/login/recover/[token]` lo valida y crea sesión.
+- **Estado:** LIVE en producción, activo desde Etapa 14 (2026-05-08).
+- **Cuenta:** database `present-opossum-118845` (US region), acceso via REST API (no protocolo Redis directo — REST funciona mejor desde Vercel serverless que TCP persistente).
+- **Plan actual:** **Free tier**
+- **Free tier incluye:** 10K comandos/día, 256MB storage, TLS/HTTPS. Suficiente para nuestro volumen actual (login admin es 1-3 requests por sesión, quizás 10-20 comandos/día en pre-launch).
+- **Plan al crecer:** Pay-as-you-go — $0.20 por 100K comandos (después de los 10K free/día). Prácticamente $0 salvo que haya un ataque de fuerza bruta muy sostenido.
+- **Verificar precio en:** https://upstash.com/pricing
+- **Variables de entorno requeridas:** `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` (ambas en Vercel Production).
+- **Librería usada:** `@upstash/redis` — SDK oficial para acceso REST desde entornos serverless.
+- **Por qué Upstash y no Redis Cloud/AWS ElastiCache:** los otros exigen conexión TCP persistente que no encaja con Vercel serverless (cold starts + connection pooling issues). Upstash es HTTPS stateless, cero overhead.
+- **NO es un sistema de monitoring** — no envía alertas ni chequea uptime. Es solo infraestructura Redis para rate limiting.
+
+---
+
 ## 6. DATOS EXTERNOS
 
 ### 🟢 Sunbiz / Florida Division of Corporations — Base de nombres
@@ -349,6 +373,33 @@
 - **Variables de entorno:** `ZEROBOUNCE_API_KEY`, `ZEROBOUNCE_ENABLED`
 - **Doc completo:** `LOGICA_DE_NEGOCIO/27_verificacion_email_zerobounce.md`
 - **Fallbacks:** si la API cae o timeout, el endpoint degrada a regex local — **nunca bloquea al cliente por un fallo externo**.
+
+---
+
+### 🟡 RegisteredAgentsInc (Corporate Tools) — Proveedor mayorista de Registered Agent
+
+- **Qué hace:** Proveedor externo que le da a OpaBiz la dirección física del Registered Agent en Florida que cada LLC/Corporation registrada exige por ley. Cuando un cliente compra formation con RA (Standard/Premium por default o Basic con addon), el sistema automáticamente crea una company en la cuenta de RAI vía API, asigna el servicio de RA para FL, recibe la dirección oficial (ej. `7901 4th St N, STE 300, St. Petersburg, FL 33702`), la guarda en la orden y se la manda al cliente por email — todo en segundos, dentro del webhook Stripe.
+- **Estado:** Código en producción, **API DESCONECTADA por decisión del founder (2026-08-03)** — las env vars `CORPTOOLS_*` fueron removidas de Vercel Production para evitar cargos por pruebas accidentales. Reactivación pendiente de decisión (ver `LOGICA_DE_NEGOCIO/37_registered_agent_service.md`).
+- **Cuenta:** wholesale account (`type: "wholesale-registered-agent"`) con billing under "Corporate Filings LLC". Persona registrada: Juan Fabián (info@opabiz.com, 407-309-1418).
+- **Modelo de pricing:**
+  - **Wholesale $45 por company creada** (lo que RAI le cobra a OpaBiz por cada RA anual)
+  - **Precio público de RAI: $200/año** (irrelevante para nosotros, es lo que muestran a clientes directos)
+  - **Precio de OpaBiz al cliente: $99/año** (visible en los 3 paquetes de la home + `/servicios/checkout`)
+  - **Margen: $54 por servicio/año**
+- **Costo estimado:** $0/mes mientras esté desconectado. Cuando se active, `$45 × órdenes con addon RA`. Para 20-50 órdenes con RA por mes = **$900-$2,250/mes** de costo directo (vs $1,980-$4,950 en revenue de RA a $99 c/u → margen mensual $1,080-$2,700).
+- **Base URL:** `https://api.corporatetools.com`
+- **Auth:** JWT HS256 firmado per-request. Header custom `access_key` en el JWT header, payload `{path, content: SHA256(queryString + body)}`. Auth verificada empíricamente en Fase 0 (scripts en `backend/scripts/corptools-test-fase0.mjs`).
+- **Website registrado en RAI:** `www.registeredagentsinc.com` — string exacto sin protocolo, sin slash final (el API hace matching de texto estricto, verificado en Fase 0). Ambos environments (TEST y PROD) comparten el mismo website_id internamente.
+- **Variables de entorno requeridas** (cuando se reactive):
+  - `CORPTOOLS_ENV` (`test` | `prod`) — decide qué par de keys usar
+  - `CORPTOOLS_ACCESS_KEY_PROD` + `CORPTOOLS_SECRET_KEY_PROD` — cuenta principal
+  - `CORPTOOLS_ACCESS_KEY_TEST` + `CORPTOOLS_SECRET_KEY_TEST` — cuenta sandbox
+  - `CORPTOOLS_WEBSITE_URL_PROD` + `CORPTOOLS_WEBSITE_URL_TEST` — ambas con valor `www.registeredagentsinc.com`
+- **Separación estricta por environment:** cuando estaba activo, las keys PROD vivían solo en Vercel Production y las TEST solo en Development + Preview. Cero cross-contamination.
+- **Pago de facturas a RAI:** 100% manual desde el portal de RAI (`https://www.registeredagentsinc.com/`) — el staff busca la factura por `invoice_id` que ve en `/admin/orders/[id]` sección "Registered Agent (RAI Provisioning)" y paga con tarjeta. **No se automatiza `POST /invoices/pay`** — decisión explícita del founder hasta hablar con el account manager.
+- **Cuando algo falla:** alerta a `alert@opabiz.com` con la fase que falló (POST /companies / POST /services / etc.) + botón "🔁 Retry RA provisioning" en el panel admin. Cadena idempotente — solo re-ejecuta pasos cuyos IDs falten en la orden.
+- **Doc completo:** `LOGICA_DE_NEGOCIO/37_registered_agent_service.md`
+- **Scripts de smoke test en `backend/scripts/`:** `corptools-test-fase0.mjs` (3 GETs read-only, cero costo), `corptools-manual-flow.mjs` (dry-run/confirm del flujo completo en TEST), `corptools-service-info.mjs` (consulta puntual), `corptools-test-e2e.mjs` (E2E creando Order de test en Supabase + verifica idempotencia).
 
 ---
 
