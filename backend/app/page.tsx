@@ -1642,7 +1642,15 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
                     <span class="tt-icon">?<span class="tt-box" id="pkg-tt-ein-activity">The IRS uses this to classify your business for tax purposes.</span></span>
                   </span>
                 </label>
-                <select class="fm-select" id="pkg-ein-activity-select"></select>
+                <div style="position:relative">
+                  <input type="text" class="fm-input" id="pkg-ein-activity-search" placeholder="Type to search or select..." autocomplete="off"
+                    oninput="fmEinActivityFilter(this.value,'pkg')"
+                    onfocus="fmEinActivityFilter(this.value,'pkg')"
+                    onblur="setTimeout(function(){var d=document.getElementById('pkg-ein-activity-list');if(d)d.style.display='none';},200)"
+                  />
+                  <div id="pkg-ein-activity-list" style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1.5px solid #e2e8f0;border-top:none;border-radius:0 0 9px 9px;max-height:220px;overflow-y:auto;z-index:500;box-shadow:0 8px 24px rgba(28,46,68,0.1)"></div>
+                  <input type="hidden" id="pkg-ein-activity-val"/>
+                </div>
               </div>
               <div class="fm-group" style="margin-top:10px">
                 <label class="fm-label" id="pkg-lbl-ein-activity-desc">Describe your specific product or service *</label>
@@ -1672,7 +1680,6 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
               </div>
             </div>
             <div id="biz-virtual-note" style="margin-top:10px;background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;padding:14px 16px">
-              <div style="font-size:.84rem;font-weight:700;color:#1e293b;margin-bottom:3px" id="biz-virtual-confirm-title">You are all set &mdash; no address needed from you.</div>
               <p style="font-size:.78rem;color:#475569;line-height:1.65;margin:0" id="biz-virtual-confirm-text">Once your order is confirmed, we will assign your dedicated Florida virtual address and deliver it to your email. Your business will have a professional address from day one.</p>
             </div>
             <div id="biz-own-form" style="display:none;margin-top:10px">
@@ -2075,7 +2082,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
               <!-- No ID — ITIN auto-added confirmation -->
               <div id="ein-no-id-warning" style="display:none;margin-top:10px;background:#f0fdf4;border:1.5px solid #86efac;border-radius:9px;padding:14px 16px">
                 <div style="font-size:.82rem;font-weight:700;color:#065f46;margin-bottom:6px">&#10003; <span id="ein-warn-title">ITIN Application added to your order</span></div>
-                <div style="font-size:.79rem;color:#047857;line-height:1.65" id="ein-warn-body">We've automatically added the <strong>ITIN Application ($69)</strong> to your order. We'll process both together — once your ITIN is issued by the IRS, we'll immediately apply for your EIN.
+                <div style="font-size:.79rem;color:#047857;line-height:1.65" id="ein-warn-body">We've automatically added the <strong>ITIN Application ($99)</strong> to your order. We'll process both together — once your ITIN is issued by the IRS, we'll immediately apply for your EIN.
                   <div style="margin-top:8px;padding-top:8px;border-top:1px solid #bbf7d0;font-size:.76rem;color:#059669" id="ein-warn-itin-body">
                     &#128274; <span id="ein-warn-itin-cta">Your personal information is protected.</span> You can remove the ITIN service at any time before submitting your order.
                   </div>
@@ -2164,7 +2171,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
                 <div class="fm-addon-desc" id="addon-itin-desc">For foreign nationals without a Social Security Number</div>
               </div>
             </div>
-            <div class="fm-addon-price" id="addon-itin-price">$69</div>
+            <div class="fm-addon-price" id="addon-itin-price"><span class="fm-addon-was">$135</span>$99</div>
           </div>
           <!-- Business Tax Receipt -->
           <div class="fm-addon" id="addon-btr" onclick="fmToggleAddon('btr',this)">
@@ -2215,7 +2222,10 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
                 <div class="fm-addon-desc" id="addon-ar-desc">We file your FL Annual Report each year (deadline May 1st). Renews automatically each year until you cancel.</div>
               </div>
             </div>
-            <div class="fm-addon-price" id="addon-ar-price">Annual</div>
+            <div class="fm-addon-price" id="addon-ar-price">$99</div>
+          </div>
+          <div class="fm-warn" style="margin-top:-4px;margin-bottom:14px">
+            <strong id="ar-warn-title">&#9888; Required by Florida law:</strong> <span id="ar-warn-text">Annual Reports must be filed between January 1 and May 1. After May 1, Florida imposes a $400 late penalty.</span>
           </div>
 
           <!-- Toggle: Ver todos los servicios (despliega 6 mas) -->
@@ -2303,10 +2313,6 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
               </div>
               <div class="fm-addon-price" id="addon-bl-price">$99</div>
             </div>
-          </div>
-
-          <div class="fm-warn">
-            <strong id="s8-warn-title">&#9888; Florida Deadline:</strong> <span id="s8-warn-text">Annual Reports must be filed between January 1 and May 1. After May 1, Florida imposes a $400 late penalty.</span>
           </div>
           </div>
           <div class="fm-card-footer">
@@ -2442,11 +2448,11 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
         <div class="fm-sum-line sum-vma-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-vma">Virtual Address</span><span class="fm-sum-val free">1st Month Free</span></div>
         <div class="fm-sum-line sum-ein-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-ein">EIN / Tax ID</span><span class="fm-sum-val">$79</span></div>
         <div class="fm-sum-line sum-oa-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-oa">Operating Agreement</span><span class="fm-sum-val">$59</span></div>
-        <div class="fm-sum-line sum-itin-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-itin">ITIN Application</span><span class="fm-sum-val">$69</span></div>
+        <div class="fm-sum-line sum-itin-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-itin">ITIN Application</span><span class="fm-sum-val">$99</span></div>
         <div class="fm-sum-line sum-btr-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-btr">Local Business Tax Receipt</span><span class="fm-sum-val">$79</span></div>
         <div class="fm-sum-line sum-str-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-str">Sales Tax Receipt</span><span class="fm-sum-val">$79</span></div>
         <div class="fm-sum-line sum-cc-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-cc">Certified Copy</span><span class="fm-sum-val">$49</span></div>
-        <div class="fm-sum-line sum-ar-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-ar">Annual Report</span><span class="fm-sum-val">Annual</span></div>
+        <div class="fm-sum-line sum-ar-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-ar">Annual Report</span><span class="fm-sum-val">$99</span></div>
       </div>
       <div class="fm-sum-foot">
         <span class="fm-sum-total-lbl sum-total-lbl" id="sum-lbl-total">Total</span>
@@ -3377,8 +3383,8 @@ function fmUpdateMailAddrPreview() {
   var addrType = fmData.bizAddrType || 'virtual';
   if(addrType === 'virtual') {
     el.textContent = isEs
-      ? 'Será la misma dirección virtual asignada a su negocio (se la enviaremos por correo una vez confirmada la orden).'
-      : 'Will be the same virtual address assigned to your business (we will email it to you once your order is confirmed).';
+      ? 'Será la misma dirección virtual asignada a su negocio. Una vez que se la asignemos, se la enviaremos por correo.'
+      : 'Will be the same virtual address assigned to your business. Once it is assigned, we will email it to you.';
     return;
   }
   var text = fmBusinessAddrText();
@@ -4067,7 +4073,7 @@ var formTranslations = {
     oaNo: 'No thanks',
     oaDesc: 'Documents ownership percentages, decision-making, profit distribution, and member rights.',
     oaBenefit: '\\uD83C\\uDFE6 Most banks require an Operating Agreement to open a business account.',
-    itinAdd: '\\u2713 Add ITIN \\u2014 $69',
+    itinAdd: '\\u2713 Add ITIN \\u2014 $99',
     itinNo: 'I have an SSN',
     itinDesc: "IRS-issued number for individuals who need to file US taxes but aren't eligible for an SSN.",
     itinBenefit: '\\uD83D\\uDCCB Required to file US federal taxes without an SSN.',
@@ -4202,7 +4208,7 @@ var formTranslations = {
     oaNo: 'No gracias',
     oaDesc: 'Documenta porcentajes de propiedad, toma de decisiones, distribuci\\u00f3n de ganancias y derechos de los miembros.',
     oaBenefit: '\\uD83C\\uDFE6 La mayor\\u00eda de los bancos requieren un Acuerdo Operativo para abrir una cuenta.',
-    itinAdd: '\\u2713 Agregar ITIN \\u2014 $69',
+    itinAdd: '\\u2713 Agregar ITIN \\u2014 $99',
     itinNo: 'Tengo SSN',
     itinDesc: 'N\\u00famero emitido por el IRS para personas que necesitan presentar impuestos en EE.UU. sin SSN.',
     itinBenefit: '\\uD83D\\uDCCB Requerido para presentar impuestos federales en EE.UU. sin SSN.',
@@ -4706,25 +4712,6 @@ function fmRenderPkgEinSection() {
   Object.keys(t).forEach(function(id){ var e=document.getElementById(id); if(e) e.innerHTML=t[id]; });
   var descInp = document.getElementById('pkg-inp-ein-activity-desc');
   if(descInp) descInp.placeholder = isEs ? 'ej. "Tienda de ropa en línea" o "Servicios de diseño gráfico"' : 'e.g. "Online retail clothing store" or "Graphic design services"';
-  fmPkgRenderActivityOptions(isEs);
-}
-
-// Repuebla el <select> de actividad con las mismas ~55 categorías que usa el
-// bloque del paso 7 (_einActivities), pero como select nativo en vez del
-// dropdown buscable — mismo dato, UI más simple ya que es la segunda
-// instancia de este campo. El value es siempre el label en inglés (canónico
-// para el SS-4), independiente del idioma mostrado.
-function fmPkgRenderActivityOptions(isEs) {
-  var sel = document.getElementById('pkg-ein-activity-select');
-  if(!sel) return;
-  var current = sel.value;
-  var opts = '<option value="">' + (isEs?'-- Selecciona --':'-- Select --') + '</option>';
-  _einActivities.forEach(function(a){
-    var label = (isEs ? a.es : a.en).replace(/</g,'&lt;');
-    opts += '<option value="' + a.en.replace(/"/g,'&quot;') + '">' + label + '</option>';
-  });
-  sel.innerHTML = opts;
-  if(current) sel.value = current;
 }
 function fmSyncStep3() {
   var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
@@ -4931,9 +4918,9 @@ function fmNext() {
         if(pItinEl.value.replace(/[^0-9]/g,'')!==pItinConfEl.value.replace(/[^0-9]/g,'')){pItinConfEl.style.borderColor='#ef4444';pItinConfEl.focus();alert(isEs?'Los ITIN no coinciden. Por favor verifica.':'ITINs do not match. Please check and try again.');return;}
         if(pItinConfEl)pItinConfEl.style.borderColor='';
       }
-      var pActEl=document.getElementById('pkg-ein-activity-select');
-      if(!pActEl||!pActEl.value){if(pActEl)pActEl.style.borderColor='#ef4444';alert(isEs?'Por favor seleccione la actividad principal de su negocio.':'Please select your business principal activity.');return;}
-      if(pActEl)pActEl.style.borderColor='';
+      var pActEl=document.getElementById('pkg-ein-activity-val');
+      if(!pActEl||!pActEl.value){var pActSrch=document.getElementById('pkg-ein-activity-search');if(pActSrch){pActSrch.style.borderColor='#ef4444';pActSrch.focus();}alert(isEs?'Por favor seleccione la actividad principal de su negocio.':'Please select your business principal activity.');return;}
+      var pActSrch2=document.getElementById('pkg-ein-activity-search');if(pActSrch2)pActSrch2.style.borderColor='';
       var pDescEl=document.getElementById('pkg-inp-ein-activity-desc');
       if(!pDescEl||!pDescEl.value.trim()){if(pDescEl){pDescEl.style.borderColor='#ef4444';pDescEl.focus();}alert(isEs?'Por favor describa su producto o servicio específico.':'Please describe your specific product or service.');return;}
       if(pDescEl)pDescEl.style.borderColor='';
@@ -5579,12 +5566,13 @@ function fmUpdateSummary() {
   var extras = 0;
   if(fmData.addons.ein)  extras += 79;
   if(fmData.addons.oa)   extras += 59;
-  if(fmData.addons.itin) extras += 69;
+  if(fmData.addons.itin) extras += 99;
   if(fmData.addons.btr)  extras += 79;
   if(fmData.addons.str)  extras += 79;
   if(fmData.addons.cc)   extras += 49;
+  if(fmData.addons.ar)   extras += 99;
   // Addons nuevos 2026-06-26 (seccion expandible "Ver todos los servicios")
-  if(fmData.addons.dba)  extras += 49;
+  if(fmData.addons.dba)  extras += 49 + 50; // servicio + tarifa estatal de Florida (Fictitious Name)
   if(fmData.addons.br)   extras += 49;
   if(fmData.addons.gd)   extras += 49;
   if(fmData.addons.gs)   extras += 49;
@@ -5746,17 +5734,20 @@ function fmBuildReview() {
     var items=[];
     if(fmData.addons.ein)  items.push(addonRow('EIN / Tax ID', '$79'));
     if(fmData.addons.oa)   items.push(addonRow(isEs?'Acuerdo Operativo':'Operating Agreement', '$59'));
-    if(fmData.addons.itin) items.push(addonRow(isEs?'Solicitud de ITIN':'ITIN Application', '$69'));
+    if(fmData.addons.itin) items.push(addonRow(isEs?'Solicitud de ITIN':'ITIN Application', '$99'));
     if(fmData.addons.btr)  items.push(addonRow(isEs?'Licencia Comercial Local':'Local Business Tax Receipt', '$79'));
     if(fmData.addons.str)  items.push(addonRow(isEs?'Registro de Impuesto sobre Ventas':'Sales Tax Registration', '$79'));
     if(fmData.addons.cc)   items.push(addonRow(isEs?'Copia Certificada de Art\u00edculos':'Certified Copy of Articles', '$49'));
-    if(fmData.addons.dba)  items.push(addonRow(isEs?'DBA / Nombre Ficticio':'DBA / Fictitious Name', '$49'));
+    if(fmData.addons.dba) {
+      items.push(addonRow(isEs?'DBA / Nombre Ficticio':'DBA / Fictitious Name', '$49'));
+      items.push(addonRow(isEs?'DBA — Tarifa Estatal de Florida':'DBA — Florida State Fee', '$50'));
+    }
     if(fmData.addons.br)   items.push(addonRow(isEs?'Resoluci\u00f3n Bancaria':'Banking Resolution', '$49'));
     if(fmData.addons.gd)   items.push(addonRow(isEs?'Gu\u00eda Exclusiva de Formaci\u00f3n':'Exclusive Formation Guide', '$49'));
     if(fmData.addons.gs)   items.push(addonRow(isEs?'Certificado de Buena Reputaci\u00f3n':'Certificate of Good Standing', '$49'));
     if(fmData.addons.sc)   items.push(addonRow(isEs?'Elecci\u00f3n de S-Corp':'S-Corp Election', '$79'));
     if(fmData.addons.bl)   items.push(addonRow(isEs?'Licencia de Negocios':'Business License', '$99'));
-    if(fmData.addons.ar)   items.push(addonRow(isEs?'Declaración Anual':'Annual Report Service', isEs?'Anual':'Annual'));
+    if(fmData.addons.ar)   items.push(addonRow(isEs?'Declaración Anual':'Annual Report Service', '$99'));
     addBody.innerHTML='<div class="fm-review-services-list">'+items.join('')+'</div>';
   }
 }
@@ -5817,10 +5808,12 @@ function fmBuildOrderPayload() {
   var extras    = 0;
   if(addons.ein)  extras += 79;
   if(addons.oa)   extras += 59;
-  if(addons.itin) extras += 69;
+  if(addons.itin) extras += 99;
   if(addons.btr)  extras += 79;
   if(addons.str)  extras += 79;
   if(addons.cc)   extras += 49;
+  if(addons.ar)   extras += 99;
+  if(addons.dba)  extras += 49 + 50; // servicio + tarifa estatal de Florida (Fictitious Name)
   if(speed === 'expedited' && pkg !== 'premium') extras += 79;
   var amount = (pkg in pkgPrices ? pkgPrices[pkg] : 199) + stateFee + extras;
 
@@ -5835,7 +5828,7 @@ function fmBuildOrderPayload() {
     einIdType = pkgIdTypeEl ? pkgIdTypeEl.value : null;
     if(einIdType === 'ssn') einTaxId = val('pkg-inp-ein-ssn');
     else if(einIdType === 'itin') einTaxId = val('pkg-inp-ein-itin');
-    einActivity = val('pkg-ein-activity-select') || null;
+    einActivity = val('pkg-ein-activity-val') || null;
     einActivityDesc = val('pkg-inp-ein-activity-desc') || null;
   } else if(addons.ein) {
     var stdIdTypeEl = document.querySelector('input[name="ein-id-type"]:checked');
@@ -6345,8 +6338,8 @@ var fmTranslations = {
     s1_sub: 'Enter your business name below. Your name must end with LLC, Corp, or Inc.',
     s2_title: 'Your Information',
     s2_sub: 'The typical state filing time for Florida is <strong>7–14 business days</strong>. In a hurry? Select expedited filing for faster processing.',
-    s3_title: 'Business Address',
-    s3_sub: 'Please provide the name of the person responsible for this order whom we may contact if additional information is needed.',
+    s3_title: 'Registered Agent & Mailing Address',
+    s3_sub: 'The law requires every business to have a Registered Agent.',
     s4_title: 'Your Formation Package',
     s5_title: 'Ownership & Management',
     s6_title: 'Faster processing',
@@ -6364,8 +6357,8 @@ var fmTranslations = {
     s1_sub: 'Ingrese el nombre de su negocio. El nombre debe terminar con LLC, Corp o Inc.',
     s2_title: 'Su Información',
     s2_sub: 'El tiempo típico de tramitación en Florida es <strong>7–14 días hábiles</strong>. ¿Con prisa? Selecciona tramitación expedita.',
-    s3_title: 'Nombre y Dirección Agente Registrado',
-    s3_sub: 'Por favor provee el nombre de la persona responsable de esta orden a quien podemos contactar si necesitamos información adicional.',
+    s3_title: 'Agente Registrado y Dirección Postal',
+    s3_sub: 'La ley establece que todo negocio debe tener un Agente Registrado.',
     s4_title: 'Su Paquete de Formación',
     s5_title: 'Propiedad y Gestión',
     s6_title: 'Procesamiento acelerado',
@@ -6413,7 +6406,7 @@ function fmTranslate(lang) {
 'lbl-ssn-1':isEs?'SSN *':'SSN *','lbl-ssn-2':isEs?'Confirmar SSN *':'Confirm SSN *','lbl-itin-1':isEs?'ITIN *':'ITIN *','lbl-itin-2':isEs?'Confirmar ITIN *':'Confirm ITIN *','ssn-privacy-note':isEs?'&#128274; Su SSN está encriptado y nunca se almacena en texto simple.':'&#128274; Your SSN is encrypted and never stored in plain text.',
 'itin-privacy-note':isEs?'&#128274; Su ITIN está encriptado y nunca se almacena en texto simple.':'&#128274; Your ITIN is encrypted and never stored in plain text.',
 'ein-warn-title':isEs?'Solicitud de ITIN agregada a su orden':'ITIN Application added to your order',
-'ein-warn-body':isEs?'Agregamos automáticamente la <strong>Solicitud de ITIN ($69)</strong> a su orden. Los procesaremos juntos — una vez que el IRS le asigne su ITIN, solicitaremos su EIN de inmediato.':'We\\'ve automatically added the <strong>ITIN Application ($69)</strong> to your order. We\\'ll process both together — once your ITIN is issued by the IRS, we\\'ll immediately apply for your EIN.',
+'ein-warn-body':isEs?'Agregamos automáticamente la <strong>Solicitud de ITIN ($99)</strong> a su orden. Los procesaremos juntos — una vez que el IRS le asigne su ITIN, solicitaremos su EIN de inmediato.':'We\\'ve automatically added the <strong>ITIN Application ($99)</strong> to your order. We\\'ll process both together — once your ITIN is issued by the IRS, we\\'ll immediately apply for your EIN.',
 'ein-warn-itin-cta':isEs?'Su información personal está protegida.':'Your personal information is protected.',
 'ein-warn-itin-body':isEs?'Puede eliminar el servicio de ITIN en cualquier momento antes de enviar su orden.':'You can remove the ITIN service at any time before submitting your order.',
 'lbl-ein-activity':isEs?'Actividad Principal del Negocio *':'Principal Business Activity *',
@@ -6529,7 +6522,6 @@ function fmTranslate(lang) {
     'biz-virtual-desc':isEs?'Le asignamos una dirección profesional en Florida. Su dirección personal se mantiene completamente privada.':'We assign you a professional Florida address. Your personal address stays completely private.',
     'biz-own-lbl':isEs?'Usaré mi propia dirección':'I will use my own address',
     'biz-own-desc':isEs?'Su dirección quedará en el registro público de Florida. Si prefiere mantener su privacidad, nuestra dirección virtual protege sus datos personales.':'Your address will be on the Florida public record. If you prefer privacy, our virtual address keeps your personal information protected.',
-    'biz-virtual-confirm-title':isEs?'Todo listo — no necesitamos su dirección.':'You are all set &mdash; no address needed from you.',
     'biz-virtual-confirm-text':isEs?'Una vez confirmada su orden, le asignaremos su dirección virtual y la enviaremos a su correo. Su negocio tendrá una dirección profesional desde el primer día.':'Once your order is confirmed, we will assign your Florida virtual address and deliver it to your email. Your business will have a professional address from day one.',
     'biz-virtual-badge':isEs?'1er Mes GRATIS':'1st Month FREE',
     's3-agent-info-title':isEs?'¿Qué es un Agente Registrado?':'What is a Registered Agent?',
@@ -6683,6 +6675,8 @@ function fmTranslate(lang) {
     'addon-cc-desc':   isEs?'Copia oficial certificada por el estado de su documento de formaci\u00f3n &middot; + tarifa estatal':'Official state-certified copy of your formation document &middot; + state fee',
     'addon-ar-name':   isEs?'Servicio de Declaración Anual':'Annual Report Filing Service',
     'addon-ar-desc':   isEs?'Presentamos su Declaración Anual de FL cada año (fecha límite 1 de mayo). Se renueva automáticamente cada año hasta que la canceles.':'We file your FL Annual Report each year (deadline May 1st). Renews automatically each year until you cancel.',
+    'ar-warn-title':   isEs?'&#9888; Exigido por ley de Florida:':'&#9888; Required by Florida law:',
+    'ar-warn-text':    isEs?'Las Declaraciones Anuales deben presentarse entre el 1 de enero y el 1 de mayo. Después del 1 de mayo, Florida impone una multa de $400 por atraso.':'Annual Reports must be filed between January 1 and May 1. After May 1, Florida imposes a $400 late penalty.',
     // Addons nuevos 2026-06-26 (seccion expandible "Ver todos los servicios")
     'addon-dba-name':  isEs?'DBA / Nombre Ficticio':'DBA / Fictitious Name',
     'addon-dba-desc':  isEs?'Operar o vender bajo un nombre comercial distinto al legal':'Operate or brand under a different name from your legal entity',
@@ -6786,10 +6780,16 @@ var _einActivities = [
   {cat:'Other', en:'Other (describe below)', es:'Otro (describir abajo)'},
 ];
 
-function fmEinActivityFilter(q) {
-  var list = document.getElementById('ein-activity-list');
-  var valEl = document.getElementById('ein-activity-val');
-  var descWrap = document.getElementById('ein-activity-desc-wrap');
+// scope: '' (default) = bloque de step 7 (addon EIN de Basic). 'pkg' = bloque
+// de step 2 (Standard/Premium, EIN ya incluido) — mismos ids con prefijo
+// 'pkg-'. El link "Cambiar selección" se arma en runtime con &quot; (no
+// backslash) para pasarle el scope a fmEinClearActivity — un backslash acá
+// se colapsaria en SSR y rompe el script (ver REGLA CRITICA mas arriba).
+function fmEinActivityFilter(q, scope) {
+  var p = scope ? scope + '-' : '';
+  var list = document.getElementById(p+'ein-activity-list');
+  var valEl = document.getElementById(p+'ein-activity-val');
+  var descWrap = document.getElementById(p+'ein-activity-desc-wrap');
   if(!list) return;
   var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
   list.style.display = 'block';
@@ -6810,22 +6810,22 @@ function fmEinActivityFilter(q) {
     div.onmouseenter = function(){ this.style.background='#eff6ff'; };
     div.onmouseleave = function(){ this.style.background=''; };
     div.onclick = function() {
-      var searchEl = document.getElementById('ein-activity-search');
+      var searchEl = document.getElementById(p+'ein-activity-search');
       searchEl.value = label;
       if(valEl) valEl.value = a.cat;
       list.style.display = 'none';
       // Always show description field
       if(descWrap) descWrap.style.display = 'block';
       // Show a "change" link below the search field
-      var changeWrap = document.getElementById('ein-activity-change');
+      var changeWrap = document.getElementById(p+'ein-activity-change');
       if(!changeWrap) {
         changeWrap = document.createElement('div');
-        changeWrap.id = 'ein-activity-change';
+        changeWrap.id = p+'ein-activity-change';
         changeWrap.style.cssText = 'font-size:.72rem;margin-top:4px';
         searchEl.parentNode.appendChild(changeWrap);
       }
       var isEs2 = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
-      changeWrap.innerHTML = '<span style="color:#2563eb;cursor:pointer;text-decoration:underline" onclick="fmEinClearActivity()">&#8592; ' + (isEs2 ? 'Cambiar selección' : 'Change selection') + '</span>';
+      changeWrap.innerHTML = '<span style="color:#2563eb;cursor:pointer;text-decoration:underline" onclick="fmEinClearActivity(&quot;' + scope + '&quot;)">&#8592; ' + (isEs2 ? 'Cambiar selección' : 'Change selection') + '</span>';
     };
     list.appendChild(div);
   });
@@ -6861,16 +6861,17 @@ function fmCheckIdMatch(type, scope) {
   }
 }
 
-function fmEinClearActivity() {
-  var searchEl = document.getElementById('ein-activity-search');
-  var valEl    = document.getElementById('ein-activity-val');
-  var descWrap = document.getElementById('ein-activity-desc-wrap');
-  var changeWrap = document.getElementById('ein-activity-change');
+function fmEinClearActivity(scope) {
+  var p = scope ? scope + '-' : '';
+  var searchEl = document.getElementById(p+'ein-activity-search');
+  var valEl    = document.getElementById(p+'ein-activity-val');
+  var descWrap = document.getElementById(p+'ein-activity-desc-wrap');
+  var changeWrap = document.getElementById(p+'ein-activity-change');
   if(searchEl) { searchEl.value = ''; searchEl.style.borderColor = ''; searchEl.focus(); }
   if(valEl)    valEl.value = '';
   if(descWrap) descWrap.style.display = 'none';
   if(changeWrap) changeWrap.innerHTML = '';
-  fmEinActivityFilter('');
+  fmEinActivityFilter('', scope);
 }
 
 function fmEinIdTypeChange(radio, scope) {

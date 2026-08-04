@@ -24,17 +24,26 @@ export const PACKAGE_PRICES: Record<PackageId, number> = { basic: 0, standard: 1
 // debe ser exactamente igual (ver STRIPE_BASIC_COUPON_ID en /api/checkout/embedded).
 export const BASIC_PACKAGE_LIST_PRICE = 99
 
-// Add-ons cobrables (igual que fmBuildPayload en page.tsx). `ar` y `raInfo` NO
-// se cobran aquí — coinciden con el cálculo del formulario.
+// Add-ons cobrables (igual que fmBuildPayload en page.tsx). `raInfo` no se
+// cobra acá (es solo la dirección cuando el cliente es su propio agente).
 export const ADDON_PRICES = {
-  ein: 79, oa: 59, itin: 69, btr: 79, str: 79, cc: 49,
+  ein: 79, oa: 59, itin: 99, btr: 79, str: 79, cc: 49,
   // Nuevos 2026-06-26 (seccion expandible "Ver todos los servicios" del paso 5)
   dba: 49, br: 49, gd: 49, gs: 49, sc: 79, bl: 99,
+  // Annual Report — antes no se cobraba en el checkout (comentario viejo
+  // decía "ar NO se cobra aquí"); founder decidió 2026-08-04 empezar a
+  // cobrarlo como los demás addons.
+  ar: 99,
 } as const
 export type AddonKey = keyof typeof ADDON_PRICES
 
 export const EXPEDITED_FEE = 79
 export const STATE_FEE: Record<EntityType, number> = { llc: 125, corp: 70 }
+
+// DBA / Fictitious Name es el único addon que implica un filing estatal
+// propio ante la Florida Division of Corporations, aparte de ADDON_PRICES.dba
+// (que es solo el fee de servicio). Antes no se cobraba — corregido 2026-08-04.
+export const DBA_STATE_FEE = 50
 
 // Etiquetas EN — derivadas de FORMATION_ADDON_NAMES (lib/order-items.ts), única
 // fuente de verdad bilingüe. Antes se duplicaban acá y quedaron desincronizadas
@@ -108,6 +117,7 @@ export function computeFormationTotal(input: FormationPricingInput): FormationPr
   for (const key of Object.keys(ADDON_PRICES) as AddonKey[]) {
     if (addons[key]) lines.push({ label: ADDON_LABELS[key], amount: ADDON_PRICES[key] })
   }
+  if (addons.dba) lines.push({ label: 'DBA / Fictitious Name — Florida State Fee', amount: DBA_STATE_FEE })
 
   const total = lines.reduce((sum, l) => sum + l.amount, 0)
   return { total, cents: total * 100, lines }

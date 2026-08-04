@@ -36,6 +36,7 @@ export const FORMATION_ADDON_NAMES: Record<string, { en: string; es: string }> =
   gs:   { en: 'Certificate of Good Standing', es: 'Certificado de Buena Reputación' },
   sc:   { en: 'S-Corp Election (Form 2553)', es: 'Elección de S-Corp (Formulario 2553)' },
   bl:   { en: 'Business License Research & Filing', es: 'Investigación y Presentación de Licencias de Negocio' },
+  ar:   { en: 'Annual Report Filing Service', es: 'Servicio de Declaración Anual' },
 }
 
 // Servicios ofrecidos en el flujo de marketing /new-business (ver
