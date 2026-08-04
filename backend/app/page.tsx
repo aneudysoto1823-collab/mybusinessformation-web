@@ -1039,7 +1039,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           <div class="svc-row"><span class="svc-name" data-en="Operating Agreement" data-es="Acuerdo Operativo">Operating Agreement</span><span class="svc-status s-add">+ $59</span></div>
           <div class="svc-row"><span class="svc-name" data-en="DBA / Fictitious Name" data-es="DBA / Nombre Ficticio">DBA / Fictitious Name</span><span class="svc-status s-add">+ $49</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Articles of Amendment" data-es="Artículos de Enmienda">Articles of Amendment</span><span class="svc-status s-add">+ $59</span></div>
-          <div class="svc-row"><span class="svc-name" data-en="Registered Agent" data-es="Agente Registrado">Registered Agent</span><span class="svc-status" style="font-size:.68rem;color:#94a3b8" data-en="🕐 Coming Soon" data-es="🕐 Próximamente">🕐 Coming Soon</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="Registered Agent" data-es="Agente Registrado">Registered Agent</span><span class="svc-status s-add" data-en="+ $99/year" data-es="+ $99/año">+ $99/year</span></div>
         </div>
       </div>
 
@@ -1066,7 +1066,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           <div class="svc-row"><span class="svc-name" data-en="Sales Tax Registration" data-es="Registro de Impuesto sobre Ventas">Sales Tax Registration</span><span class="svc-status s-add">+ $79</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Operating Agreement" data-es="Acuerdo Operativo">Operating Agreement</span><span class="svc-status s-add">+ $59</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Articles of Amendment" data-es="Artículos de Enmienda">Articles of Amendment</span><span class="svc-status s-add">+ $59</span></div>
-          <div class="svc-row"><span class="svc-name" data-en="Registered Agent" data-es="Agente Registrado">Registered Agent</span><span class="svc-status" style="font-size:.68rem;color:#94a3b8" data-en="🕐 Coming Soon" data-es="🕐 Próximamente">🕐 Coming Soon</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="Registered Agent" data-es="Agente Registrado">Registered Agent</span><span class="svc-status s-add" data-en="+ $99/year" data-es="+ $99/año">+ $99/year</span></div>
         </div>
       </div>
 
@@ -1092,7 +1092,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           <div class="svc-row"><span class="svc-name" data-en="Articles of Amendment" data-es="Artículos de Enmienda">Articles of Amendment</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Local Business Tax Receipt" data-es="Licencia Comercial Local">Local Business Tax Receipt</span><span class="svc-status s-add">+ $79</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Sales Tax Registration" data-es="Registro de Impuesto sobre Ventas">Sales Tax Registration</span><span class="svc-status s-add">+ $79</span></div>
-          <div class="svc-row"><span class="svc-name" data-en="Registered Agent" data-es="Agente Registrado">Registered Agent</span><span class="svc-status" style="font-size:.68rem;color:#94a3b8" data-en="🕐 Coming Soon" data-es="🕐 Próximamente">🕐 Coming Soon</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="Registered Agent" data-es="Agente Registrado">Registered Agent</span><span class="svc-status s-add" data-en="+ $99/year" data-es="+ $99/año">+ $99/year</span></div>
         </div>
       </div>
     </div>
