@@ -1129,6 +1129,44 @@ Cuando una orden con `addons.ra === true` se paga en Stripe, el webhook dispara 
 
 ---
 
+## Sesión 2026-08-04 — bloqueo de calendario, pricing del form, branding
+
+### Bloqueo de calendario (`/admin/citas`)
+
+`blocked_slots` gana 2 columnas: `weekday INTEGER` (0=domingo…6=sábado, null si el bloqueo es por fecha específica) y `active BOOLEAN` (permite pausar una regla sin borrarla — pensado para los bloqueos recurrentes por día de la semana, pero aplica a cualquier fila). `date` pasa a ser nullable (antes `NOT NULL`) para las filas por weekday.
+
+- **UI nueva en la pestaña "Horarios Bloqueados":** dos modos — "Fecha(s) específicas" (Desde/Hasta se expande a días individuales, o se acumulan varios rangos/días sueltos en una lista de chips antes de bloquear todo con un solo POST) y "Día de la semana (fijo)" (Lun-Sáb, Domingo excluido porque ya está siempre cerrado). Cada fila con `weekday` muestra un pill "● Activo / ○ Pausado" clickeable (`PATCH /api/booking/blocked/[id]` nuevo).
+- `GET /api/booking/slots` combina ambos tipos de bloqueo con `.or('date.eq.X,weekday.eq.Y')` + `.eq('active', true)` — la página pública `/booking` no necesitó cambios.
+- Botón **"ℹ️ Cómo funciona"** nuevo en `/admin/citas` y `/admin/opabiz` — modal inline (`backend/app/admin/HowItWorksModal.tsx`, componente compartido) con el resumen del proceso de cada panel. Mismo espíritu que el link a doc 31 de Marketing, pero el contenido vive adentro en vez de mandar a un `.md` en GitHub.
+
+### Cambio de contraseña admin self-service
+
+Ver sección "Autenticación → Admin" más arriba — tarjeta "🔑 Contraseña" en `/admin/security`, hash en `admin_security_config.password_hash` (Supabase, aplica al instante), confirmación con el 2FA ya activo. `login/route.ts` prioriza este hash sobre `ADMIN_PASSWORD_HASH` de Vercel.
+
+### Pricing del formulario del home — 3 fixes reales (no solo cosméticos)
+
+- **Annual Report Filing Service**: antes mostraba literal la palabra "Annual" y **nunca se cobraba** (comentario viejo en `lib/pricing.ts` decía explícitamente "ar NO se cobra aquí"). Ahora cobra **$99** — agregado a `ADDON_PRICES`, al cálculo del cliente (2 lugares: `fmUpdateSummary` y `fmBuildOrderPayload`), y a `FORMATION_ADDON_NAMES` (`lib/order-items.ts`), que le faltaba la clave `ar` por completo (el admin nunca hubiera visto que se cobró).
+- **ITIN Application**: precio corregido a **$135 tachado → $99** (estaba en $69) en los 8 lugares donde aparecía: tarjeta, resumen lateral, review, mensaje de auto-agregado EN/ES, cálculo de totales cliente+servidor, `lib/pricing.ts`.
+- **DBA / Fictitious Name**: ahora suma también su tarifa estatal de Florida de **$50** (aparte de los $49 de servicio) — antes nunca se cobraba pese a que el tooltip ya decía "State fee paid separately". Nueva constante `DBA_STATE_FEE` en `lib/pricing.ts`; el review muestra las dos líneas por separado.
+- **Registered Agent** (paso 3, tarjeta "Use Our Registered Agent Service"): antes no mostraba ningún precio. Ahora muestra $99 tachado → "Incluido", con texto aclarando que es gratis solo el primer año y se renueva automáticamente a $99/año — antes daba a entender que era gratis para siempre.
+
+### Copy / UX del formulario — varios fixes puntuales
+
+- Actividad principal del negocio (paso 2, sección EIN de Standard/Premium) pasó de `<select>` plano a buscable (type-to-filter), igual que el campo equivalente del paso 7. Funciones `fmEinActivityFilter`/`fmEinClearActivity` generalizadas con parámetro `scope` (mismo patrón que `fmCheckIdMatch`/`fmEinIdTypeChange`/`fmFormatSSN`) — **al generalizar, el link "Cambiar selección" que se arma en runtime pasa el `scope` con `&quot;` en vez de backslash**, para no repetir el bug del hard-crash 2026-08-01.
+- Título del paso 3 corregido: un objeto de traducciones viejo (`translations.en.s3_title`/`s3_sub`) decía "Business Address" con un subtítulo completamente stale (hablaba de "nombre de la persona responsable de esta orden") y pisaba el HTML correcto cada vez que sincroniza el idioma — nunca se había notado porque en inglés (default) no se nota hasta que se togglea el idioma o se re-sincroniza.
+- Texto de dirección virtual (paso 3): ya no promete "we will email it to you once your order is confirmed" (suena a inmediato) — ahora "once it is assigned, we will email it to you".
+- Aviso legal de Annual Report ("Florida Deadline...") fusionado dentro de la descripción de su propia tarjeta — antes era una caja amarilla aparte al final de toda la lista de addons, sin traducción a español (nunca la tuvo).
+- Pin 📌 quitado de "What is a Registered Agent?" (paso 3).
+- Review: "Registered Agent" mostraba la razón social legal ("Florida Business Formation Center") — ahora dice **OpaBiz**, la marca que ve el cliente en el resto del sitio.
+
+### Branding — Stripe checkout + toast de guardado
+
+- `branding_settings` agregado a la creación de la Checkout Session en ambos flujos (`/api/checkout/embedded` y `/api/checkout/embedded-services`): `background_color:'#FFFFFF'`, `button_color:'#2563EB'`, `border_style:'rounded'`. El botón de pago principal de Stripe ya sale en los colores del sitio. **El widget de Link (el prompt verde "Confirm it's you" / "Pay without Link") NO es personalizable** — es un producto propio de Stripe, consistente en todos los sitios que lo usan, confirmado en su documentación oficial.
+- Toast de "Order saved" (botón Save del form) rediseñado de verde genérico a blanco/navy/azul con el logo "OB" — mismo esquema que `/order/complete`, en vez de un verde sin relación a la marca. Aplica también al estado "Guardando..." (spinner azul en vez de blanco-sobre-verde). El estado de error se mantiene rojo (semánticamente correcto) pero se le agregó `color:#fff` explícito ya que ahora hereda de un cssText base claro.
+- `/order/complete`: nueva caja con 🎁 avisando que junto al email de confirmación también se envía de regalo la Guía gratuita de formación, con resumen breve de qué cubre (Agente Registrado, EIN, Operating Agreement, ITIN, etc.).
+
+---
+
 ## Deploy
 
 - `git push origin main` — Vercel detecta cambios en `backend/` y hace deploy automático
