@@ -1771,7 +1771,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
                 <div style="font-size:.68rem;color:#9ca3af;margin-top:2px" id="s3-mail-opt">Optional — separate from your Registered Agent address</div>
                 <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px 14px;background:#fff;border:1.5px solid #e2e8f0;border-radius:9px;margin-top:8px">
                   <input type="checkbox" id="chk-same-mail" checked onchange="fmToggleMailAddr(this)" style="width:17px;height:17px;cursor:pointer;accent-color:#2563eb"/>
-                  <span id="lbl-same-mail" style="font-size:.83rem;font-weight:600;color:#374151">Use the same address for mailing</span>
+                  <span id="lbl-same-mail" style="font-size:.83rem;font-weight:600;color:#374151">Use my business address for mailing</span>
                 </label>
               </div>
               <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:9px;padding:10px 14px;font-size:.76rem;color:#475569;line-height:1.6;margin-bottom:12px">
@@ -3411,7 +3411,7 @@ function fmSetBizAddr(type, el) {
   var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
   var mailLbl = document.getElementById('lbl-same-mail');
   if(mailLbl) {
-    mailLbl.textContent = isEs ? 'Usar la misma dirección para correspondencia' : 'Use the same address for mailing';
+    mailLbl.textContent = isEs ? 'Usar mi dirección de negocio para correspondencia' : 'Use my business address for mailing';
   }
   fmUpdateSummary();
 }
@@ -4757,7 +4757,7 @@ function fmSyncStep3() {
   // fmSetAddrChoice mas arriba para el racional del cambio).
   var mailLbl = document.getElementById('lbl-same-mail');
   if(mailLbl) {
-    mailLbl.textContent = isEs ? 'Usar la misma dirección para correspondencia' : 'Use the same address for mailing';
+    mailLbl.textContent = isEs ? 'Usar mi dirección de negocio para correspondencia' : 'Use my business address for mailing';
   }
   // Sync mailing divider entity label
   var mailEnt = document.getElementById('s3-mail-divider-entity');
@@ -6563,7 +6563,7 @@ function fmTranslate(lang) {
     's3-mail-divider':isEs?'Dirección Postal de la LLC':'LLC Mailing Address',
     's3-mail-opt':isEs?'(Opcional — separada de su dirección de Agente Registrado)':'(Optional — separate from your Registered Agent address)',
     's3-mail-info-sub':isEs?'<span style=\\"display:block\\"><strong style=\\"color:#374151\\">Dirección del Agente Registrado</strong> recibe <em>documentos legales y críticos</em> — demandas, órdenes judiciales, citaciones. Debe ser física en Florida.</span><span style=\\"display:block;margin-top:4px\\"><strong style=\\"color:#374151\\">Dirección Postal</strong> recibe <em>correspondencia general</em> — recordatorios del Reporte Anual, confirmaciones de trámites, avisos del Estado. <strong>Se acepta PO Box. Puede ser cualquier dirección del mundo.</strong></span>':'<span style=\\"display:block\\"><strong style=\\"color:#374151\\">Registered Agent address</strong> receives <em>legal &amp; critical documents</em> — lawsuits, court orders, government summons. Must be a physical Florida address.</span><span style=\\"display:block;margin-top:4px\\"><strong style=\\"color:#374151\\">Mailing Address</strong> receives <em>general correspondence</em> — Annual Report reminders, filing confirmations, state notices. <strong>A PO Box is accepted. Any address worldwide is valid.</strong></span>',
-    'lbl-same-mail':isEs?'Usar la misma dirección para correspondencia':'Use the same address for mailing',
+    'lbl-same-mail':isEs?'Usar mi dirección de negocio para correspondencia':'Use my business address for mailing',
     's4-skip-lbl':isEs?'No gracias, me quedo con mi paquete actual':'No thanks, keep my current package',
     'exp-upsell-title':isEs?'Un Último Detalle Antes de Pagar':'One Last Thing Before You Pay',
     'exp-upsell-sub':isEs?'Su formación está en buenas manos.':'Your formation is in good hands. Want to make it official faster?',
