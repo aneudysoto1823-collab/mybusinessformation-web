@@ -1716,7 +1716,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
                 <div class="fm-choice-radio"></div>
                 <div class="fm-choice-content">
                   <strong id="agent-ours-lbl">&#127963; Use Our Registered Agent Service</strong>
-                  <p id="agent-ours-desc">We act as your official Registered Agent. Your personal address stays completely private &mdash; we handle all official correspondence.</p>
+                  <p id="agent-ours-desc">We act as your official Registered Agent and receive all official documents on your behalf. Your personal address will not appear on any public record.</p>
                 </div>
               </div>
               <div class="fm-choice" id="agent-use-own" onclick="fmSetAgentChoice('own',this)">
@@ -1726,9 +1726,6 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
                   <p id="agent-own-desc">Your address will be publicly registered with the State of Florida and the law requires you to be present at that address Monday through Friday from 9am to 5pm to receive official legal documents.</p>
                 </div>
               </div>
-            </div>
-            <div id="agent-ours-note" style="margin-top:10px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:9px;padding:12px 14px;font-size:.78rem;color:#1e40af;line-height:1.65">
-              &#8505; <span id="agent-ours-note-text">We will act as your Registered Agent and receive all official documents on your behalf. Your personal address will not appear on any public record. Your first year is free; after that it renews automatically at $99/year until you cancel.</span>
             </div>
             <div id="agent-own-form" style="display:none;margin-top:14px">
               <div class="fm-group"><label class="fm-label" id="lbl-ra-name">Full Name *</label><input type="text" class="fm-input" id="inp-ra-name" placeholder="Full legal name" oninput="fmTitleCase(this)"/></div>
@@ -3409,9 +3406,7 @@ function fmSetAgentChoice(type, el) {
   fmData.agentType = type;
   document.querySelectorAll('#agent-use-ours,#agent-use-own').forEach(function(c){ c.classList.remove('selected'); });
   if(el) el.classList.add('selected');
-  var on = document.getElementById('agent-ours-note');
   var of2 = document.getElementById('agent-own-form');
-  if(on) on.style.display = type === 'ours' ? 'block' : 'none';
   if(of2) of2.style.display = type === 'own' ? 'block' : 'none';
   if(type === 'own') {
     // Regla 2026-06-25: el checkbox "Same as Physical Business Address" solo
@@ -4737,11 +4732,9 @@ function fmSyncStep3() {
   var agentType = fmData.agentType || 'ours';
   var oursBtn  = document.getElementById('agent-use-ours');
   var ownBtn   = document.getElementById('agent-use-own');
-  var oursNote = document.getElementById('agent-ours-note');
   var ownForm  = document.getElementById('agent-own-form');
   if(oursBtn)  oursBtn.classList.toggle('selected',  agentType === 'ours');
   if(ownBtn)   ownBtn.classList.toggle('selected',   agentType === 'own');
-  if(oursNote) oursNote.style.display = agentType === 'ours' ? 'block' : 'none';
   if(ownForm)  ownForm.style.display  = agentType === 'own'  ? 'block' : 'none';
   // Sync mailing address label (mismo texto sin importar virtual vs own — ver
   // fmSetAddrChoice mas arriba para el racional del cambio).
@@ -6542,10 +6535,9 @@ function fmTranslate(lang) {
     's3-agent-info-title':isEs?'¿Qué es un Agente Registrado?':'What is a Registered Agent?',
     's3-agent-info-text':isEs?'El Agente Registrado es la persona o entidad designada ante el Estado de Florida para recibir documentos legales oficiales en nombre de su negocio.':'The Registered Agent is the person or entity designated with the State of Florida to receive official legal documents on behalf of your business.',
     'agent-ours-lbl':isEs?'Usar Nuestro Servicio de Agente Registrado':'Use Our Registered Agent Service',
-    'agent-ours-desc':isEs?'Actuamos como su Agente Registrado oficial. Su dirección personal se mantiene completamente privada.':'We act as your official Registered Agent. Your personal address stays completely private.',
+    'agent-ours-desc':isEs?'Actuamos como su Agente Registrado oficial y recibimos todos los documentos oficiales por usted. Su dirección personal no aparecerá en ningún registro público.':'We act as your official Registered Agent and receive all official documents on your behalf. Your personal address will not appear on any public record.',
     'agent-own-lbl':isEs?'Seré mi propio Agente Registrado':'I will be my own Registered Agent',
     'agent-own-desc':isEs?'Su dirección quedará registrada públicamente ante el Estado de Florida y la ley exige que deberá estar presente en esa dirección de lunes a viernes de 9am a 5pm para recibir documentos legales oficiales.':'Your address will be publicly registered with the State of Florida and the law requires you to be present at that address Monday through Friday from 9am to 5pm to receive official legal documents.',
-    'agent-ours-note-text':isEs?'Actuaremos como su Agente Registrado y recibiremos todos los documentos en su nombre. Su dirección personal no aparecerá en ningún registro público. Su primer año es gratis; después se renueva automáticamente a $99/año hasta que lo cancele.':'We will act as your Registered Agent and receive all official documents. Your personal address will not appear on any public record. Your first year is free; after that it renews automatically at $99/year until you cancel.',
     'ra-same-biz-lbl':isEs?'Usar misma dirección que Dirección Física del Negocio':'Use same as Physical Business Address',
     'agent-own-warn-text':isEs?'La dirección de su Agente Registrado aparecerá en el registro público. Debe ser una dirección física en Florida.':'Your Registered Agent address will appear on the public record. It must be a physical Florida address, no PO Boxes.',
     's3-mail-divider':isEs?'Dirección Postal de la LLC':'LLC Mailing Address',
