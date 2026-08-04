@@ -1771,7 +1771,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
                 <div style="font-size:.68rem;color:#9ca3af;margin-top:2px" id="s3-mail-opt">Optional — separate from your Registered Agent address</div>
                 <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px 14px;background:#fff;border:1.5px solid #e2e8f0;border-radius:9px;margin-top:8px">
                   <input type="checkbox" id="chk-same-mail" checked onchange="fmToggleMailAddr(this)" style="width:17px;height:17px;cursor:pointer;accent-color:#2563eb"/>
-                  <span id="lbl-same-mail" style="font-size:.83rem;font-weight:600;color:#374151">Same as business address</span>
+                  <span id="lbl-same-mail" style="font-size:.83rem;font-weight:600;color:#374151">Use the same address for mailing</span>
                 </label>
               </div>
               <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:9px;padding:10px 14px;font-size:.76rem;color:#475569;line-height:1.6;margin-bottom:12px">
@@ -3405,15 +3405,13 @@ function fmSetBizAddr(type, el) {
   var form = document.getElementById('biz-own-form');
   if(note) note.style.display = type === 'virtual' ? 'flex' : 'none';
   if(form) form.style.display = type === 'own' ? 'block' : 'none';
-  // Update mailing address checkbox label based on address type
+  // Update mailing address checkbox label (mismo texto sin importar virtual vs own —
+  // el label anterior variaba entre "Same as business address" y "Same as above (agent
+  // address)" pero esa distincion confundia al cliente sugiriendo que mailing = RA).
   var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
   var mailLbl = document.getElementById('lbl-same-mail');
   if(mailLbl) {
-    if(type === 'virtual') {
-      mailLbl.textContent = isEs ? 'Igual que la dirección de arriba (dirección del agente)' : 'Same as above (agent address)';
-    } else {
-      mailLbl.textContent = isEs ? 'Igual que la dirección del negocio' : 'Same as business address';
-    }
+    mailLbl.textContent = isEs ? 'Usar la misma dirección para correspondencia' : 'Use the same address for mailing';
   }
   fmUpdateSummary();
 }
@@ -4755,13 +4753,11 @@ function fmSyncStep3() {
   if(ownBtn)   ownBtn.classList.toggle('selected',   agentType === 'own');
   if(oursNote) oursNote.style.display = agentType === 'ours' ? 'block' : 'none';
   if(ownForm)  ownForm.style.display  = agentType === 'own'  ? 'block' : 'none';
-  // Sync mailing address label based on address type chosen in step 2
+  // Sync mailing address label (mismo texto sin importar virtual vs own — ver
+  // fmSetAddrChoice mas arriba para el racional del cambio).
   var mailLbl = document.getElementById('lbl-same-mail');
   if(mailLbl) {
-    var addrType = fmData.bizAddrType || 'virtual';
-    mailLbl.textContent = addrType === 'virtual'
-      ? (isEs ? 'Igual que la dirección de arriba (dirección del agente)' : 'Same as above (agent address)')
-      : (isEs ? 'Igual que la dirección del negocio' : 'Same as business address');
+    mailLbl.textContent = isEs ? 'Usar la misma dirección para correspondencia' : 'Use the same address for mailing';
   }
   // Sync mailing divider entity label
   var mailEnt = document.getElementById('s3-mail-divider-entity');
@@ -6567,7 +6563,7 @@ function fmTranslate(lang) {
     's3-mail-divider':isEs?'Dirección Postal de la LLC':'LLC Mailing Address',
     's3-mail-opt':isEs?'(Opcional — separada de su dirección de Agente Registrado)':'(Optional — separate from your Registered Agent address)',
     's3-mail-info-sub':isEs?'<span style=\\"display:block\\"><strong style=\\"color:#374151\\">Dirección del Agente Registrado</strong> recibe <em>documentos legales y críticos</em> — demandas, órdenes judiciales, citaciones. Debe ser física en Florida.</span><span style=\\"display:block;margin-top:4px\\"><strong style=\\"color:#374151\\">Dirección Postal</strong> recibe <em>correspondencia general</em> — recordatorios del Reporte Anual, confirmaciones de trámites, avisos del Estado. <strong>Se acepta PO Box. Puede ser cualquier dirección del mundo.</strong></span>':'<span style=\\"display:block\\"><strong style=\\"color:#374151\\">Registered Agent address</strong> receives <em>legal &amp; critical documents</em> — lawsuits, court orders, government summons. Must be a physical Florida address.</span><span style=\\"display:block;margin-top:4px\\"><strong style=\\"color:#374151\\">Mailing Address</strong> receives <em>general correspondence</em> — Annual Report reminders, filing confirmations, state notices. <strong>A PO Box is accepted. Any address worldwide is valid.</strong></span>',
-    'lbl-same-mail':isEs?(fmData.bizAddrType==='virtual'?'Igual que la dirección de arriba (dirección del agente)':'Igual que la dirección del negocio'):(fmData.bizAddrType==='virtual'?'Same as above (agent address)':'Same as business address'),
+    'lbl-same-mail':isEs?'Usar la misma dirección para correspondencia':'Use the same address for mailing',
     's4-skip-lbl':isEs?'No gracias, me quedo con mi paquete actual':'No thanks, keep my current package',
     'exp-upsell-title':isEs?'Un Último Detalle Antes de Pagar':'One Last Thing Before You Pay',
     'exp-upsell-sub':isEs?'Su formación está en buenas manos.':'Your formation is in good hands. Want to make it official faster?',
