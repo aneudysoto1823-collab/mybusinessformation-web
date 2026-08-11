@@ -617,15 +617,6 @@ const CSS = `
     color: #94a3b8;
     font-size: .71rem;
   }
-  .co-pay-area { min-height: 480px; }
-  .co-pay-title {
-    font-size: .78rem;
-    font-weight: 700;
-    color: #94a3b8;
-    text-transform: uppercase;
-    letter-spacing: .05em;
-    margin-bottom: 12px;
-  }
   #nb-embedded-checkout { min-height: 420px; }
   .co-skel {
     border-radius: 8px;
@@ -1184,6 +1175,87 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
   function toggleAll() {
     if (allSelected) setSelected(new Set())
     else setSelected(new Set(SERVICES.map(s => s.id)))
+  }
+
+  // Líneas de servicios + total — se usan tanto en el Order Summary del
+  // sidebar (steps 1-3) como reubicadas dentro del Review (step 4), para que
+  // el cliente pueda seguir togglear servicios desde donde esté.
+  function renderOrderLines() {
+    return (
+      <>
+        {/* Select All row */}
+        <div
+          style={{ display:'flex', alignItems:'center', gap:10, marginBottom:6, cursor:'pointer' }}
+          onClick={toggleAll}
+        >
+          <div style={{
+            width:20, height:20, borderRadius:5,
+            border: allSelected ? 'none' : '2px solid #cbd5e1',
+            background: allSelected ? '#2563EB' : 'transparent',
+            display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0,
+            transition:'all .2s'
+          }}>
+            {allSelected && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+          </div>
+          <div style={{ flex:1 }}>
+            <div style={{ fontSize:'.82rem', fontWeight:700, color:'#1B3A6B' }}>
+              {lang === 'es' ? 'Seleccionar todo' : 'Select all'}
+            </div>
+            <div style={{ fontSize:'.7rem', color: allSelected ? '#16a34a' : '#f59e0b', fontWeight:600, marginTop:1 }}>
+              {allSelected
+                ? (lang === 'es' ? `Ahorrando $${discountAmt.toFixed(2)} con el bundle` : `Saving $${discountAmt.toFixed(2)} with the bundle`)
+                : (lang === 'es' ? 'Selecciona los 3 y ahorra un 10%' : 'Select all 3 and save 10%')}
+            </div>
+          </div>
+          <span style={{ fontSize:'.75rem', fontWeight:600, color:'#64748b' }}>
+            {lang === 'es' ? 'Precio' : 'Price'}
+          </span>
+        </div>
+
+        <div className="co-divider" style={{ marginTop:0 }} />
+
+        {/* Service lines — always show all, toggle checked state */}
+        {SERVICES.map(svc => {
+          const isOn = selected.has(svc.id)
+          return (
+            <div key={svc.id} className="co-line" style={{ alignItems:'center', gap:8 }}>
+              <div
+                style={{
+                  width:18, height:18, borderRadius:4,
+                  background: isOn ? '#2563EB' : 'transparent',
+                  border: isOn ? 'none' : '2px solid #cbd5e1',
+                  display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, cursor:'pointer',
+                  transition:'all .2s'
+                }}
+                onClick={() => toggleService(svc.id)}
+              >
+                {isOn && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+              </div>
+              <span className="co-line-name">{lang === 'es' ? svc.titleEs : svc.titleEn}</span>
+              <span className="co-line-price" style={{ color: isOn ? '#1B3A6B' : '#e2e8f0' }}>${svc.price.toFixed(2)}</span>
+            </div>
+          )
+        })}
+
+        <div className="co-divider" />
+
+        {/* 10% bundle discount */}
+        {allSelected && (
+          <div className="co-savings">
+            <span>10% {lang === 'es' ? 'Descuento Bundle' : 'Bundle Discount'}</span>
+            <span>−${discountAmt.toFixed(2)}</span>
+          </div>
+        )}
+
+        {/* Total */}
+        <div className="co-total">
+          <span className="co-total-label">Total</span>
+          <span className="co-total-amount">
+            ${total.toFixed(2)}<span>USD</span>
+          </span>
+        </div>
+      </>
+    )
   }
 
   const displayName = company?.company_name ?? ''
@@ -1925,6 +1997,18 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                         </div>
                       )}
 
+                      {/* Order — reubicado acá (en vez del sidebar) para que
+                          quede junto al resto de lo que el cliente revisa
+                          antes de pagar, y para equilibrar la altura de las
+                          dos columnas (antes el sidebar quedaba mucho más
+                          alto que este panel). Sigue siendo interactivo. */}
+                      <div style={{ marginBottom:12, background:'#f8fafc', borderRadius:10, padding:'12px 14px', border:'1px solid #e2e8f0' }}>
+                        <div style={{ fontSize:'.78rem', fontWeight:700, color:'#94a3b8', textTransform:'uppercase', letterSpacing:'.05em', marginBottom:8 }}>
+                          {lang === 'es' ? 'Tu Orden' : 'Your Order'}
+                        </div>
+                        {renderOrderLines()}
+                      </div>
+
                       <div className="step-nav" style={{ marginTop:8 }}>
                         <button className="step-back" onClick={() => goToStep(einSelected ? 3 : 2)}>
                           ← {lang === 'es' ? 'Atrás' : 'Back'}
@@ -1935,90 +2019,14 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                 </div>
 
                 {/* ── RIGHT: CHECKOUT BOX ── */}
+                {/* En el Review (step 4) el resumen de servicios se mudó a la
+                    izquierda (junto a lo que el cliente revisa) para
+                    equilibrar la altura de las columnas — acá solo queda el
+                    pago. En los demás pasos sigue siendo el resumen completo. */}
                 <div className="co-box">
-                  <div className="co-title">{lang === 'es' ? 'Resumen de Orden' : 'Order Summary'}</div>
-
-                  {/* Select All row */}
-                  <div
-                    style={{ display:'flex', alignItems:'center', gap:10, marginBottom:6, cursor:'pointer' }}
-                    onClick={toggleAll}
-                  >
-                    <div style={{
-                      width:20, height:20, borderRadius:5,
-                      border: allSelected ? 'none' : '2px solid #cbd5e1',
-                      background: allSelected ? '#2563EB' : 'transparent',
-                      display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0,
-                      transition:'all .2s'
-                    }}>
-                      {allSelected && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
-                    </div>
-                    <div style={{ flex:1 }}>
-                      <div style={{ fontSize:'.82rem', fontWeight:700, color:'#1B3A6B' }}>
-                        {lang === 'es' ? 'Seleccionar todo' : 'Select all'}
-                      </div>
-                      <div style={{ fontSize:'.7rem', color: allSelected ? '#16a34a' : '#f59e0b', fontWeight:600, marginTop:1 }}>
-                        {allSelected
-                          ? (lang === 'es' ? `Ahorrando $${discountAmt.toFixed(2)} con el bundle` : `Saving $${discountAmt.toFixed(2)} with the bundle`)
-                          : (lang === 'es' ? 'Selecciona los 3 y ahorra un 10%' : 'Select all 3 and save 10%')}
-                      </div>
-                    </div>
-                    <span style={{ fontSize:'.75rem', fontWeight:600, color:'#64748b' }}>
-                      {lang === 'es' ? 'Precio' : 'Price'}
-                    </span>
-                  </div>
-
-                  <div className="co-divider" style={{ marginTop:0 }} />
-
-                  {/* Service lines — always show all, toggle checked state */}
-                  {SERVICES.map(svc => {
-                    const isOn = selected.has(svc.id)
-                    return (
-                      <div key={svc.id} className="co-line" style={{ alignItems:'center', gap:8 }}>
-                        <div
-                          style={{
-                            width:18, height:18, borderRadius:4,
-                            background: isOn ? '#2563EB' : 'transparent',
-                            border: isOn ? 'none' : '2px solid #cbd5e1',
-                            display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, cursor:'pointer',
-                            transition:'all .2s'
-                          }}
-                          onClick={() => toggleService(svc.id)}
-                        >
-                          {isOn && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
-                        </div>
-                        <span className="co-line-name">{lang === 'es' ? svc.titleEs : svc.titleEn}</span>
-                        <span className="co-line-price" style={{ color: isOn ? '#1B3A6B' : '#e2e8f0' }}>${svc.price.toFixed(2)}</span>
-                      </div>
-                    )
-                  })}
-
-                  <div className="co-divider" />
-
-                  {/* 10% bundle discount */}
-                  {allSelected && (
-                    <div className="co-savings">
-                      <span>10% {lang === 'es' ? 'Descuento Bundle' : 'Bundle Discount'}</span>
-                      <span>−${discountAmt.toFixed(2)}</span>
-                    </div>
-                  )}
-
-                  {/* Total */}
-                  <div className="co-total">
-                    <span className="co-total-label">Total</span>
-                    <span className="co-total-amount">
-                      ${total.toFixed(2)}<span>USD</span>
-                    </span>
-                  </div>
-
-                  {/* Pago integrado: el form de Stripe se monta aquí solo en
-                      el Review (step 4) — ver mountPayment(). En los demás
-                      pasos el sidebar termina en el Total + badge de confianza. */}
                   {step === 4 ? (
-                    <div className="co-pay-area">
-                      <div className="co-divider" style={{ margin:'14px 0' }} />
-                      <div className="co-pay-title">
-                        {lang === 'es' ? 'Pago Seguro' : 'Secure Payment'}
-                      </div>
+                    <>
+                      <div className="co-title">{lang === 'es' ? 'Pago Seguro' : 'Secure Payment'}</div>
                       {payError && (
                         <p style={{ color:'#ef4444', fontSize:'.78rem', textAlign:'center', padding:'12px 0', lineHeight:1.5 }}>
                           ⚠ {payError}
@@ -2035,14 +2043,18 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                         </div>
                       )}
                       <div id="nb-embedded-checkout" />
-                    </div>
+                    </>
                   ) : (
-                    <div className="co-trust">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                      </svg>
-                      {lang === 'es' ? 'Pago 100% seguro con Stripe' : '100% secure payment with Stripe'}
-                    </div>
+                    <>
+                      <div className="co-title">{lang === 'es' ? 'Resumen de Orden' : 'Order Summary'}</div>
+                      {renderOrderLines()}
+                      <div className="co-trust">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        </svg>
+                        {lang === 'es' ? 'Pago 100% seguro con Stripe' : '100% secure payment with Stripe'}
+                      </div>
+                    </>
                   )}
                 </div>
               </div>
