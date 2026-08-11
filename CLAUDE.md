@@ -1176,6 +1176,60 @@ Ver sección "Autenticación → Admin" más arriba — tarjeta "🔑 Contraseñ
 
 ---
 
+## Sesión 2026-08-11 — `/new-business`: Embedded Checkout + bug crítico de orden nunca creada
+
+Sesión larga enfocada 100% en el flujo de marketing `/new-business` (Labor Law Poster, EIN, Certificate of Status) — arrancó como un fix puntual de build y terminó destapando que **ninguna compra de este flujo generaba email ni número de orden**, un bug preexistente sin relación a los cambios de la sesión.
+
+### Fix de infraestructura (no relacionado al resto)
+
+- **Build de Vercel fallando** (`Module not found: @vercel/turbopack-next/internal/font/google/font`) — caché de build corrupta específica de Turbopack+fonts en la plataforma de Vercel, no un bug de código (el mismo commit compilaba perfecto en local). Se resolvió con `vercel --prod --force` (redeploy sin caché). Si vuelve a pasar, ese es el fix.
+
+### Bug de datos: `/new-business` buscaba en la tabla equivocada
+
+`/api/sunbiz` (usado por el buscador de Document ID en `/new-business`) consultaba `sunbiz_corps` en **Supabase** — una tabla homónima que siempre estuvo vacía (0 filas) — en vez de la tabla real con los 3.5M+ registros de Sunbiz, que vive en **Turso** (`lib/turso.ts`, `lookupCompanyByDocument()`, la misma que ya usa el name-check de órdenes). Antes de este fix, el buscador solo encontraba empresas que habían recibido carta/email de marketing (`prospective_companies`) — cualquier Document ID real de Sunbiz fallaba. Fix: el endpoint ahora consulta Turso también, mergeando con `prospective_companies` igual que antes. Verificado en producción con un Document ID real (`L21000484147` → FLORIDA CONDOS L.L.C.).
+
+### Migración a Stripe Embedded Checkout (coherencia con home/`servicios/checkout`)
+
+`/new-business` usaba **Stripe Hosted Checkout** (redirect a `checkout.stripe.com`), con un delay notable al hacer clic porque no había prefetch — a diferencia del home y `/servicios/checkout`, que usan Embedded Checkout con la sesión pre-cargada. A pedido explícito del founder ("quiero que funcione como está la página de los paquetes, quiero coherencia"), se migró:
+
+- `/api/sunbiz/checkout` pasó a `ui_mode:'embedded'` + `return_url`, devuelve `clientSecret` en vez de una `url` de redirect (el `branding_settings` OpaBiz ya se había agregado antes en la misma sesión).
+- El form de Stripe se prefetchea al entrar al paso 3 (EIN) o al paso 2 si no hay EIN, y se monta dentro del Order Summary al llegar al Review — mismo patrón que `fmPrefetchPayment()`/`fmMountPayment()` del home.
+- Stripe.js cargado vía `next/script` en `app/new-business/layout.tsx`.
+
+### Ajustes de layout del Review (feedback iterativo del founder, mirando capturas reales)
+
+- Los 3 bloques explicativos (Labor Law/EIN/Certificate) se ocultan **desde el paso EIN en adelante** (antes solo en el Review) — si el cliente llegó hasta ahí ya los leyó y está decidido.
+- El resumen de servicios + total se **movió de la columna derecha a la izquierda**, como parte de lo que el cliente revisa (Business/Contact/EIN) — antes la columna derecha (resumen + Stripe apilados) quedaba mucho más alta que la izquierda. La derecha ahora es solo el form de pago.
+- Ese bloque "Tu Orden" pasó de checkboxes clickeables a **solo lectura + botón "Edit"** (vuelve al paso 1) — un checkbox chico al lado del precio era fácil de tocar sin querer justo antes de pagar.
+- `goToStep()` cambió de `scrollIntoView` directo al form a `window.scrollTo({top:0})` — antes el salto dejaba el saludo/encabezado cortado arriba de la pantalla.
+
+### 🐛 Bug crítico encontrado probando el flujo real: ninguna orden se creaba
+
+Al hacer una compra de prueba real, no llegó ni el email ni se generó número de orden. Investigación (con un endpoint de debug temporal, borrado al terminar): el pago en Stripe se completaba perfecto (`checkout.session.completed` sí se disparaba, la URL del webhook con `www` estaba bien configurada), pero el **insert de la `Order` fallaba silenciosamente** — la tabla tiene `country` como `NOT NULL` y el insert del flujo de marketing/addons en `app/api/webhooks/stripe/route.ts` nunca lo incluía. El webhook devolvía 500, Stripe reintentaba sin éxito, y el resultado era: pago cobrado en Stripe pero sin `Order`, sin email, sin número — para **cualquier compra de `/new-business` hasta ahora**, no algo introducido por la migración a Embedded Checkout.
+
+**Fix:** usa `session.customer_details.address.country` (Stripe ya lo captura en el checkout) con fallback a `'US'`. La orden de prueba afectada se recuperó manualmente (insert + reenvío de ambos emails) para confirmar el fix end-to-end.
+
+### Rediseño de `/new-business/success` + emails del flujo
+
+La página de retorno era texto plano estático ("Payment Successful", sin número de orden). Rediseño completo, mismo estilo visual que `/order/complete`:
+
+- **`/api/sunbiz/checkout/status`** (nuevo) — lee la sesión de Stripe directo con `line_items` expandidos (evita depender de que el webhook ya haya corrido) y busca el número FBNB real en Supabase por `stripePaymentId` (best-effort, con un par de reintentos cortos en el cliente si el webhook todavía no terminó).
+- `SuccessContent.tsx` (nuevo, client component) — número de orden copiable, empresa, Document ID, servicios con precio, total, nota de confirmación por email.
+- **Emails del webhook** (cliente + alerta interna) rediseñados: header OB/OpaBiz igual que el resto del sitio (antes franja navy vieja — este flujo había quedado fuera del rediseño de plantillas de la sesión 2026-07-09), saludo con nombre completo ("Thank you for your order", no "purchase"), Order Number arriba junto al saludo, sección "What happens next" con 3 pasos. La alerta interna mostraba el slug crudo del servicio (`bundle`) en la fila "Servicios" — ahora usa la descripción real, y se agregó el botón "Abrir en el panel admin" que le faltaba.
+- **Bundle mostraba una sola línea "Business Essentials Bundle (3 services)"** en vez de los 3 servicios — porque `/api/sunbiz/checkout` lo mandaba a Stripe como un solo line item. Fix: ahora manda los 3 servicios individuales con el 10% ya aplicado a cada uno (suman el mismo $324.00) — como tanto la página de éxito como el email arman su resumen desde los `line_items` reales de Stripe, un solo cambio arregló ambos lugares.
+- El botón del email mandaba a `/client-portal` (landing viejo) en vez de `PORTAL_HOME` (`?login=1` en el home, donde vive el login real desde la sesión 2026-06-23) — mismo bug que ya se había resuelto en los emails de formación/servicios, se había quedado afuera en este porque nunca se había probado de punta a punta hasta esta sesión.
+
+### 4 mejoras de UX puntuales en el form (pedidas por el founder)
+
+- Mes/año de inicio de LLC (paso 1) se auto-completa desde `filing_date` de Sunbiz (Turso) cuando se encuentra la empresa por Document ID.
+- "¿A qué se dedica el negocio?" pasó a ser obligatorio (antes se podía avanzar vacío pese al asterisco visual).
+- Nombre/Apellido (paso 2) capitalizan la primera letra automáticamente.
+- "Otra razón" del EIN (paso 3) abre un campo obligatorio para describirla, que se muestra en el resumen en vez de la palabra genérica "other".
+
+**Pendiente para otra sesión:** no se volvió a probar un pago real de punta a punta después de los últimos 3 fixes (bundle itemizado, link del portal, "order" vs "purchase") — recomendado antes de darlo por cerrado del todo.
+
+---
+
 ## Deploy
 
 - `git push origin main` — Vercel detecta cambios en `backend/` y hace deploy automático
