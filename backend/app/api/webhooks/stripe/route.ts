@@ -163,9 +163,23 @@ export async function POST(req: NextRequest) {
   // Send confirmation email
   const isEs = lang === 'es'
 
-  const servicesHtml = selectedServices
-    .map(s => `<li style="margin:4px 0">${getOrderItemLabel(`mkt:${s}`, { lang })}</li>`)
-    .join('')
+  // Desglose itemizado real (label + precio) desde los line_items de Stripe —
+  // misma técnica que /api/sunbiz/checkout/status, evita duplicar precios acá.
+  // Si el expand falla por algún motivo, degrada a la lista simple de labels
+  // sin precio (nunca bloquea el envío del email).
+  let orderLines: { label: string; amount: number }[] = []
+  try {
+    const full = await getStripe().checkout.sessions.retrieve(session.id, { expand: ['line_items'] })
+    orderLines = (full.line_items?.data ?? []).map(li => ({
+      label:  li.description ?? '',
+      amount: (li.amount_total ?? 0) / 100,
+    }))
+  } catch (e) {
+    console.error('[stripe-webhook] line_items expand error (non-fatal):', e)
+  }
+  const servicesRowsHtml = orderLines.length > 0
+    ? orderLines.map(l => `<tr><td style="padding:5px 0;font-size:14px;color:#475569">✓ ${l.label}</td><td style="padding:5px 0;font-size:14px;color:#1e293b;font-weight:600;text-align:right;white-space:nowrap">$${l.amount.toFixed(2)}</td></tr>`).join('')
+    : selectedServices.map(s => `<tr><td style="padding:5px 0;font-size:14px;color:#475569">✓ ${getOrderItemLabel(`mkt:${s}`, { lang })}</td><td></td></tr>`).join('')
 
   await getResend().emails.send({
     from: FROM_OPABIZ,
@@ -176,55 +190,83 @@ export async function POST(req: NextRequest) {
       : `OpaBiz: ✅ Payment confirmed — ${companyName}`,
     html: `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#1e293b">
-        <div style="background:#1C2E44;padding:24px 32px;border-radius:10px 10px 0 0">
-          <h1 style="color:#fff;font-size:20px;margin:0">Florida Business Formation Center</h1>
-        </div>
-        <div style="background:#fff;padding:32px;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 10px 10px">
-          <h2 style="color:#1C2E44;font-size:20px;margin-bottom:8px">
-            ${isEs ? `¡Hola ${firstName}! Tu pago fue confirmado 🎉` : `Hi ${firstName}, your payment is confirmed! 🎉`}
-          </h2>
-          <p style="color:#475569;line-height:1.7">
-            ${isEs
-              ? `Gracias por tu compra. Aquí está el resumen de tu orden:`
-              : `Thank you for your purchase. Here's your order summary:`}
-          </p>
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden">
+          <div style="padding:22px 32px;border-bottom:1px solid #e2e8f0">
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+              <td style="width:42px;padding-right:12px">
+                <div style="width:42px;height:42px;background:linear-gradient(135deg,#1C2E44,#2563EB);border-radius:10px;text-align:center;line-height:42px;color:#fff;font-family:Georgia,serif;font-size:16px;font-weight:700">OB</div>
+              </td>
+              <td style="vertical-align:middle">
+                <div style="font-family:Georgia,serif;font-size:21px;font-weight:700;line-height:1.2"><span style="color:#1C2E44">Opa</span><span style="color:#2563EB">Biz</span></div>
+                <div style="font-size:11px;color:#94A3B8;letter-spacing:.3px;margin-top:2px">Florida Business Formation Center</div>
+              </td>
+            </tr></table>
+          </div>
+          <div style="padding:32px">
+            <h2 style="color:#1C2E44;font-size:20px;margin-top:0">
+              ${isEs ? `¡Gracias por su compra, ${firstName} ${lastName}!` : `Thank you for your purchase, ${firstName} ${lastName}!`}
+            </h2>
+            <div style="background:#EFF6FF;border-radius:8px;padding:14px 18px;margin:4px 0 22px;text-align:center">
+              <div style="font-size:11px;color:#2563EB;text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:4px">${isEs ? 'Número de Orden' : 'Order Number'}</div>
+              <div style="font-size:21px;font-weight:800;color:#1C2E44;letter-spacing:.5px">${fbfcNumber}</div>
+            </div>
 
-          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:20px;margin:20px 0">
-            <p style="margin:6px 0;font-size:14px"><strong>${isEs ? 'Empresa' : 'Company'}:</strong> ${companyName}</p>
-            ${documentId ? `<p style="margin:6px 0;font-size:14px"><strong>Document ID:</strong> ${documentId}</p>` : ''}
-            <p style="margin:6px 0;font-size:14px"><strong>${isEs ? 'Servicios adquiridos' : 'Services purchased'}:</strong></p>
-            <ul style="margin:6px 0 6px 18px;font-size:14px;color:#475569">${servicesHtml}</ul>
-            <p style="margin:6px 0;font-size:14px"><strong>Total:</strong> $${amountPaid.toFixed(2)} USD</p>
-            <p style="margin:12px 0 6px;font-size:14px;background:#EFF6FF;padding:10px 14px;border-radius:6px;border-left:3px solid #2563EB">
-              <strong>${isEs ? 'Número de orden' : 'Order Number'}:</strong>
-              <span style="font-size:16px;font-weight:800;color:#2563EB;letter-spacing:.5px"> ${fbfcNumber}</span>
+            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:20px;margin:20px 0">
+              <p style="margin:0 0 10px;font-size:14px"><strong>${isEs ? 'Empresa' : 'Company'}:</strong> ${companyName}</p>
+              ${documentId ? `<p style="margin:0;font-size:14px"><strong>Document ID:</strong> ${documentId}</p>` : ''}
+            </div>
+
+            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:20px;margin:20px 0">
+              <table style="width:100%;border-collapse:collapse">${servicesRowsHtml}
+                <tr><td style="padding:10px 0 0;border-top:1px solid #e2e8f0;font-size:14px;font-weight:700;color:#1e293b">${isEs ? 'Total pagado' : 'Total paid'}</td><td style="padding:10px 0 0;border-top:1px solid #e2e8f0;font-size:14px;font-weight:700;color:#1e293b;text-align:right;white-space:nowrap">$${amountPaid.toFixed(2)} USD</td></tr>
+              </table>
+            </div>
+
+            <p style="font-size:12px;font-weight:700;color:#1C2E44;text-transform:uppercase;letter-spacing:.5px;margin:0 0 12px">${isEs ? 'Qué sigue' : 'What happens next'}</p>
+            <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;margin-bottom:24px">
+              <tr>
+                <td style="width:26px;vertical-align:top;padding:2px 10px 14px 0"><div style="width:20px;height:20px;background:#EFF6FF;color:#2563EB;border-radius:50%;text-align:center;line-height:20px;font-size:11px;font-weight:800">1</div></td>
+                <td style="padding:0 0 14px;font-size:13.5px;color:#475569;line-height:1.6">${isEs ? 'Revisamos su orden y comenzamos a preparar los servicios que adquirió' : 'We review your order and begin preparing the services you purchased'}</td>
+              </tr>
+              <tr>
+                <td style="width:26px;vertical-align:top;padding:2px 10px 14px 0"><div style="width:20px;height:20px;background:#EFF6FF;color:#2563EB;border-radius:50%;text-align:center;line-height:20px;font-size:11px;font-weight:800">2</div></td>
+                <td style="padding:0 0 14px;font-size:13.5px;color:#475569;line-height:1.6">${isEs ? 'Tramitamos cada servicio ante la agencia correspondiente' : 'We process each service with the corresponding agency'}</td>
+              </tr>
+              <tr>
+                <td style="width:26px;vertical-align:top;padding:2px 10px 0 0"><div style="width:20px;height:20px;background:#EFF6FF;color:#2563EB;border-radius:50%;text-align:center;line-height:20px;font-size:11px;font-weight:800">3</div></td>
+                <td style="font-size:13.5px;color:#475569;line-height:1.6">${isEs ? 'Le enviaremos sus documentos y le avisaremos en cuanto todo esté listo' : "We'll send you your documents and let you know as soon as everything is ready"}</td>
+              </tr>
+            </table>
+
+            <p style="color:#475569;line-height:1.7">
+              ${isEs
+                ? `Para dar seguimiento a su orden cuando quiera, use su número de orden en el portal de clientes:`
+                : `To follow up on your order anytime, use your order number in the client portal:`}
+            </p>
+
+            <div style="text-align:center;margin:24px 0">
+              <a href="${PORTAL}" style="background:linear-gradient(135deg,#2563EB,#1C2E44);color:#fff;text-decoration:none;padding:13px 32px;border-radius:8px;font-weight:700;font-size:15px;display:inline-block">
+                ${isEs ? 'Acceder al Portal de Clientes' : 'Access Client Portal'}
+              </a>
+            </div>
+
+            <p style="margin-top:24px;color:#94a3b8;font-size:12px;line-height:1.6">
+              OpaBiz · opabiz.com<br/>
+              ${isEs
+                ? 'Este es un correo transaccional. Somos un servicio de preparación de documentos, no un despacho de abogados.'
+                : 'This is a transactional email. We are a document preparation service, not a law firm.'}
             </p>
           </div>
-
-          <p style="color:#475569;line-height:1.7">
-            ${isEs
-              ? `Con este número puedes acceder al portal de clientes para ver el estado de tu orden:`
-              : `Use this number to access your client portal and track your order:`}
-          </p>
-
-          <div style="text-align:center;margin:24px 0">
-            <a href="${PORTAL}" style="background:linear-gradient(135deg,#2563EB,#1C2E44);color:#fff;text-decoration:none;padding:13px 32px;border-radius:8px;font-weight:700;font-size:15px;display:inline-block">
-              ${isEs ? 'Acceder al Portal de Clientes' : 'Access Client Portal'}
-            </a>
-          </div>
-
-          <p style="color:#94a3b8;font-size:12px;margin-top:24px;line-height:1.6">
-            Florida Business Formation Center · opabiz.com<br/>
-            ${isEs
-              ? 'Somos una empresa de preparación de documentos, no un bufete de abogados.'
-              : 'We are a document preparation service, not a law firm.'}
-          </p>
         </div>
       </div>
     `,
   }).catch(err => console.error('[stripe-webhook] email error (non-fatal):', err))
 
   // Notify admin of new New Business Letter order
+  const adminServicesHtml = orderLines.length > 0
+    ? orderLines.map(l => `${l.label} ($${l.amount.toFixed(2)})`).join(', ')
+    : selectedServices.map(s => getOrderItemLabel(`mkt:${s}`, { lang: 'es' })).join(', ')
+
   getResend().emails.send({
     from: FROM_OPABIZ_ALERTS,
     replyTo: REPLY_TO,
@@ -241,11 +283,14 @@ export async function POST(req: NextRequest) {
             <tr style="background:#f8fafc"><td style="padding:6px 4px;color:#64748b">Cliente</td><td style="padding:6px 4px;font-weight:600">${firstName} ${lastName}</td></tr>
             <tr><td style="padding:6px 0;color:#64748b">Email</td><td style="padding:6px 0"><a href="mailto:${email}" style="color:#2563eb">${email}</a></td></tr>
             <tr style="background:#f8fafc"><td style="padding:6px 4px;color:#64748b">Número</td><td style="padding:6px 4px;font-weight:700;color:#c2410c">${fbfcNumber}</td></tr>
-            <tr><td style="padding:6px 0;color:#64748b">Servicios</td><td style="padding:6px 0">${selectedServices.join(', ')}</td></tr>
+            <tr><td style="padding:6px 0;color:#64748b">Servicios</td><td style="padding:6px 0">${adminServicesHtml}</td></tr>
             <tr style="background:#f8fafc"><td style="padding:6px 4px;color:#64748b">Total</td><td style="padding:6px 4px;font-weight:700">$${amountPaid.toFixed(2)} USD</td></tr>
           </table>
           <div style="margin-top:16px;padding:12px;background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;font-size:13px;color:#9a3412">
             Procesar los servicios adquiridos y actualizar el estado de la orden cuando estén listos.
+          </div>
+          <div style="text-align:center;margin:18px 0 4px">
+            <a href="https://opabiz.com/admin/orders/${orderId}" style="display:inline-block;background:#1d4ed8;color:#fff;text-decoration:none;padding:11px 22px;border-radius:8px;font-size:14px;font-weight:700">Abrir en el panel admin →</a>
           </div>
         </div>
       </div>
