@@ -897,7 +897,11 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
   function goToStep(n: number) {
     setDoneSteps(prev => { const s = new Set(prev); s.add(step); return s })
     setStep(n)
-    setTimeout(() => formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50)
+    // Sube al tope de la página (no directo al form) para que el cliente
+    // siga viendo el saludo/encabezado al cambiar de paso, y sea él quien
+    // haga scroll hacia el formulario — feedback: el scrollIntoView anterior
+    // saltaba directo al form y dejaba el saludo cortado arriba.
+    setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 50)
   }
   const [showSsn, setShowSsn]     = useState(false)
   const [descErr, setDescErr]     = useState(false)
