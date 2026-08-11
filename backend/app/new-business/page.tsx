@@ -1320,10 +1320,11 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
           )}
 
           {/* ── SERVICES ── */}
-          {/* Oculto en el paso 4 (Review) — el cliente ya eligió, y así se le
-              hace lugar al form de pago sin scroll extra. Puede seguir
-              togglear los servicios desde el Order Summary de la derecha. */}
-          {step !== 4 && (
+          {/* Oculto desde el paso 3 (EIN) en adelante — si el cliente llegó
+              hasta ahí ya leyó esto y está decidido, así se le hace lugar al
+              form/pago sin scroll extra. Puede seguir togglear los servicios
+              desde el Order Summary de la derecha. */}
+          {step < 3 && (
           <section className="svc-section">
             <div className="svc-inner">
               <div className="svc-heading">
