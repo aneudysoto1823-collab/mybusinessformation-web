@@ -26,6 +26,24 @@ export async function GET(req: NextRequest) {
     }
   }
 
+  try {
+    const endpoints = await getStripe().webhookEndpoints.list({ limit: 10 })
+    out.webhookEndpoints = endpoints.data.map(e => ({ id: e.id, url: e.url, status: e.status, enabled_events: e.enabled_events }))
+  } catch (e) {
+    out.webhookEndpointsError = e instanceof Error ? e.message : String(e)
+  }
+
+  try {
+    const events = await getStripe().events.list({ type: 'checkout.session.completed', limit: 10 })
+    out.recentEvents = events.data.map(ev => ({
+      id: ev.id,
+      created: new Date(ev.created * 1000).toISOString(),
+      sessionId: (ev.data.object as { id?: string }).id,
+    }))
+  } catch (e) {
+    out.eventsError = e instanceof Error ? e.message : String(e)
+  }
+
   const supabase = getSupabaseAdmin()
   const { data: orders } = await supabase
     .from('Order')
