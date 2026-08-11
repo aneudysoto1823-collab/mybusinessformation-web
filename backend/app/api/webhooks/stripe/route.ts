@@ -15,7 +15,6 @@ export const dynamic = 'force-dynamic'
 
 const getStripe = () => new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2026-02-25.clover' })
 const getResend = () => new Resend(process.env.RESEND_API_KEY)
-const PORTAL        = 'https://opabiz.com/client-portal'
 // El login real hoy vive en el home (popover), no en /client-portal (ver
 // CLAUDE.md "Login del cliente en el home") — los links "Track My Order"
 // deben mandar aquí, no al landing viejo.
@@ -204,7 +203,7 @@ export async function POST(req: NextRequest) {
           </div>
           <div style="padding:32px">
             <h2 style="color:#1C2E44;font-size:20px;margin-top:0">
-              ${isEs ? `¡Gracias por su compra, ${firstName} ${lastName}!` : `Thank you for your purchase, ${firstName} ${lastName}!`}
+              ${isEs ? `¡Gracias por su orden, ${firstName} ${lastName}!` : `Thank you for your order, ${firstName} ${lastName}!`}
             </h2>
             <div style="background:#EFF6FF;border-radius:8px;padding:14px 18px;margin:4px 0 22px;text-align:center">
               <div style="font-size:11px;color:#2563EB;text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:4px">${isEs ? 'Número de Orden' : 'Order Number'}</div>
@@ -240,13 +239,13 @@ export async function POST(req: NextRequest) {
 
             <p style="color:#475569;line-height:1.7">
               ${isEs
-                ? `Para dar seguimiento a su orden cuando quiera, use su número de orden en el portal de clientes:`
-                : `To follow up on your order anytime, use your order number in the client portal:`}
+                ? `Para dar seguimiento a su orden cuando quiera, haga clic abajo e inicie sesión con su correo y el número de orden de arriba.`
+                : `To follow up on your order anytime, click below and log in with your email and the order number above.`}
             </p>
 
             <div style="text-align:center;margin:24px 0">
-              <a href="${PORTAL}" style="background:linear-gradient(135deg,#2563EB,#1C2E44);color:#fff;text-decoration:none;padding:13px 32px;border-radius:8px;font-weight:700;font-size:15px;display:inline-block">
-                ${isEs ? 'Acceder al Portal de Clientes' : 'Access Client Portal'}
+              <a href="${PORTAL_HOME}" style="background:linear-gradient(135deg,#2563EB,#1C2E44);color:#fff;text-decoration:none;padding:13px 32px;border-radius:8px;font-weight:700;font-size:15px;display:inline-block">
+                ${isEs ? 'Rastrear Mi Orden' : 'Track My Order'}
               </a>
             </div>
 

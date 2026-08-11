@@ -9,8 +9,9 @@ const SERVICES: Record<string, { name: string; amount: number }> = {
   labor_law_poster:      { name: 'Labor Law Poster (2026)',    amount: 12000 }, // $120.00
   ein:                   { name: 'EIN / Tax ID Number',         amount: 16100 }, // $161.00
   certificate_of_status: { name: 'Certificate of Status (FL)', amount: 7900  }, // $79.00
-  bundle:                { name: 'Business Essentials Bundle (3 services)', amount: 32400 }, // $324.00
 }
+const BUNDLE_SERVICE_IDS = ['labor_law_poster', 'ein', 'certificate_of_status'] as const
+const BUNDLE_DISCOUNT = 0.9 // 10% off cuando se compran los 3 juntos
 
 export async function POST(req: NextRequest) {
   try {
@@ -22,10 +23,16 @@ export async function POST(req: NextRequest) {
     }
     const { company_id, document_id, company_name, selected_services, lang } = parsed.data
 
-    // Resolve bundle → individual line items
+    // Resolve bundle → 3 line items individuales con el 10% ya aplicado a cada
+    // uno (antes era un solo line item "Bundle (3 services)" — el cliente no
+    // veía qué compró ni en la página de éxito ni en el email, porque ambos
+    // arman su resumen desde los line_items reales de Stripe).
     const isBundle = selected_services.includes('bundle')
     const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = isBundle
-      ? [{ price_data: { currency: 'usd', product_data: { name: SERVICES.bundle.name }, unit_amount: SERVICES.bundle.amount }, quantity: 1 }]
+      ? BUNDLE_SERVICE_IDS.map(id => {
+          const svc = SERVICES[id]
+          return { price_data: { currency: 'usd', product_data: { name: svc.name }, unit_amount: Math.round(svc.amount * BUNDLE_DISCOUNT) }, quantity: 1 }
+        })
       : selected_services.map((svcId: string) => {
           const svc = SERVICES[svcId]
           if (!svc) throw new Error(`Unknown service: ${svcId}`)
