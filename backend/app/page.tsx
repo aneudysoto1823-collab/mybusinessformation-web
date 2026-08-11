@@ -729,7 +729,8 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 .fm-addon:hover{border-color:#93c5fd}
 .fm-addon.selected{border-color:#2563eb;background:#eff6ff}
 .fm-addon-left{display:flex;align-items:center;gap:12px}
-.fm-addon-icon{font-size:1.3rem}
+.fm-addon-icon{width:40px;height:40px;border-radius:10px;background:var(--blue-light);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--blue)}
+.fm-addon-icon svg{width:19px;height:19px}
 .fm-addon-name{font-size:.86rem;font-weight:700;color:#1e293b}
 .fm-addon-desc{font-size:.74rem;color:#6b7280;margin-top:1px}
 .fm-addon-price{font-size:.86rem;font-weight:700;color:#1e293b;flex-shrink:0}
@@ -1680,7 +1681,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
               </div>
             </div>
             <div id="biz-virtual-note" style="margin-top:10px;background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;padding:14px 16px">
-              <p style="font-size:.78rem;color:#475569;line-height:1.65;margin:0" id="biz-virtual-confirm-text">Once your order is confirmed, we will assign your dedicated Florida virtual address and deliver it to your email. Your business will have a professional address from day one.</p>
+              <p style="font-size:.78rem;color:#475569;line-height:1.65;margin:0" id="biz-virtual-confirm-text">Once your dedicated Florida virtual address is assigned, we will deliver it to your email. Your business will have a professional address from day one.</p>
             </div>
             <div id="biz-own-form" style="display:none;margin-top:10px">
               <div class="fm-group"><label class="fm-label" id="lbl-biz-country">Country *</label>
@@ -2005,7 +2006,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           <div class="fm-addon" id="addon-ein" onclick="fmToggleAddon('ein',this)">
             <div class="fm-addon-left">
               <div class="fm-addon-check" id="ein-check"></div>
-              <div class="fm-addon-icon">&#127981;</div>
+              <div class="fm-addon-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg></div>
               <div>
                 <div class="fm-addon-name"><span id="addon-ein-name">EIN / Federal Tax ID Number</span> <span class="tt-wrap" style="vertical-align:middle"><span class="tt-icon" style="width:0;min-width:0;height:0;padding:0;margin:0;border:0;background:none;font-size:0;color:transparent"><span class="tt-box" id="tt-ein">An EIN is your business's federal tax ID. The IRS requires it to hire employees and file federal taxes, and most banks require it to open a business bank account. While the EIN identifies your business, the ITIN identifies you as a person without a U.S. Social Security Number. Many foreign owners need both.</span></span></span></div>
                 <div class="fm-addon-desc" id="addon-ein-desc">Required for bank accounts, hiring employees &amp; filing taxes</div>
@@ -2143,7 +2144,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           <div class="fm-addon" id="addon-oa" onclick="fmToggleAddon('oa',this)">
             <div class="fm-addon-left">
               <div class="fm-addon-check" id="oa-check"></div>
-              <div class="fm-addon-icon">&#128196;</div>
+              <div class="fm-addon-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg></div>
               <div>
                 <div class="fm-addon-name"><span id="addon-oa-name">Operating Agreement</span> <span class="tt-wrap" style="vertical-align:middle"><span class="tt-icon" style="width:0;min-width:0;height:0;padding:0;margin:0;border:0;background:none;font-size:0;color:transparent"><span class="tt-box" id="tt-oa">This is your business's internal rulebook — it defines who owns what, how decisions are made, and how profits are divided. Banks typically ask for it when you open a business checking account, and it protects you legally if there's ever a dispute between partners.</span></span></span></div>
                 <div class="fm-addon-desc" id="addon-oa-desc">Required by banks to open a business checking account</div>
@@ -2166,7 +2167,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           <div class="fm-addon" id="addon-itin" onclick="fmToggleAddon('itin',this)">
             <div class="fm-addon-left">
               <div class="fm-addon-check" id="itin-check"></div>
-              <div class="fm-addon-icon">&#127760;</div>
+              <div class="fm-addon-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
               <div>
                 <div class="fm-addon-name"><span id="addon-itin-name">ITIN Application</span> <span class="tt-wrap" style="vertical-align:middle"><span class="tt-icon" style="width:0;min-width:0;height:0;padding:0;margin:0;border:0;background:none;font-size:0;color:transparent"><span class="tt-box" id="tt-itin">An ITIN (Individual Taxpayer Identification Number) is your tax ID if you don't have a U.S. Social Security Number. <strong>The majority of U.S. banks require it to open a business bank account</strong> — without one, most banks will turn you away. It's also required to file your federal taxes as a foreign national business owner. If you plan to open a bank account or operate in the U.S., getting your ITIN now avoids delays later.</span></span></span></div>
                 <div class="fm-addon-desc" id="addon-itin-desc">For foreign nationals without a Social Security Number</div>
@@ -2178,7 +2179,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           <div class="fm-addon" id="addon-btr" onclick="fmToggleAddon('btr',this)">
             <div class="fm-addon-left">
               <div class="fm-addon-check" id="btr-check"></div>
-              <div class="fm-addon-icon">&#127981;</div>
+              <div class="fm-addon-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 17.5v-11"/></svg></div>
               <div>
                 <div class="fm-addon-name"><span id="addon-btr-name">Local Business Tax Receipt (BTR)</span> <span class="tt-wrap" style="vertical-align:middle"><span class="tt-icon" style="width:0;min-width:0;height:0;padding:0;margin:0;border:0;background:none;font-size:0;color:transparent"><span class="tt-box" id="tt-btr">A Business Tax Receipt (formerly known as an Occupational License) is required by most Florida counties and cities to legally operate a business. It must be renewed annually and is separate from your state formation filing.</span></span></span></div>
                 <div class="fm-addon-desc" id="addon-btr-desc">Required by most FL counties to operate legally</div>
@@ -2191,7 +2192,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           <div class="fm-addon" id="addon-str" onclick="fmToggleAddon('str',this)">
             <div class="fm-addon-left">
               <div class="fm-addon-check" id="str-check"></div>
-              <div class="fm-addon-icon">&#128203;</div>
+              <div class="fm-addon-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
               <div>
                 <div class="fm-addon-name"><span id="addon-str-name">Sales Tax Registration</span> <span class="tt-wrap" style="vertical-align:middle"><span class="tt-icon" style="width:0;min-width:0;height:0;padding:0;margin:0;border:0;background:none;font-size:0;color:transparent"><span class="tt-box" id="tt-str">If your business sells taxable goods or services in Florida, you are required to register with the Florida Department of Revenue to collect and remit sales tax. Businesses that sell without registering may face penalties and back taxes.</span></span></span></div>
                 <div class="fm-addon-desc" id="addon-str-desc">Required if your business sells taxable goods or services in FL</div>
@@ -2204,7 +2205,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           <div class="fm-addon" id="addon-cc" onclick="fmToggleAddon('cc',this)">
             <div class="fm-addon-left">
               <div class="fm-addon-check" id="cc-check"></div>
-              <div class="fm-addon-icon">&#128220;</div>
+              <div class="fm-addon-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg></div>
               <div>
                 <div class="fm-addon-name"><span id="addon-cc-name">Certified Copy of Articles of Organization / Incorporation</span> <span class="tt-wrap" style="vertical-align:middle"><span class="tt-icon" style="width:0;min-width:0;height:0;padding:0;margin:0;border:0;background:none;font-size:0;color:transparent"><span class="tt-box" id="tt-cc">A state-certified copy of your Articles of Organization (LLC) or Incorporation (Corporation), stamped by the Florida Division of Corporations. Banks, courts, and some agencies require a certified copy instead of a plain copy. The Florida state fee is paid separately.</span></span></span></div>
                 <div class="fm-addon-desc" id="addon-cc-desc">Official state-certified copy of your formation document &middot; + state fee</div>
@@ -2217,7 +2218,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           <div class="fm-addon" id="addon-ar" onclick="fmToggleAddon('ar',this)">
             <div class="fm-addon-left">
               <div class="fm-addon-check" id="ar-check"></div>
-              <div class="fm-addon-icon">&#128197;</div>
+              <div class="fm-addon-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
               <div>
                 <div class="fm-addon-name"><span id="addon-ar-name">Annual Report Filing Service</span> <span class="tt-wrap" style="vertical-align:middle"><span class="tt-icon" style="width:0;min-width:0;height:0;padding:0;margin:0;border:0;background:none;font-size:0;color:transparent"><span class="tt-box" id="tt-ar">Every Florida business must file an Annual Report each year to stay active — even if your business has not started operating yet. The law makes no exceptions. The deadline is May 1st. Miss it and Florida automatically charges a $400 late fee. Keep ignoring it and the State can administratively dissolve your company.</span></span></span></div>
                 <div class="fm-addon-desc" id="addon-ar-desc">Required by Florida law. We file your FL Annual Report each year (deadline May 1st, $400 late penalty after). Renews automatically each year until you cancel.</div>
@@ -2238,7 +2239,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
             <div class="fm-addon" id="addon-dba" onclick="fmToggleAddon('dba',this)">
               <div class="fm-addon-left">
                 <div class="fm-addon-check" id="dba-check"></div>
-                <div class="fm-addon-icon">&#127991;</div>
+                <div class="fm-addon-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></div>
                 <div>
                   <div class="fm-addon-name"><span id="addon-dba-name">DBA / Fictitious Name</span> <span class="tt-wrap" style="vertical-align:middle"><span class="tt-icon" style="width:0;min-width:0;height:0;padding:0;margin:0;border:0;background:none;font-size:0;color:transparent"><span class="tt-box" id="tt-dba">A DBA (Doing Business As) or Fictitious Name lets your business operate under a different name from its registered legal name. Required by Florida if you want to brand or sell under an alternate name. State fee paid separately.</span></span></span></div>
                   <div class="fm-addon-desc" id="addon-dba-desc">Operate or brand under a different name from your legal entity</div>
@@ -2251,7 +2252,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
             <div class="fm-addon" id="addon-br" onclick="fmToggleAddon('br',this)">
               <div class="fm-addon-left">
                 <div class="fm-addon-check" id="br-check"></div>
-                <div class="fm-addon-icon">&#127963;</div>
+                <div class="fm-addon-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="22" x2="21" y2="22"/><line x1="6" y1="18" x2="6" y2="11"/><line x1="10" y1="18" x2="10" y2="11"/><line x1="14" y1="18" x2="14" y2="11"/><line x1="18" y1="18" x2="18" y2="11"/><polygon points="12 2 20 7 4 7"/></svg></div>
                 <div>
                   <div class="fm-addon-name"><span id="addon-br-name">Banking Resolution</span> <span class="tt-wrap" style="vertical-align:middle"><span class="tt-icon" style="width:0;min-width:0;height:0;padding:0;margin:0;border:0;background:none;font-size:0;color:transparent"><span class="tt-box" id="tt-br">A Banking Resolution authorizes a member or officer to open a business bank account on behalf of your LLC or Corporation. Most U.S. banks require this document before they let you open the account, especially when there is more than one owner.</span></span></span></div>
                   <div class="fm-addon-desc" id="addon-br-desc">Authorizes opening a business bank account in the company's name</div>
@@ -2264,7 +2265,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
             <div class="fm-addon" id="addon-gd" onclick="fmToggleAddon('gd',this)">
               <div class="fm-addon-left">
                 <div class="fm-addon-check" id="gd-check"></div>
-                <div class="fm-addon-icon">&#128214;</div>
+                <div class="fm-addon-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
                 <div>
                   <div class="fm-addon-name"><span id="addon-gd-name">Exclusive Formation Guide</span> <span class="tt-wrap" style="vertical-align:middle"><span class="tt-icon" style="width:0;min-width:0;height:0;padding:0;margin:0;border:0;background:none;font-size:0;color:transparent"><span class="tt-box" id="tt-gd">Bilingual step-by-step guide covering everything that comes after your LLC is formed: opening bank accounts, getting EIN/ITIN, sales tax, hiring contractors, annual reports, and Florida compliance pitfalls to avoid. Written by our team.</span></span></span></div>
                   <div class="fm-addon-desc" id="addon-gd-desc">Bilingual post-formation guide to keep your business compliant</div>
@@ -2277,7 +2278,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
             <div class="fm-addon" id="addon-gs" onclick="fmToggleAddon('gs',this)">
               <div class="fm-addon-left">
                 <div class="fm-addon-check" id="gs-check"></div>
-                <div class="fm-addon-icon">&#128220;</div>
+                <div class="fm-addon-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg></div>
                 <div>
                   <div class="fm-addon-name"><span id="addon-gs-name">Certificate of Good Standing</span> <span class="tt-wrap" style="vertical-align:middle"><span class="tt-icon" style="width:0;min-width:0;height:0;padding:0;margin:0;border:0;background:none;font-size:0;color:transparent"><span class="tt-box" id="tt-gs">An official Florida certificate confirming that your business is active, current with state filings, and authorized to do business. Banks, lenders, contracts, and out-of-state registrations often require it. Issued by the Florida Division of Corporations.</span></span></span></div>
                   <div class="fm-addon-desc" id="addon-gs-desc">Official proof your FL business is active &amp; compliant</div>
@@ -2290,7 +2291,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
             <div class="fm-addon" id="addon-sc" onclick="fmToggleAddon('sc',this)">
               <div class="fm-addon-left">
                 <div class="fm-addon-check" id="sc-check"></div>
-                <div class="fm-addon-icon">&#128188;</div>
+                <div class="fm-addon-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
                 <div>
                   <div class="fm-addon-name"><span id="addon-sc-name">S-Corp Election (Form 2553)</span> <span class="tt-wrap" style="vertical-align:middle"><span class="tt-icon" style="width:0;min-width:0;height:0;padding:0;margin:0;border:0;background:none;font-size:0;color:transparent"><span class="tt-box" id="tt-sc">Federal tax election (IRS Form 2553) to have your LLC or Corporation taxed as an S Corporation — pass-through taxation that can save you self-employment tax once your business is profitable. Strict IRS deadlines apply; we file it for you.</span></span></span></div>
                   <div class="fm-addon-desc" id="addon-sc-desc">IRS election for pass-through taxation (can reduce self-employment tax)</div>
@@ -2303,7 +2304,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
             <div class="fm-addon" id="addon-bl" onclick="fmToggleAddon('bl',this)">
               <div class="fm-addon-left">
                 <div class="fm-addon-check" id="bl-check"></div>
-                <div class="fm-addon-icon">&#128209;</div>
+                <div class="fm-addon-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg></div>
                 <div>
                   <div class="fm-addon-name"><span id="addon-bl-name">Business License Research &amp; Filing</span> <span class="tt-wrap" style="vertical-align:middle"><span class="tt-icon" style="width:0;min-width:0;height:0;padding:0;margin:0;border:0;background:none;font-size:0;color:transparent"><span class="tt-box" id="tt-bl">We identify and file the federal, state, county, and city licenses your business needs to operate legally based on your industry and location. Avoids penalties from operating without the required permits. Includes the application; government fees paid separately.</span></span></span></div>
                   <div class="fm-addon-desc" id="addon-bl-desc">We identify &amp; file federal/state/local licenses your business needs</div>
@@ -6525,7 +6526,7 @@ function fmTranslate(lang) {
     'biz-virtual-desc':isEs?'Le asignamos una dirección profesional en Florida. Su dirección personal se mantiene completamente privada.':'We assign you a professional Florida address. Your personal address stays completely private.',
     'biz-own-lbl':isEs?'Usaré mi propia dirección':'I will use my own address',
     'biz-own-desc':isEs?'Su dirección quedará en el registro público de Florida. Si prefiere mantener su privacidad, nuestra dirección virtual protege sus datos personales.':'Your address will be on the Florida public record. If you prefer privacy, our virtual address keeps your personal information protected.',
-    'biz-virtual-confirm-text':isEs?'Una vez confirmada su orden, le asignaremos su dirección virtual y la enviaremos a su correo. Su negocio tendrá una dirección profesional desde el primer día.':'Once your order is confirmed, we will assign your Florida virtual address and deliver it to your email. Your business will have a professional address from day one.',
+    'biz-virtual-confirm-text':isEs?'Una vez que le asignemos su dirección virtual de Florida, se la enviaremos por correo. Su negocio tendrá una dirección profesional desde el primer día.':'Once your dedicated Florida virtual address is assigned, we will deliver it to your email. Your business will have a professional address from day one.',
     'biz-virtual-badge':isEs?'1er Mes GRATIS':'1st Month FREE',
     's3-agent-info-title':isEs?'¿Qué es un Agente Registrado?':'What is a Registered Agent?',
     's3-agent-info-text':isEs?'El Agente Registrado es la persona o entidad designada ante el Estado de Florida para recibir documentos legales oficiales en nombre de su negocio.':'The Registered Agent is the person or entity designated with the State of Florida to receive official legal documents on behalf of your business.',

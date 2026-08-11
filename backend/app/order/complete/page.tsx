@@ -272,8 +272,7 @@ function CompleteContent() {
         )}
 
         {status !== 'loading' && status !== 'error' && (
-          <div style={{ background: '#EFF6FF', border: '1px solid #bfdbfe', borderRadius: 12, padding: '14px 18px', margin: '0 0 26px', textAlign: 'left', display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-            <span style={{ fontSize: '1.3rem', flexShrink: 0, lineHeight: 1 }}>🎁</span>
+          <div style={{ background: '#EFF6FF', border: '1px solid #bfdbfe', borderRadius: 12, padding: '14px 18px', margin: '0 0 26px', textAlign: 'left' }}>
             <p style={{ color: '#1e40af', fontSize: '0.85rem', lineHeight: 1.6, margin: 0 }}>{t.guideGift}</p>
           </div>
         )}
