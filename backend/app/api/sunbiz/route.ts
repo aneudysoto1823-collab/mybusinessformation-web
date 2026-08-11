@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase'
+import { lookupCompanyByDocument } from '@/lib/turso'
 
 export async function GET(req: NextRequest) {
   const documentId = req.nextUrl.searchParams.get('document_id')?.trim().toUpperCase()
@@ -10,22 +11,20 @@ export async function GET(req: NextRequest) {
 
   const supabase = getSupabaseAdmin()
 
-  // Consulta ambas tablas en paralelo para minimizar latencia
-  const [prospectiveResult, sunbizResult] = await Promise.all([
+  // Consulta ambas fuentes en paralelo para minimizar latencia:
+  // prospective_companies (Supabase, empresas contactadas por marketing) +
+  // sunbiz_corps (Turso, 3.5M+ empresas reales de Florida — antes esto
+  // consultaba por error una tabla Supabase homónima que siempre estaba vacía).
+  const [prospectiveResult, sunbiz] = await Promise.all([
     supabase
       .from('prospective_companies')
       .select('*')
       .eq('document_id', documentId)
       .maybeSingle(),
-    supabase
-      .from('sunbiz_corps')
-      .select('document_number, entity_name, entity_type, status, filing_date, principal_address, principal_city, principal_state, principal_zip, registered_agent_name')
-      .eq('document_number', documentId)
-      .maybeSingle(),
+    lookupCompanyByDocument(documentId).catch(() => null),
   ])
 
   const prospective = prospectiveResult.data
-  const sunbiz = sunbizResult.data
 
   if (!prospective && !sunbiz) {
     return NextResponse.json(
