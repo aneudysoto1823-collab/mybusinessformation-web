@@ -16,8 +16,13 @@ type Company = {
   email: string | null
   status: string
   id?: string
+  filing_date?: string | null
 }
 
+
+function capFirst(v: string): string {
+  return v.charAt(0).toUpperCase() + v.slice(1)
+}
 
 const SERVICES = [
   {
@@ -765,6 +770,7 @@ const CSS = `
     background: #fff;
     box-shadow: 0 0 0 3px rgba(37,99,235,.08);
   }
+  .form-input.err, .form-textarea.err { border-color: #ef4444; background: #fef2f2; }
 
   /* Shipping toggle */
   .ship-toggle {
@@ -882,6 +888,8 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
     setTimeout(() => formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50)
   }
   const [showSsn, setShowSsn]     = useState(false)
+  const [descErr, setDescErr]     = useState(false)
+  const [otherReasonErr, setOtherReasonErr] = useState(false)
   const formRef = useRef<HTMLDivElement>(null)
   const shipRef = useRef<HTMLDivElement>(null)
 
@@ -898,6 +906,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
     ssnItin: '', ssnItinConfirm: '',
     // Step 3 — EIN compliance
     einReason: '',
+    einReasonOther: '',
     einFirstName: '', einLastName: '',
     hasW2: 'no',
     hasHighwayVehicle: 'no',
@@ -941,6 +950,8 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
 
   useEffect(() => {
     if (company) {
+      // filing_date llega como "YYYY-MM-DD" desde Sunbiz/Turso
+      const [fdYear, fdMonth] = (company.filing_date ?? '').split('-')
       setForm(f => ({
         ...f,
         companyName: company.company_name ?? '',
@@ -948,6 +959,8 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
         city:        company.city ?? '',
         zip:         company.zip ?? '',
         email:       company.email ?? '',
+        llcStartMonth: fdMonth || f.llcStartMonth,
+        llcStartYear:  fdYear  || f.llcStartYear,
       }))
     }
   }, [company])
@@ -1341,14 +1354,19 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                             <span className="req">*</span>
                           </label>
                           <textarea
-                            className="form-textarea"
+                            className={`form-textarea${descErr ? ' err' : ''}`}
                             value={form.businessDescription}
-                            onChange={e => setField('businessDescription', e.target.value)}
+                            onChange={e => { setField('businessDescription', e.target.value); if (descErr) setDescErr(false) }}
                             placeholder={lang === 'es'
                               ? 'ej. Empresa de construcción y remodelación residencial en Miami-Dade'
                               : 'e.g. Residential construction and remodeling company in Miami-Dade'}
                             rows={3}
                           />
+                          {descErr && (
+                            <p style={{ color:'#ef4444', fontSize:'.75rem', marginTop:4 }}>
+                              ⚠ {lang === 'es' ? 'Este campo es obligatorio.' : 'This field is required.'}
+                            </p>
+                          )}
                         </div>
 
                         {/* Shipping address toggle */}
@@ -1402,7 +1420,10 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
 
                       <div className="step-nav">
                         <span />
-                        <button className="step-next" onClick={() => goToStep(2)}>
+                        <button className="step-next" onClick={() => {
+                          if (!form.businessDescription.trim()) { setDescErr(true); return }
+                          goToStep(2)
+                        }}>
                           {lang === 'es' ? 'Siguiente' : 'Next'}
                         </button>
                       </div>
@@ -1422,7 +1443,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                           <input
                             className="form-input"
                             value={form.firstName}
-                            onChange={e => setField('firstName', e.target.value)}
+                            onChange={e => setField('firstName', capFirst(e.target.value))}
                             placeholder={lang === 'es' ? 'Juan' : 'John'}
                           />
                         </div>
@@ -1445,7 +1466,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                           <input
                             className="form-input"
                             value={form.lastName}
-                            onChange={e => setField('lastName', e.target.value)}
+                            onChange={e => setField('lastName', capFirst(e.target.value))}
                             placeholder={lang === 'es' ? 'García' : 'Smith'}
                           />
                         </div>
@@ -1627,6 +1648,26 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                           />
                         </div>
 
+                        {form.einReason === 'other' && (
+                          <div className="form-field span2">
+                            <label className="form-label">
+                              {lang === 'es' ? 'Describe brevemente la razón' : 'Briefly describe the reason'}
+                              <span className="req">*</span>
+                            </label>
+                            <input
+                              className={`form-input${otherReasonErr ? ' err' : ''}`}
+                              value={form.einReasonOther}
+                              onChange={e => { setField('einReasonOther', e.target.value); if (otherReasonErr) setOtherReasonErr(false) }}
+                              placeholder={lang === 'es' ? 'ej. Cambio de estructura societaria' : 'e.g. Change in business entity structure'}
+                            />
+                            {otherReasonErr && (
+                              <p style={{ color:'#ef4444', fontSize:'.75rem', marginTop:4 }}>
+                                ⚠ {lang === 'es' ? 'Este campo es obligatorio.' : 'This field is required.'}
+                              </p>
+                            )}
+                          </div>
+                        )}
+
                         {/* IRS compliance questions — W-2 included */}
                         <div className="form-field span2">
                           <label className="form-label" style={{ marginBottom: 8 }}>
@@ -1703,7 +1744,10 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                         <button className="step-back" onClick={() => goToStep(2)}>
                           ← {lang === 'es' ? 'Atrás' : 'Back'}
                         </button>
-                        <button className="step-next primary" onClick={() => goToStep(4)}>
+                        <button className="step-next primary" onClick={() => {
+                          if (form.einReason === 'other' && !form.einReasonOther.trim()) { setOtherReasonErr(true); return }
+                          goToStep(4)
+                        }}>
                           {lang === 'es' ? 'Revisar Orden' : 'Review Order'}
                         </button>
                       </div>
@@ -1763,7 +1807,9 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                           {form.einReason && (
                             <div style={{ display:'flex', gap:8, padding:'4px 0', borderTop:'1px solid #f1f5f9', fontSize:'.83rem' }}>
                               <span style={{ color:'#94a3b8', minWidth:100 }}>{lang === 'es' ? 'Razón' : 'Reason'}</span>
-                              <span style={{ color:'#1B3A6B', fontWeight:500 }}>{form.einReason.replace(/_/g,' ')}</span>
+                              <span style={{ color:'#1B3A6B', fontWeight:500 }}>
+                                {form.einReason === 'other' ? form.einReasonOther : form.einReason.replace(/_/g,' ')}
+                              </span>
                             </div>
                           )}
                         </div>
