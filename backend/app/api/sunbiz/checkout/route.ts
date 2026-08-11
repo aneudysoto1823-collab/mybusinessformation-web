@@ -51,6 +51,11 @@ export async function POST(req: NextRequest) {
       line_items: lineItems,
       mode: 'payment',
       billing_address_collection: 'auto',
+      branding_settings: {
+        background_color: '#FFFFFF',
+        button_color:     '#2563EB',
+        border_style:     'rounded',
+      },
       customer_email: customerEmail,
       success_url: `${origin}/new-business/success?session_id={CHECKOUT_SESSION_ID}&doc=${encodeURIComponent(document_id || '')}`,
       cancel_url:  `${origin}/new-business?id=${encodeURIComponent(document_id || '')}`,
