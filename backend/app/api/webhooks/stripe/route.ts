@@ -117,6 +117,10 @@ export async function POST(req: NextRequest) {
     lastName,
     email:           email.toLowerCase().trim(),
     companyName:     companyName.trim().toUpperCase(),
+    // NOT NULL en la tabla Order — faltaba acá y hacía fallar el insert
+    // completo (bug encontrado 2026-08-11: el checkout de /new-business
+    // pagaba en Stripe pero la orden nunca se creaba, sin email ni número).
+    country:         session.customer_details?.address?.country || 'US',
     entityType,
     package:         'addon',
     addons:          selectedServices,
