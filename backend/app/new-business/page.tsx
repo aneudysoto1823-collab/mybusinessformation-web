@@ -617,6 +617,27 @@ const CSS = `
     color: #94a3b8;
     font-size: .71rem;
   }
+  .co-pay-area { min-height: 480px; }
+  .co-pay-title {
+    font-size: .78rem;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    margin-bottom: 12px;
+  }
+  #nb-embedded-checkout { min-height: 420px; }
+  .co-skel {
+    border-radius: 8px;
+    background: #eef2f7;
+    background-image: linear-gradient(90deg, #eef2f7 0px, #f6f8fb 200px, #eef2f7 400px);
+    background-size: 800px 100%;
+    animation: coSkelShimmer 1.2s linear infinite;
+  }
+  @keyframes coSkelShimmer {
+    0% { background-position: -400px 0; }
+    100% { background-position: 400px 0; }
+  }
   .co-empty {
     text-align: center;
     color: #94a3b8;
@@ -966,41 +987,125 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
   }, [company])
 
 
-  const [checkingOut, setCheckingOut] = useState(false)
+  // ── Stripe Embedded Checkout (mismo patrón que el home / servicios/checkout):
+  // se prefetchea la sesión al acercarse al paso de pago y se monta el form
+  // dentro del Order Summary al llegar al Review — sin redirigir a
+  // checkout.stripe.com. Ver /api/sunbiz/checkout (ui_mode:'embedded').
+  const [payMounting, setPayMounting] = useState(false)
+  const [payError, setPayError]       = useState('')
+  const stripeCheckoutRef = useRef<{ destroy: () => void } | null>(null)
+  const prefetchRef = useRef<{ key: string; promise: Promise<{ clientSecret: string }> } | null>(null)
+  const mountingRef  = useRef(false)
 
-  async function handleCheckout() {
-    setCheckingOut(true)
+  function buildCheckoutPayload() {
+    const svcMap: Record<string, string> = { labor_law: 'labor_law_poster', ein: 'ein', certificate: 'certificate_of_status' }
+    const allThree = SERVICES.every(s => selected.has(s.id))
+    const selected_services = allThree ? ['bundle'] : [...selected].map(id => svcMap[id])
+    return {
+      company_id:   company?.id ?? null,
+      document_id:  docInput,
+      company_name: form.companyName,
+      selected_services,
+      lang,
+    }
+  }
+
+  function createCheckoutSession() {
+    const payload = buildCheckoutPayload()
+    const key = JSON.stringify(payload)
+    const promise = fetch('/api/sunbiz/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    }).then(async res => {
+      const data = await res.json()
+      if (!res.ok || !data.clientSecret) throw new Error(data.error || 'Could not start payment')
+      return { clientSecret: data.clientSecret as string }
+    })
+    return { key, promise }
+  }
+
+  function prefetchPayment() {
+    const payload = buildCheckoutPayload()
+    if (!payload.selected_services.length) return
+    const key = JSON.stringify(payload)
+    if (prefetchRef.current?.key === key) return
+    const entry = createCheckoutSession()
+    entry.promise.catch(() => {}) // el error real se maneja al consumir en mountPayment
+    prefetchRef.current = entry
+  }
+
+  function destroyPayment() {
+    if (stripeCheckoutRef.current) {
+      try { stripeCheckoutRef.current.destroy() } catch { /* noop */ }
+      stripeCheckoutRef.current = null
+    }
+  }
+
+  async function mountPayment() {
+    if (mountingRef.current) return
+    mountingRef.current = true
+    setPayMounting(true)
+    setPayError('')
+    destroyPayment()
     try {
-      const svcMap: Record<string, string> = { labor_law: 'labor_law_poster', ein: 'ein', certificate: 'certificate_of_status' }
-      const allThree = SERVICES.every(s => selected.has(s.id))
-      const selected_services = allThree ? ['bundle'] : [...selected].map(id => svcMap[id])
-      // GA4 — solo metadata anónima. NO incluir company_name (puede tener PII en flujo marketing).
+      const payload = buildCheckoutPayload()
+      if (!payload.selected_services.length) throw new Error('No services selected')
+      const key = JSON.stringify(payload)
+      const entry = prefetchRef.current?.key === key ? prefetchRef.current : createCheckoutSession()
+      prefetchRef.current = entry
+      const { clientSecret } = await entry.promise
+
+      const w = window as unknown as {
+        Stripe?: (pk: string) => {
+          initEmbeddedCheckout: (opts: { clientSecret: string }) => Promise<{ mount: (sel: string) => void; destroy: () => void }>
+        }
+      }
+      const pk = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+      if (!w.Stripe || !pk) throw new Error('Stripe.js not available')
+      const stripe = w.Stripe(pk)
+      const checkout = await stripe.initEmbeddedCheckout({ clientSecret })
+      checkout.mount('#nb-embedded-checkout')
+      stripeCheckoutRef.current = checkout
+    } catch {
+      prefetchRef.current = null // sesión inválida: no la reutilices
+      setPayError(lang === 'es' ? 'No se pudo cargar el pago. Vuelve a intentarlo.' : 'Could not load payment. Please try again.')
+    } finally {
+      mountingRef.current = false
+      setPayMounting(false)
+    }
+  }
+
+  // Prefetch la sesión de Stripe apenas se acerca al paso de pago (step 3, o
+  // step 2 cuando no hay EIN) para que al llegar al Review ya esté lista.
+  useEffect(() => {
+    if (step >= 3) prefetchPayment()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, selected, docInput, form.companyName, lang])
+
+  const onReview = step === 4
+  useEffect(() => {
+    if (onReview) {
+      const payload = buildCheckoutPayload()
       trackEvent('payment_started', {
-        services: selected_services.join(','),
-        services_count: selected_services.length,
-        is_bundle: selected_services[0] === 'bundle',
+        services: payload.selected_services.join(','),
+        services_count: payload.selected_services.length,
+        is_bundle: payload.selected_services[0] === 'bundle',
         lang,
         source: 'new-business-marketing',
       })
-      const res = await fetch('/api/sunbiz/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          company_id:        company?.id ?? null,
-          document_id:       docInput,
-          company_name:      form.companyName,
-          selected_services,
-          lang,
-        }),
-      })
-      const data = await res.json()
-      if (data.url) window.location.href = data.url
-    } catch {
-      // silent fail — user can retry
-    } finally {
-      setCheckingOut(false)
     }
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [onReview])
+
+  // Monta el form de Stripe al llegar al Review. Si el cliente togglea un
+  // servicio desde el Order Summary mientras ya está ahí, se destruye y
+  // remonta con el total recalculado.
+  useEffect(() => {
+    if (onReview) mountPayment()
+    return () => { destroyPayment() }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [onReview, selected])
 
   function toggleService(id: string) {
     setSelected(prev => {
@@ -1143,6 +1248,10 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
           )}
 
           {/* ── SERVICES ── */}
+          {/* Oculto en el paso 4 (Review) — el cliente ya eligió, y así se le
+              hace lugar al form de pago sin scroll extra. Puede seguir
+              togglear los servicios desde el Order Summary de la derecha. */}
+          {step !== 4 && (
           <section className="svc-section">
             <div className="svc-inner">
               <div className="svc-heading">
@@ -1172,6 +1281,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
               </div>
             </div>
           </section>
+          )}
 
           {/* ── FORM + CHECKOUT ── */}
           <section className="form-section">
@@ -1819,9 +1929,6 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                         <button className="step-back" onClick={() => goToStep(einSelected ? 3 : 2)}>
                           ← {lang === 'es' ? 'Atrás' : 'Back'}
                         </button>
-                        <button className="step-next primary" onClick={handleCheckout} disabled={checkingOut}>
-                          {checkingOut ? '...' : (lang === 'es' ? 'Proceder al Pago' : 'Proceed to Checkout')}
-                        </button>
                       </div>
                     </>
                   )}
@@ -1903,12 +2010,40 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                     </span>
                   </div>
 
-                  <div className="co-trust">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                    </svg>
-                    {lang === 'es' ? 'Pago 100% seguro con Stripe' : '100% secure payment with Stripe'}
-                  </div>
+                  {/* Pago integrado: el form de Stripe se monta aquí solo en
+                      el Review (step 4) — ver mountPayment(). En los demás
+                      pasos el sidebar termina en el Total + badge de confianza. */}
+                  {step === 4 ? (
+                    <div className="co-pay-area">
+                      <div className="co-divider" style={{ margin:'14px 0' }} />
+                      <div className="co-pay-title">
+                        {lang === 'es' ? 'Pago Seguro' : 'Secure Payment'}
+                      </div>
+                      {payError && (
+                        <p style={{ color:'#ef4444', fontSize:'.78rem', textAlign:'center', padding:'12px 0', lineHeight:1.5 }}>
+                          ⚠ {payError}
+                        </p>
+                      )}
+                      {payMounting && !payError && (
+                        <div style={{ padding:'2px 0' }}>
+                          <div className="co-skel" style={{ height:44, marginBottom:10 }} />
+                          <div className="co-skel" style={{ height:44, marginBottom:16 }} />
+                          <div className="co-skel" style={{ height:12, width:'40%', margin:'0 auto 16px' }} />
+                          <div className="co-skel" style={{ height:48, marginBottom:10 }} />
+                          <div className="co-skel" style={{ height:48, marginBottom:10 }} />
+                          <div className="co-skel" style={{ height:46 }} />
+                        </div>
+                      )}
+                      <div id="nb-embedded-checkout" />
+                    </div>
+                  ) : (
+                    <div className="co-trust">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                      </svg>
+                      {lang === 'es' ? 'Pago 100% seguro con Stripe' : '100% secure payment with Stripe'}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

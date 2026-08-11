@@ -46,8 +46,11 @@ export async function POST(req: NextRequest) {
       if (data?.email) customerEmail = data.email
     }
 
+    // Embedded Checkout (ui_mode:'embedded') — mismo patrón que /api/checkout/embedded
+    // (home) y /api/checkout/embedded-services (/servicios/checkout): el form de
+    // Stripe se monta dentro de la página, sin redirigir a checkout.stripe.com.
     const session = await getStripe().checkout.sessions.create({
-      payment_method_types: ['card'],
+      ui_mode: 'embedded',
       line_items: lineItems,
       mode: 'payment',
       billing_address_collection: 'auto',
@@ -57,8 +60,7 @@ export async function POST(req: NextRequest) {
         border_style:     'rounded',
       },
       customer_email: customerEmail,
-      success_url: `${origin}/new-business/success?session_id={CHECKOUT_SESSION_ID}&doc=${encodeURIComponent(document_id || '')}`,
-      cancel_url:  `${origin}/new-business?id=${encodeURIComponent(document_id || '')}`,
+      return_url: `${origin}/new-business/success?session_id={CHECKOUT_SESSION_ID}&doc=${encodeURIComponent(document_id || '')}`,
       // Statement descriptor: lo que el cliente ve en su extracto bancario.
       // El sufijo se concatena al descriptor base de la cuenta (Stripe → Settings
       // → Business → Public details). Ej: base "OPABIZ" → "OPABIZ* SERVICES".
@@ -85,7 +87,7 @@ export async function POST(req: NextRequest) {
         .then(() => {})
     }
 
-    return NextResponse.json({ url: session.url })
+    return NextResponse.json({ clientSecret: session.client_secret })
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
     console.error('[sunbiz/checkout]', msg)

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Script from 'next/script'
 
 export const metadata: Metadata = {
   title: 'Florida Business Compliance Services — EIN, Labor Law Poster & Certificate of Status',
@@ -72,6 +73,7 @@ export default function NewBusinessLayout({ children }: { children: React.ReactN
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      <Script src="https://js.stripe.com/v3/" strategy="afterInteractive" />
       {children}
     </>
   )
