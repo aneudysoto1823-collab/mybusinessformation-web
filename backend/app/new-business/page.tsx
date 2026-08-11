@@ -2005,13 +2005,37 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                       {/* Order — reubicado acá (en vez del sidebar) para que
                           quede junto al resto de lo que el cliente revisa
                           antes de pagar, y para equilibrar la altura de las
-                          dos columnas (antes el sidebar quedaba mucho más
-                          alto que este panel). Sigue siendo interactivo. */}
+                          dos columnas. De solo lectura acá a propósito (a
+                          diferencia del sidebar de los pasos 1-3, que sigue
+                          siendo interactivo): a esta altura el cliente ya
+                          decidió, y un checkbox chico al lado del precio es
+                          fácil de tocar sin querer justo antes de pagar.
+                          "Edit" lo manda al paso 1, donde sí puede togglear. */}
                       <div style={{ marginBottom:12, background:'#f8fafc', borderRadius:10, padding:'12px 14px', border:'1px solid #e2e8f0' }}>
-                        <div style={{ fontSize:'.78rem', fontWeight:700, color:'#94a3b8', textTransform:'uppercase', letterSpacing:'.05em', marginBottom:8 }}>
-                          {lang === 'es' ? 'Tu Orden' : 'Your Order'}
+                        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8 }}>
+                          <span style={{ fontSize:'.78rem', fontWeight:700, color:'#94a3b8', textTransform:'uppercase', letterSpacing:'.05em' }}>
+                            {lang === 'es' ? 'Tu Orden' : 'Your Order'}
+                          </span>
+                          <button onClick={() => goToStep(1)} style={{ background:'none', border:'1px solid #2563EB', borderRadius:6, color:'#2563EB', fontSize:'.72rem', fontWeight:600, padding:'3px 10px', cursor:'pointer', fontFamily:'inherit' }}>
+                            {lang === 'es' ? 'Editar' : 'Edit'}
+                          </button>
                         </div>
-                        {renderOrderLines()}
+                        {SERVICES.filter(svc => selected.has(svc.id)).map(svc => (
+                          <div key={svc.id} style={{ display:'flex', justifyContent:'space-between', gap:8, padding:'4px 0', borderTop:'1px solid #f1f5f9', fontSize:'.83rem' }}>
+                            <span style={{ color:'#374151' }}>{lang === 'es' ? svc.titleEs : svc.titleEn}</span>
+                            <span style={{ color:'#1B3A6B', fontWeight:500, whiteSpace:'nowrap' }}>${svc.price.toFixed(2)}</span>
+                          </div>
+                        ))}
+                        {allSelected && (
+                          <div style={{ display:'flex', justifyContent:'space-between', gap:8, padding:'4px 0', borderTop:'1px solid #f1f5f9', fontSize:'.83rem' }}>
+                            <span style={{ color:'#16a34a', fontWeight:600 }}>10% {lang === 'es' ? 'Descuento Bundle' : 'Bundle Discount'}</span>
+                            <span style={{ color:'#16a34a', fontWeight:600, whiteSpace:'nowrap' }}>−${discountAmt.toFixed(2)}</span>
+                          </div>
+                        )}
+                        <div style={{ display:'flex', justifyContent:'space-between', gap:8, padding:'8px 0 0', marginTop:4, borderTop:'2px solid #e2e8f0', fontSize:'.88rem' }}>
+                          <span style={{ color:'#1B3A6B', fontWeight:700 }}>Total</span>
+                          <span style={{ color:'#1B3A6B', fontWeight:700, whiteSpace:'nowrap' }}>${total.toFixed(2)} USD</span>
+                        </div>
                       </div>
 
                       <div className="step-nav" style={{ marginTop:8 }}>
