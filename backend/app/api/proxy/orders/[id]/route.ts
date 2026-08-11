@@ -17,7 +17,8 @@ export async function GET(
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
   const { id } = await params
-  const { data, error } = await getSupabaseAdmin()
+  const supabase = getSupabaseAdmin()
+  const { data, error } = await supabase
     .from('Order')
     .select('*')
     .eq('id', id)
@@ -25,7 +26,34 @@ export async function GET(
   if (error || !data) {
     return NextResponse.json({ error: 'Order not found' }, { status: 404 })
   }
-  return NextResponse.json({ order: data })
+
+  // Detectar otras ordenes con el MISMO companyName en estado activo (no
+  // completed, no cancelled). El cliente nunca ve esto — es alerta interna
+  // para que el staff sepa que hay riesgo de colision de nombre y coordine
+  // manualmente (contactar al cliente, elegir cual gana, etc). Case-insensitive
+  // + trim para captar variaciones cosmeticas ("Acme LLC" == "  acme llc  ").
+  let duplicates: Array<{
+    id: string
+    companyName: string
+    status: string
+    firstName: string
+    lastName: string
+    email: string
+    createdAt: string
+  }> = []
+  const cn = String(data.companyName ?? '').trim()
+  if (cn) {
+    const { data: dups } = await supabase
+      .from('Order')
+      .select('id, companyName, status, firstName, lastName, email, createdAt')
+      .neq('id', id)
+      .in('status', ['pending', 'in_review', 'ready_to_file', 'filed', 'names_taken'])
+      .ilike('companyName', cn)  // case-insensitive exact match
+      .limit(20)
+    duplicates = (dups ?? []) as typeof duplicates
+  }
+
+  return NextResponse.json({ order: data, duplicates })
 }
 
 export async function PATCH(

@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse, after } from 'next/server'
 import Stripe from 'stripe'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { Resend } from 'resend'
@@ -276,7 +276,12 @@ async function handleFormationPaid(orderId: string, session: Stripe.Checkout.Ses
   }
 
   const now = new Date().toISOString()
-  const { data: order, error } = await supabase
+  // UPDATE conditional (.eq('paymentStatus','pending')) — guarda anti-race
+  // cuando 2 webhooks llegan casi simultaneos (reenvios manuales de Stripe,
+  // redelivery post-incident). Ambos leen 'pending' arriba, pero solo UNO
+  // pasa el filtro del update; el segundo recibe updated=[] y sale sin
+  // repetir emails ni RA provisioning.
+  const { data: updated, error } = await supabase
     .from('Order')
     .update({
       paymentStatus:   'paid',
@@ -290,13 +295,19 @@ async function handleFormationPaid(orderId: string, session: Stripe.Checkout.Ses
       updatedAt:       now,
     })
     .eq('id', orderId)
+    .eq('paymentStatus', 'pending')  // ← guarda anti-race
     .select()
-    .single()
 
-  if (error || !order) {
+  if (error) {
     console.error('[stripe-webhook] formation order update failed:', orderId, error)
     return NextResponse.json({ error: 'Order update failed' }, { status: 500 })
   }
+  if (!updated || updated.length === 0) {
+    // Otro webhook simultaneo ya marco esta orden como paid en el intervalo
+    // entre nuestro SELECT y este UPDATE. Salimos sin repetir la cadena.
+    return NextResponse.json({ received: true, alreadyProcessed: true })
+  }
+  const order = updated[0]
 
   const fbfc = `FBFC-${order.id.replace(/-/g, '').substring(0, 8).toUpperCase()}`
 
@@ -369,7 +380,15 @@ async function handleFormationPaid(orderId: string, session: Stripe.Checkout.Ses
     guideBonusHtml = ''
   }
 
-  getResend().emails.send({
+  // after() de Next.js mantiene la lambda de Vercel viva hasta que estas
+  // tareas post-response terminen. Sin after(), el .then/.catch de fire-and-
+  // forget puede quedar a medias cuando Vercel congela/mata la funcion tras
+  // el HTTP 200. Con volumen y lambdas reciclandose, casos como "el cliente
+  // pago pero no recibio email" o "orden pagada sin direccion RA guardada"
+  // empiezan a aparecer sin esta proteccion.
+  after(async () => {
+   try {
+    await getResend().emails.send({
     from: FROM_OPABIZ,
     replyTo: REPLY_TO,
     to: order.email,
@@ -439,14 +458,19 @@ async function handleFormationPaid(orderId: string, session: Stripe.Checkout.Ses
         </div>
       </div>
     `,
-  }).then(() => {
+    })
     if (guidesToSend.length > 0) {
-      return Promise.all(guidesToSend.map(g => recordGuideSent(order.email, g, 'order', `${order.firstName} ${order.lastName}`)))
+      await Promise.all(guidesToSend.map(g => recordGuideSent(order.email, g, 'order', `${order.firstName} ${order.lastName}`)))
     }
-  }).catch(err => console.error('[stripe-webhook] formation email error (non-fatal):', err))
+   } catch (err) {
+    console.error('[stripe-webhook] formation email error (non-fatal):', err)
+   }
+  })
 
-  // Alerta interna (orden pagada)
-  getResend().emails.send({
+  // Alerta interna (orden pagada) — after() igual que el A1 arriba.
+  after(async () => {
+   try {
+    await getResend().emails.send({
     from: FROM_OPABIZ_ALERTS,
     replyTo: REPLY_TO,
     to: ADMIN_EMAIL,
@@ -472,15 +496,28 @@ async function handleFormationPaid(orderId: string, session: Stripe.Checkout.Ses
         </div>
       </div>
     `,
-  }).catch(err => console.error('[stripe-webhook] formation admin alert error (non-fatal):', err))
+    })
+   } catch (err) {
+    console.error('[stripe-webhook] formation admin alert error (non-fatal):', err)
+   }
+  })
 
-  // Provisioning de Registered Agent (fire-and-forget, no bloquea la
-  // confirmacion del pago ni el email A1). Chequea internamente si la orden
+  // Provisioning de Registered Agent — envuelto en after() para que Vercel
+  // no mate la lambda antes de que la cadena (POST /companies + POST /services
+  // + GET /invoices + sendRaAddressReady) termine. Es el mas lento de los 3
+  // fire-and-forget (3-8 seg tipico), el mas expuesto a ser cortado. Chequea
+  // internamente si la orden
   // tiene addons.ra=true — si no, hace no-op. Si algo falla, manda alerta a
   // alert@opabiz.com y deja la orden lista para retry manual desde el panel
   // admin. Idempotente: safe si el webhook se reintenta (guard por
   // raProvisionedAt en la cadena).
-  provisionRaForOrder(order.id).catch(err => console.error('[stripe-webhook] ra-provision error (non-fatal):', err))
+  after(async () => {
+    try {
+      await provisionRaForOrder(order.id)
+    } catch (err) {
+      console.error('[stripe-webhook] ra-provision error (non-fatal):', err)
+    }
+  })
 
   return NextResponse.json({ received: true, orderId, fbfc })
 }

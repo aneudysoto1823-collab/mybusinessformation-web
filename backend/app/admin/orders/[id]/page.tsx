@@ -207,6 +207,18 @@ export default function OrderDetailPage() {
   const [revealedTaxId, setRevealedTaxId] = useState<string | null>(null)
   const [revealLoading, setRevealLoading] = useState(false)
 
+  // Otras ordenes con el mismo companyName en estado activo — solo alerta
+  // interna para el staff. Nunca visible al cliente. Ver /api/proxy/orders/[id].
+  const [duplicates, setDuplicates] = useState<Array<{
+    id: string
+    companyName: string
+    status: string
+    firstName: string
+    lastName: string
+    email: string
+    createdAt: string
+  }>>([])
+
   useEffect(() => {
     fetch(`${PROXY}/orders/${id}`)
       .then(r => {
@@ -218,6 +230,7 @@ export default function OrderDetailPage() {
         setOrder(o)
         setNotes(o.notes ?? '')
         setSelectedStatus(o.status)
+        setDuplicates(Array.isArray(data.duplicates) ? data.duplicates : [])
       })
       .catch(() => setError('No se pudo cargar la orden.'))
       .finally(() => setLoading(false))
@@ -235,6 +248,7 @@ export default function OrderDetailPage() {
           if (!data) return
           const o = data.order ?? data.data ?? data
           setOrder(o)
+          if (Array.isArray(data.duplicates)) setDuplicates(data.duplicates)
         })
         .catch(() => {})
     }
@@ -587,6 +601,40 @@ export default function OrderDetailPage() {
             <Badge map={STATUS_BADGE} value={order.status} />
           </div>
         </div>
+
+        {/* Banner de nombre duplicado — solo interno para el staff. NUNCA se
+            le muestra al cliente. Aparece si hay otra orden en estado activo
+            con el mismo companyName (case-insensitive, ver proxy). */}
+        {duplicates.length > 0 && (
+          <div style={{ background: '#fef2f2', border: '2px solid #dc2626', borderRadius: '10px', padding: '16px 20px', marginBottom: '20px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+              <span style={{ fontSize: '20px' }}>⚠️</span>
+              <strong style={{ color: '#991b1b', fontSize: '15px' }}>
+                Nombre duplicado — otra{duplicates.length > 1 ? 's' : ''} {duplicates.length} orden{duplicates.length > 1 ? 'es' : ''} con el mismo nombre en estado activo
+              </strong>
+            </div>
+            <p style={{ color: '#7f1d1d', fontSize: '13px', margin: '0 0 12px', lineHeight: '1.5' }}>
+              Coordinar manualmente con el cliente antes de presentar a Florida — el estado rechaza si otro se adelanta con el mismo nombre.
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              {duplicates.map(d => (
+                <div key={d.id} style={{ background: '#fff', border: '1px solid #fecaca', borderRadius: '6px', padding: '8px 12px', fontSize: '13px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                  <div>
+                    <strong style={{ color: '#111827' }}>{d.firstName} {d.lastName}</strong>
+                    <span style={{ color: '#6b7280', marginLeft: '8px' }}>· {d.email}</span>
+                    <span style={{ color: '#6b7280', marginLeft: '8px' }}>· {d.status}</span>
+                    <span style={{ color: '#9ca3af', marginLeft: '8px', fontSize: '11px' }}>
+                      · {new Date(d.createdAt).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}
+                    </span>
+                  </div>
+                  <Link href={`/admin/orders/${d.id}`} style={{ background: '#dc2626', color: '#fff', padding: '5px 12px', borderRadius: '5px', fontSize: '12px', fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap' }}>
+                    Ver orden →
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Datos del cliente */}
         <Section title="Datos del Cliente">
