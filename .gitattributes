@@ -1,0 +1,16 @@
+# Force binary handling for common binary formats — evita que Git intente
+# convertir line endings o mostrar diffs de texto sobre estos archivos.
+*.pdf binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.otf binary
+*.mp3 binary
+*.mp4 binary
+*.zip binary
+*.xlsx binary
