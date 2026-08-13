@@ -1,11 +1,34 @@
 import type { MetadataRoute } from "next";
+import { headers } from "next/headers";
 import { listArticles, type Section, type Lang } from "@/lib/content";
 import { articleUrl, sectionHubUrl } from "@/lib/cross-links";
 
 const BASE_URL = "https://opabiz.com";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
+
+  // mybusinessformation.com (separación de dominios 2026-08-13) tiene su
+  // propio sitemap mínimo — solo la landing raíz es indexable, /servicios y
+  // el resto de ese dominio llevan noindex (ver sus metadata) y no aportan
+  // nada a un sitemap.
+  const host = (await headers()).get('host') || '';
+  if (host.includes('mybusinessformation.com')) {
+    return [
+      {
+        url: 'https://mybusinessformation.com',
+        lastModified: now,
+        changeFrequency: 'monthly',
+        priority: 0.8,
+      },
+      {
+        url: 'https://mybusinessformation.com/es',
+        lastModified: now,
+        changeFrequency: 'monthly',
+        priority: 0.8,
+      },
+    ];
+  }
 
   const staticPages: MetadataRoute.Sitemap = [
     {
@@ -13,18 +36,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: now,
       changeFrequency: "weekly",
       priority: 1.0,
-    },
-    {
-      url: `${BASE_URL}/new-business`,
-      lastModified: now,
-      changeFrequency: 'monthly',
-      priority: 0.8,
-    },
-    {
-      url: `${BASE_URL}/new-business/es`,
-      lastModified: now,
-      changeFrequency: 'monthly',
-      priority: 0.8,
     },
     {
       url: `${BASE_URL}/servicios`,

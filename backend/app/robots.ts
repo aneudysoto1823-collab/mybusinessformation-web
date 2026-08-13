@@ -1,6 +1,9 @@
 import type { MetadataRoute } from "next";
+import { headers } from "next/headers";
 
-export default function robots(): MetadataRoute.Robots {
+export default async function robots(): Promise<MetadataRoute.Robots> {
+  const host = (await headers()).get('host') || '';
+  const isFBFC = host.includes('mybusinessformation.com');
   return {
     rules: [
       {
@@ -9,6 +12,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/admin/", "/api/", "/client-portal/dashboard"],
       },
     ],
-    sitemap: "https://opabiz.com/sitemap.xml",
+    sitemap: isFBFC ? "https://mybusinessformation.com/sitemap.xml" : "https://opabiz.com/sitemap.xml",
   };
 }

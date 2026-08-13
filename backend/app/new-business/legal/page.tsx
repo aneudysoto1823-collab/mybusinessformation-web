@@ -16,11 +16,9 @@ a{text-decoration:none;color:inherit}
 header{background:rgba(255,255,255,.97);border-bottom:1px solid var(--gray200);padding:0 32px;}
 .header-inner{max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:66px;gap:20px}
 .logo{display:flex;align-items:center;gap:11px}
-.logo-mark{width:40px;height:40px;background:linear-gradient(135deg,var(--navy),var(--blue));border-radius:9px;display:flex;align-items:center;justify-content:center;color:#fff;font-family:var(--font-serif);font-size:1rem;font-weight:700;flex-shrink:0}
-.logo-text{font-family:var(--font-serif);font-size:1.5rem;color:var(--navy);font-weight:700;line-height:1.2}
-.logo-text span{display:block;font-family:var(--font-sans);font-size:.63rem;color:var(--gray400);font-weight:400;letter-spacing:.8px;text-transform:uppercase}
-.logo-text span.logo-opa{display:inline;font-size:1.5rem;color:var(--navy);font-style:normal;letter-spacing:-.5px;text-transform:none;font-family:var(--font-serif);font-weight:700}
-.logo-text span.logo-biz{display:inline;font-size:1.5rem;color:#2563EB;font-style:normal;letter-spacing:-.5px;text-transform:none;font-family:var(--font-serif);font-weight:700}
+.logo-mark{width:40px;height:40px;flex-shrink:0}
+.logo-mark img{width:100%;height:100%;object-fit:contain}
+.logo-text{font-family:var(--font-serif);font-size:1.05rem;color:var(--navy);font-weight:700;line-height:1.2}
 .back-btn{display:flex;align-items:center;gap:7px;font-size:.82rem;font-weight:600;color:var(--blue);padding:8px 16px;border-radius:8px;border:1.5px solid var(--blue);transition:all .2s}
 .back-btn:hover{background:var(--blue-light)}
 .lang-toggle{display:flex;background:var(--gray100);border-radius:20px;padding:3px;gap:2px}
@@ -59,16 +57,16 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:32px 32px 20px
   const body = `
 <header>
   <div class="header-inner">
-    <a href="/new-business" class="logo">
-      <div class="logo-mark">OB</div>
-      <div class="logo-text"><span class="logo-opa">Opa</span><span class="logo-biz">Biz</span><span>Florida Business Formation Center</span></div>
+    <a href="/" class="logo">
+      <div class="logo-mark"><img src="/fbfc-seal.png" alt="Florida Business Formation Center"/></div>
+      <div class="logo-text">Florida Business Formation Center</div>
     </a>
     <div style="display:flex;align-items:center;gap:12px">
       <div class="lang-toggle">
         <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
         <button class="lang-btn" id="btn-es" onclick="setLang('es')">ES</button>
       </div>
-      <a href="/new-business" class="back-btn">&#8592; <span class="en-inline">Back</span><span class="es-inline" style="display:none">&Aacute;tr&aacute;s</span></a>
+      <a href="/" class="back-btn">&#8592; <span class="en-inline">Back</span><span class="es-inline" style="display:none">&Aacute;tr&aacute;s</span></a>
     </div>
   </div>
 </header>
@@ -96,8 +94,8 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:32px 32px 20px
   </aside>
 
   <div class="doc-content">
-    <div class="warn-box en">&#9888; <strong>Please Read Carefully.</strong> This disclaimer governs your use of opabiz.com and all services offered by Florida Business Formation Center.</div>
-    <div class="warn-box es" style="display:none">&#9888; <strong>Lea Cuidadosamente.</strong> Este aviso legal rige el uso de opabiz.com y todos los servicios ofrecidos por Florida Business Formation Center.</div>
+    <div class="warn-box en">&#9888; <strong>Please Read Carefully.</strong> This disclaimer governs your use of mybusinessformation.com and all services offered by Florida Business Formation Center.</div>
+    <div class="warn-box es" style="display:none">&#9888; <strong>Lea Cuidadosamente.</strong> Este aviso legal rige el uso de mybusinessformation.com y todos los servicios ofrecidos por Florida Business Formation Center.</div>
 
     <div class="doc-section" id="not-law-firm">
       <h2>1. <span class="en-inline">We Are Not a Law Firm</span><span class="es-inline" style="display:none">No Somos un Bufete de Abogados</span></h2>
@@ -155,7 +153,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:32px 32px 20px
         <a href="/new-business/terms">Terms &amp; Conditions</a>
         <a href="/new-business/privacy">Privacy Policy</a>
         <a href="/new-business/legal">Legal Disclaimer</a>
-        <a href="/new-business">&#8592; New Business</a>
+        <a href="/">&#8592; New Business</a>
       </div>
     </div>
   </div>

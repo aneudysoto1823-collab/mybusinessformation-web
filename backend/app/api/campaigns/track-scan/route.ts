@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase'
 
-const BASE_URL = 'https://opabiz.com'
+// mybusinessformation.com (no opabiz.com) — separación de dominios 2026-08-13,
+// la landing de new-business vive ahí ahora.
+const BASE_URL = 'https://mybusinessformation.com'
 
 export async function GET(req: NextRequest) {
   const doc = req.nextUrl.searchParams.get('doc')
@@ -9,7 +11,7 @@ export async function GET(req: NextRequest) {
 
   // Always redirect — even if tracking fails, the client gets to the landing page
   const landingUrl = doc
-    ? `${BASE_URL}/new-business?id=${encodeURIComponent(doc)}`
+    ? `${BASE_URL}/?id=${encodeURIComponent(doc)}`
     : BASE_URL
 
   if (!doc || !cid) {

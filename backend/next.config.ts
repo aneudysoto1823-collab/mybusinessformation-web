@@ -74,24 +74,56 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  // mybusinessformation.com es el dominio legacy del rebrand a opabiz.com. Se reutiliza
-  // como entrada de las cartas físicas de marketing: TODO su tráfico (apex + www, en
-  // cualquier path) hace 301 a la landing de new-business en opabiz.com. Esto:
-  //  - evita contenido duplicado (opabiz.com/new-business es el único canonical indexado)
-  //  - consolida la autoridad SEO del dominio viejo en opabiz
-  //  - conserva el ?id= del QR automáticamente (Next pasa el query string al destino)
+  // Separación de dominios (2026-08-13): mybusinessformation.com deja de ser un
+  // simple redirect a opabiz.com/new-business y pasa a servir su propio sitio
+  // (marca Florida Business Formation Center, sin OpaBiz) — el cliente que
+  // recibe la carta física y escanea el QR ya no salta de marca a mitad de
+  // camino. Ambos dominios viven en el mismo proyecto de Vercel / misma app
+  // Next.js; el mapeo se hace 100% con rewrites de host (`beforeFiles`, para
+  // que gane ANTES que el filesystem — si no, "/" resolvería siempre a
+  // app/page.tsx antes de llegar a evaluar el rewrite).
+  //
+  // El payUrl que la carta imprime YA usa mybusinessformation.com/?id=... (raíz,
+  // ver lib/new-business-letter.ts) — las cartas ya en el correo funcionan sin
+  // reimprimir nada.
+  async rewrites() {
+    const hosts = ["mybusinessformation.com", "www.mybusinessformation.com"];
+    const map: Record<string, string> = {
+      "/": "/new-business",
+      "/es": "/new-business/es",
+      "/success": "/new-business/success",
+      "/terms": "/new-business/terms",
+      "/privacy": "/new-business/privacy",
+      "/legal": "/new-business/legal",
+      "/servicios": "/new-business/servicios",
+    };
+    return {
+      beforeFiles: hosts.flatMap((host) =>
+        Object.entries(map).map(([source, destination]) => ({
+          source,
+          has: [{ type: "host" as const, value: host }],
+          destination,
+        }))
+      ),
+    };
+  },
+  // opabiz.com/new-business ya no vive ahí — se muda por completo a
+  // mybusinessformation.com. Este redirect (dirección inversa a la que existía
+  // antes) evita romper links/bookmarks/resultados de Google ya indexados bajo
+  // opabiz.com/new-business. `/servicios` y `/servicios/checkout` de opabiz.com
+  // NO se tocan — siguen siendo la tienda de servicios propia de OpaBiz.
   async redirects() {
     return [
       {
-        source: "/:path*",
-        has: [{ type: "host", value: "mybusinessformation.com" }],
-        destination: "https://opabiz.com/new-business",
+        source: "/new-business/:path*",
+        has: [{ type: "host", value: "opabiz.com" }],
+        destination: "https://mybusinessformation.com/:path*",
         permanent: true,
       },
       {
-        source: "/:path*",
-        has: [{ type: "host", value: "www.mybusinessformation.com" }],
-        destination: "https://opabiz.com/new-business",
+        source: "/new-business/:path*",
+        has: [{ type: "host", value: "www.opabiz.com" }],
+        destination: "https://mybusinessformation.com/:path*",
         permanent: true,
       },
     ];

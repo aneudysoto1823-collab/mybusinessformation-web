@@ -123,6 +123,11 @@ export async function POST(req: NextRequest) {
       }))
 
     const origin = req.headers.get('origin') || 'https://opabiz.com'
+    // Checkout compartido entre opabiz.com y mybusinessformation.com (separación
+    // de dominios 2026-08-13) — se guarda en metadata para que el webhook sepa,
+    // al confirmarse el pago, con qué marca (OpaBiz vs Florida Business
+    // Formation Center) mandar el email de confirmación al cliente.
+    const sourceDomain = origin.includes('mybusinessformation.com') ? 'fbfc' : 'opabiz'
 
     const session = await getStripe().checkout.sessions.create({
       ui_mode: 'embedded',
@@ -139,7 +144,7 @@ export async function POST(req: NextRequest) {
       billing_address_collection: 'required',
       return_url: `${origin}/servicios/checkout?paid=1&session_id={CHECKOUT_SESSION_ID}`,
       payment_intent_data: { statement_descriptor_suffix: 'SERVICES' },
-      metadata: { kind: 'services', orderId },
+      metadata: { kind: 'services', orderId, sourceDomain },
     })
 
     const fbfc = `FBFC-${orderId.replace(/-/g, '').substring(0, 8).toUpperCase()}`

@@ -27,3 +27,8 @@ export const FROM_OPABIZ_CONTACT = `OpaBiz Contact <${FROM_TRANSACTIONAL}>`
 // que ve el cliente del sitio público) para que un empleado no confunda este
 // email con algo dirigido a un cliente.
 export const FROM_OPABIZ_INTERNAL = `OpaBiz Connect <${FROM_TRANSACTIONAL}>`
+
+// Marca FBFC (mybusinessformation.com — separación de dominios 2026-08-13):
+// mismo buzón autenticado que OpaBiz, solo cambia el display name que ve el
+// cliente. No requiere verificar un dominio de envío nuevo en Resend.
+export const FROM_FBFC = `Florida Business Formation Center <${FROM_TRANSACTIONAL}>`

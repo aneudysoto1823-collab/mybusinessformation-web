@@ -16,11 +16,23 @@
 
 export const dynamic = 'force-dynamic'
 
+import { headers } from 'next/headers'
 import { SERVICE_FIELDS, SHARED_FIELDS } from '@/lib/service-fields'
 import { SERVICES_CATALOG, SERVICE_BUNDLES, EXPEDITED_FEE } from '@/lib/services-pricing'
 
-export default function ServiciosCheckoutPage() {
+export default async function ServiciosCheckoutPage() {
   const PK = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || ''
+  // Checkout compartido entre opabiz.com y mybusinessformation.com (separación
+  // de dominios 2026-08-13) — la marca (logo, texto de autorización de pago)
+  // se detecta server-side por host en vez de duplicar el wizard entero.
+  const host = (await headers()).get('host') || ''
+  const isFBFC = host.includes('mybusinessformation.com')
+  const logoHtml = isFBFC
+    ? `<div class="co-logo-mark" style="background:#fff;padding:2px"><img src="/fbfc-seal.png" alt="Florida Business Formation Center" style="width:100%;height:100%;object-fit:contain"/></div>
+      <div class="co-logo-text" style="font-size:.92rem">Florida Business<br/>Formation Center</div>`
+    : `<div class="co-logo-mark">OB</div>
+      <div class="co-logo-text"><span class="o">Opa</span><span class="b">Biz</span></div>`
+  const consentBrand = isFBFC ? 'Florida Business Formation Center' : 'OpaBiz (Florida Business Formation Center)'
 
   const styles = `
 :root{--navy:#1C2E44;--blue:#2563EB;--blue-light:#EFF6FF;--green:#059669;--green-dark:#047857;--green-light:#ECFDF5;--white:#fff;--gray50:#F8FAFC;--gray100:#F1F5F9;--gray200:#E2E8F0;--gray400:#94A3B8;--gray500:#64748B;--gray600:#475569;--gray800:#1E293B;}
@@ -203,8 +215,7 @@ html.co-wide .co-tier{padding:20px 18px}
 <header class="co-header">
   <div class="co-header-inner">
     <a href="/servicios" class="co-logo">
-      <div class="co-logo-mark">OB</div>
-      <div class="co-logo-text"><span class="o">Opa</span><span class="b">Biz</span></div>
+      ${logoHtml}
     </a>
     <div style="display:flex;align-items:center;gap:14px">
       <a href="/servicios" class="co-back" data-en="&#8592; Back to services" data-es="&#8592; Volver a servicios">&#8592; Volver a servicios</a>
@@ -391,7 +402,7 @@ html.co-wide .co-tier{padding:20px 18px}
 </div>
 
 <script src="https://js.stripe.com/v3/"></script>
-<script>window.__OPABIZ_PK__='${PK}';</script>
+<script>window.__OPABIZ_PK__='${PK}';window.__CO_CONSENT_BRAND__='${consentBrand}';</script>
 <script>
 ${scriptBody()}
 </script>
@@ -541,9 +552,10 @@ function coTranslateStatic(){
     var recTxt=hasRec?(isEs
       ? ' Los servicios recurrentes (marcados /mes o /año) se renuevan automáticamente al precio vigente hasta que los canceles desde tu cuenta de cliente. El Agente Registrado es gratis el primer año al combinarlo con otro servicio; luego se renueva a $99/año.'
       : ' Recurring services (marked /mo or /yr) renew automatically at the then-current rate until you cancel from your client account. Registered Agent is free the first year when combined with another service; then renews at $99/yr.'):'';
+    var brand = window.__CO_CONSENT_BRAND__ || 'OpaBiz (Florida Business Formation Center)';
     dz.innerHTML = (isEs
-    ? 'Al completar tu pago autorizas a OpaBiz (Florida Business Formation Center) a preparar y presentar tus trámites en tu nombre, según nuestros <a href="/terms" target="_blank">Términos</a> y <a href="/privacy" target="_blank">Política de privacidad</a>. Las tarifas de servicio no son reembolsables una vez iniciado el trabajo.'
-    : 'By completing your payment you authorize OpaBiz (Florida Business Formation Center) to prepare and file your filings on your behalf, per our <a href="/terms" target="_blank">Terms</a> and <a href="/privacy" target="_blank">Privacy Policy</a>. Service fees are non-refundable once work begins.') + recTxt; }
+    ? 'Al completar tu pago autorizas a ' + brand + ' a preparar y presentar tus trámites en tu nombre, según nuestros <a href="/terms" target="_blank">Términos</a> y <a href="/privacy" target="_blank">Política de privacidad</a>. Las tarifas de servicio no son reembolsables una vez iniciado el trabajo.'
+    : 'By completing your payment you authorize ' + brand + ' to prepare and file your filings on your behalf, per our <a href="/terms" target="_blank">Terms</a> and <a href="/privacy" target="_blank">Privacy Policy</a>. Service fees are non-refundable once work begins.') + recTxt; }
 }
 
 function coSetLang(l){

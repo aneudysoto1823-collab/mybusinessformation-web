@@ -106,12 +106,11 @@ export default function SuccessContent() {
       {/* Header estilo home / order/complete */}
       <header style={{ display: 'flex', alignItems: 'center', padding: '13px 24px', borderBottom: '1px solid #eef2f6' }}>
         <a href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
-          <div style={{ width: 38, height: 38, background: '#2563EB', borderRadius: 9, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontFamily: 'var(--font-serif)', fontWeight: 700, fontSize: '0.95rem' }}>OB</div>
+          <img src="/fbfc-seal.png" alt="Florida Business Formation Center" style={{ width: 38, height: 38 }} />
           <div style={{ lineHeight: 1.1 }}>
-            <div style={{ fontFamily: 'var(--font-serif)', fontSize: '1.15rem', fontWeight: 700 }}>
-              <span style={{ color: '#1C2E44' }}>Opa</span><span style={{ color: '#2563EB' }}>Biz</span>
+            <div style={{ fontFamily: 'var(--font-serif)', fontSize: '1.05rem', fontWeight: 700, color: '#1C2E44' }}>
+              Florida Business Formation Center
             </div>
-            <div style={{ fontSize: '0.6rem', letterSpacing: '0.5px', color: '#94a3b8', textTransform: 'uppercase', marginTop: 2 }}>Florida Business Formation Center</div>
           </div>
         </a>
       </header>

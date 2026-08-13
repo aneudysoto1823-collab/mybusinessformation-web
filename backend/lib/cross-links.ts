@@ -21,14 +21,14 @@ const CATEGORY_TO_PAGES: Record<string, { url: string; labelEn: string; labelEs:
     { url: '/servicios', labelEn: 'All services', labelEs: 'Todos los servicios' },
   ],
   ein: [
-    { url: '/new-business', labelEn: 'Get an EIN', labelEs: 'Obtener un EIN' },
+    { url: 'https://mybusinessformation.com', labelEn: 'Get an EIN', labelEs: 'Obtener un EIN' },
     { url: '/servicios', labelEn: 'All services', labelEs: 'Todos los servicios' },
   ],
   sunbiz: [
     { url: '/#pricing', labelEn: 'Form your LLC', labelEs: 'Formar tu LLC' },
   ],
   compliance: [
-    { url: '/new-business', labelEn: 'Compliance services', labelEs: 'Servicios de cumplimiento' },
+    { url: 'https://mybusinessformation.com', labelEn: 'Compliance services', labelEs: 'Servicios de cumplimiento' },
   ],
   general: [
     { url: '/#pricing', labelEn: 'See packages', labelEs: 'Ver paquetes' },

@@ -73,26 +73,24 @@ const CSS = `
     gap: 12px;
   }
   .nb-logo-mark {
-    width: 38px;
-    height: 38px;
-    background: #2563EB;
-    border-radius: 8px;
+    width: 44px;
+    height: 44px;
+    background: #fff;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #fff;
-    font-family: var(--font-serif);
-    font-size: 1rem;
-    font-weight: 700;
-    letter-spacing: -.5px;
     flex-shrink: 0;
+    padding: 3px;
   }
-  .nb-logo-text { line-height: 1.25; }
+  .nb-logo-mark img { width: 100%; height: 100%; object-fit: contain; }
+  .nb-logo-text { line-height: 1.2; }
   .nb-logo-text .l1 {
     font-family: var(--font-serif);
-    font-size: 1.5rem;
+    font-size: 1.15rem;
     font-weight: 700;
-    line-height: 1;
+    line-height: 1.15;
+    color: #fff;
   }
   .nb-logo-text .l2 {
     color: #93c5fd;
@@ -116,6 +114,17 @@ const CSS = `
     transition: color .15s;
   }
   .nb-phone:hover { color: #fff; }
+  .nb-services-link {
+    color: rgba(255,255,255,.85);
+    font-size: .82rem;
+    font-weight: 700;
+    text-decoration: none;
+    padding: 6px 14px;
+    border: 1.5px solid rgba(255,255,255,.35);
+    border-radius: 6px;
+    transition: all .15s;
+  }
+  .nb-services-link:hover { color: #fff; border-color: #fff; }
   .nb-lang {
     display: flex;
     background: rgba(255,255,255,.12);
@@ -1283,19 +1292,21 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
       {/* ── HEADER ── */}
       <header className="nb-header">
         <div className="nb-logo">
-          <div className="nb-logo-mark">OB</div>
+          <div className="nb-logo-mark"><img src="/fbfc-seal.png" alt="Florida Business Formation Center" /></div>
           <div className="nb-logo-text">
-            <div className="l1"><span style={{color:'#e2e8f0'}}>Opa</span><span style={{color:'#60a5fa'}}>Biz</span></div>
-            <div className="l2">Florida Business Formation Center</div>
+            <div className="l1">Florida Business<br />Formation Center</div>
           </div>
         </div>
         <div className="nb-header-right">
+          <a href="/servicios" className="nb-services-link">
+            {lang === 'es' ? 'Servicios' : 'Services'}
+          </a>
           <div className="nb-lang">
             {(['en', 'es'] as const).map(l => (
               <button key={l} className={lang === l ? 'active' : ''} onClick={() => {
                 const id = sp.get('id')
                 const idParam = id ? `?id=${id}` : ''
-                router.push(l === 'en' ? `/new-business${idParam}` : `/new-business/es${idParam}`)
+                router.push(l === 'en' ? `/${idParam}` : `/es${idParam}`)
               }}>
                 {l.toUpperCase()}
               </button>
@@ -2103,15 +2114,15 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
 
           <div className="disclosure">
             <div className="disclosure-links">
-              <a href="/new-business/terms">
+              <a href="/terms">
                 {lang === 'es' ? 'Términos y Condiciones' : 'Terms & Conditions'}
               </a>
               <span>•</span>
-              <a href="/new-business/privacy">
+              <a href="/privacy">
                 {lang === 'es' ? 'Política de Privacidad' : 'Privacy Policy'}
               </a>
               <span>•</span>
-              <a href="/new-business/legal">
+              <a href="/legal">
                 {lang === 'es' ? 'Aviso Legal' : 'Legal Disclaimer'}
               </a>
               <span>•</span>

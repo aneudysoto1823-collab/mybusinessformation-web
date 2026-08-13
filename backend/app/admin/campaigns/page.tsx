@@ -535,7 +535,7 @@ export default function CampaignsPage() {
                             <button className="btn btn-ghost btn-sm" onClick={() => generateLetter(c)} title="Download letter">
                               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                             </button>
-                            <a href={`/new-business?id=${c.document_id}`} target="_blank" rel="noreferrer" className="btn btn-ghost btn-sm" title="Preview landing page">
+                            <a href={`https://mybusinessformation.com/?id=${c.document_id}`} target="_blank" rel="noreferrer" className="btn btn-ghost btn-sm" title="Preview landing page">
                               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                             </a>
                             <button className="btn btn-ghost btn-sm" onClick={() => setNoteEdit({ id: c.id, name: c.company_name, text: c.note || '' })} title={c.note ? 'Edit note' : 'Add note'}>

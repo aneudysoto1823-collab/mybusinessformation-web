@@ -8,7 +8,7 @@ import { PACKAGE_SERVICES } from '@/lib/notifications'
 import { computeFormationTotal, withBasicDisplayLine } from '@/lib/pricing'
 import { getOrderItemLabel } from '@/lib/order-items'
 import { hasReceivedGuide, recordGuideSent, getGuideAttachments, buildGuideBonusHtml, type GuideKey } from '@/lib/guides'
-import { REPLY_TO, INTERNAL_ALERT_EMAIL as ADMIN_EMAIL, FROM_OPABIZ, FROM_OPABIZ_ALERTS } from '@/lib/email-constants'
+import { REPLY_TO, INTERNAL_ALERT_EMAIL as ADMIN_EMAIL, FROM_OPABIZ, FROM_OPABIZ_ALERTS, FROM_FBFC } from '@/lib/email-constants'
 import { provisionRaForOrder } from '@/lib/ra-provisioning'
 
 export const dynamic = 'force-dynamic'
@@ -181,23 +181,22 @@ export async function POST(req: NextRequest) {
     : selectedServices.map(s => `<tr><td style="padding:5px 0;font-size:14px;color:#475569">✓ ${getOrderItemLabel(`mkt:${s}`, { lang })}</td><td></td></tr>`).join('')
 
   await getResend().emails.send({
-    from: FROM_OPABIZ,
+    from: FROM_FBFC,
     replyTo: REPLY_TO,
     to: email,
     subject: isEs
-      ? `OpaBiz: ✅ Orden confirmada — ${companyName}`
-      : `OpaBiz: ✅ Order confirmed — ${companyName}`,
+      ? `✅ Orden confirmada — ${companyName}`
+      : `✅ Order confirmed — ${companyName}`,
     html: `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#1e293b">
         <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden">
           <div style="padding:22px 32px;border-bottom:1px solid #e2e8f0">
             <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
               <td style="width:42px;padding-right:12px">
-                <div style="width:42px;height:42px;background:linear-gradient(135deg,#1C2E44,#2563EB);border-radius:10px;text-align:center;line-height:42px;color:#fff;font-family:Georgia,serif;font-size:16px;font-weight:700">OB</div>
+                <img src="https://mybusinessformation.com/fbfc-seal.png" width="42" height="42" alt="Florida Business Formation Center" style="display:block"/>
               </td>
               <td style="vertical-align:middle">
-                <div style="font-family:Georgia,serif;font-size:21px;font-weight:700;line-height:1.2"><span style="color:#1C2E44">Opa</span><span style="color:#2563EB">Biz</span></div>
-                <div style="font-size:11px;color:#94A3B8;letter-spacing:.3px;margin-top:2px">Florida Business Formation Center</div>
+                <div style="font-family:Georgia,serif;font-size:16px;font-weight:700;line-height:1.25;color:#1C2E44">Florida Business<br/>Formation Center</div>
               </td>
             </tr></table>
           </div>
@@ -250,7 +249,7 @@ export async function POST(req: NextRequest) {
             </div>
 
             <p style="margin-top:24px;color:#94a3b8;font-size:12px;line-height:1.6">
-              OpaBiz · opabiz.com<br/>
+              Florida Business Formation Center · mybusinessformation.com<br/>
               ${isEs
                 ? 'Este es un correo transaccional. Somos un servicio de preparación de documentos, no un despacho de abogados.'
                 : 'This is a transactional email. We are a document preparation service, not a law firm.'}
@@ -614,6 +613,23 @@ async function handleServicesPaid(orderId: string, session: Stripe.Checkout.Sess
 
   const fbfc = `FBFC-${order.id.replace(/-/g, '').substring(0, 8).toUpperCase()}`
 
+  // Checkout compartido entre opabiz.com y mybusinessformation.com (separación
+  // de dominios 2026-08-13) — la marca del email de confirmación se decide por
+  // el sourceDomain guardado en la sesión de Stripe al crear el checkout
+  // (ver /api/checkout/embedded-services). El resto del flujo (portal,
+  // alertas internas) sigue unificado en OpaBiz.
+  const isFBFC = session.metadata?.sourceDomain === 'fbfc'
+  const brandFrom = isFBFC ? FROM_FBFC : FROM_OPABIZ
+  const brandLogoHtml = isFBFC
+    ? `<img src="https://mybusinessformation.com/fbfc-seal.png" width="42" height="42" alt="Florida Business Formation Center" style="display:block"/>`
+    : `<div style="width:42px;height:42px;background:linear-gradient(135deg,#1C2E44,#2563EB);border-radius:10px;text-align:center;line-height:42px;color:#fff;font-family:Georgia,serif;font-size:16px;font-weight:700">OB</div>`
+  const brandNameHtml = isFBFC
+    ? `<div style="font-family:Georgia,serif;font-size:16px;font-weight:700;line-height:1.25;color:#1C2E44">Florida Business<br/>Formation Center</div>`
+    : `<div style="font-family:Georgia,serif;font-size:21px;font-weight:700;line-height:1.2"><span style="color:#1C2E44">Opa</span><span style="color:#2563EB">Biz</span></div>
+                <div style="font-size:11px;color:#94A3B8;letter-spacing:.3px;margin-top:2px">Florida Business Formation Center</div>`
+  const brandFooterHtml = isFBFC ? 'Florida Business Formation Center · mybusinessformation.com' : 'OpaBiz · opabiz.com'
+  const subjectPrefix = isFBFC ? '' : 'OpaBiz: '
+
   // Lista de servicios comprados (desde addons.services / addons.lines)
   const addons = (order.addons ?? {}) as { services?: string[]; bundles?: string[]; lines?: { label: string; amount: number }[]; lang?: string }
   const serviceLines = Array.isArray(addons.lines) ? addons.lines : []
@@ -657,21 +673,20 @@ async function handleServicesPaid(orderId: string, session: Stripe.Checkout.Sess
     })
     .join('') || '<tr><td style="padding:5px 0;font-size:14px;color:#475569">—</td><td></td></tr>'
   getResend().emails.send({
-    from: FROM_OPABIZ,
+    from: brandFrom,
     replyTo: REPLY_TO,
     to: order.email,
-    subject: isEs ? `OpaBiz: ✅ Orden confirmada — ${fbfc}` : `OpaBiz: ✅ Order confirmed — ${fbfc}`,
+    subject: isEs ? `${subjectPrefix}✅ Orden confirmada — ${fbfc}` : `${subjectPrefix}✅ Order confirmed — ${fbfc}`,
     html: `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#1e293b">
         <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden">
           <div style="padding:22px 32px;border-bottom:1px solid #e2e8f0">
             <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
               <td style="width:42px;padding-right:12px">
-                <div style="width:42px;height:42px;background:linear-gradient(135deg,#1C2E44,#2563EB);border-radius:10px;text-align:center;line-height:42px;color:#fff;font-family:Georgia,serif;font-size:16px;font-weight:700">OB</div>
+                ${brandLogoHtml}
               </td>
               <td style="vertical-align:middle">
-                <div style="font-family:Georgia,serif;font-size:21px;font-weight:700;line-height:1.2"><span style="color:#1C2E44">Opa</span><span style="color:#2563EB">Biz</span></div>
-                <div style="font-size:11px;color:#94A3B8;letter-spacing:.3px;margin-top:2px">Florida Business Formation Center</div>
+                ${brandNameHtml}
               </td>
             </tr></table>
           </div>
@@ -713,7 +728,7 @@ async function handleServicesPaid(orderId: string, session: Stripe.Checkout.Sess
               </a>
             </div>
             <p style="margin-top:24px;color:#94a3b8;font-size:12px;line-height:1.6">
-              OpaBiz · opabiz.com<br/>
+              ${brandFooterHtml}<br/>
               ${isEs ? 'Este es un correo transaccional. Somos un servicio de preparación de documentos, no un despacho de abogados.' : 'This is a transactional email. We are a document preparation service, not a law firm.'}
             </p>
           </div>

@@ -35,81 +35,141 @@ const EU_COUNTRIES = new Set([
 ])
 
 const BASE_URL = "https://opabiz.com";
+const FBFC_URL = "https://mybusinessformation.com";
 
-export const metadata: Metadata = {
-  metadataBase: new URL(BASE_URL),
-  title: {
-    default: "OpaBiz | Florida LLC & Corporation Formation",
-    template: "%s | OpaBiz",
-  },
-  description:
-    "Form your Florida LLC or Corporation online in minutes. Bilingual service (EN/ES). Packages from $0 + state fee. EIN, Operating Agreement, BOI Filing included.",
-  keywords: [
-    "Florida LLC formation",
-    "form LLC Florida",
-    "Florida corporation",
-    "register business Florida",
-    "LLC formation service",
-    "EIN number Florida",
-    "formacion LLC Florida",
-    "crear empresa Florida",
-  ],
-  authors: [{ name: "OpaBiz", url: BASE_URL }],
-  creator: "OpaBiz",
-  publisher: "OpaBiz",
-  verification: {
-    google: "nDeULKoIoYLMD5YnWXz40lik_Q5X7Cmj72L4KvFqoQQ",
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
+// Metadata base host-aware (separación de dominios 2026-08-13): sin esto, el
+// title.template + authors/creator/publisher/openGraph.siteName/twitter de
+// OpaBiz definidos acá se filtraban a TODAS las páginas servidas bajo
+// mybusinessformation.com (ej. el <title> terminaba en "... | OpaBiz" pese a
+// que new-business/layout.tsx nunca menciona OpaBiz). Cada page/layout hijo
+// sigue pudiendo sobreescribir campos puntuales (title, description,
+// alternates, openGraph.url) como ya hacía.
+export async function generateMetadata(): Promise<Metadata> {
+  const host = (await headers()).get("host") || "";
+  const isFBFC = host.includes("mybusinessformation.com");
+
+  if (isFBFC) {
+    return {
+      metadataBase: new URL(FBFC_URL),
+      title: {
+        default: "Florida Business Formation Center",
+        template: "%s | Florida Business Formation Center",
+      },
+      description:
+        "Compliance services for Florida businesses: EIN / Tax ID, Labor Law Poster, Certificate of Status, Registered Agent, and more.",
+      authors: [{ name: "Florida Business Formation Center", url: FBFC_URL }],
+      creator: "Florida Business Formation Center",
+      publisher: "Florida Business Formation Center",
+      robots: {
+        index: true,
+        follow: true,
+        googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 },
+      },
+      openGraph: {
+        type: "website",
+        siteName: "Florida Business Formation Center",
+        locale: "en_US",
+        alternateLocale: ["es_US"],
+        url: FBFC_URL,
+        title: "Florida Business Formation Center",
+        description:
+          "Compliance services for Florida businesses: EIN / Tax ID, Labor Law Poster, Certificate of Status, Registered Agent, and more.",
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: "Florida Business Formation Center",
+        description:
+          "Compliance services for Florida businesses: EIN / Tax ID, Labor Law Poster, Certificate of Status, and more.",
+      },
+      alternates: {
+        canonical: FBFC_URL,
+        languages: { "en-US": FBFC_URL, "es-US": `${FBFC_URL}/es` },
+      },
+      icons: {
+        icon: [
+          { url: "/favicon.ico", sizes: "any" },
+          { url: "/icon.png", type: "image/png", sizes: "32x32" },
+        ],
+        apple: [{ url: "/apple-icon.png", sizes: "180x180" }],
+      },
+    };
+  }
+
+  return {
+    metadataBase: new URL(BASE_URL),
+    title: {
+      default: "OpaBiz | Florida LLC & Corporation Formation",
+      template: "%s | OpaBiz",
+    },
+    description:
+      "Form your Florida LLC or Corporation online in minutes. Bilingual service (EN/ES). Packages from $0 + state fee. EIN, Operating Agreement, BOI Filing included.",
+    keywords: [
+      "Florida LLC formation",
+      "form LLC Florida",
+      "Florida corporation",
+      "register business Florida",
+      "LLC formation service",
+      "EIN number Florida",
+      "formacion LLC Florida",
+      "crear empresa Florida",
+    ],
+    authors: [{ name: "OpaBiz", url: BASE_URL }],
+    creator: "OpaBiz",
+    publisher: "OpaBiz",
+    verification: {
+      google: "nDeULKoIoYLMD5YnWXz40lik_Q5X7Cmj72L4KvFqoQQ",
+    },
+    robots: {
       index: true,
       follow: true,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-    },
-  },
-  openGraph: {
-    type: "website",
-    siteName: "OpaBiz",
-    locale: "en_US",
-    alternateLocale: ["es_US"],
-    url: BASE_URL,
-    title: "OpaBiz | Florida LLC & Corporation Formation",
-    description:
-      "Form your Florida LLC or Corporation online in minutes. Bilingual service (EN/ES). Packages from $0 + state fee.",
-    images: [
-      {
-        url: "/opengraph-image",
-        width: 1200,
-        height: 630,
-        alt: "OpaBiz — Florida LLC & Corporation Formation",
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-image-preview": "large",
+        "max-snippet": -1,
       },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "OpaBiz | Florida LLC & Corporation Formation",
-    description:
-      "Form your Florida LLC or Corporation online in minutes. Bilingual EN/ES. Packages from $0 + state fee.",
-    images: ["/opengraph-image"],
-  },
-  alternates: {
-    canonical: BASE_URL,
-    languages: {
-      "en-US": BASE_URL,
-      "es-US": `${BASE_URL}/es`,
     },
-  },
-  icons: {
-    icon: [
-      { url: "/favicon.ico", sizes: "any" },
-      { url: "/icon.png", type: "image/png", sizes: "32x32" },
-    ],
-    apple: [{ url: "/apple-icon.png", sizes: "180x180" }],
-  },
-};
+    openGraph: {
+      type: "website",
+      siteName: "OpaBiz",
+      locale: "en_US",
+      alternateLocale: ["es_US"],
+      url: BASE_URL,
+      title: "OpaBiz | Florida LLC & Corporation Formation",
+      description:
+        "Form your Florida LLC or Corporation online in minutes. Bilingual service (EN/ES). Packages from $0 + state fee.",
+      images: [
+        {
+          url: "/opengraph-image",
+          width: 1200,
+          height: 630,
+          alt: "OpaBiz — Florida LLC & Corporation Formation",
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "OpaBiz | Florida LLC & Corporation Formation",
+      description:
+        "Form your Florida LLC or Corporation online in minutes. Bilingual EN/ES. Packages from $0 + state fee.",
+      images: ["/opengraph-image"],
+    },
+    alternates: {
+      canonical: BASE_URL,
+      languages: {
+        "en-US": BASE_URL,
+        "es-US": `${BASE_URL}/es`,
+      },
+    },
+    icons: {
+      icon: [
+        { url: "/favicon.ico", sizes: "any" },
+        { url: "/icon.png", type: "image/png", sizes: "32x32" },
+      ],
+      apple: [{ url: "/apple-icon.png", sizes: "180x180" }],
+    },
+  };
+}
 
 export default async function RootLayout({
   children,

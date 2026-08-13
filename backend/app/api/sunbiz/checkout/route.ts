@@ -39,7 +39,10 @@ export async function POST(req: NextRequest) {
           return { price_data: { currency: 'usd', product_data: { name: svc.name }, unit_amount: svc.amount }, quantity: 1 }
         })
 
-    const origin = req.headers.get('origin') || 'https://opabiz.com'
+    // El checkout de /new-business ahora solo se alcanza desde mybusinessformation.com
+    // (separación de dominios 2026-08-13) — el fallback rara vez dispara ya que el
+    // browser siempre manda el Origin real, pero se actualiza igual por consistencia.
+    const origin = req.headers.get('origin') || 'https://mybusinessformation.com'
 
     // Look up company email from DB to pre-fill Stripe checkout
     let customerEmail: string | undefined
@@ -67,7 +70,7 @@ export async function POST(req: NextRequest) {
         border_style:     'rounded',
       },
       customer_email: customerEmail,
-      return_url: `${origin}/new-business/success?session_id={CHECKOUT_SESSION_ID}&doc=${encodeURIComponent(document_id || '')}`,
+      return_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}&doc=${encodeURIComponent(document_id || '')}`,
       // Statement descriptor: lo que el cliente ve en su extracto bancario.
       // El sufijo se concatena al descriptor base de la cuenta (Stripe → Settings
       // → Business → Public details). Ej: base "OPABIZ" → "OPABIZ* SERVICES".

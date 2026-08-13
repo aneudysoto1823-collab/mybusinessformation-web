@@ -40,7 +40,7 @@ const COPY = {
 function detectLang(): Lang {
   if (typeof window === 'undefined') return 'en'
   const path = window.location.pathname
-  if (path === '/es' || path.startsWith('/es/') || path.startsWith('/new-business/es')) return 'es'
+  if (path === '/es' || path.startsWith('/es/')) return 'es'
   const params = new URLSearchParams(window.location.search)
   if (params.get('lang') === 'es') return 'es'
   return 'en'
