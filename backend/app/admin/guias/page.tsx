@@ -93,19 +93,27 @@ export default function GuiasAdminPage() {
           <div className="card-head">
             <span className="card-title">Archivos de las Guías</span>
           </div>
-          <div style={{ padding: '16px 22px', display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-            <a href="/guias/guia-1-florida-formacion.pdf" target="_blank" rel="noreferrer" className="btn btn-ghost btn-sm">
-              👁 Ver Guía I
-            </a>
-            <a href="/guias/guia-1-florida-formacion.pdf" download className="btn btn-ghost btn-sm">
-              📄 Descargar Guía I
-            </a>
-            <a href="/guias/guia-2-despues-de-formar.pdf" target="_blank" rel="noreferrer" className="btn btn-ghost btn-sm">
-              👁 Ver Guía II
-            </a>
-            <a href="/guias/guia-2-despues-de-formar.pdf" download className="btn btn-ghost btn-sm">
-              📄 Descargar Guía II
-            </a>
+          <div style={{ padding: '16px 22px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+              <span style={{ fontSize: '.78rem', color: '#64748b', minWidth: 180 }}>Guía I — Formar LLC/Corp en Florida</span>
+              <a href="/guias/guia-1-florida-formacion.pdf" target="_blank" rel="noreferrer" className="btn btn-ghost btn-sm">👁 Ver</a>
+              <a href="/guias/guia-1-florida-formacion.pdf" download className="btn btn-ghost btn-sm">📄 Descargar</a>
+            </div>
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+              <span style={{ fontSize: '.78rem', color: '#64748b', minWidth: 180 }}>Guía II — Mantener LLC al día</span>
+              <a href="/guias/guia-2-despues-de-formar.pdf" target="_blank" rel="noreferrer" className="btn btn-ghost btn-sm">👁 Ver</a>
+              <a href="/guias/guia-2-despues-de-formar.pdf" download className="btn btn-ghost btn-sm">📄 Descargar</a>
+            </div>
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+              <span style={{ fontSize: '.78rem', color: '#64748b', minWidth: 180 }}>Guía III — Abrir Cuenta de Banco</span>
+              <a href="/guias/guia-3-cuenta-banco.pdf" target="_blank" rel="noreferrer" className="btn btn-ghost btn-sm">👁 Ver</a>
+              <a href="/guias/guia-3-cuenta-banco.pdf" download className="btn btn-ghost btn-sm">📄 Descargar</a>
+            </div>
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+              <span style={{ fontSize: '.78rem', color: '#64748b', minWidth: 180 }}>Guía IV — Configurar Stripe</span>
+              <a href="/guias/guia-4-stripe.pdf" target="_blank" rel="noreferrer" className="btn btn-ghost btn-sm">👁 Ver</a>
+              <a href="/guias/guia-4-stripe.pdf" download className="btn btn-ghost btn-sm">📄 Descargar</a>
+            </div>
           </div>
         </div>
 
