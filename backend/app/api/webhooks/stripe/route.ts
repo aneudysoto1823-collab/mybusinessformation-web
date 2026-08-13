@@ -185,8 +185,8 @@ export async function POST(req: NextRequest) {
     replyTo: REPLY_TO,
     to: email,
     subject: isEs
-      ? `OpaBiz: ✅ Pago confirmado — ${companyName}`
-      : `OpaBiz: ✅ Payment confirmed — ${companyName}`,
+      ? `OpaBiz: ✅ Orden confirmada — ${companyName}`
+      : `OpaBiz: ✅ Order confirmed — ${companyName}`,
     html: `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#1e293b">
         <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden">

@@ -186,7 +186,7 @@ export default function SuccessContent() {
 
           {status !== 'loading' && (
             <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-              <a href="/" style={{ background: '#1C2E44', color: '#fff', textDecoration: 'none', padding: '12px 28px', borderRadius: 8, fontWeight: 700, fontSize: '0.9rem', minHeight: 44, display: 'inline-flex', alignItems: 'center' }}>{t.home}</a>
+              <a href="/" style={{ background: '#fff', color: '#2563EB', border: '1.5px solid #2563EB', textDecoration: 'none', padding: '12px 28px', borderRadius: 8, fontWeight: 700, fontSize: '0.9rem', minHeight: 44, display: 'inline-flex', alignItems: 'center' }}>{t.home}</a>
             </div>
           )}
         </div>

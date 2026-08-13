@@ -7338,6 +7338,8 @@ function portalLoginSubmit(e){
         closePortalLogin();
         if(res.data && res.data.isDraft){
           window.location.href = '/?resume=1&lang=' + currentLang;
+        } else if(window.__portalWantsDashboard){
+          window.location.href = '/client-portal/dashboard?lang=' + currentLang;
         } else {
           refreshAccountUI();
         }
@@ -7476,7 +7478,11 @@ function fmFetchAndRestoreDraft() {
     // el botón "Login" de nuevo. Si ya tiene sesión activa, openPortalLogin()
     // lo manda directo al dashboard. El delay le da tiempo a refreshAccountUI()
     // (llamado arriba, async) a confirmar si ya está logueado antes de decidir.
-    if(wantsLogin) { setTimeout(function(){ openPortalLogin(); }, 300); return; }
+    // window.__portalWantsDashboard marca que el login vino con intención
+    // explícita de ver la orden (no un "Login" genérico del header) — al
+    // autenticar, portalLoginSubmit() manda directo al dashboard en vez de
+    // quedarse en el home mostrando "Mis Órdenes" en el header.
+    if(wantsLogin) { window.__portalWantsDashboard = true; setTimeout(function(){ openPortalLogin(); }, 300); return; }
 
     // Tras un login con orden en progreso (ver findOrder() / portalLoginSubmit()),
     // el redirect trae ?resume=1 — la sesión ya está autenticada.

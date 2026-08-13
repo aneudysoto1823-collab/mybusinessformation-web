@@ -506,24 +506,23 @@ const CSS = `
   }
   .step-back:hover { border-color: #94a3b8; color: #374151; }
   .step-next {
-    background: #2563EB;
-    border: none;
+    background: #fff;
+    border: 1.5px solid #2563EB;
     border-radius: 8px;
     padding: 11px 28px;
     font-size: .88rem;
     font-weight: 700;
-    color: #fff;
+    color: #2563EB;
     cursor: pointer;
     font-family: var(--font-sans);
     transition: all .2s;
-    box-shadow: 0 4px 14px rgba(37,99,235,.3);
     display: flex;
     align-items: center;
     gap: 7px;
   }
-  .step-next:hover { background: #1d4ed8; transform: translateY(-1px); }
-  .step-next.primary { background: #2563EB; }
-  .step-next.primary:hover { background: #1d4ed8; }
+  .step-next:hover { background: #EFF6FF; transform: translateY(-1px); }
+  .step-next.primary { background: #fff; }
+  .step-next.primary:hover { background: #EFF6FF; }
 
   /* ── CHECKOUT BOX ── */
   .co-box {
@@ -906,6 +905,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
   const [showSsn, setShowSsn]     = useState(false)
   const [descErr, setDescErr]     = useState(false)
   const [otherReasonErr, setOtherReasonErr] = useState(false)
+  const [contactErrs, setContactErrs] = useState<{ firstName?: boolean; lastName?: boolean; email?: boolean; phone?: boolean; ssn?: boolean }>({})
   const formRef = useRef<HTMLDivElement>(null)
   const shipRef = useRef<HTMLDivElement>(null)
 
@@ -1628,9 +1628,9 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                         <div className="form-field">
                           <label className="form-label">{lang === 'es' ? 'Nombre' : 'First name'}<span className="req">*</span></label>
                           <input
-                            className="form-input"
+                            className={`form-input${contactErrs.firstName ? ' err' : ''}`}
                             value={form.firstName}
-                            onChange={e => setField('firstName', capFirst(e.target.value))}
+                            onChange={e => { setField('firstName', capFirst(e.target.value)); if (contactErrs.firstName) setContactErrs(p => ({ ...p, firstName: false })) }}
                             placeholder={lang === 'es' ? 'Juan' : 'John'}
                           />
                         </div>
@@ -1651,9 +1651,9 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                         <div className="form-field">
                           <label className="form-label">{lang === 'es' ? 'Apellido' : 'Last name'}<span className="req">*</span></label>
                           <input
-                            className="form-input"
+                            className={`form-input${contactErrs.lastName ? ' err' : ''}`}
                             value={form.lastName}
-                            onChange={e => setField('lastName', capFirst(e.target.value))}
+                            onChange={e => { setField('lastName', capFirst(e.target.value)); if (contactErrs.lastName) setContactErrs(p => ({ ...p, lastName: false })) }}
                             placeholder={lang === 'es' ? 'García' : 'Smith'}
                           />
                         </div>
@@ -1675,10 +1675,10 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                         <div className="form-field">
                           <label className="form-label">Email<span className="req">*</span></label>
                           <input
-                            className="form-input"
+                            className={`form-input${contactErrs.email ? ' err' : ''}`}
                             type="email"
                             value={form.email}
-                            onChange={e => setField('email', e.target.value)}
+                            onChange={e => { setField('email', e.target.value); if (contactErrs.email) setContactErrs(p => ({ ...p, email: false })) }}
                             placeholder="email@example.com"
                           />
                         </div>
@@ -1687,10 +1687,10 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                         <div className="form-field">
                           <label className="form-label">{lang === 'es' ? 'Teléfono' : 'Phone'}<span className="req">*</span></label>
                           <input
-                            className="form-input"
+                            className={`form-input${contactErrs.phone ? ' err' : ''}`}
                             type="tel"
                             value={form.phone}
-                            onChange={e => setField('phone', e.target.value)}
+                            onChange={e => { setField('phone', e.target.value); if (contactErrs.phone) setContactErrs(p => ({ ...p, phone: false })) }}
                             placeholder="(305) 000-0000"
                           />
                         </div>
@@ -1707,10 +1707,10 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                           </label>
                           <div style={{ position:'relative' }}>
                             <input
-                              className="form-input"
+                              className={`form-input${contactErrs.ssn ? ' err' : ''}`}
                               type={showSsn ? 'text' : 'password'}
                               value={form.ssnItin}
-                              onChange={e => setField('ssnItin', e.target.value)}
+                              onChange={e => { setField('ssnItin', e.target.value); if (contactErrs.ssn) setContactErrs(p => ({ ...p, ssn: false })) }}
                               placeholder="XXX-XX-XXXX"
                               style={{ paddingRight: 44 }}
                             />
@@ -1735,10 +1735,10 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                           </label>
                           <div style={{ position:'relative' }}>
                             <input
-                              className="form-input"
+                              className={`form-input${contactErrs.ssn ? ' err' : ''}`}
                               type={showSsn ? 'text' : 'password'}
                               value={form.ssnItinConfirm}
-                              onChange={e => setField('ssnItinConfirm', e.target.value)}
+                              onChange={e => { setField('ssnItinConfirm', e.target.value); if (contactErrs.ssn) setContactErrs(p => ({ ...p, ssn: false })) }}
                               placeholder="XXX-XX-XXXX"
                               style={{
                                 paddingRight: 44,
@@ -1768,6 +1768,11 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                               {lang === 'es' ? 'Confirmado.' : 'Confirmed.'}
                             </span>
                           )}
+                          {contactErrs.ssn && !form.ssnItinConfirm && (
+                            <span className="form-hint" style={{ color:'#ef4444' }}>
+                              ⚠ {lang === 'es' ? 'Debes ingresar y confirmar tu SSN/ITIN.' : 'You must enter and confirm your SSN/ITIN.'}
+                            </span>
+                          )}
                           <span className="form-hint">
                             {lang === 'es'
                               ? 'Requerido por el IRS. Transmitido de forma cifrada.'
@@ -1780,15 +1785,21 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                         <button className="step-back" onClick={() => goToStep(1)}>
                           ← {lang === 'es' ? 'Atrás' : 'Back'}
                         </button>
-                        {einSelected ? (
-                          <button className="step-next" onClick={() => goToStep(3)}>
-                            {lang === 'es' ? 'Siguiente' : 'Next'}
-                          </button>
-                        ) : (
-                          <button className="step-next primary" onClick={() => goToStep(4)}>
-                            {lang === 'es' ? 'Revisar Orden' : 'Review Order'}
-                          </button>
-                        )}
+                        <button className={`step-next${einSelected ? '' : ' primary'}`} onClick={() => {
+                          const errs: typeof contactErrs = {}
+                          if (!form.firstName.trim()) errs.firstName = true
+                          if (!form.lastName.trim()) errs.lastName = true
+                          if (!form.email.trim()) errs.email = true
+                          if (!form.phone.trim()) errs.phone = true
+                          if (einSelected && (!form.ssnItin.trim() || !form.ssnItinConfirm.trim() || form.ssnItin !== form.ssnItinConfirm)) errs.ssn = true
+                          if (Object.keys(errs).length) { setContactErrs(errs); return }
+                          setContactErrs({})
+                          goToStep(einSelected ? 3 : 4)
+                        }}>
+                          {einSelected
+                            ? (lang === 'es' ? 'Siguiente' : 'Next')
+                            : (lang === 'es' ? 'Revisar Orden' : 'Review Order')}
+                        </button>
                       </div>
                     </>
                   )}
