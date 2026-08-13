@@ -404,7 +404,7 @@ html.co-wide .co-tier{padding:20px 18px}
 <script src="https://js.stripe.com/v3/"></script>
 <script>window.__OPABIZ_PK__='${PK}';window.__CO_CONSENT_BRAND__='${consentBrand}';</script>
 <script>
-${scriptBody()}
+${scriptBody(isFBFC)}
 </script>
 `
 
@@ -412,19 +412,35 @@ ${scriptBody()}
 }
 
 // El script del cliente vive en una función aparte para mantener el JSX legible.
-function scriptBody() {
+function scriptBody(isFBFC: boolean) {
+  // Unificación de carrito (2026-08-13): en mybusinessformation.com el EIN
+  // cobra $161 (mismo precio que new-business/la carta), no los $99 del
+  // catálogo compartido con opabiz.com — se resuelve server-side acá mismo
+  // (mismo criterio que getServiceFee en lib/services-pricing.ts) para que
+  // el total mostrado en pantalla coincida con lo que cobra el servidor.
+  const svcCatalogForClient = isFBFC
+    ? { ...SERVICES_CATALOG, ein: { ...SERVICES_CATALOG.ein, serviceFee: 161 } }
+    : SERVICES_CATALOG
   return String.raw`
 var coLang = 'es';
 (function(){ try{ var p=new URLSearchParams(location.search); coLang = p.get('lang') || localStorage.getItem('flbc_lang') || 'es'; }catch(e){} })();
 
 var SVC_EXTRAS = ${JSON.stringify(SERVICE_FIELDS)};
 var SHARED_CFG = ${JSON.stringify(SHARED_FIELDS)};
-var SVC_CATALOG = ${JSON.stringify(SERVICES_CATALOG)};
+var SVC_CATALOG = ${JSON.stringify(svcCatalogForClient)};
 var BUNDLES_CLIENT = ${JSON.stringify(SERVICE_BUNDLES)};
 var EXPED_FEE = ${EXPEDITED_FEE};
 
 var cart = [];
 try { cart = JSON.parse(localStorage.getItem('flbc_svc_cart')||'[]'); if(!Array.isArray(cart)) cart=[]; } catch(e){ cart=[]; }
+// Handoff desde new-business (unificación de carrito 2026-08-13): si el
+// cliente ya llenó empresa/contacto/EIN allá, ese intake ya quedó guardado
+// en el Order server-side (new-business ya llamó a /api/checkout/embedded-
+// services). Acá NO se vuelve a pedir — coGetIntake() devuelve este objeto
+// en vez de leer campos del DOM (que estarían vacíos, nunca se llenaron en
+// esta página), y el init de abajo salta directo al paso de pago.
+var coPrefill = null;
+try { var _pf = localStorage.getItem('flbc_svc_prefill'); if (_pf) coPrefill = JSON.parse(_pf); } catch(e) { coPrefill = null; }
 // Bundles (combos) elegidos en los hubs de 3 tiers. Persisten junto al carrito.
 var coBundles = [];
 try { coBundles = JSON.parse(localStorage.getItem('flbc_svc_bundles')||'[]'); if(!Array.isArray(coBundles)) coBundles=[]; } catch(e){ coBundles=[]; }
@@ -860,6 +876,7 @@ function coLookupCompany(){
 }
 
 function coGetIntake(){
+  if (coPrefill) return coPrefill;
   var ft=coFormationType();
   var name=$('f-legalName').value.trim();
   var desig=(ft && $('f-designator')) ? $('f-designator').value : '';
@@ -1706,6 +1723,19 @@ function coIrBlock(label, val, stepId){
 }
 function coRenderIntakeReview(){
   var host=$('co-review-intake'); if(!host) return; var isEs=coIsEs();
+  // Handoff desde new-business: los pasos de empresa/contacto nunca se
+  // renderizaron en esta página (se saltó directo a pago), así que no hay
+  // inputs de dónde leer — se arma el resumen directo desde coPrefill.
+  if(coPrefill){
+    var out0='';
+    out0+=coIrBlock(isEs?'Empresa':'Company', coEsc(coPrefill.legalName||''), 'panel-company');
+    var baddr0=[coPrefill.street,coPrefill.city,coPrefill.zip].filter(Boolean).join(', ');
+    if(baddr0) out0+=coIrBlock(isEs?'Dirección de la empresa':'Business address', coEsc(baddr0), 'panel-company');
+    var contact0=[((coPrefill.firstName||'')+' '+(coPrefill.lastName||'')).trim(), coPrefill.email, coPrefill.phone].filter(Boolean).join(' · ');
+    out0+=coIrBlock(isEs?'Contacto':'Contact', coEsc(contact0), 'panel-contact');
+    host.innerHTML=out0;
+    return;
+  }
   var v=function(id){ var e=$(id); return e?(e.value||'').trim():''; };
   var ft=coFormationType(); var out='';
   // Empresa
@@ -1780,13 +1810,15 @@ function coRetryPayment(){ coPrefetch=null; coStartPayment(); }
   if(paid){
     var num=''; try{ num=localStorage.getItem('flbc_svc_order')||''; }catch(e){}
     $('co-success-num').textContent=num||'—';
-    try{ localStorage.removeItem('flbc_svc_cart'); localStorage.removeItem('flbc_svc_bundles'); localStorage.removeItem('flbc_svc_order'); localStorage.removeItem('flbc_svc_expedited'); localStorage.removeItem('flbc_svc_orderid'); }catch(e){}
+    try{ localStorage.removeItem('flbc_svc_cart'); localStorage.removeItem('flbc_svc_bundles'); localStorage.removeItem('flbc_svc_order'); localStorage.removeItem('flbc_svc_expedited'); localStorage.removeItem('flbc_svc_orderid'); localStorage.removeItem('flbc_svc_prefill'); }catch(e){}
     coShowScreen('co-success'); return;
   }
   if(!cart.length){ coShowScreen('co-empty'); return; }
   coBuildWizard();
   coShowScreen('co-wizard');
-  coGoStep(0);
+  // Handoff desde new-business (coPrefill ya tiene todo lo necesario) — salta
+  // directo al último paso (pago), sin pedirle de nuevo empresa/contacto/EIN.
+  coGoStep(coPrefill ? coSteps.length-1 : 0);
 })();
 `
 }

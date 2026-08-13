@@ -147,8 +147,19 @@ export const SERVICE_FIELDS: Record<string, ServiceFieldDef> = {
   // actividad, que no se piden en otro lado.
   // El rol/título del solicitante ya viene de los roles capturados en Dueños; no se
   // vuelve a pedir. Solo queda la actividad (oculta en formación, que ya la pide).
+  // Ampliado (unificación de carrito 2026-08-13) con las mismas preguntas del
+  // formulario SS-4 que ya pedía /new-business (razón + cumplimiento IRS) —
+  // antes solo se pedían acá la actividad del negocio, un hueco real para
+  // cualquier EIN comprado directo desde /servicios sin pasar por new-business.
   'ein': { name_en: 'EIN / Tax ID', name_es: 'EIN / ID Fiscal', shared: ['ssnItin'], fields: [
     { k: 'activity', en: 'Primary business activity', es: 'Actividad principal', type: 'select', opts: ['Retail & E-Commerce', 'Real Estate', 'Restaurant / Food', 'Construction', 'Technology', 'Consulting', 'Import / Export', 'Health & Wellness', 'Other'] },
+    { k: 'einReason', en: 'Reason for applying', es: 'Razón para solicitar el EIN', type: 'select', opts: ['Started a new business', 'Hired employees', 'Open a business bank account', 'Other'] },
+    { k: 'einReasonOther', en: 'If "Other", briefly describe the reason', es: 'Si eligió "Otra razón", descríbala brevemente', type: 'text' },
+    { k: 'hasW2', en: 'Do you have or expect to have W-2 employees?', es: '¿Tiene o tendrá empleados con formulario W-2?', type: 'select', opts: ['No', 'Yes'] },
+    { k: 'hasHighwayVehicle', en: 'Highway motor vehicles with 55,000+ lbs gross weight?', es: '¿Opera vehículos de carretera con peso bruto de 55,000+ lbs?', type: 'select', opts: ['No', 'Yes'] },
+    { k: 'hasGambling', en: 'Does the business involve gambling or wagering?', es: '¿Involucra el negocio juegos de azar (gambling)?', type: 'select', opts: ['No', 'Yes'] },
+    { k: 'hasForm720', en: 'Required to file Form 720 (federal excise taxes)?', es: '¿Deberá presentar el formulario 720 (impuestos especiales)?', type: 'select', opts: ['No', 'Yes'] },
+    { k: 'hasAlcohol', en: 'Involves alcohol, tobacco, or firearms?', es: '¿Involucra alcohol, tabaco o armas de fuego?', type: 'select', opts: ['No', 'Yes'] },
   ]},
   'itin': { name_en: 'ITIN Application', name_es: 'Solicitud de ITIN', fields: [
     { k: 'applName', en: 'Applicant full name (as on passport)', es: 'Nombre del solicitante (como en pasaporte)', type: 'text' },

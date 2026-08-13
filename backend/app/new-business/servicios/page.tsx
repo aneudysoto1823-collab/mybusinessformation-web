@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { SERVICES_CATALOG } from '@/lib/services-pricing'
+import { SERVICES_CATALOG, getServiceFee } from '@/lib/services-pricing'
 
 export const metadata: Metadata = {
   title: 'Additional Services — Florida Business Formation Center',
@@ -115,6 +115,18 @@ const DISPLAY: Record<string, Display> = {
     descEs: 'Una copia oficial certificada por el estado de tus Artículos de Organización (LLC) o Incorporación (Corporación), sellada por la División de Corporaciones de Florida.',
     incEn: ['State-certified copy from the FL Division of Corporations', 'For LLC (Organization) or Corporation (Incorporation)', 'Accepted by banks, courts and agencies', 'Digital and physical delivery options'],
     incEs: ['Copia certificada por la División de Corporaciones de FL', 'Para LLC (Organización) o Corporación (Incorporación)', 'Aceptada por bancos, tribunales y agencias', 'Opciones de entrega digital y física'] },
+  // Mismos 2 servicios que ofrece la landing de new-business (unificación de
+  // carrito 2026-08-13) — mismo texto/copy que ya usa esa página.
+  'labor-law-poster': { icon: 'clipboard-list', subEn: 'Mandatory federal & state poster', subEs: 'Póster obligatorio federal y estatal',
+    descEn: 'Mandatory federal & state poster for all Florida businesses. Avoid fines up to $17,650.',
+    descEs: 'Póster obligatorio federal y estatal para todos los negocios en Florida. Evita multas de hasta $17,650.',
+    incEn: ['2026 federal & Florida labor law poster', 'Covers minimum wage, OSHA, FMLA and more', 'Ships directly to your business address', 'Avoids fines up to $17,650 for non-compliance'],
+    incEs: ['Póster de leyes laborales 2026 federal y de Florida', 'Cubre salario mínimo, OSHA, FMLA y más', 'Se envía directo a la dirección de tu negocio', 'Evita multas de hasta $17,650 por incumplimiento'] },
+  'certificate-of-status': { icon: 'award', subEn: 'Official document from the State of Florida', subEs: 'Documento oficial del Estado de Florida',
+    descEn: 'Official document proving your business is active and in good standing with Florida.',
+    descEs: 'Documento oficial que acredita que tu negocio está activo y al corriente con Florida.',
+    incEn: ['Official Certificate of Status from Florida', 'Proves your business is active and in good standing', 'Commonly requested by banks and lenders', 'Delivered digitally, ready to use'],
+    incEs: ['Certificado de Estado oficial de Florida', 'Acredita que tu negocio está activo y al corriente', 'Comúnmente solicitado por bancos y prestamistas', 'Se entrega digital, listo para usar'] },
 }
 
 const svgIcons: Record<string, string> = {
@@ -145,7 +157,9 @@ const services = Object.entries(SERVICES_CATALOG)
     id,
     nameEn: def.name_en,
     nameEs: def.name_es,
-    price: def.serviceFee + def.stateFee,
+    // getServiceFee(id,'fbfc') aplica el override de precio (ej. EIN $161 en
+    // vez de $99) — esta página SIEMPRE es marca FBFC, se pasa fijo.
+    price: getServiceFee(id, 'fbfc') + def.stateFee,
     billing: def.billing ?? null,
     ...DISPLAY[id],
   }))
@@ -175,9 +189,30 @@ button{font-family:inherit}
 .svc-hero-inner{max-width:680px;margin:0 auto}
 .svc-hero h1{font-size:clamp(1.4rem,3vw,1.9rem);color:var(--navy);margin-bottom:10px}
 .svc-hero p{color:var(--gray600);font-size:.92rem;line-height:1.7}
-.svc-grid-wrap{max-width:1000px;margin:0 auto;padding:36px 32px 120px;flex:1;width:100%}
+.svc-grid-wrap{max-width:1200px;margin:0 auto;padding:36px 32px 60px;flex:1;width:100%}
+.services-layout{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:28px;align-items:start}
+.services-main{min-width:0}
 .svc-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 @media(max-width:760px){.svc-grid{grid-template-columns:1fr}}
+.order-summary{position:sticky;top:80px;align-self:start}
+.order-summary-card{background:#fff;border:1.5px solid var(--gray200);border-radius:14px;box-shadow:0 8px 30px rgba(28,46,68,.07);padding:18px 18px 20px}
+.os-head{display:flex;align-items:center;gap:9px;padding-bottom:14px;border-bottom:1px solid var(--gray100);margin-bottom:14px}
+.os-title{font-family:var(--font-serif);font-size:1.1rem;font-weight:700;color:var(--navy);margin:0;flex:1}
+.os-count{background:var(--blue);color:#fff;font-size:.72rem;font-weight:700;min-width:22px;height:22px;border-radius:11px;display:none;align-items:center;justify-content:center;padding:0 7px}
+.os-count.show{display:flex}
+.os-empty{font-size:.82rem;color:var(--gray500);line-height:1.6;text-align:center;padding:18px 6px}
+.os-items{display:flex;flex-direction:column}
+.os-item{display:flex;align-items:flex-start;gap:8px;padding:9px 0;border-bottom:1px solid var(--gray100)}
+.os-item-name{flex:1;font-size:.8rem;color:var(--gray800);font-weight:500;line-height:1.4}
+.os-item-price{font-size:.8rem;font-weight:700;color:var(--blue);white-space:nowrap}
+.os-item-x{background:none;border:none;color:var(--gray400);font-size:.78rem;cursor:pointer;padding:2px 5px;border-radius:6px;line-height:1;flex-shrink:0}
+.os-item-x:hover{background:#fee2e2;color:#dc2626}
+.os-subtotal-row{display:flex;align-items:center;justify-content:space-between;padding:13px 0 4px;font-size:.86rem;color:var(--gray800)}
+.os-subtotal-row strong{font-family:var(--font-serif);font-size:1.3rem;color:var(--navy)}
+.os-continue-btn{width:100%;background:var(--blue);color:#fff;border:none;padding:13px;border-radius:11px;font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit;min-height:46px;transition:background .2s;margin-top:6px}
+.os-continue-btn:hover{background:#1d4ed8}
+@media(max-width:860px){.services-layout{grid-template-columns:1fr}.order-summary{display:none}}
+@media(min-width:861px){.svc-bar{display:none!important}}
 .svc-card{border:1.5px solid var(--gray200);border-radius:12px;background:#fff;transition:border-color .2s,box-shadow .2s;cursor:pointer}
 .svc-card:hover,.svc-card.expanded{border-color:var(--blue);box-shadow:0 6px 24px rgba(37,99,235,.12)}
 .svc-card.sel{border-color:var(--blue)}
@@ -263,7 +298,28 @@ button{font-family:inherit}
 </section>
 
 <div class="svc-grid-wrap">
-  <div class="svc-grid">${cardsHtml}</div>
+  <div class="services-layout">
+    <div class="services-main">
+      <div class="svc-grid">${cardsHtml}</div>
+    </div>
+    <aside class="order-summary">
+      <div class="order-summary-card">
+        <div class="os-head">
+          <h3 class="os-title"><span class="en">Your order</span><span class="es">Tu pedido</span></h3>
+          <span class="os-count" id="os-count"></span>
+        </div>
+        <div class="os-empty" id="os-empty">
+          <span class="en">No services added yet. Click a service and add what you need.</span>
+          <span class="es">Aún no has agregado servicios. Haz clic en un servicio y agrega lo que necesites.</span>
+        </div>
+        <div class="os-items" id="os-items"></div>
+        <div id="os-foot" style="display:none">
+          <div class="os-subtotal-row"><span class="en">Estimated subtotal</span><span class="es">Subtotal estimado</span><strong id="os-subtotal">$0.00</strong></div>
+          <button class="os-continue-btn" onclick="svcContinue()"><span class="en">Continue</span><span class="es">Continuar</span> &#8594;</button>
+        </div>
+      </div>
+    </aside>
+  </div>
 </div>
 
 <div class="svc-bar" id="svc-bar">
@@ -287,15 +343,41 @@ button{font-family:inherit}
 <script>
 (function(){
   var PRICES = ${JSON.stringify(Object.fromEntries(services.map(s => [s.id, s.price])))};
+  var NAMES = ${JSON.stringify(Object.fromEntries(services.map(s => [s.id, { en: s.nameEn, es: s.nameEs }])))};
   var cart = [];
   try { cart = JSON.parse(localStorage.getItem('flbc_svc_cart') || '[]'); if (!Array.isArray(cart)) cart = []; } catch(e) { cart = []; }
-  cart = cart.filter(function(id){ return PRICES.hasOwnProperty(id); });
 
   function persist(){ try { localStorage.setItem('flbc_svc_cart', JSON.stringify(cart)); } catch(e){} }
 
+  function curLang(){ return document.querySelector('.svc-lang button.active') && document.querySelector('.svc-lang button.active').textContent === 'ES' ? 'es' : 'en'; }
+
+  function renderSidebar(){
+    var isEs = curLang() === 'es';
+    var known = cart.filter(function(id){ return PRICES.hasOwnProperty(id); });
+    var n = known.length;
+    var total = known.reduce(function(sum, id){ return sum + (PRICES[id] || 0); }, 0);
+    var countEl = document.getElementById('os-count');
+    if (countEl) { countEl.textContent = n; countEl.className = 'os-count' + (n > 0 ? ' show' : ''); }
+    var emptyEl = document.getElementById('os-empty');
+    var itemsEl = document.getElementById('os-items');
+    var footEl = document.getElementById('os-foot');
+    if (emptyEl) emptyEl.style.display = n === 0 ? '' : 'none';
+    if (footEl) footEl.style.display = n === 0 ? 'none' : '';
+    if (itemsEl) {
+      itemsEl.innerHTML = known.map(function(id){
+        var name = NAMES[id] ? (isEs ? NAMES[id].es : NAMES[id].en) : id;
+        return '<div class="os-item"><button class="os-item-x" onclick="svcToggle(\\'' + id + '\\')">&times;</button>'
+          + '<span class="os-item-name">' + name + '</span>'
+          + '<span class="os-item-price">$' + (PRICES[id] || 0).toFixed(2) + '</span></div>';
+      }).join('');
+    }
+    var subEl = document.getElementById('os-subtotal'); if (subEl) subEl.textContent = '$' + total.toFixed(2);
+  }
+
   function render(){
-    var n = cart.length;
-    var total = cart.reduce(function(sum, id){ return sum + (PRICES[id] || 0); }, 0);
+    var known = cart.filter(function(id){ return PRICES.hasOwnProperty(id); });
+    var n = known.length;
+    var total = known.reduce(function(sum, id){ return sum + (PRICES[id] || 0); }, 0);
     var bar = document.getElementById('svc-bar');
     if (bar) bar.className = 'svc-bar' + (n > 0 ? ' show' : '');
     var nEl = document.getElementById('svc-bar-n'); if (nEl) nEl.textContent = n;
@@ -307,6 +389,7 @@ button{font-family:inherit}
       var btn = card.querySelector('.svc-add');
       if (btn) btn.classList.toggle('added', isSel);
     });
+    renderSidebar();
   }
 
   window.svcToggle = function(id){
@@ -337,6 +420,7 @@ button{font-family:inherit}
     document.querySelectorAll('.es').forEach(function(el){ el.style.display = lang === 'es' ? '' : 'none'; });
     document.querySelectorAll('.svc-lang button').forEach(function(b, i){ b.className = (i === (lang === 'en' ? 0 : 1)) ? 'active' : ''; });
     try { localStorage.setItem('flbc_lang', lang); } catch(e){}
+    renderSidebar();
   };
 
   render();

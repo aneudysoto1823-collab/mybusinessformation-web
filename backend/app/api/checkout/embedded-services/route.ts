@@ -50,8 +50,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: isEs ? 'Correo inválido.' : 'Invalid email.' }, { status: 400 })
     }
 
+    // Checkout compartido entre opabiz.com y mybusinessformation.com (separación
+    // de dominios 2026-08-13) — el brand decide precios (ej. EIN $161 en FBFC vs
+    // $99 en OpaBiz, ver FBFC_PRICE_OVERRIDES) y qué marca usa el email de
+    // confirmación (ver metadata más abajo).
+    const origin = req.headers.get('origin') || 'https://opabiz.com'
+    const sourceDomain: 'opabiz' | 'fbfc' = origin.includes('mybusinessformation.com') ? 'fbfc' : 'opabiz'
+
     const expedited = intake.expedited === true
-    const { cents, lines, total } = computeServicesTotal(uniqueIds, bundleIds, expedited, lang)
+    const { cents, lines, total } = computeServicesTotal(uniqueIds, bundleIds, expedited, lang, sourceDomain)
     if (cents < 50) {
       return NextResponse.json({ error: isEs ? 'Monto inválido.' : 'Invalid amount.' }, { status: 400 })
     }
@@ -121,13 +128,6 @@ export async function POST(req: NextRequest) {
         price_data: { currency: 'usd', product_data: { name: l.label }, unit_amount: Math.round(l.amount * 100) },
         quantity: 1,
       }))
-
-    const origin = req.headers.get('origin') || 'https://opabiz.com'
-    // Checkout compartido entre opabiz.com y mybusinessformation.com (separación
-    // de dominios 2026-08-13) — se guarda en metadata para que el webhook sepa,
-    // al confirmarse el pago, con qué marca (OpaBiz vs Florida Business
-    // Formation Center) mandar el email de confirmación al cliente.
-    const sourceDomain = origin.includes('mybusinessformation.com') ? 'fbfc' : 'opabiz'
 
     const session = await getStripe().checkout.sessions.create({
       ui_mode: 'embedded',

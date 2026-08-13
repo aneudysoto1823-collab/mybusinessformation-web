@@ -3,6 +3,15 @@
 import { useState, useEffect, useCallback, useRef, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { trackEvent } from '@/lib/tracking'
+import { SERVICES_CATALOG } from '@/lib/services-pricing'
+
+// Unificación de carrito (2026-08-13): estos 3 ids son los mismos que ya
+// existen en SERVICES_CATALOG (lib/services-pricing.ts) — new-business
+// sincroniza su selección local (labor_law/ein/certificate) con el carrito
+// compartido localStorage.flbc_svc_cart usando estos ids del catálogo, para
+// que /servicios vea/agregue lo mismo sin duplicar lógica.
+const NB_TO_CATALOG_ID: Record<string, string> = { labor_law: 'labor-law-poster', ein: 'ein', certificate: 'certificate-of-status' }
+const CATALOG_TO_NB_ID: Record<string, string> = { 'labor-law-poster': 'labor_law', ein: 'ein', 'certificate-of-status': 'certificate' }
 
 type Company = {
   document_id: string
@@ -899,6 +908,37 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
   const [lookupErr, setLookupErr] = useState('')
 
   const [selected, setSelected]   = useState<Set<string>>(new Set(SERVICES.map(s => s.id)))
+  // Ítems del carrito compartido que NO son uno de los 3 de new-business (ej.
+  // Registered Agent agregado desde /servicios) — unificación de carrito
+  // 2026-08-13. Se muestran aparte en el resumen y se cobran en el mismo pago.
+  const [extraCart, setExtraCart] = useState<string[]>([])
+  const cartHydrated = useRef(false)
+
+  // Hidrata `selected`/`extraCart` desde localStorage.flbc_svc_cart al montar
+  // (si el cliente ya agregó algo desde /servicios) y, de ahí en más, escribe
+  // cualquier cambio de `selected` de vuelta al carrito compartido — mismo
+  // contrato exacto (array JSON de ids) que ya usa /servicios.
+  useEffect(() => {
+    if (cartHydrated.current) return
+    cartHydrated.current = true
+    try {
+      const raw = localStorage.getItem('flbc_svc_cart')
+      if (!raw) return
+      const cart: string[] = JSON.parse(raw)
+      if (!Array.isArray(cart)) return
+      const nbIds = new Set(cart.filter(id => CATALOG_TO_NB_ID[id]).map(id => CATALOG_TO_NB_ID[id]))
+      if (nbIds.size > 0) setSelected(nbIds)
+      setExtraCart(cart.filter(id => !CATALOG_TO_NB_ID[id]))
+    } catch { /* noop */ }
+  }, [])
+
+  useEffect(() => {
+    if (!cartHydrated.current) return
+    try {
+      const nbCatalogIds = [...selected].map(id => NB_TO_CATALOG_ID[id]).filter(Boolean)
+      localStorage.setItem('flbc_svc_cart', JSON.stringify([...nbCatalogIds, ...extraCart]))
+    } catch { /* noop */ }
+  }, [selected, extraCart])
   const [step, setStep]           = useState(1)
   const [doneSteps, setDoneSteps] = useState<Set<number>>(new Set())
 
@@ -991,125 +1031,73 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
   }, [company])
 
 
-  // ── Stripe Embedded Checkout (mismo patrón que el home / servicios/checkout):
-  // se prefetchea la sesión al acercarse al paso de pago y se monta el form
-  // dentro del Order Summary al llegar al Review — sin redirigir a
-  // checkout.stripe.com. Ver /api/sunbiz/checkout (ui_mode:'embedded').
-  const [payMounting, setPayMounting] = useState(false)
-  const [payError, setPayError]       = useState('')
-  const stripeCheckoutRef = useRef<{ destroy: () => void } | null>(null)
-  const prefetchRef = useRef<{ key: string; promise: Promise<{ clientSecret: string }> } | null>(null)
-  const mountingRef  = useRef(false)
+  // ── Checkout unificado (2026-08-13): new-business ya no monta su propio
+  // Stripe Embedded Checkout — arma el intake con lo ya recolectado (empresa,
+  // contacto, datos del EIN) y lo entrega al MISMO backend/wizard que usa
+  // /servicios (/api/checkout/embedded-services + /servicios/checkout), para
+  // que un cliente que agregó algo desde /servicios pague todo junto, una
+  // sola orden. Ver flbc_svc_cart / flbc_svc_orderid / flbc_svc_prefill.
+  const [payLoading, setPayLoading] = useState(false)
+  const [payError, setPayError]     = useState('')
 
-  function buildCheckoutPayload() {
-    const svcMap: Record<string, string> = { labor_law: 'labor_law_poster', ein: 'ein', certificate: 'certificate_of_status' }
-    const allThree = SERVICES.every(s => selected.has(s.id))
-    const selected_services = allThree ? ['bundle'] : [...selected].map(id => svcMap[id])
+  function buildIntake() {
+    const extras: Record<string, string> = {}
+    if (selected.has('ein')) {
+      extras['ein.activity'] = 'Other'
+      extras['ein.einReason'] = form.einReason === 'other' ? 'Other' : form.einReason === 'started_business' ? 'Started a new business' : form.einReason === 'hired_employees' ? 'Hired employees' : form.einReason === 'banking' ? 'Open a business bank account' : ''
+      extras['ein.einReasonOther'] = form.einReasonOther
+      extras['ein.hasW2'] = form.hasW2 === 'yes' ? 'Yes' : 'No'
+      extras['ein.hasHighwayVehicle'] = form.hasHighwayVehicle === 'yes' ? 'Yes' : 'No'
+      extras['ein.hasGambling'] = form.hasGambling === 'yes' ? 'Yes' : 'No'
+      extras['ein.hasForm720'] = form.hasForm720 === 'yes' ? 'Yes' : 'No'
+      extras['ein.hasAlcohol'] = form.hasAlcohol === 'yes' ? 'Yes' : 'No'
+    }
     return {
-      company_id:   company?.id ?? null,
-      document_id:  docInput,
-      company_name: form.companyName,
-      selected_services,
-      lang,
+      firstName: form.firstName, lastName: form.lastName, email: form.email, phone: form.phone,
+      entityType: 'llc',
+      legalName: form.companyName,
+      street: form.address, city: form.city, zip: form.zip, country: 'US',
+      extras,
+      shared: selected.has('ein') ? { ssnItin: form.ssnItin } : {},
+      bundles: [],
     }
   }
 
-  function createCheckoutSession() {
-    const payload = buildCheckoutPayload()
-    const key = JSON.stringify(payload)
-    const promise = fetch('/api/sunbiz/checkout', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    }).then(async res => {
-      const data = await res.json()
-      if (!res.ok || !data.clientSecret) throw new Error(data.error || 'Could not start payment')
-      return { clientSecret: data.clientSecret as string }
-    })
-    return { key, promise }
-  }
-
-  function prefetchPayment() {
-    const payload = buildCheckoutPayload()
-    if (!payload.selected_services.length) return
-    const key = JSON.stringify(payload)
-    if (prefetchRef.current?.key === key) return
-    const entry = createCheckoutSession()
-    entry.promise.catch(() => {}) // el error real se maneja al consumir en mountPayment
-    prefetchRef.current = entry
-  }
-
-  function destroyPayment() {
-    if (stripeCheckoutRef.current) {
-      try { stripeCheckoutRef.current.destroy() } catch { /* noop */ }
-      stripeCheckoutRef.current = null
-    }
-  }
-
-  async function mountPayment() {
-    if (mountingRef.current) return
-    mountingRef.current = true
-    setPayMounting(true)
+  async function goToPayment() {
+    setPayLoading(true)
     setPayError('')
-    destroyPayment()
     try {
-      const payload = buildCheckoutPayload()
-      if (!payload.selected_services.length) throw new Error('No services selected')
-      const key = JSON.stringify(payload)
-      const entry = prefetchRef.current?.key === key ? prefetchRef.current : createCheckoutSession()
-      prefetchRef.current = entry
-      const { clientSecret } = await entry.promise
-
-      const w = window as unknown as {
-        Stripe?: (pk: string) => {
-          initEmbeddedCheckout: (opts: { clientSecret: string }) => Promise<{ mount: (sel: string) => void; destroy: () => void }>
-        }
-      }
-      const pk = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
-      if (!w.Stripe || !pk) throw new Error('Stripe.js not available')
-      const stripe = w.Stripe(pk)
-      const checkout = await stripe.initEmbeddedCheckout({ clientSecret })
-      checkout.mount('#nb-embedded-checkout')
-      stripeCheckoutRef.current = checkout
-    } catch {
-      prefetchRef.current = null // sesión inválida: no la reutilices
-      setPayError(lang === 'es' ? 'No se pudo cargar el pago. Vuelve a intentarlo.' : 'Could not load payment. Please try again.')
-    } finally {
-      mountingRef.current = false
-      setPayMounting(false)
-    }
-  }
-
-  // Prefetch la sesión de Stripe apenas se acerca al paso de pago (step 3, o
-  // step 2 cuando no hay EIN) para que al llegar al Review ya esté lista.
-  useEffect(() => {
-    if (step >= 3) prefetchPayment()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step, selected, docInput, form.companyName, lang])
-
-  const onReview = step === 4
-  useEffect(() => {
-    if (onReview) {
-      const payload = buildCheckoutPayload()
+      const nbCatalogIds = [...selected].map(id => NB_TO_CATALOG_ID[id]).filter(Boolean)
+      const services = [...nbCatalogIds, ...extraCart]
+      if (services.length === 0) throw new Error('No services selected')
+      const intake = buildIntake()
+      let orderId: string | null = null
+      try { orderId = localStorage.getItem('flbc_svc_orderid') } catch { /* noop */ }
+      const res = await fetch('/api/checkout/embedded-services', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ services, intake, lang, orderId: orderId || undefined }),
+      })
+      const data = await res.json()
+      if (!res.ok || !data.orderId) throw new Error(data.error || 'Could not start payment')
+      localStorage.setItem('flbc_svc_orderid', data.orderId)
+      localStorage.setItem('flbc_svc_cart', JSON.stringify(services))
+      localStorage.setItem('flbc_svc_prefill', JSON.stringify(intake))
+      localStorage.setItem('flbc_lang', lang)
       trackEvent('payment_started', {
-        services: payload.selected_services.join(','),
-        services_count: payload.selected_services.length,
-        is_bundle: payload.selected_services[0] === 'bundle',
+        services: services.join(','),
+        services_count: services.length,
         lang,
         source: 'new-business-marketing',
       })
+      window.location.href = '/servicios/checkout'
+    } catch {
+      setPayError(lang === 'es' ? 'No se pudo continuar al pago. Vuelve a intentarlo.' : 'Could not continue to payment. Please try again.')
+      setPayLoading(false)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [onReview])
+  }
 
-  // Monta el form de Stripe al llegar al Review. Si el cliente togglea un
-  // servicio desde el Order Summary mientras ya está ahí, se destruye y
-  // remonta con el total recalculado.
-  useEffect(() => {
-    if (onReview) mountPayment()
-    return () => { destroyPayment() }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [onReview, selected])
+  const onReview = step === 4
 
   function toggleService(id: string) {
     setSelected(prev => {
@@ -1183,7 +1171,10 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
   const allSelected   = selected.size === SERVICES.length
   const subtotal      = SERVICES.filter(s => selected.has(s.id)).reduce((acc, s) => acc + s.price, 0)
   const discountAmt   = allSelected ? +(subtotal * 0.10).toFixed(2) : 0
-  const total         = +(subtotal - discountAmt).toFixed(2)
+  // Ítems de /servicios agregados al carrito compartido (ver extraCart arriba)
+  // — no participan del 10% de bundle de new-business, se suman aparte.
+  const extraTotal    = extraCart.reduce((acc, id) => acc + (SERVICES_CATALOG[id]?.serviceFee ?? 0) + (SERVICES_CATALOG[id]?.stateFee ?? 0), 0)
+  const total         = +(subtotal - discountAmt + extraTotal).toFixed(2)
 
   function toggleAll() {
     if (allSelected) setSelected(new Set())
@@ -1250,6 +1241,29 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
           )
         })}
 
+        {/* Ítems adicionales agregados desde /servicios (carrito compartido) */}
+        {extraCart.length > 0 && (
+          <>
+            <div className="co-divider" />
+            {extraCart.map(id => {
+              const svc = SERVICES_CATALOG[id]
+              if (!svc) return null
+              const price = svc.serviceFee + svc.stateFee
+              return (
+                <div key={id} className="co-line" style={{ alignItems:'center', gap:8 }}>
+                  <button
+                    onClick={() => setExtraCart(prev => prev.filter(x => x !== id))}
+                    style={{ background:'none', border:'none', color:'#94a3b8', cursor:'pointer', padding:0, fontSize:'.9rem', lineHeight:1, flexShrink:0 }}
+                    title={lang === 'es' ? 'Quitar' : 'Remove'}
+                  >×</button>
+                  <span className="co-line-name">{lang === 'es' ? svc.name_es : svc.name_en}</span>
+                  <span className="co-line-price">${price.toFixed(2)}</span>
+                </div>
+              )
+            })}
+          </>
+        )}
+
         <div className="co-divider" />
 
         {/* 10% bundle discount */}
@@ -1267,6 +1281,10 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
             ${total.toFixed(2)}<span>USD</span>
           </span>
         </div>
+
+        <a href="/servicios" style={{ display:'block', textAlign:'center', marginTop:12, fontSize:'.8rem', fontWeight:600, color:'#2563EB', textDecoration:'none' }}>
+          {lang === 'es' ? 'Ver servicios adicionales →' : 'See additional services →'}
+        </a>
       </>
     )
   }
@@ -2086,17 +2104,21 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                           ⚠ {payError}
                         </p>
                       )}
-                      {payMounting && !payError && (
-                        <div style={{ padding:'2px 0' }}>
-                          <div className="co-skel" style={{ height:44, marginBottom:10 }} />
-                          <div className="co-skel" style={{ height:44, marginBottom:16 }} />
-                          <div className="co-skel" style={{ height:12, width:'40%', margin:'0 auto 16px' }} />
-                          <div className="co-skel" style={{ height:48, marginBottom:10 }} />
-                          <div className="co-skel" style={{ height:48, marginBottom:10 }} />
-                          <div className="co-skel" style={{ height:46 }} />
-                        </div>
-                      )}
-                      <div id="nb-embedded-checkout" />
+                      <p style={{ color:'#64748b', fontSize:'.82rem', lineHeight:1.6, margin:'4px 0 16px' }}>
+                        {lang === 'es'
+                          ? 'Al continuar, verás el resumen completo de tu pedido (incluyendo cualquier servicio adicional que hayas agregado) y podrás pagar de forma segura con Stripe.'
+                          : 'When you continue, you’ll see your complete order summary (including any additional services you added) and can pay securely with Stripe.'}
+                      </p>
+                      <button
+                        onClick={goToPayment}
+                        disabled={payLoading}
+                        className="step-next primary"
+                        style={{ width:'100%', justifyContent:'center' }}
+                      >
+                        {payLoading
+                          ? (lang === 'es' ? 'Cargando...' : 'Loading...')
+                          : (lang === 'es' ? 'Continuar al Pago →' : 'Continue to Payment →')}
+                      </button>
                     </>
                   ) : (
                     <>

@@ -61,6 +61,25 @@ export const SERVICES_CATALOG: Record<string, ServiceDef> = {
   'dissolution':           { name_en: 'Business Dissolution',              name_es: 'Disolución del Negocio',               desc_en: 'Articles of Dissolution filed to formally close your entity',         desc_es: 'Artículos de Disolución presentados para cerrar formalmente su entidad',              serviceFee: 79,  stateFee: 25 },
   'cierre-fiscal':         { name_en: 'Tax Account Closure',               name_es: 'Cierre de Cuentas Fiscales',           desc_en: 'IRS & FL account closure letters prepared on your behalf',            desc_es: 'Cartas de cierre de cuentas ante el IRS y FL preparadas en su nombre',                serviceFee: 79,  stateFee: 0 },
   'certified-copy':        { name_en: 'Certified Copy of Articles',        name_es: 'Copia Certificada de Artículos',       desc_en: 'State-certified copy of your Articles from the FL Division of Corporations', desc_es: 'Copia certificada de sus Artículos por la División de Corporaciones de FL',    serviceFee: 59,  stateFee: 30 },
+  // Mismos 2 servicios que ofrece /new-business (EIN/Labor Law/Certificate) —
+  // agregados acá para que el carrito de mybusinessformation.com (new-business
+  // + /servicios) sea uno solo (unificación de carrito 2026-08-13). El EIN ya
+  // existe arriba; su precio diverge solo en mybusinessformation.com vía
+  // FBFC_PRICE_OVERRIDES, no se duplica la entrada.
+  'labor-law-poster':      { name_en: 'Labor Law Poster 2026',            name_es: 'Póster de Leyes Laborales 2026',       desc_en: 'Mandatory federal & state poster for all Florida businesses. Avoid fines up to $17,650.', desc_es: 'Póster obligatorio federal y estatal para todos los negocios en Florida. Evita multas de hasta $17,650.', serviceFee: 120, stateFee: 0 },
+  'certificate-of-status': { name_en: 'Certificate of Status (FL)',       name_es: 'Certificado de Estado (FL)',           desc_en: 'Official document proving your business is active and in good standing with Florida.', desc_es: 'Documento oficial que acredita que tu negocio está activo y al corriente con Florida.', serviceFee: 79,  stateFee: 0 },
+}
+
+// Precios que solo aplican a la marca FBFC (mybusinessformation.com) — hoy
+// solo el EIN, que ya cuesta $161 en new-business/la carta física. opabiz.com
+// sigue cobrando el serviceFee normal del catálogo de arriba ($99) sin tocar.
+export const FBFC_PRICE_OVERRIDES: Record<string, number> = { ein: 161 }
+
+export function getServiceFee(id: string, brand?: 'opabiz' | 'fbfc'): number {
+  const svc = SERVICES_CATALOG[id]
+  if (!svc) return 0
+  if (brand === 'fbfc' && FBFC_PRICE_OVERRIDES[id] !== undefined) return FBFC_PRICE_OVERRIDES[id]
+  return svc.serviceFee
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -147,7 +166,7 @@ export function isExpeditedApplicable(serviceIds: string[], bundleIds: string[] 
   return [...serviceIds, ...bundledServices].some(id => (SERVICES_CATALOG[id]?.stateFee ?? 0) > 0)
 }
 
-export function computeServicesTotal(serviceIds: string[], bundleIds: string[] = [], expedited = false, lang: 'en' | 'es' = 'en'): ServicesPrice {
+export function computeServicesTotal(serviceIds: string[], bundleIds: string[] = [], expedited = false, lang: 'en' | 'es' = 'en', brand?: 'opabiz' | 'fbfc'): ServicesPrice {
   const isEs = lang === 'es'
   const stateFeeLabel = (name: string) => isEs ? `${name} — Tarifa Estatal de Florida` : `${name} — Florida State Fee`
   // Tarifas de servicio primero; las tarifas estatales se agrupan al final
@@ -192,7 +211,7 @@ export function computeServicesTotal(serviceIds: string[], bundleIds: string[] =
     // incluye al menos otro servicio o combo; suelto se cobra normal.
     const hasOther = serviceIds.some(o => o !== id && !!SERVICES_CATALOG[o]) || bundleIds.length > 0
     const free = !!svc.freeWithOther && hasOther
-    lines.push({ label: isEs ? svc.name_es : svc.name_en, amount: free ? 0 : svc.serviceFee, billing: svc.billing, firstYearFree: free, renewalFee: svc.renewalFee })
+    lines.push({ label: isEs ? svc.name_es : svc.name_en, amount: free ? 0 : getServiceFee(id, brand), billing: svc.billing, firstYearFree: free, renewalFee: svc.renewalFee })
     if (svc.stateFee > 0) {
       stateLines.push({ label: stateFeeLabel(isEs ? svc.name_es : svc.name_en), amount: svc.stateFee })
     }
