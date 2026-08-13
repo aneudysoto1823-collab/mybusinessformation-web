@@ -12,11 +12,13 @@ function clearCookie(response: NextResponse) {
 }
 
 // GET: usado por el botón "Cerrar Sesión" del portal. Redirige al HOME (no al
-// viejo landing de login), preservando el idioma vía ?lang.
+// viejo landing de login), preservando el idioma vía ?lang. Usa el origin de
+// la request (no un BASE_URL fijo a opabiz.com) para que un cliente de
+// mybusinessformation.com (separación de dominios 2026-08-13) vuelva a SU
+// home, no al de OpaBiz.
 export async function GET(request: NextRequest) {
-  const base = process.env.NEXT_PUBLIC_BASE_URL || 'https://opabiz.com'
   const home = request.nextUrl.searchParams.get('lang') === 'es' ? '/es' : '/'
-  return clearCookie(NextResponse.redirect(new URL(home, base)))
+  return clearCookie(NextResponse.redirect(new URL(home, request.nextUrl.origin)))
 }
 
 // POST: usado por el logout del home (fetch). Solo borra la cookie y devuelve

@@ -140,6 +140,10 @@ export default function DashboardContent({
   steps, currentStep, isAddon, initialLang, hasPassword,
 }: Props) {
   const [lang, setLang] = useState<'en' | 'es'>(initialLang)
+  // Separación de dominios (2026-08-13): client component, detecta el host
+  // en el browser para mostrar la marca correcta en el header.
+  const [isFBFC, setIsFBFC] = useState(false)
+  useEffect(() => { setIsFBFC(window.location.hostname.includes('mybusinessformation.com')) }, [])
   const [pwBanner, setPwBanner] = useState(!hasPassword)
   const [pwForm, setPwForm] = useState(false)
   const [pw, setPw] = useState('')
@@ -227,7 +231,7 @@ export default function DashboardContent({
         <div className="cp-header-left">
           <a href={es ? '/es' : '/'} className="cp-back">{es ? '← Inicio' : '← Home'}</a>
           <a href={es ? '/es' : '/'} className="cp-header-brand">
-            OpaBiz
+            {isFBFC ? 'FBFC' : 'OpaBiz'}
             <span>{es ? 'Portal del Cliente' : 'Client Portal'}</span>
           </a>
         </div>

@@ -1298,6 +1298,9 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
           </div>
         </div>
         <div className="nb-header-right">
+          <a href="/client-portal" className="nb-services-link">
+            {lang === 'es' ? 'Mi Orden' : 'Track Order'}
+          </a>
           <a href="/servicios" className="nb-services-link">
             {lang === 'es' ? 'Servicios' : 'Services'}
           </a>
