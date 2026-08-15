@@ -914,6 +914,18 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
   const [extraCart, setExtraCart] = useState<string[]>([])
   const cartHydrated = useRef(false)
 
+  // Modo dev: Ctrl+Shift+D salta la validación de cada paso para revisar el
+  // flujo rápido — mismo atajo que ya existe en el form del home y en
+  // /servicios/checkout.
+  const [devMode, setDevMode] = useState(false)
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.ctrlKey && e.shiftKey && (e.key === 'D' || e.key === 'd')) setDevMode(v => !v)
+    }
+    document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [])
+
   // Hidrata `selected`/`extraCart` desde localStorage.flbc_svc_cart al montar
   // (si el cliente ya agregó algo desde /servicios) y, de ahí en más, escribe
   // cualquier cambio de `selected` de vuelta al carrito compartido — mismo
@@ -1027,8 +1039,18 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
         llcStartMonth: fdMonth || f.llcStartMonth,
         llcStartYear:  fdYear  || f.llcStartYear,
       }))
+      // Unificación de carrito (2026-08-13): si el cliente busca su empresa
+      // acá y después salta directo a /servicios (sin terminar el wizard de
+      // new-business, que es lo único que hasta ahora compartía datos vía
+      // flbc_svc_prefill), /servicios/checkout no tenía forma de saber qué
+      // empresa era — el cliente tenía que volver a buscarla ahí. Guardar el
+      // Document ID apenas se encuentra permite que /servicios/checkout lo
+      // autocomplete de entrada.
+      try {
+        localStorage.setItem('flbc_svc_company', JSON.stringify({ documentId: docInput }))
+      } catch { /* noop */ }
     }
-  }, [company])
+  }, [company, docInput])
 
 
   // ── Checkout unificado (2026-08-13): new-business ya no monta su propio
@@ -1282,9 +1304,6 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
           </span>
         </div>
 
-        <a href="/servicios" style={{ display:'block', textAlign:'center', marginTop:12, fontSize:'.8rem', fontWeight:600, color:'#2563EB', textDecoration:'none' }}>
-          {lang === 'es' ? 'Ver servicios adicionales →' : 'See additional services →'}
-        </a>
       </>
     )
   }
@@ -1306,6 +1325,12 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
   return (
     <div style={{ fontFamily: 'var(--font-sans)', minHeight: '100vh', background: '#F1F5F9' }}>
       <style>{CSS}</style>
+
+      {devMode && (
+        <div style={{ position:'fixed', top:0, left:0, right:0, zIndex:9999, background:'#f59e0b', color:'#1C2E44', textAlign:'center', padding:'5px 10px', fontSize:'.75rem', fontWeight:700, letterSpacing:'.03em' }}>
+          DEV MODE — Ctrl+Shift+D {lang === 'es' ? 'para salir' : 'to exit'}
+        </div>
+      )}
 
       {/* ── HEADER ── */}
       <header className="nb-header">
@@ -1640,7 +1665,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                       <div className="step-nav">
                         <span />
                         <button className="step-next" onClick={() => {
-                          if (!form.businessDescription.trim()) { setDescErr(true); return }
+                          if (!devMode && !form.businessDescription.trim()) { setDescErr(true); return }
                           goToStep(2)
                         }}>
                           {lang === 'es' ? 'Siguiente' : 'Next'}
@@ -1818,13 +1843,15 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                           ← {lang === 'es' ? 'Atrás' : 'Back'}
                         </button>
                         <button className={`step-next${einSelected ? '' : ' primary'}`} onClick={() => {
-                          const errs: typeof contactErrs = {}
-                          if (!form.firstName.trim()) errs.firstName = true
-                          if (!form.lastName.trim()) errs.lastName = true
-                          if (!form.email.trim()) errs.email = true
-                          if (!form.phone.trim()) errs.phone = true
-                          if (einSelected && (!form.ssnItin.trim() || !form.ssnItinConfirm.trim() || form.ssnItin !== form.ssnItinConfirm)) errs.ssn = true
-                          if (Object.keys(errs).length) { setContactErrs(errs); return }
+                          if (!devMode) {
+                            const errs: typeof contactErrs = {}
+                            if (!form.firstName.trim()) errs.firstName = true
+                            if (!form.lastName.trim()) errs.lastName = true
+                            if (!form.email.trim()) errs.email = true
+                            if (!form.phone.trim()) errs.phone = true
+                            if (einSelected && (!form.ssnItin.trim() || !form.ssnItinConfirm.trim() || form.ssnItin !== form.ssnItinConfirm)) errs.ssn = true
+                            if (Object.keys(errs).length) { setContactErrs(errs); return }
+                          }
                           setContactErrs({})
                           goToStep(einSelected ? 3 : 4)
                         }}>
@@ -1975,7 +2002,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                           ← {lang === 'es' ? 'Atrás' : 'Back'}
                         </button>
                         <button className="step-next primary" onClick={() => {
-                          if (form.einReason === 'other' && !form.einReasonOther.trim()) { setOtherReasonErr(true); return }
+                          if (!devMode && form.einReason === 'other' && !form.einReasonOther.trim()) { setOtherReasonErr(true); return }
                           goToStep(4)
                         }}>
                           {lang === 'es' ? 'Revisar Orden' : 'Review Order'}
@@ -2134,6 +2161,13 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                   )}
                 </div>
               </div>
+              <a
+                href="/servicios"
+                className="step-next"
+                style={{ width:'100%', justifyContent:'center', marginTop:12, textDecoration:'none' }}
+              >
+                {lang === 'es' ? 'Ver Todos los Servicios' : 'View All Services'}
+              </a>
             </div>
           </section>
 

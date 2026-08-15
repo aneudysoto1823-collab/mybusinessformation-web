@@ -441,6 +441,12 @@ try { cart = JSON.parse(localStorage.getItem('flbc_svc_cart')||'[]'); if(!Array.
 // esta página), y el init de abajo salta directo al paso de pago.
 var coPrefill = null;
 try { var _pf = localStorage.getItem('flbc_svc_prefill'); if (_pf) coPrefill = JSON.parse(_pf); } catch(e) { coPrefill = null; }
+// Cliente que buscó su empresa en new-business pero NO terminó ese wizard
+// (saltó directo a /servicios a agregar algo más) — no hay coPrefill todavía,
+// pero sí sabemos el Document ID. Se usa para autocompletar el paso "Tu
+// empresa" acá en vez de hacer que lo busque de nuevo.
+var coCompanyPrefill = null;
+try { var _cf = localStorage.getItem('flbc_svc_company'); if (_cf) coCompanyPrefill = JSON.parse(_cf); } catch(e) { coCompanyPrefill = null; }
 // Bundles (combos) elegidos en los hubs de 3 tiers. Persisten junto al carrito.
 var coBundles = [];
 try { coBundles = JSON.parse(localStorage.getItem('flbc_svc_bundles')||'[]'); if(!Array.isArray(coBundles)) coBundles=[]; } catch(e){ coBundles=[]; }
@@ -1810,7 +1816,7 @@ function coRetryPayment(){ coPrefetch=null; coStartPayment(); }
   if(paid){
     var num=''; try{ num=localStorage.getItem('flbc_svc_order')||''; }catch(e){}
     $('co-success-num').textContent=num||'—';
-    try{ localStorage.removeItem('flbc_svc_cart'); localStorage.removeItem('flbc_svc_bundles'); localStorage.removeItem('flbc_svc_order'); localStorage.removeItem('flbc_svc_expedited'); localStorage.removeItem('flbc_svc_orderid'); localStorage.removeItem('flbc_svc_prefill'); }catch(e){}
+    try{ localStorage.removeItem('flbc_svc_cart'); localStorage.removeItem('flbc_svc_bundles'); localStorage.removeItem('flbc_svc_order'); localStorage.removeItem('flbc_svc_expedited'); localStorage.removeItem('flbc_svc_orderid'); localStorage.removeItem('flbc_svc_prefill'); localStorage.removeItem('flbc_svc_company'); }catch(e){}
     coShowScreen('co-success'); return;
   }
   if(!cart.length){ coShowScreen('co-empty'); return; }
@@ -1818,7 +1824,18 @@ function coRetryPayment(){ coPrefetch=null; coStartPayment(); }
   coShowScreen('co-wizard');
   // Handoff desde new-business (coPrefill ya tiene todo lo necesario) — salta
   // directo al último paso (pago), sin pedirle de nuevo empresa/contacto/EIN.
-  coGoStep(coPrefill ? coSteps.length-1 : 0);
+  if (coPrefill) {
+    coGoStep(coSteps.length-1);
+  } else {
+    coGoStep(0);
+    // Solo se buscó la empresa en new-business (sin terminar ese wizard) —
+    // autocompleta el Document ID acá y dispara la misma búsqueda que haría
+    // el cliente manualmente.
+    if (coCompanyPrefill && coCompanyPrefill.documentId && !coFormationType()) {
+      var _flDoc = $('f-flDoc');
+      if (_flDoc) { _flDoc.value = coCompanyPrefill.documentId; coLookupCompany(); }
+    }
+  }
 })();
 `
 }
