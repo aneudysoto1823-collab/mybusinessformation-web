@@ -428,6 +428,13 @@ var coLang = 'es';
 var SVC_EXTRAS = ${JSON.stringify(SERVICE_FIELDS)};
 var SHARED_CFG = ${JSON.stringify(SHARED_FIELDS)};
 var SVC_CATALOG = ${JSON.stringify(svcCatalogForClient)};
+// Precios BASE (sin el override de marca — ej. EIN $99, no $161 en FBFC).
+// Los combos (bundle-docs-oa-ein $149, bundle-docs-full $189, etc.) se
+// calibraron asumiendo estos precios base. Si el crédito de "ya lo tienes"
+// (coRenderHub) usara el precio de marca en vez de este, un EIN ya agregado
+// a $161 le da al combo más crédito del que vale, y el precio del combo
+// queda en $0 o negativo (bug real 2026-08-15, ver coRenderHub).
+var SVC_CATALOG_BASE = ${JSON.stringify(SERVICES_CATALOG)};
 var BUNDLES_CLIENT = ${JSON.stringify(SERVICE_BUNDLES)};
 var EXPED_FEE = ${EXPEDITED_FEE};
 
@@ -1245,7 +1252,7 @@ function coRenderHub(hub){
     var b=BUNDLES_CLIENT[bid];
     var sel=(coBundles.indexOf(bid)>=0);
     var owned={}, ownedFee=0;
-    b.services.forEach(function(s){ if(preOwned[s]){ owned[s]=1; var sv=SVC_CATALOG[s]; if(sv) ownedFee+=sv.serviceFee; } });
+    b.services.forEach(function(s){ if(preOwned[s]){ owned[s]=1; var sv=SVC_CATALOG_BASE[s]; if(sv) ownedFee+=sv.serviceFee; } });
     var price=Math.max(0, b.price-ownedFee);          // marginal: crédito de lo pre-poseído
     var newIndiv=0; b.services.forEach(function(s){ if(!owned[s]){ var sv=SVC_CATALOG[s]; if(sv) newIndiv+=sv.serviceFee; } });
     var save=newIndiv-price;

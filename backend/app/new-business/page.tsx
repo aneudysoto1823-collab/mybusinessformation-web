@@ -921,6 +921,17 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
   const [extraCart, setExtraCart] = useState<string[]>([])
   const cartHydrated = useRef(false)
 
+  // Safari (y algunos otros navegadores) a veces restauran la página desde
+  // su caché de "atrás/adelante" (bfcache) con contenido a medio pintar —
+  // reportado por el founder y su socio: precios/iconos se ven bien pero
+  // textos quedan en blanco tras usar Atrás/Adelante varias veces.
+  // event.persisted=true detecta esa restauración y recarga la página real.
+  useEffect(() => {
+    function onPageShow(e: PageTransitionEvent) { if (e.persisted) window.location.reload() }
+    window.addEventListener('pageshow', onPageShow)
+    return () => window.removeEventListener('pageshow', onPageShow)
+  }, [])
+
   // Modo dev: Ctrl+Shift+D salta la validación de cada paso para revisar el
   // flujo rápido — mismo atajo que ya existe en el form del home y en
   // /servicios/checkout.

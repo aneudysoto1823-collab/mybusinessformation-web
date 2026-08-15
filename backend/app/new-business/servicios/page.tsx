@@ -466,6 +466,13 @@ button{font-family:inherit}
     var lang = urlLang === 'es' || urlLang === 'en' ? urlLang : (savedLang === 'es' ? 'es' : 'en');
     if (lang === 'es') window.svcSetLang('es');
   } catch(e) {}
+
+  // Safari (y algunos otros navegadores) a veces restauran la página desde
+  // su caché de "atrás/adelante" (bfcache) sin volver a correr este script
+  // — el contenido que depende de JS (nombres, textos) queda en blanco
+  // aunque lo que ya estaba en el HTML (precios, iconos) se vea bien.
+  // event.persisted=true detecta esa restauración y recarga la página real.
+  window.addEventListener('pageshow', function(e){ if (e.persisted) window.location.reload(); });
 })();
 </script>
 `
