@@ -213,8 +213,8 @@ button{font-family:inherit}
 .os-continue-btn:hover{background:#1d4ed8}
 @media(max-width:860px){.services-layout{grid-template-columns:1fr}.order-summary{display:none}}
 @media(min-width:861px){.svc-bar{display:none!important}}
-.svc-card{border:1.5px solid var(--gray200);border-radius:12px;background:#fff;transition:border-color .2s,box-shadow .2s;cursor:pointer}
-.svc-card:hover,.svc-card.expanded{border-color:var(--blue);box-shadow:0 6px 24px rgba(37,99,235,.12)}
+.svc-card{position:relative;border:1.5px solid var(--gray200);border-radius:12px;background:#fff;transition:border-color .2s,box-shadow .2s;cursor:pointer}
+.svc-card:hover,.svc-card.expanded{border-color:var(--blue);box-shadow:0 6px 24px rgba(37,99,235,.12);z-index:20}
 .svc-card.sel{border-color:var(--blue)}
 .svc-card-head{padding:14px 16px;display:flex;align-items:center;gap:13px}
 .svc-card-icon{width:40px;height:40px;border-radius:10px;background:var(--blue-light);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--blue)}
@@ -227,8 +227,13 @@ button{font-family:inherit}
 .svc-chevron{width:20px;height:20px;color:var(--gray400);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:transform .25s}
 .svc-chevron svg{width:15px;height:15px}
 .svc-card.expanded .svc-chevron{transform:rotate(180deg)}
-.svc-card-body{display:none;padding:0 16px 16px;border-top:1px solid var(--gray100)}
-.svc-card.expanded .svc-card-body{display:block}
+.svc-card-body{display:none;padding:14px 16px 16px;border-top:1px solid var(--gray100)}
+.svc-card.expanded .svc-card-body{
+  display:block;position:absolute;top:100%;left:0;right:0;background:#fff;
+  border:1.5px solid var(--blue);border-top:1px solid var(--gray100);
+  border-radius:0 0 12px 12px;box-shadow:0 16px 34px rgba(28,46,68,.16);
+}
+@media(max-width:760px){.svc-card.expanded .svc-card-body{position:static;box-shadow:none;border:none;border-top:1px solid var(--gray100)}}
 .svc-card-desc{font-size:.82rem;color:var(--gray600);line-height:1.6;margin:14px 0}
 .svc-incl-title{font-size:.71rem;font-weight:700;color:var(--gray400);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
 .svc-incl-item{display:flex;align-items:flex-start;gap:8px;font-size:.8rem;color:var(--gray600);line-height:1.5;margin-bottom:5px}
@@ -249,7 +254,7 @@ button{font-family:inherit}
 `
 
   const cardsHtml = services.map(s => `
-    <div class="svc-card" id="card-${s.id}" data-id="${s.id}" onclick="svcExpand(event,'${s.id}')">
+    <div class="svc-card" id="card-${s.id}" data-id="${s.id}" onclick="svcExpand(event,'${s.id}')" onmouseenter="svcHoverOpen('${s.id}')" onmouseleave="svcHoverClose('${s.id}')">
       <div class="svc-card-head">
         <div class="svc-card-icon">${svgIcons[s.icon] || svgIcons['file-text']}</div>
         <div class="svc-card-title-wrap">
@@ -397,6 +402,9 @@ button{font-family:inherit}
     if (idx === -1) cart.push(id); else cart.splice(idx, 1);
     persist();
     render();
+    // Cierra el box al agregar/quitar — mismo comportamiento que opabiz.com/servicios.
+    var card = document.getElementById('card-' + id);
+    if (card) card.classList.remove('expanded');
   };
 
   window.svcExpand = function(e, id){
@@ -406,6 +414,18 @@ button{font-family:inherit}
     var wasExpanded = card.classList.contains('expanded');
     document.querySelectorAll('.svc-card.expanded').forEach(function(c){ c.classList.remove('expanded'); });
     if (!wasExpanded) card.classList.add('expanded');
+  };
+
+  // Abre/cierra al pasar el mouse (desktop) — mismo comportamiento que
+  // opabiz.com/servicios. svcExpand (clic/chevron) sigue funcionando para
+  // touch, donde no hay hover.
+  window.svcHoverOpen = function(id){
+    var card = document.getElementById('card-' + id);
+    if (card) card.classList.add('expanded');
+  };
+  window.svcHoverClose = function(id){
+    var card = document.getElementById('card-' + id);
+    if (card) card.classList.remove('expanded');
   };
 
   window.svcContinue = function(){
