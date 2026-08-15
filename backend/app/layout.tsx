@@ -85,13 +85,6 @@ export async function generateMetadata(): Promise<Metadata> {
         canonical: FBFC_URL,
         languages: { "en-US": FBFC_URL, "es-US": `${FBFC_URL}/es` },
       },
-      icons: {
-        icon: [
-          { url: "/favicon.ico", sizes: "any" },
-          { url: "/icon.png", type: "image/png", sizes: "32x32" },
-        ],
-        apple: [{ url: "/apple-icon.png", sizes: "180x180" }],
-      },
     };
   }
 
@@ -161,13 +154,6 @@ export async function generateMetadata(): Promise<Metadata> {
         "es-US": `${BASE_URL}/es`,
       },
     },
-    icons: {
-      icon: [
-        { url: "/favicon.ico", sizes: "any" },
-        { url: "/icon.png", type: "image/png", sizes: "32x32" },
-      ],
-      apple: [{ url: "/apple-icon.png", sizes: "180x180" }],
-    },
   };
 }
 
@@ -179,6 +165,13 @@ export default async function RootLayout({
   const headersList = await headers()
   const country = (headersList.get('x-vercel-ip-country') ?? '').toUpperCase()
   const showCookieBanner = EU_COUNTRIES.has(country)
+  // Geo-targeted consent defaults: EU arranca DENIED (GDPR exige opt-in
+  // explicito, se abre el banner y el usuario decide). Resto (US/LATAM/etc)
+  // arranca GRANTED — CCPA y equivalentes usan modelo opt-OUT, no opt-in,
+  // asi que trackear por default es legal y es lo que hacen los sites del
+  // segmento (LegalZoom, Bizee, etc). Sin este condicional, US quedaba en
+  // DENIED sin banner para cambiarlo -> GA4 recibia cero data.
+  const consentDefault = showCookieBanner ? 'denied' : 'granted'
 
   return (
     <html lang="en" className={`${jakarta.variable} ${fraunces.variable}`}>
@@ -186,19 +179,19 @@ export default async function RootLayout({
         {/* Fonts cargadas via next/font/google (ver imports arriba).
             Next.js inyecta automáticamente <link rel="preload"> con la fuente
             self-hosted antes del primer paint. Cero FOUT, cero CLS. */}
-        {/* Google Consent Mode v2 — DEFAULT DENY antes de que cargue gtag.js.
-            Cuando el usuario decida en el banner, dispatch update via lib/consent.ts.
-            Hasta entonces ningún tracker recibe nada (compliance CCPA/GDPR). */}
+        {/* Google Consent Mode v2 — default geo-targeted (ver consentDefault
+            arriba). Cuando el usuario decida en el banner (EU), dispatch
+            update via lib/consent.ts. */}
         <Script id="gtag-consent-default" strategy="beforeInteractive">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             window.gtag = gtag;
             gtag('consent', 'default', {
-              analytics_storage: 'denied',
-              ad_storage: 'denied',
-              ad_user_data: 'denied',
-              ad_personalization: 'denied',
+              analytics_storage: '${consentDefault}',
+              ad_storage: '${consentDefault}',
+              ad_user_data: '${consentDefault}',
+              ad_personalization: '${consentDefault}',
               functionality_storage: 'granted',
               security_storage: 'granted',
               wait_for_update: 500
