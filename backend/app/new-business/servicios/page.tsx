@@ -149,6 +149,7 @@ const svgIcons: Record<string, string> = {
   archive: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="5" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/><line x1="10" y1="12" x2="14" y2="12"/></svg>',
   lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>',
   chevron: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>',
+  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
 }
 
 const services = Object.entries(SERVICES_CATALOG)
@@ -226,7 +227,8 @@ button{font-family:inherit}
 .svc-card-price span{font-weight:500;font-size:.68rem;color:var(--gray400)}
 .svc-chevron{width:20px;height:20px;color:var(--gray400);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:transform .25s}
 .svc-chevron svg{width:15px;height:15px}
-.svc-card.expanded .svc-chevron{transform:rotate(180deg)}
+.svc-card.expanded .svc-chevron:not(.added){transform:rotate(180deg)}
+.svc-chevron.added{color:#16a34a}
 .svc-card-body{display:none;padding:14px 16px 16px;border-top:1px solid var(--gray100)}
 .svc-card.expanded .svc-card-body{
   display:block;position:absolute;top:100%;left:0;right:0;background:#fff;
@@ -262,14 +264,14 @@ button{font-family:inherit}
           <div class="svc-card-sub"><span class="en">${s.subEn}</span><span class="es">${s.subEs}</span></div>
         </div>
         <div class="svc-card-price">$${s.price.toFixed(2)}${s.billing ? `<span> / ${s.billing === 'annual' ? '<span class="en">yr</span><span class="es">año</span>' : '<span class="en">mo</span><span class="es">mes</span>'}</span>` : ''}</div>
-        <div class="svc-chevron">${svgIcons.chevron}</div>
+        <div class="svc-chevron" id="chev-${s.id}">${svgIcons.chevron}</div>
       </div>
       <div class="svc-card-body">
         <p class="svc-card-desc"><span class="en">${s.descEn}</span><span class="es">${s.descEs}</span></p>
         <div class="svc-incl-title"><span class="en">What's included</span><span class="es">Qué incluye</span></div>
         ${s.incEn.map((inc, idx) => `<div class="svc-incl-item"><span class="svc-incl-check">&#10003;</span><span class="en">${inc}</span><span class="es">${s.incEs[idx]}</span></div>`).join('')}
-        <button class="svc-add" onclick="event.stopPropagation();svcToggle('${s.id}')">
-          <span class="en">Add to order</span><span class="es">Agregar al pedido</span>
+        <button class="svc-add" id="btn-${s.id}" onclick="event.stopPropagation();svcToggle('${s.id}')">
+          <span class="svc-add-lbl en">Add to order</span><span class="svc-add-lbl es">Agregar al pedido</span>
         </button>
       </div>
     </div>`).join('')
@@ -349,6 +351,8 @@ button{font-family:inherit}
 (function(){
   var PRICES = ${JSON.stringify(Object.fromEntries(services.map(s => [s.id, s.price])))};
   var NAMES = ${JSON.stringify(Object.fromEntries(services.map(s => [s.id, { en: s.nameEn, es: s.nameEs }])))};
+  var CHEVRON_SVG = ${JSON.stringify(svgIcons.chevron)};
+  var CHECK_SVG = ${JSON.stringify(svgIcons.check)};
   var cart = [];
   try { cart = JSON.parse(localStorage.getItem('flbc_svc_cart') || '[]'); if (!Array.isArray(cart)) cart = []; } catch(e) { cart = []; }
 
@@ -393,6 +397,17 @@ button{font-family:inherit}
       card.classList.toggle('sel', isSel);
       var btn = card.querySelector('.svc-add');
       if (btn) btn.classList.toggle('added', isSel);
+      // Etiqueta del botón: "Add to order" -> "✓ Added" (mismo patrón que
+      // opabiz.com/servicios) — para que quede claro que ya está en el
+      // carrito (ej. los 3 de new-business, ya agregados de entrada).
+      var lblEn = document.querySelector('#btn-' + id + ' .svc-add-lbl.en');
+      var lblEs = document.querySelector('#btn-' + id + ' .svc-add-lbl.es');
+      if (lblEn) lblEn.textContent = isSel ? '✓ Added' : 'Add to order';
+      if (lblEs) lblEs.textContent = isSel ? '✓ Agregado' : 'Agregar al pedido';
+      // Reemplaza la flecha de expandir por un check verde cuando ya está
+      // agregado — la tarjeta sigue abriendo con hover/clic igual.
+      var chev = document.getElementById('chev-' + id);
+      if (chev) { chev.innerHTML = isSel ? CHECK_SVG : CHEVRON_SVG; chev.classList.toggle('added', isSel); }
     });
     renderSidebar();
   }
