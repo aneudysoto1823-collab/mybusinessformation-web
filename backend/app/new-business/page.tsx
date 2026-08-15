@@ -543,9 +543,15 @@ const CSS = `
   .step-next.primary:hover { background: #EFF6FF; }
 
   /* ── CHECKOUT BOX ── */
-  .co-box {
+  .co-box-wrap {
     width: 400px;
     flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .co-box {
+    width: 100%;
     background: #fff;
     border: 1px solid #e2e8f0;
     border-radius: 16px;
@@ -655,7 +661,8 @@ const CSS = `
 
   @media (max-width: 960px) {
     .form-body { flex-direction: column; }
-    .co-box { width: 100%; position: static; }
+    .co-box-wrap { width: 100%; }
+    .co-box { position: static; }
     .svc-section { padding: 36px 20px 28px; }
     .form-section { padding: 36px 20px 52px; }
   }
@@ -2122,6 +2129,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                     izquierda (junto a lo que el cliente revisa) para
                     equilibrar la altura de las columnas — acá solo queda el
                     pago. En los demás pasos sigue siendo el resumen completo. */}
+                <div className="co-box-wrap">
                 <div className="co-box">
                   {step === 4 ? (
                     <>
@@ -2160,14 +2168,15 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                     </>
                   )}
                 </div>
+                <a
+                  href="/servicios"
+                  className="step-next"
+                  style={{ width:'100%', justifyContent:'center', textDecoration:'none' }}
+                >
+                  {lang === 'es' ? 'Ver Todos los Servicios' : 'View All Services'}
+                </a>
+                </div>
               </div>
-              <a
-                href="/servicios"
-                className="step-next"
-                style={{ width:'100%', justifyContent:'center', marginTop:12, textDecoration:'none' }}
-              >
-                {lang === 'es' ? 'Ver Todos los Servicios' : 'View All Services'}
-              </a>
             </div>
           </section>
 
