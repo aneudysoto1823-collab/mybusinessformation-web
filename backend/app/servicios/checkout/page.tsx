@@ -854,19 +854,19 @@ function coRestoreSimple(o){ Object.keys(o).forEach(function(id){ var el=$(id); 
 // ── Lookup de empresa existente ─────────────────────────────────────────────
 function coRevealManual(){ $('co-company-card').style.display=''; var mt=$('co-manual-toggle'); if(mt) mt.style.display='none'; }
 function coToggleManual(){ coRevealManual(); }
-function coLookupCompany(){
+function coLookupCompany(silent){
   var doc=($('f-flDoc').value||'').trim().toUpperCase();
   var st=$('f-flDoc-status'); var isEs=coIsEs();
-  if(doc.length<5){ if(st) st.innerHTML='<span style="color:#dc2626">'+(isEs?'Ingresa un número de registro válido.':'Enter a valid registration number.')+'</span>'; return; }
-  if(st) st.innerHTML='<span style="color:#64748b">'+(isEs?'Buscando en Sunbiz...':'Searching Sunbiz...')+'</span>';
+  if(doc.length<5){ if(st&&!silent) st.innerHTML='<span style="color:#dc2626">'+(isEs?'Ingresa un número de registro válido.':'Enter a valid registration number.')+'</span>'; return; }
+  if(st&&!silent) st.innerHTML='<span style="color:#64748b">'+(isEs?'Buscando en Sunbiz...':'Searching Sunbiz...')+'</span>';
   var btn=$('co-lookup-btn'); if(btn) btn.disabled=true;
   fetch('/api/sunbiz/company?document_number='+encodeURIComponent(doc)).then(function(r){return r.json().then(function(d){return {ok:r.ok,status:r.status,d:d};});}).then(function(res){
     if(btn) btn.disabled=false;
     if(res.status===404||!res.d.company){
-      if(st) st.innerHTML='<span style="color:#dc2626">'+(isEs?'No encontramos esa empresa. Ingresa los datos manualmente abajo.':'Company not found. Enter the details manually below.')+'</span>';
+      if(st) st.innerHTML=silent?'':'<span style="color:#dc2626">'+(isEs?'No encontramos esa empresa. Ingresa los datos manualmente abajo.':'Company not found. Enter the details manually below.')+'</span>';
       coRevealManual(); return;
     }
-    if(!res.ok){ if(st) st.innerHTML='<span style="color:#dc2626">'+((res.d&&res.d.error)||(isEs?'Error en la búsqueda.':'Lookup error.'))+'</span>'; return; }
+    if(!res.ok){ if(st&&!silent) st.innerHTML='<span style="color:#dc2626">'+((res.d&&res.d.error)||(isEs?'Error en la búsqueda.':'Lookup error.'))+'</span>'; return; }
     var c=res.d.company;
     $('f-legalName').value=c.entity_name||'';
     $('f-entityType').value=(c.entity_type_normalized==='CORP'?'corp':'llc');
@@ -876,6 +876,13 @@ function coLookupCompany(){
     $('f-zip').value=c.principal_zip||'';
     if($('f-country')) $('f-country').value='United States';
     if(st) st.innerHTML='';
+    if(silent){
+      // Handoff silencioso desde new-business: se salta la franja verde de
+      // confirmación (info ya vista ahí) y se muestran directo los campos
+      // editables ya autollenados, igual que el flujo de formación de opabiz.com.
+      coRevealManual();
+      return;
+    }
     var addr=[c.principal_address,c.principal_city,c.principal_state,c.principal_zip].filter(Boolean).join(', ');
     var found=$('co-company-found'); found.style.display='';
     found.innerHTML='<div class="co-found-name">&#10003; '+(c.entity_name||'')+'</div>'
@@ -885,7 +892,7 @@ function coLookupCompany(){
       +'<button type="button" class="co-edit-link" onclick="coRevealManual()">'+(isEs?'Editar datos de la empresa':'Edit company details')+'</button>';
     var mt=$('co-manual-toggle'); if(mt) mt.style.display='none';
     $('co-company-card').style.display='none';
-  }).catch(function(){ if(btn) btn.disabled=false; if(st) st.innerHTML='<span style="color:#dc2626">'+(isEs?'Error de conexión.':'Connection error.')+'</span>'; });
+  }).catch(function(){ if(btn) btn.disabled=false; if(st&&!silent) st.innerHTML='<span style="color:#dc2626">'+(isEs?'Error de conexión.':'Connection error.')+'</span>'; });
 }
 
 function coGetIntake(){
@@ -1840,7 +1847,7 @@ function coRetryPayment(){ coPrefetch=null; coStartPayment(); }
     // el cliente manualmente.
     if (coCompanyPrefill && coCompanyPrefill.documentId && !coFormationType()) {
       var _flDoc = $('f-flDoc');
-      if (_flDoc) { _flDoc.value = coCompanyPrefill.documentId; coLookupCompany(); }
+      if (_flDoc) { _flDoc.value = coCompanyPrefill.documentId; coLookupCompany(true); }
     }
   }
 })();
