@@ -428,13 +428,6 @@ var coLang = 'es';
 var SVC_EXTRAS = ${JSON.stringify(SERVICE_FIELDS)};
 var SHARED_CFG = ${JSON.stringify(SHARED_FIELDS)};
 var SVC_CATALOG = ${JSON.stringify(svcCatalogForClient)};
-// Precios BASE (sin el override de marca — ej. EIN $99, no $161 en FBFC).
-// Los combos (bundle-docs-oa-ein $149, bundle-docs-full $189, etc.) se
-// calibraron asumiendo estos precios base. Si el crédito de "ya lo tienes"
-// (coRenderHub) usara el precio de marca en vez de este, un EIN ya agregado
-// a $161 le da al combo más crédito del que vale, y el precio del combo
-// queda en $0 o negativo (bug real 2026-08-15, ver coRenderHub).
-var SVC_CATALOG_BASE = ${JSON.stringify(SERVICES_CATALOG)};
 var BUNDLES_CLIENT = ${JSON.stringify(SERVICE_BUNDLES)};
 var EXPED_FEE = ${EXPEDITED_FEE};
 
@@ -457,6 +450,13 @@ try { var _cf = localStorage.getItem('flbc_svc_company'); if (_cf) coCompanyPref
 // Bundles (combos) elegidos en los hubs de 3 tiers. Persisten junto al carrito.
 var coBundles = [];
 try { coBundles = JSON.parse(localStorage.getItem('flbc_svc_bundles')||'[]'); if(!Array.isArray(coBundles)) coBundles=[]; } catch(e){ coBundles=[]; }
+// Qué servicios agregó cada bundle REALMENTE de nuevo al carrito (excluye los
+// que el cliente ya traía sueltos antes de elegirlo) — {bundleId:[svcIds]}.
+// Es la fuente de verdad tanto para el precio dinámico (ver coBundlePrice)
+// como para saber qué quitar del carrito si se cambia/deselecciona el combo
+// (coClearHub) sin tocar las compras sueltas independientes del cliente.
+var coBundleAdded = {};
+try { coBundleAdded = JSON.parse(localStorage.getItem('flbc_svc_bundle_added')||'{}'); if(!coBundleAdded||typeof coBundleAdded!=='object') coBundleAdded={}; } catch(e){ coBundleAdded={}; }
 // Procesamiento acelerado (una vez por orden, aplica a toda la orden).
 var coExpedited = true; // oferta pre-seleccionada (recomendado); el cliente puede declinar
 try { var _rawExp=localStorage.getItem('flbc_svc_expedited'); coExpedited = (_rawExp===null ? true : _rawExp==='1'); } catch(e){ coExpedited=true; }
@@ -465,7 +465,7 @@ try { var _rawExp=localStorage.getItem('flbc_svc_expedited'); coExpedited = (_ra
 // panel-expedited) — evita que aparezca como un cargo sorpresa desde el paso 1
 // solo porque coExpedited viene pre-seleccionado en true por defecto.
 var coExpeditedSeen = false;
-function coSaveCart(){ try{ localStorage.setItem('flbc_svc_cart',JSON.stringify(cart)); localStorage.setItem('flbc_svc_bundles',JSON.stringify(coBundles)); localStorage.setItem('flbc_svc_expedited',coExpedited?'1':'0'); }catch(e){} }
+function coSaveCart(){ try{ localStorage.setItem('flbc_svc_cart',JSON.stringify(cart)); localStorage.setItem('flbc_svc_bundles',JSON.stringify(coBundles)); localStorage.setItem('flbc_svc_bundle_added',JSON.stringify(coBundleAdded)); localStorage.setItem('flbc_svc_expedited',coExpedited?'1':'0'); }catch(e){} }
 // Id de la orden ya creada en esta sesión (ver coCreateSessionReq) — se manda
 // de vuelta en cada llamada siguiente para que el servidor actualice esa
 // misma fila en vez de insertar una nueva cada vez que se edita/reintenta.
@@ -919,7 +919,7 @@ function coGetIntake(){
       city:($('p-city')?$('p-city').value.trim():''), state:($('p-state')?$('p-state').value.trim():''),
       zip:($('p-zip')?$('p-zip').value.trim():'')
     },
-    signature:sig, authorizedByPayment:true, expedited:coExpedited, extras:coCollectExtras(), shared:coCollectShared(), bundles:coBundles.slice()
+    signature:sig, authorizedByPayment:true, expedited:coExpedited, extras:coCollectExtras(), shared:coCollectShared(), bundles:coBundles.slice(), newServicesByBundle:JSON.parse(JSON.stringify(coBundleAdded))
   };
 }
 
@@ -1238,14 +1238,36 @@ function coTierBullets(svcIds, owned){
   });
   return out;
 }
+// Servicios "pre-poseídos" de un hub: ya están en el carrito pero NO porque un
+// combo de ESTE hub actualmente seleccionado los haya agregado (ej. comprados
+// sueltos antes, o traídos desde new-business) — a esos se les respeta su
+// compra individual y NUNCA se tocan al elegir/cambiar de combo.
+function coComputePreOwned(hub){
+  var cfg=(hub==='protect') ? coProtectConfig() : HUBS[hub];
+  var addedBySel={};
+  coBundles.forEach(function(x){ if(BUNDLE_HUB[x]===hub){ (coBundleAdded[x]||[]).forEach(function(s){ addedBySel[s]=1; }); } });
+  var preOwned={};
+  cfg.services.forEach(function(s){ if(cart.indexOf(s)>=0 && !addedBySel[s]) preOwned[s]=1; });
+  return preOwned;
+}
+// Precio de un combo dado qué de sus servicios está agregando de NUEVO
+// (newIds) — espeja computeBundlePrice de lib/services-pricing.ts. Si aporta
+// todos, precio fijo de marketing; si aporta solo algunos (el resto ya estaba
+// en el carrito como compra suelta), precio dinámico: solo lo nuevo con 10%
+// off. Así nunca puede degradarse a un remanente absurdo tipo "+$11" (bug
+// real 2026-08-17, ver founder screenshot).
+function coBundlePrice(bid, newIds){
+  var b=BUNDLES_CLIENT[bid]; if(!b) return 0;
+  var claimed=(newIds||[]).filter(function(s){ return b.services.indexOf(s)>=0; });
+  if(!claimed.length) return 0;
+  if(claimed.length===b.services.length) return b.price;
+  var fee=0; claimed.forEach(function(s){ var sv=SVC_CATALOG[s]; if(sv) fee+=sv.serviceFee; });
+  return Math.round(fee*0.9);
+}
 function coRenderHub(hub){
   var panel=$(HUBS[hub].panel); if(!panel) return; var isEs=coIsEs();
   var cfg=(hub==='protect') ? coProtectConfig() : HUBS[hub];
-  // Servicios "pre-poseídos": están en el carrito pero NO por un combo seleccionado
-  // de ESTE hub (ej. agregados à la carte antes). Solo a ESOS se les acredita el
-  // precio. Así, elegir un tier del hub NO borra los otros ni descuenta de más.
-  var coveredSel={}; coBundles.forEach(function(x){ if(BUNDLE_HUB[x]===hub){ var bb=BUNDLES_CLIENT[x]; if(bb) bb.services.forEach(function(s){ coveredSel[s]=1; }); } });
-  var preOwned={}; cfg.services.forEach(function(s){ if(cart.indexOf(s)>=0 && !coveredSel[s]) preOwned[s]=1; });
+  var preOwned=coComputePreOwned(hub);
   // Se ocultan las columnas que no sumarían nada nuevo (todo lo suyo ya está en
   // el carrito) — evita una columna redundante mostrando "$0" junto al total
   // que ya se ve en el resumen. Puede dejar 1 o 2 columnas en vez de 3 si el
@@ -1258,19 +1280,20 @@ function coRenderHub(hub){
   var tiers=renderTiers.map(function(bid, i){
     var b=BUNDLES_CLIENT[bid];
     var sel=(coBundles.indexOf(bid)>=0);
-    var owned={}, ownedFee=0;
-    b.services.forEach(function(s){ if(preOwned[s]){ owned[s]=1; var sv=SVC_CATALOG_BASE[s]; if(sv) ownedFee+=sv.serviceFee; } });
-    var price=Math.max(0, b.price-ownedFee);          // marginal: crédito de lo pre-poseído
-    var newIndiv=0; b.services.forEach(function(s){ if(!owned[s]){ var sv=SVC_CATALOG[s]; if(sv) newIndiv+=sv.serviceFee; } });
+    var owned={}; b.services.forEach(function(s){ if(preOwned[s]) owned[s]=1; });
+    var newIds=b.services.filter(function(s){ return !owned[s]; });
+    var partial=newIds.length>0 && newIds.length<b.services.length;
+    var price=coBundlePrice(bid, newIds);
+    var newIndiv=0; newIds.forEach(function(s){ var sv=SVC_CATALOG[s]; if(sv) newIndiv+=sv.serviceFee; });
     var save=newIndiv-price;
-    var cad={}, ncad=0; b.services.forEach(function(s){ var sv=SVC_CATALOG[s]; if(sv&&sv.billing){ if(!cad[sv.billing]){cad[sv.billing]=1;ncad++;} } });
+    var cad={}, ncad=0; newIds.forEach(function(s){ var sv=SVC_CATALOG[s]; if(sv&&sv.billing){ if(!cad[sv.billing]){cad[sv.billing]=1;ncad++;} } });
     var priceSuf=ncad===1?coBillingSuffix(Object.keys(cad)[0]):'';
     var best=(i===renderTiers.length-1);
-    var pfx=ownedFee>0?'+':'';
     return '<div class="co-tier'+(best?' best':'')+(sel?' sel':'')+'" style="cursor:pointer" onclick="coSelectTier(\''+hub+'\',\''+bid+'\')">'
       +(best?'<div class="co-tier-badge">'+(isEs?'Mejor valor':'Best value')+'</div>':'')
       +'<div class="co-tier-name">'+(isEs?b.name_es:b.name_en)+'</div>'
-      +'<div class="co-tier-price">'+pfx+'$'+price+'</div>'+(priceSuf?'<div style="font-size:.72rem;color:#64748b;font-weight:600;margin-top:-4px">'+priceSuf+'</div>':'')
+      +'<div class="co-tier-price">$'+price+'</div>'
+      +(partial?'<div style="font-size:.72rem;color:#64748b;font-weight:600;margin-top:-4px">'+(isEs?'por lo que te falta':'for what you\'re missing')+'</div>':(priceSuf?'<div style="font-size:.72rem;color:#64748b;font-weight:600;margin-top:-4px">'+priceSuf+'</div>':''))
       +(save>0?'<div class="co-tier-save">'+(isEs?'Ahorras $':'Save $')+save+'</div>':'<div style="height:10px"></div>')
       +'<div class="co-tier-incl">'+coTierBullets(b.services, owned)+'</div>'
       +'<button class="co-tier-btn" onclick="event.stopPropagation();coSelectTier(\''+hub+'\',\''+bid+'\')">'+(sel?(isEs?'&#10003; Seleccionado':'&#10003; Selected'):(isEs?'Seleccionar':'Select'))+'</button>'
@@ -1281,16 +1304,29 @@ function coRenderHub(hub){
     +'<div class="co-tiers">'+tiers+'</div>'
     +'<button type="button" class="co-hub-nothanks" onclick="coHubNoThanks(\''+hub+'\')">'+(isEs?'No, gracias':'No thanks')+'</button>';
 }
+// Solo quita lo que un bundle de este hub agregó de más (servicios nuevos que
+// trajo el combo) — las compras sueltas que el cliente ya tenía ANTES de
+// elegir el combo se quedan intactas, nunca se tocan ni se re-cobran.
 function coClearHub(hub){
-  var cfg=(hub==='protect') ? coProtectConfig() : HUBS[hub];
-  cart=cart.filter(function(id){ return cfg.services.indexOf(id)<0; });
+  coBundles.forEach(function(bid){
+    if(BUNDLE_HUB[bid]!==hub) return;
+    (coBundleAdded[bid]||[]).forEach(function(s){ var i=cart.indexOf(s); if(i>=0) cart.splice(i,1); });
+    delete coBundleAdded[bid];
+  });
   coBundles=coBundles.filter(function(b){ return BUNDLE_HUB[b]!==hub; });
 }
 function coSelectTier(hub, bundleId){
   var toggleOff=(coBundles.indexOf(bundleId)>=0);
+  var preOwned=coComputePreOwned(hub); // capturar ANTES de tocar el carrito
   coClearHub(hub);
   if(!toggleOff){
-    var b=BUNDLES_CLIENT[bundleId]; if(b){ b.services.forEach(function(s){ if(cart.indexOf(s)<0) cart.push(s); }); coBundles.push(bundleId); }
+    var b=BUNDLES_CLIENT[bundleId];
+    if(b){
+      var added=[];
+      b.services.forEach(function(s){ if(!preOwned[s] && cart.indexOf(s)<0){ cart.push(s); added.push(s); } });
+      coBundleAdded[bundleId]=added;
+      coBundles.push(bundleId);
+    }
   }
   coSaveCart();
   coRebuildTo(HUBS[hub].panel);
@@ -1325,16 +1361,23 @@ function coComputeTotal(){
   // Tarifas de servicio primero; las tarifas estatales se agrupan al final
   // (antes del total) en vez de intercaladas tras cada servicio.
   var lines=[], stateLines=[], total=0, isEs=coIsEs(), bundled={}, seenB={}, recurring=false;
-  // 1) Bundles primero (precio combo + tarifas estatales de sus servicios)
+  // 1) Bundles primero (precio combo + tarifas estatales de sus servicios).
+  // Solo los servicios que el combo agregó de nuevo (coBundleAdded) entran al
+  // precio del bundle — los que ya estaban en el carrito como compra suelta
+  // (preOwned al momento de seleccionar) se cobran individual más abajo, a su
+  // precio real, sin descuento — ver coSelectTier/coBundlePrice arriba.
   coBundles.forEach(function(bid){
     if(seenB[bid]) return; seenB[bid]=1; var b=BUNDLES_CLIENT[bid]; if(!b) return;
+    var newIds=(coBundleAdded[bid]||b.services).filter(function(s){ return b.services.indexOf(s)>=0; });
+    if(!newIds.length) return;
     // Cadencia del combo: una sola etiqueta si todos sus servicios recurrentes la
     // comparten; si hay mezcla va sin sufijo y el aviso lo explica.
-    var cad={}, ncad=0; b.services.forEach(function(sid){ var sv=SVC_CATALOG[sid]; if(sv&&sv.billing&&!cad[sv.billing]){ cad[sv.billing]=1; ncad++; } });
+    var cad={}, ncad=0; newIds.forEach(function(sid){ var sv=SVC_CATALOG[sid]; if(sv&&sv.billing&&!cad[sv.billing]){ cad[sv.billing]=1; ncad++; } });
     if(ncad>0) recurring=true;
     var bb=ncad===1?Object.keys(cad)[0]:'';
-    lines.push({label:isEs?b.name_es:b.name_en, amount:b.price, billing:bb}); total+=b.price;
-    b.services.forEach(function(sid){ bundled[sid]=1; var svc=SVC_CATALOG[sid]; if(svc&&svc.stateFee>0){ stateLines.push({label:(isEs?svc.name_es:svc.name_en), amount:svc.stateFee, state:true}); total+=svc.stateFee; } });
+    var price=coBundlePrice(bid, newIds);
+    lines.push({label:isEs?b.name_es:b.name_en, amount:price, billing:bb}); total+=price;
+    newIds.forEach(function(sid){ bundled[sid]=1; var svc=SVC_CATALOG[sid]; if(svc&&svc.stateFee>0){ stateLines.push({label:(isEs?svc.name_es:svc.name_en), amount:svc.stateFee, state:true}); total+=svc.stateFee; } });
   });
   // 2) Servicios individuales no cubiertos por un bundle
   var seen={};
@@ -1830,7 +1873,7 @@ function coRetryPayment(){ coPrefetch=null; coStartPayment(); }
   if(paid){
     var num=''; try{ num=localStorage.getItem('flbc_svc_order')||''; }catch(e){}
     $('co-success-num').textContent=num||'—';
-    try{ localStorage.removeItem('flbc_svc_cart'); localStorage.removeItem('flbc_svc_bundles'); localStorage.removeItem('flbc_svc_order'); localStorage.removeItem('flbc_svc_expedited'); localStorage.removeItem('flbc_svc_orderid'); localStorage.removeItem('flbc_svc_prefill'); localStorage.removeItem('flbc_svc_company'); }catch(e){}
+    try{ localStorage.removeItem('flbc_svc_cart'); localStorage.removeItem('flbc_svc_bundles'); localStorage.removeItem('flbc_svc_bundle_added'); localStorage.removeItem('flbc_svc_order'); localStorage.removeItem('flbc_svc_expedited'); localStorage.removeItem('flbc_svc_orderid'); localStorage.removeItem('flbc_svc_prefill'); localStorage.removeItem('flbc_svc_company'); }catch(e){}
     coShowScreen('co-success'); return;
   }
   if(!cart.length){ coShowScreen('co-empty'); return; }

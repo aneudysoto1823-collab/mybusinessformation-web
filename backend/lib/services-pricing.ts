@@ -97,6 +97,10 @@ export interface BundleDef {
   price: number
 }
 
+// Descuento aplicado a un bundle cuando el cliente ya trae ALGUNOS (no todos)
+// de sus servicios en el carrito antes de seleccionarlo — ver computeBundlePrice.
+export const BUNDLE_DISCOUNT_RATE = 0.10
+
 export const SERVICE_BUNDLES: Record<string, BundleDef> = {
   // Hub 1 — Documentos esenciales (después de Dueños)
   'bundle-docs-oa':     { name_en: 'Operating Agreement',                      name_es: 'Acuerdo Operativo',                            services: ['operating-agreement'], price: 79 },
@@ -119,6 +123,28 @@ export const SERVICE_BUNDLES: Record<string, BundleDef> = {
   // ya usan los demás combos de 2 servicios (bundle-protect-va-ar).
   'bundle-compliance-ra':    { name_en: 'Registered Agent',                    name_es: 'Agente Registrado',                           services: ['registered-agent'], price: 99 },
   'bundle-compliance-ra-ar': { name_en: 'Registered Agent + Annual Report',    name_es: 'Agente Registrado + Declaración Anual',       services: ['registered-agent', 'annual-report'], price: 179 },
+}
+
+/**
+ * Precio efectivo de un bundle dado qué de sus servicios el bundle realmente
+ * está agregando de NUEVO al carrito (allow-list, no exclude-list — ver nota
+ * de seguridad en computeServicesTotal). Si el bundle aporta TODOS sus
+ * servicios (nada pre-poseído), es el precio fijo de marketing (b.price, sin
+ * cambios de comportamiento). Si solo aporta ALGUNOS (el resto ya estaba en
+ * el carrito como compra suelta independiente), el precio pasa a ser
+ * dinámico: solo lo genuinamente nuevo, con el mismo ~10% de descuento que ya
+ * usan los combos de 2 servicios — así nunca puede degradarse a un remanente
+ * absurdo tipo "+$11" (bug real 2026-08-17: crédito del precio de lista
+ * restado de un precio de bundle fijo, que no escala con lo que falta).
+ */
+export function computeBundlePrice(bundleId: string, newServiceIds: string[], brand?: 'opabiz' | 'fbfc'): number {
+  const b = SERVICE_BUNDLES[bundleId]
+  if (!b) return 0
+  const claimedNew = new Set(newServiceIds.filter(s => b.services.includes(s)))
+  if (claimedNew.size === 0) return 0
+  if (claimedNew.size === b.services.length) return b.price
+  const fee = [...claimedNew].reduce((sum, s) => sum + getServiceFee(s, brand), 0)
+  return Math.round(fee * (1 - BUNDLE_DISCOUNT_RATE))
 }
 
 export interface PriceLine {
@@ -166,7 +192,7 @@ export function isExpeditedApplicable(serviceIds: string[], bundleIds: string[] 
   return [...serviceIds, ...bundledServices].some(id => (SERVICES_CATALOG[id]?.stateFee ?? 0) > 0)
 }
 
-export function computeServicesTotal(serviceIds: string[], bundleIds: string[] = [], expedited = false, lang: 'en' | 'es' = 'en', brand?: 'opabiz' | 'fbfc'): ServicesPrice {
+export function computeServicesTotal(serviceIds: string[], bundleIds: string[] = [], expedited = false, lang: 'en' | 'es' = 'en', brand?: 'opabiz' | 'fbfc', newServicesByBundle?: Record<string, string[]>): ServicesPrice {
   const isEs = lang === 'es'
   const stateFeeLabel = (name: string) => isEs ? `${name} — Tarifa Estatal de Florida` : `${name} — Florida State Fee`
   // Tarifas de servicio primero; las tarifas estatales se agrupan al final
@@ -177,20 +203,35 @@ export function computeServicesTotal(serviceIds: string[], bundleIds: string[] =
   let recurring = false
 
   // 1) Bundles primero (precio combo + tarifas estatales de sus servicios)
+  //
+  // ⚠️ Seguridad anti-tampering (2026-08-17): `newServicesByBundle` es un
+  // ALLOW-LIST de qué servicios del bundle está agregando de nuevo (no un
+  // exclude-list de "ya poseídos" — un exclude-list dejaría que un cliente
+  // manipulado reclame falsamente que ya tiene los ítems caros para llevarse
+  // el resto casi gratis, sin pagar esos ítems caros en ningún otro lado del
+  // pedido). Con el allow-list: todo lo que el bundle NO reclama como "nuevo"
+  // simplemente cae al paso 2 de abajo y se cobra individual a precio de
+  // catálogo completo — mentir sobre qué es "nuevo" nunca puede bajar el
+  // total, en el peor caso solo pierde el descuento del combo en esos ítems.
   const seenBundle = new Set<string>()
   for (const bid of bundleIds) {
     if (seenBundle.has(bid)) continue
     seenBundle.add(bid)
     const b = SERVICE_BUNDLES[bid]
     if (!b) continue
+    // Sin newServicesByBundle (compat con llamadas viejas): se asume el bundle
+    // completo, igual que el comportamiento original.
+    const claimedNew = (newServicesByBundle?.[bid] ?? b.services).filter(s => b.services.includes(s) && serviceIds.includes(s))
+    if (claimedNew.length === 0) continue // nada que este bundle aporte — sus servicios (si están en el pedido) se cobran individual abajo
     // Cadencia del combo: si todos sus servicios recurrentes comparten una sola
     // cadencia, se etiqueta así; si hay mezcla (ej. mensual + anual), va sin
     // sufijo y el aviso de autorrenovación explica el detalle.
-    const cadences = new Set(b.services.map(s => SERVICES_CATALOG[s]?.billing).filter(Boolean))
+    const cadences = new Set(claimedNew.map(s => SERVICES_CATALOG[s]?.billing).filter(Boolean))
     if (cadences.size > 0) recurring = true
     const bundleBilling = cadences.size === 1 ? [...cadences][0] as 'monthly' | 'annual' : undefined
-    lines.push({ label: isEs ? b.name_es : b.name_en, amount: b.price, billing: bundleBilling })
-    for (const s of b.services) {
+    const price = computeBundlePrice(bid, claimedNew, brand)
+    lines.push({ label: isEs ? b.name_es : b.name_en, amount: price, billing: bundleBilling })
+    for (const s of claimedNew) {
       bundled.add(s)
       const svc = SERVICES_CATALOG[s]
       if (svc && svc.stateFee > 0) {

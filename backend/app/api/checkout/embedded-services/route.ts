@@ -35,6 +35,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Too many services.' }, { status: 400 })
     }
 
+    // Qué servicios de cada combo está agregando de NUEVO (allow-list) — el
+    // resto de sus servicios, si el cliente ya los traía sueltos en el
+    // carrito antes de elegir el combo, se cobran individual a precio de
+    // catálogo completo (ver nota de seguridad en computeServicesTotal, y
+    // computeBundlePrice en lib/services-pricing.ts).
+    const rawNewByBundle = (intake.newServicesByBundle && typeof intake.newServicesByBundle === 'object') ? intake.newServicesByBundle : {}
+    const newServicesByBundle: Record<string, string[]> = {}
+    for (const bid of bundleIds) {
+      const arr = rawNewByBundle[bid]
+      if (Array.isArray(arr)) newServicesByBundle[bid] = arr.filter((s: unknown) => typeof s === 'string')
+    }
+
     // Validar datos mínimos de contacto
     const firstName = String(intake.firstName || '').trim()
     const lastName = String(intake.lastName || '').trim()
@@ -58,7 +70,7 @@ export async function POST(req: NextRequest) {
     const sourceDomain: 'opabiz' | 'fbfc' = origin.includes('mybusinessformation.com') ? 'fbfc' : 'opabiz'
 
     const expedited = intake.expedited === true
-    const { cents, lines, total } = computeServicesTotal(uniqueIds, bundleIds, expedited, lang, sourceDomain)
+    const { cents, lines, total } = computeServicesTotal(uniqueIds, bundleIds, expedited, lang, sourceDomain, newServicesByBundle)
     if (cents < 50) {
       return NextResponse.json({ error: isEs ? 'Monto inválido.' : 'Invalid amount.' }, { status: 400 })
     }
