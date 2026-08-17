@@ -13,6 +13,23 @@ import { SERVICES_CATALOG, getServiceFee } from '@/lib/services-pricing'
 const NB_TO_CATALOG_ID: Record<string, string> = { labor_law: 'labor-law-poster', ein: 'ein', certificate: 'certificate-of-status' }
 const CATALOG_TO_NB_ID: Record<string, string> = { 'labor-law-poster': 'labor_law', ein: 'ein', 'certificate-of-status': 'certificate' }
 
+// "Recomendado para ti" en el Review (2026-08-17) — Agente Registrado y
+// Dirección Virtual son los 2 servicios que el founder más quiere vender;
+// se ofrecen directo acá en vez de depender de que el cliente visite
+// /servicios para verlos. Ambos son un solo servicio (sin bundle/descuento
+// de combo que calcular) — se agregan al mismo extraCart compartido.
+const RECOMMENDED_IDS = ['registered-agent', 'virtual-address']
+const RECOMMENDED_BLURB: Record<string, { en: string; es: string }> = {
+  'registered-agent': {
+    en: 'Receives legal documents on your behalf — required by law for every Florida LLC and Corp.',
+    es: 'Recibe documentos legales en tu nombre — obligatorio por ley para toda LLC y Corporation de Florida.',
+  },
+  'virtual-address': {
+    en: 'Professional Florida business address — keeps your home address private.',
+    es: 'Dirección comercial profesional en Florida — mantiene tu dirección personal privada.',
+  },
+}
+
 type Company = {
   document_id: string
   company_name: string
@@ -1092,6 +1109,20 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
       extras['ein.hasForm720'] = form.hasForm720 === 'yes' ? 'Yes' : 'No'
       extras['ein.hasAlcohol'] = form.hasAlcohol === 'yes' ? 'Yes' : 'No'
     }
+    // Combos (bundles) elegidos en /servicios/checkout, si el cliente pasó por
+    // ahí antes de volver a pagar desde new-business — sin esto, esos servicios
+    // llegaban igual en `services` (ya hidratados en extraCart desde el mismo
+    // flbc_svc_cart compartido) pero el servidor los cobraba a precio individual
+    // completo, sin el descuento del combo que se le mostró antes (bug real,
+    // auditoría 2026-08-17).
+    let bundles: string[] = []
+    let newServicesByBundle: Record<string, string[]> = {}
+    try {
+      const rawBundles = localStorage.getItem('flbc_svc_bundles')
+      if (rawBundles) { const b = JSON.parse(rawBundles); if (Array.isArray(b)) bundles = b }
+      const rawAdded = localStorage.getItem('flbc_svc_bundle_added')
+      if (rawAdded) { const a = JSON.parse(rawAdded); if (a && typeof a === 'object') newServicesByBundle = a }
+    } catch { /* noop */ }
     return {
       firstName: form.firstName, lastName: form.lastName, email: form.email, phone: form.phone,
       entityType: 'llc',
@@ -1099,7 +1130,8 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
       street: form.address, city: form.city, zip: form.zip, country: 'US',
       extras,
       shared: selected.has('ein') ? { ssnItin: form.ssnItin } : {},
-      bundles: [],
+      bundles,
+      newServicesByBundle,
     }
   }
 
@@ -2090,6 +2122,47 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                         </div>
                       )}
 
+                      {/* Recomendado para ti — Agente Registrado y Dirección
+                          Virtual ofrecidos directo acá en el Review, sin que
+                          el cliente tenga que pasar por /servicios para
+                          verlos (decisión founder 2026-08-17: son los 2
+                          servicios que más interesa vender). Toggle simple
+                          sobre el mismo extraCart compartido con /servicios —
+                          ninguno usa bundle (cada uno es un solo servicio, sin
+                          descuento de combo que calcular). */}
+                      <div style={{ marginBottom:12, background:'#eff6ff', borderRadius:10, padding:'14px 16px', border:'1px solid #bfdbfe' }}>
+                        <div style={{ fontSize:'.78rem', fontWeight:700, color:'#2563EB', textTransform:'uppercase', letterSpacing:'.05em', marginBottom:10 }}>
+                          {lang === 'es' ? 'Recomendado para ti' : 'Recommended for you'}
+                        </div>
+                        {RECOMMENDED_IDS.map((id, i) => {
+                          const svc = SERVICES_CATALOG[id]
+                          if (!svc) return null
+                          const added = extraCart.includes(id)
+                          const price = getServiceFee(id, 'fbfc')
+                          const blurb = RECOMMENDED_BLURB[id]
+                          return (
+                            <div key={id} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:10, padding:'8px 0', borderTop: i > 0 ? '1px solid #dbeafe' : 'none' }}>
+                              <div>
+                                <div style={{ fontSize:'.85rem', fontWeight:600, color:'#1B3A6B' }}>{lang === 'es' ? svc.name_es : svc.name_en}</div>
+                                {blurb && <div style={{ fontSize:'.76rem', color:'#64748b', marginTop:1 }}>{lang === 'es' ? blurb.es : blurb.en}</div>}
+                              </div>
+                              <button
+                                onClick={() => setExtraCart(prev => added ? prev.filter(x => x !== id) : [...prev, id])}
+                                style={{
+                                  flexShrink: 0, fontSize: '.76rem', fontWeight: 700, borderRadius: 6, padding: '6px 12px',
+                                  cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap',
+                                  border: added ? '1px solid #16a34a' : '1px solid #2563EB',
+                                  color: added ? '#16a34a' : '#2563EB',
+                                  background: added ? '#f0fdf4' : '#fff',
+                                }}
+                              >
+                                {added ? (lang === 'es' ? '✓ Agregado' : '✓ Added') : `+$${price} · ${lang === 'es' ? 'Agregar' : 'Add'}`}
+                              </button>
+                            </div>
+                          )
+                        })}
+                      </div>
+
                       {/* Order — reubicado acá (en vez del sidebar) para que
                           quede junto al resto de lo que el cliente revisa
                           antes de pagar, y para equilibrar la altura de las
@@ -2114,6 +2187,16 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                             <span style={{ color:'#1B3A6B', fontWeight:500, whiteSpace:'nowrap' }}>${svc.price.toFixed(2)}</span>
                           </div>
                         ))}
+                        {extraCart.map(id => {
+                          const svc = SERVICES_CATALOG[id]
+                          if (!svc) return null
+                          return (
+                            <div key={id} style={{ display:'flex', justifyContent:'space-between', gap:8, padding:'4px 0', borderTop:'1px solid #f1f5f9', fontSize:'.83rem' }}>
+                              <span style={{ color:'#374151' }}>{lang === 'es' ? svc.name_es : svc.name_en}</span>
+                              <span style={{ color:'#1B3A6B', fontWeight:500, whiteSpace:'nowrap' }}>${(getServiceFee(id, 'fbfc') + svc.stateFee).toFixed(2)}</span>
+                            </div>
+                          )
+                        })}
                         {allSelected && (
                           <div style={{ display:'flex', justifyContent:'space-between', gap:8, padding:'4px 0', borderTop:'1px solid #f1f5f9', fontSize:'.83rem' }}>
                             <span style={{ color:'#16a34a', fontWeight:600 }}>10% {lang === 'es' ? 'Descuento Bundle' : 'Bundle Discount'}</span>

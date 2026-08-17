@@ -446,7 +446,11 @@ button{font-family:inherit}
   window.svcContinue = function(){
     if (cart.length === 0) return;
     persist();
-    try { localStorage.removeItem('flbc_svc_bundles'); } catch(e){}
+    // No borrar flbc_svc_bundles acá — un combo elegido antes en
+    // /servicios/checkout debe sobrevivir al ir y volver entre esta página y
+    // el checkout (mismo criterio que opabiz.com/servicios, que solo lo
+    // borra en un "vaciar carrito" explícito, no al continuar). Bug real
+    // 2026-08-17: perdía el descuento del combo silenciosamente.
     window.location.href = '/servicios/checkout';
   };
 
