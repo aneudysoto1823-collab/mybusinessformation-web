@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { checkChatRateLimit, getClientIp } from '@/lib/rate-limit'
 import { ChatInputSchema, parseOr400 } from '@/lib/schemas'
+import { resolveOrigin } from '@/lib/request-origin'
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
@@ -502,7 +503,7 @@ async function createFormSession(formData: object, chatSessionId: string, req: N
 
     if (error) return JSON.stringify({ error: 'Could not save session: ' + error.message })
 
-    const origin = req.headers.get('origin') || 'https://opabiz.com'
+    const origin = resolveOrigin(req)
     const link = `${origin}/?session=${token}`
     return JSON.stringify({ success: true, link })
   } catch {

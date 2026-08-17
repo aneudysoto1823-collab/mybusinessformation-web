@@ -6,6 +6,15 @@ export const dynamic = 'force-dynamic'
 
 const getStripe = () => new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2026-02-25.clover' })
 
+// ⚠️ Endpoint LEGACY (pareja de /api/sunbiz/checkout, ver comentario ahí):
+// desde 2026-08-13 el flujo activo de /new-business redirige a
+// /servicios/checkout en vez de a /new-business/success, así que en la
+// práctica nada nuevo llega acá. Se deja vivo solo por si una pestaña de
+// Stripe Checkout abierta ANTES de esa migración vuelve a completarse — esa
+// orden la crea handleNBLPaid con package:'addon' (metadata sin `kind`), por
+// eso el filtro de abajo sigue siendo el correcto para ESTE flujo específico
+// (no confundir con package:'services' del flujo nuevo).
+//
 // Consulta el estado de una sesión de Checkout para la página de retorno de
 // /new-business (flujo de servicios de marketing: Labor Law Poster, EIN,
 // Certificate of Status). Espeja /api/checkout/status (home/formación), pero

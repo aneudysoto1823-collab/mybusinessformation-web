@@ -4,7 +4,7 @@ import PaymentCompletedTracker from './PaymentCompletedTracker'
 import SuccessContent from './SuccessContent'
 
 export const metadata: Metadata = {
-  title: 'Order Confirmed — Florida Business Formation Center',
+  title: 'Order Confirmed',
   robots: { index: false, follow: false },
 }
 

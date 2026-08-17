@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { computeServicesTotal, SERVICES_CATALOG, SERVICE_BUNDLES } from '@/lib/services-pricing'
+import { resolveOrigin, brandFromOrigin } from '@/lib/request-origin'
 
 export const dynamic = 'force-dynamic'
 
@@ -66,8 +67,8 @@ export async function POST(req: NextRequest) {
     // de dominios 2026-08-13) — el brand decide precios (ej. EIN $161 en FBFC vs
     // $99 en OpaBiz, ver FBFC_PRICE_OVERRIDES) y qué marca usa el email de
     // confirmación (ver metadata más abajo).
-    const origin = req.headers.get('origin') || 'https://opabiz.com'
-    const sourceDomain: 'opabiz' | 'fbfc' = origin.includes('mybusinessformation.com') ? 'fbfc' : 'opabiz'
+    const origin = resolveOrigin(req)
+    const sourceDomain = brandFromOrigin(origin)
 
     const expedited = intake.expedited === true
     const { cents, lines, total } = computeServicesTotal(uniqueIds, bundleIds, expedited, lang, sourceDomain, newServicesByBundle)

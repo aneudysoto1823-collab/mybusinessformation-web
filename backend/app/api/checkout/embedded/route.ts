@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { computeFormationTotal, BASIC_PACKAGE_LIST_PRICE } from '@/lib/pricing'
+import { resolveOrigin } from '@/lib/request-origin'
 
 export const dynamic = 'force-dynamic'
 
@@ -64,7 +65,7 @@ export async function POST(req: NextRequest) {
       discounts.push({ coupon: basicCouponId })
     }
 
-    const origin = req.headers.get('origin') || 'https://opabiz.com'
+    const origin = resolveOrigin(req)
 
     const session = await getStripe().checkout.sessions.create({
       ui_mode: 'embedded',

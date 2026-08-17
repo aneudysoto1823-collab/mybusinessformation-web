@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { trackEvent } from '@/lib/tracking'
-import { SERVICES_CATALOG } from '@/lib/services-pricing'
+import { SERVICES_CATALOG, getServiceFee } from '@/lib/services-pricing'
 
 // Unificación de carrito (2026-08-13): estos 3 ids son los mismos que ya
 // existen en SERVICES_CATALOG (lib/services-pricing.ts) — new-business
@@ -1213,7 +1213,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
   const discountAmt   = allSelected ? +(subtotal * 0.10).toFixed(2) : 0
   // Ítems de /servicios agregados al carrito compartido (ver extraCart arriba)
   // — no participan del 10% de bundle de new-business, se suman aparte.
-  const extraTotal    = extraCart.reduce((acc, id) => acc + (SERVICES_CATALOG[id]?.serviceFee ?? 0) + (SERVICES_CATALOG[id]?.stateFee ?? 0), 0)
+  const extraTotal    = extraCart.reduce((acc, id) => acc + getServiceFee(id, 'fbfc') + (SERVICES_CATALOG[id]?.stateFee ?? 0), 0)
   const total         = +(subtotal - discountAmt + extraTotal).toFixed(2)
 
   function toggleAll() {
@@ -1288,7 +1288,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
             {extraCart.map(id => {
               const svc = SERVICES_CATALOG[id]
               if (!svc) return null
-              const price = svc.serviceFee + svc.stateFee
+              const price = getServiceFee(id, 'fbfc') + svc.stateFee
               return (
                 <div key={id} className="co-line" style={{ alignItems:'center', gap:8 }}>
                   <button

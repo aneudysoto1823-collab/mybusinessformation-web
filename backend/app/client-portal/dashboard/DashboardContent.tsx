@@ -44,6 +44,7 @@ interface Props {
   isAddon: boolean
   initialLang: 'en' | 'es'
   hasPassword: boolean
+  initialIsFBFC: boolean
 }
 
 const PACKAGE_INFO: Record<string, { en: string; es: string; price: string; popular?: boolean }> = {
@@ -137,12 +138,14 @@ function parseAddonServices(raw: unknown): string[] {
 
 export default function DashboardContent({
   order, allOrders, documents, confirmationNumber,
-  steps, currentStep, isAddon, initialLang, hasPassword,
+  steps, currentStep, isAddon, initialLang, hasPassword, initialIsFBFC,
 }: Props) {
   const [lang, setLang] = useState<'en' | 'es'>(initialLang)
-  // Separación de dominios (2026-08-13): client component, detecta el host
-  // en el browser para mostrar la marca correcta en el header.
-  const [isFBFC, setIsFBFC] = useState(false)
+  // Separación de dominios (2026-08-13): initialIsFBFC viene del server
+  // component (headers(), sin parpadeo) — antes arrancaba en false y se
+  // corregía recién en un useEffect client-side, mostrando "OpaBiz" por un
+  // instante en cada carga de mybusinessformation.com (auditoría 2026-08-17).
+  const [isFBFC, setIsFBFC] = useState(initialIsFBFC)
   useEffect(() => { setIsFBFC(window.location.hostname.includes('mybusinessformation.com')) }, [])
   const [pwBanner, setPwBanner] = useState(!hasPassword)
   const [pwForm, setPwForm] = useState(false)

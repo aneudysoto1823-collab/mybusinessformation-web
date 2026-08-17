@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { SunbizCheckoutInputSchema, parseOr400 } from '@/lib/schemas'
+import { resolveOrigin } from '@/lib/request-origin'
 
 const getStripe = () => new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2026-02-25.clover' })
 
@@ -39,10 +40,11 @@ export async function POST(req: NextRequest) {
           return { price_data: { currency: 'usd', product_data: { name: svc.name }, unit_amount: svc.amount }, quantity: 1 }
         })
 
-    // El checkout de /new-business ahora solo se alcanza desde mybusinessformation.com
-    // (separación de dominios 2026-08-13) — el fallback rara vez dispara ya que el
-    // browser siempre manda el Origin real, pero se actualiza igual por consistencia.
-    const origin = req.headers.get('origin') || 'https://mybusinessformation.com'
+    // ⚠️ Endpoint LEGACY: ya no lo llama ningún frontend actual (el flujo de
+    // /new-business pasa por /api/checkout/embedded-services desde 2026-08-13).
+    // Se deja vivo, endurecido, solo por si una pestaña de Stripe Checkout
+    // abierta ANTES de la migración vuelve a intentar completar el pago.
+    const origin = resolveOrigin(req, 'https://mybusinessformation.com')
 
     // Look up company email from DB to pre-fill Stripe checkout
     let customerEmail: string | undefined

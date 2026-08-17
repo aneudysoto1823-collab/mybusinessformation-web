@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Terms & Conditions — Florida Business Formation Center',
+  title: 'Terms & Conditions',
   robots: { index: false, follow: false },
 }
 
@@ -224,10 +224,10 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:32px 32px 20px
     <div class="footer-bottom">
       <div class="footer-copy">&#169; 2025 Florida Business Formation Center &middot; All Rights Reserved.</div>
       <div class="footer-links">
-        <a href="/new-business/terms">Terms &amp; Conditions</a>
-        <a href="/new-business/privacy">Privacy Policy</a>
-        <a href="/new-business/legal">Legal Disclaimer</a>
-        <a href="/">&#8592; New Business</a>
+        <a href="/terms">Terms &amp; Conditions</a>
+        <a href="/privacy">Privacy Policy</a>
+        <a href="/legal">Legal Disclaimer</a>
+        <a href="/">&#8592; <span class="en-inline">New Business</span><span class="es-inline" style="display:none">Nuevo Negocio</span></a>
       </div>
     </div>
   </div>

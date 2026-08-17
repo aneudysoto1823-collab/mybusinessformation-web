@@ -1,4 +1,4 @@
-import { cookies } from 'next/headers'
+import { cookies, headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { getOrderItemLabel } from '@/lib/order-items'
@@ -201,6 +201,8 @@ export default async function ClientDashboardPage({
   searchParams: Promise<{ order?: string; lang?: string }>
 }) {
   const cookieStore = await cookies()
+  const host = (await headers()).get('host') || ''
+  const initialIsFBFC = host.includes('mybusinessformation.com')
   const sessionOrderId = cookieStore.get('client_session')?.value
   if (!sessionOrderId) redirect('/client-portal')
 
@@ -679,6 +681,7 @@ export default async function ClientDashboardPage({
         isAddon={isAddon}
         initialLang={initialLang}
         hasPassword={!!(sessionOrder as { client_password_hash?: string | null }).client_password_hash}
+        initialIsFBFC={initialIsFBFC}
       />
     </>
   )

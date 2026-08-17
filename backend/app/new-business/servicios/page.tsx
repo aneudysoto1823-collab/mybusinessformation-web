@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { SERVICES_CATALOG, getServiceFee } from '@/lib/services-pricing'
 
 export const metadata: Metadata = {
-  title: 'Additional Services — Florida Business Formation Center',
+  title: 'Additional Services',
   description: 'Compliance and business services for Florida companies: Registered Agent, EIN, Operating Agreement, Virtual Address, Annual Report and more.',
   robots: { index: false, follow: false },
   alternates: { canonical: 'https://mybusinessformation.com/servicios' },
