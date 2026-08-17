@@ -451,8 +451,12 @@ button{font-family:inherit}
   };
 
   window.svcSetLang = function(lang){
-    document.querySelectorAll('.en').forEach(function(el){ el.style.display = lang === 'en' ? '' : 'none'; });
-    document.querySelectorAll('.es').forEach(function(el){ el.style.display = lang === 'es' ? '' : 'none'; });
+    // Nunca usar '' (revierte al display del CSS, que es 'none' para .es) —
+    // hay que setear el valor explícito o el texto en español desaparece
+    // (bug real 2026-08-15: nombres de servicios y botones del header en
+    // blanco apenas el idioma activo era español, sin importar refrescar).
+    document.querySelectorAll('.en').forEach(function(el){ el.style.display = lang === 'en' ? 'inline' : 'none'; });
+    document.querySelectorAll('.es').forEach(function(el){ el.style.display = lang === 'es' ? 'inline' : 'none'; });
     document.querySelectorAll('.svc-lang button').forEach(function(b, i){ b.className = (i === (lang === 'en' ? 0 : 1)) ? 'active' : ''; });
     try { localStorage.setItem('flbc_lang', lang); } catch(e){}
     renderSidebar();
