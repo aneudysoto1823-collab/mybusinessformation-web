@@ -135,12 +135,16 @@ export const SERVICE_BUNDLES: Record<string, BundleDef> = {
   'bundle-compliance-ra':    { name_en: 'Registered Agent',                    name_es: 'Agente Registrado',                           services: ['registered-agent'], price: 99 },
   'bundle-compliance-ra-ar': { name_en: 'Registered Agent + Annual Report',    name_es: 'Agente Registrado + Declaración Anual',       services: ['registered-agent', 'annual-report'], price: 179 },
   // Hub "Extras" de /new-business (2026-08-18) — tiers acumulativos: Virtual
-  // Address sola → +Registered Agent → +Annual Report. Mismos servicios que
-  // bundle-protect-full pero cambiando Business Tax Receipt por Registered
-  // Agent (mismo precio $99, mismos $208 resultantes).
-  'bundle-extras-va':        { name_en: 'Virtual Mailing Address',              name_es: 'Dirección Postal Virtual',                    services: ['virtual-address'], price: 30 },
-  'bundle-extras-va-ra':     { name_en: 'Virtual Address + Registered Agent',   name_es: 'Dirección Virtual + Agente Registrado',       services: ['virtual-address', 'registered-agent'], price: 119 },
-  'bundle-extras-va-ra-ar':  { name_en: 'Virtual Address + Registered Agent + Annual Report', name_es: 'Dirección Virtual + Agente Registrado + Declaración Anual', services: ['virtual-address', 'registered-agent', 'annual-report'], price: 208 },
+  // Address sola → +Registered Agent → +Annual Report.
+  // ⚠️ Virtual Address 1er mes GRATIS — SOLO en este grupo de 3 bundles
+  // (decisión founder 2026-08-18: promo exclusiva de este paso, no toca el
+  // precio de virtual-address en ningún otro lado del sitio). Por eso el
+  // price de estos 3 no sigue la fórmula genérica de NO_DISCOUNT_SERVICE_IDS
+  // (que cobraría VA a precio completo) — están hardcodeados ya con VA en $0:
+  // va-ra = 0 + round(99*0.9)=89, va-ra-ar = 0 + round((99+99)*0.9)=178.
+  'bundle-extras-va':        { name_en: 'Virtual Mailing Address',              name_es: 'Dirección Postal Virtual',                    services: ['virtual-address'], price: 0 },
+  'bundle-extras-va-ra':     { name_en: 'Virtual Address + Registered Agent',   name_es: 'Dirección Virtual + Agente Registrado',       services: ['virtual-address', 'registered-agent'], price: 89 },
+  'bundle-extras-va-ra-ar':  { name_en: 'Virtual Address + Registered Agent + Annual Report', name_es: 'Dirección Virtual + Agente Registrado + Declaración Anual', services: ['virtual-address', 'registered-agent', 'annual-report'], price: 178 },
 }
 
 /**

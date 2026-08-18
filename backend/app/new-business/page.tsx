@@ -14,14 +14,16 @@ const NB_TO_CATALOG_ID: Record<string, string> = { labor_law: 'labor-law-poster'
 const CATALOG_TO_NB_ID: Record<string, string> = { 'labor-law-poster': 'labor_law', ein: 'ein', 'certificate-of-status': 'certificate' }
 
 // "Recomendado para ti" — paso propio del wizard (2026-08-18, antes vivía
-// dentro del Review). Tiers acumulativos (Virtual Address → +Registered Agent
-// → +Annual Report), mismo patrón de combos que los hubs de 3 tiers de
-// /servicios/checkout — reusa el mismo motor de precio (computeBundlePrice /
-// SERVICE_BUNDLES) para que el descuento mostrado acá sea EXACTO al que se
-// cobra al pagar (goToPayment() → /api/checkout/embedded-services lee
-// flbc_svc_bundles del localStorage, ver useEffect de persistencia abajo).
-// Virtual Address nunca entra al 10% de descuento (NO_DISCOUNT_SERVICE_IDS en
-// lib/services-pricing.ts) — solo Registered Agent/Annual Report se descuentan.
+// dentro del Review). Tiers acumulativos (Virtual Address, luego +Registered
+// Agent, luego +Annual Report), mismo patrón de combos que los hubs de 3
+// tiers de /servicios/checkout: reusa el mismo motor de precio
+// (computeBundlePrice / SERVICE_BUNDLES) para que el descuento mostrado acá
+// sea EXACTO al que se cobra al pagar (goToPayment() llama a
+// /api/checkout/embedded-services, que lee flbc_svc_bundles del localStorage,
+// ver useEffect de persistencia abajo). Virtual Address es gratis el primer
+// mes SOLO en este paso (ver comentario en lib/services-pricing.ts junto a
+// bundle-extras-*); Registered Agent y Annual Report sí llevan el 10% de
+// descuento normal cuando se combinan.
 const EXTRAS_TIERS = [
   { bundle: 'bundle-extras-va', services: ['virtual-address'] },
   { bundle: 'bundle-extras-va-ra', services: ['virtual-address', 'registered-agent'] },
@@ -30,16 +32,30 @@ const EXTRAS_TIERS = [
 const EXTRAS_SERVICE_IDS = new Set<string>(EXTRAS_TIERS[EXTRAS_TIERS.length - 1].services)
 const EXTRAS_BLURB: Record<string, { en: string; es: string }> = {
   'virtual-address': {
-    en: 'Professional Florida business address — keeps your home address private.',
-    es: 'Dirección comercial profesional en Florida — mantiene tu dirección personal privada.',
+    en: 'A professional Florida mailing address for your business. Keeps your home address private.',
+    es: 'Una dirección postal profesional en Florida para tu negocio. Mantiene tu dirección personal privada.',
   },
   'registered-agent': {
-    en: 'Receives legal documents on your behalf — required by law for every Florida LLC and Corp.',
-    es: 'Recibe documentos legales en tu nombre — obligatorio por ley para toda LLC y Corporation de Florida.',
+    en: 'Receives legal documents and state notices on your behalf, as Florida law requires for every LLC and Corporation.',
+    es: 'Recibe documentos legales y avisos del estado en tu nombre, tal como lo exige la ley de Florida para toda LLC y Corporation.',
   },
   'annual-report': {
     en: 'Required every year to keep your entity active with the state of Florida.',
     es: 'Requerida cada año para mantener tu entidad activa ante el estado de Florida.',
+  },
+}
+// Texto adicional solo para el tier 1 y el tier 2 (índices 0 y 1) — el
+// founder pidió detallar la diferencia entre ambos y explicar el requisito
+// de disponibilidad en horario laboral si el cliente es su propio Registered
+// Agent (2026-08-18).
+const EXTRAS_TIER_NOTE: Record<number, { en: string; es: string }> = {
+  0: {
+    en: 'This gives your business a professional mailing address only. It does not fulfill your Registered Agent requirement. You will still need to name a Registered Agent for your LLC or Corporation, either yourself or a service like the one in the next tier.',
+    es: 'Esto le da a tu negocio solo una dirección postal profesional. No cumple con el requisito de Agente Registrado. De todas formas necesitarás nombrar un Agente Registrado para tu LLC o Corporation, ya sea tú mismo o un servicio como el del siguiente nivel.',
+  },
+  1: {
+    en: 'Florida law requires every LLC and Corporation to have a Registered Agent available at a physical Florida address every business day between 9am and 5pm to receive legal documents in person. If you act as your own Registered Agent, that address becomes public record and you must be personally present during those hours. This tier adds our Registered Agent service so we handle that requirement for you.',
+    es: 'La ley de Florida exige que toda LLC y Corporation tenga un Agente Registrado disponible en una dirección física de Florida todos los días hábiles entre las 9am y las 5pm para recibir documentos legales en persona. Si actúas como tu propio Agente Registrado, esa dirección queda en el registro público y debes estar presente en persona durante ese horario. Este nivel agrega nuestro servicio de Agente Registrado para que nosotros cumplamos ese requisito por ti.',
   },
 }
 
@@ -1379,7 +1395,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                   if (!svc || !svc.stateFee) return null
                   return (
                     <div key={id} className="co-line" style={{ alignItems:'center', gap:8, fontSize:'.78rem', color:'#94a3b8' }}>
-                      <span className="co-line-name">{(lang === 'es' ? svc.name_es : svc.name_en) + (lang === 'es' ? ' — Tarifa Estatal FL' : ' — FL State Fee')}</span>
+                      <span className="co-line-name">{(lang === 'es' ? svc.name_es : svc.name_en) + (lang === 'es' ? ' (Tarifa Estatal FL)' : ' (FL State Fee)')}</span>
                       <span className="co-line-price">${svc.stateFee.toFixed(2)}</span>
                     </div>
                   )
@@ -2147,8 +2163,8 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                       <div className="form-block-title">{lang === 'es' ? 'Recomendado para ti' : 'Recommended for you'}</div>
                       <p style={{ color:'#64748b', fontSize:'.84rem', lineHeight:1.65, marginBottom:20, marginTop:-8 }}>
                         {lang === 'es'
-                          ? 'Estos son los servicios que más recomendamos para mantener tu negocio protegido y al día — puedes agregar los que quieras o continuar sin ellos.'
-                          : 'These are the services we recommend most to keep your business protected and compliant — add any you want, or continue without them.'}
+                          ? 'Estos son los servicios que más recomendamos para mantener tu negocio protegido y al día. Puedes agregar los que quieras o continuar sin ellos.'
+                          : 'These are the services we recommend most to keep your business protected and compliant. Add any you want, or continue without them.'}
                       </p>
                       <div className="svc-grid">
                         {EXTRAS_TIERS.map((tier, i) => {
@@ -2157,8 +2173,12 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                           const fullPrice = tier.services.reduce((acc, id) => acc + getServiceFee(id, 'fbfc'), 0)
                           const save = fullPrice - price
                           const stateFees = tier.services.reduce((acc, id) => acc + (SERVICES_CATALOG[id]?.stateFee ?? 0), 0)
+                          const discountableIds = tier.services.filter(id => id !== 'virtual-address')
+                          const discountableFull = discountableIds.reduce((acc, id) => acc + getServiceFee(id, 'fbfc'), 0)
+                          const discountAmount = discountableFull - price
                           const isSelected = activeExtrasTier?.bundle === tier.bundle
                           const isBest = i === EXTRAS_TIERS.length - 1
+                          const note = EXTRAS_TIER_NOTE[i]
                           return (
                             <div
                               key={tier.bundle}
@@ -2186,24 +2206,56 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                                     <div key={id} style={{ display:'flex', gap:6, alignItems:'flex-start', marginBottom:6 }}>
                                       <span style={{ color:'#16a34a', flexShrink:0, fontWeight:700 }}>✓</span>
                                       <span>
-                                        <strong style={{ color:'#1B3A6B' }}>{lang === 'es' ? svc?.name_es : svc?.name_en}</strong>
-                                        {blurb && <>{' — '}{lang === 'es' ? blurb.es : blurb.en}</>}
+                                        <strong style={{ color:'#1B3A6B' }}>{lang === 'es' ? svc?.name_es : svc?.name_en}.</strong>
+                                        {blurb && <> {lang === 'es' ? blurb.es : blurb.en}</>}
                                       </span>
                                     </div>
                                   )
                                 })}
                               </div>
-                              <div className="svc-price">
-                                ${price.toFixed(2)}
+                              {note && (
+                                <div style={{ background:'#f8fafc', border:'1px solid #e2e8f0', borderRadius:8, padding:'10px 12px', fontSize:'.76rem', color:'#64748b', lineHeight:1.6, marginBottom:12 }}>
+                                  {lang === 'es' ? note.es : note.en}
+                                </div>
+                              )}
+                              <div style={{ borderTop:'1px solid #f1f5f9', paddingTop:10, marginTop:'auto' }}>
+                                {tier.services.map(id => {
+                                  const svc = SERVICES_CATALOG[id]
+                                  if (!svc) return null
+                                  const isVa = id === 'virtual-address'
+                                  return (
+                                    <div key={id} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', gap:8, fontSize:'.8rem', padding:'2px 0' }}>
+                                      <span style={{ color:'#374151' }}>{lang === 'es' ? svc.name_es : svc.name_en}</span>
+                                      {isVa ? (
+                                        <span>
+                                          <span style={{ color:'#94a3b8', textDecoration:'line-through', marginRight:6 }}>${svc.serviceFee.toFixed(2)}</span>
+                                          <span style={{ color:'#16a34a', fontWeight:700 }}>{lang === 'es' ? 'GRATIS' : 'FREE'}</span>
+                                        </span>
+                                      ) : (
+                                        <span style={{ color:'#374151' }}>${svc.serviceFee.toFixed(2)}</span>
+                                      )}
+                                    </div>
+                                  )
+                                })}
+                                {discountAmount > 0 && (
+                                  <div style={{ display:'flex', justifyContent:'space-between', gap:8, fontSize:'.8rem', color:'#16a34a', fontWeight:600, padding:'2px 0' }}>
+                                    <span>{lang === 'es' ? 'Descuento combo (10%)' : 'Combo discount (10%)'}</span>
+                                    <span>−${discountAmount.toFixed(2)}</span>
+                                  </div>
+                                )}
+                                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'baseline', gap:8, marginTop:6, paddingTop:6, borderTop:'1px solid #f1f5f9' }}>
+                                  <span style={{ fontSize:'.82rem', fontWeight:700, color:'#1B3A6B' }}>{lang === 'es' ? 'Total' : 'Total'}</span>
+                                  <span className="svc-price" style={{ marginTop:0 }}>${price.toFixed(2)}</span>
+                                </div>
                                 {stateFees > 0 && (
-                                  <span style={{ fontSize:'.68rem', fontWeight:600, color:'#94a3b8', marginLeft:6 }}>
+                                  <div style={{ fontSize:'.7rem', color:'#94a3b8', marginTop:2 }}>
                                     {lang === 'es' ? `+ $${stateFees} tarifa estatal` : `+ $${stateFees} state fee`}
-                                  </span>
+                                  </div>
                                 )}
                                 {save > 0 && (
-                                  <span style={{ display:'block', fontSize:'.72rem', fontWeight:700, color:'#16a34a', marginTop:4 }}>
-                                    {lang === 'es' ? `Ahorras $${save}` : `Save $${save}`}
-                                  </span>
+                                  <div style={{ fontSize:'.74rem', fontWeight:700, color:'#16a34a', marginTop:4 }}>
+                                    {lang === 'es' ? `Ahorras $${save} en total` : `Save $${save} total`}
+                                  </div>
                                 )}
                               </div>
                             </div>
@@ -2327,7 +2379,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                               if (!svc || !svc.stateFee) return null
                               return (
                                 <div key={id} style={{ display:'flex', justifyContent:'space-between', gap:8, padding:'4px 0', borderTop:'1px solid #f1f5f9', fontSize:'.83rem', color:'#94a3b8' }}>
-                                  <span>{(lang === 'es' ? svc.name_es : svc.name_en) + (lang === 'es' ? ' — Tarifa Estatal FL' : ' — FL State Fee')}</span>
+                                  <span>{(lang === 'es' ? svc.name_es : svc.name_en) + (lang === 'es' ? ' (Tarifa Estatal FL)' : ' (FL State Fee)')}</span>
                                   <span style={{ whiteSpace:'nowrap' }}>${svc.stateFee.toFixed(2)}</span>
                                 </div>
                               )
