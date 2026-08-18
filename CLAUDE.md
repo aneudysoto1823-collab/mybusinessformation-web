@@ -1230,6 +1230,48 @@ La página de retorno era texto plano estático ("Payment Successful", sin núme
 
 ---
 
+## Sesión 2026-08-13 a 2026-08-17 — separación de dominios, unificación de carrito, motor de combos, auditoría
+
+### Separación de marca por dominio (2026-08-13)
+
+`mybusinessformation.com` (marca "Florida Business Formation Center"/FBFC) y `opabiz.com` ("OpaBiz") se sirven desde el mismo deploy Next.js, mismo Supabase, mismo Stripe. Host-based `rewrites()`/`redirects()` en `next.config.ts` mapean `/`, `/es`, `/success`, `/terms`, `/privacy`, `/legal`, `/servicios` en mybusinessformation.com a `/new-business/*` internamente. `app/layout.tsx` usa `generateMetadata()` (no metadata estática) para no filtrar el `title.template`/OG de una marca a la otra. `client-portal` (login + dashboard) también es host-aware server-side (`headers()`), no client-side, para no parpadear la marca incorrecta en el primer render.
+
+### Carrito unificado new-business + /servicios (2026-08-13/17)
+
+Antes new-business (Labor Law Poster, EIN, Certificate of Status) y `/servicios` eran dos carritos y dos checkouts separados. Ahora comparten `localStorage` (`flbc_svc_cart`, `flbc_svc_bundles`, `flbc_svc_bundle_added`, `flbc_svc_company`, `flbc_svc_prefill`, `flbc_svc_orderid`) y un solo checkout final (`/servicios/checkout`, Stripe Embedded, `/api/checkout/embedded-services`). EIN cuesta $161 en mybusinessformation.com (`FBFC_PRICE_OVERRIDES` en `lib/services-pricing.ts`) vs $99 en opabiz.com — `getServiceFee(id, brand)` resuelve el precio correcto en ambos lados (cliente y servidor).
+
+- `new-business/page.tsx`: `buildIntake()` arma el payload y `goToPayment()` redirige a `/servicios/checkout` para el pago (Stripe se monta ahí, no en new-business).
+- `new-business/servicios/page.tsx`: clon FBFC del catálogo de `/servicios`, mismo `getServiceFee(id,'fbfc')`.
+- `servicios/checkout/page.tsx`: si llega con `flbc_svc_prefill` completo salta directo a Revisar/Pagar; si solo llega con `flbc_svc_company` (empresa ya buscada en new-business pero wizard no terminado), autocompleta el Document ID en modo "silencioso" (`coLookupCompany(true)`) mostrando los campos editables ya llenos en vez de la franja verde de confirmación duplicando la info (fix 2026-08-17).
+
+### Motor de precios de combos (bundles) reescrito (2026-08-17)
+
+**Bug real:** el precio de un combo (hub de 3 tiers, ej. "Acuerdo Operativo + EIN + Resolución Bancaria") se calculaba restando un crédito fijo (precio de lista de lo que el cliente ya tenía suelto) del precio fijo de marketing del bundle. Con el EIN a $161 en FBFC, ese crédito se comía casi todo el precio → "+$11" en vez de algo razonable (founder screenshot).
+
+**Fix — `computeBundlePrice()` en `lib/services-pricing.ts`:** un combo cobra su precio fijo de marketing SOLO si aporta TODOS sus servicios de nuevo al carrito. Si aporta solo algunos (el resto ya estaba suelto en el carrito), el precio pasa a ser dinámico: solo lo genuinamente nuevo, con el mismo ~10% de descuento que ya usan los combos de 2 servicios. Los servicios ya comprados sueltos nunca se tocan ni se re-cobran — quedan como su propia línea individual, sin descuento, cobrados por el paso de "servicios individuales" normal de `computeServicesTotal`.
+
+**Modelo de seguridad — allow-list, no exclude-list:** el parámetro es `newServicesByBundle: Record<bundleId, string[]>` (qué agrega el combo de NUEVO), no `ownedByBundle` (qué ya tenías). Con un exclude-list, un payload manipulado podría reclamar falsamente "ya tengo el ítem caro" para llevarse el resto casi gratis sin pagarlo en ningún otro lado del pedido — con el allow-list, cualquier servicio que el payload NO reclame como "nuevo" del combo simplemente cae al cobro individual a precio completo de catálogo (nunca reduce el total). Cliente (`coBundlePrice`/`coComputeTotal` en `servicios/checkout/page.tsx`) y servidor (`computeBundlePrice`/`computeServicesTotal`) espejan exactamente la misma lógica.
+
+- Tarjetas "Recomendado para ti" (Agente Registrado, Dirección Virtual) agregadas directo en el Review de new-business (decisión founder: son los 2 servicios que más interesa vender) — versión simple (toggle sobre el carrito compartido, sin combo/descuento que calcular, cada uno es un solo servicio) en vez del layout completo de 3 tiers de `/servicios/checkout`.
+
+### Auditoría de código — mybusinessformation.com (2026-08-17)
+
+Auditoría con 2 agentes en paralelo (frontend + backend/API), enfocada en todo lo específico del dominio FBFC. 18 hallazgos, todos resueltos salvo 2 decisiones deliberadas de no-acción:
+
+**Seguridad/dinero (los 2 más importantes):**
+- **Header `Origin` sin validar** en `/api/checkout/embedded-services`, `/api/checkout/embedded`, `/api/sunbiz/checkout`, `/api/chat` — una llamada directa (curl/Postman) con `Origin` falso podía lograr un open redirect post-pago de Stripe, y en `embedded-services` forzar el precio $99 (OpaBiz) en una compra de mybusinessformation.com. Fix: `lib/request-origin.ts` (nuevo) — `resolveOrigin(req, fallback)` valida contra una allowlist fija antes de usar el origin para el `return_url` o para decidir la marca/precio.
+- **Combos perdidos al pagar desde new-business:** `buildIntake()` mandaba `bundles: []` siempre (ignoraba `flbc_svc_bundles`/`flbc_svc_bundle_added` del carrito compartido), y `new-business/servicios/page.tsx` borraba `flbc_svc_bundles` en cada "Continue" (a diferencia de la página gemela en opabiz.com, que solo lo borra en un vaciar-carrito explícito). Un combo con descuento elegido en `/servicios/checkout` se perdía si el cliente terminaba pagando desde new-business. Ambos corregidos.
+
+**Marca FBFC (emails):**
+- Solo el email de confirmación de pago sabía la marca de la orden (vivía transitoriamente en `session.metadata.sourceDomain` de Stripe, se usaba una vez y se perdía). Cualquier email posterior (reenvío manual, "Orden Procesada", "Aprobado/Documentos") volvía a mostrar OpaBiz. Fix: nueva columna **`Order.sourceBrand`** (migración `supabase_migration_order_source_brand.sql`, ✅ ya corrida en producción 2026-08-17) persistida al crear la orden; `lib/email-constants.ts` centraliza los helpers de branding (`brandFrom`, `brandHeaderHtml`, `brandFooterLine`, `brandPortalHome`, `brandSubjectPrefix`); `sendOrderConfirmation`/`sendOrderProcessed`/`sendOrderApprovalUpdate` en `lib/notifications.ts` ahora aceptan `sourceBrand`. `sendAllNamesTaken`/`sendSuggestNames`/`sendRaAddressReady` quedan OpaBiz-only a propósito (features exclusivas de formación, que solo se vende en opabiz.com — nunca les llega una orden FBFC).
+- Fugas menores de "OpaBiz" corregidas: `DashboardContent.tsx` mostraba OpaBiz por un instante en mybusinessformation.com antes de corregirse client-side (ahora recibe `initialIsFBFC` server-side, mismo patrón que `LoginForm.tsx`); `<title>` duplicado en 5 páginas FBFC; footers de `/new-business/{legal,privacy,terms}` enlazaban con rutas internas `/new-business/terms` en vez de las rutas limpias `/terms` reescritas.
+
+**Decisiones deliberadas de NO tocar:**
+- `/api/sunbiz/checkout` (POST) + `/api/sunbiz/checkout/status` + `new-business/success/page.tsx` + `SuccessContent.tsx`: código del flujo viejo de new-business (pre-unificación), sin ningún caller en el frontend actual. **No se borraron** — solo se endureció el `origin` y se documentaron como legacy — por si una pestaña de Stripe Checkout abierta antes de la migración del 2026-08-13 todavía vuelve a completarse (`handleNBLPaid` sigue creando `package:'addon'`, coherente con ese flujo).
+- Teléfono placeholder `(800) 123-4567` en el header de `new-business/page.tsx`: sigue sin número real — ver `[[project_pendiente_telefono_seo]]` en memoria, mismo pendiente de siempre (falta que el founder consiga un número oficial).
+
+---
+
 ## Deploy
 
 - `git push origin main` — Vercel detecta cambios en `backend/` y hace deploy automático
