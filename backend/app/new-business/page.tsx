@@ -13,12 +13,13 @@ import { SERVICES_CATALOG, getServiceFee } from '@/lib/services-pricing'
 const NB_TO_CATALOG_ID: Record<string, string> = { labor_law: 'labor-law-poster', ein: 'ein', certificate: 'certificate-of-status' }
 const CATALOG_TO_NB_ID: Record<string, string> = { 'labor-law-poster': 'labor_law', ein: 'ein', 'certificate-of-status': 'certificate' }
 
-// "Recomendado para ti" en el Review (2026-08-17) — Agente Registrado y
-// Dirección Virtual son los 2 servicios que el founder más quiere vender;
-// se ofrecen directo acá en vez de depender de que el cliente visite
-// /servicios para verlos. Ambos son un solo servicio (sin bundle/descuento
-// de combo que calcular) — se agregan al mismo extraCart compartido.
-const RECOMMENDED_IDS = ['registered-agent', 'virtual-address']
+// "Recomendado para ti" — paso propio del wizard (2026-08-18, antes vivía
+// dentro del Review). Agente Registrado, Dirección Virtual y Declaración
+// Anual son los 3 servicios que el founder más quiere vender; se ofrecen
+// directo acá en vez de depender de que el cliente visite /servicios para
+// verlos. Cada uno es un solo servicio (sin bundle/descuento de combo que
+// calcular) — se agregan al mismo extraCart compartido.
+const RECOMMENDED_IDS = ['registered-agent', 'virtual-address', 'annual-report']
 const RECOMMENDED_BLURB: Record<string, { en: string; es: string }> = {
   'registered-agent': {
     en: 'Receives legal documents on your behalf — required by law for every Florida LLC and Corp.',
@@ -27,6 +28,10 @@ const RECOMMENDED_BLURB: Record<string, { en: string; es: string }> = {
   'virtual-address': {
     en: 'Professional Florida business address — keeps your home address private.',
     es: 'Dirección comercial profesional en Florida — mantiene tu dirección personal privada.',
+  },
+  'annual-report': {
+    en: 'Required every year to keep your entity active with the state of Florida.',
+    es: 'Requerida cada año para mantener tu entidad activa ante el estado de Florida.',
   },
 }
 
@@ -1169,7 +1174,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
     }
   }
 
-  const onReview = step === 4
+  const onReview = step === 5
 
   function toggleService(id: string) {
     setSelected(prev => {
@@ -1254,7 +1259,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
   }
 
   // Líneas de servicios + total — se usan tanto en el Order Summary del
-  // sidebar (steps 1-3) como reubicadas dentro del Review (step 4), para que
+  // sidebar (steps 1-4) como reubicadas dentro del Review (step 5), para que
   // el cliente pueda seguir togglear servicios desde donde esté.
   function renderOrderLines() {
     return (
@@ -1525,6 +1530,19 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                         </div>
                       </>
                     )}
+
+                    {/* Step 4 — "Recommended for you" (siempre visible) */}
+                    <div className={`step-connector ${doneSteps.has(einSelected ? 3 : 2) || step > 4 ? 'done' : ''}`} />
+                    <div className="step-node">
+                      <div className={`step-circle ${step > 4 ? 'done' : step === 4 ? 'active' : 'pending'}`}>
+                        {step > 4
+                          ? <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                          : (einSelected ? '4' : '3')}
+                      </div>
+                      <span className={`step-lbl ${step === 4 ? 'active' : step > 4 ? 'done' : ''}`}>
+                        {lang === 'es' ? 'Extras' : 'Extras'}
+                      </span>
+                    </div>
                   </div>
 
                   {/* ── STEP 1: Business info ── */}
@@ -1905,9 +1923,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                           setContactErrs({})
                           goToStep(einSelected ? 3 : 4)
                         }}>
-                          {einSelected
-                            ? (lang === 'es' ? 'Siguiente' : 'Next')
-                            : (lang === 'es' ? 'Revisar Orden' : 'Review Order')}
+                          {lang === 'es' ? 'Siguiente' : 'Next'}
                         </button>
                       </div>
                     </>
@@ -2055,13 +2071,73 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                           if (!devMode && form.einReason === 'other' && !form.einReasonOther.trim()) { setOtherReasonErr(true); return }
                           goToStep(4)
                         }}>
-                          {lang === 'es' ? 'Revisar Orden' : 'Review Order'}
+                          {lang === 'es' ? 'Siguiente' : 'Next'}
                         </button>
                       </div>
                     </>
                   )}
-                  {/* ── STEP 4: Review ── */}
+
+                  {/* ── STEP 4: Recommended for you ── */}
                   {step === 4 && (
+                    <>
+                      <div className="form-block-title">{lang === 'es' ? 'Recomendado para ti' : 'Recommended for you'}</div>
+                      <p style={{ color:'#64748b', fontSize:'.84rem', lineHeight:1.65, marginBottom:20, marginTop:-8 }}>
+                        {lang === 'es'
+                          ? 'Estos son los servicios que más recomendamos para mantener tu negocio protegido y al día — puedes agregar los que quieras o continuar sin ellos.'
+                          : 'These are the services we recommend most to keep your business protected and compliant — add any you want, or continue without them.'}
+                      </p>
+                      <div className="svc-grid">
+                        {RECOMMENDED_IDS.map(id => {
+                          const svc = SERVICES_CATALOG[id]
+                          if (!svc) return null
+                          const added = extraCart.includes(id)
+                          const price = getServiceFee(id, 'fbfc') + (svc.stateFee ?? 0)
+                          const blurb = RECOMMENDED_BLURB[id]
+                          return (
+                            <div
+                              key={id}
+                              className={`svc-card${added ? ' selected' : ''}`}
+                              onClick={() => setExtraCart(prev => added ? prev.filter(x => x !== id) : [...prev, id])}
+                            >
+                              <div className="svc-check">
+                                {added && <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+                              </div>
+                              <div className="svc-title">{lang === 'es' ? svc.name_es : svc.name_en}</div>
+                              {blurb && <div className="svc-desc">{lang === 'es' ? blurb.es : blurb.en}</div>}
+                              <div className="svc-price">
+                                ${price.toFixed(2)}
+                                {svc.stateFee > 0 && (
+                                  <span style={{ fontSize:'.68rem', fontWeight:600, color:'#94a3b8', marginLeft:6 }}>
+                                    {lang === 'es' ? `(incl. $${svc.stateFee} tarifa estatal)` : `(incl. $${svc.stateFee} state fee)`}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+
+                      <div className="step-nav">
+                        <button className="step-back" onClick={() => goToStep(einSelected ? 3 : 2)}>
+                          ← {lang === 'es' ? 'Atrás' : 'Back'}
+                        </button>
+                        <div style={{ display:'flex', alignItems:'center', gap:16 }}>
+                          <button
+                            onClick={() => goToStep(5)}
+                            style={{ background:'none', border:'none', color:'#64748b', fontSize:'.82rem', fontWeight:600, cursor:'pointer', fontFamily:'inherit', textDecoration:'underline' }}
+                          >
+                            {lang === 'es' ? 'No, gracias' : 'No thanks'}
+                          </button>
+                          <button className="step-next primary" onClick={() => goToStep(5)}>
+                            {lang === 'es' ? 'Revisar Orden' : 'Review Order'}
+                          </button>
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  {/* ── STEP 5: Review ── */}
+                  {step === 5 && (
                     <>
                       <div className="form-block-title">{lang === 'es' ? 'Revisa tu información' : 'Review your information'}</div>
 
@@ -2122,47 +2198,6 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                         </div>
                       )}
 
-                      {/* Recomendado para ti — Agente Registrado y Dirección
-                          Virtual ofrecidos directo acá en el Review, sin que
-                          el cliente tenga que pasar por /servicios para
-                          verlos (decisión founder 2026-08-17: son los 2
-                          servicios que más interesa vender). Toggle simple
-                          sobre el mismo extraCart compartido con /servicios —
-                          ninguno usa bundle (cada uno es un solo servicio, sin
-                          descuento de combo que calcular). */}
-                      <div style={{ marginBottom:12, background:'#eff6ff', borderRadius:10, padding:'14px 16px', border:'1px solid #bfdbfe' }}>
-                        <div style={{ fontSize:'.78rem', fontWeight:700, color:'#2563EB', textTransform:'uppercase', letterSpacing:'.05em', marginBottom:10 }}>
-                          {lang === 'es' ? 'Recomendado para ti' : 'Recommended for you'}
-                        </div>
-                        {RECOMMENDED_IDS.map((id, i) => {
-                          const svc = SERVICES_CATALOG[id]
-                          if (!svc) return null
-                          const added = extraCart.includes(id)
-                          const price = getServiceFee(id, 'fbfc')
-                          const blurb = RECOMMENDED_BLURB[id]
-                          return (
-                            <div key={id} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:10, padding:'8px 0', borderTop: i > 0 ? '1px solid #dbeafe' : 'none' }}>
-                              <div>
-                                <div style={{ fontSize:'.85rem', fontWeight:600, color:'#1B3A6B' }}>{lang === 'es' ? svc.name_es : svc.name_en}</div>
-                                {blurb && <div style={{ fontSize:'.76rem', color:'#64748b', marginTop:1 }}>{lang === 'es' ? blurb.es : blurb.en}</div>}
-                              </div>
-                              <button
-                                onClick={() => setExtraCart(prev => added ? prev.filter(x => x !== id) : [...prev, id])}
-                                style={{
-                                  flexShrink: 0, fontSize: '.76rem', fontWeight: 700, borderRadius: 6, padding: '6px 12px',
-                                  cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap',
-                                  border: added ? '1px solid #16a34a' : '1px solid #2563EB',
-                                  color: added ? '#16a34a' : '#2563EB',
-                                  background: added ? '#f0fdf4' : '#fff',
-                                }}
-                              >
-                                {added ? (lang === 'es' ? '✓ Agregado' : '✓ Added') : `+$${price} · ${lang === 'es' ? 'Agregar' : 'Add'}`}
-                              </button>
-                            </div>
-                          )
-                        })}
-                      </div>
-
                       {/* Order — reubicado acá (en vez del sidebar) para que
                           quede junto al resto de lo que el cliente revisa
                           antes de pagar, y para equilibrar la altura de las
@@ -2210,7 +2245,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                       </div>
 
                       <div className="step-nav" style={{ marginTop:8 }}>
-                        <button className="step-back" onClick={() => goToStep(einSelected ? 3 : 2)}>
+                        <button className="step-back" onClick={() => goToStep(4)}>
                           ← {lang === 'es' ? 'Atrás' : 'Back'}
                         </button>
                       </div>
@@ -2219,13 +2254,14 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                 </div>
 
                 {/* ── RIGHT: CHECKOUT BOX ── */}
-                {/* En el Review (step 4) el resumen de servicios se mudó a la
+                {/* En el Review (step 5) el resumen de servicios se mudó a la
                     izquierda (junto a lo que el cliente revisa) para
                     equilibrar la altura de las columnas — acá solo queda el
-                    pago. En los demás pasos sigue siendo el resumen completo. */}
+                    pago. En los demás pasos (incluido el 4, "Recommended for
+                    you") sigue siendo el resumen completo. */}
                 <div className="co-box-wrap">
                 <div className="co-box">
-                  {step === 4 ? (
+                  {step === 5 ? (
                     <>
                       <div className="co-title">{lang === 'es' ? 'Pago Seguro' : 'Secure Payment'}</div>
                       {payError && (
