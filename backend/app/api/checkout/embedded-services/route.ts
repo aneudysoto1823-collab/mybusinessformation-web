@@ -28,6 +28,12 @@ export async function POST(req: NextRequest) {
     if (uniqueIds.length === 0) {
       return NextResponse.json({ error: isEs ? 'No hay servicios válidos en el pedido.' : 'No valid services in the order.' }, { status: 400 })
     }
+    // El cliente (coBuildWizard) ya evita ofrecer LLC + Corp a la vez, pero eso
+    // es solo UX — un request directo al endpoint podía mandar ambos y generar
+    // una orden con las 2 tarifas estatales cobradas y datos contradictorios.
+    if (uniqueIds.includes('llc-formation') && uniqueIds.includes('corp-formation')) {
+      return NextResponse.json({ error: isEs ? 'No se puede formar una LLC y una Corporation en la misma orden.' : 'Cannot form an LLC and a Corporation in the same order.' }, { status: 400 })
+    }
 
     // Bundles (combos) elegidos — validar contra el catálogo de bundles
     const rawBundles: string[] = Array.isArray(intake.bundles) ? intake.bundles : []
@@ -89,6 +95,11 @@ export async function POST(req: NextRequest) {
       lastName,
       email:           email.toLowerCase(),
       phone:           phone || null,
+      // Persiste la marca (ver lib/email-constants.ts) para que cualquier
+      // email posterior (reenvío manual, "Filed", "Aprobado") sepa qué
+      // branding usar — antes sourceDomain solo vivía en la metadata de
+      // Stripe, usado una única vez para el email de confirmación de pago.
+      sourceBrand:     sourceDomain,
       country:         String(intake.country || 'US'),
       companyName:     (legalName || `${firstName} ${lastName}`).toUpperCase(),
       entityType,

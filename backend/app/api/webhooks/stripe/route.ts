@@ -125,6 +125,11 @@ export async function POST(req: NextRequest) {
     // pagaba en Stripe pero la orden nunca se creaba, sin email ni número).
     country:         session.customer_details?.address?.country || 'US',
     entityType,
+    // Este flujo (POST /api/sunbiz/checkout, legacy) solo se alcanza desde
+    // mybusinessformation.com — a diferencia de package:'services', acá no
+    // hay sourceDomain en la metadata de Stripe para leer, así que se
+    // hardcodea (ver lib/email-constants.ts).
+    sourceBrand:     'fbfc',
     package:         'addon',
     addons:          selectedServices,
     amount:          amountPaid,

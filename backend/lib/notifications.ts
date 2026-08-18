@@ -1,7 +1,7 @@
 import { Resend } from 'resend'
 import { getOrderItemKeys, getOrderItemLabel } from './order-items'
 import { computeFormationTotal, withBasicDisplayLine } from './pricing'
-import { REPLY_TO, INTERNAL_ALERT_EMAIL as INTERNAL_EMAIL, FROM_OPABIZ, FROM_OPABIZ_SUPPORT, FROM_OPABIZ_ALERTS } from './email-constants'
+import { REPLY_TO, INTERNAL_ALERT_EMAIL as INTERNAL_EMAIL, FROM_OPABIZ, FROM_OPABIZ_SUPPORT, FROM_OPABIZ_ALERTS, type EmailBrand, brandFrom, brandPortalHome, brandSubjectPrefix, brandHeaderHtml, brandFooterLine } from './email-constants'
 
 // Lazy init: se crea al primer uso, cuando dotenv ya cargó el .env
 const getResend = () => new Resend(process.env.RESEND_API_KEY)
@@ -45,7 +45,13 @@ export const sendOrderConfirmation = async (order: {
   // caller) como Record<string, boolean>, lo cual era directamente falso
   // para los otros dos shapes y producía "addons" con basura (2026-07-12).
   addons?: unknown
+  // Marca con la que se creó la orden (Order.sourceBrand) — 'fbfc' para
+  // órdenes de mybusinessformation.com, null/undefined/'opabiz' default.
+  // Sin esto, el reenvío manual desde /admin siempre mostraba OpaBiz aunque
+  // la orden fuera de FBFC (auditoría 2026-08-17).
+  sourceBrand?: string | null
 }) => {
+  const brand: EmailBrand = order.sourceBrand as EmailBrand
   const fbfc = `FBFC-${order.id.replace(/-/g, '').substring(0, 8).toUpperCase()}`
   const packageKey = (order.package ?? '').toLowerCase().trim()
   const isFormationPackage = packageKey in PACKAGE_SERVICES
@@ -93,25 +99,20 @@ export const sendOrderConfirmation = async (order: {
       : ''
   }
 
+  const subjectPrefix = brandSubjectPrefix(brand)
   await getResend().emails.send({
-    from: FROM_OPABIZ,
+    from: brandFrom(brand),
     replyTo: REPLY_TO,
     to: order.email,
     subject: isFormationPackage
-      ? `OpaBiz: ✅ Your Florida LLC order is in — ${order.companyName}`
-      : `OpaBiz: ✅ Your order is in — ${order.companyName}`,
+      ? `${subjectPrefix}✅ Your Florida LLC order is in — ${order.companyName}`
+      : `${subjectPrefix}✅ Your order is in — ${order.companyName}`,
     html: `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#1e293b">
         <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden">
           <div style="padding:22px 32px;border-bottom:1px solid #e2e8f0">
             <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
-              <td style="width:42px;padding-right:12px">
-                <div style="width:42px;height:42px;background:linear-gradient(135deg,#1C2E44,#2563EB);border-radius:10px;text-align:center;line-height:42px;color:#fff;font-family:Georgia,serif;font-size:16px;font-weight:700">OB</div>
-              </td>
-              <td style="vertical-align:middle">
-                <div style="font-family:Georgia,serif;font-size:21px;font-weight:700;line-height:1.2"><span style="color:#1C2E44">Opa</span><span style="color:#2563EB">Biz</span></div>
-                <div style="font-size:11px;color:#94A3B8;letter-spacing:.3px;margin-top:2px">Florida Business Formation Center</div>
-              </td>
+              ${brandHeaderHtml(brand)}
             </tr></table>
           </div>
           <div style="padding:32px">
@@ -133,7 +134,7 @@ export const sendOrderConfirmation = async (order: {
                 : "Our team is now reviewing your order. We'll notify you by email as soon as it's processed."}
             </p>
             <div style="text-align:center;margin:24px 0">
-              <a href="${PORTAL_HOME}" style="background:linear-gradient(135deg,#2563EB,#1C2E44);color:#fff;text-decoration:none;padding:13px 32px;border-radius:8px;font-weight:700;font-size:15px;display:inline-block">
+              <a href="${brandPortalHome(brand)}" style="background:linear-gradient(135deg,#2563EB,#1C2E44);color:#fff;text-decoration:none;padding:13px 32px;border-radius:8px;font-weight:700;font-size:15px;display:inline-block">
                 Track My Order
               </a>
             </div>
@@ -414,11 +415,13 @@ export const sendOrderProcessed = async (order: {
   addons?: unknown
   unsubscribed?: boolean
   lang?: 'en' | 'es'
+  sourceBrand?: string | null
 }) => {
   if (order.unsubscribed) {
     return { success: false, reason: 'unsubscribed' }
   }
 
+  const brand: EmailBrand = order.sourceBrand as EmailBrand
   const isEs = order.lang === 'es'
   const fbfc = `FBFC-${order.id.replace(/-/g, '').substring(0, 8).toUpperCase()}`
   const speedLabel = order.speed === 'expedited'
@@ -444,23 +447,18 @@ export const sendOrderProcessed = async (order: {
   const isFormationPackage = packageKey in PACKAGE_SERVICES
   const packageItems = isFormationPackage ? (PACKAGE_SERVICES[packageKey] ?? []).map(i => isEs ? i.es : i.en) : []
 
+  const subjectPrefix = brandSubjectPrefix(brand)
   await getResend().emails.send({
-    from: FROM_OPABIZ,
+    from: brandFrom(brand),
     replyTo: REPLY_TO,
     to: order.email,
-    subject: isEs ? `OpaBiz: 📋 Enviamos su trámite a Florida — ${order.companyName}` : `OpaBiz: 📋 Your filing was submitted to Florida — ${order.companyName}`,
+    subject: isEs ? `${subjectPrefix}📋 Enviamos su trámite a Florida — ${order.companyName}` : `${subjectPrefix}📋 Your filing was submitted to Florida — ${order.companyName}`,
     html: `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#1e293b">
         <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden">
           <div style="padding:22px 32px;border-bottom:1px solid #e2e8f0">
             <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
-              <td style="width:42px;padding-right:12px">
-                <div style="width:42px;height:42px;background:linear-gradient(135deg,#1C2E44,#2563EB);border-radius:10px;text-align:center;line-height:42px;color:#fff;font-family:Georgia,serif;font-size:16px;font-weight:700">OB</div>
-              </td>
-              <td style="vertical-align:middle">
-                <div style="font-family:Georgia,serif;font-size:21px;font-weight:700;line-height:1.2"><span style="color:#1C2E44">Opa</span><span style="color:#2563EB">Biz</span></div>
-                <div style="font-size:11px;color:#94A3B8;letter-spacing:.3px;margin-top:2px">Florida Business Formation Center</div>
-              </td>
+              ${brandHeaderHtml(brand)}
             </tr></table>
           </div>
           <div style="padding:32px">
@@ -498,7 +496,7 @@ export const sendOrderProcessed = async (order: {
               ${isEs ? 'Para dar seguimiento a su orden cuando quiera, haga clic abajo e inicie sesión con su correo y el número de orden de arriba.' : 'To follow up on your order anytime, click below and log in with your email and the order number above.'}
             </p>
             <div style="text-align:center;margin:24px 0">
-              <a href="${PORTAL_HOME}" style="background:linear-gradient(135deg,#2563EB,#1C2E44);color:#fff;text-decoration:none;padding:13px 32px;border-radius:8px;font-weight:700;font-size:15px;display:inline-block">
+              <a href="${brandPortalHome(brand)}" style="background:linear-gradient(135deg,#2563EB,#1C2E44);color:#fff;text-decoration:none;padding:13px 32px;border-radius:8px;font-weight:700;font-size:15px;display:inline-block">
                 ${isEs ? 'Rastrear Mi Orden' : 'Track My Order'}
               </a>
             </div>
@@ -506,7 +504,7 @@ export const sendOrderProcessed = async (order: {
               ${isEs ? '¿Preguntas? Escríbanos por' : 'Questions? Reach us on'} <a href="https://wa.me/13528377755" style="color:#059669">WhatsApp</a> ${isEs ? 'o responda este correo.' : 'or reply to this email.'}
             </p>
             <p style="margin-top:24px;color:#94a3b8;font-size:12px;line-height:1.6">
-              OpaBiz · opabiz.com<br/>
+              ${brandFooterLine(brand)}<br/>
               ${isEs ? 'Este es un correo transaccional. Somos un servicio de preparación de documentos, no un despacho de abogados.' : 'This is a transactional email. We are a document preparation service, not a law firm.'}
             </p>
           </div>
@@ -544,6 +542,7 @@ export const sendOrderApprovalUpdate = async (
     id: string
     unsubscribed?: boolean
     lang?: 'en' | 'es'
+    sourceBrand?: string | null
   },
   delivery: {
     /** claves de items aprobados/entregados EN ESTA RONDA (ej. ['formation','ein']) */
@@ -558,6 +557,7 @@ export const sendOrderApprovalUpdate = async (
     return { success: false, reason: 'unsubscribed' }
   }
 
+  const brand: EmailBrand = order.sourceBrand as EmailBrand
   const isEs = order.lang === 'es'
   const lang: 'en' | 'es' = isEs ? 'es' : 'en'
   const fbfc = `FBFC-${order.id.replace(/-/g, '').substring(0, 8).toUpperCase()}`
@@ -587,26 +587,21 @@ export const sendOrderApprovalUpdate = async (
     return "We're writing to update you on your order's progress."
   })()
 
+  const subjectPrefix = brandSubjectPrefix(brand)
   await getResend().emails.send({
-    from: FROM_OPABIZ,
+    from: brandFrom(brand),
     replyTo: REPLY_TO,
     to: order.email,
     subject: hasFiles
-      ? (isEs ? `OpaBiz: 🏆 Sus documentos están listos — ${order.companyName}` : `OpaBiz: 🏆 Your documents are ready — ${order.companyName}`)
-      : (isEs ? `OpaBiz: 🎉 Actualización de su orden — ${order.companyName}` : `OpaBiz: 🎉 Update on your order — ${order.companyName}`),
+      ? (isEs ? `${subjectPrefix}🏆 Sus documentos están listos — ${order.companyName}` : `${subjectPrefix}🏆 Your documents are ready — ${order.companyName}`)
+      : (isEs ? `${subjectPrefix}🎉 Actualización de su orden — ${order.companyName}` : `${subjectPrefix}🎉 Update on your order — ${order.companyName}`),
     attachments: delivery.attachments,
     html: `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#1e293b">
         <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden">
           <div style="padding:22px 32px;border-bottom:1px solid #e2e8f0">
             <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
-              <td style="width:42px;padding-right:12px">
-                <div style="width:42px;height:42px;background:linear-gradient(135deg,#1C2E44,#2563EB);border-radius:10px;text-align:center;line-height:42px;color:#fff;font-family:Georgia,serif;font-size:16px;font-weight:700">OB</div>
-              </td>
-              <td style="vertical-align:middle">
-                <div style="font-family:Georgia,serif;font-size:21px;font-weight:700;line-height:1.2"><span style="color:#1C2E44">Opa</span><span style="color:#2563EB">Biz</span></div>
-                <div style="font-size:11px;color:#94A3B8;letter-spacing:.3px;margin-top:2px">Florida Business Formation Center</div>
-              </td>
+              ${brandHeaderHtml(brand)}
             </tr></table>
           </div>
           <div style="padding:32px">
@@ -633,7 +628,7 @@ export const sendOrderApprovalUpdate = async (
               ${isEs ? '¿Preguntas? Escríbanos por' : 'Questions? Reach us on'} <a href="https://wa.me/13528377755" style="color:#059669">WhatsApp</a> ${isEs ? 'o responda este correo.' : 'or reply to this email.'}
             </p>
             <p style="margin-top:24px;color:#94a3b8;font-size:12px;line-height:1.6">
-              OpaBiz · opabiz.com<br/>
+              ${brandFooterLine(brand)}<br/>
               ${isEs ? 'Este es un correo transaccional. Somos un servicio de preparación de documentos, no un despacho de abogados.' : 'This is a transactional email. We are a document preparation service, not a law firm.'}
             </p>
           </div>

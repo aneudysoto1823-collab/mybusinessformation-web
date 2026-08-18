@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
 
     const { data: order, error: orderError } = await supabase
       .from('Order')
-      .select('id, firstName, lastName, email, companyName, entityType, package, addons, deliveredItems, deliveredFiles, unsubscribed, status')
+      .select('id, firstName, lastName, email, companyName, entityType, package, addons, deliveredItems, deliveredFiles, unsubscribed, status, sourceBrand')
       .eq('id', orderId)
       .single()
 
@@ -97,6 +97,7 @@ export async function POST(request: NextRequest) {
           entityType: order.entityType ?? undefined,
           unsubscribed: order.unsubscribed ?? false,
           lang: 'en',
+          sourceBrand: order.sourceBrand,
         },
         { approvedItems, pendingItems, attachments: attachments.length ? attachments : undefined }
       )

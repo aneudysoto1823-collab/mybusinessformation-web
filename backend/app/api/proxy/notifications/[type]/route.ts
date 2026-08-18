@@ -20,7 +20,7 @@ async function verifyAdmin(request: NextRequest): Promise<boolean> {
 async function getOrder(orderId: string) {
   const { data, error } = await getSupabaseAdmin()
     .from('Order')
-    .select('id, firstName, lastName, email, companyName, companyName2, companyName3, entityType, package, speed, addons, unsubscribed, orderProcessedEmailSentAt')
+    .select('id, firstName, lastName, email, companyName, companyName2, companyName3, entityType, package, speed, addons, unsubscribed, orderProcessedEmailSentAt, sourceBrand')
     .eq('id', orderId)
     .single()
   if (error || !data) return null
@@ -62,6 +62,7 @@ export async function POST(
         // {services,bundles,lines} (à la carte) o array plano (marketing)
         // según order.package; sendOrderConfirmation ya sabe normalizar los 3.
         addons: order.addons,
+        sourceBrand: order.sourceBrand,
       })
       await logAdminAction({ action: 'email.order-confirmation-resent', entity: 'Order', entityId: order.id, request })
       return NextResponse.json({ success: true, message: `Confirmación reenviada a ${order.email}` })
@@ -142,6 +143,7 @@ export async function POST(
         addons: order.addons ?? null,
         unsubscribed: order.unsubscribed ?? false,
         lang: body.lang === 'es' ? 'es' : 'en',
+        sourceBrand: order.sourceBrand,
       })
       await getSupabaseAdmin().from('Order').update({ orderProcessedEmailSentAt: new Date().toISOString() }).eq('id', order.id)
       await logAdminAction({ action: 'email.order-processed', entity: 'Order', entityId: order.id, request })

@@ -221,7 +221,11 @@ export function computeServicesTotal(serviceIds: string[], bundleIds: string[] =
     if (!b) continue
     // Sin newServicesByBundle (compat con llamadas viejas): se asume el bundle
     // completo, igual que el comportamiento original.
-    const claimedNew = (newServicesByBundle?.[bid] ?? b.services).filter(s => b.services.includes(s) && serviceIds.includes(s))
+    // Set (no solo filter): un newServicesByBundle[bid] con ids repetidos no
+    // debe duplicar la tarifa estatal de ese servicio más abajo (computeBundlePrice
+    // ya dedupea para el precio del combo, pero el loop de stateLines iteraba el
+    // array crudo — hallazgo de auditoría 2026-08-17).
+    const claimedNew = [...new Set((newServicesByBundle?.[bid] ?? b.services).filter(s => b.services.includes(s) && serviceIds.includes(s)))]
     if (claimedNew.length === 0) continue // nada que este bundle aporte — sus servicios (si están en el pedido) se cobran individual abajo
     // Cadencia del combo: si todos sus servicios recurrentes comparten una sola
     // cadencia, se etiqueta así; si hay mezcla (ej. mensual + anual), va sin
