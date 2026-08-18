@@ -30,33 +30,31 @@ const EXTRAS_TIERS = [
   { bundle: 'bundle-extras-va-ra-ar', services: ['virtual-address', 'registered-agent', 'annual-report'] },
 ] as const
 const EXTRAS_SERVICE_IDS = new Set<string>(EXTRAS_TIERS[EXTRAS_TIERS.length - 1].services)
+// Una sola definición integrada por servicio (2026-08-18, antes era un blurb
+// corto + un cuadro aparte con más detalle debajo de la tarjeta — se fusionó
+// en un solo párrafo por pedido del founder, sin repetir la misma idea dos
+// veces). El caso de Virtual Address en el tier 1 es la única excepción real:
+// ahí sí necesita una definición más larga porque, al ser el único servicio
+// del tier, es donde tiene sentido aclarar que no cubre el requisito de
+// Registered Agent (en los tiers 2 y 3 esa aclaración ya no aplica, porque
+// Registered Agent va incluido).
 const EXTRAS_BLURB: Record<string, { en: string; es: string }> = {
   'virtual-address': {
     en: 'A professional Florida mailing address for your business. Keeps your home address private.',
     es: 'Una dirección postal profesional en Florida para tu negocio. Mantiene tu dirección personal privada.',
   },
   'registered-agent': {
-    en: 'Receives legal documents and state notices on your behalf, as Florida law requires for every LLC and Corporation.',
-    es: 'Recibe documentos legales y avisos del estado en tu nombre, tal como lo exige la ley de Florida para toda LLC y Corporation.',
+    en: 'Florida law requires every LLC and Corporation to name a Registered Agent who is available at a physical Florida address every business day between 9am and 5pm to receive legal documents in person, and whose address becomes public record. We act as your Registered Agent instead, so you don’t have to.',
+    es: 'La ley de Florida exige que toda LLC y Corporation nombre un Agente Registrado disponible en una dirección física de Florida todos los días hábiles entre las 9am y las 5pm para recibir documentos legales en persona, y cuya dirección queda en el registro público. Nosotros actuamos como tu Agente Registrado, para que tú no tengas que hacerlo.',
   },
   'annual-report': {
     en: 'Required every year to keep your entity active with the state of Florida.',
     es: 'Requerida cada año para mantener tu entidad activa ante el estado de Florida.',
   },
 }
-// Texto adicional solo para el tier 1 y el tier 2 (índices 0 y 1) — el
-// founder pidió detallar la diferencia entre ambos y explicar el requisito
-// de disponibilidad en horario laboral si el cliente es su propio Registered
-// Agent (2026-08-18).
-const EXTRAS_TIER_NOTE: Record<number, { en: string; es: string }> = {
-  0: {
-    en: 'This gives your business a professional mailing address only. It does not fulfill your Registered Agent requirement. You will still need to name a Registered Agent for your LLC or Corporation, either yourself or a service like the one in the next tier.',
-    es: 'Esto le da a tu negocio solo una dirección postal profesional. No cumple con el requisito de Agente Registrado. De todas formas necesitarás nombrar un Agente Registrado para tu LLC o Corporation, ya sea tú mismo o un servicio como el del siguiente nivel.',
-  },
-  1: {
-    en: 'Florida law requires every LLC and Corporation to name a Registered Agent who is available at a physical Florida address every business day between 9am and 5pm to receive legal documents in person, and whose address becomes public record. This tier adds our Registered Agent service, so we meet that requirement for you instead.',
-    es: 'La ley de Florida exige que toda LLC y Corporation nombre un Agente Registrado disponible en una dirección física de Florida todos los días hábiles entre las 9am y las 5pm para recibir documentos legales en persona, y cuya dirección queda en el registro público. Este nivel agrega nuestro servicio de Agente Registrado, para que nosotros cumplamos ese requisito en tu lugar.',
-  },
+const EXTRAS_VA_TIER1_BLURB = {
+  en: 'A professional Florida mailing address for your business, keeping your home address private. On its own, it does not fulfill your Registered Agent requirement: you will still need to name one for your LLC or Corporation, either yourself or a service like the one in the next tier.',
+  es: 'Una dirección postal profesional en Florida para tu negocio, que mantiene tu dirección personal privada. Por sí sola, no cumple con el requisito de Agente Registrado: de todas formas necesitarás nombrar uno para tu LLC o Corporation, ya sea tú mismo o un servicio como el del siguiente nivel.',
 }
 
 type Company = {
@@ -1045,6 +1043,11 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
 
   function goToStep(n: number) {
     setDoneSteps(prev => { const s = new Set(prev); s.add(step); return s })
+    // Si el cliente sale del Review (step 5) por cualquier vía (Atrás, un
+    // "Editar" de otra sección) mientras Stripe ya estaba montado, se olvida
+    // ese checkout — al volver se monta uno nuevo en vez de mostrar un
+    // iframe huérfano que quedó referenciando un div que React ya desmontó.
+    if (step === 5 && n !== 5) setPendingCheckout(null)
     setStep(n)
     // Sube al tope de la página (no directo al form) para que el cliente
     // siga viendo el saludo/encabezado al cambiar de paso, y sea él quien
@@ -1142,14 +1145,30 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
   }, [company, docInput])
 
 
-  // ── Checkout unificado (2026-08-13): new-business ya no monta su propio
-  // Stripe Embedded Checkout — arma el intake con lo ya recolectado (empresa,
-  // contacto, datos del EIN) y lo entrega al MISMO backend/wizard que usa
-  // /servicios (/api/checkout/embedded-services + /servicios/checkout), para
-  // que un cliente que agregó algo desde /servicios pague todo junto, una
-  // sola orden. Ver flbc_svc_cart / flbc_svc_orderid / flbc_svc_prefill.
+  // ── Checkout unificado (2026-08-13): el intake (empresa, contacto, datos
+  // del EIN) se arma acá y se manda al MISMO endpoint que usa /servicios
+  // (/api/checkout/embedded-services), para que un cliente que agregó algo
+  // desde /servicios pague todo junto, una sola orden. Ver flbc_svc_cart /
+  // flbc_svc_orderid / flbc_svc_prefill.
+  //
+  // El formulario de Stripe se monta directo acá (2026-08-18, antes
+  // redirigía a /servicios/checkout solo para mostrar el pago) — mismo
+  // patrón que coMountStripe() de esa página: stripe.initEmbeddedCheckout()
+  // recién cuando el contenedor ya es visible (nunca oculto, ver gotcha
+  // documentado en CLAUDE.md sobre por qué no premontar oculto), montado
+  // desde un useEffect para garantizar que el div ya esté en el DOM. El
+  // return_url de la sesión (definido server-side en
+  // /api/checkout/embedded-services) sigue apuntando a /servicios/checkout,
+  // que ya sabe mostrar la confirmación de pago — eso no cambia.
   const [payLoading, setPayLoading] = useState(false)
   const [payError, setPayError]     = useState('')
+  const [pendingCheckout, setPendingCheckout] = useState<any>(null)
+
+  useEffect(() => {
+    if (!pendingCheckout) return
+    try { pendingCheckout.mount('#nb-embedded-checkout') } catch { /* noop */ }
+    return () => { try { pendingCheckout.destroy() } catch { /* noop */ } }
+  }, [pendingCheckout])
 
   function buildIntake() {
     const extras: Record<string, string> = {}
@@ -1205,7 +1224,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
         body: JSON.stringify({ services, intake, lang, orderId: orderId || undefined }),
       })
       const data = await res.json()
-      if (!res.ok || !data.orderId) throw new Error(data.error || 'Could not start payment')
+      if (!res.ok || !data.orderId || !data.clientSecret) throw new Error(data.error || 'Could not start payment')
       localStorage.setItem('flbc_svc_orderid', data.orderId)
       localStorage.setItem('flbc_svc_cart', JSON.stringify(services))
       localStorage.setItem('flbc_svc_prefill', JSON.stringify(intake))
@@ -1216,9 +1235,15 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
         lang,
         source: 'new-business-marketing',
       })
-      window.location.href = '/servicios/checkout'
+      const StripeCtor = (window as any).Stripe
+      const pk = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+      if (!StripeCtor || !pk) throw new Error('Stripe.js not available')
+      const stripe = StripeCtor(pk)
+      const checkout = await stripe.initEmbeddedCheckout({ clientSecret: data.clientSecret })
+      setPendingCheckout(checkout)
     } catch {
       setPayError(lang === 'es' ? 'No se pudo continuar al pago. Vuelve a intentarlo.' : 'Could not continue to payment. Please try again.')
+    } finally {
       setPayLoading(false)
     }
   }
@@ -2175,7 +2200,6 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                           const stateFees = tier.services.reduce((acc, id) => acc + (SERVICES_CATALOG[id]?.stateFee ?? 0), 0)
                           const isSelected = activeExtrasTier?.bundle === tier.bundle
                           const isBest = i === EXTRAS_TIERS.length - 1
-                          const note = EXTRAS_TIER_NOTE[i]
                           return (
                             <div
                               key={tier.bundle}
@@ -2199,8 +2223,9 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                                 {tier.services.map(id => {
                                   const svc = SERVICES_CATALOG[id]
                                   if (!svc) return null
-                                  const blurb = EXTRAS_BLURB[id]
                                   const isVa = id === 'virtual-address'
+                                  const blurb = (isVa && i === 0) ? EXTRAS_VA_TIER1_BLURB : EXTRAS_BLURB[id]
+                                  const cadence = svc.billing === 'monthly' ? (lang === 'es' ? '/mes' : '/mo') : svc.billing === 'annual' ? (lang === 'es' ? '/año' : '/yr') : ''
                                   return (
                                     <div key={id} style={{ marginBottom:10 }}>
                                       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'baseline', gap:10 }}>
@@ -2210,11 +2235,11 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                                         </span>
                                         {isVa ? (
                                           <span style={{ flexShrink:0, whiteSpace:'nowrap' }}>
-                                            <span style={{ color:'#94a3b8', textDecoration:'line-through', marginRight:6 }}>${svc.serviceFee.toFixed(2)}</span>
+                                            <span style={{ color:'#94a3b8', textDecoration:'line-through', marginRight:6 }}>${svc.serviceFee.toFixed(2)}{cadence}</span>
                                             <span style={{ color:'#16a34a', fontWeight:700 }}>{lang === 'es' ? 'GRATIS' : 'FREE'}</span>
                                           </span>
                                         ) : (
-                                          <span style={{ color:'#374151', fontWeight:600, flexShrink:0 }}>${svc.serviceFee.toFixed(2)}</span>
+                                          <span style={{ color:'#374151', fontWeight:600, flexShrink:0 }}>${svc.serviceFee.toFixed(2)}{cadence}</span>
                                         )}
                                       </div>
                                       {blurb && <div style={{ marginLeft:20, marginTop:2 }}>{lang === 'es' ? blurb.es : blurb.en}</div>}
@@ -2222,11 +2247,6 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                                   )
                                 })}
                               </div>
-                              {note && (
-                                <div style={{ background:'#f8fafc', border:'1px solid #e2e8f0', borderRadius:8, padding:'10px 12px', fontSize:'.76rem', color:'#64748b', lineHeight:1.6, marginBottom:12 }}>
-                                  {lang === 'es' ? note.es : note.en}
-                                </div>
-                              )}
                               <div style={{ borderTop:'1px solid #f1f5f9', paddingTop:10, marginTop:'auto' }}>
                                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'baseline', gap:8 }}>
                                   <span style={{ fontSize:'.82rem', fontWeight:700, color:'#1B3A6B' }}>{lang === 'es' ? 'Total' : 'Total'}</span>
@@ -2276,7 +2296,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                       <div style={{ marginBottom:12, background:'#f8fafc', borderRadius:10, padding:'12px 14px', border:'1px solid #e2e8f0' }}>
                         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8 }}>
                           <span style={{ fontSize:'.78rem', fontWeight:700, color:'#94a3b8', textTransform:'uppercase', letterSpacing:'.05em' }}>{lang === 'es' ? 'Negocio' : 'Business'}</span>
-                          <button onClick={() => setStep(1)} style={{ background:'none', border:'1px solid #2563EB', borderRadius:6, color:'#2563EB', fontSize:'.72rem', fontWeight:600, padding:'3px 10px', cursor:'pointer', fontFamily:'inherit' }}>{lang === 'es' ? 'Editar' : 'Edit'}</button>
+                          <button onClick={() => { setPendingCheckout(null); setStep(1) }} style={{ background:'none', border:'1px solid #2563EB', borderRadius:6, color:'#2563EB', fontSize:'.72rem', fontWeight:600, padding:'3px 10px', cursor:'pointer', fontFamily:'inherit' }}>{lang === 'es' ? 'Editar' : 'Edit'}</button>
                         </div>
                         {([
                           [lang === 'es' ? 'Nombre' : 'Business name', form.companyName],
@@ -2297,7 +2317,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                       <div style={{ marginBottom:12, background:'#f8fafc', borderRadius:10, padding:'12px 14px', border:'1px solid #e2e8f0' }}>
                         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8 }}>
                           <span style={{ fontSize:'.78rem', fontWeight:700, color:'#94a3b8', textTransform:'uppercase', letterSpacing:'.05em' }}>{lang === 'es' ? 'Contacto' : 'Contact'}</span>
-                          <button onClick={() => setStep(2)} style={{ background:'none', border:'1px solid #2563EB', borderRadius:6, color:'#2563EB', fontSize:'.72rem', fontWeight:600, padding:'3px 10px', cursor:'pointer', fontFamily:'inherit' }}>{lang === 'es' ? 'Editar' : 'Edit'}</button>
+                          <button onClick={() => { setPendingCheckout(null); setStep(2) }} style={{ background:'none', border:'1px solid #2563EB', borderRadius:6, color:'#2563EB', fontSize:'.72rem', fontWeight:600, padding:'3px 10px', cursor:'pointer', fontFamily:'inherit' }}>{lang === 'es' ? 'Editar' : 'Edit'}</button>
                         </div>
                         {([
                           [lang === 'es' ? 'Nombre' : 'Name', [form.firstName, form.middleInitial, form.lastName, form.suffix].filter(Boolean).join(' ')],
@@ -2316,7 +2336,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                         <div style={{ marginBottom:12, background:'#f8fafc', borderRadius:10, padding:'12px 14px', border:'1px solid #e2e8f0' }}>
                           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8 }}>
                             <span style={{ fontSize:'.78rem', fontWeight:700, color:'#94a3b8', textTransform:'uppercase', letterSpacing:'.05em' }}>EIN / Tax ID</span>
-                            <button onClick={() => setStep(3)} style={{ background:'none', border:'1px solid #2563EB', borderRadius:6, color:'#2563EB', fontSize:'.72rem', fontWeight:600, padding:'3px 10px', cursor:'pointer', fontFamily:'inherit' }}>{lang === 'es' ? 'Editar' : 'Edit'}</button>
+                            <button onClick={() => { setPendingCheckout(null); setStep(3) }} style={{ background:'none', border:'1px solid #2563EB', borderRadius:6, color:'#2563EB', fontSize:'.72rem', fontWeight:600, padding:'3px 10px', cursor:'pointer', fontFamily:'inherit' }}>{lang === 'es' ? 'Editar' : 'Edit'}</button>
                           </div>
                           {form.einReason && (
                             <div style={{ display:'flex', gap:8, padding:'4px 0', borderTop:'1px solid #f1f5f9', fontSize:'.83rem' }}>
@@ -2394,7 +2414,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                       </div>
 
                       <div className="step-nav" style={{ marginTop:8 }}>
-                        <button className="step-back" onClick={() => goToStep(4)}>
+                        <button className="step-back" onClick={() => { setPendingCheckout(null); goToStep(4) }}>
                           ← {lang === 'es' ? 'Atrás' : 'Back'}
                         </button>
                       </div>
@@ -2417,6 +2437,12 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                 <div className="co-box-wrap">
                 <div className="co-box">
                   {step === 5 ? (
+                    pendingCheckout ? (
+                      <>
+                        <div className="co-title">{lang === 'es' ? 'Pago Seguro' : 'Secure Payment'}</div>
+                        <div id="nb-embedded-checkout" />
+                      </>
+                    ) : (
                     <>
                       <div className="co-title">{lang === 'es' ? 'Pago Seguro' : 'Secure Payment'}</div>
                       {payError && (
@@ -2440,6 +2466,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                           : (lang === 'es' ? 'Continuar al Pago →' : 'Continue to Payment →')}
                       </button>
                     </>
+                    )
                   ) : (
                     <>
                       <div className="co-title">{lang === 'es' ? 'Resumen de Orden' : 'Order Summary'}</div>
@@ -2453,6 +2480,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                     </>
                   )}
                 </div>
+                {!pendingCheckout && (
                 <a
                   href="/servicios"
                   className="step-next"
@@ -2460,6 +2488,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                 >
                   {lang === 'es' ? 'Ver Todos los Servicios' : 'View All Services'}
                 </a>
+                )}
                 </div>
                 )}
               </div>
