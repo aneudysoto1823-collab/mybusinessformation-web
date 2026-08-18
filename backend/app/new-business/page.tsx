@@ -2236,7 +2236,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                                         {isVa ? (
                                           <span style={{ flexShrink:0, whiteSpace:'nowrap' }}>
                                             <span style={{ color:'#94a3b8', textDecoration:'line-through', marginRight:6 }}>${svc.serviceFee.toFixed(2)}{cadence}</span>
-                                            <span style={{ color:'#16a34a', fontWeight:700 }}>{lang === 'es' ? 'GRATIS' : 'FREE'}</span>
+                                            <span style={{ color:'#16a34a', fontWeight:700 }}>{lang === 'es' ? '1er mes GRATIS' : '1st month FREE'}</span>
                                           </span>
                                         ) : (
                                           <span style={{ color:'#374151', fontWeight:600, flexShrink:0 }}>${svc.serviceFee.toFixed(2)}{cadence}</span>
