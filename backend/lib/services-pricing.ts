@@ -5,11 +5,12 @@
 // el total se recalcula aquí desde los IDs de servicio guardados, nunca se
 // confía en el monto del navegador (anti-tampering).
 //
-// ⚠️ PRECIOS PLACEHOLDER (Fase 1): los 3 servicios sin precio fijo (registered
-// -agent, virtual-address, annual-report) están en $99 temporalmente — ajustar
-// al precio real antes de LIVE. Las tarifas estatales (stateFee) son montos
-// aproximados tomados de los summary boxes de los formularios; confirmarlas
-// antes de LIVE. Si cambia un precio en /servicios (page.tsx), actualizar aquí.
+// ⚠️ PRECIOS PLACEHOLDER (Fase 1): registered-agent y annual-report están en
+// $99 temporalmente — ajustar al precio real antes de LIVE. virtual-address
+// quedó confirmado en $30/mes (2026-08-18). Las tarifas estatales (stateFee)
+// son montos aproximados tomados de los summary boxes de los formularios;
+// confirmarlas antes de LIVE. Si cambia un precio en /servicios (page.tsx),
+// actualizar aquí.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export interface ServiceDef {
@@ -47,7 +48,7 @@ export const SERVICES_CATALOG: Record<string, ServiceDef> = {
   'operating-agreement':   { name_en: 'Operating Agreement',               name_es: 'Acuerdo Operativo',                    desc_en: 'Custom, bank-ready LLC Operating Agreement',                          desc_es: 'Acuerdo Operativo personalizado, listo para el banco',                               serviceFee: 79,  stateFee: 0 },
   'itin':                  { name_en: 'ITIN Application',                   name_es: 'Solicitud de ITIN',                    desc_en: 'ITIN application (IRS Form W-7) filed on your behalf',                desc_es: 'Solicitud de ITIN (Formulario W-7 del IRS) presentada en su nombre',                  serviceFee: 135, stateFee: 0 },
   'dba':                   { name_en: 'DBA / Fictitious Name',             name_es: 'DBA / Nombre Ficticio',                desc_en: 'Fictitious Name registered with the FL Division of Corporations',     desc_es: 'Nombre Ficticio registrado ante la División de Corporaciones de FL',                  serviceFee: 49,  stateFee: 50 },
-  'virtual-address':       { name_en: 'Virtual Mailing Address',           name_es: 'Dirección Postal Virtual',             desc_en: 'Professional FL mailing address with mail scanning & forwarding',     desc_es: 'Dirección postal profesional en FL con escaneo y reenvío de correo',                  serviceFee: 99,  stateFee: 0,   billing: 'monthly' },
+  'virtual-address':       { name_en: 'Virtual Mailing Address',           name_es: 'Dirección Postal Virtual',             desc_en: 'Professional FL mailing address with mail scanning & forwarding',     desc_es: 'Dirección postal profesional en FL con escaneo y reenvío de correo',                  serviceFee: 30,  stateFee: 0,   billing: 'monthly' },
   'annual-report':         { name_en: 'Annual Report Filing',              name_es: 'Declaración Anual',                    desc_en: 'Annual Report filed with Sunbiz to keep your entity active',          desc_es: 'Declaración Anual presentada ante Sunbiz para mantener su entidad activa',            serviceFee: 99,  stateFee: 139, billing: 'annual' },
   'amendment':             { name_en: 'Articles of Amendment',             name_es: 'Artículos de Enmienda',                desc_en: 'Articles of Amendment filed with the FL Division of Corporations',    desc_es: 'Artículos de Enmienda presentados ante la División de Corporaciones de FL',           serviceFee: 59,  stateFee: 25 },
   'banking-resolution':    { name_en: 'Banking Resolution',                name_es: 'Resolución Bancaria',                  desc_en: 'Authorizes opening a business bank account for your LLC/Corp',        desc_es: 'Autoriza la apertura de una cuenta bancaria para su LLC/Corp',                        serviceFee: 49,  stateFee: 0 },
@@ -101,6 +102,12 @@ export interface BundleDef {
 // de sus servicios en el carrito antes de seleccionarlo — ver computeBundlePrice.
 export const BUNDLE_DISCOUNT_RATE = 0.10
 
+// Servicios que NUNCA entran al pool del 10% de descuento dentro de un combo —
+// se cobran siempre a precio de catálogo completo, solo el resto de los
+// servicios del combo se descuenta (decisión founder 2026-08-18: Virtual
+// Address ya es el más barato del grupo, no tiene sentido bajarlo más).
+export const NO_DISCOUNT_SERVICE_IDS = new Set<string>(['virtual-address'])
+
 export const SERVICE_BUNDLES: Record<string, BundleDef> = {
   // Hub 1 — Documentos esenciales (después de Dueños)
   'bundle-docs-oa':     { name_en: 'Operating Agreement',                      name_es: 'Acuerdo Operativo',                            services: ['operating-agreement'], price: 79 },
@@ -112,10 +119,14 @@ export const SERVICE_BUNDLES: Record<string, BundleDef> = {
   // (decisión negocio 2026-07-02, ver bundle-compliance-*) — así este hub queda
   // solo con Virtual Address + Business Tax Receipt para no repetir el mismo
   // servicio en dos pasos (ver bundle-protect-va-btr más abajo).
-  'bundle-protect-va':     { name_en: 'Virtual Mailing Address',              name_es: 'Dirección Virtual',                            services: ['virtual-address'], price: 99 },
-  'bundle-protect-va-ar':  { name_en: 'Virtual Address + Annual Report',      name_es: 'Dirección Virtual + Declaración Anual',         services: ['virtual-address', 'annual-report'], price: 179 },
-  'bundle-protect-full':   { name_en: 'Virtual Address + Annual Report + Local Business Tax Receipt', name_es: 'Dirección Virtual + Declaración Anual + Licencia Comercial Local', services: ['virtual-address', 'annual-report', 'business-tax-receipt'], price: 259 },
-  'bundle-protect-va-btr': { name_en: 'Virtual Address + Local Business Tax Receipt', name_es: 'Dirección Virtual + Licencia Comercial Local', services: ['virtual-address', 'business-tax-receipt'], price: 179 },
+  // Precios recalculados 2026-08-18 tras bajar virtual-address a $30/mes — ver
+  // NO_DISCOUNT_SERVICE_IDS más abajo: Virtual Address nunca entra al pool del
+  // 10% de descuento (se cobra siempre a precio completo dentro de un combo),
+  // solo el resto de los servicios del combo se descuenta.
+  'bundle-protect-va':     { name_en: 'Virtual Mailing Address',              name_es: 'Dirección Virtual',                            services: ['virtual-address'], price: 30 },
+  'bundle-protect-va-ar':  { name_en: 'Virtual Address + Annual Report',      name_es: 'Dirección Virtual + Declaración Anual',         services: ['virtual-address', 'annual-report'], price: 119 },
+  'bundle-protect-full':   { name_en: 'Virtual Address + Annual Report + Local Business Tax Receipt', name_es: 'Dirección Virtual + Declaración Anual + Licencia Comercial Local', services: ['virtual-address', 'annual-report', 'business-tax-receipt'], price: 208 },
+  'bundle-protect-va-btr': { name_en: 'Virtual Address + Local Business Tax Receipt', name_es: 'Dirección Virtual + Licencia Comercial Local', services: ['virtual-address', 'business-tax-receipt'], price: 119 },
   // Hub 3 — Cumplimiento anual (NUEVO, solo à la carte sin formación — en
   // formación el agente ya se decide en su propio paso obligatorio). Agrupa los
   // dos requisitos recurrentes de mayor valor (afiliación anual) para que no
@@ -123,6 +134,13 @@ export const SERVICE_BUNDLES: Record<string, BundleDef> = {
   // ya usan los demás combos de 2 servicios (bundle-protect-va-ar).
   'bundle-compliance-ra':    { name_en: 'Registered Agent',                    name_es: 'Agente Registrado',                           services: ['registered-agent'], price: 99 },
   'bundle-compliance-ra-ar': { name_en: 'Registered Agent + Annual Report',    name_es: 'Agente Registrado + Declaración Anual',       services: ['registered-agent', 'annual-report'], price: 179 },
+  // Hub "Extras" de /new-business (2026-08-18) — tiers acumulativos: Virtual
+  // Address sola → +Registered Agent → +Annual Report. Mismos servicios que
+  // bundle-protect-full pero cambiando Business Tax Receipt por Registered
+  // Agent (mismo precio $99, mismos $208 resultantes).
+  'bundle-extras-va':        { name_en: 'Virtual Mailing Address',              name_es: 'Dirección Postal Virtual',                    services: ['virtual-address'], price: 30 },
+  'bundle-extras-va-ra':     { name_en: 'Virtual Address + Registered Agent',   name_es: 'Dirección Virtual + Agente Registrado',       services: ['virtual-address', 'registered-agent'], price: 119 },
+  'bundle-extras-va-ra-ar':  { name_en: 'Virtual Address + Registered Agent + Annual Report', name_es: 'Dirección Virtual + Agente Registrado + Declaración Anual', services: ['virtual-address', 'registered-agent', 'annual-report'], price: 208 },
 }
 
 /**
@@ -143,8 +161,16 @@ export function computeBundlePrice(bundleId: string, newServiceIds: string[], br
   const claimedNew = new Set(newServiceIds.filter(s => b.services.includes(s)))
   if (claimedNew.size === 0) return 0
   if (claimedNew.size === b.services.length) return b.price
-  const fee = [...claimedNew].reduce((sum, s) => sum + getServiceFee(s, brand), 0)
-  return Math.round(fee * (1 - BUNDLE_DISCOUNT_RATE))
+  // Virtual Address (y cualquier otro id en NO_DISCOUNT_SERVICE_IDS) se cobra
+  // a precio completo; solo el resto del combo entra al pool del 10% off.
+  let full = 0
+  let discountable = 0
+  for (const s of claimedNew) {
+    const fee = getServiceFee(s, brand)
+    if (NO_DISCOUNT_SERVICE_IDS.has(s)) full += fee
+    else discountable += fee
+  }
+  return full + Math.round(discountable * (1 - BUNDLE_DISCOUNT_RATE))
 }
 
 export interface PriceLine {

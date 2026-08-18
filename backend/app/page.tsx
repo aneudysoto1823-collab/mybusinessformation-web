@@ -1232,7 +1232,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
       </a>
       <a class="mini-svc-card" href="/servicios?lang=${defaultLang}#virtual-address">
         <div class="mini-svc-top"><span class="mini-svc-icon">&#128205;</span><span class="mini-svc-name" data-en="Virtual Mailing Address" data-es="Dirección Postal Virtual">Virtual Mailing Address</span></div>
-        <div class="mini-svc-price">$29<span style="font-size:.75rem;font-weight:400">/mo</span></div>
+        <div class="mini-svc-price">$30<span style="font-size:.75rem;font-weight:400">/mo</span></div>
         <div class="mini-svc-sub" data-en="Cancel anytime" data-es="Cancela cuando quieras">Cancel anytime</div>
         <div class="mini-svc-arrow">Ver servicio &#8594;</div>
       </a>
@@ -4081,8 +4081,8 @@ var formTranslations = {
     itinNo: 'I have an SSN',
     itinDesc: "IRS-issued number for individuals who need to file US taxes but aren't eligible for an SSN.",
     itinBenefit: '\\uD83D\\uDCCB Required to file US federal taxes without an SSN.',
-    vmaTitle: 'Virtual Mailing Address', vmaPrice: '$29/mo',
-    vmaAdd: '\\u2713 Add \\u2014 $29/mo', vmaNo: 'No thanks',
+    vmaTitle: 'Virtual Mailing Address', vmaPrice: '$30/mo',
+    vmaAdd: '\\u2713 Add \\u2014 $30/mo', vmaNo: 'No thanks',
     vmaDesc: 'Professional FL business address. We receive and digitally forward your mail.',
     vmaBenefit: '\\uD83D\\uDD12 Your home address stays private on all public Florida records.',
     arTitle: 'Annual Report Filing', arPrice: 'Annual',
@@ -4216,8 +4216,8 @@ var formTranslations = {
     itinNo: 'Tengo SSN',
     itinDesc: 'N\\u00famero emitido por el IRS para personas que necesitan presentar impuestos en EE.UU. sin SSN.',
     itinBenefit: '\\uD83D\\uDCCB Requerido para presentar impuestos federales en EE.UU. sin SSN.',
-    vmaTitle: 'Direcci\\u00f3n Postal Virtual', vmaPrice: '$29/mes',
-    vmaAdd: '\\u2713 Agregar \\u2014 $29/mes', vmaNo: 'No gracias',
+    vmaTitle: 'Direcci\\u00f3n Postal Virtual', vmaPrice: '$30/mes',
+    vmaAdd: '\\u2713 Agregar \\u2014 $30/mes', vmaNo: 'No gracias',
     vmaDesc: 'Direcci\\u00f3n empresarial profesional en FL. Recibimos y reenviamos su correo digitalmente.',
     vmaBenefit: '\\uD83D\\uDD12 Su direcci\\u00f3n personal permanece privada en todos los registros p\\u00fablicos de Florida.',
     arTitle: 'Declaraci\\u00f3n Anual', arPrice: 'Anual',
@@ -4489,7 +4489,7 @@ function translateFormContent(lang){
   e=document.getElementById('vma-addon-title'); if(e) e.textContent=isEs?'Dirección Postal Virtual':'Virtual Mailing Address';
   e=document.getElementById('vma-addon-desc'); if(e) e.textContent=isEs?'Obtén una dirección postal profesional en Florida sin necesidad de una oficina física. Recibimos su correo, lo escaneamos y le notificamos digitalmente — manteniendo su dirección personal privada en todos los registros públicos.':'Get a professional Florida mailing address without a physical office. We receive your mail, scan it, and notify you digitally — keeping your home address private on all public records.';
   e=document.getElementById('vma-addon-ben'); if(e) e.textContent=isEs?'Su dirección personal no aparecerá en los registros públicos de la División de Corporaciones de Florida.':'Your home address stays off all public Florida Division of Corporations records.';
-  e=document.getElementById('vma-btn-yes'); if(e) e.textContent=isEs?'Agregar Dirección Virtual — $29/mes':'Add Virtual Address — $29/mo';
+  e=document.getElementById('vma-btn-yes'); if(e) e.textContent=isEs?'Agregar Dirección Virtual — $30/mes':'Add Virtual Address — $30/mo';
   e=document.getElementById('vma-btn-no'); if(e) e.textContent=isEs?'No gracias, tengo una dirección':'No thanks, I have an address';
   // Phone offer label in step5
   modal.querySelectorAll('div[style*="color:var(--gray600)"][style*="font-weight:600"]').forEach(function(el){
@@ -6698,8 +6698,8 @@ function fmTranslate(lang) {
     var e = document.getElementById(id);
     if(e) e.textContent = addonMap[id];
   });
-  var vmaEN=['Keep your address off public records','Real FL address for your business','Meets state mail requirements','Mail scans with instant alerts','FIRST MONTH FREE','Virtual Address','Use Virtual Address','1st month free then $29/month','Use my own address','Your address will be on public record'];
-  var vmaES=['Su direcci\\u00f3n no aparece en registros','Direcci\\u00f3n real en Florida','Cumple requisitos del estado','Esc\\u00e1neos con alertas','PRIMER MES GRATIS','Direcci\\u00f3n Virtual','Usar Direcci\\u00f3n Virtual','1er mes gratis luego $29/mes','Usar mi propia direcci\\u00f3n','Su direcci\\u00f3n en registros p\\u00fablicos'];
+  var vmaEN=['Keep your address off public records','Real FL address for your business','Meets state mail requirements','Mail scans with instant alerts','FIRST MONTH FREE','Virtual Address','Use Virtual Address','1st month free then $30/month','Use my own address','Your address will be on public record'];
+  var vmaES=['Su direcci\\u00f3n no aparece en registros','Direcci\\u00f3n real en Florida','Cumple requisitos del estado','Esc\\u00e1neos con alertas','PRIMER MES GRATIS','Direcci\\u00f3n Virtual','Usar Direcci\\u00f3n Virtual','1er mes gratis luego $30/mes','Usar mi propia direcci\\u00f3n','Su direcci\\u00f3n en registros p\\u00fablicos'];
   ['vma-f1','vma-f2','vma-f3','vma-f4','s4-vma-badge','s4-vma-title','vma-yes-lbl','vma-yes-desc','vma-no-lbl','vma-no-desc'].forEach(function(id,i){var e=document.getElementById(id);if(e)e.innerHTML=isEs?vmaES[i]:vmaEN[i];});}
 
 

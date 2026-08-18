@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { trackEvent } from '@/lib/tracking'
-import { SERVICES_CATALOG, getServiceFee } from '@/lib/services-pricing'
+import { SERVICES_CATALOG, getServiceFee, computeBundlePrice, SERVICE_BUNDLES } from '@/lib/services-pricing'
 
 // Unificación de carrito (2026-08-13): estos 3 ids son los mismos que ya
 // existen en SERVICES_CATALOG (lib/services-pricing.ts) — new-business
@@ -14,20 +14,28 @@ const NB_TO_CATALOG_ID: Record<string, string> = { labor_law: 'labor-law-poster'
 const CATALOG_TO_NB_ID: Record<string, string> = { 'labor-law-poster': 'labor_law', ein: 'ein', 'certificate-of-status': 'certificate' }
 
 // "Recomendado para ti" — paso propio del wizard (2026-08-18, antes vivía
-// dentro del Review). Agente Registrado, Dirección Virtual y Declaración
-// Anual son los 3 servicios que el founder más quiere vender; se ofrecen
-// directo acá en vez de depender de que el cliente visite /servicios para
-// verlos. Cada uno es un solo servicio (sin bundle/descuento de combo que
-// calcular) — se agregan al mismo extraCart compartido.
-const RECOMMENDED_IDS = ['registered-agent', 'virtual-address', 'annual-report']
-const RECOMMENDED_BLURB: Record<string, { en: string; es: string }> = {
-  'registered-agent': {
-    en: 'Receives legal documents on your behalf — required by law for every Florida LLC and Corp.',
-    es: 'Recibe documentos legales en tu nombre — obligatorio por ley para toda LLC y Corporation de Florida.',
-  },
+// dentro del Review). Tiers acumulativos (Virtual Address → +Registered Agent
+// → +Annual Report), mismo patrón de combos que los hubs de 3 tiers de
+// /servicios/checkout — reusa el mismo motor de precio (computeBundlePrice /
+// SERVICE_BUNDLES) para que el descuento mostrado acá sea EXACTO al que se
+// cobra al pagar (goToPayment() → /api/checkout/embedded-services lee
+// flbc_svc_bundles del localStorage, ver useEffect de persistencia abajo).
+// Virtual Address nunca entra al 10% de descuento (NO_DISCOUNT_SERVICE_IDS en
+// lib/services-pricing.ts) — solo Registered Agent/Annual Report se descuentan.
+const EXTRAS_TIERS = [
+  { bundle: 'bundle-extras-va', services: ['virtual-address'] },
+  { bundle: 'bundle-extras-va-ra', services: ['virtual-address', 'registered-agent'] },
+  { bundle: 'bundle-extras-va-ra-ar', services: ['virtual-address', 'registered-agent', 'annual-report'] },
+] as const
+const EXTRAS_SERVICE_IDS = new Set<string>(EXTRAS_TIERS[EXTRAS_TIERS.length - 1].services)
+const EXTRAS_BLURB: Record<string, { en: string; es: string }> = {
   'virtual-address': {
     en: 'Professional Florida business address — keeps your home address private.',
     es: 'Dirección comercial profesional en Florida — mantiene tu dirección personal privada.',
+  },
+  'registered-agent': {
+    en: 'Receives legal documents on your behalf — required by law for every Florida LLC and Corp.',
+    es: 'Recibe documentos legales en tu nombre — obligatorio por ley para toda LLC y Corporation de Florida.',
   },
   'annual-report': {
     en: 'Required every year to keep your entity active with the state of Florida.',
@@ -942,6 +950,11 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
   // 2026-08-13. Se muestran aparte en el resumen y se cobran en el mismo pago.
   const [extraCart, setExtraCart] = useState<string[]>([])
   const cartHydrated = useRef(false)
+  // Combos (bundles) que el cliente ya traía de OTRO flujo (ej. hub "docs" de
+  // /servicios) antes de llegar acá — se preservan tal cual al escribir de
+  // vuelta flbc_svc_bundles, para no borrar una elección ajena a este paso.
+  // Nunca incluye ninguno de los EXTRAS_TIERS (esos los recalcula este paso).
+  const otherBundlesRef = useRef<{ ids: string[]; added: Record<string, string[]> }>({ ids: [], added: {} })
 
   // Safari (y algunos otros navegadores) a veces restauran la página desde
   // su caché de "atrás/adelante" (bfcache) con contenido a medio pintar —
@@ -981,16 +994,36 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
       const nbIds = new Set(cart.filter(id => CATALOG_TO_NB_ID[id]).map(id => CATALOG_TO_NB_ID[id]))
       if (nbIds.size > 0) setSelected(nbIds)
       setExtraCart(cart.filter(id => !CATALOG_TO_NB_ID[id]))
+      const EXTRAS_BUNDLE_IDS = new Set<string>(EXTRAS_TIERS.map(t => t.bundle))
+      const rawBundles = localStorage.getItem('flbc_svc_bundles')
+      const bundleIds: string[] = rawBundles ? JSON.parse(rawBundles) : []
+      const rawAdded = localStorage.getItem('flbc_svc_bundle_added')
+      const added: Record<string, string[]> = rawAdded ? JSON.parse(rawAdded) : {}
+      if (Array.isArray(bundleIds)) {
+        otherBundlesRef.current.ids = bundleIds.filter(b => !EXTRAS_BUNDLE_IDS.has(b))
+        otherBundlesRef.current.added = Object.fromEntries(
+          Object.entries(added || {}).filter(([b]) => !EXTRAS_BUNDLE_IDS.has(b))
+        )
+      }
     } catch { /* noop */ }
   }, [])
+
+  const extrasSelected   = extraCart.filter(id => EXTRAS_SERVICE_IDS.has(id))
+  const activeExtrasTier = EXTRAS_TIERS.find(t => t.services.length === extrasSelected.length && t.services.every(s => extrasSelected.includes(s))) ?? null
+  const otherExtraCart   = extraCart.filter(id => !EXTRAS_SERVICE_IDS.has(id))
 
   useEffect(() => {
     if (!cartHydrated.current) return
     try {
       const nbCatalogIds = [...selected].map(id => NB_TO_CATALOG_ID[id]).filter(Boolean)
       localStorage.setItem('flbc_svc_cart', JSON.stringify([...nbCatalogIds, ...extraCart]))
+      const mergedBundles = [...otherBundlesRef.current.ids, ...(activeExtrasTier ? [activeExtrasTier.bundle] : [])]
+      const mergedAdded: Record<string, string[]> = { ...otherBundlesRef.current.added }
+      if (activeExtrasTier) mergedAdded[activeExtrasTier.bundle] = [...activeExtrasTier.services]
+      localStorage.setItem('flbc_svc_bundles', JSON.stringify(mergedBundles))
+      localStorage.setItem('flbc_svc_bundle_added', JSON.stringify(mergedAdded))
     } catch { /* noop */ }
-  }, [selected, extraCart])
+  }, [selected, extraCart, activeExtrasTier])
   const [step, setStep]           = useState(1)
   const [doneSteps, setDoneSteps] = useState<Set<number>>(new Set())
 
@@ -1250,7 +1283,14 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
   const discountAmt   = allSelected ? +(subtotal * 0.10).toFixed(2) : 0
   // Ítems de /servicios agregados al carrito compartido (ver extraCart arriba)
   // — no participan del 10% de bundle de new-business, se suman aparte.
-  const extraTotal    = extraCart.reduce((acc, id) => acc + getServiceFee(id, 'fbfc') + (SERVICES_CATALOG[id]?.stateFee ?? 0), 0)
+  // Si calzan con un tier de "Recomendado para ti" (activeExtrasTier), se
+  // cobra el precio de combo (computeBundlePrice, VA sin descuento) + las
+  // tarifas estatales de esos servicios; el resto de extraCart (si algo se
+  // trajo de /servicios y no es parte de un tier) se suma individual como antes.
+  const extrasTierServiceFee = activeExtrasTier ? computeBundlePrice(activeExtrasTier.bundle, [...activeExtrasTier.services], 'fbfc') : 0
+  const extrasTierStateFee   = activeExtrasTier ? activeExtrasTier.services.reduce((acc, id) => acc + (SERVICES_CATALOG[id]?.stateFee ?? 0), 0) : 0
+  const otherExtraTotal      = otherExtraCart.reduce((acc, id) => acc + getServiceFee(id, 'fbfc') + (SERVICES_CATALOG[id]?.stateFee ?? 0), 0)
+  const extraTotal    = extrasTierServiceFee + extrasTierStateFee + otherExtraTotal
   const total         = +(subtotal - discountAmt + extraTotal).toFixed(2)
 
   function toggleAll() {
@@ -1318,11 +1358,35 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
           )
         })}
 
-        {/* Ítems adicionales agregados desde /servicios (carrito compartido) */}
-        {extraCart.length > 0 && (
+        {/* Ítems adicionales agregados desde /servicios o el paso "Recomendado
+            para ti" (carrito compartido) */}
+        {(activeExtrasTier || otherExtraCart.length > 0) && (
           <>
             <div className="co-divider" />
-            {extraCart.map(id => {
+            {activeExtrasTier && (
+              <>
+                <div className="co-line" style={{ alignItems:'center', gap:8 }}>
+                  <button
+                    onClick={() => setExtraCart(prev => prev.filter(x => !EXTRAS_SERVICE_IDS.has(x)))}
+                    style={{ background:'none', border:'none', color:'#94a3b8', cursor:'pointer', padding:0, fontSize:'.9rem', lineHeight:1, flexShrink:0 }}
+                    title={lang === 'es' ? 'Quitar' : 'Remove'}
+                  >×</button>
+                  <span className="co-line-name">{lang === 'es' ? SERVICE_BUNDLES[activeExtrasTier.bundle].name_es : SERVICE_BUNDLES[activeExtrasTier.bundle].name_en}</span>
+                  <span className="co-line-price">${extrasTierServiceFee.toFixed(2)}</span>
+                </div>
+                {activeExtrasTier.services.map(id => {
+                  const svc = SERVICES_CATALOG[id]
+                  if (!svc || !svc.stateFee) return null
+                  return (
+                    <div key={id} className="co-line" style={{ alignItems:'center', gap:8, fontSize:'.78rem', color:'#94a3b8' }}>
+                      <span className="co-line-name">{(lang === 'es' ? svc.name_es : svc.name_en) + (lang === 'es' ? ' — Tarifa Estatal FL' : ' — FL State Fee')}</span>
+                      <span className="co-line-price">${svc.stateFee.toFixed(2)}</span>
+                    </div>
+                  )
+                })}
+              </>
+            )}
+            {otherExtraCart.map(id => {
               const svc = SERVICES_CATALOG[id]
               if (!svc) return null
               const price = getServiceFee(id, 'fbfc') + svc.stateFee
@@ -2087,28 +2151,58 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                           : 'These are the services we recommend most to keep your business protected and compliant — add any you want, or continue without them.'}
                       </p>
                       <div className="svc-grid">
-                        {RECOMMENDED_IDS.map(id => {
-                          const svc = SERVICES_CATALOG[id]
-                          if (!svc) return null
-                          const added = extraCart.includes(id)
-                          const price = getServiceFee(id, 'fbfc') + (svc.stateFee ?? 0)
-                          const blurb = RECOMMENDED_BLURB[id]
+                        {EXTRAS_TIERS.map((tier, i) => {
+                          const bundleDef = SERVICE_BUNDLES[tier.bundle]
+                          const price = computeBundlePrice(tier.bundle, [...tier.services], 'fbfc')
+                          const fullPrice = tier.services.reduce((acc, id) => acc + getServiceFee(id, 'fbfc'), 0)
+                          const save = fullPrice - price
+                          const stateFees = tier.services.reduce((acc, id) => acc + (SERVICES_CATALOG[id]?.stateFee ?? 0), 0)
+                          const isSelected = activeExtrasTier?.bundle === tier.bundle
+                          const isBest = i === EXTRAS_TIERS.length - 1
                           return (
                             <div
-                              key={id}
-                              className={`svc-card${added ? ' selected' : ''}`}
-                              onClick={() => setExtraCart(prev => added ? prev.filter(x => x !== id) : [...prev, id])}
+                              key={tier.bundle}
+                              className={`svc-card${isSelected ? ' selected' : ''}`}
+                              style={{ position:'relative' }}
+                              onClick={() => setExtraCart(prev => {
+                                const kept = prev.filter(id => !EXTRAS_SERVICE_IDS.has(id))
+                                return isSelected ? kept : [...kept, ...tier.services]
+                              })}
                             >
+                              {isBest && (
+                                <div style={{ position:'absolute', top:-10, right:16, background:'#2563EB', color:'#fff', fontSize:'.66rem', fontWeight:700, padding:'3px 10px', borderRadius:20 }}>
+                                  {lang === 'es' ? 'Mejor valor' : 'Best value'}
+                                </div>
+                              )}
                               <div className="svc-check">
-                                {added && <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+                                {isSelected && <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
                               </div>
-                              <div className="svc-title">{lang === 'es' ? svc.name_es : svc.name_en}</div>
-                              {blurb && <div className="svc-desc">{lang === 'es' ? blurb.es : blurb.en}</div>}
+                              <div className="svc-title">{lang === 'es' ? bundleDef.name_es : bundleDef.name_en}</div>
+                              <div className="svc-desc">
+                                {tier.services.map(id => {
+                                  const svc = SERVICES_CATALOG[id]
+                                  const blurb = EXTRAS_BLURB[id]
+                                  return (
+                                    <div key={id} style={{ display:'flex', gap:6, alignItems:'flex-start', marginBottom:6 }}>
+                                      <span style={{ color:'#16a34a', flexShrink:0, fontWeight:700 }}>✓</span>
+                                      <span>
+                                        <strong style={{ color:'#1B3A6B' }}>{lang === 'es' ? svc?.name_es : svc?.name_en}</strong>
+                                        {blurb && <>{' — '}{lang === 'es' ? blurb.es : blurb.en}</>}
+                                      </span>
+                                    </div>
+                                  )
+                                })}
+                              </div>
                               <div className="svc-price">
                                 ${price.toFixed(2)}
-                                {svc.stateFee > 0 && (
+                                {stateFees > 0 && (
                                   <span style={{ fontSize:'.68rem', fontWeight:600, color:'#94a3b8', marginLeft:6 }}>
-                                    {lang === 'es' ? `(incl. $${svc.stateFee} tarifa estatal)` : `(incl. $${svc.stateFee} state fee)`}
+                                    {lang === 'es' ? `+ $${stateFees} tarifa estatal` : `+ $${stateFees} state fee`}
+                                  </span>
+                                )}
+                                {save > 0 && (
+                                  <span style={{ display:'block', fontSize:'.72rem', fontWeight:700, color:'#16a34a', marginTop:4 }}>
+                                    {lang === 'es' ? `Ahorras $${save}` : `Save $${save}`}
                                   </span>
                                 )}
                               </div>
@@ -2123,7 +2217,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                         </button>
                         <div style={{ display:'flex', alignItems:'center', gap:16 }}>
                           <button
-                            onClick={() => goToStep(5)}
+                            onClick={() => { setExtraCart(prev => prev.filter(id => !EXTRAS_SERVICE_IDS.has(id))); goToStep(5) }}
                             style={{ background:'none', border:'none', color:'#64748b', fontSize:'.82rem', fontWeight:600, cursor:'pointer', fontFamily:'inherit', textDecoration:'underline' }}
                           >
                             {lang === 'es' ? 'No, gracias' : 'No thanks'}
@@ -2222,7 +2316,25 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                             <span style={{ color:'#1B3A6B', fontWeight:500, whiteSpace:'nowrap' }}>${svc.price.toFixed(2)}</span>
                           </div>
                         ))}
-                        {extraCart.map(id => {
+                        {activeExtrasTier && (
+                          <>
+                            <div style={{ display:'flex', justifyContent:'space-between', gap:8, padding:'4px 0', borderTop:'1px solid #f1f5f9', fontSize:'.83rem' }}>
+                              <span style={{ color:'#374151' }}>{lang === 'es' ? SERVICE_BUNDLES[activeExtrasTier.bundle].name_es : SERVICE_BUNDLES[activeExtrasTier.bundle].name_en}</span>
+                              <span style={{ color:'#1B3A6B', fontWeight:500, whiteSpace:'nowrap' }}>${extrasTierServiceFee.toFixed(2)}</span>
+                            </div>
+                            {activeExtrasTier.services.map(id => {
+                              const svc = SERVICES_CATALOG[id]
+                              if (!svc || !svc.stateFee) return null
+                              return (
+                                <div key={id} style={{ display:'flex', justifyContent:'space-between', gap:8, padding:'4px 0', borderTop:'1px solid #f1f5f9', fontSize:'.83rem', color:'#94a3b8' }}>
+                                  <span>{(lang === 'es' ? svc.name_es : svc.name_en) + (lang === 'es' ? ' — Tarifa Estatal FL' : ' — FL State Fee')}</span>
+                                  <span style={{ whiteSpace:'nowrap' }}>${svc.stateFee.toFixed(2)}</span>
+                                </div>
+                              )
+                            })}
+                          </>
+                        )}
+                        {otherExtraCart.map(id => {
                           const svc = SERVICES_CATALOG[id]
                           if (!svc) return null
                           return (

@@ -1094,7 +1094,7 @@ var UPSELL = {
       incl:['Official FL street address for your business','Accepts service of process & legal documents','Document forwarding & email notifications']},
     es:{name:'Agente Registrado', desc:'Toda LLC y Corporation de Florida debe tener un Agente Registrado con dirección física en FL para recibir documentos legales y del estado.', why:'Mantiene tu dirección personal privada y fuera del registro público.',
       incl:['Dirección oficial en FL para tu negocio','Acepta notificaciones y documentos legales','Reenvío de documentos y notificación por correo']} },
-  'virtual-address': { icon:'&#128236;', price:'$99',
+  'virtual-address': { icon:'&#128236;', price:'$30',
     en:{name:'Virtual Mailing Address', desc:'A professional Florida business address that receives and forwards your mail digitally.', why:'Use a real FL address without exposing your home address.',
       incl:['Professional FL mailing address','Mail receiving & digital forwarding','Home address stays private on public records','Available immediately after sign-up']},
     es:{name:'Dirección Virtual', desc:'Una dirección comercial profesional en Florida que recibe y reenvía tu correo digitalmente.', why:'Usa una dirección real en FL sin exponer la de tu casa.',
@@ -1261,8 +1261,9 @@ function coBundlePrice(bid, newIds){
   var claimed=(newIds||[]).filter(function(s){ return b.services.indexOf(s)>=0; });
   if(!claimed.length) return 0;
   if(claimed.length===b.services.length) return b.price;
-  var fee=0; claimed.forEach(function(s){ var sv=SVC_CATALOG[s]; if(sv) fee+=sv.serviceFee; });
-  return Math.round(fee*0.9);
+  var full=0, discountable=0;
+  claimed.forEach(function(s){ var sv=SVC_CATALOG[s]; if(!sv) return; if(s==='virtual-address') full+=sv.serviceFee; else discountable+=sv.serviceFee; });
+  return full+Math.round(discountable*0.9);
 }
 function coRenderHub(hub){
   var panel=$(HUBS[hub].panel); if(!panel) return; var isEs=coIsEs();

@@ -141,7 +141,7 @@ These can be added to any package or ordered standalone:
 • Business Tax Receipt — $79 + county fee. Required in many FL counties.
 • Sales Tax Registration — $79. Register to collect and remit FL sales tax.
 • ITIN Application — $135 standalone. For non-US residents who need to file US taxes without an SSN.
-• Virtual Mailing Address — $29/month. Professional FL business address. Keeps home address private on all public FL records. Recommend to anyone working from home.
+• Virtual Mailing Address — $30/month. Professional FL business address. Keeps home address private on all public FL records. Recommend to anyone working from home.
 • Annual Report Filing — Annual fee. Every FL business must file Jan 1–May 1 each year. $400 late fee if missed. Recommend to all new formations for ongoing compliance.
 
 ═══════════════════════════════════════
@@ -183,7 +183,7 @@ CHECKLIST LOGIC (show only what's missing based on their package and add-ons):
 ✅ EIN / Tax ID ($49) — Needed to open a business bank account and hire employees. Already included in Standard and Premium.
 ✅ Operating Agreement ($79) — Most banks require it to open a business checking account. Already included in Premium.
 ✅ Annual Report — Every FL company must file Jan 1–May 1 each year. Missing it = $400 late fee + risk of dissolution.
-✅ Virtual Mailing Address ($29/mo) — If they work from home, their home address becomes public record without this.
+✅ Virtual Mailing Address ($30/mo) — If they work from home, their home address becomes public record without this.
 ✅ ITIN ($135) — Only flag this for non-US residents without a Social Security Number.
 
 PRESENTATION STYLE:
@@ -307,7 +307,7 @@ STEP 3 — Business Name
 STEP 4 — Business Address
   • Must be a physical street address — NO PO Boxes allowed by Florida law.
   • This will appear on public state records as your principal office.
-  • If they work from home and want privacy: recommend our Virtual Mailing Address ($29/mo) so their home address stays private.
+  • If they work from home and want privacy: recommend our Virtual Mailing Address ($30/mo) so their home address stays private.
   • Mailing address: optional, only needed if mail goes somewhere different from the business address.
 
 STEP 5 — Business Description
@@ -344,7 +344,7 @@ STEP 10 — ITIN Application
   • The ITIN is issued by the IRS — used to file US taxes as a non-resident.
 
 STEP 11 — Address & Compliance
-  • Virtual Mailing Address ($29/mo): Professional FL business address. Home address stays private on all public records. Recommend to home-based businesses or anyone concerned about privacy.
+  • Virtual Mailing Address ($30/mo): Professional FL business address. Home address stays private on all public records. Recommend to home-based businesses or anyone concerned about privacy.
   • Annual Report Filing: Every FL business must file an Annual Report Jan 1–May 1 each year. Failing to file = $400 late fee and possible administrative dissolution. Strongly recommend adding this for peace of mind.
 
 STEP 12 — Online Presence
