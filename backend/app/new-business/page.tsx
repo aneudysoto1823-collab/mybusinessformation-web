@@ -685,6 +685,12 @@ const CSS = `
     font-size: .71rem;
   }
   #nb-embedded-checkout { min-height: 420px; }
+  .nb-pay-spinner {
+    width: 32px; height: 32px; margin: 0 auto;
+    border: 3px solid #e2e8f0; border-top-color: #2563EB; border-radius: 50%;
+    animation: nbSpin .8s linear infinite;
+  }
+  @keyframes nbSpin { to { transform: rotate(360deg); } }
   .co-skel {
     border-radius: 8px;
     background: #eef2f7;
@@ -1047,7 +1053,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
     // "Editar" de otra sección) mientras Stripe ya estaba montado, se olvida
     // ese checkout — al volver se monta uno nuevo en vez de mostrar un
     // iframe huérfano que quedó referenciando un div que React ya desmontó.
-    if (step === 5 && n !== 5) setPendingCheckout(null)
+    if (step === 5 && n !== 5) { setPendingCheckout(null); setPayError('') }
     setStep(n)
     // Sube al tope de la página (no directo al form) para que el cliente
     // siga viendo el saludo/encabezado al cambiar de paso, y sea él quien
@@ -1169,6 +1175,18 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
     try { pendingCheckout.mount('#nb-embedded-checkout') } catch { /* noop */ }
     return () => { try { pendingCheckout.destroy() } catch { /* noop */ } }
   }, [pendingCheckout])
+
+  // Dispara el pago solo (sin botón "Continue to Payment") apenas el cliente
+  // llega al Review — mismo criterio que el resto del sitio usa para
+  // prefetch, pero acá directo monta, ya que este es el último paso y no hay
+  // nada más que esperar. Si falla, payError queda seteado y se muestra el
+  // botón "Reintentar" en vez de reintentar solo en loop.
+  useEffect(() => {
+    if (step !== 5) return
+    if (pendingCheckout || payLoading || payError) return
+    goToPayment()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step])
 
   function buildIntake() {
     const extras: Record<string, string> = {}
@@ -2296,7 +2314,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                       <div style={{ marginBottom:12, background:'#f8fafc', borderRadius:10, padding:'12px 14px', border:'1px solid #e2e8f0' }}>
                         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8 }}>
                           <span style={{ fontSize:'.78rem', fontWeight:700, color:'#94a3b8', textTransform:'uppercase', letterSpacing:'.05em' }}>{lang === 'es' ? 'Negocio' : 'Business'}</span>
-                          <button onClick={() => { setPendingCheckout(null); setStep(1) }} style={{ background:'none', border:'1px solid #2563EB', borderRadius:6, color:'#2563EB', fontSize:'.72rem', fontWeight:600, padding:'3px 10px', cursor:'pointer', fontFamily:'inherit' }}>{lang === 'es' ? 'Editar' : 'Edit'}</button>
+                          <button onClick={() => { setPendingCheckout(null); setPayError(''); setStep(1) }} style={{ background:'none', border:'1px solid #2563EB', borderRadius:6, color:'#2563EB', fontSize:'.72rem', fontWeight:600, padding:'3px 10px', cursor:'pointer', fontFamily:'inherit' }}>{lang === 'es' ? 'Editar' : 'Edit'}</button>
                         </div>
                         {([
                           [lang === 'es' ? 'Nombre' : 'Business name', form.companyName],
@@ -2317,7 +2335,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                       <div style={{ marginBottom:12, background:'#f8fafc', borderRadius:10, padding:'12px 14px', border:'1px solid #e2e8f0' }}>
                         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8 }}>
                           <span style={{ fontSize:'.78rem', fontWeight:700, color:'#94a3b8', textTransform:'uppercase', letterSpacing:'.05em' }}>{lang === 'es' ? 'Contacto' : 'Contact'}</span>
-                          <button onClick={() => { setPendingCheckout(null); setStep(2) }} style={{ background:'none', border:'1px solid #2563EB', borderRadius:6, color:'#2563EB', fontSize:'.72rem', fontWeight:600, padding:'3px 10px', cursor:'pointer', fontFamily:'inherit' }}>{lang === 'es' ? 'Editar' : 'Edit'}</button>
+                          <button onClick={() => { setPendingCheckout(null); setPayError(''); setStep(2) }} style={{ background:'none', border:'1px solid #2563EB', borderRadius:6, color:'#2563EB', fontSize:'.72rem', fontWeight:600, padding:'3px 10px', cursor:'pointer', fontFamily:'inherit' }}>{lang === 'es' ? 'Editar' : 'Edit'}</button>
                         </div>
                         {([
                           [lang === 'es' ? 'Nombre' : 'Name', [form.firstName, form.middleInitial, form.lastName, form.suffix].filter(Boolean).join(' ')],
@@ -2336,7 +2354,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                         <div style={{ marginBottom:12, background:'#f8fafc', borderRadius:10, padding:'12px 14px', border:'1px solid #e2e8f0' }}>
                           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8 }}>
                             <span style={{ fontSize:'.78rem', fontWeight:700, color:'#94a3b8', textTransform:'uppercase', letterSpacing:'.05em' }}>EIN / Tax ID</span>
-                            <button onClick={() => { setPendingCheckout(null); setStep(3) }} style={{ background:'none', border:'1px solid #2563EB', borderRadius:6, color:'#2563EB', fontSize:'.72rem', fontWeight:600, padding:'3px 10px', cursor:'pointer', fontFamily:'inherit' }}>{lang === 'es' ? 'Editar' : 'Edit'}</button>
+                            <button onClick={() => { setPendingCheckout(null); setPayError(''); setStep(3) }} style={{ background:'none', border:'1px solid #2563EB', borderRadius:6, color:'#2563EB', fontSize:'.72rem', fontWeight:600, padding:'3px 10px', cursor:'pointer', fontFamily:'inherit' }}>{lang === 'es' ? 'Editar' : 'Edit'}</button>
                           </div>
                           {form.einReason && (
                             <div style={{ display:'flex', gap:8, padding:'4px 0', borderTop:'1px solid #f1f5f9', fontSize:'.83rem' }}>
@@ -2442,30 +2460,31 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                         <div className="co-title">{lang === 'es' ? 'Pago Seguro' : 'Secure Payment'}</div>
                         <div id="nb-embedded-checkout" />
                       </>
-                    ) : (
-                    <>
-                      <div className="co-title">{lang === 'es' ? 'Pago Seguro' : 'Secure Payment'}</div>
-                      {payError && (
+                    ) : payError ? (
+                      <>
+                        <div className="co-title">{lang === 'es' ? 'Pago Seguro' : 'Secure Payment'}</div>
                         <p style={{ color:'#ef4444', fontSize:'.78rem', textAlign:'center', padding:'12px 0', lineHeight:1.5 }}>
                           ⚠ {payError}
                         </p>
-                      )}
-                      <p style={{ color:'#64748b', fontSize:'.82rem', lineHeight:1.6, margin:'4px 0 16px' }}>
-                        {lang === 'es'
-                          ? 'Al continuar, verás el resumen completo de tu pedido (incluyendo cualquier servicio adicional que hayas agregado) y podrás pagar de forma segura con Stripe.'
-                          : 'When you continue, you’ll see your complete order summary (including any additional services you added) and can pay securely with Stripe.'}
-                      </p>
-                      <button
-                        onClick={goToPayment}
-                        disabled={payLoading}
-                        className="step-next primary"
-                        style={{ width:'100%', justifyContent:'center' }}
-                      >
-                        {payLoading
-                          ? (lang === 'es' ? 'Cargando...' : 'Loading...')
-                          : (lang === 'es' ? 'Continuar al Pago →' : 'Continue to Payment →')}
-                      </button>
-                    </>
+                        <button
+                          onClick={goToPayment}
+                          disabled={payLoading}
+                          className="step-next primary"
+                          style={{ width:'100%', justifyContent:'center' }}
+                        >
+                          {lang === 'es' ? 'Reintentar' : 'Try again'}
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <div className="co-title">{lang === 'es' ? 'Pago Seguro' : 'Secure Payment'}</div>
+                        <div style={{ textAlign:'center', padding:'40px 0' }}>
+                          <div className="nb-pay-spinner" />
+                          <p style={{ color:'#64748b', fontSize:'.82rem', marginTop:16 }}>
+                            {lang === 'es' ? 'Preparando tu pago seguro...' : 'Preparing your secure payment...'}
+                          </p>
+                        </div>
+                      </>
                     )
                   ) : (
                     <>
