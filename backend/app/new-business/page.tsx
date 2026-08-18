@@ -54,8 +54,8 @@ const EXTRAS_TIER_NOTE: Record<number, { en: string; es: string }> = {
     es: 'Esto le da a tu negocio solo una dirección postal profesional. No cumple con el requisito de Agente Registrado. De todas formas necesitarás nombrar un Agente Registrado para tu LLC o Corporation, ya sea tú mismo o un servicio como el del siguiente nivel.',
   },
   1: {
-    en: 'Florida law requires every LLC and Corporation to have a Registered Agent available at a physical Florida address every business day between 9am and 5pm to receive legal documents in person. If you act as your own Registered Agent, that address becomes public record and you must be personally present during those hours. This tier adds our Registered Agent service so we handle that requirement for you.',
-    es: 'La ley de Florida exige que toda LLC y Corporation tenga un Agente Registrado disponible en una dirección física de Florida todos los días hábiles entre las 9am y las 5pm para recibir documentos legales en persona. Si actúas como tu propio Agente Registrado, esa dirección queda en el registro público y debes estar presente en persona durante ese horario. Este nivel agrega nuestro servicio de Agente Registrado para que nosotros cumplamos ese requisito por ti.',
+    en: 'Florida law requires every LLC and Corporation to name a Registered Agent who is available at a physical Florida address every business day between 9am and 5pm to receive legal documents in person, and whose address becomes public record. This tier adds our Registered Agent service, so we meet that requirement for you instead.',
+    es: 'La ley de Florida exige que toda LLC y Corporation nombre un Agente Registrado disponible en una dirección física de Florida todos los días hábiles entre las 9am y las 5pm para recibir documentos legales en persona, y cuya dirección queda en el registro público. Este nivel agrega nuestro servicio de Agente Registrado, para que nosotros cumplamos ese requisito en tu lugar.',
   },
 }
 
@@ -2173,9 +2173,6 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                           const fullPrice = tier.services.reduce((acc, id) => acc + getServiceFee(id, 'fbfc'), 0)
                           const save = fullPrice - price
                           const stateFees = tier.services.reduce((acc, id) => acc + (SERVICES_CATALOG[id]?.stateFee ?? 0), 0)
-                          const discountableIds = tier.services.filter(id => id !== 'virtual-address')
-                          const discountableFull = discountableIds.reduce((acc, id) => acc + getServiceFee(id, 'fbfc'), 0)
-                          const discountAmount = discountableFull - price
                           const isSelected = activeExtrasTier?.bundle === tier.bundle
                           const isBest = i === EXTRAS_TIERS.length - 1
                           const note = EXTRAS_TIER_NOTE[i]
@@ -2201,14 +2198,26 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                               <div className="svc-desc">
                                 {tier.services.map(id => {
                                   const svc = SERVICES_CATALOG[id]
+                                  if (!svc) return null
                                   const blurb = EXTRAS_BLURB[id]
+                                  const isVa = id === 'virtual-address'
                                   return (
-                                    <div key={id} style={{ display:'flex', gap:6, alignItems:'flex-start', marginBottom:6 }}>
-                                      <span style={{ color:'#16a34a', flexShrink:0, fontWeight:700 }}>✓</span>
-                                      <span>
-                                        <strong style={{ color:'#1B3A6B' }}>{lang === 'es' ? svc?.name_es : svc?.name_en}.</strong>
-                                        {blurb && <> {lang === 'es' ? blurb.es : blurb.en}</>}
-                                      </span>
+                                    <div key={id} style={{ marginBottom:10 }}>
+                                      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'baseline', gap:10 }}>
+                                        <span style={{ display:'flex', gap:6, alignItems:'baseline' }}>
+                                          <span style={{ color:'#16a34a', fontWeight:700 }}>✓</span>
+                                          <strong style={{ color:'#1B3A6B' }}>{lang === 'es' ? svc.name_es : svc.name_en}</strong>
+                                        </span>
+                                        {isVa ? (
+                                          <span style={{ flexShrink:0, whiteSpace:'nowrap' }}>
+                                            <span style={{ color:'#94a3b8', textDecoration:'line-through', marginRight:6 }}>${svc.serviceFee.toFixed(2)}</span>
+                                            <span style={{ color:'#16a34a', fontWeight:700 }}>{lang === 'es' ? 'GRATIS' : 'FREE'}</span>
+                                          </span>
+                                        ) : (
+                                          <span style={{ color:'#374151', fontWeight:600, flexShrink:0 }}>${svc.serviceFee.toFixed(2)}</span>
+                                        )}
+                                      </div>
+                                      {blurb && <div style={{ marginLeft:20, marginTop:2 }}>{lang === 'es' ? blurb.es : blurb.en}</div>}
                                     </div>
                                   )
                                 })}
@@ -2219,31 +2228,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                                 </div>
                               )}
                               <div style={{ borderTop:'1px solid #f1f5f9', paddingTop:10, marginTop:'auto' }}>
-                                {tier.services.map(id => {
-                                  const svc = SERVICES_CATALOG[id]
-                                  if (!svc) return null
-                                  const isVa = id === 'virtual-address'
-                                  return (
-                                    <div key={id} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', gap:8, fontSize:'.8rem', padding:'2px 0' }}>
-                                      <span style={{ color:'#374151' }}>{lang === 'es' ? svc.name_es : svc.name_en}</span>
-                                      {isVa ? (
-                                        <span>
-                                          <span style={{ color:'#94a3b8', textDecoration:'line-through', marginRight:6 }}>${svc.serviceFee.toFixed(2)}</span>
-                                          <span style={{ color:'#16a34a', fontWeight:700 }}>{lang === 'es' ? 'GRATIS' : 'FREE'}</span>
-                                        </span>
-                                      ) : (
-                                        <span style={{ color:'#374151' }}>${svc.serviceFee.toFixed(2)}</span>
-                                      )}
-                                    </div>
-                                  )
-                                })}
-                                {discountAmount > 0 && (
-                                  <div style={{ display:'flex', justifyContent:'space-between', gap:8, fontSize:'.8rem', color:'#16a34a', fontWeight:600, padding:'2px 0' }}>
-                                    <span>{lang === 'es' ? 'Descuento combo (10%)' : 'Combo discount (10%)'}</span>
-                                    <span>−${discountAmount.toFixed(2)}</span>
-                                  </div>
-                                )}
-                                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'baseline', gap:8, marginTop:6, paddingTop:6, borderTop:'1px solid #f1f5f9' }}>
+                                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'baseline', gap:8 }}>
                                   <span style={{ fontSize:'.82rem', fontWeight:700, color:'#1B3A6B' }}>{lang === 'es' ? 'Total' : 'Total'}</span>
                                   <span className="svc-price" style={{ marginTop:0 }}>${price.toFixed(2)}</span>
                                 </div>
@@ -2421,8 +2406,14 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                 {/* En el Review (step 5) el resumen de servicios se mudó a la
                     izquierda (junto a lo que el cliente revisa) para
                     equilibrar la altura de las columnas — acá solo queda el
-                    pago. En los demás pasos (incluido el 4, "Recommended for
-                    you") sigue siendo el resumen completo. */}
+                    pago. En el step 4 ("Recommended for you") se oculta del
+                    todo (form-left es flex:1, así que ocupa el ancho
+                    completo solo cuando no se renderiza) — las 3 tarjetas de
+                    tiers necesitan más espacio horizontal que el resto de
+                    los pasos, y el cliente ve el mismo resumen un clic
+                    después en el Review. En los demás pasos sigue siendo el
+                    resumen completo. */}
+                {step !== 4 && (
                 <div className="co-box-wrap">
                 <div className="co-box">
                   {step === 5 ? (
@@ -2470,6 +2461,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                   {lang === 'es' ? 'Ver Todos los Servicios' : 'View All Services'}
                 </a>
                 </div>
+                )}
               </div>
             </div>
           </section>
