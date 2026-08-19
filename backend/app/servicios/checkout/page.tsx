@@ -876,22 +876,12 @@ function coLookupCompany(silent){
     $('f-zip').value=c.principal_zip||'';
     if($('f-country')) $('f-country').value='United States';
     if(st) st.innerHTML='';
-    if(silent){
-      // Handoff silencioso desde new-business: se salta la franja verde de
-      // confirmación (info ya vista ahí) y se muestran directo los campos
-      // editables ya autollenados, igual que el flujo de formación de opabiz.com.
-      coRevealManual();
-      return;
-    }
-    var addr=[c.principal_address,c.principal_city,c.principal_state,c.principal_zip].filter(Boolean).join(', ');
-    var found=$('co-company-found'); found.style.display='';
-    found.innerHTML='<div class="co-found-name">&#10003; '+(c.entity_name||'')+'</div>'
-      +'<div class="co-found-meta">'+[c.entity_type_normalized,c.status].filter(Boolean).join(' &middot; ')+'</div>'
-      +(addr?'<div class="co-found-meta">'+addr+'</div>':'')
-      +(c.registered_agent_name?'<div class="co-found-meta">'+(isEs?'Agente: ':'Agent: ')+c.registered_agent_name+'</div>':'')
-      +'<button type="button" class="co-edit-link" onclick="coRevealManual()">'+(isEs?'Editar datos de la empresa':'Edit company details')+'</button>';
-    var mt=$('co-manual-toggle'); if(mt) mt.style.display='none';
-    $('co-company-card').style.display='none';
+    // Antes la búsqueda manual armaba una franja verde de confirmación con un
+    // link "Editar datos de la empresa" para recién ahí revelar el formulario
+    // — el cliente tenía que dar un clic extra para ver/corregir sus propios
+    // datos. Ahora, igual que el handoff silencioso desde new-business, se
+    // muestra directo el formulario ya autollenado (2026-08-19, pedido founder).
+    coRevealManual();
   }).catch(function(){ if(btn) btn.disabled=false; if(st&&!silent) st.innerHTML='<span style="color:#dc2626">'+(isEs?'Error de conexión.':'Connection error.')+'</span>'; });
 }
 
