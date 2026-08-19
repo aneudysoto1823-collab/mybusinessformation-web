@@ -593,6 +593,8 @@ const CSS = `
     display: flex;
     flex-direction: column;
     gap: 12px;
+    position: sticky;
+    top: 84px;
   }
   .co-box {
     width: 100%;
@@ -601,8 +603,6 @@ const CSS = `
     border-radius: 16px;
     padding: 24px;
     box-shadow: 0 4px 24px rgba(27,58,107,.1);
-    position: sticky;
-    top: 84px;
   }
   .co-title {
     font-family: var(--font-serif);
@@ -712,7 +712,7 @@ const CSS = `
   @media (max-width: 960px) {
     .form-body { flex-direction: column; }
     .co-box-wrap { width: 100%; }
-    .co-box { position: static; }
+    .co-box-wrap { position: static; }
     .svc-section { padding: 36px 20px 28px; }
     .form-section { padding: 36px 20px 52px; }
   }
