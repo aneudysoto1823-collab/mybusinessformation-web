@@ -214,7 +214,7 @@ html.co-wide .co-tier{padding:20px 18px}
   const body = `
 <header class="co-header">
   <div class="co-header-inner">
-    <a href="/servicios" class="co-logo">
+    <a href="/" class="co-logo">
       ${logoHtml}
     </a>
     <div style="display:flex;align-items:center;gap:14px">

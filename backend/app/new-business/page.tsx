@@ -1244,6 +1244,11 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
       const data = await res.json()
       if (!res.ok || !data.orderId || !data.clientSecret) throw new Error(data.error || 'Could not start payment')
       localStorage.setItem('flbc_svc_orderid', data.orderId)
+      // /servicios/checkout lee esta misma clave para pintar "Your order
+      // number" en la pantalla de éxito tras volver del pago (?paid=1) — sin
+      // esto quedaba vacío para cualquier pago iniciado desde new-business
+      // (bug real, encontrado 2026-08-19).
+      localStorage.setItem('flbc_svc_order', data.fbfc || '')
       localStorage.setItem('flbc_svc_cart', JSON.stringify(services))
       localStorage.setItem('flbc_svc_prefill', JSON.stringify(intake))
       localStorage.setItem('flbc_lang', lang)
