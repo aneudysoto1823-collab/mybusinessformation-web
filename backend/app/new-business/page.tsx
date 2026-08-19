@@ -109,7 +109,7 @@ const CSS = `
 
   /* ── HEADER ── */
   .nb-header {
-    background: #1B3A6B;
+    background: #7C3AED;
     height: 64px;
     padding: 0 40px;
     display: flex;
@@ -195,7 +195,7 @@ const CSS = `
     font-family: var(--font-sans);
     transition: all .15s;
   }
-  .nb-lang button.active  { background: #fff; color: #1B3A6B; }
+  .nb-lang button.active  { background: #fff; color: #7C3AED; }
   .nb-lang button:not(.active) { background: transparent; color: rgba(255,255,255,.65); }
 
   /* ── WELCOME ── */
@@ -210,7 +210,7 @@ const CSS = `
     font-family: var(--font-serif);
     font-size: clamp(1.2rem, 2.2vw, 1.55rem);
     font-weight: 700;
-    color: #1B3A6B;
+    color: #7C3AED;
     line-height: 1.2;
     margin-bottom: 10px;
   }
@@ -257,7 +257,7 @@ const CSS = `
     font-family: var(--font-serif);
     font-size: 1.55rem;
     font-weight: 900;
-    color: #1B3A6B;
+    color: #7C3AED;
     line-height: 1.2;
     margin-bottom: 8px;
   }
@@ -307,7 +307,7 @@ const CSS = `
     width: 100%;
     padding: 13px;
     border-radius: 8px;
-    background: #1B3A6B;
+    background: #7C3AED;
     color: #fff;
     font-size: .92rem;
     font-weight: 700;
@@ -350,7 +350,7 @@ const CSS = `
     font-family: var(--font-serif);
     font-size: clamp(1.1rem, 2vw, 1.4rem);
     font-weight: 700;
-    color: #1B3A6B;
+    color: #7C3AED;
     margin-bottom: 6px;
   }
   .svc-heading p {
@@ -403,7 +403,7 @@ const CSS = `
   .svc-title {
     font-size: .95rem;
     font-weight: 700;
-    color: #1B3A6B;
+    color: #7C3AED;
     line-height: 1.3;
   }
   .svc-desc {
@@ -435,7 +435,7 @@ const CSS = `
     font-family: var(--font-serif);
     font-size: clamp(1.15rem, 2.2vw, 1.5rem);
     font-weight: 700;
-    color: #1B3A6B;
+    color: #7C3AED;
     margin-bottom: 6px;
   }
   .form-heading p {
@@ -525,7 +525,7 @@ const CSS = `
     transition: all .25s;
   }
   .step-circle.done { background: #16a34a; color: #fff; }
-  .step-circle.active { background: #fff; color: #1B3A6B; border: 2px solid #1B3A6B; box-shadow: 0 0 0 4px rgba(27,58,107,.12); }
+  .step-circle.active { background: #fff; color: #7C3AED; border: 2px solid #7C3AED; box-shadow: 0 0 0 4px rgba(27,58,107,.12); }
   .step-circle.pending { background: #fff; color: #94a3b8; border: 2px solid #e2e8f0; }
   .step-lbl {
     font-size: .62rem;
@@ -534,7 +534,7 @@ const CSS = `
     color: #94a3b8;
     letter-spacing: .2px;
   }
-  .step-lbl.active { color: #1B3A6B; }
+  .step-lbl.active { color: #7C3AED; }
   .step-lbl.done   { color: #16a34a; }
   .step-connector {
     flex: 1;
@@ -608,7 +608,7 @@ const CSS = `
     font-family: var(--font-serif);
     font-size: 1rem;
     font-weight: 700;
-    color: #1B3A6B;
+    color: #7C3AED;
     margin-bottom: 18px;
     padding-bottom: 14px;
     border-bottom: 1px solid #f1f5f9;
@@ -621,7 +621,7 @@ const CSS = `
     font-size: .83rem;
   }
   .co-line-name { color: #374151; flex: 1; margin-right: 8px; }
-  .co-line-price { color: #1B3A6B; font-weight: 600; white-space: nowrap; }
+  .co-line-price { color: #7C3AED; font-weight: 600; white-space: nowrap; }
   .co-divider { height: 1px; background: #f1f5f9; margin: 14px 0; }
   .co-savings {
     display: flex;
@@ -640,14 +640,14 @@ const CSS = `
   .co-total-label {
     font-size: .82rem;
     font-weight: 700;
-    color: #1B3A6B;
+    color: #7C3AED;
     text-transform: uppercase;
     letter-spacing: .4px;
   }
   .co-total-amount {
     font-size: 1.45rem;
     font-weight: 700;
-    color: #1B3A6B;
+    color: #7C3AED;
   }
   .co-total-amount span {
     font-size: .75rem;
@@ -659,7 +659,7 @@ const CSS = `
     width: 100%;
     padding: 14px;
     border-radius: 10px;
-    background: #1B3A6B;
+    background: #7C3AED;
     color: #fff;
     font-size: .92rem;
     font-weight: 700;
@@ -751,7 +751,7 @@ const CSS = `
     left: 50%;
     transform: translateX(-50%);
     background: #fff;
-    color: #1B3A6B;
+    color: #7C3AED;
     font-size: .72rem;
     line-height: 1.55;
     padding: 9px 13px;
@@ -1383,7 +1383,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
             {allSelected && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
           </div>
           <div style={{ flex:1 }}>
-            <div style={{ fontSize:'.82rem', fontWeight:700, color:'#1B3A6B' }}>
+            <div style={{ fontSize:'.82rem', fontWeight:700, color:'#7C3AED' }}>
               {lang === 'es' ? 'Seleccionar todo' : 'Select all'}
             </div>
             <div style={{ fontSize:'.7rem', color: allSelected ? '#16a34a' : '#f59e0b', fontWeight:600, marginTop:1 }}>
@@ -1417,7 +1417,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                 {isOn && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
               </div>
               <span className="co-line-name">{lang === 'es' ? svc.titleEs : svc.titleEn}</span>
-              <span className="co-line-price" style={{ color: isOn ? '#1B3A6B' : '#e2e8f0' }}>${svc.price.toFixed(2)}</span>
+              <span className="co-line-price" style={{ color: isOn ? '#7C3AED' : '#e2e8f0' }}>${svc.price.toFixed(2)}</span>
             </div>
           )
         })}
@@ -2254,7 +2254,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                                       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'baseline', gap:10 }}>
                                         <span style={{ display:'flex', gap:6, alignItems:'baseline' }}>
                                           <span style={{ color:'#16a34a', fontWeight:700 }}>✓</span>
-                                          <strong style={{ color:'#1B3A6B' }}>{lang === 'es' ? svc.name_es : svc.name_en}</strong>
+                                          <strong style={{ color:'#7C3AED' }}>{lang === 'es' ? svc.name_es : svc.name_en}</strong>
                                         </span>
                                         {isVa ? (
                                           <span style={{ flexShrink:0, whiteSpace:'nowrap' }}>
@@ -2272,7 +2272,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                               </div>
                               <div style={{ borderTop:'1px solid #f1f5f9', paddingTop:10, marginTop:'auto' }}>
                                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'baseline', gap:8 }}>
-                                  <span style={{ fontSize:'.82rem', fontWeight:700, color:'#1B3A6B' }}>{lang === 'es' ? 'Total' : 'Total'}</span>
+                                  <span style={{ fontSize:'.82rem', fontWeight:700, color:'#7C3AED' }}>{lang === 'es' ? 'Total' : 'Total'}</span>
                                   <span className="svc-price" style={{ marginTop:0 }}>${price.toFixed(2)}</span>
                                 </div>
                                 {stateFees > 0 && (
@@ -2331,7 +2331,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                         ] as [string,string][]).filter(([,v]) => v).map(([label, val]) => (
                           <div key={label} style={{ display:'flex', gap:8, padding:'4px 0', borderTop:'1px solid #f1f5f9', fontSize:'.83rem' }}>
                             <span style={{ color:'#94a3b8', minWidth:100 }}>{label}</span>
-                            <span style={{ color:'#1B3A6B', fontWeight:500 }}>{val}</span>
+                            <span style={{ color:'#7C3AED', fontWeight:500 }}>{val}</span>
                           </div>
                         ))}
                       </div>
@@ -2349,7 +2349,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                         ] as [string,string][]).filter(([,v]) => v).map(([label, val]) => (
                           <div key={label} style={{ display:'flex', gap:8, padding:'4px 0', borderTop:'1px solid #f1f5f9', fontSize:'.83rem' }}>
                             <span style={{ color:'#94a3b8', minWidth:100 }}>{label}</span>
-                            <span style={{ color:'#1B3A6B', fontWeight:500 }}>{val}</span>
+                            <span style={{ color:'#7C3AED', fontWeight:500 }}>{val}</span>
                           </div>
                         ))}
                       </div>
@@ -2364,7 +2364,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                           {form.einReason && (
                             <div style={{ display:'flex', gap:8, padding:'4px 0', borderTop:'1px solid #f1f5f9', fontSize:'.83rem' }}>
                               <span style={{ color:'#94a3b8', minWidth:100 }}>{lang === 'es' ? 'Razón' : 'Reason'}</span>
-                              <span style={{ color:'#1B3A6B', fontWeight:500 }}>
+                              <span style={{ color:'#7C3AED', fontWeight:500 }}>
                                 {form.einReason === 'other' ? form.einReasonOther : form.einReason.replace(/_/g,' ')}
                               </span>
                             </div>
@@ -2393,14 +2393,14 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                         {SERVICES.filter(svc => selected.has(svc.id)).map(svc => (
                           <div key={svc.id} style={{ display:'flex', justifyContent:'space-between', gap:8, padding:'4px 0', borderTop:'1px solid #f1f5f9', fontSize:'.83rem' }}>
                             <span style={{ color:'#374151' }}>{lang === 'es' ? svc.titleEs : svc.titleEn}</span>
-                            <span style={{ color:'#1B3A6B', fontWeight:500, whiteSpace:'nowrap' }}>${svc.price.toFixed(2)}</span>
+                            <span style={{ color:'#7C3AED', fontWeight:500, whiteSpace:'nowrap' }}>${svc.price.toFixed(2)}</span>
                           </div>
                         ))}
                         {activeExtrasTier && (
                           <>
                             <div style={{ display:'flex', justifyContent:'space-between', gap:8, padding:'4px 0', borderTop:'1px solid #f1f5f9', fontSize:'.83rem' }}>
                               <span style={{ color:'#374151' }}>{lang === 'es' ? SERVICE_BUNDLES[activeExtrasTier.bundle].name_es : SERVICE_BUNDLES[activeExtrasTier.bundle].name_en}</span>
-                              <span style={{ color:'#1B3A6B', fontWeight:500, whiteSpace:'nowrap' }}>${extrasTierServiceFee.toFixed(2)}</span>
+                              <span style={{ color:'#7C3AED', fontWeight:500, whiteSpace:'nowrap' }}>${extrasTierServiceFee.toFixed(2)}</span>
                             </div>
                             {activeExtrasTier.services.map(id => {
                               const svc = SERVICES_CATALOG[id]
@@ -2420,7 +2420,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                           return (
                             <div key={id} style={{ display:'flex', justifyContent:'space-between', gap:8, padding:'4px 0', borderTop:'1px solid #f1f5f9', fontSize:'.83rem' }}>
                               <span style={{ color:'#374151' }}>{lang === 'es' ? svc.name_es : svc.name_en}</span>
-                              <span style={{ color:'#1B3A6B', fontWeight:500, whiteSpace:'nowrap' }}>${(getServiceFee(id, 'fbfc') + svc.stateFee).toFixed(2)}</span>
+                              <span style={{ color:'#7C3AED', fontWeight:500, whiteSpace:'nowrap' }}>${(getServiceFee(id, 'fbfc') + svc.stateFee).toFixed(2)}</span>
                             </div>
                           )
                         })}
@@ -2431,8 +2431,8 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                           </div>
                         )}
                         <div style={{ display:'flex', justifyContent:'space-between', gap:8, padding:'8px 0 0', marginTop:4, borderTop:'2px solid #e2e8f0', fontSize:'.88rem' }}>
-                          <span style={{ color:'#1B3A6B', fontWeight:700 }}>Total</span>
-                          <span style={{ color:'#1B3A6B', fontWeight:700, whiteSpace:'nowrap' }}>${total.toFixed(2)} USD</span>
+                          <span style={{ color:'#7C3AED', fontWeight:700 }}>Total</span>
+                          <span style={{ color:'#7C3AED', fontWeight:700, whiteSpace:'nowrap' }}>${total.toFixed(2)} USD</span>
                         </div>
                       </div>
 
