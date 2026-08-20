@@ -1110,6 +1110,19 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
     }
   }, [lang])
 
+  // El input de Document ID quedaba bloqueado (readOnly) para siempre una vez
+  // que el lookup encontraba una empresa — si el cliente tecleó mal el número
+  // y encontró OTRA empresa real, no había forma de corregirlo sin recargar
+  // la página. "Change" limpia la empresa encontrada (y los campos que se
+  // autocompletaron con sus datos) para que el input vuelva a ser editable.
+  const docInputRef = useRef<HTMLInputElement>(null)
+  function clearCompanyLookup() {
+    setCompany(null)
+    setLookupErr('')
+    setForm(f => ({ ...f, companyName: '', address: '', city: '', zip: '', email: '' }))
+    setTimeout(() => docInputRef.current?.focus(), 0)
+  }
+
   useEffect(() => {
     const id = sp.get('id')
     const l  = sp.get('lang')
@@ -1690,6 +1703,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                             />
                           </label>
                           <input
+                            ref={docInputRef}
                             className={`form-input${lookupErr ? ' err' : ''}`}
                             value={docInput}
                             onChange={e => { setDocInput(e.target.value.toUpperCase()); setLookupErr('') }}
@@ -1698,7 +1712,18 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                             style={company ? { background:'#f1f5f9', color:'#64748b' } : {}}
                           />
                           {lookupErr && !sp.get('id') && <p style={{ color:'#ef4444', fontSize:'.75rem', marginTop:4 }}>⚠ {lookupErr}</p>}
-                          {company && <p style={{ color:'#16a34a', fontSize:'.75rem', marginTop:4 }}>✓ {company.company_name}</p>}
+                          {company && (
+                            <p style={{ color:'#16a34a', fontSize:'.75rem', marginTop:4 }}>
+                              ✓ {company.company_name}{' '}
+                              <button
+                                type="button"
+                                onClick={clearCompanyLookup}
+                                style={{ background:'none', border:'none', color:'#2563EB', fontWeight:600, fontSize:'.75rem', cursor:'pointer', textDecoration:'underline', padding:0, fontFamily:'inherit' }}
+                              >
+                                {lang === 'es' ? 'Cambiar' : 'Change'}
+                              </button>
+                            </p>
+                          )}
                         </div>
 
                         {/* Business name */}
