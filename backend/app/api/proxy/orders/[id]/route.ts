@@ -33,12 +33,14 @@ export async function GET(
   // manualmente (contactar al cliente, elegir cual gana, etc). Case-insensitive
   // + trim para captar variaciones cosmeticas ("Acme LLC" == "  acme llc  ").
   //
-  // Excluye ordenes de marketing/NBL (package='addon', FBNB-*, entran por
-  // /new-business con QR/URL de mybusinessformation.com): esas son servicios
-  // extra sobre LLC que YA existen en Sunbiz, nada se presenta al estado, asi
-  // que no hay riesgo real de colision de nombre. Aplica en las dos direcciones:
-  // si la orden actual es addon no se busca, y si es formacion se ignoran los
-  // addon del match.
+  // Solo aplica a FORMACIONES REALES (package basic/standard/premium) que se
+  // presentan a Sunbiz. Las ordenes package='services' (opabiz.com/servicios y
+  // mybusinessformation.com — checkout unificado desde 2026-08-13) y las viejas
+  // package='addon' (marketing NBL) son servicios sobre LLC que YA existen en
+  // Sunbiz — nada se presenta al estado, cero riesgo de colision de nombre.
+  // Aplica en las dos direcciones: si la orden actual no es formacion no se
+  // busca, y si es formacion solo compara contra otras formaciones.
+  const FORMATION_PACKAGES = ['basic', 'standard', 'premium']
   let duplicates: Array<{
     id: string
     companyName: string
@@ -49,13 +51,13 @@ export async function GET(
     createdAt: string
   }> = []
   const cn = String(data.companyName ?? '').trim()
-  const isFormation = data.package !== 'addon'
+  const isFormation = FORMATION_PACKAGES.includes(String(data.package))
   if (cn && isFormation) {
     const { data: dups } = await supabase
       .from('Order')
       .select('id, companyName, status, firstName, lastName, email, createdAt')
       .neq('id', id)
-      .neq('package', 'addon')  // ignora ordenes de marketing/NBL
+      .in('package', FORMATION_PACKAGES)  // solo formaciones reales
       .in('status', ['pending', 'in_review', 'ready_to_file', 'filed', 'names_taken'])
       .ilike('companyName', cn)  // case-insensitive exact match
       .limit(20)
