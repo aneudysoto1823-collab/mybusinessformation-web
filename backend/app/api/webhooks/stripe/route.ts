@@ -8,7 +8,7 @@ import { PACKAGE_SERVICES } from '@/lib/notifications'
 import { computeFormationTotal, withBasicDisplayLine } from '@/lib/pricing'
 import { getOrderItemLabel } from '@/lib/order-items'
 import { hasReceivedGuide, recordGuideSent, getGuideAttachments, buildGuideBonusHtml, type GuideKey } from '@/lib/guides'
-import { REPLY_TO, INTERNAL_ALERT_EMAIL as ADMIN_EMAIL, FROM_OPABIZ, FROM_OPABIZ_ALERTS, FROM_FBFC } from '@/lib/email-constants'
+import { REPLY_TO, REPLY_TO_FBFC, INTERNAL_ALERT_EMAIL as ADMIN_EMAIL, FROM_OPABIZ, FROM_OPABIZ_ALERTS, FROM_FBFC } from '@/lib/email-constants'
 import { provisionRaForOrder } from '@/lib/ra-provisioning'
 
 export const dynamic = 'force-dynamic'
@@ -191,7 +191,7 @@ export async function POST(req: NextRequest) {
 
   await getResend().emails.send({
     from: FROM_FBFC,
-    replyTo: REPLY_TO,
+    replyTo: REPLY_TO_FBFC,
     to: email,
     subject: isEs
       ? `✅ Orden confirmada — ${companyName}`
@@ -629,6 +629,7 @@ async function handleServicesPaid(orderId: string, session: Stripe.Checkout.Sess
   // alertas internas) sigue unificado en OpaBiz.
   const isFBFC = session.metadata?.sourceDomain === 'fbfc'
   const brandFrom = isFBFC ? FROM_FBFC : FROM_OPABIZ
+  const brandReplyTo = isFBFC ? REPLY_TO_FBFC : REPLY_TO
   const brandLogoHtml = isFBFC
     ? `<img src="https://mybusinessformation.com/fbfc-seal.png" width="42" height="42" alt="Florida Business Formation Center" style="display:block"/>`
     : `<div style="width:42px;height:42px;background:linear-gradient(135deg,#1C2E44,#2563EB);border-radius:10px;text-align:center;line-height:42px;color:#fff;font-family:Georgia,serif;font-size:16px;font-weight:700">OB</div>`
@@ -683,7 +684,7 @@ async function handleServicesPaid(orderId: string, session: Stripe.Checkout.Sess
     .join('') || '<tr><td style="padding:5px 0;font-size:14px;color:#475569">—</td><td></td></tr>'
   getResend().emails.send({
     from: brandFrom,
-    replyTo: REPLY_TO,
+    replyTo: brandReplyTo,
     to: order.email,
     subject: isEs ? `${subjectPrefix}✅ Orden confirmada — ${fbfc}` : `${subjectPrefix}✅ Order confirmed — ${fbfc}`,
     html: `

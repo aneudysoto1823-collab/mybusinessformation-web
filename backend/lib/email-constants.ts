@@ -16,6 +16,14 @@ export const REPLY_TO = process.env.RESEND_REPLY_TO || 'info@opabiz.com'
 export const INTERNAL_ALERT_EMAIL = process.env.INTERNAL_ALERT_EMAIL || 'alert@opabiz.com'
 export const CONTACT_TO_EMAIL = process.env.CONTACT_TO_EMAIL || 'info@opabiz.com'
 
+// Buzon propio del dominio FBFC (mybusinessformation.com — verificado en Resend
+// el 2026-08-21). Antes FROM_FBFC reusaba FROM_TRANSACTIONAL (@opabiz.com) y el
+// cliente veia display name FBFC pero la direccion tecnica era @opabiz.com, lo
+// que rompia la separacion de marca en 'ver detalles del remitente'. Ahora el
+// dominio de envio real coincide con la marca visible.
+export const FROM_TRANSACTIONAL_FBFC = process.env.RESEND_FROM_TRANSACTIONAL_FBFC || 'noreply@mybusinessformation.com'
+export const REPLY_TO_FBFC = process.env.RESEND_REPLY_TO_FBFC || 'info@mybusinessformation.com'
+
 export const FROM_OPABIZ = `OpaBiz <${FROM_TRANSACTIONAL}>`
 export const FROM_OPABIZ_MARKETING = `OpaBiz <${FROM_MARKETING}>`
 export const FROM_OPABIZ_SUPPORT = `OpaBiz Support <${FROM_SUPPORT}>`
@@ -28,10 +36,11 @@ export const FROM_OPABIZ_CONTACT = `OpaBiz Contact <${FROM_TRANSACTIONAL}>`
 // email con algo dirigido a un cliente.
 export const FROM_OPABIZ_INTERNAL = `OpaBiz Connect <${FROM_TRANSACTIONAL}>`
 
-// Marca FBFC (mybusinessformation.com — separación de dominios 2026-08-13):
-// mismo buzón autenticado que OpaBiz, solo cambia el display name que ve el
-// cliente. No requiere verificar un dominio de envío nuevo en Resend.
-export const FROM_FBFC = `Florida Business Formation Center <${FROM_TRANSACTIONAL}>`
+// Marca FBFC (mybusinessformation.com — separación de dominios 2026-08-13).
+// Usa buzon propio noreply@mybusinessformation.com (dominio verificado en
+// Resend el 2026-08-21) para que la direccion tecnica del remitente coincida
+// con la marca visible — antes reusaba FROM_TRANSACTIONAL de opabiz.com.
+export const FROM_FBFC = `Florida Business Formation Center <${FROM_TRANSACTIONAL_FBFC}>`
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Branding por marca para el HTML de los emails — un solo lugar para el
@@ -55,6 +64,11 @@ export function isFbfcBrand(brand: EmailBrand): boolean {
 
 export function brandFrom(brand: EmailBrand): string {
   return isFbfcBrand(brand) ? FROM_FBFC : FROM_OPABIZ
+}
+
+/** Reply-To por marca — FBFC responde a info@mybusinessformation.com, resto a info@opabiz.com. */
+export function brandReplyTo(brand: EmailBrand): string {
+  return isFbfcBrand(brand) ? REPLY_TO_FBFC : REPLY_TO
 }
 
 export function brandPortalHome(brand: EmailBrand): string {

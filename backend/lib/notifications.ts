@@ -1,7 +1,7 @@
 import { Resend } from 'resend'
 import { getOrderItemKeys, getOrderItemLabel } from './order-items'
 import { computeFormationTotal, withBasicDisplayLine } from './pricing'
-import { REPLY_TO, INTERNAL_ALERT_EMAIL as INTERNAL_EMAIL, FROM_OPABIZ, FROM_OPABIZ_SUPPORT, FROM_OPABIZ_ALERTS, type EmailBrand, brandFrom, brandPortalHome, brandSubjectPrefix, brandHeaderHtml, brandFooterLine } from './email-constants'
+import { REPLY_TO, INTERNAL_ALERT_EMAIL as INTERNAL_EMAIL, FROM_OPABIZ, FROM_OPABIZ_SUPPORT, FROM_OPABIZ_ALERTS, type EmailBrand, brandFrom, brandReplyTo, brandPortalHome, brandSubjectPrefix, brandHeaderHtml, brandFooterLine } from './email-constants'
 
 // Lazy init: se crea al primer uso, cuando dotenv ya cargó el .env
 const getResend = () => new Resend(process.env.RESEND_API_KEY)
@@ -102,7 +102,7 @@ export const sendOrderConfirmation = async (order: {
   const subjectPrefix = brandSubjectPrefix(brand)
   await getResend().emails.send({
     from: brandFrom(brand),
-    replyTo: REPLY_TO,
+    replyTo: brandReplyTo(brand),
     to: order.email,
     subject: isFormationPackage
       ? `${subjectPrefix}✅ Your Florida LLC order is in — ${order.companyName}`
@@ -450,7 +450,7 @@ export const sendOrderProcessed = async (order: {
   const subjectPrefix = brandSubjectPrefix(brand)
   await getResend().emails.send({
     from: brandFrom(brand),
-    replyTo: REPLY_TO,
+    replyTo: brandReplyTo(brand),
     to: order.email,
     subject: isEs ? `${subjectPrefix}📋 Enviamos su trámite a Florida — ${order.companyName}` : `${subjectPrefix}📋 Your filing was submitted to Florida — ${order.companyName}`,
     html: `
@@ -590,7 +590,7 @@ export const sendOrderApprovalUpdate = async (
   const subjectPrefix = brandSubjectPrefix(brand)
   await getResend().emails.send({
     from: brandFrom(brand),
-    replyTo: REPLY_TO,
+    replyTo: brandReplyTo(brand),
     to: order.email,
     subject: hasFiles
       ? (isEs ? `${subjectPrefix}🏆 Sus documentos están listos — ${order.companyName}` : `${subjectPrefix}🏆 Your documents are ready — ${order.companyName}`)
