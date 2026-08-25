@@ -6528,7 +6528,7 @@ function fmTranslate(lang) {
     'biz-own-desc':isEs?'Su dirección quedará en el registro público de Florida. Si prefiere mantener su privacidad, nuestra dirección virtual protege sus datos personales.':'Your address will be on the Florida public record. If you prefer privacy, our virtual address keeps your personal information protected.',
     'biz-virtual-confirm-text':isEs?'Una vez que le asignemos su dirección virtual de Florida, se la enviaremos por correo. Su negocio tendrá una dirección profesional desde el primer día.':'Once your dedicated Florida virtual address is assigned, we will deliver it to your email. Your business will have a professional address from day one.',
     'biz-virtual-badge':isEs?'1er Mes GRATIS':'1st Month FREE',
-    's3-agent-info-title':isEs?'¿Qué es un Agente Registrado?':'What is a Registered Agent?',
+    's3-agent-info-title':isEs?'¿Qué es un Agente Registrado? <span class="tt-wrap" style="vertical-align:middle"><span class="tt-icon">?<span class="tt-box" id="tt-ra" style="left:0;transform:none">Un Agente Registrado es el punto de contacto oficial entre su negocio y el Estado de Florida. Recibe notificaciones legales, demandas y correspondencia gubernamental en su nombre. Toda LLC y Corporación de Florida está obligada por ley a tener uno en todo momento.</span></span></span>':'What is a Registered Agent? <span class="tt-wrap" style="vertical-align:middle"><span class="tt-icon">?<span class="tt-box" id="tt-ra" style="left:0;transform:none">A Registered Agent is the official point of contact between your business and the State of Florida. They receive legal notices, lawsuits, and government mail on your behalf. Every Florida LLC and Corporation is required by law to have one at all times.</span></span></span>',
     's3-agent-info-text':isEs?'El Agente Registrado es la persona o entidad designada ante el Estado de Florida para recibir documentos legales oficiales en nombre de su negocio.':'The Registered Agent is the person or entity designated with the State of Florida to receive official legal documents on behalf of your business.',
     'agent-ours-lbl':isEs?'Usar Nuestro Servicio de Agente Registrado':'Use Our Registered Agent Service',
     'agent-ours-desc':isEs?'Actuamos como su Agente Registrado oficial y recibimos todos los documentos oficiales por usted. Su dirección personal no aparecerá en ningún registro público. Incluido gratis su primer año. Se renueva automáticamente a $99/año después.':'We act as your official Registered Agent and receive all official documents on your behalf. Your personal address will not appear on any public record. Included free your first year. Renews automatically at $99/year after that.',
@@ -6663,6 +6663,8 @@ function fmTranslate(lang) {
     if(inp.placeholder === 'City') inp.placeholder = isEs?'Ciudad':'City';
     if(inp.placeholder === 'ZIP') inp.placeholder = isEs?'Código Postal':'ZIP';
     if(inp.placeholder === 'Street address') inp.placeholder = isEs?'Dirección':'Street address';
+    if(inp.placeholder === 'Phone number') inp.placeholder = isEs?'Número de teléfono':'Phone number';
+    if(inp.placeholder === 'Type to search or select...') inp.placeholder = isEs?'Escriba para buscar o elegir...':'Type to search or select...';
   });
   // S8 addon names
   var addonMap = {
@@ -6697,6 +6699,64 @@ function fmTranslate(lang) {
   Object.keys(addonMap).forEach(function(id){
     var e = document.getElementById(id);
     if(e) e.textContent = addonMap[id];
+  });
+  // Tooltips "?" del form (shares, registered agent, cada addon) -- nunca se
+  // traducian a espanol: setLang() actualizaba fm-addon-desc/name pero nunca
+  // tocaba estos tt-box, asi que el tip largo quedaba en ingles sin importar
+  // el idioma activo (bug real reportado por el founder, paso 6 -> Ver todos
+  // los servicios). tt-shares usa comillas simples en la rama EN porque el
+  // texto original lleva comillas dobles adentro ("ownership pieces").
+  // tt-ra NO esta aca: vive anidado dentro de s3-agent-info-title (mapa tm
+  // de arriba), que reemplaza todo el innerHTML del titulo -- si se traduce
+  // acá aparte, el tm lo destruye primero (mismo render pass) y esto
+  // encuentra el id nulo. Se tradujo directo en tm incluyendo el tooltip.
+  var ttMap = {
+    "tt-shares": isEs
+      ? "Es la cantidad total de acciones que su Corporación está legalmente autorizada a emitir. Piénselo como el número máximo de 'piezas de propiedad' que su empresa puede llegar a tener. La mayoría de los negocios pequeños usan 1,000 acciones, lo que da flexibilidad sin complicar las cosas."
+      : 'This is the total number of shares your Corporation is legally allowed to issue. Think of it like the maximum number of "ownership pieces" your company can ever have. Most small businesses use 1,000 shares — it gives you flexibility without overcomplicating things.',
+    "tt-ein": isEs
+      ? "El EIN es el número de identificación fiscal federal de su negocio. El IRS lo exige para contratar empleados y presentar impuestos federales, y la mayoría de los bancos lo piden para abrir una cuenta bancaria de negocios. Mientras el EIN identifica a su negocio, el ITIN lo identifica a usted como persona sin Número de Seguro Social de EE.UU. Muchos dueños extranjeros necesitan ambos."
+      : "An EIN is your business's federal tax ID. The IRS requires it to hire employees and file federal taxes, and most banks require it to open a business bank account. While the EIN identifies your business, the ITIN identifies you as a person without a U.S. Social Security Number. Many foreign owners need both.",
+    "tt-oa": isEs
+      ? "Es el reglamento interno de su negocio: define quién es dueño de qué, cómo se toman las decisiones y cómo se reparten las ganancias. Los bancos suelen pedirlo al abrir una cuenta corriente empresarial, y lo protege legalmente si alguna vez hay una disputa entre socios."
+      : "This is your business's internal rulebook — it defines who owns what, how decisions are made, and how profits are divided. Banks typically ask for it when you open a business checking account, and it protects you legally if there's ever a dispute between partners.",
+    "tt-itin": isEs
+      ? "El ITIN (Número de Identificación Fiscal Individual) es su número fiscal si no tiene Número de Seguro Social de EE.UU. <strong>La mayoría de los bancos en EE.UU. lo exigen para abrir una cuenta bancaria de negocios</strong>; sin uno, la mayoría de los bancos no le abrirán la cuenta. También es necesario para presentar sus impuestos federales como dueño de negocio extranjero. Si planea abrir una cuenta bancaria u operar en EE.UU., tramitar su ITIN ahora evita demoras más adelante."
+      : "An ITIN (Individual Taxpayer Identification Number) is your tax ID if you don't have a U.S. Social Security Number. <strong>The majority of U.S. banks require it to open a business bank account</strong> — without one, most banks will turn you away. It's also required to file your federal taxes as a foreign national business owner. If you plan to open a bank account or operate in the U.S., getting your ITIN now avoids delays later.",
+    "tt-btr": isEs
+      ? "La Licencia Comercial Local (antes llamada Licencia Ocupacional) es exigida por la mayoría de los condados y ciudades de Florida para operar un negocio legalmente. Debe renovarse cada año y es independiente de la presentación estatal de formación."
+      : "A Business Tax Receipt (formerly known as an Occupational License) is required by most Florida counties and cities to legally operate a business. It must be renewed annually and is separate from your state formation filing.",
+    "tt-str": isEs
+      ? "Si su negocio vende bienes o servicios gravables en Florida, debe registrarse ante el Florida Department of Revenue para cobrar y remitir el impuesto sobre ventas. Los negocios que venden sin registrarse pueden enfrentar multas e impuestos atrasados."
+      : "If your business sells taxable goods or services in Florida, you are required to register with the Florida Department of Revenue to collect and remit sales tax. Businesses that sell without registering may face penalties and back taxes.",
+    "tt-cc": isEs
+      ? "Una copia certificada por el estado de sus Artículos de Organización (LLC) o Incorporación (Corporación), sellada por la Florida Division of Corporations. Bancos, tribunales y algunas agencias exigen una copia certificada en vez de una copia simple. La tarifa estatal de Florida se paga por separado."
+      : "A state-certified copy of your Articles of Organization (LLC) or Incorporation (Corporation), stamped by the Florida Division of Corporations. Banks, courts, and some agencies require a certified copy instead of a plain copy. The Florida state fee is paid separately.",
+    "tt-ar": isEs
+      ? "Toda empresa de Florida debe presentar una Declaración Anual cada año para seguir activa, incluso si su negocio todavía no ha comenzado a operar. La ley no hace excepciones. La fecha límite es el 1 de mayo. Si se pasa, Florida cobra automáticamente una multa de $400 por atraso. Si se sigue ignorando, el Estado puede disolver la empresa administrativamente."
+      : "Every Florida business must file an Annual Report each year to stay active — even if your business has not started operating yet. The law makes no exceptions. The deadline is May 1st. Miss it and Florida automatically charges a $400 late fee. Keep ignoring it and the State can administratively dissolve your company.",
+    "tt-dba": isEs
+      ? "Un DBA (Doing Business As) o Nombre Ficticio le permite a su negocio operar bajo un nombre distinto al nombre legal registrado. Florida lo exige si quiere vender o promocionarse bajo un nombre alternativo. La tarifa estatal se paga por separado."
+      : "A DBA (Doing Business As) or Fictitious Name lets your business operate under a different name from its registered legal name. Required by Florida if you want to brand or sell under an alternate name. State fee paid separately.",
+    "tt-br": isEs
+      ? "Una Resolución Bancaria autoriza a un miembro u oficial a abrir una cuenta bancaria de negocios en nombre de su LLC o Corporación. La mayoría de los bancos en EE.UU. exigen este documento antes de permitirle abrir la cuenta, especialmente cuando hay más de un dueño."
+      : "A Banking Resolution authorizes a member or officer to open a business bank account on behalf of your LLC or Corporation. Most U.S. banks require this document before they let you open the account, especially when there is more than one owner.",
+    "tt-gd": isEs
+      ? "Guía bilingüe paso a paso que cubre todo lo que viene después de formar su LLC: abrir cuentas bancarias, obtener el EIN/ITIN, impuesto sobre ventas, contratar personal, declaraciones anuales, y errores comunes de cumplimiento en Florida que debe evitar. Escrita por nuestro equipo."
+      : "Bilingual step-by-step guide covering everything that comes after your LLC is formed: opening bank accounts, getting EIN/ITIN, sales tax, hiring contractors, annual reports, and Florida compliance pitfalls to avoid. Written by our team.",
+    "tt-gs": isEs
+      ? "Un certificado oficial de Florida que confirma que su negocio está activo, al día con sus presentaciones estatales y autorizado para operar. Bancos, prestamistas, contratos y registros fuera del estado suelen exigirlo. Emitido por la Florida Division of Corporations."
+      : "An official Florida certificate confirming that your business is active, current with state filings, and authorized to do business. Banks, lenders, contracts, and out-of-state registrations often require it. Issued by the Florida Division of Corporations.",
+    "tt-sc": isEs
+      ? "Elección fiscal federal (Formulario 2553 del IRS) para que su LLC o Corporación tribute como S Corporation, con tributación pass-through que puede ahorrarle impuesto de trabajo por cuenta propia una vez que su negocio sea rentable. El IRS aplica plazos estrictos; nosotros lo tramitamos por usted."
+      : "Federal tax election (IRS Form 2553) to have your LLC or Corporation taxed as an S Corporation — pass-through taxation that can save you self-employment tax once your business is profitable. Strict IRS deadlines apply; we file it for you.",
+    "tt-bl": isEs
+      ? "Identificamos y tramitamos las licencias federales, estatales, del condado y de la ciudad que su negocio necesita para operar legalmente según su industria y ubicación. Evita multas por operar sin los permisos requeridos. Incluye la solicitud; las tarifas gubernamentales se pagan por separado."
+      : "We identify and file the federal, state, county, and city licenses your business needs to operate legally based on your industry and location. Avoids penalties from operating without the required permits. Includes the application; government fees paid separately."
+  };
+  Object.keys(ttMap).forEach(function(id){
+    var e = document.getElementById(id);
+    if(e) e.innerHTML = ttMap[id];
   });
   var vmaEN=['Keep your address off public records','Real FL address for your business','Meets state mail requirements','Mail scans with instant alerts','FIRST MONTH FREE','Virtual Address','Use Virtual Address','1st month free then $30/month','Use my own address','Your address will be on public record'];
   var vmaES=['Su direcci\\u00f3n no aparece en registros','Direcci\\u00f3n real en Florida','Cumple requisitos del estado','Esc\\u00e1neos con alertas','PRIMER MES GRATIS','Direcci\\u00f3n Virtual','Usar Direcci\\u00f3n Virtual','1er mes gratis luego $30/mes','Usar mi propia direcci\\u00f3n','Su direcci\\u00f3n en registros p\\u00fablicos'];
