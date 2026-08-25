@@ -71,7 +71,7 @@ GUIDE MENTION (use this as your guide):
 
 PACKAGES (present names + brief description only, never prices unless client asks):
   — Basic: formación de la empresa, certificado oficial, búsqueda de nombre y guía exclusiva.
-  — Standard: todo lo del Basic más EIN, Banking Resolution y DBA. El más popular.
+  — Standard: todo lo del Basic más EIN y Banking Resolution. El más popular.
   — Premium: todo lo del Standard más Operating Agreement y Articles of Amendment. La opción más completa.
 
 ONCE CLIENT DECIDES TO START: Stop selling. Say the closing message warmly and let them proceed.
@@ -97,7 +97,7 @@ FORMATION PACKAGES (for new businesses)
 All packages include: LLC or Corporation Formation, Articles of Organization / Incorporation, Name Availability Search, Exclusive Formation Guide, BOI Filing (FinCEN).
 Florida state filing fee is separate: $125 for LLC, $70 for Corporation — paid directly to the State.
 
-🔹 BASIC — $0 (+ state fee only)
+🔹 BASIC — $39 (+ state fee only)
   • LLC or Corporation Formation filed with FL
   • Articles of Organization / Incorporation
   • Name Availability Search
@@ -136,7 +136,7 @@ These can be added to any package or ordered standalone:
 • EIN / Tax ID — $49. Required to open a business bank account. Included in Standard and Premium.
 • Banking Resolution — $49. Authorizes a member to open a business bank account. Included in Standard and Premium.
 • Operating Agreement — $79. Documents ownership, management, profit distribution. Most banks require it. Included in Premium.
-• DBA / Fictitious Name — $49 + FL state fee. Operate under a different brand name. Included in Standard and Premium.
+• DBA / Fictitious Name — $49 + FL state fee. Operate under a different brand name.
 • Articles of Amendment — $59 + FL state fee. Change name, address, or officers. Included in Premium.
 • Business Tax Receipt — $79 + county fee. Required in many FL counties.
 • Sales Tax Registration — $79. Register to collect and remit FL sales tax.
@@ -294,8 +294,8 @@ STEP 1 — Individual or Company?
   • Company: Another business entity is the owner (e.g. a holding company). Requires the owning company's name and an authorized representative name.
 
 STEP 2 — Confirm Package
-  • Basic $0 (+ state fee only): Formation filing, certificate, name search, formation guide, BOI Filing. Best if you already have an EIN.
-  • Standard $199 (+ state fee): Everything in Basic + EIN, Banking Resolution, DBA. Best for anyone opening a business bank account.
+  • Basic $39 (+ state fee only): Formation filing, certificate, name search, formation guide, BOI Filing. Best if you already have an EIN.
+  • Standard $199 (+ state fee): Everything in Basic + EIN, Banking Resolution. Best for anyone opening a business bank account.
   • Premium $299 (+ state fee): Everything in Standard + Operating Agreement, Articles of Amendment. Best for complete legal documentation.
 
 STEP 3 — Business Name
@@ -421,7 +421,7 @@ ABOUT US:
 We were founded with the mission of making business formation accessible, affordable, and stress-free for every entrepreneur — regardless of language or background. We focus exclusively on Florida LLC and Corporation filings. Our entire website, forms, and support team operate in both English and Spanish.
 
 TERMS & REFUND POLICY:
-- Service fees are displayed during the order process. Basic $0, Standard $199, Premium $299.
+- Service fees are displayed during the order process. Basic $39, Standard $199, Premium $299.
 - Florida state filing fees (LLC $125, Corp $70) are paid directly to the State — separate from our fees.
 - Refunds may be requested within 24 hours of order placement and BEFORE any filing has been initiated. Once documents have been prepared or submitted, no refund will be issued.
 - Refund requests must be submitted in writing to info@opabiz.com.

@@ -40,7 +40,6 @@ const PACKAGE_SERVICES: Record<string, { en: string; es: string }[]> = {
     { en: 'Operating Agreement', es: 'Acuerdo Operativo' },
     { en: 'Expedited Filing (1–3 days)', es: 'Registro Prioritario (1–3 días)' },
     { en: 'ITIN Application', es: 'Solicitud de ITIN' },
-    { en: 'DBA / Fictitious Name', es: 'DBA / Nombre Ficticio' },
     { en: 'Articles of Amendment', es: 'Artículos de Enmienda' },
   ],
 }

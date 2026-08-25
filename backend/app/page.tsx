@@ -11,7 +11,7 @@ import ChatWidget from '@/components/ChatWidget'
 
 export const metadata: Metadata = {
   title: 'Florida LLC & Corporation Formation — Online, Bilingual',
-  description: 'Form your Florida LLC or Corporation online in minutes. Bilingual service EN/ES. Packages from $0 + state fee. EIN, Operating Agreement, BOI Filing included.',
+  description: 'Form your Florida LLC or Corporation online in minutes. Bilingual service EN/ES. Packages from $39 + state fee. EIN, Operating Agreement, BOI Filing included.',
   alternates: {
     canonical: 'https://opabiz.com',
     languages: {
@@ -51,7 +51,7 @@ const schemaOrg = {
       description: 'Online Florida LLC formation service. Includes filing, Articles of Organization / Incorporation, name availability search, and BOI Filing.',
       areaServed: 'US-FL',
       offers: [
-        { '@type': 'Offer', name: 'Basic', price: '0', priceCurrency: 'USD' },
+        { '@type': 'Offer', name: 'Basic', price: '39', priceCurrency: 'USD' },
         { '@type': 'Offer', name: 'Standard', price: '199', priceCurrency: 'USD' },
         { '@type': 'Offer', name: 'Premium', price: '299', priceCurrency: 'USD' },
       ],
@@ -919,7 +919,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 
 <!-- TOPBAR -->
 <div class="topbar">
-  <span id="topbar-text">🌟 Florida's trusted business formation experts — <strong>LLC &amp; Corporation</strong> filing made simple. Start today for <strong>FREE + state fee.</strong></span>
+  <span id="topbar-text">🌟 Florida's trusted business formation experts — <strong>LLC &amp; Corporation</strong> filing made simple. Start today from <strong>$39 + state fee.</strong></span>
 </div>
 
 <!-- HEADER -->
@@ -1022,7 +1022,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
       <div class="pkg-card" onclick="openFormFromPkg('basic')" onmouseenter="pkgHighlight(this)" onmouseleave="pkgUnhighlight(this)">
         <div class="pkg-head">
           <div class="pkg-name">Basic</div>
-          <div class="pkg-price-row"><span class="pkg-price">$0</span></div>
+          <div class="pkg-price-row"><span class="pkg-price">$39</span></div>
           <div class="pkg-state-fee" data-en="+ Florida state fee*" data-es="+ tarifa estatal de Florida*">+ Florida state fee*</div>
           <button class="pkg-cta pkg-cta-basic" onclick="openFormFromPkg('basic')" data-en="Get Started" data-es="Comenzar">Get Started</button>
         </div>
@@ -1062,7 +1062,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           <div class="svc-row"><span class="svc-name">BOI Filing (FinCEN)</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name" data-en="EIN / Tax ID Number" data-es="EIN / Número de ID Fiscal">EIN / Tax ID Number</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Banking Resolution" data-es="Resolución Bancaria">Banking Resolution</span><span class="svc-status s-check">✓</span></div>
-          <div class="svc-row"><span class="svc-name" data-en="DBA / Fictitious Name" data-es="DBA / Nombre Ficticio">DBA / Fictitious Name</span><span class="svc-status s-check">✓</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="DBA / Fictitious Name" data-es="DBA / Nombre Ficticio">DBA / Fictitious Name</span><span class="svc-status s-add">+ $49</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Local Business Tax Receipt" data-es="Licencia Comercial Local">Local Business Tax Receipt</span><span class="svc-status s-add">+ $79</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Sales Tax Registration" data-es="Registro de Impuesto sobre Ventas">Sales Tax Registration</span><span class="svc-status s-add">+ $79</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Operating Agreement" data-es="Acuerdo Operativo">Operating Agreement</span><span class="svc-status s-add">+ $59</span></div>
@@ -1088,7 +1088,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           <div class="svc-row"><span class="svc-name">BOI Filing (FinCEN)</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name" data-en="EIN / Tax ID Number" data-es="EIN / Número de ID Fiscal">EIN / Tax ID Number</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Banking Resolution" data-es="Resolución Bancaria">Banking Resolution</span><span class="svc-status s-check">✓</span></div>
-          <div class="svc-row"><span class="svc-name" data-en="DBA / Fictitious Name" data-es="DBA / Nombre Ficticio">DBA / Fictitious Name</span><span class="svc-status s-check">✓</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="DBA / Fictitious Name" data-es="DBA / Nombre Ficticio">DBA / Fictitious Name</span><span class="svc-status s-add">+ $49</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Operating Agreement" data-es="Acuerdo Operativo">Operating Agreement</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Articles of Amendment" data-es="Artículos de Enmienda">Articles of Amendment</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Local Business Tax Receipt" data-es="Licencia Comercial Local">Local Business Tax Receipt</span><span class="svc-status s-add">+ $79</span></div>
@@ -2584,7 +2584,7 @@ var orderNumber = '';
 
 var translations = {
   en: {
-    topbar: "🌟 Florida's trusted business formation experts — <strong>LLC & Corporation</strong> filing made simple. Start today from <strong>FREE + state fee.</strong>",
+    topbar: "🌟 Florida's trusted business formation experts — <strong>LLC & Corporation</strong> filing made simple. Start today from <strong>$39 + state fee.</strong>",
     heroTitle: 'Create Your <em>Florida Business</em>, fast and easy',
     heroSub: "",
     heroBadge: "Trusted by Entrepreneurs Across Florida",
@@ -2615,7 +2615,7 @@ var translations = {
     testiTitle:"Real Entrepreneurs. Real Results.",
     faqTitle:"Answers to Your Most Important Questions",
   es: {
-    topbar: "🌟 Expertos de confianza en formación de negocios en Florida — <strong>LLC y Corporación</strong> de manera simple. Empieza hoy desde <strong>GRATIS + tarifas estatales.</strong>",
+    topbar: "🌟 Expertos de confianza en formación de negocios en Florida — <strong>LLC y Corporación</strong> de manera simple. Empieza hoy desde <strong>$39 + tarifas estatales.</strong>",
     heroTitle: 'Cree Su <em>Negocio en Florida</em>, rápido y fácil',
     heroSub: '',
     heroBadge: "La confianza de cientos de emprendedores en Florida",
@@ -5556,7 +5556,6 @@ var FM_PACKAGE_ITEMS = {
     {en:'Operating Agreement', es:'Acuerdo Operativo'},
     {en:'Expedited Filing (1–3 days)', es:'Registro Prioritario (1–3 días)'},
     {en:'ITIN Application', es:'Solicitud de ITIN'},
-    {en:'DBA / Fictitious Name', es:'DBA / Nombre Ficticio'},
     {en:'Articles of Amendment', es:'Artículos de Enmienda'}
   ]
 };
@@ -5564,7 +5563,7 @@ var FM_PACKAGE_ITEMS = {
 function fmUpdateSummary() {
   var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
   var pkg = fmData.package || 'standard';
-  var prices = { basic:0, standard:199, premium:299 };
+  var prices = { basic:39, standard:199, premium:299 };
   var base   = (pkg in prices ? prices[pkg] : 199);
   var state  = fmData.entity === 'corp' ? 70 : 125;
   var extras = 0;
@@ -5807,7 +5806,7 @@ function fmBuildOrderPayload() {
   var addons  = fd.addons  || {};
 
   // ── Calcular monto total (igual que el formulario) ────────────────────────
-  var pkgPrices = { basic: 0, standard: 199, premium: 299 };
+  var pkgPrices = { basic: 39, standard: 199, premium: 299 };
   var stateFee  = entity === 'corp' ? 70 : 125;
   var extras    = 0;
   if(addons.ein)  extras += 79;

@@ -15,14 +15,13 @@ export type EntityType = 'llc' | 'corp'
 export type Speed = 'standard' | 'expedited'
 export type PackageId = 'basic' | 'standard' | 'premium'
 
-export const PACKAGE_PRICES: Record<PackageId, number> = { basic: 0, standard: 199, premium: 299 }
-
-// Precio de "lista" del paquete Basic, para mostrarlo como OFERTA en el checkout
-// de Stripe: se incluye como line item a este precio y un cupón (-este mismo
-// monto) lo deja en $0. El cliente ve "Basic Formation Package $99 → -$99".
-// ⚠️ Si cambias este número, ajusta también el cupón en Stripe: su amount_off
-// debe ser exactamente igual (ver STRIPE_BASIC_COUPON_ID en /api/checkout/embedded).
-export const BASIC_PACKAGE_LIST_PRICE = 99
+// Basic pasó de $0 a $39 (2026-08-25, decisión founder) — dejó de ser el tier
+// gratis de entrada. Antes tenía un mecanismo especial (BASIC_PACKAGE_LIST_PRICE
+// + cupón de Stripe STRIPE_BASIC_COUPON_ID + withBasicDisplayLine) para mostrar
+// "$99 → -$99 = gratis"; con un precio real > 0 ya no hace falta ninguno de
+// esos trucos — Basic ahora se comporta exactamente igual que Standard/Premium
+// (line item normal a su precio de lista, sin cupón).
+export const PACKAGE_PRICES: Record<PackageId, number> = { basic: 39, standard: 199, premium: 299 }
 
 // Add-ons cobrables (igual que fmBuildPayload en page.tsx). `raInfo` no se
 // cobra acá (es solo la dirección cuando el cliente es su propio agente).
@@ -98,7 +97,7 @@ export function computeFormationTotal(input: FormationPricingInput): FormationPr
 
   const lines: PriceLine[] = []
 
-  // Paquete (omitir si $0 — ej. Basic — porque Stripe no acepta line items en 0)
+  // Paquete (omitir si algún día un tier vuelve a valer $0 — Stripe no acepta line items en 0)
   const base = PACKAGE_PRICES[pkg]
   if (base > 0) lines.push({ label: PACKAGE_LABELS[pkg], amount: base })
 
@@ -121,29 +120,4 @@ export function computeFormationTotal(input: FormationPricingInput): FormationPr
 
   const total = lines.reduce((sum, l) => sum + l.amount, 0)
   return { total, cents: total * 100, lines }
-}
-
-/**
- * Solo para mostrar en emails/recibos: si el paquete es Basic ($0), agrega
- * dos líneas de DISPLAY — "Basic Formation Package $99" + "Basic Package
- * Discount -$99" — para que exista una fila de precio de la que colgar el
- * detalle de inclusiones del tier (antes Basic quedaba sin ninguna lista de
- * "qué incluye" en los emails, porque computeFormationTotal omite la línea
- * del paquete entera cuando su precio es $0 — no hay fila de la que colgar
- * nada). Netea $0, no cambia el total real cobrado.
- *
- * A propósito NO se mete dentro de computeFormationTotal: esa función
- * también arma los line items reales que Stripe cobra (/api/checkout/embedded),
- * que ya tiene su PROPIA lógica de precio de lista + cupón real (gated por
- * STRIPE_BASIC_COUPON_ID) — agregar esto ahí duplicaría la línea "Basic
- * Formation Package" en el checkout de Stripe.
- */
-export function withBasicDisplayLine(pkg: string | null | undefined, lines: PriceLine[]): PriceLine[] {
-  const pkgKey = (pkg ?? '').toLowerCase().trim()
-  if (pkgKey !== 'basic' || lines.some(l => l.label.endsWith('Formation Package'))) return lines
-  return [
-    { label: 'Basic Formation Package', amount: BASIC_PACKAGE_LIST_PRICE },
-    { label: 'Basic Package Discount', amount: -BASIC_PACKAGE_LIST_PRICE },
-    ...lines,
-  ]
 }

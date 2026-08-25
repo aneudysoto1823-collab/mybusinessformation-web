@@ -109,7 +109,7 @@ export default function OGImage() {
             alignItems: "center",
           }}
         >
-          {["Basic $0", "Standard $199", "Premium $299"].map((label) => (
+          {["Basic $39", "Standard $199", "Premium $299"].map((label) => (
             <div
               key={label}
               style={{

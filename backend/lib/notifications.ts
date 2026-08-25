@@ -1,6 +1,6 @@
 import { Resend } from 'resend'
 import { getOrderItemKeys, getOrderItemLabel } from './order-items'
-import { computeFormationTotal, withBasicDisplayLine } from './pricing'
+import { computeFormationTotal } from './pricing'
 import { REPLY_TO, INTERNAL_ALERT_EMAIL as INTERNAL_EMAIL, FROM_OPABIZ, FROM_OPABIZ_SUPPORT, FROM_OPABIZ_ALERTS, type EmailBrand, brandFrom, brandReplyTo, brandPortalHome, brandSubjectPrefix, brandHeaderHtml, brandFooterLine } from './email-constants'
 
 // Lazy init: se crea al primer uso, cuando dotenv ya cargó el .env
@@ -66,10 +66,9 @@ export const sendOrderConfirmation = async (order: {
   let summaryBoxHtml: string
   if (isFormationPackage) {
     const packageItems = PACKAGE_SERVICES[packageKey] ?? []
-    const { lines: rawFormationLines, total } = computeFormationTotal({
+    const { lines: formationLines, total } = computeFormationTotal({
       package: order.package, entityType: order.entityType, speed: order.speed, addons: order.addons as Record<string, boolean> | null,
     })
-    const formationLines = withBasicDisplayLine(order.package, rawFormationLines)
     const packageInclHtml = packageItems.map(i => `<div>${i.en}</div>`).join('')
     const formationRowsHtml = formationLines
       .map(l => {
@@ -395,7 +394,6 @@ export const PACKAGE_SERVICES: Record<string, { en: string; es: string }[]> = {
     { en: 'Operating Agreement', es: 'Acuerdo Operativo' },
     { en: 'Expedited Filing (1–3 days)', es: 'Registro Prioritario (1–3 días)' },
     { en: 'ITIN Application', es: 'Solicitud de ITIN' },
-    { en: 'DBA / Fictitious Name', es: 'DBA / Nombre Ficticio' },
     { en: 'Articles of Amendment', es: 'Artículos de Enmienda' },
   ],
 }

@@ -48,7 +48,7 @@ interface Props {
 }
 
 const PACKAGE_INFO: Record<string, { en: string; es: string; price: string; popular?: boolean }> = {
-  basic:    { en: 'Basic',               es: 'Básico',   price: '$0 + state fee' },
+  basic:    { en: 'Basic',               es: 'Básico',   price: '$39 + state fee' },
   standard: { en: 'Standard',           es: 'Estándar', price: '$199 + state fee', popular: true },
   premium:  { en: 'Premium',            es: 'Premium',  price: '$299 + state fee' },
   addon:    { en: 'New Business Letter', es: 'New Business Letter', price: 'Variable' },
@@ -78,7 +78,6 @@ const PACKAGE_SERVICES: Record<string, { en: string; es: string }[]> = {
     { en: 'Operating Agreement',              es: 'Acuerdo Operativo' },
     { en: 'Expedited Filing (1–3 days)',       es: 'Registro Prioritario (1–3 días)' },
     { en: 'ITIN Application',                 es: 'Solicitud de ITIN' },
-    { en: 'DBA / Fictitious Name',            es: 'DBA / Nombre Ficticio' },
     { en: 'Articles of Amendment',            es: 'Artículos de Enmienda' },
   ],
 }

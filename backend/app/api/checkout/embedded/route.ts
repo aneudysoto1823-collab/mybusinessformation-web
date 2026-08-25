@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { getSupabaseAdmin } from '@/lib/supabase'
-import { computeFormationTotal, BASIC_PACKAGE_LIST_PRICE } from '@/lib/pricing'
+import { computeFormationTotal } from '@/lib/pricing'
 import { resolveOrigin } from '@/lib/request-origin'
 
 export const dynamic = 'force-dynamic'
@@ -49,29 +49,12 @@ export async function POST(req: NextRequest) {
       quantity: 1,
     }))
 
-    // Oferta "Basic gratis": mostramos el paquete Basic a su precio de lista
-    // ($99) como line item y aplicamos un cupón que lo deja en $0, para que el
-    // cliente vea el valor regalado en el desglose de Stripe ("Basic $99 / -$99").
-    // SOLO si el cupón está configurado (STRIPE_BASIC_COUPON_ID) — si falta, NO
-    // se agrega la línea, así nunca se cobra de más. El amount_off del cupón en
-    // Stripe debe ser exactamente BASIC_PACKAGE_LIST_PRICE.
-    const discounts: Stripe.Checkout.SessionCreateParams.Discount[] = []
-    const basicCouponId = process.env.STRIPE_BASIC_COUPON_ID
-    if (order.package === 'basic' && basicCouponId) {
-      lineItems.unshift({
-        price_data: { currency: 'usd', product_data: { name: 'Basic Formation Package' }, unit_amount: BASIC_PACKAGE_LIST_PRICE * 100 },
-        quantity: 1,
-      })
-      discounts.push({ coupon: basicCouponId })
-    }
-
     const origin = resolveOrigin(req)
 
     const session = await getStripe().checkout.sessions.create({
       ui_mode: 'embedded',
       mode: 'payment',
       line_items: lineItems,
-      ...(discounts.length ? { discounts } : {}),
       // Colores de marca OpaBiz (blanco + azul) en vez del default de Stripe —
       // no afecta el widget de Link (producto propio de Stripe, no themeable).
       branding_settings: {

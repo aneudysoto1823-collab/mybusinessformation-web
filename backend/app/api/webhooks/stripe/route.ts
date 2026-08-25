@@ -5,7 +5,7 @@ import { Resend } from 'resend'
 import { nameCheckHtmlLine, NameCheckResult } from '@/lib/sunbiz-namecheck'
 import { SERVICES_CATALOG, SERVICE_BUNDLES } from '@/lib/services-pricing'
 import { PACKAGE_SERVICES } from '@/lib/notifications'
-import { computeFormationTotal, withBasicDisplayLine } from '@/lib/pricing'
+import { computeFormationTotal } from '@/lib/pricing'
 import { getOrderItemLabel } from '@/lib/order-items'
 import { hasReceivedGuide, recordGuideSent, getGuideAttachments, buildGuideBonusHtml, type GuideKey } from '@/lib/guides'
 import { REPLY_TO, REPLY_TO_FBFC, INTERNAL_ALERT_EMAIL as ADMIN_EMAIL, FROM_OPABIZ, FROM_OPABIZ_ALERTS, FROM_FBFC } from '@/lib/email-constants'
@@ -398,10 +398,9 @@ async function handleFormationPaid(orderId: string, session: Stripe.Checkout.Ses
   // email de confirmación (mismo criterio que nameCheckHtmlLine más arriba).
   let formationRowsHtml = ''
   try {
-    const { lines: rawFormationLines } = computeFormationTotal({
+    const { lines: formationLines } = computeFormationTotal({
       package: order.package, entityType: order.entityType, speed: order.speed, addons: formationAddons,
     })
-    const formationLines = withBasicDisplayLine(order.package, rawFormationLines)
     const packageInclHtml = packageItems.map(i => `<div>${i.en}</div>`).join('')
     formationRowsHtml = formationLines
       .map(l => {

@@ -64,7 +64,7 @@ interface Order {
 const STATUS_OPTIONS = ['pending', 'in_review', 'names_taken', 'ready_to_file', 'filed', 'approved', 'completed']
 
 const PACKAGE_INFO: Record<string, { name: string; price: string; popular?: boolean }> = {
-  basic:    { name: 'Basic',                price: '$0 + state fee' },
+  basic:    { name: 'Basic',                price: '$39 + state fee' },
   standard: { name: 'Standard',            price: '$199 + state fee', popular: true },
   premium:  { name: 'Premium',             price: '$299 + state fee' },
   addon:    { name: 'New Business Letter',  price: 'Variable' },
@@ -94,7 +94,6 @@ const PACKAGE_SERVICES: Record<string, string[]> = {
     'Operating Agreement',
     'Expedited Filing (1–3 days)',
     'ITIN Application',
-    'DBA / Fictitious Name',
     'Articles of Amendment',
   ],
 }

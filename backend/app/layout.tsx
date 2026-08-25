@@ -95,7 +95,7 @@ export async function generateMetadata(): Promise<Metadata> {
       template: "%s | OpaBiz",
     },
     description:
-      "Form your Florida LLC or Corporation online in minutes. Bilingual service (EN/ES). Packages from $0 + state fee. EIN, Operating Agreement, BOI Filing included.",
+      "Form your Florida LLC or Corporation online in minutes. Bilingual service (EN/ES). Packages from $39 + state fee. EIN, Operating Agreement, BOI Filing included.",
     keywords: [
       "Florida LLC formation",
       "form LLC Florida",
@@ -130,7 +130,7 @@ export async function generateMetadata(): Promise<Metadata> {
       url: BASE_URL,
       title: "OpaBiz | Florida LLC & Corporation Formation",
       description:
-        "Form your Florida LLC or Corporation online in minutes. Bilingual service (EN/ES). Packages from $0 + state fee.",
+        "Form your Florida LLC or Corporation online in minutes. Bilingual service (EN/ES). Packages from $39 + state fee.",
       images: [
         {
           url: "/opengraph-image",
@@ -144,7 +144,7 @@ export async function generateMetadata(): Promise<Metadata> {
       card: "summary_large_image",
       title: "OpaBiz | Florida LLC & Corporation Formation",
       description:
-        "Form your Florida LLC or Corporation online in minutes. Bilingual EN/ES. Packages from $0 + state fee.",
+        "Form your Florida LLC or Corporation online in minutes. Bilingual EN/ES. Packages from $39 + state fee.",
       images: ["/opengraph-image"],
     },
     alternates: {
