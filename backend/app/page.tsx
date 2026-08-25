@@ -1713,7 +1713,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
       <div class="fm-step" id="fms3">
         <div class="fm-card">
           <div class="fm-card-body">
-            <h2 class="fm-title" id="s3-title">Registered Agent &amp; Mailing Address</h2>
+            <h2 class="fm-title" id="s3-title">Registered Agent</h2>
             <p class="fm-sub" id="s3-sub">The law requires every business to have a Registered Agent.</p>
             <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:9px;padding:11px 14px;font-size:.77rem;color:#475569;line-height:1.65;margin-bottom:14px">
               <strong id="s3-agent-info-title">What is a Registered Agent? <span class="tt-wrap" style="vertical-align:middle"><span class="tt-icon">?<span class="tt-box" id="tt-ra" style="left:0;transform:none">A Registered Agent is the official point of contact between your business and the State of Florida. They receive legal notices, lawsuits, and government mail on your behalf. Every Florida LLC and Corporation is required by law to have one at all times.</span></span></span></strong><br/>
@@ -1763,7 +1763,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
                  elegia "Use Our Registered Agent Service" (display:none). -->
             <div style="margin-top:14px">
               <div style="margin-top:20px;padding-bottom:12px">
-                <div style="font-size:.7rem;font-weight:700;color:#1e293b;text-transform:uppercase;letter-spacing:1px" id="s3-mail-divider"><span id="s3-mail-divider-entity">LLC</span> Mailing Address</div>
+                <div class="fm-title" id="s3-mail-divider"><span id="s3-mail-divider-entity">LLC</span> Mailing Address</div>
                 <div style="font-size:.68rem;color:#9ca3af;margin-top:2px" id="s3-mail-opt">Optional — separate from your Registered Agent address</div>
                 <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px 14px;background:#fff;border:1.5px solid #e2e8f0;border-radius:9px;margin-top:8px">
                   <input type="checkbox" id="chk-same-mail" checked onchange="fmToggleMailAddr(this)" style="width:17px;height:17px;cursor:pointer;accent-color:#2563eb"/>
@@ -4637,7 +4637,7 @@ var fmData = {
 var fmStepTitles = [
   'Business Setup',
   'Business Address',
-  'Registered Agent & Mailing Address',
+  'Registered Agent',
   'Ownership & Management',
   'Faster Processing',
   'Boost Your Formation',
@@ -4646,7 +4646,7 @@ var fmStepTitles = [
 var fmStepTitlesEs = [
   'Configuración del Negocio',
   'Dirección de Negocio',
-  'Agente Registrado y Dirección Postal',
+  'Agente Registrado',
   'Propiedad y Gestión',
   'Procesamiento Acelerado',
   'Mejore Su Formación',
@@ -6342,7 +6342,7 @@ var fmTranslations = {
     s1_sub: 'Enter your business name below. Your name must end with LLC, Corp, or Inc.',
     s2_title: 'Your Information',
     s2_sub: 'The typical state filing time for Florida is <strong>7–14 business days</strong>. In a hurry? Select expedited filing for faster processing.',
-    s3_title: 'Registered Agent & Mailing Address',
+    s3_title: 'Registered Agent',
     s3_sub: 'The law requires every business to have a Registered Agent.',
     s4_title: 'Your Formation Package',
     s5_title: 'Ownership & Management',
@@ -6361,7 +6361,7 @@ var fmTranslations = {
     s1_sub: 'Ingrese el nombre de su negocio. El nombre debe terminar con LLC, Corp o Inc.',
     s2_title: 'Su Información',
     s2_sub: 'El tiempo típico de tramitación en Florida es <strong>7–14 días hábiles</strong>. ¿Con prisa? Selecciona tramitación expedita.',
-    s3_title: 'Agente Registrado y Dirección Postal',
+    s3_title: 'Agente Registrado',
     s3_sub: 'La ley establece que todo negocio debe tener un Agente Registrado.',
     s4_title: 'Su Paquete de Formación',
     s5_title: 'Propiedad y Gestión',
