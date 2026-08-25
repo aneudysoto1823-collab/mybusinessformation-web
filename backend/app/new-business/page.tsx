@@ -144,6 +144,7 @@ const CSS = `
     font-weight: 700;
     line-height: 1.15;
     color: #fff;
+    white-space: nowrap;
   }
   .nb-logo-text .l2 {
     color: #93c5fd;
@@ -903,7 +904,13 @@ const CSS = `
   .compliance-q { font-size: .76rem; color: #374151; flex: 1; display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
 
   @media (max-width: 600px) {
-    .nb-header { padding: 0 16px; }
+    .nb-header { height: auto; min-height: 64px; padding: 10px 14px; }
+    .nb-logo-mark { width: 34px; height: 34px; }
+    .nb-logo-text .l1 { font-size: .8rem; }
+    .nb-header-right { gap: 8px; }
+    .nb-phone { display: none; }
+    .nb-services-link:not(.nb-track-order) { display: none; }
+    .nb-services-link.nb-track-order { font-size: .7rem; padding: 5px 10px; }
     .nb-welcome { padding: 28px 20px 30px; }
     .entry-card { padding: 28px 22px; }
     .svc-section { padding: 32px 16px 24px; }
@@ -1537,7 +1544,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
           </div>
         </div>
         <div className="nb-header-right">
-          <a href="/client-portal" className="nb-services-link">
+          <a href="/client-portal" className="nb-services-link nb-track-order">
             {lang === 'es' ? 'Mi Orden' : 'Track Order'}
           </a>
           <a href="/servicios" className="nb-services-link">
