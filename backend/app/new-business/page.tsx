@@ -176,9 +176,108 @@ const CSS = `
     padding: 6px 14px;
     border: 1.5px solid rgba(255,255,255,.35);
     border-radius: 6px;
+    background: transparent;
+    cursor: pointer;
+    font-family: inherit;
     transition: all .15s;
   }
   .nb-services-link:hover { color: #fff; border-color: #fff; }
+
+  /* ── LOGIN POPOVER ── */
+  .nb-login-card {
+    position: fixed;
+    top: 72px;
+    right: 18px;
+    z-index: 3000;
+    width: 340px;
+    max-width: calc(100vw - 32px);
+    background: #fff;
+    border-radius: 14px;
+    padding: 22px 22px 18px;
+    box-shadow: 0 16px 48px rgba(15,28,46,.22);
+    border: 1px solid #e2e8f0;
+  }
+  .nb-login-close {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    background: none;
+    border: none;
+    font-size: 22px;
+    line-height: 1;
+    color: #94a3b8;
+    cursor: pointer;
+    padding: 0;
+  }
+  .nb-login-close:hover { color: #475569; }
+  .nb-login-title {
+    font-family: var(--font-serif);
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #1B3A6B;
+    margin-bottom: 16px;
+  }
+  .nb-login-group { margin-bottom: 13px; }
+  .nb-login-group label {
+    display: block;
+    font-size: .67rem;
+    font-weight: 700;
+    color: #374151;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    margin-bottom: 5px;
+  }
+  .nb-login-group input {
+    width: 100%;
+    padding: 10px 13px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: .86rem;
+    font-family: var(--font-sans);
+    color: #1e293b;
+    outline: none;
+    transition: all .2s;
+  }
+  .nb-login-group input:focus {
+    border-color: #2563EB;
+    box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+  }
+  .nb-login-btn {
+    width: 100%;
+    padding: 12px;
+    background: #1B3A6B;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: .86rem;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: var(--font-sans);
+    margin-top: 4px;
+    min-height: 44px;
+    transition: background .15s;
+  }
+  .nb-login-btn:hover:not(:disabled) { background: #2563EB; }
+  .nb-login-btn:disabled { background: #94a3b8; cursor: not-allowed; }
+  .nb-login-error {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #b91c1c;
+    border-radius: 8px;
+    padding: 9px 12px;
+    font-size: .76rem;
+    font-weight: 600;
+    margin-bottom: 13px;
+    line-height: 1.5;
+  }
+  .nb-login-terms {
+    text-align: center;
+    font-size: .65rem;
+    color: #94a3b8;
+    line-height: 1.55;
+    margin: 14px 0 0;
+  }
+  .nb-login-terms a { color: #64748b; text-decoration: underline; }
   .nb-lang {
     display: flex;
     background: rgba(255,255,255,.12);
@@ -909,8 +1008,9 @@ const CSS = `
     .nb-logo-text .l1 { font-size: .8rem; }
     .nb-header-right { gap: 8px; }
     .nb-phone { display: none; }
-    .nb-services-link:not(.nb-track-order) { display: none; }
-    .nb-services-link.nb-track-order { font-size: .7rem; padding: 5px 10px; }
+    .nb-services-link:not(.nb-login-trigger) { display: none; }
+    .nb-services-link.nb-login-trigger { font-size: .7rem; padding: 5px 10px; }
+    .nb-login-card { top: 66px; right: 12px; left: 12px; width: auto; max-width: none; }
     .nb-welcome { padding: 28px 20px 30px; }
     .entry-card { padding: 28px 22px; }
     .svc-section { padding: 32px 16px 24px; }
@@ -970,6 +1070,46 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
   const [lookingUp, setLookingUp] = useState(false)
   const [company, setCompany]     = useState<Company | null>(null)
   const [lookupErr, setLookupErr] = useState('')
+
+  // Login del cliente — popover anclado al botón del header (antes "Track
+  // Order" navegaba directo a /client-portal). Mismo patrón que el popover
+  // del home (.plogin-*): permanece en la página, sin oscurecerla.
+  const [loginOpen, setLoginOpen]       = useState(false)
+  const [loginEmail, setLoginEmail]     = useState('')
+  const [loginCred, setLoginCred]       = useState('')
+  const [loginError, setLoginError]     = useState('')
+  const [loginLoading, setLoginLoading] = useState(false)
+
+  async function handleLoginSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    const email = loginEmail.trim()
+    const cred  = loginCred.trim()
+    if (!email || !cred) {
+      setLoginError(lang === 'es' ? 'Completa todos los campos.' : 'Please fill in all fields.')
+      return
+    }
+    // Mismo criterio que el popover del home: FBFC-/FBNB- es número de orden,
+    // cualquier otra cosa es contraseña.
+    const body = /^(fbfc|fbnb)/i.test(cred)
+      ? { email, confirmationNumber: cred.toUpperCase() }
+      : { email, password: cred }
+    setLoginLoading(true)
+    setLoginError('')
+    try {
+      const res  = await fetch('/api/client-auth', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      const data = await res.json()
+      if (res.ok) {
+        setLoginOpen(false)
+        window.location.href = data.isDraft ? `/?resume=1&lang=${lang}` : `/client-portal/dashboard?lang=${lang}`
+      } else {
+        setLoginError(lang === 'es' ? 'No encontramos una orden con esos datos.' : "We couldn't find an order matching those details.")
+      }
+    } catch {
+      setLoginError(lang === 'es' ? 'Error de conexión. Intenta de nuevo.' : 'Connection error. Please try again.')
+    } finally {
+      setLoginLoading(false)
+    }
+  }
 
   const [selected, setSelected]   = useState<Set<string>>(new Set(SERVICES.map(s => s.id)))
   // Ítems del carrito compartido que NO son uno de los 3 de new-business (ej.
@@ -1550,9 +1690,9 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
           </div>
         </div>
         <div className="nb-header-right">
-          <a href="/client-portal" className="nb-services-link nb-track-order">
-            {lang === 'es' ? 'Mi Orden' : 'Track Order'}
-          </a>
+          <button type="button" className="nb-services-link nb-login-trigger" onClick={() => setLoginOpen(o => !o)}>
+            {lang === 'es' ? 'Ingresar' : 'Login'}
+          </button>
           <a href="/servicios" className="nb-services-link">
             {lang === 'es' ? 'Servicios' : 'Services'}
           </a>
@@ -1575,6 +1715,50 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
           </a>
         </div>
       </header>
+
+      {loginOpen && (
+        <div className="nb-login-card">
+          <button type="button" className="nb-login-close" aria-label="Close" onClick={() => setLoginOpen(false)}>&times;</button>
+          <h3 className="nb-login-title">{lang === 'es' ? 'Accede a tu cuenta' : 'Access your account'}</h3>
+          {loginError && <div className="nb-login-error">{loginError}</div>}
+          <form onSubmit={handleLoginSubmit}>
+            <div className="nb-login-group">
+              <label>{lang === 'es' ? 'Correo electrónico' : 'Email address'}</label>
+              <input
+                type="text"
+                autoComplete="username"
+                autoCapitalize="off"
+                spellCheck={false}
+                value={loginEmail}
+                onChange={e => setLoginEmail(e.target.value)}
+                placeholder={lang === 'es' ? 'Su correo' : 'Your email'}
+              />
+            </div>
+            <div className="nb-login-group">
+              <label>{lang === 'es' ? 'Número de orden o contraseña' : 'Order number or password'}</label>
+              <input
+                type="text"
+                autoComplete="off"
+                autoCapitalize="off"
+                spellCheck={false}
+                value={loginCred}
+                onChange={e => setLoginCred(e.target.value)}
+                placeholder={lang === 'es' ? 'FBFC-00000000 o su contraseña' : 'FBFC-00000000 or your password'}
+              />
+            </div>
+            <button type="submit" className="nb-login-btn" disabled={loginLoading}>
+              {loginLoading
+                ? (lang === 'es' ? 'Accediendo...' : 'Accessing...')
+                : (lang === 'es' ? 'Acceder a Mi Cuenta' : 'Access My Account')}
+            </button>
+          </form>
+          <p className="nb-login-terms">
+            {lang === 'es'
+              ? <>Al acceder aceptas nuestros <a href="/terms">Términos de Servicio</a> y la <a href="/privacy">Política de Privacidad</a>.</>
+              : <>By accessing this portal you agree to our <a href="/terms">Terms of Service</a> and <a href="/privacy">Privacy Policy</a>.</>}
+          </p>
+        </div>
+      )}
 
       <>
           {/* WELCOME — si llegó con ?id= (QR scan) */}
