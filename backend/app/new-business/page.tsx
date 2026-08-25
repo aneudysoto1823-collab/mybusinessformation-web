@@ -124,17 +124,19 @@ const CSS = `
     display: flex;
     align-items: center;
     gap: 12px;
+    align-self: flex-start;
   }
   .nb-logo-mark {
-    width: 44px;
-    height: 44px;
+    width: 88px;
+    height: 88px;
     background: #fff;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    padding: 3px;
+    padding: 5px;
+    box-shadow: 0 4px 14px rgba(0,0,0,.18);
   }
   .nb-logo-mark img { width: 100%; height: 100%; object-fit: contain; }
   .nb-logo-text { line-height: 1.2; }
@@ -157,17 +159,31 @@ const CSS = `
     align-items: center;
     gap: 16px;
   }
-  .nb-phone {
-    color: rgba(255,255,255,.85);
-    font-size: .82rem;
-    font-weight: 600;
-    text-decoration: none;
-    display: flex;
+  .nb-hamburger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
     align-items: center;
-    gap: 6px;
-    transition: color .15s;
+    gap: 5px;
+    width: 34px;
+    height: 34px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    flex-shrink: 0;
   }
-  .nb-phone:hover { color: #fff; }
+  .nb-hamburger span {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background: #fff;
+    border-radius: 2px;
+    transition: transform .2s, opacity .2s;
+  }
+  .nb-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .nb-hamburger.open span:nth-child(2) { opacity: 0; }
+  .nb-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
   .nb-services-link {
     color: rgba(255,255,255,.85);
     font-size: .82rem;
@@ -1003,13 +1019,26 @@ const CSS = `
   .compliance-q { font-size: .76rem; color: #374151; flex: 1; display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
 
   @media (max-width: 600px) {
-    .nb-header { height: auto; min-height: 64px; padding: 10px 14px; }
-    .nb-logo-mark { width: 34px; height: 34px; }
+    .nb-header { padding: 0 14px; }
     .nb-logo-text .l1 { font-size: .8rem; }
-    .nb-header-right { gap: 8px; }
-    .nb-phone { display: none; }
-    .nb-services-link:not(.nb-login-trigger) { display: none; }
-    .nb-services-link.nb-login-trigger { font-size: .7rem; padding: 5px 10px; }
+    .nb-hamburger { display: flex; }
+    .nb-header-right {
+      display: none;
+      position: fixed;
+      top: 64px;
+      left: 0;
+      right: 0;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 10px;
+      background: #1B3A6B;
+      padding: 16px;
+      z-index: 150;
+      box-shadow: 0 10px 24px rgba(0,0,0,.25);
+    }
+    .nb-header-right.open { display: flex; }
+    .nb-header-right .nb-services-link { text-align: center; }
+    .nb-header-right .nb-lang { align-self: center; }
     .nb-login-card { top: 66px; right: 12px; left: 12px; width: auto; max-width: none; }
     .nb-welcome { padding: 28px 20px 30px; }
     .entry-card { padding: 28px 22px; }
@@ -1070,6 +1099,10 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
   const [lookingUp, setLookingUp] = useState(false)
   const [company, setCompany]     = useState<Company | null>(null)
   const [lookupErr, setLookupErr] = useState('')
+
+  // Menú hamburguesa mobile — agrupa Login/Services/Contact/idioma detrás de
+  // un ícono en ≤600px (antes se apretaban todos en una sola fila del header).
+  const [navOpen, setNavOpen] = useState(false)
 
   // Login del cliente — popover anclado al botón del header (antes "Track
   // Order" navegaba directo a /client-portal). Mismo patrón que el popover
@@ -1689,12 +1722,24 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
             <div className="l1">Florida Business<br />Formation Center</div>
           </div>
         </div>
-        <div className="nb-header-right">
-          <button type="button" className="nb-services-link nb-login-trigger" onClick={() => setLoginOpen(o => !o)}>
+        <button
+          type="button"
+          className={`nb-hamburger${navOpen ? ' open' : ''}`}
+          aria-label="Menu"
+          onClick={() => setNavOpen(o => !o)}
+        >
+          <span /><span /><span />
+        </button>
+
+        <div className={`nb-header-right${navOpen ? ' open' : ''}`}>
+          <button type="button" className="nb-services-link nb-login-trigger" onClick={() => { setNavOpen(false); setLoginOpen(o => !o) }}>
             {lang === 'es' ? 'Ingresar' : 'Login'}
           </button>
-          <a href="/servicios" className="nb-services-link">
+          <a href="/servicios" className="nb-services-link" onClick={() => setNavOpen(false)}>
             {lang === 'es' ? 'Servicios' : 'Services'}
+          </a>
+          <a href="/contact" className="nb-services-link" onClick={() => setNavOpen(false)}>
+            {lang === 'es' ? 'Contacto' : 'Contact'}
           </a>
           <div className="nb-lang">
             {(['en', 'es'] as const).map(l => (
@@ -1707,12 +1752,6 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
               </button>
             ))}
           </div>
-          <a href="tel:8001234567" className="nb-phone">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.86 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.77 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
-            </svg>
-            (800) 123-4567
-          </a>
         </div>
       </header>
 
