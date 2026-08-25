@@ -181,11 +181,28 @@ button{font-family:inherit}
 .svc-logo-mark img{width:100%;height:100%;object-fit:contain}
 .svc-logo-text{font-family:var(--font-serif);font-size:1.02rem;font-weight:700;color:#fff;line-height:1.15}
 .svc-header-right{display:flex;align-items:center;gap:14px}
-.svc-back{color:rgba(255,255,255,.85);font-size:.82rem;font-weight:700;padding:6px 14px;border:1.5px solid rgba(255,255,255,.35);border-radius:6px;transition:all .15s}
+.svc-back{color:rgba(255,255,255,.85);font-size:.82rem;font-weight:700;padding:6px 14px;border:1.5px solid rgba(255,255,255,.35);border-radius:6px;background:transparent;cursor:pointer;transition:all .15s}
 .svc-back:hover{color:#fff;border-color:#fff}
 .svc-lang{display:flex;background:rgba(255,255,255,.12);border-radius:20px;padding:3px;gap:2px}
 .svc-lang button{padding:4px 13px;border-radius:16px;border:none;cursor:pointer;font-size:.72rem;font-weight:700;font-family:var(--font-sans);transition:all .15s;background:transparent;color:rgba(255,255,255,.65)}
 .svc-lang button.active{background:#fff;color:#1B3A6B}
+
+/* ── LOGIN POPOVER (mismo patron que /new-business) ── */
+.svc-login-card{display:none;position:fixed;top:72px;right:18px;z-index:3000;width:340px;max-width:calc(100vw - 32px);background:#fff;border-radius:14px;padding:22px 22px 18px;box-shadow:0 16px 48px rgba(15,28,46,.22);border:1px solid var(--gray200)}
+.svc-login-card.open{display:block}
+.svc-login-close{position:absolute;top:12px;right:14px;background:none;border:none;font-size:22px;line-height:1;color:var(--gray400);cursor:pointer;padding:0}
+.svc-login-close:hover{color:var(--gray600)}
+.svc-login-title{font-family:var(--font-serif);font-size:1.15rem;font-weight:700;color:#1B3A6B;margin-bottom:16px}
+.svc-login-group{margin-bottom:13px}
+.svc-login-group label{display:block;font-size:.67rem;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.svc-login-group input{width:100%;padding:10px 13px;border:1.5px solid var(--gray200);border-radius:8px;font-size:.86rem;font-family:var(--font-sans);color:var(--gray800);outline:none;transition:all .2s}
+.svc-login-group input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.svc-login-btn{width:100%;padding:12px;background:#1B3A6B;color:#fff;border:none;border-radius:8px;font-size:.86rem;font-weight:700;cursor:pointer;font-family:var(--font-sans);margin-top:4px;min-height:44px;transition:background .15s}
+.svc-login-btn:hover:not(:disabled){background:var(--blue)}
+.svc-login-btn:disabled{background:var(--gray400);cursor:not-allowed}
+.svc-login-error{background:#fef2f2;border:1px solid #fecaca;color:#b91c1c;border-radius:8px;padding:9px 12px;font-size:.76rem;font-weight:600;margin-bottom:13px;line-height:1.5}
+.svc-login-terms{text-align:center;font-size:.65rem;color:var(--gray400);line-height:1.55;margin:14px 0 0}
+.svc-login-terms a{color:var(--gray600);text-decoration:underline}
 .svc-hero{background:#fff;padding:40px 32px 34px;text-align:center;border-bottom:1px solid var(--gray200)}
 .svc-hero-inner{max-width:680px;margin:0 auto}
 .svc-hero h1{font-size:clamp(1.4rem,3vw,1.9rem);color:var(--navy);margin-bottom:10px}
@@ -252,7 +269,7 @@ button{font-family:inherit}
 .svc-footer a{color:rgba(255,255,255,.8);margin:0 6px}
 .svc-footer a:hover{color:#fff}
 .en{display:inline}.es{display:none}
-@media(max-width:640px){.svc-header{padding:0 16px}.svc-hero{padding:28px 16px}.svc-grid-wrap{padding:24px 16px 130px}.svc-bar{padding:12px 16px;gap:14px;flex-wrap:wrap}}
+@media(max-width:640px){.svc-header{padding:0 16px}.svc-hero{padding:28px 16px}.svc-grid-wrap{padding:24px 16px 130px}.svc-bar{padding:12px 16px;gap:14px;flex-wrap:wrap}.svc-login-card{top:66px;right:12px;left:12px;width:auto;max-width:none}}
 `
 
   const cardsHtml = services.map(s => `
@@ -284,7 +301,7 @@ button{font-family:inherit}
       <div class="svc-logo-text">Florida Business<br/>Formation Center</div>
     </a>
     <div class="svc-header-right">
-      <a href="/client-portal" class="svc-back"><span class="en">Track Order</span><span class="es">Mi Orden</span></a>
+      <button type="button" class="svc-back" onclick="svcToggleLogin()"><span class="en">Login</span><span class="es">Ingresar</span></button>
       <a href="/" class="svc-back"><span class="en">Home</span><span class="es">Inicio</span></a>
       <div class="svc-lang">
         <button class="active" onclick="svcSetLang('en')">EN</button>
@@ -293,6 +310,27 @@ button{font-family:inherit}
     </div>
   </div>
 </header>
+
+<div class="svc-login-card" id="svc-login-card">
+  <button type="button" class="svc-login-close" aria-label="Close" onclick="svcToggleLogin(false)">&times;</button>
+  <h3 class="svc-login-title"><span class="en">Access your account</span><span class="es">Accede a tu cuenta</span></h3>
+  <div class="svc-login-error" id="svc-login-error" style="display:none"></div>
+  <form onsubmit="return svcLoginSubmit(event)">
+    <div class="svc-login-group">
+      <label><span class="en">Email address</span><span class="es">Correo electrónico</span></label>
+      <input id="svc-login-email" type="text" autocomplete="username" autocapitalize="off" spellcheck="false" placeholder="Your email"/>
+    </div>
+    <div class="svc-login-group">
+      <label><span class="en">Order number or password</span><span class="es">Número de orden o contraseña</span></label>
+      <input id="svc-login-cred" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="FBFC-00000000 or your password"/>
+    </div>
+    <button type="submit" class="svc-login-btn" id="svc-login-submit-btn"><span class="en">Access My Account</span><span class="es">Acceder a Mi Cuenta</span></button>
+  </form>
+  <p class="svc-login-terms">
+    <span class="en">By accessing this portal you agree to our <a href="/terms">Terms of Service</a> and <a href="/privacy">Privacy Policy</a>.</span>
+    <span class="es">Al acceder aceptas nuestros <a href="/terms">Términos de Servicio</a> y la <a href="/privacy">Política de Privacidad</a>.</span>
+  </p>
+</div>
 
 <section class="svc-hero">
   <div class="svc-hero-inner">
@@ -463,7 +501,62 @@ button{font-family:inherit}
     document.querySelectorAll('.es').forEach(function(el){ el.style.display = lang === 'es' ? 'inline' : 'none'; });
     document.querySelectorAll('.svc-lang button').forEach(function(b, i){ b.className = (i === (lang === 'en' ? 0 : 1)) ? 'active' : ''; });
     try { localStorage.setItem('flbc_lang', lang); } catch(e){}
+    // Placeholders del popover de login no pueden llevar spans .en/.es
+    // (son atributos, no contenido) — se actualizan a mano acá.
+    var loginEmailEl = document.getElementById('svc-login-email'); if (loginEmailEl) loginEmailEl.placeholder = lang === 'es' ? 'Su correo' : 'Your email';
+    var loginCredEl = document.getElementById('svc-login-cred'); if (loginCredEl) loginCredEl.placeholder = lang === 'es' ? 'FBFC-00000000 o su contraseña' : 'FBFC-00000000 or your password';
     renderSidebar();
+  };
+
+  // Login del cliente — mismo patrón que el popover de /new-business y del
+  // home (.plogin-*): permanece en la página, sin oscurecerla.
+  window.svcToggleLogin = function(force){
+    var card = document.getElementById('svc-login-card');
+    if (!card) return;
+    var open = typeof force === 'boolean' ? force : !card.classList.contains('open');
+    card.classList.toggle('open', open);
+    if (!open) window.svcLoginError('');
+  };
+
+  window.svcLoginError = function(msg){
+    var el = document.getElementById('svc-login-error');
+    if (!el) return;
+    if (!msg) { el.style.display = 'none'; el.textContent = ''; return; }
+    el.textContent = msg;
+    el.style.display = '';
+  };
+
+  window.svcLoginSubmit = function(e){
+    if (e && e.preventDefault) e.preventDefault();
+    var isEs = curLang() === 'es';
+    var email = ((document.getElementById('svc-login-email') || {}).value || '').trim();
+    var cred  = ((document.getElementById('svc-login-cred')  || {}).value || '').trim();
+    if (!email || !cred) { window.svcLoginError(isEs ? 'Completa todos los campos.' : 'Please fill in all fields.'); return false; }
+    // El número de orden tiene formato FBFC-/FBNB-; cualquier otra cosa = contraseña.
+    var body = /^(fbfc|fbnb)/i.test(cred)
+      ? { email: email, confirmationNumber: cred.toUpperCase() }
+      : { email: email, password: cred };
+    var btn = document.getElementById('svc-login-submit-btn');
+    var originalHtml = btn ? btn.innerHTML : '';
+    if (btn) { btn.disabled = true; btn.textContent = isEs ? 'Accediendo...' : 'Accessing...'; }
+    fetch('/api/client-auth', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin', body: JSON.stringify(body) })
+      .then(function(r){ return r.json().then(function(data){ return { ok: r.ok, data: data }; }); })
+      .then(function(res){
+        if (btn) { btn.disabled = false; btn.innerHTML = originalHtml; }
+        if (res.ok) {
+          window.svcToggleLogin(false);
+          window.location.href = res.data && res.data.isDraft
+            ? '/?resume=1&lang=' + (isEs ? 'es' : 'en')
+            : '/client-portal/dashboard?lang=' + (isEs ? 'es' : 'en');
+        } else {
+          window.svcLoginError(isEs ? 'No encontramos una orden con esos datos.' : "We couldn't find an order matching those details.");
+        }
+      })
+      .catch(function(){
+        if (btn) { btn.disabled = false; btn.innerHTML = originalHtml; }
+        window.svcLoginError(isEs ? 'Error de conexión. Intenta de nuevo.' : 'Connection error. Please try again.');
+      });
+    return false;
   };
 
   render();
