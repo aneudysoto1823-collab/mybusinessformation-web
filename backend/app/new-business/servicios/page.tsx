@@ -336,8 +336,8 @@ button{font-family:inherit}
   <div class="svc-hero-inner">
     <h1><span class="en">Additional Services</span><span class="es">Servicios Adicionales</span></h1>
     <p>
-      <span class="en">Keep your Florida business compliant and growing. Click a service for full details. You can select more than one.</span>
-      <span class="es">Mantenga su negocio en Florida al día y en crecimiento. Haga clic en un servicio para ver todos los detalles. Puede seleccionar más de uno.</span>
+      <span class="en">Keep your Florida business compliant and growing. Click a service for full details.</span>
+      <span class="es">Mantenga su negocio en Florida al día y en crecimiento. Haga clic en un servicio para ver todos los detalles.</span>
     </p>
   </div>
 </section>
