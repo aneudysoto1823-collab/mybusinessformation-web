@@ -1659,7 +1659,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
               </div>
             </div>
 
-            <div class="fm-divider" id="s2-biz-addr-divider" style="margin-top:12px;color:#1e293b;font-size:.85rem;letter-spacing:0;text-transform:none;font-weight:700">Business Address</div>
+            <div class="fm-title" id="s2-biz-addr-divider" style="margin-top:12px">Physical Business Address</div>
             <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:9px;padding:11px 14px;font-size:.77rem;color:#475569;line-height:1.65;margin-bottom:14px">
               &#128204; <strong id="s2-biz-addr-info-title">What is the Business Address?</strong><br/>
               <span id="s2-biz-addr-info-text">This is the official address of your LLC or Corporation filed with the State of Florida.</span>
@@ -6758,6 +6758,18 @@ function fmTranslate(lang) {
     var e = document.getElementById(id);
     if(e) e.innerHTML = ttMap[id];
   });
+  // Boton "Ver todos los servicios" (paso 6) -- solo se traducia al hacer
+  // click (toggleMoreServices), nunca al cambiar de idioma, asi que quedaba
+  // en ingles para cualquiera que llegara a este paso ya en espanol sin
+  // haber tocado el boton todavia.
+  var moreSvcWrap = document.getElementById('more-services-wrap');
+  var moreSvcBtn  = document.getElementById('more-svc-toggle-text');
+  if (moreSvcWrap && moreSvcBtn) {
+    var moreSvcOpen = moreSvcWrap.style.display === 'block';
+    moreSvcBtn.innerHTML = moreSvcOpen
+      ? (isEs ? '&#9650; Ocultar servicios adicionales' : '&#9650; Hide additional services')
+      : (isEs ? '&#9660; Ver todos los servicios' : '&#9660; View all services');
+  }
   var vmaEN=['Keep your address off public records','Real FL address for your business','Meets state mail requirements','Mail scans with instant alerts','FIRST MONTH FREE','Virtual Address','Use Virtual Address','1st month free then $30/month','Use my own address','Your address will be on public record'];
   var vmaES=['Su direcci\\u00f3n no aparece en registros','Direcci\\u00f3n real en Florida','Cumple requisitos del estado','Esc\\u00e1neos con alertas','PRIMER MES GRATIS','Direcci\\u00f3n Virtual','Usar Direcci\\u00f3n Virtual','1er mes gratis luego $30/mes','Usar mi propia direcci\\u00f3n','Su direcci\\u00f3n en registros p\\u00fablicos'];
   ['vma-f1','vma-f2','vma-f3','vma-f4','s4-vma-badge','s4-vma-title','vma-yes-lbl','vma-yes-desc','vma-no-lbl','vma-no-desc'].forEach(function(id,i){var e=document.getElementById(id);if(e)e.innerHTML=isEs?vmaES[i]:vmaEN[i];});}
