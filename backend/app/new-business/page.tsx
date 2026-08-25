@@ -1119,15 +1119,21 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
 
   // El input de Document ID quedaba bloqueado (readOnly) para siempre una vez
   // que el lookup encontraba una empresa — si el cliente tecleó mal el número
-  // y encontró OTRA empresa real, no había forma de corregirlo sin recargar
-  // la página. "Change" limpia la empresa encontrada (y los campos que se
-  // autocompletaron con sus datos) para que el input vuelva a ser editable.
-  const docInputRef = useRef<HTMLInputElement>(null)
-  function clearCompanyLookup() {
-    setCompany(null)
+  // no había forma de corregirlo. Un botón "Change" que solo limpiaba
+  // `company` competía con el auto-lookup (debounce de abajo), que volvía a
+  // encontrar el mismo Document ID sin cambios y re-bloqueaba el campo antes
+  // de que el cliente alcanzara a borrar nada — de ahí que hiciera falta
+  // darle "Change" dos veces. Ahora el propio onChange limpia la empresa (y
+  // los campos que autocompletó) apenas detecta una edición, así el campo
+  // queda editable de inmediato sin depender de ningún botón.
+  function handleDocInputChange(value: string) {
+    const next = value.toUpperCase()
+    setDocInput(next)
     setLookupErr('')
-    setForm(f => ({ ...f, companyName: '', address: '', city: '', zip: '', email: '' }))
-    setTimeout(() => docInputRef.current?.focus(), 0)
+    if (company) {
+      setCompany(null)
+      setForm(f => ({ ...f, companyName: '', address: '', city: '', zip: '', email: '' }))
+    }
   }
 
   useEffect(() => {
@@ -1710,27 +1716,13 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                             />
                           </label>
                           <input
-                            ref={docInputRef}
                             className={`form-input${lookupErr ? ' err' : ''}`}
                             value={docInput}
-                            onChange={e => { setDocInput(e.target.value.toUpperCase()); setLookupErr('') }}
+                            onChange={e => handleDocInputChange(e.target.value)}
                             placeholder="e.g. L26000098321"
-                            readOnly={!!company}
-                            style={company ? { background:'#f1f5f9', color:'#64748b' } : {}}
                           />
                           {lookupErr && !sp.get('id') && <p style={{ color:'#ef4444', fontSize:'.75rem', marginTop:4 }}>⚠ {lookupErr}</p>}
-                          {company && (
-                            <p style={{ color:'#16a34a', fontSize:'.75rem', marginTop:4 }}>
-                              ✓ {company.company_name}{' '}
-                              <button
-                                type="button"
-                                onClick={clearCompanyLookup}
-                                style={{ background:'none', border:'none', color:'#2563EB', fontWeight:600, fontSize:'.75rem', cursor:'pointer', textDecoration:'underline', padding:0, fontFamily:'inherit' }}
-                              >
-                                {lang === 'es' ? 'Cambiar' : 'Change'}
-                              </button>
-                            </p>
-                          )}
+                          {company && <p style={{ color:'#16a34a', fontSize:'.75rem', marginTop:4 }}>✓ {company.company_name}</p>}
                         </div>
 
                         {/* Business name */}
