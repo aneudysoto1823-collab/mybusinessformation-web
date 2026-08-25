@@ -110,7 +110,7 @@ const CSS = `
   /* ── HEADER ── */
   .nb-header {
     background: #1B3A6B;
-    height: 64px;
+    height: 112px;
     padding: 0 40px;
     display: flex;
     align-items: center;
@@ -124,7 +124,6 @@ const CSS = `
     display: flex;
     align-items: center;
     gap: 12px;
-    align-self: flex-start;
   }
   .nb-logo-mark {
     width: 88px;
@@ -136,7 +135,6 @@ const CSS = `
     justify-content: center;
     flex-shrink: 0;
     padding: 5px;
-    box-shadow: 0 4px 14px rgba(0,0,0,.18);
   }
   .nb-logo-mark img { width: 100%; height: 100%; object-fit: contain; }
   .nb-logo-text { line-height: 1.2; }
@@ -202,7 +200,7 @@ const CSS = `
   /* ── LOGIN POPOVER ── */
   .nb-login-card {
     position: fixed;
-    top: 72px;
+    top: 120px;
     right: 18px;
     z-index: 3000;
     width: 340px;
@@ -341,7 +339,7 @@ const CSS = `
 
   /* ── ID ENTRY ── */
   .entry-wrap {
-    min-height: calc(100vh - 64px);
+    min-height: calc(100vh - 112px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1025,7 +1023,7 @@ const CSS = `
     .nb-header-right {
       display: none;
       position: fixed;
-      top: 64px;
+      top: 112px;
       left: 0;
       right: 0;
       flex-direction: column;
@@ -1039,7 +1037,7 @@ const CSS = `
     .nb-header-right.open { display: flex; }
     .nb-header-right .nb-services-link { text-align: center; }
     .nb-header-right .nb-lang { align-self: center; }
-    .nb-login-card { top: 66px; right: 12px; left: 12px; width: auto; max-width: none; }
+    .nb-login-card { top: 120px; right: 12px; left: 12px; width: auto; max-width: none; }
     .nb-welcome { padding: 28px 20px 30px; }
     .entry-card { padding: 28px 22px; }
     .svc-section { padding: 32px 16px 24px; }

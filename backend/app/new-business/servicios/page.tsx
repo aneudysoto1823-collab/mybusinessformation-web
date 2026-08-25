@@ -175,11 +175,11 @@ h1,h2,h3{font-family:var(--font-serif);line-height:1.2}
 a{text-decoration:none;color:inherit}
 button{font-family:inherit}
 .svc-header{background:#1B3A6B;padding:0 32px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.25)}
-.svc-header-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:64px;gap:20px}
-.svc-logo{display:flex;align-items:center;gap:11px}
-.svc-logo-mark{width:42px;height:42px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:3px}
+.svc-header-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:112px;gap:20px}
+.svc-logo{display:flex;align-items:center;gap:12px}
+.svc-logo-mark{width:88px;height:88px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:5px}
 .svc-logo-mark img{width:100%;height:100%;object-fit:contain}
-.svc-logo-text{font-family:var(--font-serif);font-size:1.02rem;font-weight:700;color:#fff;line-height:1.15}
+.svc-logo-text{font-family:var(--font-serif);font-size:1.15rem;font-weight:700;color:#fff;line-height:1.15}
 .svc-header-right{display:flex;align-items:center;gap:14px}
 .svc-back{color:rgba(255,255,255,.85);font-size:.82rem;font-weight:700;padding:6px 14px;border:1.5px solid rgba(255,255,255,.35);border-radius:6px;background:transparent;cursor:pointer;transition:all .15s}
 .svc-back:hover{color:#fff;border-color:#fff}
@@ -188,7 +188,7 @@ button{font-family:inherit}
 .svc-lang button.active{background:#fff;color:#1B3A6B}
 
 /* ── LOGIN POPOVER (mismo patron que /new-business) ── */
-.svc-login-card{display:none;position:fixed;top:72px;right:18px;z-index:3000;width:340px;max-width:calc(100vw - 32px);background:#fff;border-radius:14px;padding:22px 22px 18px;box-shadow:0 16px 48px rgba(15,28,46,.22);border:1px solid var(--gray200)}
+.svc-login-card{display:none;position:fixed;top:120px;right:18px;z-index:3000;width:340px;max-width:calc(100vw - 32px);background:#fff;border-radius:14px;padding:22px 22px 18px;box-shadow:0 16px 48px rgba(15,28,46,.22);border:1px solid var(--gray200)}
 .svc-login-card.open{display:block}
 .svc-login-close{position:absolute;top:12px;right:14px;background:none;border:none;font-size:22px;line-height:1;color:var(--gray400);cursor:pointer;padding:0}
 .svc-login-close:hover{color:var(--gray600)}
@@ -269,7 +269,7 @@ button{font-family:inherit}
 .svc-footer a{color:rgba(255,255,255,.8);margin:0 6px}
 .svc-footer a:hover{color:#fff}
 .en{display:inline}.es{display:none}
-@media(max-width:640px){.svc-header{padding:0 16px}.svc-hero{padding:28px 16px}.svc-grid-wrap{padding:24px 16px 130px}.svc-bar{padding:12px 16px;gap:14px;flex-wrap:wrap}.svc-login-card{top:66px;right:12px;left:12px;width:auto;max-width:none}}
+@media(max-width:640px){.svc-header{padding:0 16px}.svc-hero{padding:28px 16px}.svc-grid-wrap{padding:24px 16px 130px}.svc-bar{padding:12px 16px;gap:14px;flex-wrap:wrap}.svc-login-card{top:120px;right:12px;left:12px;width:auto;max-width:none}}
 `
 
   const cardsHtml = services.map(s => `
@@ -336,8 +336,8 @@ button{font-family:inherit}
   <div class="svc-hero-inner">
     <h1><span class="en">Additional Services</span><span class="es">Servicios Adicionales</span></h1>
     <p>
-      <span class="en">Keep your Florida business compliant and growing. Click a service to see what's included — you can select more than one.</span>
-      <span class="es">Mantenga su negocio en Florida al día y en crecimiento. Haga clic en un servicio para ver qué incluye — puede seleccionar más de uno.</span>
+      <span class="en">Keep your Florida business compliant and growing. Click a service for full details. You can select more than one.</span>
+      <span class="es">Mantenga su negocio en Florida al día y en crecimiento. Haga clic en un servicio para ver todos los detalles. Puede seleccionar más de uno.</span>
     </p>
   </div>
 </section>
