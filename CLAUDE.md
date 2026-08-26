@@ -1272,6 +1272,46 @@ Auditoría con 2 agentes en paralelo (frontend + backend/API), enfocada en todo 
 
 ---
 
+## Sesión 2026-08-25 — fixes de mybusinessformation.com, traducción ES del home, SEO canonical, Basic pasa a $39
+
+### `/new-business` y `/new-business/servicios` (mybusinessformation.com) — UX del header y del Document ID
+
+- **Document ID editable sin botón "Change" (bug real):** el campo quedaba `readOnly` para siempre tras encontrar una empresa. El primer intento de fix (botón "Change" que limpiaba `company`) competía con el auto-lookup por debounce, que volvía a encontrar el mismo ID sin cambios y re-bloqueaba el campo — de ahí que hiciera falta click dos veces. Fix definitivo: el propio `onChange` del input limpia la empresa encontrada (y los campos autocompletados) apenas detecta una edición, sin depender de ningún botón.
+- **Header "Track Order" → "Login" con popover** (mismo patrón `.plogin-*` del home): ya no navega a `/client-portal`, abre un popover en la misma página (email + número de orden `FBFC-`/`FBNB-` o contraseña) contra `/api/client-auth`. Aplicado en ambas páginas (`new-business/page.tsx` con estado React, `new-business/servicios/page.tsx` con funciones globales `svcToggleLogin/svcLoginSubmit` ya que esa página es HTML+JS plano vía `dangerouslySetInnerHTML`).
+- **Logo agrandado y contenido en la franja** (no "sobresaliendo" al fondo blanco): se probaron ambos estilos con el founder — decisión final fue agrandar la franja azul (64px → 112px en `new-business/page.tsx`, 64px → 112px en `new-business/servicios/page.tsx`) para que el sello de 88px quede completo adentro, como hacen firmas legales/gov con su sello oficial, en vez del look "badge sobresaliendo" más típico de landing pages de marketing.
+- **Teléfono placeholder eliminado del header** de `new-business/page.tsx` (era `(800) 123-4567`, nunca fue real — ver `[[project_pendiente_telefono_seo]]`).
+- **Nav ampliado + hamburger mobile:** se agregaron Services/Contact al header (antes solo Track Order), y un menú hamburger propio en React (`nb-hamburger`, `nb-header-right.open`) para que quepan en mobile sin repetir el bug de texto partido en 4 líneas de una sesión anterior.
+- **Copy de `/new-business/servicios`:** "Click a service to see what's included" → "Click a service for full details" (la tarjeta expandida también muestra descripción, no solo la lista de inclusiones); se quitó el guion largo del texto (ver `[[feedback_writing_style]]`); se quitó también "You can select more than one" por redundante con la propia mecánica de la página (botón "Add to order" + contador "X services selected").
+- **Paso 3 del home (Registered Agent):** el título combinaba "Registered Agent & Mailing Address" en un solo `<h2>`, y "LLC Mailing Address" más abajo era una etiqueta chica en mayúsculas — visualmente una sola sección. Se separaron: título arriba solo dice "Registered Agent" (incluye `fmStepTitles`/breadcrumb), y "LLC Mailing Address" pasa a usar la misma clase `fm-title` (mismo tamaño/tipografía serif) — dos secciones del mismo nivel. Mismo tratamiento aplicado a "Business Address" → "Physical Business Address" en el paso 2 (antes chica, ahora `fm-title` como "Your Information").
+
+### Traducciones ES rotas en el form de formación del home (`app/page.tsx`)
+
+Varios bugs reales de "queda en inglés al navegar en español", todos con la misma causa raíz: `setLang()`/`fmTranslate()` es una función gigante con mapas de traducción por `id`, y algunos elementos simplemente nunca se agregaron a esos mapas:
+
+- Placeholders `"Phone number"` y `"Type to search or select..."` (búsqueda de actividad del negocio) — el loop genérico de placeholders solo reacciona a una lista fija de textos exactos; se agregaron los 2 casos faltantes.
+- **Los 15 tooltips "?" del form** (Number of Shares, Registered Agent, y los 13 addons de "Boost Your Formation"/"Ver todos los servicios") nunca se traducían — existía `addonMap` para nombre+descripción corta de cada addon, pero nada tocaba el `tt-box` anidado con el texto largo. Nuevo `ttMap` (dentro de `fmTranslate`) con las 15 traducciones, aplicado vía `innerHTML`.
+- **Bug de pasada al investigar #2:** el tooltip de Registered Agent (`tt-ra`) vive anidado dentro de `s3-agent-info-title`, que otro mapa (`tm`) ya traduce reemplazando *todo* su `innerHTML` — eso borraba el tooltip anidado antes de que `ttMap` pudiera tocarlo. Fix: el tooltip se tradujo directo dentro de `tm`, incluyendo el `<span>` completo en ambos idiomas (no vive en `ttMap`).
+- Botón "▼ View all services" (paso 6) solo se traducía al hacer click (`toggleMoreServices()`) — si el cliente llegaba a ese paso ya en español sin tocar el botón, quedaba en inglés. `fmTranslate()` ahora también lo actualiza según el estado actual (expandido o no).
+
+### SEO: canonical de `/new-business` apuntaba siempre a mybusinessformation.com
+
+`new-business/layout.tsx` y `new-business/es/layout.tsx` tenían el canonical/OG/JSON-LD hardcodeados a `mybusinessformation.com` sin importar el host real — como esa misma página también sirve la ruta propia `opabiz.com/new-business` (flujo de marketing/QR), Google recibía la señal de que la versión "oficial" vivía en el otro dominio, restándole a `opabiz.com/new-business` cualquier chance de indexarse bajo su propia URL. Se convirtieron a `generateMetadata()` host-aware (mismo patrón que `app/layout.tsx`, `headers().get('host')`) — verificado con `curl -H "Host: ..."` contra ambas variantes. Las páginas noindexadas del mismo directorio (`success/terms/privacy/legal`, y `servicios` que ya tiene `robots:index:false`) no se tocaron, el noindex ya las excluye sin importar el canonical.
+
+### Paquete Basic pasa de $0 a $39 + DBA deja de mostrarse "incluido"
+
+Cambio de precio consistente en **todo** el sitio, no solo la tarjeta de precios — Basic tenía un mecanismo especial solo para el caso "$0" (`BASIC_PACKAGE_LIST_PRICE`, cupón `STRIPE_BASIC_COUPON_ID` en `/api/checkout/embedded`, `withBasicDisplayLine()` en emails) que se eliminó por completo: con precio real, Basic se comporta igual que Standard/Premium (line item normal, sin cupón).
+
+- `lib/pricing.ts`: `PACKAGE_PRICES.basic` 0 → 39. Verificado con `computeFormationTotal`: Basic LLC sin addons cobra $39 + $125 tarifa estatal = $164 real.
+- Banner superior (EN+ES): quitado "Start today FREE"/"Empieza hoy GRATIS" → ahora "$39 + state fee".
+- Actualizado en: emails de confirmación, `/terms` §4.1 (fees), panel admin (`PACKAGE_INFO`), dashboard del cliente, meta description + JSON-LD de `layout.tsx`/`page.tsx`, `opengraph-image.tsx`, prompt del chat "Claudia" (`api/chat/route.ts`).
+- **DBA / Fictitious Name ya no aparece "✓ incluido"** en Standard/Premium — ahora sale con precio (+$49) como Registered Agent. Esto en realidad corrige una inconsistencia preexistente real: el motor de addons del form (`fmFilterAddons`) nunca lo trataba como gratis para ningún paquete — solo el copy de marketing lo prometía. Se sincronizó la misma lista "qué incluye" (duplicada en 5 archivos: `page.tsx` `FM_PACKAGE_ITEMS`, `lib/notifications.ts`, `order/complete/page.tsx`, `admin/orders/[id]/page.tsx`, `DashboardContent.tsx`) quitando DBA de Premium en todas, y se reordenó la fila de DBA en la tarjeta Premium del home (quedaba en medio de los ítems incluidos con checkmark — se movió junto a los demás ítems pagos).
+
+**Pendiente (hallazgo NO corregido a propósito, fuera del alcance pedido):** **ITIN Application** y **Articles of Amendment** tienen el mismo problema que tenía DBA — aparecen como "✓ incluido" en Premium en el marketing/copy, pero el form real (`fmFilterAddons`) nunca los trata como gratis, siempre se cobran aparte si el cliente los quiere. Queda para otra sesión si el founder decide corregirlo.
+
+**Cleanup opcional (no bloqueante):** el cupón `basic-package-free` en el dashboard de Stripe y la env var `STRIPE_BASIC_COUPON_ID` en Vercel quedaron sin ningún caller en el código — no hacen daño si se dejan, se pueden borrar cuando convenga.
+
+---
+
 ## Deploy
 
 - `git push origin main` — Vercel detecta cambios en `backend/` y hace deploy automático
