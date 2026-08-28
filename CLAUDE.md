@@ -1306,9 +1306,19 @@ Cambio de precio consistente en **todo** el sitio, no solo la tarjeta de precios
 - Actualizado en: emails de confirmación, `/terms` §4.1 (fees), panel admin (`PACKAGE_INFO`), dashboard del cliente, meta description + JSON-LD de `layout.tsx`/`page.tsx`, `opengraph-image.tsx`, prompt del chat "Claudia" (`api/chat/route.ts`).
 - **DBA / Fictitious Name ya no aparece "✓ incluido"** en Standard/Premium — ahora sale con precio (+$49) como Registered Agent. Esto en realidad corrige una inconsistencia preexistente real: el motor de addons del form (`fmFilterAddons`) nunca lo trataba como gratis para ningún paquete — solo el copy de marketing lo prometía. Se sincronizó la misma lista "qué incluye" (duplicada en 5 archivos: `page.tsx` `FM_PACKAGE_ITEMS`, `lib/notifications.ts`, `order/complete/page.tsx`, `admin/orders/[id]/page.tsx`, `DashboardContent.tsx`) quitando DBA de Premium en todas, y se reordenó la fila de DBA en la tarjeta Premium del home (quedaba en medio de los ítems incluidos con checkmark — se movió junto a los demás ítems pagos).
 
-**Pendiente (hallazgo NO corregido a propósito, fuera del alcance pedido):** **ITIN Application** y **Articles of Amendment** tienen el mismo problema que tenía DBA — aparecen como "✓ incluido" en Premium en el marketing/copy, pero el form real (`fmFilterAddons`) nunca los trata como gratis, siempre se cobran aparte si el cliente los quiere. Queda para otra sesión si el founder decide corregirlo.
-
 **Cleanup opcional (no bloqueante):** el cupón `basic-package-free` en el dashboard de Stripe y la env var `STRIPE_BASIC_COUPON_ID` en Vercel quedaron sin ningún caller en el código — no hacen daño si se dejan, se pueden borrar cuando convenga.
+
+### ITIN Application deja de mostrarse "incluido" en Premium (mismo día, fix de seguimiento)
+
+Mismo problema que DBA arriba: el resumen lateral del checkout, el email de confirmación, `/order/complete`, el panel admin, el dashboard del cliente y el prompt del chat "Claudia" listaban **ITIN Application** como incluido (✓) en Premium, pero `fmFilterAddons()` nunca lo libera para ningún paquete (solo EIN y Operating Agreement) — el cliente veía "tu Premium ya incluye ITIN" y unos pasos después el mismo form se lo ofrecía de nuevo por $99. Se quitó de las mismas 5 listas duplicadas + el prompt de Claudia. La tarjeta de precios del home nunca mencionó ITIN en ningún paquete, así que no requirió cambios ahí.
+
+De paso se sacó **Articles of Amendment** de esas mismas 5 listas de "incluidos" — no es ni siquiera un addon real del formulario de formación (sin checkbox ni `fmData.addons`, es un servicio aparte que se vende en `/servicios` para negocios ya existentes). La tarjeta de precios del home (donde sí aparece, con precio para Basic/Standard y ✓ para Premium) se dejó sin tocar — decisión aparte, no confirmada en esta sesión.
+
+**⚠️ Aclaración importante (para no repetir el error de esta sesión):** al hacer este fix casi se le quitó por error el checkmark a **Banking Resolution** también (quedó "+ $49" en vez de "✓" en Standard y Premium, y se reordenó en la tarjeta Premium) — el founder corrigió de inmediato: **Banking Resolution SÍ debe seguir incluido gratis en Standard y Premium**, es una decisión de negocio distinta a DBA/ITIN. La diferencia entre los dos casos:
+- **DBA e ITIN:** el marketing prometía "incluido" pero el form real siempre cobraba — ahí el bug estaba en el *marketing*, y el fix correcto fue corregir el copy para que diga la verdad (mostrarlos con precio).
+- **Banking Resolution (y EIN, Operating Agreement):** el founder SÍ quiere que sean gratis en Standard/Premium, y ya están correctamente en el hide-list de `fmFilterAddons()` (`included.standard`/`included.premium` en `page.tsx`) — no tienen el mismo bug, no tocar.
+
+Antes de "corregir" cualquier ítem de esta lista, confirmar primero si el founder quiere que el **form** empiece a regalarlo (bug de código) o si quiere que el **marketing** deje de prometerlo (bug de copy) — son arreglos opuestos y aplican según el ítem.
 
 ---
 
