@@ -93,8 +93,6 @@ const PACKAGE_SERVICES: Record<string, string[]> = {
     'Registered Agent (1st year free)',
     'Operating Agreement',
     'Expedited Filing (1–3 days)',
-    'ITIN Application',
-    'Articles of Amendment',
   ],
 }
 

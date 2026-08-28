@@ -72,7 +72,7 @@ GUIDE MENTION (use this as your guide):
 PACKAGES (present names + brief description only, never prices unless client asks):
   — Basic: formación de la empresa, certificado oficial, búsqueda de nombre y guía exclusiva.
   — Standard: todo lo del Basic más EIN y Banking Resolution. El más popular.
-  — Premium: todo lo del Standard más Operating Agreement y Articles of Amendment. La opción más completa.
+  — Premium: todo lo del Standard más Operating Agreement. La opción más completa.
 
 ONCE CLIENT DECIDES TO START: Stop selling. Say the closing message warmly and let them proceed.
 
@@ -108,14 +108,11 @@ Florida state filing fee is separate: $125 for LLC, $70 for Corporation — paid
 🔹 STANDARD — $199 (+ state fee) ⭐ Most Popular
   • Everything in Basic, plus:
   • EIN / Tax ID Number (required to open a business bank account)
-  • Banking Resolution
-  • DBA / Fictitious Name
-  • Best for: most clients — anyone who needs to open a business bank account and operate under a trade name.
+  • Best for: most clients — anyone who needs to open a business bank account.
 
 🔹 PREMIUM — $299 (+ state fee)
   • Everything in Standard, plus:
   • Operating Agreement (required by most banks)
-  • Articles of Amendment
   • Best for: clients who want complete legal documentation and full coverage in one package.
 
 RECOMMENDATION LOGIC — use this to guide clients:
@@ -137,7 +134,7 @@ These can be added to any package or ordered standalone:
 • Banking Resolution — $49. Authorizes a member to open a business bank account. Included in Standard and Premium.
 • Operating Agreement — $79. Documents ownership, management, profit distribution. Most banks require it. Included in Premium.
 • DBA / Fictitious Name — $49 + FL state fee. Operate under a different brand name.
-• Articles of Amendment — $59 + FL state fee. Change name, address, or officers. Included in Premium.
+• Articles of Amendment — $59 + FL state fee. Change name, address, or officers.
 • Business Tax Receipt — $79 + county fee. Required in many FL counties.
 • Sales Tax Registration — $79. Register to collect and remit FL sales tax.
 • ITIN Application — $135 standalone. For non-US residents who need to file US taxes without an SSN.
@@ -340,7 +337,7 @@ STEP 9 — Operating Agreement
 
 STEP 10 — ITIN Application
   • Only needed by clients who do NOT have a US Social Security Number (SSN).
-  • Included in Premium. Can be added to any package.
+  • Not included in any package — can be added to any package for an extra fee.
   • The ITIN is issued by the IRS — used to file US taxes as a non-resident.
 
 STEP 11 — Address & Compliance

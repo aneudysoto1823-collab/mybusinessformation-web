@@ -39,8 +39,6 @@ const PACKAGE_SERVICES: Record<string, { en: string; es: string }[]> = {
     { en: 'Registered Agent (1st year free)', es: 'Agente Registrado (1er año gratis)' },
     { en: 'Operating Agreement', es: 'Acuerdo Operativo' },
     { en: 'Expedited Filing (1–3 days)', es: 'Registro Prioritario (1–3 días)' },
-    { en: 'ITIN Application', es: 'Solicitud de ITIN' },
-    { en: 'Articles of Amendment', es: 'Artículos de Enmienda' },
   ],
 }
 
