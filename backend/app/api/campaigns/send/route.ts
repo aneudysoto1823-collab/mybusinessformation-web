@@ -125,8 +125,8 @@ function buildEmail(company: {
             <table cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
               <td>
                 <table cellpadding="0" cellspacing="0" border="0"><tr>
-                  <td style="width:42px;height:42px;background:#2563EB;border-radius:50%;text-align:center;vertical-align:middle">
-                    <span style="color:#fff;font-weight:900;font-size:12px;font-family:Georgia,serif">FBFC</span>
+                  <td style="width:42px">
+                    <img src="https://mybusinessformation.com/fbfc-seal.png" width="42" height="42" alt="Florida Business Formation Center" style="display:block"/>
                   </td>
                   <td style="padding-left:12px">
                     <div style="color:#fff;font-size:15px;font-weight:700;font-family:Georgia,serif">Florida Business Formation Center</div>
@@ -289,15 +289,18 @@ export async function POST(req: NextRequest) {
         const { subject, html: baseHtml } = buildEmail(company, trackUrl, lang as 'en' | 'es')
 
         // Regalo de la Guía I — solo si este email todavía no la recibió por
-        // ningún canal (ver backend/lib/guides.ts).
-        const guideKeys: GuideKey[] = (await hasReceivedGuide(company.email, 'guide1')) ? [] : ['guide1']
+        // ningún canal (ver backend/lib/guides.ts). Este email siempre es
+        // marca FBFC (membrete/footer mybusinessformation.com) — la guía
+        // adjunta debe usar la variante con links a mybusinessformation.com,
+        // no la de opabiz.com.
+        const guideKeys: GuideKey[] = (await hasReceivedGuide(company.email, 'guide1', 'fbfc')) ? [] : ['guide1']
         const html = guideKeys.length > 0
           ? baseHtml.replace(
               '<!--GUIDE_BONUS-->',
-              `<tr><td style="background:#fff;padding:0 36px 16px">${buildGuideBonusHtml(guideKeys, lang as 'en' | 'es')}</td></tr>`
+              `<tr><td style="background:#fff;padding:0 36px 16px">${buildGuideBonusHtml(guideKeys, lang as 'en' | 'es', 'fbfc')}</td></tr>`
             )
           : baseHtml
-        const attachments = guideKeys.length > 0 ? await getGuideAttachments(guideKeys) : undefined
+        const attachments = guideKeys.length > 0 ? await getGuideAttachments(guideKeys, 'fbfc') : undefined
 
         // Send via Resend
         await getResend().emails.send({
@@ -310,7 +313,7 @@ export async function POST(req: NextRequest) {
         })
 
         if (guideKeys.length > 0) {
-          await recordGuideSent(company.email, 'guide1', 'campaign', company.owner_name)
+          await recordGuideSent(company.email, 'guide1', 'campaign', company.owner_name, 'fbfc')
         }
 
         // Save campaign record

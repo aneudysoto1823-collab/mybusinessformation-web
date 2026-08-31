@@ -3,7 +3,15 @@
 Generador de PDF para las guías de GUIAS_PDF/*.md.
 
 Uso:
-    python3 GUIAS_PDF/generate-pdf.py GUIAS_PDF/guia-1-florida-formacion.md [salida.pdf]
+    python3 GUIAS_PDF/generate-pdf.py GUIAS_PDF/guia-1-florida-formacion.md [salida.pdf] [--brand=opabiz|fbfc]
+
+--brand controla el dominio de los botones CTA (el selector CSS que les da
+estilo de botón), el texto del pie de página repetido, y el logo/wordmark de
+la portada. Default 'opabiz' (comportamiento histórico, sin cambios). 'fbfc'
+usa mybusinessformation.com + el sello real de Florida Business Formation
+Center (ver _cover_assets.py, FBFC_SEAL_PNG_B64) en vez del logo "OB"/OpaBiz.
+El .md de origen debe tener sus links ya apuntando al dominio correspondiente
+— este flag solo decide cómo se ESTILIZAN/rotulan, no reescribe URLs.
 
 Requiere:
     - módulo Python `markdown` (pip install markdown)
@@ -33,7 +41,17 @@ from pathlib import Path
 import markdown
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from _cover_assets import FONTS, PHOTO_PNG_B64  # noqa: E402
+from _cover_assets import FONTS, PHOTO_PNG_B64, FBFC_SEAL_PNG_B64  # noqa: E402
+
+# Config por marca — ver docstring del módulo (--brand).
+BRANDS = {
+    "opabiz": {
+        "domain": "opabiz.com",
+    },
+    "fbfc": {
+        "domain": "mybusinessformation.com",
+    },
+}
 
 CHROME_CANDIDATES = [
     "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
@@ -81,7 +99,7 @@ CSS = """
   th { background: #f0f4f8; color: #1C2E44; }
   code { background: #f0f4f8; padding: 1px 4px; border-radius: 3px; font-size: 11px; }
   a { color: #2563EB; text-decoration: none; }
-  a[href^="https://opabiz.com"] {
+  a[href^="https://__DOMAIN__"] {
     display: inline-block;
     background: #fff;
     color: #2563EB !important;
@@ -197,10 +215,16 @@ CSS = """
     background: linear-gradient(135deg, #1C2E44, #2563EB);
     color: #fff; display: flex; align-items: center; justify-content: center;
     font-family: 'Fraunces', Georgia, serif; font-weight: 700; font-size: 13px;
+    flex-shrink: 0;
   }
+  .cover-logo-mark.seal { background: none; }
+  .cover-logo-mark.seal img { width: 34px; height: 34px; object-fit: contain; }
   .cover-logo-text { font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; font-weight: 700; font-size: 14px; }
   .cover-logo-text .opa { color: #1C2E44; }
   .cover-logo-text .biz { color: #2563EB; }
+  .cover-logo-text.full {
+    color: #1C2E44; font-size: 11.5px; line-height: 1.25; max-width: 210px;
+  }
   .cover-edition {
     font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
     color: #64748B; font-size: 12px; margin-left: 4px;
@@ -264,7 +288,7 @@ def split_title_two_tone(title: str):
     return title, "", ""
 
 
-def build_cover_html(title: str, kicker: str, subtitle: str) -> str:
+def build_cover_html(title: str, kicker: str, subtitle: str, brand: str = "opabiz") -> str:
     before, highlight, after = split_title_two_tone(title)
     title_html = before + (f'<span class="accent">{highlight}</span>' if highlight else "") + after
 
@@ -277,14 +301,20 @@ def build_cover_html(title: str, kicker: str, subtitle: str) -> str:
         f'<div class="cover-photo"></div>' if PHOTO_PNG_B64 else ""
     )
 
+    if brand == "fbfc":
+        logo_html = f"""<div class="cover-logo-mark seal"><img src="data:image/png;base64,{FBFC_SEAL_PNG_B64}" alt=""/></div>
+    <div class="cover-logo-text full">Florida Business Formation Center</div>"""
+    else:
+        logo_html = """<div class="cover-logo-mark">OB</div>
+    <div class="cover-logo-text"><span class="opa">Opa</span><span class="biz">Biz</span></div>"""
+
     return f"""<div class="cover-page"><div class="cover-frame">
   <div class="cover-kicker">{kicker}</div>
   <div class="cover-title">{title_html}</div>
   <div class="cover-subtitle">{subtitle}</div>
   {photo_html}
   <div class="cover-footer">
-    <div class="cover-logo-mark">OB</div>
-    <div class="cover-logo-text"><span class="opa">Opa</span><span class="biz">Biz</span></div>
+    {logo_html}
     <div class="cover-edition">{footer_label}</div>
   </div>
 </div></div>"""
@@ -348,19 +378,26 @@ def wrap_topics_in_deep_dive_section(html: str) -> str:
 
 
 def main() -> None:
-    if len(sys.argv) < 2:
+    args = [a for a in sys.argv[1:] if not a.startswith("--brand=")]
+    brand_args = [a for a in sys.argv[1:] if a.startswith("--brand=")]
+    brand = brand_args[0].split("=", 1)[1] if brand_args else "opabiz"
+    if brand not in BRANDS:
+        raise SystemExit(f"--brand debe ser uno de {list(BRANDS)}, recibido: {brand}")
+
+    if len(args) < 1:
         print(__doc__)
         raise SystemExit(1)
 
-    md_path = Path(sys.argv[1])
+    md_path = Path(args[0])
     if not md_path.exists():
         raise SystemExit(f"No existe el archivo: {md_path}")
 
-    out_path = Path(sys.argv[2]) if len(sys.argv) > 2 else md_path.with_suffix(".pdf")
+    out_path = Path(args[1]) if len(args) > 1 else md_path.with_suffix(".pdf")
+    domain = BRANDS[brand]["domain"]
 
     text = md_path.read_text(encoding="utf-8")
     title, kicker, subtitle, rest = split_cover_source(text)
-    cover_html = build_cover_html(title, kicker, subtitle) if title else ""
+    cover_html = build_cover_html(title, kicker, subtitle, brand) if title else ""
 
     body = markdown.markdown(rest, extensions=["tables", "fenced_code", "sane_lists"])
     # Orden importante: primero el detalle fino (temas dentro de "El proceso
@@ -370,14 +407,14 @@ def main() -> None:
     body = force_break_before_sections(body)
     body = wrap_all_h2_sections(body)
 
-    css = CSS.replace("__PHOTO_B64__", PHOTO_PNG_B64)
+    css = CSS.replace("__PHOTO_B64__", PHOTO_PNG_B64).replace("__DOMAIN__", domain)
     font_faces = build_font_face_css()
 
     html = f"""<!doctype html>
 <html lang="es">
 <head><meta charset="utf-8"><title>{md_path.stem}</title>{font_faces}{css}</head>
 <body>
-<div class="pdf-footer">opabiz.com</div>
+<div class="pdf-footer">{domain}</div>
 {cover_html}
 {body}
 </body>
