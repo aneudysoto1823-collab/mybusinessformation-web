@@ -400,6 +400,10 @@ async function handleFormationPaid(orderId: string, session: Stripe.Checkout.Ses
   try {
     const { lines: formationLines } = computeFormationTotal({
       package: order.package, entityType: order.entityType, speed: order.speed, addons: formationAddons,
+      // Necesario para que el line item "Registered Agent — First Year" ($99 en
+      // Basic con ra='us') aparezca en el email de confirmación al cliente
+      // exactamente igual que en el checkout de Stripe (misma fuente de verdad).
+      registeredAgent: order.registeredAgent,
     })
     const packageInclHtml = packageItems.map(i => `<div>${i.en}</div>`).join('')
     formationRowsHtml = formationLines

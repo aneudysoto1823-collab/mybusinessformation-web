@@ -1067,7 +1067,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           <div class="svc-row"><span class="svc-name" data-en="Sales Tax Registration" data-es="Registro de Impuesto sobre Ventas">Sales Tax Registration</span><span class="svc-status s-add">+ $79</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Operating Agreement" data-es="Acuerdo Operativo">Operating Agreement</span><span class="svc-status s-add">+ $79</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Articles of Amendment" data-es="Artículos de Enmienda">Articles of Amendment</span><span class="svc-status s-add">+ $59</span></div>
-          <div class="svc-row"><span class="svc-name" data-en="Registered Agent" data-es="Agente Registrado">Registered Agent</span><span class="svc-status s-add" data-en="+ $99/year" data-es="+ $99/año">+ $99/year</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="Registered Agent" data-es="Agente Registrado">Registered Agent</span><span class="svc-status s-check" data-en="Included (1st year free)" data-es="Incluido (1er año gratis)">Included (1st year free)</span></div>
         </div>
       </div>
 
@@ -1093,7 +1093,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           <div class="svc-row"><span class="svc-name" data-en="DBA / Fictitious Name" data-es="DBA / Nombre Ficticio">DBA / Fictitious Name</span><span class="svc-status s-add">+ $49</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Local Business Tax Receipt" data-es="Licencia Comercial Local">Local Business Tax Receipt</span><span class="svc-status s-add">+ $79</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Sales Tax Registration" data-es="Registro de Impuesto sobre Ventas">Sales Tax Registration</span><span class="svc-status s-add">+ $79</span></div>
-          <div class="svc-row"><span class="svc-name" data-en="Registered Agent" data-es="Agente Registrado">Registered Agent</span><span class="svc-status s-add" data-en="+ $99/year" data-es="+ $99/año">+ $99/year</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="Registered Agent" data-es="Agente Registrado">Registered Agent</span><span class="svc-status s-check" data-en="Included (1st year free)" data-es="Incluido (1er año gratis)">Included (1st year free)</span></div>
         </div>
       </div>
     </div>
@@ -2443,10 +2443,11 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
         <div class="fm-sum-line"><span class="fm-sum-lbl" id="sum-lbl-pkg">Package</span><span class="fm-sum-val sum-pkg-val">Standard &#8212; $199</span></div>
         <div class="fm-sum-pkg-incl sum-pkg-incl"></div>
         <div class="fm-sum-line"><span class="fm-sum-lbl sum-state-lbl" id="sum-lbl-state">FL State Fee</span><span class="fm-sum-val sum-state-val">$125</span></div>
-        <div class="fm-sum-line sum-exp-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-exp">Expedited Filing</span><span class="fm-sum-val">$79</span></div>
+        <div class="fm-sum-line sum-exp-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-exp">Expedited Filing</span><span class="fm-sum-val">$49</span></div>
         <div class="fm-sum-line sum-vma-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-vma">Virtual Address</span><span class="fm-sum-val free">1st Month Free</span></div>
+        <div class="fm-sum-line sum-ra-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-ra">Registered Agent (First Year)</span><span class="fm-sum-val">$99</span></div>
         <div class="fm-sum-line sum-ein-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-ein">EIN / Tax ID</span><span class="fm-sum-val">$79</span></div>
-        <div class="fm-sum-line sum-oa-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-oa">Operating Agreement</span><span class="fm-sum-val">$59</span></div>
+        <div class="fm-sum-line sum-oa-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-oa">Operating Agreement</span><span class="fm-sum-val">$79</span></div>
         <div class="fm-sum-line sum-itin-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-itin">ITIN Application</span><span class="fm-sum-val">$99</span></div>
         <div class="fm-sum-line sum-btr-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-btr">Local Business Tax Receipt</span><span class="fm-sum-val">$79</span></div>
         <div class="fm-sum-line sum-str-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-str">Sales Tax Receipt</span><span class="fm-sum-val">$79</span></div>
@@ -3204,6 +3205,35 @@ function fmApplyMailingAddrToMember(n, checked) {
 }
 
 
+// Precio y descripción del Registered Agent en el paso 3 — condicional al
+// paquete elegido (2026-09-03). Basic cobra $99/año real; Standard/Premium
+// van con "Incluido" el primer año (tachado desde $99). Reemplaza al texto
+// antes hardcoded en las traducciones (agent-ours-price/desc, sacadas de
+// fmTranslate para no pisar esta función). Se llama al elegir paquete, al
+// entrar al paso 3, al restaurar borrador y al togglear idioma.
+function fmRenderRaPricing() {
+  var priceEl = document.getElementById('agent-ours-price');
+  var descEl  = document.getElementById('agent-ours-desc');
+  if(!priceEl) return;
+  var priceWrap = priceEl.parentNode;
+  var wasSpan = priceWrap ? priceWrap.querySelector('.fm-addon-was') : null;
+  var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
+  var isBasic = fmData.package === 'basic';
+  if(isBasic) {
+    priceEl.textContent = isEs ? '$99/año' : '$99/year';
+    if(wasSpan) wasSpan.style.display = 'none';
+    if(descEl) descEl.textContent = isEs
+      ? 'Actuamos como su Agente Registrado oficial y recibimos todos los documentos legales en su nombre. Su dirección personal no aparecerá en ningún registro público. Se cobra $99/año e incluye el primer año; se renueva automáticamente cada año hasta que lo cancele.'
+      : 'We act as your official Registered Agent and receive all official documents on your behalf. Your personal address will not appear on any public record. $99/year — covers the first year; renews automatically each year until you cancel.';
+  } else {
+    priceEl.textContent = isEs ? 'Incluido' : 'Included';
+    if(wasSpan) wasSpan.style.display = '';
+    if(descEl) descEl.textContent = isEs
+      ? 'Actuamos como su Agente Registrado oficial y recibimos todos los documentos oficiales por usted. Su dirección personal no aparecerá en ningún registro público. Incluido gratis su primer año. Se renueva automáticamente a $99/año después.'
+      : 'We act as your official Registered Agent and receive all official documents on your behalf. Your personal address will not appear on any public record. Included free your first year. Renews automatically at $99/year after that.';
+  }
+}
+
 function fmFilterAddons() {
   var pkg = fmData.package;
   var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
@@ -3239,6 +3269,7 @@ function fmUpgradePkg(pkg, el) {
     var c = document.getElementById('up-pkg-' + p);
     if(c) c.classList.toggle('selected', p === pkg);
   });
+  if(typeof fmRenderRaPricing === 'function') fmRenderRaPricing();
   fmUpdateSummary();
 }
 
@@ -3409,6 +3440,12 @@ function fmSetBizAddr(type, el) {
 }
 function fmSetAgentChoice(type, el) {
   fmData.agentType = type;
+  // Sincronizar fmData.ra (el que viaja al server via fmBuildOrderPayload) —
+  // antes NUNCA se seteaba a 'own', asi que el payload siempre mandaba 'us'
+  // aunque el cliente eligiera ser su propio RA (bug pre-existente encontrado
+  // 2026-09-03). Ahora que Basic cobra $99 real solo cuando ra='us', importa
+  // que este campo refleje la eleccion real del cliente.
+  fmData.ra = (type === 'ours' ? 'us' : 'own');
   document.querySelectorAll('#agent-use-ours,#agent-use-own').forEach(function(c){ c.classList.remove('selected'); });
   if(el) el.classList.add('selected');
   var of2 = document.getElementById('agent-own-form');
@@ -3435,6 +3472,9 @@ function fmSetAgentChoice(type, el) {
       if(raAddrFields) raAddrFields.style.display = 'block';
     }
   }
+  // Recalcular summary — en Basic el RA agrega $99/año al total si el cliente
+  // eligio 'ours'. Standard/Premium no cambian de precio con esta eleccion.
+  if(typeof fmUpdateSummary === 'function') fmUpdateSummary();
 }
 // Re-evaluate step 3 RA state whenever step 3 is entered (handles back navigation from step 2)
 function fmSyncRaState() {
@@ -4527,7 +4567,7 @@ function translateFormContent(lang){
   e=document.getElementById('exp-days-lbl');      if(e) e.textContent=isEs?'1–3 días hábiles':'1–3 business days';
   e=document.getElementById('sum-label-hd');      if(e) e.textContent=isEs?'Resumen de su Orden':'Order Summary';
   e=document.getElementById('sum-state-lbl');     if(e) e.textContent=isEs?'Cargo Estatal de Florida':'Florida State Filing Fee';
-  e=document.getElementById('sum-ra-lbl');        if(e) e.textContent=isEs?'Servicio de Agente Registrado':'Registered Agent Service';
+  e=document.getElementById('sum-lbl-ra');        if(e) e.textContent=isEs?'Agente Registrado (Primer Año)':'Registered Agent (First Year)';
   e=document.getElementById('sum-ein-lbl');       if(e) e.textContent=isEs?'EIN / ID Fiscal':'EIN / Tax ID Number';
   e=document.getElementById('sum-oa-lbl');        if(e) e.textContent=isEs?'Acuerdo Operativo':'Operating Agreement';
   e=document.getElementById('sum-itin-lbl');      if(e) e.textContent=isEs?'Solicitud de ITIN':'ITIN Application';
@@ -4742,6 +4782,8 @@ function fmSyncStep3() {
   if(mailSameChk && mailSameChk.checked) fmUpdateMailAddrPreview();
   // RA address fields & same-biz checkbox
   fmSyncRaState();
+  // Precio del RA condicional al paquete (Basic $99/año real; Std/Prem Incluido).
+  fmRenderRaPricing();
 }
 function fmSyncStep6() {
   // Procesamiento acelerado: gratis con Premium; refleja la selección actual.
@@ -5463,6 +5505,7 @@ function fmUpgradePkg(pkg, el) {
     if(c) c.classList.remove('selected');
   });
   if(el) el.classList.add('selected');
+  if(typeof fmRenderRaPricing === 'function') fmRenderRaPricing();
   fmUpdateSummary();
 }
 
@@ -5566,7 +5609,7 @@ function fmUpdateSummary() {
   var state  = fmData.entity === 'corp' ? 70 : 125;
   var extras = 0;
   if(fmData.addons.ein)  extras += 79;
-  if(fmData.addons.oa)   extras += 59;
+  if(fmData.addons.oa)   extras += 79;
   if(fmData.addons.itin) extras += 99;
   if(fmData.addons.btr)  extras += 79;
   if(fmData.addons.str)  extras += 79;
@@ -5580,7 +5623,12 @@ function fmUpdateSummary() {
   if(fmData.addons.sc)   extras += 79;
   if(fmData.addons.bl)   extras += 99;
   var expFree = pkg === 'premium';
-  if(_fmSpeedSeen && fmData.speed === 'expedited' && !expFree) extras += 79;
+  if(_fmSpeedSeen && fmData.speed === 'expedited' && !expFree) extras += 49;
+  // Registered Agent — Basic cobra $99/año real si el cliente eligio 'ours';
+  // Standard/Premium van con "Included" el primer año (sin cargo aquí).
+  // Espeja lib/pricing.ts (RA_FIRST_YEAR_FEE) — si cambia allá, cambiar aca.
+  var raIsUs = (fmData.ra || 'us') === 'us';
+  if(pkg === 'basic' && raIsUs) extras += 99;
   var total = base + state + extras;
   // Update all summary panels
   document.querySelectorAll('.sum-entity-val').forEach(function(el){ el.textContent = fmData.entity === 'corp' ? 'Corporation' : 'LLC'; });
@@ -5600,6 +5648,7 @@ function fmUpdateSummary() {
   document.querySelectorAll('.sum-total-val').forEach(function(el){ el.textContent = '$' + total; });
   document.querySelectorAll('.sum-exp-line').forEach(function(el){ el.style.display = _fmSpeedSeen&&fmData.speed==='expedited'&&!expFree?'':'none'; });
   document.querySelectorAll('.sum-vma-line').forEach(function(el){ el.style.display = fmData.vma?'':'none'; });
+  document.querySelectorAll('.sum-ra-line').forEach(function(el){ el.style.display = (pkg==='basic'&&raIsUs)?'':'none'; });
   document.querySelectorAll('.sum-ein-line').forEach(function(el){ el.style.display = fmData.addons.ein&&pkg==='basic'?'':'none'; });
   document.querySelectorAll('.sum-oa-line').forEach(function(el){ el.style.display = fmData.addons.oa&&pkg!=='premium'?'':'none'; });
   document.querySelectorAll('.sum-itin-line').forEach(function(el){ el.style.display = fmData.addons.itin?'':'none'; });
@@ -5808,14 +5857,20 @@ function fmBuildOrderPayload() {
   var stateFee  = entity === 'corp' ? 70 : 125;
   var extras    = 0;
   if(addons.ein)  extras += 79;
-  if(addons.oa)   extras += 59;
+  if(addons.oa)   extras += 79;
   if(addons.itin) extras += 99;
   if(addons.btr)  extras += 79;
   if(addons.str)  extras += 79;
   if(addons.cc)   extras += 49;
   if(addons.ar)   extras += 99;
   if(addons.dba)  extras += 49 + 50; // servicio + tarifa estatal de Florida (Fictitious Name)
-  if(speed === 'expedited' && pkg !== 'premium') extras += 79;
+  if(speed === 'expedited' && pkg !== 'premium') extras += 49;
+  // Registered Agent — Basic con 'us' cobra $99/año real. Std/Premium van con
+  // "Included" el 1er año. Este amount NO se usa para el cobro (que se
+  // recalcula server-side en /api/checkout/embedded via computeFormationTotal),
+  // pero sí se guarda en Order.amount para reportes internos — mantenerlo
+  // alineado evita que la fila en DB tenga un total desincronizado.
+  if(pkg === 'basic' && ra === 'us') extras += 99;
   var amount = (pkg in pkgPrices ? pkgPrices[pkg] : 199) + stateFee + extras;
 
   // ── Tax ID del responsible party para el EIN ──────────────────────────────
@@ -5991,6 +6046,7 @@ async function fmMountPayment() {
 function openFormFromPkg(pkg) {
   if(pkg) { fmData.package = pkg; formData.package = pkg; }
   fmData.entity = selectedEntity || 'llc';
+  if(typeof fmRenderRaPricing === 'function') fmRenderRaPricing();
   if (typeof window.gtag === 'function') {
     window.gtag('event', 'package_selected', { package: pkg, entity: fmData.entity, source: 'pricing-card' });
     window.gtag('event', 'formation_start', { package: pkg, entity: fmData.entity });
@@ -6528,8 +6584,9 @@ function fmTranslate(lang) {
     's3-agent-info-title':isEs?'¿Qué es un Agente Registrado? <span class="tt-wrap" style="vertical-align:middle"><span class="tt-icon">?<span class="tt-box" id="tt-ra" style="left:0;transform:none">Un Agente Registrado es el punto de contacto oficial entre su negocio y el Estado de Florida. Recibe notificaciones legales, demandas y correspondencia gubernamental en su nombre. Toda LLC y Corporación de Florida está obligada por ley a tener uno en todo momento.</span></span></span>':'What is a Registered Agent? <span class="tt-wrap" style="vertical-align:middle"><span class="tt-icon">?<span class="tt-box" id="tt-ra" style="left:0;transform:none">A Registered Agent is the official point of contact between your business and the State of Florida. They receive legal notices, lawsuits, and government mail on your behalf. Every Florida LLC and Corporation is required by law to have one at all times.</span></span></span>',
     's3-agent-info-text':isEs?'El Agente Registrado es la persona o entidad designada ante el Estado de Florida para recibir documentos legales oficiales en nombre de su negocio.':'The Registered Agent is the person or entity designated with the State of Florida to receive official legal documents on behalf of your business.',
     'agent-ours-lbl':isEs?'Usar Nuestro Servicio de Agente Registrado':'Use Our Registered Agent Service',
-    'agent-ours-desc':isEs?'Actuamos como su Agente Registrado oficial y recibimos todos los documentos oficiales por usted. Su dirección personal no aparecerá en ningún registro público. Incluido gratis su primer año. Se renueva automáticamente a $99/año después.':'We act as your official Registered Agent and receive all official documents on your behalf. Your personal address will not appear on any public record. Included free your first year. Renews automatically at $99/year after that.',
-    'agent-ours-price':isEs?'Incluido':'Included',
+    // agent-ours-desc y agent-ours-price los maneja fmRenderRaPricing() (llamada
+    // al final de esta funcion) — texto condicional al paquete elegido (Basic
+    // cobra $99/año real, Standard/Premium van con "Incluido" tachado desde $99).
     'agent-own-lbl':isEs?'Seré mi propio Agente Registrado':'I will be my own Registered Agent',
     'agent-own-desc':isEs?'Su dirección quedará registrada públicamente ante el Estado de Florida y la ley exige que deberá estar presente en esa dirección de lunes a viernes de 9am a 5pm para recibir documentos legales oficiales.':'Your address will be publicly registered with the State of Florida and the law requires you to be present at that address Monday through Friday from 9am to 5pm to receive official legal documents.',
     'ra-same-biz-lbl':isEs?'Usar misma dirección que Dirección Física del Negocio':'Use same as Physical Business Address',
@@ -6769,7 +6826,13 @@ function fmTranslate(lang) {
   }
   var vmaEN=['Keep your address off public records','Real FL address for your business','Meets state mail requirements','Mail scans with instant alerts','FIRST MONTH FREE','Virtual Address','Use Virtual Address','1st month free then $30/month','Use my own address','Your address will be on public record'];
   var vmaES=['Su direcci\\u00f3n no aparece en registros','Direcci\\u00f3n real en Florida','Cumple requisitos del estado','Esc\\u00e1neos con alertas','PRIMER MES GRATIS','Direcci\\u00f3n Virtual','Usar Direcci\\u00f3n Virtual','1er mes gratis luego $30/mes','Usar mi propia direcci\\u00f3n','Su direcci\\u00f3n en registros p\\u00fablicos'];
-  ['vma-f1','vma-f2','vma-f3','vma-f4','s4-vma-badge','s4-vma-title','vma-yes-lbl','vma-yes-desc','vma-no-lbl','vma-no-desc'].forEach(function(id,i){var e=document.getElementById(id);if(e)e.innerHTML=isEs?vmaES[i]:vmaEN[i];});}
+  ['vma-f1','vma-f2','vma-f3','vma-f4','s4-vma-badge','s4-vma-title','vma-yes-lbl','vma-yes-desc','vma-no-lbl','vma-no-desc'].forEach(function(id,i){var e=document.getElementById(id);if(e)e.innerHTML=isEs?vmaES[i]:vmaEN[i];});
+  // Precio y descripcion del Registered Agent — condicionales al paquete
+  // elegido, no una traducción plana. Se llama al final para que corra
+  // despues de cualquier innerHTML/textContent generico que sobreescriba
+  // agent-ours-price o agent-ours-desc (defensivo).
+  if(typeof fmRenderRaPricing === 'function') fmRenderRaPricing();
+}
 
 
 /* ── EIN & OA ADDON LOGIC ── */

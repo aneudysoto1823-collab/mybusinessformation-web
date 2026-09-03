@@ -57,6 +57,13 @@ function pickAddon(name) {
   return Number(m[1])
 }
 
+// RA_FIRST_YEAR_FEE = 99 en lib/pricing.ts (cobro condicional del RA en Basic).
+function pickRaFee() {
+  const m = pricingSrc.match(/export\s+const\s+RA_FIRST_YEAR_FEE\s*=\s*(\d+)/)
+  if (!m) { console.error('[check-prices] RA_FIRST_YEAR_FEE no encontrado en pricing.ts'); process.exit(2) }
+  return Number(m[1])
+}
+
 // EXPEDITED_FEE = 49 (buscar la constante exportada)
 function pickExpedited(src, label) {
   const m = src.match(/export\s+const\s+EXPEDITED_FEE\s*=\s*(\d+)/)
@@ -81,6 +88,7 @@ const CENTRAL = {
   oa_service: pickServiceFee('operating-agreement'),
   itin_service: pickServiceFee('itin'),
   expedited_services: pickExpedited(servicesSrc, 'services-pricing.ts'),
+  ra_fee: pickRaFee(),
 }
 
 // Consistencia interna: los precios de opabiz deben coincidir entre pricing.ts
@@ -132,6 +140,31 @@ assertContains('home ITIN paso 7', homeSrc, [
   `addon-itin-price"><span class="fm-addon-was">$135</span>$${CENTRAL.itin_addon}</div>`,
 ])
 
+// Registered Agent condicional (2026-09-03):
+// - Basic mantiene "+ $99/year" en la tabla y cobra $99 real en el summary/payload
+// - Standard/Premium cambian a "Included (1st year free)" en la tabla — se pagan
+//   como "Incluido" (primer año gratis, renueva a $99/año) via fmRenderRaPricing
+assertContains('home tabla RA Basic', homeSrc, [
+  // Fila de Basic: mantiene la promesa de "+ $${RA_FEE}/year"
+  `<span class="svc-status s-add" data-en="+ $${CENTRAL.ra_fee}/year" data-es="+ $${CENTRAL.ra_fee}/año">+ $${CENTRAL.ra_fee}/year</span>`,
+])
+assertContains('home tabla RA Std/Prem', homeSrc, [
+  // Standard y Premium ya no prometen "+ $99/year" — pasan a "Included (1st year free)"
+  `<span class="svc-status s-check" data-en="Included (1st year free)" data-es="Incluido (1er año gratis)">Included (1st year free)</span>`,
+])
+assertContains('home fmUpdateSummary RA', homeSrc, [
+  // Suma condicional del RA en Basic con ra='us' (espeja RA_FIRST_YEAR_FEE server-side)
+  `if(pkg === 'basic' && raIsUs) extras += ${CENTRAL.ra_fee};`,
+])
+assertContains('home fmBuildOrderPayload RA', homeSrc, [
+  // Mismo cargo en el payload (aunque no se usa para cobrar, se guarda en Order.amount)
+  `if(pkg === 'basic' && ra === 'us') extras += ${CENTRAL.ra_fee};`,
+])
+assertContains('home summary line RA', homeSrc, [
+  // Fila HTML del summary lateral (show/hide dinamico segun paquete + eleccion)
+  `class="fm-sum-line sum-ra-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-ra">Registered Agent (First Year)</span><span class="fm-sum-val">$${CENTRAL.ra_fee}</span>`,
+])
+
 // Catálogo /servicios (app/servicios/page.tsx)
 assertContains('servicios JSON-LD', serviciosSrc, [
   `id: 'ein', name: 'EIN / Tax ID Number', description: 'IRS-issued business tax identification number, required to open a bank account, hire employees, and file taxes.', priceUsd: ${CENTRAL.ein_service}`,
@@ -176,10 +209,10 @@ assertContains('chat prompt ITIN', chatSrc, [
 if (errors.length > 0) {
   console.error('\n[check-prices] ❌ Precios desincronizados:\n')
   for (const e of errors) console.error(`  • ${e}`)
-  console.error(`\nPrecios centrales detectados: EIN=$${CENTRAL.ein_addon}, OA=$${CENTRAL.oa_addon}, ITIN=$${CENTRAL.itin_addon}, Expedited=$${CENTRAL.expedited_home}`)
+  console.error(`\nPrecios centrales detectados: EIN=$${CENTRAL.ein_addon}, OA=$${CENTRAL.oa_addon}, ITIN=$${CENTRAL.itin_addon}, Expedited=$${CENTRAL.expedited_home}, RA=$${CENTRAL.ra_fee}`)
   console.error('Actualizar lib/pricing.ts + lib/services-pricing.ts + los archivos UI para que coincidan.')
   console.error('Si el patrón de UI cambió a propósito, actualizar los "assertContains" de este script.\n')
   process.exit(1)
 }
 
-console.log(`[check-prices] ✅ Precios sincronizados: EIN=$${CENTRAL.ein_addon}, OA=$${CENTRAL.oa_addon}, ITIN=$${CENTRAL.itin_addon}, Expedited=$${CENTRAL.expedited_home}`)
+console.log(`[check-prices] ✅ Precios sincronizados: EIN=$${CENTRAL.ein_addon}, OA=$${CENTRAL.oa_addon}, ITIN=$${CENTRAL.itin_addon}, Expedited=$${CENTRAL.expedited_home}, RA=$${CENTRAL.ra_fee}`)

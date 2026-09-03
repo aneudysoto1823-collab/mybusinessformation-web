@@ -28,15 +28,19 @@ export async function GET(req: NextRequest) {
     if (orderId) {
       const { data } = await getSupabaseAdmin()
         .from('Order')
-        .select('id, companyName, entityType, package, speed, addons')
+        .select('id, companyName, entityType, package, speed, addons, registeredAgent')
         .eq('id', orderId)
         .single()
       if (data) {
+        // Necesario para que la línea "Registered Agent — First Year" ($99 en
+        // Basic con ra='us') aparezca en /order/complete — misma fuente que
+        // Stripe checkout y email de confirmación.
         const { total, lines } = computeFormationTotal({
-          package:    data.package,
-          entityType: data.entityType,
-          speed:      data.speed,
-          addons:     data.addons as Record<string, unknown> | null,
+          package:         data.package,
+          entityType:      data.entityType,
+          speed:           data.speed,
+          addons:          data.addons as Record<string, unknown> | null,
+          registeredAgent: data.registeredAgent,
         })
         const addonsObj = (data.addons ?? {}) as Record<string, unknown>
         const addons = ['ein', 'oa', 'itin', 'btr', 'str', 'cc'].filter(k => addonsObj[k])

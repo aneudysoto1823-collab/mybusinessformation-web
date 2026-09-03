@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     const supabase = getSupabaseAdmin()
     const { data: order, error } = await supabase
       .from('Order')
-      .select('id, email, companyName, entityType, package, speed, addons, paymentStatus')
+      .select('id, email, companyName, entityType, package, speed, addons, registeredAgent, paymentStatus')
       .eq('id', orderId)
       .single()
 
@@ -33,11 +33,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Esta orden ya fue pagada' }, { status: 409 })
     }
 
+    // Idioma persistido en Order.addons.lang (draft/orders lo guarda) — solo
+    // afecta el label del line item de RA en Stripe/complete/emails, no el monto.
+    const savedLang = ((order.addons ?? {}) as Record<string, unknown>).lang
     const { cents, lines } = computeFormationTotal({
-      package:    order.package,
-      entityType: order.entityType,
-      speed:      order.speed,
-      addons:     order.addons as Record<string, unknown> | null,
+      package:         order.package,
+      entityType:      order.entityType,
+      speed:           order.speed,
+      addons:          order.addons as Record<string, unknown> | null,
+      registeredAgent: order.registeredAgent,
+      lang:            typeof savedLang === 'string' ? savedLang : null,
     })
 
     if (cents < 50) {

@@ -163,6 +163,7 @@ export async function POST(request: NextRequest) {
       entityType: order.entityType,
       speed: order.speed,
       addons: order.addons,
+      registeredAgent: order.registeredAgent,
     }).catch(err => console.error('Email confirmation error (non-fatal):', err))
 
     // ── Alerta interna "🆕 NUEVA ORDEN CREADA" → alert@opabiz.com ──────────────

@@ -20,7 +20,7 @@ async function verifyAdmin(request: NextRequest): Promise<boolean> {
 async function getOrder(orderId: string) {
   const { data, error } = await getSupabaseAdmin()
     .from('Order')
-    .select('id, firstName, lastName, email, companyName, companyName2, companyName3, entityType, package, speed, addons, unsubscribed, orderProcessedEmailSentAt, sourceBrand')
+    .select('id, firstName, lastName, email, companyName, companyName2, companyName3, entityType, package, speed, addons, unsubscribed, orderProcessedEmailSentAt, sourceBrand, registeredAgent')
     .eq('id', orderId)
     .single()
   if (error || !data) return null
@@ -63,6 +63,7 @@ export async function POST(
         // según order.package; sendOrderConfirmation ya sabe normalizar los 3.
         addons: order.addons,
         sourceBrand: order.sourceBrand,
+        registeredAgent: order.registeredAgent,
       })
       await logAdminAction({ action: 'email.order-confirmation-resent', entity: 'Order', entityId: order.id, request })
       return NextResponse.json({ success: true, message: `Confirmación reenviada a ${order.email}` })
