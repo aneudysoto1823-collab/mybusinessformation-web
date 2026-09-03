@@ -1283,7 +1283,11 @@ function coRenderHub(hub){
     return '<div class="co-tier'+(best?' best':'')+(sel?' sel':'')+'" style="cursor:pointer" onclick="coSelectTier(\''+hub+'\',\''+bid+'\')">'
       +(best?'<div class="co-tier-badge">'+(isEs?'Mejor valor':'Best value')+'</div>':'')
       +'<div class="co-tier-name">'+(isEs?b.name_es:b.name_en)+'</div>'
-      +'<div class="co-tier-price">$'+price+'</div>'
+      // listPrice: tachado de marketing junto al precio real (ver services-pricing.ts).
+      // Solo se muestra cuando el bundle aporta TODOS sus servicios como nuevos (compra completa
+      // del combo) — en compra parcial (partial=true) el precio ya es dinámico y el tachado
+      // sería confuso.
+      +'<div class="co-tier-price">'+(!partial && b.listPrice && b.listPrice>price ? '<s style="color:#94a3b8;font-weight:600;margin-right:6px">$'+b.listPrice+'</s>' : '')+'$'+price+'</div>'
       +(partial?'<div style="font-size:.72rem;color:#64748b;font-weight:600;margin-top:-4px">'+(isEs?'por lo que te falta':'for what you\'re missing')+'</div>':(priceSuf?'<div style="font-size:.72rem;color:#64748b;font-weight:600;margin-top:-4px">'+priceSuf+'</div>':''))
       +(save>0?'<div class="co-tier-save">'+(isEs?'Ahorras $':'Save $')+save+'</div>':'<div style="height:10px"></div>')
       +'<div class="co-tier-incl">'+coTierBullets(b.services, owned)+'</div>'

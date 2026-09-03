@@ -13,9 +13,9 @@ const SERVICIOS_FOR_SCHEMA: SchemaService[] = [
   { id: 'llc-formation', name: 'LLC Formation (Florida)', description: 'Prepare and file Florida Articles of Organization to form a new Limited Liability Company with the Division of Corporations.', priceUsd: 99 },
   { id: 'corp-formation', name: 'Corporation Formation (Florida)', description: 'Prepare and file Florida Articles of Incorporation to form a new Corporation with the Division of Corporations.', priceUsd: 99 },
   { id: 'registered-agent', name: 'Registered Agent (Florida)', description: 'Physical FL street address that receives legal documents and government notices on behalf of your LLC or Corporation.' },
-  { id: 'ein', name: 'EIN / Tax ID Number', description: 'IRS-issued business tax identification number, required to open a bank account, hire employees, and file taxes.', priceUsd: 99 },
+  { id: 'ein', name: 'EIN / Tax ID Number', description: 'IRS-issued business tax identification number, required to open a bank account, hire employees, and file taxes.', priceUsd: 79 },
   { id: 'operating-agreement', name: 'Operating Agreement', description: 'Internal LLC document defining ownership, management structure, and member responsibilities. Required by most banks.', priceUsd: 79 },
-  { id: 'itin', name: 'ITIN Application', description: 'IRS Individual Taxpayer Identification Number for non-US founders without a Social Security Number.', priceUsd: 135 },
+  { id: 'itin', name: 'ITIN Application', description: 'IRS Individual Taxpayer Identification Number for non-US founders without a Social Security Number.', priceUsd: 99 },
   { id: 'dba', name: 'DBA / Fictitious Name Registration', description: 'Florida Fictitious Name registration so your business can operate under a name different from the legal entity name.', priceUsd: 49 },
   { id: 'virtual-address', name: 'Virtual Mailing Address', description: 'Professional Florida mailing address with mail receipt, scanning, and digital forwarding.' },
   { id: 'annual-report', name: 'Annual Report Filing', description: 'Yearly required filing with the Florida Division of Corporations to keep the entity active.' },
@@ -159,7 +159,7 @@ export default function ServiciosPage() {
       time_en: '&#9889; Processing: Same business day filing with FL Division of Corporations',
       time_es: '&#9889; Procesamiento: Presentación el mismo día hábil ante la División de Corporaciones FL',
       btn_en: 'Order Registered Agent — $99/yr &#8594;', btn_es: 'Ordenar Agente Registrado — $99/año &#8594;' },
-    { id: 'ein', icon: 'hash', name: 'EIN / Tax ID Number', name_es: 'EIN / Número de Identificación Fiscal', price: '$99',
+    { id: 'ein', icon: 'hash', name: 'EIN / Tax ID Number', name_es: 'EIN / Número de Identificación Fiscal', price: '$79',
       sub_en: 'One-time fee', sub_es: 'Pago único',
       desc_en: 'Your federal Employer Identification Number (EIN) is a 9-digit IRS number required to open a business bank account, hire employees, and file federal taxes.',
       desc_es: 'Tu Número de Identificación Fiscal federal (EIN) es un número de 9 dígitos del IRS necesario para abrir cuenta bancaria de negocios, contratar empleados y presentar impuestos federales.',
@@ -167,7 +167,7 @@ export default function ServiciosPage() {
       includes_es: ['Preparación y envío de la solicitud de EIN ante el IRS','Carta de confirmación del EIN (PDF)','Confirmación por correo con tu número de EIN','Necesario para abrir cuenta bancaria de negocios'],
       time_en: '&#9889; Processing: Typically 1–3 business days via IRS',
       time_es: '&#9889; Procesamiento: Típicamente 1-3 días hábiles vía IRS',
-      btn_en: 'Order EIN — $99 &#8594;', btn_es: 'Ordenar EIN — $99 &#8594;' },
+      btn_en: 'Order EIN — $79 &#8594;', btn_es: 'Ordenar EIN — $79 &#8594;' },
     { id: 'operating-agreement', icon: 'file-text', name: 'Operating Agreement', name_es: 'Acuerdo Operativo', price: '$79',
       sub_en: 'One-time fee', sub_es: 'Pago único',
       desc_en: "The Operating Agreement is your LLC's internal governing document — it defines ownership percentages, management roles, profit distribution, and decision-making rules.",
@@ -177,7 +177,7 @@ export default function ServiciosPage() {
       time_en: '&#9889; Processing: 2–5 business days',
       time_es: '&#9889; Procesamiento: 2-5 días hábiles',
       btn_en: 'Order Operating Agreement — $79 &#8594;', btn_es: 'Ordenar Acuerdo Operativo — $79 &#8594;' },
-    { id: 'itin', icon: 'globe', name: 'ITIN Application', name_es: 'Solicitud de ITIN', price: '$135',
+    { id: 'itin', icon: 'globe', name: 'ITIN Application', name_es: 'Solicitud de ITIN', price: '$99',
       sub_en: 'One-time fee', sub_es: 'Pago único',
       desc_en: 'An ITIN (Individual Taxpayer Identification Number) is issued by the IRS to individuals who need to file US taxes but are not eligible for a Social Security Number.',
       desc_es: 'Un ITIN (Número de Identificación Fiscal Individual) es emitido por el IRS a personas que necesitan presentar impuestos en USA pero no califican para un Social Security Number.',
@@ -185,7 +185,7 @@ export default function ServiciosPage() {
       includes_es: ['Preparación del Formulario W-7 del IRS','Lista de documentos y guía personalizada','Apoyo en envío a CAA del IRS','Para extranjeros y no residentes'],
       time_en: '&#128338; Processing: 6–10 weeks (IRS processing time)',
       time_es: '&#128338; Procesamiento: 6-10 semanas (tiempo del IRS)',
-      btn_en: 'Order ITIN Application — $135 &#8594;', btn_es: 'Ordenar solicitud de ITIN — $135 &#8594;' },
+      btn_en: 'Order ITIN Application — $99 &#8594;', btn_es: 'Ordenar solicitud de ITIN — $99 &#8594;' },
     { id: 'dba', icon: 'tag', name: 'DBA / Fictitious Name', name_es: 'DBA / Nombre Ficticio', price: '$49',
       sub_en: '+ FL state fee', sub_es: '+ tarifa estatal de FL',
       desc_en: 'A DBA (Doing Business As) or Fictitious Name lets your business operate under a different name from its registered legal name. Required for branding under an alternate name in Florida.',
@@ -1109,11 +1109,11 @@ var serviceForms={
     <div class="disclaimer">Florida Business Formation Center is not a law firm. We do not provide legal advice.</div>\`
 },
 'ein':{
-  title:'EIN / Tax ID Number — $99',
-  title_es:'Número EIN / ID Fiscal — $99',
+  title:'EIN / Tax ID Number — $79',
+  title_es:'Número EIN / ID Fiscal — $79',
   sub:'IRS Form SS-4 preparation and submission. Required to open a business bank account.',
   sub_es:'Preparación y envío del Formulario SS-4 del IRS. Requerido para abrir una cuenta bancaria empresarial.',
-  price:'$99',
+  price:'$79',
   html:\`
     <div class="info-box"><strong>Federal Requirement:</strong> Your EIN is issued by the IRS and required for federal taxes, opening a business bank account, and hiring employees.</div>
     <div class="form-group"><label class="form-label">Número de Registro Estatal</label><input type="text" class="form-input" placeholder="Optional — helps confirm entity" onblur="lookupFLDoc(this)"/><div id="fldoc-status" style="margin-top:5px;min-height:18px"></div></div>
@@ -1134,8 +1134,8 @@ var serviceForms={
     <div class="form-group"><label class="form-label">Phone Number</label><input type="tel" class="form-input" placeholder="(XXX) XXX-XXXX"/></div>
     <div class="form-group"><label class="form-label">Primary Business Activity</label><select class="select-input"><option>Retail &amp; E-Commerce</option><option>Real Estate</option><option>Restaurant / Food Service</option><option>Construction</option><option>Technology</option><option>Consulting</option><option>Import / Export</option><option>Health &amp; Wellness</option><option>Other</option></select></div>
     <div class="form-group"><label class="form-label">Electronic Signature *</label><input type="text" class="form-input" placeholder="Type full legal name"/></div>
-    <div class="summary-box"><div class="summary-row"><span>EIN Application Service</span><span>$99</span></div><div class="summary-row"><span>IRS Filing Fee</span><span>FREE</span></div><div class="summary-row"><span style="font-weight:700">Total Today</span><span>$99</span></div></div>
-    <button class="btn-submit-svc" onclick="submitService()">Order EIN — $99 &#8594;</button>
+    <div class="summary-box"><div class="summary-row"><span>EIN Application Service</span><span>$79</span></div><div class="summary-row"><span>IRS Filing Fee</span><span>FREE</span></div><div class="summary-row"><span style="font-weight:700">Total Today</span><span>$79</span></div></div>
+    <button class="btn-submit-svc" onclick="submitService()">Order EIN — $79 &#8594;</button>
     <div class="disclaimer">EIN is issued by the IRS. Processing typically takes 1–3 business days after we submit.</div>\`
 },
 'operating-agreement':{
@@ -1175,11 +1175,11 @@ var serviceForms={
     <div class="disclaimer">We prepare your custom Operating Agreement within 2–5 business days.</div>\`
 },
 'itin':{
-  title:'ITIN Application — $135',
-  title_es:'Solicitud de ITIN — $135',
+  title:'ITIN Application — $99',
+  title_es:'Solicitud de ITIN — $99',
   sub:'IRS Form W-7 preparation for foreign nationals who need a US taxpayer identification number.',
   sub_es:'Preparación del Formulario W-7 del IRS para extranjeros que necesitan un número de identificación fiscal en EE.UU.',
-  price:'$135',
+  price:'$99',
   html:\`
     <div class="info-box"><strong>Who needs an ITIN?</strong> Foreign nationals, non-resident aliens, and individuals who must file US taxes but are not eligible for a Social Security Number (SSN).</div>
     <div class="warn-box">&#9888; ITIN processing by the IRS typically takes 6–10 weeks. Our service fee covers preparation and submission assistance only — the IRS issues the ITIN directly.</div>
@@ -1202,8 +1202,8 @@ var serviceForms={
     <div class="form-group"><label class="form-label">Email *</label><input type="email" class="form-input" placeholder="For status updates and ITIN delivery"/></div>
     <div class="form-group"><label class="form-label">WhatsApp / Phone</label><input type="tel" class="form-input" placeholder="+1 (XXX) XXX-XXXX or international number"/></div>
     <div class="form-group"><label class="form-label">Electronic Signature *</label><input type="text" class="form-input" placeholder="Type full legal name"/></div>
-    <div class="summary-box"><div class="summary-row"><span>ITIN Application Service</span><span>$135</span></div><div class="summary-row"><span>IRS Application Fee</span><span>FREE</span></div><div class="summary-row"><span style="font-weight:700">Total Today</span><span>$135</span></div></div>
-    <button class="btn-submit-svc" onclick="submitService()">Order ITIN Application — $135 &#8594;</button>
+    <div class="summary-box"><div class="summary-row"><span>ITIN Application Service</span><span>$99</span></div><div class="summary-row"><span>IRS Application Fee</span><span>FREE</span></div><div class="summary-row"><span style="font-weight:700">Total Today</span><span>$99</span></div></div>
+    <button class="btn-submit-svc" onclick="submitService()">Order ITIN Application — $99 &#8594;</button>
     <div class="disclaimer">ITIN is issued by the IRS. Processing takes 6–10 weeks. We are not a law firm and do not provide tax advice.</div>\`
 },
 'dba':{

@@ -26,7 +26,7 @@ export const PACKAGE_PRICES: Record<PackageId, number> = { basic: 39, standard: 
 // Add-ons cobrables (igual que fmBuildPayload en page.tsx). `raInfo` no se
 // cobra acá (es solo la dirección cuando el cliente es su propio agente).
 export const ADDON_PRICES = {
-  ein: 79, oa: 59, itin: 99, btr: 79, str: 79, cc: 49,
+  ein: 79, oa: 79, itin: 99, btr: 79, str: 79, cc: 49,
   // Nuevos 2026-06-26 (seccion expandible "Ver todos los servicios" del paso 5)
   dba: 49, br: 49, gd: 49, gs: 49, sc: 79, bl: 99,
   // Annual Report — antes no se cobraba en el checkout (comentario viejo
@@ -36,7 +36,7 @@ export const ADDON_PRICES = {
 } as const
 export type AddonKey = keyof typeof ADDON_PRICES
 
-export const EXPEDITED_FEE = 79
+export const EXPEDITED_FEE = 49
 export const STATE_FEE: Record<EntityType, number> = { llc: 125, corp: 70 }
 
 // DBA / Fictitious Name es el único addon que implica un filing estatal

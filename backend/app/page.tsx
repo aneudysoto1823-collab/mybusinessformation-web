@@ -1037,7 +1037,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           <div class="svc-row"><span class="svc-name" data-en="Banking Resolution" data-es="Resolución Bancaria">Banking Resolution</span><span class="svc-status s-add">+ $49</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Local Business Tax Receipt" data-es="Licencia Comercial Local">Local Business Tax Receipt</span><span class="svc-status s-add">+ $79</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Sales Tax Registration" data-es="Registro de Impuesto sobre Ventas">Sales Tax Registration</span><span class="svc-status s-add">+ $79</span></div>
-          <div class="svc-row"><span class="svc-name" data-en="Operating Agreement" data-es="Acuerdo Operativo">Operating Agreement</span><span class="svc-status s-add">+ $59</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="Operating Agreement" data-es="Acuerdo Operativo">Operating Agreement</span><span class="svc-status s-add">+ $79</span></div>
           <div class="svc-row"><span class="svc-name" data-en="DBA / Fictitious Name" data-es="DBA / Nombre Ficticio">DBA / Fictitious Name</span><span class="svc-status s-add">+ $49</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Articles of Amendment" data-es="Artículos de Enmienda">Articles of Amendment</span><span class="svc-status s-add">+ $59</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Registered Agent" data-es="Agente Registrado">Registered Agent</span><span class="svc-status s-add" data-en="+ $99/year" data-es="+ $99/año">+ $99/year</span></div>
@@ -1065,7 +1065,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           <div class="svc-row"><span class="svc-name" data-en="DBA / Fictitious Name" data-es="DBA / Nombre Ficticio">DBA / Fictitious Name</span><span class="svc-status s-add">+ $49</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Local Business Tax Receipt" data-es="Licencia Comercial Local">Local Business Tax Receipt</span><span class="svc-status s-add">+ $79</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Sales Tax Registration" data-es="Registro de Impuesto sobre Ventas">Sales Tax Registration</span><span class="svc-status s-add">+ $79</span></div>
-          <div class="svc-row"><span class="svc-name" data-en="Operating Agreement" data-es="Acuerdo Operativo">Operating Agreement</span><span class="svc-status s-add">+ $59</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="Operating Agreement" data-es="Acuerdo Operativo">Operating Agreement</span><span class="svc-status s-add">+ $79</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Articles of Amendment" data-es="Artículos de Enmienda">Articles of Amendment</span><span class="svc-status s-add">+ $59</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Registered Agent" data-es="Agente Registrado">Registered Agent</span><span class="svc-status s-add" data-en="+ $99/year" data-es="+ $99/año">+ $99/year</span></div>
         </div>
@@ -1208,7 +1208,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
       </a>
       <a class="mini-svc-card" href="/servicios?lang=${defaultLang}#ein">
         <div class="mini-svc-top"><span class="mini-svc-icon">&#127981;</span><span class="mini-svc-name" data-en="EIN / Tax ID Number" data-es="EIN / Número de ID Fiscal">EIN / Tax ID Number</span></div>
-        <div class="mini-svc-price">$49</div>
+        <div class="mini-svc-price">$79</div>
         <div class="mini-svc-sub" data-en="One-time fee" data-es="Pago único">One-time fee</div>
         <div class="mini-svc-arrow">Ver servicio &#8594;</div>
       </a>
@@ -1220,7 +1220,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
       </a>
       <a class="mini-svc-card" href="/servicios?lang=${defaultLang}#itin">
         <div class="mini-svc-top"><span class="mini-svc-icon">&#127760;</span><span class="mini-svc-name" data-en="ITIN Application" data-es="Solicitud de ITIN">ITIN Application</span></div>
-        <div class="mini-svc-price">$135</div>
+        <div class="mini-svc-price">$99</div>
         <div class="mini-svc-sub" data-en="One-time fee" data-es="Pago único">One-time fee</div>
         <div class="mini-svc-arrow">Ver servicio &#8594;</div>
       </a>
@@ -1975,7 +1975,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
             <div class="fm-speed-cards">
               <div class="fm-speed-card selected" id="speed-exp" onclick="fmSetSpeed('expedited',this)">
                 <div class="fm-speed-badge" id="s6-badge">Fastest</div>
-                <div class="fm-speed-top"><label id="s6-exp-lbl">&#9889; Expedited processing</label><span class="fm-speed-price" id="fms6-exp-price">+$79</span></div>
+                <div class="fm-speed-top"><label id="s6-exp-lbl">&#9889; Expedited processing</label><span class="fm-speed-price" id="fms6-exp-price">+$49</span></div>
                 <div class="fm-speed-date" id="s6-exp-desc">1-3 business days</div>
                 <div class="fm-speed-bullets">
                   <div class="fm-speed-bullet-item"><span>&#10003;</span><span id="s6-bullet-1">We prepare and file it in 1-3 business days</span></div>
@@ -2150,7 +2150,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
                 <div class="fm-addon-desc" id="addon-oa-desc">Required by banks to open a business checking account</div>
               </div>
             </div>
-            <div class="fm-addon-price" id="addon-oa-price"><span class="fm-addon-was">$79</span>$59</div>
+            <div class="fm-addon-price" id="addon-oa-price"><span class="fm-addon-was">$99</span>$79</div>
           </div>
 
           <!-- OA extra fields — shown only when OA is selected AND ownership % is missing -->

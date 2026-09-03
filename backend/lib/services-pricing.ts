@@ -44,9 +44,9 @@ export const SERVICES_CATALOG: Record<string, ServiceDef> = {
   'llc-formation':         { name_en: 'LLC Formation',                     name_es: 'Formación de LLC',                     desc_en: 'Articles of Organization filed with the State of Florida',            desc_es: 'Artículos de Organización presentados ante el Estado de Florida',                    serviceFee: 99,  stateFee: 125 },
   'corp-formation':        { name_en: 'Corporation Formation',             name_es: 'Formación de Corporation',             desc_en: 'Articles of Incorporation filed with the State of Florida',           desc_es: 'Artículos de Incorporación presentados ante el Estado de Florida',                    serviceFee: 99,  stateFee: 70 },
   'registered-agent':      { name_en: 'Registered Agent',                  name_es: 'Agente Registrado',                    desc_en: 'Official FL address to receive legal documents on your behalf',       desc_es: 'Dirección oficial en FL para recibir documentos legales en su nombre',                serviceFee: 99,  stateFee: 0,   billing: 'annual', freeWithOther: true, renewalFee: 99 },
-  'ein':                   { name_en: 'EIN / Tax ID Number',               name_es: 'EIN / Número de Identificación Fiscal', desc_en: 'Federal Tax ID (EIN) application filed with the IRS',                desc_es: 'Solicitud del Número de Identificación Fiscal (EIN) ante el IRS',                     serviceFee: 99,  stateFee: 0 },
+  'ein':                   { name_en: 'EIN / Tax ID Number',               name_es: 'EIN / Número de Identificación Fiscal', desc_en: 'Federal Tax ID (EIN) application filed with the IRS',                desc_es: 'Solicitud del Número de Identificación Fiscal (EIN) ante el IRS',                     serviceFee: 79,  stateFee: 0 },
   'operating-agreement':   { name_en: 'Operating Agreement',               name_es: 'Acuerdo Operativo',                    desc_en: 'Custom, bank-ready LLC Operating Agreement',                          desc_es: 'Acuerdo Operativo personalizado, listo para el banco',                               serviceFee: 79,  stateFee: 0 },
-  'itin':                  { name_en: 'ITIN Application',                   name_es: 'Solicitud de ITIN',                    desc_en: 'ITIN application (IRS Form W-7) filed on your behalf',                desc_es: 'Solicitud de ITIN (Formulario W-7 del IRS) presentada en su nombre',                  serviceFee: 135, stateFee: 0 },
+  'itin':                  { name_en: 'ITIN Application',                   name_es: 'Solicitud de ITIN',                    desc_en: 'ITIN application (IRS Form W-7) filed on your behalf',                desc_es: 'Solicitud de ITIN (Formulario W-7 del IRS) presentada en su nombre',                  serviceFee: 99,  stateFee: 0 },
   'dba':                   { name_en: 'DBA / Fictitious Name',             name_es: 'DBA / Nombre Ficticio',                desc_en: 'Fictitious Name registered with the FL Division of Corporations',     desc_es: 'Nombre Ficticio registrado ante la División de Corporaciones de FL',                  serviceFee: 49,  stateFee: 50 },
   'virtual-address':       { name_en: 'Virtual Mailing Address',           name_es: 'Dirección Postal Virtual',             desc_en: 'Professional FL mailing address with mail scanning & forwarding',     desc_es: 'Dirección postal profesional en FL con escaneo y reenvío de correo',                  serviceFee: 30,  stateFee: 0,   billing: 'monthly' },
   'annual-report':         { name_en: 'Annual Report Filing',              name_es: 'Declaración Anual',                    desc_en: 'Annual Report filed with Sunbiz to keep your entity active',          desc_es: 'Declaración Anual presentada ante Sunbiz para mantener su entidad activa',            serviceFee: 99,  stateFee: 139, billing: 'annual' },
@@ -96,6 +96,11 @@ export interface BundleDef {
   services: string[]
   /** precio del combo en dólares (reemplaza la suma de serviceFee individuales) */
   price: number
+  /** precio "de lista" opcional para mostrar tachado junto al precio real —
+   *  puramente marketing/display, NUNCA se cobra (el cobro sigue siendo `price`).
+   *  Solo se usa cuando el descuento efectivo (vs comprar los servicios sueltos)
+   *  no es suficiente y queremos reforzar visualmente el ahorro. */
+  listPrice?: number
 }
 
 // Descuento aplicado a un bundle cuando el cliente ya trae ALGUNOS (no todos)
@@ -111,7 +116,10 @@ export const NO_DISCOUNT_SERVICE_IDS = new Set<string>(['virtual-address'])
 export const SERVICE_BUNDLES: Record<string, BundleDef> = {
   // Hub 1 — Documentos esenciales (después de Dueños)
   'bundle-docs-oa':     { name_en: 'Operating Agreement',                      name_es: 'Acuerdo Operativo',                            services: ['operating-agreement'], price: 79 },
-  'bundle-docs-oa-ein': { name_en: 'Operating Agreement + EIN',                name_es: 'Acuerdo Operativo + EIN',                      services: ['operating-agreement', 'ein'], price: 149 },
+  // listPrice $199 se muestra tachado en la UI para reforzar el ahorro tras
+  // bajar EIN a $79 (2026-09-03) — sin listPrice el descuento efectivo vs
+  // sueltos ($158) quedaba en solo $9. NO se cobra, solo se muestra.
+  'bundle-docs-oa-ein': { name_en: 'Operating Agreement + EIN',                name_es: 'Acuerdo Operativo + EIN',                      services: ['operating-agreement', 'ein'], price: 149, listPrice: 199 },
   'bundle-docs-full':   { name_en: 'Operating Agreement + EIN + Banking Resolution', name_es: 'Acuerdo Operativo + EIN + Resolución Bancaria', services: ['operating-agreement', 'ein', 'banking-resolution'], price: 189 },
   // Hub 2 — Protección y cumplimiento. EN FORMACIÓN (LLC/Corp) estos 3 tiers se
   // usan tal cual, sin cambios. À LA CARTE (sin formación), Annual Report se
@@ -207,8 +215,7 @@ export interface ServicesPrice {
  * estatales sí se suman. Itemiza tarifa de servicio + tarifa estatal.
  */
 // Procesamiento acelerado: una sola vez por orden, aplica a toda la orden.
-// ⚠️ Precio placeholder — revisar antes de LIVE.
-export const EXPEDITED_FEE = 79
+export const EXPEDITED_FEE = 49
 
 // El acelerado solo tiene sentido si algo en el carrito realmente se presenta
 // ante el estado (una formación, o un servicio con stateFee > 0, ej. Annual
