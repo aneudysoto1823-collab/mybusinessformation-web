@@ -86,6 +86,7 @@ export async function POST(request: NextRequest) {
 
   // Si ya existe una cuenta (orden con contraseña) para este email, no crear
   // una segunda — el cliente debe iniciar sesión en vez de registrarse de nuevo.
+  // @brand-unified — cuenta única cross-brand por email (portal cliente unificado).
   const { data: existing, error: existingErr } = await supabase
     .from('Order')
     .select('id, client_password_hash')

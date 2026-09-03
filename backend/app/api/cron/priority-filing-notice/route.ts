@@ -192,6 +192,9 @@ export async function GET(req: NextRequest) {
   // Candidatas: formación (no 'services'), Priority/Expedited, ya pagadas,
   // sin el email de "Orden Procesada" enviado todavía, y que el staff aún no
   // haya avanzado el estado más allá de donde este email tiene sentido.
+  // @brand-unified — el .neq('package','services') ya filtra à la carte fuera,
+  // pero deja formation+addon; formation es solo opabiz y addon (marketing NBL)
+  // legacy también recibe este email si termina siendo expedited (raro pero OK).
   const { data: candidates, error } = await supabase
     .from('Order')
     .select('id, firstName, lastName, email, companyName, entityType, package, speed, addons, paidAt, status, unsubscribed')

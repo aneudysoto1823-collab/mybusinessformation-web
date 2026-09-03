@@ -517,6 +517,9 @@ async function getOrderInfo(orderNumber: string): Promise<string> {
     const prefix = clean.substring(0, 8).toLowerCase()
 
     const supabase = getSupabaseAdmin()
+    // @brand-unified — el chat busca la orden por prefix del confirmation
+    // number (FBFC-XXXXXXXX); el prefix es único global y puede resolver a
+    // órdenes de cualquiera de las dos marcas por diseño.
     const { data, error } = await supabase
       .from('Order')
       .select('id,firstName,lastName,email,phone,country,companyName,companyName2,companyName3,entityType,businessAddress,speed,package,amount,members,registeredAgent,addons,paymentStatus,status,createdAt')

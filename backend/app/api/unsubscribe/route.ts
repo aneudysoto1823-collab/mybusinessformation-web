@@ -9,6 +9,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Email required' }, { status: 400 })
     }
 
+    // @brand-unified — unsubscribe global por email: si el cliente pidió salir
+    // de las comunicaciones, la baja aplica a todas sus órdenes (opabiz y FBFC).
     const { error } = await getSupabaseAdmin()
       .from('Order')
       .update({ unsubscribed: true })

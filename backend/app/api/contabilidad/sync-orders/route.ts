@@ -23,6 +23,8 @@ export async function POST(request: NextRequest) {
   const supabase = getSupabaseAdmin()
 
   // Fetch all orders
+  // @brand-unified — la contabilidad suma ingresos de ambas marcas por
+  // decisión del founder (2026-09-04). Un único P&L para el negocio total.
   const { data: orders, error: ordersErr } = await supabase
     .from('Order')
     .select('id, firstName, lastName, email, phone, entityType, package, amount, paymentStatus, stripePaymentId, createdAt')

@@ -50,6 +50,8 @@ interface Order {
 }
 
 async function getOrders(): Promise<Order[]> {
+  // @brand-unified — el panel admin muestra órdenes de opabiz.com y
+  // mybusinessformation.com juntas por decisión del founder (2026-09-04).
   const { data, error } = await getSupabaseAdmin()
     .from('Order')
     .select('id, createdAt, updatedAt, firstName, lastName, email, companyName, package, amount, paymentStatus, status, nameCheck, isDraft, notes')
