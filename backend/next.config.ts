@@ -107,23 +107,27 @@ const nextConfig: NextConfig = {
       ),
     };
   },
-  // opabiz.com/new-business ya no vive ahí — se muda por completo a
-  // mybusinessformation.com. Este redirect (dirección inversa a la que existía
-  // antes) evita romper links/bookmarks/resultados de Google ya indexados bajo
-  // opabiz.com/new-business. `/servicios` y `/servicios/checkout` de opabiz.com
-  // NO se tocan — siguen siendo la tienda de servicios propia de OpaBiz.
+  // opabiz.com/new-business ya no existe como ruta propia — su contenido vive
+  // ahora en mybusinessformation.com (separación de dominios 2026-08-13). Este
+  // 301 catch-all manda a la home de opabiz.com para consolidar la autoridad
+  // SEO indexada bajo /new-business en el sitio correcto. NO se redirige al
+  // otro dominio a propósito — Google Search Console y GA4 están separados por
+  // propiedad, y un cliente que busca "OpaBiz" en Google no debe caer en la
+  // marca FBFC. Nunca queda en 404. `/servicios` y `/servicios/checkout` de
+  // opabiz.com NO se tocan — siguen siendo la tienda de servicios propia de
+  // OpaBiz.
   async redirects() {
     return [
       {
         source: "/new-business/:path*",
         has: [{ type: "host", value: "opabiz.com" }],
-        destination: "https://mybusinessformation.com/:path*",
+        destination: "https://opabiz.com/",
         permanent: true,
       },
       {
         source: "/new-business/:path*",
         has: [{ type: "host", value: "www.opabiz.com" }],
-        destination: "https://mybusinessformation.com/:path*",
+        destination: "https://opabiz.com/",
         permanent: true,
       },
     ];

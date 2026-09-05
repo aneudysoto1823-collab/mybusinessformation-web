@@ -130,14 +130,14 @@ ADD-ON SERVICES (recommend based on client situation)
 These can be added to any package or ordered standalone:
 
 • Registered Agent — Annual fee. REQUIRED by Florida law for every LLC and Corporation. NOTE: This service is currently coming soon — do not promise availability or quote a price. If the client asks, let them know it will be available soon and we will notify them.
-• EIN / Tax ID — $49. Required to open a business bank account. Included in Standard and Premium.
+• EIN / Tax ID — $79. Required to open a business bank account. Included in Standard and Premium.
 • Banking Resolution — $49. Authorizes a member to open a business bank account. Included in Standard and Premium.
 • Operating Agreement — $79. Documents ownership, management, profit distribution. Most banks require it. Included in Premium.
 • DBA / Fictitious Name — $49 + FL state fee. Operate under a different brand name.
 • Articles of Amendment — $59 + FL state fee. Change name, address, or officers.
 • Business Tax Receipt — $79 + county fee. Required in many FL counties.
 • Sales Tax Registration — $79. Register to collect and remit FL sales tax.
-• ITIN Application — $135 standalone. For non-US residents who need to file US taxes without an SSN.
+• ITIN Application — $99 standalone. For non-US residents who need to file US taxes without an SSN.
 • Virtual Mailing Address — $30/month. Professional FL business address. Keeps home address private on all public FL records. Recommend to anyone working from home.
 • Annual Report Filing — Annual fee. Every FL business must file Jan 1–May 1 each year. $400 late fee if missed. Recommend to all new formations for ongoing compliance.
 
@@ -165,7 +165,7 @@ When a client mentions they already have a package or company formed, identify w
 • No EIN → recommend it (can't open bank account without it)
 • Working from home / privacy concern → recommend Virtual Mailing Address
 • Approaching May 1 / Annual Report → recommend Annual Report Filing
-• Non-US resident without SSN → recommend ITIN Application ($135)
+• Non-US resident without SSN → recommend ITIN Application ($99)
 • Wants to operate under different name → recommend DBA ($49 + state fee)
 • Changed address or officers → recommend Articles of Amendment ($59 + state fee)
 
@@ -177,11 +177,11 @@ When a client has just chosen a package, is filling out the formation form, or h
 CHECKLIST LOGIC (show only what's missing based on their package and add-ons):
 
 ✅ Registered Agent — Required by Florida law. Without one, the state can dissolve your company and legal notices go undelivered. (Note: currently coming soon — mention it but don't quote a price.)
-✅ EIN / Tax ID ($49) — Needed to open a business bank account and hire employees. Already included in Standard and Premium.
+✅ EIN / Tax ID ($79) — Needed to open a business bank account and hire employees. Already included in Standard and Premium.
 ✅ Operating Agreement ($79) — Most banks require it to open a business checking account. Already included in Premium.
 ✅ Annual Report — Every FL company must file Jan 1–May 1 each year. Missing it = $400 late fee + risk of dissolution.
 ✅ Virtual Mailing Address ($30/mo) — If they work from home, their home address becomes public record without this.
-✅ ITIN ($135) — Only flag this for non-US residents without a Social Security Number.
+✅ ITIN ($99) — Only flag this for non-US residents without a Social Security Number.
 
 PRESENTATION STYLE:
 - Present it as a brief, friendly checklist — not a sales pitch.
@@ -517,6 +517,9 @@ async function getOrderInfo(orderNumber: string): Promise<string> {
     const prefix = clean.substring(0, 8).toLowerCase()
 
     const supabase = getSupabaseAdmin()
+    // @brand-unified — el chat busca la orden por prefix del confirmation
+    // number (FBFC-XXXXXXXX); el prefix es único global y puede resolver a
+    // órdenes de cualquiera de las dos marcas por diseño.
     const { data, error } = await supabase
       .from('Order')
       .select('id,firstName,lastName,email,phone,country,companyName,companyName2,companyName3,entityType,businessAddress,speed,package,amount,members,registeredAgent,addons,paymentStatus,status,createdAt')

@@ -63,6 +63,7 @@ function localizeLine(label: string, es: boolean): string {
     'Standard Formation Package': 'Paquete Standard de Formación',
     'Premium Formation Package': 'Paquete Premium de Formación',
     'Expedited Processing': 'Procesamiento Acelerado',
+    'Registered Agent — First Year': 'Agente Registrado — Primer Año',
     'EIN / Tax ID Number': 'EIN / Número de Identificación Fiscal',
     'Operating Agreement': 'Acuerdo Operativo',
     'ITIN Application': 'Solicitud de ITIN',

@@ -159,6 +159,8 @@ async function getOrder(id: string): Promise<Order | null> {
 }
 
 async function getOrdersByEmail(email: string): Promise<Order[]> {
+  // @brand-unified — portal cliente unificado (misma cookie, "Mis órdenes"
+  // muestra todas las órdenes del cliente cruzando OpaBiz y FBFC).
   const { data } = await getSupabaseAdmin()
     .from('Order')
     .select('id, createdAt, firstName, lastName, email, companyName, entityType, package, speed, amount, paymentStatus, status, addons, subscriptions, isDraft')

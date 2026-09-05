@@ -68,6 +68,8 @@ function formatDate(iso: string, lang: 'en' | 'es'): string {
 }
 
 async function getDrafts(): Promise<Draft[]> {
+  // @brand-unified — el panel admin de borradores muestra los de ambas marcas
+  // por decisión del founder (mismo criterio que el listado de órdenes).
   const { data, error } = await getSupabaseAdmin()
     .from('Order')
     .select('id, createdAt, updatedAt, firstName, lastName, email, phone, companyName, entityType, package, draftSnapshot')

@@ -26,7 +26,7 @@ export const PACKAGE_PRICES: Record<PackageId, number> = { basic: 39, standard: 
 // Add-ons cobrables (igual que fmBuildPayload en page.tsx). `raInfo` no se
 // cobra acá (es solo la dirección cuando el cliente es su propio agente).
 export const ADDON_PRICES = {
-  ein: 79, oa: 59, itin: 99, btr: 79, str: 79, cc: 49,
+  ein: 79, oa: 79, itin: 99, btr: 79, str: 79, cc: 49,
   // Nuevos 2026-06-26 (seccion expandible "Ver todos los servicios" del paso 5)
   dba: 49, br: 49, gd: 49, gs: 49, sc: 79, bl: 99,
   // Annual Report — antes no se cobraba en el checkout (comentario viejo
@@ -36,8 +36,16 @@ export const ADDON_PRICES = {
 } as const
 export type AddonKey = keyof typeof ADDON_PRICES
 
-export const EXPEDITED_FEE = 79
+export const EXPEDITED_FEE = 49
 export const STATE_FEE: Record<EntityType, number> = { llc: 125, corp: 70 }
+
+// Registered Agent — cobro condicional por paquete (2026-09-03).
+// Basic: cobra $99 el primer año si el cliente elige nuestro servicio (ra='us').
+// Standard/Premium: el primer año va incluido gratis, la renovación (a $99/año)
+// se cobra fuera del checkout de formación. Basic no incluye ese año gratis para
+// diferenciarse de los tiers superiores. Si el cliente elige ser su propio agente
+// (ra='own') no se cobra en ningún paquete — solo se guarda la dirección.
+export const RA_FIRST_YEAR_FEE = 99
 
 // DBA / Fictitious Name es el único addon que implica un filing estatal
 // propio ante la Florida Division of Corporations, aparte de ADDON_PRICES.dba
@@ -62,6 +70,13 @@ export interface FormationPricingInput {
   entityType?: string | null
   speed?: string | null
   addons?: Record<string, unknown> | null
+  /** 'us' = OpaBiz es el agente registrado; 'own' = cliente es su propio agente.
+   *  Solo cobra el fee en el tier Basic con 'us' — ver RA_FIRST_YEAR_FEE arriba. */
+  registeredAgent?: string | null
+  /** Idioma para el label del line item — 'es' devuelve etiqueta en español,
+   *  cualquier otro valor (o ausente) usa inglés. Solo afecta el texto que ve
+   *  el cliente en Stripe/emails/complete; no cambia el monto. */
+  lang?: string | null
 }
 
 export interface PriceLine {
@@ -110,6 +125,17 @@ export function computeFormationTotal(input: FormationPricingInput): FormationPr
   // Procesamiento acelerado: gratis con Premium (igual que el form)
   if (speed === 'expedited' && pkg !== 'premium') {
     lines.push({ label: 'Expedited Processing', amount: EXPEDITED_FEE })
+  }
+
+  // Registered Agent — solo en Basic con 'us'. En Standard/Premium el primer
+  // año va incluido gratis y la renovación se cobra fuera del checkout de
+  // formación (ver comentario de RA_FIRST_YEAR_FEE arriba).
+  const isEs = input.lang === 'es'
+  if (pkg === 'basic' && input.registeredAgent === 'us') {
+    lines.push({
+      label: isEs ? 'Agente Registrado — Primer Año' : 'Registered Agent — First Year',
+      amount: RA_FIRST_YEAR_FEE,
+    })
   }
 
   // Add-ons

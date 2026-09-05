@@ -4,11 +4,14 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node scripts/check-prices.mjs && node scripts/check-brand-boundaries.mjs",
     "build": "next build",
     "build:server": "tsc -p tsconfig.server.json",
     "start": "npm run server",
     "lint": "eslint",
-    "server": "node dist-server/server.js"
+    "server": "node dist-server/server.js",
+    "check:prices": "node scripts/check-prices.mjs",
+    "check:brand": "node scripts/check-brand-boundaries.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.36.3",

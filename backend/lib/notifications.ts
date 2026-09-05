@@ -50,6 +50,10 @@ export const sendOrderConfirmation = async (order: {
   // Sin esto, el reenvío manual desde /admin siempre mostraba OpaBiz aunque
   // la orden fuera de FBFC (auditoría 2026-08-17).
   sourceBrand?: string | null
+  // Necesario para que el line item "Registered Agent — First Year" ($99 en
+  // Basic con ra='us') aparezca en el desglose de precios del email igual
+  // que en Stripe checkout y /order/complete.
+  registeredAgent?: string | null
 }) => {
   const brand: EmailBrand = order.sourceBrand as EmailBrand
   const fbfc = `FBFC-${order.id.replace(/-/g, '').substring(0, 8).toUpperCase()}`
@@ -68,6 +72,7 @@ export const sendOrderConfirmation = async (order: {
     const packageItems = PACKAGE_SERVICES[packageKey] ?? []
     const { lines: formationLines, total } = computeFormationTotal({
       package: order.package, entityType: order.entityType, speed: order.speed, addons: order.addons as Record<string, boolean> | null,
+      registeredAgent: order.registeredAgent,
     })
     const packageInclHtml = packageItems.map(i => `<div>${i.en}</div>`).join('')
     const formationRowsHtml = formationLines

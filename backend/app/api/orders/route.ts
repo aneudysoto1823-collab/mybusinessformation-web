@@ -163,6 +163,11 @@ export async function POST(request: NextRequest) {
       entityType: order.entityType,
       speed: order.speed,
       addons: order.addons,
+      registeredAgent: order.registeredAgent,
+      // sourceBrand → brandFrom/brandReplyTo/brandHeaderHtml del email. Sin esto
+      // un cliente FBFC recibe el email con branding OpaBiz. Detectado por el
+      // guardian check-brand-boundaries 2026-09-04.
+      sourceBrand: order.sourceBrand,
     }).catch(err => console.error('Email confirmation error (non-fatal):', err))
 
     // ── Alerta interna "🆕 NUEVA ORDEN CREADA" → alert@opabiz.com ──────────────
@@ -255,6 +260,8 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    // @brand-unified — endpoint GET admin protegido por sesión; el panel usa
+    // este listado unificado por decisión del founder (mismas dos marcas).
     const { data: orders, error } = await getSupabaseAdmin()
       .from('Order')
       .select('*')

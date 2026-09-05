@@ -33,6 +33,9 @@ export async function POST(request: NextRequest) {
     const email = (raw.email as string).toLowerCase().trim()
     const password = raw.password as string
 
+    // @brand-unified — el portal cliente es unificado (misma cookie de sesión,
+    // ambas marcas); un mismo email puede tener órdenes en OpaBiz y FBFC y se
+    // autentica con el password guardado en cualquiera de esas órdenes.
     const { data: orders, error } = await getSupabaseAdmin()
       .from('Order')
       .select('id, email, client_password_hash, isDraft')
@@ -67,6 +70,8 @@ export async function POST(request: NextRequest) {
   const idPrefix = match[1].toLowerCase()
 
   try {
+    // @brand-unified — login por confirmation number: el prefix del id es
+    // global (FBFC-/FBNB-) y resuelve a órdenes de cualquiera de las 2 marcas.
     const { data: orders, error } = await getSupabaseAdmin()
       .from('Order')
       .select('id, email, isDraft')
