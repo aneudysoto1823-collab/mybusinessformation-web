@@ -50,6 +50,16 @@ interface Order {
   einIdType?: 'ssn' | 'itin' | 'none' | null
   einActivity?: string | null
   einActivityDesc?: string | null
+  // Suscripciones reales de Stripe (Registered Agent / Virtual Address /
+  // Annual Report) — ver lib/order-subscriptions.ts / lib/stripe-subscriptions.ts.
+  stripeCustomerId?: string | null
+  subscriptions?: {
+    service: string
+    stripeSubscriptionId: string
+    status: 'trialing' | 'active' | 'past_due' | 'canceled'
+    currentPeriodEnd: string | null
+    createdAt: string
+  }[] | null
   nameCheck?: {
     available?: boolean
     exactCount?: number
@@ -916,6 +926,38 @@ export default function OrderDetailPage() {
             </Section>
           )
         })()}
+
+        {/* Suscripciones recurrentes (RA / VA / AR) — solo visible si la orden
+            tiene al menos una. Estado operacional para soporte: no permite
+            cancelar desde acá (eso es self-service del cliente vía el Billing
+            Portal, o manual desde el dashboard de Stripe). */}
+        {order.subscriptions && order.subscriptions.length > 0 && (
+          <Section title="🔁 Suscripciones recurrentes">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {order.subscriptions.map(sub => {
+                const statusMap: Record<string, { label: string; bg: string; color: string }> = {
+                  trialing: { label: 'En período gratis', bg: '#dbeafe', color: '#1e40af' },
+                  active:   { label: 'Activa', bg: '#dcfce7', color: '#166534' },
+                  past_due: { label: 'Pago fallido', bg: '#fee2e2', color: '#b91c1c' },
+                  canceled: { label: 'Cancelada', bg: '#f3f4f6', color: '#6b7280' },
+                }
+                const s = statusMap[sub.status] ?? statusMap.canceled
+                return (
+                  <div key={sub.stripeSubscriptionId} style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', padding: '10px 12px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
+                    <span style={{ fontWeight: 600, fontSize: '13px', minWidth: '160px' }}>{getOrderItemLabel(`svc:${sub.service}`, { lang: 'en' })}</span>
+                    <span style={{ background: s.bg, color: s.color, padding: '3px 10px', borderRadius: '999px', fontSize: '12px', fontWeight: 600 }}>{s.label}</span>
+                    {sub.currentPeriodEnd && (
+                      <span style={{ fontSize: '12px', color: '#6b7280' }}>
+                        Próximo cobro: {new Date(sub.currentPeriodEnd).toLocaleDateString('es-ES')}
+                      </span>
+                    )}
+                    <span style={{ fontSize: '11px', color: '#9ca3af', fontFamily: 'monospace' }}>{sub.stripeSubscriptionId}</span>
+                  </div>
+                )
+              })}
+            </div>
+          </Section>
+        )}
 
         {/* EIN Application Info — solo si el cliente lleno algo del bloque nuevo
             del paso 2 (Standard/Premium) o del addon EIN de Basic (paso 7).

@@ -18,6 +18,7 @@ interface Order {
   paymentStatus: string
   status: string
   addons: unknown
+  subscriptions?: unknown
   isDraft?: boolean
 }
 
@@ -151,7 +152,7 @@ async function getDocuments(orderId: string, order: Order): Promise<DocumentItem
 async function getOrder(id: string): Promise<Order | null> {
   const { data } = await getSupabaseAdmin()
     .from('Order')
-    .select('id, createdAt, firstName, lastName, email, companyName, entityType, package, speed, amount, paymentStatus, status, addons, client_password_hash, isDraft')
+    .select('id, createdAt, firstName, lastName, email, companyName, entityType, package, speed, amount, paymentStatus, status, addons, subscriptions, client_password_hash, isDraft')
     .eq('id', id)
     .single()
   return (data as (Order & { client_password_hash?: string | null }) | null)
@@ -160,7 +161,7 @@ async function getOrder(id: string): Promise<Order | null> {
 async function getOrdersByEmail(email: string): Promise<Order[]> {
   const { data } = await getSupabaseAdmin()
     .from('Order')
-    .select('id, createdAt, firstName, lastName, email, companyName, entityType, package, speed, amount, paymentStatus, status, addons, isDraft')
+    .select('id, createdAt, firstName, lastName, email, companyName, entityType, package, speed, amount, paymentStatus, status, addons, subscriptions, isDraft')
     .eq('email', email.toLowerCase().trim())
     .order('createdAt', { ascending: false })
   return (data ?? []) as Order[]

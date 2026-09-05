@@ -17,6 +17,7 @@ interface Order {
   paymentStatus: string
   status: string
   addons: unknown
+  subscriptions?: unknown
 }
 
 interface DocumentItem {
@@ -152,6 +153,28 @@ export default function DashboardContent({
   const [pwError, setPwError] = useState('')
   const [pwSuccess, setPwSuccess] = useState(false)
   const [pwLoading, setPwLoading] = useState(false)
+  const [subLoading, setSubLoading] = useState(false)
+
+  async function handleManageSubscription() {
+    setSubLoading(true)
+    try {
+      const res = await fetch('/api/billing-portal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId: order.id }),
+      })
+      const data = await res.json()
+      if (res.ok && data.url) {
+        window.location.href = data.url
+      } else {
+        console.error('[billing-portal]', data.error)
+        setSubLoading(false)
+      }
+    } catch (err) {
+      console.error('[billing-portal]', err)
+      setSubLoading(false)
+    }
+  }
 
   useEffect(() => {
     // Prioridad: ?lang de la URL (idioma del home del que viene) → portal_lang →
@@ -200,6 +223,9 @@ export default function DashboardContent({
   }
 
   const es = lang === 'es'
+
+  const orderSubscriptions = Array.isArray(order.subscriptions) ? order.subscriptions as { status: string }[] : []
+  const hasActiveSubscriptions = orderSubscriptions.some(s => s.status !== 'canceled')
 
   const pkgKey = (order.package ?? '').toLowerCase()
   const pkgInfo = PACKAGE_INFO[pkgKey]
@@ -473,9 +499,15 @@ export default function DashboardContent({
           </>
         )}
         <a href={es ? '/servicios?lang=es' : '/servicios'} target="_blank" rel="noopener noreferrer"
-          style={{ display: 'inline-block', marginTop: '18px', padding: '10px 20px', background: '#2563EB', color: '#fff', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 600, textDecoration: 'none' }}>
+          style={{ display: 'inline-block', marginTop: '18px', marginRight: '10px', padding: '10px 20px', background: '#2563EB', color: '#fff', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 600, textDecoration: 'none' }}>
           {es ? '+ Agregar Servicios' : '+ Add Services'}
         </a>
+        {hasActiveSubscriptions && (
+          <button onClick={handleManageSubscription} disabled={subLoading}
+            style={{ display: 'inline-block', marginTop: '18px', padding: '10px 20px', background: '#fff', color: '#2563EB', border: '1.5px solid #2563EB', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 600, cursor: subLoading ? 'default' : 'pointer', opacity: subLoading ? 0.6 : 1 }}>
+            {subLoading ? (es ? 'Abriendo…' : 'Opening…') : (es ? 'Gestionar mi suscripción' : 'Manage My Subscription')}
+          </button>
+        )}
       </div>
 
       {/* Documents */}

@@ -165,9 +165,20 @@ export async function POST(req: NextRequest) {
         border_style:     'rounded',
       },
       customer_email: email.toLowerCase(),
+      // Siempre crea un Stripe Customer — junto con setup_future_usage de abajo,
+      // guarda la tarjeta usada. Necesario para suscribir Registered Agent /
+      // Virtual Address / Annual Report cuando estén en el carrito (ver
+      // lib/stripe-subscriptions.ts); sin costo ni cambio de UX si el carrito
+      // no tiene nada recurrente, el customer simplemente no se usa.
+      customer_creation: 'always',
       billing_address_collection: 'required',
       return_url: `${origin}/servicios/checkout?paid=1&session_id={CHECKOUT_SESSION_ID}`,
-      payment_intent_data: { statement_descriptor_suffix: 'SERVICES' },
+      payment_intent_data: {
+        statement_descriptor_suffix: 'SERVICES',
+        // Guarda el método de pago en el Customer para cobros off-session
+        // futuros — lo usan las Subscriptions creadas después del pago.
+        setup_future_usage: 'off_session',
+      },
       metadata: { kind: 'services', orderId, sourceDomain },
     })
 

@@ -8,8 +8,10 @@ import { PACKAGE_SERVICES } from '@/lib/notifications'
 import { computeFormationTotal } from '@/lib/pricing'
 import { getOrderItemLabel } from '@/lib/order-items'
 import { hasReceivedGuide, recordGuideSent, getGuideAttachments, buildGuideBonusHtml, type GuideKey } from '@/lib/guides'
-import { REPLY_TO, REPLY_TO_FBFC, INTERNAL_ALERT_EMAIL as ADMIN_EMAIL, FROM_OPABIZ, FROM_OPABIZ_ALERTS, FROM_FBFC } from '@/lib/email-constants'
+import { REPLY_TO, REPLY_TO_FBFC, INTERNAL_ALERT_EMAIL as ADMIN_EMAIL, FROM_OPABIZ, FROM_OPABIZ_ALERTS, FROM_FBFC, brandFrom, brandReplyTo, brandHeaderHtml, brandFooterLine, brandSubjectPrefix, brandPortalHome, type EmailBrand } from '@/lib/email-constants'
 import { provisionRaForOrder } from '@/lib/ra-provisioning'
+import { createRecurringSubscriptionsForOrder } from '@/lib/stripe-subscriptions'
+import { findOrderBySubscriptionId, upsertOrderSubscription } from '@/lib/order-subscriptions'
 
 export const dynamic = 'force-dynamic'
 
@@ -51,6 +53,18 @@ export async function POST(req: NextRequest) {
   }
   if (event.type === 'charge.dispute.closed') {
     return handleDisputeClosed(event.data.object as Stripe.Dispute)
+  }
+
+  // ── Suscripciones recurrentes (Registered Agent / Virtual Address / Annual
+  // Report) — ver lib/stripe-subscriptions.ts y lib/order-subscriptions.ts.
+  if (event.type === 'invoice.paid') {
+    return handleInvoicePaid(event.data.object as Stripe.Invoice)
+  }
+  if (event.type === 'invoice.payment_failed') {
+    return handleInvoicePaymentFailed(event.data.object as Stripe.Invoice)
+  }
+  if (event.type === 'customer.subscription.deleted') {
+    return handleSubscriptionDeleted(event.data.object as Stripe.Subscription)
   }
 
   if (event.type !== 'checkout.session.completed') {
@@ -574,6 +588,18 @@ async function handleFormationPaid(orderId: string, session: Stripe.Checkout.Ses
     }
   })
 
+  // Suscripciones reales de servicios recurrentes (hoy solo Annual Report
+  // puede venir como addon de formación) — no-op si no hay nada recurrente
+  // en el carrito. La tarjeta ya quedó guardada en el Customer vía
+  // setup_future_usage (ver /api/checkout/embedded), ver lib/stripe-subscriptions.ts.
+  after(async () => {
+    try {
+      await createRecurringSubscriptionsForOrder(getStripe(), order.id, (session.customer as string) ?? null, order.package, order.addons, order.sourceBrand)
+    } catch (err) {
+      console.error('[stripe-webhook] recurring-subscriptions error (non-fatal):', err)
+    }
+  })
+
   return NextResponse.json({ received: true, orderId, fbfc })
 }
 
@@ -774,6 +800,18 @@ async function handleServicesPaid(orderId: string, session: Stripe.Checkout.Sess
     `,
   }).catch(err => console.error('[stripe-webhook] services admin alert error (non-fatal):', err))
 
+  // Suscripciones reales de servicios recurrentes (Registered Agent / Virtual
+  // Address / Annual Report) — no-op si nada en el carrito es recurrente. La
+  // tarjeta ya quedó guardada en el Customer vía setup_future_usage (ver
+  // /api/checkout/embedded-services), ver lib/stripe-subscriptions.ts.
+  after(async () => {
+    try {
+      await createRecurringSubscriptionsForOrder(getStripe(), order.id, (session.customer as string) ?? null, order.package, order.addons, order.sourceBrand)
+    } catch (err) {
+      console.error('[stripe-webhook] recurring-subscriptions error (non-fatal):', err)
+    }
+  })
+
   return NextResponse.json({ received: true, orderId, fbfc })
 }
 
@@ -920,4 +958,140 @@ async function handleDisputeClosed(dispute: Stripe.Dispute) {
   }
 
   return NextResponse.json({ received: true, orderId: order.id, lost })
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Suscripciones recurrentes (Registered Agent / Virtual Address / Annual
+// Report) — creadas en handleFormationPaid/handleServicesPaid (ver
+// lib/stripe-subscriptions.ts). Estos 3 handlers solo reflejan su estado en
+// Order.subscriptions; nunca crean Subscriptions nuevas ni cobran nada.
+// ─────────────────────────────────────────────────────────────────────────────
+
+// El id de subscription vive en invoice.parent.subscription_details.subscription
+// desde la reestructuración de "Invoice Parent" de Stripe (invoice.subscription
+// directo ya no existe en API 2026-02-25.clover).
+function getInvoiceSubscriptionId(invoice: Stripe.Invoice): string | null {
+  const sub = invoice.parent?.subscription_details?.subscription
+  if (!sub) return null
+  return typeof sub === 'string' ? sub : sub.id
+}
+
+// `invoice.paid` — renovación exitosa (o la primera factura real tras el
+// trial_end). Solo actualiza currentPeriodEnd; no manda email — una renovación
+// exitosa no necesita avisarse, a diferencia de un fallo de pago.
+async function handleInvoicePaid(invoice: Stripe.Invoice) {
+  const subscriptionId = getInvoiceSubscriptionId(invoice)
+  if (!subscriptionId) return NextResponse.json({ received: true, skipped: 'no_subscription' })
+
+  try {
+    const order = await findOrderBySubscriptionId(subscriptionId)
+    if (!order) {
+      console.error('[stripe-webhook] invoice.paid: no order found for subscription', subscriptionId)
+      return NextResponse.json({ received: true, skipped: 'no_order' })
+    }
+    const entry = order.subscriptions.find(e => e.stripeSubscriptionId === subscriptionId)
+    if (!entry) return NextResponse.json({ received: true, skipped: 'no_entry' })
+
+    await upsertOrderSubscription(order.id, {
+      ...entry,
+      status: 'active',
+      currentPeriodEnd: invoice.period_end ? new Date(invoice.period_end * 1000).toISOString() : entry.currentPeriodEnd,
+    })
+  } catch (err) {
+    console.error('[stripe-webhook] handleInvoicePaid error:', err)
+  }
+  return NextResponse.json({ received: true })
+}
+
+// `invoice.payment_failed` — la tarjeta guardada no pudo cobrarse (fondos
+// insuficientes, tarjeta vencida, o requiere reautenticación 3DS off-session).
+// Marca la entrada como past_due y avisa al cliente (con el link de Stripe
+// para reintentar/reautenticar) + alerta interna.
+async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
+  const subscriptionId = getInvoiceSubscriptionId(invoice)
+  if (!subscriptionId) return NextResponse.json({ received: true, skipped: 'no_subscription' })
+
+  try {
+    const order = await findOrderBySubscriptionId(subscriptionId)
+    if (!order) {
+      console.error('[stripe-webhook] invoice.payment_failed: no order found for subscription', subscriptionId)
+      return NextResponse.json({ received: true, skipped: 'no_order' })
+    }
+    const entry = order.subscriptions.find(e => e.stripeSubscriptionId === subscriptionId)
+    if (!entry) return NextResponse.json({ received: true, skipped: 'no_entry' })
+
+    await upsertOrderSubscription(order.id, { ...entry, status: 'past_due' })
+
+    const brand = order.sourceBrand as EmailBrand
+    const serviceName = SERVICES_CATALOG[entry.service]?.name_en ?? entry.service
+    const hostedInvoiceUrl = invoice.hosted_invoice_url ?? brandPortalHome(brand)
+
+    after(async () => {
+      try {
+        await getResend().emails.send({
+          from:    brandFrom(brand),
+          replyTo: brandReplyTo(brand),
+          to:      order.email,
+          subject: `${brandSubjectPrefix(brand)}Action needed: payment failed for your ${serviceName}`,
+          html: `
+            <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;color:#1e293b">
+              <table style="width:100%;border-collapse:collapse;padding:20px 28px;background:#fff;border-radius:10px 10px 0 0"><tr>${brandHeaderHtml(brand)}</tr></table>
+              <div style="background:#fff;padding:8px 28px 28px;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 10px 10px;font-size:14px;line-height:1.6">
+                <p>We were unable to process your renewal payment for <strong>${serviceName}</strong>.</p>
+                <p>Please update your payment method to keep this service active without interruption.</p>
+                <div style="text-align:center;margin:20px 0">
+                  <a href="${hostedInvoiceUrl}" style="display:inline-block;background:#2563EB;color:#fff;text-decoration:none;padding:12px 26px;border-radius:8px;font-size:14px;font-weight:700">Update Payment Method</a>
+                </div>
+                <p style="color:#64748b;font-size:12.5px">${brandFooterLine(brand)}</p>
+              </div>
+            </div>
+          `,
+        })
+      } catch (e) { console.error('[stripe-webhook] payment-failed email error (non-fatal):', e) }
+    })
+
+    after(async () => {
+      try {
+        await getResend().emails.send({
+          from:    FROM_OPABIZ_ALERTS,
+          replyTo: REPLY_TO,
+          to:      ADMIN_EMAIL,
+          subject: `OpaBiz Alerts: ⚠️ Subscription payment failed — ${serviceName}`,
+          html: `
+            <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;color:#1e293b">
+              <table style="width:100%;border-collapse:collapse">
+                <tr><td style="padding:6px 0;color:#64748b;width:40%">Order</td><td style="padding:6px 0;font-weight:600">${order.id}</td></tr>
+                <tr><td style="padding:6px 0;color:#64748b">Service</td><td style="padding:6px 0;font-weight:600">${serviceName}</td></tr>
+                <tr><td style="padding:6px 0;color:#64748b">Customer</td><td style="padding:6px 0"><a href="mailto:${order.email}" style="color:#2563eb">${order.email}</a></td></tr>
+                <tr><td style="padding:6px 0;color:#64748b">Subscription</td><td style="padding:6px 0">${subscriptionId}</td></tr>
+              </table>
+            </div>
+          `,
+        })
+      } catch (e) { console.error('[stripe-webhook] payment-failed internal alert error (non-fatal):', e) }
+    })
+  } catch (err) {
+    console.error('[stripe-webhook] handleInvoicePaymentFailed error:', err)
+  }
+  return NextResponse.json({ received: true })
+}
+
+// `customer.subscription.deleted` — cancelación (self-service desde el Billing
+// Portal, o manual desde el dashboard de Stripe). Solo marca ESA entrada como
+// canceled, sin tocar las demás Subscriptions de la misma orden.
+async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
+  try {
+    const order = await findOrderBySubscriptionId(subscription.id)
+    if (!order) {
+      console.error('[stripe-webhook] subscription.deleted: no order found for subscription', subscription.id)
+      return NextResponse.json({ received: true, skipped: 'no_order' })
+    }
+    const entry = order.subscriptions.find(e => e.stripeSubscriptionId === subscription.id)
+    if (!entry) return NextResponse.json({ received: true, skipped: 'no_entry' })
+
+    await upsertOrderSubscription(order.id, { ...entry, status: 'canceled' })
+  } catch (err) {
+    console.error('[stripe-webhook] handleSubscriptionDeleted error:', err)
+  }
+  return NextResponse.json({ received: true })
 }

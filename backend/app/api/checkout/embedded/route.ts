@@ -63,6 +63,12 @@ export async function POST(req: NextRequest) {
         border_style:     'rounded',
       },
       customer_email: order.email || undefined,
+      // Siempre crea un Stripe Customer (aunque no haya addons recurrentes en
+      // esta orden puntual) — junto con setup_future_usage de abajo, guarda la
+      // tarjeta usada. Necesario para poder suscribir Annual Report si está
+      // en el carrito (ver lib/stripe-subscriptions.ts); sin costo ni cambio
+      // de UX si no hay nada recurrente, el customer simplemente no se usa.
+      customer_creation: 'always',
       // 'required' → Stripe pide la dirección de facturación completa (nombre +
       // dirección) dentro del Embedded Checkout. Con 'auto' solo pedía lo mínimo.
       billing_address_collection: 'required',
@@ -75,6 +81,10 @@ export async function POST(req: NextRequest) {
       // ⚠️ El base hay que configurarlo en el dashboard (test Y live por separado).
       payment_intent_data: {
         statement_descriptor_suffix: 'FORMATION',
+        // Guarda el método de pago en el Customer para cobros off-session
+        // futuros — lo usan las Subscriptions de servicios recurrentes
+        // (Annual Report) creadas después del pago, ver webhook.
+        setup_future_usage: 'off_session',
       },
       metadata: {
         kind:    'formation',
