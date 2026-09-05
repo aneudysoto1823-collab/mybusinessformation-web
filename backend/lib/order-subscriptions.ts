@@ -125,6 +125,9 @@ export async function upsertOrderSubscription(orderId: string, entry: OrderSubsc
 // que solo traen el subscription id de Stripe, no el orderId directo.
 export async function findOrderBySubscriptionId(stripeSubscriptionId: string): Promise<{ id: string; subscriptions: OrderSubscriptionEntry[]; sourceBrand: string | null; email: string } | null> {
   const supabase = getSupabaseAdmin()
+  // @brand-unified — se busca por subscription id de Stripe, la marca de la
+  // orden recién se conoce DESPUÉS de encontrarla (se devuelve en el result,
+  // sourceBrand) — no hay forma de filtrar por marca de antemano acá.
   const { data, error } = await supabase
     .from('Order')
     .select('id, subscriptions, sourceBrand, email')
