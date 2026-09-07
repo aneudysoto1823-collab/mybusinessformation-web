@@ -66,6 +66,10 @@ export async function POST(req: NextRequest) {
   if (event.type === 'customer.subscription.deleted') {
     return handleSubscriptionDeleted(event.data.object as Stripe.Subscription)
   }
+  if (event.type === 'customer.subscription.updated') {
+    const previousAttributes = (event.data as { previous_attributes?: Partial<Stripe.Subscription> }).previous_attributes ?? {}
+    return handleSubscriptionUpdated(event.data.object as Stripe.Subscription, previousAttributes)
+  }
 
   if (event.type !== 'checkout.session.completed') {
     return NextResponse.json({ received: true })
@@ -1080,9 +1084,62 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
   return NextResponse.json({ received: true })
 }
 
-// `customer.subscription.deleted` — cancelación (self-service desde el Billing
-// Portal, o manual desde el dashboard de Stripe). Solo marca ESA entrada como
-// canceled, sin tocar las demás Subscriptions de la misma orden.
+// `customer.subscription.updated` — se dispara por muchas razones (cambios de
+// cantidad, de precio, trial que termina, etc.). Acá solo nos importa UN caso
+// específico: el cliente acaba de pedir la cancelación desde el Billing
+// Portal ("Cancel subscription", que por default cancela al final del
+// período, no al toque) — Stripe marca `cancel_at_period_end:true` en ESE
+// mismo instante, mucho antes de que `customer.subscription.deleted` llegue
+// (que recién dispara el día real en que el período termina). Por eso el
+// aviso al cliente va acá, no en `deleted` — para que sepa de inmediato hasta
+// cuándo sigue teniendo el servicio, no se entere recién cuando ya terminó.
+//
+// Se detecta el flanco de subida comparando contra `previous_attributes`
+// (que Stripe manda con el evento) — sin esto, cada `updated` posterior
+// (ej. una renovación exitosa que también dispara `updated`) reenviaría el
+// mismo email de cancelación una y otra vez.
+async function handleSubscriptionUpdated(subscription: Stripe.Subscription, previousAttributes: Partial<Stripe.Subscription>) {
+  const justScheduledCancellation = previousAttributes.cancel_at_period_end === false && subscription.cancel_at_period_end === true
+  if (!justScheduledCancellation) return NextResponse.json({ received: true, skipped: 'not_new_cancellation' })
+
+  try {
+    const order = await findOrderBySubscriptionId(subscription.id)
+    if (!order) {
+      console.error('[stripe-webhook] subscription.updated: no order found for subscription', subscription.id)
+      return NextResponse.json({ received: true, skipped: 'no_order' })
+    }
+    const entry = order.subscriptions.find(e => e.stripeSubscriptionId === subscription.id)
+    if (!entry) return NextResponse.json({ received: true, skipped: 'no_entry' })
+
+    const brand = order.sourceBrand as EmailBrand
+    const serviceName = SERVICES_CATALOG[entry.service]?.name_en ?? entry.service
+    const endDate = subscription.cancel_at
+      ? new Date(subscription.cancel_at * 1000).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+      : null
+
+    await sendSubscriptionCanceledEmail(order.email, brand, serviceName, endDate)
+  } catch (err) {
+    console.error('[stripe-webhook] handleSubscriptionUpdated error:', err)
+  }
+  return NextResponse.json({ received: true })
+}
+
+// `customer.subscription.deleted` — el servicio YA terminó de verdad (llegó
+// la fecha de fin de un cancel-at-period-end, o fue una cancelación
+// inmediata). Solo marca ESA entrada como canceled, sin tocar las demás
+// Subscriptions de la misma orden.
+//
+// El email al cliente SOLO se manda acá si la cancelación fue INMEDIATA
+// (`cancel_at_period_end` nunca pasó a true) — si fue programada, el cliente
+// ya recibió el aviso apenas la pidió (ver handleSubscriptionUpdated arriba);
+// mandar otro acá sería un segundo email redundante, potencialmente meses
+// después, avisando algo que ya sabía.
+//
+// A diferencia de `invoice.payment_failed`, esta NO manda alerta interna: es
+// una cancelación que pidió el propio cliente (self-service), no algo que
+// requiera acción del equipo — mismo criterio que reembolsos vs chargebacks
+// (ver LOGICA_DE_NEGOCIO/35): solo se avisa internamente lo que necesita
+// acción, no lo que el founder ya sabe que puede pasar.
 async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
   try {
     const order = await findOrderBySubscriptionId(subscription.id)
@@ -1094,8 +1151,46 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
     if (!entry) return NextResponse.json({ received: true, skipped: 'no_entry' })
 
     await upsertOrderSubscription(order.id, { ...entry, status: 'canceled' })
+
+    const wasScheduledCancellation = subscription.cancel_at_period_end === true
+    if (!wasScheduledCancellation) {
+      const brand = order.sourceBrand as EmailBrand
+      const serviceName = SERVICES_CATALOG[entry.service]?.name_en ?? entry.service
+      await sendSubscriptionCanceledEmail(order.email, brand, serviceName, null)
+    }
   } catch (err) {
     console.error('[stripe-webhook] handleSubscriptionDeleted error:', err)
   }
   return NextResponse.json({ received: true })
+}
+
+// Compartido por ambos handlers de arriba — mismo email, con o sin fecha de
+// fin conocida (la cancelación inmediata no tiene una fecha futura que dar).
+async function sendSubscriptionCanceledEmail(to: string, brand: EmailBrand, serviceName: string, endDate: string | null) {
+  after(async () => {
+    try {
+      await getResend().emails.send({
+        from:    brandFrom(brand),
+        replyTo: brandReplyTo(brand),
+        to,
+        subject: `${brandSubjectPrefix(brand)}Your ${serviceName} subscription has been canceled`,
+        html: `
+          <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;color:#1e293b">
+            <table style="width:100%;border-collapse:collapse;padding:20px 28px;background:#fff;border-radius:10px 10px 0 0"><tr>${brandHeaderHtml(brand)}</tr></table>
+            <div style="background:#fff;padding:8px 28px 28px;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 10px 10px;font-size:14px;line-height:1.6">
+              <p>Your <strong>${serviceName}</strong> subscription has been canceled and will not renew.</p>
+              ${endDate
+                ? `<p>You'll continue to have access to this service through <strong>${endDate}</strong>. After that date, it will no longer be active on your account.</p>`
+                : `<p>This service is no longer active on your account.</p>`}
+              <p>If this was a mistake or you'd like to sign back up, you can order it again anytime.</p>
+              <div style="text-align:center;margin:20px 0">
+                <a href="${brandPortalHome(brand)}" style="display:inline-block;background:#2563EB;color:#fff;text-decoration:none;padding:12px 26px;border-radius:8px;font-size:14px;font-weight:700">View My Account</a>
+              </div>
+              <p style="color:#64748b;font-size:12.5px">${brandFooterLine(brand)}</p>
+            </div>
+          </div>
+        `,
+      })
+    } catch (e) { console.error('[stripe-webhook] subscription-canceled email error (non-fatal):', e) }
+  })
 }

@@ -38,7 +38,12 @@ export function computeTrialEnd(billing: 'monthly' | 'annual'): number {
 export interface RecurringServiceToCreate {
   service: string
   billing: 'monthly' | 'annual'
-  unitAmountCents: number
+  // Itemizados por separado (no un unitAmount combinado) — la factura de
+  // renovación debe verse igual que en TODO el resto del sitio (checkout,
+  // emails): service fee y tarifa estatal como 2 líneas distintas, aunque
+  // vivan en la misma Subscription/ciclo. Ver stripe-subscriptions.ts.
+  serviceFeeCents: number
+  stateFeeCents: number
 }
 
 // Resuelve, a partir de Order.package + Order.addons, qué servicios
@@ -60,14 +65,19 @@ export function getRecurringServicesFromOrder(pkg: string | null | undefined, ad
     if (!svc?.billing) return
     if (out.some(s => s.service === id)) return
     const override = brand === 'fbfc' ? FBFC_PRICE_OVERRIDES[id] : undefined
-    // + stateFee: a diferencia de una tarifa estatal de formación (se paga una
-    // sola vez), la de un servicio recurrente (hoy solo Annual Report,
-    // stateFee $139) se paga TODOS los años junto con la presentación — sin
-    // esto, la Subscription cobraría de menos a partir del año 2 (solo el
-    // service fee, sin cubrir lo que realmente hay que pagarle al estado).
-    // RA y VA tienen stateFee 0, así que no les afecta.
-    const unitAmount = (override ?? svc.renewalFee ?? svc.serviceFee) + svc.stateFee
-    out.push({ service: id, billing: svc.billing, unitAmountCents: Math.round(unitAmount * 100) })
+    const serviceFee = override ?? svc.renewalFee ?? svc.serviceFee
+    // stateFee como línea aparte: a diferencia de una tarifa estatal de
+    // formación (se paga una sola vez), la de un servicio recurrente (hoy
+    // solo Annual Report, stateFee $139) se paga TODOS los años junto con la
+    // presentación — sin esto, la Subscription cobraría de menos a partir del
+    // año 2. RA y VA tienen stateFee 0, así que no generan esta segunda línea
+    // (ver stripe-subscriptions.ts, que omite el item si stateFeeCents===0).
+    out.push({
+      service: id,
+      billing: svc.billing,
+      serviceFeeCents: Math.round(serviceFee * 100),
+      stateFeeCents: Math.round(svc.stateFee * 100),
+    })
   }
 
   if (pkgKey === 'services') {

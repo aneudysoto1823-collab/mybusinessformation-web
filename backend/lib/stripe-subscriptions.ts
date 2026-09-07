@@ -28,6 +28,14 @@
 // Products separados dejan la puerta abierta a que sus precios diverjan del
 // todo en el futuro sin ningún cambio de código (ver getServiceFee/
 // FBFC_PRICE_OVERRIDES en lib/services-pricing.ts).
+//
+// Tarifa estatal itemizada aparte (2026-09-07): Annual Report cobra también
+// $139 de tarifa estatal en cada renovación (a diferencia de una tarifa de
+// formación, que se paga una sola vez). Va como una 2da línea dentro de la
+// MISMA Subscription (mismo ciclo, se cancelan juntas) usando un Product
+// genérico compartido por marca (STRIPE_PRODUCT_ID_STATE_FEE_OPABIZ/_FBFC) —
+// nunca un monto combinado en un solo price_data. Requiere 8 Products en
+// total (6 de servicio + 2 de tarifa estatal), no 6.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import type Stripe from 'stripe'
@@ -40,6 +48,16 @@ const SERVICE_PRODUCT_ENV: Record<string, { opabiz: string; fbfc: string }> = {
   'registered-agent': { opabiz: 'STRIPE_PRODUCT_ID_REGISTERED_AGENT_OPABIZ', fbfc: 'STRIPE_PRODUCT_ID_REGISTERED_AGENT_FBFC' },
   'virtual-address':  { opabiz: 'STRIPE_PRODUCT_ID_VIRTUAL_ADDRESS_OPABIZ',  fbfc: 'STRIPE_PRODUCT_ID_VIRTUAL_ADDRESS_FBFC' },
   'annual-report':    { opabiz: 'STRIPE_PRODUCT_ID_ANNUAL_REPORT_OPABIZ',   fbfc: 'STRIPE_PRODUCT_ID_ANNUAL_REPORT_FBFC' },
+}
+
+// Product genérico reusado por CUALQUIER servicio recurrente con stateFeeCents
+// > 0 (hoy solo Annual Report) para la línea de tarifa estatal, itemizada
+// aparte del service fee dentro de la misma Subscription — mismo patrón de
+// "un Product por marca" que los de arriba (el nombre es lo que el cliente ve
+// en la factura).
+const STATE_FEE_PRODUCT_ENV: Record<'opabiz' | 'fbfc', string> = {
+  opabiz: 'STRIPE_PRODUCT_ID_STATE_FEE_OPABIZ',
+  fbfc: 'STRIPE_PRODUCT_ID_STATE_FEE_FBFC',
 }
 
 export async function createRecurringSubscriptionsForOrder(
@@ -71,17 +89,41 @@ export async function createRecurringSubscriptionsForOrder(
         continue
       }
 
+      const interval = svc.billing === 'monthly' ? 'month' : 'year'
+      const items: Stripe.SubscriptionCreateParams.Item[] = [{
+        price_data: {
+          currency: CURRENCY,
+          product: productId,
+          unit_amount: svc.serviceFeeCents,
+          recurring: { interval },
+        },
+      }]
+
+      // Tarifa estatal itemizada aparte (misma Subscription, mismo ciclo) —
+      // solo cuando el servicio la tiene (hoy solo Annual Report). Si falta el
+      // Product genérico, no se crea la Subscription a medias (cobraría de
+      // menos cada renovación) — mismo criterio que el guard de arriba.
+      if (svc.stateFeeCents > 0) {
+        const stateFeeEnvKey = STATE_FEE_PRODUCT_ENV[brandKey]
+        const stateFeeProductId = process.env[stateFeeEnvKey]
+        if (!stateFeeProductId) {
+          console.error(`[stripe-subscriptions] falta env var ${stateFeeEnvKey} — no se puede crear la subscription de "${svc.service}" (requiere tarifa estatal itemizada)`, orderId)
+          continue
+        }
+        items.push({
+          price_data: {
+            currency: CURRENCY,
+            product: stateFeeProductId,
+            unit_amount: svc.stateFeeCents,
+            recurring: { interval },
+          },
+        })
+      }
+
       const subscription = await stripe.subscriptions.create(
         {
           customer: stripeCustomerId,
-          items: [{
-            price_data: {
-              currency: CURRENCY,
-              product: productId,
-              unit_amount: svc.unitAmountCents,
-              recurring: { interval: svc.billing === 'monthly' ? 'month' : 'year' },
-            },
-          }],
+          items,
           trial_end: computeTrialEnd(svc.billing),
           metadata: { orderId, service: svc.service },
         },
