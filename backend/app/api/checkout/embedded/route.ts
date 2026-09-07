@@ -56,6 +56,40 @@ export async function POST(req: NextRequest) {
 
     const origin = resolveOrigin(req)
 
+    // Pre-llenar billing address (2026-09-07): si el cliente eligió "I will
+    // use my own address" (paso 2), esa dirección ya viaja estructurada en
+    // Order.addons.billingAddr (page.tsx fmBuildOrderPayload) — se crea un
+    // Stripe Customer con ella para que el Embedded Checkout la muestre
+    // pre-llenada (el cliente igual puede editarla antes de pagar). Con
+    // "Virtual Address" no hay nada guardado ahí (billingAddr queda null,
+    // se asigna recién después del pago) — mismo comportamiento que antes,
+    // Stripe pide la dirección desde cero.
+    // Validación server-side por las dudas (defensa en profundidad, nunca
+    // confiar ciegamente en lo que mandó el navegador): country debe ser un
+    // código ISO de 2 letras — si no, se ignora en vez de romper la sesión.
+    const rawBillingAddr = (order.addons as { billingAddr?: unknown } | null)?.billingAddr
+    const billingAddr = (rawBillingAddr && typeof rawBillingAddr === 'object')
+      ? rawBillingAddr as { line1?: string; line2?: string | null; city?: string; state?: string | null; postal_code?: string | null; country?: string }
+      : null
+    const hasValidBillingAddr = !!(billingAddr?.line1 && billingAddr?.city && billingAddr?.country && /^[A-Za-z]{2}$/.test(billingAddr.country))
+
+    let customerId: string | undefined
+    if (hasValidBillingAddr && billingAddr) {
+      const customer = await getStripe().customers.create({
+        email: order.email || undefined,
+        name: order.companyName || undefined,
+        address: {
+          line1: billingAddr.line1!,
+          line2: billingAddr.line2 || undefined,
+          city: billingAddr.city,
+          state: billingAddr.state || undefined,
+          postal_code: billingAddr.postal_code || undefined,
+          country: billingAddr.country!.toUpperCase(),
+        },
+      })
+      customerId = customer.id
+    }
+
     const session = await getStripe().checkout.sessions.create({
       ui_mode: 'embedded',
       mode: 'payment',
@@ -67,13 +101,13 @@ export async function POST(req: NextRequest) {
         button_color:     '#2563EB',
         border_style:     'rounded',
       },
-      customer_email: order.email || undefined,
-      // Siempre crea un Stripe Customer (aunque no haya addons recurrentes en
-      // esta orden puntual) — junto con setup_future_usage de abajo, guarda la
-      // tarjeta usada. Necesario para poder suscribir Annual Report si está
-      // en el carrito (ver lib/stripe-subscriptions.ts); sin costo ni cambio
-      // de UX si no hay nada recurrente, el customer simplemente no se usa.
-      customer_creation: 'always',
+      // customer_creation ('always') solo es válido cuando NO se pasa un
+      // customer explícito — con billing address pre-llenado, se referencia
+      // el Customer ya creado arriba en su lugar (mismo customer que
+      // Subscriptions/renovaciones usan después, no cambia ese flujo).
+      ...(customerId
+        ? { customer: customerId }
+        : { customer_email: order.email || undefined, customer_creation: 'always' as const }),
       // 'required' → Stripe pide la dirección de facturación completa (nombre +
       // dirección) dentro del Embedded Checkout. Con 'auto' solo pedía lo mínimo.
       billing_address_collection: 'required',

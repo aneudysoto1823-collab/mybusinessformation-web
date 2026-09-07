@@ -5845,6 +5845,25 @@ function fmBuildOrderPayload() {
 
   // ── Estado global fmData ──────────────────────────────────────────────────
   var fd      = (typeof fmData !== 'undefined') ? fmData : {};
+
+  // Direccion para pre-llenar el billing address de Stripe (2026-09-07): solo
+  // cuando eligio "I will use my own address" (paso 2, ahi hay campos ya
+  // tipeados por separado). Con Virtual Address no hay nada tipeado (se
+  // asigna recien despues del pago), se deja sin pre-llenar como antes.
+  var billingAddr = null;
+  if (fd.bizAddrType === 'own') {
+    var bStreet = val('inp-addr'), bCity = val('inp-city'), bCountry = val('inp-biz-country') || 'US';
+    if (bStreet && bCity && bCountry !== 'other') {
+      billingAddr = {
+        line1: bStreet,
+        line2: val('inp-street2') || null,
+        city: bCity,
+        state: val('inp-state') || null,
+        postal_code: val('inp-zip') || null,
+        country: bCountry
+      };
+    }
+  }
   var entity  = fd.entity  || 'llc';
   var pkg     = fd.package || 'basic';
   var speed   = fd.speed   || 'standard';
@@ -5925,7 +5944,7 @@ function fmBuildOrderPayload() {
     amount:          amount,
     members:         members,
     registeredAgent: ra,
-    addons:          { ein: !!addons.ein, oa: !!addons.oa, itin: !!addons.itin, ar: !!addons.ar, btr: !!addons.btr, str: !!addons.str, cc: !!addons.cc, dba: !!addons.dba, br: !!addons.br, gd: !!addons.gd, gs: !!addons.gs, sc: !!addons.sc, bl: !!addons.bl, raInfo: raInfo, lang: currentLang },
+    addons:          { ein: !!addons.ein, oa: !!addons.oa, itin: !!addons.itin, ar: !!addons.ar, btr: !!addons.btr, str: !!addons.str, cc: !!addons.cc, dba: !!addons.dba, br: !!addons.br, gd: !!addons.gd, gs: !!addons.gs, sc: !!addons.sc, bl: !!addons.bl, raInfo: raInfo, lang: currentLang, billingAddr: billingAddr },
     orgSignature:    orgSignature,
     einIdType:       einIdType,
     einTaxId:        einTaxId,
