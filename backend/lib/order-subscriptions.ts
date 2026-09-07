@@ -148,10 +148,6 @@ export async function upsertOrderSubscription(orderId: string, entry: OrderSubsc
 // que solo traen el subscription id de Stripe, no el orderId directo.
 export async function findOrderBySubscriptionId(stripeSubscriptionId: string): Promise<{ id: string; subscriptions: OrderSubscriptionEntry[]; sourceBrand: string | null; email: string } | null> {
   const supabase = getSupabaseAdmin()
-  // @brand-unified — se busca por subscription id de Stripe, la marca de la
-  // orden recién se conoce DESPUÉS de encontrarla (se devuelve en el result,
-  // sourceBrand) — no hay forma de filtrar por marca de antemano acá.
-  //
   // ⚠️ 2026-09-07: `.contains()` de @supabase/supabase-js ^2.99.2 rompe con
   // "invalid input syntax for type json" si se le pasa el array de JS
   // directo ([{ stripeSubscriptionId }]) — hay que pasarlo pre-serializado
@@ -162,6 +158,9 @@ export async function findOrderBySubscriptionId(stripeSubscriptionId: string): P
   // subscription.updated/deleted) desde que se implementó el feature
   // (commit 4e17e65, 2026-09-05) — nunca se había ejercitado hasta esta
   // sesión porque ninguna renovación real había ocurrido todavía.
+  // @brand-unified — se busca por subscription id de Stripe, la marca de la
+  // orden recién se conoce DESPUÉS de encontrarla (se devuelve en el result,
+  // sourceBrand) — no hay forma de filtrar por marca de antemano acá.
   const { data, error } = await supabase
     .from('Order')
     .select('id, subscriptions, sourceBrand, email')
