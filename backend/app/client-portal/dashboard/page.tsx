@@ -1,7 +1,7 @@
 import { cookies, headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { getSupabaseAdmin } from '@/lib/supabase'
-import { getOrderItemLabel } from '@/lib/order-items'
+import { getOrderItemKeys, getOrderItemLabel } from '@/lib/order-items'
 import DashboardContent from './DashboardContent'
 
 interface Order {
@@ -109,19 +109,34 @@ async function getDocuments(orderId: string, order: Order): Promise<DocumentItem
     return docs
   }
 
-  // Formation orders — Articles of Organization / Incorporation always shown
-  docs.push({
-    key: 'certificate',
-    label: 'Articles of Organization / Incorporation', labelEs: 'Artículos de Organización / Incorporación',
-    url: order.status === 'completed'
-      ? await signedUrl(`orders/${orderId}/certificate.pdf`)
-      : null,
-    pending: 'Pending — will be available once your business is approved',
-    pendingEs: 'Pendiente — estará disponible cuando tu negocio sea aprobado',
-  })
+  // Formation orders (basic/standard/premium) Y también órdenes de servicios
+  // (package:'services') que incluyeron una formación à la carte — antes esta
+  // sección solo entendía el shape de booleanos de formación (addons.ein===true)
+  // y por eso: (a) mostraba "Articles of Organization" SIEMPRE, incluso en
+  // órdenes de servicios que nunca compraron una formación, y (b) nunca
+  // mostraba Operating Agreement/EIN/ITIN comprados sueltos en /servicios/checkout,
+  // porque ahí addons.oa/addons.ein/addons.itin no existen (shape distinto:
+  // {services:[...],...}). Mismo fix shape-agnóstico que ya usa el checklist
+  // admin y los emails — ver lib/order-items.ts.
+  const itemKeys = getOrderItemKeys(order.package, order.addons)
+  const hasFormation = itemKeys.includes('formation') || itemKeys.includes('svc:llc-formation') || itemKeys.includes('svc:corp-formation')
+  const hasOA = addons.oa === true || pkgKey === 'premium' || itemKeys.includes('svc:operating-agreement')
+  const hasEin = addons.ein === true || pkgKey === 'standard' || pkgKey === 'premium' || itemKeys.includes('svc:ein')
+  const hasItin = addons.itin === true || pkgKey === 'premium' || itemKeys.includes('svc:itin')
 
-  // Operating Agreement
-  if (addons.oa || pkgKey === 'premium') {
+  if (hasFormation) {
+    docs.push({
+      key: 'certificate',
+      label: 'Articles of Organization / Incorporation', labelEs: 'Artículos de Organización / Incorporación',
+      url: order.status === 'completed'
+        ? await signedUrl(`orders/${orderId}/certificate.pdf`)
+        : null,
+      pending: 'Pending — will be available once your business is approved',
+      pendingEs: 'Pendiente — estará disponible cuando tu negocio sea aprobado',
+    })
+  }
+
+  if (hasOA) {
     docs.push({
       key: 'operating-agreement',
       label: 'Operating Agreement', labelEs: 'Acuerdo Operativo',
@@ -130,8 +145,7 @@ async function getDocuments(orderId: string, order: Order): Promise<DocumentItem
     })
   }
 
-  // EIN / Tax ID Letter
-  if (addons.ein || pkgKey === 'standard' || pkgKey === 'premium') {
+  if (hasEin) {
     docs.push({
       key: 'ein-letter',
       label: 'EIN / Tax ID Letter', labelEs: 'Carta EIN / ID Fiscal',
@@ -140,8 +154,7 @@ async function getDocuments(orderId: string, order: Order): Promise<DocumentItem
     })
   }
 
-  // ITIN Application
-  if (addons.itin || pkgKey === 'premium') {
+  if (hasItin) {
     docs.push({
       key: 'itin-application',
       label: 'ITIN Application', labelEs: 'Solicitud de ITIN',
