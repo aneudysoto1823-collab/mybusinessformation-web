@@ -2,6 +2,15 @@
 
 import { useState, useEffect } from 'react'
 import { getOrderItemKeys, getOrderItemLabel } from '@/lib/order-items'
+import { SERVICES_CATALOG } from '@/lib/services-pricing'
+
+interface SubscriptionEntry {
+  service: string
+  stripeSubscriptionId: string
+  status: 'trialing' | 'active' | 'past_due' | 'canceled'
+  currentPeriodEnd: string | null
+  cancelNoticeSent?: boolean
+}
 
 interface Order {
   id: string
@@ -154,6 +163,41 @@ export default function DashboardContent({
   const [pwSuccess, setPwSuccess] = useState(false)
   const [pwLoading, setPwLoading] = useState(false)
   const [subLoading, setSubLoading] = useState(false)
+  // Cancelación in-app (2026-09-07, ver memoria
+  // project_pendiente_cancelar_suscripcion_in_app) — separado de "Gestionar
+  // mi suscripción" (que sigue mandando a Stripe): cancelar no toca datos de
+  // tarjeta, así que no reintroduce el riesgo PCI que sí tendría manejar el
+  // cambio de tarjeta nosotros mismos.
+  const [cancelTarget, setCancelTarget] = useState<SubscriptionEntry | null>(null)
+  const [cancelLoading, setCancelLoading] = useState(false)
+  const [cancelError, setCancelError] = useState('')
+  // stripeSubscriptionId de las que se cancelaron en esta sesión — feedback
+  // inmediato sin esperar al webhook (que puede tardar unos segundos) ni
+  // recargar la página.
+  const [justCanceled, setJustCanceled] = useState<Set<string>>(new Set())
+
+  async function handleConfirmCancel() {
+    if (!cancelTarget) return
+    setCancelLoading(true)
+    setCancelError('')
+    try {
+      const res = await fetch('/api/subscriptions/cancel', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId: order.id, stripeSubscriptionId: cancelTarget.stripeSubscriptionId }),
+      })
+      const data = await res.json()
+      if (res.ok && data.success) {
+        setJustCanceled(prev => new Set(prev).add(cancelTarget.stripeSubscriptionId))
+        setCancelTarget(null)
+      } else {
+        setCancelError(data.error || (es ? 'No se pudo cancelar.' : 'Could not cancel.'))
+      }
+    } catch {
+      setCancelError(es ? 'No se pudo cancelar.' : 'Could not cancel.')
+    }
+    setCancelLoading(false)
+  }
 
   async function handleManageSubscription() {
     setSubLoading(true)
@@ -224,8 +268,19 @@ export default function DashboardContent({
 
   const es = lang === 'es'
 
-  const orderSubscriptions = Array.isArray(order.subscriptions) ? order.subscriptions as { status: string }[] : []
+  const orderSubscriptions = Array.isArray(order.subscriptions) ? order.subscriptions as SubscriptionEntry[] : []
   const hasActiveSubscriptions = orderSubscriptions.some(s => s.status !== 'canceled')
+
+  const SUB_STATUS_LABELS: Record<string, { en: string; es: string }> = {
+    trialing: { en: 'Active (first period free)', es: 'Activa (primer período gratis)' },
+    active:   { en: 'Active', es: 'Activa' },
+    past_due: { en: 'Payment issue', es: 'Problema de pago' },
+    canceled: { en: 'Canceled', es: 'Cancelada' },
+  }
+  function formatRenewalDate(iso: string | null): string {
+    if (!iso) return '—'
+    return new Date(iso).toLocaleDateString(es ? 'es-ES' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+  }
 
   const pkgKey = (order.package ?? '').toLowerCase()
   const pkgInfo = PACKAGE_INFO[pkgKey]
@@ -505,10 +560,45 @@ export default function DashboardContent({
         {hasActiveSubscriptions && (
           <button onClick={handleManageSubscription} disabled={subLoading}
             style={{ display: 'inline-block', marginTop: '18px', padding: '10px 20px', background: '#fff', color: '#2563EB', border: '1.5px solid #2563EB', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 600, cursor: subLoading ? 'default' : 'pointer', opacity: subLoading ? 0.6 : 1 }}>
-            {subLoading ? (es ? 'Abriendo…' : 'Opening…') : (es ? 'Gestionar mi suscripción' : 'Manage My Subscription')}
+            {subLoading ? (es ? 'Abriendo…' : 'Opening…') : (es ? 'Cambiar Método de Pago' : 'Change Payment Method')}
           </button>
         )}
       </div>
+
+      {/* Suscripciones recurrentes — cancelar queda in-app (2026-09-07), solo
+          cambiar tarjeta manda a Stripe (botón de arriba) */}
+      {orderSubscriptions.length > 0 && (
+        <div className="cp-card">
+          <h2>{es ? 'Mis Suscripciones' : 'My Subscriptions'}</h2>
+          {orderSubscriptions.map(sub => {
+            const catalogEntry = SERVICES_CATALOG[sub.service]
+            const name = catalogEntry ? (es ? catalogEntry.name_es : catalogEntry.name_en) : sub.service
+            const isCanceled = sub.status === 'canceled' || justCanceled.has(sub.stripeSubscriptionId)
+            const isPendingCancel = !isCanceled && sub.cancelNoticeSent
+            const statusInfo = SUB_STATUS_LABELS[sub.status] ?? SUB_STATUS_LABELS.active
+            return (
+              <div key={sub.stripeSubscriptionId} className="doc-item">
+                <div className="doc-info">
+                  <div className="doc-name">{name}</div>
+                  <div className="doc-status">
+                    {isCanceled
+                      ? (es ? 'Cancelada' : 'Canceled')
+                      : isPendingCancel
+                        ? (es ? `Se cancela el ${formatRenewalDate(sub.currentPeriodEnd)}` : `Cancels on ${formatRenewalDate(sub.currentPeriodEnd)}`)
+                        : `${es ? statusInfo.es : statusInfo.en} · ${es ? 'Próximo cobro' : 'Next charge'}: ${formatRenewalDate(sub.currentPeriodEnd)}`}
+                  </div>
+                </div>
+                {!isCanceled && !isPendingCancel && (
+                  <button onClick={() => setCancelTarget(sub)}
+                    style={{ background: '#fff', color: '#dc2626', border: '1.5px solid #fecaca', borderRadius: '8px', padding: '7px 16px', fontSize: '0.82rem', fontWeight: 600, cursor: 'pointer', flexShrink: 0 }}>
+                    {es ? 'Cancelar' : 'Cancel'}
+                  </button>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      )}
 
       {/* Documents */}
       <div className="cp-card">
@@ -532,6 +622,49 @@ export default function DashboardContent({
           </div>
         ))}
       </div>
+
+      {/* Confirmación de cancelación — modal propio, el cliente nunca sale
+          del sitio (a diferencia de "Cambiar Método de Pago", que sí manda
+          a Stripe). */}
+      {cancelTarget && (
+        <div
+          onClick={() => { if (!cancelLoading) { setCancelTarget(null); setCancelError('') } }}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }}
+        >
+          <div onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: '12px', padding: '28px', maxWidth: '380px', width: '100%', boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}>
+            <h3 style={{ fontSize: '17px', fontWeight: 700, color: '#1a1a2e', marginBottom: '10px' }}>
+              {es ? '¿Cancelar suscripción?' : 'Cancel subscription?'}
+            </h3>
+            <p style={{ fontSize: '14px', color: '#6b7280', lineHeight: 1.6, marginBottom: '18px' }}>
+              {es
+                ? `Va a cancelar `
+                : `You're about to cancel `}
+              <strong style={{ color: '#1a1a2e' }}>{SERVICES_CATALOG[cancelTarget.service] ? (es ? SERVICES_CATALOG[cancelTarget.service].name_es : SERVICES_CATALOG[cancelTarget.service].name_en) : cancelTarget.service}</strong>.
+              {' '}
+              {es
+                ? `Seguirá activa hasta el ${formatRenewalDate(cancelTarget.currentPeriodEnd)}, después no se renovará. Puede volver a ordenarlo cuando quiera.`
+                : `It'll stay active through ${formatRenewalDate(cancelTarget.currentPeriodEnd)}, then it won't renew. You can order it again anytime.`}
+            </p>
+            {cancelError && (
+              <p style={{ fontSize: '13px', color: '#dc2626', marginBottom: '14px' }}>{cancelError}</p>
+            )}
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button
+                onClick={() => { setCancelTarget(null); setCancelError('') }}
+                disabled={cancelLoading}
+                style={{ flex: 1, background: '#fff', color: '#374151', border: '1.5px solid #e5e7eb', borderRadius: '8px', padding: '10px', fontSize: '14px', fontWeight: 600, cursor: cancelLoading ? 'default' : 'pointer' }}>
+                {es ? 'Volver' : 'Go Back'}
+              </button>
+              <button
+                onClick={handleConfirmCancel}
+                disabled={cancelLoading}
+                style={{ flex: 1, background: '#dc2626', color: '#fff', border: 'none', borderRadius: '8px', padding: '10px', fontSize: '14px', fontWeight: 600, cursor: cancelLoading ? 'default' : 'pointer', opacity: cancelLoading ? 0.7 : 1 }}>
+                {cancelLoading ? (es ? 'Cancelando…' : 'Canceling…') : (es ? 'Sí, Cancelar' : 'Yes, Cancel')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
