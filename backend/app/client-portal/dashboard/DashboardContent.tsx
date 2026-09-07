@@ -525,7 +525,7 @@ export default function DashboardContent({
           </div>
           <div className="detail-item">
             <div className="detail-label">{es ? 'Tipo de Entidad' : 'Entity Type'}</div>
-            <div className="detail-value">{order.entityType || 'LLC'}</div>
+            <div className="detail-value">{(order.entityType || 'llc').toUpperCase()}</div>
           </div>
           <div className="detail-item">
             <div className="detail-label">{es ? 'Fecha de la Orden' : 'Order Date'}</div>
