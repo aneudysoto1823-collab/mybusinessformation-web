@@ -28,6 +28,7 @@ import {
   type EntityType,
 } from './corporate-tools'
 import { sendRaAddressReady } from './notifications'
+import { getOrderLang } from './order-items'
 import { Resend } from 'resend'
 import { REPLY_TO, INTERNAL_ALERT_EMAIL, FROM_OPABIZ_ALERTS } from './email-constants'
 
@@ -47,6 +48,7 @@ type OrderRow = {
   raAddress: unknown
   raProvisionedAt: string | null
   raAddressEmailSentAt: string | null
+  addons: unknown
 }
 
 type RaAddress = {
@@ -145,7 +147,7 @@ export async function provisionRaForOrder(
 
   const { data: orderRaw, error: fetchErr } = await supabase
     .from('Order')
-    .select('id, firstName, lastName, email, companyName, entityType, registeredAgent, raCompanyId, raServiceId, raInvoiceId, raAddress, raProvisionedAt, raAddressEmailSentAt')
+    .select('id, firstName, lastName, email, companyName, entityType, registeredAgent, raCompanyId, raServiceId, raInvoiceId, raAddress, raProvisionedAt, raAddressEmailSentAt, addons')
     .eq('id', orderId)
     .single()
 
@@ -269,8 +271,9 @@ export async function provisionRaForOrder(
         id: order.id,
         entityType: order.entityType,
         raAddress: address,
-        // TODO cuando se persista lang en Order: pasar order.lang. Por ahora
-        // default en (mismo criterio que el email de confirmacion de formacion).
+        // addons.lang ya se persiste en Order desde 2026-09-07 — antes este
+        // TODO quedaba pendiente y el email salía siempre en inglés.
+        lang: getOrderLang(order.addons),
       })
       await supabase.from('Order').update({ raAddressEmailSentAt: new Date().toISOString() }).eq('id', orderId)
     } catch (err) {

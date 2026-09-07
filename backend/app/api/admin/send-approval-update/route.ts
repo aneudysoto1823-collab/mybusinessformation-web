@@ -3,7 +3,7 @@ import { getSupabaseAdmin } from '@/lib/supabase'
 import { sendOrderApprovalUpdate } from '@/lib/notifications'
 import { logAdminAction } from '@/lib/audit-log'
 import { verifyAdminToken } from '@/lib/session'
-import { getOrderItemKeys } from '@/lib/order-items'
+import { getOrderItemKeys, getOrderLang } from '@/lib/order-items'
 
 async function verifyAdmin(request: NextRequest): Promise<boolean> {
   const session = request.cookies.get('admin_session')
@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
           companyName: order.companyName,
           entityType: order.entityType ?? undefined,
           unsubscribed: order.unsubscribed ?? false,
-          lang: 'en',
+          lang: getOrderLang(order.addons),
           sourceBrand: order.sourceBrand,
         },
         { approvedItems, pendingItems, attachments: attachments.length ? attachments : undefined }

@@ -37,6 +37,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { sendOrderProcessed } from '@/lib/notifications'
+import { getOrderLang } from '@/lib/order-items'
 
 export const dynamic = 'force-dynamic'
 
@@ -230,9 +231,9 @@ export async function GET(req: NextRequest) {
         speed: order.speed ?? undefined,
         addons: order.addons ?? null,
         unsubscribed: order.unsubscribed ?? false,
-        // Sin columna de idioma para órdenes de formación todavía -> default EN,
-        // igual que el envío manual desde el admin hoy.
-        lang: 'en',
+        // addons.lang ya se guarda para órdenes de formación desde 2026-09-07
+        // (antes no existía, quedaba fijo en 'en' — ver getOrderLang).
+        lang: getOrderLang(order.addons),
       })
       await supabase.from('Order').update({ orderProcessedEmailSentAt: now.toISOString() }).eq('id', order.id)
       results.push({ id: order.id, sent: true })

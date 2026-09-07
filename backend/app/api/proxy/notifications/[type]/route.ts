@@ -8,6 +8,7 @@ import {
   sendOrderProcessed,
 } from '@/lib/notifications'
 import { logAdminAction } from '@/lib/audit-log'
+import { getOrderLang } from '@/lib/order-items'
 
 // Resuelve el admin token de la cookie.
 async function verifyAdmin(request: NextRequest): Promise<boolean> {
@@ -90,7 +91,10 @@ export async function POST(
         email: order.email,
         names,
         unsubscribed: order.unsubscribed ?? false,
-        lang: lang === 'es' ? 'es' : 'en',
+        // Prioridad: override explícito del caller (?lang en el body, hoy
+        // nadie lo manda desde el admin) → idioma real con el que el cliente
+        // hizo la orden (addons.lang, automático desde 2026-09-07) → inglés.
+        lang: (lang === 'es' || lang === 'en') ? lang : getOrderLang(order.addons),
       })
       await logAdminAction({ action: 'email.names-taken', entity: 'Order', entityId: order.id, request })
       return NextResponse.json({ success: true, message: `Aviso enviado a ${order.email} y alerta a admin` })
@@ -106,7 +110,7 @@ export async function POST(
       const order = await getOrder(orderId)
       if (!order) return NextResponse.json({ success: false, message: 'Orden no encontrada' }, { status: 404 })
       await sendSuggestNames(
-        { id: order.id, firstName: order.firstName, lastName: order.lastName, email: order.email, companyName: order.companyName, lang: lang === 'es' ? 'es' : 'en' },
+        { id: order.id, firstName: order.firstName, lastName: order.lastName, email: order.email, companyName: order.companyName, lang: (lang === 'es' || lang === 'en') ? lang : getOrderLang(order.addons) },
         availableNames as string[]
       )
       await logAdminAction({
@@ -143,7 +147,7 @@ export async function POST(
         speed: order.speed ?? undefined,
         addons: order.addons ?? null,
         unsubscribed: order.unsubscribed ?? false,
-        lang: body.lang === 'es' ? 'es' : 'en',
+        lang: (body.lang === 'es' || body.lang === 'en') ? body.lang : getOrderLang(order.addons),
         sourceBrand: order.sourceBrand,
       })
       await getSupabaseAdmin().from('Order').update({ orderProcessedEmailSentAt: new Date().toISOString() }).eq('id', order.id)

@@ -61,6 +61,21 @@ export function formationItemLabel(entityType: string | undefined, lang: Lang): 
  * Nunca devuelve categorías crudas de addons ('services','bundles','intake','lines')
  * ni índices de array.
  */
+// Idioma con el que el cliente hizo la orden (guardado en addons.lang desde
+// 2026-09-07, ver page.tsx fmBuildOrderPayload / servicios/checkout
+// coBuildIntake). Shape-agnóstico igual que getOrderItemKeys: en formación y
+// à la carte addons es un objeto plano con .lang; en marketing (package:
+// 'addon') addons es un array sin ese campo, así que naturalmente cae a 'en'
+// (ese flujo nunca captura idioma). Órdenes creadas antes del 2026-09-07
+// tampoco lo tienen — mismo fallback seguro.
+export function getOrderLang(addons: unknown): Lang {
+  if (addons && typeof addons === 'object' && !Array.isArray(addons)) {
+    const lang = (addons as { lang?: unknown }).lang
+    if (lang === 'es') return 'es'
+  }
+  return 'en'
+}
+
 export function getOrderItemKeys(pkg: string | null | undefined, addons: unknown): string[] {
   const pkgKey = (pkg ?? '').toLowerCase().trim()
 
