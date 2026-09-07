@@ -11,7 +11,7 @@ const emailHeader = `
   <div style="padding:22px 32px;border-bottom:1px solid #e2e8f0">
     <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
       <td style="width:42px;padding-right:12px">
-        <div style="width:42px;height:42px;background:linear-gradient(135deg,#1C2E44,#2563EB);border-radius:10px;text-align:center;line-height:42px;color:#fff;font-family:Georgia,serif;font-size:16px;font-weight:700">OB</div>
+        <div style="width:42px;height:42px;background:#1C2E44;border-radius:10px;text-align:center;line-height:42px;color:#fff;font-family:Georgia,serif;font-size:16px;font-weight:700">OB</div>
       </td>
       <td style="vertical-align:middle">
         <div style="font-family:Georgia,serif;font-size:21px;font-weight:700;line-height:1.2"><span style="color:#1C2E44">Opa</span><span style="color:#2563EB">Biz</span></div>
@@ -88,7 +88,7 @@ export async function POST(req: NextRequest) {
             </p>
             <p style="color:#475569;line-height:1.7">${isEs ? 'Si desea agendar una nueva cita, visite nuestra página de reservas.' : "If you'd like to schedule a new appointment, visit our booking page."}</p>
             <div style="text-align:center;margin:24px 0">
-              <a href="${bookingUrl}" style="background:linear-gradient(135deg,#2563EB,#1C2E44);color:#fff;text-decoration:none;padding:13px 32px;border-radius:8px;font-weight:700;font-size:15px;display:inline-block">
+              <a href="${bookingUrl}" style="background:#2563EB;color:#fff;text-decoration:none;padding:13px 32px;border-radius:8px;font-weight:700;font-size:15px;display:inline-block">
                 ${isEs ? 'Agendar Nueva Cita' : 'Schedule New Appointment'}
               </a>
             </div>
