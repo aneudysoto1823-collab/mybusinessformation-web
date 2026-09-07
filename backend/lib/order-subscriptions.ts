@@ -151,10 +151,21 @@ export async function findOrderBySubscriptionId(stripeSubscriptionId: string): P
   // @brand-unified — se busca por subscription id de Stripe, la marca de la
   // orden recién se conoce DESPUÉS de encontrarla (se devuelve en el result,
   // sourceBrand) — no hay forma de filtrar por marca de antemano acá.
+  //
+  // ⚠️ 2026-09-07: `.contains()` de @supabase/supabase-js ^2.99.2 rompe con
+  // "invalid input syntax for type json" si se le pasa el array de JS
+  // directo ([{ stripeSubscriptionId }]) — hay que pasarlo pre-serializado
+  // como string JSON. Bug real confirmado con un script de prueba aislado
+  // (funciona con JSON.stringify, falla sin él) — no es un typo de sintaxis,
+  // es un quirk de esta versión del cliente. Este bug rompía silenciosamente
+  // los 4 handlers de Subscriptions (invoice.paid/payment_failed,
+  // subscription.updated/deleted) desde que se implementó el feature
+  // (commit 4e17e65, 2026-09-05) — nunca se había ejercitado hasta esta
+  // sesión porque ninguna renovación real había ocurrido todavía.
   const { data, error } = await supabase
     .from('Order')
     .select('id, subscriptions, sourceBrand, email')
-    .contains('subscriptions', [{ stripeSubscriptionId }])
+    .contains('subscriptions', JSON.stringify([{ stripeSubscriptionId }]))
     .maybeSingle()
   if (error) throw error
   if (!data) return null
