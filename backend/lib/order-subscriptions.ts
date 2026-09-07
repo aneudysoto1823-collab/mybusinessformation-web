@@ -146,7 +146,7 @@ export async function upsertOrderSubscription(orderId: string, entry: OrderSubsc
 // Busca la orden dueña de una Stripe Subscription dada — usado por los
 // handlers de invoice.paid / invoice.payment_failed / customer.subscription.deleted,
 // que solo traen el subscription id de Stripe, no el orderId directo.
-export async function findOrderBySubscriptionId(stripeSubscriptionId: string): Promise<{ id: string; subscriptions: OrderSubscriptionEntry[]; sourceBrand: string | null; email: string; firstName: string | null; lastName: string | null; companyName: string | null } | null> {
+export async function findOrderBySubscriptionId(stripeSubscriptionId: string): Promise<{ id: string; subscriptions: OrderSubscriptionEntry[]; sourceBrand: string | null; email: string; firstName: string | null; lastName: string | null; companyName: string | null; isEs: boolean } | null> {
   const supabase = getSupabaseAdmin()
   // ⚠️ 2026-09-07: `.contains()` de @supabase/supabase-js ^2.99.2 rompe con
   // "invalid input syntax for type json" si se le pasa el array de JS
@@ -163,11 +163,12 @@ export async function findOrderBySubscriptionId(stripeSubscriptionId: string): P
   // sourceBrand) — no hay forma de filtrar por marca de antemano acá.
   const { data, error } = await supabase
     .from('Order')
-    .select('id, subscriptions, sourceBrand, email, firstName, lastName, companyName')
+    .select('id, subscriptions, sourceBrand, email, firstName, lastName, companyName, addons')
     .contains('subscriptions', JSON.stringify([{ stripeSubscriptionId }]))
     .maybeSingle()
   if (error) throw error
   if (!data) return null
+  const addons = (data.addons && typeof data.addons === 'object' && !Array.isArray(data.addons)) ? data.addons as { lang?: string } : {}
   return {
     id: data.id,
     subscriptions: Array.isArray(data.subscriptions) ? data.subscriptions : [],
@@ -176,5 +177,9 @@ export async function findOrderBySubscriptionId(stripeSubscriptionId: string): P
     firstName: data.firstName ?? null,
     lastName: data.lastName ?? null,
     companyName: data.companyName ?? null,
+    // Idioma guardado en la orden (addons.lang, ver page.tsx fmBuildOrderPayload
+    // / servicios/checkout coBuildIntake) — órdenes de formación anteriores al
+    // 2026-09-07 no lo tienen (undefined) y caen a inglés como fallback seguro.
+    isEs: addons.lang === 'es',
   }
 }

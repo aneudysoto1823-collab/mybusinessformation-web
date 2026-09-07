@@ -237,12 +237,21 @@ export default async function ClientDashboardPage({
   const confirmationNumber = getConfirmationNumber(order.id, order.package)
   const steps = isAddon ? ADDON_STEPS : STEPS
   const documents = await getDocuments(order.id, order)
-  // initialLang: ?lang del home (prioridad) → cookie portal_lang → 'en'. Evita el
+  // initialLang: ?lang del home (override explícito, ej. toggle manual) →
+  // idioma con el que el cliente hizo ESTA orden (addons.lang, automático,
+  // 2026-09-07) → cookie portal_lang (memoria del navegador, más débil que
+  // el de la orden real) → 'en'. Antes el portal ignoraba por completo el
+  // idioma real de la orden y dependía solo de la cookie — si el cliente
+  // entraba desde otro dispositivo/navegador sin esa cookie, el portal le
+  // salía en inglés aunque hubiera comprado en español. Evita también el
   // parpadeo EN→ES en el primer render cuando vienes del home con ?lang.
+  const orderLang = (parseAddons(order.addons).lang as string | undefined)
   const portalLangCookie = cookieStore.get('portal_lang')?.value
   const initialLang: 'en' | 'es' =
     params.lang === 'es' ? 'es'
     : params.lang === 'en' ? 'en'
+    : orderLang === 'es' ? 'es'
+    : orderLang === 'en' ? 'en'
     : portalLangCookie === 'es' ? 'es'
     : 'en'
 

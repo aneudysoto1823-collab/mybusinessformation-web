@@ -1033,7 +1033,9 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
     await upsertOrderSubscription(order.id, { ...entry, status: 'past_due' })
 
     const brand = order.sourceBrand as EmailBrand
-    const serviceName = SERVICES_CATALOG[entry.service]?.name_en ?? entry.service
+    const isEs = order.isEs
+    const catalogEntry = SERVICES_CATALOG[entry.service]
+    const serviceName = catalogEntry ? (isEs ? catalogEntry.name_es : catalogEntry.name_en) : entry.service
     const hostedInvoiceUrl = invoice.hosted_invoice_url ?? brandPortalHome(brand)
 
     after(async () => {
@@ -1042,15 +1044,20 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
           from:    brandFrom(brand),
           replyTo: brandReplyTo(brand),
           to:      order.email,
-          subject: `${brandSubjectPrefix(brand)}Action needed: payment failed for your ${serviceName}`,
+          subject: isEs
+            ? `${brandSubjectPrefix(brand)}Acción requerida: no se pudo procesar el pago de su ${serviceName}`
+            : `${brandSubjectPrefix(brand)}Action needed: payment failed for your ${serviceName}`,
           html: `
             <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;color:#1e293b">
               <table style="width:100%;border-collapse:collapse;padding:20px 28px;background:#fff;border-radius:10px 10px 0 0"><tr>${brandHeaderHtml(brand)}</tr></table>
               <div style="background:#fff;padding:8px 28px 28px;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 10px 10px;font-size:14px;line-height:1.6">
-                <p>We were unable to process your renewal payment for <strong>${serviceName}</strong>.</p>
-                <p>Please update your payment method to keep this service active without interruption.</p>
+                ${isEs
+                  ? `<p>No pudimos procesar el pago de renovación de su <strong>${serviceName}</strong>.</p>
+                <p>Por favor actualice su método de pago para mantener este servicio activo sin interrupciones.</p>`
+                  : `<p>We were unable to process your renewal payment for <strong>${serviceName}</strong>.</p>
+                <p>Please update your payment method to keep this service active without interruption.</p>`}
                 <div style="text-align:center;margin:20px 0">
-                  <a href="${hostedInvoiceUrl}" style="display:inline-block;background:#2563EB;color:#fff;text-decoration:none;padding:12px 26px;border-radius:8px;font-size:14px;font-weight:700">Update Payment Method</a>
+                  <a href="${hostedInvoiceUrl}" style="display:inline-block;background:#2563EB;color:#fff;text-decoration:none;padding:12px 26px;border-radius:8px;font-size:14px;font-weight:700">${isEs ? 'Actualizar Método de Pago' : 'Update Payment Method'}</a>
                 </div>
                 <p style="color:#64748b;font-size:12.5px">${brandFooterLine(brand)}</p>
               </div>
@@ -1125,12 +1132,14 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
       await upsertOrderSubscription(order.id, { ...entry, cancelNoticeSent: true })
 
       const brand = order.sourceBrand as EmailBrand
-      const serviceName = SERVICES_CATALOG[entry.service]?.name_en ?? entry.service
+      const isEs = order.isEs
+      const catalogEntry = SERVICES_CATALOG[entry.service]
+      const serviceName = catalogEntry ? (isEs ? catalogEntry.name_es : catalogEntry.name_en) : entry.service
       const endDate = subscription.cancel_at
-        ? new Date(subscription.cancel_at * 1000).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+        ? new Date(subscription.cancel_at * 1000).toLocaleDateString(isEs ? 'es-ES' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' })
         : null
 
-      await sendSubscriptionCanceledEmail(order.id, order.email, brand, serviceName, endDate, subscription.id, { customerName: fullName(order.firstName, order.lastName), companyName: order.companyName })
+      await sendSubscriptionCanceledEmail(order.id, order.email, brand, serviceName, endDate, subscription.id, { customerName: fullName(order.firstName, order.lastName), companyName: order.companyName, isEs })
     } else if (!isScheduledForCancellation && entry.cancelNoticeSent) {
       // El cliente deshizo la cancelación ("Don't cancel subscription") — se
       // resetea el flag en silencio, sin email (nadie pidió avisar de una
@@ -1168,8 +1177,10 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
     await upsertOrderSubscription(order.id, { ...entry, status: 'canceled', cancelNoticeSent: true })
 
     const brand = order.sourceBrand as EmailBrand
-    const serviceName = SERVICES_CATALOG[entry.service]?.name_en ?? entry.service
-    await sendSubscriptionCanceledEmail(order.id, order.email, brand, serviceName, null, subscription.id, { skipClientEmail: alreadyNotified, customerName: fullName(order.firstName, order.lastName), companyName: order.companyName })
+    const isEs = order.isEs
+    const catalogEntry = SERVICES_CATALOG[entry.service]
+    const serviceName = catalogEntry ? (isEs ? catalogEntry.name_es : catalogEntry.name_en) : entry.service
+    await sendSubscriptionCanceledEmail(order.id, order.email, brand, serviceName, null, subscription.id, { skipClientEmail: alreadyNotified, customerName: fullName(order.firstName, order.lastName), companyName: order.companyName, isEs })
   } catch (err) {
     console.error('[stripe-webhook] handleSubscriptionDeleted error:', err)
   }
@@ -1198,8 +1209,9 @@ async function sendSubscriptionCanceledEmail(
   serviceName: string,
   endDate: string | null,
   subscriptionId: string,
-  opts: { skipClientEmail?: boolean; customerName?: string | null; companyName?: string | null } = {}
+  opts: { skipClientEmail?: boolean; customerName?: string | null; companyName?: string | null; isEs?: boolean } = {}
 ) {
+  const isEs = !!opts.isEs
   if (!opts.skipClientEmail) {
     after(async () => {
       try {
@@ -1207,18 +1219,26 @@ async function sendSubscriptionCanceledEmail(
           from:    brandFrom(brand),
           replyTo: brandReplyTo(brand),
           to,
-          subject: `${brandSubjectPrefix(brand)}Your ${serviceName} subscription has been canceled`,
+          subject: isEs
+            ? `${brandSubjectPrefix(brand)}Su suscripción de ${serviceName} fue cancelada`
+            : `${brandSubjectPrefix(brand)}Your ${serviceName} subscription has been canceled`,
           html: `
             <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;color:#1e293b">
               <table style="width:100%;border-collapse:collapse;padding:20px 28px;background:#fff;border-radius:10px 10px 0 0"><tr>${brandHeaderHtml(brand)}</tr></table>
               <div style="background:#fff;padding:8px 28px 28px;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 10px 10px;font-size:14px;line-height:1.6">
-                <p>Your <strong>${serviceName}</strong> subscription has been canceled and will not renew.</p>
+                ${isEs
+                  ? `<p>Su suscripción de <strong>${serviceName}</strong> fue cancelada y no se renovará.</p>
+                ${endDate
+                  ? `<p>Seguirá teniendo acceso a este servicio hasta el <strong>${endDate}</strong>. Después de esa fecha, dejará de estar activo en su cuenta.</p>`
+                  : `<p>Este servicio ya no está activo en su cuenta.</p>`}
+                <p>Si esto fue un error o desea volver a suscribirse, puede ordenarlo de nuevo cuando quiera.</p>`
+                  : `<p>Your <strong>${serviceName}</strong> subscription has been canceled and will not renew.</p>
                 ${endDate
                   ? `<p>You'll continue to have access to this service through <strong>${endDate}</strong>. After that date, it will no longer be active on your account.</p>`
                   : `<p>This service is no longer active on your account.</p>`}
-                <p>If this was a mistake or you'd like to sign back up, you can order it again anytime.</p>
+                <p>If this was a mistake or you'd like to sign back up, you can order it again anytime.</p>`}
                 <div style="text-align:center;margin:20px 0">
-                  <a href="${brandPortalHome(brand)}" style="display:inline-block;background:#2563EB;color:#fff;text-decoration:none;padding:12px 26px;border-radius:8px;font-size:14px;font-weight:700">View My Account</a>
+                  <a href="${brandPortalHome(brand)}" style="display:inline-block;background:#2563EB;color:#fff;text-decoration:none;padding:12px 26px;border-radius:8px;font-size:14px;font-weight:700">${isEs ? 'Ver Mi Cuenta' : 'View My Account'}</a>
                 </div>
                 <p style="color:#64748b;font-size:12.5px">${brandFooterLine(brand)}</p>
               </div>
