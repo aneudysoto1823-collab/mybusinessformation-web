@@ -1322,6 +1322,54 @@ Antes de "corregir" cualquier ítem de esta lista, confirmar primero si el found
 
 ---
 
+## Sesión 2026-09-07 — Stripe Live preparado para Subscriptions (RA/Virtual Address/Annual Report), sin activar
+
+Continuación del trabajo de Subscriptions reales implementado el 2026-09-05 (ver sección de Subscriptions más arriba / `lib/order-subscriptions.ts` + `lib/stripe-subscriptions.ts`) y verificado en test mode. Esta sesión preparó todo el lado de **Stripe Live**, a pedido explícito del founder de **NO cargar las keys `sk_live_`/`pk_live_` en Vercel todavía** — se cargan aparte, cuando decidan lanzar de verdad. Detalle completo en memoria `project_stripe_live_activacion_2026-09-07`.
+
+### ✅ 8 Products creados en Stripe Live (4 OpaBiz + 4 FBFC)
+
+Hubo que limpiar duplicados primero — un intento anterior interrumpido había dejado 2 copias de varios productos y uno con typo ("Registered Agente"). Se archivaron los sobrantes y quedaron:
+
+```
+Registered Agent-OpaBiz              prod_VAzhnBCHJSqEgc     $99/año
+Virtual Address-OpaBiz               prod_VAzkDGPS8WOcmg     $30/mes
+Annual Report Filing-OpaBiz          prod_VAzw62cdogHi8A     $99/año
+Florida State Filing Fee — OpaBiz    prod_VDZchrxo5ZirJX     $139/año
+Registered Agent-FBFC                prod_VDZnjTSkzI3gGG     $99/año
+Virtual Address-FBFC                 prod_VDZo3Y3l5XZv5T     $30/mes
+Annual Report Filing-FBFC            prod_VDZp4MBZX9nANj     $99/año
+Florida State Filing Fee-FBFC        prod_VDZqgUhICIxtxE     $139/año
+```
+
+Mismos precios para ambas marcas (confirmado con el founder). Ninguno cargado en Vercel todavía.
+
+### ✅ Webhook de Live actualizado — 8 eventos
+
+`https://www.opabiz.com/api/webhooks/stripe` (con `www`, ver gotcha de julio) ahora escucha: `checkout.session.completed`, `charge.refunded`, `charge.dispute.created`, `charge.dispute.closed`, `invoice.paid`, `invoice.payment_failed`, `customer.subscription.updated`, `customer.subscription.deleted`. Se agregaron los últimos 4 esta sesión (los primeros 4 ya venían de julio/config previa). **No se agregó `customer.subscription.created`** — la Subscription se crea directo desde el código al procesar la orden pagada, no hace falta reaccionar al evento por webhook (mismo criterio que en test mode).
+
+### ✅ Billing Portal Configurations por marca
+
+| Marca | Nombre | `bpc_...` |
+|---|---|---|
+| OpaBiz | Default | `bpc_1UAxVYCSqYWERc9AK7pkdgpm` |
+| FBFC | MyBusinessFormation | `bpc_1UD9G2CSqYWERc9AYz0vFp2Q` |
+
+Configuración de ambas: **Payment methods** activado (es la única acción que usa el sitio hoy vía `/api/billing-portal`), **Invoices** activado, **Cancellations y Subscriptions desactivados** (la cancelación real vive 100% en el dashboard del cliente — `POST /api/subscriptions/cancel` — dejar el portal de Stripe con esa opción abierta permitiría al cliente cancelar salteándose el modal de motivo/confirmación propio). **Business information** por marca: Portal header ("OpaBiz partners with Stripe for simplified billing." / "FBFC partners with Stripe for simplified billing.", límite ~60 caracteres) + Redirect link (`https://opabiz.com/client-portal/dashboard` / `https://mybusinessformation.com/client-portal/dashboard`). Los links de Terms/Privacy del portal son **globales de la cuenta** (no configurables por Configuration) — se dejaron sin tocar, apuntan a los de OpaBiz para ambas marcas (aceptable, misma entidad legal).
+
+### 🔜 Pendiente de decisión de producto — reemplazar el redirect a Stripe por un flujo embebido
+
+El founder pidió explícitamente que el cliente **nunca salga del portal propio**, ni siquiera para cambiar de tarjeta. Hoy el botón "Cambiar Método de Pago" (`DashboardContent.tsx` → `POST /api/billing-portal`) redirige a `billing.stripe.com` — es lo único que le queda al Billing Portal hosteado desde que Cancelar/Reactivar se separaron a endpoints propios (`/api/subscriptions/cancel`, `/api/subscriptions/reactivate`, ver sección de Subscriptions más arriba). Stripe no permite iframear su Billing Portal, así que la única forma de eliminar la redirección es un flujo propio con **SetupIntent + Stripe Payment Element embebido** (mismo patrón conceptual que el Embedded Checkout que ya usa el sitio) + `stripe.confirmSetup({redirect:'if_required'})` para no salir nunca del sitio. **No implementado** — queda como la próxima tarea real de código (ver memoria `project_pendiente_payment_method_embebido`). Hasta que se construya, la Billing Portal Configuration de arriba sigue siendo el fallback funcional.
+
+### ✅ Fix legal: disclosure de auto-renovación faltante en mybusinessformation.com/terms
+
+Al revisar si `/terms` tenía el aviso de auto-renovación que exige Florida antes de cobrar recurrente, se encontró que **`opabiz.com/terms` ya lo tenía** (sección "4.4 Recurring & Auto-Renewing Services", bilingüe, cubre Virtual Address/Registered Agent/Annual Report) — una nota de memoria de una sesión anterior decía que faltaba, pero nunca se había verificado contra el código real. El gap real estaba en **`backend/app/new-business/terms/page.tsx`** (mybusinessformation.com/terms — archivo separado, no comparte componente con el de OpaBiz pese al patrón host-aware del resto del sitio): su sección 4 solo tenía "4.1 Service Fees" con "All sales are final and non-refundable", sin excepción para los servicios recurrentes que FBFC también vende vía el carrito unificado. Se agregó la misma sección como **"4.2 Recurring & Auto-Renewing Services"** (mismo texto, sin el paréntesis "(OpaBiz)", `info@mybusinessformation.com` en vez de `info@opabiz.com`). Commit `40c3c77`.
+
+### 🐛 Bug encontrado, anotado para otra sesión: precio combinado sin avisar en mybusinessformation.com/servicios
+
+`backend/app/new-business/servicios/page.tsx:163` — `price: getServiceFee(id, 'fbfc') + def.stateFee` suma la tarifa estatal fija al precio mostrado en la tarjeta para **todo** servicio con `stateFee` fijo en `SERVICES_CATALOG` (no solo Annual Report): dba, annual-report, amendment, good-standing, dissolution, certified-copy. El más notorio es **Annual Report Filing**, que muestra "$238.00/yr" (=$99+$139) sin ninguna indicación de que incluye la tarifa estatal — su subtítulo ("Annual charge · renews until cancelled") no lo menciona, a diferencia de otros ítems combinados que al menos dicen "+ FL state fee" (aunque esa etiqueta también es engañosa ahí, porque el fee ya está sumado, no es aparte). No se tocó — detalle completo en memoria `project_pendiente_fbfc_servicios_precio_combinado`.
+
+---
+
 ## Deploy
 
 - `git push origin main` — Vercel detecta cambios en `backend/` y hace deploy automático
