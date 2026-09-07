@@ -146,7 +146,7 @@ export async function upsertOrderSubscription(orderId: string, entry: OrderSubsc
 // Busca la orden dueña de una Stripe Subscription dada — usado por los
 // handlers de invoice.paid / invoice.payment_failed / customer.subscription.deleted,
 // que solo traen el subscription id de Stripe, no el orderId directo.
-export async function findOrderBySubscriptionId(stripeSubscriptionId: string): Promise<{ id: string; subscriptions: OrderSubscriptionEntry[]; sourceBrand: string | null; email: string } | null> {
+export async function findOrderBySubscriptionId(stripeSubscriptionId: string): Promise<{ id: string; subscriptions: OrderSubscriptionEntry[]; sourceBrand: string | null; email: string; firstName: string | null; lastName: string | null; companyName: string | null } | null> {
   const supabase = getSupabaseAdmin()
   // ⚠️ 2026-09-07: `.contains()` de @supabase/supabase-js ^2.99.2 rompe con
   // "invalid input syntax for type json" si se le pasa el array de JS
@@ -163,7 +163,7 @@ export async function findOrderBySubscriptionId(stripeSubscriptionId: string): P
   // sourceBrand) — no hay forma de filtrar por marca de antemano acá.
   const { data, error } = await supabase
     .from('Order')
-    .select('id, subscriptions, sourceBrand, email')
+    .select('id, subscriptions, sourceBrand, email, firstName, lastName, companyName')
     .contains('subscriptions', JSON.stringify([{ stripeSubscriptionId }]))
     .maybeSingle()
   if (error) throw error
@@ -173,5 +173,8 @@ export async function findOrderBySubscriptionId(stripeSubscriptionId: string): P
     subscriptions: Array.isArray(data.subscriptions) ? data.subscriptions : [],
     sourceBrand: data.sourceBrand ?? null,
     email: data.email,
+    firstName: data.firstName ?? null,
+    lastName: data.lastName ?? null,
+    companyName: data.companyName ?? null,
   }
 }

@@ -1127,7 +1127,7 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
         ? new Date(subscription.cancel_at * 1000).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
         : null
 
-      await sendSubscriptionCanceledEmail(order.id, order.email, brand, serviceName, endDate, subscription.id)
+      await sendSubscriptionCanceledEmail(order.id, order.email, brand, serviceName, endDate, subscription.id, { customerName: fullName(order.firstName, order.lastName), companyName: order.companyName })
     } else if (!isScheduledForCancellation && entry.cancelNoticeSent) {
       // El cliente deshizo la cancelación ("Don't cancel subscription") — se
       // resetea el flag en silencio, sin email (nadie pidió avisar de una
@@ -1166,7 +1166,7 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
 
     const brand = order.sourceBrand as EmailBrand
     const serviceName = SERVICES_CATALOG[entry.service]?.name_en ?? entry.service
-    await sendSubscriptionCanceledEmail(order.id, order.email, brand, serviceName, null, subscription.id, { skipClientEmail: alreadyNotified })
+    await sendSubscriptionCanceledEmail(order.id, order.email, brand, serviceName, null, subscription.id, { skipClientEmail: alreadyNotified, customerName: fullName(order.firstName, order.lastName), companyName: order.companyName })
   } catch (err) {
     console.error('[stripe-webhook] handleSubscriptionDeleted error:', err)
   }
@@ -1183,6 +1183,11 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
 // alerta interna cuando el cliente ya fue notificado antes (cancelación
 // programada) — el equipo igual quiere saber que el servicio ya terminó de
 // verdad, aunque el cliente no necesite un segundo email.
+function fullName(firstName: string | null, lastName: string | null): string | null {
+  const name = [firstName, lastName].filter(Boolean).join(' ').trim()
+  return name || null
+}
+
 async function sendSubscriptionCanceledEmail(
   orderId: string,
   to: string,
@@ -1190,7 +1195,7 @@ async function sendSubscriptionCanceledEmail(
   serviceName: string,
   endDate: string | null,
   subscriptionId: string,
-  opts: { skipClientEmail?: boolean } = {}
+  opts: { skipClientEmail?: boolean; customerName?: string | null; companyName?: string | null } = {}
 ) {
   if (!opts.skipClientEmail) {
     after(async () => {
@@ -1233,7 +1238,9 @@ async function sendSubscriptionCanceledEmail(
             <table style="width:100%;border-collapse:collapse">
               <tr><td style="padding:6px 0;color:#64748b;width:40%">Order</td><td style="padding:6px 0;font-weight:600">${orderId}</td></tr>
               <tr><td style="padding:6px 0;color:#64748b">Service</td><td style="padding:6px 0;font-weight:600">${serviceName}</td></tr>
-              <tr><td style="padding:6px 0;color:#64748b">Customer</td><td style="padding:6px 0"><a href="mailto:${to}" style="color:#2563eb">${to}</a></td></tr>
+              ${opts.customerName ? `<tr><td style="padding:6px 0;color:#64748b">Customer name</td><td style="padding:6px 0;font-weight:600">${opts.customerName}</td></tr>` : ''}
+              ${opts.companyName ? `<tr><td style="padding:6px 0;color:#64748b">Company</td><td style="padding:6px 0;font-weight:600">${opts.companyName}</td></tr>` : ''}
+              <tr><td style="padding:6px 0;color:#64748b">Customer email</td><td style="padding:6px 0"><a href="mailto:${to}" style="color:#2563eb">${to}</a></td></tr>
               <tr><td style="padding:6px 0;color:#64748b">Ends</td><td style="padding:6px 0">${endDate ?? 'Immediately'}</td></tr>
               <tr><td style="padding:6px 0;color:#64748b">Subscription</td><td style="padding:6px 0">${subscriptionId}</td></tr>
             </table>
