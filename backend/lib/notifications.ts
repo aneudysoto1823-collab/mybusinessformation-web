@@ -502,7 +502,7 @@ export const sendOrderProcessed = async (order: {
               </a>
             </div>
             <p style="color:#475569;line-height:1.7">
-              ${isEs ? '¿Preguntas? Escríbanos por' : 'Questions? Reach us on'} <a href="https://wa.me/13528377755" style="color:#059669">WhatsApp</a> ${isEs ? 'o responda este correo.' : 'or reply to this email.'}
+              ${isEs ? '¿Preguntas? Escríbanos por' : 'Questions? Reach us on'} <a href="https://wa.me/13528377755" style="color:#059669">WhatsApp</a> ${isEs ? 'o a' : 'or at'} <a href="mailto:${brandReplyTo(brand)}" style="color:#2563eb">${brandReplyTo(brand)}</a>.
             </p>
             <p style="margin-top:24px;color:#94a3b8;font-size:12px;line-height:1.6">
               ${brandFooterLine(brand)}<br/>
@@ -568,22 +568,27 @@ export const sendOrderApprovalUpdate = async (
   const hasPending = pendingLabels.length > 0
   const hasFormation = delivery.approvedItems.includes('formation')
 
-  const heading = hasFiles
-    ? (isEs ? `¡Buenas noticias, ${order.firstName} ${order.lastName}!` : `Great news, ${order.firstName} ${order.lastName}!`)
-    : (isEs ? `Actualización de su orden, ${order.firstName} ${order.lastName}` : `Update on your order, ${order.firstName} ${order.lastName}`)
+  // Sin emojis (🎉/🏆 sacados 2026-09-07, feedback founder: "no se ve
+  // profesional para un servicio legal", mismo criterio ya aplicado en otros
+  // emails de la sesión 2026-08-07) — y "Felicitaciones" reservado de verdad
+  // para cuando se aprobó la FORMACIÓN (la empresa recién queda registrada),
+  // no para cualquier entrega (ej. solo la carta del EIN de una empresa que
+  // ya existía de antes, donde "felicitaciones, quedó registrada" no aplica).
+  const heading = hasFormation
+    ? (isEs ? `¡Felicitaciones, ${order.firstName} ${order.lastName}!` : `Congratulations, ${order.firstName} ${order.lastName}!`)
+    : hasFiles
+      ? (isEs ? `Sus documentos están listos, ${order.firstName} ${order.lastName}` : `Your documents are ready, ${order.firstName} ${order.lastName}`)
+      : (isEs ? `Actualización de su orden, ${order.firstName} ${order.lastName}` : `Update on your order, ${order.firstName} ${order.lastName}`)
 
-  // Menciona explícitamente la aprobación del Estado cuando corresponde
-  // (feedback founder: decir "fue aprobado por el Estado y adjunto su copia
-  // del..." en vez de un genérico "great news"/"documents are ready").
   const introText = (() => {
     if (isEs) {
-      if (hasFormation && hasFiles) return 'Su negocio fue aprobado por el Estado de Florida, y adjunto encontrará su copia del documento oficial.'
-      if (hasFormation) return 'Su negocio fue aprobado por el Estado de Florida. Su documento oficial le llegará por separado.'
+      if (hasFormation && hasFiles) return `Su empresa <strong>${order.companyName}</strong> ya está oficialmente registrada ante el Estado de Florida, y adjunto encontrará su copia del documento oficial.`
+      if (hasFormation) return `Su empresa <strong>${order.companyName}</strong> ya está oficialmente registrada ante el Estado de Florida. Su documento oficial le llegará por separado.`
       if (hasFiles) return 'Adjunto encontrará su copia del/de los documento(s).'
       return 'Le escribimos para contarle el avance de su orden.'
     }
-    if (hasFormation && hasFiles) return 'Your business was approved by the State of Florida, and attached you will find your copy of the official document.'
-    if (hasFormation) return 'Your business was approved by the State of Florida. Your official document will follow separately.'
+    if (hasFormation && hasFiles) return `Your company <strong>${order.companyName}</strong> is now officially registered with the State of Florida, and attached you will find your copy of the official document.`
+    if (hasFormation) return `Your company <strong>${order.companyName}</strong> is now officially registered with the State of Florida. Your official document will follow separately.`
     if (hasFiles) return 'Attached you will find your copy of the document(s).'
     return "We're writing to update you on your order's progress."
   })()
@@ -593,9 +598,11 @@ export const sendOrderApprovalUpdate = async (
     from: brandFrom(brand),
     replyTo: brandReplyTo(brand),
     to: order.email,
-    subject: hasFiles
-      ? (isEs ? `${subjectPrefix}🏆 Sus documentos están listos — ${order.companyName}` : `${subjectPrefix}🏆 Your documents are ready — ${order.companyName}`)
-      : (isEs ? `${subjectPrefix}🎉 Actualización de su orden — ${order.companyName}` : `${subjectPrefix}🎉 Update on your order — ${order.companyName}`),
+    subject: hasFormation
+      ? (isEs ? `${subjectPrefix}Su empresa está registrada — ${order.companyName}` : `${subjectPrefix}Your company is registered — ${order.companyName}`)
+      : hasFiles
+        ? (isEs ? `${subjectPrefix}Sus documentos están listos — ${order.companyName}` : `${subjectPrefix}Your documents are ready — ${order.companyName}`)
+        : (isEs ? `${subjectPrefix}Actualización de su orden — ${order.companyName}` : `${subjectPrefix}Update on your order — ${order.companyName}`),
     attachments: delivery.attachments,
     html: `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#1e293b">
@@ -626,7 +633,7 @@ export const sendOrderApprovalUpdate = async (
               ${isEs ? 'Le avisaremos por separado a medida que cada uno de estos quede listo.' : "We'll notify you separately as each of these is ready."}
             </p>` : ''}
             <p style="color:#475569;line-height:1.7">
-              ${isEs ? '¿Preguntas? Escríbanos por' : 'Questions? Reach us on'} <a href="https://wa.me/13528377755" style="color:#059669">WhatsApp</a> ${isEs ? 'o responda este correo.' : 'or reply to this email.'}
+              ${isEs ? '¿Preguntas? Escríbanos por' : 'Questions? Reach us on'} <a href="https://wa.me/13528377755" style="color:#059669">WhatsApp</a> ${isEs ? 'o a' : 'or at'} <a href="mailto:${brandReplyTo(brand)}" style="color:#2563eb">${brandReplyTo(brand)}</a>.
             </p>
             <p style="margin-top:24px;color:#94a3b8;font-size:12px;line-height:1.6">
               ${brandFooterLine(brand)}<br/>
@@ -723,7 +730,7 @@ export const sendRaAddressReady = async (order: {
               </a>
             </div>
             <p style="color:#475569;line-height:1.7">
-              ${isEs ? '¿Preguntas? Escríbanos por' : 'Questions? Reach us on'} <a href="https://wa.me/13528377755" style="color:#059669">WhatsApp</a> ${isEs ? 'o responda este correo.' : 'or reply to this email.'}
+              ${isEs ? '¿Preguntas? Escríbanos por' : 'Questions? Reach us on'} <a href="https://wa.me/13528377755" style="color:#059669">WhatsApp</a> ${isEs ? 'o a' : 'or at'} <a href="mailto:${REPLY_TO}" style="color:#2563eb">${REPLY_TO}</a>.
             </p>
             <p style="margin-top:24px;color:#94a3b8;font-size:12px;line-height:1.6">
               OpaBiz · opabiz.com<br/>
