@@ -38,7 +38,11 @@ const ADDON_STEPS = [
 ]
 
 function getAddonStepIndex(status: string): number {
-  if (status === 'completed') return 2
+  // 'completed' devuelve length (3), no el índice del último paso (2) — el
+  // timeline marca "done" con `i < currentStep`, así que con currentStep=2 el
+  // propio paso final ("Services Delivered") nunca calificaba como done y se
+  // quedaba mostrado como "actual" (con el badge "En Progreso") para siempre.
+  if (status === 'completed') return ADDON_STEPS.length
   if (status === 'in_review' || status === 'processing') return 1
   return 0
 }
@@ -188,7 +192,9 @@ function getCurrentStepIndex(status: string): number {
     case 'ready_to_file': return 3
     case 'filed':         return 4
     case 'approved':      return 5
-    case 'completed':     return 6
+    // length (7), no el índice del último paso (6) — mismo fix que
+    // getAddonStepIndex de arriba, mismo motivo.
+    case 'completed':     return STEPS.length
     default:              return 0
   }
 }

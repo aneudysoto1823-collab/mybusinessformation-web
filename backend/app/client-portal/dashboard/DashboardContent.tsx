@@ -463,7 +463,7 @@ export default function DashboardContent({
               const num = getConfirmationNumber(o.id, o.package)
               const oPkgKey = o.package?.toLowerCase()
               const pkgLabel = PACKAGE_INFO[oPkgKey]?.[es ? 'es' : 'en']
-                ?? (oPkgKey === 'services' ? (es ? 'Servicios a la Carta' : 'À La Carte Services') : o.package)
+                ?? (oPkgKey === 'services' ? (es ? 'Servicios Individuales' : 'Individual Services') : o.package)
               const isActive = o.id === order.id
               const sl = STATUS_LABELS[o.status] ?? { en: o.status, es: o.status }
               return (
@@ -545,7 +545,7 @@ export default function DashboardContent({
         <h2>{isAddon ? (es ? 'Tus Servicios' : 'Your Services') : (es ? 'Tu Paquete y Servicios' : 'Your Package & Services')}</h2>
         <div>
           <span className="pkg-name">
-            {pkgInfo ? (es ? pkgInfo.es : pkgInfo.en) : isServicesOrder ? (es ? 'Servicios a la Carta' : 'À La Carte Services') : order.package}
+            {pkgInfo ? (es ? pkgInfo.es : pkgInfo.en) : isServicesOrder ? (es ? 'Servicios Individuales' : 'Individual Services') : order.package}
           </span>
           {pkgInfo?.popular && <span className="pkg-popular">{es ? 'Más Popular' : 'Most Popular'}</span>}
         </div>
@@ -648,7 +648,7 @@ export default function DashboardContent({
                   </button>
                 ) : (
                   <button onClick={() => openCancelModal(sub)}
-                    style={{ background: '#fff', color: '#dc2626', border: '1.5px solid #fecaca', borderRadius: '8px', padding: '7px 16px', fontSize: '0.82rem', fontWeight: 600, cursor: 'pointer', flexShrink: 0 }}>
+                    style={{ background: '#fff', color: '#2563EB', border: '1.5px solid #2563EB', borderRadius: '8px', padding: '7px 16px', fontSize: '0.82rem', fontWeight: 600, cursor: 'pointer', flexShrink: 0 }}>
                     {es ? 'Cancelar' : 'Cancel'}
                   </button>
                 )}
