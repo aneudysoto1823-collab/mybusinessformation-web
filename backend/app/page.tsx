@@ -5925,7 +5925,7 @@ function fmBuildOrderPayload() {
     amount:          amount,
     members:         members,
     registeredAgent: ra,
-    addons:          { ein: !!addons.ein, oa: !!addons.oa, itin: !!addons.itin, ar: !!addons.ar, btr: !!addons.btr, str: !!addons.str, cc: !!addons.cc, dba: !!addons.dba, br: !!addons.br, gd: !!addons.gd, gs: !!addons.gs, sc: !!addons.sc, bl: !!addons.bl, raInfo: raInfo },
+    addons:          { ein: !!addons.ein, oa: !!addons.oa, itin: !!addons.itin, ar: !!addons.ar, btr: !!addons.btr, str: !!addons.str, cc: !!addons.cc, dba: !!addons.dba, br: !!addons.br, gd: !!addons.gd, gs: !!addons.gs, sc: !!addons.sc, bl: !!addons.bl, raInfo: raInfo, lang: currentLang },
     orgSignature:    orgSignature,
     einIdType:       einIdType,
     einTaxId:        einTaxId,

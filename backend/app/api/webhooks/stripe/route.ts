@@ -400,9 +400,12 @@ async function handleFormationPaid(orderId: string, session: Stripe.Checkout.Ses
   // del paquete van anidadas bajo su propia línea de precio (no en una
   // sección "What's included" aparte — quedaba repitiendo los addons que ya
   // se ven arriba con precio).
-  // ⚠️ Este email todavía no tiene rama de idioma (isEs) — Order (formación)
-  // no guarda el idioma del cliente en ningún campo hoy. Queda en inglés
-  // hasta que se decida cómo persistir ese dato en el flujo del home.
+  // Idioma del cliente (2026-09-07): page.tsx ahora guarda addons.lang al
+  // crear/actualizar la orden (fmBuildOrderPayload) — antes este email
+  // quedaba fijo en inglés porque Order (formación) nunca persistía el
+  // idioma elegido en el form. Órdenes creadas ANTES de este fix seguirán
+  // sin el campo (undefined → inglés, fallback seguro).
+  const isEs = (order.addons as { lang?: string } | null)?.lang === 'es'
   const packageKey = (order.package ?? '').toLowerCase().trim()
   const packageItems = PACKAGE_SERVICES[packageKey] ?? []
   const formationAddons = (order.addons ?? {}) as Record<string, boolean>
@@ -422,7 +425,7 @@ async function handleFormationPaid(orderId: string, session: Stripe.Checkout.Ses
       // exactamente igual que en el checkout de Stripe (misma fuente de verdad).
       registeredAgent: order.registeredAgent,
     })
-    const packageInclHtml = packageItems.map(i => `<div>${i.en}</div>`).join('')
+    const packageInclHtml = packageItems.map(i => `<div>${isEs ? i.es : i.en}</div>`).join('')
     formationRowsHtml = formationLines
       .map(l => {
         const priceRow = `<tr><td style="padding:5px 0;font-size:14px;color:#475569">${l.label}</td><td style="padding:5px 0;font-size:14px;color:#1e293b;font-weight:600;text-align:right;white-space:nowrap">${l.amount < 0 ? '-$' + Math.abs(l.amount) : '$' + l.amount}</td></tr>`
@@ -448,7 +451,7 @@ async function handleFormationPaid(orderId: string, session: Stripe.Checkout.Ses
     const guide1AlreadySent = await hasReceivedGuide(order.email, 'guide1')
     guidesToSend = guide1AlreadySent ? ['guide2'] : ['guide1', 'guide2']
     guideAttachments = await getGuideAttachments(guidesToSend)
-    guideBonusHtml = buildGuideBonusHtml(guidesToSend, 'en')
+    guideBonusHtml = buildGuideBonusHtml(guidesToSend, isEs ? 'es' : 'en')
   } catch (e) {
     console.error('[stripe-webhook] guide attachments error (non-fatal, email sent without guides):', e)
     guidesToSend = []
@@ -468,7 +471,7 @@ async function handleFormationPaid(orderId: string, session: Stripe.Checkout.Ses
     from: FROM_OPABIZ,
     replyTo: REPLY_TO,
     to: order.email,
-    subject: `OpaBiz: ✅ Order confirmed — ${order.companyName}`,
+    subject: isEs ? `OpaBiz: ✅ Orden confirmada — ${order.companyName}` : `OpaBiz: ✅ Order confirmed — ${order.companyName}`,
     attachments: guideAttachments,
     html: `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#1e293b">
@@ -485,50 +488,50 @@ async function handleFormationPaid(orderId: string, session: Stripe.Checkout.Ses
             </tr></table>
           </div>
           <div style="padding:32px">
-            <h2 style="color:#1C2E44;font-size:20px;margin-top:0">Thank you for your order, ${order.firstName} ${order.lastName}!</h2>
+            <h2 style="color:#1C2E44;font-size:20px;margin-top:0">${isEs ? `¡Gracias por su orden, ${order.firstName} ${order.lastName}!` : `Thank you for your order, ${order.firstName} ${order.lastName}!`}</h2>
             <div style="background:#EFF6FF;border-radius:8px;padding:14px 18px;margin:4px 0 22px;text-align:center">
-              <div style="font-size:11px;color:#2563EB;text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:4px">Order Number</div>
+              <div style="font-size:11px;color:#2563EB;text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:4px">${isEs ? 'Número de Orden' : 'Order Number'}</div>
               <div style="font-size:21px;font-weight:800;color:#1C2E44;letter-spacing:.5px">${fbfc}</div>
             </div>
             <p style="color:#475569;line-height:1.7">
-              Here's a summary of your order:
+              ${isEs ? 'Aquí tiene el resumen de su orden:' : "Here's a summary of your order:"}
             </p>
             <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:20px;margin:20px 0">
-              <p style="margin:6px 0;font-size:14px"><strong>Company Name:</strong> ${order.companyName}</p>
-              <p style="margin:6px 0 0;font-size:14px"><strong>Entity Type:</strong> ${(order.entityType ?? 'llc').toUpperCase()}</p>
+              <p style="margin:6px 0;font-size:14px"><strong>${isEs ? 'Nombre de la Empresa' : 'Company Name'}:</strong> ${order.companyName}</p>
+              <p style="margin:6px 0 0;font-size:14px"><strong>${isEs ? 'Tipo de Entidad' : 'Entity Type'}:</strong> ${(order.entityType ?? 'llc').toUpperCase()}</p>
             </div>
             <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:20px;margin:20px 0">
               <table style="width:100%;border-collapse:collapse">${formationRowsHtml}
-                <tr><td style="padding:10px 0 0;border-top:1px solid #e2e8f0;font-size:14px;font-weight:700;color:#1e293b">Total paid</td><td style="padding:10px 0 0;border-top:1px solid #e2e8f0;font-size:14px;font-weight:700;color:#1e293b;text-align:right;white-space:nowrap">$${amountPaid.toFixed(2)} USD</td></tr>
+                <tr><td style="padding:10px 0 0;border-top:1px solid #e2e8f0;font-size:14px;font-weight:700;color:#1e293b">${isEs ? 'Total pagado' : 'Total paid'}</td><td style="padding:10px 0 0;border-top:1px solid #e2e8f0;font-size:14px;font-weight:700;color:#1e293b;text-align:right;white-space:nowrap">$${amountPaid.toFixed(2)} USD</td></tr>
               </table>
             </div>
-            <p style="font-size:12px;font-weight:700;color:#1C2E44;text-transform:uppercase;letter-spacing:.5px;margin:0 0 12px">What happens next</p>
+            <p style="font-size:12px;font-weight:700;color:#1C2E44;text-transform:uppercase;letter-spacing:.5px;margin:0 0 12px">${isEs ? 'Qué sigue' : 'What happens next'}</p>
             <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;margin-bottom:24px">
               <tr>
                 <td style="width:26px;vertical-align:top;padding:2px 10px 14px 0"><div style="width:20px;height:20px;background:#EFF6FF;color:#2563EB;border-radius:50%;text-align:center;line-height:20px;font-size:11px;font-weight:800">1</div></td>
-                <td style="padding:0 0 14px;font-size:13.5px;color:#475569;line-height:1.6">We review your information and verify your company name with the Florida Division of Corporations</td>
+                <td style="padding:0 0 14px;font-size:13.5px;color:#475569;line-height:1.6">${isEs ? 'Revisamos su información y verificamos el nombre de su empresa ante la División de Corporaciones de Florida' : 'We review your information and verify your company name with the Florida Division of Corporations'}</td>
               </tr>
               <tr>
                 <td style="width:26px;vertical-align:top;padding:2px 10px 14px 0"><div style="width:20px;height:20px;background:#EFF6FF;color:#2563EB;border-radius:50%;text-align:center;line-height:20px;font-size:11px;font-weight:800">2</div></td>
-                <td style="padding:0 0 14px;font-size:13.5px;color:#475569;line-height:1.6">We prepare and file your paperwork</td>
+                <td style="padding:0 0 14px;font-size:13.5px;color:#475569;line-height:1.6">${isEs ? 'Preparamos y presentamos sus documentos' : 'We prepare and file your paperwork'}</td>
               </tr>
               <tr>
                 <td style="width:26px;vertical-align:top;padding:2px 10px 0 0"><div style="width:20px;height:20px;background:#EFF6FF;color:#2563EB;border-radius:50%;text-align:center;line-height:20px;font-size:11px;font-weight:800">3</div></td>
-                <td style="font-size:13.5px;color:#475569;line-height:1.6">We'll notify you as soon as your business is approved by the State of Florida</td>
+                <td style="font-size:13.5px;color:#475569;line-height:1.6">${isEs ? 'Le avisaremos en cuanto su empresa sea aprobada por el Estado de Florida' : "We'll notify you as soon as your business is approved by the State of Florida"}</td>
               </tr>
             </table>
             <p style="color:#475569;line-height:1.7">
-              To follow up on your order anytime, click below and log in with your email and the order number above.
+              ${isEs ? 'Para dar seguimiento a su orden cuando quiera, haga clic abajo e inicie sesión con su correo y el número de orden de arriba.' : 'To follow up on your order anytime, click below and log in with your email and the order number above.'}
             </p>
             <div style="text-align:center;margin:24px 0">
               <a href="${PORTAL_HOME}" style="background:#2563EB;color:#fff;text-decoration:none;padding:13px 32px;border-radius:8px;font-weight:700;font-size:15px;display:inline-block">
-                Track My Order
+                ${isEs ? 'Rastrear Mi Orden' : 'Track My Order'}
               </a>
             </div>
             ${guideBonusHtml}
             <p style="margin-top:24px;color:#94a3b8;font-size:12px;line-height:1.6">
               OpaBiz · opabiz.com<br/>
-              This is a transactional email. We are a document preparation service, not a law firm.
+              ${isEs ? 'Este es un correo transaccional. Somos un servicio de preparación de documentos, no un despacho de abogados.' : 'This is a transactional email. We are a document preparation service, not a law firm.'}
             </p>
           </div>
         </div>
