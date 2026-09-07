@@ -67,8 +67,7 @@ export async function POST(req: NextRequest) {
     return handleSubscriptionDeleted(event.data.object as Stripe.Subscription)
   }
   if (event.type === 'customer.subscription.updated') {
-    const previousAttributes = (event.data as { previous_attributes?: Partial<Stripe.Subscription> }).previous_attributes ?? {}
-    return handleSubscriptionUpdated(event.data.object as Stripe.Subscription, previousAttributes)
+    return handleSubscriptionUpdated(event.data.object as Stripe.Subscription)
   }
 
   if (event.type !== 'checkout.session.completed') {
@@ -1086,35 +1085,29 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
 
 // `customer.subscription.updated` — se dispara por muchas razones (cambios de
 // cantidad, de precio, trial que termina, etc.). Acá solo nos importa UN caso
-// específico: el cliente acaba de pedir la cancelación desde el Billing
-// Portal ("Cancel subscription", que por default cancela al final del
-// período, no al toque) — Stripe marca `cancel_at_period_end:true` en ESE
-// mismo instante, mucho antes de que `customer.subscription.deleted` llegue
-// (que recién dispara el día real en que el período termina). Por eso el
-// aviso al cliente va acá, no en `deleted` — para que sepa de inmediato hasta
-// cuándo sigue teniendo el servicio, no se entere recién cuando ya terminó.
+// específico: el cliente pidió la cancelación desde el Billing Portal (por
+// default cancela al final del período, no al toque) — Stripe lo refleja de
+// inmediato en la Subscription, mucho antes de que `customer.subscription.deleted`
+// llegue (que recién dispara el día real en que el período termina). Por eso
+// el aviso al cliente va acá, no en `deleted` — para que sepa de inmediato
+// hasta cuándo sigue teniendo el servicio, no se entere recién cuando ya
+// terminó.
 //
-// Se detecta el flanco de subida comparando contra `previous_attributes`
-// (que Stripe manda con el evento) — sin esto, cada `updated` posterior
-// (ej. una renovación exitosa que también dispara `updated`) reenviaría el
-// mismo email de cancelación una y otra vez.
-//
-// ⚠️ 2026-09-07: el Billing Portal puede marcar la cancelación programada de
-// 2 formas distintas según la versión/configuración — vía el boolean
-// `cancel_at_period_end`, o vía la fecha `cancel_at` directamente sin tocar
-// ese boolean (confirmado con un evento real donde `cancel_at_period_end`
-// nunca cambió pero `cancel_at` sí). Por eso se chequean los DOS mecanismos —
-// cualquiera de los dos que dispare el flanco de "recién se programó" cuenta.
-function justScheduledSubscriptionCancellation(subscription: Stripe.Subscription, previousAttributes: Partial<Stripe.Subscription>): boolean {
-  const cancelAtPeriodEndJustTrue = previousAttributes.cancel_at_period_end === false && subscription.cancel_at_period_end === true
-  const cancelAtJustSet = 'cancel_at' in previousAttributes && previousAttributes.cancel_at == null && subscription.cancel_at != null
-  return cancelAtPeriodEndJustTrue || cancelAtJustSet
-}
-
-async function handleSubscriptionUpdated(subscription: Stripe.Subscription, previousAttributes: Partial<Stripe.Subscription>) {
-  if (!justScheduledSubscriptionCancellation(subscription, previousAttributes)) {
-    return NextResponse.json({ received: true, skipped: 'not_new_cancellation' })
-  }
+// ⚠️ 2026-09-07: se descartó detectar el flanco comparando contra
+// `previous_attributes` del evento — confirmado con Resend (cero emails
+// enviados pese a varios intentos reales) que Stripe puede dividir una sola
+// cancelación del Billing Portal en varios eventos `updated` separados, y el
+// campo que de verdad cambia (`cancel_at_period_end` o `cancel_at`, según
+// versión de API) no siempre aparece en el evento que uno esperaría — hace
+// la detección por flanco poco confiable. En su lugar, cada `updated` mira el
+// ESTADO ACTUAL de la Subscription + un flag persistido en la orden
+// (`cancelNoticeSent`, ver order-subscriptions.ts): si está programada para
+// cancelarse y todavía no se avisó, manda el email UNA sola vez sin importar
+// en qué evento exacto llegó el cambio — inmune a cómo Stripe reparta los
+// eventos. Si el cliente deshace la cancelación, resetea el flag para poder
+// avisar de nuevo si cancela otra vez más adelante.
+async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
+  const isScheduledForCancellation = subscription.cancel_at_period_end === true || subscription.cancel_at != null
 
   try {
     const order = await findOrderBySubscriptionId(subscription.id)
@@ -1125,13 +1118,22 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription, prev
     const entry = order.subscriptions.find(e => e.stripeSubscriptionId === subscription.id)
     if (!entry) return NextResponse.json({ received: true, skipped: 'no_entry' })
 
-    const brand = order.sourceBrand as EmailBrand
-    const serviceName = SERVICES_CATALOG[entry.service]?.name_en ?? entry.service
-    const endDate = subscription.cancel_at
-      ? new Date(subscription.cancel_at * 1000).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
-      : null
+    if (isScheduledForCancellation && !entry.cancelNoticeSent) {
+      await upsertOrderSubscription(order.id, { ...entry, cancelNoticeSent: true })
 
-    await sendSubscriptionCanceledEmail(order.id, order.email, brand, serviceName, endDate, subscription.id)
+      const brand = order.sourceBrand as EmailBrand
+      const serviceName = SERVICES_CATALOG[entry.service]?.name_en ?? entry.service
+      const endDate = subscription.cancel_at
+        ? new Date(subscription.cancel_at * 1000).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+        : null
+
+      await sendSubscriptionCanceledEmail(order.id, order.email, brand, serviceName, endDate, subscription.id)
+    } else if (!isScheduledForCancellation && entry.cancelNoticeSent) {
+      // El cliente deshizo la cancelación ("Don't cancel subscription") — se
+      // resetea el flag en silencio, sin email (nadie pidió avisar de una
+      // reactivación), para que una cancelación futura sí vuelva a notificar.
+      await upsertOrderSubscription(order.id, { ...entry, cancelNoticeSent: false })
+    }
   } catch (err) {
     console.error('[stripe-webhook] handleSubscriptionUpdated error:', err)
   }
@@ -1139,17 +1141,16 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription, prev
 }
 
 // `customer.subscription.deleted` — el servicio YA terminó de verdad (llegó
-// la fecha de fin de un cancel-at-period-end, o fue una cancelación
+// la fecha de fin de una cancelación programada, o fue una cancelación
 // inmediata). Solo marca ESA entrada como canceled, sin tocar las demás
 // Subscriptions de la misma orden.
 //
-// El email al cliente SOLO se manda acá si la cancelación fue INMEDIATA (no
-// pasó por `cancel_at_period_end`/`cancel_at` antes) — si fue programada, el
-// cliente ya recibió el aviso apenas la pidió (ver handleSubscriptionUpdated
-// arriba); mandar otro acá sería un segundo email redundante, potencialmente
-// meses después, avisando algo que ya sabía. La alerta interna sí se manda
-// siempre acá (ver sendSubscriptionCanceledEmail) — es la primera vez que se
-// puede afirmar con certeza que el servicio ya terminó de verdad.
+// El email al cliente SOLO se manda acá si `cancelNoticeSent` seguía en false
+// (cancelación inmediata, sin paso previo por `handleSubscriptionUpdated`) —
+// si ya se había avisado antes, mandar otro acá sería redundante,
+// potencialmente meses después. La alerta interna sí se manda siempre acá
+// (ver sendSubscriptionCanceledEmail) — es la primera vez que se puede
+// afirmar con certeza que el servicio ya terminó de verdad.
 async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
   try {
     const order = await findOrderBySubscriptionId(subscription.id)
@@ -1160,12 +1161,12 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
     const entry = order.subscriptions.find(e => e.stripeSubscriptionId === subscription.id)
     if (!entry) return NextResponse.json({ received: true, skipped: 'no_entry' })
 
-    await upsertOrderSubscription(order.id, { ...entry, status: 'canceled' })
+    const alreadyNotified = entry.cancelNoticeSent === true
+    await upsertOrderSubscription(order.id, { ...entry, status: 'canceled', cancelNoticeSent: true })
 
-    const wasScheduledCancellation = subscription.cancel_at_period_end === true || subscription.cancel_at != null
     const brand = order.sourceBrand as EmailBrand
     const serviceName = SERVICES_CATALOG[entry.service]?.name_en ?? entry.service
-    await sendSubscriptionCanceledEmail(order.id, order.email, brand, serviceName, null, subscription.id, { skipClientEmail: wasScheduledCancellation })
+    await sendSubscriptionCanceledEmail(order.id, order.email, brand, serviceName, null, subscription.id, { skipClientEmail: alreadyNotified })
   } catch (err) {
     console.error('[stripe-webhook] handleSubscriptionDeleted error:', err)
   }

@@ -21,6 +21,19 @@ export interface OrderSubscriptionEntry {
   status: SubscriptionStatus
   currentPeriodEnd: string | null // ISO date
   createdAt: string // ISO date
+  // true una vez que le mandamos al cliente el email de "tu suscripción fue
+  // cancelada" (programada o inmediata) — persistido acá en vez de detectar
+  // el flanco comparando previous_attributes evento a evento: confirmado
+  // 2026-09-07 que Stripe puede dividir una sola cancelación del Billing
+  // Portal en varios eventos `customer.subscription.updated` separados, y el
+  // campo que realmente cambia (`cancel_at` o `cancel_at_period_end`, según
+  // versión de API) no siempre llega en el evento que uno esperaría. Con este
+  // flag, cualquier evento que vea "está programada para cancelarse y todavía
+  // no avisamos" manda el email una sola vez, sin importar en qué evento
+  // exacto llegó el cambio. Se resetea a false si el cliente deshace la
+  // cancelación ("Don't cancel subscription"), para poder avisar de nuevo si
+  // cancela otra vez más adelante.
+  cancelNoticeSent?: boolean
 }
 
 // epoch seconds — ahora + 1 período según la cadencia. Se usa como `trial_end`
