@@ -544,6 +544,10 @@ export const sendOrderApprovalUpdate = async (
     unsubscribed?: boolean
     lang?: 'en' | 'es'
     sourceBrand?: string | null
+    // Número que asigna el Estado de Florida al aprobar la formación (ej.
+    // "L26000123456") — opcional, no siempre está cargado (ver admin panel,
+    // sección "Enviar documento(s) al cliente").
+    stateDocumentNumber?: string | null
   },
   delivery: {
     /** claves de items aprobados/entregados EN ESTA RONDA (ej. ['formation','ein']) */
@@ -580,17 +584,20 @@ export const sendOrderApprovalUpdate = async (
       ? (isEs ? `Sus documentos están listos, ${order.firstName} ${order.lastName}` : `Your documents are ready, ${order.firstName} ${order.lastName}`)
       : (isEs ? `Actualización de su orden, ${order.firstName} ${order.lastName}` : `Update on your order, ${order.firstName} ${order.lastName}`)
 
+  // Nombre de la empresa siempre explícito en el texto (no solo en el
+  // subject/heading) — feedback founder: que el email se vea "lo más formal
+  // posible", con la identificación completa de a quién/qué corresponde.
   const introText = (() => {
     if (isEs) {
       if (hasFormation && hasFiles) return `Su empresa <strong>${order.companyName}</strong> ya está oficialmente registrada ante el Estado de Florida, y adjunto encontrará su copia del documento oficial.`
       if (hasFormation) return `Su empresa <strong>${order.companyName}</strong> ya está oficialmente registrada ante el Estado de Florida. Su documento oficial le llegará por separado.`
-      if (hasFiles) return 'Adjunto encontrará su copia del/de los documento(s).'
-      return 'Le escribimos para contarle el avance de su orden.'
+      if (hasFiles) return `Adjunto encontrará su copia del/de los documento(s) correspondientes a <strong>${order.companyName}</strong>.`
+      return `Le escribimos para contarle el avance de la orden de <strong>${order.companyName}</strong>.`
     }
     if (hasFormation && hasFiles) return `Your company <strong>${order.companyName}</strong> is now officially registered with the State of Florida, and attached you will find your copy of the official document.`
     if (hasFormation) return `Your company <strong>${order.companyName}</strong> is now officially registered with the State of Florida. Your official document will follow separately.`
-    if (hasFiles) return 'Attached you will find your copy of the document(s).'
-    return "We're writing to update you on your order's progress."
+    if (hasFiles) return `Attached you will find your copy of the document(s) for <strong>${order.companyName}</strong>.`
+    return `We're writing to update you on the progress of <strong>${order.companyName}</strong>'s order.`
   })()
 
   const subjectPrefix = brandSubjectPrefix(brand)
@@ -614,10 +621,18 @@ export const sendOrderApprovalUpdate = async (
           </div>
           <div style="padding:32px">
             <h2 style="color:#1C2E44;font-size:20px;margin-top:0">${heading}</h2>
-            <div style="background:#EFF6FF;border-radius:8px;padding:14px 18px;margin:4px 0 22px;text-align:center">
-              <div style="font-size:11px;color:#2563EB;text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:4px">${isEs ? 'Número de Orden' : 'Order Number'}</div>
-              <div style="font-size:21px;font-weight:800;color:#1C2E44;letter-spacing:.5px">${fbfc}</div>
-            </div>
+            <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;margin:4px 0 22px"><tr>
+              <td style="background:#EFF6FF;border-radius:8px;padding:14px 18px;text-align:center;${order.stateDocumentNumber ? 'width:50%' : ''}">
+                <div style="font-size:11px;color:#2563EB;text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:4px">${isEs ? 'Número de Orden' : 'Order Number'}</div>
+                <div style="font-size:21px;font-weight:800;color:#1C2E44;letter-spacing:.5px">${fbfc}</div>
+              </td>
+              ${order.stateDocumentNumber ? `
+              <td style="width:12px"></td>
+              <td style="background:#f0fdf4;border-radius:8px;padding:14px 18px;text-align:center;width:50%">
+                <div style="font-size:11px;color:#166534;text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:4px">${isEs ? 'Número de Documento Estatal' : 'State Document Number'}</div>
+                <div style="font-size:21px;font-weight:800;color:#166534;letter-spacing:.5px">${order.stateDocumentNumber}</div>
+              </td>` : ''}
+            </tr></table>
             <p style="color:#475569;line-height:1.7">${introText}</p>
             ${approvedLabels.length ? `
             <p style="font-size:12px;font-weight:700;color:#166534;text-transform:uppercase;letter-spacing:.5px;margin:16px 0 10px">${isEs ? 'Aprobado' : 'Approved'}</p>

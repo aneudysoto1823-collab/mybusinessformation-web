@@ -37,6 +37,9 @@ interface Order {
   orderProcessedEmailSentAt?: string | null
   deliveredItems?: Record<string, boolean> | null
   deliveredFiles?: { url: string; filename: string; uploadedAt: string }[] | null
+  // Número que asigna el Estado de Florida al aprobar la formación (ej.
+  // "L26000123456") — opcional, se carga desde "Enviar documento(s) al cliente".
+  stateDocumentNumber?: string | null
   // Registered Agent provisioning (RAI / Corporate Tools)
   raCompanyId?: string | null
   raServiceId?: string | null
@@ -199,6 +202,10 @@ export default function OrderDetailPage() {
   const [deliveryChecked, setDeliveryChecked] = useState<Record<string, boolean>>({})
   const [deliveryFiles, setDeliveryFiles] = useState<File[]>([])
   const [sendWithoutFile, setSendWithoutFile] = useState(false)
+  // Número que asigna el Estado de Florida al aprobar la formación (ej.
+  // "L26000123456") — opcional, no existía ningún campo para esto hasta
+  // 2026-09-07. Si se carga, se guarda en la orden y sale en el email.
+  const [stateDocumentNumber, setStateDocumentNumber] = useState('')
   const [certLoading, setCertLoading] = useState(false)
   const [certMsg, setCertMsg] = useState('')
 
@@ -369,6 +376,7 @@ export default function OrderDetailPage() {
     formData.append('orderId', order.id)
     formData.append('approvedItems', JSON.stringify(itemsToSend))
     formData.append('sendWithoutFile', String(sendWithoutFile))
+    if (stateDocumentNumber.trim()) formData.append('stateDocumentNumber', stateDocumentNumber.trim())
     deliveryFiles.forEach(f => formData.append('files', f))
     const res = await fetch('/api/admin/send-approval-update', {
       method: 'POST',
@@ -379,12 +387,13 @@ export default function OrderDetailPage() {
     if (res.ok) {
       setCertMsg(data.pendingItems?.length ? '✅ Enviado. Todavía quedan ítems pendientes.' : '✅ Enviado. Orden marcada como completed.')
       setOrder(prev => prev
-        ? { ...prev, status: data.status, deliveredItems: { ...(prev.deliveredItems ?? {}), ...Object.fromEntries(itemsToSend.map(k => [k, true])) } }
+        ? { ...prev, status: data.status, deliveredItems: { ...(prev.deliveredItems ?? {}), ...Object.fromEntries(itemsToSend.map(k => [k, true])) }, stateDocumentNumber: stateDocumentNumber.trim() || prev.stateDocumentNumber }
         : prev)
       setSelectedStatus(data.status)
       setDeliveryChecked({})
       setDeliveryFiles([])
       setSendWithoutFile(false)
+      setStateDocumentNumber('')
       if (fileInputRef.current) fileInputRef.current.value = ''
     } else {
       setCertMsg(`Error: ${data.error ?? 'No se pudo completar la operación.'}`)
@@ -1377,6 +1386,23 @@ export default function OrderDetailPage() {
                   {getOrderItemLabel(key, { entityType: order.entityType })} <span style={{ fontSize: '12px' }}>(ya entregado)</span>
                 </label>
               ))}
+            </div>
+            <div style={{ marginBottom: '14px' }}>
+              <label style={{ display: 'block', fontSize: '12.5px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>
+                Número de Documento del Estado (opcional — ej. L26000123456)
+              </label>
+              <input
+                type="text"
+                value={stateDocumentNumber}
+                onChange={e => setStateDocumentNumber(e.target.value)}
+                placeholder={order.stateDocumentNumber || 'Ej. L26000123456'}
+                style={{ width: '260px', padding: '7px 10px', border: '1.5px solid #e5e7eb', borderRadius: '6px', fontSize: '13.5px' }}
+              />
+              {order.stateDocumentNumber && (
+                <span style={{ marginLeft: '10px', fontSize: '12px', color: '#6b7280' }}>
+                  Ya guardado: <strong>{order.stateDocumentNumber}</strong> — dejar en blanco para mantenerlo.
+                </span>
+              )}
             </div>
             <input
               ref={fileInputRef}

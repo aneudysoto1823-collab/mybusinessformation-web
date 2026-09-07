@@ -25,6 +25,7 @@ export async function POST(request: NextRequest) {
     const orderId = formData.get('orderId') as string
     const approvedItemsRaw = formData.get('approvedItems') as string
     const sendWithoutFile = formData.get('sendWithoutFile') === 'true'
+    const stateDocumentNumberInput = (formData.get('stateDocumentNumber') as string | null)?.trim() || null
     const files = formData.getAll('files') as File[]
 
     if (!orderId || !approvedItemsRaw) {
@@ -48,7 +49,7 @@ export async function POST(request: NextRequest) {
 
     const { data: order, error: orderError } = await supabase
       .from('Order')
-      .select('id, firstName, lastName, email, companyName, entityType, package, addons, deliveredItems, deliveredFiles, unsubscribed, status, sourceBrand')
+      .select('id, firstName, lastName, email, companyName, entityType, package, addons, deliveredItems, deliveredFiles, unsubscribed, status, sourceBrand, stateDocumentNumber')
       .eq('id', orderId)
       .single()
 
@@ -85,6 +86,10 @@ export async function POST(request: NextRequest) {
     for (const key of approvedItems) newDelivered[key] = true
     const pendingItems = allItemKeys.filter(k => !newDelivered[k])
 
+    // Si no viene uno nuevo en este envío, conserva el que ya tenía la orden
+    // (de una ronda anterior) — nunca lo borra por mandar el form vacío.
+    const stateDocumentNumber = stateDocumentNumberInput ?? order.stateDocumentNumber ?? null
+
     // 3. Enviar el email unificado (aprobado ahora + qué sigue pendiente).
     try {
       await sendOrderApprovalUpdate(
@@ -98,6 +103,7 @@ export async function POST(request: NextRequest) {
           unsubscribed: order.unsubscribed ?? false,
           lang: getOrderLang(order.addons),
           sourceBrand: order.sourceBrand,
+          stateDocumentNumber,
         },
         { approvedItems, pendingItems, attachments: attachments.length ? attachments : undefined }
       )
@@ -120,6 +126,7 @@ export async function POST(request: NextRequest) {
         deliveredItems: newDelivered,
         deliveredFiles: [...existingFiles, ...uploadedFiles],
         status: newStatus,
+        stateDocumentNumber,
         updatedAt: now,
       })
       .eq('id', orderId)
