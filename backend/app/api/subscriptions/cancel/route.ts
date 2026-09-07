@@ -6,6 +6,15 @@ export const dynamic = 'force-dynamic'
 
 const getStripe = () => new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2026-02-25.clover' })
 
+// Categorías válidas de Stripe para cancellation_details.feedback — el
+// selector de motivo del modal (DashboardContent.tsx) manda una de estas.
+// Cualquier otro valor se ignora (defensa en profundidad, nunca confiar
+// ciegamente en el body) en vez de romper la cancelación por un motivo raro.
+const VALID_FEEDBACK = new Set([
+  'customer_service', 'low_quality', 'missing_features', 'other',
+  'switched_service', 'too_complex', 'too_expensive', 'unused',
+])
+
 // Cancela UNA Subscription de Registered Agent / Virtual Address / Annual
 // Report sin sacar al cliente del sitio (decisión founder 2026-09-01, ver
 // memoria project_pendiente_cancelar_suscripcion_in_app). Separado a
@@ -26,11 +35,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
   }
 
-  let orderId: string, stripeSubscriptionId: string
+  let orderId: string, stripeSubscriptionId: string, feedback: string | undefined, comment: string | undefined
   try {
     const body = await req.json()
     orderId = typeof body?.orderId === 'string' ? body.orderId : sessionOrderId
     stripeSubscriptionId = typeof body?.stripeSubscriptionId === 'string' ? body.stripeSubscriptionId : ''
+    feedback = (typeof body?.reason === 'string' && VALID_FEEDBACK.has(body.reason)) ? body.reason : undefined
+    comment = (typeof body?.comment === 'string' && body.comment.trim()) ? body.comment.trim().slice(0, 500) : undefined
   } catch {
     return NextResponse.json({ error: 'Body inválido' }, { status: 400 })
   }
@@ -72,7 +83,13 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    await getStripe().subscriptions.update(stripeSubscriptionId, { cancel_at_period_end: true })
+    await getStripe().subscriptions.update(stripeSubscriptionId, {
+      cancel_at_period_end: true,
+      // El equipo lo ve reflejado en la alerta interna que ya manda
+      // handleSubscriptionUpdated (webhooks/stripe/route.ts) — lee esto
+      // directo del objeto Subscription actualizado, no se duplica acá.
+      ...(feedback || comment ? { cancellation_details: { feedback: feedback as Stripe.SubscriptionUpdateParams.CancellationDetails['feedback'], comment } } : {}),
+    })
     return NextResponse.json({ success: true })
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)

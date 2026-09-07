@@ -1139,7 +1139,7 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
         ? new Date(subscription.cancel_at * 1000).toLocaleDateString(isEs ? 'es-ES' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' })
         : null
 
-      await sendSubscriptionCanceledEmail(order.id, order.email, brand, serviceName, endDate, subscription.id, { customerName: fullName(order.firstName, order.lastName), companyName: order.companyName, isEs })
+      await sendSubscriptionCanceledEmail(order.id, order.email, brand, serviceName, endDate, subscription.id, { customerName: fullName(order.firstName, order.lastName), companyName: order.companyName, isEs, cancellationDetails: subscription.cancellation_details })
     } else if (!isScheduledForCancellation && entry.cancelNoticeSent) {
       // El cliente deshizo la cancelación ("Don't cancel subscription") — se
       // resetea el flag en silencio, sin email (nadie pidió avisar de una
@@ -1202,6 +1202,20 @@ function fullName(firstName: string | null, lastName: string | null): string | n
   return name || null
 }
 
+// Traducción a texto legible de las 8 categorías fijas que acepta Stripe en
+// cancellation_details.feedback — usado solo en la alerta interna (staff),
+// por eso queda en inglés sin rama de idioma como el resto de esa alerta.
+const CANCELLATION_FEEDBACK_LABELS: Record<string, string> = {
+  customer_service: 'Customer service',
+  low_quality: 'Low quality',
+  missing_features: 'Missing features',
+  other: 'Other',
+  switched_service: 'Switched to a different service',
+  too_complex: 'Too complex',
+  too_expensive: 'Too expensive',
+  unused: 'Unused',
+}
+
 async function sendSubscriptionCanceledEmail(
   orderId: string,
   to: string,
@@ -1209,7 +1223,7 @@ async function sendSubscriptionCanceledEmail(
   serviceName: string,
   endDate: string | null,
   subscriptionId: string,
-  opts: { skipClientEmail?: boolean; customerName?: string | null; companyName?: string | null; isEs?: boolean } = {}
+  opts: { skipClientEmail?: boolean; customerName?: string | null; companyName?: string | null; isEs?: boolean; cancellationDetails?: Stripe.Subscription.CancellationDetails | null } = {}
 ) {
   const isEs = !!opts.isEs
   if (!opts.skipClientEmail) {
@@ -1265,6 +1279,8 @@ async function sendSubscriptionCanceledEmail(
               ${opts.companyName ? `<tr><td style="padding:6px 0;color:#64748b">Company</td><td style="padding:6px 0;font-weight:600">${opts.companyName}</td></tr>` : ''}
               <tr><td style="padding:6px 0;color:#64748b">Customer email</td><td style="padding:6px 0"><a href="mailto:${to}" style="color:#2563eb">${to}</a></td></tr>
               <tr><td style="padding:6px 0;color:#64748b">Ends</td><td style="padding:6px 0">${endDate ?? 'Immediately'}</td></tr>
+              ${opts.cancellationDetails?.feedback ? `<tr><td style="padding:6px 0;color:#64748b">Reason</td><td style="padding:6px 0;font-weight:600">${CANCELLATION_FEEDBACK_LABELS[opts.cancellationDetails.feedback] ?? opts.cancellationDetails.feedback}</td></tr>` : ''}
+              ${opts.cancellationDetails?.comment ? `<tr><td style="padding:6px 0;color:#64748b;vertical-align:top">Comment</td><td style="padding:6px 0">${opts.cancellationDetails.comment}</td></tr>` : ''}
               <tr><td style="padding:6px 0;color:#64748b">Subscription</td><td style="padding:6px 0">${subscriptionId}</td></tr>
             </table>
           </div>

@@ -171,10 +171,36 @@ export default function DashboardContent({
   const [cancelTarget, setCancelTarget] = useState<SubscriptionEntry | null>(null)
   const [cancelLoading, setCancelLoading] = useState(false)
   const [cancelError, setCancelError] = useState('')
-  // stripeSubscriptionId de las que se cancelaron en esta sesión — feedback
-  // inmediato sin esperar al webhook (que puede tardar unos segundos) ni
-  // recargar la página.
+  const [cancelReason, setCancelReason] = useState('')
+  const [cancelComment, setCancelComment] = useState('')
+  // stripeSubscriptionId de las que se cancelaron/reactivaron en esta sesión
+  // — feedback inmediato sin esperar al webhook (puede tardar unos segundos)
+  // ni recargar la página.
   const [justCanceled, setJustCanceled] = useState<Set<string>>(new Set())
+  const [justReactivated, setJustReactivated] = useState<Set<string>>(new Set())
+  const [reactivatingId, setReactivatingId] = useState<string | null>(null)
+
+  // Mismas 8 categorías fijas que acepta Stripe (cancellation_details.feedback)
+  // — así el motivo también queda guardado del lado de Stripe, no solo en
+  // nuestra alerta interna. "other" siempre habilita el campo de comentario;
+  // para el resto es opcional.
+  const CANCEL_REASONS: { value: string; en: string; es: string }[] = [
+    { value: 'too_expensive',    en: 'Too expensive',                 es: 'Muy caro' },
+    { value: 'unused',           en: "I'm not using it",               es: 'No lo estoy usando' },
+    { value: 'missing_features', en: "It's missing features I need",   es: 'Le faltan funciones que necesito' },
+    { value: 'too_complex',      en: 'Too complicated to use',         es: 'Muy complicado de usar' },
+    { value: 'low_quality',      en: 'Quality was not what I expected',es: 'La calidad no fue lo que esperaba' },
+    { value: 'customer_service', en: 'Customer service issue',         es: 'Problema con el servicio al cliente' },
+    { value: 'switched_service', en: 'Switched to a different provider', es: 'Cambié a otro proveedor' },
+    { value: 'other',            en: 'Other',                          es: 'Otro' },
+  ]
+
+  function openCancelModal(sub: SubscriptionEntry) {
+    setCancelReason('')
+    setCancelComment('')
+    setCancelError('')
+    setCancelTarget(sub)
+  }
 
   async function handleConfirmCancel() {
     if (!cancelTarget) return
@@ -184,7 +210,12 @@ export default function DashboardContent({
       const res = await fetch('/api/subscriptions/cancel', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orderId: order.id, stripeSubscriptionId: cancelTarget.stripeSubscriptionId }),
+        body: JSON.stringify({
+          orderId: order.id,
+          stripeSubscriptionId: cancelTarget.stripeSubscriptionId,
+          reason: cancelReason || undefined,
+          comment: cancelComment.trim() || undefined,
+        }),
       })
       const data = await res.json()
       if (res.ok && data.success) {
@@ -197,6 +228,22 @@ export default function DashboardContent({
       setCancelError(es ? 'No se pudo cancelar.' : 'Could not cancel.')
     }
     setCancelLoading(false)
+  }
+
+  async function handleReactivate(stripeSubscriptionId: string) {
+    setReactivatingId(stripeSubscriptionId)
+    try {
+      const res = await fetch('/api/subscriptions/reactivate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId: order.id, stripeSubscriptionId }),
+      })
+      const data = await res.json()
+      if (res.ok && data.success) {
+        setJustReactivated(prev => new Set(prev).add(stripeSubscriptionId))
+      }
+    } catch { /* el botón vuelve a habilitarse, el cliente puede reintentar */ }
+    setReactivatingId(null)
   }
 
   async function handleManageSubscription() {
@@ -574,8 +621,9 @@ export default function DashboardContent({
             const catalogEntry = SERVICES_CATALOG[sub.service]
             const name = catalogEntry ? (es ? catalogEntry.name_es : catalogEntry.name_en) : sub.service
             const isCanceled = sub.status === 'canceled' || justCanceled.has(sub.stripeSubscriptionId)
-            const isPendingCancel = !isCanceled && sub.cancelNoticeSent
+            const isPendingCancel = !isCanceled && sub.cancelNoticeSent && !justReactivated.has(sub.stripeSubscriptionId)
             const statusInfo = SUB_STATUS_LABELS[sub.status] ?? SUB_STATUS_LABELS.active
+            const isReactivating = reactivatingId === sub.stripeSubscriptionId
             return (
               <div key={sub.stripeSubscriptionId} className="doc-item">
                 <div className="doc-info">
@@ -588,8 +636,18 @@ export default function DashboardContent({
                         : `${es ? statusInfo.es : statusInfo.en} · ${es ? 'Próximo cobro' : 'Next charge'}: ${formatRenewalDate(sub.currentPeriodEnd)}`}
                   </div>
                 </div>
-                {!isCanceled && !isPendingCancel && (
-                  <button onClick={() => setCancelTarget(sub)}
+                {isCanceled ? (
+                  <a href={es ? `/servicios?lang=es&open=${sub.service}` : `/servicios?open=${sub.service}`} target="_blank" rel="noopener noreferrer"
+                    style={{ background: '#fff', color: '#2563EB', border: '1.5px solid #2563EB', borderRadius: '8px', padding: '7px 16px', fontSize: '0.82rem', fontWeight: 600, textDecoration: 'none', flexShrink: 0 }}>
+                    {es ? 'Ordenar de Nuevo' : 'Order Again'}
+                  </a>
+                ) : isPendingCancel ? (
+                  <button onClick={() => handleReactivate(sub.stripeSubscriptionId)} disabled={isReactivating}
+                    style={{ background: '#fff', color: '#2563EB', border: '1.5px solid #2563EB', borderRadius: '8px', padding: '7px 16px', fontSize: '0.82rem', fontWeight: 600, cursor: isReactivating ? 'default' : 'pointer', opacity: isReactivating ? 0.6 : 1, flexShrink: 0 }}>
+                    {isReactivating ? (es ? 'Reactivando…' : 'Reactivating…') : (es ? 'Reactivar' : 'Reactivate')}
+                  </button>
+                ) : (
+                  <button onClick={() => openCancelModal(sub)}
                     style={{ background: '#fff', color: '#dc2626', border: '1.5px solid #fecaca', borderRadius: '8px', padding: '7px 16px', fontSize: '0.82rem', fontWeight: 600, cursor: 'pointer', flexShrink: 0 }}>
                     {es ? 'Cancelar' : 'Cancel'}
                   </button>
@@ -631,11 +689,11 @@ export default function DashboardContent({
           onClick={() => { if (!cancelLoading) { setCancelTarget(null); setCancelError('') } }}
           style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }}
         >
-          <div onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: '12px', padding: '28px', maxWidth: '380px', width: '100%', boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: '12px', padding: '28px', maxWidth: '420px', width: '100%', boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}>
             <h3 style={{ fontSize: '17px', fontWeight: 700, color: '#1a1a2e', marginBottom: '10px' }}>
               {es ? '¿Cancelar suscripción?' : 'Cancel subscription?'}
             </h3>
-            <p style={{ fontSize: '14px', color: '#6b7280', lineHeight: 1.6, marginBottom: '18px' }}>
+            <p style={{ fontSize: '14px', color: '#6b7280', lineHeight: 1.6, marginBottom: '16px' }}>
               {es
                 ? `Va a cancelar `
                 : `You're about to cancel `}
@@ -645,6 +703,30 @@ export default function DashboardContent({
                 ? `Seguirá activa hasta el ${formatRenewalDate(cancelTarget.currentPeriodEnd)}, después no se renovará. Puede volver a ordenarlo cuando quiera.`
                 : `It'll stay active through ${formatRenewalDate(cancelTarget.currentPeriodEnd)}, then it won't renew. You can order it again anytime.`}
             </p>
+            <div style={{ marginBottom: '14px' }}>
+              <label style={{ display: 'block', fontSize: '12.5px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>
+                {es ? '¿Por qué cancela? (opcional)' : 'Why are you canceling? (optional)'}
+              </label>
+              <select value={cancelReason} onChange={e => setCancelReason(e.target.value)}
+                style={{ width: '100%', padding: '9px 10px', border: '1.5px solid #e5e7eb', borderRadius: '8px', fontSize: '13.5px', color: '#1a1a2e', background: '#fff' }}>
+                <option value="">{es ? 'Seleccionar…' : 'Select…'}</option>
+                {CANCEL_REASONS.map(r => (
+                  <option key={r.value} value={r.value}>{es ? r.es : r.en}</option>
+                ))}
+              </select>
+            </div>
+            {cancelReason && (
+              <div style={{ marginBottom: '14px' }}>
+                <label style={{ display: 'block', fontSize: '12.5px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>
+                  {cancelReason === 'other'
+                    ? (es ? 'Cuéntenos brevemente qué pasó' : 'Tell us briefly what happened')
+                    : (es ? 'Detalle adicional (opcional)' : 'Additional detail (optional)')}
+                </label>
+                <textarea value={cancelComment} onChange={e => setCancelComment(e.target.value)} maxLength={500} rows={3}
+                  placeholder={es ? 'Opcional' : 'Optional'}
+                  style={{ width: '100%', padding: '9px 10px', border: '1.5px solid #e5e7eb', borderRadius: '8px', fontSize: '13.5px', color: '#1a1a2e', fontFamily: 'inherit', resize: 'vertical' }} />
+              </div>
+            )}
             {cancelError && (
               <p style={{ fontSize: '13px', color: '#dc2626', marginBottom: '14px' }}>{cancelError}</p>
             )}
