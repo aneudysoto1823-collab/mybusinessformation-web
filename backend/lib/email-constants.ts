@@ -98,7 +98,7 @@ export function brandHeaderHtml(brand: EmailBrand): string {
   // garantizado en cualquier cliente de correo, sin depender de soporte CSS.
   return `
               <td style="width:42px;padding-right:12px">
-                <div style="width:42px;height:42px;background:#1C2E44;border-radius:10px;text-align:center;line-height:42px;color:#fff;font-family:Georgia,serif;font-size:16px;font-weight:700">OB</div>
+                <div style="width:42px;height:42px;background:#22364E;border-radius:10px;text-align:center;line-height:42px;color:#fff;font-family:Georgia,serif;font-size:16px;font-weight:700">OB</div>
               </td>
               <td style="vertical-align:middle">
                 <div style="font-family:Georgia,serif;font-size:21px;font-weight:700;line-height:1.2"><span style="color:#1C2E44">Opa</span><span style="color:#2563EB">Biz</span></div>

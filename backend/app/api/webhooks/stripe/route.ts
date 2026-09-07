@@ -476,7 +476,7 @@ async function handleFormationPaid(orderId: string, session: Stripe.Checkout.Ses
           <div style="padding:22px 32px;border-bottom:1px solid #e2e8f0">
             <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
               <td style="width:42px;padding-right:12px">
-                <div style="width:42px;height:42px;background:#1C2E44;border-radius:10px;text-align:center;line-height:42px;color:#fff;font-family:Georgia,serif;font-size:16px;font-weight:700">OB</div>
+                <div style="width:42px;height:42px;background:#22364E;border-radius:10px;text-align:center;line-height:42px;color:#fff;font-family:Georgia,serif;font-size:16px;font-weight:700">OB</div>
               </td>
               <td style="vertical-align:middle">
                 <div style="font-family:Georgia,serif;font-size:21px;font-weight:700;line-height:1.2"><span style="color:#1C2E44">Opa</span><span style="color:#2563EB">Biz</span></div>
@@ -664,7 +664,7 @@ async function handleServicesPaid(orderId: string, session: Stripe.Checkout.Sess
   const brandReplyTo = isFBFC ? REPLY_TO_FBFC : REPLY_TO
   const brandLogoHtml = isFBFC
     ? `<img src="https://mybusinessformation.com/fbfc-seal.png" width="42" height="42" alt="Florida Business Formation Center" style="display:block"/>`
-    : `<div style="width:42px;height:42px;background:#1C2E44;border-radius:10px;text-align:center;line-height:42px;color:#fff;font-family:Georgia,serif;font-size:16px;font-weight:700">OB</div>`
+    : `<div style="width:42px;height:42px;background:#22364E;border-radius:10px;text-align:center;line-height:42px;color:#fff;font-family:Georgia,serif;font-size:16px;font-weight:700">OB</div>`
   const brandNameHtml = isFBFC
     ? `<div style="font-family:Georgia,serif;font-size:16px;font-weight:700;line-height:1.25;color:#1C2E44">Florida Business<br/>Formation Center</div>`
     : `<div style="font-family:Georgia,serif;font-size:21px;font-weight:700;line-height:1.2"><span style="color:#1C2E44">Opa</span><span style="color:#2563EB">Biz</span></div>
