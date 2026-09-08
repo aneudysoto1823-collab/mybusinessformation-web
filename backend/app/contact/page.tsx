@@ -140,6 +140,10 @@ nav a:hover{color:var(--navy);background:var(--gray100)}
 .en-inline{display:inline}.es-inline{display:none}
 /* FOOTER */
 footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px;margin-top:auto}
+/* El aviso legal del footer (.footer-disclaimer) no debe quedar tapado por
+   el widget de Claudia en mobile (72px + 28px offset, sin achicar en
+   mobile, ~126px de alcance desde el borde inferior del viewport). */
+@media(max-width:768px){footer{padding-bottom:calc(170px + env(safe-area-inset-bottom,0px))}}
 .footer-inner{max-width:1280px;margin:0 auto}
 .footer-divider{border:none;border-top:1px solid rgba(255,255,255,.1);margin-bottom:18px}
 .footer-bottom{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:14px}

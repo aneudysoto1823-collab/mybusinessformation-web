@@ -474,7 +474,15 @@ nav a:hover{color:var(--navy);background:var(--gray100)}
 footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;margin-top:auto}
 .footer-inner{max-width:1280px;margin:0 auto}
 .footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px;margin-bottom:40px}
-@media(max-width:768px){.footer-grid{grid-template-columns:1fr}}
+@media(max-width:768px){.footer-grid{grid-template-columns:1fr}
+  /* El aviso legal (.footer-disclaimer) es texto completo, no debe quedar
+     tapado por overlays fijos — en mobile el footer va full-width, así que
+     el widget de Claudia (72px + 28px offset, sin achicar en mobile) y la
+     barra de carrito (cuando hay items) le pasan por encima si no hay
+     espacio de sobra abajo. 170px cubre el alcance de Claudia (~126px) con
+     margen y también la barra de carrito colapsada. */
+  footer{padding-bottom:calc(170px + env(safe-area-inset-bottom,0px))}
+}
 .footer-brand p{font-size:.79rem;line-height:1.7;color:rgba(255,255,255,.5);max-width:260px;margin-top:10px}
 .footer-col h5{font-family:var(--font-serif);font-size:.92rem;color:#fff;margin-bottom:14px;font-weight:600}
 .footer-col a{display:block;font-size:.8rem;color:rgba(255,255,255,.5);margin-bottom:8px;transition:color .2s;cursor:pointer}
@@ -671,6 +679,11 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
    panel de detalle arriba de ella se expande/colapsa aparte (.expanded). */
 @media(min-width:861px){.svc-cart-wrap{display:none}}
 .svc-cart-wrap{position:fixed;left:0;right:0;bottom:0;z-index:900;transform:translateY(120%);transition:transform .28s cubic-bezier(.4,0,.2,1)}
+/* Al expandir el detalle, sube por encima del widget de Claudia (z-index:9999
+   en ChatWidget.tsx) — sin esto Claudia queda flotando visualmente encima del
+   panel del carrito, tapando parte del contenido en la esquina inferior
+   derecha. El panel es opaco (fondo blanco), así que taparla no rompe nada. */
+.svc-cart-wrap.expanded{z-index:10000}
 .svc-cart-wrap.show{transform:translateY(0)}
 .svc-cart-detail{background:#fff;max-height:0;overflow:hidden;transition:max-height .25s ease;box-shadow:0 -2px 14px rgba(0,0,0,.08)}
 .svc-cart-wrap.expanded .svc-cart-detail{max-height:45vh;overflow-y:auto;padding:12px 20px 2px}

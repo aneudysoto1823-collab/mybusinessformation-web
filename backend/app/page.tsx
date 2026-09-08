@@ -872,7 +872,11 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
   .help-bar{padding:18px 20px;flex-direction:column;align-items:flex-start}
   .help-btns{width:100%;display:flex}
   .btn-wa,.btn-cal{flex:1;justify-content:center}
-  footer{padding:40px 20px 20px}
+  /* Padding inferior generoso (antes 20px) — el aviso legal del footer
+     (.footer-disclaimer) es texto completo, no debe quedar tapado por el
+     widget de Claudia (72px + 28px offset, sin achicar en mobile, ~126px de
+     alcance desde el borde inferior del viewport). */
+  footer{padding:40px 20px calc(170px + env(safe-area-inset-bottom,0px))}
   .footer-grid{grid-template-columns:1fr;gap:24px}
   .footer-bottom{flex-direction:column;gap:10px}
   .footer-disclaimer{max-width:100%}
