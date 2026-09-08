@@ -698,15 +698,18 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
    la barra se perdía contra el navy del footer detrás (mismo tono, sin
    separación visual). El botón "Continuar" se invierte a blanco para seguir
    resaltando encima del azul. */
-.svc-cart-bar{background:var(--blue);box-shadow:0 -6px 24px rgba(37,99,235,.35);padding:env(safe-area-inset-bottom,0) 0 0}
+/* Blanco con filete azul claro arriba — el azul sólido anterior se veía
+   demasiado saturado; blanco + borde suave se distingue igual del navy del
+   footer sin competir tanto visualmente. */
+.svc-cart-bar{background:#fff;border-top:2px solid var(--blue-light);box-shadow:0 -6px 24px rgba(28,46,68,.14);padding:env(safe-area-inset-bottom,0) 0 0}
 .svc-cart-bar-inner{max-width:760px;margin:0 auto;padding:13px 20px;display:flex;align-items:center;justify-content:space-between;gap:14px}
 .svc-cart-bar-info{display:flex;align-items:center;gap:10px;min-width:0;cursor:pointer;flex:1}
 .svc-cart-bar-icon{font-size:1.2rem;flex-shrink:0}
-.svc-cart-bar-text{color:#fff;font-size:.92rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.svc-cart-bar-chevron{color:rgba(255,255,255,.75);font-size:.7rem;flex-shrink:0;transition:transform .25s}
+.svc-cart-bar-text{color:var(--navy);font-size:.92rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.svc-cart-bar-chevron{color:var(--gray400);font-size:.7rem;flex-shrink:0;transition:transform .25s}
 .svc-cart-wrap.expanded .svc-cart-bar-chevron{transform:rotate(180deg)}
-.svc-cart-bar-btn{background:#fff;color:var(--blue);border:none;padding:12px 22px;border-radius:10px;font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;min-height:44px;transition:background .2s;flex-shrink:0}
-.svc-cart-bar-btn:hover{background:var(--blue-light)}
+.svc-cart-bar-btn{background:var(--blue);color:#fff;border:none;padding:12px 22px;border-radius:10px;font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;min-height:44px;transition:background .2s;flex-shrink:0}
+.svc-cart-bar-btn:hover{background:#1d4ed8}
 /* CART CHECKOUT MODAL */
 .cart-overlay{position:fixed;inset:0;z-index:1000;background:rgba(15,28,46,.55);backdrop-filter:blur(2px);display:none;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto}
 .cart-overlay.active{display:flex}

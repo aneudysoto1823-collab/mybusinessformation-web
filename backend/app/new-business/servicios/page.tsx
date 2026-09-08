@@ -311,13 +311,17 @@ button{font-family:inherit}
 .svc-bar-detail{background:#fff;max-height:0;overflow:hidden;transition:max-height .25s ease;box-shadow:0 -2px 14px rgba(0,0,0,.08)}
 .svc-bar-wrap.expanded .svc-bar-detail{max-height:45vh;overflow-y:auto;padding:12px 20px 2px}
 .svc-bar-wrap.expanded .svc-bar-detail .os-item:last-child{border-bottom:none}
-.svc-bar{display:flex;align-items:center;justify-content:center;gap:24px;background:var(--blue);color:#fff;padding:14px 32px;box-shadow:0 -6px 24px rgba(37,99,235,.35)}
+/* Blanco con filete azul claro arriba — el azul sólido se veía demasiado
+   saturado; blanco + borde suave se distingue igual del navy del footer sin
+   competir tanto visualmente. Mismo criterio que opabiz.com/servicios. */
+.svc-bar{display:flex;align-items:center;justify-content:center;gap:24px;background:#fff;color:var(--navy);border-top:2px solid var(--blue-light);padding:14px 32px;box-shadow:0 -6px 24px rgba(28,46,68,.14)}
 .svc-bar-info{display:flex;align-items:center;gap:8px;cursor:pointer;flex:1;justify-content:center}
 .svc-bar-count{font-size:.88rem;font-weight:600}
-.svc-bar-chevron{color:rgba(255,255,255,.75);font-size:.7rem;transition:transform .25s}
+.svc-bar-chevron{color:var(--gray400);font-size:.7rem;transition:transform .25s}
 .svc-bar-wrap.expanded .svc-bar-chevron{transform:rotate(180deg)}
 .svc-bar-total{font-weight:800;font-size:1.05rem}
-.svc-bar-btn{background:#fff;color:var(--blue);border:none;border-radius:8px;padding:11px 26px;font-size:.88rem;font-weight:700;cursor:pointer;font-family:inherit;min-height:44px}
+.svc-bar-btn{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:11px 26px;font-size:.88rem;font-weight:700;cursor:pointer;font-family:inherit;min-height:44px;transition:background .2s}
+.svc-bar-btn:hover{background:#1d4ed8}
 .svc-footer{background:var(--navy);color:rgba(255,255,255,.6);padding:20px 32px;font-size:.75rem;text-align:center;line-height:1.7}
 .svc-footer a{color:rgba(255,255,255,.8);margin:0 6px}
 .svc-footer a:hover{color:#fff}
@@ -339,7 +343,7 @@ button{font-family:inherit}
         </button>
         <div class="svc-chevron" id="chev-${s.id}">${svgIcons.chevron}</div>
       </div>
-      <div class="svc-card-body">
+      <div class="svc-card-body" onmouseenter="svcCancelHoverClose()" onmouseleave="svcHoverClose('${s.id}')">
         <p class="svc-card-desc"><span class="en">${s.descEn}</span><span class="es">${s.descEs}</span></p>
         <div class="svc-incl-title"><span class="en">What's included</span><span class="es">Qué incluye</span></div>
         ${s.incEn.map((inc, idx) => `<div class="svc-incl-item"><span class="svc-incl-check">&#10003;</span><span class="en">${inc}</span><span class="es">${s.incEs[idx]}</span></div>`).join('')}
@@ -572,13 +576,33 @@ button{font-family:inherit}
   // Abre/cierra al pasar el mouse (desktop) — mismo comportamiento que
   // opabiz.com/servicios. svcExpand (clic/chevron) sigue funcionando para
   // touch, donde no hay hover.
+  //
+  // .svc-card-body es position:absolute (queda fuera del alto normal de
+  // .svc-card, que solo mide lo que ocupa .svc-card-head) — mover el mouse
+  // desde el header HACIA el body ya cuenta como "salir" de .svc-card y
+  // disparaba el cierre de inmediato, antes de llegar a leer la descripción
+  // o tocar "Add to order" adentro. Mismo puente con temporizador que ya usa
+  // opabiz.com/servicios (activateSvc/deactivateSvc) — un pequeño delay que
+  // el propio .svc-card-body cancela con su onmouseenter si el mouse
+  // alcanza a entrar ahí a tiempo.
+  var _svcHoverTimer = null;
+  // Expuesta en window porque .svc-card-body la llama desde un atributo
+  // onmouseenter inline — todo este script vive dentro de un IIFE, así que
+  // _svcHoverTimer (var local) no es alcanzable directo desde HTML inline
+  // sin este wrapper (a diferencia de opabiz.com/servicios, cuyo script NO
+  // está envuelto en un IIFE y sí puede referenciar su variable global directo).
+  window.svcCancelHoverClose = function(){ clearTimeout(_svcHoverTimer); };
   window.svcHoverOpen = function(id){
+    clearTimeout(_svcHoverTimer);
     var card = document.getElementById('card-' + id);
     if (card) card.classList.add('expanded');
   };
   window.svcHoverClose = function(id){
-    var card = document.getElementById('card-' + id);
-    if (card) card.classList.remove('expanded');
+    clearTimeout(_svcHoverTimer);
+    _svcHoverTimer = setTimeout(function(){
+      var card = document.getElementById('card-' + id);
+      if (card) card.classList.remove('expanded');
+    }, 250);
   };
 
   window.clearCart = function(){
