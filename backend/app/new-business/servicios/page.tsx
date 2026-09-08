@@ -40,7 +40,7 @@ const DISPLAY: Record<string, Display> = {
     descEs: 'Un ITIN (Número de Identificación Fiscal Individual) es emitido por el IRS a personas que necesitan presentar impuestos en USA pero no califican para un Social Security Number.',
     incEn: ['IRS Form W-7 preparation', 'Document checklist & guidance', 'Submission support to IRS CAA', 'For foreign nationals, non-resident aliens'],
     incEs: ['Preparación del Formulario W-7 del IRS', 'Lista de documentos y guía personalizada', 'Apoyo en envío a CAA del IRS', 'Para extranjeros y no residentes'] },
-  dba: { icon: 'tag', subEn: '+ FL state fee', subEs: '+ tarifa estatal de FL',
+  dba: { icon: 'tag', subEn: '+ $50 FL state fee', subEs: '+ $50 de tarifa estatal de FL',
     descEn: 'A DBA (Doing Business As) or Fictitious Name lets your business operate under a different name from its registered legal name.',
     descEs: 'Un DBA (Doing Business As) o Nombre Ficticio permite que tu negocio opere bajo un nombre distinto al nombre legal registrado.',
     incEn: ['Fictitious Name registration with State of FL', 'Name availability search', 'Florida Fictitious Name Registration Certificate', 'Valid for 5 years (FL requirement)'],
@@ -50,12 +50,12 @@ const DISPLAY: Record<string, Display> = {
     descEs: 'Obtén una dirección profesional de negocios en Florida. Tu dirección personal se mantiene privada en los registros públicos de la División de Corporaciones.',
     incEn: ['Professional FL mailing address', 'Mail receiving & digital forwarding', 'Home address stays private on public records', 'Available immediately after sign-up'],
     incEs: ['Dirección postal profesional en Florida', 'Recepción de correo y reenvío digital', 'Tu dirección personal no aparece en registros públicos', 'Activo inmediatamente al inscribirte'] },
-  'annual-report': { icon: 'calendar', subEn: 'Annual charge · renews until cancelled', subEs: 'Cargo anual · se renueva hasta cancelar',
+  'annual-report': { icon: 'calendar', subEn: '+ $139 FL state fee · renews annually', subEs: '+ $139 de tarifa estatal de FL · se renueva anualmente',
     descEn: 'Every Florida LLC and Corporation must file an Annual Report between January 1 and May 1. Missing this deadline results in a $400 late fee and potential administrative dissolution.',
     descEs: 'Toda LLC y Corporación de Florida debe presentar un Reporte Anual entre el 1 de enero y el 1 de mayo. Perder la fecha límite resulta en multa de $400 y posible disolución administrativa.',
     incEn: ['Annual Report filed with FL Division of Corps', 'Updates to officers, directors, agent info', 'On-time filing guaranteed before May 1', 'Email confirmation receipt'],
     incEs: ['Reporte Anual presentado ante la División de Corporaciones FL', 'Actualización de oficiales, directores e info del agente', 'Presentación garantizada antes del 1 de mayo', 'Confirmación de recibo por correo'] },
-  amendment: { icon: 'pencil', subEn: '+ FL state fee', subEs: '+ tarifa estatal de FL',
+  amendment: { icon: 'pencil', subEn: '+ $25 FL state fee', subEs: '+ $25 de tarifa estatal de FL',
     descEn: 'Need to change your business name, address, registered agent, or officers? We prepare and file Articles of Amendment with the Florida Division of Corporations on your behalf.',
     descEs: '¿Necesitas cambiar el nombre de tu negocio, dirección, agente registrado u oficiales? Preparamos y presentamos los Artículos de Enmienda ante la División de Corporaciones de Florida por ti.',
     incEn: ['Amendment document preparation', 'Filing with FL Division of Corporations', 'Amended certificate returned to you', 'Name change, address, officers, purpose'],
@@ -80,7 +80,7 @@ const DISPLAY: Record<string, Display> = {
     descEs: 'Nuestra Guía Exclusiva de Formación te da todo lo que necesitas para que tu negocio en Florida arranque de la mejor forma — desde requisitos bancarios hasta listas de cumplimiento legal.',
     incEn: ['Step-by-step post-formation checklist', 'Banking requirements & account opening tips', 'Florida compliance calendar & deadlines', 'Delivered by email (PDF)'],
     incEs: ['Lista de verificación paso a paso post-formación', 'Requisitos bancarios y tips para abrir cuenta', 'Calendario de cumplimiento y fechas límite de Florida', 'Entregada por correo (PDF)'] },
-  'good-standing': { icon: 'award', subEn: '+ FL state fee', subEs: '+ tarifa estatal de FL',
+  'good-standing': { icon: 'award', subEn: '+ $9 FL state fee', subEs: '+ $9 de tarifa estatal de FL',
     descEn: 'A Certificate of Good Standing proves your business is active and compliant with the State of Florida. Required by banks, investors, and government agencies before entering contracts.',
     descEs: 'Un Certificado de Buena Reputación prueba que tu negocio está activo y en cumplimiento con el Estado de Florida. Requerido por bancos, inversionistas y agencias gubernamentales antes de firmar contratos.',
     incEn: ['Official certificate from FL Division of Corps', 'Certified digital & physical copy', 'Accepted by banks, investors & agencies', 'Apostille available upon request'],
@@ -100,7 +100,7 @@ const DISPLAY: Record<string, Display> = {
     descEs: 'Manejamos la solicitud de tu licencia de negocios de Florida — identificamos qué licencias federales, estatales y locales necesita tu negocio, y las presentamos en tu nombre.',
     incEn: ['Federal, state & local license application', 'Industry-specific & location-based filing', 'Step-by-step application process', 'Confirmation delivered by email'],
     incEs: ['Solicitud de licencia federal, estatal y local', 'Presentación específica para tu industria y ubicación', 'Proceso de solicitud paso a paso', 'Confirmación entregada por correo'] },
-  dissolution: { icon: 'archive', subEn: '+ FL state fee', subEs: '+ tarifa estatal de FL',
+  dissolution: { icon: 'archive', subEn: '+ $25 FL state fee', subEs: '+ $25 de tarifa estatal de FL',
     descEn: 'Closing your business? We properly dissolve your Florida LLC or Corporation with the state so you stop accumulating annual fees and avoid future liability.',
     descEs: '¿Cerrando tu negocio? Disolvemos correctamente tu LLC o Corporación de Florida ante el estado para que dejes de acumular tarifas anuales y evites responsabilidades futuras.',
     incEn: ['Articles of Dissolution prepared & filed', 'FL Division of Corporations submission', 'Dissolution confirmation from the state', 'Stops annual report obligations'],
@@ -110,7 +110,7 @@ const DISPLAY: Record<string, Display> = {
     descEs: '¿Cerrando tu negocio? Manejamos el cierre correcto de tus cuentas fiscales con el IRS y el Departamento de Ingresos de Florida para que evites obligaciones fiscales y multas futuras.',
     incEn: ['IRS EIN account closure letter preparation', 'FL Department of Revenue account closure', 'Guidance on final tax return obligations', 'Confirmation documents delivered by email'],
     incEs: ['Preparación de carta de cierre de cuenta EIN con el IRS', 'Cierre de cuenta con el Departamento de Ingresos de FL', 'Guía sobre obligaciones de declaración final', 'Documentos de confirmación entregados por correo'] },
-  'certified-copy': { icon: 'file-text', subEn: '+ state fee', subEs: '+ tarifa estatal',
+  'certified-copy': { icon: 'file-text', subEn: '+ $30 state fee', subEs: '+ $30 de tarifa estatal',
     descEn: 'An official state-certified copy of your Articles of Organization (LLC) or Incorporation (Corporation), stamped by the Florida Division of Corporations.',
     descEs: 'Una copia oficial certificada por el estado de tus Artículos de Organización (LLC) o Incorporación (Corporación), sellada por la División de Corporaciones de Florida.',
     incEn: ['State-certified copy from the FL Division of Corporations', 'For LLC (Organization) or Corporation (Incorporation)', 'Accepted by banks, courts and agencies', 'Digital and physical delivery options'],
@@ -160,7 +160,15 @@ const services = Object.entries(SERVICES_CATALOG)
     nameEs: def.name_es,
     // getServiceFee(id,'fbfc') aplica el override de precio (ej. EIN $161 en
     // vez de $99) — esta página SIEMPRE es marca FBFC, se pasa fijo.
-    price: getServiceFee(id, 'fbfc') + def.stateFee,
+    //
+    // price = SOLO la tarifa de servicio, nunca combinada con stateFee
+    // (decisión founder 2026-09-08): el precio que ve el cliente en cada
+    // tarjeta debe ser el mismo en toda la página — tarjeta, resumen de
+    // orden y barra móvil. La tarifa estatal se muestra aparte, como su
+    // propia línea, mismo patrón que ya usa /servicios/checkout
+    // (coComputeTotal → stateLines, agrupadas antes del total).
+    price: getServiceFee(id, 'fbfc'),
+    stateFee: def.stateFee,
     billing: def.billing ?? null,
     ...DISPLAY[id],
   }))
@@ -225,6 +233,13 @@ button{font-family:inherit}
 .os-item-price{font-size:.8rem;font-weight:700;color:var(--blue);white-space:nowrap}
 .os-item-x{background:none;border:none;color:var(--gray400);font-size:.78rem;cursor:pointer;padding:2px 5px;border-radius:6px;line-height:1;flex-shrink:0}
 .os-item-x:hover{background:#fee2e2;color:#dc2626}
+/* Tarifa estatal - linea aparte, nunca sumada al precio del servicio (ver
+   comentario en el array services arriba). Atenuada, mismo criterio visual
+   que .co-row-state en /servicios/checkout. */
+.os-item-state .os-item-name{color:var(--gray500);font-weight:500}
+.os-item-state .os-item-name em{font-style:normal;font-size:.7rem;text-transform:uppercase;letter-spacing:.4px;color:var(--gray400);margin-left:3px}
+.os-item-state .os-item-price{color:var(--gray400);font-weight:600}
+.os-item-state .os-item-x{visibility:hidden}
 .os-subtotal-row{display:flex;align-items:center;justify-content:space-between;padding:13px 0 4px;font-size:.86rem;color:var(--gray800)}
 .os-subtotal-row strong{font-family:var(--font-serif);font-size:1.3rem;color:var(--navy)}
 .os-continue-btn{width:100%;background:var(--blue);color:#fff;border:none;padding:13px;border-radius:11px;font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit;min-height:46px;transition:background .2s;margin-top:6px}
@@ -388,6 +403,7 @@ button{font-family:inherit}
 <script>
 (function(){
   var PRICES = ${JSON.stringify(Object.fromEntries(services.map(s => [s.id, s.price])))};
+  var STATE_FEES = ${JSON.stringify(Object.fromEntries(services.map(s => [s.id, s.stateFee])))};
   var NAMES = ${JSON.stringify(Object.fromEntries(services.map(s => [s.id, { en: s.nameEn, es: s.nameEs }])))};
   var CHEVRON_SVG = ${JSON.stringify(svgIcons.chevron)};
   var CHECK_SVG = ${JSON.stringify(svgIcons.check)};
@@ -402,7 +418,9 @@ button{font-family:inherit}
     var isEs = curLang() === 'es';
     var known = cart.filter(function(id){ return PRICES.hasOwnProperty(id); });
     var n = known.length;
-    var total = known.reduce(function(sum, id){ return sum + (PRICES[id] || 0); }, 0);
+    var serviceTotal = known.reduce(function(sum, id){ return sum + (PRICES[id] || 0); }, 0);
+    var stateTotal = known.reduce(function(sum, id){ return sum + (STATE_FEES[id] || 0); }, 0);
+    var total = serviceTotal + stateTotal;
     var countEl = document.getElementById('os-count');
     if (countEl) { countEl.textContent = n; countEl.className = 'os-count' + (n > 0 ? ' show' : ''); }
     var emptyEl = document.getElementById('os-empty');
@@ -411,12 +429,24 @@ button{font-family:inherit}
     if (emptyEl) emptyEl.style.display = n === 0 ? '' : 'none';
     if (footEl) footEl.style.display = n === 0 ? 'none' : '';
     if (itemsEl) {
-      itemsEl.innerHTML = known.map(function(id){
+      var rows = known.map(function(id){
         var name = NAMES[id] ? (isEs ? NAMES[id].es : NAMES[id].en) : id;
         return '<div class="os-item"><button class="os-item-x" onclick="svcToggle(\\'' + id + '\\')">&times;</button>'
           + '<span class="os-item-name">' + name + '</span>'
           + '<span class="os-item-price">$' + (PRICES[id] || 0).toFixed(2) + '</span></div>';
-      }).join('');
+      });
+      // Tarifas estatales agrupadas al final, cada una su propia línea
+      // atenuada — nunca sumadas al precio del servicio de arriba. Mismo
+      // patrón que /servicios/checkout (coComputeTotal → stateLines).
+      known.forEach(function(id){
+        var fee = STATE_FEES[id] || 0;
+        if (!fee) return;
+        var name = NAMES[id] ? (isEs ? NAMES[id].es : NAMES[id].en) : id;
+        rows.push('<div class="os-item os-item-state"><button class="os-item-x" tabindex="-1" aria-hidden="true">&times;</button>'
+          + '<span class="os-item-name">' + name + ' <em>' + (isEs ? 'tarifa estatal' : 'state fee') + '</em></span>'
+          + '<span class="os-item-price">$' + fee.toFixed(2) + '</span></div>');
+      });
+      itemsEl.innerHTML = rows.join('');
     }
     var subEl = document.getElementById('os-subtotal'); if (subEl) subEl.textContent = '$' + total.toFixed(2);
   }
@@ -424,7 +454,10 @@ button{font-family:inherit}
   function render(){
     var known = cart.filter(function(id){ return PRICES.hasOwnProperty(id); });
     var n = known.length;
-    var total = known.reduce(function(sum, id){ return sum + (PRICES[id] || 0); }, 0);
+    // La barra móvil solo tiene lugar para un número — el desglose por línea
+    // (servicio vs. tarifa estatal) vive en el resumen de escritorio
+    // (renderSidebar), acá el total ya suma ambos.
+    var total = known.reduce(function(sum, id){ return sum + (PRICES[id] || 0) + (STATE_FEES[id] || 0); }, 0);
     var bar = document.getElementById('svc-bar');
     if (bar) bar.className = 'svc-bar' + (n > 0 ? ' show' : '');
     var nEl = document.getElementById('svc-bar-n'); if (nEl) nEl.textContent = n;

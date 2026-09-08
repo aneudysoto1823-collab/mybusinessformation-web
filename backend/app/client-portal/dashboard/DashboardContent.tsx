@@ -1,8 +1,48 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { getOrderItemKeys, getOrderItemLabel } from '@/lib/order-items'
 import { SERVICES_CATALOG } from '@/lib/services-pricing'
+
+// Stripe.js se carga bajo demanda (recién al abrir el modal de "Cambiar
+// Método de Pago"), no en cada visita al dashboard — es una acción ocasional,
+// no vale la pena el peso del script en toda carga del portal. NEXT_PUBLIC_*
+// se inlinea en el bundle del cliente en build time igual en un componente
+// 'use client' (mismo patrón que app/opabiz/dashboard/page.tsx).
+const STRIPE_PK = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || ''
+
+type StripeJsInstance = {
+  elements: (opts: { clientSecret: string }) => StripeElementsInstance
+  confirmSetup: (opts: { elements: StripeElementsInstance; redirect: 'if_required' }) => Promise<{ error?: { message?: string }; setupIntent?: { id: string; status: string } }>
+}
+type StripeElementsInstance = {
+  create: (type: 'payment') => { mount: (el: HTMLElement) => void }
+}
+
+function ensureStripeJsLoaded(): Promise<StripeJsInstance> {
+  return new Promise((resolve, reject) => {
+    if (typeof window === 'undefined') { reject(new Error('no window')); return }
+    const w = window as unknown as { Stripe?: (pk: string) => StripeJsInstance }
+    if (w.Stripe) { resolve(w.Stripe(STRIPE_PK)); return }
+    const existing = document.getElementById('stripe-js-portal') as HTMLScriptElement | null
+    const onReady = () => {
+      const w2 = window as unknown as { Stripe?: (pk: string) => StripeJsInstance }
+      if (w2.Stripe) resolve(w2.Stripe(STRIPE_PK))
+      else reject(new Error('Stripe.js failed to load'))
+    }
+    if (existing) {
+      existing.addEventListener('load', onReady)
+      existing.addEventListener('error', () => reject(new Error('Stripe.js failed to load')))
+      return
+    }
+    const script = document.createElement('script')
+    script.id = 'stripe-js-portal'
+    script.src = 'https://js.stripe.com/v3/'
+    script.onload = onReady
+    script.onerror = () => reject(new Error('Stripe.js failed to load'))
+    document.body.appendChild(script)
+  })
+}
 
 interface SubscriptionEntry {
   service: string
@@ -162,12 +202,9 @@ export default function DashboardContent({
   const [pwError, setPwError] = useState('')
   const [pwSuccess, setPwSuccess] = useState(false)
   const [pwLoading, setPwLoading] = useState(false)
-  const [subLoading, setSubLoading] = useState(false)
   // Cancelación in-app (2026-09-07, ver memoria
-  // project_pendiente_cancelar_suscripcion_in_app) — separado de "Gestionar
-  // mi suscripción" (que sigue mandando a Stripe): cancelar no toca datos de
-  // tarjeta, así que no reintroduce el riesgo PCI que sí tendría manejar el
-  // cambio de tarjeta nosotros mismos.
+  // project_pendiente_cancelar_suscripcion_in_app) — separado de "Cambiar
+  // Método de Pago" (ver bloque debajo): cancelar no toca datos de tarjeta.
   const [cancelTarget, setCancelTarget] = useState<SubscriptionEntry | null>(null)
   const [cancelLoading, setCancelLoading] = useState(false)
   const [cancelError, setCancelError] = useState('')
@@ -179,6 +216,20 @@ export default function DashboardContent({
   const [justCanceled, setJustCanceled] = useState<Set<string>>(new Set())
   const [justReactivated, setJustReactivated] = useState<Set<string>>(new Set())
   const [reactivatingId, setReactivatingId] = useState<string | null>(null)
+
+  // "Cambiar Método de Pago" — flujo embebido con SetupIntent + Payment
+  // Element (2026-09-08, ver memoria project_pendiente_payment_method_embebido).
+  // Antes redirigía a billing.stripe.com; el founder pidió que el cliente
+  // nunca salga del portal ni para esto.
+  const [pmModalOpen, setPmModalOpen] = useState(false)
+  const [pmLoading, setPmLoading] = useState(false)
+  const [pmClientSecret, setPmClientSecret] = useState<string | null>(null)
+  const [pmError, setPmError] = useState('')
+  const [pmSaving, setPmSaving] = useState(false)
+  const [pmSuccessCard, setPmSuccessCard] = useState<{ brand: string; last4: string } | null>(null)
+  const pmContainerRef = useRef<HTMLDivElement>(null)
+  const pmStripeRef = useRef<StripeJsInstance | null>(null)
+  const pmElementsRef = useRef<StripeElementsInstance | null>(null)
 
   // Mismas 8 categorías fijas que acepta Stripe (cancellation_details.feedback)
   // — así el motivo también queda guardado del lado de Stripe, no solo en
@@ -246,25 +297,87 @@ export default function DashboardContent({
     setReactivatingId(null)
   }
 
-  async function handleManageSubscription() {
-    setSubLoading(true)
+  function openPaymentMethodModal() {
+    setPmError('')
+    setPmSuccessCard(null)
+    setPmClientSecret(null)
+    setPmModalOpen(true)
+    setPmLoading(true)
+    fetch('/api/subscriptions/setup-payment-method', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ orderId: order.id }),
+    })
+      .then(async res => ({ ok: res.ok, data: await res.json() }))
+      .then(({ ok, data }) => {
+        if (ok && data.clientSecret) setPmClientSecret(data.clientSecret)
+        else setPmError(data.error || (es ? 'No se pudo iniciar el cambio de tarjeta.' : 'Could not start the card update.'))
+      })
+      .catch(() => setPmError(es ? 'No se pudo iniciar el cambio de tarjeta.' : 'Could not start the card update.'))
+      .finally(() => setPmLoading(false))
+  }
+
+  function closePaymentMethodModal() {
+    setPmModalOpen(false)
+    setPmClientSecret(null)
+    setPmError('')
+    setPmSuccessCard(null)
+    pmStripeRef.current = null
+    pmElementsRef.current = null
+  }
+
+  // Monta el Payment Element apenas hay clientSecret Y el contenedor ya está
+  // en el DOM (el modal recién renderiza el div una vez que termina el
+  // fetch) — sin esto, elements.create(...).mount() falla porque el ref
+  // todavía es null en el primer render del modal.
+  useEffect(() => {
+    if (!pmClientSecret || !pmContainerRef.current) return
+    let cancelled = false
+    ensureStripeJsLoaded()
+      .then(stripe => {
+        if (cancelled || !pmContainerRef.current) return
+        const elements = stripe.elements({ clientSecret: pmClientSecret })
+        elements.create('payment').mount(pmContainerRef.current)
+        pmStripeRef.current = stripe
+        pmElementsRef.current = elements
+      })
+      .catch(() => {
+        if (!cancelled) setPmError(es ? 'No se pudo cargar el formulario de pago.' : 'Could not load the payment form.')
+      })
+    return () => { cancelled = true }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pmClientSecret])
+
+  async function handleSavePaymentMethod() {
+    const stripe = pmStripeRef.current
+    const elements = pmElementsRef.current
+    if (!stripe || !elements) return
+    setPmSaving(true)
+    setPmError('')
+    const { error, setupIntent } = await stripe.confirmSetup({ elements, redirect: 'if_required' })
+    if (error) {
+      setPmError(error.message || (es ? 'No se pudo guardar la tarjeta.' : 'Could not save the card.'))
+      setPmSaving(false)
+      return
+    }
+    if (setupIntent?.status !== 'succeeded') {
+      setPmError(es ? 'No se pudo confirmar el método de pago.' : 'Could not confirm the payment method.')
+      setPmSaving(false)
+      return
+    }
     try {
-      const res = await fetch('/api/billing-portal', {
+      const res = await fetch('/api/subscriptions/confirm-payment-method', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orderId: order.id }),
+        body: JSON.stringify({ orderId: order.id, setupIntentId: setupIntent.id }),
       })
       const data = await res.json()
-      if (res.ok && data.url) {
-        window.location.href = data.url
-      } else {
-        console.error('[billing-portal]', data.error)
-        setSubLoading(false)
-      }
-    } catch (err) {
-      console.error('[billing-portal]', err)
-      setSubLoading(false)
+      if (res.ok && data.success) setPmSuccessCard(data.card || null)
+      else setPmError(data.error || (es ? 'No se pudo guardar la tarjeta.' : 'Could not save the card.'))
+    } catch {
+      setPmError(es ? 'No se pudo guardar la tarjeta.' : 'Could not save the card.')
     }
+    setPmSaving(false)
   }
 
   useEffect(() => {
@@ -605,9 +718,9 @@ export default function DashboardContent({
           {es ? '+ Agregar Servicios' : '+ Add Services'}
         </a>
         {hasActiveSubscriptions && (
-          <button onClick={handleManageSubscription} disabled={subLoading}
-            style={{ display: 'inline-block', marginTop: '18px', padding: '10px 20px', background: '#fff', color: '#2563EB', border: '1.5px solid #2563EB', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 600, cursor: subLoading ? 'default' : 'pointer', opacity: subLoading ? 0.6 : 1 }}>
-            {subLoading ? (es ? 'Abriendo…' : 'Opening…') : (es ? 'Cambiar Método de Pago' : 'Change Payment Method')}
+          <button onClick={openPaymentMethodModal}
+            style={{ display: 'inline-block', marginTop: '18px', padding: '10px 20px', background: '#fff', color: '#2563EB', border: '1.5px solid #2563EB', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer' }}>
+            {es ? 'Cambiar Método de Pago' : 'Change Payment Method'}
           </button>
         )}
       </div>
@@ -744,6 +857,63 @@ export default function DashboardContent({
                 {cancelLoading ? (es ? 'Cancelando…' : 'Canceling…') : (es ? 'Sí, Cancelar' : 'Yes, Cancel')}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Cambiar Método de Pago — Payment Element embebido, el cliente nunca
+          sale del sitio (reemplaza el redirect a billing.stripe.com). */}
+      {pmModalOpen && (
+        <div
+          onClick={() => { if (!pmSaving) closePaymentMethodModal() }}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }}
+        >
+          <div onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: '12px', padding: '28px', maxWidth: '440px', width: '100%', boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}>
+            <h3 style={{ fontSize: '17px', fontWeight: 700, color: '#1a1a2e', marginBottom: '10px' }}>
+              {es ? 'Cambiar Método de Pago' : 'Change Payment Method'}
+            </h3>
+            {pmSuccessCard ? (
+              <>
+                <p style={{ fontSize: '14px', color: '#374151', lineHeight: 1.6, marginBottom: '20px' }}>
+                  {es
+                    ? `Tarjeta actualizada — ${pmSuccessCard.brand.toUpperCase()} terminada en ${pmSuccessCard.last4}. Se usará en su próxima renovación.`
+                    : `Card updated — ${pmSuccessCard.brand.toUpperCase()} ending in ${pmSuccessCard.last4}. It will be used on your next renewal.`}
+                </p>
+                <button onClick={closePaymentMethodModal}
+                  style={{ width: '100%', background: '#2563EB', color: '#fff', border: 'none', borderRadius: '8px', padding: '10px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>
+                  {es ? 'Listo' : 'Done'}
+                </button>
+              </>
+            ) : (
+              <>
+                <p style={{ fontSize: '13.5px', color: '#6b7280', lineHeight: 1.6, marginBottom: '16px' }}>
+                  {es
+                    ? 'La nueva tarjeta se usará en la próxima renovación de todas sus suscripciones activas.'
+                    : 'The new card will be used for the next renewal of all your active subscriptions.'}
+                </p>
+                {pmLoading && (
+                  <p style={{ fontSize: '13.5px', color: '#6b7280', marginBottom: '16px' }}>{es ? 'Cargando…' : 'Loading…'}</p>
+                )}
+                <div ref={pmContainerRef} style={{ marginBottom: pmClientSecret ? '16px' : 0 }} />
+                {pmError && (
+                  <p style={{ fontSize: '13px', color: '#dc2626', marginBottom: '14px' }}>{pmError}</p>
+                )}
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <button
+                    onClick={closePaymentMethodModal}
+                    disabled={pmSaving}
+                    style={{ flex: 1, background: '#fff', color: '#374151', border: '1.5px solid #e5e7eb', borderRadius: '8px', padding: '10px', fontSize: '14px', fontWeight: 600, cursor: pmSaving ? 'default' : 'pointer' }}>
+                    {es ? 'Cancelar' : 'Cancel'}
+                  </button>
+                  <button
+                    onClick={handleSavePaymentMethod}
+                    disabled={pmSaving || !pmClientSecret}
+                    style={{ flex: 1, background: '#2563EB', color: '#fff', border: 'none', borderRadius: '8px', padding: '10px', fontSize: '14px', fontWeight: 600, cursor: (pmSaving || !pmClientSecret) ? 'default' : 'pointer', opacity: (pmSaving || !pmClientSecret) ? 0.7 : 1 }}>
+                    {pmSaving ? (es ? 'Guardando…' : 'Saving…') : (es ? 'Guardar Tarjeta' : 'Save Card')}
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
