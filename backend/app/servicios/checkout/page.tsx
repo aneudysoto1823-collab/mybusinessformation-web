@@ -273,12 +273,12 @@ html.co-wide .co-tier{padding:20px 18px}
     <!-- STEP: COMPANY -->
     <div class="co-panel" id="panel-company" style="display:none">
       <h1 class="co-h1" data-en="Your company" data-es="Tu empresa">Tu empresa</h1>
-      <p class="co-sub" id="co-company-sub" data-en="Find your company or enter it manually." data-es="Busca tu empresa o ingrésala manualmente.">Busca tu empresa o ingrésala manualmente.</p>
+      <p class="co-sub" id="co-company-sub" data-en="Enter your company's Document Number below. If you don't have it, you can complete your company details manually instead." data-es="Ingrese el número de documento de su empresa abajo. Si no lo tiene, puede completar los datos de su empresa manualmente.">Ingrese el número de documento de su empresa abajo. Si no lo tiene, puede completar los datos de su empresa manualmente.</p>
 
       <div class="co-card" id="co-lookup-card">
         <div class="co-card-title" data-en="Start here: your company" data-es="Empieza aquí: tu empresa">Empieza aquí: tu empresa</div>
         <div class="co-lookup-row">
-          <input class="co-input" id="f-flDoc" placeholder="L23000123456 / P23000012345"/>
+          <input class="co-input" id="f-flDoc" placeholder="L23000123456 / P23000012345" oninput="coHandleFlDocInput(this.value)"/>
           <button class="co-lookup-btn" id="co-lookup-btn" onclick="coLookupCompany()"><span data-en="Search" data-es="Buscar">Buscar</span></button>
         </div>
         <div class="co-status" id="f-flDoc-status"></div>
@@ -906,6 +906,16 @@ function coRestoreSimple(o){ Object.keys(o).forEach(function(id){ var el=$(id); 
 // ── Lookup de empresa existente ─────────────────────────────────────────────
 function coRevealManual(){ $('co-company-card').style.display=''; var mt=$('co-manual-toggle'); if(mt) mt.style.display='none'; }
 function coToggleManual(){ coRevealManual(); }
+// Auto-carga al escribir el Document Number (600ms sin tipear, mismo umbral
+// y patrón que new-business/page.tsx en el home) — antes solo buscaba al
+// tocar "Buscar", que el cliente podía no notar.
+var _flDocTimer=null;
+function coHandleFlDocInput(val){
+  clearTimeout(_flDocTimer);
+  var doc=(val||'').trim();
+  if(doc.length<12) return;
+  _flDocTimer=setTimeout(function(){ coLookupCompany(true); }, 600);
+}
 function coLookupCompany(silent){
   var doc=($('f-flDoc').value||'').trim().toUpperCase();
   var st=$('f-flDoc-status'); var isEs=coIsEs();
@@ -998,7 +1008,7 @@ function coSetupCompanyPanel(ft){
     if(cc) cc.style.display='none';
     var ef2=$('co-entity-field'); if(ef2) ef2.style.display='';
     var df2=$('co-designator-field'); if(df2) df2.style.display='none';
-    var sub2=$('co-company-sub'); if(sub2){ sub2.setAttribute('data-en','Find your company or enter it manually.'); sub2.setAttribute('data-es','Busca tu empresa o ingrésala manualmente.'); sub2.textContent=isEs?'Busca tu empresa o ingrésala manualmente.':'Find your company or enter it manually.'; }
+    var sub2=$('co-company-sub'); if(sub2){ sub2.setAttribute('data-en','Enter your company\'s Document Number below. If you don\'t have it, you can complete your company details manually instead.'); sub2.setAttribute('data-es','Ingrese el número de documento de su empresa abajo. Si no lo tiene, puede completar los datos de su empresa manualmente.'); sub2.textContent=isEs?'Ingrese el número de documento de su empresa abajo. Si no lo tiene, puede completar los datos de su empresa manualmente.':'Enter your company\'s Document Number below. If you don\'t have it, you can complete your company details manually instead.'; }
   }
 }
 function coSetupOwnersPanel(ft){

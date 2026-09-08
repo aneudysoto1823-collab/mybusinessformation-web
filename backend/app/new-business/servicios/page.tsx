@@ -175,7 +175,7 @@ const services = Object.entries(SERVICES_CATALOG)
 
 export default function NewBusinessServiciosPage() {
   const styles = `
-:root{--navy:#1C2E44;--blue:#2563EB;--blue-light:#EFF6FF;--gray50:#F8FAFC;--gray100:#F1F5F9;--gray200:#E2E8F0;--gray400:#94A3B8;--gray500:#64748B;--gray600:#475569;--gray800:#1E293B;}
+:root{--navy:#1C2E44;--blue:#2563EB;--blue-light:#EFF6FF;--green:#059669;--green-dark:#047857;--green-light:#ECFDF5;--gray50:#F8FAFC;--gray100:#F1F5F9;--gray200:#E2E8F0;--gray400:#94A3B8;--gray500:#64748B;--gray600:#475569;--gray800:#1E293B;}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{font-family:var(--font-sans);color:var(--gray800);background:var(--gray100);line-height:1.6;min-height:100vh;display:flex;flex-direction:column}
@@ -218,7 +218,11 @@ button{font-family:inherit}
 .svc-grid-wrap{max-width:1200px;margin:0 auto;padding:36px 32px 60px;flex:1;width:100%}
 .services-layout{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:28px;align-items:start}
 .services-main{min-width:0}
-.svc-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+/* minmax(0,1fr), no 1fr a secas — sin el mínimo en 0 los tracks del grid no
+   se achican por debajo del min-content de sus tarjetas (el botón "Add to
+   order" no puede envolver), y esa presión terminaba desbordando toda la
+   grilla de 2 columnas sobre el sumario de la derecha en vez de comprimirse. */
+.svc-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
 @media(max-width:760px){.svc-grid{grid-template-columns:1fr}}
 .order-summary{position:sticky;top:80px;align-self:start}
 .order-summary-card{background:#fff;border:1.5px solid var(--gray200);border-radius:14px;box-shadow:0 8px 30px rgba(28,46,68,.07);padding:18px 18px 20px}
@@ -288,7 +292,11 @@ button{font-family:inherit}
 .svc-incl-check{color:#16a34a;font-weight:800;flex-shrink:0}
 .svc-add{background:#fff;color:var(--blue);border:1.5px solid var(--blue);border-radius:7px;padding:10px 16px;font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;min-height:40px;width:100%;margin-top:6px}
 .svc-add:hover{background:var(--blue-light)}
-.svc-add.added{background:var(--blue);color:#fff}
+/* Verde al agregar (no azul) — mismo patrón que .svc-acc-add.added de
+   opabiz.com/servicios, para distinguir visualmente "seleccionado" de las
+   demás acciones azules del sitio. */
+.svc-add.added{background:var(--green-light);color:var(--green-dark);border-color:var(--green)}
+.svc-add.added:hover{background:var(--green);color:#fff}
 /* Botón inline en la fila colapsada (mismo patrón que .svc-acc-add de
    opabiz.com/servicios) — deja agregar sin tener que expandir la tarjeta.
    El botón de siempre dentro de .svc-card-body sigue existiendo (fallback
