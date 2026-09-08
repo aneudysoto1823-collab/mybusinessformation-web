@@ -130,10 +130,10 @@ export default function ServiciosPage() {
     chevron: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>'
   }
 
-  type Service = { id: string; icon: string; name: string; name_es: string; price: string; sub_en: string; sub_es: string; desc_en: string; desc_es: string; includes_en: string[]; includes_es: string[]; time_en: string; time_es: string; btn_en: string; btn_es: string }
+  type Service = { id: string; icon: string; name: string; name_es: string; price: string; stateFee?: number; sub_en: string; sub_es: string; desc_en: string; desc_es: string; includes_en: string[]; includes_es: string[]; time_en: string; time_es: string; btn_en: string; btn_es: string }
   const services: Service[] = [
-    { id: 'llc-formation', icon: 'building', name: 'LLC Formation', name_es: 'Formación de LLC', price: '$99',
-      sub_en: '+ FL state fee', sub_es: '+ tarifa estatal de FL',
+    { id: 'llc-formation', icon: 'building', name: 'LLC Formation', name_es: 'Formación de LLC', price: '$99', stateFee: 125,
+      sub_en: '+ $125 FL state fee', sub_es: '+ $125 de tarifa estatal de FL',
       desc_en: 'Start your Florida Limited Liability Company the right way. We prepare and file your Articles of Organization with the Florida Division of Corporations and set up your company structure.',
       desc_es: 'Crea tu LLC de Florida de la forma correcta. Preparamos y presentamos tus Artículos de Organización ante la División de Corporaciones de Florida y configuramos la estructura de tu empresa.',
       includes_en: ['Articles of Organization prepared &amp; filed','Name availability check with the State','Ownership &amp; management structure set up','Registered Agent option available'],
@@ -141,8 +141,8 @@ export default function ServiciosPage() {
       time_en: '&#9889; Processing: 1–3 business days with FL Division of Corporations',
       time_es: '&#9889; Procesamiento: 1-3 días hábiles con la División de Corporaciones FL',
       btn_en: 'Order LLC Formation &#8594;', btn_es: 'Ordenar Formación de LLC &#8594;' },
-    { id: 'corp-formation', icon: 'landmark', name: 'Corporation Formation', name_es: 'Formación de Corporation', price: '$99',
-      sub_en: '+ FL state fee', sub_es: '+ tarifa estatal de FL',
+    { id: 'corp-formation', icon: 'landmark', name: 'Corporation Formation', name_es: 'Formación de Corporation', price: '$99', stateFee: 70,
+      sub_en: '+ $70 FL state fee', sub_es: '+ $70 de tarifa estatal de FL',
       desc_en: 'Form your Florida Corporation (Inc.) with the state. We prepare and file your Articles of Incorporation, set up directors and officers, and define your authorized shares.',
       desc_es: 'Forma tu Corporation (Inc.) de Florida ante el estado. Preparamos y presentamos tus Artículos de Incorporación, configuramos directores y oficiales, y definimos tus acciones autorizadas.',
       includes_en: ['Articles of Incorporation prepared &amp; filed','Name availability check with the State','Directors, officers &amp; shares structure set up','Registered Agent option available'],
@@ -186,8 +186,8 @@ export default function ServiciosPage() {
       time_en: '&#128338; Processing: 6–10 weeks (IRS processing time)',
       time_es: '&#128338; Procesamiento: 6-10 semanas (tiempo del IRS)',
       btn_en: 'Order ITIN Application — $99 &#8594;', btn_es: 'Ordenar solicitud de ITIN — $99 &#8594;' },
-    { id: 'dba', icon: 'tag', name: 'DBA / Fictitious Name', name_es: 'DBA / Nombre Ficticio', price: '$49',
-      sub_en: '+ FL state fee', sub_es: '+ tarifa estatal de FL',
+    { id: 'dba', icon: 'tag', name: 'DBA / Fictitious Name', name_es: 'DBA / Nombre Ficticio', price: '$49', stateFee: 50,
+      sub_en: '+ $50 FL state fee', sub_es: '+ $50 de tarifa estatal de FL',
       desc_en: 'A DBA (Doing Business As) or Fictitious Name lets your business operate under a different name from its registered legal name. Required for branding under an alternate name in Florida.',
       desc_es: 'Un DBA (Doing Business As) o Nombre Ficticio permite que tu negocio opere bajo un nombre distinto al nombre legal registrado. Requerido para operar con un nombre alterno en Florida.',
       includes_en: ['Fictitious Name registration with State of FL','Name availability search','Florida Fictitious Name Registration Certificate','Valid for 5 years (FL requirement)'],
@@ -204,8 +204,8 @@ export default function ServiciosPage() {
       time_en: '&#9889; Activation: Same business day',
       time_es: '&#9889; Activación: El mismo día hábil',
       btn_en: 'Order Virtual Address — $30/mo &#8594;', btn_es: 'Ordenar Dirección Virtual — $30/mes &#8594;' },
-    { id: 'annual-report', icon: 'calendar', name: 'Annual Report Filing', name_es: 'Presentación de Reporte Anual', price: '$99',
-      sub_en: 'Annual charge · renews until cancelled', sub_es: 'Cargo anual · se renueva hasta cancelar',
+    { id: 'annual-report', icon: 'calendar', name: 'Annual Report Filing', name_es: 'Presentación de Reporte Anual', price: '$99', stateFee: 139,
+      sub_en: '+ $139 FL state fee · renews annually', sub_es: '+ $139 de tarifa estatal de FL · se renueva anualmente',
       desc_en: 'Every Florida LLC and Corporation must file an Annual Report between January 1 and May 1. Missing this deadline results in a $400 late fee and potential administrative dissolution.',
       desc_es: 'Toda LLC y Corporación de Florida debe presentar un Reporte Anual entre el 1 de enero y el 1 de mayo. Perder la fecha límite resulta en multa de $400 y posible disolución administrativa.',
       includes_en: ['Annual Report filed with FL Division of Corps','Updates to officers, directors, agent info','On-time filing guaranteed before May 1','Email confirmation receipt'],
@@ -213,8 +213,8 @@ export default function ServiciosPage() {
       time_en: '&#9888; FL Deadline: Jan 1 – May 1 each year ($400 late fee after May 1)',
       time_es: '&#9888; Fecha Límite FL: 1 ene – 1 may cada año (multa de $400 después del 1 de mayo)',
       btn_en: 'Order Annual Report — $99/yr &#8594;', btn_es: 'Ordenar Reporte Anual — $99/año &#8594;' },
-    { id: 'amendment', icon: 'pencil', name: 'Articles of Amendment', name_es: 'Artículos de Enmienda', price: '$59',
-      sub_en: '+ FL state fee', sub_es: '+ tarifa estatal de FL',
+    { id: 'amendment', icon: 'pencil', name: 'Articles of Amendment', name_es: 'Artículos de Enmienda', price: '$59', stateFee: 25,
+      sub_en: '+ $25 FL state fee', sub_es: '+ $25 de tarifa estatal de FL',
       desc_en: 'Need to change your business name, address, registered agent, or officers? We prepare and file Articles of Amendment with the Florida Division of Corporations on your behalf.',
       desc_es: '¿Necesitas cambiar el nombre de tu negocio, dirección, agente registrado u oficiales? Preparamos y presentamos los Artículos de Enmienda ante la División de Corporaciones de Florida por ti.',
       includes_en: ['Amendment document preparation','Filing with FL Division of Corporations','Amended certificate returned to you','Name change, address, officers, purpose'],
@@ -258,8 +258,8 @@ export default function ServiciosPage() {
       time_en: '&#9889; Delivery: Same business day',
       time_es: '&#9889; Entrega: El mismo día hábil',
       btn_en: 'Order Exclusive Guide — $49 &#8594;', btn_es: 'Ordenar Guía Exclusiva — $49 &#8594;' },
-    { id: 'good-standing', icon: 'award', name: 'Certificate of Good Standing', name_es: 'Certificado de Buena Reputación', price: '$49',
-      sub_en: '+ FL state fee', sub_es: '+ tarifa estatal de FL',
+    { id: 'good-standing', icon: 'award', name: 'Certificate of Good Standing', name_es: 'Certificado de Buena Reputación', price: '$49', stateFee: 9,
+      sub_en: '+ $9 FL state fee', sub_es: '+ $9 de tarifa estatal de FL',
       desc_en: 'A Certificate of Good Standing proves your business is active and compliant with the State of Florida. Required by banks, investors, and government agencies before entering contracts.',
       desc_es: 'Un Certificado de Buena Reputación prueba que tu negocio está activo y en cumplimiento con el Estado de Florida. Requerido por bancos, inversionistas y agencias gubernamentales antes de firmar contratos.',
       includes_en: ['Official certificate from FL Division of Corps','Certified digital &amp; physical copy','Accepted by banks, investors &amp; agencies','Apostille available upon request'],
@@ -294,8 +294,8 @@ export default function ServiciosPage() {
       time_en: '&#9889; Processing: 2–3 business days',
       time_es: '&#9889; Procesamiento: 2-3 días hábiles',
       btn_en: 'Order Business License — $99 &#8594;', btn_es: 'Ordenar Licencia de Negocios — $99 &#8594;' },
-    { id: 'dissolution', icon: 'archive', name: 'Business Dissolution', name_es: 'Disolución del Negocio', price: '$79',
-      sub_en: '+ FL state fee', sub_es: '+ tarifa estatal de FL',
+    { id: 'dissolution', icon: 'archive', name: 'Business Dissolution', name_es: 'Disolución del Negocio', price: '$79', stateFee: 25,
+      sub_en: '+ $25 FL state fee', sub_es: '+ $25 de tarifa estatal de FL',
       desc_en: 'Closing your business? We properly dissolve your Florida LLC or Corporation with the state so you stop accumulating annual fees and avoid future liability.',
       desc_es: '¿Cerrando tu negocio? Disolvemos correctamente tu LLC o Corporación de Florida ante el estado para que dejes de acumular tarifas anuales y evites responsabilidades futuras.',
       includes_en: ['Articles of Dissolution prepared &amp; filed','FL Division of Corporations submission','Dissolution confirmation from the state','Stops annual report obligations'],
@@ -312,8 +312,8 @@ export default function ServiciosPage() {
       time_en: '&#9889; Processing: 5–10 business days',
       time_es: '&#9889; Procesamiento: 5-10 días hábiles',
       btn_en: 'Order Tax Account Closure — $79 &#8594;', btn_es: 'Ordenar Cierre de Cuentas Fiscales — $79 &#8594;' },
-    { id: 'certified-copy', icon: 'file-text', name: 'Certified Copy of Articles', name_es: 'Copia Certificada de Artículos', price: '$59',
-      sub_en: '+ state fee', sub_es: '+ tarifa estatal',
+    { id: 'certified-copy', icon: 'file-text', name: 'Certified Copy of Articles', name_es: 'Copia Certificada de Artículos', price: '$59', stateFee: 30,
+      sub_en: '+ $30 state fee', sub_es: '+ $30 de tarifa estatal',
       desc_en: 'An official state-certified copy of your Articles of Organization (LLC) or Incorporation (Corporation), stamped by the Florida Division of Corporations. Banks, courts, and some agencies require a certified copy rather than a plain copy.',
       desc_es: 'Una copia oficial certificada por el estado de tus Artículos de Organización (LLC) o Incorporación (Corporación), sellada por la División de Corporaciones de Florida. Bancos, tribunales y algunas agencias exigen una copia certificada en lugar de una copia simple.',
       includes_en: ['State-certified copy from the FL Division of Corporations','For LLC (Organization) or Corporation (Incorporation)','Accepted by banks, courts and agencies','Digital and physical delivery options'],
@@ -660,6 +660,13 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
 .os-item-price{font-size:.8rem;font-weight:700;color:var(--blue);white-space:nowrap}
 .os-item-x{background:none;border:none;color:var(--gray400);font-size:.78rem;cursor:pointer;padding:2px 5px;border-radius:6px;line-height:1;flex-shrink:0}
 .os-item-x:hover{background:#fee2e2;color:#dc2626}
+/* Tarifa estatal - linea aparte, nunca sumada al precio del servicio (ver
+   stateFee en el array services arriba). Atenuada, mismo criterio visual
+   que .co-row-state en /servicios/checkout. */
+.os-item-state .os-item-name{color:var(--gray500);font-weight:500}
+.os-item-state .os-item-name em{font-style:normal;font-size:.7rem;text-transform:uppercase;letter-spacing:.4px;color:var(--gray400);margin-left:3px}
+.os-item-state .os-item-price{color:var(--gray400);font-weight:600}
+.os-item-state .os-item-x{visibility:hidden}
 .os-subtotal-row{display:flex;align-items:center;justify-content:space-between;padding:13px 0 4px;font-size:.86rem;color:var(--gray800)}
 .os-subtotal-row strong{font-family:var(--font-serif);font-size:1.3rem;color:var(--navy)}
 .os-var-note{font-size:.7rem;color:var(--gray500);line-height:1.5;margin:0 0 13px}
@@ -952,8 +959,8 @@ function genOrderNum(){return 'FBFC-'+Math.floor(10000+Math.random()*90000);}
 var SVC_CATALOG=${JSON.stringify(
   services
     .filter(s => s.id !== 'stripe-setup-guide')
-    .reduce((acc: Record<string, { name: string; name_es: string; price: string }>, s) => {
-      acc[s.id] = { name: s.name, name_es: s.name_es, price: s.price }
+    .reduce((acc: Record<string, { name: string; name_es: string; price: string; stateFee: number }>, s) => {
+      acc[s.id] = { name: s.name, name_es: s.name_es, price: s.price, stateFee: s.stateFee || 0 }
       return acc
     }, {})
 )};
@@ -984,7 +991,7 @@ function removeFromCart(id){var i=cart.indexOf(id);if(i>-1){cart.splice(i,1);per
 function clearCart(){ if(cart.length===0)return; var c=document.getElementById('osClearConfirm'); if(c) c.style.display=''; }
 function cancelClearCart(){ var c=document.getElementById('osClearConfirm'); if(c) c.style.display='none'; }
 function doClearCart(){ cart=[]; persistCart(); try{ localStorage.removeItem('flbc_svc_bundles'); localStorage.removeItem('flbc_svc_order'); localStorage.removeItem('flbc_svc_expedited'); }catch(e){} renderCart(); var c=document.getElementById('osClearConfirm'); if(c) c.style.display='none'; }
-function cartTotals(){var fixed=0,hasVar=false;cart.forEach(function(id){var v=svcParsePrice((SVC_CATALOG[id]||{}).price);if(v!=null)fixed+=v;else hasVar=true;});return{fixed:fixed,hasVar:hasVar};}
+function cartTotals(){var fixed=0,stateFee=0,hasVar=false;cart.forEach(function(id){var s=SVC_CATALOG[id]||{};var v=svcParsePrice(s.price);if(v!=null)fixed+=v;else hasVar=true;stateFee+=(s.stateFee||0);});return{fixed:fixed,stateFee:stateFee,hasVar:hasVar};}
 function renderCart(){
   var isEs=svcIsEs();
   document.querySelectorAll('.svc-add-btn').forEach(function(b){
@@ -1000,9 +1007,10 @@ function renderCart(){
     else{wrap.classList.remove('show');wrap.classList.remove('expanded');closeCart();}
   }
   var t=cartTotals();
+  var barTotal=t.fixed+t.stateFee;
   var svcWord=count===1?(isEs?'servicio':'service'):(isEs?'servicios':'services');
   var bt=document.getElementById('svcCartBarText');
-  if(bt)bt.textContent=count+' '+svcWord+(t.fixed>0?' \\u00b7 $'+t.fixed+(t.hasVar?'+':'')+(isEs?' est.':' est.'):'');
+  if(bt)bt.textContent=count+' '+svcWord+(barTotal>0?' \\u00b7 $'+barTotal+(t.hasVar?'+':'')+(isEs?' est.':' est.'):'');
   renderSidebar();
   renderCartBarDetail();
   renderCartModal();
@@ -1020,6 +1028,13 @@ function renderCartBarDetail(){
   cart.forEach(function(id){
     var s=SVC_CATALOG[id]||{};var nm=isEs?s.name_es:s.name;
     rows+='<div class="os-item"><div class="os-item-name">'+(nm||id)+'</div><div class="os-item-price">'+(s.price||'')+'</div><button class="os-item-x" aria-label="remove" onclick="removeFromCart(\\''+id+'\\')">\\u2715</button></div>';
+  });
+  // Tarifas estatales agrupadas al final, cada una su propia línea atenuada
+  // — nunca sumadas al precio del servicio de arriba.
+  cart.forEach(function(id){
+    var s=SVC_CATALOG[id]||{};var fee=s.stateFee||0;if(!fee)return;
+    var nm=isEs?s.name_es:s.name;
+    rows+='<div class="os-item os-item-state"><div class="os-item-name">'+(nm||id)+' <em>'+(isEs?'tarifa estatal':'state fee')+'</em></div><div class="os-item-price">$'+fee+'</div><button class="os-item-x" aria-label="remove" tabindex="-1" aria-hidden="true">&times;</button></div>';
   });
   el.innerHTML=rows;
 }
@@ -1044,9 +1059,16 @@ function renderSidebar(){
     var s=SVC_CATALOG[id]||{};var nm=isEs?s.name_es:s.name;
     rows+='<div class="os-item"><div class="os-item-name">'+(nm||id)+'</div><div class="os-item-price">'+(s.price||'')+'</div><button class="os-item-x" aria-label="remove" onclick="removeFromCart(\\''+id+'\\')">\\u2715</button></div>';
   });
+  // Tarifas estatales agrupadas al final, cada una su propia línea atenuada
+  // — nunca sumadas al precio del servicio de arriba.
+  cart.forEach(function(id){
+    var s=SVC_CATALOG[id]||{};var fee=s.stateFee||0;if(!fee)return;
+    var nm=isEs?s.name_es:s.name;
+    rows+='<div class="os-item os-item-state"><div class="os-item-name">'+(nm||id)+' <em>'+(isEs?'tarifa estatal':'state fee')+'</em></div><div class="os-item-price">$'+fee+'</div><button class="os-item-x" aria-label="remove" tabindex="-1" aria-hidden="true">&times;</button></div>';
+  });
   os.innerHTML=rows;
   var t=cartTotals();
-  var sub=document.getElementById('osSubtotal');if(sub)sub.textContent='$'+t.fixed+(t.hasVar?'+':'');
+  var sub=document.getElementById('osSubtotal');if(sub)sub.textContent='$'+(t.fixed+t.stateFee)+(t.hasVar?'+':'');
   var note=document.getElementById('osVarNote');if(note)note.style.display=t.hasVar?'':'none';
 }
 function renderCartModal(){
