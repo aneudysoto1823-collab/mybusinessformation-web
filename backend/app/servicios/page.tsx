@@ -678,25 +678,28 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
    abajo; la barra queda siempre visible cuando hay algo en el carrito, el
    panel de detalle arriba de ella se expande/colapsa aparte (.expanded). */
 @media(min-width:861px){.svc-cart-wrap{display:none}}
-.svc-cart-wrap{position:fixed;left:0;right:0;bottom:0;z-index:900;transform:translateY(120%);transition:transform .28s cubic-bezier(.4,0,.2,1)}
-/* Al expandir el detalle, sube por encima del widget de Claudia (z-index:9999
-   en ChatWidget.tsx) — sin esto Claudia queda flotando visualmente encima del
-   panel del carrito, tapando parte del contenido en la esquina inferior
-   derecha. El panel es opaco (fondo blanco), así que taparla no rompe nada. */
-.svc-cart-wrap.expanded{z-index:10000}
+/* z-index por encima de Claudia (9999 en ChatWidget.tsx) siempre que está
+   visible, no solo expandida — el botón "Continuar" vive en la esquina
+   inferior derecha, mismo lugar donde flota Claudia, y quedaba tapado /
+   no clickeable debajo de ella. */
+.svc-cart-wrap{position:fixed;left:0;right:0;bottom:0;z-index:10000;transform:translateY(120%);transition:transform .28s cubic-bezier(.4,0,.2,1)}
 .svc-cart-wrap.show{transform:translateY(0)}
 .svc-cart-detail{background:#fff;max-height:0;overflow:hidden;transition:max-height .25s ease;box-shadow:0 -2px 14px rgba(0,0,0,.08)}
 .svc-cart-wrap.expanded .svc-cart-detail{max-height:45vh;overflow-y:auto;padding:12px 20px 2px}
 .svc-cart-wrap.expanded .svc-cart-detail .os-item:last-child{border-bottom:none}
-.svc-cart-bar{background:var(--navy);box-shadow:0 -6px 24px rgba(28,46,68,.22);padding:env(safe-area-inset-bottom,0) 0 0}
+/* Azul de marca en vez de navy — al hacer scroll hasta el final, el navy de
+   la barra se perdía contra el navy del footer detrás (mismo tono, sin
+   separación visual). El botón "Continuar" se invierte a blanco para seguir
+   resaltando encima del azul. */
+.svc-cart-bar{background:var(--blue);box-shadow:0 -6px 24px rgba(37,99,235,.35);padding:env(safe-area-inset-bottom,0) 0 0}
 .svc-cart-bar-inner{max-width:760px;margin:0 auto;padding:13px 20px;display:flex;align-items:center;justify-content:space-between;gap:14px}
 .svc-cart-bar-info{display:flex;align-items:center;gap:10px;min-width:0;cursor:pointer;flex:1}
 .svc-cart-bar-icon{font-size:1.2rem;flex-shrink:0}
 .svc-cart-bar-text{color:#fff;font-size:.92rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.svc-cart-bar-chevron{color:rgba(255,255,255,.7);font-size:.7rem;flex-shrink:0;transition:transform .25s}
+.svc-cart-bar-chevron{color:rgba(255,255,255,.75);font-size:.7rem;flex-shrink:0;transition:transform .25s}
 .svc-cart-wrap.expanded .svc-cart-bar-chevron{transform:rotate(180deg)}
-.svc-cart-bar-btn{background:var(--blue);color:#fff;border:none;padding:12px 22px;border-radius:10px;font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;min-height:44px;transition:background .2s;flex-shrink:0}
-.svc-cart-bar-btn:hover{background:#1d4ed8}
+.svc-cart-bar-btn{background:#fff;color:var(--blue);border:none;padding:12px 22px;border-radius:10px;font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;min-height:44px;transition:background .2s;flex-shrink:0}
+.svc-cart-bar-btn:hover{background:var(--blue-light)}
 /* CART CHECKOUT MODAL */
 .cart-overlay{position:fixed;inset:0;z-index:1000;background:rgba(15,28,46,.55);backdrop-filter:blur(2px);display:none;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto}
 .cart-overlay.active{display:flex}
