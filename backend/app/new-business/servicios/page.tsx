@@ -457,8 +457,8 @@ button{font-family:inherit}
     <a href="/legal"><span class="en">Legal Disclaimer</span><span class="es">Aviso Legal</span></a>
   </div>
   <div style="margin-top:8px">
-    <span class="en">Florida Business Formation Center is a privately owned third-party document preparation service and is not affiliated with or endorsed by any government agency.</span>
-    <span class="es">Florida Business Formation Center es un servicio privado de preparación de documentos de terceros y no está afiliado ni respaldado por ninguna agencia gubernamental.</span>
+    <span class="en">Florida Business Formation Center is a privately owned third-party document preparation service and is not affiliated with or endorsed by any government agency, including the IRS, Department of Labor, or Florida Department of State. This is a solicitation for services, not an official government notice. Fees include administrative and processing costs. All sales are final and non-refundable. Business registration data is sourced from public records.</span>
+    <span class="es">Florida Business Formation Center es un servicio privado de preparación de documentos de terceros y no está afiliado ni respaldado por ninguna agencia gubernamental, incluyendo el IRS, el Departamento de Trabajo o el Departamento de Estado de Florida. Esto es una solicitud de servicios, no un aviso oficial del gobierno. Las tarifas incluyen costos administrativos y de procesamiento. Todas las ventas son finales y no reembolsables. Los datos de registro de negocios provienen de registros públicos.</span>
   </div>
 </footer>
 
