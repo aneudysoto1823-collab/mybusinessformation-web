@@ -280,12 +280,25 @@ button{font-family:inherit}
 .svc-card.expanded .svc-chevron:not(.added){transform:rotate(180deg)}
 .svc-chevron.added{color:#16a34a}
 .svc-card-body{display:none;padding:14px 16px 16px;border-top:1px solid var(--gray100)}
-.svc-card.expanded .svc-card-body{
-  display:block;position:absolute;top:100%;left:0;right:0;background:#fff;
-  border:1.5px solid var(--blue);border-top:1px solid var(--gray100);
-  border-radius:0 0 12px 12px;box-shadow:0 16px 34px rgba(28,46,68,.16);
+.svc-card.expanded .svc-card-body{display:block}
+/* >1100px (mismo umbral que opabiz.com/servicios, misma geometría de página:
+   sidebar de 320px + grilla de 2 columnas): se abre HACIA EL LADO en vez de
+   hacia abajo, para no tapar la fila siguiente de servicios. Las tarjetas de
+   la columna derecha (nth-child par) lo abren hacia la izquierda — svcExpand
+   ajusta top/bottom y max-width en runtime (ver svcPositionPopup) para que
+   no se salga de la pantalla. */
+@media(min-width:1101px){
+  .svc-card.expanded .svc-card-body{
+    position:absolute;top:0;left:calc(100% + 14px);width:440px;background:#fff;
+    border:1.5px solid var(--blue);border-radius:12px;
+    box-shadow:0 16px 34px rgba(28,46,68,.16);z-index:30;
+  }
+  .svc-grid > .svc-card:nth-child(even).expanded .svc-card-body{left:auto;right:calc(100% + 14px)}
 }
-@media(max-width:760px){.svc-card.expanded .svc-card-body{position:static;box-shadow:none;border:none;border-top:1px solid var(--gray100)}}
+/* <=1100px: mismo criterio que opabiz (ahí cae al expand inline por clic,
+   sin popup lateral) — estático, empuja el contenido de abajo en vez de
+   taparlo. */
+@media(max-width:1100px){.svc-card.expanded .svc-card-body{position:static;box-shadow:none;border:none;border-top:1px solid var(--gray100)}}
 .svc-card-desc{font-size:.82rem;color:var(--gray600);line-height:1.6;margin:14px 0}
 .svc-incl-title{font-size:.71rem;font-weight:700;color:var(--gray400);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
 .svc-incl-item{display:flex;align-items:flex-start;gap:8px;font-size:.8rem;color:var(--gray600);line-height:1.5;margin-bottom:5px}
@@ -564,13 +577,31 @@ button{font-family:inherit}
     if (card) card.classList.remove('expanded');
   };
 
+  // Por encima de 1101px el popup abre al costado (ver CSS) — acá se ajusta
+  // en runtime top/bottom y max-width para que no se salga de la pantalla,
+  // mismo cálculo que activateSvc() de opabiz.com/servicios.
+  function svcPositionPopup(card){
+    if (window.innerWidth <= 1100) return;
+    var body = card.querySelector('.svc-card-body');
+    if (!body) return;
+    body.style.maxWidth = '';
+    body.style.top = '0'; body.style.bottom = 'auto';
+    var rect = card.getBoundingClientRect();
+    if (rect.top + 320 > window.innerHeight - 16) { body.style.top = 'auto'; body.style.bottom = '0'; }
+    var pr = body.getBoundingClientRect();
+    var margin = 16;
+    if (pr.right > window.innerWidth - margin) body.style.maxWidth = (window.innerWidth - margin - pr.left) + 'px';
+    if (pr.left < margin) body.style.maxWidth = (pr.right - margin) + 'px';
+  }
+
   window.svcExpand = function(e, id){
     if (e.target.closest('.svc-add')) return;
     var card = document.getElementById('card-' + id);
     if (!card) return;
     var wasExpanded = card.classList.contains('expanded');
     document.querySelectorAll('.svc-card.expanded').forEach(function(c){ c.classList.remove('expanded'); });
-    if (!wasExpanded) card.classList.add('expanded');
+    _svcActiveId = wasExpanded ? null : id;
+    if (!wasExpanded) { card.classList.add('expanded'); svcPositionPopup(card); }
   };
 
   // Abre/cierra al pasar el mouse (desktop) — mismo comportamiento que
@@ -585,7 +616,14 @@ button{font-family:inherit}
   // opabiz.com/servicios (activateSvc/deactivateSvc) — un pequeño delay que
   // el propio .svc-card-body cancela con su onmouseenter si el mouse
   // alcanza a entrar ahí a tiempo.
+  // _svcHoverTimer era un único temporizador compartido entre TODAS las
+  // tarjetas — al pasar el mouse de la tarjeta A a la B, abrir B cancelaba
+  // el cierre pendiente de A (mismo clearTimeout), dejando A abierta para
+  // siempre. Ahora se trackea cuál tarjeta está activa (_svcActiveId) y,
+  // al abrir una nueva, la anterior se cierra al toque (sin esperar su
+  // propio timer) — mismo patrón que activateSvc() de opabiz.com/servicios.
   var _svcHoverTimer = null;
+  var _svcActiveId = null;
   // Expuesta en window porque .svc-card-body la llama desde un atributo
   // onmouseenter inline — todo este script vive dentro de un IIFE, así que
   // _svcHoverTimer (var local) no es alcanzable directo desde HTML inline
@@ -594,14 +632,20 @@ button{font-family:inherit}
   window.svcCancelHoverClose = function(){ clearTimeout(_svcHoverTimer); };
   window.svcHoverOpen = function(id){
     clearTimeout(_svcHoverTimer);
+    if (_svcActiveId && _svcActiveId !== id) {
+      var prev = document.getElementById('card-' + _svcActiveId);
+      if (prev) prev.classList.remove('expanded');
+    }
+    _svcActiveId = id;
     var card = document.getElementById('card-' + id);
-    if (card) card.classList.add('expanded');
+    if (card) { card.classList.add('expanded'); svcPositionPopup(card); }
   };
   window.svcHoverClose = function(id){
     clearTimeout(_svcHoverTimer);
     _svcHoverTimer = setTimeout(function(){
       var card = document.getElementById('card-' + id);
       if (card) card.classList.remove('expanded');
+      if (_svcActiveId === id) _svcActiveId = null;
     }, 250);
   };
 
