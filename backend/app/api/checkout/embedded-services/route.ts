@@ -157,6 +157,9 @@ export async function POST(req: NextRequest) {
       ui_mode: 'embedded',
       mode: 'payment',
       line_items: lineItems,
+      // Restringido a 'card' — excluye Link a propósito. Ver comentario
+      // completo en /api/checkout/embedded/route.ts (mismo criterio).
+      payment_method_types: ['card'],
       // Colores de marca OpaBiz (blanco + azul) en vez del default de Stripe —
       // ver mismo cambio en /api/checkout/embedded/route.ts.
       branding_settings: {

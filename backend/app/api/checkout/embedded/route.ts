@@ -94,8 +94,15 @@ export async function POST(req: NextRequest) {
       ui_mode: 'embedded',
       mode: 'payment',
       line_items: lineItems,
-      // Colores de marca OpaBiz (blanco + azul) en vez del default de Stripe —
-      // no afecta el widget de Link (producto propio de Stripe, no themeable).
+      // Restringido a 'card' a propósito (decisión founder 2026-09-08) — sin
+      // esto Stripe decide automáticamente qué métodos mostrar según lo
+      // habilitado en el Dashboard (Settings → Payment methods) e incluía
+      // Link. Apple Pay / Google Pay NO se listan aparte: viajan dentro de
+      // 'card' y aparecen solos en dispositivos/navegadores compatibles,
+      // siempre que estén activados en esa misma pantalla del Dashboard
+      // (test y live son configs separadas, activar en ambas).
+      payment_method_types: ['card'],
+      // Colores de marca OpaBiz (blanco + azul) en vez del default de Stripe.
       branding_settings: {
         background_color: '#FFFFFF',
         button_color:     '#2563EB',

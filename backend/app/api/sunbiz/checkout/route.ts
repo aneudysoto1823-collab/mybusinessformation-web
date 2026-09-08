@@ -65,6 +65,9 @@ export async function POST(req: NextRequest) {
       ui_mode: 'embedded',
       line_items: lineItems,
       mode: 'payment',
+      // Restringido a 'card' — excluye Link a propósito. Ver comentario
+      // completo en /api/checkout/embedded/route.ts (mismo criterio).
+      payment_method_types: ['card'],
       billing_address_collection: 'auto',
       branding_settings: {
         background_color: '#FFFFFF',
