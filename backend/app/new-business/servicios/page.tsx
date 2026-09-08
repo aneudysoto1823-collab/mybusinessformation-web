@@ -335,9 +335,12 @@ button{font-family:inherit}
 .svc-bar-total{font-weight:800;font-size:1.05rem}
 .svc-bar-btn{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:11px 26px;font-size:.88rem;font-weight:700;cursor:pointer;font-family:inherit;min-height:44px;transition:background .2s}
 .svc-bar-btn:hover{background:#1d4ed8}
-.svc-footer{background:var(--navy);color:rgba(255,255,255,.6);padding:20px 32px;font-size:.75rem;text-align:center;line-height:1.7}
-.svc-footer a{color:rgba(255,255,255,.8);margin:0 6px}
-.svc-footer a:hover{color:#fff}
+/* Franja gris clara igual a la del home (.disclosure en new-business/page.tsx)
+   en vez de la barra navy oscura de antes — mismo criterio de "letra chica"
+   discreta, sin competir visualmente con el resto de la página. */
+.svc-footer{padding:24px 20px 32px;font-size:.68rem;text-align:center;line-height:1.6;color:#94a3b8;border-top:1px solid #e2e8f0;max-width:860px;margin:0 auto}
+.svc-footer a{color:#64748b;margin:0 6px;font-weight:600;text-decoration:underline;text-underline-offset:2px;transition:color .2s}
+.svc-footer a:hover{color:var(--blue)}
 .en{display:inline}.es{display:none}
 @media(max-width:640px){.svc-header{padding:0 16px}.svc-hero{padding:28px 16px}.svc-grid-wrap{padding:24px 16px 130px}.svc-bar{padding:12px 16px;gap:14px;flex-wrap:wrap}.svc-login-card{top:120px;right:12px;left:12px;width:auto;max-width:none}}
 `
