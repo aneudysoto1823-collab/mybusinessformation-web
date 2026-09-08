@@ -249,12 +249,17 @@ button{font-family:inherit}
 .svc-card{position:relative;border:1.5px solid var(--gray200);border-radius:12px;background:#fff;transition:border-color .2s,box-shadow .2s;cursor:pointer}
 .svc-card:hover,.svc-card.expanded{border-color:var(--blue);box-shadow:0 6px 24px rgba(37,99,235,.12);z-index:20}
 .svc-card.sel{border-color:var(--blue)}
-.svc-card-head{padding:14px 16px;display:flex;align-items:center;gap:13px}
+/* min-height fija para que las tarjetas queden parejas (mismo tamaño que en
+   opabiz.com/servicios) — antes cada una crecía según cuánto texto tuviera
+   el subtítulo, y con el botón "Add to order" nuevo achicando el ancho
+   disponible, subtítulos largos ("Registered Agent") llegaban a envolver en
+   3 líneas mientras otros quedaban en 1, dejando la grilla despareja. */
+.svc-card-head{padding:14px 16px;display:flex;align-items:center;gap:13px;min-height:86px}
 .svc-card-icon{width:40px;height:40px;border-radius:10px;background:var(--blue-light);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--blue)}
 .svc-card-icon svg{width:19px;height:19px}
 .svc-card-title-wrap{flex:1;min-width:0}
-.svc-card-name{font-family:var(--font-serif);font-weight:700;font-size:.95rem;color:var(--navy);line-height:1.25}
-.svc-card-sub{font-size:.71rem;color:var(--gray500);margin-top:2px}
+.svc-card-name{font-family:var(--font-serif);font-weight:700;font-size:.95rem;color:var(--navy);line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.svc-card-sub{font-size:.71rem;color:var(--gray500);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .svc-card-price{font-family:var(--font-serif);font-weight:700;font-size:.93rem;color:var(--navy);flex-shrink:0;white-space:nowrap}
 .svc-card-price span{font-weight:500;font-size:.68rem;color:var(--gray400)}
 .svc-chevron{width:20px;height:20px;color:var(--gray400);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:transform .25s}
