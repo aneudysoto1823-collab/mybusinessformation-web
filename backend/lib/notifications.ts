@@ -1,7 +1,7 @@
 import { Resend } from 'resend'
 import { getOrderItemKeys, getOrderItemLabel } from './order-items'
 import { computeFormationTotal } from './pricing'
-import { REPLY_TO, INTERNAL_ALERT_EMAIL as INTERNAL_EMAIL, FROM_OPABIZ, FROM_OPABIZ_SUPPORT, FROM_OPABIZ_ALERTS, type EmailBrand, brandFrom, brandReplyTo, brandPortalHome, brandSubjectPrefix, brandHeaderHtml, brandFooterLine } from './email-constants'
+import { REPLY_TO, INTERNAL_ALERT_EMAIL as INTERNAL_EMAIL, FROM_OPABIZ, FROM_OPABIZ_SUPPORT, FROM_OPABIZ_ALERTS, type EmailBrand, brandFrom, brandReplyTo, brandPortalHome, brandSubjectPrefix, brandHeaderHtml, brandFooterLine, brandDisclosureHtml } from './email-constants'
 
 // Lazy init: se crea al primer uso, cuando dotenv ya cargó el .env
 const getResend = () => new Resend(process.env.RESEND_API_KEY)
@@ -246,7 +246,7 @@ export const sendAllNamesTaken = async (order: {
               </p>
               <p style="margin-top:24px;color:#94a3b8;font-size:12px;line-height:1.6">
                 OpaBiz · opabiz.com<br/>
-                ${isEs ? 'Este es un correo transaccional. Somos un servicio de preparación de documentos, no un despacho de abogados.' : 'This is a transactional email. We are a document preparation service, not a law firm.'}
+                ${brandDisclosureHtml('opabiz', isEs ? 'es' : 'en')}
               </p>
             </div>
           </div>
@@ -506,7 +506,7 @@ export const sendOrderProcessed = async (order: {
             </p>
             <p style="margin-top:24px;color:#94a3b8;font-size:12px;line-height:1.6">
               ${brandFooterLine(brand)}<br/>
-              ${isEs ? 'Este es un correo transaccional. Somos un servicio de preparación de documentos, no un despacho de abogados.' : 'This is a transactional email. We are a document preparation service, not a law firm.'}
+              ${brandDisclosureHtml(brand, isEs ? 'es' : 'en')}
             </p>
           </div>
         </div>
@@ -652,7 +652,7 @@ export const sendOrderApprovalUpdate = async (
             </p>
             <p style="margin-top:24px;color:#94a3b8;font-size:12px;line-height:1.6">
               ${brandFooterLine(brand)}<br/>
-              ${isEs ? 'Este es un correo transaccional. Somos un servicio de preparación de documentos, no un despacho de abogados.' : 'This is a transactional email. We are a document preparation service, not a law firm.'}
+              ${brandDisclosureHtml(brand, isEs ? 'es' : 'en')}
             </p>
           </div>
         </div>
@@ -749,7 +749,7 @@ export const sendRaAddressReady = async (order: {
             </p>
             <p style="margin-top:24px;color:#94a3b8;font-size:12px;line-height:1.6">
               OpaBiz · opabiz.com<br/>
-              ${isEs ? 'Este es un correo transaccional. Somos un servicio de preparación de documentos, no un despacho de abogados.' : 'This is a transactional email. We are a document preparation service, not a law firm.'}
+              ${brandDisclosureHtml('opabiz', isEs ? 'es' : 'en')}
             </p>
           </div>
         </div>

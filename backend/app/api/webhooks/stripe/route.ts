@@ -8,7 +8,7 @@ import { PACKAGE_SERVICES } from '@/lib/notifications'
 import { computeFormationTotal } from '@/lib/pricing'
 import { getOrderItemLabel } from '@/lib/order-items'
 import { hasReceivedGuide, recordGuideSent, getGuideAttachments, buildGuideBonusHtml, type GuideKey } from '@/lib/guides'
-import { REPLY_TO, REPLY_TO_FBFC, INTERNAL_ALERT_EMAIL as ADMIN_EMAIL, FROM_OPABIZ, FROM_OPABIZ_ALERTS, FROM_FBFC, brandFrom, brandReplyTo, brandHeaderHtml, brandFooterLine, brandSubjectPrefix, brandPortalHome, type EmailBrand } from '@/lib/email-constants'
+import { REPLY_TO, REPLY_TO_FBFC, INTERNAL_ALERT_EMAIL as ADMIN_EMAIL, FROM_OPABIZ, FROM_OPABIZ_ALERTS, FROM_FBFC, brandFrom, brandReplyTo, brandHeaderHtml, brandFooterLine, brandSubjectPrefix, brandPortalHome, brandDisclosureHtml, type EmailBrand } from '@/lib/email-constants'
 import { provisionRaForOrder } from '@/lib/ra-provisioning'
 import { createRecurringSubscriptionsForOrder } from '@/lib/stripe-subscriptions'
 import { findOrderBySubscriptionId, upsertOrderSubscription } from '@/lib/order-subscriptions'
@@ -276,9 +276,7 @@ export async function POST(req: NextRequest) {
 
             <p style="margin-top:24px;color:#94a3b8;font-size:12px;line-height:1.6">
               Florida Business Formation Center · mybusinessformation.com<br/>
-              ${isEs
-                ? 'Este es un correo transaccional. Somos un servicio de preparación de documentos, no un despacho de abogados.'
-                : 'This is a transactional email. We are a document preparation service, not a law firm.'}
+              ${brandDisclosureHtml('fbfc', isEs ? 'es' : 'en')}
             </p>
           </div>
         </div>
@@ -531,7 +529,7 @@ async function handleFormationPaid(orderId: string, session: Stripe.Checkout.Ses
             ${guideBonusHtml}
             <p style="margin-top:24px;color:#94a3b8;font-size:12px;line-height:1.6">
               OpaBiz · opabiz.com<br/>
-              ${isEs ? 'Este es un correo transaccional. Somos un servicio de preparación de documentos, no un despacho de abogados.' : 'This is a transactional email. We are a document preparation service, not a law firm.'}
+              ${brandDisclosureHtml('opabiz', isEs ? 'es' : 'en')}
             </p>
           </div>
         </div>
@@ -774,7 +772,7 @@ async function handleServicesPaid(orderId: string, session: Stripe.Checkout.Sess
             </div>
             <p style="margin-top:24px;color:#94a3b8;font-size:12px;line-height:1.6">
               ${brandFooterHtml}<br/>
-              ${isEs ? 'Este es un correo transaccional. Somos un servicio de preparación de documentos, no un despacho de abogados.' : 'This is a transactional email. We are a document preparation service, not a law firm.'}
+              ${brandDisclosureHtml(isFBFC ? 'fbfc' : 'opabiz', isEs ? 'es' : 'en')}
             </p>
           </div>
         </div>

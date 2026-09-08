@@ -110,3 +110,23 @@ export function brandHeaderHtml(brand: EmailBrand): string {
 export function brandFooterLine(brand: EmailBrand): string {
   return isFbfcBrand(brand) ? 'Florida Business Formation Center · mybusinessformation.com' : 'OpaBiz · opabiz.com'
 }
+
+/**
+ * Disclosure legal completo para el pie de todos los emails al cliente
+ * (2026-09-09). Reemplaza la línea corta "Este es un correo transaccional.
+ * Somos un servicio de preparación de documentos, no un despacho de abogados."
+ * por el disclosure completo (mismo texto largo que ya vive en el sitio web
+ * como "Important Notice").
+ *
+ * El sujeto inicial cambia por marca — "OpaBiz is a trade name of..." vs
+ * "mybusinessformation is a trade name of..." — porque son dos marcas
+ * distintas al cliente pese a compartir la misma LLC legal.
+ */
+export function brandDisclosureHtml(brand: EmailBrand, lang: 'en' | 'es' = 'en'): string {
+  const isFbfc = isFbfcBrand(brand)
+  const tradeName = isFbfc ? 'mybusinessformation' : 'OpaBiz'
+  if (lang === 'es') {
+    return `${tradeName} es un nombre comercial de Florida Business Formation Center — un servicio profesional de preparación y presentación de documentos. No somos un despacho de abogados y no ofrecemos asesoría legal, fiscal o financiera. Nuestros servicios no constituyen el ejercicio del derecho ni crean una relación abogado-cliente. Toda presentación está sujeta a la aprobación de la División de Corporaciones de Florida y del IRS. Para orientación legal o fiscal específica a su situación, le recomendamos consultar a un abogado licenciado en Florida o un contador público certificado.`
+  }
+  return `${tradeName} is a trade name of Florida Business Formation Center — a professional document preparation and filing service. We are not a law firm and do not provide legal, tax, or financial advice. Our services do not constitute the practice of law and do not create an attorney-client relationship. All filings are subject to approval by the Florida Division of Corporations and the IRS. For legal or tax guidance specific to your situation, we encourage you to consult a licensed Florida attorney or certified public accountant.`
+}
