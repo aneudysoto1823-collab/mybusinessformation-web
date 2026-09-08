@@ -107,8 +107,11 @@ body{font-family:var(--font-sans),'Plus Jakarta Sans',system-ui,sans-serif;color
 .co-found-meta{font-size:.8rem;color:var(--gray600);margin-top:2px}
 .co-edit-link{display:inline-block;margin-top:8px;background:none;border:none;color:var(--blue);font-size:.78rem;font-weight:600;cursor:pointer;font-family:inherit;padding:0}
 .co-edit-link:hover{text-decoration:underline}
-.co-manual-link{display:inline-block;margin-top:12px;background:none;border:none;color:var(--gray500);font-size:.8rem;font-weight:600;cursor:pointer;font-family:inherit;padding:0;text-decoration:underline}
-.co-manual-link:hover{color:var(--navy)}
+/* Botón blanco con borde azul (mismo patrón que .co-tier-btn) — antes era
+   un link subrayado que pasaba desapercibido junto al botón "Buscar" azul
+   sólido. */
+.co-manual-link{display:inline-block;margin-top:14px;background:#fff;color:var(--blue);border:1.5px solid var(--blue);border-radius:9px;padding:10px 18px;font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit;text-decoration:none;transition:background .2s}
+.co-manual-link:hover{background:var(--blue-light)}
 .co-err{color:#dc2626;font-size:.84rem;margin:10px 0 0;min-height:1px}
 .co-actions{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:14px}
 .co-btn{background:var(--blue);color:#fff;border:none;padding:14px 26px;border-radius:11px;font-size:.95rem;font-weight:700;cursor:pointer;font-family:inherit;min-height:48px;transition:background .2s}
