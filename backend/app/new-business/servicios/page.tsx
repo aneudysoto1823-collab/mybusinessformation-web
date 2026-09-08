@@ -355,7 +355,7 @@ button{font-family:inherit}
         </div>
         <div class="svc-card-price">$${s.price.toFixed(2)}${s.billing ? `<span> / ${s.billing === 'annual' ? '<span class="en">yr</span><span class="es">año</span>' : '<span class="en">mo</span><span class="es">mes</span>'}</span>` : ''}</div>
         <button class="svc-add svc-head-add" id="head-btn-${s.id}" onclick="event.stopPropagation();svcToggle('${s.id}')">
-          <span class="svc-add-lbl en">Add to order</span><span class="svc-add-lbl es">Agregar al pedido</span>
+          <span class="svc-add-lbl en">Add</span><span class="svc-add-lbl es">Agregar</span>
         </button>
         <div class="svc-chevron" id="chev-${s.id}">${svgIcons.chevron}</div>
       </div>
@@ -364,7 +364,7 @@ button{font-family:inherit}
         <div class="svc-incl-title"><span class="en">What's included</span><span class="es">Qué incluye</span></div>
         ${s.incEn.map((inc, idx) => `<div class="svc-incl-item"><span class="svc-incl-check">&#10003;</span><span class="en">${inc}</span><span class="es">${s.incEs[idx]}</span></div>`).join('')}
         <button class="svc-add" id="btn-${s.id}" onclick="event.stopPropagation();svcToggle('${s.id}')">
-          <span class="svc-add-lbl en">Add to order</span><span class="svc-add-lbl es">Agregar al pedido</span>
+          <span class="svc-add-lbl en">Add</span><span class="svc-add-lbl es">Agregar</span>
         </button>
       </div>
     </div>`).join('')
@@ -560,8 +560,8 @@ button{font-family:inherit}
       // Etiqueta del botón: "Add to order" -> "✓ Added" (mismo patrón que
       // opabiz.com/servicios) — para que quede claro que ya está en el
       // carrito (ej. los 3 de new-business, ya agregados de entrada).
-      card.querySelectorAll('.svc-add-lbl.en').forEach(function(l){ l.textContent = isSel ? '✓ Added' : 'Add to order'; });
-      card.querySelectorAll('.svc-add-lbl.es').forEach(function(l){ l.textContent = isSel ? '✓ Agregado' : 'Agregar al pedido'; });
+      card.querySelectorAll('.svc-add-lbl.en').forEach(function(l){ l.textContent = isSel ? '✓ Added' : 'Add'; });
+      card.querySelectorAll('.svc-add-lbl.es').forEach(function(l){ l.textContent = isSel ? '✓ Agregado' : 'Agregar'; });
       // Reemplaza la flecha de expandir por un check verde cuando ya está
       // agregado — la tarjeta sigue abriendo con hover/clic igual.
       var chev = document.getElementById('chev-' + id);
