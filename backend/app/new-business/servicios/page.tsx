@@ -244,8 +244,17 @@ button{font-family:inherit}
 .os-subtotal-row strong{font-family:var(--font-serif);font-size:1.3rem;color:var(--navy)}
 .os-continue-btn{width:100%;background:var(--blue);color:#fff;border:none;padding:13px;border-radius:11px;font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit;min-height:46px;transition:background .2s;margin-top:6px}
 .os-continue-btn:hover{background:#1d4ed8}
+/* Vaciar carrito — mismo patrón que opabiz.com/servicios (confirmación
+   inline en vez de un confirm() nativo del navegador). */
+.os-clear-btn{width:100%;background:none;border:none;color:var(--gray400);font-size:.78rem;font-weight:600;cursor:pointer;font-family:inherit;padding:9px 0 2px;margin-top:4px}
+.os-clear-btn:hover{color:#dc2626;text-decoration:underline}
+.os-clear-confirm{margin-top:8px;padding:12px;background:#fff;border:1.5px solid var(--blue);border-radius:9px;text-align:center}
+.os-clear-confirm > span{display:block;font-size:.78rem;font-weight:600;color:var(--navy);margin-bottom:8px}
+.os-clear-actions{display:flex;gap:8px}
+.os-clear-yes{flex:1;background:var(--blue);color:#fff;border:none;border-radius:7px;padding:8px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit}
+.os-clear-no{flex:1;background:#fff;color:var(--gray600);border:1px solid var(--gray200);border-radius:7px;padding:8px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit}
 @media(max-width:860px){.services-layout{grid-template-columns:1fr}.order-summary{display:none}}
-@media(min-width:861px){.svc-bar{display:none!important}}
+@media(min-width:861px){.svc-bar-wrap{display:none!important}}
 .svc-card{position:relative;border:1.5px solid var(--gray200);border-radius:12px;background:#fff;transition:border-color .2s,box-shadow .2s;cursor:pointer}
 .svc-card:hover,.svc-card.expanded{border-color:var(--blue);box-shadow:0 6px 24px rgba(37,99,235,.12);z-index:20}
 .svc-card.sel{border-color:var(--blue)}
@@ -286,11 +295,21 @@ button{font-family:inherit}
    de mobile, ver media query abajo, y refuerzo visual al expandir). */
 .svc-head-add{flex-shrink:0;width:auto;min-height:auto;padding:7px 13px;font-size:.78rem;margin-top:0;white-space:nowrap}
 @media(max-width:560px){.svc-head-add{display:none}}
-.svc-bar{position:fixed;left:0;right:0;bottom:0;background:var(--navy);color:#fff;padding:14px 32px;display:none;align-items:center;justify-content:center;gap:24px;z-index:200;box-shadow:0 -4px 20px rgba(0,0,0,.2)}
-.svc-bar.show{display:flex}
+/* Barra móvil + panel de detalle desplegable — mismo patrón que
+   opabiz.com/servicios (.svc-cart-wrap). Azul de marca en vez de navy: al
+   hacer scroll hasta el final se perdía contra el navy del footer. */
+.svc-bar-wrap{position:fixed;left:0;right:0;bottom:0;z-index:10000;transform:translateY(120%);transition:transform .28s cubic-bezier(.4,0,.2,1)}
+.svc-bar-wrap.show{transform:translateY(0)}
+.svc-bar-detail{background:#fff;max-height:0;overflow:hidden;transition:max-height .25s ease;box-shadow:0 -2px 14px rgba(0,0,0,.08)}
+.svc-bar-wrap.expanded .svc-bar-detail{max-height:45vh;overflow-y:auto;padding:12px 20px 2px}
+.svc-bar-wrap.expanded .svc-bar-detail .os-item:last-child{border-bottom:none}
+.svc-bar{display:flex;align-items:center;justify-content:center;gap:24px;background:var(--blue);color:#fff;padding:14px 32px;box-shadow:0 -6px 24px rgba(37,99,235,.35)}
+.svc-bar-info{display:flex;align-items:center;gap:8px;cursor:pointer;flex:1;justify-content:center}
 .svc-bar-count{font-size:.88rem;font-weight:600}
+.svc-bar-chevron{color:rgba(255,255,255,.75);font-size:.7rem;transition:transform .25s}
+.svc-bar-wrap.expanded .svc-bar-chevron{transform:rotate(180deg)}
 .svc-bar-total{font-weight:800;font-size:1.05rem}
-.svc-bar-btn{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:11px 26px;font-size:.88rem;font-weight:700;cursor:pointer;font-family:inherit;min-height:44px}
+.svc-bar-btn{background:#fff;color:var(--blue);border:none;border-radius:8px;padding:11px 26px;font-size:.88rem;font-weight:700;cursor:pointer;font-family:inherit;min-height:44px}
 .svc-footer{background:var(--navy);color:rgba(255,255,255,.6);padding:20px 32px;font-size:.75rem;text-align:center;line-height:1.7}
 .svc-footer a{color:rgba(255,255,255,.8);margin:0 6px}
 .svc-footer a:hover{color:#fff}
@@ -390,16 +409,33 @@ button{font-family:inherit}
         <div id="os-foot" style="display:none">
           <div class="os-subtotal-row"><span class="en">Estimated subtotal</span><span class="es">Subtotal estimado</span><strong id="os-subtotal">$0.00</strong></div>
           <button class="os-continue-btn" onclick="svcContinue()"><span class="en">Continue</span><span class="es">Continuar</span> &#8594;</button>
+          <button class="os-clear-btn" onclick="clearCart()"><span class="en">Clear cart</span><span class="es">Vaciar carrito</span></button>
+          <div class="os-clear-confirm" id="os-clear-confirm" style="display:none">
+            <span><span class="en">Clear all services?</span><span class="es">¿Vaciar todos los servicios?</span></span>
+            <div class="os-clear-actions">
+              <button class="os-clear-yes" onclick="doClearCart()"><span class="en">Yes, clear</span><span class="es">Sí, vaciar</span></button>
+              <button class="os-clear-no" onclick="cancelClearCart()"><span class="en">Cancel</span><span class="es">Cancelar</span></button>
+            </div>
+          </div>
         </div>
       </div>
     </aside>
   </div>
 </div>
 
-<div class="svc-bar" id="svc-bar">
-  <div class="svc-bar-count"><span id="svc-bar-n">0</span> <span class="en">services selected</span><span class="es">servicios seleccionados</span></div>
-  <div class="svc-bar-total">$<span id="svc-bar-total">0.00</span></div>
-  <button class="svc-bar-btn" onclick="svcContinue()"><span class="en">Continue</span><span class="es">Continuar</span></button>
+<!-- Barra móvil desplegable — mismo patrón que opabiz.com/servicios: colapsada
+     por defecto (solo icono/total), un tap la despliega mostrando el detalle
+     real (servicios + tarifa estatal aparte), sin ocupar toda la pantalla. -->
+<div class="svc-bar-wrap" id="svc-bar-wrap">
+  <div class="svc-bar-detail" id="svc-bar-detail"></div>
+  <div class="svc-bar" id="svc-bar">
+    <div class="svc-bar-info" onclick="toggleCartDetail()">
+      <div class="svc-bar-count"><span id="svc-bar-n">0</span> <span class="en">services selected</span><span class="es">servicios seleccionados</span></div>
+      <span class="svc-bar-chevron" id="svc-bar-chevron" aria-hidden="true">&#9662;</span>
+    </div>
+    <div class="svc-bar-total">$<span id="svc-bar-total">0.00</span></div>
+    <button class="svc-bar-btn" onclick="svcContinue()"><span class="en">Continue</span><span class="es">Continuar</span></button>
+  </div>
 </div>
 
 <footer class="svc-footer">
@@ -428,6 +464,27 @@ button{font-family:inherit}
 
   function curLang(){ return document.querySelector('.svc-lang button.active') && document.querySelector('.svc-lang button.active').textContent === 'ES' ? 'es' : 'en'; }
 
+  // Filas de servicio + tarifa estatal (aparte, atenuada, al final) —
+  // compartido por el sidebar de escritorio y el panel desplegable de la
+  // barra móvil, para no duplicar la lógica en dos lugares.
+  function buildCartRows(known, isEs){
+    var rows = known.map(function(id){
+      var name = NAMES[id] ? (isEs ? NAMES[id].es : NAMES[id].en) : id;
+      return '<div class="os-item"><button class="os-item-x" onclick="svcToggle(\\'' + id + '\\')">&times;</button>'
+        + '<span class="os-item-name">' + name + '</span>'
+        + '<span class="os-item-price">$' + (PRICES[id] || 0).toFixed(2) + '</span></div>';
+    });
+    known.forEach(function(id){
+      var fee = STATE_FEES[id] || 0;
+      if (!fee) return;
+      var name = NAMES[id] ? (isEs ? NAMES[id].es : NAMES[id].en) : id;
+      rows.push('<div class="os-item os-item-state"><button class="os-item-x" tabindex="-1" aria-hidden="true">&times;</button>'
+        + '<span class="os-item-name">' + name + ' <em>' + (isEs ? 'tarifa estatal' : 'state fee') + '</em></span>'
+        + '<span class="os-item-price">$' + fee.toFixed(2) + '</span></div>');
+    });
+    return rows.join('');
+  }
+
   function renderSidebar(){
     var isEs = curLang() === 'es';
     var known = cart.filter(function(id){ return PRICES.hasOwnProperty(id); });
@@ -442,38 +499,26 @@ button{font-family:inherit}
     var footEl = document.getElementById('os-foot');
     if (emptyEl) emptyEl.style.display = n === 0 ? '' : 'none';
     if (footEl) footEl.style.display = n === 0 ? 'none' : '';
-    if (itemsEl) {
-      var rows = known.map(function(id){
-        var name = NAMES[id] ? (isEs ? NAMES[id].es : NAMES[id].en) : id;
-        return '<div class="os-item"><button class="os-item-x" onclick="svcToggle(\\'' + id + '\\')">&times;</button>'
-          + '<span class="os-item-name">' + name + '</span>'
-          + '<span class="os-item-price">$' + (PRICES[id] || 0).toFixed(2) + '</span></div>';
-      });
-      // Tarifas estatales agrupadas al final, cada una su propia línea
-      // atenuada — nunca sumadas al precio del servicio de arriba. Mismo
-      // patrón que /servicios/checkout (coComputeTotal → stateLines).
-      known.forEach(function(id){
-        var fee = STATE_FEES[id] || 0;
-        if (!fee) return;
-        var name = NAMES[id] ? (isEs ? NAMES[id].es : NAMES[id].en) : id;
-        rows.push('<div class="os-item os-item-state"><button class="os-item-x" tabindex="-1" aria-hidden="true">&times;</button>'
-          + '<span class="os-item-name">' + name + ' <em>' + (isEs ? 'tarifa estatal' : 'state fee') + '</em></span>'
-          + '<span class="os-item-price">$' + fee.toFixed(2) + '</span></div>');
-      });
-      itemsEl.innerHTML = rows.join('');
-    }
+    if (itemsEl) itemsEl.innerHTML = buildCartRows(known, isEs);
     var subEl = document.getElementById('os-subtotal'); if (subEl) subEl.textContent = '$' + total.toFixed(2);
   }
 
+  function toggleCartDetail(){
+    var w = document.getElementById('svc-bar-wrap'); if (w) w.classList.toggle('expanded');
+  }
+
   function render(){
+    var isEs = curLang() === 'es';
     var known = cart.filter(function(id){ return PRICES.hasOwnProperty(id); });
     var n = known.length;
-    // La barra móvil solo tiene lugar para un número — el desglose por línea
-    // (servicio vs. tarifa estatal) vive en el resumen de escritorio
-    // (renderSidebar), acá el total ya suma ambos.
     var total = known.reduce(function(sum, id){ return sum + (PRICES[id] || 0) + (STATE_FEES[id] || 0); }, 0);
-    var bar = document.getElementById('svc-bar');
-    if (bar) bar.className = 'svc-bar' + (n > 0 ? ' show' : '');
+    var wrap = document.getElementById('svc-bar-wrap');
+    if (wrap) {
+      if (n > 0) wrap.classList.add('show');
+      else { wrap.classList.remove('show'); wrap.classList.remove('expanded'); }
+    }
+    var detailEl = document.getElementById('svc-bar-detail');
+    if (detailEl) detailEl.innerHTML = buildCartRows(known, isEs);
     var nEl = document.getElementById('svc-bar-n'); if (nEl) nEl.textContent = n;
     var tEl = document.getElementById('svc-bar-total'); if (tEl) tEl.textContent = total.toFixed(2);
     document.querySelectorAll('.svc-card').forEach(function(card){
@@ -526,6 +571,21 @@ button{font-family:inherit}
   window.svcHoverClose = function(id){
     var card = document.getElementById('card-' + id);
     if (card) card.classList.remove('expanded');
+  };
+
+  window.clearCart = function(){
+    if (cart.length === 0) return;
+    var c = document.getElementById('os-clear-confirm'); if (c) c.style.display = '';
+  };
+  window.cancelClearCart = function(){
+    var c = document.getElementById('os-clear-confirm'); if (c) c.style.display = 'none';
+  };
+  window.doClearCart = function(){
+    cart = [];
+    persist();
+    try { localStorage.removeItem('flbc_svc_bundles'); localStorage.removeItem('flbc_svc_order'); localStorage.removeItem('flbc_svc_expedited'); } catch(e){}
+    render();
+    var c = document.getElementById('os-clear-confirm'); if (c) c.style.display = 'none';
   };
 
   window.svcContinue = function(){
