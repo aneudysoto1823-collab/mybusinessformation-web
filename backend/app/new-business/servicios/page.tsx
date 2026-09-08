@@ -275,6 +275,12 @@ button{font-family:inherit}
 .svc-add{background:#fff;color:var(--blue);border:1.5px solid var(--blue);border-radius:7px;padding:10px 16px;font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;min-height:40px;width:100%;margin-top:6px}
 .svc-add:hover{background:var(--blue-light)}
 .svc-add.added{background:var(--blue);color:#fff}
+/* Botón inline en la fila colapsada (mismo patrón que .svc-acc-add de
+   opabiz.com/servicios) — deja agregar sin tener que expandir la tarjeta.
+   El botón de siempre dentro de .svc-card-body sigue existiendo (fallback
+   de mobile, ver media query abajo, y refuerzo visual al expandir). */
+.svc-head-add{flex-shrink:0;width:auto;min-height:auto;padding:7px 13px;font-size:.78rem;margin-top:0;white-space:nowrap}
+@media(max-width:560px){.svc-head-add{display:none}}
 .svc-bar{position:fixed;left:0;right:0;bottom:0;background:var(--navy);color:#fff;padding:14px 32px;display:none;align-items:center;justify-content:center;gap:24px;z-index:200;box-shadow:0 -4px 20px rgba(0,0,0,.2)}
 .svc-bar.show{display:flex}
 .svc-bar-count{font-size:.88rem;font-weight:600}
@@ -296,6 +302,9 @@ button{font-family:inherit}
           <div class="svc-card-sub"><span class="en">${s.subEn}</span><span class="es">${s.subEs}</span></div>
         </div>
         <div class="svc-card-price">$${s.price.toFixed(2)}${s.billing ? `<span> / ${s.billing === 'annual' ? '<span class="en">yr</span><span class="es">año</span>' : '<span class="en">mo</span><span class="es">mes</span>'}</span>` : ''}</div>
+        <button class="svc-add svc-head-add" id="head-btn-${s.id}" onclick="event.stopPropagation();svcToggle('${s.id}')">
+          <span class="svc-add-lbl en">Add to order</span><span class="svc-add-lbl es">Agregar al pedido</span>
+        </button>
         <div class="svc-chevron" id="chev-${s.id}">${svgIcons.chevron}</div>
       </div>
       <div class="svc-card-body">
@@ -466,15 +475,15 @@ button{font-family:inherit}
       var id = card.getAttribute('data-id');
       var isSel = cart.indexOf(id) !== -1;
       card.classList.toggle('sel', isSel);
-      var btn = card.querySelector('.svc-add');
-      if (btn) btn.classList.toggle('added', isSel);
+      // Dos botones por tarjeta ahora (el de la fila colapsada + el de
+      // siempre dentro de .svc-card-body) — ambos comparten clase .svc-add,
+      // se sincronizan juntos acá.
+      card.querySelectorAll('.svc-add').forEach(function(b){ b.classList.toggle('added', isSel); });
       // Etiqueta del botón: "Add to order" -> "✓ Added" (mismo patrón que
       // opabiz.com/servicios) — para que quede claro que ya está en el
       // carrito (ej. los 3 de new-business, ya agregados de entrada).
-      var lblEn = document.querySelector('#btn-' + id + ' .svc-add-lbl.en');
-      var lblEs = document.querySelector('#btn-' + id + ' .svc-add-lbl.es');
-      if (lblEn) lblEn.textContent = isSel ? '✓ Added' : 'Add to order';
-      if (lblEs) lblEs.textContent = isSel ? '✓ Agregado' : 'Agregar al pedido';
+      card.querySelectorAll('.svc-add-lbl.en').forEach(function(l){ l.textContent = isSel ? '✓ Added' : 'Add to order'; });
+      card.querySelectorAll('.svc-add-lbl.es').forEach(function(l){ l.textContent = isSel ? '✓ Agregado' : 'Agregar al pedido'; });
       // Reemplaza la flecha de expandir por un check verde cuando ya está
       // agregado — la tarjeta sigue abriendo con hover/clic igual.
       var chev = document.getElementById('chev-' + id);
