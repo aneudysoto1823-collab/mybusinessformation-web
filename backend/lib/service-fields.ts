@@ -200,11 +200,20 @@ export const SERVICE_FIELDS: Record<string, ServiceFieldDef> = {
   'virtual-address': { name_en: 'Virtual Mailing Address', name_es: 'Dirección Virtual', fields: [] },
   'annual-report': { name_en: 'Annual Report', name_es: 'Declaración Anual', shared: ['ein'],
     note_en: 'Owners, officers, managers and directors', note_es: 'Dueños, oficiales, gerentes y directores', fields: [
-    { k: 'officers', en: 'Owners / Officers / Managers / Directors', es: 'Dueños / Oficiales / Gerentes / Directores', type: 'repeater',
+    // block:true + cols desglosadas (nombre/apellido, calle/apt/ciudad/estado/
+    // zip por separado) — antes "Full name" y "Address" eran un solo campo de
+    // texto libre cada uno. Mismo patrón exacto que llc-formation/members y
+    // corp-formation/directors (ver esos, más abajo), reutilizado tal cual.
+    { k: 'officers', en: 'Owners / Officers / Managers / Directors', es: 'Dueños / Oficiales / Gerentes / Directores', type: 'repeater', block: true,
       countEn: 'How many owners/officers?', countEs: '¿Cuántos dueños u oficiales?', cols: [
-      { k: 'title', en: 'Title', es: 'Título', type: 'select', opts: ['MGR', 'MGRM', 'President', 'VP', 'Secretary', 'Treasurer', 'Director'] },
-      { k: 'name', en: 'Full name', es: 'Nombre completo', type: 'text' },
-      { k: 'address', en: 'Address', es: 'Dirección', type: 'text' },
+      { k: 'title', en: 'Title', es: 'Título', type: 'select', defaultFirst: true, full: true, opts: ['MGR', 'MGRM', 'President', 'VP', 'Secretary', 'Treasurer', 'Director'] },
+      { k: 'firstName', en: 'First name', es: 'Nombre', type: 'text' },
+      { k: 'lastName', en: 'Last name', es: 'Apellido', type: 'text' },
+      { k: 'street', en: 'Street address', es: 'Dirección (calle)', type: 'text' },
+      { k: 'apt', en: 'Apt / Suite (optional)', es: 'Apt / Suite (opcional)', type: 'text' },
+      { k: 'city', en: 'City', es: 'Ciudad', type: 'text' },
+      { k: 'state', en: 'State', es: 'Estado', type: 'select', opts: ['AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'DC', 'FL', 'GA', 'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'] },
+      { k: 'zip', en: 'ZIP', es: 'ZIP', type: 'text' },
     ]},
   ]},
   'amendment': { name_en: 'Articles of Amendment', name_es: 'Artículos de Enmienda',
