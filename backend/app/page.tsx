@@ -2453,6 +2453,14 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
         <div class="fm-sum-line sum-str-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-str">Sales Tax Receipt</span><span class="fm-sum-val">$79</span></div>
         <div class="fm-sum-line sum-cc-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-cc">Certified Copy</span><span class="fm-sum-val">$49</span></div>
         <div class="fm-sum-line sum-ar-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-ar">Annual Report</span><span class="fm-sum-val">$99</span></div>
+        <!-- Addons de "Ver todos los servicios" (paso 6) — antes solo sumaban
+             al Total sin aparecer acá (bug real, ver fmUpdateSummary). -->
+        <div class="fm-sum-line sum-dba-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-dba">DBA / Fictitious Name</span><span class="fm-sum-val">$99</span></div>
+        <div class="fm-sum-line sum-br-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-br">Banking Resolution</span><span class="fm-sum-val">$49</span></div>
+        <div class="fm-sum-line sum-gd-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-gd">Exclusive Formation Guide</span><span class="fm-sum-val">$49</span></div>
+        <div class="fm-sum-line sum-gs-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-gs">Certificate of Good Standing</span><span class="fm-sum-val">$49</span></div>
+        <div class="fm-sum-line sum-sc-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-sc">S-Corp Election</span><span class="fm-sum-val">$79</span></div>
+        <div class="fm-sum-line sum-bl-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-bl">Business License</span><span class="fm-sum-val">$99</span></div>
       </div>
       <div class="fm-sum-foot">
         <span class="fm-sum-total-lbl sum-total-lbl" id="sum-lbl-total">Total</span>
@@ -5656,6 +5664,15 @@ function fmUpdateSummary() {
   document.querySelectorAll('.sum-str-line').forEach(function(el){ el.style.display = fmData.addons.str?'':'none'; });
   document.querySelectorAll('.sum-cc-line').forEach(function(el){ el.style.display = fmData.addons.cc?'':'none'; });
   document.querySelectorAll('.sum-ar-line').forEach(function(el){ el.style.display = fmData.addons.ar?'':'none'; });
+  // Addons de "Ver todos los servicios" (paso 6) — antes se sumaban a extras
+  // (arriba) pero nunca aparecían acá: el sumario (mobile y desktop) solo
+  // reflejaba el Total más alto, sin explicar por qué.
+  document.querySelectorAll('.sum-dba-line').forEach(function(el){ el.style.display = fmData.addons.dba?'':'none'; });
+  document.querySelectorAll('.sum-br-line').forEach(function(el){ el.style.display = fmData.addons.br?'':'none'; });
+  document.querySelectorAll('.sum-gd-line').forEach(function(el){ el.style.display = fmData.addons.gd?'':'none'; });
+  document.querySelectorAll('.sum-gs-line').forEach(function(el){ el.style.display = fmData.addons.gs?'':'none'; });
+  document.querySelectorAll('.sum-sc-line').forEach(function(el){ el.style.display = fmData.addons.sc?'':'none'; });
+  document.querySelectorAll('.sum-bl-line').forEach(function(el){ el.style.display = fmData.addons.bl?'':'none'; });
   // Legacy compatibility
   formData.package = pkg;
   formData.entity  = fmData.entity;
@@ -6583,6 +6600,12 @@ function fmTranslate(lang) {
     'sum-lbl-str':isEs?'Permiso de Ventas (STR)':'Sales Tax Receipt',
     'sum-lbl-cc':isEs?'Copia Certificada':'Certified Copy',
     'sum-lbl-ar':isEs?'Declaraci\\u00f3n Anual':'Annual Report',
+    'sum-lbl-dba':isEs?'DBA / Nombre Ficticio':'DBA / Fictitious Name',
+    'sum-lbl-br':isEs?'Resoluci\\u00f3n Bancaria':'Banking Resolution',
+    'sum-lbl-gd':isEs?'Gu\\u00eda Exclusiva de Formaci\\u00f3n':'Exclusive Formation Guide',
+    'sum-lbl-gs':isEs?'Certificado de Buena Reputaci\\u00f3n':'Certificate of Good Standing',
+    'sum-lbl-sc':isEs?'Elecci\\u00f3n de S-Corp':'S-Corp Election',
+    'sum-lbl-bl':isEs?'Licencia de Negocios':'Business License',
     'sum-lbl-total':isEs?'Total':'Total',
     'sum-sec-ssl':isEs?'&#128274; Cifrado SSL':'&#128274; SSL Encrypted',
     'sum-pay-title':isEs?'Pago Seguro':'Secure Payment',
