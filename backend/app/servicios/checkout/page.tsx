@@ -209,6 +209,29 @@ html.co-wide .co-tier{padding:20px 18px}
   .co-side:not(.co-sum-open) #co-osum-body,.co-side:not(.co-sum-open) .co-side-note{display:none}
   .co-side.co-sum-open .co-sum-toggle{transform:rotate(180deg)}}
 @media(max-width:480px){.co-wrap{padding-left:16px;padding-right:16px}.co-header-inner{padding-left:16px;padding-right:16px}.co-review{padding-left:18px;padding-right:18px}.co-card{padding-left:16px;padding-right:16px}.co-h1{font-size:1.45rem}}
+
+/* ── LOB address verification popup (2026-09-09) ────────────────────────── */
+.co-lob-popup-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99999;align-items:center;justify-content:center;padding:16px}
+.co-lob-popup-backdrop.open{display:flex}
+.co-lob-popup{background:#fff;border-radius:16px;width:min(440px,100%);max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3);font-family:var(--font-sans)}
+.co-lob-popup-header{padding:20px 24px 16px;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;gap:14px}
+.co-lob-popup-icon{width:42px;height:42px;border-radius:10px;background:#fef3eb;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:22px;color:#ea580c}
+.co-lob-popup-title{font-size:1.05rem;font-weight:600;color:#111827;flex:1;margin:0}
+.co-lob-popup-close{background:none;border:0;cursor:pointer;color:#6b7280;font-size:18px;padding:4px;line-height:1}
+.co-lob-popup-close:hover{color:#111827}
+.co-lob-popup-body{padding:20px 24px}
+.co-lob-popup-notfound-title{font-weight:600;color:#111827;font-size:.95rem;margin:0 0 4px}
+.co-lob-popup-notfound-sub{color:#6b7280;font-size:.84rem;margin:0 0 18px}
+.co-lob-popup-suggested-lbl{font-weight:600;color:#111827;font-size:.85rem;margin:0 0 6px}
+.co-lob-popup-suggested{color:#1e40af;font-size:.92rem;line-height:1.5;margin-bottom:18px}
+.co-lob-popup-entered-lbl{font-weight:600;color:#111827;font-size:.85rem;margin:0 0 6px}
+.co-lob-popup-entered{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:12px 14px;color:#374151;font-size:.9rem;line-height:1.45}
+.co-lob-popup-footer{display:flex;gap:12px;padding:16px 24px 20px;border-top:1px solid #f3f4f6}
+.co-lob-popup-btn{flex:1;padding:11px 16px;border-radius:10px;font-size:.92rem;font-weight:600;cursor:pointer;border:0;font-family:inherit;transition:background .15s}
+.co-lob-popup-btn-secondary{background:#fff;color:#374151;border:1.5px solid #e5e7eb}
+.co-lob-popup-btn-secondary:hover{background:#f9fafb}
+.co-lob-popup-btn-primary{background:#ea580c;color:#fff}
+.co-lob-popup-btn-primary:hover{background:#c2410c}
 `
 
   const body = `
@@ -398,6 +421,35 @@ html.co-wide .co-tier{padding:20px 18px}
     <h2 data-en="Order received" data-es="Orden recibida">Orden recibida</h2>
     <p data-en="Thank you! We received your payment. You'll receive a confirmation email with your order details shortly." data-es="¡Gracias! Recibimos tu pago. Recibirás un correo de confirmación con los detalles de tu orden en los próximos minutos.">¡Gracias! Recibimos tu pago. Recibirás un correo de confirmación con los detalles de tu orden en los próximos minutos.</p>
     <div class="co-success-num"><span data-en="Your order number" data-es="Tu número de orden">Tu número de orden</span><strong id="co-success-num">—</strong></div>
+  </div>
+</div>
+
+<!-- LOB address verification popup (2026-09-09). Cero cambio de UX cuando LOB
+     está deshabilitado (LOB_ENABLED='false' en env vars) — el popup nunca se
+     abre en ese caso porque coLobValidateAddr sale al primer check. -->
+<div class="co-lob-popup-backdrop" id="co-lob-popup-backdrop" role="dialog" aria-modal="true" aria-labelledby="co-lob-popup-title">
+  <div class="co-lob-popup">
+    <div class="co-lob-popup-header">
+      <div class="co-lob-popup-icon" aria-hidden="true">&#128205;</div>
+      <h3 class="co-lob-popup-title" id="co-lob-popup-title">Confirm your address</h3>
+      <button type="button" class="co-lob-popup-close" id="co-lob-popup-close" aria-label="Close">&#10005;</button>
+    </div>
+    <div class="co-lob-popup-body">
+      <div id="co-lob-popup-notfound" style="display:none">
+        <p class="co-lob-popup-notfound-title" id="co-lob-popup-notfound-title">Address not found</p>
+        <p class="co-lob-popup-notfound-sub" id="co-lob-popup-notfound-sub">Please verify and confirm your address.</p>
+      </div>
+      <div id="co-lob-popup-suggested-block" style="display:none">
+        <p class="co-lob-popup-suggested-lbl" id="co-lob-popup-suggested-lbl">Suggested</p>
+        <div class="co-lob-popup-suggested" id="co-lob-popup-suggested-value"></div>
+      </div>
+      <p class="co-lob-popup-entered-lbl" id="co-lob-popup-entered-lbl">Address</p>
+      <div class="co-lob-popup-entered" id="co-lob-popup-entered-value"></div>
+    </div>
+    <div class="co-lob-popup-footer">
+      <button type="button" class="co-lob-popup-btn co-lob-popup-btn-secondary" id="co-lob-popup-use-entered">Use Entered</button>
+      <button type="button" class="co-lob-popup-btn co-lob-popup-btn-primary" id="co-lob-popup-primary">Use Suggested</button>
+    </div>
   </div>
 </div>
 
@@ -1601,11 +1653,11 @@ function coToggleDevMode(){
   var l=$('co-prog-label'); if(l) l.style.color=_coDevMode?'#b45309':'';
 }
 document.addEventListener('keydown', function(e){ if(e.ctrlKey&&e.shiftKey&&(e.key==='D'||e.key==='d')) coToggleDevMode(); });
-function coNext(){
-  if(!_coDevMode && !coValidateStep(coIdx)) return;
+async function coNext(){
+  if(!_coDevMode && !(await coValidateStep(coIdx))) return;
   coGoStep(coIdx+1);
 }
-function coValidateStep(i){
+async function coValidateStep(i){
   var id=coSteps[i].id, isEs=coIsEs(), err=$('co-err'); err.textContent='';
   if(id==='panel-company'){
     var nm=($('f-legalName').value||'').trim();
@@ -1619,6 +1671,30 @@ function coValidateStep(i){
       if(actEl && !(actEl.value||'').trim()){ err.textContent=isEs?'Selecciona la actividad principal de tu negocio.':"Select your business's primary activity."; return false; }
       var descEl=$('x-'+coFormId+'-activityDesc');
       if(!descEl || (descEl.value||'').trim().length<3){ err.textContent=isEs?'Describe brevemente qué hace tu negocio.':'Briefly describe what your business does.'; return false; }
+    }
+    // LOB address verification — solo si el cliente ingresó calle (a veces
+    // este paso se llena con solo el nombre + Document ID desde el lookup
+    // de Sunbiz, sin dirección editable en la UI); y solo si el pais es US.
+    var countryEl = $('f-country');
+    var isUS = !countryEl || (countryEl.value||'').indexOf('United States')===0 || countryEl.value==='US';
+    var streetVal = ($('f-street')||{}).value||'';
+    if(isUS && streetVal.trim().length>0){
+      var lobRes = await coLobValidateAddr({
+        primary_line: streetVal,
+        secondary_line: ($('f-apt')||{}).value||'',
+        city: ($('f-city')||{}).value||'',
+        state: ($('f-state')||{}).value||'',
+        zip_code: ($('f-zip')||{}).value||'',
+      }, isEs?'Dirección de la empresa':'Business address');
+      if(lobRes.action==='use-suggested' && lobRes.addr){
+        if($('f-street')) $('f-street').value = lobRes.addr.primary_line || streetVal;
+        if($('f-apt'))    $('f-apt').value    = lobRes.addr.secondary_line || '';
+        if($('f-city'))   $('f-city').value   = lobRes.addr.city || '';
+        if($('f-state'))  $('f-state').value  = lobRes.addr.state || '';
+        if($('f-zip'))    $('f-zip').value    = lobRes.addr.zip_code || '';
+      } else if(lobRes.action==='re-enter' || lobRes.action==='close'){
+        return false;
+      }
     }
     return true;
   }
@@ -1658,6 +1734,24 @@ function coValidateStep(i){
     if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(($('f-email').value||'').trim())){ err.textContent=isEs?'Ingresa un correo válido.':'Enter a valid email.'; return false; }
     if(($('f-phone').value||'').replace(/[^0-9]/g,'').length<7){ err.textContent=isEs?'Ingresa un teléfono válido.':'Enter a valid phone.'; return false; }
     if(($('p-street').value||'').trim().length<3||($('p-city').value||'').trim().length<2||($('p-state').value||'').trim().length<2||($('p-zip').value||'').trim().length<3){ err.textContent=isEs?'Ingresa tu dirección (calle, ciudad, estado y código postal).':'Enter your address (street, city, state and ZIP).'; return false; }
+    // LOB address verification — dirección personal del cliente (siempre US
+    // en este paso: state es un <select> con los 50 estados de EE.UU.).
+    var lobRes2 = await coLobValidateAddr({
+      primary_line: $('p-street').value,
+      secondary_line: ($('p-apt')||{}).value||'',
+      city: $('p-city').value,
+      state: $('p-state').value,
+      zip_code: $('p-zip').value,
+    }, isEs?'Tu dirección':'Your address');
+    if(lobRes2.action==='use-suggested' && lobRes2.addr){
+      $('p-street').value = lobRes2.addr.primary_line || $('p-street').value;
+      if($('p-apt')) $('p-apt').value = lobRes2.addr.secondary_line || '';
+      $('p-city').value = lobRes2.addr.city || $('p-city').value;
+      $('p-state').value = lobRes2.addr.state || $('p-state').value;
+      $('p-zip').value = lobRes2.addr.zip_code || $('p-zip').value;
+    } else if(lobRes2.action==='re-enter' || lobRes2.action==='close'){
+      return false;
+    }
     return true;
   }
   return true;
@@ -1767,8 +1861,8 @@ function coRenderReview(lines, total){
 function coEsc(s){ return String(s||'').replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
 function coEditStep(id){ var idx=-1; coSteps.forEach(function(s,i){ if(s.id===id) idx=i; }); if(idx<0) return; coEditReturn=true; coDestroyStripe(); coGoStep(idx); }
 // Vuelve directo a la revisión desde un paso al que se llegó por "Editar" (valida antes).
-function coReturnToReview(){
-  if(!_coDevMode && !coValidateStep(coIdx)) return;
+async function coReturnToReview(){
+  if(!_coDevMode && !(await coValidateStep(coIdx))) return;
   var idx=-1; coSteps.forEach(function(s,i){ if(s.id==='panel-pay') idx=i; });
   if(idx>=0){ coEditReturn=false; coGoStep(idx); }
 }
@@ -1860,6 +1954,98 @@ function coMountFail(msg){
   coShowPayError(msg||(isEs?'No se pudo cargar el formulario de pago. Puede deberse a tu conexión o a un bloqueador de anuncios.':'The payment form could not load. This can happen due to your connection or an ad blocker.'));
 }
 function coRetryPayment(){ coPrefetch=null; coStartPayment(); }
+
+// ── LOB address verification (2026-09-09) ────────────────────────────────────
+// Mismo patron que fmLob* en app/page.tsx (home). Llama /api/address/verify;
+// si LOB tiene una sugerencia distinta a lo ingresado, abre un popup para que
+// el cliente elija "usar sugerida" / "usar mia" / "re-ingresar". Cero cambio
+// server-side (el endpoint ya existe). El popup HTML esta en el <body> del
+// template (co-lob-popup-*).
+var _coLobResolver = null;
+function coLobPopupClose(){
+  var bd=$('co-lob-popup-backdrop'); if(bd) bd.classList.remove('open');
+  if(_coLobResolver){ var r=_coLobResolver; _coLobResolver=null; r({action:'close'}); }
+}
+function coLobPopupShow(opts){
+  return new Promise(function(resolve){
+    _coLobResolver=resolve;
+    var isEs=coIsEs();
+    var titleEl=$('co-lob-popup-title'); if(titleEl) titleEl.textContent=isEs?'Confirma tu dirección':'Confirm your address';
+    var useEnteredBtn=$('co-lob-popup-use-entered'); if(useEnteredBtn) useEnteredBtn.textContent=isEs?'Usar la mía':'Use Entered';
+    var enteredLbl=$('co-lob-popup-entered-lbl'); if(enteredLbl) enteredLbl.textContent=opts.enteredLabel||(isEs?'Dirección ingresada':'Entered Address');
+    var enteredVal=$('co-lob-popup-entered-value');
+    if(enteredVal) enteredVal.innerHTML=(opts.enteredLines||[]).map(function(l){return String(l).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}).join('<br>');
+    var notFoundDiv=$('co-lob-popup-notfound');
+    var suggestedDiv=$('co-lob-popup-suggested-block');
+    var primaryBtn=$('co-lob-popup-primary');
+    if(opts.mode==='not-found'){
+      if(notFoundDiv) notFoundDiv.style.display='block';
+      if(suggestedDiv) suggestedDiv.style.display='none';
+      var nft=$('co-lob-popup-notfound-title'); if(nft) nft.textContent=isEs?'No encontramos esta dirección':'Address not found';
+      var nfs=$('co-lob-popup-notfound-sub');  if(nfs) nfs.textContent=isEs?'Verifica y confirma tu dirección.':'Please verify and confirm your address.';
+      if(primaryBtn){
+        primaryBtn.textContent=isEs?'Re-ingresar dirección':'Re-enter Address';
+        primaryBtn.onclick=function(){ var r=_coLobResolver; _coLobResolver=null; $('co-lob-popup-backdrop').classList.remove('open'); if(r) r({action:'re-enter'}); };
+      }
+    } else {
+      if(notFoundDiv) notFoundDiv.style.display='none';
+      if(suggestedDiv) suggestedDiv.style.display='block';
+      var slbl=$('co-lob-popup-suggested-lbl'); if(slbl) slbl.textContent=isEs?'Sugerida':'Suggested';
+      var sval=$('co-lob-popup-suggested-value');
+      if(sval) sval.innerHTML=(opts.suggestedLines||[]).map(function(l){return String(l).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}).join('<br>');
+      if(primaryBtn){
+        primaryBtn.textContent=isEs?'Usar sugerida':'Use Suggested';
+        primaryBtn.onclick=function(){ var r=_coLobResolver; _coLobResolver=null; $('co-lob-popup-backdrop').classList.remove('open'); if(r) r({action:'use-suggested', addr:opts.suggestedAddr}); };
+      }
+    }
+    if(useEnteredBtn) useEnteredBtn.onclick=function(){ var r=_coLobResolver; _coLobResolver=null; $('co-lob-popup-backdrop').classList.remove('open'); if(r) r({action:'use-entered'}); };
+    var closeBtn=$('co-lob-popup-close'); if(closeBtn) closeBtn.onclick=coLobPopupClose;
+    var bd=$('co-lob-popup-backdrop'); if(bd) bd.classList.add('open');
+  });
+}
+async function coLobValidateAddr(addrInput, enteredLabel){
+  try {
+    if(!addrInput || !addrInput.primary_line || !String(addrInput.primary_line).trim()) return {action:'pass'};
+    var ctrl=new AbortController();
+    var tid=setTimeout(function(){ try{ctrl.abort();}catch(e){} }, 6000);
+    var res=await fetch('/api/address/verify', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        primary_line: addrInput.primary_line,
+        secondary_line: addrInput.secondary_line,
+        city: addrInput.city,
+        state: addrInput.state,
+        zip_code: addrInput.zip_code,
+      }),
+      signal: ctrl.signal,
+    });
+    clearTimeout(tid);
+    var data=await res.json();
+    // Si LOB esta dormido/no configurado (LOB_ENABLED='false' o key faltante),
+    // el endpoint devuelve source distinto de 'lob' — se salta y sigue.
+    if(!data || data.source!=='lob') return {action:'pass'};
+    var entered=addrInput, sugg=data.suggested||null;
+    function n(s){ return String(s||'').trim().toUpperCase().replace(/\\s+/g,' '); }
+    var same=sugg && n(entered.primary_line)===n(sugg.primary_line) && n(entered.city)===n(sugg.city) && n(entered.state)===n(sugg.state) && n(entered.zip_code).slice(0,5)===n(sugg.zip_code).slice(0,5);
+    if(data.ok && same) return {action:'pass'};
+    var enteredLines=[
+      String(entered.primary_line||'')+(entered.secondary_line?(' '+entered.secondary_line):''),
+      [entered.city, entered.state, entered.zip_code].filter(Boolean).join(' '),
+    ].filter(function(l){return l && String(l).trim().length>0;});
+    if(!data.ok){
+      return await coLobPopupShow({mode:'not-found', enteredLines:enteredLines, enteredLabel:enteredLabel});
+    }
+    var suggLines=sugg?[
+      String(sugg.primary_line||'')+(sugg.secondary_line?(' '+sugg.secondary_line):''),
+      [sugg.city, sugg.state, sugg.zip_code].filter(Boolean).join(' '),
+    ].filter(function(l){return l && String(l).trim().length>0;}):[];
+    return await coLobPopupShow({mode:'suggest', enteredLines:enteredLines, enteredLabel:enteredLabel, suggestedLines:suggLines, suggestedAddr:sugg});
+  } catch(e){
+    // Timeout, red caida o error inesperado: no bloquea el checkout — sigue.
+    return {action:'pass'};
+  }
+}
 
 // ── Init ─────────────────────────────────────────────────────────────────────
 (function init(){

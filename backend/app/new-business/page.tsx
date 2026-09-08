@@ -1246,6 +1246,69 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
   const formRef = useRef<HTMLDivElement>(null)
   const shipRef = useRef<HTMLDivElement>(null)
 
+  // ── LOB address verification popup (2026-09-09) ──────────────────────────
+  // Mismo mecanismo que fmLob* del home y coLob* del checkout compartido:
+  // llama /api/address/verify; si LOB tiene sugerencia distinta a lo escrito,
+  // abre popup con opciones "Usar sugerida" / "Usar la mía" / "Re-ingresar".
+  // Endpoint compartido — cero cambio server-side. Si LOB está deshabilitado
+  // (LOB_ENABLED='false' en env vars), la función devuelve 'pass' silenciosa.
+  type LobAddr = { primary_line: string; secondary_line?: string; city?: string; state?: string; zip_code?: string }
+  type LobAction = 'pass' | 'use-suggested' | 'use-entered' | 're-enter' | 'close'
+  const [lobPopup, setLobPopup] = useState<{
+    open: boolean
+    mode: 'not-found' | 'suggest'
+    enteredLines: string[]
+    suggestedLines: string[]
+    suggested: LobAddr | null
+    resolve: ((action: Exclude<LobAction, 'pass'>) => void) | null
+  }>({ open: false, mode: 'suggest', enteredLines: [], suggestedLines: [], suggested: null, resolve: null })
+
+  function closeLobPopup(action: Exclude<LobAction, 'pass'> = 'close') {
+    const r = lobPopup.resolve
+    setLobPopup({ open: false, mode: 'suggest', enteredLines: [], suggestedLines: [], suggested: null, resolve: null })
+    if (r) r(action)
+  }
+
+  async function lobValidateAddress(addr: LobAddr): Promise<{ action: LobAction; addr?: LobAddr }> {
+    try {
+      if (!addr.primary_line || !addr.primary_line.trim()) return { action: 'pass' }
+      const ctrl = new AbortController()
+      const tid = setTimeout(() => { try { ctrl.abort() } catch {} }, 6000)
+      const res = await fetch('/api/address/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(addr),
+        signal: ctrl.signal,
+      })
+      clearTimeout(tid)
+      const data = await res.json()
+      if (!data || data.source !== 'lob') return { action: 'pass' }
+      const sugg: LobAddr | null = data.suggested || null
+      const norm = (s: unknown) => String(s || '').trim().toUpperCase().replace(/\s+/g, ' ')
+      const same = !!sugg
+        && norm(addr.primary_line) === norm(sugg.primary_line)
+        && norm(addr.city) === norm(sugg.city)
+        && norm(addr.state) === norm(sugg.state)
+        && norm(addr.zip_code).slice(0, 5) === norm(sugg.zip_code).slice(0, 5)
+      if (data.ok && same) return { action: 'pass' }
+      const enteredLines = [
+        String(addr.primary_line || '') + (addr.secondary_line ? (' ' + addr.secondary_line) : ''),
+        [addr.city, addr.state, addr.zip_code].filter(Boolean).join(' '),
+      ].filter(l => l && l.trim().length > 0)
+      const mode: 'not-found' | 'suggest' = data.ok ? 'suggest' : 'not-found'
+      const suggestedLines = sugg ? [
+        String(sugg.primary_line || '') + (sugg.secondary_line ? (' ' + sugg.secondary_line) : ''),
+        [sugg.city, sugg.state, sugg.zip_code].filter(Boolean).join(' '),
+      ].filter(l => l && l.trim().length > 0) : []
+      const action = await new Promise<Exclude<LobAction, 'pass'>>(resolve => {
+        setLobPopup({ open: true, mode, enteredLines, suggestedLines, suggested: sugg, resolve })
+      })
+      return { action, addr: (action === 'use-suggested' && sugg) ? sugg : undefined }
+    } catch {
+      return { action: 'pass' }
+    }
+  }
+
   const [form, setForm] = useState({
     // Step 1 — Business
     companyName: '', address: '', city: '', zip: '', state: 'Florida',
@@ -2105,8 +2168,48 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
 
                       <div className="step-nav">
                         <span />
-                        <button className="step-next" onClick={() => {
+                        <button className="step-next" onClick={async () => {
                           if (!devMode && !form.businessDescription.trim()) { setDescErr(true); return }
+                          // LOB address verification — solo si el cliente escribió calle.
+                          // Estado siempre es Florida (readonly), país US implícito.
+                          if (!devMode && form.address.trim().length > 0) {
+                            const res = await lobValidateAddress({
+                              primary_line: form.address,
+                              city: form.city,
+                              state: form.state,
+                              zip_code: form.zip,
+                            })
+                            if (res.action === 'use-suggested' && res.addr) {
+                              setForm(f => ({
+                                ...f,
+                                address: res.addr!.primary_line || f.address,
+                                city: res.addr!.city || f.city,
+                                zip: res.addr!.zip_code || f.zip,
+                                // state se queda en Florida (readonly)
+                              }))
+                            } else if (res.action === 'close' || res.action === 're-enter') {
+                              return
+                            }
+                            // Si hay shipping distinto, validarlo también.
+                            if (form.differentShipping && form.shipAddress.trim().length > 0) {
+                              const resShip = await lobValidateAddress({
+                                primary_line: form.shipAddress,
+                                city: form.shipCity,
+                                state: form.shipState,
+                                zip_code: form.shipZip,
+                              })
+                              if (resShip.action === 'use-suggested' && resShip.addr) {
+                                setForm(f => ({
+                                  ...f,
+                                  shipAddress: resShip.addr!.primary_line || f.shipAddress,
+                                  shipCity: resShip.addr!.city || f.shipCity,
+                                  shipZip: resShip.addr!.zip_code || f.shipZip,
+                                }))
+                              } else if (resShip.action === 'close' || resShip.action === 're-enter') {
+                                return
+                              }
+                            }
+                          }
                           goToStep(2)
                         }}>
                           {lang === 'es' ? 'Siguiente' : 'Next'}
@@ -2786,6 +2889,75 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
           </div>
 
       </>
+
+      {/* LOB address verification popup — 2026-09-09. Mismo estilo visual que
+          fmLob* del home y coLob* del checkout compartido; JSX-native acá
+          porque new-business es React clásico (no template literal). */}
+      {lobPopup.open && (
+        <div
+          onClick={() => closeLobPopup('close')}
+          style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.6)', zIndex:99999, display:'flex', alignItems:'center', justifyContent:'center', padding:16 }}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{ background:'#fff', borderRadius:16, width:'min(440px,100%)', maxHeight:'90vh', overflowY:'auto', boxShadow:'0 20px 60px rgba(0,0,0,.3)', fontFamily:'inherit' }}
+          >
+            <div style={{ padding:'20px 24px 16px', borderBottom:'1px solid #f3f4f6', display:'flex', alignItems:'center', gap:14 }}>
+              <div style={{ width:42, height:42, borderRadius:10, background:'#fef3eb', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, fontSize:22, color:'#ea580c' }}>📍</div>
+              <h3 style={{ fontSize:'1.05rem', fontWeight:600, color:'#111827', flex:1, margin:0 }}>
+                {lang === 'es' ? 'Confirma tu dirección' : 'Confirm your address'}
+              </h3>
+              <button type="button" onClick={() => closeLobPopup('close')} aria-label="Close" style={{ background:'none', border:0, cursor:'pointer', color:'#6b7280', fontSize:18, padding:4, lineHeight:1 }}>✕</button>
+            </div>
+            <div style={{ padding:'20px 24px' }}>
+              {lobPopup.mode === 'not-found' && (
+                <>
+                  <p style={{ fontWeight:600, color:'#111827', fontSize:'.95rem', margin:'0 0 4px' }}>
+                    {lang === 'es' ? 'No encontramos esta dirección' : 'Address not found'}
+                  </p>
+                  <p style={{ color:'#6b7280', fontSize:'.84rem', margin:'0 0 18px' }}>
+                    {lang === 'es' ? 'Verifica y confirma tu dirección.' : 'Please verify and confirm your address.'}
+                  </p>
+                </>
+              )}
+              {lobPopup.mode === 'suggest' && lobPopup.suggestedLines.length > 0 && (
+                <>
+                  <p style={{ fontWeight:600, color:'#111827', fontSize:'.85rem', margin:'0 0 6px' }}>
+                    {lang === 'es' ? 'Sugerida' : 'Suggested'}
+                  </p>
+                  <div style={{ color:'#1e40af', fontSize:'.92rem', lineHeight:1.5, marginBottom:18 }}>
+                    {lobPopup.suggestedLines.map((l, i) => <div key={i}>{l}</div>)}
+                  </div>
+                </>
+              )}
+              <p style={{ fontWeight:600, color:'#111827', fontSize:'.85rem', margin:'0 0 6px' }}>
+                {lang === 'es' ? 'Dirección ingresada' : 'Entered Address'}
+              </p>
+              <div style={{ background:'#f9fafb', border:'1px solid #e5e7eb', borderRadius:8, padding:'12px 14px', color:'#374151', fontSize:'.9rem', lineHeight:1.45 }}>
+                {lobPopup.enteredLines.map((l, i) => <div key={i}>{l}</div>)}
+              </div>
+            </div>
+            <div style={{ display:'flex', gap:12, padding:'16px 24px 20px', borderTop:'1px solid #f3f4f6' }}>
+              <button
+                type="button"
+                onClick={() => closeLobPopup('use-entered')}
+                style={{ flex:1, padding:'11px 16px', borderRadius:10, fontSize:'.92rem', fontWeight:600, cursor:'pointer', border:'1.5px solid #e5e7eb', background:'#fff', color:'#374151', fontFamily:'inherit' }}
+              >
+                {lang === 'es' ? 'Usar la mía' : 'Use Entered'}
+              </button>
+              <button
+                type="button"
+                onClick={() => closeLobPopup(lobPopup.mode === 'not-found' ? 're-enter' : 'use-suggested')}
+                style={{ flex:1, padding:'11px 16px', borderRadius:10, fontSize:'.92rem', fontWeight:600, cursor:'pointer', border:0, background:'#ea580c', color:'#fff', fontFamily:'inherit' }}
+              >
+                {lobPopup.mode === 'not-found'
+                  ? (lang === 'es' ? 'Re-ingresar dirección' : 'Re-enter Address')
+                  : (lang === 'es' ? 'Usar sugerida' : 'Use Suggested')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
