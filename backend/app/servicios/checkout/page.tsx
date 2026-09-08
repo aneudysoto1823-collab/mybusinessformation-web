@@ -40,6 +40,20 @@ export default async function ServiciosCheckoutPage() {
 body{font-family:var(--font-sans),'Plus Jakarta Sans',system-ui,sans-serif;color:var(--gray800);background:var(--gray50);line-height:1.6;min-height:100vh;overflow-x:clip}
 .co-header{background:#fff;border-bottom:1px solid var(--gray200);position:sticky;top:0;z-index:50}
 .co-header-inner{max-width:880px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+${isFBFC ? `
+/* Este wizard es compartido entre opabiz.com (header blanco, coherente con
+   el resto de ese sitio) y mybusinessformation.com (cuyo resto del sitio —
+   home, /servicios — usa header navy #1B3A6B). Antes el checkout siempre
+   caía al blanco de OpaBiz sin importar la marca, así que para un cliente
+   de FBFC el header "cambiaba de color" justo al entrar al checkout. */
+.co-header{background:#1B3A6B;border-bottom:none}
+.co-logo-text{color:#fff}
+.co-back{color:rgba(255,255,255,.8)}
+.co-back:hover{color:#fff}
+.co-lang{background:rgba(255,255,255,.14)}
+.co-lang button{color:rgba(255,255,255,.65)}
+.co-lang button.active{background:#fff;color:#1B3A6B}
+` : ''}
 .co-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
 .co-logo-mark{width:36px;height:36px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem}
 .co-logo-text{font-family:var(--font-serif),serif;font-size:1.15rem;font-weight:700}
@@ -282,11 +296,10 @@ html.co-wide .co-tier{padding:20px 18px}
         <div class="co-card-title" data-en="Start here: your company" data-es="Empieza aquí: tu empresa">Empieza aquí: tu empresa</div>
         <div class="co-lookup-row">
           <input class="co-input" id="f-flDoc" placeholder="L23000123456 / P23000012345" oninput="coHandleFlDocInput(this.value)"/>
-          <button class="co-lookup-btn" id="co-lookup-btn" onclick="coLookupCompany()"><span data-en="Search" data-es="Buscar">Buscar</span></button>
         </div>
         <div class="co-status" id="f-flDoc-status"></div>
         <div class="co-found" id="co-company-found" style="display:none"></div>
-        <button type="button" class="co-manual-link" id="co-manual-toggle" onclick="coToggleManual()" data-en="I don't have a number / new company — enter manually" data-es="No tengo número / empresa nueva — ingresar manualmente">No tengo número / empresa nueva — ingresar manualmente</button>
+        <button type="button" class="co-manual-link" id="co-manual-toggle" onclick="coToggleManual()" data-en="I don't have a company number" data-es="No tengo número de empresa">No tengo número de empresa</button>
       </div>
 
       <div class="co-card" id="co-company-card" style="display:none">
@@ -365,9 +378,13 @@ html.co-wide .co-tier{padding:20px 18px}
           <div class="co-field"><label class="co-label" data-en="First name" data-es="Nombre">Nombre</label><input class="co-input" id="f-firstName" oninput="coTitleCase(this)"/></div>
           <div class="co-field"><label class="co-label" data-en="Last name" data-es="Apellido">Apellido</label><input class="co-input" id="f-lastName" oninput="coTitleCase(this)"/></div>
           <div class="co-field"><label class="co-label" data-en="Email" data-es="Correo">Correo</label><input class="co-input" type="email" id="f-email"/></div>
-          <div class="co-field"><label class="co-label" data-en="Phone / WhatsApp" data-es="Teléfono / WhatsApp">Teléfono / WhatsApp</label><input class="co-input" type="tel" id="f-phone"/></div>
+          <div class="co-field"><label class="co-label" data-en="Phone" data-es="Teléfono">Teléfono</label><input class="co-input" type="tel" id="f-phone"/></div>
         </div>
         <div class="co-card-title" style="margin-top:16px" data-en="Your address" data-es="Tu dirección">Tu dirección</div>
+        <label style="display:flex;align-items:center;gap:8px;font-size:.85rem;color:var(--gray600);font-weight:600;margin-bottom:12px;cursor:pointer">
+          <input type="checkbox" id="p-same-as-company" onchange="coToggleSameAddress(this.checked)" style="width:16px;height:16px;cursor:pointer;accent-color:var(--blue)"/>
+          <span data-en="Same as company address" data-es="Misma dirección que la empresa">Misma dirección que la empresa</span>
+        </label>
         <div class="co-grid">
           <div class="co-field full"><label class="co-label" data-en="Street address" data-es="Dirección (calle)">Dirección (calle)</label><input class="co-input" id="p-street"/></div>
           <div class="co-field"><label class="co-label" data-en="Apt / Suite (optional)" data-es="Apt / Suite (opcional)">Apt / Suite (opcional)</label><input class="co-input" id="p-apt"/></div>
@@ -908,6 +925,23 @@ function coRestoreSimple(o){ Object.keys(o).forEach(function(id){ var el=$(id); 
 
 // ── Lookup de empresa existente ─────────────────────────────────────────────
 function coRevealManual(){ $('co-company-card').style.display=''; var mt=$('co-manual-toggle'); if(mt) mt.style.display='none'; }
+
+// "Misma dirección que la empresa" (paso Información personal) — copia
+// street/apt/city/state/zip desde los campos de la empresa (f-*, llenados
+// en el paso 1 por lookup o a mano) hacia los personales (p-*), y los
+// bloquea mientras esté marcado para que no se desincronicen.
+window.coToggleSameAddress = function(checked){
+  ['street','apt','city','state','zip'].forEach(function(k){
+    var src = $('f-' + k), dst = $('p-' + k);
+    if (!dst) return;
+    if (checked) {
+      dst.value = src ? src.value : '';
+      dst.disabled = true;
+    } else {
+      dst.disabled = false;
+    }
+  });
+};
 function coToggleManual(){ coRevealManual(); }
 // Auto-carga al escribir el Document Number (600ms sin tipear, mismo umbral
 // y patrón que new-business/page.tsx en el home) — antes solo buscaba al
@@ -917,7 +951,10 @@ function coHandleFlDocInput(val){
   clearTimeout(_flDocTimer);
   var doc=(val||'').trim();
   if(doc.length<12) return;
-  _flDocTimer=setTimeout(function(){ coLookupCompany(true); }, 600);
+  // No silencioso — sin botón "Buscar" ya (se quitó, la búsqueda es
+  // automática), este es el único disparador real, así que sí debe mostrar
+  // "Buscando..."/errores en #f-flDoc-status.
+  _flDocTimer=setTimeout(function(){ coLookupCompany(); }, 600);
 }
 function coLookupCompany(silent){
   var doc=($('f-flDoc').value||'').trim().toUpperCase();
@@ -1746,7 +1783,15 @@ async function coValidateStep(i){
     if(($('f-firstName').value||'').trim().length<1||($('f-lastName').value||'').trim().length<1){ err.textContent=isEs?'Ingresa tu nombre y apellido.':'Enter your first and last name.'; return false; }
     if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(($('f-email').value||'').trim())){ err.textContent=isEs?'Ingresa un correo válido.':'Enter a valid email.'; return false; }
     if(($('f-phone').value||'').replace(/[^0-9]/g,'').length<7){ err.textContent=isEs?'Ingresa un teléfono válido.':'Enter a valid phone.'; return false; }
-    if(($('p-street').value||'').trim().length<3||($('p-city').value||'').trim().length<2||($('p-state').value||'').trim().length<2||($('p-zip').value||'').trim().length<3){ err.textContent=isEs?'Ingresa tu dirección (calle, ciudad, estado y código postal).':'Enter your address (street, city, state and ZIP).'; return false; }
+    // Antes un solo mensaje genérico mencionaba las 4 partes de la dirección
+    // aunque solo faltara una (ej. solo la ciudad) — confuso, hacía dudar de
+    // campos que ya estaban bien llenados. Ahora solo lista lo que falta.
+    var addrMissing=[];
+    if((($('p-street')||{}).value||'').trim().length<3) addrMissing.push(isEs?'calle':'street');
+    if((($('p-city')||{}).value||'').trim().length<2) addrMissing.push(isEs?'ciudad':'city');
+    if((($('p-state')||{}).value||'').trim().length<2) addrMissing.push(isEs?'estado':'state');
+    if((($('p-zip')||{}).value||'').trim().length<3) addrMissing.push(isEs?'código postal':'ZIP');
+    if(addrMissing.length){ err.textContent=(isEs?'Falta: ':'Missing: ')+addrMissing.join(', ')+'.'; return false; }
     // LOB address verification — dirección personal del cliente (siempre US
     // en este paso: state es un <select> con los 50 estados de EE.UU.).
     var lobRes2 = await coLobValidateAddr({
