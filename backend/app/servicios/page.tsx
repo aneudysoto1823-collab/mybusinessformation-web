@@ -666,15 +666,23 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
 .os-clear-no{flex:1;background:#fff;color:var(--gray600);border:1px solid var(--gray200);border-radius:7px;padding:8px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit}
 .os-nopay{text-align:center;font-size:.7rem;color:var(--green-dark);margin-top:9px}
 @media(max-width:860px){.services-layout{grid-template-columns:1fr}.order-summary{display:none}}
-/* FLOATING CART BAR */
-@media(min-width:861px){.svc-cart-bar{display:none}}
-.svc-cart-bar{position:fixed;left:0;right:0;bottom:0;z-index:900;background:var(--navy);box-shadow:0 -6px 24px rgba(28,46,68,.22);transform:translateY(120%);transition:transform .28s cubic-bezier(.4,0,.2,1);padding:env(safe-area-inset-bottom,0) 0 0}
-.svc-cart-bar.show{transform:translateY(0)}
+/* FLOATING CART BAR — el wrap entero (detalle + barra) desliza junto desde
+   abajo; la barra queda siempre visible cuando hay algo en el carrito, el
+   panel de detalle arriba de ella se expande/colapsa aparte (.expanded). */
+@media(min-width:861px){.svc-cart-wrap{display:none}}
+.svc-cart-wrap{position:fixed;left:0;right:0;bottom:0;z-index:900;transform:translateY(120%);transition:transform .28s cubic-bezier(.4,0,.2,1)}
+.svc-cart-wrap.show{transform:translateY(0)}
+.svc-cart-detail{background:#fff;max-height:0;overflow:hidden;transition:max-height .25s ease;box-shadow:0 -2px 14px rgba(0,0,0,.08)}
+.svc-cart-wrap.expanded .svc-cart-detail{max-height:45vh;overflow-y:auto;padding:12px 20px 2px}
+.svc-cart-wrap.expanded .svc-cart-detail .os-item:last-child{border-bottom:none}
+.svc-cart-bar{background:var(--navy);box-shadow:0 -6px 24px rgba(28,46,68,.22);padding:env(safe-area-inset-bottom,0) 0 0}
 .svc-cart-bar-inner{max-width:760px;margin:0 auto;padding:13px 20px;display:flex;align-items:center;justify-content:space-between;gap:14px}
-.svc-cart-bar-info{display:flex;align-items:center;gap:10px;min-width:0}
+.svc-cart-bar-info{display:flex;align-items:center;gap:10px;min-width:0;cursor:pointer;flex:1}
 .svc-cart-bar-icon{font-size:1.2rem;flex-shrink:0}
 .svc-cart-bar-text{color:#fff;font-size:.92rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.svc-cart-bar-btn{background:var(--blue);color:#fff;border:none;padding:12px 22px;border-radius:10px;font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;min-height:44px;transition:background .2s}
+.svc-cart-bar-chevron{color:rgba(255,255,255,.7);font-size:.7rem;flex-shrink:0;transition:transform .25s}
+.svc-cart-wrap.expanded .svc-cart-bar-chevron{transform:rotate(180deg)}
+.svc-cart-bar-btn{background:var(--blue);color:#fff;border:none;padding:12px 22px;border-radius:10px;font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;min-height:44px;transition:background .2s;flex-shrink:0}
 .svc-cart-bar-btn:hover{background:#1d4ed8}
 /* CART CHECKOUT MODAL */
 .cart-overlay{position:fixed;inset:0;z-index:1000;background:rgba(15,28,46,.55);backdrop-filter:blur(2px);display:none;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto}
@@ -870,14 +878,21 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:48px 32px 24px;
   </div>
 </div>
 
-<!-- FLOATING CART BAR -->
-<div class="svc-cart-bar" id="svcCartBar">
-  <div class="svc-cart-bar-inner">
-    <div class="svc-cart-bar-info">
-      <span class="svc-cart-bar-icon">&#128722;</span>
-      <span class="svc-cart-bar-text" id="svcCartBarText"></span>
+<!-- FLOATING CART BAR — colapsada por defecto (solo icono+total), se
+     despliega hacia arriba con un tap mostrando el detalle de lo agregado
+     (mismos .os-item que el sidebar de escritorio), sin ocupar toda la
+     pantalla ni tapar el catálogo detrás. -->
+<div class="svc-cart-wrap" id="svcCartWrap">
+  <div class="svc-cart-detail" id="svcCartDetail"></div>
+  <div class="svc-cart-bar" id="svcCartBar">
+    <div class="svc-cart-bar-inner">
+      <div class="svc-cart-bar-info" onclick="toggleCartDetail()">
+        <span class="svc-cart-bar-icon">&#128722;</span>
+        <span class="svc-cart-bar-text" id="svcCartBarText"></span>
+        <span class="svc-cart-bar-chevron" id="svcCartBarChevron" aria-hidden="true">&#9662;</span>
+      </div>
+      <button class="svc-cart-bar-btn" onclick="openCart()"><span data-en="Continue" data-es="Continuar">Continuar</span> &#8594;</button>
     </div>
-    <button class="svc-cart-bar-btn" onclick="openCart()"><span data-en="Continue" data-es="Continuar">Continuar</span> &#8594;</button>
   </div>
 </div>
 
@@ -962,18 +977,35 @@ function renderCart(){
     var lbl=b.querySelector('.svc-add-lbl');
     if(lbl)lbl.textContent=on?(isEs?'\\u2713 Agregado':'\\u2713 Added'):(isEs?'Agregar al pedido':'Add to order');
   });
-  var bar=document.getElementById('svcCartBar');
+  var wrap=document.getElementById('svcCartWrap');
   var count=cart.length;
-  if(bar){
-    if(count>0)bar.classList.add('show');
-    else{bar.classList.remove('show');closeCart();}
+  if(wrap){
+    if(count>0)wrap.classList.add('show');
+    else{wrap.classList.remove('show');wrap.classList.remove('expanded');closeCart();}
   }
   var t=cartTotals();
   var svcWord=count===1?(isEs?'servicio':'service'):(isEs?'servicios':'services');
   var bt=document.getElementById('svcCartBarText');
   if(bt)bt.textContent=count+' '+svcWord+(t.fixed>0?' \\u00b7 $'+t.fixed+(t.hasVar?'+':'')+(isEs?' est.':' est.'):'');
   renderSidebar();
+  renderCartBarDetail();
   renderCartModal();
+}
+function toggleCartDetail(){
+  var w=document.getElementById('svcCartWrap');if(w)w.classList.toggle('expanded');
+}
+// Detalle desplegable de la barra móvil — mismos .os-item que el sidebar de
+// escritorio (renderSidebar), colapsado por defecto (ver CSS .svc-cart-detail)
+// para no taparle el catálogo al cliente mientras sigue explorando.
+function renderCartBarDetail(){
+  var el=document.getElementById('svcCartDetail');if(!el)return;
+  var isEs=svcIsEs();
+  var rows='';
+  cart.forEach(function(id){
+    var s=SVC_CATALOG[id]||{};var nm=isEs?s.name_es:s.name;
+    rows+='<div class="os-item"><div class="os-item-name">'+(nm||id)+'</div><div class="os-item-price">'+(s.price||'')+'</div><button class="os-item-x" aria-label="remove" onclick="removeFromCart(\\''+id+'\\')">\\u2715</button></div>';
+  });
+  el.innerHTML=rows;
 }
 function renderSidebar(){
   var os=document.getElementById('osItems');if(!os)return;
