@@ -306,7 +306,7 @@ html.co-wide .co-tier{padding:20px 18px}
         <div class="co-card-title" id="co-company-title" data-en="Company details" data-es="Datos de la empresa">Datos de la empresa</div>
         <div class="co-grid">
           <div class="co-field" id="co-entity-field"><label class="co-label" data-en="Entity type" data-es="Tipo de entidad">Tipo de entidad</label><select class="co-select" id="f-entityType"><option value="llc">LLC</option><option value="corp" data-en="Corporation" data-es="Corporación">Corporación</option></select></div>
-          <div class="co-field"><label class="co-label" id="co-name-label" data-en="Legal business name" data-es="Nombre legal del negocio">Nombre legal del negocio</label><input class="co-input" id="f-legalName"/></div>
+          <div class="co-field"><label class="co-label" id="co-name-label" data-en="Legal business name" data-es="Nombre legal del negocio">Nombre legal del negocio</label><input class="co-input" id="f-legalName" oninput="coHandleNameInput(this.value)"/></div>
           <div class="co-field" id="co-designator-field" style="display:none"><label class="co-label" data-en="Name ending" data-es="Terminación del nombre">Terminación del nombre</label><select class="co-select" id="f-designator"></select></div>
           <div class="co-field full"><label class="co-label" data-en="Country" data-es="País">País</label>
             <select class="co-select" id="f-country">
@@ -951,10 +951,11 @@ function coHandleFlDocInput(val){
   clearTimeout(_flDocTimer);
   var doc=(val||'').trim();
   if(doc.length<12) return;
-  // No silencioso — sin botón "Buscar" ya (se quitó, la búsqueda es
-  // automática), este es el único disparador real, así que sí debe mostrar
-  // "Buscando..."/errores en #f-flDoc-status.
-  _flDocTimer=setTimeout(function(){ coLookupCompany(); }, 600);
+  // Silencioso (decisión founder 2026-09-09): el "Buscando en Sunbiz..." se
+  // sentía como un parpadeo molesto en cada tecla. Si no encuentra nada,
+  // coRevealManual() igual se dispara sin importar el flag silent - el
+  // formulario manual aparece solo, que ya es señal suficiente sin texto.
+  _flDocTimer=setTimeout(function(){ coLookupCompany(true); }, 600);
 }
 function coLookupCompany(silent){
   var doc=($('f-flDoc').value||'').trim().toUpperCase();
@@ -985,6 +986,35 @@ function coLookupCompany(silent){
     // muestra directo el formulario ya autollenado (2026-08-19, pedido founder).
     coRevealManual();
   }).catch(function(){ if(btn) btn.disabled=false; if(st&&!silent) st.innerHTML='<span style="color:#dc2626">'+(isEs?'Error de conexión.':'Connection error.')+'</span>'; });
+}
+
+// Autocompleta Document Number + dirección cuando el cliente no tiene su
+// número a mano y en cambio escribe el nombre legal de la empresa en el
+// formulario manual. Solo para empresa EXISTENTE (una formación nueva por
+// definición todavía no existe en Sunbiz) y solo si el Document Number sigue
+// vacío (si ya lo tiene, el otro flujo — coLookupCompany — ya se encargó).
+// Silencioso a propósito (sin "Buscando...") y nunca pisa un campo que el
+// cliente ya haya llenado — puede estar a mitad de tipear su propia dirección.
+var _nameLookupTimer=null;
+function coHandleNameInput(val){
+  clearTimeout(_nameLookupTimer);
+  var name=(val||'').trim();
+  if(coFormationType() || name.length<4) return;
+  if((($('f-flDoc')||{}).value||'').trim().length>=5) return;
+  _nameLookupTimer=setTimeout(function(){ coLookupCompanyByName(name); }, 600);
+}
+function coLookupCompanyByName(name){
+  fetch('/api/sunbiz/company-by-name?name='+encodeURIComponent(name)).then(function(r){return r.json().then(function(d){return {ok:r.ok,d:d};});}).then(function(res){
+    if(!res.ok||!res.d.company) return;
+    var c=res.d.company;
+    if(!(($('f-flDoc')||{}).value||'').trim()) $('f-flDoc').value=c.document_number||'';
+    if(!(($('f-street')||{}).value||'').trim()) $('f-street').value=c.principal_address||'';
+    if(!(($('f-city')||{}).value||'').trim()) $('f-city').value=c.principal_city||'';
+    if($('f-state') && !($('f-state').value||'').trim()) $('f-state').value=c.principal_state||'';
+    if(!(($('f-zip')||{}).value||'').trim()) $('f-zip').value=c.principal_zip||'';
+    if($('f-country') && !($('f-country').value||'').trim()) $('f-country').value='United States';
+    if($('f-entityType')) $('f-entityType').value=(c.entity_type_normalized==='CORP'?'corp':'llc');
+  }).catch(function(){});
 }
 
 function coGetIntake(){

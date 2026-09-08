@@ -7,6 +7,7 @@
 // Arquitectura completa: LOGICA_DE_NEGOCIO/26_arquitectura_sunbiz_backups_opabiz.md
 
 import { createClient, type Client } from '@libsql/client'
+import { normalizeName } from './sunbiz-normalize'
 
 let _client: Client | null = null
 
@@ -41,23 +42,13 @@ export interface TursoCompany {
   registered_agent_address: string | null
 }
 
-// Busca una empresa de Florida por su número de documento en la tabla
-// sunbiz_corps de Turso (3.5M registros). Lectura defensiva por nombre de
-// columna: si una columna no existe en la tabla, devuelve null para ese campo
-// (no rompe). Devuelve null si no se encuentra la empresa.
-export async function lookupCompanyByDocument(documentNumber: string): Promise<TursoCompany | null> {
-  const doc = documentNumber.trim().toUpperCase()
-  if (!doc) return null
-
-  const res = await getTurso().execute({
-    sql: 'SELECT * FROM sunbiz_corps WHERE document_number = ? LIMIT 1',
-    args: [doc],
-  })
-  const row = res.rows[0]
-  if (!row) return null
-
+// Mapea una fila cruda de sunbiz_corps a TursoCompany. Lectura defensiva por
+// nombre de columna: si una columna no existe en la tabla, devuelve null para
+// ese campo (no rompe). Compartido por lookupCompanyByDocument y
+// lookupCompanyByName para no duplicar el mapeo.
+function rowToCompany(row: Record<string, unknown>, fallbackDoc: string): TursoCompany {
   const s = (k: string): string | null => {
-    const v = (row as Record<string, unknown>)[k]
+    const v = row[k]
     return v == null ? null : String(v)
   }
   // Combina partes de dirección (calle, ciudad, estado, zip) en una sola línea.
@@ -65,7 +56,7 @@ export async function lookupCompanyByDocument(documentNumber: string): Promise<T
     parts.filter(Boolean).join(', ') || null
 
   return {
-    document_number:          s('document_number') || doc,
+    document_number:          s('document_number') || fallbackDoc,
     entity_name:              s('entity_name'),
     entity_type:              s('entity_type'),
     status:                   s('status'),
@@ -79,4 +70,40 @@ export async function lookupCompanyByDocument(documentNumber: string): Promise<T
     registered_agent_name:    s('registered_agent_name'),
     registered_agent_address: combine(s('registered_agent_address'), s('registered_agent_city'), s('registered_agent_state'), s('registered_agent_zip')),
   }
+}
+
+// Busca una empresa de Florida por su número de documento en la tabla
+// sunbiz_corps de Turso (3.5M registros). Devuelve null si no se encuentra.
+export async function lookupCompanyByDocument(documentNumber: string): Promise<TursoCompany | null> {
+  const doc = documentNumber.trim().toUpperCase()
+  if (!doc) return null
+
+  const res = await getTurso().execute({
+    sql: 'SELECT * FROM sunbiz_corps WHERE document_number = ? LIMIT 1',
+    args: [doc],
+  })
+  const row = res.rows[0]
+  if (!row) return null
+  return rowToCompany(row as Record<string, unknown>, doc)
+}
+
+// Busca una empresa EXISTENTE por nombre exacto (para el cliente que no tiene
+// su Document Number a mano — ver /servicios/checkout, autocompleta cuando
+// escribe el nombre legal). Compara contra name_normalized (misma columna y
+// normalización que checkNameAvailability en sunbiz-namecheck.ts), filtrado a
+// ACTIVE. A propósito NO hace fuzzy/FTS acá — un match aproximado podría
+// autocompletar los datos de una empresa DISTINTA a la del cliente sin que se
+// dé cuenta. Si hay más de un resultado (nombre ambiguo/genérico) devuelve
+// null en vez de adivinar cuál mostrar — el cliente sigue completando a mano.
+export async function lookupCompanyByName(name: string): Promise<TursoCompany | null> {
+  const normalized = normalizeName(name)
+  if (!normalized || normalized.length < 3) return null
+
+  const res = await getTurso().execute({
+    sql: "SELECT * FROM sunbiz_corps WHERE name_normalized = ? AND status = 'A' LIMIT 2",
+    args: [normalized],
+  })
+  if (res.rows.length !== 1) return null
+  const row = res.rows[0] as Record<string, unknown>
+  return rowToCompany(row, String(row.document_number ?? ''))
 }
