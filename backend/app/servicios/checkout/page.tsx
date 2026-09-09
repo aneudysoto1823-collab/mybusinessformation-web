@@ -277,8 +277,8 @@ html.co-wide .co-tier{padding:20px 18px}
   <!-- EMPTY -->
   <div class="co-empty" id="co-empty" style="display:none">
     <div style="font-size:2.4rem;margin-bottom:8px">&#128722;</div>
-    <h2 class="co-h1" data-en="Your order is empty" data-es="Tu pedido está vacío">Tu pedido está vacío</h2>
-    <p class="co-sub" data-en="Add the services you need and come back here to complete your order." data-es="Agrega los servicios que necesitas y vuelve aquí para completar tu pedido.">Agrega los servicios que necesitas y vuelve aquí para completar tu pedido.</p>
+    <h2 class="co-h1" data-en="Your order is empty" data-es="Su pedido está vacío">Su pedido está vacío</h2>
+    <p class="co-sub" data-en="Add the services you need and come back here to complete your order." data-es="Agregue los servicios que necesita y vuelva aquí para completar su pedido.">Agregue los servicios que necesita y vuelva aquí para completar su pedido.</p>
     <a href="/servicios" class="co-btn" style="display:inline-block;text-decoration:none" data-en="Browse services" data-es="Ver servicios">Ver servicios</a>
   </div>
 
@@ -289,11 +289,11 @@ html.co-wide .co-tier{padding:20px 18px}
 
     <!-- STEP: COMPANY -->
     <div class="co-panel" id="panel-company" style="display:none">
-      <h1 class="co-h1" data-en="Your company" data-es="Tu empresa">Tu empresa</h1>
+      <h1 class="co-h1" data-en="Your company" data-es="Su empresa">Su empresa</h1>
       <p class="co-sub" id="co-company-sub" data-en="Enter your company's Document Number below. If you don't have it, you can complete your company details manually instead." data-es="Ingrese el número de documento de su empresa abajo. Si no lo tiene, puede completar los datos de su empresa manualmente.">Ingrese el número de documento de su empresa abajo. Si no lo tiene, puede completar los datos de su empresa manualmente.</p>
 
       <div class="co-card" id="co-lookup-card">
-        <div class="co-card-title" data-en="Start here: your company" data-es="Empieza aquí: tu empresa">Empieza aquí: tu empresa</div>
+        <div class="co-card-title" data-en="Start here: your company" data-es="Empiece aquí: su empresa">Empiece aquí: su empresa</div>
         <div class="co-lookup-row">
           <input class="co-input" id="f-flDoc" placeholder="L23000123456 / P23000012345" oninput="coHandleFlDocInput(this.value)"/>
         </div>
@@ -380,7 +380,7 @@ html.co-wide .co-tier{padding:20px 18px}
           <div class="co-field"><label class="co-label" data-en="Email" data-es="Correo">Correo</label><input class="co-input" type="email" id="f-email"/></div>
           <div class="co-field"><label class="co-label" data-en="Phone" data-es="Teléfono">Teléfono</label><input class="co-input" type="tel" id="f-phone"/></div>
         </div>
-        <div class="co-card-title" style="margin-top:16px" data-en="Your address" data-es="Tu dirección">Tu dirección</div>
+        <div class="co-card-title" style="margin-top:16px" data-en="Your address" data-es="Su dirección">Su dirección</div>
         <label style="display:flex;align-items:center;gap:8px;font-size:.85rem;color:var(--gray600);font-weight:600;margin-bottom:12px;cursor:pointer">
           <input type="checkbox" id="p-same-as-company" onchange="coToggleSameAddress(this.checked)" style="width:16px;height:16px;cursor:pointer;accent-color:var(--blue)"/>
           <span data-en="Same as company address" data-es="Misma dirección que la empresa">Misma dirección que la empresa</span>
@@ -397,8 +397,8 @@ html.co-wide .co-tier{padding:20px 18px}
 
     <!-- STEP: REVIEW + PAY -->
     <div class="co-panel" id="panel-pay" style="display:none">
-      <h1 class="co-h1" data-en="Review your order" data-es="Revisa tu orden">Revisa tu orden</h1>
-      <p class="co-sub" data-en="Confirm your order." data-es="Confirma tu pedido.">Confirma tu pedido.</p>
+      <h1 class="co-h1" data-en="Review your order" data-es="Revise su orden">Revise su orden</h1>
+      <p class="co-sub" data-en="Confirm your order." data-es="Confirme su pedido.">Confirme su pedido.</p>
       <div class="co-pay-grid">
         <div class="co-review">
           <div class="co-card-title" style="margin-bottom:12px" data-en="Review order" data-es="Revisar orden">Revisar orden</div>
@@ -439,8 +439,8 @@ html.co-wide .co-tier{padding:20px 18px}
   <div class="co-success" id="co-success" style="display:none">
     <div class="co-success-icon">&#9989;</div>
     <h2 data-en="Order received" data-es="Orden recibida">Orden recibida</h2>
-    <p data-en="Thank you! We received your payment. You'll receive a confirmation email with your order details shortly." data-es="¡Gracias! Recibimos tu pago. Recibirás un correo de confirmación con los detalles de tu orden en los próximos minutos.">¡Gracias! Recibimos tu pago. Recibirás un correo de confirmación con los detalles de tu orden en los próximos minutos.</p>
-    <div class="co-success-num"><span data-en="Your order number" data-es="Tu número de orden">Tu número de orden</span><strong id="co-success-num">—</strong></div>
+    <p data-en="Thank you! We received your payment. You'll receive a confirmation email with your order details shortly." data-es="¡Gracias! Recibimos su pago. Recibirá un correo de confirmación con los detalles de su orden en los próximos minutos.">¡Gracias! Recibimos su pago. Recibirá un correo de confirmación con los detalles de su orden en los próximos minutos.</p>
+    <div class="co-success-num"><span data-en="Your order number" data-es="Su número de orden">Su número de orden</span><strong id="co-success-num">—</strong></div>
   </div>
 </div>
 
@@ -565,7 +565,7 @@ var COVERED_IN_FORMATION = { 'registered-agent':1 };
 var HUBS = {
   docs:    { panel:'panel-hub-docs',    services:['operating-agreement','ein','banking-resolution'], tiers:['bundle-docs-oa','bundle-docs-oa-ein','bundle-docs-full'],
              titleEs:'Documentos esenciales', titleEn:'Essential documents',
-             subEs:'Ahorra tiempo y dinero en los documentos que tu negocio necesita.', subEn:'Save time and money on the documents your business needs.' },
+             subEs:'Ahorre tiempo y dinero en los documentos que su negocio necesita.', subEn:'Save time and money on the documents your business needs.' },
   // Solo à la carte (sin formación) — en formación el agente ya se resuelve en
   // su propio paso obligatorio (panel-ra), así que este hub no aplica ahí.
   compliance: { panel:'panel-hub-compliance', services:['registered-agent','annual-report'], tiers:['bundle-compliance-ra','bundle-compliance-ra-ar'],
@@ -573,7 +573,7 @@ var HUBS = {
              subEs:'Los dos requisitos recurrentes que toda LLC y Corporation de Florida debe mantener al día.', subEn:'The two recurring requirements every Florida LLC and Corporation must keep current.' },
   protect: { panel:'panel-hub-protect', services:['virtual-address','annual-report','business-tax-receipt'], tiers:['bundle-protect-va','bundle-protect-va-ar','bundle-protect-full'],
              titleEs:'Presencia y operación', titleEn:'Business presence & operations',
-             subEs:'Mantén tu negocio protegido y al día con el estado.', subEn:'Keep your business protected and compliant with the state.' }
+             subEs:'Mantenga su negocio protegido y al día con el estado.', subEn:'Keep your business protected and compliant with the state.' }
 };
 // À la carte (sin formación), Annual Report se ofrece en "compliance" junto al
 // Agente Registrado — acá solo quedan Virtual Address + Business Tax Receipt
@@ -591,25 +591,25 @@ BUNDLE_HUB['bundle-protect-va-btr']='protect';
 // tier. Cada servicio tiene nombre + lista de beneficios concretos.
 var SVC_BLURBS = {
   'registered-agent': { nameEs:'Agente Registrado', nameEn:'Registered Agent',
-    es:['Recibe documentos legales y avisos oficiales del estado en tu nombre','Tu dirección personal se mantiene 100% privada en registros públicos','Obligatorio por ley para toda LLC y Corporation de Florida'],
+    es:['Recibe documentos legales y avisos oficiales del estado en su nombre','Su dirección personal se mantiene 100% privada en registros públicos','Obligatorio por ley para toda LLC y Corporation de Florida'],
     en:['Receives legal documents and official state notices on your behalf','Your personal address stays 100% private on public records','Required by law for every Florida LLC and Corporation'] },
   'operating-agreement': { nameEs:'Acuerdo Operativo', nameEn:'Operating Agreement',
-    es:['Define las reglas internas de tu LLC: cómo se maneja y cómo se toman las decisiones','Se vuelve un contrato vinculante entre socios para evitar disputas','Ayuda a proteger tus bienes manteniendo tu responsabilidad limitada'],
+    es:['Define las reglas internas de su LLC: cómo se maneja y cómo se toman las decisiones','Se vuelve un contrato vinculante entre socios para evitar disputas','Ayuda a proteger sus bienes manteniendo su responsabilidad limitada'],
     en:['Defines your LLC internal rules: how it is run and how decisions are made','Becomes a binding contract among partners to avoid disputes','Helps protect your assets by maintaining limited liability'] },
   'ein':                 { nameEs:'EIN (Tax ID)', nameEn:'EIN (Tax ID)',
-    es:['Número de identificación fiscal federal (el "SSN" de tu empresa)','Por ley lo necesita toda empresa con al menos un empleado o más de dos miembros','Requerido por los bancos para abrir cuenta de negocio'],
+    es:['Número de identificación fiscal federal (el "SSN" de su empresa)','Por ley lo necesita toda empresa con al menos un empleado o más de dos miembros','Requerido por los bancos para abrir cuenta de negocio'],
     en:['Federal tax ID number (like an SSN for your business)','Required by law for any business with at least one employee or more than two members','Required by banks to open a business account'] },
   'banking-resolution':  { nameEs:'Resolución Bancaria', nameEn:'Banking Resolution',
     es:['Autoriza formalmente quién puede manejar la cuenta bancaria del negocio','Documento que muchos bancos piden para abrir la cuenta','Da claridad legal sobre el control de los fondos'],
     en:['Formally authorizes who can manage the business bank account','Document many banks require to open the account','Gives legal clarity over who controls the funds'] },
   'virtual-address':     { nameEs:'Dirección Virtual', nameEn:'Virtual Mailing Address',
-    es:['Dirección comercial profesional en Florida','Tu dirección personal se mantiene privada en registros públicos','Recibimos y reenviamos tu correo digitalmente'],
+    es:['Dirección comercial profesional en Florida','Su dirección personal se mantiene privada en registros públicos','Recibimos y reenviamos su correo digitalmente'],
     en:['Professional Florida business address','Your home address stays private on public records','We receive and forward your mail digitally'] },
   'annual-report':       { nameEs:'Declaración Anual', nameEn:'Annual Report',
     es:['Obligatoria cada año para toda LLC y Corporation de FL','La preparamos y presentamos ante el estado por ti','Evita la multa de $400 por presentación tardía'],
     en:['Required every year for every FL LLC & Corporation','We prepare and file it with the state for you','Avoids the $400 late penalty'] },
   'business-tax-receipt':{ nameEs:'Licencia Comercial Local', nameEn:'Local Business Tax Receipt',
-    es:['Licencia local para operar tu negocio legalmente','La tramitamos ante tu condado de Florida','Requisito en muchas ciudades para abrir al público'],
+    es:['Licencia local para operar su negocio legalmente','La tramitamos ante su condado de Florida','Requisito en muchas ciudades para abrir al público'],
     en:['Local license to operate your business legally','We process it with your Florida county','Required in many cities to open to the public'] }
 };
 // Campos que la formación ya captura (en los pasos Empresa/Dueños): se ocultan en
@@ -651,11 +651,11 @@ function coTranslateStatic(){
   var dz=$('co-pay-disclosure'); if(dz){
     var hasRec=false; try{ hasRec=coComputeTotal().recurring; }catch(e){}
     var recTxt=hasRec?(isEs
-      ? ' Los servicios recurrentes (marcados /mes o /año) se renuevan automáticamente al precio vigente hasta que los canceles desde tu cuenta de cliente. El Agente Registrado es gratis el primer año al combinarlo con otro servicio; luego se renueva a $99/año.'
+      ? ' Los servicios recurrentes (marcados /mes o /año) se renuevan automáticamente al precio vigente hasta que los cancele desde su cuenta de cliente. El Agente Registrado es gratis el primer año al combinarlo con otro servicio; luego se renueva a $99/año.'
       : ' Recurring services (marked /mo or /yr) renew automatically at the then-current rate until you cancel from your client account. Registered Agent is free the first year when combined with another service; then renews at $99/yr.'):'';
     var brand = window.__CO_CONSENT_BRAND__ || 'OpaBiz (Florida Business Formation Center)';
     dz.innerHTML = (isEs
-    ? 'Al completar tu pago autorizas a ' + brand + ' a preparar y presentar tus trámites en tu nombre, según nuestros <a href="/terms" target="_blank">Términos</a> y <a href="/privacy" target="_blank">Política de privacidad</a>. Las tarifas de servicio no son reembolsables una vez iniciado el trabajo.'
+    ? 'Al completar su pago autoriza a ' + brand + ' a preparar y presentar sus trámites en su nombre, según nuestros <a href="/terms" target="_blank">Términos</a> y <a href="/privacy" target="_blank">Política de privacidad</a>. Las tarifas de servicio no son reembolsables una vez iniciado el trabajo.'
     : 'By completing your payment you authorize ' + brand + ' to prepare and file your filings on your behalf, per our <a href="/terms" target="_blank">Terms</a> and <a href="/privacy" target="_blank">Privacy Policy</a>. Service fees are non-refundable once work begins.') + recTxt; }
 }
 
@@ -1060,7 +1060,7 @@ function coSetupCompanyPanel(ft){
     if(cc) cc.style.display='';
     var et=$('f-entityType'); if(et) et.value=ft;
     var ef=$('co-entity-field'); if(ef) ef.style.display='none';
-    var title=$('co-company-title'); if(title){ title.setAttribute('data-en','Your new company'); title.setAttribute('data-es','Tu nueva empresa'); title.textContent=isEs?'Tu nueva empresa':'Your new company'; }
+    var title=$('co-company-title'); if(title){ title.setAttribute('data-en','Your new company'); title.setAttribute('data-es','Su nueva empresa'); title.textContent=isEs?'Su nueva empresa':'Your new company'; }
     var nl=$('co-name-label'); if(nl){ nl.setAttribute('data-en','Desired company name'); nl.setAttribute('data-es','Nombre deseado de la empresa'); nl.textContent=isEs?'Nombre deseado de la empresa':'Desired company name'; }
     var df=$('co-designator-field'), ds=$('f-designator');
     if(df&&ds){ df.style.display=''; ds.innerHTML=(DESIGNATORS[ft]||[]).map(function(o){return '<option>'+o+'</option>';}).join(''); }
@@ -1071,7 +1071,7 @@ function coSetupCompanyPanel(ft){
         ah+='<div class="co-field"><label class="co-label">'+(isEs?fd.es:fd.en)+'</label><select class="co-select" id="'+aid+'">'+aopts+'</select></div>';
       } else { ah+=fieldHtml(coFormId,fd); }
     }); if(ah) extra.innerHTML='<div class="co-grid">'+ah+'</div>'; }
-    var sub=$('co-company-sub'); if(sub){ sub.setAttribute('data-en','Enter your new company name and details.'); sub.setAttribute('data-es','Ingresa el nombre y los datos de tu nueva empresa.'); sub.textContent=isEs?'Ingresa el nombre y los datos de tu nueva empresa.':'Enter your new company name and details.'; }
+    var sub=$('co-company-sub'); if(sub){ sub.setAttribute('data-en','Enter your new company name and details.'); sub.setAttribute('data-es','Ingrese el nombre y los datos de su nueva empresa.'); sub.textContent=isEs?'Ingrese el nombre y los datos de su nueva empresa.':'Enter your new company name and details.'; }
   } else {
     coFormId=null;
     if(lk) lk.style.display='';
@@ -1116,7 +1116,7 @@ function coSharedFieldsInner(keys){
       return '<div class="co-field full"><label class="co-label">'+lbl+tipHtml+'</label>'
         +'<div class="co-ssn-wrap"><input class="co-input" type="text" style="-webkit-text-security:disc" autocomplete="off" data-lpignore="true" data-form-type="other" inputmode="numeric" maxlength="9" oninput="this.value=this.value.replace(/[^0-9]/g,\'\')" id="s-ssnItin"/>'
         +'<button type="button" class="co-ssn-eye" onclick="coToggleSsn(this)">'+(isEs?'Ver':'Show')+'</button></div></div>'
-        +'<div class="co-field full"><label class="co-label">'+(isEs?'Confirma tu SSN o ITIN':'Confirm your SSN or ITIN')+'</label>'
+        +'<div class="co-field full"><label class="co-label">'+(isEs?'Confirme su SSN o ITIN':'Confirm your SSN or ITIN')+'</label>'
         +'<input class="co-input" type="text" style="-webkit-text-security:disc" autocomplete="off" data-lpignore="true" data-form-type="other" inputmode="numeric" maxlength="9" oninput="this.value=this.value.replace(/[^0-9]/g,\'\')" id="s-ssnItin-confirm"/></div>';
     }
     return '<div class="co-field full"><label class="co-label">'+lbl+tipHtml+'</label><input class="co-input" type="text" id="s-'+k+'"/></div>';
@@ -1142,8 +1142,8 @@ function coRenderTaxPanel(){
   // Servicios que disparan estos datos (para explicar el porqué).
   var trig=[]; cart.forEach(function(svcId){ var def=SVC_EXTRAS[svcId]; if(def&&def.shared&&def.shared.some(function(k){return keys.indexOf(k)>=0;})){ trig.push(isEs?def.name_es:def.name_en); } });
   var why = trig.length
-    ? (isEs?('Para tu '+trig.join(', ')+' necesitamos un dato más.'):('For your '+trig.join(', ')+' we need one more detail.'))
-    : (isEs?'Un dato más para tu trámite.':'One more detail for your filing.');
+    ? (isEs?('Para su '+trig.join(', ')+' necesitamos un dato más.'):('For your '+trig.join(', ')+' we need one more detail.'))
+    : (isEs?'Un dato más para su trámite.':'One more detail for your filing.');
   // Autorrellena con la información personal ya recolectada en "Información
   // personal" (panel-contact, paso previo) — evita repetir preguntas y hace que
   // este paso no se vea tan chico comparado con los demás.
@@ -1162,7 +1162,7 @@ function coRenderTaxPanel(){
   var noteHtml = '';
   if(keys.indexOf('ssnItin')>=0){
     var note = isEs
-      ? 'Necesitamos un dato adicional (tu SSN o ITIN) para poder procesar tu EIN ante el IRS.'
+      ? 'Necesitamos un dato adicional (su SSN o ITIN) para poder procesar su EIN ante el IRS.'
       : 'We need one additional detail (your SSN or ITIN) to process your EIN with the IRS.';
     noteHtml = '<div style="background:#eff6ff;border-left:4px solid #2563eb;border-radius:0 8px 8px 0;padding:10px 14px;font-size:.8rem;color:#1e40af;line-height:1.6;margin-bottom:16px">'+coEsc(note)+'</div>';
   }
@@ -1194,10 +1194,10 @@ function coRenderExpedited(){
     : 'Our standard processing takes 7-14 business days; with expedited, we prepare and file it in 1-3 business days.';
   var expBullets=[
     isEs?'Lo preparamos y presentamos en 1-3 días hábiles':'We prepare and file it in 1-3 business days',
-    isEs?'Ideal si necesitas tu EIN, abrir una cuenta bancaria u operar pronto':'Ideal if you need your EIN, a bank account, or to start operating soon'
+    isEs?'Ideal si necesita su EIN, abrir una cuenta bancaria u operar pronto':'Ideal if you need your EIN, a bank account, or to start operating soon'
   ].map(function(b){ return '<div class="co-up-incl-item"><span class="co-up-incl-check">&#10003;</span><span>'+b+'</span></div>'; }).join('');
   panel.innerHTML='<h1 class="co-h1">'+(isEs?'Procesamiento acelerado':'Faster processing')+'</h1>'
-    +'<p class="co-sub">'+(isEs?'¿Lo quieres más rápido? Acelera la presentación estatal cuando aplica.':'Want it faster? Upgrade to expedited state filing where applicable.')+'</p>'
+    +'<p class="co-sub">'+(isEs?'¿Lo quiere más rápido? Acelere la presentación estatal cuando aplica.':'Want it faster? Upgrade to expedited state filing where applicable.')+'</p>'
     +'<div class="co-card">'
       +'<p style="font-size:.85rem;color:var(--gray600);line-height:1.6;margin:0 0 16px">'+introTxt+'</p>'
       +'<div class="co-choices co-choices-v">'
@@ -1208,7 +1208,7 @@ function coRenderExpedited(){
           +'<div class="co-up-incl" style="margin-top:10px">'+expBullets+'</div></div>'
         +'<div class="co-choice'+(std?' sel':'')+'" onclick="coSetExpedited(false)">'
           +'<div class="co-choice-top"><span class="co-choice-title">'+(isEs?'No gracias, esperaré el tiempo estándar':"No thanks, I'll wait the standard time")+'</span><span class="co-choice-price">$0</span></div>'
-          +'<div class="co-choice-desc">'+(isEs?'7-14 días hábiles para que preparemos y enviemos tu presentación.':'7-14 business days for us to prepare and file it.')+'</div></div>'
+          +'<div class="co-choice-desc">'+(isEs?'7-14 días hábiles para que preparemos y enviemos su presentación.':'7-14 business days for us to prepare and file it.')+'</div></div>'
       +'</div>'
     +'</div>';
 }
@@ -1222,13 +1222,13 @@ var UPSELL = {
   'registered-agent': { icon:'&#127963;', price:'$99',
     en:{name:'Registered Agent', desc:'Every Florida LLC & Corporation must have a Registered Agent with a physical FL address to receive legal & state documents.', why:'Keeps your home address private and off the public record.',
       incl:['Official FL street address for your business','Accepts service of process & legal documents','Document forwarding & email notifications']},
-    es:{name:'Agente Registrado', desc:'Toda LLC y Corporation de Florida debe tener un Agente Registrado con dirección física en FL para recibir documentos legales y del estado.', why:'Mantiene tu dirección personal privada y fuera del registro público.',
-      incl:['Dirección oficial en FL para tu negocio','Acepta notificaciones y documentos legales','Reenvío de documentos y notificación por correo']} },
+    es:{name:'Agente Registrado', desc:'Toda LLC y Corporation de Florida debe tener un Agente Registrado con dirección física en FL para recibir documentos legales y del estado.', why:'Mantiene su dirección personal privada y fuera del registro público.',
+      incl:['Dirección oficial en FL para su negocio','Acepta notificaciones y documentos legales','Reenvío de documentos y notificación por correo']} },
   'virtual-address': { icon:'&#128236;', price:'$30',
     en:{name:'Virtual Mailing Address', desc:'A professional Florida business address that receives and forwards your mail digitally.', why:'Use a real FL address without exposing your home address.',
       incl:['Professional FL mailing address','Mail receiving & digital forwarding','Home address stays private on public records','Available immediately after sign-up']},
-    es:{name:'Dirección Virtual', desc:'Una dirección comercial profesional en Florida que recibe y reenvía tu correo digitalmente.', why:'Usa una dirección real en FL sin exponer la de tu casa.',
-      incl:['Dirección postal profesional en Florida','Recepción de correo y reenvío digital','Tu dirección personal no aparece en registros públicos','Activo inmediatamente al inscribirte']} }
+    es:{name:'Dirección Virtual', desc:'Una dirección comercial profesional en Florida que recibe y reenvía su correo digitalmente.', why:'Use una dirección real en FL sin exponer la de su casa.',
+      incl:['Dirección postal profesional en Florida','Recepción de correo y reenvío digital','Su dirección personal no aparece en registros públicos','Activo inmediatamente al inscribirse']} }
 };
 // ── Paso Agente Registrado (formación): dos cajas + reuso de dirección ───────
 function coRenderRaPanel(){
@@ -1239,13 +1239,13 @@ function coRenderRaPanel(){
   var oursSel=(coRaChoice==='ours'); var ownSel=(coRaChoice==='own');
   var bullets=(t.incl||[]).map(function(b){ return '<div class="co-up-incl-item"><span class="co-up-incl-check">&#10003;</span><span>'+b+'</span></div>'; }).join('');
   var fid=coFormId;
-  var oursDesc=isEs?'Actuamos como tu Agente Registrado oficial. Tu dirección personal se mantiene 100% privada.':'We act as your official Registered Agent. Your personal address stays completely private.';
-  var ownDesc=isEs?'Tu dirección se registra públicamente en Florida y la ley exige que estés disponible de lunes a viernes de 9am a 5pm para recibir documentos legales.':'Your address is publicly registered with Florida and the law requires you to be available Mon-Fri 9am-5pm to receive legal documents.';
+  var oursDesc=isEs?'Actuamos como su Agente Registrado oficial. Su dirección personal se mantiene 100% privada.':'We act as your official Registered Agent. Your personal address stays completely private.';
+  var ownDesc=isEs?'Su dirección se registra públicamente en Florida y la ley exige que esté disponible de lunes a viernes de 9am a 5pm para recibir documentos legales.':'Your address is publicly registered with Florida and the law requires you to be available Mon-Fri 9am-5pm to receive legal documents.';
   var infoTxt=isEs
-    ? 'Un Agente Registrado es la persona o empresa designada para recibir documentos legales y avisos oficiales del estado en nombre de tu negocio. Por ley, toda LLC y Corporation de Florida debe tener uno en todo momento, con una dirección física en Florida.'
+    ? 'Un Agente Registrado es la persona o empresa designada para recibir documentos legales y avisos oficiales del estado en nombre de su negocio. Por ley, toda LLC y Corporation de Florida debe tener uno en todo momento, con una dirección física en Florida.'
     : 'A Registered Agent is the person or company designated to receive legal documents and official state notices on behalf of your business. By law, every Florida LLC and Corporation must have one at all times, with a physical Florida address.';
   panel.innerHTML='<h1 class="co-h1">'+(isEs?'Agente Registrado':'Registered Agent')+'</h1>'
-    +'<p class="co-sub">'+(isEs?'Elige cómo quieres manejar tu Agente Registrado.':'Choose how you want to handle your Registered Agent.')+'</p>'
+    +'<p class="co-sub">'+(isEs?'Elija cómo quiere manejar su Agente Registrado.':'Choose how you want to handle your Registered Agent.')+'</p>'
     +'<div class="co-card">'
       +'<div class="co-ra-info">&#128221; '+infoTxt+'</div>'
       +'<div class="co-choices">'
@@ -1360,7 +1360,7 @@ function coTierBullets(svcIds, owned){
   owned=owned||{}; var isEs=coIsEs(); var out='';
   svcIds.forEach(function(s){ var bl=SVC_BLURBS[s]; if(!bl) return;
     var svc=SVC_CATALOG[s]; var suf=svc?coBillingSuffix(svc.billing):'';
-    var ownTag = owned[s] ? ' <em style="font-style:normal;color:#059669;font-weight:700">'+(isEs?'· ya lo tienes':'· already added')+'</em>' : '';
+    var ownTag = owned[s] ? ' <em style="font-style:normal;color:#059669;font-weight:700">'+(isEs?'· ya lo tiene':'· already added')+'</em>' : '';
     out+='<div class="co-tier-svc">'+(isEs?bl.nameEs:bl.nameEn)+(suf?' <em style="font-style:normal;color:#64748b;font-weight:600">'+suf+'</em>':'')+ownTag+'</div>';
     (isEs?bl.es:bl.en).forEach(function(txt){
       out+='<div class="co-tier-incl-item"><span class="co-tier-incl-check">&#10003;</span><span>'+txt+'</span></div>';
@@ -1551,7 +1551,7 @@ function coRaUpsellNote(){
   if(cart.indexOf('registered-agent')<0) return '';
   var hasOther=cart.some(function(o){ return o!=='registered-agent' && SVC_CATALOG[o]; })||coBundles.length>0;
   if(hasOther) return ''; var isEs=coIsEs();
-  return '<div class="co-state-note" style="color:#059669;font-weight:600">&#127881; '+(isEs?'Agrega cualquier otro servicio y tu Agente Registrado sale gratis el primer año.':'Add any other service and your Registered Agent is free the first year.')+'</div>';
+  return '<div class="co-state-note" style="color:#059669;font-weight:600">&#127881; '+(isEs?'Agregue cualquier otro servicio y su Agente Registrado sale gratis el primer año.':'Add any other service and your Registered Agent is free the first year.')+'</div>';
 }
 // En mobile el resumen va arriba y colapsado; este toggle lo abre/cierra.
 function coToggleSummary(){ var s=document.getElementById('co-side'); if(s) s.classList.toggle('co-sum-open'); }
@@ -1617,7 +1617,7 @@ function coBuildWizard(){
   // (paso 2). Los datos fiscales sensibles (SSN/ITIN) + firma van al final, en
   // "Confirmar y firmar", porque dependen de los servicios elegidos en los combos.
   coSteps=[];
-  coSteps.push({id:'panel-company', title:{en:'Your company',es:'Tu empresa'}});
+  coSteps.push({id:'panel-company', title:{en:'Your company',es:'Su empresa'}});
   coSetupCompanyPanel(ft);
 
   // Información personal (nombre/email/teléfono) temprano, como el home.
@@ -1655,7 +1655,7 @@ function coBuildWizard(){
 
   // Último paso: revisar la orden + pagar (Stripe). La autorización se da al
   // completar el pago (disclosure en el paso de pago); ya no hay paso de firma.
-  coSteps.push({id:'panel-pay', title:{en:'Review your order',es:'Revisa tu orden'}});
+  coSteps.push({id:'panel-pay', title:{en:'Review your order',es:'Revise su orden'}});
 }
 
 // ── Navegación ──────────────────────────────────────────────────────────────
@@ -1700,7 +1700,7 @@ function coGoStep(i){
   $('co-next').style.display = isPay ? 'none' : '';
   var nextIsPay = (i+1<coSteps.length) && coSteps[i+1].id==='panel-pay';
   // Al entrar al paso previo al pago, pre-crea la sesión de Stripe en segundo
-  // plano para que "Revisa tu orden" cargue el formulario sin demora.
+  // plano para que "Revise su orden" cargue el formulario sin demora.
   if(nextIsPay){ try{ coPrefetchPayment(); }catch(e){} }
   var isEs=coIsEs();
   $('co-next').innerHTML='<span>'+(nextIsPay ? (isEs?'Revisar orden':'Review order') : (isEs?'Continuar':'Continue'))+'</span> &#8594;';
@@ -1750,15 +1750,15 @@ async function coValidateStep(i){
   if(id==='panel-company'){
     var nm=($('f-legalName').value||'').trim();
     if(nm.length<2){
-      if(coFormationType()){ err.textContent=isEs?'Escribe el nombre deseado de tu nueva empresa.':'Enter the desired name for your new company.'; }
-      else { err.textContent=isEs?'Busca tu empresa por número, o ingrésala manualmente.':'Search your company, or enter it manually.'; coRevealManual(); }
+      if(coFormationType()){ err.textContent=isEs?'Escriba el nombre deseado de su nueva empresa.':'Enter the desired name for your new company.'; }
+      else { err.textContent=isEs?'Busque su empresa por número, o ingrésela manualmente.':'Search your company, or enter it manually.'; coRevealManual(); }
       return false;
     }
     if(coFormationType()){
       var actEl=$('x-'+coFormId+'-activity');
-      if(actEl && !(actEl.value||'').trim()){ err.textContent=isEs?'Selecciona la actividad principal de tu negocio.':"Select your business's primary activity."; return false; }
+      if(actEl && !(actEl.value||'').trim()){ err.textContent=isEs?'Seleccione la actividad principal de su negocio.':"Select your business's primary activity."; return false; }
       var descEl=$('x-'+coFormId+'-activityDesc');
-      if(!descEl || (descEl.value||'').trim().length<3){ err.textContent=isEs?'Describe brevemente qué hace tu negocio.':'Briefly describe what your business does.'; return false; }
+      if(!descEl || (descEl.value||'').trim().length<3){ err.textContent=isEs?'Describa brevemente qué hace su negocio.':'Briefly describe what your business does.'; return false; }
     }
     // LOB address verification — solo si el cliente ingresó calle (a veces
     // este paso se llena con solo el nombre + Document ID desde el lookup
@@ -1803,7 +1803,7 @@ async function coValidateStep(i){
       var raF=(($('x-'+coFormId+'-raFirstName')||{}).value||'').trim();
       var raL=(($('x-'+coFormId+'-raLastName')||{}).value||'').trim();
       var raS=(($('x-'+coFormId+'-raStreet')||{}).value||'').trim();
-      if(raF.length<1||raL.length<1||raS.length<3){ err.textContent=isEs?'Ingresa el nombre, apellido y dirección de tu agente registrado.':'Enter your registered agent first name, last name and address.'; return false; }
+      if(raF.length<1||raL.length<1||raS.length<3){ err.textContent=isEs?'Ingrese el nombre, apellido y dirección de su agente registrado.':'Enter your registered agent first name, last name and address.'; return false; }
     }
     return true;
   }
@@ -1814,11 +1814,11 @@ async function coValidateStep(i){
       if(vSsn.length!==9){ err.textContent=isEs?'El SSN o ITIN debe tener exactamente 9 dígitos.':'The SSN or ITIN must be exactly 9 digits.'; return false; }
       if(vSsn!==(($('s-ssnItin-confirm')||{}).value||'').replace(/[^0-9]/g,'')){ err.textContent=isEs?'El SSN o ITIN no coincide. Verifícalo.':'The SSN or ITIN does not match. Please check.'; return false; }
     }
-    if(ak.indexOf('ein')>=0 && (($('s-ein')||{}).value||'').trim().length<3){ err.textContent=isEs?'Ingresa tu EIN.':'Enter your EIN.'; return false; }
+    if(ak.indexOf('ein')>=0 && (($('s-ein')||{}).value||'').trim().length<3){ err.textContent=isEs?'Ingrese su EIN.':'Enter your EIN.'; return false; }
     return true;
   }
   if(id==='panel-contact'){
-    if(($('f-firstName').value||'').trim().length<1||($('f-lastName').value||'').trim().length<1){ err.textContent=isEs?'Ingresa tu nombre y apellido.':'Enter your first and last name.'; return false; }
+    if(($('f-firstName').value||'').trim().length<1||($('f-lastName').value||'').trim().length<1){ err.textContent=isEs?'Ingrese su nombre y apellido.':'Enter your first and last name.'; return false; }
     if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(($('f-email').value||'').trim())){ err.textContent=isEs?'Ingresa un correo válido.':'Enter a valid email.'; return false; }
     if(($('f-phone').value||'').replace(/[^0-9]/g,'').length<7){ err.textContent=isEs?'Ingresa un teléfono válido.':'Enter a valid phone.'; return false; }
     // Antes un solo mensaje genérico mencionaba las 4 partes de la dirección
@@ -1838,7 +1838,7 @@ async function coValidateStep(i){
       city: $('p-city').value,
       state: $('p-state').value,
       zip_code: $('p-zip').value,
-    }, isEs?'Tu dirección':'Your address');
+    }, isEs?'Su dirección':'Your address');
     if(lobRes2.action==='use-suggested' && lobRes2.addr){
       $('p-street').value = lobRes2.addr.primary_line || $('p-street').value;
       if($('p-apt')) $('p-apt').value = lobRes2.addr.secondary_line || '';
@@ -1903,8 +1903,8 @@ function coStartPayment(){
   // Guarda: si por algún estado raro del carrito el total es 0, no cuelgues el
   // spinner — avisa y deja volver.
   var r; try{ r=coComputeTotal(); }catch(e){ r={total:0,lines:[]}; }
-  if(!r.total){ var ec0=$('embedded-checkout'); if(ec0) ec0.innerHTML='<p style="color:#dc2626;padding:24px;font-size:.86rem;line-height:1.6">'+(isEs?'Tu pedido está vacío o hubo un problema. Vuelve atrás y revisa tus servicios.':'Your order is empty or something went wrong. Go back and review your services.')+'</p>'; return; }
-  var intake; try{ intake=coGetIntake(); }catch(e){ var ec1=$('embedded-checkout'); if(ec1) ec1.innerHTML='<p style="color:#dc2626;padding:24px">'+(isEs?'No se pudieron leer tus datos. Intenta de nuevo.':'Could not read your details. Please try again.')+'</p>'; return; }
+  if(!r.total){ var ec0=$('embedded-checkout'); if(ec0) ec0.innerHTML='<p style="color:#dc2626;padding:24px;font-size:.86rem;line-height:1.6">'+(isEs?'Su pedido está vacío o hubo un problema. Vuelva atrás y revise sus servicios.':'Your order is empty or something went wrong. Go back and review your services.')+'</p>'; return; }
+  var intake; try{ intake=coGetIntake(); }catch(e){ var ec1=$('embedded-checkout'); if(ec1) ec1.innerHTML='<p style="color:#dc2626;padding:24px">'+(isEs?'No se pudieron leer sus datos. Intente de nuevo.':'Could not read your details. Please try again.')+'</p>'; return; }
   var key=coPayKey(intake);
 
   // Caso feliz: el iframe ya está montado (oculto) desde el paso anterior con
@@ -1919,7 +1919,7 @@ function coStartPayment(){
   p.then(function(res){
       if(!res.ok||!res.d.clientSecret){
         coPrefetch=null; // sesión inválida: no la reutilices
-        coShowPayError((res.d&&res.d.error)||(isEs?'No se pudo crear el pago. Revisa tus datos e intenta de nuevo.':'Could not create payment. Check your details and try again.'));
+        coShowPayError((res.d&&res.d.error)||(isEs?'No se pudo crear el pago. Revise sus datos e intente de nuevo.':'Could not create payment. Check your details and try again.'));
         return;
       }
       try{ localStorage.setItem('flbc_svc_order', res.d.fbfc||''); }catch(e){}
@@ -1995,7 +1995,7 @@ function coRenderIntakeReview(){
   var contact=[(v('f-firstName')+' '+v('f-lastName')).trim(), v('f-email'), v('f-phone')].filter(Boolean).join(' · ');
   out+=coIrBlock(isEs?'Contacto':'Contact', coEsc(contact), 'panel-contact');
   var paddr=[v('p-street'),v('p-apt'),v('p-city'),v('p-state'),v('p-zip')].filter(Boolean).join(', ');
-  out+=coIrBlock(isEs?'Tu dirección':'Your address', coEsc(paddr), 'panel-contact');
+  out+=coIrBlock(isEs?'Su dirección':'Your address', coEsc(paddr), 'panel-contact');
   // Agente registrado
   if(coHasStep('panel-ra')){
     var ra = coRaChoice==='own' ? (isEs?'Seré mi propio agente':'I am my own agent') : (isEs?'Nuestro servicio (gratis el 1er año)':'Our service (free 1st year)');
@@ -2047,7 +2047,7 @@ function coMountFail(msg){
   var isEs=coIsEs();
   var onPayStep = coSteps[coIdx] && coSteps[coIdx].id==='panel-pay';
   if(!onPayStep || stripeCheckout) return;
-  coShowPayError(msg||(isEs?'No se pudo cargar el formulario de pago. Puede deberse a tu conexión o a un bloqueador de anuncios.':'The payment form could not load. This can happen due to your connection or an ad blocker.'));
+  coShowPayError(msg||(isEs?'No se pudo cargar el formulario de pago. Puede deberse a su conexión o a un bloqueador de anuncios.':'The payment form could not load. This can happen due to your connection or an ad blocker.'));
 }
 function coRetryPayment(){ coPrefetch=null; coStartPayment(); }
 
@@ -2066,7 +2066,7 @@ function coLobPopupShow(opts){
   return new Promise(function(resolve){
     _coLobResolver=resolve;
     var isEs=coIsEs();
-    var titleEl=$('co-lob-popup-title'); if(titleEl) titleEl.textContent=isEs?'Confirma tu dirección':'Confirm your address';
+    var titleEl=$('co-lob-popup-title'); if(titleEl) titleEl.textContent=isEs?'Confirme su dirección':'Confirm your address';
     var useEnteredBtn=$('co-lob-popup-use-entered'); if(useEnteredBtn) useEnteredBtn.textContent=isEs?'Usar la mía':'Use Entered';
     var enteredLbl=$('co-lob-popup-entered-lbl'); if(enteredLbl) enteredLbl.textContent=opts.enteredLabel||(isEs?'Dirección ingresada':'Entered Address');
     var enteredVal=$('co-lob-popup-entered-value');
@@ -2078,7 +2078,7 @@ function coLobPopupShow(opts){
       if(notFoundDiv) notFoundDiv.style.display='block';
       if(suggestedDiv) suggestedDiv.style.display='none';
       var nft=$('co-lob-popup-notfound-title'); if(nft) nft.textContent=isEs?'No encontramos esta dirección':'Address not found';
-      var nfs=$('co-lob-popup-notfound-sub');  if(nfs) nfs.textContent=isEs?'Verifica y confirma tu dirección.':'Please verify and confirm your address.';
+      var nfs=$('co-lob-popup-notfound-sub');  if(nfs) nfs.textContent=isEs?'Verifique y confirme su dirección.':'Please verify and confirm your address.';
       if(primaryBtn){
         primaryBtn.textContent=isEs?'Re-ingresar dirección':'Re-enter Address';
         primaryBtn.onclick=function(){ var r=_coLobResolver; _coLobResolver=null; $('co-lob-popup-backdrop').classList.remove('open'); if(r) r({action:'re-enter'}); };
