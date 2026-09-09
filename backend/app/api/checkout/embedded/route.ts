@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { computeFormationTotal } from '@/lib/pricing'
-import { resolveOrigin } from '@/lib/request-origin'
+import { resolveOrigin, brandFromOrigin, statementDescriptorParams } from '@/lib/request-origin'
 
 export const dynamic = 'force-dynamic'
 
@@ -55,6 +55,7 @@ export async function POST(req: NextRequest) {
     }))
 
     const origin = resolveOrigin(req)
+    const brand = brandFromOrigin(origin)
 
     // Pre-llenar billing address (2026-09-07): si el cliente eligió "I will
     // use my own address" (paso 2), esa dirección ya viaja estructurada en
@@ -118,15 +119,26 @@ export async function POST(req: NextRequest) {
       // 'required' → Stripe pide la dirección de facturación completa (nombre +
       // dirección) dentro del Embedded Checkout. Con 'auto' solo pedía lo mínimo.
       billing_address_collection: 'required',
+      // Campo nativo de Stripe "Add promotion code" dentro del Embedded
+      // Checkout (2026-09-09) — para aplicar descuentos ad-hoc a un cliente
+      // puntual (código de un solo uso) o una promo general (código
+      // reusable), sin construir nada propio. Los códigos/cupones se crean y
+      // administran directo en el dashboard de Stripe (Product catalog →
+      // Coupons), test y live por separado — no requieren env vars ni
+      // cambios de código adicionales.
+      allow_promotion_codes: true,
       // Embedded usa return_url (no success_url/cancel_url). El webhook es quien
       // marca la orden como pagada; esta página solo confirma visualmente.
       return_url: `${origin}/order/complete?session_id={CHECKOUT_SESSION_ID}`,
       // Statement descriptor: lo que el cliente ve en su extracto bancario.
-      // El sufijo se concatena al descriptor base de la cuenta (Stripe → Settings
-      // → Business → Public details). Ej: base "OPABIZ" → "OPABIZ* FORMATION".
-      // ⚠️ El base hay que configurarlo en el dashboard (test Y live por separado).
+      // En OpaBiz el sufijo se concatena al descriptor base de la cuenta
+      // (Stripe → Settings → Business → Public details, hoy "OPABIZ.COM") →
+      // "OPABIZ.COM* FORMATION". En FBFC se pisa el descriptor completo (ver
+      // statementDescriptorParams) porque el base de la cuenta no lo
+      // representa — mybusinessformation.com nunca debe mostrar "OPABIZ.COM"
+      // en el extracto del cliente.
       payment_intent_data: {
-        statement_descriptor_suffix: 'FORMATION',
+        ...statementDescriptorParams(brand, 'FORMATION'),
         // Guarda el método de pago en el Customer para cobros off-session
         // futuros — lo usan las Subscriptions de servicios recurrentes
         // (Annual Report) creadas después del pago, ver webhook.

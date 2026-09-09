@@ -31,3 +31,25 @@ export function resolveOrigin(req: NextRequest, fallback: string = 'https://opab
 export function brandFromOrigin(origin: string): 'opabiz' | 'fbfc' {
   return origin.includes('mybusinessformation.com') ? 'fbfc' : 'opabiz'
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Statement descriptor (lo que el cliente ve en su extracto bancario/tarjeta)
+// por marca, para pagos únicos (Checkout Sessions). El descriptor BASE de la
+// cuenta de Stripe es "OPABIZ.COM" (Settings → Business → Public details) —
+// correcto para OpaBiz (solo se le concatena un sufijo por tipo de compra),
+// pero un cliente de mybusinessformation.com nunca oyó hablar de OpaBiz. Para
+// FBFC se pisa el descriptor COMPLETO (Stripe no permite combinar
+// `statement_descriptor` con `statement_descriptor_suffix` en el mismo pago) —
+// se pierde el sufijo por tipo (FORMATION/SERVICES) a cambio de que la marca
+// sea la correcta, que es lo que de verdad importa para que el cliente
+// reconozca el cargo.
+// ─────────────────────────────────────────────────────────────────────────────
+const FBFC_STATEMENT_DESCRIPTOR = 'MYBIZFORMATION'
+
+export function statementDescriptorParams(
+  brand: 'opabiz' | 'fbfc',
+  suffix: string,
+): { statement_descriptor: string } | { statement_descriptor_suffix: string } {
+  if (brand === 'fbfc') return { statement_descriptor: FBFC_STATEMENT_DESCRIPTOR }
+  return { statement_descriptor_suffix: suffix }
+}

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { SunbizCheckoutInputSchema, parseOr400 } from '@/lib/schemas'
-import { resolveOrigin } from '@/lib/request-origin'
+import { resolveOrigin, brandFromOrigin, statementDescriptorParams } from '@/lib/request-origin'
 
 const getStripe = () => new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2026-02-25.clover' })
 
@@ -45,6 +45,7 @@ export async function POST(req: NextRequest) {
     // Se deja vivo, endurecido, solo por si una pestaña de Stripe Checkout
     // abierta ANTES de la migración vuelve a intentar completar el pago.
     const origin = resolveOrigin(req, 'https://mybusinessformation.com')
+    const brand = brandFromOrigin(origin)
 
     // Look up company email from DB to pre-fill Stripe checkout
     let customerEmail: string | undefined
@@ -77,11 +78,10 @@ export async function POST(req: NextRequest) {
       customer_email: customerEmail,
       return_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}&doc=${encodeURIComponent(document_id || '')}`,
       // Statement descriptor: lo que el cliente ve en su extracto bancario.
-      // El sufijo se concatena al descriptor base de la cuenta (Stripe → Settings
-      // → Business → Public details). Ej: base "OPABIZ" → "OPABIZ* SERVICES".
-      // ⚠️ El base hay que configurarlo en el dashboard (test Y live por separado).
+      // Ver lib/request-origin.ts statementDescriptorParams — en FBFC pisa
+      // el descriptor completo en vez de concatenar al base "OPABIZ.COM".
       payment_intent_data: {
-        statement_descriptor_suffix: 'SERVICES',
+        ...statementDescriptorParams(brand, 'SERVICES'),
       },
       metadata: {
         company_id:        company_id    || '',
@@ -99,7 +99,9 @@ export async function POST(req: NextRequest) {
         .from('qr_scans')
         .update({ converted: true })
         .eq('company_id', company_id)
-        .then(() => {})
+        .then(({ error: qrScanErr }) => {
+          if (qrScanErr) console.error('[sunbiz/checkout] qr_scans update error (non-fatal):', qrScanErr)
+        })
     }
 
     return NextResponse.json({ clientSecret: session.client_secret })

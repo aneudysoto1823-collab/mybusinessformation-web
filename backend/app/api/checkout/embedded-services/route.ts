@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { computeServicesTotal, SERVICES_CATALOG, SERVICE_BUNDLES } from '@/lib/services-pricing'
-import { resolveOrigin, brandFromOrigin } from '@/lib/request-origin'
+import { resolveOrigin, brandFromOrigin, statementDescriptorParams } from '@/lib/request-origin'
 
 export const dynamic = 'force-dynamic'
 
@@ -175,9 +175,14 @@ export async function POST(req: NextRequest) {
       // no tiene nada recurrente, el customer simplemente no se usa.
       customer_creation: 'always',
       billing_address_collection: 'required',
+      // Campo nativo de Stripe "Add promotion code" — ver mismo comentario
+      // completo en /api/checkout/embedded/route.ts.
+      allow_promotion_codes: true,
       return_url: `${origin}/servicios/checkout?paid=1&session_id={CHECKOUT_SESSION_ID}`,
       payment_intent_data: {
-        statement_descriptor_suffix: 'SERVICES',
+        // Ver lib/request-origin.ts statementDescriptorParams — en FBFC pisa
+        // el descriptor completo en vez de concatenar al base "OPABIZ.COM".
+        ...statementDescriptorParams(sourceDomain, 'SERVICES'),
         // Guarda el método de pago en el Customer para cobros off-session
         // futuros — lo usan las Subscriptions creadas después del pago.
         setup_future_usage: 'off_session',
