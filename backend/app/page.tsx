@@ -474,17 +474,6 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 .form-card-body{padding:32px 36px}
 .form-card-footer{padding:18px 36px;border-top:1px solid #f3f4f6;display:flex;align-items:center;justify-content:space-between;gap:12px}
 
-/* Right card — order summary */
-.order-card{background:#fff;border-radius:14px;box-shadow:0 1px 4px rgba(0,0,0,.07),0 4px 16px rgba(0,0,0,.06);width:300px;flex-shrink:0;position:sticky;top:80px;overflow:hidden}
-.order-card-head{padding:16px 20px;border-bottom:1px solid #f3f4f6}
-.order-card-title{font-size:.9rem;font-weight:700;color:var(--navy)}
-.order-card-body{padding:4px 0}
-.ord-line{display:flex;justify-content:space-between;align-items:center;padding:8px 20px;font-size:.79rem}
-.ord-line-lbl{color:#6b7280}
-.ord-line-val{font-weight:600;color:var(--navy)}
-.order-card-total{padding:12px 20px;border-top:2px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center}
-.order-total-lbl{font-size:.87rem;font-weight:700;color:var(--navy)}
-.order-total-val{font-size:1.1rem;font-weight:900;color:var(--blue);font-family:var(--font-serif)}
 
 /* Step title */
 .step-title{font-family:var(--font-serif);font-size:1.15rem;font-weight:700;color:var(--navy);margin-bottom:6px}
@@ -540,30 +529,12 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 /* Step info tip */
 .step-info-box{background:#f0f9ff;border:1px solid #bae6fd;border-radius:9px;padding:11px 14px;font-size:.75rem;color:#0369a1;line-height:1.65;margin-bottom:4px}
 
-.form-modal{max-width:1080px;margin:28px auto;padding:0 20px 60px;display:flex;gap:24px;align-items:flex-start;box-sizing:border-box}
-@media(max-width:800px){.form-modal{flex-direction:column;padding:0 14px 40px}}
-.form-card{background:#fff;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.08),0 4px 16px rgba(0,0,0,.06);flex:1;min-width:0}
-.form-card-body{padding:28px 32px}
-.form-card-footer{padding:16px 32px;border-top:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between;gap:12px}
-.order-card{background:#fff;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.08),0 4px 16px rgba(0,0,0,.06);width:288px;flex-shrink:0;position:sticky;top:72px}
-@media(max-width:800px){.order-card{width:100%;position:static}}
-
 /* ═══════════════════════════════════════════════════════
    FORM OVERLAY — Bizee-style
    ═══════════════════════════════════════════════════════ */
 .form-overlay{display:none;position:fixed;inset:0;z-index:2000;background:#f3f4f6;overflow-y:auto}
 .form-overlay.active{display:block}
 
-/* Progress bar — sticky top */
-.fp-bar{background:#fff;border-bottom:1px solid #e5e7eb;padding:10px 32px;position:sticky;top:0;z-index:100;display:flex;align-items:center;gap:20px}
-.fp-close{background:transparent;border:1.5px solid #e5e7eb;color:#6b7280;padding:5px 14px;border-radius:7px;cursor:pointer;font-size:.8rem;font-weight:600;font-family:inherit;transition:all .2s;white-space:nowrap}
-.fp-close:hover{background:#f9fafb;border-color:#9ca3af}
-.fp-label{font-size:.78rem;font-weight:600;color:#374151;white-space:nowrap}
-.fp-track{flex:1;height:6px;background:#e5e7eb;border-radius:3px;overflow:hidden}
-.fp-fill{height:100%;background:#2563eb;border-radius:3px;transition:width .4s ease}
-.fp-pct{font-size:.78rem;color:#6b7280;white-space:nowrap}
-.fp-phone{display:flex;align-items:center;gap:6px;font-size:.8rem;color:#374151;font-weight:600;text-decoration:none;white-space:nowrap}
-.fp-phone svg{color:#6b7280}
 
 /* Page wrapper */
 .fm-wrap{max-width:1280px;margin:28px auto;padding:0 20px 60px;display:flex;gap:24px;align-items:flex-start;box-sizing:border-box}
@@ -5034,12 +5005,12 @@ function fmNext() {
             }
             // Avanzar al siguiente paso (mismo logica que el final de fmNext)
             if (typeof window.gtag === 'function') { window.gtag('event', 'step_completed', { step_number: fmCurrentStep, package: fmData.package, entity: fmData.entity }); }
-            var _next=fmCurrentStep+1; if(_next===4)_next=5; if(_next===6)_next=7;
+            var _next=fmCurrentStep+1;
             if(fmVisualStep(_next)<=fmTotalSteps) fmGoToStep(_next);
           } catch(e) {
             // Si algo falla, avanzar igual (no bloquear al cliente)
             if (typeof window.gtag === 'function') { window.gtag('event', 'step_completed', { step_number: fmCurrentStep, package: fmData.package, entity: fmData.entity }); }
-            var _nx=fmCurrentStep+1; if(_nx===4)_nx=5; if(_nx===6)_nx=7;
+            var _nx=fmCurrentStep+1;
             if(fmVisualStep(_nx)<=fmTotalSteps) fmGoToStep(_nx);
           }
         })();

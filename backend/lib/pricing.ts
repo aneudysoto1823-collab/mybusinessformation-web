@@ -21,7 +21,7 @@ export type PackageId = 'basic' | 'standard' | 'premium'
 // "$99 → -$99 = gratis"; con un precio real > 0 ya no hace falta ninguno de
 // esos trucos — Basic ahora se comporta exactamente igual que Standard/Premium
 // (line item normal a su precio de lista, sin cupón).
-export const PACKAGE_PRICES: Record<PackageId, number> = { basic: 39, standard: 199, premium: 299 }
+const PACKAGE_PRICES: Record<PackageId, number> = { basic: 39, standard: 199, premium: 299 }
 
 // Add-ons cobrables (igual que fmBuildPayload en page.tsx). `raInfo` no se
 // cobra acá (es solo la dirección cuando el cliente es su propio agente).
@@ -34,10 +34,10 @@ export const ADDON_PRICES = {
   // cobrarlo como los demás addons.
   ar: 99,
 } as const
-export type AddonKey = keyof typeof ADDON_PRICES
+type AddonKey = keyof typeof ADDON_PRICES
 
 export const EXPEDITED_FEE = 49
-export const STATE_FEE: Record<EntityType, number> = { llc: 125, corp: 70 }
+const STATE_FEE: Record<EntityType, number> = { llc: 125, corp: 70 }
 
 // Registered Agent — cobro condicional por paquete (2026-09-03).
 // Basic: cobra $99 el primer año si el cliente elige nuestro servicio (ra='us').

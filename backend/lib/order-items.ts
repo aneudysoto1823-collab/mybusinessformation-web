@@ -41,14 +41,14 @@ export const FORMATION_ADDON_NAMES: Record<string, { en: string; es: string }> =
 
 // Servicios ofrecidos en el flujo de marketing /new-business (ver
 // app/api/sunbiz/checkout/route.ts SERVICES).
-export const MARKETING_ADDON_NAMES: Record<string, { en: string; es: string }> = {
+const MARKETING_ADDON_NAMES: Record<string, { en: string; es: string }> = {
   ein:                   { en: 'EIN / Tax ID Number', es: 'EIN / Número de Identificación Fiscal' },
   labor_law_poster:      { en: 'Labor Law Poster (2026)', es: 'Póster de Ley Laboral (2026)' },
   certificate_of_status: { en: 'Certificate of Status (FL)', es: 'Certificado de Buena Reputación (FL)' },
   bundle:                { en: 'Business Essentials Bundle (EIN + Labor Poster + Certificate)', es: 'Paquete Esencial (EIN + Póster + Certificado)' },
 }
 
-export function formationItemLabel(entityType: string | undefined, lang: Lang): string {
+function formationItemLabel(entityType: string | undefined, lang: Lang): string {
   const isCorp = (entityType ?? 'llc').toLowerCase() === 'corp'
   if (lang === 'es') return isCorp ? 'Formación de Corporation (Artículos de Incorporación)' : 'Formación de LLC (Artículos de Organización)'
   return isCorp ? 'Corporation Formation (Articles of Incorporation)' : 'LLC Formation (Articles of Organization)'
