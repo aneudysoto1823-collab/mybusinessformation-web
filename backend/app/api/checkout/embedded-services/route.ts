@@ -110,6 +110,11 @@ export async function POST(req: NextRequest) {
       // para los mensajes de error, nunca se persistía en la orden).
       addons:          { services: uniqueIds, bundles: bundleIds, intake, lines, lang },
       amount:          total,
+      // Promueve un borrador (ver /api/orders/services-draft) a orden real —
+      // sin esto, una orden que arrancó como isDraft:true quedaba con ese flag
+      // para siempre incluso después de pagada, invisible en /admin (que
+      // filtra isDraft:true de la lista de órdenes reales).
+      isDraft:         false,
     }
 
     let orderId: string | null = null

@@ -271,7 +271,10 @@ html.co-wide .co-tier{padding:20px 18px}
   <!-- PROGRESS -->
   <div class="co-prog" id="co-prog" style="display:none">
     <div class="co-prog-bar"><div class="co-prog-fill" id="co-prog-fill"></div></div>
-    <div class="co-prog-label" id="co-prog-label"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+      <div class="co-prog-label" id="co-prog-label"></div>
+      <button type="button" onclick="coSaveDraftManual()" style="background:none;border:none;color:var(--blue);font-size:.8rem;font-weight:700;cursor:pointer;padding:4px;white-space:nowrap" data-en="Save &amp; continue later" data-es="Guardar y continuar después">Guardar y continuar después</button>
+    </div>
   </div>
 
   <!-- EMPTY -->
@@ -901,6 +904,88 @@ function coCollectExtras(){
     });
   });
   return out;
+}
+
+// ── Guardar/restaurar progreso (borrador real en Supabase) ──────────────────
+// Antes un refresh a mitad de camino perdía TODO lo tipeado — el checkout no
+// guardaba nada hasta el paso de pago. Mismo patrón que "Continue My
+// Application" del home, adaptado al shape de este checkout à la carte.
+var _coDraftSentEmail=false; // evita reintentar el fetch en loop si falla
+function coSimpleFieldIds(){
+  // Ids "planos" (no repetidos por servicio) que vale la pena recordar —
+  // cubre Empresa/Contacto/Dirección personal/Agente Registrado propio.
+  return ['f-firstName','f-lastName','f-email','f-phone','f-legalName','f-flDoc',
+    'f-street','f-apt','f-city','f-state','f-zip','f-country',
+    'p-street','p-apt','p-city','p-state','p-zip',
+    'x-'+coFormId+'-raFirstName','x-'+coFormId+'-raLastName','x-'+coFormId+'-raStreet','x-'+coFormId+'-raCity','x-'+coFormId+'-raState','x-'+coFormId+'-raZip'];
+}
+function coSaveDraft(){
+  var email=(($('f-email')||{}).value||'').trim();
+  if(!email || !cart.length) return; // recién a partir de "Información personal"
+  var fields={};
+  coSimpleFieldIds().forEach(function(id){ var el=$(id); if(el && el.value) fields[id]=el.value; });
+  var shared=coCollectShared(); delete shared.ssnItin; // el SSN/ITIN NUNCA se guarda
+  var snapshot={
+    step:coIdx, cart:cart.slice(), bundles:coBundles.slice(),
+    bundleAdded:JSON.parse(JSON.stringify(coBundleAdded)), expedited:coExpedited,
+    fields:fields, extras:coCollectExtras(), shared:shared, raChoice:coRaChoice,
+  };
+  var payload={
+    orderId:coOrderId, email:email,
+    firstName:(($('f-firstName')||{}).value||'').trim()||null,
+    lastName:(($('f-lastName')||{}).value||'').trim()||null,
+    phone:(($('f-phone')||{}).value||'').trim()||null,
+    companyName:(($('f-legalName')||{}).value||'').trim()||null,
+    entityType:(($('f-entityType')||{}).value||'').trim()||null,
+    country:'US', lang:coLang, snapshot:snapshot,
+  };
+  fetch('/api/orders/services-draft', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if(d && d.success && d.orderId){
+        coOrderId=d.orderId;
+        try{ localStorage.setItem('flbc_svc_orderid', d.orderId); localStorage.setItem('flbc_svc_draft_email', email); }catch(e){}
+      }
+    }).catch(function(){});
+}
+// Botón "Guardar" manual — mismo guardado de fondo, pero con confirmación
+// visible (toast) para que el cliente sepa que puede cerrar e irse tranquilo.
+function coSaveDraftManual(){
+  var isEs=coIsEs();
+  var email=(($('f-email')||{}).value||'').trim();
+  if(!email){ alert(isEs?'Ingrese su correo antes de guardar.':'Enter your email before saving.'); return; }
+  coSaveDraft();
+  var t=document.createElement('div');
+  t.textContent=isEs?'✓ Guardado — le enviamos un correo con el link para continuar.':'✓ Saved — we sent you an email with the link to continue.';
+  t.style.cssText='position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#1C2E44;color:#fff;padding:12px 22px;border-radius:8px;font-size:.85rem;font-weight:600;z-index:5000;box-shadow:0 8px 24px rgba(0,0,0,.25)';
+  document.body.appendChild(t);
+  setTimeout(function(){ t.remove(); }, 4000);
+}
+// Restaura un borrador (mismo navegador via localStorage, o cross-device vía
+// el link del email) — reconstruye el carrito y rellena los campos ya
+// conocidos. El SSN/ITIN nunca vuelve (nunca se guardó) — se pide de nuevo.
+function coApplyDraftSnapshot(orderId, snap){
+  coOrderId=orderId;
+  cart = Array.isArray(snap.cart) ? snap.cart.slice() : [];
+  coBundles = Array.isArray(snap.bundles) ? snap.bundles.slice() : [];
+  coBundleAdded = (snap.bundleAdded && typeof snap.bundleAdded==='object') ? snap.bundleAdded : {};
+  coExpedited = snap.expedited!==false;
+  coRaChoice = snap.raChoice || null;
+  coSaveCart();
+  try{ localStorage.setItem('flbc_svc_orderid', orderId); }catch(e){}
+  if(!cart.length){ coShowScreen('co-empty'); return; }
+  coBuildWizard();
+  coShowScreen('co-wizard');
+  var fields=snap.fields||{};
+  Object.keys(fields).forEach(function(id){ var el=$(id); if(el) el.value=fields[id]; });
+  var extras=snap.extras||{};
+  Object.keys(extras).forEach(function(k){
+    var idx=k.indexOf('.'); if(idx<0) return;
+    var el=$('x-'+k.slice(0,idx)+'-'+k.slice(idx+1)); if(el) el.value=extras[k];
+  });
+  var shared=snap.shared||{};
+  Object.keys(shared).forEach(function(k){ if(k==='ssnItin') return; var el=$('s-'+k); if(el) el.value=shared[k]; });
+  coGoStep(Math.min(snap.step||0, coSteps.length-1));
 }
 function restoreExtras(vals){
   Object.keys(vals).forEach(function(key){
@@ -1729,6 +1814,10 @@ function coGoStep(i){
   $('co-next').innerHTML='<span>'+(nextIsPay ? (isEs?'Revisar orden':'Review order') : (isEs?'Continuar':'Continue'))+'</span> &#8594;';
   $('co-err').textContent='';
   coUpdateOrderSummary();
+  // Guarda el progreso en cada cambio de paso (silencioso, fire-and-forget) —
+  // así un refresh a mitad de camino no pierde todo lo tipeado. No hace nada
+  // hasta que exista un email (recién a partir de "Información personal").
+  try{ coSaveDraft(); }catch(e){}
   // Alinea el resumen (sidebar) con el TOP del primer card del formulario, no con
   // el título del paso (pedido del founder). Solo desktop.
   try{
@@ -2167,15 +2256,7 @@ async function coLobValidateAddr(addrInput, enteredLabel){
 }
 
 // ── Init ─────────────────────────────────────────────────────────────────────
-(function init(){
-  coTranslateStatic();
-  var paid=false; try{ paid=new URLSearchParams(location.search).get('paid')==='1'; }catch(e){}
-  if(paid){
-    var num=''; try{ num=localStorage.getItem('flbc_svc_order')||''; }catch(e){}
-    $('co-success-num').textContent=num||'—';
-    try{ localStorage.removeItem('flbc_svc_cart'); localStorage.removeItem('flbc_svc_bundles'); localStorage.removeItem('flbc_svc_bundle_added'); localStorage.removeItem('flbc_svc_order'); localStorage.removeItem('flbc_svc_expedited'); localStorage.removeItem('flbc_svc_orderid'); localStorage.removeItem('flbc_svc_prefill'); localStorage.removeItem('flbc_svc_company'); }catch(e){}
-    coShowScreen('co-success'); return;
-  }
+function coInitNormal(){
   if(!cart.length){ coShowScreen('co-empty'); return; }
   coBuildWizard();
   coShowScreen('co-wizard');
@@ -2193,6 +2274,36 @@ async function coLobValidateAddr(addrInput, enteredLabel){
       if (_flDoc) { _flDoc.value = coCompanyPrefill.documentId; coLookupCompany(true); }
     }
   }
+}
+(function init(){
+  coTranslateStatic();
+  var paid=false; try{ paid=new URLSearchParams(location.search).get('paid')==='1'; }catch(e){}
+  if(paid){
+    var num=''; try{ num=localStorage.getItem('flbc_svc_order')||''; }catch(e){}
+    $('co-success-num').textContent=num||'—';
+    try{ localStorage.removeItem('flbc_svc_cart'); localStorage.removeItem('flbc_svc_bundles'); localStorage.removeItem('flbc_svc_bundle_added'); localStorage.removeItem('flbc_svc_order'); localStorage.removeItem('flbc_svc_expedited'); localStorage.removeItem('flbc_svc_orderid'); localStorage.removeItem('flbc_svc_draft_email'); localStorage.removeItem('flbc_svc_prefill'); localStorage.removeItem('flbc_svc_company'); }catch(e){}
+    coShowScreen('co-success'); return;
+  }
+  // Restaura un borrador guardado — desde el link del email (?resumeOrder=&
+  // resumeEmail=) o, en el mismo navegador, desde localStorage. Si no hay
+  // nada que restaurar, sigue con el flujo normal (carrito local o vacío).
+  var params=null; try{ params=new URLSearchParams(location.search); }catch(e){}
+  var resumeOrder = params ? params.get('resumeOrder') : null;
+  var resumeEmail = params ? params.get('resumeEmail') : null;
+  var localOrderId=null, localEmail=null;
+  try{ localOrderId=localStorage.getItem('flbc_svc_orderid'); localEmail=localStorage.getItem('flbc_svc_draft_email'); }catch(e){}
+  var useOrderId=resumeOrder||localOrderId, useEmail=resumeEmail||localEmail;
+  if(useOrderId && useEmail){
+    if(resumeOrder){ try{ window.history.replaceState({}, '', location.pathname); }catch(e){} }
+    fetch('/api/orders/services-draft?orderId='+encodeURIComponent(useOrderId)+'&email='+encodeURIComponent(useEmail))
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if(d && d.isDraft && d.snapshot){ coApplyDraftSnapshot(d.orderId, d.snapshot); }
+        else { coInitNormal(); }
+      }).catch(function(){ coInitNormal(); });
+    return;
+  }
+  coInitNormal();
 })();
 `
 }

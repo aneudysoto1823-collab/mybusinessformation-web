@@ -89,6 +89,37 @@ export const OrderDraftInputSchema = z.object({
   snapshot: z.unknown().optional().nullable(),
 })
 
+// ── 1c. POST /api/orders/services-draft — guardado incremental de /servicios/checkout ──
+// Mismo espíritu que OrderDraftInputSchema pero para el checkout à la carte
+// (compartido por opabiz.com y mybusinessformation.com — la marca se deriva del
+// Origin en el server, nunca del cliente). Se llama desde que existe un email
+// (paso "Información personal") en adelante. El snapshot NUNCA debe incluir
+// ssnItin (ver coSaveDraft en servicios/checkout/page.tsx, que lo excluye a mano
+// antes de armar el payload).
+export const ServicesDraftInputSchema = z.object({
+  orderId: z.string().uuid().optional().nullable(),
+
+  firstName: ShortText.optional().nullable(),
+  lastName: ShortText.optional().nullable(),
+  email: Email,
+  phone: z.string().trim().max(50).optional().nullable(),
+  country: ShortText.optional().nullable(),
+  companyName: MedText.optional().nullable(),
+  entityType: z.enum(['llc', 'corp']).optional().nullable(),
+  lang: z.enum(['en', 'es']).optional(),
+
+  snapshot: z.unknown().optional().nullable(),
+})
+
+// ── 1d. GET /api/orders/services-draft — recupera un borrador guardado ───────
+// Autenticado por orderId + email coincidente (no hay client_session en este
+// checkout anónimo pre-pago) — evita que alcance con adivinar/filtrar un UUID
+// para leer el progreso de otra persona sin conocer también su email.
+export const ServicesDraftLookupSchema = z.object({
+  orderId: z.string().uuid(),
+  email: Email,
+})
+
 // ── 2. POST /api/chat — Claudia ──────────────────────────────────────────────
 // Mensajes con max length agresivo para evitar abuso de token cost.
 export const ChatInputSchema = z.object({
