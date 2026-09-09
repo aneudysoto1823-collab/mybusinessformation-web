@@ -156,6 +156,10 @@ export async function POST(req: NextRequest) {
     const session = await getStripe().checkout.sessions.create({
       ui_mode: 'embedded',
       mode: 'payment',
+      // Idioma del formulario de Stripe (botones, "Add promotion code", etc.)
+      // — antes no se pasaba nada y siempre salía en inglés sin importar el
+      // idioma real del cliente en el sitio.
+      locale: isEs ? 'es' : 'en',
       line_items: lineItems,
       // Restringido a 'card' — excluye Link a propósito. Ver comentario
       // completo en /api/checkout/embedded/route.ts (mismo criterio).

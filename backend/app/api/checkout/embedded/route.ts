@@ -33,9 +33,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Esta orden ya fue pagada' }, { status: 409 })
     }
 
-    // Idioma persistido en Order.addons.lang (draft/orders lo guarda) — solo
-    // afecta el label del line item de RA en Stripe/complete/emails, no el monto.
+    // Idioma persistido en Order.addons.lang (draft/orders lo guarda) — afecta
+    // el label del line item de RA, el locale del formulario de Stripe (ver
+    // más abajo) y el idioma de Stripe/complete/emails, nunca el monto.
     const savedLang = ((order.addons ?? {}) as Record<string, unknown>).lang
+    const isEs = savedLang === 'es'
     const { cents, lines } = computeFormationTotal({
       package:         order.package,
       entityType:      order.entityType,
@@ -94,6 +96,9 @@ export async function POST(req: NextRequest) {
     const session = await getStripe().checkout.sessions.create({
       ui_mode: 'embedded',
       mode: 'payment',
+      // Idioma del formulario de Stripe — antes no se pasaba nada y siempre
+      // salía en inglés sin importar el idioma real del cliente en el sitio.
+      locale: isEs ? 'es' : 'en',
       line_items: lineItems,
       // Restringido a 'card' a propósito (decisión founder 2026-09-08) — sin
       // esto Stripe decide automáticamente qué métodos mostrar según lo

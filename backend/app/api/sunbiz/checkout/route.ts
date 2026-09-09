@@ -64,6 +64,9 @@ export async function POST(req: NextRequest) {
     // Stripe se monta dentro de la página, sin redirigir a checkout.stripe.com.
     const session = await getStripe().checkout.sessions.create({
       ui_mode: 'embedded',
+      // Idioma del formulario de Stripe — antes no se pasaba nada y siempre
+      // salía en inglés sin importar el idioma real del cliente en el sitio.
+      locale: lang === 'es' ? 'es' : 'en',
       line_items: lineItems,
       mode: 'payment',
       // Restringido a 'card' — excluye Link a propósito. Ver comentario

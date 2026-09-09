@@ -777,6 +777,11 @@ function coVisibleFields(svcId, ft){
     // La Declaración Anual no vuelve a pedir dueños/oficiales si el Acuerdo Operativo
     // (o una formación) ya los captura — se reutilizan esos (que ya traen el cargo).
     if(svcId==='annual-report' && f.k==='officers' && (ft || cart.indexOf('operating-agreement')>=0)) return false;
+    // Licencia de Negocios no vuelve a preguntar la actividad del negocio si el
+    // cliente también compra EIN — ya se preguntó ahí (Actividad principal /
+    // Razón para solicitar el EIN). Bug real reportado 2026-09-09: se pedía
+    // "tipo de negocio" y "a qué se dedica" dos veces con dos formatos distintos.
+    if(svcId==='business-license' && (f.k==='industry'||f.k==='description') && cart.indexOf('ein')>=0) return false;
     return true;
   });
 }
@@ -1114,10 +1119,11 @@ function coSharedFieldsInner(keys){
       // vista pero no coinciden — password manager de por medio). El masking
       // visual (los puntos) lo da el CSS, no el atributo type.
       return '<div class="co-field full"><label class="co-label">'+lbl+tipHtml+'</label>'
-        +'<div class="co-ssn-wrap"><input class="co-input" type="text" style="-webkit-text-security:disc" autocomplete="off" data-lpignore="true" data-form-type="other" inputmode="numeric" maxlength="9" oninput="this.value=this.value.replace(/[^0-9]/g,\'\')" id="s-ssnItin"/>'
+        +'<div class="co-ssn-wrap"><input class="co-input" type="text" style="-webkit-text-security:disc" autocomplete="off" data-lpignore="true" data-form-type="other" inputmode="numeric" maxlength="9" oninput="this.value=this.value.replace(/[^0-9]/g,\'\');coCheckSsnMatch()" id="s-ssnItin"/>'
         +'<button type="button" class="co-ssn-eye" onclick="coToggleSsn(this)">'+(isEs?'Ver':'Show')+'</button></div></div>'
         +'<div class="co-field full"><label class="co-label">'+(isEs?'Confirme su SSN o ITIN':'Confirm your SSN or ITIN')+'</label>'
-        +'<input class="co-input" type="text" style="-webkit-text-security:disc" autocomplete="off" data-lpignore="true" data-form-type="other" inputmode="numeric" maxlength="9" oninput="this.value=this.value.replace(/[^0-9]/g,\'\')" id="s-ssnItin-confirm"/></div>';
+        +'<input class="co-input" type="text" style="-webkit-text-security:disc" autocomplete="off" data-lpignore="true" data-form-type="other" inputmode="numeric" maxlength="9" oninput="this.value=this.value.replace(/[^0-9]/g,\'\');coCheckSsnMatch()" id="s-ssnItin-confirm"/>'
+        +'<div id="s-ssn-match-msg" style="font-size:.78rem;font-weight:600;margin-top:6px;min-height:16px"></div></div>';
     }
     return '<div class="co-field full"><label class="co-label">'+lbl+tipHtml+'</label><input class="co-input" type="text" id="s-'+k+'"/></div>';
   }).join('');
@@ -1132,6 +1138,23 @@ function coToggleSsn(btn){
   if(a) a.style.webkitTextSecurity=show?'none':'disc';
   if(b) b.style.webkitTextSecurity=show?'none':'disc';
   btn.textContent = show ? (isEs?'Ocultar':'Hide') : (isEs?'Ver':'Show');
+}
+// Feedback en vivo mientras el cliente escribe/corrige el SSN o ITIN — antes
+// el único aviso de "no coincide" era el error rojo al hacer clic en
+// Continuar, sin ninguna señal de que ya se corrigió hasta el próximo intento.
+function coCheckSsnMatch(){
+  var isEs=coIsEs();
+  var a=$('s-ssnItin'), b=$('s-ssnItin-confirm'), msg=$('s-ssn-match-msg');
+  if(!a||!b||!msg) return;
+  var va=(a.value||'').replace(/[^0-9]/g,''), vb=(b.value||'').replace(/[^0-9]/g,'');
+  if(!vb.length){ msg.textContent=''; return; }
+  if(vb.length===9 && va===vb){
+    msg.style.color='#059669'; msg.textContent=isEs?'✓ Coinciden':'✓ Match';
+  } else if(vb.length===9){
+    msg.style.color='#dc2626'; msg.textContent=isEs?'No coinciden todavía.':'Not matching yet.';
+  } else {
+    msg.textContent='';
+  }
 }
 // Paso propio "Datos fiscales": aparece justo después de elegir un servicio que
 // requiere SSN/ITIN (ej. EIN), con el contexto fresco. Muestra el responsible
