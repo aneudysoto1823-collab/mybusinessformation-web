@@ -107,6 +107,9 @@ export const ServicesDraftInputSchema = z.object({
   companyName: MedText.optional().nullable(),
   entityType: z.enum(['llc', 'corp']).optional().nullable(),
   lang: z.enum(['en', 'es']).optional(),
+  // De qué wizard viene el borrador — determina a qué URL apunta el link de
+  // "continuar" del email (servicios/checkout vs la raíz de mybiz new-business).
+  source: z.enum(['services-checkout', 'new-business']).optional(),
 
   snapshot: z.unknown().optional().nullable(),
 })

@@ -103,6 +103,7 @@ export async function POST(request: NextRequest) {
       origin,
       brand: sourceBrand,
       lang: body.lang === 'es' ? 'es' : 'en',
+      source: body.source === 'new-business' ? 'new-business' : 'services-checkout',
     })
 
     return NextResponse.json({ success: true, orderId: created.id }, { status: 201 })
@@ -148,9 +149,14 @@ function sendDraftSavedEmail(order: {
   origin: string
   brand: EmailBrand
   lang: 'en' | 'es'
+  source: 'services-checkout' | 'new-business'
 }) {
   const fbfcNumber = `FBFC-${order.id.replace(/-/g, '').substring(0, 8).toUpperCase()}`
-  const continueUrl = `${order.origin}/servicios/checkout?resumeOrder=${order.id}&resumeEmail=${encodeURIComponent(order.email)}`
+  // new-business (mybiz) vive en la RAÍZ del dominio (rewrite de host en
+  // next.config.ts), nunca en /new-business — mismo criterio que el payUrl
+  // de la carta física, que ya usa mybusinessformation.com/?id=...
+  const path = order.source === 'new-business' ? '' : '/servicios/checkout'
+  const continueUrl = `${order.origin}${path}?resumeOrder=${order.id}&resumeEmail=${encodeURIComponent(order.email)}`
   const isEs = order.lang === 'es'
   const name = order.firstName || (isEs ? 'hola' : 'there')
   const company = order.companyName || (isEs ? 'su pedido' : 'your order')

@@ -1233,12 +1233,82 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
     // iframe huérfano que quedó referenciando un div que React ya desmontó.
     if (step === 5 && n !== 5) { setPendingCheckout(null); setPayError('') }
     setStep(n)
+    saveDraft(n)
     // Sube al tope de la página (no directo al form) para que el cliente
     // siga viendo el saludo/encabezado al cambiar de paso, y sea él quien
     // haga scroll hacia el formulario — feedback: el scrollIntoView anterior
     // saltaba directo al form y dejaba el saludo cortado arriba.
     setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 50)
   }
+
+  // ── Guardar/restaurar progreso (2026-09-09) ──────────────────────────────
+  // Mismo sistema que ya existe en /servicios/checkout (backend compartido,
+  // /api/orders/services-draft) — antes un refresh a mitad de este wizard
+  // perdía todo lo tipeado. Recién guarda desde que hay email (paso Contact
+  // en adelante) porque es lo único que tenemos para avisar/autenticar la
+  // recuperación. El SSN/ITIN nunca se incluye en el snapshot.
+  const [draftSaved, setDraftSaved] = useState(false)
+  function saveDraft(atStep?: number) {
+    if (!form.email) return
+    const snapshot = {
+      source: 'new-business',
+      step: atStep ?? step,
+      form: { ...form, ssnItin: '', ssnItinConfirm: '' },
+      selected: [...selected],
+      extraCart,
+      docInput,
+    }
+    let orderId: string | null = null
+    try { orderId = localStorage.getItem('flbc_svc_orderid') } catch { /* noop */ }
+    fetch('/api/orders/services-draft', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        orderId, email: form.email, firstName: form.firstName || null, lastName: form.lastName || null,
+        phone: form.phone || null, companyName: form.companyName || null, entityType: 'llc',
+        lang, source: 'new-business', snapshot,
+      }),
+    })
+      .then(r => r.json())
+      .then(d => {
+        if (d?.success && d.orderId) {
+          try { localStorage.setItem('flbc_svc_orderid', d.orderId); localStorage.setItem('flbc_svc_draft_email', form.email) } catch { /* noop */ }
+        }
+      })
+      .catch(() => { /* silencioso, no bloquea al cliente */ })
+  }
+  function saveDraftManual() {
+    if (!form.email) return
+    saveDraft()
+    setDraftSaved(true)
+    setTimeout(() => setDraftSaved(false), 4000)
+  }
+  // Restaura un borrador — desde el link del email (?resumeOrder=&resumeEmail=)
+  // o, en el mismo navegador, desde localStorage (misma clave que ya
+  // comparten new-business y /servicios/checkout).
+  useEffect(() => {
+    const resumeOrder = sp.get('resumeOrder')
+    const resumeEmail = sp.get('resumeEmail')
+    let localOrderId: string | null = null, localEmail: string | null = null
+    try { localOrderId = localStorage.getItem('flbc_svc_orderid'); localEmail = localStorage.getItem('flbc_svc_draft_email') } catch { /* noop */ }
+    const useOrderId = resumeOrder || localOrderId
+    const useEmail = resumeEmail || localEmail
+    if (!useOrderId || !useEmail) return
+    if (resumeOrder) { try { window.history.replaceState({}, '', window.location.pathname) } catch { /* noop */ } }
+    fetch(`/api/orders/services-draft?orderId=${encodeURIComponent(useOrderId)}&email=${encodeURIComponent(useEmail)}`)
+      .then(r => r.json())
+      .then(d => {
+        const snap = d?.snapshot
+        if (!d?.isDraft || !snap || snap.source !== 'new-business') return
+        setForm(f => ({ ...f, ...snap.form }))
+        setSelected(new Set(snap.selected || []))
+        setExtraCart(snap.extraCart || [])
+        setDocInput(snap.docInput || '')
+        setStep(snap.step || 1)
+      })
+      .catch(() => { /* noop */ })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
   const [showSsn, setShowSsn]     = useState(false)
   const [descErr, setDescErr]     = useState(false)
   const [otherReasonErr, setOtherReasonErr] = useState(false)
@@ -1982,6 +2052,20 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                       </span>
                     </div>
                   </div>
+
+                  {form.email && (
+                    <div style={{ textAlign: 'right', marginTop: 6, marginBottom: 4 }}>
+                      <button
+                        type="button"
+                        onClick={saveDraftManual}
+                        style={{ background: 'none', border: 'none', color: '#2563EB', fontSize: '.8rem', fontWeight: 700, cursor: 'pointer', padding: 4 }}
+                      >
+                        {draftSaved
+                          ? (lang === 'es' ? '✓ Guardado — te enviamos un correo' : '✓ Saved — we emailed you a link')
+                          : (lang === 'es' ? 'Guardar y continuar después' : 'Save & continue later')}
+                      </button>
+                    </div>
+                  )}
 
                   {/* ── STEP 1: Business info ── */}
                   {step === 1 && (
