@@ -52,6 +52,10 @@ export async function POST(request: NextRequest) {
       companyName:  body.companyName || 'Pending',
       entityType:   body.entityType  || 'llc',
       sourceBrand,
+      // amount es NOT NULL en la tabla — un borrador todavía no tiene precio
+      // real (se calcula recién en /api/checkout/embedded-services al llegar
+      // al pago), 0 es el placeholder correcto mientras tanto.
+      amount:        0,
       isDraft:       true,
       draftSnapshot: body.snapshot ?? null,
     }
