@@ -675,7 +675,7 @@ async function handleServicesPaid(orderId: string, session: Stripe.Checkout.Sess
   const subjectPrefix = isFBFC ? '' : 'OpaBiz: '
 
   // Lista de servicios comprados (desde addons.services / addons.lines)
-  const addons = (order.addons ?? {}) as { services?: string[]; bundles?: string[]; lines?: { label: string; amount: number }[]; lang?: string }
+  const addons = (order.addons ?? {}) as { services?: string[]; bundles?: string[]; lines?: { label: string; amount: number }[]; lang?: string; intake?: { flDoc?: string } }
   const serviceLines = Array.isArray(addons.lines) ? addons.lines : []
   const servicesPlain = (addons.services ?? []).join(', ')
 
@@ -740,6 +740,12 @@ async function handleServicesPaid(orderId: string, session: Stripe.Checkout.Sess
               <div style="font-size:11px;color:#2563EB;text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:4px">${isEs ? 'Número de Orden' : 'Order Number'}</div>
               <div style="font-size:21px;font-weight:800;color:#1C2E44;letter-spacing:.5px">${fbfc}</div>
             </div>
+            ${order.companyName ? `
+            <table style="width:100%;border-collapse:collapse;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;margin:0 0 18px" cellpadding="0" cellspacing="0">
+              <tr><td style="padding:10px 16px;font-size:13px;color:#64748b">${isEs ? 'Empresa' : 'Company'}</td><td style="padding:10px 16px;font-size:13px;font-weight:700;color:#1e293b;text-align:right">${order.companyName}</td></tr>
+              ${order.entityType ? `<tr><td style="padding:0 16px 10px;font-size:13px;color:#64748b">${isEs ? 'Tipo de entidad' : 'Entity type'}</td><td style="padding:0 16px 10px;font-size:13px;font-weight:700;color:#1e293b;text-align:right">${String(order.entityType).toUpperCase()}</td></tr>` : ''}
+              ${addons.intake?.flDoc ? `<tr><td style="padding:0 16px 10px;font-size:13px;color:#64748b">${isEs ? 'Número de Documento' : 'Document Number'}</td><td style="padding:0 16px 10px;font-size:13px;font-weight:700;color:#1e293b;text-align:right">${addons.intake.flDoc}</td></tr>` : ''}
+            </table>` : ''}
             <p style="color:#475569;line-height:1.7">
               ${isEs ? 'Aquí tiene el resumen de los servicios que ordenó:' : "Here's a summary of the services you ordered:"}
             </p>

@@ -149,6 +149,38 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // Pre-llenar billing address (2026-09-10) — mismo patrón que
+    // /api/checkout/embedded (home): si el intake ya trae una dirección
+    // razonable (la personal de "Información de contacto", o si no existe la
+    // del negocio — new-business siempre manda country:'US' fijo), se crea el
+    // Stripe Customer con ella para que el Embedded Checkout la muestre
+    // pre-llenada en vez de pedirla desde cero. Solo soporta EE.UU. por ahora
+    // (Stripe exige país en ISO-2; el selector de país de este checkout usa
+    // nombres completos, "United States" es el único que se mapea).
+    const pa = (intake.personalAddress && typeof intake.personalAddress === 'object') ? intake.personalAddress : {}
+    const rawBillingCountry = String(pa.country || intake.country || '').trim()
+    const billingCountryIso = (rawBillingCountry === 'United States' || rawBillingCountry.toUpperCase() === 'US') ? 'US' : null
+    const billingLine1 = String(pa.street || intake.street || '').trim()
+    const billingCity  = String(pa.city   || intake.city   || '').trim()
+    const hasValidBillingAddr = !!(billingLine1 && billingCity && billingCountryIso)
+
+    let customerId: string | undefined
+    if (hasValidBillingAddr) {
+      const customer = await getStripe().customers.create({
+        email: email.toLowerCase(),
+        name:  legalName || `${firstName} ${lastName}`,
+        address: {
+          line1:       billingLine1,
+          line2:       String(pa.apt   || intake.apt   || '') || undefined,
+          city:        billingCity,
+          state:       String(pa.state || intake.state || '') || undefined,
+          postal_code: String(pa.zip   || intake.zip   || '') || undefined,
+          country:     billingCountryIso!,
+        },
+      })
+      customerId = customer.id
+    }
+
     // Stripe rechaza líneas en $0 (ej. Agente Registrado gratis al combinar); se
     // omiten del cobro pero quedan registradas en la orden (addons.lines).
     const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = lines
@@ -176,13 +208,17 @@ export async function POST(req: NextRequest) {
         button_color:     '#2563EB',
         border_style:     'rounded',
       },
-      customer_email: email.toLowerCase(),
-      // Siempre crea un Stripe Customer — junto con setup_future_usage de abajo,
+      // Siempre hay un Stripe Customer — junto con setup_future_usage de abajo,
       // guarda la tarjeta usada. Necesario para suscribir Registered Agent /
       // Virtual Address / Annual Report cuando estén en el carrito (ver
       // lib/stripe-subscriptions.ts); sin costo ni cambio de UX si el carrito
       // no tiene nada recurrente, el customer simplemente no se usa.
-      customer_creation: 'always',
+      // customer_creation:'always' solo es válido cuando NO se pasa un customer
+      // explícito — con billing address pre-llenado, se referencia el Customer
+      // ya creado arriba en su lugar (ver hasValidBillingAddr más arriba).
+      ...(customerId
+        ? { customer: customerId }
+        : { customer_email: email.toLowerCase(), customer_creation: 'always' as const }),
       billing_address_collection: 'required',
       // Campo nativo de Stripe "Add promotion code" — ver mismo comentario
       // completo en /api/checkout/embedded/route.ts.
