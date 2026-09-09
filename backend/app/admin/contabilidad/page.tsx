@@ -26,7 +26,7 @@ const NAV = [
 
 const SERVICE_LABELS: Record<string, string> = {
   llc: 'LLC', corp: 'Corp', ein: 'EIN', itin: 'ITIN',
-  addon: 'Add-on', new_business_letter: 'New Biz Letter', other: 'Otro',
+  addon: 'Add-on', new_business_letter: 'New Biz Letter', subscription_renewal: 'Renovación', other: 'Otro',
 }
 const STATUS_CLASS: Record<string, string> = { paid: 'badge-green', pending: 'badge-yellow', partial: 'badge-blue' }
 const STATUS_LABEL: Record<string, string> = { paid: 'Pagado', pending: 'Pendiente', partial: 'Parcial' }

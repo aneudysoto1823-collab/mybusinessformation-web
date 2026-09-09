@@ -43,6 +43,14 @@ export async function POST(request: NextRequest) {
   if (!service_type || !amount || !payment_method) {
     return NextResponse.json({ error: 'service_type, amount y payment_method son requeridos' }, { status: 400 })
   }
+  const parsedAmount = parseFloat(amount)
+  const parsedAmountPaid = parseFloat(amount_paid)
+  if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
+    return NextResponse.json({ error: 'amount debe ser un número mayor a 0' }, { status: 400 })
+  }
+  if (!Number.isFinite(parsedAmountPaid) || parsedAmountPaid < 0) {
+    return NextResponse.json({ error: 'amount_paid debe ser un número válido' }, { status: 400 })
+  }
 
   const { data, error } = await insertIncomeWithInvoiceNumber(getSupabaseAdmin(), invoice_number => ({
     client_id: client_id || null,
@@ -51,10 +59,10 @@ export async function POST(request: NextRequest) {
     invoice_date: invoice_date || new Date().toISOString().split('T')[0],
     service_type,
     description: description || null,
-    amount: parseFloat(amount),
+    amount: parsedAmount,
     payment_method,
     payment_status,
-    amount_paid: parseFloat(amount_paid),
+    amount_paid: parsedAmountPaid,
     notes: notes || null,
   }))
 

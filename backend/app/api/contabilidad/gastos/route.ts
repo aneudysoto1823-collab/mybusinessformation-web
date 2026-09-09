@@ -40,6 +40,10 @@ export async function POST(request: NextRequest) {
   if (!category || !description?.trim() || !amount) {
     return NextResponse.json({ error: 'category, description y amount son requeridos' }, { status: 400 })
   }
+  const parsedAmount = parseFloat(amount)
+  if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
+    return NextResponse.json({ error: 'amount debe ser un número mayor a 0' }, { status: 400 })
+  }
 
   const { data, error } = await getSupabaseAdmin()
     .from('accounting_expenses')
@@ -48,7 +52,7 @@ export async function POST(request: NextRequest) {
       category,
       expense_type,
       description: description.trim(),
-      amount: parseFloat(amount),
+      amount: parsedAmount,
       receipt_note: receipt_note || null,
       is_recurring: Boolean(is_recurring),
       recurrence: is_recurring ? (recurrence || 'monthly') : 'none',

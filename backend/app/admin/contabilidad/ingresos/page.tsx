@@ -18,7 +18,7 @@ const NAV = [
   { href: '/admin/contabilidad/reportes', label: 'Reportes' },
 ]
 const SERVICE_OPTS = ['llc', 'corp', 'ein', 'itin', 'addon', 'new_business_letter', 'other']
-const SERVICE_LABELS: Record<string, string> = { llc: 'LLC', corp: 'Corp', ein: 'EIN', itin: 'ITIN', addon: 'Add-on', new_business_letter: 'New Biz Letter', other: 'Otro' }
+const SERVICE_LABELS: Record<string, string> = { llc: 'LLC', corp: 'Corp', ein: 'EIN', itin: 'ITIN', addon: 'Add-on', new_business_letter: 'New Biz Letter', subscription_renewal: 'Renovación', other: 'Otro' }
 const METHOD_OPTS = ['cash', 'zelle', 'card', 'stripe', 'check', 'other']
 const METHOD_LABELS: Record<string, string> = { cash: 'Efectivo', zelle: 'Zelle', card: 'Tarjeta', stripe: 'Stripe', check: 'Cheque', other: 'Otro' }
 const STATUS_OPTS = ['paid', 'pending', 'partial', 'refunded']

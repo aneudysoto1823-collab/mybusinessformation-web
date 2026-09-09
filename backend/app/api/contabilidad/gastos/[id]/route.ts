@@ -21,7 +21,13 @@ export async function PATCH(
     'is_recurring', 'recurrence', 'renewal_date', 'receipt_file_url', 'auto_renew']) {
     if (body[f] !== undefined) allowed[f] = body[f]
   }
-  if (allowed.amount) allowed.amount = parseFloat(allowed.amount as string)
+  if (allowed.amount !== undefined) {
+    const parsedAmount = parseFloat(allowed.amount as string)
+    if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
+      return NextResponse.json({ error: 'amount debe ser un número mayor a 0' }, { status: 400 })
+    }
+    allowed.amount = parsedAmount
+  }
   if (allowed.is_recurring !== undefined) allowed.is_recurring = Boolean(allowed.is_recurring)
   if (allowed.is_recurring === false) { allowed.recurrence = 'none'; allowed.renewal_date = null }
 

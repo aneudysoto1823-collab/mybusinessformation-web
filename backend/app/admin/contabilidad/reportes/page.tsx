@@ -17,7 +17,7 @@ const NAV = [
   { href: '/admin/contabilidad/gastos', label: 'Gastos' },
   { href: '/admin/contabilidad/reportes', label: 'Reportes' },
 ]
-const SERVICE_LABELS: Record<string, string> = { llc: 'LLC', corp: 'Corp', ein: 'EIN', itin: 'ITIN', addon: 'Add-on', new_business_letter: 'New Biz Letter', other: 'Otro' }
+const SERVICE_LABELS: Record<string, string> = { llc: 'LLC', corp: 'Corp', ein: 'EIN', itin: 'ITIN', addon: 'Add-on', new_business_letter: 'New Biz Letter', subscription_renewal: 'Renovación', other: 'Otro' }
 const CATEGORY_LABELS: Record<string, string> = { marketing: 'Marketing', software: 'Software', office: 'Oficina', state_fees: 'Fees del Estado', payroll: 'Nómina', taxes: 'Impuestos', other: 'Otro' }
 const fmt = (n: number) => `$${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 

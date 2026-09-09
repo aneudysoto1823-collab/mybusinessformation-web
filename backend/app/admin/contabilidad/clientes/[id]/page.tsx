@@ -18,7 +18,7 @@ const PAY_LABEL: Record<string, string> = { paid: 'Pagado', pending: 'Pendiente'
 const PAY_CLASS: Record<string, string> = { paid: 'badge-green', pending: 'badge-yellow', partial: 'badge-blue', refunded: 'badge-orange' }
 const SERVICE_LABELS: Record<string, string> = {
   llc: 'LLC', corp: 'Corp', ein: 'EIN', itin: 'ITIN',
-  addon: 'Add-on', new_business_letter: 'New Biz Letter', other: 'Otro',
+  addon: 'Add-on', new_business_letter: 'New Biz Letter', subscription_renewal: 'Renovación', other: 'Otro',
 }
 const fmt = (n: number) => `$${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 

@@ -11,7 +11,7 @@ import { hasReceivedGuide, recordGuideSent, getGuideAttachments, buildGuideBonus
 import { REPLY_TO, REPLY_TO_FBFC, INTERNAL_ALERT_EMAIL as ADMIN_EMAIL, FROM_OPABIZ, FROM_OPABIZ_ALERTS, FROM_FBFC, brandFrom, brandReplyTo, brandHeaderHtml, brandFooterLine, brandSubjectPrefix, brandPortalHome, brandDisclosureHtml, type EmailBrand } from '@/lib/email-constants'
 import { provisionRaForOrder } from '@/lib/ra-provisioning'
 import { createRecurringSubscriptionsForOrder } from '@/lib/stripe-subscriptions'
-import { findOrderBySubscriptionId, upsertOrderSubscription } from '@/lib/order-subscriptions'
+import { findOrderBySubscriptionId, upsertOrderSubscription, recordSubscriptionRenewalIncome } from '@/lib/order-subscriptions'
 
 export const dynamic = 'force-dynamic'
 
@@ -177,13 +177,14 @@ export async function POST(req: NextRequest) {
   }
 
   // Record conversion
-  await supabase.from('conversions').insert({
+  const { error: conversionErr } = await supabase.from('conversions').insert({
     company_id:  companyId,
     order_id:    orderId,
     email,
     services:    selectedServices,
     total_amount: amountPaid,
-  }).then(() => {})
+  })
+  if (conversionErr) console.error('[stripe-webhook] conversions insert error (non-fatal):', conversionErr)
 
   // Send confirmation email
   const isEs = lang === 'es'
@@ -1005,6 +1006,22 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
       status: 'active',
       currentPeriodEnd: invoice.period_end ? new Date(invoice.period_end * 1000).toISOString() : entry.currentPeriodEnd,
     })
+
+    // El año 1 de este servicio ya se cobró como parte del pago único del
+    // checkout (trial_end lo cubre) — cualquier invoice.paid que llegue acá
+    // es siempre una renovación real (año 2+), nunca la primera cobranza.
+    if (invoice.amount_paid > 0) {
+      await recordSubscriptionRenewalIncome({
+        orderId: order.id,
+        service: entry.service,
+        amountCents: invoice.amount_paid,
+        invoiceDate: new Date().toISOString().split('T')[0],
+        email: order.email,
+        firstName: order.firstName,
+        lastName: order.lastName,
+        phone: order.phone,
+      })
+    }
   } catch (err) {
     console.error('[stripe-webhook] handleInvoicePaid error:', err)
   }

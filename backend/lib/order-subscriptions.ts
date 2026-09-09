@@ -12,6 +12,7 @@
 
 import { getSupabaseAdmin } from './supabase'
 import { SERVICES_CATALOG, SERVICE_BUNDLES, FBFC_PRICE_OVERRIDES } from './services-pricing'
+import { insertIncomeWithInvoiceNumber } from './invoice-number'
 
 export type SubscriptionStatus = 'trialing' | 'active' | 'past_due' | 'canceled'
 
@@ -146,7 +147,7 @@ export async function upsertOrderSubscription(orderId: string, entry: OrderSubsc
 // Busca la orden dueña de una Stripe Subscription dada — usado por los
 // handlers de invoice.paid / invoice.payment_failed / customer.subscription.deleted,
 // que solo traen el subscription id de Stripe, no el orderId directo.
-export async function findOrderBySubscriptionId(stripeSubscriptionId: string): Promise<{ id: string; subscriptions: OrderSubscriptionEntry[]; sourceBrand: string | null; email: string; firstName: string | null; lastName: string | null; companyName: string | null; isEs: boolean } | null> {
+export async function findOrderBySubscriptionId(stripeSubscriptionId: string): Promise<{ id: string; subscriptions: OrderSubscriptionEntry[]; sourceBrand: string | null; email: string; firstName: string | null; lastName: string | null; companyName: string | null; phone: string | null; isEs: boolean } | null> {
   const supabase = getSupabaseAdmin()
   // ⚠️ 2026-09-07: `.contains()` de @supabase/supabase-js ^2.99.2 rompe con
   // "invalid input syntax for type json" si se le pasa el array de JS
@@ -163,7 +164,7 @@ export async function findOrderBySubscriptionId(stripeSubscriptionId: string): P
   // sourceBrand) — no hay forma de filtrar por marca de antemano acá.
   const { data, error } = await supabase
     .from('Order')
-    .select('id, subscriptions, sourceBrand, email, firstName, lastName, companyName, addons')
+    .select('id, subscriptions, sourceBrand, email, firstName, lastName, companyName, phone, addons')
     .contains('subscriptions', JSON.stringify([{ stripeSubscriptionId }]))
     .maybeSingle()
   if (error) throw error
@@ -177,9 +178,72 @@ export async function findOrderBySubscriptionId(stripeSubscriptionId: string): P
     firstName: data.firstName ?? null,
     lastName: data.lastName ?? null,
     companyName: data.companyName ?? null,
+    phone: data.phone ?? null,
     // Idioma guardado en la orden (addons.lang, ver page.tsx fmBuildOrderPayload
     // / servicios/checkout coBuildIntake) — órdenes de formación anteriores al
     // 2026-09-07 no lo tienen (undefined) y caen a inglés como fallback seguro.
     isEs: addons.lang === 'es',
   }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Registra en Contabilidad el cobro de una renovación (año 2+) de un servicio
+// recurrente. Antes de esto, `invoice.paid` solo actualizaba
+// Order.subscriptions — el dinero cobrado en el año 2+ nunca llegaba a
+// accounting_income ni pasaba por /api/contabilidad/sync-orders (esa
+// sincronización solo conoce filas de `Order`, no facturas de Subscription).
+// El año 1 no pasa por acá: ya se cobró como parte del pago único del
+// checkout y ya se contabiliza vía sync-orders/el flujo normal de Order.
+// ─────────────────────────────────────────────────────────────────────────────
+export async function recordSubscriptionRenewalIncome(params: {
+  orderId: string
+  service: string
+  amountCents: number
+  invoiceDate: string // YYYY-MM-DD
+  email: string
+  firstName: string | null
+  lastName: string | null
+  phone: string | null
+}): Promise<void> {
+  const supabase = getSupabaseAdmin()
+  const svc = SERVICES_CATALOG[params.service]
+  const label = svc?.name_en ?? params.service
+
+  const { data: existingClient } = await supabase
+    .from('accounting_clients')
+    .select('id')
+    .eq('order_id', params.orderId)
+    .maybeSingle()
+
+  let clientId: string | null = existingClient?.id ?? null
+  if (!clientId) {
+    const { data: newClient } = await supabase
+      .from('accounting_clients')
+      .insert({
+        name: `${params.firstName ?? ''} ${params.lastName ?? ''}`.trim() || params.email,
+        email: params.email || null,
+        phone: params.phone,
+        status: 'active',
+        order_id: params.orderId,
+      })
+      .select('id')
+      .single()
+    clientId = newClient?.id ?? null
+  }
+
+  const amount = params.amountCents / 100
+
+  await insertIncomeWithInvoiceNumber(supabase, invoice_number => ({
+    client_id: clientId,
+    order_id: params.orderId,
+    invoice_number,
+    invoice_date: params.invoiceDate,
+    service_type: 'subscription_renewal',
+    description: `${label} — renewal`,
+    amount,
+    payment_method: 'stripe',
+    payment_status: 'paid',
+    amount_paid: amount,
+    notes: null,
+  }))
 }

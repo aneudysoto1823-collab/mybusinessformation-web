@@ -20,8 +20,20 @@ export async function PATCH(
   for (const f of ['client_id', 'invoice_date', 'service_type', 'description', 'amount', 'payment_method', 'payment_status', 'amount_paid', 'notes']) {
     if (body[f] !== undefined) allowed[f] = body[f]
   }
-  if (allowed.amount) allowed.amount = parseFloat(allowed.amount as string)
-  if (allowed.amount_paid) allowed.amount_paid = parseFloat(allowed.amount_paid as string)
+  if (allowed.amount !== undefined) {
+    const parsedAmount = parseFloat(allowed.amount as string)
+    if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
+      return NextResponse.json({ error: 'amount debe ser un número mayor a 0' }, { status: 400 })
+    }
+    allowed.amount = parsedAmount
+  }
+  if (allowed.amount_paid !== undefined) {
+    const parsedAmountPaid = parseFloat(allowed.amount_paid as string)
+    if (!Number.isFinite(parsedAmountPaid) || parsedAmountPaid < 0) {
+      return NextResponse.json({ error: 'amount_paid debe ser un número válido' }, { status: 400 })
+    }
+    allowed.amount_paid = parsedAmountPaid
+  }
 
   const { data, error } = await getSupabaseAdmin()
     .from('accounting_income')
