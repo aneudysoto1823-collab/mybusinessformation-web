@@ -28,10 +28,28 @@ export async function GET(req: NextRequest) {
     if (orderId) {
       const { data } = await getSupabaseAdmin()
         .from('Order')
-        .select('id, companyName, entityType, package, speed, addons, registeredAgent')
+        .select('id, companyName, entityType, package, speed, addons, registeredAgent, amount')
         .eq('id', orderId)
         .single()
-      if (data) {
+      if (data && data.package === 'services') {
+        // À la carte (/servicios/checkout): las líneas ya vienen calculadas e
+        // itemizadas desde /api/checkout/embedded-services al crear la orden
+        // (computeServicesTotal corrió UNA vez ahí) — acá solo se leen, nunca
+        // se recalculan. computeFormationTotal lanzaría si se le pasa
+        // package:'services' (no es basic/standard/premium), por eso esta
+        // orden va en una rama separada de la de formación.
+        const addonsObj = (data.addons ?? {}) as { lines?: Array<{ label: string; amount: number }> }
+        const lines = Array.isArray(addonsObj.lines) ? addonsObj.lines : []
+        order = {
+          fbfc:        `FBFC-${data.id.replace(/-/g, '').substring(0, 8).toUpperCase()}`,
+          companyName: data.companyName,
+          entityType:  data.entityType,
+          package:     data.package,
+          addons:      [] as string[], // no aplica — à la carte no tiene "incluido en el paquete"
+          lines,
+          total:       data.amount ?? lines.reduce((sum, l) => sum + l.amount, 0),
+        }
+      } else if (data) {
         // Necesario para que la línea "Registered Agent — First Year" ($99 en
         // Basic con ra='us') aparezca en /order/complete — misma fuente que
         // Stripe checkout y email de confirmación.

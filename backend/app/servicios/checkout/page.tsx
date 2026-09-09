@@ -441,7 +441,14 @@ html.co-wide .co-tier{padding:20px 18px}
     <div class="co-success-icon">&#9989;</div>
     <h2 data-en="Order received" data-es="Orden recibida">Orden recibida</h2>
     <p data-en="Thank you! We received your payment. You'll receive a confirmation email with your order details shortly." data-es="¡Gracias! Recibimos su pago. Recibirá un correo de confirmación con los detalles de su orden en los próximos minutos.">¡Gracias! Recibimos su pago. Recibirá un correo de confirmación con los detalles de su orden en los próximos minutos.</p>
-    <div class="co-success-num"><span data-en="Your order number" data-es="Su número de orden">Su número de orden</span><strong id="co-success-num">—</strong></div>
+    <div class="co-success-num">
+      <span data-en="Your order number" data-es="Su número de orden">Su número de orden</span>
+      <div style="display:flex;align-items:center;justify-content:center;gap:10px">
+        <strong id="co-success-num">—</strong>
+        <button type="button" id="co-success-copy" onclick="coCopySuccessNum(this)" style="border:1px solid #bfdbfe;background:#fff;color:var(--blue);border-radius:6px;padding:4px 10px;font-size:.72rem;font-weight:700;cursor:pointer;font-family:inherit" data-en="Copy" data-es="Copiar">Copiar</button>
+      </div>
+    </div>
+    <div id="co-success-details" style="display:none;text-align:left;margin-top:6px"></div>
   </div>
 </div>
 
@@ -984,6 +991,40 @@ function coApplyDraftSnapshot(orderId, snap){
   var shared=snap.shared||{};
   Object.keys(shared).forEach(function(k){ if(k==='ssnItin') return; var el=$('s-'+k); if(el) el.value=shared[k]; });
   coGoStep(Math.min(snap.step||0, coSteps.length-1));
+}
+// Resumen enriquecido de la pantalla de éxito (empresa + desglose + total) —
+// mismo espíritu que /order/complete (formación del home), adaptado al shape
+// de una orden à la carte (sin "paquete", todo es una lista plana de líneas
+// ya calculadas por /api/checkout/embedded-services al crear la orden).
+function coRenderSuccessDetails(order){
+  var isEs=coIsEs(); var html='';
+  if(order.companyName || order.entityType){
+    html+='<div style="background:#f8fafc;border:1px solid var(--gray200);border-radius:12px;padding:14px 18px;margin-bottom:14px;font-size:.88rem">';
+    if(order.companyName) html+='<div style="display:flex;justify-content:space-between;gap:12px;padding:5px 0"><span style="color:var(--gray500)">'+(isEs?'Empresa':'Company')+'</span><strong style="color:var(--navy)">'+coEsc(order.companyName)+'</strong></div>';
+    if(order.entityType) html+='<div style="display:flex;justify-content:space-between;gap:12px;padding:5px 0"><span style="color:var(--gray500)">'+(isEs?'Tipo de entidad':'Entity type')+'</span><strong style="color:var(--navy)">'+coEsc(String(order.entityType).toUpperCase())+'</strong></div>';
+    html+='</div>';
+  }
+  if(order.lines && order.lines.length){
+    html+='<div style="background:#f8fafc;border:1px solid var(--gray200);border-radius:12px;padding:16px 18px;font-size:.88rem">';
+    html+='<div style="font-size:.72rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--gray500);margin-bottom:10px">'+(isEs?'Su orden':'Your order')+'</div>';
+    order.lines.forEach(function(l){
+      html+='<div style="display:flex;justify-content:space-between;gap:12px;padding:4px 0;color:#334155"><span>'+coEsc(l.label)+'</span><span style="white-space:nowrap">$'+Number(l.amount).toFixed(2)+'</span></div>';
+    });
+    html+='<div style="border-top:1px solid var(--gray200);margin:10px 0 8px"></div>';
+    html+='<div style="display:flex;justify-content:space-between;gap:12px;font-weight:800;color:var(--navy);font-size:.98rem"><span>'+(isEs?'Total pagado':'Total paid')+'</span><span>$'+Number(order.total).toFixed(2)+' USD</span></div>';
+    html+='</div>';
+  }
+  var host=$('co-success-details'); if(!host) return;
+  host.innerHTML=html;
+  host.style.display=html?'':'none';
+}
+function coCopySuccessNum(btn){
+  var isEs=coIsEs();
+  var num=(($('co-success-num')||{}).textContent||'').trim();
+  if(!num||num==='—') return;
+  try{ navigator.clipboard.writeText(num); }catch(e){}
+  var orig=btn.textContent; btn.textContent=isEs?'¡Copiado!':'Copied!';
+  setTimeout(function(){ btn.textContent=orig; }, 1800);
 }
 function restoreExtras(vals){
   Object.keys(vals).forEach(function(key){
@@ -2280,6 +2321,18 @@ function coInitNormal(){
   if(paid){
     var num=''; try{ num=localStorage.getItem('flbc_svc_order')||''; }catch(e){}
     $('co-success-num').textContent=num||'—';
+    // Resumen enriquecido (empresa + desglose + total), mismo espíritu que
+    // /order/complete (formación) — antes esta pantalla solo mostraba el
+    // número de orden, sin ningún detalle de qué se compró.
+    try{
+      var _successSid=new URLSearchParams(location.search).get('session_id');
+      if(_successSid){
+        fetch('/api/checkout/status?session_id='+encodeURIComponent(_successSid))
+          .then(function(r){ return r.json(); })
+          .then(function(d){ if(d&&d.order) coRenderSuccessDetails(d.order); })
+          .catch(function(){});
+      }
+    }catch(e){}
     try{ localStorage.removeItem('flbc_svc_cart'); localStorage.removeItem('flbc_svc_bundles'); localStorage.removeItem('flbc_svc_bundle_added'); localStorage.removeItem('flbc_svc_order'); localStorage.removeItem('flbc_svc_expedited'); localStorage.removeItem('flbc_svc_orderid'); localStorage.removeItem('flbc_svc_draft_email'); localStorage.removeItem('flbc_svc_prefill'); localStorage.removeItem('flbc_svc_company'); }catch(e){}
     coShowScreen('co-success'); return;
   }
