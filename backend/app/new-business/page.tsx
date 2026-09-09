@@ -699,6 +699,9 @@ const CSS = `
   .step-next:hover { background: #EFF6FF; transform: translateY(-1px); }
   .step-next.primary { background: #fff; }
   .step-next.primary:hover { background: #EFF6FF; }
+  .step-next-group { display: flex; align-items: center; gap: 10px; }
+  .save-draft-btn { background: transparent; border: none; color: #94a3b8; font-size: .78rem; cursor: pointer; font-family: inherit; text-decoration: underline; padding: 4px; }
+  .save-draft-btn:hover { color: #64748b; }
 
   /* ── CHECKOUT BOX ── */
   .co-box-wrap {
@@ -1282,6 +1285,17 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
     saveDraft()
     setDraftSaved(true)
     setTimeout(() => setDraftSaved(false), 4000)
+  }
+  // Mismo estilo/posición que el "Save" del form de formación del home
+  // (pie del paso, junto a "Continue", ícono 💾) — antes vivía arriba en la
+  // barra de progreso, pedido del founder de moverlo acá para consistencia.
+  function renderSaveBtn() {
+    if (!form.email) return null
+    return (
+      <button type="button" className="save-draft-btn" onClick={saveDraftManual}>
+        💾 {draftSaved ? (lang === 'es' ? 'Guardado' : 'Saved') : (lang === 'es' ? 'Guardar' : 'Save')}
+      </button>
+    )
   }
   // Restaura un borrador — desde el link del email (?resumeOrder=&resumeEmail=)
   // o, en el mismo navegador, desde localStorage (misma clave que ya
@@ -2053,20 +2067,6 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                     </div>
                   </div>
 
-                  {form.email && (
-                    <div style={{ textAlign: 'right', marginTop: 6, marginBottom: 4 }}>
-                      <button
-                        type="button"
-                        onClick={saveDraftManual}
-                        style={{ background: 'none', border: 'none', color: '#2563EB', fontSize: '.8rem', fontWeight: 700, cursor: 'pointer', padding: 4 }}
-                      >
-                        {draftSaved
-                          ? (lang === 'es' ? '✓ Guardado — te enviamos un correo' : '✓ Saved — we emailed you a link')
-                          : (lang === 'es' ? 'Guardar y continuar después' : 'Save & continue later')}
-                      </button>
-                    </div>
-                  )}
-
                   {/* ── STEP 1: Business info ── */}
                   {step === 1 && (
                     <>
@@ -2252,6 +2252,8 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
 
                       <div className="step-nav">
                         <span />
+                        <div className="step-next-group">
+                        {renderSaveBtn()}
                         <button className="step-next" onClick={async () => {
                           if (!devMode && !form.businessDescription.trim()) { setDescErr(true); return }
                           // LOB address verification — solo si el cliente escribió calle.
@@ -2298,6 +2300,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                         }}>
                           {lang === 'es' ? 'Siguiente' : 'Next'}
                         </button>
+                        </div>
                       </div>
                     </>
                   )}
@@ -2470,6 +2473,8 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                         <button className="step-back" onClick={() => goToStep(1)}>
                           ← {lang === 'es' ? 'Atrás' : 'Back'}
                         </button>
+                        <div className="step-next-group">
+                        {renderSaveBtn()}
                         <button className={`step-next${einSelected ? '' : ' primary'}`} onClick={() => {
                           if (!devMode) {
                             const errs: typeof contactErrs = {}
@@ -2485,6 +2490,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                         }}>
                           {lang === 'es' ? 'Siguiente' : 'Next'}
                         </button>
+                        </div>
                       </div>
                     </>
                   )}
@@ -2627,12 +2633,15 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                         <button className="step-back" onClick={() => goToStep(2)}>
                           ← {lang === 'es' ? 'Atrás' : 'Back'}
                         </button>
+                        <div className="step-next-group">
+                        {renderSaveBtn()}
                         <button className="step-next primary" onClick={() => {
                           if (!devMode && form.einReason === 'other' && !form.einReasonOther.trim()) { setOtherReasonErr(true); return }
                           goToStep(4)
                         }}>
                           {lang === 'es' ? 'Siguiente' : 'Next'}
                         </button>
+                        </div>
                       </div>
                     </>
                   )}
@@ -2728,6 +2737,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                           ← {lang === 'es' ? 'Atrás' : 'Back'}
                         </button>
                         <div style={{ display:'flex', alignItems:'center', gap:16 }}>
+                          {renderSaveBtn()}
                           <button
                             onClick={() => { setExtraCart(prev => prev.filter(id => !EXTRAS_SERVICE_IDS.has(id))); goToStep(5) }}
                             style={{ background:'none', border:'none', color:'#64748b', fontSize:'.82rem', fontWeight:600, cursor:'pointer', fontFamily:'inherit', textDecoration:'underline' }}

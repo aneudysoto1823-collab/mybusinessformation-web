@@ -271,10 +271,7 @@ html.co-wide .co-tier{padding:20px 18px}
   <!-- PROGRESS -->
   <div class="co-prog" id="co-prog" style="display:none">
     <div class="co-prog-bar"><div class="co-prog-fill" id="co-prog-fill"></div></div>
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
-      <div class="co-prog-label" id="co-prog-label"></div>
-      <button type="button" onclick="coSaveDraftManual()" style="background:none;border:none;color:var(--blue);font-size:.8rem;font-weight:700;cursor:pointer;padding:4px;white-space:nowrap" data-en="Save &amp; continue later" data-es="Guardar y continuar después">Guardar y continuar después</button>
-    </div>
+    <div class="co-prog-label" id="co-prog-label"></div>
   </div>
 
   <!-- EMPTY -->
@@ -420,6 +417,7 @@ html.co-wide .co-tier{padding:20px 18px}
     <div class="co-actions" id="co-nav">
       <button class="co-btn-ghost" id="co-back" onclick="coBack()" style="display:none">&#8592; <span data-en="Back" data-es="Atrás">Atrás</span></button>
       <div style="display:flex;gap:12px;align-items:center">
+        <button type="button" id="co-save-draft" onclick="coSaveDraftManual()" style="background:none;border:none;color:#94a3b8;font-size:.78rem;cursor:pointer;font-family:inherit;text-decoration:underline;padding:4px;display:none">&#128190; <span id="co-save-draft-lbl" data-en="Save" data-es="Guardar">Guardar</span></button>
         <button class="co-btn-ghost" id="co-review-return" onclick="coReturnToReview()" style="display:none;color:var(--blue)">&#8630; <span data-en="Back to review" data-es="Volver a revisar orden">Volver a revisar orden</span></button>
         <button class="co-btn" id="co-next" onclick="coNext()"><span data-en="Continue" data-es="Continuar">Continuar</span> &#8594;</button>
       </div>
@@ -1818,6 +1816,7 @@ function coGoStep(i){
   // así un refresh a mitad de camino no pierde todo lo tipeado. No hace nada
   // hasta que exista un email (recién a partir de "Información personal").
   try{ coSaveDraft(); }catch(e){}
+  try{ var _sdBtn=$('co-save-draft'); if(_sdBtn) _sdBtn.style.display=((($('f-email')||{}).value||'').trim() ? '' : 'none'); }catch(e){}
   // Alinea el resumen (sidebar) con el TOP del primer card del formulario, no con
   // el título del paso (pedido del founder). Solo desktop.
   try{
