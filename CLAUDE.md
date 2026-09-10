@@ -385,6 +385,8 @@ El dominio redirige **`opabiz.com` (apex) → `www.opabiz.com`** con un **308**.
 
 #### Stripe LIVE — preparado, NO activado (2026-07-07)
 
+🔴 **ALERTA — bloqueante, confirmar ANTES de cargar las keys `sk_live_`/`pk_live_` (2026-09-09):** comprar un **seguro de responsabilidad profesional / seguro legal para la compañía** (errors & omissions / general liability) antes de empezar a cobrar tarjetas reales. Sin esto, cualquier reclamo real de un cliente (una presentación rechazada, un error de procesamiento, un dato mal ingresado) deja al negocio expuesto sin cobertura. No confirmar con el founder que esto ya se hizo antes de activar Live — si no está resuelto, no cargar las llaves aunque el resto del checklist esté listo.
+
 Se completó toda la preparación del lado de Stripe para pasar a Live, **sin cargar todavía las llaves en Vercel** (decisión explícita — se activa en un paso aparte cuando se decida lanzar de verdad, ver checklist que se armó como artifact durante la sesión):
 - ✅ Cuenta cambiada a modo Live, webhook creado (`https://www.opabiz.com/api/webhooks/stripe`, con `www`), llaves `pk_live_.../sk_live_...` obtenidas.
 - ✅ Statement descriptor ya venía cargado (`OPABIZ.COM`, heredado del perfil de verificación de la cuenta — no hubo que configurarlo).
@@ -1326,6 +1328,8 @@ Antes de "corregir" cualquier ítem de esta lista, confirmar primero si el found
 
 Continuación del trabajo de Subscriptions reales implementado el 2026-09-05 (ver sección de Subscriptions más arriba / `lib/order-subscriptions.ts` + `lib/stripe-subscriptions.ts`) y verificado en test mode. Esta sesión preparó todo el lado de **Stripe Live**, a pedido explícito del founder de **NO cargar las keys `sk_live_`/`pk_live_` en Vercel todavía** — se cargan aparte, cuando decidan lanzar de verdad. Detalle completo en memoria `project_stripe_live_activacion_2026-09-07`.
 
+🔴 **Ver alerta bloqueante en la sección "Stripe LIVE — preparado, NO activado" más arriba (2026-07-07): confirmar que se compró el seguro legal/de responsabilidad profesional de la compañía antes de cargar las keys live — no es solo checklist técnico.**
+
 ### ✅ 8 Products creados en Stripe Live (4 OpaBiz + 4 FBFC)
 
 Hubo que limpiar duplicados primero — un intento anterior interrumpido había dejado 2 copias de varios productos y uno con typo ("Registered Agente"). Se archivaron los sobrantes y quedaron:
@@ -1367,6 +1371,31 @@ Al revisar si `/terms` tenía el aviso de auto-renovación que exige Florida ant
 ### 🐛 Bug encontrado, anotado para otra sesión: precio combinado sin avisar en mybusinessformation.com/servicios
 
 `backend/app/new-business/servicios/page.tsx:163` — `price: getServiceFee(id, 'fbfc') + def.stateFee` suma la tarifa estatal fija al precio mostrado en la tarjeta para **todo** servicio con `stateFee` fijo en `SERVICES_CATALOG` (no solo Annual Report): dba, annual-report, amendment, good-standing, dissolution, certified-copy. El más notorio es **Annual Report Filing**, que muestra "$238.00/yr" (=$99+$139) sin ninguna indicación de que incluye la tarifa estatal — su subtítulo ("Annual charge · renews until cancelled") no lo menciona, a diferencia de otros ítems combinados que al menos dicen "+ FL state fee" (aunque esa etiqueta también es engañosa ahí, porque el fee ya está sumado, no es aparte). No se tocó — detalle completo en memoria `project_pendiente_fbfc_servicios_precio_combinado`.
+
+---
+
+## Sesión 2026-09-09 — cupones/promo codes, guardar progreso, statement descriptor, fixes varios de checkout
+
+Sesión larga. Resumen de lo construido (ver `git log` para el detalle línea por línea de cada commit):
+
+- **Auditoría de código 2026-07-12 cerrada casi del todo**: convención "usted" en `/servicios/checkout`, fix de `amount` NaN en Contabilidad, renovaciones de Subscription ahora sí crean fila en `accounting_income`, limpieza de código muerto en `page.tsx` (~23 reglas CSS + un chequeo de paso inalcanzable), PII del chatbot investigado (sin víctimas reales hoy, no urgente). Detalle en memoria `project_auditoria_codigo_2026-07-12`.
+- **Statement descriptor por marca** — pagos únicos de FBFC muestran `MYBIZFORMATION` en el extracto en vez de `OPABIZ.COM` (`lib/request-origin.ts` `statementDescriptorParams`). Para Subscriptions se hizo vía `Product.statement_descriptor` (test con script, live a mano en Dashboard) — resuelto en ambos modos.
+- **Código de descuento nativo de Stripe** (`allow_promotion_codes:true`) en los 3 checkouts — los cupones se crean y administran directo en el Dashboard de Stripe (test y live por separado), sin código nuevo. Cupón general `customer-discount-10` creado en test para uso ad-hoc futuro.
+- **Sistema "Guardar y continuar después"** — nuevo, en `/servicios/checkout` Y en `new-business` (mybiz), reusando el mismo backend (`/api/orders/services-draft`, nuevo). Guardado automático por paso + botón manual (ícono 💾, al pie junto a Continuar/Next, mismo lugar que ya usaba el home). Restaura por localStorage o por link de email (`?resumeOrder=&resumeEmail=`). El SSN/ITIN nunca se guarda. Bug real corregido después de deployado: faltaba `amount` en el insert (NOT NULL), causaba 500 silencioso — ya arreglado y verificado en producción.
+- **Locale de Stripe** (`locale:'es'/'en'`) en los 3 checkouts — antes el formulario de Stripe siempre salía en inglés sin importar el idioma del cliente.
+- **Pantalla de éxito de `/servicios/checkout` enriquecida** — antes solo mostraba el número de orden; ahora también Empresa, Tipo de entidad, desglose itemizado, total, y botón "Copiar". `/api/checkout/status` ahora también arma el resumen para `package:'services'` (antes solo formación).
+- **Email de confirmación de servicios** ahora incluye Empresa/Tipo de entidad/Número de Documento (antes no los mostraba, a diferencia del de formación).
+- **Billing address pre-llenado** en `/api/checkout/embedded-services` (mismo patrón que el de formación) — si el intake ya trae una dirección en EE.UU., se pre-carga en el Embedded Checkout.
+- **Fix real de UX en `/servicios/checkout`**: Licencia de Negocios ya no vuelve a preguntar la actividad del negocio si el carrito también tiene EIN. Feedback en vivo (check verde) al confirmar el SSN/ITIN.
+- 🔴 **Alerta nueva agregada**: comprar un seguro legal/de responsabilidad profesional para la compañía antes de activar Stripe Live (ver sección "Stripe LIVE — preparado, NO activado" más arriba) — no estaba documentado en ningún lado hasta esta sesión.
+
+### ⏳ Pendientes anotados para la próxima sesión (no implementados, solo reportados por el founder probando en vivo)
+
+1. **Error de pago sin datos de tarjeta no se ve** — si el cliente hace clic en "Pay" sin llenar el número de tarjeta, no hay ninguna indicación visual del error (debería al menos ponerse en rojo el recuadro de la tarjeta). Investigar si es controlable desde nuestro lado (el formulario de tarjeta vive dentro del iframe de Stripe) o es un comportamiento a reportar/ajustar en la configuración de Stripe.
+2. **Formato de moneda "360,00" en vez de "360.00"** — posible efecto colateral del `locale:'es'` agregado esta misma sesión (ver arriba). Stripe podría estar usando la convención de coma decimal (común en español/Latinoamérica) en vez de punto, lo cual puede confundir a un cliente en EE.UU. Investigar si existe un locale más específico (ej. `es-419`) que mantenga el formato de número en punto, o si hay que revertir a `locale:'en'` fijo pese a que el resto del formulario esté en español.
+3. **Sacar el chequeo/mención de disponibilidad de nombre (Sunbiz) de TODO mybusinessformation.com** — mybiz solo trabaja con compañías YA existentes (nunca forma empresas nuevas desde cero como sí hace opabiz.com), así que no debería aparecer ningún name-check en ningún lugar de ese dominio. Falta localizar exactamente dónde aparece (el founder lo vio en una captura durante esta sesión) y quitarlo.
+4. **"Track my order" del email de mybiz manda al portal viejo** — debe apuntar al login real de mybiz, no al landing viejo `/client-portal`. Candidato a revisar: `PORTAL_HOME_FBFC` en `backend/lib/email-constants.ts:59` (hoy `'https://mybusinessformation.com/client-portal'`) — confirmar si sigue siendo el login real de mybiz hoy o si ya migró a un popover en la home tipo el de `new-business/page.tsx` (ver sección "Sesión 2026-08-25" más arriba, "Header 'Track Order' → 'Login' con popover"), en cuyo caso este link quedó desactualizado.
+5. **Auto-completar email + número de orden al volver del link del email** — cuando el cliente hace clic en "Rastrear mi orden"/"Track my order" desde el email, el formulario de login de mybiz debería llegar con el email y el número de orden ya rellenados (pasados como query params en el link del email), para que el cliente solo tenga que presionar Enter en vez de volver a tipear todo.
 
 ---
 
