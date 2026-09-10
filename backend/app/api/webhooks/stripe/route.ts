@@ -17,13 +17,6 @@ export const dynamic = 'force-dynamic'
 
 const getStripe = () => new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2026-02-25.clover' })
 const getResend = () => new Resend(process.env.RESEND_API_KEY)
-// El login real hoy vive en el home (popover), no en /client-portal (ver
-// CLAUDE.md "Login del cliente en el home") — los links "Track My Order"
-// deben mandar aquí, no al landing viejo.
-// ?login=1 abre el popover de login directo al cargar el home (ver
-// fmCheckResumeParam en page.tsx) — antes "Track My Order" dejaba al cliente
-// en el landing teniendo que encontrar el botón "Login" de nuevo.
-const PORTAL_HOME   = 'https://opabiz.com/?login=1'
 
 export async function POST(req: NextRequest) {
   const body      = await req.text()
@@ -519,7 +512,7 @@ async function handleFormationPaid(orderId: string, session: Stripe.Checkout.Ses
               ${isEs ? 'Para dar seguimiento a su orden cuando quiera, haga clic abajo e inicie sesión con su correo y el número de orden de arriba.' : 'To follow up on your order anytime, click below and log in with your email and the order number above.'}
             </p>
             <div style="text-align:center;margin:24px 0">
-              <a href="${PORTAL_HOME}" style="background:#2563EB;color:#fff;text-decoration:none;padding:13px 32px;border-radius:8px;font-weight:700;font-size:15px;display:inline-block">
+              <a href="${brandPortalHome('opabiz', { email: order.email, order: fbfc })}" style="background:#2563EB;color:#fff;text-decoration:none;padding:13px 32px;border-radius:8px;font-weight:700;font-size:15px;display:inline-block">
                 ${isEs ? 'Rastrear Mi Orden' : 'Track My Order'}
               </a>
             </div>

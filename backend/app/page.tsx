@@ -7614,12 +7614,19 @@ function fmFetchAndRestoreDraft() {
     var continueCode = p.get('continue');
     var isResume = p.get('resume') === '1';
     var wantsLogin = p.get('login') === '1';
+    // ?email=&order= — mismos params que ya usa /client-portal (FBFC) para
+    // pre-llenar el login desde el link "Track My Order" del email; acá los
+    // lee el popover del home en vez de un formulario aparte.
+    var prefillEmail = p.get('email');
+    var prefillOrder = p.get('order');
     if(!continueCode && !isResume && !wantsLogin) return;
 
     var url = new URL(window.location.href);
     url.searchParams.delete('resume');
     url.searchParams.delete('continue');
     url.searchParams.delete('login');
+    url.searchParams.delete('email');
+    url.searchParams.delete('order');
     history.replaceState({}, '', url.toString());
 
     // Botones "Track My Order" de los emails (?login=1) — abre el popover de
@@ -7631,7 +7638,15 @@ function fmFetchAndRestoreDraft() {
     // explícita de ver la orden (no un "Login" genérico del header) — al
     // autenticar, portalLoginSubmit() manda directo al dashboard en vez de
     // quedarse en el home mostrando "Mis Órdenes" en el header.
-    if(wantsLogin) { window.__portalWantsDashboard = true; setTimeout(function(){ openPortalLogin(); }, 300); return; }
+    if(wantsLogin) {
+      window.__portalWantsDashboard = true;
+      setTimeout(function(){
+        openPortalLogin();
+        if(prefillEmail) { var em=document.getElementById('plogin-acct'); if(em) em.value = prefillEmail; }
+        if(prefillOrder) { var cr=document.getElementById('plogin-cred'); if(cr) cr.value = prefillOrder; }
+      }, 300);
+      return;
+    }
 
     // Tras un login con orden en progreso (ver findOrder() / portalLoginSubmit()),
     // el redirect trae ?resume=1 — la sesión ya está autenticada.

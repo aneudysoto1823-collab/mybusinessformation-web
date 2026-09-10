@@ -72,14 +72,14 @@ export function brandReplyTo(brand: EmailBrand): string {
 }
 
 // `opts.email`/`opts.order` pre-llenan el login del cliente — FBFC los lee
-// como ?email=&order= en /client-portal (ClientPortalLoginForm ya soportaba
-// esto, solo nadie se los pasaba desde acá). OpaBiz los ignora hoy (su
-// popover del home solo reacciona a ?login=1), así que agregarlos es
-// inofensivo — no se resuelve acá para no ensanchar el alcance del fix.
+// como ?email=&order= en /client-portal (ClientPortalLoginForm ya los
+// soportaba); OpaBiz los lee con el mismo nombre en fmCheckResumeParam()
+// (page.tsx), que pre-llena el popover del home (#plogin-acct/#plogin-cred)
+// antes de abrirlo. Ambas marcas honran los mismos dos query params.
 export function brandPortalHome(brand: EmailBrand, opts?: { email?: string; order?: string }): string {
-  if (!isFbfcBrand(brand)) return PORTAL_HOME_OPABIZ
-  if (!opts?.email && !opts?.order) return PORTAL_HOME_FBFC
-  const url = new URL(PORTAL_HOME_FBFC)
+  const base = isFbfcBrand(brand) ? PORTAL_HOME_FBFC : PORTAL_HOME_OPABIZ
+  if (!opts?.email && !opts?.order) return base
+  const url = new URL(base)
   if (opts.email) url.searchParams.set('email', opts.email)
   if (opts.order) url.searchParams.set('order', opts.order)
   return url.toString()

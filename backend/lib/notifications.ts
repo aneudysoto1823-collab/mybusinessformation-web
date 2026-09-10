@@ -5,13 +5,6 @@ import { REPLY_TO, INTERNAL_ALERT_EMAIL as INTERNAL_EMAIL, FROM_OPABIZ, FROM_OPA
 
 // Lazy init: se crea al primer uso, cuando dotenv ya cargó el .env
 const getResend = () => new Resend(process.env.RESEND_API_KEY)
-// El login real vive en el home (popover), no en /client-portal (ver
-// CLAUDE.md "Login del cliente en el home") — los botones "Track My Order"
-// deben mandar aquí, igual que en webhooks/stripe/route.ts.
-// ?login=1 abre el popover de login directo al cargar el home (ver
-// fmCheckResumeParam en page.tsx) — antes "Track My Order" dejaba al cliente
-// en el landing teniendo que encontrar el botón "Login" de nuevo.
-const PORTAL_HOME = 'https://opabiz.com/?login=1'
 
 function unsubscribeFooter(email: string): string {
   return `
@@ -740,7 +733,7 @@ export const sendRaAddressReady = async (order: {
                 : 'Any legal document that arrives at this address will be processed and forwarded to you by email the same day.'}
             </p>
             <div style="text-align:center;margin:24px 0">
-              <a href="${PORTAL_HOME}" style="background:#2563EB;color:#fff;text-decoration:none;padding:13px 32px;border-radius:8px;font-weight:700;font-size:15px;display:inline-block">
+              <a href="${brandPortalHome('opabiz', { email: order.email, order: fbfc })}" style="background:#2563EB;color:#fff;text-decoration:none;padding:13px 32px;border-radius:8px;font-weight:700;font-size:15px;display:inline-block">
                 ${isEs ? 'Rastrear Mi Orden' : 'Track My Order'}
               </a>
             </div>
