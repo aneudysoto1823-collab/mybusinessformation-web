@@ -309,10 +309,10 @@ export default function CampaignsPage() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
               <Link href="/admin" style={{ color: '#94A3B8', fontSize: '.8rem', textDecoration: 'none' }}>← Admin</Link>
               <span style={{ color: '#CBD5E1' }}>/</span>
-              <span style={{ color: '#1C2E44', fontSize: '.8rem', fontWeight: 600 }}>Campaigns</span>
+              <span style={{ color: '#1C2E44', fontSize: '.8rem', fontWeight: 600 }}>Campaigns & Letters</span>
             </div>
-            <h1 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#1C2E44' }}>Marketing Campaigns</h1>
-            <p style={{ fontSize: '.8rem', color: '#94A3B8', marginTop: 2 }}>Manage outreach emails and QR code campaigns</p>
+            <h1 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#1C2E44' }}>Campaigns & Letters</h1>
+            <p style={{ fontSize: '.8rem', color: '#94A3B8', marginTop: 2 }}>Physical compliance letters, outreach emails, and QR code tracking</p>
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
             <button className={`btn ${paused ? 'btn-green' : 'btn-red'}`} onClick={() => setPaused(v => !v)}>

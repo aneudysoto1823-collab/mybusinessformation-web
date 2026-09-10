@@ -8,14 +8,14 @@ import { getSupabaseAdmin } from '@/lib/supabase'
 const T = {
   en: {
     title: 'Administration Panel', sub: 'opabiz.com',
-    campaigns: 'Campaigns', appointments: 'Appointments',
+    campaigns: 'Campaigns & Letters', appointments: 'Appointments',
     accounting: 'Accounting', security: 'Security', drafts: 'OrderDraft', opabiz: 'OpaBiz Connect', guias: 'Guides', logout: 'Log out',
     totalOrders: 'Total Orders', unpaid: 'Unpaid',
     inReview: 'In Review', revenue: 'Total Revenue',
   },
   es: {
     title: 'Panel de Administración', sub: 'opabiz.com',
-    campaigns: 'Campaigns', appointments: 'Citas',
+    campaigns: 'Campañas y Cartas', appointments: 'Citas',
     accounting: 'Contabilidad', security: 'Seguridad', drafts: 'OrderDraft', opabiz: 'OpaBiz Connect', guias: 'Guías', logout: 'Cerrar sesión',
     totalOrders: 'Total Órdenes', unpaid: 'Sin Pagar',
     inReview: 'En Revisión', revenue: 'Ingresos Totales',
