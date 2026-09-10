@@ -306,7 +306,7 @@ html.co-wide .co-tier{padding:20px 18px}
         <div class="co-card-title" id="co-company-title" data-en="Company details" data-es="Datos de la empresa">Datos de la empresa</div>
         <div class="co-grid">
           <div class="co-field" id="co-entity-field"><label class="co-label" data-en="Entity type" data-es="Tipo de entidad">Tipo de entidad</label><select class="co-select" id="f-entityType"><option value="llc">LLC</option><option value="corp" data-en="Corporation" data-es="Corporación">Corporación</option></select></div>
-          <div class="co-field"><label class="co-label" id="co-name-label" data-en="Legal business name" data-es="Nombre legal del negocio">Nombre legal del negocio</label><input class="co-input" id="f-legalName" oninput="coHandleNameInput(this.value)"/></div>
+          <div class="co-field"><label class="co-label" id="co-name-label" data-en="Legal business name" data-es="Nombre legal del negocio">Nombre legal del negocio</label><input class="co-input" id="f-legalName" onblur="coHandleNameBlur()"/></div>
           <div class="co-field" id="co-designator-field" style="display:none"><label class="co-label" data-en="Name ending" data-es="Terminación del nombre">Terminación del nombre</label><select class="co-select" id="f-designator"></select></div>
           <div class="co-field full"><label class="co-label" data-en="Country" data-es="País">País</label>
             <select class="co-select" id="f-country">
@@ -1130,13 +1130,22 @@ function coLookupCompany(silent){
 // vacío (si ya lo tiene, el otro flujo — coLookupCompany — ya se encargó).
 // Silencioso a propósito (sin "Buscando...") y nunca pisa un campo que el
 // cliente ya haya llenado — puede estar a mitad de tipear su propia dirección.
-var _nameLookupTimer=null;
-function coHandleNameInput(val){
-  clearTimeout(_nameLookupTimer);
-  var name=(val||'').trim();
+//
+// Dispara en onblur (al salir del campo), NO en cada tecla con debounce
+// (2026-09-10, bug real reportado en prueba de compra) — el match contra
+// Turso es por nombre EXACTO, pero name_normalized() le quita el designador
+// (LLC/Inc/etc.) antes de comparar. Con debounce por tecleo, una pausa
+// normal a mitad de escribir el nombre (ej. entre "Florida Business" y
+// "Formation Center", antes de llegar a escribir "LLC") ya alcanzaba a
+// disparar un match exacto legítimo contra el nombre SIN designador y
+// autocompletaba de golpe, sin que el cliente hubiera terminado de escribir.
+// onblur elimina el problema de raíz — solo busca cuando el cliente
+// realmente deja el campo, sin importar cuántas pausas haga mientras tipea.
+function coHandleNameBlur(){
+  var name=(($('f-legalName')||{}).value||'').trim();
   if(coFormationType() || name.length<4) return;
   if((($('f-flDoc')||{}).value||'').trim().length>=5) return;
-  _nameLookupTimer=setTimeout(function(){ coLookupCompanyByName(name); }, 600);
+  coLookupCompanyByName(name);
 }
 function coLookupCompanyByName(name){
   fetch('/api/sunbiz/company-by-name?name='+encodeURIComponent(name)).then(function(r){return r.json().then(function(d){return {ok:r.ok,d:d};});}).then(function(res){
