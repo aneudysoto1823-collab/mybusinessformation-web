@@ -94,7 +94,9 @@ export const SERVICE_FIELDS: Record<string, ServiceFieldDef> = {
   // son los específicos del filing de formación.
   'llc-formation': { name_en: 'LLC Formation', name_es: 'Formación de LLC',
     note_en: 'Owners and how the LLC is run', note_es: 'Dueños y cómo se maneja la LLC', fields: [
-    { k: 'activity', en: 'Primary business activity', es: 'Actividad principal del negocio', type: 'select', opts: ['Retail & E-Commerce', 'Real Estate', 'Restaurant / Food', 'Construction', 'Technology', 'Consulting', 'Import / Export', 'Health & Wellness', 'Other'] },
+    { k: 'activity', en: 'Primary business activity', es: 'Actividad principal del negocio', type: 'textarea',
+      tipEn: 'Briefly describe what your business does — we determine the appropriate IRS activity classification for you.',
+      tipEs: 'Describa brevemente a qué se dedica su negocio — nosotros determinamos la clasificación de actividad correcta ante el IRS.' },
     { k: 'activityDesc', en: 'Briefly describe what your business does', es: 'Describe brevemente qué hace tu negocio', type: 'textarea' },
     // Nº de empleados: se pide en el card de la empresa para reusarlo en el Local
     // Business Tax Receipt (así no genera un paso aparte cuando hay formación).
@@ -124,7 +126,9 @@ export const SERVICE_FIELDS: Record<string, ServiceFieldDef> = {
   ]},
   'corp-formation': { name_en: 'Corporation Formation', name_es: 'Formación de Corporation',
     note_en: 'Directors, officers and shares', note_es: 'Directores, oficiales y acciones', fields: [
-    { k: 'activity', en: 'Primary business activity', es: 'Actividad principal del negocio', type: 'select', opts: ['Retail & E-Commerce', 'Real Estate', 'Restaurant / Food', 'Construction', 'Technology', 'Consulting', 'Import / Export', 'Health & Wellness', 'Other'] },
+    { k: 'activity', en: 'Primary business activity', es: 'Actividad principal del negocio', type: 'textarea',
+      tipEn: 'Briefly describe what your business does — we determine the appropriate IRS activity classification for you.',
+      tipEs: 'Describa brevemente a qué se dedica su negocio — nosotros determinamos la clasificación de actividad correcta ante el IRS.' },
     { k: 'activityDesc', en: 'Briefly describe what your business does', es: 'Describe brevemente qué hace tu negocio', type: 'textarea' },
     { k: 'employees', en: 'Number of employees', es: 'Número de empleados', type: 'select', opts: ['0 (Owner only)', '1-5', '6-10', '11-25', '25+'] },
     // Agente registrado: se decide en el paso "Recomendado" (dos cajas).
@@ -159,7 +163,9 @@ export const SERVICE_FIELDS: Record<string, ServiceFieldDef> = {
   // antes solo se pedían acá la actividad del negocio, un hueco real para
   // cualquier EIN comprado directo desde /servicios sin pasar por new-business.
   'ein': { name_en: 'EIN / Tax ID', name_es: 'EIN / ID Fiscal', shared: ['ssnItin'], fields: [
-    { k: 'activity', en: 'Primary business activity', es: 'Actividad principal', type: 'select', opts: ['Retail & E-Commerce', 'Real Estate', 'Restaurant / Food', 'Construction', 'Technology', 'Consulting', 'Import / Export', 'Health & Wellness', 'Other'] },
+    { k: 'activity', en: 'Primary business activity', es: 'Actividad principal', type: 'textarea',
+      tipEn: 'Briefly describe what your business does — we determine the appropriate IRS activity classification for you.',
+      tipEs: 'Describa brevemente a qué se dedica su negocio — nosotros determinamos la clasificación de actividad correcta ante el IRS.' },
     { k: 'einReason', en: 'Reason for applying', es: 'Razón para solicitar el EIN', type: 'select', radioCards: true, opts: ['Started a new business', 'Hired employees', 'Open a business bank account', 'Other'] },
     { k: 'einReasonOther', en: 'If "Other", briefly describe the reason', es: 'Si eligió "Otra razón", descríbala brevemente', type: 'text' },
     { k: 'hasW2', en: 'Do you have or expect to have W-2 employees?', es: '¿Tiene o tendrá empleados con formulario W-2?', type: 'select', opts: ['No', 'Yes'] },

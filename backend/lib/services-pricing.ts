@@ -142,6 +142,11 @@ export const SERVICE_BUNDLES: Record<string, BundleDef> = {
   // ya usan los demás combos de 2 servicios (bundle-protect-va-ar).
   'bundle-compliance-ra':    { name_en: 'Registered Agent',                    name_es: 'Agente Registrado',                           services: ['registered-agent'], price: 99 },
   'bundle-compliance-ra-ar': { name_en: 'Registered Agent + Annual Report',    name_es: 'Agente Registrado + Declaración Anual',       services: ['registered-agent', 'annual-report'], price: 179 },
+  // Solo mybusinessformation.com (2026-09-10) — 2da columna del hub
+  // "Cumplimiento anual" para esa marca, ver coComplianceTiersFBFC en
+  // servicios/checkout/page.tsx. No forma parte de HUBS.compliance.tiers
+  // (opabiz.com no la ofrece).
+  'bundle-compliance-ra-ar-cc': { name_en: 'Registered Agent + Annual Report + Certified Copy', name_es: 'Agente Registrado + Declaración Anual + Copia Certificada', services: ['registered-agent', 'annual-report', 'certified-copy'], price: 231 },
   // Hub "Extras" de /new-business (2026-08-18) — tiers acumulativos: Virtual
   // Address sola → +Registered Agent → +Annual Report.
   // ⚠️ Virtual Address 1er mes GRATIS — SOLO en este grupo de 3 bundles
@@ -172,12 +177,15 @@ export function computeBundlePrice(bundleId: string, newServiceIds: string[], br
   if (!b) return 0
   const claimedNew = new Set(newServiceIds.filter(s => b.services.includes(s)))
   if (claimedNew.size === 0) return 0
-  // Un bundle de UN solo servicio no es un combo real (ej. bundle-docs-oa,
-  // bundle-compliance-ra) — nunca lleva el 10% de mybiz, siempre cobra su
-  // precio de lista fijo. Sin esto, la fórmula de abajo terminaría
-  // "descontando" un ítem que en realidad es solo el producto base sin
-  // combinar con nada (2026-09-10, aplica a ambas marcas).
-  if (b.services.length === 1) return b.price
+  // mybusinessformation.com: reclamar un solo servicio nunca es un combo
+  // real — ya sea porque el bundle en sí es de 1 solo ítem (bundle-docs-oa,
+  // bundle-compliance-ra) o porque el cliente destildó el resto de un combo
+  // más grande (checkboxes por ítem en las tarjetas, 2026-09-10) — siempre
+  // cobra el precio normal de catálogo de ESE ítem, nunca el 10%. Gateado a
+  // 'fbfc' a propósito: opabiz.com YA descontaba 10% a un solo ítem nuevo en
+  // el caso de compra parcial (ver el cálculo de abajo) — comportamiento
+  // existente que no se toca.
+  if (brand === 'fbfc' && claimedNew.size === 1) return getServiceFee([...claimedNew][0], brand)
   // mybusinessformation.com (2026-09-10): sin el atajo de precio fijo — el
   // rediseño de combos de mybiz siempre cobra 10% off de la suma completa,
   // incluso cuando reclama el combo entero (ver coBundleClaimed en

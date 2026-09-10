@@ -170,6 +170,25 @@ ${isFBFC ? `
 .co-choice-title{font-size:.88rem;font-weight:700;color:var(--navy)}
 .co-choice-price{font-size:.85rem;font-weight:800;color:var(--navy);font-family:var(--font-serif),serif;flex-shrink:0}
 .co-choice-desc{font-size:.77rem;color:var(--gray600);line-height:1.5}
+/* Pastillas Sí/No + lista de radios compacta del paso EIN (2026-09-11) —
+   mismo patrón visual que .yn-btn/.form-radio-row en new-business/page.tsx
+   (home), para que ambos pasos EIN (checkout compartido y home) se vean
+   igual y sin necesidad de scroll en 5 preguntas seguidas. */
+.co-yn-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 12px;border-radius:8px;border:1.5px solid var(--gray200);background:var(--gray50)}
+.co-yn-q{font-size:.8rem;color:var(--gray600);flex:1;line-height:1.4}
+.co-yn-group{display:flex;gap:8px;flex-shrink:0}
+.co-yn-btn{padding:7px 16px;border-radius:7px;border:1.5px solid var(--gray200);background:#fff;font-size:.8rem;font-weight:600;color:var(--gray500);cursor:pointer;font-family:inherit;transition:all .15s}
+.co-yn-btn:hover{border-color:#93c5fd}
+.co-yn-btn.sel{border-color:var(--blue);background:var(--blue-light);color:var(--blue)}
+.co-radio-group{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+.co-radio-row{display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:9px 12px;border-radius:8px;border:1.5px solid var(--gray200);background:var(--gray50);transition:all .15s}
+.co-radio-row:hover{border-color:#93c5fd;background:#f0f7ff}
+.co-radio-row.sel{border-color:var(--blue);background:var(--blue-light)}
+.co-radio-dot{width:18px;height:18px;border-radius:50%;border:2px solid var(--gray400);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;transition:all .15s}
+.co-radio-row.sel .co-radio-dot{border-color:var(--blue)}
+.co-radio-inner{width:8px;height:8px;border-radius:50%;background:var(--blue);opacity:0;transition:opacity .15s}
+.co-radio-row.sel .co-radio-inner{opacity:1}
+.co-radio-text{font-size:.82rem;color:var(--gray600);font-weight:500;line-height:1.4}
 .co-up-incl{margin-top:10px;display:flex;flex-direction:column;gap:6px}
 .co-up-incl-item{display:flex;align-items:flex-start;gap:7px;font-size:.78rem;color:var(--gray600);line-height:1.45}
 .co-up-incl-check{color:var(--green);font-weight:700;flex-shrink:0}
@@ -203,18 +222,30 @@ ${isFBFC ? `
 /* auto-fit en vez de repeat(3,1fr): docs queda en 2 tarjetas, compliance en 1
    sola — un grid fijo de 3 columnas dejaría espacio vacío incómodo. */
 .co-tiers.home-tiers{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
-.co-tier.home-style{cursor:pointer;gap:10px}
+.co-tier.home-style{cursor:default;gap:10px}
 .co-tier-check{width:22px;height:22px;border-radius:6px;border:2px solid var(--gray200);display:flex;align-items:center;justify-content:center;flex-shrink:0;align-self:flex-end;transition:all .2s;margin-bottom:-4px}
 .co-tier.sel .co-tier-check{background:var(--blue);border-color:var(--blue)}
+/* Sin relleno celeste al quedar seleccionada — feedback founder 2026-09-10
+   ("no me gusta como sale resaltado con ese fondo azul"): mismo tratamiento
+   limpio que usa el home (borde + check + leve elevación, sin fill). Selector
+   específico a .home-style para no tocar las tarjetas viejas de opabiz.com,
+   que siguen usando el fondo celeste de .co-tier.sel sin más. */
+.co-tier.home-style.sel{background:#fff;box-shadow:0 8px 24px rgba(27,58,107,.10);transform:translateY(-2px)}
 .co-tier-items{display:flex;flex-direction:column;gap:10px;margin:4px 0 14px}
-.co-tier-item{border-top:1px solid var(--gray100);padding-top:10px}
+.co-tier-item{display:block;border-top:1px solid var(--gray100);padding-top:10px;cursor:pointer}
 .co-tier-item:first-child{border-top:none;padding-top:0}
 .co-tier-item-row{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.co-tier-item-check-wrap{display:flex;align-items:center;gap:8px;min-width:0}
+.co-tier-item-check-wrap input[type=checkbox]{width:16px;height:16px;flex-shrink:0;accent-color:var(--blue);cursor:pointer;margin:0}
 .co-tier-item-name{font-size:.82rem;font-weight:700;color:var(--navy)}
 .co-tier-item-price{font-size:.82rem;font-weight:600;color:var(--gray600);white-space:nowrap;flex-shrink:0}
-.co-tier-item-blurb{font-size:.75rem;color:var(--gray500);line-height:1.5;margin-top:2px}
+.co-tier-item-blurb{font-size:.75rem;color:var(--gray500);line-height:1.5;margin-top:2px;margin-left:24px}
 .co-tier-total-row{display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid var(--gray100);padding-top:10px;margin-top:auto}
 .co-tier-total-row span:first-child{font-size:.82rem;font-weight:700;color:var(--navy)}
+.co-tier-btn:disabled{opacity:.45;cursor:not-allowed}
+.co-tier-btn:disabled:hover{background:#fff}
+.co-tier-remove{width:100%;background:none;border:none;color:var(--gray500);font-size:.78rem;font-weight:600;cursor:pointer;font-family:inherit;text-decoration:underline;margin-top:6px;padding:2px}
+.co-tier-remove:hover{color:var(--navy)}
 /* Layout con resumen de orden a la derecha (visible en cada paso) */
 .co-layout{display:grid;grid-template-columns:1fr 300px;gap:24px;align-items:start}
 .co-layout.solo{grid-template-columns:1fr}
@@ -634,6 +665,7 @@ function coProtectConfig(){
 // la config de formación y los de compliance no están en HUBS.protect.
 var BUNDLE_HUB = {}; Object.keys(HUBS).forEach(function(h){ HUBS[h].tiers.forEach(function(b){ BUNDLE_HUB[b]=h; }); });
 BUNDLE_HUB['bundle-protect-va-btr']='protect';
+BUNDLE_HUB['bundle-compliance-ra-ar-cc']='compliance'; // solo mybiz, ver coComplianceTiersFBFC
 // Detalle por servicio (varios bullets, estilo LegalZoom) para las tarjetas de
 // tier. Cada servicio tiene nombre + lista de beneficios concretos.
 var SVC_BLURBS = {
@@ -657,7 +689,10 @@ var SVC_BLURBS = {
     en:['Required every year for every FL LLC & Corporation','We prepare and file it with the state for you','Avoids the $400 late penalty'] },
   'business-tax-receipt':{ nameEs:'Licencia Comercial Local', nameEn:'Local Business Tax Receipt',
     es:['Licencia local para operar su negocio legalmente','La tramitamos ante su condado de Florida','Requisito en muchas ciudades para abrir al público'],
-    en:['Local license to operate your business legally','We process it with your Florida county','Required in many cities to open to the public'] }
+    en:['Local license to operate your business legally','We process it with your Florida county','Required in many cities to open to the public'] },
+  'certified-copy':      { nameEs:'Copia Certificada', nameEn:'Certified Copy',
+    es:['Copia oficial y sellada de sus Articles of Organization/Incorporation','Piden esta copia bancos, prestamistas y algunos socios comerciales','La solicitamos directo ante el estado de Florida'],
+    en:['Official, state-sealed copy of your Articles of Organization/Incorporation','Banks, lenders and some business partners often request this copy','We request it directly from the state of Florida'] }
 };
 // Campos que la formación ya captura (en los pasos Empresa/Dueños): se ocultan en
 // los demás servicios para no duplicar.
@@ -801,6 +836,23 @@ function coChoiceSelect(el, hiddenId, val){
   if(group){ Array.prototype.forEach.call(group.querySelectorAll('.co-choice'), function(c){ c.classList.remove('sel'); }); }
   el.classList.add('sel');
 }
+// Mismo mecanismo que coChoiceSelect, para los dos patrones compactos del
+// paso EIN (2026-09-11): pastillas Sí/No (.co-yn-btn) y lista de radios
+// (.co-radio-row) — ver fieldHtml. Separados de coChoiceSelect (que sigue
+// usando las tarjetas grandes .co-choice de Expedited/Agente Registrado)
+// para no acoplar ambos estilos visuales al mismo selector.
+function coYnSelect(el, hiddenId, val){
+  var hid=$(hiddenId); if(hid) hid.value=val;
+  var group=el.closest('.co-yn-group');
+  if(group){ Array.prototype.forEach.call(group.querySelectorAll('.co-yn-btn'), function(b){ b.classList.remove('sel'); }); }
+  el.classList.add('sel');
+}
+function coRadioSelect(el, hiddenId, val){
+  var hid=$(hiddenId); if(hid) hid.value=val;
+  var group=el.closest('.co-radio-group');
+  if(group){ Array.prototype.forEach.call(group.querySelectorAll('.co-radio-row'), function(r){ r.classList.remove('sel'); }); }
+  el.classList.add('sel');
+}
 function fieldHtml(svcId, f){
   var isEs=coIsEs(); var lbl=isEs?f.es:f.en; var id='x-'+svcId+'-'+f.k;
   if(f.type==='repeater'){
@@ -812,19 +864,27 @@ function fieldHtml(svcId, f){
   }
   var full = (f.type==='textarea')?' full':'';
   var inner='';
-  // Select de exactamente ['No','Yes'] (sin importar orden) → 2 tarjetas
-  // clickeables en vez de <select> nativo (2026-09-10, mismo patrón visual
-  // .co-choice ya usado en Expedited/Agente Registrado). f.radioCards hace
-  // lo mismo para selects de más opciones donde tiene sentido (ej. Reason
-  // for applying del EIN) — ver ServiceField.radioCards en service-fields.ts.
+  // Select de exactamente ['No','Yes'] (sin importar orden) → pastillas
+  // compactas Sí/No en línea con la pregunta (2026-09-11, mismo patrón visual
+  // que ya usa el paso EIN del home — .yn-btn/.compliance-row en
+  // new-business/page.tsx — antes reusaba las tarjetas grandes .co-choice
+  // pensadas para Expedited/Agente Registrado, y 5 preguntas seguidas
+  // obligaban a hacer scroll). f.radioCards usa una lista de radios compacta
+  // para selects de más opciones (ej. Reason for applying del EIN) — ver
+  // ServiceField.radioCards en service-fields.ts.
   var isYesNo = f.type==='select' && f.opts && f.opts.length===2 && f.opts.indexOf('Yes')>=0 && f.opts.indexOf('No')>=0;
-  if(f.type==='select' && (isYesNo || f.radioCards)){
+  if(f.type==='select' && isYesNo){
+    var ynEs = isEs ? ['No','Sí'] : ['No','Yes'];
+    inner='<div class="co-yn-row"><span class="co-yn-q">'+lbl+'</span><div class="co-yn-group">'
+      +'<button type="button" class="co-yn-btn sel" onclick="coYnSelect(this,\''+id+'\',\'No\')">'+ynEs[0]+'</button>'
+      +'<button type="button" class="co-yn-btn" onclick="coYnSelect(this,\''+id+'\',\'Yes\')">'+ynEs[1]+'</button>'
+      +'</div></div><input type="hidden" id="'+id+'" value="No"/>';
+    return '<div class="co-field full">'+inner+'</div>';
+  } else if(f.type==='select' && f.radioCards){
     full = ' full';
-    var choicesCls = isYesNo ? 'co-choices' : 'co-choices co-choices-v';
-    var opts2 = isYesNo ? ['No','Yes'] : f.opts;
-    inner='<div class="'+choicesCls+'" style="margin-top:6px">'+opts2.map(function(o, oi){
-      return '<div class="co-choice'+(oi===0?' sel':'')+'" onclick="coChoiceSelect(this,\''+id+'\',\''+o.replace(/'/g,"\\'")+'\')"><div class="co-choice-title">'+o+'</div></div>';
-    }).join('')+'</div><input type="hidden" id="'+id+'" value="'+opts2[0]+'"/>';
+    inner='<div class="co-radio-group">'+f.opts.map(function(o, oi){
+      return '<div class="co-radio-row'+(oi===0?' sel':'')+'" onclick="coRadioSelect(this,\''+id+'\',\''+o.replace(/'/g,"\\'")+'\')"><div class="co-radio-dot"><div class="co-radio-inner"></div></div><div class="co-radio-text">'+o+'</div></div>';
+    }).join('')+'</div><input type="hidden" id="'+id+'" value="'+f.opts[0]+'"/>';
   } else if(f.type==='select'){
     inner='<select class="co-select" id="'+id+'">'+f.opts.map(function(o){return '<option>'+o+'</option>';}).join('')+'</select>';
   } else if(f.type==='textarea'){
@@ -1284,11 +1344,7 @@ function coSetupCompanyPanel(ft){
     var df=$('co-designator-field'), ds=$('f-designator');
     if(df&&ds){ df.style.display=''; ds.innerHTML=(DESIGNATORS[ft]||[]).map(function(o){return '<option>'+o+'</option>';}).join(''); }
     if(extra){ var ah=''; ['activity','activityDesc','employees'].forEach(function(k){ var fd=coFieldDef(coFormId,k); if(!fd) return;
-      if(k==='activity'){
-        var aid='x-'+coFormId+'-activity';
-        var aopts='<option value="">'+(isEs?'— Selecciona —':'— Select —')+'</option>'+fd.opts.map(function(o){return '<option>'+o+'</option>';}).join('');
-        ah+='<div class="co-field"><label class="co-label">'+(isEs?fd.es:fd.en)+'</label><select class="co-select" id="'+aid+'">'+aopts+'</select></div>';
-      } else { ah+=fieldHtml(coFormId,fd); }
+      ah+=fieldHtml(coFormId,fd);
     }); if(ah) extra.innerHTML='<div class="co-grid">'+ah+'</div>'; }
     var sub=$('co-company-sub'); if(sub){ sub.setAttribute('data-en','Enter your new company name and details.'); sub.setAttribute('data-es','Ingrese el nombre y los datos de su nueva empresa.'); sub.textContent=isEs?'Ingrese el nombre y los datos de su nueva empresa.':'Enter your new company name and details.'; }
   } else {
@@ -1308,11 +1364,7 @@ function coSetupCompanyPanel(ft){
     // este mismo id ('x-ein-activity') sin importar en qué paso vive el DOM.
     if(extra && cart.indexOf('ein')>=0){
       var fdAct=coFieldDef('ein','activity');
-      if(fdAct){
-        var aid2='x-ein-activity';
-        var aopts2='<option value="">'+(isEs?'— Selecciona —':'— Select —')+'</option>'+fdAct.opts.map(function(o){return '<option>'+o+'</option>';}).join('');
-        extra.innerHTML='<div class="co-grid"><div class="co-field"><label class="co-label">'+(isEs?fdAct.es:fdAct.en)+'</label><select class="co-select" id="'+aid2+'">'+aopts2+'</select></div></div>';
-      }
+      if(fdAct) extra.innerHTML='<div class="co-grid">'+fieldHtml('ein',fdAct)+'</div>';
     }
   }
 }
@@ -1654,7 +1706,11 @@ function coBundlePrice(bid, newIds){
   var b=BUNDLES_CLIENT[bid]; if(!b) return 0;
   var claimed=(newIds||[]).filter(function(s){ return b.services.indexOf(s)>=0; });
   if(!claimed.length) return 0;
-  if(b.services.length===1) return b.price; // no es un combo real, siempre precio de lista
+  // mybiz: reclamar un solo servicio (bundle de 1 solo ítem, o el resto
+  // destildado de un combo más grande) nunca es un combo real — precio
+  // normal de catálogo. Gateado a IS_FBFC: opabiz ya descontaba 10% a un
+  // solo ítem nuevo en compra parcial, comportamiento existente intacto.
+  if(IS_FBFC && claimed.length===1){ var svOnly=SVC_CATALOG[claimed[0]]; return svOnly?svOnly.serviceFee:0; }
   if(!IS_FBFC && claimed.length===b.services.length) return b.price;
   var full=0, discountable=0;
   claimed.forEach(function(s){ var sv=SVC_CATALOG[s]; if(!sv) return; if(s==='virtual-address') full+=sv.serviceFee; else discountable+=sv.serviceFee; });
@@ -1671,40 +1727,83 @@ function coBundlePrice(bid, newIds){
 // (coBundleClaimed, coSelectTierFBFC), elegirlo SIEMPRE puede representar un
 // ahorro real, incluso si ya tiene todos los servicios del combo comprados
 // sueltos. opabiz.com sigue con coRenderHub original sin ningún cambio.
+// mybusinessformation.com (2026-09-10): 2da columna del hub "Cumplimiento
+// anual" con Copia Certificada — solo para esta marca, HUBS.compliance.tiers
+// (que sí lee opabiz.com) no se toca.
+function coComplianceTiersFBFC(){
+  return ['bundle-compliance-ra-ar', 'bundle-compliance-ra-ar-cc'];
+}
+// Recalcula y redibuja el Total/Ahorro/botón de UNA tarjeta en vivo según qué
+// checkboxes quedaron tildados — no vuelve a llamar a coRenderHubFBFC entero
+// (perdería el estado de scroll/foco del cliente a mitad de tildar cosas).
+function coTierRecalc(bid){
+  var card=document.querySelector('.co-tier[data-bid="'+bid+'"]'); if(!card) return;
+  var b=BUNDLES_CLIENT[bid]; if(!b) return; var isEs=coIsEs();
+  var checked=Array.prototype.map.call(card.querySelectorAll('input[type=checkbox][data-svc]:checked'), function(c){ return c.getAttribute('data-svc'); });
+  var price=checked.length?coBundlePrice(bid, checked):0;
+  var indiv=0; checked.forEach(function(s){ var sv=SVC_CATALOG[s]; if(sv) indiv+=sv.serviceFee; });
+  var save=indiv-price;
+  var totalEl=card.querySelector('.co-tier-price'); if(totalEl) totalEl.textContent='$'+price.toFixed(2);
+  var saveEl=card.querySelector('.co-tier-save');
+  if(saveEl){ if(checked.length>=2 && save>0){ saveEl.style.display=''; saveEl.textContent=(isEs?'Ahorras $':'Save $')+save.toFixed(2); } else { saveEl.style.display='none'; } }
+  var btn=card.querySelector('.co-tier-btn');
+  if(btn){ btn.disabled=(checked.length===0); btn.textContent=isEs?'Agregar':'Add'; }
+}
+function coTierApply(hub, bid){
+  var card=document.querySelector('.co-tier[data-bid="'+bid+'"]'); if(!card) return;
+  var checked=Array.prototype.map.call(card.querySelectorAll('input[type=checkbox][data-svc]:checked'), function(c){ return c.getAttribute('data-svc'); });
+  if(!checked.length) return;
+  coSelectTierFBFC(hub, bid, checked, false);
+}
+function coTierRemove(hub, bid){ coSelectTierFBFC(hub, bid, null, true); }
 function coRenderHubFBFC(hub){
   var panel=$(HUBS[hub].panel); if(!panel) return; var isEs=coIsEs();
   var cfg=(hub==='protect') ? coProtectConfig() : HUBS[hub];
+  var tierIds = (hub==='compliance') ? coComplianceTiersFBFC() : cfg.tiers;
   // Un combo de un solo servicio no es un combo real (ej. Acuerdo Operativo
   // solo) — se saca de la grilla, arranca directo en la combinación de 2
   // productos (decisión founder 2026-09-10). Coherente con que coBundlePrice
   // tampoco descuenta un bundle de 1 solo servicio.
-  var multiTiers=cfg.tiers.filter(function(bid){ var b=BUNDLES_CLIENT[bid]; return b && b.services.length>=2; });
+  var multiTiers=tierIds.filter(function(bid){ var b=BUNDLES_CLIENT[bid]; return b && b.services.length>=2; });
   var tiers=multiTiers.map(function(bid, i){
     var b=BUNDLES_CLIENT[bid]; if(!b) return '';
     var sel=(coBundles.indexOf(bid)>=0);
-    var price=coBundlePrice(bid, b.services);
-    var indiv=0; b.services.forEach(function(s){ var sv=SVC_CATALOG[s]; if(sv) indiv+=sv.serviceFee; });
+    // Ítems ya tildados: lo que el cliente reclamó la última vez que agregó
+    // este combo (coBundleClaimed), o todos por defecto si nunca lo agregó.
+    var claimed=coBundleClaimed[bid];
+    var isChecked=function(s){ return claimed ? claimed.indexOf(s)>=0 : true; };
+    var checkedNow=b.services.filter(isChecked);
+    var price=checkedNow.length?coBundlePrice(bid, checkedNow):0;
+    var indiv=0; checkedNow.forEach(function(s){ var sv=SVC_CATALOG[s]; if(sv) indiv+=sv.serviceFee; });
     var save=indiv-price;
     var best=(i===multiTiers.length-1);
+    // Descripción completa SOLO para los ítems nuevos de esta columna (los
+    // que no estaban ya en la columna anterior) — evita repetir la misma
+    // explicación en cada tarjeta de una escalera de combos (2026-09-10).
+    var prevServices = (i>0 && BUNDLES_CLIENT[multiTiers[i-1]]) ? BUNDLES_CLIENT[multiTiers[i-1]].services : [];
     var itemsHtml=b.services.map(function(s){
       var sv=SVC_CATALOG[s]; if(!sv) return '';
       var bl=SVC_BLURBS[s];
       var suf=coBillingSuffix(sv.billing);
-      return '<div class="co-tier-item">'
+      var isNew = prevServices.indexOf(s)<0;
+      var blurbHtml = (isNew && bl && bl[isEs?'es':'en'] && bl[isEs?'es':'en'][0]) ? '<div class="co-tier-item-blurb">'+bl[isEs?'es':'en'][0]+'</div>' : '';
+      return '<label class="co-tier-item">'
         +'<div class="co-tier-item-row">'
-          +'<span class="co-tier-item-name">'+(isEs?sv.name_es:sv.name_en)+'</span>'
+          +'<span class="co-tier-item-check-wrap"><input type="checkbox" data-svc="'+s+'"'+(isChecked(s)?' checked':'')+' onchange="coTierRecalc(\''+bid+'\')"/> <span class="co-tier-item-name">'+(isEs?sv.name_es:sv.name_en)+'</span></span>'
           +'<span class="co-tier-item-price">$'+sv.serviceFee.toFixed(2)+(suf?' <em style="font-style:normal;color:#94a3b8;font-weight:600">'+suf+'</em>':'')+'</span>'
         +'</div>'
-        +(bl&&bl[isEs?'es':'en']&&bl[isEs?'es':'en'][0]?'<div class="co-tier-item-blurb">'+bl[isEs?'es':'en'][0]+'</div>':'')
-        +'</div>';
+        +blurbHtml
+        +'</label>';
     }).join('');
-    return '<div class="co-tier home-style'+(best?' best':'')+(sel?' sel':'')+'" onclick="coSelectTier(\''+hub+'\',\''+bid+'\')">'
+    return '<div class="co-tier home-style'+(best?' best':'')+(sel?' sel':'')+'" data-bid="'+bid+'">'
       +(best?'<div class="co-tier-badge">'+(isEs?'Mejor valor':'Best value')+'</div>':'')
       +'<div class="co-tier-check">'+(sel?'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>':'')+'</div>'
       +'<div class="co-tier-name">'+(isEs?b.name_es:b.name_en)+'</div>'
       +'<div class="co-tier-items">'+itemsHtml+'</div>'
       +'<div class="co-tier-total-row"><span>'+(isEs?'Total':'Total')+'</span><span class="co-tier-price">$'+price.toFixed(2)+'</span></div>'
-      +(save>0?'<div class="co-tier-save">'+(isEs?'Ahorras $':'Save $')+save.toFixed(2)+'</div>':'')
+      +(checkedNow.length>=2 && save>0?'<div class="co-tier-save">'+(isEs?'Ahorras $':'Save $')+save.toFixed(2)+'</div>':'<div class="co-tier-save" style="display:none"></div>')
+      +'<button type="button" class="co-tier-btn" onclick="coTierApply(\''+hub+'\',\''+bid+'\')" '+(checkedNow.length===0?'disabled':'')+'>'+(isEs?'Agregar':'Add')+'</button>'
+      +(sel?'<button type="button" class="co-tier-remove" onclick="coTierRemove(\''+hub+'\',\''+bid+'\')">'+(isEs?'Quitar':'Remove')+'</button>':'')
       +'</div>';
   }).join('');
   panel.innerHTML='<h1 class="co-h1">'+(isEs?HUBS[hub].titleEs:HUBS[hub].titleEn)+'</h1>'
@@ -1771,22 +1870,24 @@ function coClearHub(hub){
 }
 // mybusinessformation.com (2026-09-10): a diferencia de coSelectTier (que
 // solo "reclama" para el precio lo genuinamente nuevo), acá el combo
-// reclama SIEMPRE sus servicios completos — coBundleClaimed guarda esa
-// lista completa (la usan coComputeTotal y coGetIntake para el precio real
-// y lo que se cobra), mientras coBundleAdded sigue guardando solo lo
+// reclama SIEMPRE los servicios que el cliente dejó tildados (checkedIds —
+// por defecto el combo completo si no se pasa nada) — coBundleClaimed
+// guarda esa lista (la usan coComputeTotal y coGetIntake para el precio
+// real y lo que se cobra), mientras coBundleAdded sigue guardando solo lo
 // genuinamente nuevo (para poder sacarlo del carrito sin tocar compras
-// sueltas si se deselecciona el combo — coClearHub).
-function coSelectTierFBFC(hub, bundleId){
-  var toggleOff=(coBundles.indexOf(bundleId)>=0);
+// sueltas si se deselecciona el combo — coClearHub). El parámetro remove
+// fuerza deselección total (botón "Quitar"), sin importar qué esté tildado.
+function coSelectTierFBFC(hub, bundleId, checkedIds, remove){
   var preOwned=coComputePreOwned(hub); // capturar ANTES de tocar el carrito
   coClearHub(hub);
-  if(!toggleOff){
+  if(!remove){
     var b=BUNDLES_CLIENT[bundleId];
     if(b){
+      var claim=(checkedIds && checkedIds.length) ? checkedIds.slice() : b.services.slice();
       var added=[];
-      b.services.forEach(function(s){ if(!preOwned[s] && cart.indexOf(s)<0){ cart.push(s); added.push(s); } });
+      claim.forEach(function(s){ if(!preOwned[s] && cart.indexOf(s)<0){ cart.push(s); added.push(s); } });
       coBundleAdded[bundleId]=added;
-      coBundleClaimed[bundleId]=b.services.slice();
+      coBundleClaimed[bundleId]=claim;
       coBundles.push(bundleId);
     }
   }
@@ -2105,7 +2206,7 @@ async function coValidateStep(i){
     }
     if(coFormationType()){
       var actEl=$('x-'+coFormId+'-activity');
-      if(actEl && !(actEl.value||'').trim()){ err.textContent=isEs?'Seleccione la actividad principal de su negocio.':"Select your business's primary activity."; return false; }
+      if(actEl && !(actEl.value||'').trim()){ err.textContent=isEs?'Describa la actividad principal de su negocio.':"Describe your business's primary activity."; return false; }
       var descEl=$('x-'+coFormId+'-activityDesc');
       if(!descEl || (descEl.value||'').trim().length<3){ err.textContent=isEs?'Describa brevemente qué hace su negocio.':'Briefly describe what your business does.'; return false; }
     }
