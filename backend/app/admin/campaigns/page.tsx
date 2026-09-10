@@ -58,12 +58,6 @@ export default function CampaignsPage() {
   const [sendingId,   setSendingId]   = useState<string | null>(null)
   const [sendingAll,  setSendingAll]  = useState(false)
   const [sendMsg,     setSendMsg]     = useState('')
-  // Qué campaña se manda con los botones de abajo — 'compliance' es la carta
-  // de siempre (3 servicios sueltos), 'vip' es el Paquete VIP nuevo (Agente
-  // Registrado + Declaración Anual, ver /vip y buildVipEmail en
-  // api/campaigns/send/route.ts). Selector explícito para no mandar la
-  // campaña equivocada sin querer.
-  const [campaignType, setCampaignType] = useState<'compliance' | 'vip'>('compliance')
 
   // Notes editor
   const [noteEdit,   setNoteEdit]   = useState<{ id: string; name: string; text: string } | null>(null)
@@ -176,7 +170,7 @@ export default function CampaignsPage() {
     const res = await fetch('/api/campaigns/send', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ company_ids: [company.id], lang: 'en', campaign: campaignType }),
+      body: JSON.stringify({ company_ids: [company.id], lang: 'en' }),
     })
     const data = await res.json()
     setSendingId(null)
@@ -188,13 +182,13 @@ export default function CampaignsPage() {
     if (paused) return
     const newOnes = companies.filter(c => c.status === 'new' && c.email)
     if (newOnes.length === 0) { setSendMsg('No new companies with email to send to.'); return }
-    if (!confirm(`Send "${campaignType === 'vip' ? 'VIP Compliance Package' : 'Compliance Notice'}" emails to ${newOnes.length} new companies?`)) return
+    if (!confirm(`Send emails to ${newOnes.length} new companies?`)) return
     setSendingAll(true)
     setSendMsg('')
     const res = await fetch('/api/campaigns/send', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ company_ids: newOnes.map(c => c.id), lang: 'en', campaign: campaignType }),
+      body: JSON.stringify({ company_ids: newOnes.map(c => c.id), lang: 'en' }),
     })
     const data = await res.json()
     setSendingAll(false)
@@ -458,17 +452,6 @@ export default function CampaignsPage() {
 
           {/* Bulk actions bar */}
           <div style={{ padding: '10px 22px', background: '#F8FAFC', borderBottom: '1px solid #F1F5F9', display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-            {/* Qué campaña mandan "Send to All New" y el botón por fila —
-                afecta tanto el email como el link de destino (home vs /vip). */}
-            <select
-              value={campaignType}
-              onChange={e => setCampaignType(e.target.value as 'compliance' | 'vip')}
-              style={{ fontSize: '.78rem', fontWeight: 600, padding: '7px 10px', borderRadius: 7, border: '1.5px solid #E2E8F0', color: '#1C2E44' }}
-              title="Which campaign email to send"
-            >
-              <option value="compliance">Compliance Notice (3 services)</option>
-              <option value="vip">VIP Compliance Package</option>
-            </select>
             <button className="btn btn-green btn-sm" onClick={sendToAllNew} disabled={sendingAll || paused}>
               {sendingAll ? 'Sending...' : `📨 Send to All New (${companies.filter(c => c.status === 'new' && c.email).length})`}
             </button>
