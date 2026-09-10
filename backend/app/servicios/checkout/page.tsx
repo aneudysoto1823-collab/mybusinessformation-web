@@ -1526,9 +1526,9 @@ function coSetExpedited(v){ coExpedited=!!v; coSaveCart(); coRenderExpedited(); 
 var UPSELL = {
   'registered-agent': { icon:'&#127963;', price:'$99',
     en:{name:'Registered Agent', desc:'Every Florida LLC & Corporation must have a Registered Agent with a physical FL address to receive legal & state documents.', why:'Keeps your home address private and off the public record.',
-      incl:['Official FL street address for your business','Accepts service of process & legal documents','Document forwarding & email notifications']},
+      incl:['Official FL street address for state & legal correspondence','Accepts service of process & legal documents','Document forwarding & email notifications']},
     es:{name:'Agente Registrado', desc:'Toda LLC y Corporation de Florida debe tener un Agente Registrado con dirección física en FL para recibir documentos legales y del estado.', why:'Mantiene su dirección personal privada y fuera del registro público.',
-      incl:['Dirección oficial en FL para su negocio','Acepta notificaciones y documentos legales','Reenvío de documentos y notificación por correo']} },
+      incl:['Dirección oficial en FL para correspondencia legal y estatal','Acepta notificaciones y documentos legales','Reenvío de documentos y notificación por correo']} },
   'virtual-address': { icon:'&#128236;', price:'$30',
     en:{name:'Virtual Mailing Address', desc:'A professional Florida business address that receives and forwards your mail digitally.', why:'Use a real FL address without exposing your home address.',
       incl:['Professional FL mailing address','Mail receiving & digital forwarding','Home address stays private on public records','Available immediately after sign-up']},
