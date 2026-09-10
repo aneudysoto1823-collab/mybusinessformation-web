@@ -586,9 +586,15 @@ var HUBS = {
 // À la carte (sin formación), Annual Report se ofrece en "compliance" junto al
 // Agente Registrado — acá solo quedan Virtual Address + Business Tax Receipt
 // para no repetir el mismo servicio en dos pasos. En formación no cambia nada.
+// mybusinessformation.com (2026-09-10): sin Virtual Address (no hay proveedor
+// wholesale contratado todavía) — queda inalcanzable en la práctica porque
+// coHubApplicable ya desactiva el hub 'protect' entero para FBFC à la carte,
+// pero se corrige igual el dato por si algo más lo llega a leer.
 function coProtectConfig(){
   if(coFormationType()) return { services:HUBS.protect.services, tiers:HUBS.protect.tiers };
-  return { services:['virtual-address','business-tax-receipt'], tiers:['bundle-protect-va','bundle-protect-va-btr'] };
+  ${isFBFC
+    ? `return { services:['business-tax-receipt'], tiers:[] };`
+    : `return { services:['virtual-address','business-tax-receipt'], tiers:['bundle-protect-va','bundle-protect-va-btr'] };`}
 }
 // A qué hub pertenece cada bundle (para limpiar/cambiar selección). Se registran
 // a mano (no solo desde HUBS[h].tiers) porque bundle-protect-va-btr no está en
@@ -1497,6 +1503,12 @@ function coHubApplicable(hub){
   // "compliance" es solo à la carte — en formación el agente ya se resuelve en
   // su propio paso obligatorio (panel-ra) y Annual Report vive en "protect".
   if(hub==='compliance' && coFormationType()) return false;
+  // mybusinessformation.com (2026-09-10): el hub 'protect' à la carte quedó
+  // con un solo servicio (Business Tax Receipt) al sacar Virtual Address — un
+  // solo ítem no amerita tratamiento de combo, así que el paso entero se
+  // oculta para FBFC. Business Tax Receipt sigue comprable suelto desde la
+  // grilla principal de /servicios. En formación (solo OpaBiz) no cambia nada.
+  ${isFBFC ? `if(hub==='protect' && !coFormationType()) return false;` : ``}
   var cfg=(hub==='protect') ? coProtectConfig() : HUBS[hub];
   for(var b=0;b<coBundles.length;b++){ if(BUNDLE_HUB[coBundles[b]]===hub) return true; }
   for(var i=0;i<cfg.services.length;i++){ if(cart.indexOf(cfg.services[i])<0) return true; }

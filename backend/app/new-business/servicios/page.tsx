@@ -3,7 +3,7 @@ import { SERVICES_CATALOG, getServiceFee } from '@/lib/services-pricing'
 
 export const metadata: Metadata = {
   title: 'Additional Services',
-  description: 'Compliance and business services for Florida companies: Registered Agent, EIN, Operating Agreement, Virtual Address, Annual Report and more.',
+  description: 'Compliance and business services for Florida companies: Registered Agent, EIN, Operating Agreement, Annual Report and more.',
   robots: { index: false, follow: false },
   alternates: { canonical: 'https://mybusinessformation.com/servicios' },
 }
@@ -15,7 +15,9 @@ export const metadata: Metadata = {
 // se copia del catálogo ya aprobado de /servicios/page.tsx — esa página
 // mantiene su propia copia hardcodeada (deuda técnica preexistente, no se
 // toca acá) así que este es el mismo texto, no texto nuevo.
-const EXCLUDED_IDS = new Set(['llc-formation', 'corp-formation'])
+// virtual-address excluido 2026-09-10: no hay proveedor wholesale contratado
+// todavía para surtir direcciones — decisión founder, se retoma más adelante.
+const EXCLUDED_IDS = new Set(['llc-formation', 'corp-formation', 'virtual-address'])
 
 type Display = { icon: string; subEn: string; subEs: string; descEn: string; descEs: string; incEn: string[]; incEs: string[] }
 

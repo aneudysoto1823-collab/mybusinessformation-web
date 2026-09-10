@@ -20,29 +20,25 @@ const CATALOG_TO_NB_ID: Record<string, string> = { 'labor-law-poster': 'labor_la
 // (computeBundlePrice / SERVICE_BUNDLES) para que el descuento mostrado acá
 // sea EXACTO al que se cobra al pagar (goToPayment() llama a
 // /api/checkout/embedded-services, que lee flbc_svc_bundles del localStorage,
-// ver useEffect de persistencia abajo). Virtual Address es gratis el primer
-// mes SOLO en este paso (ver comentario en lib/services-pricing.ts junto a
-// bundle-extras-*); Registered Agent y Annual Report sí llevan el 10% de
-// descuento normal cuando se combinan.
+// ver useEffect de persistencia abajo).
+//
+// Virtual Address sacado 2026-09-10 (no hay proveedor wholesale contratado
+// todavía — decisión founder, se retoma más adelante). Antes los 3 tiers
+// estaban armados sobre Virtual Address como base (VA solo / VA+Agente /
+// VA+Agente+Reporte Anual, con "1er mes GRATIS"); ahora son 2 tiers basados
+// en Agente Registrado, reusando los mismos bundles que ya usa el hub
+// "Cumplimiento anual" del checkout compartido (bundle-compliance-ra/-ar) —
+// ningún precio nuevo, mismos $99/$179 de siempre.
 const EXTRAS_TIERS = [
-  { bundle: 'bundle-extras-va', services: ['virtual-address'] },
-  { bundle: 'bundle-extras-va-ra', services: ['virtual-address', 'registered-agent'] },
-  { bundle: 'bundle-extras-va-ra-ar', services: ['virtual-address', 'registered-agent', 'annual-report'] },
+  { bundle: 'bundle-compliance-ra', services: ['registered-agent'] },
+  { bundle: 'bundle-compliance-ra-ar', services: ['registered-agent', 'annual-report'] },
 ] as const
 const EXTRAS_SERVICE_IDS = new Set<string>(EXTRAS_TIERS[EXTRAS_TIERS.length - 1].services)
 // Una sola definición integrada por servicio (2026-08-18, antes era un blurb
 // corto + un cuadro aparte con más detalle debajo de la tarjeta — se fusionó
 // en un solo párrafo por pedido del founder, sin repetir la misma idea dos
-// veces). El caso de Virtual Address en el tier 1 es la única excepción real:
-// ahí sí necesita una definición más larga porque, al ser el único servicio
-// del tier, es donde tiene sentido aclarar que no cubre el requisito de
-// Registered Agent (en los tiers 2 y 3 esa aclaración ya no aplica, porque
-// Registered Agent va incluido).
+// veces).
 const EXTRAS_BLURB: Record<string, { en: string; es: string }> = {
-  'virtual-address': {
-    en: 'A professional Florida mailing address for your business. Keeps your home address private.',
-    es: 'Una dirección postal profesional en Florida para tu negocio. Mantiene tu dirección personal privada.',
-  },
   'registered-agent': {
     en: 'Florida law requires every LLC and Corporation to name a Registered Agent who is available at a physical Florida address every business day between 9am and 5pm to receive legal documents in person, and whose address becomes public record. We act as your Registered Agent instead, so you don’t have to.',
     es: 'La ley de Florida exige que toda LLC y Corporation nombre un Agente Registrado disponible en una dirección física de Florida todos los días hábiles entre las 9am y las 5pm para recibir documentos legales en persona, y cuya dirección queda en el registro público. Nosotros actuamos como tu Agente Registrado, para que tú no tengas que hacerlo.',
@@ -52,11 +48,6 @@ const EXTRAS_BLURB: Record<string, { en: string; es: string }> = {
     es: 'Requerida cada año para mantener tu entidad activa ante el estado de Florida.',
   },
 }
-const EXTRAS_VA_TIER1_BLURB = {
-  en: 'A professional Florida mailing address for your business, keeping your home address private. On its own, it does not fulfill your Registered Agent requirement: you will still need to name one for your LLC or Corporation, either yourself or a service like the one in the next tier.',
-  es: 'Una dirección postal profesional en Florida para tu negocio, que mantiene tu dirección personal privada. Por sí sola, no cumple con el requisito de Agente Registrado: de todas formas necesitarás nombrar uno para tu LLC o Corporation, ya sea tú mismo o un servicio como el del siguiente nivel.',
-}
-
 type Company = {
   document_id: string
   company_name: string
@@ -2687,8 +2678,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                                 {tier.services.map(id => {
                                   const svc = SERVICES_CATALOG[id]
                                   if (!svc) return null
-                                  const isVa = id === 'virtual-address'
-                                  const blurb = (isVa && i === 0) ? EXTRAS_VA_TIER1_BLURB : EXTRAS_BLURB[id]
+                                  const blurb = EXTRAS_BLURB[id]
                                   const cadence = svc.billing === 'monthly' ? (lang === 'es' ? '/mes' : '/mo') : svc.billing === 'annual' ? (lang === 'es' ? '/año' : '/yr') : ''
                                   return (
                                     <div key={id} style={{ marginBottom:10 }}>
@@ -2697,14 +2687,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                                           <span style={{ color:'#16a34a', fontWeight:700 }}>✓</span>
                                           <strong style={{ color:'#1B3A6B' }}>{lang === 'es' ? svc.name_es : svc.name_en}</strong>
                                         </span>
-                                        {isVa ? (
-                                          <span style={{ flexShrink:0, whiteSpace:'nowrap' }}>
-                                            <span style={{ color:'#94a3b8', textDecoration:'line-through', marginRight:6 }}>${svc.serviceFee.toFixed(2)}{cadence}</span>
-                                            <span style={{ color:'#16a34a', fontWeight:700 }}>{lang === 'es' ? '1er mes GRATIS' : '1st month FREE'}</span>
-                                          </span>
-                                        ) : (
-                                          <span style={{ color:'#374151', fontWeight:600, flexShrink:0 }}>${svc.serviceFee.toFixed(2)}{cadence}</span>
-                                        )}
+                                        <span style={{ color:'#374151', fontWeight:600, flexShrink:0 }}>${svc.serviceFee.toFixed(2)}{cadence}</span>
                                       </div>
                                       {blurb && <div style={{ marginLeft:20, marginTop:2 }}>{lang === 'es' ? blurb.es : blurb.en}</div>}
                                     </div>
