@@ -8,11 +8,16 @@ const BASE_URL = 'https://mybusinessformation.com'
 export async function GET(req: NextRequest) {
   const doc = req.nextUrl.searchParams.get('doc')
   const cid = req.nextUrl.searchParams.get('cid')
+  // dest=vip → campaña del Paquete VIP (Agente Registrado + Declaración
+  // Anual, ver app/api/campaigns/send/route.ts buildVipEmail) — cualquier
+  // otro valor (u omitido) sigue yendo al home, como siempre.
+  const dest = req.nextUrl.searchParams.get('dest')
+  const destPath = dest === 'vip' ? '/vip' : '/'
 
   // Always redirect — even if tracking fails, the client gets to the landing page
   const landingUrl = doc
-    ? `${BASE_URL}/?id=${encodeURIComponent(doc)}`
-    : BASE_URL
+    ? `${BASE_URL}${destPath}?id=${encodeURIComponent(doc)}`
+    : `${BASE_URL}${destPath === '/' ? '' : destPath}`
 
   if (!doc || !cid) {
     return NextResponse.redirect(landingUrl)
