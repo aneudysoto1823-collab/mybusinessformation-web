@@ -791,6 +791,16 @@ function coDelRepRow(btn){
   if(!host.querySelector('.rep-row')){ var f=coRepField(host.getAttribute('data-svc'),host.getAttribute('data-fk')); if(f) host.insertAdjacentHTML('beforeend', repRowHtml(host.getAttribute('data-svc'),f)); }
   coSyncRepCount(host);
 }
+// Click genérico para los campos tipo tarjeta (Yes/No, radioCards) — guarda
+// el valor en el <input type="hidden"> real (que coCollectExtras/coValidateStep
+// ya leen con .value, sin cambios ahí) y marca/desmarca .sel en las tarjetas
+// hermanas del mismo grupo.
+function coChoiceSelect(el, hiddenId, val){
+  var hid=$(hiddenId); if(hid) hid.value=val;
+  var group=el.closest('.co-choices');
+  if(group){ Array.prototype.forEach.call(group.querySelectorAll('.co-choice'), function(c){ c.classList.remove('sel'); }); }
+  el.classList.add('sel');
+}
 function fieldHtml(svcId, f){
   var isEs=coIsEs(); var lbl=isEs?f.es:f.en; var id='x-'+svcId+'-'+f.k;
   if(f.type==='repeater'){
@@ -802,7 +812,20 @@ function fieldHtml(svcId, f){
   }
   var full = (f.type==='textarea')?' full':'';
   var inner='';
-  if(f.type==='select'){
+  // Select de exactamente ['No','Yes'] (sin importar orden) → 2 tarjetas
+  // clickeables en vez de <select> nativo (2026-09-10, mismo patrón visual
+  // .co-choice ya usado en Expedited/Agente Registrado). f.radioCards hace
+  // lo mismo para selects de más opciones donde tiene sentido (ej. Reason
+  // for applying del EIN) — ver ServiceField.radioCards en service-fields.ts.
+  var isYesNo = f.type==='select' && f.opts && f.opts.length===2 && f.opts.indexOf('Yes')>=0 && f.opts.indexOf('No')>=0;
+  if(f.type==='select' && (isYesNo || f.radioCards)){
+    full = ' full';
+    var choicesCls = isYesNo ? 'co-choices' : 'co-choices co-choices-v';
+    var opts2 = isYesNo ? ['No','Yes'] : f.opts;
+    inner='<div class="'+choicesCls+'" style="margin-top:6px">'+opts2.map(function(o, oi){
+      return '<div class="co-choice'+(oi===0?' sel':'')+'" onclick="coChoiceSelect(this,\''+id+'\',\''+o.replace(/'/g,"\\'")+'\')"><div class="co-choice-title">'+o+'</div></div>';
+    }).join('')+'</div><input type="hidden" id="'+id+'" value="'+opts2[0]+'"/>';
+  } else if(f.type==='select'){
     inner='<select class="co-select" id="'+id+'">'+f.opts.map(function(o){return '<option>'+o+'</option>';}).join('')+'</select>';
   } else if(f.type==='textarea'){
     inner='<textarea class="co-textarea" id="'+id+'"></textarea>';
@@ -829,6 +852,12 @@ function coVisibleFields(svcId, ft){
     // Razón para solicitar el EIN). Bug real reportado 2026-09-09: se pedía
     // "tipo de negocio" y "a qué se dedica" dos veces con dos formatos distintos.
     if(svcId==='business-license' && (f.k==='industry'||f.k==='description') && cart.indexOf('ein')>=0) return false;
+    // La actividad principal del EIN se pregunta en "Su empresa" (paso 1, ver
+    // coSetupCompanyPanel) en vez de en el paso propio del EIN — 2026-09-10,
+    // pedido founder ("no hay que preguntar eso más adelante"). En formación
+    // ya estaba cubierto por HIDE_KEYS_IN_FORMATION; esto extiende lo mismo
+    // al caso EIN sin formación.
+    if(svcId==='ein' && f.k==='activity') return false;
     return true;
   });
 }
@@ -1269,6 +1298,22 @@ function coSetupCompanyPanel(ft){
     var ef2=$('co-entity-field'); if(ef2) ef2.style.display='';
     var df2=$('co-designator-field'); if(df2) df2.style.display='none';
     var sub2=$('co-company-sub'); if(sub2){ sub2.setAttribute('data-en','Enter your company\'s Document Number below. If you don\'t have it, you can complete your company details manually instead.'); sub2.setAttribute('data-es','Ingrese el número de documento de su empresa abajo. Si no lo tiene, puede completar los datos de su empresa manualmente.'); sub2.textContent=isEs?'Ingrese el número de documento de su empresa abajo. Si no lo tiene, puede completar los datos de su empresa manualmente.':'Enter your company\'s Document Number below. If you don\'t have it, you can complete your company details manually instead.'; }
+    // Actividad principal del EIN, preguntada acá (empresa EXISTENTE, sin
+    // formación) en vez de en el paso propio del EIN — mismo criterio que la
+    // rama de formación de arriba, para no volver a preguntarla más adelante
+    // (2026-09-10, aplica a ambas marcas). Vive dentro de #co-company-extra,
+    // que ya se revela junto con el resto del formulario manual
+    // (coRevealManual) sin importar si llegó por búsqueda o "No tengo
+    // número" — coCollectExtras/coValidateStep no cambian, siguen leyendo
+    // este mismo id ('x-ein-activity') sin importar en qué paso vive el DOM.
+    if(extra && cart.indexOf('ein')>=0){
+      var fdAct=coFieldDef('ein','activity');
+      if(fdAct){
+        var aid2='x-ein-activity';
+        var aopts2='<option value="">'+(isEs?'— Selecciona —':'— Select —')+'</option>'+fdAct.opts.map(function(o){return '<option>'+o+'</option>';}).join('');
+        extra.innerHTML='<div class="co-grid"><div class="co-field"><label class="co-label">'+(isEs?fdAct.es:fdAct.en)+'</label><select class="co-select" id="'+aid2+'">'+aopts2+'</select></div></div>';
+      }
+    }
   }
 }
 function coSetupOwnersPanel(ft){

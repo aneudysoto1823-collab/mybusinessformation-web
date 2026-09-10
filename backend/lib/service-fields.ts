@@ -39,6 +39,13 @@ export interface ServiceField {
   /** tooltip explicativo (ícono ?) — usado en campos sensibles tipo SSN/EIN. */
   tipEn?: string
   tipEs?: string
+  /** solo para type:'select' con pocas opciones (no aplica a listas largas
+   *  tipo estados/actividad) — renderiza como tarjetas clickeables en vez de
+   *  un <select> nativo (2026-09-10, checkout/page.tsx fieldHtml). Un select
+   *  de exactamente ['No','Yes'] SIEMPRE se renderiza así automáticamente
+   *  (sin necesitar este flag) — este flag es para casos con más de 2
+   *  opciones donde el mismo tratamiento visual tiene sentido. */
+  radioCards?: boolean
 }
 
 export interface ServiceFieldDef {
@@ -153,7 +160,7 @@ export const SERVICE_FIELDS: Record<string, ServiceFieldDef> = {
   // cualquier EIN comprado directo desde /servicios sin pasar por new-business.
   'ein': { name_en: 'EIN / Tax ID', name_es: 'EIN / ID Fiscal', shared: ['ssnItin'], fields: [
     { k: 'activity', en: 'Primary business activity', es: 'Actividad principal', type: 'select', opts: ['Retail & E-Commerce', 'Real Estate', 'Restaurant / Food', 'Construction', 'Technology', 'Consulting', 'Import / Export', 'Health & Wellness', 'Other'] },
-    { k: 'einReason', en: 'Reason for applying', es: 'Razón para solicitar el EIN', type: 'select', opts: ['Started a new business', 'Hired employees', 'Open a business bank account', 'Other'] },
+    { k: 'einReason', en: 'Reason for applying', es: 'Razón para solicitar el EIN', type: 'select', radioCards: true, opts: ['Started a new business', 'Hired employees', 'Open a business bank account', 'Other'] },
     { k: 'einReasonOther', en: 'If "Other", briefly describe the reason', es: 'Si eligió "Otra razón", descríbala brevemente', type: 'text' },
     { k: 'hasW2', en: 'Do you have or expect to have W-2 employees?', es: '¿Tiene o tendrá empleados con formulario W-2?', type: 'select', opts: ['No', 'Yes'] },
     { k: 'hasHighwayVehicle', en: 'Highway motor vehicles with 55,000+ lbs gross weight?', es: '¿Opera vehículos de carretera con peso bruto de 55,000+ lbs?', type: 'select', opts: ['No', 'Yes'] },
