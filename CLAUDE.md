@@ -1399,6 +1399,35 @@ Sesión larga. Resumen de lo construido (ver `git log` para el detalle línea po
 
 ---
 
+## Sesión 2026-09-10/11 — combos con checkbox por ítem, EIN compacto, copy engañoso, landing VIP
+
+### Combos con checkbox por ítem (mybiz-only) + paso EIN compacto (ambas marcas)
+
+En `/servicios/checkout`, los combos de 2+ servicios (hub "Cumplimiento anual", "Documentos esenciales") pasaron de tarjeta-completa-clickeable a **checkbox por ítem + botón Agregar/Quitar explícito** — mismo concepto que ya usaba el hub, pero ahora el cliente puede destildar un ítem y quedarse solo con el otro a precio normal (sin el 10% del combo). Descripción larga solo en el ítem que es NUEVO respecto al tier anterior del mismo hub (dedup). Sin relleno celeste al seleccionar (antes `background:var(--blue-light)`, ahora solo borde + check + leve elevación, como las tarjetas del home) — gateado a `.co-tier.home-style.sel` para no tocar las tarjetas viejas de opabiz.com. Se agregó una 3ra columna a "Cumplimiento anual": Agente Registrado + Declaración Anual + Copia Certificada (`bundle-compliance-ra-ar-cc`, $231). `computeBundlePrice()` en `lib/services-pricing.ts` ahora acepta `brand` — si `claimedNew.size===1` para `brand==='fbfc'`, cobra precio normal sin descuento (cubre tanto bundles de 1 ítem como destildar hasta dejar 1 solo). El mismo concepto de checkbox+Agregar/Quitar se aplicó también al Step 4 "Recomendado para ti" del home mybiz (`new-business/page.tsx`) — colapsó las 2 tarjetas exclusivas de antes (Agente Registrado solo / Agente Registrado+Declaración Anual) en 1 sola tarjeta con checkboxes.
+
+El paso EIN (`/servicios/checkout`, ambas marcas) rediseñó "Razón para solicitar el EIN" (radio list compacta, `.co-radio-row`) y las 5 preguntas Sí/No del IRS (pastillas inline `.co-yn-row`/`.co-yn-btn`, label izquierda + botones derecha en una sola línea) — antes reusaba las tarjetas grandes `.co-choice` pensadas para Expedited/Agente Registrado, y 5 preguntas seguidas obligaban a scroll. Mismo patrón visual que ya tenía el paso EIN del home (`.yn-btn`/`.form-radio-row` en `new-business/page.tsx`), ahora replicado en el checkout compartido.
+
+### Fix de 6 promesas engañosas en "incluye" de servicios (ambas marcas, varias ubicaciones duplicadas)
+
+Auditoría de copy pedida por el founder sobre las listas "qué incluye" de varios servicios — 3 ubicaciones distintas dentro de `app/servicios/page.tsx` sola (`includes_en/es` del catálogo principal + los objetos `iEn/iE`/`icEn/icEs` reusados en el checkout legacy embebido), más su clon `app/new-business/servicios/page.tsx` y el panel de Agente Registrado en `/servicios/checkout`:
+
+- **Tax Account Closure**: "Guidance on final tax return obligations" (sonaba a asesoría fiscal) → "Verification your accounts are properly closed" (puramente confirmatorio).
+- **Sales Tax Registration**: quitado "Filing instructions included" (es un registro único, no incluye ayuda con presentaciones futuras).
+- **Certificate of Good Standing**: quitado "Apostille available upon request" (no se ofrece).
+- **S-Corp Election**: quitado "Deadline guidance & tax year advisory" — decisión founder: no van a ofrecer recordatorios para S-Corp (servicio de un solo pago); un sistema de recordatorios futuro solo cubrirá servicios en suscripción real (RA, AR).
+- **Foreign LLC**: "Registered Agent in target state included" era falso — no está incluido en el precio ni se cobra en el checkout (`stateFee:0` en `lib/services-pricing.ts`, sin ningún campo/paso que lo cobre). Reformulado a "available as an add-on" — decisión founder: solo corregir el copy, no construir un add-on real todavía. También se corrigió el form legacy embebido de Foreign LLC en `servicios/page.tsx` (~línea 1591), que decía explícitamente "Registered Agent in Target State — Included (1st year)" en su summary-box + disclaimer.
+- **Registered Agent**: (a) "Official FL street address for your business" → "...for state & legal correspondence" — aclara que la dirección NO es de uso general (para eso existe Virtual Address, otro producto); (b) quitado el bullet "Change of Registered Agent filed with state" — decisión founder: ese concepto se explica mejor en la guía/marketing donde hay espacio para el contexto correcto, no como bullet suelto que puede malinterpretarse como "cambios de agente ilimitados gratis".
+
+### Landing VIP Compliance Package (`/vip`, solo mybiz) — construido, envío de email revertido
+
+Nuevo landing `mybusinessformation.com/vip` (`app/new-business/vip/page.tsx`, rewrite en `next.config.ts`) para una futura campaña de recordatorio de cumplimiento, inspirado en un email real de un competidor (US Filing Services) que el founder recibió. Combo: **Agente Registrado + Declaración Anual**, mismo precio que el bundle del checkout ($178/año + $139 tarifa estatal — a propósito, para no mostrar un precio distinto según la puerta de entrada). Soporta `?id=<document_id>` para personalizar ("For {company_name}", vía `/api/sunbiz`) y el CTA precarga el carrito compartido (`flbc_svc_cart`/`bundles`/`bundle_added`/`bundle_claimed`, mismo contrato que el resto del sitio) y redirige a `/servicios/checkout` — reusa el combo y el cobro ya existentes, sin checkout nuevo.
+
+**Se construyó y luego se revirtió (commit `6d61c27`) el envío real del email** desde `/admin/campaigns` (`buildVipEmail()`, selector de campaña, `dest=vip` en `track-scan`) — el founder aclaró que debe salir de **"Marketing Saliente"** (`/admin/marketing`, doc 31), un sistema distinto y más nuevo que construyó su socio (Turso `marketing_leads`, no Supabase `prospective_companies`), cuyo Bloque 4 (envío real de cartas/emails) hoy es un placeholder deshabilitado ("próximamente"). El socio lo va a conectar (con otra plataforma, no Resend directo) — pendiente retomar la integración cuando esté listo. El landing `/vip` en sí queda intacto y funcional sin importar qué sistema termine mandando el email. Detalle completo en memoria `project_vip_compliance_package.md`.
+
+**Auditoría de dependencias de `/admin/campaigns`** (a pedido del founder, evaluando si eliminarlo): confirmado que es **100% independiente de Marketing Saliente** (bases de datos distintas, sin código compartido salvo el auth genérico de admin) — seguro de eliminar en ese sentido. Pero SÍ se perdería: (a) los links de QR/email ya enviados en cartas físicas/campañas previas (dan 404 sin la ruta `track-scan`), y (b) la generación del PDF de la carta física (`generate-letter`), que solo se dispara desde ese panel. Decisión: **no se elimina**, solo se renombra el nav de "Campaigns" a **"Campaigns & Letters"** (`app/admin/page.tsx` + título dentro de `app/admin/campaigns/page.tsx`) para diferenciarlo de Marketing Saliente sin perder la función de cartas físicas que sigue en uso.
+
+---
+
 ## Deploy
 
 - `git push origin main` — Vercel detecta cambios en `backend/` y hace deploy automático
