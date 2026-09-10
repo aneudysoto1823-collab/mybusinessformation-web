@@ -24,10 +24,6 @@ const getResend = () => new Resend(process.env.RESEND_API_KEY)
 // fmCheckResumeParam en page.tsx) — antes "Track My Order" dejaba al cliente
 // en el landing teniendo que encontrar el botón "Login" de nuevo.
 const PORTAL_HOME   = 'https://opabiz.com/?login=1'
-// mybusinessformation.com (separación de dominios 2026-08-13) no tiene el
-// popover de login del home — usa /client-portal directo (misma página,
-// ahora consciente del host: ver client-portal/page.tsx).
-const PORTAL_HOME_FBFC = 'https://mybusinessformation.com/client-portal'
 
 export async function POST(req: NextRequest) {
   const body      = await req.text()
@@ -270,7 +266,7 @@ export async function POST(req: NextRequest) {
             </p>
 
             <div style="text-align:center;margin:24px 0">
-              <a href="${PORTAL_HOME_FBFC}" style="background:#2563EB;color:#fff;text-decoration:none;padding:13px 32px;border-radius:8px;font-weight:700;font-size:15px;display:inline-block">
+              <a href="${brandPortalHome('fbfc', { email: email ?? undefined, order: fbfcNumber })}" style="background:#2563EB;color:#fff;text-decoration:none;padding:13px 32px;border-radius:8px;font-weight:700;font-size:15px;display:inline-block">
                 ${isEs ? 'Rastrear Mi Orden' : 'Track My Order'}
               </a>
             </div>
@@ -773,7 +769,7 @@ async function handleServicesPaid(orderId: string, session: Stripe.Checkout.Sess
               ${isEs ? 'Para dar seguimiento a su orden cuando quiera, haga clic abajo e inicie sesión con su correo y el número de orden de arriba.' : 'To follow up on your order anytime, click below and log in with your email and the order number above.'}
             </p>
             <div style="text-align:center;margin:24px 0">
-              <a href="${isFBFC ? PORTAL_HOME_FBFC : PORTAL_HOME}" style="background:#2563EB;color:#fff;text-decoration:none;padding:13px 32px;border-radius:8px;font-weight:700;font-size:15px;display:inline-block">
+              <a href="${brandPortalHome(isFBFC ? 'fbfc' : 'opabiz', { email: order.email, order: fbfc })}" style="background:#2563EB;color:#fff;text-decoration:none;padding:13px 32px;border-radius:8px;font-weight:700;font-size:15px;display:inline-block">
                 ${isEs ? 'Rastrear Mi Orden' : 'Track My Order'}
               </a>
             </div>

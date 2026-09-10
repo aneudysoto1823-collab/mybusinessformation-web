@@ -109,6 +109,30 @@ export function getOrderItemKeys(pkg: string | null | undefined, addons: unknown
   return ['formation', ...Object.keys(a).filter(k => a[k] === true && FORMATION_ADDON_NAMES[k])]
 }
 
+// ¿Esta orden incluye una formación de LLC/Corp? Formación (basic/standard/
+// premium) siempre la incluye; marketing (package:'addon') nunca. Para à la
+// carte revisa los ids CRUDOS de servicio (sueltos y dentro de cualquier
+// bundle comprado) en vez de las claves ya colapsadas de getOrderItemKeys()
+// — esa función junta los servicios de un bundle bajo una sola clave
+// `bundle:<id>`, así que si algún día se arma un combo que incluya
+// llc-formation/corp-formation, chequear solo por `svc:llc-formation` no lo
+// detectaría. Única fuente de verdad — antes esta misma condición estaba
+// copiada a mano en DashboardContent.tsx y client-portal/dashboard/page.tsx
+// (2 veces), con el riesgo de quedar desincronizadas.
+export function hasFormationOrder(pkg: string | null | undefined, addons: unknown): boolean {
+  const pkgKey = (pkg ?? '').toLowerCase().trim()
+  if (pkgKey === 'addon') return false
+  if (pkgKey !== 'services') return true
+
+  const a = (addons && typeof addons === 'object' && !Array.isArray(addons))
+    ? addons as { services?: unknown; bundles?: unknown }
+    : {}
+  const serviceIds = Array.isArray(a.services) ? a.services.filter((s): s is string => typeof s === 'string') : []
+  const bundleIds = Array.isArray(a.bundles) ? a.bundles.filter((b): b is string => typeof b === 'string') : []
+  const bundledServiceIds = bundleIds.flatMap(b => SERVICE_BUNDLES[b]?.services ?? [])
+  return [...serviceIds, ...bundledServiceIds].some(id => id === 'llc-formation' || id === 'corp-formation')
+}
+
 export function getOrderItemLabel(key: string, opts: { entityType?: string; lang?: Lang } = {}): string {
   const lang = opts.lang ?? 'en'
   if (key === 'formation') return formationItemLabel(opts.entityType, lang)

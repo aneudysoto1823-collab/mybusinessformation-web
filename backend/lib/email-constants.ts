@@ -71,8 +71,18 @@ export function brandReplyTo(brand: EmailBrand): string {
   return isFbfcBrand(brand) ? REPLY_TO_FBFC : REPLY_TO
 }
 
-export function brandPortalHome(brand: EmailBrand): string {
-  return isFbfcBrand(brand) ? PORTAL_HOME_FBFC : PORTAL_HOME_OPABIZ
+// `opts.email`/`opts.order` pre-llenan el login del cliente — FBFC los lee
+// como ?email=&order= en /client-portal (ClientPortalLoginForm ya soportaba
+// esto, solo nadie se los pasaba desde acá). OpaBiz los ignora hoy (su
+// popover del home solo reacciona a ?login=1), así que agregarlos es
+// inofensivo — no se resuelve acá para no ensanchar el alcance del fix.
+export function brandPortalHome(brand: EmailBrand, opts?: { email?: string; order?: string }): string {
+  if (!isFbfcBrand(brand)) return PORTAL_HOME_OPABIZ
+  if (!opts?.email && !opts?.order) return PORTAL_HOME_FBFC
+  const url = new URL(PORTAL_HOME_FBFC)
+  if (opts.email) url.searchParams.set('email', opts.email)
+  if (opts.order) url.searchParams.set('order', opts.order)
+  return url.toString()
 }
 
 export function brandSubjectPrefix(brand: EmailBrand): string {

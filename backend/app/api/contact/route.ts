@@ -1,8 +1,12 @@
 // POST /api/contact — Public contact form.
 //
-// Recibe el form de la página /contact, valida, y envía un email a
-// info@opabiz.com vía Resend. Reply-To = email del remitente, para que admin
-// pueda responder con un click sin tener que copiar/pegar.
+// Recibe el form de /contact (opabiz.com) o su clon /new-business/contact
+// (mybusinessformation.com, rewrite de /contact en ese host — ver
+// next.config.ts) y envía un email vía Resend. Reply-To = email del
+// remitente, para que admin pueda responder con un click sin tener que
+// copiar/pegar. La marca (FROM/TO/subject/HTML) se resuelve por el header
+// Origin validado contra la allowlist (resolveOrigin/brandFromOrigin, mismo
+// mecanismo que ya usan los endpoints de checkout — auditoría 2026-08-17).
 //
 // El FROM_EMAIL viene de la env var CONTACT_FROM_EMAIL. Mientras no esté
 // verificado el dominio en Resend cae al fallback 'onboarding@resend.dev'
@@ -11,7 +15,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { checkContactRateLimit, getClientIp } from '@/lib/rate-limit'
-import { CONTACT_TO_EMAIL as TO_EMAIL, REPLY_TO as REPLY_TO_DEFAULT, FROM_OPABIZ_CONTACT, FROM_OPABIZ } from '@/lib/email-constants'
+import { CONTACT_TO_EMAIL as TO_EMAIL_OPABIZ, REPLY_TO_FBFC, FROM_OPABIZ_CONTACT, FROM_FBFC, type EmailBrand, brandFrom, brandReplyTo, brandSubjectPrefix, brandHeaderHtml, brandFooterLine } from '@/lib/email-constants'
+import { resolveOrigin, brandFromOrigin } from '@/lib/request-origin'
 
 const getResend = () => new Resend(process.env.RESEND_API_KEY)
 
@@ -76,17 +81,30 @@ export async function POST(req: NextRequest) {
   const safeSubject = escape(subject)
   const safeMessage = escape(message).replace(/\n/g, '<br>')
 
+  const origin = resolveOrigin(req)
+  const brand: EmailBrand = brandFromOrigin(origin)
+  const isFBFC = brand === 'fbfc'
+  // Admin (interno, no de cara al cliente): FROM_OPABIZ_CONTACT tiene su
+  // propio display name ("OpaBiz Contact", distinto de brandFrom()'s
+  // "OpaBiz") — no hay equivalente "... Contact" para FBFC, así que ese
+  // matiz solo aplica al lado OpaBiz. El "to" de FBFC reusa REPLY_TO_FBFC a
+  // falta de una bandeja de contacto dedicada — ver nota en CLAUDE.md.
+  const fromAdmin = isFBFC ? FROM_FBFC : FROM_OPABIZ_CONTACT
+  const toAdmin = isFBFC ? REPLY_TO_FBFC : TO_EMAIL_OPABIZ
+  const subjectPrefix = isFBFC ? '' : 'OpaBiz Contact: '
+  const adminDomainLine = isFBFC ? 'mybusinessformation.com — Contact form' : 'opabiz.com — Contact form'
+
   try {
     const result = await getResend().emails.send({
-      from: FROM_OPABIZ_CONTACT,
-      to: TO_EMAIL,
+      from: fromAdmin,
+      to: toAdmin,
       replyTo: email,
-      subject: `OpaBiz Contact: ${subject}`.slice(0, 240),
+      subject: `${subjectPrefix}${subject}`.slice(0, 240),
       html: `
         <div style="font-family:Arial,sans-serif;max-width:640px;margin:0 auto;color:#1e293b">
           <div style="background:#1C2E44;padding:20px 28px;border-radius:10px 10px 0 0">
             <h1 style="color:#fff;font-size:18px;margin:0;font-weight:600">New contact message</h1>
-            <p style="color:rgba(255,255,255,0.7);font-size:13px;margin:4px 0 0">opabiz.com — Contact form</p>
+            <p style="color:rgba(255,255,255,0.7);font-size:13px;margin:4px 0 0">${adminDomainLine}</p>
           </div>
           <div style="background:#fff;padding:28px;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 10px 10px">
             <table cellpadding="6" style="width:100%;font-size:14px;border-collapse:collapse">
@@ -115,36 +133,38 @@ export async function POST(req: NextRequest) {
     // en su inbox de que el mensaje salió. Si este envío falla, no rompe el flow
     // principal (solo loguea).
     getResend().emails.send({
-      from: FROM_OPABIZ,
-      replyTo: REPLY_TO_DEFAULT,
+      from: brandFrom(brand),
+      replyTo: brandReplyTo(brand),
       to: email,
-      subject: `OpaBiz: ✅ We got your message — we'll respond within 24 hours`,
+      subject: `${brandSubjectPrefix(brand)}✅ We got your message — we'll respond within 24 hours`,
       html: `
         <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#1e293b">
-          <div style="background:#1C2E44;padding:24px 32px;border-radius:10px 10px 0 0">
-            <h1 style="color:#fff;font-size:22px;margin:0">OpaBiz</h1>
-            <p style="color:rgba(255,255,255,0.7);font-size:13px;margin:4px 0 0">Florida Business Formation Center</p>
-          </div>
-          <div style="background:#fff;padding:32px;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 10px 10px">
-            <h2 style="color:#1C2E44;font-size:20px;margin:0 0 14px">Hi ${safeName}, we got your message ✅</h2>
-            <p style="color:#475569;line-height:1.7">
-              Thanks for reaching out to OpaBiz. Our team has received your message and will reply to your email within
-              <strong style="color:#1C2E44">24 business hours</strong>.
-            </p>
-            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:18px 20px;margin:20px 0">
-              <p style="margin:0 0 8px;font-size:13px;color:#64748b"><strong>Your message</strong></p>
-              <p style="margin:0;font-size:13px;color:#1e293b"><strong>Subject:</strong> ${safeSubject}</p>
-              <div style="margin-top:8px;font-size:13px;color:#475569;line-height:1.6;white-space:pre-wrap">${safeMessage}</div>
+          <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden">
+            <div style="padding:22px 32px;border-bottom:1px solid #e2e8f0">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+                ${brandHeaderHtml(brand)}
+              </tr></table>
             </div>
-            <p style="color:#475569;line-height:1.7">
-              Need it sooner? Reach us on
-              <a href="https://wa.me/13528377755" style="color:#059669;font-weight:600">WhatsApp</a>
-              and a team member will help you right away.
-            </p>
-            <p style="margin-top:32px;color:#94a3b8;font-size:12px">
-              OpaBiz · opabiz.com<br/>
-              Florida Business Formation Center. We are a document preparation service, not a law firm.
-            </p>
+            <div style="padding:32px">
+              <h2 style="color:#1C2E44;font-size:20px;margin:0 0 14px">Hi ${safeName}, we got your message ✅</h2>
+              <p style="color:#475569;line-height:1.7">
+                Thanks for reaching out${isFBFC ? '' : ' to OpaBiz'}. Our team has received your message and will reply to your email within
+                <strong style="color:#1C2E44">24 business hours</strong>.
+              </p>
+              <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:18px 20px;margin:20px 0">
+                <p style="margin:0 0 8px;font-size:13px;color:#64748b"><strong>Your message</strong></p>
+                <p style="margin:0;font-size:13px;color:#1e293b"><strong>Subject:</strong> ${safeSubject}</p>
+                <div style="margin-top:8px;font-size:13px;color:#475569;line-height:1.6;white-space:pre-wrap">${safeMessage}</div>
+              </div>
+              <p style="color:#475569;line-height:1.7">
+                Need it sooner? Reach us on
+                <a href="https://wa.me/13528377755" style="color:#059669;font-weight:600">WhatsApp</a>
+                and a team member will help you right away.
+              </p>
+              <p style="margin-top:32px;color:#94a3b8;font-size:12px">
+                ${brandFooterLine(brand)}<br/>We are a document preparation service, not a law firm.
+              </p>
+            </div>
           </div>
         </div>
       `,

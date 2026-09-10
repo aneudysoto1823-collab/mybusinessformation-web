@@ -138,7 +138,7 @@ export const sendOrderConfirmation = async (order: {
                 : "Our team is now reviewing your order. We'll notify you by email as soon as it's processed."}
             </p>
             <div style="text-align:center;margin:24px 0">
-              <a href="${brandPortalHome(brand)}" style="background:#2563EB;color:#fff;text-decoration:none;padding:13px 32px;border-radius:8px;font-weight:700;font-size:15px;display:inline-block">
+              <a href="${brandPortalHome(brand, { email: order.email, order: fbfc })}" style="background:#2563EB;color:#fff;text-decoration:none;padding:13px 32px;border-radius:8px;font-weight:700;font-size:15px;display:inline-block">
                 Track My Order
               </a>
             </div>
@@ -497,7 +497,7 @@ export const sendOrderProcessed = async (order: {
               ${isEs ? 'Para dar seguimiento a su orden cuando quiera, haga clic abajo e inicie sesión con su correo y el número de orden de arriba.' : 'To follow up on your order anytime, click below and log in with your email and the order number above.'}
             </p>
             <div style="text-align:center;margin:24px 0">
-              <a href="${brandPortalHome(brand)}" style="background:#2563EB;color:#fff;text-decoration:none;padding:13px 32px;border-radius:8px;font-weight:700;font-size:15px;display:inline-block">
+              <a href="${brandPortalHome(brand, { email: order.email, order: fbfc })}" style="background:#2563EB;color:#fff;text-decoration:none;padding:13px 32px;border-radius:8px;font-weight:700;font-size:15px;display:inline-block">
                 ${isEs ? 'Rastrear Mi Orden' : 'Track My Order'}
               </a>
             </div>

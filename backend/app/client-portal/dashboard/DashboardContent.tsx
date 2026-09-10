@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { getOrderItemKeys, getOrderItemLabel } from '@/lib/order-items'
+import { getOrderItemKeys, getOrderItemLabel, hasFormationOrder } from '@/lib/order-items'
 import { SERVICES_CATALOG } from '@/lib/services-pricing'
 
 // Stripe.js se carga bajo demanda (recién al abrir el modal de "Cambiar
@@ -444,7 +444,17 @@ export default function DashboardContent({
 
   const pkgKey = (order.package ?? '').toLowerCase()
   const pkgInfo = PACKAGE_INFO[pkgKey]
-  const whatsNext = isAddon ? getAddonWhatsNext(order.status, es) : getWhatsNext(order.status, es)
+  // getWhatsNext() asume una formación de LLC/Corp en cada status ("verificando
+  // la disponibilidad de tus nombres con el Estado de Florida", etc.) — antes
+  // cualquier orden de /servicios/checkout (package:'services' sin formación,
+  // ej. solo un Registered Agent o un EIN suelto) caía ahí por no ser
+  // 'addon', mostrando ese texto igual. En mybusinessformation.com esto
+  // pasaba SIEMPRE (ese dominio nunca vende formación — EXCLUDED_IDS en
+  // new-business/servicios/page.tsx). hasFormationOrder() (lib/order-items.ts)
+  // decide, shape-agnóstico, si la orden de verdad incluye una formación.
+  const whatsNext = (isAddon || (pkgKey === 'services' && !hasFormationOrder(order.package, order.addons)))
+    ? getAddonWhatsNext(order.status, es)
+    : getWhatsNext(order.status, es)
   const statusLabel = (STATUS_LABELS[order.status] ?? { en: order.status, es: order.status })
   const addonServices = parseAddonServices(order.addons)
   const addons = parseAddons(order.addons)

@@ -1,7 +1,7 @@
 import { cookies, headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { getSupabaseAdmin } from '@/lib/supabase'
-import { getOrderItemKeys, getOrderItemLabel } from '@/lib/order-items'
+import { getOrderItemKeys, getOrderItemLabel, hasFormationOrder } from '@/lib/order-items'
 import DashboardContent from './DashboardContent'
 
 interface Order {
@@ -119,7 +119,7 @@ async function getDocuments(orderId: string, order: Order): Promise<DocumentItem
   // {services:[...],...}). Mismo fix shape-agnóstico que ya usa el checklist
   // admin y los emails — ver lib/order-items.ts.
   const itemKeys = getOrderItemKeys(order.package, order.addons)
-  const hasFormation = itemKeys.includes('formation') || itemKeys.includes('svc:llc-formation') || itemKeys.includes('svc:corp-formation')
+  const hasFormation = hasFormationOrder(order.package, order.addons)
   const hasOA = addons.oa === true || pkgKey === 'premium' || itemKeys.includes('svc:operating-agreement')
   const hasEin = addons.ein === true || pkgKey === 'standard' || pkgKey === 'premium' || itemKeys.includes('svc:ein')
   const hasItin = addons.itin === true || pkgKey === 'premium' || itemKeys.includes('svc:itin')
@@ -254,7 +254,27 @@ export default async function ClientDashboardPage({
   const isAddon = order.package === 'addon'
   const currentStep = isAddon ? getAddonStepIndex(order.status) : getCurrentStepIndex(order.status)
   const confirmationNumber = getConfirmationNumber(order.id, order.package)
-  const steps = isAddon ? ADDON_STEPS : STEPS
+  // STEPS trae "Name Availability Check" / "Verificación de Nombre" en el
+  // índice 2 — solo tiene sentido cuando la orden de verdad incluye una
+  // formación de LLC/Corp. Antes CUALQUIER orden de /servicios/checkout
+  // (package:'services', ej. solo un Registered Agent o un EIN suelto, sin
+  // formación) caía en el mismo STEPS por no ser 'addon', mostrando ese paso
+  // igual. En mybusinessformation.com esto pasaba SIEMPRE — ese dominio nunca
+  // vende formación (EXCLUDED_IDS en new-business/servicios/page.tsx), así
+  // que todo cliente de mybiz veía "Verificación de Nombre" en su tracker sin
+  // sentido, además de mencionar Florida/Sunbiz para servicios que no son un
+  // filing estatal. Fix: mismo STEPS (7 pasos, mismo getCurrentStepIndex —
+  // el pipeline de status sí es compartido y válido para servicios sueltos
+  // que pasan por ready_to_file/filed/approved), solo se relabela ese paso
+  // (por su `key`, no por índice — un reorden de STEPS no debe desalinear
+  // el relabel) cuando la orden no trae formación. hasFormationOrder()
+  // (lib/order-items.ts) es la misma función que usa getDocuments() más
+  // arriba para esta decisión.
+  const steps = isAddon
+    ? ADDON_STEPS
+    : (order.package === 'services' && !hasFormationOrder(order.package, order.addons))
+      ? STEPS.map(s => s.key === 'name_check' ? { key: 'processing', label: 'Processing Your Order', labelEs: 'Procesando tu Orden' } : s)
+      : STEPS
   const documents = await getDocuments(order.id, order)
   // initialLang: ?lang del home (override explícito, ej. toggle manual) →
   // idioma con el que el cliente hizo ESTA orden (addons.lang, automático,
