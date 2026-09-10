@@ -195,6 +195,26 @@ ${isFBFC ? `
 .co-tier.sel .co-tier-btn{background:var(--blue);color:#fff}
 .co-hub-nothanks{display:block;margin:18px auto 0;background:none;border:none;color:var(--gray500);font-size:.85rem;font-weight:600;cursor:pointer;font-family:inherit;text-decoration:underline}
 .co-hub-nothanks:hover{color:var(--navy)}
+/* mybusinessformation.com (2026-09-10) — tarjetas de combo estilo home
+   (new-business/page.tsx .svc-card/.svc-check), un checkmark por tarjeta en
+   vez de un botón "Seleccionar" aparte. Reusa .co-tier/.co-tier-badge/
+   .co-tier-name/.co-tier-price/.co-tier-save de arriba (mismo look base),
+   solo agrega lo nuevo: el checkmark y el listado de ítems con precio. */
+/* auto-fit en vez de repeat(3,1fr): docs queda en 2 tarjetas, compliance en 1
+   sola — un grid fijo de 3 columnas dejaría espacio vacío incómodo. */
+.co-tiers.home-tiers{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.co-tier.home-style{cursor:pointer;gap:10px}
+.co-tier-check{width:22px;height:22px;border-radius:6px;border:2px solid var(--gray200);display:flex;align-items:center;justify-content:center;flex-shrink:0;align-self:flex-end;transition:all .2s;margin-bottom:-4px}
+.co-tier.sel .co-tier-check{background:var(--blue);border-color:var(--blue)}
+.co-tier-items{display:flex;flex-direction:column;gap:10px;margin:4px 0 14px}
+.co-tier-item{border-top:1px solid var(--gray100);padding-top:10px}
+.co-tier-item:first-child{border-top:none;padding-top:0}
+.co-tier-item-row{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.co-tier-item-name{font-size:.82rem;font-weight:700;color:var(--navy)}
+.co-tier-item-price{font-size:.82rem;font-weight:600;color:var(--gray600);white-space:nowrap;flex-shrink:0}
+.co-tier-item-blurb{font-size:.75rem;color:var(--gray500);line-height:1.5;margin-top:2px}
+.co-tier-total-row{display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid var(--gray100);padding-top:10px;margin-top:auto}
+.co-tier-total-row span:first-child{font-size:.82rem;font-weight:700;color:var(--navy)}
 /* Layout con resumen de orden a la derecha (visible en cada paso) */
 .co-layout{display:grid;grid-template-columns:1fr 300px;gap:24px;align-items:start}
 .co-layout.solo{grid-template-columns:1fr}
@@ -505,6 +525,7 @@ function scriptBody(isFBFC: boolean) {
 var coLang = 'es';
 (function(){ try{ var p=new URLSearchParams(location.search); coLang = p.get('lang') || localStorage.getItem('flbc_lang') || 'es'; }catch(e){} })();
 
+var IS_FBFC = ${isFBFC ? 'true' : 'false'};
 var SVC_EXTRAS = ${JSON.stringify(SERVICE_FIELDS)};
 var SHARED_CFG = ${JSON.stringify(SHARED_FIELDS)};
 var SVC_CATALOG = ${JSON.stringify(svcCatalogForClient)};
@@ -537,6 +558,18 @@ try { coBundles = JSON.parse(localStorage.getItem('flbc_svc_bundles')||'[]'); if
 // (coClearHub) sin tocar las compras sueltas independientes del cliente.
 var coBundleAdded = {};
 try { coBundleAdded = JSON.parse(localStorage.getItem('flbc_svc_bundle_added')||'{}'); if(!coBundleAdded||typeof coBundleAdded!=='object') coBundleAdded={}; } catch(e){ coBundleAdded={}; }
+// mybusinessformation.com (2026-09-10): a diferencia de coBundleAdded (que
+// solo trackea lo genuinamente NUEVO, para poder quitarlo del carrito sin
+// tocar compras sueltas si se deselecciona el combo), coBundleClaimed trackea
+// TODOS los servicios del combo cuando está seleccionado — el rediseño de
+// combos de mybiz "absorbe" cualquier servicio que el cliente ya tenía
+// suelto dentro del precio del combo (10% off de la suma completa), en vez
+// de cobrarlo aparte a precio completo. Queda siempre vacío en opabiz.com
+// (coSelectTier no lo toca en esa marca), así que cualquier lugar que lo lea
+// con fallback a coBundleAdded/b.services es un no-op ahí — ver coComputeTotal
+// y coGetIntake más abajo.
+var coBundleClaimed = {};
+try { coBundleClaimed = JSON.parse(localStorage.getItem('flbc_svc_bundle_claimed')||'{}'); if(!coBundleClaimed||typeof coBundleClaimed!=='object') coBundleClaimed={}; } catch(e){ coBundleClaimed={}; }
 // Procesamiento acelerado (una vez por orden, aplica a toda la orden).
 var coExpedited = true; // oferta pre-seleccionada (recomendado); el cliente puede declinar
 try { var _rawExp=localStorage.getItem('flbc_svc_expedited'); coExpedited = (_rawExp===null ? true : _rawExp==='1'); } catch(e){ coExpedited=true; }
@@ -545,7 +578,7 @@ try { var _rawExp=localStorage.getItem('flbc_svc_expedited'); coExpedited = (_ra
 // panel-expedited) — evita que aparezca como un cargo sorpresa desde el paso 1
 // solo porque coExpedited viene pre-seleccionado en true por defecto.
 var coExpeditedSeen = false;
-function coSaveCart(){ try{ localStorage.setItem('flbc_svc_cart',JSON.stringify(cart)); localStorage.setItem('flbc_svc_bundles',JSON.stringify(coBundles)); localStorage.setItem('flbc_svc_bundle_added',JSON.stringify(coBundleAdded)); localStorage.setItem('flbc_svc_expedited',coExpedited?'1':'0'); }catch(e){} }
+function coSaveCart(){ try{ localStorage.setItem('flbc_svc_cart',JSON.stringify(cart)); localStorage.setItem('flbc_svc_bundles',JSON.stringify(coBundles)); localStorage.setItem('flbc_svc_bundle_added',JSON.stringify(coBundleAdded)); localStorage.setItem('flbc_svc_bundle_claimed',JSON.stringify(coBundleClaimed)); localStorage.setItem('flbc_svc_expedited',coExpedited?'1':'0'); }catch(e){} }
 // Id de la orden ya creada en esta sesión (ver coCreateSessionReq) — se manda
 // de vuelta en cada llamada siguiente para que el servidor actualice esa
 // misma fila en vez de insertar una nueva cada vez que se edita/reintenta.
@@ -938,7 +971,8 @@ function coSaveDraft(){
   var shared=coCollectShared(); delete shared.ssnItin; // el SSN/ITIN NUNCA se guarda
   var snapshot={
     step:coIdx, cart:cart.slice(), bundles:coBundles.slice(),
-    bundleAdded:JSON.parse(JSON.stringify(coBundleAdded)), expedited:coExpedited,
+    bundleAdded:JSON.parse(JSON.stringify(coBundleAdded)),
+    bundleClaimed:JSON.parse(JSON.stringify(coBundleClaimed)), expedited:coExpedited,
     fields:fields, extras:coCollectExtras(), shared:shared, raChoice:coRaChoice,
   };
   var payload={
@@ -980,6 +1014,7 @@ function coApplyDraftSnapshot(orderId, snap){
   cart = Array.isArray(snap.cart) ? snap.cart.slice() : [];
   coBundles = Array.isArray(snap.bundles) ? snap.bundles.slice() : [];
   coBundleAdded = (snap.bundleAdded && typeof snap.bundleAdded==='object') ? snap.bundleAdded : {};
+  coBundleClaimed = (snap.bundleClaimed && typeof snap.bundleClaimed==='object') ? snap.bundleClaimed : {};
   coExpedited = snap.expedited!==false;
   coRaChoice = snap.raChoice || null;
   coSaveCart();
@@ -1161,6 +1196,17 @@ function coLookupCompanyByName(name){
   }).catch(function(){});
 }
 
+// Allow-list final que se manda al servidor como newServicesByBundle — mezcla
+// coBundleAdded (lo genuinamente nuevo) con coBundleClaimed (mybusinessformation.com:
+// el combo completo, absorbiendo lo ya suelto) por bundle id. En opabiz.com
+// coBundleClaimed queda siempre vacío, así que esto es idéntico a mandar
+// coBundleAdded solo — sin cambio de comportamiento ahí.
+function coMergedBundleClaims(){
+  var m={};
+  Object.keys(coBundleAdded).forEach(function(k){ m[k]=coBundleAdded[k]; });
+  Object.keys(coBundleClaimed).forEach(function(k){ m[k]=coBundleClaimed[k]; });
+  return m;
+}
 function coGetIntake(){
   if (coPrefill) return coPrefill;
   var ft=coFormationType();
@@ -1185,7 +1231,7 @@ function coGetIntake(){
       city:($('p-city')?$('p-city').value.trim():''), state:($('p-state')?$('p-state').value.trim():''),
       zip:($('p-zip')?$('p-zip').value.trim():'')
     },
-    signature:sig, authorizedByPayment:true, expedited:coExpedited, extras:coCollectExtras(), shared:coCollectShared(), bundles:coBundles.slice(), newServicesByBundle:JSON.parse(JSON.stringify(coBundleAdded))
+    signature:sig, authorizedByPayment:true, expedited:coExpedited, extras:coCollectExtras(), shared:coCollectShared(), bundles:coBundles.slice(), newServicesByBundle:JSON.parse(JSON.stringify(coMergedBundleClaims()))
   };
 }
 
@@ -1549,21 +1595,80 @@ function coComputePreOwned(hub){
   return preOwned;
 }
 // Precio de un combo dado qué de sus servicios está agregando de NUEVO
-// (newIds) — espeja computeBundlePrice de lib/services-pricing.ts. Si aporta
-// todos, precio fijo de marketing; si aporta solo algunos (el resto ya estaba
-// en el carrito como compra suelta), precio dinámico: solo lo nuevo con 10%
-// off. Así nunca puede degradarse a un remanente absurdo tipo "+$11" (bug
-// real 2026-08-17, ver founder screenshot).
+// (newIds) — espeja computeBundlePrice de lib/services-pricing.ts. OpaBiz: si
+// aporta todos, precio fijo de marketing; si aporta solo algunos (el resto ya
+// estaba en el carrito como compra suelta), precio dinámico: solo lo nuevo
+// con 10% off. Así nunca puede degradarse a un remanente absurdo tipo "+$11"
+// (bug real 2026-08-17, ver founder screenshot).
+// mybusinessformation.com (2026-09-10): siempre 10% off de la suma completa
+// de lo reclamado, sin el atajo de precio fijo — ver coSelectTierFBFC/
+// coBundleClaimed más abajo, que reclama SIEMPRE el combo completo (absorbe
+// cualquier servicio ya suelto en el carrito dentro del precio del combo, en
+// vez de cobrarlo aparte a precio completo).
 function coBundlePrice(bid, newIds){
   var b=BUNDLES_CLIENT[bid]; if(!b) return 0;
   var claimed=(newIds||[]).filter(function(s){ return b.services.indexOf(s)>=0; });
   if(!claimed.length) return 0;
-  if(claimed.length===b.services.length) return b.price;
+  if(b.services.length===1) return b.price; // no es un combo real, siempre precio de lista
+  if(!IS_FBFC && claimed.length===b.services.length) return b.price;
   var full=0, discountable=0;
   claimed.forEach(function(s){ var sv=SVC_CATALOG[s]; if(!sv) return; if(s==='virtual-address') full+=sv.serviceFee; else discountable+=sv.serviceFee; });
   return full+Math.round(discountable*0.9);
 }
+// mybusinessformation.com (2026-09-10): rediseño de las tarjetas de combo,
+// mismo estilo que las tarjetas "Recomendado para ti" del home de mybiz
+// (new-business/page.tsx) — una sola tarjeta clickeable con checkmark en la
+// esquina (no un botón "Seleccionar" aparte), cada servicio con su nombre +
+// precio + descripción corta, y un "Total" que siempre es 10% off de la
+// suma completa del combo (coBundlePrice con IS_FBFC ya hace ese cálculo —
+// ver más arriba). No se oculta ninguna columna por redundancia: como el
+// combo ahora absorbe cualquier servicio que el cliente ya tenía suelto
+// (coBundleClaimed, coSelectTierFBFC), elegirlo SIEMPRE puede representar un
+// ahorro real, incluso si ya tiene todos los servicios del combo comprados
+// sueltos. opabiz.com sigue con coRenderHub original sin ningún cambio.
+function coRenderHubFBFC(hub){
+  var panel=$(HUBS[hub].panel); if(!panel) return; var isEs=coIsEs();
+  var cfg=(hub==='protect') ? coProtectConfig() : HUBS[hub];
+  // Un combo de un solo servicio no es un combo real (ej. Acuerdo Operativo
+  // solo) — se saca de la grilla, arranca directo en la combinación de 2
+  // productos (decisión founder 2026-09-10). Coherente con que coBundlePrice
+  // tampoco descuenta un bundle de 1 solo servicio.
+  var multiTiers=cfg.tiers.filter(function(bid){ var b=BUNDLES_CLIENT[bid]; return b && b.services.length>=2; });
+  var tiers=multiTiers.map(function(bid, i){
+    var b=BUNDLES_CLIENT[bid]; if(!b) return '';
+    var sel=(coBundles.indexOf(bid)>=0);
+    var price=coBundlePrice(bid, b.services);
+    var indiv=0; b.services.forEach(function(s){ var sv=SVC_CATALOG[s]; if(sv) indiv+=sv.serviceFee; });
+    var save=indiv-price;
+    var best=(i===multiTiers.length-1);
+    var itemsHtml=b.services.map(function(s){
+      var sv=SVC_CATALOG[s]; if(!sv) return '';
+      var bl=SVC_BLURBS[s];
+      var suf=coBillingSuffix(sv.billing);
+      return '<div class="co-tier-item">'
+        +'<div class="co-tier-item-row">'
+          +'<span class="co-tier-item-name">'+(isEs?sv.name_es:sv.name_en)+'</span>'
+          +'<span class="co-tier-item-price">$'+sv.serviceFee.toFixed(2)+(suf?' <em style="font-style:normal;color:#94a3b8;font-weight:600">'+suf+'</em>':'')+'</span>'
+        +'</div>'
+        +(bl&&bl[isEs?'es':'en']&&bl[isEs?'es':'en'][0]?'<div class="co-tier-item-blurb">'+bl[isEs?'es':'en'][0]+'</div>':'')
+        +'</div>';
+    }).join('');
+    return '<div class="co-tier home-style'+(best?' best':'')+(sel?' sel':'')+'" onclick="coSelectTier(\''+hub+'\',\''+bid+'\')">'
+      +(best?'<div class="co-tier-badge">'+(isEs?'Mejor valor':'Best value')+'</div>':'')
+      +'<div class="co-tier-check">'+(sel?'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>':'')+'</div>'
+      +'<div class="co-tier-name">'+(isEs?b.name_es:b.name_en)+'</div>'
+      +'<div class="co-tier-items">'+itemsHtml+'</div>'
+      +'<div class="co-tier-total-row"><span>'+(isEs?'Total':'Total')+'</span><span class="co-tier-price">$'+price.toFixed(2)+'</span></div>'
+      +(save>0?'<div class="co-tier-save">'+(isEs?'Ahorras $':'Save $')+save.toFixed(2)+'</div>':'')
+      +'</div>';
+  }).join('');
+  panel.innerHTML='<h1 class="co-h1">'+(isEs?HUBS[hub].titleEs:HUBS[hub].titleEn)+'</h1>'
+    +'<p class="co-sub">'+(isEs?HUBS[hub].subEs:HUBS[hub].subEn)+'</p>'
+    +'<div class="co-tiers home-tiers">'+tiers+'</div>'
+    +'<button type="button" class="co-hub-nothanks" onclick="coHubNoThanks(\''+hub+'\')">'+(isEs?'No, gracias':'No thanks')+'</button>';
+}
 function coRenderHub(hub){
+  if(IS_FBFC) return coRenderHubFBFC(hub);
   var panel=$(HUBS[hub].panel); if(!panel) return; var isEs=coIsEs();
   var cfg=(hub==='protect') ? coProtectConfig() : HUBS[hub];
   var preOwned=coComputePreOwned(hub);
@@ -1615,10 +1720,36 @@ function coClearHub(hub){
     if(BUNDLE_HUB[bid]!==hub) return;
     (coBundleAdded[bid]||[]).forEach(function(s){ var i=cart.indexOf(s); if(i>=0) cart.splice(i,1); });
     delete coBundleAdded[bid];
+    delete coBundleClaimed[bid];
   });
   coBundles=coBundles.filter(function(b){ return BUNDLE_HUB[b]!==hub; });
 }
+// mybusinessformation.com (2026-09-10): a diferencia de coSelectTier (que
+// solo "reclama" para el precio lo genuinamente nuevo), acá el combo
+// reclama SIEMPRE sus servicios completos — coBundleClaimed guarda esa
+// lista completa (la usan coComputeTotal y coGetIntake para el precio real
+// y lo que se cobra), mientras coBundleAdded sigue guardando solo lo
+// genuinamente nuevo (para poder sacarlo del carrito sin tocar compras
+// sueltas si se deselecciona el combo — coClearHub).
+function coSelectTierFBFC(hub, bundleId){
+  var toggleOff=(coBundles.indexOf(bundleId)>=0);
+  var preOwned=coComputePreOwned(hub); // capturar ANTES de tocar el carrito
+  coClearHub(hub);
+  if(!toggleOff){
+    var b=BUNDLES_CLIENT[bundleId];
+    if(b){
+      var added=[];
+      b.services.forEach(function(s){ if(!preOwned[s] && cart.indexOf(s)<0){ cart.push(s); added.push(s); } });
+      coBundleAdded[bundleId]=added;
+      coBundleClaimed[bundleId]=b.services.slice();
+      coBundles.push(bundleId);
+    }
+  }
+  coSaveCart();
+  coRebuildTo(HUBS[hub].panel);
+}
 function coSelectTier(hub, bundleId){
+  if(IS_FBFC) return coSelectTierFBFC(hub, bundleId);
   var toggleOff=(coBundles.indexOf(bundleId)>=0);
   var preOwned=coComputePreOwned(hub); // capturar ANTES de tocar el carrito
   coClearHub(hub);
@@ -1671,7 +1802,7 @@ function coComputeTotal(){
   // precio real, sin descuento — ver coSelectTier/coBundlePrice arriba.
   coBundles.forEach(function(bid){
     if(seenB[bid]) return; seenB[bid]=1; var b=BUNDLES_CLIENT[bid]; if(!b) return;
-    var newIds=(coBundleAdded[bid]||b.services).filter(function(s){ return b.services.indexOf(s)>=0; });
+    var newIds=(coBundleClaimed[bid]||coBundleAdded[bid]||b.services).filter(function(s){ return b.services.indexOf(s)>=0; });
     if(!newIds.length) return;
     // Cadencia del combo: una sola etiqueta si todos sus servicios recurrentes la
     // comparten; si hay mezcla va sin sufijo y el aviso lo explica.

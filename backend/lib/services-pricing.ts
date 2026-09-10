@@ -172,7 +172,20 @@ export function computeBundlePrice(bundleId: string, newServiceIds: string[], br
   if (!b) return 0
   const claimedNew = new Set(newServiceIds.filter(s => b.services.includes(s)))
   if (claimedNew.size === 0) return 0
-  if (claimedNew.size === b.services.length) return b.price
+  // Un bundle de UN solo servicio no es un combo real (ej. bundle-docs-oa,
+  // bundle-compliance-ra) — nunca lleva el 10% de mybiz, siempre cobra su
+  // precio de lista fijo. Sin esto, la fórmula de abajo terminaría
+  // "descontando" un ítem que en realidad es solo el producto base sin
+  // combinar con nada (2026-09-10, aplica a ambas marcas).
+  if (b.services.length === 1) return b.price
+  // mybusinessformation.com (2026-09-10): sin el atajo de precio fijo — el
+  // rediseño de combos de mybiz siempre cobra 10% off de la suma completa,
+  // incluso cuando reclama el combo entero (ver coBundleClaimed en
+  // servicios/checkout/page.tsx, que para esa marca SIEMPRE manda el combo
+  // completo como "nuevo", absorbiendo cualquier servicio que el cliente ya
+  // tenía suelto dentro del precio del combo). opabiz.com no cambia — sigue
+  // devolviendo el precio fijo de marketing cuando reclama todo el combo.
+  if (brand !== 'fbfc' && claimedNew.size === b.services.length) return b.price
   // Virtual Address (y cualquier otro id en NO_DISCOUNT_SERVICE_IDS) se cobra
   // a precio completo; solo el resto del combo entra al pool del 10% off.
   let full = 0
