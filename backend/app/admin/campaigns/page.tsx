@@ -59,6 +59,10 @@ export default function CampaignsPage() {
   const [sendingAll,  setSendingAll]  = useState(false)
   const [sendMsg,     setSendMsg]     = useState('')
 
+  // Sending state — VIP Compliance Reminder (segunda campaña, AR solo + combo)
+  const [sendingVipId, setSendingVipId] = useState<string | null>(null)
+  const [vipMsg,        setVipMsg]       = useState('')
+
   // Notes editor
   const [noteEdit,   setNoteEdit]   = useState<{ id: string; name: string; text: string } | null>(null)
   const [savingNote, setSavingNote] = useState(false)
@@ -175,6 +179,21 @@ export default function CampaignsPage() {
     const data = await res.json()
     setSendingId(null)
     setSendMsg(data.sent === 1 ? `✓ Email sent to ${company.email}` : `✗ Error: ${data.results?.[0]?.reason || 'unknown'}`)
+    fetchCompanies(); fetchStats()
+  }
+
+  async function sendVipReminder(company: Company) {
+    if (paused || !company.email) return
+    setSendingVipId(company.id)
+    setVipMsg('')
+    const res = await fetch('/api/campaigns/send-vip-reminder', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ company_ids: [company.id], lang: 'en' }),
+    })
+    const data = await res.json()
+    setSendingVipId(null)
+    setVipMsg(data.sent === 1 ? `✓ VIP reminder sent to ${company.email}` : `✗ Error: ${data.results?.[0]?.reason || 'unknown'}`)
     fetchCompanies(); fetchStats()
   }
 
@@ -456,6 +475,7 @@ export default function CampaignsPage() {
               {sendingAll ? 'Sending...' : `📨 Send to All New (${companies.filter(c => c.status === 'new' && c.email).length})`}
             </button>
             {sendMsg && <span className={sendMsg.startsWith('✓') ? 'msg-ok' : 'msg-err'} style={{ fontSize: '.78rem' }}>{sendMsg}</span>}
+            {vipMsg && <span className={vipMsg.startsWith('✓') ? 'msg-ok' : 'msg-err'} style={{ fontSize: '.78rem' }}>{vipMsg}</span>}
 
             {/* Selector de idioma de la carta PDF (afecta preview 👁 y descarga 📄) */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginLeft: 'auto' }}>
@@ -533,6 +553,26 @@ export default function CampaignsPage() {
                               className="btn btn-ghost btn-sm"
                               onClick={() => window.open(`/api/campaigns/preview-email?company_id=${c.id}&lang=en`, '_blank')}
                               title="Preview campaign email (does not send)"
+                            >
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 8h20"/><path d="M6 6h.01"/><path d="M9 6h.01"/></svg>
+                            </button>
+                            <span style={{ width: 1, background: '#E2E8F0', margin: '2px 2px' }} />
+                            <button
+                              className="btn btn-sm"
+                              onClick={() => sendVipReminder(c)}
+                              disabled={!!sendingVipId || paused || !c.email}
+                              title={!c.email ? 'No email address' : paused ? 'System paused' : 'Send VIP Compliance Reminder (Annual Report + VIP combo)'}
+                              style={{ background: '#059669', color: '#fff', border: 'none' }}
+                            >
+                              {sendingVipId === c.id ? '...' : (
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                              )}
+                            </button>
+                            <button
+                              className="btn btn-ghost btn-sm"
+                              onClick={() => window.open(`/api/campaigns/preview-vip-reminder?company_id=${c.id}&lang=en`, '_blank')}
+                              title="Preview VIP Compliance Reminder email (does not send)"
+                              style={{ color: '#059669' }}
                             >
                               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 8h20"/><path d="M6 6h.01"/><path d="M9 6h.01"/></svg>
                             </button>

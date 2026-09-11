@@ -98,6 +98,7 @@ const nextConfig: NextConfig = {
       "/servicios": "/new-business/servicios",
       "/contact": "/new-business/contact",
       "/vip": "/new-business/vip",
+      "/annual-report": "/new-business/annual-report",
     };
     return {
       beforeFiles: hosts.flatMap((host) =>

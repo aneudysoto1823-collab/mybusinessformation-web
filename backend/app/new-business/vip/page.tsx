@@ -15,8 +15,10 @@ export const metadata: Metadata = {
 // "ongoing compliance support" como servicio aparte — es la MISMA promesa que
 // "we monitor & file your Annual Report every year", confirmada con el founder.
 // Precio: reusa el combo bundle-compliance-ra-ar ya existente en el checkout
-// ($178 = 10% off $99+$99) — a propósito, para no mostrar un precio distinto
-// según la puerta de entrada del cliente.
+// ($179, catálogo en lib/services-pricing.ts) — a propósito, para no mostrar
+// un precio distinto según la puerta de entrada del cliente. (Fix 2026-09-11:
+// esta página mostraba $178 hardcodeado — $1 menos que lo que de verdad cobra
+// el checkout real, mismatch encontrado al construir el email VIP compañero.)
 export default function VipCompliancePage() {
   const styles = `
 :root{--navy:#1C2E44;--blue:#2563EB;--blue-dark:#1D4ED8;--blue-light:#EFF6FF;--gold:#F59E0B;--green:#059669;--white:#fff;--gray50:#F8FAFC;--gray100:#F1F5F9;--gray200:#E2E8F0;--gray300:#CBD5E1;--gray400:#94A3B8;--gray500:#64748B;--gray600:#475569;--gray800:#1E293B;}
@@ -112,7 +114,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
     <div class="vip-card-title en">Registered Agent + Annual Report</div>
     <div class="vip-card-title es" style="display:none">Agente Registrado + Declaración Anual</div>
     <div class="vip-price-row">
-      <span class="vip-price">$178</span><span class="vip-price-suffix en-inline">/year</span><span class="vip-price-suffix es-inline" style="display:none">/año</span>
+      <span class="vip-price">$179</span><span class="vip-price-suffix en-inline">/year</span><span class="vip-price-suffix es-inline" style="display:none">/año</span>
       <div class="vip-state-fee en">+ $139 Florida state filing fee (paid to the state, not to us)</div>
       <div class="vip-state-fee es" style="display:none">+ $139 de tarifa estatal de Florida (se paga al estado, no a nosotros)</div>
     </div>
