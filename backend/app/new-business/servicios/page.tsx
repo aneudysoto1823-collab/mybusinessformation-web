@@ -191,6 +191,11 @@ button{font-family:inherit}
 .svc-logo-mark img{width:100%;height:100%;object-fit:contain}
 .svc-logo-text{font-family:var(--font-serif);font-size:1.15rem;font-weight:700;color:#fff;line-height:1.15}
 .svc-header-right{display:flex;align-items:center;gap:14px}
+.svc-hamburger{display:none;flex-direction:column;justify-content:center;align-items:center;gap:5px;width:34px;height:34px;background:transparent;border:none;cursor:pointer;padding:0;flex-shrink:0}
+.svc-hamburger span{display:block;width:22px;height:2px;background:#fff;border-radius:2px;transition:transform .2s,opacity .2s}
+.svc-hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.svc-hamburger.open span:nth-child(2){opacity:0}
+.svc-hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
 .svc-back{color:rgba(255,255,255,.85);font-size:.82rem;font-weight:700;padding:6px 14px;border:1.5px solid rgba(255,255,255,.35);border-radius:6px;background:transparent;cursor:pointer;transition:all .15s}
 .svc-back:hover{color:#fff;border-color:#fff}
 .svc-lang{display:flex;background:rgba(255,255,255,.12);border-radius:20px;padding:3px;gap:2px}
@@ -332,8 +337,7 @@ button{font-family:inherit}
 .svc-bar{display:flex;align-items:center;justify-content:center;gap:24px;background:#fff;color:var(--navy);border-top:2px solid var(--blue-light);padding:14px 32px;box-shadow:0 -6px 24px rgba(28,46,68,.14)}
 .svc-bar-info{display:flex;align-items:center;gap:8px;cursor:pointer;flex:1;justify-content:center}
 .svc-bar-count{font-size:.88rem;font-weight:600}
-.svc-bar-chevron{color:var(--gray400);font-size:.7rem;transition:transform .25s}
-.svc-bar-wrap.expanded .svc-bar-chevron{transform:rotate(180deg)}
+.svc-bar-toggle-txt{font-size:.74rem;font-weight:700;color:var(--blue);text-decoration:underline;white-space:nowrap}
 .svc-bar-total{font-weight:800;font-size:1.05rem}
 .svc-bar-btn{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:11px 26px;font-size:.88rem;font-weight:700;cursor:pointer;font-family:inherit;min-height:44px;transition:background .2s}
 .svc-bar-btn:hover{background:#1d4ed8}
@@ -344,7 +348,20 @@ button{font-family:inherit}
 .svc-footer a{color:#64748b;margin:0 6px;font-weight:600;text-decoration:underline;text-underline-offset:2px;transition:color .2s}
 .svc-footer a:hover{color:var(--blue)}
 .en{display:inline}.es{display:none}
-@media(max-width:640px){.svc-header{padding:0 16px}.svc-header-inner{flex-wrap:wrap;height:auto;padding:10px 0;row-gap:8px;justify-content:center}.svc-logo-mark{width:56px;height:56px}.svc-logo-text{font-size:.88rem}.svc-hero{padding:28px 16px}.svc-grid-wrap{padding:24px 16px 130px}.svc-bar{padding:12px 16px;gap:14px;flex-wrap:wrap}.svc-login-card{top:120px;right:12px;left:12px;width:auto;max-width:none}}
+@media(max-width:640px){.svc-header{padding:0 16px}.svc-logo-text{font-size:.88rem}
+  /* Menú hamburguesa (2026-09-11) — mismo patrón que /new-business (nb-hamburger/
+     nb-header-right.open): antes Login/Home/EN-ES envolvían a una segunda fila,
+     lo que se veía distinto al header del home; ahora ambos headers coinciden. */
+  .svc-hamburger{display:flex}
+  .svc-header-right{display:none;position:fixed;top:112px;left:0;right:0;flex-direction:column;align-items:stretch;gap:10px;background:#1B3A6B;padding:16px;z-index:150;box-shadow:0 10px 24px rgba(0,0,0,.25)}
+  .svc-header-right.open{display:flex}
+  .svc-header-right .svc-back{text-align:center}
+  .svc-header-right .svc-lang{align-self:center}
+  .svc-hero{padding:28px 16px}.svc-grid-wrap{padding:24px 16px 130px}.svc-bar{padding:12px 16px;gap:14px;flex-wrap:wrap}.svc-login-card{top:120px;right:12px;left:12px;width:auto;max-width:none}
+  /* El footer legal quedaba tapado por la barra fija de carrito (.svc-bar-wrap)
+     al hacer scroll hasta el final — mismo colchón que ya reserva .svc-grid-wrap
+     arriba (2026-09-11). */
+  .svc-footer{padding-bottom:110px}}
 `
 
   const cardsHtml = services.map(s => `
@@ -378,9 +395,12 @@ button{font-family:inherit}
       <div class="svc-logo-mark"><img src="/fbfc-seal.png" alt="Florida Business Formation Center"/></div>
       <div class="svc-logo-text">Florida Business<br/>Formation Center</div>
     </a>
-    <div class="svc-header-right">
-      <button type="button" class="svc-back" onclick="svcToggleLogin()"><span class="en">Login</span><span class="es">Ingresar</span></button>
-      <a href="/" class="svc-back"><span class="en">Home</span><span class="es">Inicio</span></a>
+    <button type="button" class="svc-hamburger" id="svc-hamburger" aria-label="Menu" onclick="svcToggleNav()">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="svc-header-right" id="svc-header-right">
+      <button type="button" class="svc-back" onclick="svcToggleNav(false);svcToggleLogin()"><span class="en">Login</span><span class="es">Ingresar</span></button>
+      <a href="/" class="svc-back" onclick="svcToggleNav(false)"><span class="en">Home</span><span class="es">Inicio</span></a>
       <div class="svc-lang">
         <button class="active" onclick="svcSetLang('en')">EN</button>
         <button onclick="svcSetLang('es')">ES</button>
@@ -461,7 +481,10 @@ button{font-family:inherit}
   <div class="svc-bar" id="svc-bar">
     <div class="svc-bar-info" onclick="toggleCartDetail()">
       <div class="svc-bar-count"><span id="svc-bar-n">0</span> <span class="en">services selected</span><span class="es">servicios seleccionados</span></div>
-      <span class="svc-bar-chevron" id="svc-bar-chevron" aria-hidden="true">&#9662;</span>
+      <span class="svc-bar-toggle-txt" id="svc-bar-toggle-txt">
+        <span class="svc-bar-toggle-closed"><span class="en">View details</span><span class="es">Ver detalles</span></span>
+        <span class="svc-bar-toggle-open" style="display:none"><span class="en">Hide</span><span class="es">Ocultar</span></span>
+      </span>
     </div>
     <div class="svc-bar-total">$<span id="svc-bar-total">0.00</span></div>
     <button class="svc-bar-btn" onclick="svcContinue()"><span class="en">Continue</span><span class="es">Continuar</span></button>
@@ -533,9 +556,18 @@ button{font-family:inherit}
     var subEl = document.getElementById('os-subtotal'); if (subEl) subEl.textContent = '$' + total.toFixed(2);
   }
 
-  function toggleCartDetail(){
-    var w = document.getElementById('svc-bar-wrap'); if (w) w.classList.toggle('expanded');
-  }
+  // Texto en vez de flecha (2026-09-11) — mismo criterio que el resumen de
+  // /servicios/checkout: una flecha sola casi no se veía en mobile.
+  // Bug real encontrado de paso: esta función nunca estaba en window (a
+  // diferencia de todas las demás invocadas por onclick), así que tocar la
+  // barra para expandir el detalle nunca hizo nada, desde siempre.
+  window.toggleCartDetail = function(){
+    var w = document.getElementById('svc-bar-wrap'); if (!w) return;
+    var open = w.classList.toggle('expanded');
+    var closedEl = document.querySelector('.svc-bar-toggle-closed'), openEl = document.querySelector('.svc-bar-toggle-open');
+    if (closedEl) closedEl.style.display = open ? 'none' : '';
+    if (openEl) openEl.style.display = open ? '' : 'none';
+  };
 
   function render(){
     var isEs = curLang() === 'es';
@@ -694,6 +726,15 @@ button{font-family:inherit}
     var loginEmailEl = document.getElementById('svc-login-email'); if (loginEmailEl) loginEmailEl.placeholder = lang === 'es' ? 'Su correo' : 'Your email';
     var loginCredEl = document.getElementById('svc-login-cred'); if (loginCredEl) loginCredEl.placeholder = lang === 'es' ? 'FBFC-00000000 o su contraseña' : 'FBFC-00000000 or your password';
     renderSidebar();
+  };
+
+  // Menú hamburguesa mobile — mismo patrón que /new-business (nb-hamburger).
+  window.svcToggleNav = function(force){
+    var btn = document.getElementById('svc-hamburger'), panel = document.getElementById('svc-header-right');
+    if (!btn || !panel) return;
+    var open = typeof force === 'boolean' ? force : !btn.classList.contains('open');
+    btn.classList.toggle('open', open);
+    panel.classList.toggle('open', open);
   };
 
   // Login del cliente — mismo patrón que el popover de /new-business y del
