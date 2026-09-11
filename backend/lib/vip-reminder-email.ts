@@ -59,23 +59,23 @@ export function buildVipReminderEmail(company: CampaignCompany, lang: 'en' | 'es
         ? [
             `Felicitaciones por haber formado <strong>${company.company_name}</strong> en Florida en ${regYear}. A medida que su negocio crece, mantenerse en regla ante el Estado importa tanto como lo fue empezar.`,
             `Toda LLC y Corporación de Florida debe presentar una Declaración Anual cada año para seguir activa en los registros del Estado. No presentarla puede generar cargos por atraso, y si se deja de presentar por suficiente tiempo, el Estado puede disolver la empresa administrativamente. ${filingYearLabel} es cuando esto le aplica por primera vez a ${company.company_name}.`,
-            `Para su tranquilidad y evitar contratiempos, le ofrecemos dos formas de resolver esto:`,
+            `Puede presentar su Declaración Anual por separado, o aprovechar nuestra oferta VIP, que incluye tanto el Agente Registrado como la Declaración Anual:`,
           ]
         : [
             `Congratulations on forming <strong>${company.company_name}</strong> in Florida in ${regYear}. As your business grows, staying in good standing with the State matters just as much as getting started did.`,
             `Every Florida LLC and Corporation is required to file an Annual Report each year to remain active on the State's records. Missing it can lead to late fees, and if it goes unfiled long enough, the State can administratively dissolve the company. ${filingYearLabel} is when this first applies to ${company.company_name}.`,
-            `For your peace of mind and to avoid any setbacks, we offer two ways to take care of it:`,
+            `You can file your Annual Report on its own, or take advantage of our VIP offer, which includes both the Registered Agent and the Annual Report:`,
           ])
     : (isEs
         ? [
             `Felicitaciones por haber formado <strong>${company.company_name}</strong> en Florida.`,
             `Toda LLC y Corporación de Florida debe presentar una Declaración Anual cada año para seguir activa en los registros del Estado.`,
-            `Para su tranquilidad y evitar contratiempos, le ofrecemos dos formas de resolver esto:`,
+            `Puede presentar su Declaración Anual por separado, o aprovechar nuestra oferta VIP, que incluye tanto el Agente Registrado como la Declaración Anual:`,
           ]
         : [
             `Congratulations on forming <strong>${company.company_name}</strong> in Florida.`,
             `Every Florida LLC and Corporation is required to file an Annual Report each year to remain active on the State's records.`,
-            `For your peace of mind and to avoid any setbacks, we offer two ways to take care of it:`,
+            `You can file your Annual Report on its own, or take advantage of our VIP offer, which includes both the Registered Agent and the Annual Report:`,
           ])
 
   const introHtml = introParas.map(p => `<p style="color:#475569;font-size:13.5px;line-height:1.7;margin:0 0 12px">${p}</p>`).join('')
@@ -130,8 +130,13 @@ export function buildVipReminderEmail(company: CampaignCompany, lang: 'en' | 'es
             <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border:1.5px solid #E2E8F0;border-radius:12px">
               <tr>
                 <td style="padding:24px 26px">
-                  <div style="font-size:11px;font-weight:700;color:${GREEN_DARK};text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">${isEs ? 'Opción 1 · Presentación Única' : 'Option 1 · One-Time Filing'}</div>
+                  <div style="font-size:11px;font-weight:700;color:${GREEN_DARK};text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">${isEs ? 'Presentación Única' : 'One-Time Filing'}</div>
                   <div style="font-size:17px;font-weight:800;color:#1C2E44;font-family:Georgia,serif;margin-bottom:10px">${isEs ? `Presente ahora su Declaración Anual ${filingYearLabel}` : `File your ${filingYearLabel} Annual Report now`}</div>
+                  <p style="color:#94A3B8;font-size:12px;line-height:1.6;margin:0 0 12px">
+                    ${isEs
+                      ? 'La Declaración Anual es una presentación breve ante el Estado de Florida que confirma que la información de su negocio sigue siendo correcta y mantiene su empresa activa.'
+                      : 'The Annual Report is a short filing with the State of Florida confirming your business information is still accurate and keeping your company active.'}
+                  </p>
                   <p style="color:#64748b;font-size:13px;line-height:1.65;margin:0 0 18px">
                     ${isEs
                       ? 'Si prefiere simplemente resolverlo, podemos presentarla por usted como un servicio único. Es rápido de completar, y queda resuelto con tiempo de sobra antes del plazo límite del 1 de mayo.'
@@ -143,8 +148,7 @@ export function buildVipReminderEmail(company: CampaignCompany, lang: 'en' | 'es
                       <td align="right" style="font-size:11.5px;color:#94A3B8;vertical-align:bottom;padding-bottom:4px">${isEs ? '+ $139 tarifa estatal de Florida' : '+ $139 Florida state fee'}</td>
                     </tr>
                   </table>
-                  <a href="${arUrl}" style="display:block;text-align:center;background:${GREEN};color:#fff;text-decoration:none;padding:13px 24px;border-radius:9px;font-weight:700;font-size:14.5px">${isEs ? 'Presentar mi Declaración Anual →' : 'File My Annual Report →'}</a>
-                  <p style="text-align:center;font-size:11px;color:#94A3B8;margin:10px 0 0">${isEs ? 'Su información ya está pre-cargada. Solo revise y confirme.' : 'Your information is pre-filled. Just review and confirm.'}</p>
+                  <a href="${arUrl}" style="display:block;text-align:center;background:${GREEN};color:#fff;text-decoration:none;padding:13px 24px;border-radius:9px;font-weight:700;font-size:14.5px">${isEs ? 'Presentar mi Declaración Anual' : 'File My Annual Report'}</a>
                 </td>
               </tr>
             </table>
@@ -164,8 +168,13 @@ export function buildVipReminderEmail(company: CampaignCompany, lang: 'en' | 'es
             <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border:1.5px solid ${GREEN};border-radius:12px">
               <tr>
                 <td style="padding:24px 26px">
-                  <div style="font-size:11px;font-weight:700;color:${GREEN_DARK};text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">${isEs ? 'Opción 2 · Paquete VIP de Cumplimiento' : 'Option 2 · VIP Compliance Package'}</div>
+                  <div style="font-size:11px;font-weight:700;color:${GREEN_DARK};text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">${isEs ? 'Oferta VIP' : 'VIP Offer'}</div>
                   <div style="font-size:17px;font-weight:800;color:#1C2E44;font-family:Georgia,serif;margin-bottom:10px">${isEs ? 'Agente Registrado y Declaración Anual, cada año' : 'Registered Agent and Annual Report, every year'}</div>
+                  <p style="color:#94A3B8;font-size:12px;line-height:1.6;margin:0 0 12px">
+                    ${isEs
+                      ? 'El Agente Registrado es la persona o empresa designada para recibir documentos legales y del Estado en nombre de su negocio. Usar nuestra dirección en vez de la suya mantiene su dirección personal fuera de los registros públicos de Florida.'
+                      : "A Registered Agent is the person or company designated to receive legal and state documents on behalf of your business. Using our address instead of your own keeps your personal address out of Florida's public records."}
+                  </p>
                   <p style="color:#64748b;font-size:13px;line-height:1.65;margin:0 0 14px">
                     ${isEs
                       ? 'Si prefiere no lidiar con esto cada año, nuestro Paquete VIP de Cumplimiento reúne su Agente Registrado y su Declaración Anual, renovados automáticamente. Nosotros monitoreamos el plazo y presentamos en su nombre, con una confirmación por correo cada vez que se hace.'
@@ -182,7 +191,7 @@ export function buildVipReminderEmail(company: CampaignCompany, lang: 'en' | 'es
                       <td align="right" style="font-size:11.5px;color:#94A3B8;vertical-align:bottom;padding-bottom:4px">${isEs ? '+ $139 tarifa estatal de Florida' : '+ $139 Florida state fee'}</td>
                     </tr>
                   </table>
-                  <a href="${vipUrl}" style="display:block;text-align:center;background:${GREEN};color:#fff;text-decoration:none;padding:13px 24px;border-radius:9px;font-weight:700;font-size:14.5px">${isEs ? 'Obtener Paquete VIP →' : 'Get VIP Compliance Package →'}</a>
+                  <a href="${vipUrl}" style="display:block;text-align:center;background:${GREEN};color:#fff;text-decoration:none;padding:13px 24px;border-radius:9px;font-weight:700;font-size:14.5px">${isEs ? 'Obtener Paquete VIP' : 'Get VIP Compliance Package'}</a>
                   <p style="text-align:center;font-size:11px;color:#94A3B8;margin:10px 0 0">${isEs ? 'Cancele cuando quiera. Sin contrato a largo plazo.' : 'Cancel anytime. No long-term contract.'}</p>
                 </td>
               </tr>
