@@ -180,7 +180,7 @@ export default function NewBusinessServiciosPage() {
 :root{--navy:#1C2E44;--blue:#2563EB;--blue-light:#EFF6FF;--green:#059669;--green-dark:#047857;--green-light:#ECFDF5;--gray50:#F8FAFC;--gray100:#F1F5F9;--gray200:#E2E8F0;--gray400:#94A3B8;--gray500:#64748B;--gray600:#475569;--gray800:#1E293B;}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{font-family:var(--font-sans);color:var(--gray800);background:var(--gray100);line-height:1.6;min-height:100vh;display:flex;flex-direction:column}
+body{font-family:var(--font-sans);color:var(--gray800);background:var(--gray100);line-height:1.6;min-height:100vh;display:flex;flex-direction:column;overflow-x:clip}
 h1,h2,h3{font-family:var(--font-serif);line-height:1.2}
 a{text-decoration:none;color:inherit}
 button{font-family:inherit}
@@ -217,7 +217,7 @@ button{font-family:inherit}
 .svc-hero-inner{max-width:680px;margin:0 auto}
 .svc-hero h1{font-size:clamp(1.4rem,3vw,1.9rem);color:var(--navy);margin-bottom:10px}
 .svc-hero p{color:var(--gray600);font-size:.92rem;line-height:1.7}
-.svc-grid-wrap{max-width:1200px;margin:0 auto;padding:36px 32px 60px;flex:1;width:100%}
+.svc-grid-wrap{max-width:1200px;margin:0 auto;padding:36px 32px 60px;flex:1;width:100%;min-width:0}
 .services-layout{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:28px;align-items:start}
 .services-main{min-width:0}
 /* minmax(0,1fr), no 1fr a secas — sin el mínimo en 0 los tracks del grid no
@@ -261,7 +261,7 @@ button{font-family:inherit}
 .os-clear-no{flex:1;background:#fff;color:var(--gray600);border:1px solid var(--gray200);border-radius:7px;padding:8px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit}
 @media(max-width:860px){.services-layout{grid-template-columns:1fr}.order-summary{display:none}}
 @media(min-width:861px){.svc-bar-wrap{display:none!important}}
-.svc-card{position:relative;border:1.5px solid var(--gray200);border-radius:12px;background:#fff;transition:border-color .2s,box-shadow .2s;cursor:pointer}
+.svc-card{position:relative;min-width:0;border:1.5px solid var(--gray200);border-radius:12px;background:#fff;transition:border-color .2s,box-shadow .2s;cursor:pointer}
 .svc-card:hover,.svc-card.expanded{border-color:var(--blue);box-shadow:0 6px 24px rgba(37,99,235,.12);z-index:20}
 .svc-card.sel{border-color:var(--blue)}
 /* min-height fija para que las tarjetas queden parejas (mismo tamaño que en
@@ -344,7 +344,7 @@ button{font-family:inherit}
 .svc-footer a{color:#64748b;margin:0 6px;font-weight:600;text-decoration:underline;text-underline-offset:2px;transition:color .2s}
 .svc-footer a:hover{color:var(--blue)}
 .en{display:inline}.es{display:none}
-@media(max-width:640px){.svc-header{padding:0 16px}.svc-hero{padding:28px 16px}.svc-grid-wrap{padding:24px 16px 130px}.svc-bar{padding:12px 16px;gap:14px;flex-wrap:wrap}.svc-login-card{top:120px;right:12px;left:12px;width:auto;max-width:none}}
+@media(max-width:640px){.svc-header{padding:0 16px}.svc-header-inner{flex-wrap:wrap;height:auto;padding:10px 0;row-gap:8px;justify-content:center}.svc-logo-mark{width:56px;height:56px}.svc-logo-text{font-size:.88rem}.svc-hero{padding:28px 16px}.svc-grid-wrap{padding:24px 16px 130px}.svc-bar{padding:12px 16px;gap:14px;flex-wrap:wrap}.svc-login-card{top:120px;right:12px;left:12px;width:auto;max-width:none}}
 `
 
   const cardsHtml = services.map(s => `

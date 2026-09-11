@@ -105,6 +105,7 @@ const SERVICES = [
 
 const CSS = `
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { overflow-x: clip; }
 
   /* ── HEADER ── */
   .nb-header {
@@ -488,6 +489,7 @@ const CSS = `
     display: flex;
     flex-direction: column;
     gap: 10px;
+    min-width: 0;
     box-shadow: 0 4px 18px rgba(27,58,107,.07);
   }
   .svc-card:hover {
@@ -1058,9 +1060,10 @@ const CSS = `
   }
   .disclosure-links {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 6px 10px;
     margin-bottom: 12px;
   }
   .disclosure-links button {
