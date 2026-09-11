@@ -705,10 +705,36 @@ async function handleServicesPaid(orderId: string, session: Stripe.Checkout.Sess
       return priceRow + descRow
     })
     .join('') || '<tr><td style="padding:5px 0;font-size:14px;color:#475569">—</td><td></td></tr>'
+
+  // Regalo de la Guía II (cumplimiento post-formación) — SOLO para órdenes de
+  // empresas YA existentes (llegan con Document ID en addons.intake.flDoc,
+  // típico de /new-business). Nunca la Guía I acá: esa es sobre formar una
+  // empresa nueva, no aplica a un negocio que ya está formado. A diferencia
+  // de handleFormationPaid, el alcance acá es deliberadamente angosto — un
+  // EIN suelto comprado desde /servicios sin Document ID no dispara nada.
+  const guideBrand = isFBFC ? 'fbfc' : 'opabiz'
+  let guideAttachments: { filename: string; content: Buffer }[] = []
+  let guideBonusHtml = ''
+  let guidesToSend: GuideKey[] = []
+  if (addons.intake?.flDoc) {
+    try {
+      const already = await hasReceivedGuide(order.email, 'guide2', guideBrand)
+      guidesToSend = already ? [] : ['guide2']
+      guideAttachments = await getGuideAttachments(guidesToSend, guideBrand)
+      guideBonusHtml = buildGuideBonusHtml(guidesToSend, isEs ? 'es' : 'en', guideBrand)
+    } catch (e) {
+      console.error('[stripe-webhook] guide2 attachment error (non-fatal, email sent without guide):', e)
+      guideAttachments = []
+      guideBonusHtml = ''
+      guidesToSend = []
+    }
+  }
+
   getResend().emails.send({
     from: brandFrom,
     replyTo: brandReplyTo,
     to: order.email,
+    attachments: guideAttachments,
     subject: isEs ? `${subjectPrefix}✅ Orden confirmada — ${fbfc}` : `${subjectPrefix}✅ Order confirmed — ${fbfc}`,
     html: `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#1e293b">
@@ -766,6 +792,7 @@ async function handleServicesPaid(orderId: string, session: Stripe.Checkout.Sess
                 ${isEs ? 'Rastrear Mi Orden' : 'Track My Order'}
               </a>
             </div>
+            ${guideBonusHtml}
             <p style="margin-top:24px;color:#94a3b8;font-size:12px;line-height:1.6">
               ${brandFooterHtml}<br/>
               ${brandDisclosureHtml(isFBFC ? 'fbfc' : 'opabiz', isEs ? 'es' : 'en')}
@@ -775,6 +802,10 @@ async function handleServicesPaid(orderId: string, session: Stripe.Checkout.Sess
       </div>
     `,
   }).catch(err => console.error('[stripe-webhook] services email error (non-fatal):', err))
+  if (guidesToSend.length > 0) {
+    recordGuideSent(order.email, 'guide2', 'order', `${order.firstName} ${order.lastName}`, guideBrand)
+      .catch(err => console.error('[stripe-webhook] recordGuideSent error (non-fatal):', err))
+  }
 
   // Alerta interna
   getResend().emails.send({

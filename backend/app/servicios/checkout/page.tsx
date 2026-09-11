@@ -1137,10 +1137,11 @@ function coApplyDraftSnapshot(orderId, snap){
 // ya calculadas por /api/checkout/embedded-services al crear la orden).
 function coRenderSuccessDetails(order){
   var isEs=coIsEs(); var html='';
-  if(order.companyName || order.entityType){
+  if(order.companyName || order.entityType || order.documentId){
     html+='<div style="background:#f8fafc;border:1px solid var(--gray200);border-radius:12px;padding:14px 18px;margin-bottom:14px;font-size:.88rem">';
     if(order.companyName) html+='<div style="display:flex;justify-content:space-between;gap:12px;padding:5px 0"><span style="color:var(--gray500)">'+(isEs?'Empresa':'Company')+'</span><strong style="color:var(--navy)">'+coEsc(order.companyName)+'</strong></div>';
     if(order.entityType) html+='<div style="display:flex;justify-content:space-between;gap:12px;padding:5px 0"><span style="color:var(--gray500)">'+(isEs?'Tipo de entidad':'Entity type')+'</span><strong style="color:var(--navy)">'+coEsc(String(order.entityType).toUpperCase())+'</strong></div>';
+    if(order.documentId) html+='<div style="display:flex;justify-content:space-between;gap:12px;padding:5px 0"><span style="color:var(--gray500)">'+(isEs?'Número de Documento':'Document Number')+'</span><strong style="color:var(--navy)">'+coEsc(order.documentId)+'</strong></div>';
     html+='</div>';
   }
   if(order.lines && order.lines.length){
@@ -1152,6 +1153,16 @@ function coRenderSuccessDetails(order){
     html+='<div style="border-top:1px solid var(--gray200);margin:10px 0 8px"></div>';
     html+='<div style="display:flex;justify-content:space-between;gap:12px;font-weight:800;color:var(--navy);font-size:.98rem"><span>'+(isEs?'Total pagado':'Total paid')+'</span><span>$'+Number(order.total).toFixed(2)+' USD</span></div>';
     html+='</div>';
+  }
+  // Empresa ya existente (llegó con Document ID, típico de /new-business) —
+  // le regalamos la Guía II (cumplimiento, no la I de formación). Mismo gate
+  // que usa el servidor para decidir si adjuntarla al email (addons.intake.flDoc).
+  if(order.documentId){
+    var guideNote = isEs
+      ? 'Regalo incluido: junto con su email de confirmación también le enviaremos nuestra guía gratuita para mantener su empresa al día en Florida. Cubre su Agente Registrado, Declaración Anual, impuestos y otros pasos, para que sepa exactamente qué sigue.'
+      : 'Gift included: along with your confirmation email, we will also send you our free guide to keeping your company in good standing in Florida. It covers your Registered Agent, Annual Report, taxes, and other steps, so you know exactly what comes next.';
+    html+='<div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:14px 18px;margin-top:14px;text-align:left">'
+      +'<p style="color:#1e40af;font-size:.85rem;line-height:1.6;margin:0">'+coEsc(guideNote)+'</p></div>';
   }
   var host=$('co-success-details'); if(!host) return;
   host.innerHTML=html;
@@ -1480,21 +1491,14 @@ function coRenderTaxPanel(){
     +coIrBlock(isEs?'Correo':'Email', coEsc(email))
     +coIrBlock(isEs?'Teléfono':'Phone', coEsc(phone))
     +coIrBlock(isEs?'Dirección':'Address', coEsc(addr));
-  // La nota del EIN solo aplica cuando lo que falta es el SSN/ITIN (disparado
-  // por el servicio EIN); si lo que falta es el número de EIN ya existente
-  // (ej. Annual Report solo) no aplica esta explicación.
-  var noteHtml = '';
-  if(keys.indexOf('ssnItin')>=0){
-    var note = isEs
-      ? 'Necesitamos un dato adicional (su SSN o ITIN) para poder procesar su EIN ante el IRS.'
-      : 'We need one additional detail (your SSN or ITIN) to process your EIN with the IRS.';
-    noteHtml = '<div style="background:#eff6ff;border-left:4px solid #2563eb;border-radius:0 8px 8px 0;padding:10px 14px;font-size:.8rem;color:#1e40af;line-height:1.6;margin-bottom:16px">'+coEsc(note)+'</div>';
-  }
+  // Sin cuadro de nota explicativa (2026-09-11) — mismo look limpio que ya
+  // usa el home para este mismo dato (solo el tooltip "?" del label). El
+  // resumen (summary) sí se mantiene: acá el cliente está en un paso propio,
+  // lejos de donde escribió sus datos, así que el recap sigue siendo útil.
   panel.innerHTML='<h1 class="co-h1">'+(isEs?'Datos fiscales':'Tax details')+'</h1>'
     +'<p class="co-sub">'+coEsc(why)+'</p>'
     +'<div class="co-card">'
     +(summary?'<div style="margin-bottom:16px">'+summary+'</div>':'')
-    +noteHtml
     +'<div class="co-grid">'+coSharedFieldsInner(keys)+'</div></div>';
 }
 // ── Procesamiento acelerado (paso propio, una vez, aplica a toda la orden) ────
@@ -2090,11 +2094,10 @@ function coRenderContactExtra(){
   var extra=$('co-contact-extra'); if(!extra) return;
   if(!coSsnMergeIntoContact){ extra.innerHTML=''; return; }
   var isEs=coIsEs();
-  var note = isEs
-    ? 'Necesitamos un dato adicional (su SSN o ITIN) para poder procesar su EIN ante el IRS.'
-    : 'We need one additional detail (your SSN or ITIN) to process your EIN with the IRS.';
+  // Sin cuadro de nota explicativa (2026-09-11) — mismo look limpio que ya
+  // usa el home para este mismo dato (solo el tooltip "?" del label, que
+  // coSharedFieldsInner ya trae desde SHARED_CFG.ssnItin).
   extra.innerHTML='<div class="co-card-title" style="margin-top:16px" data-en="Tax ID for your EIN" data-es="ID fiscal para su EIN">'+(isEs?'ID fiscal para su EIN':'Tax ID for your EIN')+'</div>'
-    +'<div style="background:#eff6ff;border-left:4px solid #2563eb;border-radius:0 8px 8px 0;padding:10px 14px;font-size:.8rem;color:#1e40af;line-height:1.6;margin-bottom:16px">'+coEsc(note)+'</div>'
     +'<div class="co-grid">'+coSharedFieldsInner(['ssnItin'])+'</div>';
 }
 function coBuildWizard(){

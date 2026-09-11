@@ -38,12 +38,13 @@ export async function GET(req: NextRequest) {
         // se recalculan. computeFormationTotal lanzaría si se le pasa
         // package:'services' (no es basic/standard/premium), por eso esta
         // orden va en una rama separada de la de formación.
-        const addonsObj = (data.addons ?? {}) as { lines?: Array<{ label: string; amount: number }> }
+        const addonsObj = (data.addons ?? {}) as { lines?: Array<{ label: string; amount: number }>; intake?: { flDoc?: string } }
         const lines = Array.isArray(addonsObj.lines) ? addonsObj.lines : []
         order = {
           fbfc:        `FBFC-${data.id.replace(/-/g, '').substring(0, 8).toUpperCase()}`,
           companyName: data.companyName,
           entityType:  data.entityType,
+          documentId:  addonsObj.intake?.flDoc || null,
           package:     data.package,
           addons:      [] as string[], // no aplica — à la carte no tiene "incluido en el paquete"
           lines,

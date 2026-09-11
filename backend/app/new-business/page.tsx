@@ -1161,7 +1161,13 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
   // /servicios/checkout (coBundleClaimed), reemplazando las 2 tarjetas
   // exclusivas de antes (una completa, una parcial) por 1 sola tarjeta con
   // checkboxes — estructuralmente son el mismo tier de 2 servicios.
-  const [extrasChecked, setExtrasChecked] = useState<Set<string>>(new Set(EXTRAS_SERVICE_IDS))
+  // Un Set independiente por tier (2026-09-11): antes había un solo Set
+  // compartido porque se renderizaba una sola tarjeta con el combo completo.
+  // Ahora cada columna (RA solo / RA+AR) tiene su propio estado de checkboxes,
+  // igual que coBundleClaimed por bundle en /servicios/checkout.
+  const [extrasCheckedByTier, setExtrasCheckedByTier] = useState<Record<string, Set<string>>>(
+    () => Object.fromEntries(EXTRAS_TIERS.map(t => [t.bundle, new Set(t.services)]))
+  )
 
   // Safari (y algunos otros navegadores) a veces restauran la página desde
   // su caché de "atrás/adelante" (bfcache) con contenido a medio pintar —
@@ -1202,7 +1208,20 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
       if (nbIds.size > 0) setSelected(nbIds)
       setExtraCart(cart.filter(id => !CATALOG_TO_NB_ID[id]))
       const extrasFromCart = cart.filter(id => EXTRAS_SERVICE_IDS.has(id))
-      if (extrasFromCart.length > 0) setExtrasChecked(new Set(extrasFromCart))
+      // Restaura el checked de CADA columna (2026-09-11, antes un solo Set
+      // compartido) según lo que ya venía en el carrito — si un tier no tiene
+      // ninguno de sus ítems en extrasFromCart, se deja con todo tildado por
+      // defecto (mismo criterio que el estado inicial).
+      if (extrasFromCart.length > 0) {
+        setExtrasCheckedByTier(prev => {
+          const next = { ...prev }
+          for (const t of EXTRAS_TIERS) {
+            const matched = t.services.filter(id => extrasFromCart.includes(id))
+            next[t.bundle] = matched.length ? new Set(matched) : new Set(t.services)
+          }
+          return next
+        })
+      }
       const rawBundles = localStorage.getItem('flbc_svc_bundles')
       const bundleIds: string[] = rawBundles ? JSON.parse(rawBundles) : []
       const rawAdded = localStorage.getItem('flbc_svc_bundle_added')
@@ -1604,6 +1623,10 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
       firstName: form.firstName, lastName: form.lastName, email: form.email, phone: form.phone,
       entityType: 'llc',
       legalName: form.companyName,
+      // Document ID de Sunbiz (bug real, 2026-09-11: nunca se mandaba — por
+      // eso ni la pantalla de éxito ni el email de confirmación lo mostraban
+      // pese a que ambos ya sabían leer addons.intake.flDoc).
+      flDoc: docInput,
       street: form.address, city: form.city, zip: form.zip, country: 'US',
       extras,
       shared: selected.has('ein') ? { ssnItin: form.ssnItin } : {},
@@ -2704,37 +2727,45 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                       <div className="form-block-title">{lang === 'es' ? 'Recomendado para ti' : 'Recommended for you'}</div>
                       <p style={{ color:'#64748b', fontSize:'.84rem', lineHeight:1.65, marginBottom:20, marginTop:-8 }}>
                         {lang === 'es'
-                          ? 'Estos son los servicios que más recomendamos para mantener tu negocio protegido y al día. Puedes agregar los que quieras o continuar sin ellos.'
-                          : 'These are the services we recommend most to keep your business protected and compliant. Add any you want, or continue without them.'}
+                          ? 'Estos son los servicios que más recomendamos para mantener tu negocio protegido y al día.'
+                          : 'These are the services we recommend most to keep your business protected and compliant.'}
                       </p>
-                      <div className="svc-grid" style={{ gridTemplateColumns:'minmax(0,320px)' }}>
-                        {(() => {
-                          const bundleDef = SERVICE_BUNDLES[EXTRAS_BUNDLE_ID]
-                          const allServices = EXTRAS_TIERS[EXTRAS_TIERS.length - 1].services
-                          const checkedIds = allServices.filter(id => extrasChecked.has(id))
-                          const price = checkedIds.length ? computeBundlePrice(EXTRAS_BUNDLE_ID, checkedIds, 'fbfc') : 0
+                      <div className="svc-grid" style={{ gridTemplateColumns:'repeat(2, minmax(0,1fr))' }}>
+                        {EXTRAS_TIERS.map((tier, i) => {
+                          const bundleDef = SERVICE_BUNDLES[tier.bundle]
+                          const best = i === EXTRAS_TIERS.length - 1
+                          const prevServices: readonly string[] = i > 0 ? EXTRAS_TIERS[i - 1].services : []
+                          const tierChecked = extrasCheckedByTier[tier.bundle] ?? new Set(tier.services)
+                          const checkedIds = tier.services.filter(id => tierChecked.has(id))
+                          const price = checkedIds.length ? computeBundlePrice(tier.bundle, checkedIds, 'fbfc') : 0
                           const fullPrice = checkedIds.reduce((acc, id) => acc + getServiceFee(id, 'fbfc'), 0)
                           const save = fullPrice - price
                           const stateFees = checkedIds.reduce((acc, id) => acc + (SERVICES_CATALOG[id]?.stateFee ?? 0), 0)
-                          // "Agregado" = lo tildado ahora mismo coincide exactamente con lo
-                          // que ya está en el carrito (extrasSelected) — mismo criterio que
-                          // coBundles/.sel en /servicios/checkout.
+                          // "Agregado" = lo tildado ahora mismo en ESTA columna coincide
+                          // exactamente con lo que ya está en el carrito — mismo criterio
+                          // que coBundles/.sel en /servicios/checkout.
                           const isAdded = extrasSelected.length > 0
                             && checkedIds.length === extrasSelected.length
                             && checkedIds.every(id => extrasSelected.includes(id))
                           return (
-                            <div className={`svc-card${isAdded ? ' selected' : ''}`} style={{ position:'relative', cursor:'default' }}>
+                            <div key={tier.bundle} className={`svc-card${isAdded ? ' selected' : ''}`} style={{ position:'relative', cursor:'default' }}>
+                              {best && (
+                                <div style={{ position:'absolute', top:-10, right:14, background:'#2563EB', color:'#fff', fontSize:'.62rem', fontWeight:800, letterSpacing:'.5px', textTransform:'uppercase', padding:'3px 10px', borderRadius:20 }}>
+                                  {lang === 'es' ? 'Mejor valor' : 'Best value'}
+                                </div>
+                              )}
                               <div className="svc-check">
                                 {isAdded && <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
                               </div>
                               <div className="svc-title">{lang === 'es' ? bundleDef.name_es : bundleDef.name_en}</div>
                               <div className="svc-desc">
-                                {allServices.map(id => {
+                                {tier.services.map(id => {
                                   const svc = SERVICES_CATALOG[id]
                                   if (!svc) return null
                                   const blurb = EXTRAS_BLURB[id]
+                                  const isNew = prevServices.indexOf(id) < 0
                                   const cadence = svc.billing === 'monthly' ? (lang === 'es' ? '/mes' : '/mo') : svc.billing === 'annual' ? (lang === 'es' ? '/año' : '/yr') : ''
-                                  const checked = extrasChecked.has(id)
+                                  const checked = tierChecked.has(id)
                                   return (
                                     <label key={id} style={{ display:'block', marginBottom:10, cursor:'pointer' }}>
                                       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', gap:10 }}>
@@ -2742,10 +2773,10 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                                           <input
                                             type="checkbox"
                                             checked={checked}
-                                            onChange={() => setExtrasChecked(prev => {
-                                              const next = new Set(prev)
+                                            onChange={() => setExtrasCheckedByTier(prev => {
+                                              const next = new Set(prev[tier.bundle] ?? tier.services)
                                               if (next.has(id)) next.delete(id); else next.add(id)
-                                              return next
+                                              return { ...prev, [tier.bundle]: next }
                                             })}
                                             style={{ width:16, height:16, accentColor:'#2563EB', cursor:'pointer', margin:0, flexShrink:0 }}
                                           />
@@ -2753,7 +2784,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                                         </span>
                                         <span style={{ color:'#374151', fontWeight:600, flexShrink:0 }}>${svc.serviceFee.toFixed(2)}{cadence}</span>
                                       </div>
-                                      {blurb && <div style={{ marginLeft:24, marginTop:2 }}>{lang === 'es' ? blurb.es : blurb.en}</div>}
+                                      {isNew && blurb && <div style={{ marginLeft:24, marginTop:2 }}>{lang === 'es' ? blurb.es : blurb.en}</div>}
                                     </label>
                                   )
                                 })}
@@ -2793,7 +2824,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                               )}
                             </div>
                           )
-                        })()}
+                        })}
                       </div>
 
                       <div className="step-nav">
@@ -2955,14 +2986,14 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                 {/* En el Review (step 5) el resumen de servicios se mudó a la
                     izquierda (junto a lo que el cliente revisa) para
                     equilibrar la altura de las columnas — acá solo queda el
-                    pago. En el step 4 ("Recommended for you") se oculta del
-                    todo (form-left es flex:1, así que ocupa el ancho
-                    completo solo cuando no se renderiza) — las 3 tarjetas de
-                    tiers necesitan más espacio horizontal que el resto de
-                    los pasos, y el cliente ve el mismo resumen un clic
-                    después en el Review. En los demás pasos sigue siendo el
-                    resumen completo. */}
-                {step !== 4 && (
+                    pago. En los demás pasos (incluido el 4, "Recommended for
+                    you") sigue siendo el resumen completo — antes se ocultaba
+                    en el step 4 porque esas tarjetas necesitaban más ancho,
+                    pero ese diseño de varias columnas anchas ya no existe
+                    (2026-09-11, colapsado a 2 columnas angostas), así que ya
+                    no hace falta el ancho completo y el resumen puede volver
+                    a mostrarse (bug real: quedó oculto sin razón real tras
+                    ese cambio). */}
                 <div className="co-box-wrap">
                 <div className="co-box">
                   {step === 5 ? (
@@ -3020,7 +3051,6 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                 </a>
                 )}
                 </div>
-                )}
               </div>
             </div>
           </section>
