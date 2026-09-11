@@ -198,7 +198,9 @@ ${isFBFC ? `
 /* Hubs de upsell (3 tiers estilo LegalZoom) */
 .co-tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:6px}
 .co-tier{position:relative;border:1.5px solid var(--gray200);border-radius:14px;padding:18px 16px;background:#fff;display:flex;flex-direction:column}
-.co-tier.best{border-color:var(--blue)}
+/* Borde azul en .best quitado (2026-09-11, pedido founder) — el badge
+   "Mejor Valor" ya distingue el tier recomendado por sí solo, el borde
+   sumado se sentía repetitivo (borde + badge + botón, todo azul). */
 .co-tier.sel{border-color:var(--blue);background:var(--blue-light);box-shadow:0 0 0 3px rgba(37,99,235,.12)}
 .co-tier-badge{position:absolute;top:-10px;right:14px;background:var(--blue);color:#fff;font-size:.62rem;font-weight:800;letter-spacing:.5px;text-transform:uppercase;padding:3px 10px;border-radius:20px}
 .co-tier-name{font-family:var(--font-serif),serif;font-size:1rem;font-weight:700;color:var(--navy);line-height:1.3;margin-bottom:6px;min-height:2.6em}
