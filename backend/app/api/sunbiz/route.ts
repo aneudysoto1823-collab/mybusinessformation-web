@@ -55,7 +55,12 @@ export async function GET(req: NextRequest) {
     zip:              prospective?.zip     || sunbiz?.principal_zip     || null,
     email:            prospective?.email   || null,
     registered_agent: sunbiz?.registered_agent_name || null,
-    filing_date:      sunbiz?.filing_date  || null,
+    // prospective_companies.registration_date (input type="date", YYYY-MM-DD)
+    // como fallback — antes solo se leía sunbiz?.filing_date, así que una
+    // empresa que vive SOLO en prospective_companies (agregada a mano o vía
+    // el puente de Marketing Saliente) nunca autocompletaba mes/año de inicio
+    // en el form aunque el dato sí estuviera cargado (bug real 2026-09-11).
+    filing_date:      sunbiz?.filing_date || prospective?.registration_date || null,
   }
 
   const source = prospective && sunbiz ? 'both' : prospective ? 'database' : 'sunbiz_corps'
