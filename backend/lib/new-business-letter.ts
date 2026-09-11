@@ -147,6 +147,28 @@ const ES: LetterContent = {
     'factura ni una solicitud de pago. Los servicios descritos son opcionales.',
 }
 
+// Blinda contra crashes por caracteres que WinAnsi (CP1252) no puede codificar
+// en campos de texto libre (nombre de empresa, dueño, dirección) — ej. "Ń"
+// (Polaco, U+0143) tipeado por error en vez de "Ñ" (U+00D1, sí soportado).
+// Antes cualquier caracter así tiraba abajo TODA la generación del PDF con un
+// 500 sin aviso claro de cuál campo lo causó (bug real 2026-09-11, encontrado
+// con la empresa de prueba "PEPE CAMPAÑA COMPANY"). Intenta primero quitar el
+// acento/diacrítico (NFKD) — si el resultado es ASCII imprimible lo usa, si no
+// simplemente omite el caracter en vez de romper todo el documento.
+function sanitizeForWinAnsi(str: string, font: PDFFont): string {
+  let out = ''
+  for (const ch of str) {
+    try {
+      font.widthOfTextAtSize(ch, 10)
+      out += ch
+    } catch {
+      const stripped = ch.normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
+      if (stripped && /^[\x20-\x7E]*$/.test(stripped)) out += stripped
+    }
+  }
+  return out
+}
+
 // ── Word-wrap helper ──────────────────────────────────────────────────────────
 function wrapLines(text: string, font: PDFFont, size: number, maxWidth: number): string[] {
   const words = text.split(' ')
@@ -172,6 +194,17 @@ export async function generateNewBusinessLetter(data: NewBusinessLetterData): Pr
   const doc     = await PDFDocument.create()
   const bold    = await doc.embedFont(StandardFonts.HelveticaBold)
   const regular = await doc.embedFont(StandardFonts.Helvetica)
+
+  // Sanitiza los campos de texto libre (tipeados a mano por el admin, a
+  // diferencia de entityType/registrationDate/etc. que ya vienen localizados
+  // y controlados por el código) contra caracteres no soportados por WinAnsi.
+  data = {
+    ...data,
+    companyName: sanitizeForWinAnsi(data.companyName, regular),
+    ownerName: data.ownerName ? sanitizeForWinAnsi(data.ownerName, regular) : data.ownerName,
+    address: data.address ? sanitizeForWinAnsi(data.address, regular) : data.address,
+    city: data.city ? sanitizeForWinAnsi(data.city, regular) : data.city,
+  }
 
   // Mutable page cursor — los helpers leen `page`/`y` actuales vía closure.
   let page: PDFPage = doc.addPage([PAGE_W, PAGE_H])
