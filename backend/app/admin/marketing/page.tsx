@@ -123,6 +123,11 @@ export default function MarketingPage() {
   const [showAdvanced, setShowAdvanced] = useState(false)
   const [error, setError]         = useState<string | null>(null)
 
+  // Puente a Campaigns & Letters (envío de cartas — Bloque 4 real todavía no existe acá)
+  const [sendToLettersRunning, setSendToLettersRunning] = useState(false)
+  const [sendToLettersResult, setSendToLettersResult] = useState<{ attempted: number; inserted: number; duplicates: number } | null>(null)
+  const [sendToLettersError, setSendToLettersError] = useState<string | null>(null)
+
   // Bloque 3 state
   const [enrichN, setEnrichN]       = useState<number>(50)
   const [enrichScore, setEnrichScore] = useState<'A' | 'B' | 'C'>('A')
@@ -191,6 +196,31 @@ export default function MarketingPage() {
       setPrepareError(e instanceof Error ? e.message : String(e))
     } finally {
       setPrepareRunning(false)
+    }
+  }
+
+  const runSendToLetters = async () => {
+    if (sendToLettersRunning) return
+    const ready = prepareStats?.ready ?? 0
+    if (ready === 0) { setSendToLettersError('No hay leads listos todavía — usá "Preparar N leads listos" primero.'); return }
+    if (!confirm(`Enviar ${ready} leads listos a Campaigns & Letters?\n\nSe van a poder ver y descargar sus cartas desde ese panel. No se envía nada todavía — eso lo hacés manualmente ahí, igual que hoy.\n\nConfirmar?`)) return
+    setSendToLettersRunning(true); setSendToLettersError(null); setSendToLettersResult(null)
+    try {
+      const res = await fetch('/api/marketing/send-to-letters', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ limit: ready }),
+      })
+      const text = await res.text()
+      let data: { error?: string; attempted?: number; inserted?: number; duplicates?: number } = {}
+      try { data = text ? JSON.parse(text) : {} } catch {}
+      if (!res.ok) throw new Error(data.error || text.slice(0, 200) || `HTTP ${res.status}`)
+      setSendToLettersResult(data as { attempted: number; inserted: number; duplicates: number })
+      await loadStats()
+    } catch (e) {
+      setSendToLettersError(e instanceof Error ? e.message : String(e))
+    } finally {
+      setSendToLettersRunning(false)
     }
   }
 
@@ -526,6 +556,44 @@ export default function MarketingPage() {
                       </div>
                     </details>
                   )}
+                </div>
+              )}
+            </div>
+
+            {/* ── Puente a Campaigns & Letters (mientras Bloque 4 no existe) ── */}
+            <div style={{...S.block, background: '#f0fdf4', border: '2px solid #16a34a'}}>
+              <div style={S.blockHeader}>
+                <div style={{flex: 1}}>
+                  <div style={{...S.blockTitle, color: '#15803d'}}>
+                    📬 Enviar a Campaigns &amp; Letters
+                  </div>
+                  <div style={S.blockDesc}>
+                    Copia los <b>{prepareStats?.ready ?? 0} leads listos</b> de arriba al panel{' '}
+                    <Link href="/admin/campaigns" style={S.link}>Campaigns &amp; Letters</Link>, donde ya se puede
+                    generar y descargar la carta física de cada uno. No manda nada por sí solo — el envío real
+                    lo hacés desde ese panel, como hoy. Un lead copiado no se vuelve a ofrecer acá (queda marcado
+                    como contactado).
+                  </div>
+                </div>
+              </div>
+              <div style={S.controlRow}>
+                <button
+                  onClick={runSendToLetters}
+                  disabled={sendToLettersRunning || (prepareStats?.ready ?? 0) === 0}
+                  style={sendToLettersRunning || (prepareStats?.ready ?? 0) === 0 ? S.btnDisabled : {...S.btnPrimary, background: '#16a34a'}}
+                >
+                  {sendToLettersRunning ? 'Enviando…' : `Enviar ${prepareStats?.ready ?? 0} a Campaigns & Letters →`}
+                </button>
+              </div>
+              {sendToLettersError && <div style={S.errBox}>Error: {sendToLettersError}</div>}
+              {sendToLettersResult && (
+                <div style={{...S.resultBox, background: '#f0fdf4', border: '1px solid #bbf7d0'}}>
+                  <div style={S.resultTitle}>✅ {sendToLettersResult.inserted} copiados a Campaigns &amp; Letters</div>
+                  <div style={S.resultGrid}>
+                    <div><b>{sendToLettersResult.attempted}</b> intentados</div>
+                    <div><b>{sendToLettersResult.inserted}</b> nuevos</div>
+                    <div><b>{sendToLettersResult.duplicates}</b> ya existían</div>
+                  </div>
                 </div>
               )}
             </div>
