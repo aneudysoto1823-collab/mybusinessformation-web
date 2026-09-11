@@ -98,6 +98,10 @@ export async function POST(req: NextRequest) {
               OpaBiz · opabiz.com<br/>
               Florida Business Formation Center. ${isEs ? 'Somos un servicio de preparación de documentos, no un bufete de abogados.' : 'We are a document preparation service, not a law firm.'}
             </p>
+            <p style="margin-top:8px;color:#94a3b8;font-size:11px">
+              ${isEs ? 'Recibió este correo porque lo solicitó en opabiz.com/guia-gratis. ' : 'You received this email because you requested it at opabiz.com/guia-gratis. '}
+              <a href="https://opabiz.com/unsubscribe?email=${encodeURIComponent(email)}" style="color:#94a3b8;text-decoration:underline">${isEs ? 'Cancelar suscripción' : 'Unsubscribe'}</a>
+            </p>
           </div>
         </div>
       `,

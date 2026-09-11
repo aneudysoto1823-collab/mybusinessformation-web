@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { verifyAdminToken } from '@/lib/session'
-import { REPLY_TO, FROM_OPABIZ_MARKETING as FROM_OPABIZ } from '@/lib/email-constants'
+import { FROM_FBFC, REPLY_TO_FBFC } from '@/lib/email-constants'
 import { hasReceivedGuide, recordGuideSent, getGuideAttachments, buildGuideBonusHtml, type GuideKey } from '@/lib/guides'
 
 async function verifyAdmin(request: NextRequest): Promise<boolean> {
@@ -12,7 +12,10 @@ async function verifyAdmin(request: NextRequest): Promise<boolean> {
 }
 
 const getResend = () => new Resend(process.env.RESEND_API_KEY)
-const BASE_URL   = 'https://opabiz.com'
+// mybusinessformation.com, no opabiz.com — esta campaña es 100% contenido
+// FBFC (membrete, footer, disclosure). Antes el link de unsubscribe y el
+// tracking apuntaban a opabiz.com, mezclando marca (auditoría 2026-09-11).
+const BASE_URL   = 'https://mybusinessformation.com'
 
 // ─── Email template (basado en la carta de cumplimiento) ─────────────────────
 
@@ -39,8 +42,8 @@ function buildEmail(company: {
   const unsubscribeUrl = `${BASE_URL}/unsubscribe?email=${encodeURIComponent(company.email)}`
 
   const subject = isEs
-    ? `OpaBiz: Aviso Informativo de Cumplimiento — ${company.company_name}`
-    : `OpaBiz: Business Compliance Notice — ${company.company_name}`
+    ? `Aviso Informativo de Cumplimiento — ${company.company_name}`
+    : `Business Compliance Notice — ${company.company_name}`
 
   const title = isEs
     ? 'AVISO INFORMATIVO DE CUMPLIMIENTO EMPRESARIAL'
@@ -264,7 +267,7 @@ export async function POST(req: NextRequest) {
 
     const { data: companies, error: fetchErr } = await supabase
       .from('prospective_companies')
-      .select('id,document_id,company_name,company_type,owner_name,city,state,email,status,registration_date')
+      .select('id,document_id,company_name,company_type,owner_name,city,state,email,status,registration_date,unsubscribed')
       .in('id', company_ids)
 
     if (fetchErr) throw fetchErr
@@ -278,6 +281,14 @@ export async function POST(req: NextRequest) {
       // Skip if no email
       if (!company.email) {
         results.push({ company_id: company.id, document_id: company.document_id, status: 'skipped', reason: 'no email' })
+        continue
+      }
+
+      // Skip si el lead pidió no recibir más comunicaciones (POST /api/unsubscribe).
+      // Antes este chequeo no existía — el botón de baja no impedía nada acá
+      // (auditoría 2026-09-11).
+      if (company.unsubscribed) {
+        results.push({ company_id: company.id, document_id: company.document_id, status: 'skipped', reason: 'unsubscribed' })
         continue
       }
 
@@ -302,10 +313,12 @@ export async function POST(req: NextRequest) {
           : baseHtml
         const attachments = guideKeys.length > 0 ? await getGuideAttachments(guideKeys, 'fbfc') : undefined
 
-        // Send via Resend
+        // Send via Resend — marca FBFC (remitente y reply-to deben coincidir
+        // con el contenido 100% mybusinessformation.com del template; antes
+        // decían "OpaBiz"/opabiz.com, auditoría 2026-09-11).
         await getResend().emails.send({
-          from:    FROM_OPABIZ,
-          replyTo: REPLY_TO,
+          from:    FROM_FBFC,
+          replyTo: REPLY_TO_FBFC,
           to:      company.email,
           subject,
           html,

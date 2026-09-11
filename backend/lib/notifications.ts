@@ -1,18 +1,24 @@
 import { Resend } from 'resend'
 import { getOrderItemKeys, getOrderItemLabel } from './order-items'
 import { computeFormationTotal } from './pricing'
-import { REPLY_TO, INTERNAL_ALERT_EMAIL as INTERNAL_EMAIL, FROM_OPABIZ, FROM_OPABIZ_SUPPORT, FROM_OPABIZ_ALERTS, type EmailBrand, brandFrom, brandReplyTo, brandPortalHome, brandSubjectPrefix, brandHeaderHtml, brandFooterLine, brandDisclosureHtml } from './email-constants'
+import { REPLY_TO, INTERNAL_ALERT_EMAIL as INTERNAL_EMAIL, FROM_OPABIZ, FROM_OPABIZ_SUPPORT, FROM_OPABIZ_ALERTS, type EmailBrand, isFbfcBrand, brandFrom, brandReplyTo, brandPortalHome, brandSubjectPrefix, brandHeaderHtml, brandFooterLine, brandDisclosureHtml } from './email-constants'
 
 // Lazy init: se crea al primer uso, cuando dotenv ya cargó el .env
 const getResend = () => new Resend(process.env.RESEND_API_KEY)
 
-function unsubscribeFooter(email: string): string {
+// Brand-aware desde 2026-09-11 (auditoría de emails) — antes decía siempre
+// "opabiz.com" incluso en órdenes de mybusinessformation.com (sendOrderConfirmation
+// es brand-aware pero este footer no lo era).
+function unsubscribeFooter(email: string, brand: EmailBrand = 'opabiz'): string {
+  const isFbfc = isFbfcBrand(brand)
+  const domain = isFbfc ? 'mybusinessformation.com' : 'opabiz.com'
+  const supportEmail = isFbfc ? 'info@mybusinessformation.com' : 'support@opabiz.com'
   return `
     <hr style="border: none; border-top: 1px solid #eee; margin: 32px 0;">
     <p style="font-size: 12px; color: #888; text-align: center; margin: 0;">
-      This is a transactional email related to your order with opabiz.com.<br>
-      If you have questions contact us at support@opabiz.com<br>
-      <a href="https://opabiz.com/unsubscribe?email=${encodeURIComponent(email)}" style="color: #888;">Unsubscribe</a>
+      This is a transactional email related to your order with ${domain}.<br>
+      If you have questions contact us at ${supportEmail}<br>
+      <a href="https://${domain}/unsubscribe?email=${encodeURIComponent(email)}" style="color: #888;">Unsubscribe</a>
     </p>
   `
 }
@@ -135,7 +141,7 @@ export const sendOrderConfirmation = async (order: {
                 Track My Order
               </a>
             </div>
-            ${unsubscribeFooter(order.email)}
+            ${unsubscribeFooter(order.email, brand)}
           </div>
         </div>
       </div>
