@@ -445,6 +445,7 @@ html.co-wide .co-tier{padding:20px 18px}
           <div class="co-field"><label class="co-label" data-en="State" data-es="Estado">Estado</label><select class="co-select" id="p-state"><option value="" data-en="Select..." data-es="Selecciona...">Selecciona...</option><option>AL</option><option>AK</option><option>AZ</option><option>AR</option><option>CA</option><option>CO</option><option>CT</option><option>DE</option><option>DC</option><option>FL</option><option>GA</option><option>HI</option><option>ID</option><option>IL</option><option>IN</option><option>IA</option><option>KS</option><option>KY</option><option>LA</option><option>ME</option><option>MD</option><option>MA</option><option>MI</option><option>MN</option><option>MS</option><option>MO</option><option>MT</option><option>NE</option><option>NV</option><option>NH</option><option>NJ</option><option>NM</option><option>NY</option><option>NC</option><option>ND</option><option>OH</option><option>OK</option><option>OR</option><option>PA</option><option>RI</option><option>SC</option><option>SD</option><option>TN</option><option>TX</option><option>UT</option><option>VT</option><option>VA</option><option>WA</option><option>WV</option><option>WI</option><option>WY</option></select></div>
           <div class="co-field"><label class="co-label" data-en="ZIP" data-es="Código postal">Código postal</label><input class="co-input" id="p-zip"/></div>
         </div>
+        <div id="co-contact-extra" style="margin-top:14px"></div>
       </div>
     </div>
 
@@ -2073,6 +2074,29 @@ function coRenderServicePages(ft){
   });
 }
 
+// Fusión SSN + Información personal (mybiz, 2026-09-11): si el EIN ya está
+// en el carrito ANTES de armar el wizard por primera vez (compra directa
+// desde new-business/servicios, sin pasar por un combo), unimos el pedido
+// del SSN/ITIN dentro del mismo paso "Información personal" — se ve como un
+// solo paso compacto en vez de dos, con el resumen ya cargado (son los mismos
+// campos, no hace falta repetirlos como resumen de solo lectura). La decisión
+// se toma UNA sola vez (al primer build, antes de que el cliente navegue) y
+// queda fija: si el EIN se agrega más tarde vía un combo (Documentos
+// esenciales), el cliente ya pasó este paso, así que sigue apareciendo el
+// paso propio "Datos fiscales" más adelante (fallback existente, sin cambios).
+var coSsnMergeDecided = false;
+var coSsnMergeIntoContact = false;
+function coRenderContactExtra(){
+  var extra=$('co-contact-extra'); if(!extra) return;
+  if(!coSsnMergeIntoContact){ extra.innerHTML=''; return; }
+  var isEs=coIsEs();
+  var note = isEs
+    ? 'Necesitamos un dato adicional (su SSN o ITIN) para poder procesar su EIN ante el IRS.'
+    : 'We need one additional detail (your SSN or ITIN) to process your EIN with the IRS.';
+  extra.innerHTML='<div class="co-card-title" style="margin-top:16px" data-en="Tax ID for your EIN" data-es="ID fiscal para su EIN">'+(isEs?'ID fiscal para su EIN':'Tax ID for your EIN')+'</div>'
+    +'<div style="background:#eff6ff;border-left:4px solid #2563eb;border-radius:0 8px 8px 0;padding:10px 14px;font-size:.8rem;color:#1e40af;line-height:1.6;margin-bottom:16px">'+coEsc(note)+'</div>'
+    +'<div class="co-grid">'+coSharedFieldsInner(['ssnItin'])+'</div>';
+}
 function coBuildWizard(){
   var ft=coFormationType();
   // Formaciones mutuamente excluyentes: deja solo la primera en el carrito.
@@ -2091,6 +2115,15 @@ function coBuildWizard(){
 
   // Información personal (nombre/email/teléfono) temprano, como el home.
   coSteps.push({id:'panel-contact', title:{en:'Personal information',es:'Información personal'}});
+  // Ver comentario junto a coSsnMergeDecided arriba: si el EIN ya está en el
+  // carrito en este primerísimo build (antes de que el cliente navegue),
+  // fusionamos el SSN acá mismo y nunca creamos el paso "Datos fiscales"
+  // aparte. La decisión queda fija para el resto de la sesión de checkout.
+  if(!coSsnMergeDecided){
+    coSsnMergeIntoContact = IS_FBFC && !ft && coSharedKeysActive().filter(function(k){ return k!=='ein'; }).length>0;
+    coSsnMergeDecided = true;
+  }
+  coRenderContactExtra();
 
   // En formación: Agente Registrado justo después de Empresa (reusa la dirección).
   if(ft){ coRenderRaPanel(); coSteps.push({id:'panel-ra', title:{en:'Registered Agent',es:'Agente Registrado'}}); }
@@ -2105,12 +2138,14 @@ function coBuildWizard(){
   // 'ein' no cuenta para este paso — vive en panel-company (Paso 1) desde
   // 2026-09-11. Si era la única clave pendiente, este paso deja de existir.
   var coTaxNeeded=coSharedKeysActive().filter(function(k){ return k!=='ein'; }).length>0;
-  if(ft && coTaxNeeded){ coRenderTaxPanel(); coSteps.push({id:'panel-tax', title:{en:'Tax details',es:'Datos fiscales'}}); }
+  // Si ya se fusionó dentro de "Información personal" (ver coSsnMergeIntoContact
+  // arriba), este paso propio no existe — coRenderContactExtra ya lo cubrió.
+  if(ft && coTaxNeeded && !coSsnMergeIntoContact){ coRenderTaxPanel(); coSteps.push({id:'panel-tax', title:{en:'Tax details',es:'Datos fiscales'}}); }
   // "Cumplimiento anual" (Agente + Annual Report): solo à la carte, sin
   // formación — ahí el agente ya se resuelve en su propio paso obligatorio.
   if(coHubApplicable('compliance')){ coRenderHub('compliance'); coSteps.push({id:'panel-hub-compliance', title:{en:'Annual compliance',es:'Cumplimiento anual'}}); }
   if(coHubApplicable('protect')){ coRenderHub('protect'); coSteps.push({id:'panel-hub-protect', title:{en:'Business presence & operations',es:'Presencia y operación'}}); }
-  if(!ft && coTaxNeeded){ coRenderTaxPanel(); coSteps.push({id:'panel-tax', title:{en:'Tax details',es:'Datos fiscales'}}); }
+  if(!ft && coTaxNeeded && !coSsnMergeIntoContact){ coRenderTaxPanel(); coSteps.push({id:'panel-tax', title:{en:'Tax details',es:'Datos fiscales'}}); }
 
   coRenderServicePages(ft);
   coServicePages.forEach(function(p){ coSteps.push({id:p.id, title:p.title||{en:'Service details',es:'Datos del servicio'}}); });
@@ -2313,6 +2348,13 @@ async function coValidateStep(i){
     if((($('p-state')||{}).value||'').trim().length<2) addrMissing.push(isEs?'estado':'state');
     if((($('p-zip')||{}).value||'').trim().length<3) addrMissing.push(isEs?'código postal':'ZIP');
     if(addrMissing.length){ err.textContent=(isEs?'Falta: ':'Missing: ')+addrMissing.join(', ')+'.'; return false; }
+    // SSN/ITIN fusionado acá (ver coSsnMergeIntoContact) — mismo chequeo que
+    // tenía su paso propio "Datos fiscales".
+    if(coSsnMergeIntoContact){
+      var vSsn2=(($('s-ssnItin')||{}).value||'').replace(/[^0-9]/g,'');
+      if(vSsn2.length!==9){ err.textContent=isEs?'El SSN o ITIN debe tener exactamente 9 dígitos.':'The SSN or ITIN must be exactly 9 digits.'; return false; }
+      if(vSsn2!==(($('s-ssnItin-confirm')||{}).value||'').replace(/[^0-9]/g,'')){ err.textContent=isEs?'El SSN o ITIN no coincide. Verifícalo.':'The SSN or ITIN does not match. Please check.'; return false; }
+    }
     // LOB address verification — dirección personal del cliente (siempre US
     // en este paso: state es un <select> con los 50 estados de EE.UU.).
     var lobRes2 = await coLobValidateAddr({
