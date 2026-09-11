@@ -1,35 +1,37 @@
 // Email "Recordatorio de Cumplimiento" (VIP Compliance Reminder) — segundo
 // tipo de campaña de /admin/campaigns, compañero de la carta B1
-// (lib/campaign-email.ts). Inspirado en un email real de un competidor (US
-// Filing Services) que el founder recibió: ofrece PRIMERO la Declaración
-// Anual sola (presentación única, sin suscripción) y DESPUÉS, como upsell, el
-// combo VIP (Agente Registrado + Declaración Anual, renovado automático cada
-// año) — misma secuencia y mismo nivel de detalle/persuasión que el
-// competidor.
+// (lib/campaign-email.ts). Solo va a empresas RECIÉN formadas (siempre hay
+// registration_date real), inspirado en un email real de un competidor (US
+// Filing Services) que el founder recibió pero reescrito con voz propia
+// (2026-09-11) — no es una traducción del original, solo se tomó la idea de
+// ofrecer primero la Declaración Anual sola y después, como upsell, el combo
+// VIP (Agente Registrado + Declaración Anual, renovado automático).
 //
-// Copiado A PROPÓSITO sin 2 elementos del original (decisión founder
-// 2026-09-11, mismo criterio que ya aplicó con DBA/ITIN/Foreign LLC en esta
-// sesión — no prometer algo que no entregamos):
-//   1. Ancla de descuento falsa ("$250/year instead of the regular $299") —
-//      nunca mostramos un precio "regular" más alto en ningún otro lugar del
-//      sitio; el combo siempre es $179 llano. Inventar un ancla más alta acá
-//      sería mentir sobre el precio real.
-//   2. Bullets vacíos ("Ongoing compliance monitoring", "Priority support")
-//      sin ningún servicio real detrás. Se reemplazan por la misma promesa
-//      concreta que ya usa /vip: monitoreamos el plazo y presentamos cada año,
-//      con confirmación por email.
-// El resto del copy SÍ imita de cerca la profundidad del competidor: la
-// explicación de "cómo funciona" (por qué conviene presentar temprano) y la
-// introducción con las dos opciones son adaptaciones directas de su email.
+// Decisiones de copy tomadas con el founder en esta sesión:
+//   1. Sin ancla de descuento falsa ni bullets vacíos ("Ongoing compliance
+//      monitoring", "Priority support") — mismo criterio que ya aplicó con
+//      DBA/ITIN/Foreign LLC: no prometer nada que no entregamos.
+//   2. La Opción 1 NO le pide datos al cliente (ya los tenemos pre-cargados)
+//      ni menciona que Florida recién abre el período el 1 de enero — decirlo
+//      de entrada le da al cliente una excusa para posponer ("no lo necesito
+//      todavía"). Esa explicación del mecanismo de cola queda para un email
+//      de confirmación POST-pago (pendiente, no forma parte de este envío).
+//   3. Sin guion largo (—) en ningún párrafo — ver memoria
+//      feedback_writing_style. Se usa punto medio (·) donde antes iría un
+//      guion como separador corto (subject, etiquetas de sección).
 //
-// Acento verde más claro (#16A34A, ajustado 2026-09-11 — el primer intento
-// con #059669 salió "muy oscuro" a criterio del founder) para diferenciar
-// visualmente esta campaña de la carta B1 (que sigue azul/navy) — el header
+// Acento verde #7BBB5D (ajustado dos veces 2026-09-11: primero #059669 salió
+// "muy oscuro", después #16A34A tampoco era el tono correcto) para
+// diferenciar esta campaña de la carta B1 (que sigue azul/navy) — el header
 // se mantiene navy, igual que el resto del sitio.
 import { CAMPAIGN_EMAIL_BASE_URL as BASE_URL, type CampaignCompany } from './campaign-email'
 
-const GREEN = '#16A34A'
-const GREEN_DARK = '#15803D'
+// #7BBB5D pedido por el founder (2026-09-11, "el verde que ellos usan") para
+// botones/bordes/checkmarks. GREEN_DARK es una variante más oscura del mismo
+// tono, solo para las etiquetas de sección en mayúscula (texto chico sobre
+// blanco necesita más contraste que un botón grande).
+const GREEN = '#7BBB5D'
+const GREEN_DARK = '#4C7A38'
 
 export function buildVipReminderEmail(company: CampaignCompany, lang: 'en' | 'es') {
   const isEs = lang === 'es'
@@ -40,24 +42,43 @@ export function buildVipReminderEmail(company: CampaignCompany, lang: 'en' | 'es
   const vipUrl = `${BASE_URL}/vip?${idParam}`
 
   // Florida exige la primera Declaración Anual el año SIGUIENTE al de
-  // formación (vence el 1 de mayo). Si no hay fecha real, cae al texto
-  // genérico sin mencionar un año inventado.
+  // formación (vence el 1 de mayo). El negocio confirma que esta campaña
+  // solo se manda a empresas con registration_date real — el fallback acá es
+  // solo defensivo (la columna es nullable en la DB), no un contenido
+  // pensado a propósito.
   const regYear = company.registration_date ? new Date(company.registration_date).getFullYear() : null
   const firstArYear = regYear && !isNaN(regYear) ? regYear + 1 : null
+  const filingYearLabel = firstArYear ? String(firstArYear) : (isEs ? 'próxima' : 'upcoming')
 
-  const subject = firstArYear
-    ? (isEs ? `Su Declaración Anual ${firstArYear} — ${company.company_name}` : `Your ${firstArYear} Annual Report — ${company.company_name}`)
-    : (isEs ? `Su próxima Declaración Anual — ${company.company_name}` : `Your next Annual Report — ${company.company_name}`)
+  const subject = isEs
+    ? `Su Declaración Anual ${filingYearLabel} · ${company.company_name}`
+    : `Your ${filingYearLabel} Annual Report · ${company.company_name}`
 
-  const intro = firstArYear
+  const introParas = firstArYear
     ? (isEs
-        ? `Usted formó <strong>${company.company_name}</strong> en ${regYear} — lo que significa que ${firstArYear} trae su primera Declaración Anual ante el Estado de Florida. Hay dos formas de encargarse de esto, según cuánto quiera dejarlo resuelto.`
-        : `You formed <strong>${company.company_name}</strong> in ${regYear} — which means ${firstArYear} brings your first Florida Annual Report requirement. There are two ways to take care of it, depending on how much you'd like to take off your plate.`)
+        ? [
+            `Felicitaciones por haber formado <strong>${company.company_name}</strong> en Florida en ${regYear}. A medida que su negocio crece, mantenerse en regla ante el Estado importa tanto como lo fue empezar.`,
+            `Toda LLC y Corporación de Florida debe presentar una Declaración Anual cada año para seguir activa en los registros del Estado. No presentarla puede generar cargos por atraso, y si se deja de presentar por suficiente tiempo, el Estado puede disolver la empresa administrativamente. ${filingYearLabel} es cuando esto le aplica por primera vez a ${company.company_name}.`,
+            `Para su tranquilidad y evitar contratiempos, le ofrecemos dos formas de resolver esto:`,
+          ]
+        : [
+            `Congratulations on forming <strong>${company.company_name}</strong> in Florida in ${regYear}. As your business grows, staying in good standing with the State matters just as much as getting started did.`,
+            `Every Florida LLC and Corporation is required to file an Annual Report each year to remain active on the State's records. Missing it can lead to late fees, and if it goes unfiled long enough, the State can administratively dissolve the company. ${filingYearLabel} is when this first applies to ${company.company_name}.`,
+            `For your peace of mind and to avoid any setbacks, we offer two ways to take care of it:`,
+          ])
     : (isEs
-        ? `Toda LLC y Corporación de Florida debe presentar una Declaración Anual cada año para seguir activa ante el Estado. Hay dos formas de encargarse de esto, según cuánto quiera dejarlo resuelto.`
-        : `Every Florida LLC and Corporation must file an Annual Report each year to stay active with the State. There are two ways to take care of it, depending on how much you'd like to take off your plate.`)
+        ? [
+            `Felicitaciones por haber formado <strong>${company.company_name}</strong> en Florida.`,
+            `Toda LLC y Corporación de Florida debe presentar una Declaración Anual cada año para seguir activa en los registros del Estado.`,
+            `Para su tranquilidad y evitar contratiempos, le ofrecemos dos formas de resolver esto:`,
+          ]
+        : [
+            `Congratulations on forming <strong>${company.company_name}</strong> in Florida.`,
+            `Every Florida LLC and Corporation is required to file an Annual Report each year to remain active on the State's records.`,
+            `For your peace of mind and to avoid any setbacks, we offer two ways to take care of it:`,
+          ])
 
-  const filingYearLabel = firstArYear ? String(firstArYear) : (isEs ? 'este año' : 'this year')
+  const introHtml = introParas.map(p => `<p style="color:#475569;font-size:13.5px;line-height:1.7;margin:0 0 12px">${p}</p>`).join('')
 
   const html = `<!DOCTYPE html>
 <html lang="${lang}">
@@ -99,27 +120,22 @@ export function buildVipReminderEmail(company: CampaignCompany, lang: 'en' | 'es
             <p style="color:#1C2E44;font-size:15px;font-weight:700;margin:0 0 14px">
               ${isEs ? `Hola${company.owner_name ? ' ' + company.owner_name : ''},` : `Hello${company.owner_name ? ' ' + company.owner_name : ''},`}
             </p>
-            <p style="color:#475569;font-size:13.5px;line-height:1.7;margin:0">${intro}</p>
+            ${introHtml}
           </td>
         </tr>
 
         <!-- Sección 1 — AR solo (presentación única) -->
         <tr>
-          <td style="background:#fff;padding:20px 36px 6px">
+          <td style="background:#fff;padding:8px 36px 6px">
             <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border:1.5px solid #E2E8F0;border-radius:12px">
               <tr>
                 <td style="padding:24px 26px">
-                  <div style="font-size:11px;font-weight:700;color:${GREEN_DARK};text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">${isEs ? 'Opción 1 — Presentación Única' : 'Option 1 — One-Time Filing'}</div>
+                  <div style="font-size:11px;font-weight:700;color:${GREEN_DARK};text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">${isEs ? 'Opción 1 · Presentación Única' : 'Option 1 · One-Time Filing'}</div>
                   <div style="font-size:17px;font-weight:800;color:#1C2E44;font-family:Georgia,serif;margin-bottom:10px">${isEs ? `Presente ahora su Declaración Anual ${filingYearLabel}` : `File your ${filingYearLabel} Annual Report now`}</div>
-                  <p style="color:#64748b;font-size:13px;line-height:1.65;margin:0 0 12px">
+                  <p style="color:#64748b;font-size:13px;line-height:1.65;margin:0 0 18px">
                     ${isEs
-                      ? `¿Prefiere simplemente sacárselo de encima? Envíenos su información hoy y presentaremos su Declaración Anual ${filingYearLabel} apenas se abra el período de presentación de Florida — sin suscripción, sin nada que renovar.`
-                      : `Want to simply get it out of the way? Give us your information today, and we'll file your ${filingYearLabel} Annual Report as soon as Florida opens its filing window — no subscription, nothing to renew.`}
-                  </p>
-                  <p style="color:#94A3B8;font-size:12px;line-height:1.6;margin:0 0 18px">
-                    <strong style="color:#64748b">${isEs ? 'Cómo funciona: ' : 'How it works: '}</strong>${isEs
-                      ? 'Florida no acepta la Declaración Anual antes del 1 de enero del año que corresponde presentar, así que dejamos su presentación en cola y la enviamos apenas se abra el período — mucho antes del plazo límite del 1 de mayo.'
-                      : "Florida doesn't accept next year's Annual Report before January 1, so we queue your filing now and submit it the moment the window opens — well ahead of the May 1 deadline."}
+                      ? 'Si prefiere simplemente resolverlo, podemos presentarla por usted como un servicio único. Es rápido de completar, y queda resuelto con tiempo de sobra antes del plazo límite del 1 de mayo.'
+                      : "If you'd simply like to get it out of the way, we can file it for you as a one-time service. It's quick to set up, and it's taken care of well before the May 1 deadline."}
                   </p>
                   <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:18px">
                     <tr>
@@ -128,7 +144,7 @@ export function buildVipReminderEmail(company: CampaignCompany, lang: 'en' | 'es
                     </tr>
                   </table>
                   <a href="${arUrl}" style="display:block;text-align:center;background:${GREEN};color:#fff;text-decoration:none;padding:13px 24px;border-radius:9px;font-weight:700;font-size:14.5px">${isEs ? 'Presentar mi Declaración Anual →' : 'File My Annual Report →'}</a>
-                  <p style="text-align:center;font-size:11px;color:#94A3B8;margin:10px 0 0">${isEs ? 'Su información ya está pre-cargada — solo revise y confirme.' : 'Your information is pre-filled — just review and confirm.'}</p>
+                  <p style="text-align:center;font-size:11px;color:#94A3B8;margin:10px 0 0">${isEs ? 'Su información ya está pre-cargada. Solo revise y confirme.' : 'Your information is pre-filled. Just review and confirm.'}</p>
                 </td>
               </tr>
             </table>
@@ -148,16 +164,16 @@ export function buildVipReminderEmail(company: CampaignCompany, lang: 'en' | 'es
             <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border:1.5px solid ${GREEN};border-radius:12px">
               <tr>
                 <td style="padding:24px 26px">
-                  <div style="font-size:11px;font-weight:700;color:${GREEN_DARK};text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">${isEs ? 'Opción 2 — Paquete VIP de Cumplimiento' : 'Option 2 — VIP Compliance Package'}</div>
-                  <div style="font-size:17px;font-weight:800;color:#1C2E44;font-family:Georgia,serif;margin-bottom:10px">${isEs ? 'O no vuelva a pensarlo, nunca más' : 'Or never think about it again'}</div>
+                  <div style="font-size:11px;font-weight:700;color:${GREEN_DARK};text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">${isEs ? 'Opción 2 · Paquete VIP de Cumplimiento' : 'Option 2 · VIP Compliance Package'}</div>
+                  <div style="font-size:17px;font-weight:800;color:#1C2E44;font-family:Georgia,serif;margin-bottom:10px">${isEs ? 'Agente Registrado y Declaración Anual, cada año' : 'Registered Agent and Annual Report, every year'}</div>
                   <p style="color:#64748b;font-size:13px;line-height:1.65;margin:0 0 14px">
                     ${isEs
-                      ? 'Si prefiere resolver esto una sola vez, el Paquete VIP incluye su Agente Registrado y su Declaración Anual juntos, renovados automáticamente cada año. Nosotros monitoreamos el plazo y presentamos por usted — recibe una confirmación por correo cada vez que se hace.'
-                      : "If you'd rather solve this once, the VIP Package bundles your Registered Agent and Annual Report together, renewed automatically every year. We monitor the deadline and file it for you — you get an email confirmation each time it's done."}
+                      ? 'Si prefiere no lidiar con esto cada año, nuestro Paquete VIP de Cumplimiento reúne su Agente Registrado y su Declaración Anual, renovados automáticamente. Nosotros monitoreamos el plazo y presentamos en su nombre, con una confirmación por correo cada vez que se hace.'
+                      : "If you'd rather not deal with this every year, our VIP Compliance Package bundles your Registered Agent and Annual Report together, renewed automatically. We monitor the deadline and file on your behalf, with an email confirmation each time it's done."}
                   </p>
                   <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:18px">
-                    <tr><td style="padding:0 0 6px;width:20px;vertical-align:top;color:${GREEN};font-weight:800;font-size:12.5px">&#10003;</td><td style="padding:0 0 6px;font-size:12.5px;color:#475569;line-height:1.6">${isEs ? '<strong style="color:#1C2E44">Agente Registrado</strong> — dirección oficial de Florida, renovada automáticamente.' : '<strong style="color:#1C2E44">Registered Agent</strong> — official Florida address, renewed automatically.'}</td></tr>
-                    <tr><td style="padding:0 0 6px;width:20px;vertical-align:top;color:${GREEN};font-weight:800;font-size:12.5px">&#10003;</td><td style="padding:0 0 6px;font-size:12.5px;color:#475569;line-height:1.6">${isEs ? '<strong style="color:#1C2E44">Declaración Anual</strong> — presentada cada año antes del plazo, sin que usted tenga que recordarlo.' : '<strong style="color:#1C2E44">Annual Report</strong> — filed every year before the deadline, without you having to remember.'}</td></tr>
+                    <tr><td style="padding:0 0 6px;width:20px;vertical-align:top;color:${GREEN};font-weight:800;font-size:12.5px">&#10003;</td><td style="padding:0 0 6px;font-size:12.5px;color:#475569;line-height:1.6">${isEs ? '<strong style="color:#1C2E44">Agente Registrado:</strong> dirección oficial de Florida, renovada automáticamente.' : '<strong style="color:#1C2E44">Registered Agent:</strong> official Florida address, renewed automatically.'}</td></tr>
+                    <tr><td style="padding:0 0 6px;width:20px;vertical-align:top;color:${GREEN};font-weight:800;font-size:12.5px">&#10003;</td><td style="padding:0 0 6px;font-size:12.5px;color:#475569;line-height:1.6">${isEs ? '<strong style="color:#1C2E44">Declaración Anual:</strong> presentada cada año antes del plazo, sin que usted tenga que recordarlo.' : '<strong style="color:#1C2E44">Annual Report:</strong> filed every year before the deadline, without you having to remember.'}</td></tr>
                     <tr><td style="width:20px;vertical-align:top;color:${GREEN};font-weight:800;font-size:12.5px">&#10003;</td><td style="font-size:12.5px;color:#475569;line-height:1.6">${isEs ? 'Confirmación por email cada vez que se presenta.' : "Email confirmation every time it's filed."}</td></tr>
                   </table>
                   <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:18px">

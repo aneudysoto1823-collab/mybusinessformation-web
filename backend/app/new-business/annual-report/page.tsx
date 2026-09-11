@@ -1,17 +1,18 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'File Your Annual Report — Florida Business Formation Center',
-  description: 'File this year\'s Florida Annual Report — a one-time filing, no subscription.',
+  title: 'File Your Annual Report | Florida Business Formation Center',
+  description: 'File this year\'s Florida Annual Report, a one-time filing with no subscription.',
   robots: { index: false, follow: false },
 }
 
-// Landing compañero de /vip (2026-09-11) — mismo mecanismo (prefill del
-// carrito compartido + redirect a /servicios/checkout), pero para UNA sola
-// presentación de la Declaración Anual en vez del combo con Agente
-// Registrado. Es el link que usa la sección "File Early" del email
-// recordatorio de cumplimiento (lib/vip-reminder-email.ts) — la opción
-// simple, antes de ofrecer el upsell al VIP Compliance Package.
+// Landing compañero de /vip (2026-09-11) — prefill del carrito compartido +
+// redirect a /servicios (no directo a checkout, a diferencia de /vip: acá el
+// cliente ve el resto del catálogo y puede sumar más antes de pagar). Para
+// UNA sola presentación de la Declaración Anual en vez del combo con Agente
+// Registrado. Es el link que usa la Opción 1 del email recordatorio de
+// cumplimiento (lib/vip-reminder-email.ts), antes de ofrecer el upsell al
+// VIP Compliance Package.
 export default function AnnualReportPage() {
   const styles = `
 :root{--navy:#1C2E44;--blue:#2563EB;--blue-dark:#1D4ED8;--blue-light:#EFF6FF;--green:#059669;--white:#fff;--gray50:#F8FAFC;--gray100:#F1F5F9;--gray200:#E2E8F0;--gray300:#CBD5E1;--gray400:#94A3B8;--gray500:#64748B;--gray600:#475569;--gray800:#1E293B;}
@@ -86,8 +87,8 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
     <div class="ar-badge en-inline">One-Time Filing</div><div class="ar-badge es-inline" style="display:none">Presentación Única</div>
     <h1 class="en">File this year's Annual Report.</h1>
     <h1 class="es" style="display:none">Presente su Declaración Anual de este año.</h1>
-    <p class="lead en">Every Florida LLC and Corporation must file an Annual Report each year to stay active with the State. File it now — no subscription, just this year's filing.</p>
-    <p class="lead es" style="display:none">Toda LLC y Corporación de Florida debe presentar una Declaración Anual cada año para seguir activa ante el Estado. Preséntela ahora — sin suscripción, solo la presentación de este año.</p>
+    <p class="lead en">Every Florida LLC and Corporation must file an Annual Report each year to stay active with the State. File it now as a one-time filing.</p>
+    <p class="lead es" style="display:none">Toda LLC y Corporación de Florida debe presentar una Declaración Anual cada año para seguir activa ante el Estado. Preséntela ahora como un trámite único.</p>
   </div>
 
   <div class="ar-card">
@@ -103,11 +104,11 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
       <li><span class="check">&#10003;</span><span class="en">Keeps your entity active and in good standing for the year.</span><span class="es" style="display:none">Mantiene su entidad activa y en buen estado durante el año.</span></li>
       <li><span class="check">&#10003;</span><span class="en">Confirmation emailed to you once it's filed.</span><span class="es" style="display:none">Confirmación enviada por correo una vez presentada.</span></li>
     </ul>
-    <button class="ar-cta" id="ar-cta" onclick="arGoToCheckout()">
+    <button class="ar-cta" id="ar-cta" onclick="arGoToServices()">
       <span class="en-inline">File My Annual Report &#8594;</span><span class="es-inline" style="display:none">Presentar mi Declaración Anual &#8594;</span>
     </button>
-    <p class="ar-cta-note en">Your information is pre-filled — just review and confirm.</p>
-    <p class="ar-cta-note es" style="display:none">Su información ya está pre-cargada — solo revise y confirme.</p>
+    <p class="ar-cta-note en">Your information is pre-filled. Just review and confirm.</p>
+    <p class="ar-cta-note es" style="display:none">Su información ya está pre-cargada. Solo revise y confirme.</p>
   </div>
 
   <div class="ar-alt">
@@ -149,9 +150,15 @@ function arSetLang(lang){
   });
 }
 
-// Mismo contrato de carrito compartido que /vip y /servicios/checkout
-// (flbc_svc_cart/company) — pero sin bundle, un solo servicio.
-function arGoToCheckout(){
+// Mismo contrato de carrito compartido que /vip y /servicios (flbc_svc_cart
+// lo lee /servicios/page.tsx al cargar) — pero sin bundle, un solo servicio.
+// A diferencia de /vip (combo, va directo a pagar), esto manda al catálogo
+// con Annual Report ya agregado en vez de saltar directo al checkout: el
+// cliente ve el resto de los servicios y puede sumar más antes de pagar
+// (decisión founder 2026-09-11 — la compra de un solo servicio es buena
+// oportunidad para mostrar el catálogo, a diferencia del combo VIP que ya es
+// una decisión tomada).
+function arGoToServices(){
   try {
     localStorage.setItem('flbc_svc_cart', JSON.stringify(['annual-report']));
     localStorage.removeItem('flbc_svc_bundles');
@@ -161,7 +168,7 @@ function arGoToCheckout(){
       localStorage.setItem('flbc_svc_company', JSON.stringify({ documentId: window.__arDocId }));
     }
   } catch (e) {}
-  window.location.href = '/servicios/checkout';
+  window.location.href = '/servicios';
 }
 
 (function(){
