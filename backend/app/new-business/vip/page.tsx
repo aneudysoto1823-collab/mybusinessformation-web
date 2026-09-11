@@ -113,6 +113,10 @@ function vipGoToCheckout(docId){
     var claim = JSON.stringify({ 'bundle-compliance-ra-ar': ['registered-agent','annual-report'] });
     localStorage.setItem('flbc_svc_bundle_added', claim);
     localStorage.setItem('flbc_svc_bundle_claimed', claim);
+    // Le dice a /servicios/checkout que este combo ya venía elegido de
+    // antemano (link del email VIP) — así no vuelve a ofrecer el hub
+    // "Cumplimiento anual" como si fuera una decisión pendiente.
+    localStorage.setItem('flbc_svc_vip_source', '1');
     if (docId) {
       localStorage.setItem('flbc_svc_company', JSON.stringify({ documentId: docId }));
     }

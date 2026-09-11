@@ -582,6 +582,12 @@ try { var _cf = localStorage.getItem('flbc_svc_company'); if (_cf) coCompanyPref
 // Bundles (combos) elegidos en los hubs de 3 tiers. Persisten junto al carrito.
 var coBundles = [];
 try { coBundles = JSON.parse(localStorage.getItem('flbc_svc_bundles')||'[]'); if(!Array.isArray(coBundles)) coBundles=[]; } catch(e){ coBundles=[]; }
+// Viene del link del email VIP Compliance Reminder (/vip, ya eligió el combo
+// completo de antemano) — se usa en coHubApplicable() para no volver a
+// ofrecerle el hub "Cumplimiento anual" como si fuera una elección pendiente
+// (2026-09-11). Se limpia junto al resto del carrito al completar la compra.
+var coVipSource = false;
+try { coVipSource = localStorage.getItem('flbc_svc_vip_source') === '1'; } catch(e){}
 // Qué servicios agregó cada bundle REALMENTE de nuevo al carrito (excluye los
 // que el cliente ya traía sueltos antes de elegirlo) — {bundleId:[svcIds]}.
 // Es la fuente de verdad tanto para el precio dinámico (ver coBundlePrice)
@@ -1655,6 +1661,12 @@ function coHubApplicable(hub){
   // "compliance" es solo à la carte — en formación el agente ya se resuelve en
   // su propio paso obligatorio (panel-ra) y Annual Report vive en "protect".
   if(hub==='compliance' && coFormationType()) return false;
+  // Cliente que vino del link del email VIP (/vip) con el combo completo ya
+  // elegido de antemano — no tiene sentido volver a ofrecérselo como si fuera
+  // una decisión pendiente (2026-09-11). Si más adelante en el wizard saca
+  // algún servicio del combo, coBundles ya no lo va a tener y este check deja
+  // de aplicar solo.
+  if(hub==='compliance' && coVipSource && coBundles.indexOf('bundle-compliance-ra-ar')>=0) return false;
   // mybusinessformation.com (2026-09-10): el hub 'protect' à la carte quedó
   // con un solo servicio (Business Tax Receipt) al sacar Virtual Address — un
   // solo ítem no amerita tratamiento de combo, así que el paso entero se
@@ -2631,7 +2643,7 @@ function coInitNormal(){
           .catch(function(){});
       }
     }catch(e){}
-    try{ localStorage.removeItem('flbc_svc_cart'); localStorage.removeItem('flbc_svc_bundles'); localStorage.removeItem('flbc_svc_bundle_added'); localStorage.removeItem('flbc_svc_order'); localStorage.removeItem('flbc_svc_expedited'); localStorage.removeItem('flbc_svc_orderid'); localStorage.removeItem('flbc_svc_draft_email'); localStorage.removeItem('flbc_svc_prefill'); localStorage.removeItem('flbc_svc_company'); }catch(e){}
+    try{ localStorage.removeItem('flbc_svc_cart'); localStorage.removeItem('flbc_svc_bundles'); localStorage.removeItem('flbc_svc_bundle_added'); localStorage.removeItem('flbc_svc_order'); localStorage.removeItem('flbc_svc_expedited'); localStorage.removeItem('flbc_svc_orderid'); localStorage.removeItem('flbc_svc_draft_email'); localStorage.removeItem('flbc_svc_prefill'); localStorage.removeItem('flbc_svc_company'); localStorage.removeItem('flbc_svc_vip_source'); }catch(e){}
     coShowScreen('co-success'); return;
   }
   // Restaura un borrador guardado — desde el link del email (?resumeOrder=&
