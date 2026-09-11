@@ -177,22 +177,24 @@ export function computeBundlePrice(bundleId: string, newServiceIds: string[], br
   if (!b) return 0
   const claimedNew = new Set(newServiceIds.filter(s => b.services.includes(s)))
   if (claimedNew.size === 0) return 0
-  // mybusinessformation.com: reclamar un solo servicio nunca es un combo
-  // real — ya sea porque el bundle en sí es de 1 solo ítem (bundle-docs-oa,
-  // bundle-compliance-ra) o porque el cliente destildó el resto de un combo
-  // más grande (checkboxes por ítem en las tarjetas, 2026-09-10) — siempre
-  // cobra el precio normal de catálogo de ESE ítem, nunca el 10%. Gateado a
-  // 'fbfc' a propósito: opabiz.com YA descontaba 10% a un solo ítem nuevo en
-  // el caso de compra parcial (ver el cálculo de abajo) — comportamiento
-  // existente que no se toca.
-  if (brand === 'fbfc' && claimedNew.size === 1) return getServiceFee([...claimedNew][0], brand)
+  // Reclamar un solo servicio nunca es un combo real — ya sea porque el
+  // bundle en sí es de 1 solo ítem (bundle-docs-oa, bundle-compliance-ra) o
+  // porque el cliente destildó el resto de un combo más grande (checkboxes
+  // por ítem en las tarjetas) — siempre cobra el precio normal de catálogo
+  // de ESE ítem, nunca el 10%. Gateado originalmente solo a 'fbfc'
+  // (2026-09-10); unificado a ambas marcas el 2026-09-11 al llevar el mismo
+  // patrón de checkboxes por ítem a opabiz.com — evita el mismo hueco de
+  // precio (10% de "descuento" sobre un ítem que quedó solo) ahí también.
+  if (claimedNew.size === 1) return getServiceFee([...claimedNew][0], brand)
   // mybusinessformation.com (2026-09-10): sin el atajo de precio fijo — el
   // rediseño de combos de mybiz siempre cobra 10% off de la suma completa,
   // incluso cuando reclama el combo entero (ver coBundleClaimed en
   // servicios/checkout/page.tsx, que para esa marca SIEMPRE manda el combo
   // completo como "nuevo", absorbiendo cualquier servicio que el cliente ya
-  // tenía suelto dentro del precio del combo). opabiz.com no cambia — sigue
-  // devolviendo el precio fijo de marketing cuando reclama todo el combo.
+  // tenía suelto dentro del precio del combo). opabiz.com sigue devolviendo
+  // el precio fijo de marketing cuando reclama todo el combo — decisión
+  // aparte de la unificación de checkboxes de arriba, solo afecta cómo se
+  // muestra el precio del combo completo, no la interacción.
   if (brand !== 'fbfc' && claimedNew.size === b.services.length) return b.price
   // Virtual Address (y cualquier otro id en NO_DISCOUNT_SERVICE_IDS) se cobra
   // a precio completo; solo el resto del combo entra al pool del 10% off.
