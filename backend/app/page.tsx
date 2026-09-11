@@ -552,7 +552,6 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
   .fm-sum-toggle{display:block}
   .fm-summary:not(.fm-sum-open) .fm-sum-body,
   .fm-summary:not(.fm-sum-open) .fm-secure{display:none}
-  .fm-summary.fm-sum-open .fm-sum-toggle{transform:rotate(180deg)}
 }
 
 /* Form step visibility */
@@ -595,7 +594,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 .fm-sum-pay-consent a{color:#2563eb;text-decoration:none}
 .fm-sum-head{padding:16px 20px;border-bottom:1px solid #f3f4f6}
 .fm-sum-head-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.fm-sum-toggle{display:none;font-size:.9rem;color:#64748b;transition:transform .2s;line-height:1}
+.fm-sum-toggle{display:none;font-size:.78rem;font-weight:700;color:#2563eb;line-height:1;text-decoration:underline;white-space:nowrap}
 .fm-sum-title{font-size:.88rem;font-weight:700;color:#1e293b}
 .fm-sum-biz{background:#eff6ff;border-radius:7px;padding:7px 14px;text-align:center;font-size:.82rem;font-weight:600;color:#1e40af;margin-top:10px;display:none}
 .fm-sum-body{padding:4px 0 8px}
@@ -2409,7 +2408,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
       <div class="fm-sum-head">
         <div class="fm-sum-head-row" onclick="fmToggleSummary()">
           <div class="fm-sum-title" id="sum-title-main">Your Order</div>
-          <span class="fm-sum-toggle" id="fm-sum-toggle" aria-hidden="true">&#9662;</span>
+          <span class="fm-sum-toggle" id="fm-sum-toggle" data-en="View details" data-es="Ver detalle">View details</span>
         </div>
         <div class="fm-sum-biz" id="sum-biz-name" style="display:none"></div>
       </div>
@@ -5552,7 +5551,16 @@ function fmToggleAddon(key, el) {
 // ORDER SUMMARY UPDATE
 // ═══════════════════════════════════════════════════════
 // En mobile el resumen aparece arriba y colapsado; este toggle lo abre/cierra.
-function fmToggleSummary(){ var s=document.querySelector('.fm-summary'); if(s) s.classList.toggle('fm-sum-open'); }
+// Texto en vez de flecha (2026-09-11) — la flecha sola casi no se veía en
+// mobile y algunos clientes no notaban que el resumen se podía expandir.
+function fmToggleSummary(){
+  var s=document.querySelector('.fm-summary'); if(!s) return;
+  var open=s.classList.toggle('fm-sum-open');
+  var t=document.getElementById('fm-sum-toggle'); if(!t) return;
+  t.setAttribute('data-en', open?'Hide details':'View details');
+  t.setAttribute('data-es', open?'Ocultar detalle':'Ver detalle');
+  t.textContent = currentLang==='es' ? t.getAttribute('data-es') : t.getAttribute('data-en');
+}
 // Qué incluye cada tier de paquete — mismo contenido que PACKAGE_SERVICES en
 // lib/notifications.ts / app/order/complete/page.tsx (mantener sincronizado
 // si cambian los paquetes). Usado por el sidebar (fmUpdateSummary) y por

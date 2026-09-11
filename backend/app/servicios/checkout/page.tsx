@@ -255,7 +255,7 @@ ${isFBFC ? `
 .co-side{position:sticky;top:90px}
 .co-side .co-review{position:static;top:auto}
 .co-side-note{font-size:.7rem;color:var(--gray400);margin-top:12px;line-height:1.5}
-.co-sum-toggle{display:none;font-size:.9rem;color:var(--gray500);transition:transform .2s;line-height:1}
+.co-sum-toggle{display:none;font-size:.78rem;font-weight:700;color:var(--blue);line-height:1;text-decoration:underline;white-space:nowrap}
 .co-ssn-wrap{position:relative;max-width:220px}
 .co-ssn-wrap .co-input{padding-right:64px}
 .co-ssn-eye{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--blue);font-size:.78rem;font-weight:600;cursor:pointer;font-family:inherit;padding:4px 6px}
@@ -276,8 +276,7 @@ html.co-wide .co-tier{padding:20px 18px}
 @media(max-width:760px){.co-grid{grid-template-columns:1fr}.co-pay-grid{grid-template-columns:1fr}.co-review{position:static}.co-choices{grid-template-columns:1fr}.co-tiers{grid-template-columns:1fr}.co-layout{grid-template-columns:1fr}.co-side{position:static;order:-1;margin-bottom:18px}.co-input,.co-select,.co-textarea{font-size:16px}
   .co-sum-head{display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer}
   .co-sum-toggle{display:block}
-  .co-side:not(.co-sum-open) #co-osum-body,.co-side:not(.co-sum-open) .co-side-note{display:none}
-  .co-side.co-sum-open .co-sum-toggle{transform:rotate(180deg)}}
+  .co-side:not(.co-sum-open) #co-osum-body,.co-side:not(.co-sum-open) .co-side-note{display:none}}
 @media(max-width:480px){.co-wrap{padding-left:16px;padding-right:16px}.co-header-inner{padding-left:16px;padding-right:16px}.co-review{padding-left:18px;padding-right:18px}.co-card{padding-left:16px;padding-right:16px}.co-h1{font-size:1.45rem}}
 
 /* ── LOB address verification popup (2026-09-09) ────────────────────────── */
@@ -481,7 +480,7 @@ html.co-wide .co-tier{padding:20px 18px}
     <!-- RESUMEN DE ORDEN (sidebar derecho, visible en cada paso) -->
     <aside class="co-side" id="co-side">
       <div class="co-review">
-        <div class="co-card-title co-sum-head" style="margin-bottom:12px" onclick="coToggleSummary()"><span data-en="Order summary" data-es="Resumen del pedido">Resumen del pedido</span><span class="co-sum-toggle" aria-hidden="true">&#9662;</span></div>
+        <div class="co-card-title co-sum-head" style="margin-bottom:12px" onclick="coToggleSummary()"><span data-en="Order summary" data-es="Resumen del pedido">Resumen del pedido</span><span class="co-sum-toggle" id="co-sum-toggle" data-en="View details" data-es="Ver detalle">Ver detalle</span></div>
         <div id="co-osum-body"></div>
         <div class="co-review-total"><span data-en="Total" data-es="Total">Total</span><strong id="co-osum-total">$0</strong></div>
         <div class="co-side-note" id="co-side-note"></div>
@@ -1425,10 +1424,13 @@ function coSharedFieldsInner(keys){
       // el cliente lo note (bug real: ambos campos se ven iguales a simple
       // vista pero no coinciden — password manager de por medio). El masking
       // visual (los puntos) lo da el CSS, no el atributo type.
-      return '<div class="co-field full"><label class="co-label">'+lbl+tipHtml+'</label>'
+      // Uno al lado del otro (2026-09-11, antes cada uno en su propia fila
+      // completa) — evita scroll extra ahora que viven dentro del paso
+      // "Información personal" en vez de su propio paso corto.
+      return '<div class="co-field"><label class="co-label">'+lbl+tipHtml+'</label>'
         +'<div class="co-ssn-wrap"><input class="co-input" type="text" style="-webkit-text-security:disc" autocomplete="off" data-lpignore="true" data-form-type="other" inputmode="numeric" maxlength="9" oninput="this.value=this.value.replace(/[^0-9]/g,\'\');coCheckSsnMatch()" id="s-ssnItin"/>'
         +'<button type="button" class="co-ssn-eye" onclick="coToggleSsn(this)">'+(isEs?'Ver':'Show')+'</button></div></div>'
-        +'<div class="co-field full"><label class="co-label">'+(isEs?'Confirme su SSN o ITIN':'Confirm your SSN or ITIN')+'</label>'
+        +'<div class="co-field"><label class="co-label">'+(isEs?'Confirme su SSN o ITIN':'Confirm your SSN or ITIN')+'</label>'
         +'<input class="co-input" type="text" style="-webkit-text-security:disc" autocomplete="off" data-lpignore="true" data-form-type="other" inputmode="numeric" maxlength="9" oninput="this.value=this.value.replace(/[^0-9]/g,\'\');coCheckSsnMatch()" id="s-ssnItin-confirm"/>'
         +'<div id="s-ssn-match-msg" style="font-size:.78rem;font-weight:600;margin-top:6px;min-height:16px"></div></div>';
     }
@@ -1981,7 +1983,17 @@ function coRaUpsellNote(){
   return '<div class="co-state-note" style="color:#059669;font-weight:600">&#127881; '+(isEs?'Agregue cualquier otro servicio y su Agente Registrado sale gratis el primer año.':'Add any other service and your Registered Agent is free the first year.')+'</div>';
 }
 // En mobile el resumen va arriba y colapsado; este toggle lo abre/cierra.
-function coToggleSummary(){ var s=document.getElementById('co-side'); if(s) s.classList.toggle('co-sum-open'); }
+// Texto en vez de flecha (2026-09-11) — la flecha sola casi no se veía en
+// mobile y algunos clientes no notaban que el resumen se podía expandir.
+function coToggleSummary(){
+  var s=document.getElementById('co-side'); if(!s) return;
+  var open=s.classList.toggle('co-sum-open');
+  var t=$('co-sum-toggle'); if(!t) return;
+  var isEs=coIsEs();
+  t.setAttribute('data-en', open?'Hide details':'View details');
+  t.setAttribute('data-es', open?'Ocultar detalle':'Ver detalle');
+  t.textContent = isEs ? t.getAttribute('data-es') : t.getAttribute('data-en');
+}
 function coUpdateOrderSummary(){
   var side=$('co-side'); if(!side) return; var isEs=coIsEs();
   // En el paso de pago el resumen completo va dentro del panel; ocultamos el
@@ -2089,18 +2101,22 @@ function coBuildWizard(){
 
   // Hubs de upsell (3 tiers). Van antes de los datos de servicios para que lo que
   // el cliente agregue genere su paso de datos a continuación.
+  // "Cumplimiento anual" (Agente + Declaración Anual) va PRIMERO (2026-09-11,
+  // pedido founder) — es el combo que más interesa vender, antes solo
+  // aparecía después de "Documentos esenciales". Solo à la carte, sin
+  // formación — ahí el agente ya se resuelve en su propio paso obligatorio.
+  if(coHubApplicable('compliance')){ coRenderHub('compliance'); coSteps.push({id:'panel-hub-compliance', title:{en:'Annual compliance',es:'Cumplimiento anual'}}); }
   if(coHubApplicable('docs')){ coRenderHub('docs'); coSteps.push({id:'panel-hub-docs', title:{en:'Essential documents',es:'Documentos esenciales'}}); }
-  // Datos fiscales (SSN/ITIN): paso propio. En formación va ENTRE los hubs
-  // (contexto fresco tras elegir el EIN); à la carte va después de todos.
-  // 'ein' no cuenta para este paso — vive en panel-company (Paso 1) desde
-  // 2026-09-11. Si era la única clave pendiente, este paso deja de existir.
+  // Datos fiscales (SSN/ITIN): paso propio. En formación va justo después de
+  // "Documentos esenciales" (contexto fresco tras elegir el EIN — "Cumplimiento
+  // anual" no aplica en formación, así que el orden de arriba no lo afecta);
+  // à la carte va después de todos los hubs. 'ein' no cuenta para este paso —
+  // vive en panel-company (Paso 1) desde 2026-09-11. Si era la única clave
+  // pendiente, este paso deja de existir.
   var coTaxNeeded=coSharedKeysActive().filter(function(k){ return k!=='ein'; }).length>0;
   // Si ya se fusionó dentro de "Información personal" (ver coSsnMergeIntoContact
   // arriba), este paso propio no existe — coRenderContactExtra ya lo cubrió.
   if(ft && coTaxNeeded && !coSsnMergeIntoContact){ coRenderTaxPanel(); coSteps.push({id:'panel-tax', title:{en:'Tax details',es:'Datos fiscales'}}); }
-  // "Cumplimiento anual" (Agente + Annual Report): solo à la carte, sin
-  // formación — ahí el agente ya se resuelve en su propio paso obligatorio.
-  if(coHubApplicable('compliance')){ coRenderHub('compliance'); coSteps.push({id:'panel-hub-compliance', title:{en:'Annual compliance',es:'Cumplimiento anual'}}); }
   if(coHubApplicable('protect')){ coRenderHub('protect'); coSteps.push({id:'panel-hub-protect', title:{en:'Business presence & operations',es:'Presencia y operación'}}); }
   if(!ft && coTaxNeeded && !coSsnMergeIntoContact){ coRenderTaxPanel(); coSteps.push({id:'panel-tax', title:{en:'Tax details',es:'Datos fiscales'}}); }
 
