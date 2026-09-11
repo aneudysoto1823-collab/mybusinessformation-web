@@ -1428,6 +1428,60 @@ Nuevo landing `mybusinessformation.com/vip` (`app/new-business/vip/page.tsx`, re
 
 ---
 
+## Sesión 2026-09-11 — Auditoría de unsubscribe, puente Marketing Saliente, email VIP Compliance Reminder, menos pasos en checkout
+
+Sesión larga. Resumen de lo construido (ver `git log` para el detalle línea por línea de cada commit):
+
+### Auditoría de unsubscribe en emails de campaña
+
+Encontrado con una auditoría a pedido del founder: `POST /api/unsubscribe` solo actualizaba `Order.unsubscribed` — un lead de campaña (`prospective_companies`, sin ninguna `Order` todavía) que se daba de baja recibía `{success:true}` pero **seguía recibiendo la carta B1 igual**, porque `campaigns/send` nunca chequeaba nada. Fix: el endpoint ahora también marca `prospective_companies.unsubscribed=true`, y `campaigns/send` salta a los leads marcados. **Requiere correr** `supabase_migration_prospective_companies_unsubscribe.sql` en Supabase (columna `unsubscribed BOOLEAN` en `prospective_companies` — ya corrida en producción esta sesión). Además: la carta B1 corrigió remitente/reply-to/link de unsubscribe (decían "OpaBiz"/opabiz.com pese a ser 100% contenido FBFC — ahora usan `FROM_FBFC`/`REPLY_TO_FBFC`/mybusinessformation.com), el email de la Guía I gratis (`/guia-gratis`) sumó su propio link de unsubscribe (no tenía ninguno), y el pie de la confirmación de orden (A1, `lib/notifications.ts` `unsubscribeFooter()`) ahora respeta `sourceBrand` en vez de mostrar siempre "opabiz.com" a un cliente de mybiz.
+
+### Botón de preview de email de campaña (sin enviar)
+
+`lib/campaign-email.ts` (nuevo) extrae `buildComplianceEmail()` de `campaigns/send/route.ts` a un módulo compartido — única fuente de verdad para el email real y para `GET /api/campaigns/preview-email?company_id=&lang=` (nuevo, solo lectura, no toca Resend/guide_sends/status). Botón nuevo (ícono de ventana) en `/admin/campaigns`, junto al de envío.
+
+### WhatsApp de OpaBiz en la carta B1 → email de contacto (pendiente)
+
+La carta mostraba `wa.me/13528377755` (número de OpaBiz) en una carta 100% mybiz. Reemplazado por `info@mybusinessformation.com` con nota `PENDIENTE` en el código — volver a poner el link de WhatsApp cuando mybiz tenga uno propio.
+
+### Fix de crash real en la carta PDF (WinAnsi)
+
+El error visto en el panel (`WinAnsi cannot encode "Ń"`) no era sobre la Ñ española (sí soportada) — era un typo real en una empresa de prueba (Ń polaca en vez de Ñ). Pero reveló que **cualquier** carácter fuera de WinAnsi tumbaba toda la generación del PDF. Fix: `sanitizeForWinAnsi()` en `lib/new-business-letter.ts` limpia `companyName`/`ownerName`/`address`/`city` antes de dibujar — intenta la versión sin diacrítico (NFKD) y si tampoco sirve lo omite, nunca vuelve a romper el documento completo.
+
+### Puente Marketing Saliente → Campaigns & Letters
+
+Bloque 4 de Marketing Saliente (`/admin/marketing`, "Campañas: filtro + disparo de cartas/emails") sigue siendo un placeholder deshabilitado ("Próximamente") pese a que el founder creía que ya estaba activo — confirmado leyendo el código real. Se construyó un puente propio: `POST /api/marketing/send-to-letters` (admin-only) toma los leads "listos" de Turso (`marketing_leads`: procesados, clasificados, dirección validada, score activo, no contactados) y los copia a Supabase (`prospective_companies`), donde el flujo de carta física de `/admin/campaigns` sí funciona. Botón nuevo en `/admin/marketing`, sección "📬 Enviar a Campaigns & Letters" (debajo de "Preparar N leads listos"). Solo copia — no envía nada por sí solo. Marca los leads copiados con `fecha_contactada` en Turso para no reofrecerlos. Sin email (Sunbiz no lo provee) — por diseño solo alimenta el flujo de carta física.
+
+**Pendiente:** el socio va a integrar un sistema que carga emails a `marketing_leads` — cuando esté, confirmar el nombre exacto de la columna nueva antes de extender el puente para que también copie el email a `prospective_companies.email` (habilitaría el botón de envío por email que ya existe en Campaigns & Letters para estos leads también).
+
+### Fix: autocompletar mes/año de inicio de LLC también desde `prospective_companies`
+
+`/api/sunbiz` (usado por el formulario para autocompletar `LLC START MONTH/YEAR`) solo leía `filing_date` de un registro real de Sunbiz (Turso) — nunca de `prospective_companies.registration_date`, aunque el comentario del propio código decía "prospective_companies gana en datos de marketing". Una empresa que vive solo en `prospective_companies` (agregada a mano, o copiada vía el puente de Marketing Saliente de arriba) nunca autocompletaba esos campos aunque el dato estuviera cargado. Fix: `filing_date: sunbiz?.filing_date || prospective?.registration_date || null`.
+
+### Email VIP Compliance Reminder — segunda campaña en `/admin/campaigns`
+
+Inspirado en un email real de un competidor (US Filing Services) que el founder recibió, pero **reescrito con voz propia** (no traducción) tras varias rondas de iteración de copy con el founder. Ofrece primero la Declaración Anual sola (presentación única) y después, como upsell, el combo VIP (Agente Registrado + Declaración Anual, renovado automático) — misma secuencia que el competidor, pero sin copiar 2 elementos deshonestos del original: el ancla de descuento falsa ("$250 en vez de $299", precio que no existe en ningún otro lado del sitio) y los bullets vacíos ("Ongoing compliance monitoring"/"Priority support" sin nada real detrás) — mismo criterio que ya se había aplicado con DBA/ITIN/Foreign LLC en la sesión anterior.
+
+- `lib/vip-reminder-email.ts` (nuevo): intro con felicitación por la formación (como ya hace B1) + explicación factual de por qué se necesita la Declaración Anual (incluye mención calmada, sin alarma, de que Florida puede disolver administrativamente la empresa si no se presenta) + transición ofreciendo las 2 opciones. Cada sección trae una definición breve del servicio (Declaración Anual / Agente Registrado, son clientes nuevos, no dar por sentado que saben qué es cada uno). Etiquetas "Presentación Única" / "Oferta VIP" (sin numerar "Opción 1/2"). Botones sin flecha final. Sin "Your information is pre-filled" (redundante, ya lo va a ver en el formulario) ni mención del 1 de enero en la Opción 1 (decirlo de entrada le daba al cliente una excusa para posponer — esa explicación del mecanismo de cola queda para un futuro email de confirmación post-pago, no construido todavía). "Cancel anytime. No long-term contract." se mantuvo a propósito en la oferta VIP (reduce la objeción más común a una suscripción, y es honesto porque la cancelación real existe en el dashboard). **Verde #7BBB5D** (ajustado dos veces en la sesión hasta dar con el tono correcto). Sin guion largo (—) en ningún párrafo — ver `[[feedback_writing_style]]`, actualizada para aplicar a todo copy de cliente, no solo el sitio.
+- `POST /api/campaigns/send-vip-reminder` + `GET /api/campaigns/preview-vip-reminder` — rutas separadas de las de B1 a propósito, para no arriesgar el envío ya probado de la carta. Botones verdes nuevos en `/admin/campaigns`.
+- `/vip` y `/annual-report` (`app/new-business/{vip,annual-report}/page.tsx`) dejaron de ser landings con su propia tarjeta de precio + botón — ahora son **redirects invisibles**: apenas cargan, precargan el carrito compartido (combo VIP o Annual Report solo) y mandan directo a `/servicios/checkout` (`/vip`) o `/servicios` (`/annual-report`, para que el cliente vea el resto del catálogo y pueda sumar más antes de pagar). Se evaluó embeber el wizard real de `/servicios/checkout` junto con cajas explicativas en una sola pantalla, estilo `/new-business` — descartado: son ~2600-3000 líneas cada una con su propio bloque de script global, juntarlas arriesgaba colisión de nombres de función/IDs.
+- **`coVipSource`** (flag `flbc_svc_vip_source` en localStorage, seteado por `/vip` antes de redirigir): en `/servicios/checkout`, salta el paso "Cumplimiento anual" (`coHubApplicable`, ya no lo vuelve a ofrecer si el combo completo ya viene elegido) y el paso "Procesamiento acelerado" (menos pasos para quien ya decidió suscribirse). Se limpia junto al resto del carrito al completar la compra.
+- Fix de paso: `/vip` mostraba $178 hardcodeado, $1 menos que el precio real del combo en `lib/services-pricing.ts` ($179) — corregido.
+
+### Menos pasos en `/servicios/checkout` (aplica a TODOS los clientes, no solo VIP)
+
+- El campo EIN (ya existente, necesario para servicios como Declaración Anual) se pregunta ahora en el **Paso 1 "Su empresa"** en vez de en su propio paso "Datos fiscales" — mismo patrón ya usado para la pregunta de actividad del EIN (vive en `co-company-extra`). Sigue siendo condicional (`coSharedKeysActive()`), igual que antes — si el carrito no lo necesita, no aparece. Si 'ein' era la única razón del paso "Datos fiscales", ese paso desaparece del wizard.
+- Copy del paso "Documentos esenciales" reforzado tras varias rondas de iteración con el founder: de "Ahorre tiempo y dinero en los documentos que su negocio necesita" (genérico) a "Documentos esenciales que la mayoría de los bancos solicita para abrir una cuenta comercial. Llévelos en un combo y ahorre." (apoya la venta en un hecho concreto, en tono de recomendación no de advertencia).
+- Borde azul quitado de la tarjeta "Mejor Valor" en **todos** los combos de 3 niveles del checkout (`.co-tier.best`) — el badge "Mejor Valor" ya distingue el tier recomendado por sí solo, el borde sumado al badge y al botón (todo azul) se sentía repetitivo.
+
+### Pendientes anotados para otra sesión
+
+- Email de confirmación post-pago explicando el mecanismo de cola (Florida no acepta la Declaración Anual antes del 1 de enero, se presenta apenas abre el período) — idea del founder, no construido.
+- Extender el puente de Marketing Saliente para copiar también el email cuando el socio termine de integrarlo a `marketing_leads`.
+- Volver a poner el link de WhatsApp en la carta B1 cuando mybiz tenga uno propio (ver `[[project_pendiente_whatsapp_mybiz_carta]]`).
+
+---
+
 ## Deploy
 
 - `git push origin main` — Vercel detecta cambios en `backend/` y hace deploy automático
