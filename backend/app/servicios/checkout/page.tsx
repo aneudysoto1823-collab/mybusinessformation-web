@@ -1371,6 +1371,13 @@ function coSetupCompanyPanel(ft){
     if(extra && cart.indexOf('ein')>=0){
       var fdAct=coFieldDef('ein','activity');
       if(fdAct) extra.innerHTML='<div class="co-grid">'+fieldHtml('ein',fdAct)+'</div>';
+    } else if(extra && coSharedKeysActive().indexOf('ein')>=0){
+      // EIN ya existente (necesario para Declaración Anual u otro servicio,
+      // sin comprar el servicio de EIN en sí) — se pregunta acá mismo en vez
+      // de en su propio paso "Datos fiscales" (2026-09-11, un paso menos en
+      // el checkout). Mismo criterio que la rama de arriba: coCollectShared/
+      // coValidateStep siguen leyendo 's-ein' sin importar en qué panel vive.
+      extra.innerHTML='<div class="co-grid">'+coSharedFieldsInner(['ein'])+'</div>';
     }
   }
 }
@@ -1449,7 +1456,10 @@ function coCheckSsnMatch(){
 // party ya cargado y deja solo el SSN/ITIN por llenar.
 function coRenderTaxPanel(){
   var panel=$('panel-tax'); if(!panel) return; var isEs=coIsEs();
-  var keys=coSharedKeysActive(); if(!keys.length){ panel.innerHTML=''; return; }
+  // 'ein' (EIN ya existente) se saca de acá — vive en el Paso 1 (Su empresa)
+  // desde 2026-09-11, ver coSetupCompanyPanel. Este paso solo queda para
+  // ssnItin (aplicar a un EIN nuevo).
+  var keys=coSharedKeysActive().filter(function(k){ return k!=='ein'; }); if(!keys.length){ panel.innerHTML=''; return; }
   // Servicios que disparan estos datos (para explicar el porqué).
   var trig=[]; cart.forEach(function(svcId){ var def=SVC_EXTRAS[svcId]; if(def&&def.shared&&def.shared.some(function(k){return keys.indexOf(k)>=0;})){ trig.push(isEs?def.name_es:def.name_en); } });
   var why = trig.length
@@ -2090,7 +2100,9 @@ function coBuildWizard(){
   if(coHubApplicable('docs')){ coRenderHub('docs'); coSteps.push({id:'panel-hub-docs', title:{en:'Essential documents',es:'Documentos esenciales'}}); }
   // Datos fiscales (SSN/ITIN): paso propio. En formación va ENTRE los hubs
   // (contexto fresco tras elegir el EIN); à la carte va después de todos.
-  var coTaxNeeded=coSharedKeysActive().length>0;
+  // 'ein' no cuenta para este paso — vive en panel-company (Paso 1) desde
+  // 2026-09-11. Si era la única clave pendiente, este paso deja de existir.
+  var coTaxNeeded=coSharedKeysActive().filter(function(k){ return k!=='ein'; }).length>0;
   if(ft && coTaxNeeded){ coRenderTaxPanel(); coSteps.push({id:'panel-tax', title:{en:'Tax details',es:'Datos fiscales'}}); }
   // "Cumplimiento anual" (Agente + Annual Report): solo à la carte, sin
   // formación — ahí el agente ya se resuelve en su propio paso obligatorio.
@@ -2104,7 +2116,10 @@ function coBuildWizard(){
   // Procesamiento acelerado: paso propio JUSTO antes de revisar (último upsell).
   // Solo si hay algo que presentar ante el estado (ver coExpeditedApplicable) —
   // si no aplica, nunca se ofrece ni se cobra, aunque quedara elegido antes.
-  if(coExpeditedApplicable()){
+  // Tampoco se ofrece a quien viene del link del email VIP (coVipSource,
+  // 2026-09-11) — decisión founder: menos pasos para ese flujo, ya tomó la
+  // decisión de suscribirse, no hace falta otro upsell antes de pagar.
+  if(coExpeditedApplicable() && !coVipSource){
     coRenderExpedited(); coSteps.push({id:'panel-expedited', title:{en:'Faster processing',es:'Procesamiento acelerado'}});
   } else if(coExpedited){
     coExpedited=false; coSaveCart();
@@ -2246,6 +2261,9 @@ async function coValidateStep(i){
         return false;
       }
     }
+    if(!coFormationType() && coSharedKeysActive().indexOf('ein')>=0){
+      if((($('s-ein')||{}).value||'').trim().length<3){ err.textContent=isEs?'Ingrese su EIN.':'Enter your EIN.'; return false; }
+    }
     return true;
   }
   if(id==='panel-owners'){
@@ -2270,13 +2288,14 @@ async function coValidateStep(i){
     return true;
   }
   if(id==='panel-tax'){
+    // 'ein' se valida en panel-company (Paso 1) — ver más arriba. Acá solo
+    // queda ssnItin (aplicar a un EIN nuevo).
     var ak=coSharedKeysActive();
     if(ak.indexOf('ssnItin')>=0){
       var vSsn=(($('s-ssnItin')||{}).value||'').replace(/[^0-9]/g,'');
       if(vSsn.length!==9){ err.textContent=isEs?'El SSN o ITIN debe tener exactamente 9 dígitos.':'The SSN or ITIN must be exactly 9 digits.'; return false; }
       if(vSsn!==(($('s-ssnItin-confirm')||{}).value||'').replace(/[^0-9]/g,'')){ err.textContent=isEs?'El SSN o ITIN no coincide. Verifícalo.':'The SSN or ITIN does not match. Please check.'; return false; }
     }
-    if(ak.indexOf('ein')>=0 && (($('s-ein')||{}).value||'').trim().length<3){ err.textContent=isEs?'Ingrese su EIN.':'Enter your EIN.'; return false; }
     return true;
   }
   if(id==='panel-contact'){
