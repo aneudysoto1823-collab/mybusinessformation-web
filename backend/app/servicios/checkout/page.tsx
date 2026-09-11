@@ -643,7 +643,7 @@ var COVERED_IN_FORMATION = { 'registered-agent':1 };
 var HUBS = {
   docs:    { panel:'panel-hub-docs',    services:['operating-agreement','ein','banking-resolution'], tiers:['bundle-docs-oa','bundle-docs-oa-ein','bundle-docs-full'],
              titleEs:'Documentos esenciales', titleEn:'Essential documents',
-             subEs:'Ahorre tiempo y dinero en los documentos que su negocio necesita.', subEn:'Save time and money on the documents your business needs.' },
+             subEs:'Documentos esenciales que la mayoría de los bancos solicita para abrir una cuenta comercial. Llévelos en un combo y ahorre.', subEn:'Essential documents that most banks require to open a business account. Get them as a bundle and save.' },
   // Solo à la carte (sin formación) — en formación el agente ya se resuelve en
   // su propio paso obligatorio (panel-ra), así que este hub no aplica ahí.
   compliance: { panel:'panel-hub-compliance', services:['registered-agent','annual-report'], tiers:['bundle-compliance-ra','bundle-compliance-ra-ar'],
