@@ -77,7 +77,7 @@ export async function POST(req: NextRequest) {
     // contactado todavía.
     const readyRes = await marketing.execute({
       sql: `SELECT document_number, entity_name, entity_type, filing_date, officers_json,
-                   target_addr1, target_addr2, target_city, target_state, target_zip
+                   target_addr1, target_addr2, target_city, target_state, target_zip, email
             FROM marketing_leads
             WHERE procesada = 1 AND descartada = 0
               AND address_validated = 1
@@ -102,7 +102,10 @@ export async function POST(req: NextRequest) {
       city:               (r.target_city as string | null) || null,
       state:              (r.target_state as string | null) || 'FL',
       zip:                (r.target_zip as string | null) || null,
-      email:              null,
+      // Enformion (Bloque 3.5) ya pudo haber conseguido el email antes de que
+      // este puente corra — si lo tiene, viaja con el lead. Si no, sigue en
+      // null (mismo comportamiento de siempre, solo funciona el flujo de carta).
+      email:              (r.email as string | null) || null,
       registration_date:  (r.filing_date as string | null) || null,
       status:             'new' as const,
       note:               'Importado de Marketing Saliente',
