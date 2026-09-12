@@ -16,7 +16,14 @@
 //      y llama Enformion Contact Enrichment con nombre + target address.
 //   3. UPDATE: email, email_is_business, email_validated, phone,
 //      identity_score, email_enriched_at, enrichment_email_cost_usd.
-//   4. LOG en block_runs (block='enrich_email').
+//   4. Si el email se encontró Y esta LLC ya estaba en Campaigns & Letters
+//      (Supabase prospective_companies, enviada antes solo con la carta —
+//      las cartas no necesitan email), sincroniza el email ahí mismo, sin
+//      que el staff tenga que "reenviar" nada. Nunca pisa un email que ya
+//      estuviera cargado a mano. (feedback founder 2026-09-12: a esta
+//      escala no hay forma de llevar la cuenta de a cuáles ya se les
+//      mandó carta para "reenviarles" el email después.)
+//   5. LOG en block_runs (block='enrich_email').
 //
 // Devuelve: { enriched, found_count, not_found_count, elapsed_ms, run_id }
 
@@ -24,6 +31,7 @@ import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { verifyAdminToken } from '@/lib/session'
 import { getMarketingClient } from '@/lib/turso-marketing'
+import { getSupabaseAdmin } from '@/lib/supabase'
 import { enrichContact, ENFORMION_COST_PER_LEAD_USD } from '@/lib/enformion'
 
 export const dynamic = 'force-dynamic'
@@ -182,6 +190,25 @@ export async function POST(req: Request) {
         row.document_number as string,
       ],
     })
+
+    // Sincroniza el email a Campaigns & Letters SI esa empresa ya está ahí
+    // (se le mandó carta antes, sin email porque las cartas no lo
+    // necesitan). Nunca crea una fila nueva acá — eso lo sigue haciendo
+    // send-to-letters cuando corresponda. Nunca pisa un email ya cargado
+    // (a mano o de una corrida anterior). Best-effort: si Supabase falla,
+    // no aborta el resto de la corrida (el email ya quedó guardado en
+    // Turso de todas formas).
+    if (result.email) {
+      try {
+        await getSupabaseAdmin()
+          .from('prospective_companies')
+          .update({ email: result.email })
+          .eq('document_id', (row.document_number as string).toUpperCase())
+          .is('email', null)
+      } catch (e) {
+        console.error('[enrich-email] sync a prospective_companies fallo (no fatal):', e)
+      }
+    }
   }
 
   const enriched = candidatesRes.rows.length - skippedNoOfficer
