@@ -188,7 +188,9 @@ export async function POST(req: Request) {
   })
 }
 
-// GET: stats para el panel del Bloque 3.5
+// GET: stats para el panel del Bloque 3.5. Para ver el LISTADO real de leads
+// (no solo el numero), usar GET /api/marketing/leads?view=validated — el
+// explorador general de leads del panel, con filtros de fecha/score/estado.
 export async function GET() {
   const cookieStore = await cookies()
   const token = cookieStore.get('admin_session')?.value
@@ -227,6 +229,10 @@ export async function GET() {
       totals: {
         with_email: Number(totals.rows[0]?.with_email ?? 0),
         tried_not_found: Number(totals.rows[0]?.tried_not_found ?? 0),
+        // Total de busquedas REALES contra Enformion (encontro o no encontro
+        // email, en ambos casos se cobra el request) — pedido founder
+        // 2026-09-12 para poder cotejar contra lo que factura Enformion.
+        total_searches: Number(totals.rows[0]?.with_email ?? 0) + Number(totals.rows[0]?.tried_not_found ?? 0),
       },
       last_run: lastRun.rows[0] ?? null,
       max_n: MAX_N,

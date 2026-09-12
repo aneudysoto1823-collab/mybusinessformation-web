@@ -101,10 +101,28 @@ type EnrichRunResult = {
 // (dirección), solo cambian los totales que reporta.
 type EmailEnrichStats = {
   pending_by_score: { A: number; B: number; C: number }
-  totals: { with_email: number; tried_not_found: number }
+  totals: { with_email: number; tried_not_found: number; total_searches: number }
   last_run: ClassifyStats['last_run']
   max_n: number
   cost_per_lead_usd: number
+}
+
+// Explorador general de leads (view=new/classified/validated/sent/all,
+// filtros de score y fecha) — GET /api/marketing/leads.
+type LeadRow = {
+  document_number: string
+  entity_name: string
+  entity_type: string | null
+  filing_date: string | null
+  score: string | null
+  vertical: string | null
+  procesada: boolean
+  address_validated: boolean | null
+  descartada: boolean
+  email: string | null
+  phone: string | null
+  identity_score: number | null
+  fecha_contactada: string | null
 }
 
 type EmailEnrichRunResult = {
@@ -163,6 +181,44 @@ export default function MarketingPage() {
   const [emailEnrichRunning, setEmailEnrichRunning] = useState(false)
   const [emailEnrichResult, setEmailEnrichResult]   = useState<EmailEnrichRunResult | null>(null)
   const [emailEnrichError, setEmailEnrichError]     = useState<string | null>(null)
+
+  // Explorador de Leads — ver la lista real (no solo contadores), filtrable
+  // por estado (nuevas / clasificadas / validadas / ya enviadas a Campaigns
+  // & Letters), score y rango de fecha. Pedido founder 2026-09-12.
+  const [leadsView, setLeadsView]     = useState<'all' | 'new' | 'classified' | 'validated' | 'sent'>('all')
+  const [leadsScore, setLeadsScore]   = useState<'all' | 'A' | 'B' | 'C'>('all')
+  const [leadsFrom, setLeadsFrom]     = useState('')
+  const [leadsTo, setLeadsTo]         = useState('')
+  const [leadsRows, setLeadsRows]     = useState<LeadRow[]>([])
+  const [leadsTotal, setLeadsTotal]   = useState(0)
+  const [leadsOffset, setLeadsOffset] = useState(0)
+  const [leadsLoading, setLeadsLoading] = useState(false)
+  const LEADS_PAGE_SIZE = 50
+
+  const fetchLeads = useCallback(async (offset: number) => {
+    setLeadsLoading(true)
+    const params = new URLSearchParams()
+    if (leadsView !== 'all') params.set('view', leadsView)
+    if (leadsScore !== 'all') params.set('score', leadsScore)
+    if (leadsFrom) params.set('date_from', leadsFrom)
+    if (leadsTo) params.set('date_to', leadsTo)
+    params.set('limit', String(LEADS_PAGE_SIZE))
+    params.set('offset', String(offset))
+    try {
+      const res = await fetch(`/api/marketing/leads?${params}`)
+      if (res.ok) {
+        const data = await res.json()
+        setLeadsRows(data.leads ?? [])
+        setLeadsTotal(data.total ?? 0)
+        setLeadsOffset(offset)
+      }
+    } finally {
+      setLeadsLoading(false)
+    }
+  }, [leadsView, leadsScore, leadsFrom, leadsTo])
+
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => { fetchLeads(0) }, [fetchLeads])
 
   const loadStats = useCallback(async () => {
     try {
@@ -894,7 +950,7 @@ export default function MarketingPage() {
               </div>
 
               {emailEnrichStats && (
-                <div style={{...S.statsRow, gridTemplateColumns: 'repeat(2, 1fr)', marginBottom: 16, marginTop: 4}}>
+                <div style={{...S.statsRow, gridTemplateColumns: 'repeat(3, 1fr)', marginBottom: 16, marginTop: 4}}>
                   <div style={S.miniStat}>
                     <div style={S.miniStatLabel}>Con email</div>
                     <div style={{...S.miniStatValue, color: '#059669'}}>{emailEnrichStats.totals.with_email.toLocaleString()}</div>
@@ -902,6 +958,10 @@ export default function MarketingPage() {
                   <div style={S.miniStat}>
                     <div style={S.miniStatLabel}>Intentadas sin resultado</div>
                     <div style={{...S.miniStatValue, color: '#6b7280'}}>{emailEnrichStats.totals.tried_not_found.toLocaleString()}</div>
+                  </div>
+                  <div style={S.miniStat}>
+                    <div style={S.miniStatLabel}>Búsquedas reales (Enformion cobra)</div>
+                    <div style={{...S.miniStatValue, color: '#1C2E44'}}>{emailEnrichStats.totals.total_searches.toLocaleString()}</div>
                   </div>
                 </div>
               )}
@@ -972,6 +1032,108 @@ export default function MarketingPage() {
                   ) : (
                     <span style={{color:'#6b7280'}}>{emailEnrichStats.last_run.status}</span>
                   )}
+                </div>
+              )}
+            </div>
+
+            {/* ── Leads: explorador filtrable (ver la lista real, no solo contadores) ── */}
+            <div style={S.block}>
+              <div style={S.blockHeader}>
+                <div>
+                  <div style={S.blockTitle}>📋 Leads</div>
+                  <div style={S.blockDesc}>
+                    Explorá las leads reales de la Base B por estado, score y rango de fecha — separá las que ya se
+                    clasificaron y enviaron a Campaigns &amp; Letters de las que ya tienen dirección validada, o filtrá
+                    las más nuevas por fecha de registro (<code>filing_date</code>).
+                  </div>
+                </div>
+              </div>
+
+              <div style={S.controlRow}>
+                <div style={S.controlGroup}>
+                  <label style={S.inputLabel}>Estado</label>
+                  <select value={leadsView} onChange={e => setLeadsView(e.target.value as typeof leadsView)} style={S.select}>
+                    <option value="all">Todas</option>
+                    <option value="new">Nuevas (sin clasificar)</option>
+                    <option value="classified">Clasificadas</option>
+                    <option value="validated">Con dirección validada</option>
+                    <option value="sent">Ya enviadas a Campaigns &amp; Letters</option>
+                  </select>
+                </div>
+                <div style={S.controlGroup}>
+                  <label style={S.inputLabel}>Score</label>
+                  <select value={leadsScore} onChange={e => setLeadsScore(e.target.value as typeof leadsScore)} style={S.select}>
+                    <option value="all">Todos</option>
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                  </select>
+                </div>
+                <div style={S.controlGroup}>
+                  <label style={S.inputLabel}>Desde</label>
+                  <input type="date" value={leadsFrom} onChange={e => setLeadsFrom(e.target.value)} style={S.select} />
+                </div>
+                <div style={S.controlGroup}>
+                  <label style={S.inputLabel}>Hasta</label>
+                  <input type="date" value={leadsTo} onChange={e => setLeadsTo(e.target.value)} style={S.select} />
+                </div>
+                {(leadsFrom || leadsTo || leadsView !== 'all' || leadsScore !== 'all') && (
+                  <button style={S.btnGhost} onClick={() => { setLeadsView('all'); setLeadsScore('all'); setLeadsFrom(''); setLeadsTo('') }}>
+                    Limpiar filtros
+                  </button>
+                )}
+              </div>
+
+              <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 10 }}>
+                {leadsLoading ? 'Cargando...' : `${leadsTotal.toLocaleString()} lead(s) coinciden con el filtro`}
+              </div>
+
+              {!leadsLoading && leadsRows.length > 0 && (
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                    <thead>
+                      <tr>
+                        <th style={S.th}>Empresa</th>
+                        <th style={S.th}>Doc #</th>
+                        <th style={S.th}>Filing date</th>
+                        <th style={S.th}>Score</th>
+                        <th style={S.th}>Dirección</th>
+                        <th style={S.th}>Email</th>
+                        <th style={S.th}>Enviada a cartas</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {leadsRows.map(l => (
+                        <tr key={l.document_number}>
+                          <td style={S.td}>{l.entity_name}</td>
+                          <td style={{ ...S.td, fontFamily: 'monospace', fontSize: 12 }}>{l.document_number}</td>
+                          <td style={S.td}>{l.filing_date ?? '—'}</td>
+                          <td style={S.td}>{l.score ?? '—'}</td>
+                          <td style={S.td}>
+                            {l.address_validated === true ? <span style={{ color: '#059669' }}>✓ válida</span>
+                              : l.address_validated === false ? <span style={{ color: '#dc2626' }}>✗ inválida</span>
+                              : <span style={{ color: '#9ca3af' }}>sin validar</span>}
+                          </td>
+                          <td style={S.td}>{l.email ?? <span style={{ color: '#9ca3af' }}>—</span>}</td>
+                          <td style={S.td}>{l.fecha_contactada ? new Date(l.fecha_contactada).toLocaleDateString() : <span style={{ color: '#9ca3af' }}>—</span>}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              {!leadsLoading && leadsRows.length === 0 && (
+                <div style={{ padding: '20px 0', textAlign: 'center', color: '#9ca3af', fontSize: 13 }}>Sin resultados para este filtro.</div>
+              )}
+
+              {leadsTotal > LEADS_PAGE_SIZE && (
+                <div style={{ display: 'flex', gap: 8, marginTop: 12, alignItems: 'center' }}>
+                  <button style={leadsOffset === 0 ? S.btnDisabled : S.btnGhost} disabled={leadsOffset === 0} onClick={() => fetchLeads(Math.max(0, leadsOffset - LEADS_PAGE_SIZE))}>← Anterior</button>
+                  <span style={{ fontSize: 13, color: '#6b7280' }}>
+                    {leadsOffset + 1}–{Math.min(leadsOffset + LEADS_PAGE_SIZE, leadsTotal)} de {leadsTotal}
+                  </span>
+                  <button style={leadsOffset + LEADS_PAGE_SIZE >= leadsTotal ? S.btnDisabled : S.btnGhost} disabled={leadsOffset + LEADS_PAGE_SIZE >= leadsTotal} onClick={() => fetchLeads(leadsOffset + LEADS_PAGE_SIZE)}>Siguiente →</button>
                 </div>
               )}
             </div>
