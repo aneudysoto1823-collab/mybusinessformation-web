@@ -120,7 +120,7 @@ function CompleteContent() {
       total: 'Total paid',
       next: 'Our team is reviewing your order and will verify your company name with the Florida Division of Corporations. We will be in touch with the next steps.',
       emailNote: (e: string | null) => e ? `A confirmation has been sent to ${e}.` : 'A confirmation has been sent to your email.',
-      guideGift: 'Gift included: along with your confirmation email, we are also sending you our free Guide to Forming Your LLC or Corporation in Florida. It is a complete walkthrough covering your Registered Agent, EIN, Operating Agreement, ITIN, and more, so you know exactly what to expect at every step.',
+      guideGift: <>Gift included: along with your confirmation email, we are also sending you our <strong style={{ color: '#1D4ED8' }}>free Guide</strong> to Forming Your LLC or Corporation in Florida. It is a complete walkthrough covering your Registered Agent, EIN, Operating Agreement, ITIN, and more, so you know exactly what to expect at every step.</>,
       portal: 'Access Client Portal',
       home: 'Back to Home',
     },
@@ -138,7 +138,7 @@ function CompleteContent() {
       total: 'Total pagado',
       next: 'Nuestro equipo está revisando tu orden y verificará el nombre de tu empresa ante la División de Corporaciones de Florida. Te contactaremos con los próximos pasos.',
       emailNote: (e: string | null) => e ? `Enviamos una confirmación a ${e}.` : 'Enviamos una confirmación a tu correo.',
-      guideGift: 'Regalo incluido: junto con tu email de confirmación también te enviamos nuestra Guía gratuita para Formar tu LLC o Corporación en Florida. Es un recorrido completo sobre tu Agente Registrado, EIN, Acuerdo Operativo, ITIN y más, para que sepas exactamente qué esperar en cada paso.',
+      guideGift: <>Regalo incluido: junto con tu email de confirmación también te enviamos nuestra <strong style={{ color: '#1D4ED8' }}>Guía gratuita</strong> para Formar tu LLC o Corporación en Florida. Es un recorrido completo sobre tu Agente Registrado, EIN, Acuerdo Operativo, ITIN y más, para que sepas exactamente qué esperar en cada paso.</>,
       portal: 'Acceder al Portal de Clientes',
       home: 'Volver al Inicio',
     },
@@ -270,8 +270,8 @@ function CompleteContent() {
         )}
 
         {status !== 'loading' && status !== 'error' && (
-          <div style={{ background: '#EFF6FF', border: '1px solid #bfdbfe', borderRadius: 12, padding: '14px 18px', margin: '0 0 26px', textAlign: 'left' }}>
-            <p style={{ color: '#1e40af', fontSize: '0.85rem', lineHeight: 1.6, margin: 0 }}>{t.guideGift}</p>
+          <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: '14px 18px', margin: '0 0 26px', textAlign: 'left' }}>
+            <p style={{ color: '#475569', fontSize: '0.85rem', lineHeight: 1.6, margin: 0 }}>{t.guideGift}</p>
           </div>
         )}
 

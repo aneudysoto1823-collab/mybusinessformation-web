@@ -56,7 +56,12 @@ export const FROM_FBFC = `Florida Business Formation Center <${FROM_TRANSACTIONA
 export type EmailBrand = 'opabiz' | 'fbfc' | null | undefined
 
 export const PORTAL_HOME_OPABIZ = 'https://opabiz.com/?login=1'
-export const PORTAL_HOME_FBFC = 'https://mybusinessformation.com/client-portal'
+// Antes apuntaba a /client-portal (landing viejo) — desde el popover de login
+// en el header de new-business/page.tsx (2026-08-25), mybiz tiene su propio
+// equivalente del ?login=1 del home de OpaBiz. /client-portal se conserva
+// como fallback (deep-links + redirect de sesión expirada del middleware),
+// pero el link del email ahora abre el popover directo, igual que OpaBiz.
+export const PORTAL_HOME_FBFC = 'https://mybusinessformation.com/?login=1'
 
 export function isFbfcBrand(brand: EmailBrand): boolean {
   return brand === 'fbfc'
@@ -71,11 +76,12 @@ export function brandReplyTo(brand: EmailBrand): string {
   return isFbfcBrand(brand) ? REPLY_TO_FBFC : REPLY_TO
 }
 
-// `opts.email`/`opts.order` pre-llenan el login del cliente — FBFC los lee
-// como ?email=&order= en /client-portal (ClientPortalLoginForm ya los
-// soportaba); OpaBiz los lee con el mismo nombre en fmCheckResumeParam()
-// (page.tsx), que pre-llena el popover del home (#plogin-acct/#plogin-cred)
-// antes de abrirlo. Ambas marcas honran los mismos dos query params.
+// `opts.email`/`opts.order` pre-llenan el login del cliente — ambas marcas
+// leen los mismos dos query params (?login=1&email=&order=) en su propio
+// popover de login del home: OpaBiz en fmCheckResumeParam() (page.tsx,
+// #plogin-acct/#plogin-cred); mybiz en NewBusinessContent (new-business/
+// page.tsx, useEffect de loginOpen/loginEmail/loginCred) — agregado
+// 2026-09-12, antes solo el link de OpaBiz prellenaba algo.
 export function brandPortalHome(brand: EmailBrand, opts?: { email?: string; order?: string }): string {
   const base = isFbfcBrand(brand) ? PORTAL_HOME_FBFC : PORTAL_HOME_OPABIZ
   if (!opts?.email && !opts?.order) return base

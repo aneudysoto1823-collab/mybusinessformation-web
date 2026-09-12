@@ -1147,6 +1147,27 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
     }
   }
 
+  // Botón "Track My Order" del email (?login=1&email=&order=) — abre el
+  // popover con los datos ya cargados en vez de dejar al cliente en la home
+  // teniendo que buscar el botón Login y volver a tipear todo. Mismo patrón
+  // que fmCheckResumeParam() del home de OpaBiz (page.tsx); antes el link del
+  // email de mybiz mandaba a /client-portal (landing viejo) sin prellenar
+  // nada (PORTAL_HOME_FBFC, lib/email-constants.ts).
+  useEffect(() => {
+    if (sp.get('login') !== '1') return
+    const email = sp.get('email')
+    const order = sp.get('order')
+    if (email) setLoginEmail(email)
+    if (order) setLoginCred(order)
+    setLoginOpen(true)
+    const url = new URL(window.location.href)
+    url.searchParams.delete('login')
+    url.searchParams.delete('email')
+    url.searchParams.delete('order')
+    window.history.replaceState({}, '', url.toString())
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const [selected, setSelected]   = useState<Set<string>>(new Set(SERVICES.map(s => s.id)))
   // Ítems del carrito compartido que NO son uno de los 3 de new-business (ej.
   // Registered Agent agregado desde /servicios) — unificación de carrito
@@ -2769,25 +2790,32 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                                   const isNew = prevServices.indexOf(id) < 0
                                   const cadence = svc.billing === 'monthly' ? (lang === 'es' ? '/mes' : '/mo') : svc.billing === 'annual' ? (lang === 'es' ? '/año' : '/yr') : ''
                                   const checked = tierChecked.has(id)
+                                  // Con un solo servicio en la columna, el checkbox no aporta nada —
+                                  // destildarlo deja el total en $0 igual (no hay nada más para
+                                  // quedarse). Solo tiene sentido elegir ítem por ítem cuando la
+                                  // columna trae 2+ servicios (feedback founder 2026-09-12).
+                                  const toggleable = tier.services.length > 1
                                   return (
-                                    <label key={id} style={{ display:'block', marginBottom:10, cursor:'pointer' }}>
+                                    <label key={id} style={{ display:'block', marginBottom:10, cursor: toggleable ? 'pointer' : 'default' }}>
                                       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', gap:10 }}>
                                         <span style={{ display:'flex', gap:8, alignItems:'center' }}>
-                                          <input
-                                            type="checkbox"
-                                            checked={checked}
-                                            onChange={() => setExtrasCheckedByTier(prev => {
-                                              const next = new Set(prev[tier.bundle] ?? tier.services)
-                                              if (next.has(id)) next.delete(id); else next.add(id)
-                                              return { ...prev, [tier.bundle]: next }
-                                            })}
-                                            style={{ width:16, height:16, accentColor:'#2563EB', cursor:'pointer', margin:0, flexShrink:0 }}
-                                          />
+                                          {toggleable && (
+                                            <input
+                                              type="checkbox"
+                                              checked={checked}
+                                              onChange={() => setExtrasCheckedByTier(prev => {
+                                                const next = new Set(prev[tier.bundle] ?? tier.services)
+                                                if (next.has(id)) next.delete(id); else next.add(id)
+                                                return { ...prev, [tier.bundle]: next }
+                                              })}
+                                              style={{ width:16, height:16, accentColor:'#2563EB', cursor:'pointer', margin:0, flexShrink:0 }}
+                                            />
+                                          )}
                                           <strong style={{ color:'#1B3A6B' }}>{lang === 'es' ? svc.name_es : svc.name_en}</strong>
                                         </span>
                                         <span style={{ color:'#374151', fontWeight:600, flexShrink:0 }}>${svc.serviceFee.toFixed(2)}{cadence}</span>
                                       </div>
-                                      {isNew && blurb && <div style={{ marginLeft:24, marginTop:2 }}>{lang === 'es' ? blurb.es : blurb.en}</div>}
+                                      {isNew && blurb && <div style={{ marginLeft: toggleable ? 24 : 0, marginTop:2 }}>{lang === 'es' ? blurb.es : blurb.en}</div>}
                                     </label>
                                   )
                                 })}

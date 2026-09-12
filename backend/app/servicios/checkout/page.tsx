@@ -1155,11 +1155,11 @@ function coRenderSuccessDetails(order){
   // le regalamos la Guía II (cumplimiento, no la I de formación). Mismo gate
   // que usa el servidor para decidir si adjuntarla al email (addons.intake.flDoc).
   if(order.documentId){
-    var guideNote = isEs
-      ? 'Regalo incluido: junto con su email de confirmación también le enviaremos nuestra guía gratuita para mantener su empresa al día en Florida. Cubre su Agente Registrado, Declaración Anual, impuestos y otros pasos, para que sepa exactamente qué sigue.'
-      : 'Gift included: along with your confirmation email, we will also send you our free guide to keeping your company in good standing in Florida. It covers your Registered Agent, Annual Report, taxes, and other steps, so you know exactly what comes next.';
-    html+='<div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:14px 18px;margin-top:14px;text-align:left">'
-      +'<p style="color:#1e40af;font-size:.85rem;line-height:1.6;margin:0">'+coEsc(guideNote)+'</p></div>';
+    var guideNoteHtml = isEs
+      ? 'Regalo incluido: junto con su email de confirmación también le enviaremos nuestra <strong style="color:#1D4ED8">guía gratuita</strong> para mantener su empresa al día en Florida. Cubre su Agente Registrado, Declaración Anual y otros pasos, para que sepa exactamente qué sigue.'
+      : 'Gift included: along with your confirmation email, we will also send you our <strong style="color:#1D4ED8">free guide</strong> to keeping your company in good standing in Florida. It covers your Registered Agent, Annual Report, and other steps, so you know exactly what comes next.';
+    html+='<div style="background:#fff;border:1px solid var(--gray200);border-radius:12px;padding:14px 18px;margin-top:14px;text-align:left">'
+      +'<p style="color:#475569;font-size:.85rem;line-height:1.6;margin:0">'+guideNoteHtml+'</p></div>';
   }
   var host=$('co-success-details'); if(!host) return;
   host.innerHTML=html;
@@ -1237,7 +1237,7 @@ function coLookupCompany(silent){
   var doc=($('f-flDoc').value||'').trim().toUpperCase();
   var st=$('f-flDoc-status'); var isEs=coIsEs();
   if(doc.length<5){ if(st&&!silent) st.innerHTML='<span style="color:#dc2626">'+(isEs?'Ingresa un número de registro válido.':'Enter a valid registration number.')+'</span>'; return; }
-  if(st&&!silent) st.innerHTML='<span style="color:#64748b">'+(isEs?'Buscando en Sunbiz...':'Searching Sunbiz...')+'</span>';
+  if(st&&!silent) st.innerHTML='<span style="color:#64748b">'+(isEs?'Buscando tu empresa...':'Looking up your business...')+'</span>';
   var btn=$('co-lookup-btn'); if(btn) btn.disabled=true;
   fetch('/api/sunbiz/company?document_number='+encodeURIComponent(doc)).then(function(r){return r.json().then(function(d){return {ok:r.ok,status:r.status,d:d};});}).then(function(res){
     if(btn) btn.disabled=false;
