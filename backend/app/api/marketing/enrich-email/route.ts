@@ -95,6 +95,12 @@ export async function POST(req: Request) {
   ].filter(Boolean).join(' ')
   const dateFilterArgs = [dateFrom, dateTo].filter((v): v is string => v !== null)
 
+  // target_addr1 IS NOT NULL (+ TRIM != '') es el mismo guard que ya usa
+  // /api/marketing/enrich (Bloque 3, dirección) — sin esto, leads viejas con
+  // address_validated=1 pero target_addr1 en NULL (datos inconsistentes de
+  // pruebas anteriores) pasaban el filtro y reventaban adentro de
+  // enrichContact() con "faltan datos minimos" (bug real 2026-09-12, 27 de
+  // 36 en un batch real).
   const candidatesRes = await marketing.execute({
     sql: `SELECT document_number, officers_json, target_addr1, target_city, target_state
           FROM marketing_leads
@@ -104,6 +110,7 @@ export async function POST(req: Request) {
             AND email IS NULL
             AND email_enriched_at IS NULL
             AND officers_json IS NOT NULL
+            AND target_addr1 IS NOT NULL AND TRIM(target_addr1) != ''
             ${dateFilterSql}
           ORDER BY filing_date DESC
           LIMIT ?`,
@@ -236,6 +243,7 @@ export async function GET(req: Request) {
         sql: `SELECT score, COUNT(*) as n FROM marketing_leads
               WHERE score IS NOT NULL AND address_validated = 1
               AND descartada = 0 AND email IS NULL AND email_enriched_at IS NULL
+              AND target_addr1 IS NOT NULL AND TRIM(target_addr1) != ''
               ${dateFilterSql}
               GROUP BY score`,
         args: dateFilterArgs,
