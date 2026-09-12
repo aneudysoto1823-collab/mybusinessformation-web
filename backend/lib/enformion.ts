@@ -35,6 +35,10 @@ export async function enrichContact(input: ContactEnrichInput): Promise<ContactE
   const apName = process.env.ENFORMION_KEY_NAME
   const apPassword = process.env.ENFORMION_KEY_PASS
   if (!apName || !apPassword) {
+    // Si esto se dispara, NUNCA se llega a llamar a Enformion — coincide
+    // exactamente con "el dashboard de Enformion muestra 0 requests" pese a
+    // que nuestro panel reporta leads "procesadas". Log temporal 2026-09-12.
+    console.error('[enformion] faltan credenciales — nunca se llamo a la API', { hasName: !!apName, hasPassword: !!apPassword })
     return {
       found: false, email: null, email_is_business: null, email_validated: null,
       phone: null, identity_score: null, raw: null,
@@ -76,6 +80,10 @@ export async function enrichContact(input: ContactEnrichInput): Promise<ContactE
 
     if (!res.ok) {
       const txt = await res.text()
+      // Log temporal (2026-09-12) para diagnosticar por que EnformionGO
+      // reporta 0 requests en su dashboard aunque nuestro codigo no ve
+      // errores — deberia aparecer en los logs de Vercel de esta funcion.
+      console.error('[enformion] HTTP no-ok', res.status, txt.slice(0, 500))
       return {
         found: false, email: null, email_is_business: null, email_validated: null,
         phone: null, identity_score: null, raw: null,
@@ -83,7 +91,9 @@ export async function enrichContact(input: ContactEnrichInput): Promise<ContactE
       }
     }
 
-    const data = await res.json() as {
+    const rawText = await res.text()
+    console.log('[enformion] respuesta cruda', res.status, rawText.slice(0, 1000))
+    const data = JSON.parse(rawText) as {
       person?: {
         emails?: { email: string; isValidated?: boolean; isBusiness?: boolean }[]
         phones?: { number: string; type?: string; isConnected?: boolean }[]
@@ -131,4 +141,12 @@ export async function enrichContact(input: ContactEnrichInput): Promise<ContactE
 // cuando se acabe el free tier). Se usa solo para el costo estimado que
 // muestra el panel antes de disparar el enriquecimiento — no afecta el cobro
 // real de Enformion.
+//
+// Confirmado 2026-09-12 (founder, plan free trial dice "100 Monthly
+// Matches"): Enformion solo cobra/consume cupo cuando la búsqueda SÍ
+// encuentra un match — un "sin match" no cuesta nada y no aparece en su
+// dashboard de uso. Por eso el costo estimado que mostramos ANTES de
+// correr (N × este valor) es un techo máximo ("si TODOS matchean"), no el
+// gasto real esperado — el gasto real depende de cuántos de los N
+// realmente encuentren persona.
 export const ENFORMION_COST_PER_LEAD_USD = 0.10

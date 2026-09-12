@@ -423,7 +423,7 @@ export default function MarketingPage() {
     if (!Number.isInteger(emailEnrichN) || emailEnrichN < 1) { setEmailEnrichError('N debe ser entero >= 1'); return }
     const estCost = (emailEnrichN * (emailEnrichStats?.cost_per_lead_usd ?? 0.10)).toFixed(2)
     const dateNote = (emailEnrichFrom || emailEnrichTo) ? `\n\nFiling date: ${emailEnrichFrom || '(sin límite)'} → ${emailEnrichTo || '(sin límite)'}` : ''
-    if (!confirm(`Buscar email de ${emailEnrichN} leads score ${emailEnrichScore}?${dateNote}\n\nCosto estimado: $${estCost} USD (Enformion — placeholder hasta confirmar precio real del plan pago).\n\nConfirmar?`)) return
+    if (!confirm(`Buscar email de ${emailEnrichN} leads score ${emailEnrichScore}?${dateNote}\n\nCosto MÁXIMO estimado: $${estCost} USD (Enformion solo cobra los que sí encuentran match — placeholder hasta confirmar precio real del plan pago).\n\nConfirmar?`)) return
     setEmailEnrichRunning(true); setEmailEnrichError(null); setEmailEnrichResult(null)
     try {
       const res = await fetch('/api/marketing/enrich-email', {
