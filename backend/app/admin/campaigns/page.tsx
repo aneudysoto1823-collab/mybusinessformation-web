@@ -50,14 +50,18 @@ export default function CampaignsPage() {
   const [paused, setPaused]           = useState(false)
 
   // Filters
-  const [filterStatus, setFilterStatus] = useState('all')
   const [filterType,   setFilterType]   = useState('all')
   const [filterFrom,   setFilterFrom]   = useState('')
   const [filterTo,     setFilterTo]     = useState('')
-  // Default 'not_sent' — la lista principal arranca mostrando solo lo que
-  // todavía no se marcó como enviado, para no mezclar cartas nuevas con
-  // las que ya se mandaron (feedback founder 2026-09-12).
-  const [letterFilter, setLetterFilter] = useState<'not_sent' | 'sent' | 'all'>('not_sent')
+  // Filtro único de contacto — reemplaza los 2 dropdowns viejos ("All Status"
+  // + "Letter status") que se solapaban de forma confusa (el status "email
+  // sent" ya vivía en un dropdown, y "carta enviada" en otro aparte).
+  // 'new' = ni carta ni email todavía (arranca acá por default). 'email_sent'/
+  // 'letter_sent' = ese canal ya se usó, sin importar el otro (inclusivo).
+  // 'email_only'/'letter_only' = ESE canal sí y el otro NO (exclusivo — pedido
+  // aparte, además de los inclusivos, no en reemplazo). Feedback founder
+  // 2026-09-12.
+  const [filterContact, setFilterContact] = useState<'new' | 'email_sent' | 'letter_sent' | 'email_only' | 'letter_only' | 'all'>('new')
 
   // Selección con checkboxes — borrado en lote y "marcar como enviada" en lote.
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
@@ -117,11 +121,26 @@ export default function CampaignsPage() {
 
   const fetchCompanies = useCallback(async () => {
     const params = new URLSearchParams()
-    if (filterStatus !== 'all') params.set('status',    filterStatus)
+    // Traduce el filtro único de contacto a los parámetros reales que ya
+    // entiende la API (status + letter_status) — ver comentario en el
+    // endpoint sobre status='contacted'.
+    if (filterContact === 'new') {
+      params.set('status', 'new')
+      params.set('letter_status', 'not_sent')
+    } else if (filterContact === 'email_sent') {
+      params.set('status', 'contacted')
+    } else if (filterContact === 'letter_sent') {
+      params.set('letter_status', 'sent')
+    } else if (filterContact === 'email_only') {
+      params.set('status', 'contacted')
+      params.set('letter_status', 'not_sent')
+    } else if (filterContact === 'letter_only') {
+      params.set('status', 'new')
+      params.set('letter_status', 'sent')
+    }
     if (filterType   !== 'all') params.set('type',      filterType)
     if (filterFrom)              params.set('date_from', filterFrom)
     if (filterTo)                params.set('date_to',   filterTo)
-    if (letterFilter !== 'all')  params.set('letter_status', letterFilter)
     setLoading(true)
     const res = await fetch(`/api/campaigns/companies?${params}`)
     if (res.ok) {
@@ -130,7 +149,7 @@ export default function CampaignsPage() {
     }
     setSelectedIds(new Set())
     setLoading(false)
-  }, [filterStatus, filterType, filterFrom, filterTo, letterFilter])
+  }, [filterContact, filterType, filterFrom, filterTo])
 
   // Carga inicial de datos del panel — patrón estándar de fetch en mount.
   // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -521,12 +540,13 @@ export default function CampaignsPage() {
           <div className="card-head">
             <span className="card-title">Companies ({companies.length})</span>
             <div className="filters">
-              <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}>
-                <option value="all">All Status</option>
-                <option value="new">New</option>
-                <option value="email_sent">Email Sent</option>
-                <option value="qr_scanned">QR Scanned</option>
-                <option value="purchased">Purchased</option>
+              <select value={filterContact} onChange={e => setFilterContact(e.target.value as 'new' | 'email_sent' | 'letter_sent' | 'email_only' | 'letter_only' | 'all')} title="Contact status">
+                <option value="new">🆕 New (no letter, no email)</option>
+                <option value="email_sent">📧 Email sent</option>
+                <option value="letter_sent">📬 Letter sent</option>
+                <option value="email_only">📧 Email sent, no letter</option>
+                <option value="letter_only">📬 Letter sent, no email</option>
+                <option value="all">All</option>
               </select>
               <select value={filterType} onChange={e => setFilterType(e.target.value)}>
                 <option value="all">All Types</option>
@@ -536,12 +556,7 @@ export default function CampaignsPage() {
               </select>
               <input type="date" value={filterFrom} onChange={e => setFilterFrom(e.target.value)} title="From date" />
               <input type="date" value={filterTo}   onChange={e => setFilterTo(e.target.value)}   title="To date" />
-              <select value={letterFilter} onChange={e => setLetterFilter(e.target.value as 'not_sent' | 'sent' | 'all')} title="Letter status">
-                <option value="not_sent">📬 Not sent yet</option>
-                <option value="sent">✅ Already sent</option>
-                <option value="all">All (sent + not sent)</option>
-              </select>
-              <button className="btn btn-ghost btn-sm" onClick={() => { setFilterStatus('all'); setFilterType('all'); setFilterFrom(''); setFilterTo(''); setLetterFilter('not_sent') }}>Clear</button>
+              <button className="btn btn-ghost btn-sm" onClick={() => { setFilterContact('new'); setFilterType('all'); setFilterFrom(''); setFilterTo('') }}>Clear</button>
             </div>
           </div>
 

@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
     const dateTo      = searchParams.get('date_to')
     // letter_status separa las que YA se marcaron como enviadas (letter_sent_at
     // seteado a mano desde el panel) de las nuevas — antes se mezclaban todas
-    // para siempre en la misma lista. Default 'not_sent' en el frontend.
+    // para siempre en la misma lista.
     const letterStatus = searchParams.get('letter_status')
 
     const supabase = getSupabaseAdmin()
@@ -33,7 +33,14 @@ export async function GET(req: NextRequest) {
       .select('*')
       .order('created_at', { ascending: false })
 
-    if (status && status !== 'all') query = query.eq('status', status)
+    // status='contacted' es un valor especial (no un status real de la tabla):
+    // "ya se le mandó al menos un email" = cualquier status que no sea 'new'
+    // (email_sent/qr_scanned/purchased). Unifica el viejo filtro "All Status"
+    // (4 valores puntuales) con letter_status en un solo selector del panel
+    // (feedback founder 2026-09-12: quería Nuevas / Email enviado / Cartas
+    // enviadas / Todas en un solo lugar, en vez de dos dropdowns separados).
+    if (status === 'contacted') query = query.neq('status', 'new')
+    else if (status && status !== 'all') query = query.eq('status', status)
     if (type   && type   !== 'all') query = query.eq('company_type', type)
     if (dateFrom) query = query.gte('registration_date', dateFrom)
     if (dateTo)   query = query.lte('registration_date', dateTo)
