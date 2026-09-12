@@ -97,6 +97,27 @@ type EnrichRunResult = {
   note?: string
 }
 
+// Bloque 3.5 — email (Enformion). Mismo shape que EnrichStats/EnrichRunResult
+// (dirección), solo cambian los totales que reporta.
+type EmailEnrichStats = {
+  pending_by_score: { A: number; B: number; C: number }
+  totals: { with_email: number; tried_not_found: number }
+  last_run: ClassifyStats['last_run']
+  max_n: number
+  cost_per_lead_usd: number
+}
+
+type EmailEnrichRunResult = {
+  enriched: number
+  found_count: number
+  not_found_count: number
+  skipped_no_officer: number
+  api_error_count: number
+  last_api_error: string | null
+  elapsed_ms: number
+  note?: string
+}
+
 const HAIKU_COST_PER_LEAD_USD = 0.0008 // observado en smoke test 2026-07-16 (~$0.80/1000)
 
 export default function MarketingPage() {
@@ -135,22 +156,32 @@ export default function MarketingPage() {
   const [enrichResult, setEnrichResult]   = useState<EnrichRunResult | null>(null)
   const [enrichError, setEnrichError]     = useState<string | null>(null)
 
+  // Bloque 3.5 state — email (Enformion)
+  const [emailEnrichStats, setEmailEnrichStats] = useState<EmailEnrichStats | null>(null)
+  const [emailEnrichN, setEmailEnrichN]       = useState<number>(50)
+  const [emailEnrichScore, setEmailEnrichScore] = useState<'A' | 'B' | 'C'>('A')
+  const [emailEnrichRunning, setEmailEnrichRunning] = useState(false)
+  const [emailEnrichResult, setEmailEnrichResult]   = useState<EmailEnrichRunResult | null>(null)
+  const [emailEnrichError, setEmailEnrichError]     = useState<string | null>(null)
+
   const loadStats = useCallback(async () => {
     try {
-      const [r1, r2, r3, r4, r5] = await Promise.all([
+      const [r1, r2, r3, r4, r5, r6] = await Promise.all([
         fetch('/api/marketing/classify'),
         fetch('/api/marketing/enrich'),
         fetch('/api/marketing/verticals'),
         fetch('/api/marketing/scores'),
         fetch('/api/marketing/prepare'),
+        fetch('/api/marketing/enrich-email'),
       ])
-      const [t1, t2, t3, t4, t5] = await Promise.all([r1.text(), r2.text(), r3.text(), r4.text(), r5.text()])
-      let d1: unknown = null, d2: unknown = null, d3: unknown = null, d4: unknown = null, d5: unknown = null
+      const [t1, t2, t3, t4, t5, t6] = await Promise.all([r1.text(), r2.text(), r3.text(), r4.text(), r5.text(), r6.text()])
+      let d1: unknown = null, d2: unknown = null, d3: unknown = null, d4: unknown = null, d5: unknown = null, d6: unknown = null
       try { d1 = t1 ? JSON.parse(t1) : null } catch {}
       try { d2 = t2 ? JSON.parse(t2) : null } catch {}
       try { d3 = t3 ? JSON.parse(t3) : null } catch {}
       try { d4 = t4 ? JSON.parse(t4) : null } catch {}
       try { d5 = t5 ? JSON.parse(t5) : null } catch {}
+      try { d6 = t6 ? JSON.parse(t6) : null } catch {}
       if (!r1.ok) {
         const msg = (d1 && typeof d1 === 'object' && 'error' in d1)
           ? String((d1 as { error: unknown }).error)
@@ -166,6 +197,7 @@ export default function MarketingPage() {
         setScores((d4 as { scores: ScoreSetting[] }).scores)
       }
       if (r5.ok) setPrepareStats(d5 as PrepareStats)
+      if (r6.ok) setEmailEnrichStats(d6 as EmailEnrichStats)
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e))
     } finally {
@@ -317,11 +349,41 @@ export default function MarketingPage() {
     }
   }
 
+  const runEnrichEmail = async () => {
+    if (emailEnrichRunning) return
+    if (!Number.isInteger(emailEnrichN) || emailEnrichN < 1) { setEmailEnrichError('N debe ser entero >= 1'); return }
+    const estCost = (emailEnrichN * (emailEnrichStats?.cost_per_lead_usd ?? 0.10)).toFixed(2)
+    if (!confirm(`Buscar email de ${emailEnrichN} leads score ${emailEnrichScore}?\n\nCosto estimado: $${estCost} USD (Enformion — placeholder hasta confirmar precio real del plan pago).\n\nConfirmar?`)) return
+    setEmailEnrichRunning(true); setEmailEnrichError(null); setEmailEnrichResult(null)
+    try {
+      const res = await fetch('/api/marketing/enrich-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ n: emailEnrichN, score: emailEnrichScore }),
+      })
+      const text = await res.text()
+      let data: EmailEnrichRunResult & { error?: string } = {} as EmailEnrichRunResult & { error?: string }
+      try { data = text ? JSON.parse(text) : {} } catch {}
+      if (!res.ok) {
+        throw new Error(data.error || text.slice(0, 200) || `HTTP ${res.status}`)
+      }
+      setEmailEnrichResult(data as EmailEnrichRunResult)
+      await loadStats()
+    } catch (e) {
+      setEmailEnrichError(e instanceof Error ? e.message : String(e))
+    } finally {
+      setEmailEnrichRunning(false)
+    }
+  }
+
   const costEstimate = (n * HAIKU_COST_PER_LEAD_USD).toFixed(4)
   const enrichCostEst = (enrichN * (enrichStats?.cost_per_lead_usd ?? 0.017)).toFixed(2)
   const maxN = stats?.max_n ?? 500
   const enrichMaxN = enrichStats?.max_n ?? 500
   const enrichPending = enrichStats?.pending_by_score[enrichScore] ?? 0
+  const emailEnrichCostEst = (emailEnrichN * (emailEnrichStats?.cost_per_lead_usd ?? 0.10)).toFixed(2)
+  const emailEnrichMaxN = emailEnrichStats?.max_n ?? 500
+  const emailEnrichPending = emailEnrichStats?.pending_by_score[emailEnrichScore] ?? 0
 
   return (
     <div style={S.page}>
@@ -812,6 +874,107 @@ export default function MarketingPage() {
               )}
             </div>
 
+            {/* ── Bloque 3.5: Enriquecimiento (email, Enformion) ────────── */}
+            <div style={S.block}>
+              <div style={S.blockHeader}>
+                <div>
+                  <div style={S.blockTitle}>Bloque 3.5 — Enriquecimiento (email)</div>
+                  <div style={S.blockDesc}>
+                    Sobre las leads con <b>dirección ya validada</b> (Bloque 3), busca email/teléfono con Enformion (EnformionGO —
+                    Contact Enrichment API) a partir del nombre del primer officer tipo persona + la target address.
+                    Nunca se busca email de una dirección ya descartada (mismo principio: barato antes que caro).
+                    Prioriza un email personal sobre uno de empresa; <code>identity_score</code> mide la confianza del match.
+                    Costo: placeholder ${emailEnrichStats?.cost_per_lead_usd ?? 0.10}/lead hasta confirmar el precio real del plan pago (hoy en free trial). Techo por corrida: {emailEnrichMaxN}.
+                  </div>
+                </div>
+                <div style={S.blockStatus}>
+                  <span style={S.blockStatusDot}></span>
+                  Activo
+                </div>
+              </div>
+
+              {emailEnrichStats && (
+                <div style={{...S.statsRow, gridTemplateColumns: 'repeat(2, 1fr)', marginBottom: 16, marginTop: 4}}>
+                  <div style={S.miniStat}>
+                    <div style={S.miniStatLabel}>Con email</div>
+                    <div style={{...S.miniStatValue, color: '#059669'}}>{emailEnrichStats.totals.with_email.toLocaleString()}</div>
+                  </div>
+                  <div style={S.miniStat}>
+                    <div style={S.miniStatLabel}>Intentadas sin resultado</div>
+                    <div style={{...S.miniStatValue, color: '#6b7280'}}>{emailEnrichStats.totals.tried_not_found.toLocaleString()}</div>
+                  </div>
+                </div>
+              )}
+
+              <div style={S.controlRow}>
+                <div style={S.controlGroup}>
+                  <label style={S.inputLabel}>Buscar email de</label>
+                  <input
+                    type="number"
+                    min={1}
+                    max={emailEnrichMaxN}
+                    value={emailEnrichN}
+                    onChange={e => setEmailEnrichN(Number(e.target.value))}
+                    disabled={emailEnrichRunning}
+                    style={S.numInput}
+                  />
+                  <span style={S.inputHint}>score</span>
+                  <select
+                    value={emailEnrichScore}
+                    onChange={e => setEmailEnrichScore(e.target.value as 'A' | 'B' | 'C')}
+                    disabled={emailEnrichRunning}
+                    style={S.select}
+                  >
+                    <option value="A">A ({emailEnrichStats?.pending_by_score.A ?? 0} pendientes)</option>
+                    <option value="B">B ({emailEnrichStats?.pending_by_score.B ?? 0} pendientes)</option>
+                    <option value="C">C ({emailEnrichStats?.pending_by_score.C ?? 0} pendientes)</option>
+                  </select>
+                </div>
+                <button onClick={runEnrichEmail} disabled={emailEnrichRunning || emailEnrichPending === 0} style={emailEnrichRunning || emailEnrichPending === 0 ? S.btnDisabled : S.btnPrimary}>
+                  {emailEnrichRunning ? 'Buscando...' : `Buscar emails ${emailEnrichPending === 0 ? '(no hay pendientes)' : 'ahora'}`}
+                </button>
+              </div>
+
+              {emailEnrichError && <div style={S.errBox}>Error: {emailEnrichError}</div>}
+
+              {emailEnrichResult && (
+                <div style={S.resultBox}>
+                  <div style={S.resultTitle}>Última corrida</div>
+                  <div style={S.resultGrid}>
+                    <div><b>{emailEnrichResult.enriched}</b> procesadas</div>
+                    <div style={{color:'#059669'}}><b>{emailEnrichResult.found_count}</b> con email</div>
+                    <div style={{color:'#6b7280'}}><b>{emailEnrichResult.not_found_count}</b> sin match</div>
+                    <div><b>{(emailEnrichResult.elapsed_ms / 1000).toFixed(1)}s</b> total</div>
+                  </div>
+                  {emailEnrichResult.skipped_no_officer > 0 && (
+                    <div style={{...S.lastRun, marginTop: 8}}>
+                      {emailEnrichResult.skipped_no_officer} leads sin officer tipo persona (se saltearon, no se les cobró).
+                    </div>
+                  )}
+                  {emailEnrichResult.api_error_count > 0 && (
+                    <div style={{...S.errBox, marginTop: 10}}>
+                      {emailEnrichResult.api_error_count} errores de API. Último: {emailEnrichResult.last_api_error}
+                    </div>
+                  )}
+                  {emailEnrichResult.note && <div style={{...S.lastRun, marginTop: 8}}>{emailEnrichResult.note}</div>}
+                </div>
+              )}
+
+              {emailEnrichStats?.last_run && !emailEnrichResult && (
+                <div style={S.lastRun}>
+                  Última corrida:{' '}
+                  {emailEnrichStats.last_run.status === 'ok' ? (
+                    <span style={{color:'#059669'}}>
+                      OK — {emailEnrichStats.last_run.n_processed} procesadas ({new Date(emailEnrichStats.last_run.finished_at || emailEnrichStats.last_run.started_at).toLocaleString()})
+                    </span>
+                  ) : emailEnrichStats.last_run.status === 'error' ? (
+                    <span style={{color:'#dc2626'}}>ERROR — {emailEnrichStats.last_run.error_message}</span>
+                  ) : (
+                    <span style={{color:'#6b7280'}}>{emailEnrichStats.last_run.status}</span>
+                  )}
+                </div>
+              )}
+            </div>
 
             </>}
 
