@@ -648,7 +648,7 @@ var HUBS = {
   // su propio paso obligatorio (panel-ra), así que este hub no aplica ahí.
   compliance: { panel:'panel-hub-compliance', services:['registered-agent','annual-report'], tiers:['bundle-compliance-ra','bundle-compliance-ra-ar'],
              titleEs:'Cumplimiento anual', titleEn:'Annual compliance',
-             subEs:'Los dos requisitos recurrentes que toda LLC y Corporation de Florida debe mantener al día.', subEn:'The two recurring requirements every Florida LLC and Corporation must keep current.' },
+             subEs:'Los requisitos recurrentes que toda LLC y Corporation de Florida debe mantener al día.', subEn:'The recurring requirements every Florida LLC and Corporation must keep current.' },
   protect: { panel:'panel-hub-protect', services:['virtual-address','annual-report','business-tax-receipt'], tiers:['bundle-protect-va','bundle-protect-va-ar','bundle-protect-full'],
              titleEs:'Presencia y operación', titleEn:'Business presence & operations',
              subEs:'Mantenga su negocio protegido y al día con el estado.', subEn:'Keep your business protected and compliant with the state.' }
@@ -858,6 +858,11 @@ function coRadioSelect(el, hiddenId, val){
   var group=el.closest('.co-radio-group');
   if(group){ Array.prototype.forEach.call(group.querySelectorAll('.co-radio-row'), function(r){ r.classList.remove('sel'); }); }
   el.classList.add('sel');
+  // Campo "otra razón" del EIN: solo se despliega si el radio elegido es "Other".
+  if(hiddenId==='x-ein-einReason'){
+    var otherWrap=$('fld-x-ein-einReasonOther');
+    if(otherWrap) otherWrap.style.display = (val==='Other') ? '' : 'none';
+  }
 }
 function fieldHtml(svcId, f){
   var isEs=coIsEs(); var lbl=isEs?f.es:f.en; var id='x-'+svcId+'-'+f.k;
@@ -898,7 +903,12 @@ function fieldHtml(svcId, f){
   } else {
     inner='<input class="co-input" type="'+(f.type||'text')+'" id="'+id+'"/>';
   }
-  return '<div class="co-field'+full+'"><label class="co-label">'+lbl+'</label>'+inner+'</div>';
+  // El campo "otra razón" del EIN solo tiene sentido cuando el radio de
+  // arriba (einReason) está en "Other" — arranca oculto en vez de forzar
+  // scroll con un campo casi siempre irrelevante (coRadioSelect lo muestra
+  // recién si se elige esa opción). Bug real 2026-09-12.
+  var hideByDefault = (svcId==='ein' && f.k==='einReasonOther');
+  return '<div class="co-field'+full+'"'+(hideByDefault?' id="fld-'+id+'" style="display:none"':'')+'><label class="co-label">'+lbl+'</label>'+inner+'</div>';
 }
 
 // ── Campos visibles por servicio (aplica dedup en modo formación) ───────────
@@ -944,9 +954,12 @@ function coServiceCardHtml(svcId, ft, hideTitle){
   var fields = coVisibleFields(svcId, ft);
   var html='<div class="co-card">'+(hideTitle?'':'<div class="co-card-title">'+name+'</div>');
   if(fields.length){
-    var noteEn=(def.note_en!=null)?def.note_en:'Specific details for this service';
-    var noteEs=(def.note_es!=null)?def.note_es:'Detalles específicos de este servicio';
-    html += '<div class="co-card-svc" data-en="'+noteEn+'" data-es="'+noteEs+'">'+(isEs?noteEs:noteEn)+'</div>';
+    // Sin eyebrow "Detalles específicos de este servicio" / nota del servicio
+    // (quitado 2026-09-12, feedback founder): a esta altura el cliente ya
+    // sabe qué servicio está llenando (título de la card + el catálogo que ya
+    // vio) y la nota casi siempre repetía el propio label del campo de abajo
+    // (ej. "Dueños, oficiales..." arriba de "Dueños / Oficiales..."). Menos
+    // scroll, mismo dato.
     if(def.intro_en||def.intro_es){ html += '<p class="co-svc-intro">'+(isEs?(def.intro_es||def.intro_en):(def.intro_en||def.intro_es))+'</p>'; }
     html += '<div class="co-grid">'+fields.map(function(f){return fieldHtml(svcId,f);}).join('')+'</div>';
   } else {
@@ -2044,7 +2057,12 @@ function coRenderServicePages(ft){
     var tEn = single ? single.name_en : 'Service details';
     var tEs = single ? single.name_es : 'Datos del servicio';
     var inner=pageIds.map(function(id){ return coServiceCardHtml(id, ft, !!single); }).join('');
-    host.insertAdjacentHTML('beforeend','<div class="co-panel" id="'+pid+'" style="display:none"><h1 class="co-h1" data-en="'+tEn+'" data-es="'+tEs+'">'+(isEs?tEs:tEn)+'</h1>'+inner+'</div>');
+    // El <h1> grande solo aporta cuando hay un único servicio en el paso (ahí
+    // es el único título visible). Con 2+ servicios ya viene redundante con
+    // el título propio de cada card ("Declaración Anual", "DBA / Nombre
+    // Ficticio", etc.) — quitarlo ahorra scroll (feedback founder 2026-09-12).
+    var h1Html = single ? '<h1 class="co-h1" data-en="'+tEn+'" data-es="'+tEs+'">'+(isEs?tEs:tEn)+'</h1>' : '';
+    host.insertAdjacentHTML('beforeend','<div class="co-panel" id="'+pid+'" style="display:none">'+h1Html+inner+'</div>');
     coServicePages.push({id:pid, title:{en:tEn, es:tEs}});
   });
 }
