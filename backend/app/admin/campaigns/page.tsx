@@ -20,6 +20,7 @@ type Company = {
   status: 'new' | 'email_sent' | 'qr_scanned' | 'purchased'
   note: string | null
   created_at: string
+  letter_sent_at: string | null
 }
 
 type Stats = {
@@ -53,6 +54,16 @@ export default function CampaignsPage() {
   const [filterType,   setFilterType]   = useState('all')
   const [filterFrom,   setFilterFrom]   = useState('')
   const [filterTo,     setFilterTo]     = useState('')
+  // Default 'not_sent' — la lista principal arranca mostrando solo lo que
+  // todavía no se marcó como enviado, para no mezclar cartas nuevas con
+  // las que ya se mandaron (feedback founder 2026-09-12).
+  const [letterFilter, setLetterFilter] = useState<'not_sent' | 'sent' | 'all'>('not_sent')
+
+  // Selección con checkboxes — borrado en lote y "marcar como enviada" en lote.
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [bulkDeleting, setBulkDeleting] = useState(false)
+  const [bulkMarking,  setBulkMarking]  = useState(false)
+  const [bulkMsg,      setBulkMsg]      = useState('')
 
   // Sending state
   const [sendingId,   setSendingId]   = useState<string | null>(null)
@@ -110,18 +121,78 @@ export default function CampaignsPage() {
     if (filterType   !== 'all') params.set('type',      filterType)
     if (filterFrom)              params.set('date_from', filterFrom)
     if (filterTo)                params.set('date_to',   filterTo)
+    if (letterFilter !== 'all')  params.set('letter_status', letterFilter)
     setLoading(true)
     const res = await fetch(`/api/campaigns/companies?${params}`)
     if (res.ok) {
       const data = await res.json()
       setCompanies(data.companies)
     }
+    setSelectedIds(new Set())
     setLoading(false)
-  }, [filterStatus, filterType, filterFrom, filterTo])
+  }, [filterStatus, filterType, filterFrom, filterTo, letterFilter])
 
   // Carga inicial de datos del panel — patrón estándar de fetch en mount.
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { fetchStats(); fetchCompanies() }, [fetchStats, fetchCompanies])
+
+  // ─── Selección (checkboxes) ─────────────────────────────────────────────────
+
+  function toggleSelect(id: string) {
+    setSelectedIds(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id); else next.add(id)
+      return next
+    })
+  }
+
+  function toggleSelectAll() {
+    setSelectedIds(prev => (prev.size === companies.length ? new Set() : new Set(companies.map(c => c.id))))
+  }
+
+  async function bulkMarkSent() {
+    if (bulkMarking || selectedIds.size === 0) return
+    if (!confirm(`¿Marcar ${selectedIds.size} empresa(s) como carta ya enviada? Van a salir de esta lista.`)) return
+    setBulkMarking(true); setBulkMsg('')
+    try {
+      const res = await fetch('/api/campaigns/companies/mark-sent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: [...selectedIds] }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`)
+      setBulkMsg(`✓ ${data.marked} marcada(s) como enviada(s)`)
+      setSelectedIds(new Set())
+      fetchCompanies()
+    } catch (e) {
+      setBulkMsg('✗ ' + (e instanceof Error ? e.message : String(e)))
+    } finally {
+      setBulkMarking(false)
+    }
+  }
+
+  async function bulkDelete() {
+    if (bulkDeleting || selectedIds.size === 0) return
+    if (!confirm(`¿Eliminar ${selectedIds.size} empresa(s) para siempre? Esta acción no se puede deshacer.`)) return
+    setBulkDeleting(true); setBulkMsg('')
+    try {
+      const res = await fetch('/api/campaigns/companies', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: [...selectedIds] }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`)
+      setBulkMsg(`✓ ${data.deleted} eliminada(s)`)
+      setSelectedIds(new Set())
+      fetchCompanies(); fetchStats()
+    } catch (e) {
+      setBulkMsg('✗ ' + (e instanceof Error ? e.message : String(e)))
+    } finally {
+      setBulkDeleting(false)
+    }
+  }
 
   // ─── Actions ────────────────────────────────────────────────────────────────
 
@@ -465,7 +536,12 @@ export default function CampaignsPage() {
               </select>
               <input type="date" value={filterFrom} onChange={e => setFilterFrom(e.target.value)} title="From date" />
               <input type="date" value={filterTo}   onChange={e => setFilterTo(e.target.value)}   title="To date" />
-              <button className="btn btn-ghost btn-sm" onClick={() => { setFilterStatus('all'); setFilterType('all'); setFilterFrom(''); setFilterTo('') }}>Clear</button>
+              <select value={letterFilter} onChange={e => setLetterFilter(e.target.value as 'not_sent' | 'sent' | 'all')} title="Letter status">
+                <option value="not_sent">📬 Not sent yet</option>
+                <option value="sent">✅ Already sent</option>
+                <option value="all">All (sent + not sent)</option>
+              </select>
+              <button className="btn btn-ghost btn-sm" onClick={() => { setFilterStatus('all'); setFilterType('all'); setFilterFrom(''); setFilterTo(''); setLetterFilter('not_sent') }}>Clear</button>
             </div>
           </div>
 
@@ -474,8 +550,22 @@ export default function CampaignsPage() {
             <button className="btn btn-green btn-sm" onClick={sendToAllNew} disabled={sendingAll || paused}>
               {sendingAll ? 'Sending...' : `📨 Send to All New (${companies.filter(c => c.status === 'new' && c.email).length})`}
             </button>
+
+            {selectedIds.size > 0 && (
+              <>
+                <span style={{ width: 1, background: '#E2E8F0', margin: '2px 4px', alignSelf: 'stretch' }} />
+                <span style={{ fontSize: '.78rem', color: '#475569', fontWeight: 600 }}>{selectedIds.size} selected</span>
+                <button className="btn btn-sm" style={{ background: '#059669', color: '#fff', border: 'none' }} onClick={bulkMarkSent} disabled={bulkMarking || bulkDeleting}>
+                  {bulkMarking ? 'Marking...' : '✅ Mark as Sent'}
+                </button>
+                <button className="btn btn-red btn-sm" onClick={bulkDelete} disabled={bulkMarking || bulkDeleting}>
+                  {bulkDeleting ? 'Deleting...' : '🗑 Delete'}
+                </button>
+              </>
+            )}
             {sendMsg && <span className={sendMsg.startsWith('✓') ? 'msg-ok' : 'msg-err'} style={{ fontSize: '.78rem' }}>{sendMsg}</span>}
             {vipMsg && <span className={vipMsg.startsWith('✓') ? 'msg-ok' : 'msg-err'} style={{ fontSize: '.78rem' }}>{vipMsg}</span>}
+            {bulkMsg && <span className={bulkMsg.startsWith('✓') ? 'msg-ok' : 'msg-err'} style={{ fontSize: '.78rem' }}>{bulkMsg}</span>}
 
             {/* Selector de idioma de la carta PDF (afecta preview 👁 y descarga 📄) */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginLeft: 'auto' }}>
@@ -508,6 +598,14 @@ export default function CampaignsPage() {
               <table>
                 <thead>
                   <tr>
+                    <th style={{ width: 32 }}>
+                      <input
+                        type="checkbox"
+                        checked={companies.length > 0 && selectedIds.size === companies.length}
+                        onChange={toggleSelectAll}
+                        title="Select all"
+                      />
+                    </th>
                     <th>Company Name</th>
                     <th>Document ID</th>
                     <th>Email</th>
@@ -522,10 +620,14 @@ export default function CampaignsPage() {
                     const meta = STATUS_META[c.status] ?? STATUS_META.new
                     return (
                       <tr key={c.id}>
+                        <td>
+                          <input type="checkbox" checked={selectedIds.has(c.id)} onChange={() => toggleSelect(c.id)} />
+                        </td>
                         <td style={{ fontWeight: 600, color: '#1C2E44', maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {c.company_name}
                           {c.owner_name && <div style={{ fontSize: '.72rem', color: '#94A3B8', fontWeight: 400, marginTop: 2 }}>{c.owner_name}</div>}
                           {c.note && <div title={c.note} style={{ fontSize: '.72rem', color: '#b45309', fontWeight: 400, marginTop: 2, maxWidth: 210, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>📝 {c.note}</div>}
+                          {c.letter_sent_at && <div style={{ fontSize: '.7rem', color: '#059669', fontWeight: 600, marginTop: 2 }}>✅ Sent {new Date(c.letter_sent_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>}
                         </td>
                         <td><span style={{ fontFamily: 'monospace', fontSize: '.8rem', color: '#475569', background: '#F8FAFC', padding: '2px 7px', borderRadius: 5 }}>{c.document_id}</span></td>
                         <td style={{ color: c.email ? '#374151' : '#CBD5E1', fontSize: '.8rem' }}>{c.email || '—'}</td>

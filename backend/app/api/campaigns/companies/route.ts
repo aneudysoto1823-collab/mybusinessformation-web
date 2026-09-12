@@ -22,6 +22,10 @@ export async function GET(req: NextRequest) {
     const type        = searchParams.get('type')
     const dateFrom    = searchParams.get('date_from')
     const dateTo      = searchParams.get('date_to')
+    // letter_status separa las que YA se marcaron como enviadas (letter_sent_at
+    // seteado a mano desde el panel) de las nuevas — antes se mezclaban todas
+    // para siempre en la misma lista. Default 'not_sent' en el frontend.
+    const letterStatus = searchParams.get('letter_status')
 
     const supabase = getSupabaseAdmin()
     let query = supabase
@@ -33,6 +37,8 @@ export async function GET(req: NextRequest) {
     if (type   && type   !== 'all') query = query.eq('company_type', type)
     if (dateFrom) query = query.gte('registration_date', dateFrom)
     if (dateTo)   query = query.lte('registration_date', dateTo)
+    if (letterStatus === 'sent')     query = query.not('letter_sent_at', 'is', null)
+    if (letterStatus === 'not_sent') query = query.is('letter_sent_at', null)
 
     const { data, error } = await query
     if (error) throw error
@@ -83,6 +89,29 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ company: data }, { status: 201 })
+  } catch (err) {
+    return NextResponse.json({ error: String(err) }, { status: 500 })
+  }
+}
+
+// DELETE — bulk delete companies (checkboxes en el panel, "🗑 Delete selected")
+export async function DELETE(req: NextRequest) {
+  if (!(await verifyAdmin(req))) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+  try {
+    const body = await req.json().catch(() => ({}))
+    const ids = Array.isArray(body?.ids) ? body.ids.filter((id: unknown) => typeof id === 'string' && id) : []
+    if (ids.length === 0) return NextResponse.json({ error: 'ids (array no vacío) es requerido' }, { status: 400 })
+
+    const supabase = getSupabaseAdmin()
+    const { error, count } = await supabase
+      .from('prospective_companies')
+      .delete({ count: 'exact' })
+      .in('id', ids)
+
+    if (error) throw error
+    return NextResponse.json({ deleted: count ?? ids.length })
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 })
   }
