@@ -181,6 +181,22 @@ export default function MarketingPage() {
   const [emailEnrichRunning, setEmailEnrichRunning] = useState(false)
   const [emailEnrichResult, setEmailEnrichResult]   = useState<EmailEnrichRunResult | null>(null)
   const [emailEnrichError, setEmailEnrichError]     = useState<string | null>(null)
+  // Filtro de fecha opcional (filing_date) — para poder decir "buscá solo
+  // entre las clasificadas de hoy" en vez de siempre las más nuevas por
+  // default. Pedido founder 2026-09-12.
+  const [emailEnrichFrom, setEmailEnrichFrom] = useState('')
+  const [emailEnrichTo, setEmailEnrichTo]     = useState('')
+
+  const fetchEmailEnrichStats = useCallback(async () => {
+    const params = new URLSearchParams()
+    if (emailEnrichFrom) params.set('date_from', emailEnrichFrom)
+    if (emailEnrichTo)   params.set('date_to', emailEnrichTo)
+    const res = await fetch(`/api/marketing/enrich-email?${params}`)
+    if (res.ok) setEmailEnrichStats(await res.json())
+  }, [emailEnrichFrom, emailEnrichTo])
+
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => { fetchEmailEnrichStats() }, [fetchEmailEnrichStats])
 
   // Explorador de Leads — ver la lista real (no solo contadores), filtrable
   // por estado (nuevas / clasificadas / validadas / ya enviadas a Campaigns
@@ -222,22 +238,20 @@ export default function MarketingPage() {
 
   const loadStats = useCallback(async () => {
     try {
-      const [r1, r2, r3, r4, r5, r6] = await Promise.all([
+      const [r1, r2, r3, r4, r5] = await Promise.all([
         fetch('/api/marketing/classify'),
         fetch('/api/marketing/enrich'),
         fetch('/api/marketing/verticals'),
         fetch('/api/marketing/scores'),
         fetch('/api/marketing/prepare'),
-        fetch('/api/marketing/enrich-email'),
       ])
-      const [t1, t2, t3, t4, t5, t6] = await Promise.all([r1.text(), r2.text(), r3.text(), r4.text(), r5.text(), r6.text()])
-      let d1: unknown = null, d2: unknown = null, d3: unknown = null, d4: unknown = null, d5: unknown = null, d6: unknown = null
+      const [t1, t2, t3, t4, t5] = await Promise.all([r1.text(), r2.text(), r3.text(), r4.text(), r5.text()])
+      let d1: unknown = null, d2: unknown = null, d3: unknown = null, d4: unknown = null, d5: unknown = null
       try { d1 = t1 ? JSON.parse(t1) : null } catch {}
       try { d2 = t2 ? JSON.parse(t2) : null } catch {}
       try { d3 = t3 ? JSON.parse(t3) : null } catch {}
       try { d4 = t4 ? JSON.parse(t4) : null } catch {}
       try { d5 = t5 ? JSON.parse(t5) : null } catch {}
-      try { d6 = t6 ? JSON.parse(t6) : null } catch {}
       if (!r1.ok) {
         const msg = (d1 && typeof d1 === 'object' && 'error' in d1)
           ? String((d1 as { error: unknown }).error)
@@ -253,7 +267,6 @@ export default function MarketingPage() {
         setScores((d4 as { scores: ScoreSetting[] }).scores)
       }
       if (r5.ok) setPrepareStats(d5 as PrepareStats)
-      if (r6.ok) setEmailEnrichStats(d6 as EmailEnrichStats)
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e))
     } finally {
@@ -409,13 +422,17 @@ export default function MarketingPage() {
     if (emailEnrichRunning) return
     if (!Number.isInteger(emailEnrichN) || emailEnrichN < 1) { setEmailEnrichError('N debe ser entero >= 1'); return }
     const estCost = (emailEnrichN * (emailEnrichStats?.cost_per_lead_usd ?? 0.10)).toFixed(2)
-    if (!confirm(`Buscar email de ${emailEnrichN} leads score ${emailEnrichScore}?\n\nCosto estimado: $${estCost} USD (Enformion — placeholder hasta confirmar precio real del plan pago).\n\nConfirmar?`)) return
+    const dateNote = (emailEnrichFrom || emailEnrichTo) ? `\n\nFiling date: ${emailEnrichFrom || '(sin límite)'} → ${emailEnrichTo || '(sin límite)'}` : ''
+    if (!confirm(`Buscar email de ${emailEnrichN} leads score ${emailEnrichScore}?${dateNote}\n\nCosto estimado: $${estCost} USD (Enformion — placeholder hasta confirmar precio real del plan pago).\n\nConfirmar?`)) return
     setEmailEnrichRunning(true); setEmailEnrichError(null); setEmailEnrichResult(null)
     try {
       const res = await fetch('/api/marketing/enrich-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ n: emailEnrichN, score: emailEnrichScore }),
+        body: JSON.stringify({
+          n: emailEnrichN, score: emailEnrichScore,
+          date_from: emailEnrichFrom || undefined, date_to: emailEnrichTo || undefined,
+        }),
       })
       const text = await res.text()
       let data: EmailEnrichRunResult & { error?: string } = {} as EmailEnrichRunResult & { error?: string }
@@ -424,7 +441,7 @@ export default function MarketingPage() {
         throw new Error(data.error || text.slice(0, 200) || `HTTP ${res.status}`)
       }
       setEmailEnrichResult(data as EmailEnrichRunResult)
-      await loadStats()
+      await Promise.all([loadStats(), fetchEmailEnrichStats()])
     } catch (e) {
       setEmailEnrichError(e instanceof Error ? e.message : String(e))
     } finally {
@@ -989,6 +1006,15 @@ export default function MarketingPage() {
                     <option value="B">B ({emailEnrichStats?.pending_by_score.B ?? 0} pendientes)</option>
                     <option value="C">C ({emailEnrichStats?.pending_by_score.C ?? 0} pendientes)</option>
                   </select>
+                </div>
+                <div style={S.controlGroup}>
+                  <label style={S.inputLabel}>Filing date desde</label>
+                  <input type="date" value={emailEnrichFrom} onChange={e => setEmailEnrichFrom(e.target.value)} disabled={emailEnrichRunning} style={S.select} />
+                  <label style={S.inputLabel}>hasta</label>
+                  <input type="date" value={emailEnrichTo} onChange={e => setEmailEnrichTo(e.target.value)} disabled={emailEnrichRunning} style={S.select} />
+                  {(emailEnrichFrom || emailEnrichTo) && (
+                    <button style={S.btnGhost} onClick={() => { setEmailEnrichFrom(''); setEmailEnrichTo('') }} disabled={emailEnrichRunning}>✕</button>
+                  )}
                 </div>
                 <button onClick={runEnrichEmail} disabled={emailEnrichRunning || emailEnrichPending === 0} style={emailEnrichRunning || emailEnrichPending === 0 ? S.btnDisabled : S.btnPrimary}>
                   {emailEnrichRunning ? 'Buscando...' : `Buscar emails ${emailEnrichPending === 0 ? '(no hay pendientes)' : 'ahora'}`}

@@ -60,7 +60,7 @@ export async function POST(req: Request) {
   const ok = token ? await verifyAdminToken(token) : false
   if (!ok) return jsonError(401, 'unauthorized')
 
-  let body: { n?: number; score?: string }
+  let body: { n?: number; score?: string; date_from?: string; date_to?: string }
   try { body = await req.json() } catch { return jsonError(400, 'body no es JSON valido') }
 
   const n = Number(body.n)
@@ -68,6 +68,8 @@ export async function POST(req: Request) {
     return jsonError(400, `n debe ser un entero entre 1 y ${MAX_N}`)
   }
   const score = ['A', 'B', 'C'].includes(String(body.score)) ? String(body.score) : 'A'
+  const dateFrom = typeof body.date_from === 'string' && body.date_from ? body.date_from : null
+  const dateTo   = typeof body.date_to === 'string' && body.date_to ? body.date_to : null
 
   let marketing
   try {
@@ -83,6 +85,16 @@ export async function POST(req: Request) {
   })
   const runId = Number(runIns.lastInsertRowid)
 
+  // email_enriched_at IS NULL es lo que evita pagarle a Enformion DOS VECES
+  // por el mismo lead — antes solo se chequeaba email IS NULL, así que un
+  // lead sin match (email sigue null, pero YA se intentó) volvía a
+  // ofrecerse en la próxima corrida y se re-cobraba (bug real 2026-09-12).
+  const dateFilterSql = [
+    dateFrom ? 'AND filing_date >= ?' : '',
+    dateTo   ? 'AND filing_date <= ?' : '',
+  ].filter(Boolean).join(' ')
+  const dateFilterArgs = [dateFrom, dateTo].filter((v): v is string => v !== null)
+
   const candidatesRes = await marketing.execute({
     sql: `SELECT document_number, officers_json, target_addr1, target_city, target_state
           FROM marketing_leads
@@ -90,10 +102,12 @@ export async function POST(req: Request) {
             AND descartada = 0
             AND address_validated = 1
             AND email IS NULL
+            AND email_enriched_at IS NULL
             AND officers_json IS NOT NULL
+            ${dateFilterSql}
           ORDER BY filing_date DESC
           LIMIT ?`,
-    args: [score, n],
+    args: [score, ...dateFilterArgs, n],
   })
 
   if (candidatesRes.rows.length === 0) {
@@ -188,10 +202,12 @@ export async function POST(req: Request) {
   })
 }
 
-// GET: stats para el panel del Bloque 3.5. Para ver el LISTADO real de leads
-// (no solo el numero), usar GET /api/marketing/leads?view=validated — el
-// explorador general de leads del panel, con filtros de fecha/score/estado.
-export async function GET() {
+// GET: stats para el panel del Bloque 3.5. Con ?date_from=&date_to= el conteo
+// de "pendientes" respeta el mismo rango de fecha que se va a usar al
+// disparar la búsqueda (para que el número mostrado sea el real). Para ver
+// el LISTADO real de leads (no solo el numero), usar
+// GET /api/marketing/leads?view=validated — el explorador general del panel.
+export async function GET(req: Request) {
   const cookieStore = await cookies()
   const token = cookieStore.get('admin_session')?.value
   const ok = token ? await verifyAdminToken(token) : false
@@ -205,12 +221,25 @@ export async function GET() {
     return jsonError(500, 'config invalida: ' + msg)
   }
 
+  const { searchParams } = new URL(req.url)
+  const dateFrom = searchParams.get('date_from') || null
+  const dateTo   = searchParams.get('date_to') || null
+  const dateFilterSql = [
+    dateFrom ? 'AND filing_date >= ?' : '',
+    dateTo   ? 'AND filing_date <= ?' : '',
+  ].filter(Boolean).join(' ')
+  const dateFilterArgs = [dateFrom, dateTo].filter((v): v is string => v !== null)
+
   try {
     const [pendingByScore, lastRun, totals] = await Promise.all([
-      marketing.execute(`SELECT score, COUNT(*) as n FROM marketing_leads
-                          WHERE score IS NOT NULL AND address_validated = 1
-                          AND descartada = 0 AND email IS NULL
-                          GROUP BY score`),
+      marketing.execute({
+        sql: `SELECT score, COUNT(*) as n FROM marketing_leads
+              WHERE score IS NOT NULL AND address_validated = 1
+              AND descartada = 0 AND email IS NULL AND email_enriched_at IS NULL
+              ${dateFilterSql}
+              GROUP BY score`,
+        args: dateFilterArgs,
+      }),
       marketing.execute(`SELECT * FROM block_runs WHERE block = 'enrich_email' ORDER BY started_at DESC LIMIT 1`),
       marketing.execute(`SELECT
         SUM(CASE WHEN email IS NOT NULL THEN 1 ELSE 0 END) as with_email,
