@@ -54,14 +54,14 @@ export default function CampaignsPage() {
   const [filterFrom,   setFilterFrom]   = useState('')
   const [filterTo,     setFilterTo]     = useState('')
   // Filtro único de contacto — reemplaza los 2 dropdowns viejos ("All Status"
-  // + "Letter status") que se solapaban de forma confusa (el status "email
-  // sent" ya vivía en un dropdown, y "carta enviada" en otro aparte).
-  // 'new' = ni carta ni email todavía (arranca acá por default). 'email_sent'/
-  // 'letter_sent' = ese canal ya se usó, sin importar el otro (inclusivo).
-  // 'email_only'/'letter_only' = ESE canal sí y el otro NO (exclusivo — pedido
-  // aparte, además de los inclusivos, no en reemplazo). Feedback founder
-  // 2026-09-12.
-  const [filterContact, setFilterContact] = useState<'new' | 'email_sent' | 'letter_sent' | 'email_only' | 'letter_only' | 'all'>('new')
+  // + "Letter status") que se solapaban de forma confusa. 'new' = ni carta
+  // ni email todavía (arranca acá por default — es la cola real desde donde
+  // se manda, así nunca se duplica un envío: en cuanto se le manda algo por
+  // cualquier canal, deja de aparecer acá). 'email_sent'/'letter_sent' = ese
+  // canal ya se usó, sin importar el otro. Se sacaron las variantes
+  // exclusivas (email_only/letter_only) — eran solo para auditar, no hacían
+  // falta para evitar duplicados (founder 2026-09-12).
+  const [filterContact, setFilterContact] = useState<'new' | 'email_sent' | 'letter_sent' | 'all'>('new')
 
   // Selección con checkboxes — borrado en lote y "marcar como enviada" en lote.
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
@@ -130,12 +130,6 @@ export default function CampaignsPage() {
     } else if (filterContact === 'email_sent') {
       params.set('status', 'contacted')
     } else if (filterContact === 'letter_sent') {
-      params.set('letter_status', 'sent')
-    } else if (filterContact === 'email_only') {
-      params.set('status', 'contacted')
-      params.set('letter_status', 'not_sent')
-    } else if (filterContact === 'letter_only') {
-      params.set('status', 'new')
       params.set('letter_status', 'sent')
     }
     if (filterType   !== 'all') params.set('type',      filterType)
@@ -540,12 +534,10 @@ export default function CampaignsPage() {
           <div className="card-head">
             <span className="card-title">Companies ({companies.length})</span>
             <div className="filters">
-              <select value={filterContact} onChange={e => setFilterContact(e.target.value as 'new' | 'email_sent' | 'letter_sent' | 'email_only' | 'letter_only' | 'all')} title="Contact status">
+              <select value={filterContact} onChange={e => setFilterContact(e.target.value as 'new' | 'email_sent' | 'letter_sent' | 'all')} title="Contact status">
                 <option value="new">🆕 New (no letter, no email)</option>
                 <option value="email_sent">📧 Email sent</option>
                 <option value="letter_sent">📬 Letter sent</option>
-                <option value="email_only">📧 Email sent, no letter</option>
-                <option value="letter_only">📬 Letter sent, no email</option>
                 <option value="all">All</option>
               </select>
               <select value={filterType} onChange={e => setFilterType(e.target.value)}>
