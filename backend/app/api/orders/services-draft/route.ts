@@ -73,6 +73,18 @@ export async function POST(request: NextRequest) {
         .maybeSingle()
 
       if (!updateErr && updated) {
+        if (body.manual) {
+          sendDraftSavedEmail({
+            id: updated.id,
+            email: fields.email,
+            firstName: fields.firstName,
+            companyName: fields.companyName,
+            origin,
+            brand: sourceBrand,
+            lang: body.lang === 'es' ? 'es' : 'en',
+            source: body.source === 'new-business' ? 'new-business' : 'services-checkout',
+          })
+        }
         return NextResponse.json({ success: true, orderId: updated.id }, { status: 200 })
       }
       // Si no se pudo actualizar (id viejo, ya promovido a real, etc.) cae al insert.
@@ -99,16 +111,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Error saving draft' }, { status: 500 })
     }
 
-    sendDraftSavedEmail({
-      id: created.id,
-      email: fields.email,
-      firstName: fields.firstName,
-      companyName: fields.companyName,
-      origin,
-      brand: sourceBrand,
-      lang: body.lang === 'es' ? 'es' : 'en',
-      source: body.source === 'new-business' ? 'new-business' : 'services-checkout',
-    })
+    if (body.manual) {
+      sendDraftSavedEmail({
+        id: created.id,
+        email: fields.email,
+        firstName: fields.firstName,
+        companyName: fields.companyName,
+        origin,
+        brand: sourceBrand,
+        lang: body.lang === 'es' ? 'es' : 'en',
+        source: body.source === 'new-business' ? 'new-business' : 'services-checkout',
+      })
+    }
 
     return NextResponse.json({ success: true, orderId: created.id }, { status: 201 })
   } catch (error) {

@@ -111,6 +111,13 @@ export const ServicesDraftInputSchema = z.object({
   // "continuar" del email (servicios/checkout vs la raíz de mybiz new-business).
   source: z.enum(['services-checkout', 'new-business']).optional(),
 
+  // true SOLO cuando el cliente clickeó el botón "Guardar" manual — el
+  // guardado automático de cada cambio de paso manda este mismo endpoint
+  // pero con manual:false/ausente, para no disparar el email de "tu progreso
+  // está guardado" sin que el cliente haya pedido guardar nada (bug real
+  // 2026-09-12: el email salía solo con navegar el wizard).
+  manual: z.boolean().optional(),
+
   snapshot: z.unknown().optional().nullable(),
 })
 

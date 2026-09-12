@@ -3,7 +3,7 @@ import Stripe from 'stripe'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { Resend } from 'resend'
 import { nameCheckHtmlLine, NameCheckResult } from '@/lib/sunbiz-namecheck'
-import { SERVICES_CATALOG, SERVICE_BUNDLES } from '@/lib/services-pricing'
+import { SERVICES_CATALOG } from '@/lib/services-pricing'
 import { PACKAGE_SERVICES } from '@/lib/notifications'
 import { computeFormationTotal } from '@/lib/pricing'
 import { getOrderItemLabel } from '@/lib/order-items'
@@ -672,38 +672,13 @@ async function handleServicesPaid(orderId: string, session: Stripe.Checkout.Sess
   // /api/checkout/embedded-services). Si no está (órdenes viejas), default EN.
   const isEs = addons.lang === 'es'
 
-  // Descripción de 1 línea por servicio (catálogo compartido, lib/services-pricing.ts),
-  // anidada bajo la fila de precio correspondiente en vez de repetida en una
-  // sección aparte "What's included" (quedaba duplicado — el mismo ítem una
-  // vez con precio y otra vez sin precio). Para un bundle, se listan las
-  // descripciones de cada servicio que incluye bajo la fila del combo.
-  const descByLabel = new Map<string, string>()
-  for (const bid of (addons.bundles ?? [])) {
-    const b = SERVICE_BUNDLES[bid]
-    if (!b) continue
-    const html = b.services
-      .map(sid => SERVICES_CATALOG[sid])
-      .filter((s): s is NonNullable<typeof s> => !!s)
-      .map(svc => `<div><strong style="color:#1e293b">${isEs ? svc.name_es : svc.name_en}</strong> — ${isEs ? svc.desc_es : svc.desc_en}</div>`)
-      .join('')
-    descByLabel.set(isEs ? b.name_es : b.name_en, html)
-  }
-  for (const sid of (addons.services ?? [])) {
-    const svc = SERVICES_CATALOG[sid]
-    if (!svc) continue
-    const label = isEs ? svc.name_es : svc.name_en
-    if (!descByLabel.has(label)) descByLabel.set(label, `<div>${isEs ? svc.desc_es : svc.desc_en}</div>`)
-  }
-
   // Confirmación al cliente. Los labels de servicesRowsHtml ya vienen en el
   // idioma correcto (addons.lines se guardó localizado desde computeServicesTotal).
+  // Sin descripción por línea (quitado 2026-09-12, feedback founder): a esta
+  // altura del flujo el cliente ya leyó qué es cada servicio en el sitio —
+  // acá solo hace falta el nombre y el precio, como una factura.
   const servicesRowsHtml = serviceLines
-    .map(l => {
-      const priceRow = `<tr><td style="padding:5px 0;font-size:14px;color:#475569">${l.label}</td><td style="padding:5px 0;font-size:14px;color:#1e293b;font-weight:600;text-align:right;white-space:nowrap">$${l.amount}</td></tr>`
-      const desc = descByLabel.get(l.label)
-      const descRow = desc ? `<tr><td colspan="2" style="padding:0 0 8px;font-size:12.5px;color:#64748b;line-height:1.5">${desc}</td></tr>` : ''
-      return priceRow + descRow
-    })
+    .map(l => `<tr><td style="padding:5px 0;font-size:14px;color:#475569">${l.label}</td><td style="padding:5px 0;font-size:14px;color:#1e293b;font-weight:600;text-align:right;white-space:nowrap">$${l.amount}</td></tr>`)
     .join('') || '<tr><td style="padding:5px 0;font-size:14px;color:#475569">—</td><td></td></tr>'
 
   // Regalo de la Guía II (cumplimiento post-formación) — SOLO para órdenes de

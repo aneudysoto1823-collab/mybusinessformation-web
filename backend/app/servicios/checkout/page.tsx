@@ -1058,7 +1058,13 @@ function coSimpleFieldIds(){
     'p-street','p-apt','p-city','p-state','p-zip',
     'x-'+coFormId+'-raFirstName','x-'+coFormId+'-raLastName','x-'+coFormId+'-raStreet','x-'+coFormId+'-raCity','x-'+coFormId+'-raState','x-'+coFormId+'-raZip'];
 }
-function coSaveDraft(){
+// El parámetro manual solo llega en true desde coSaveDraftManual() (clic
+// explícito en "Guardar") — el email "tu progreso está guardado" del
+// servidor está gateado a ese flag. El guardado automático de cada cambio
+// de paso (ver coGoStep) sigue escribiendo la fila igual (protege contra un
+// refresh a mitad de camino), pero ya NO dispara ningún email por sí solo
+// (bug real 2026-09-12: el cliente recibía el correo con solo avanzar de paso).
+function coSaveDraft(manual){
   var email=(($('f-email')||{}).value||'').trim();
   if(!email || !cart.length) return; // recién a partir de "Información personal"
   var fields={};
@@ -1077,7 +1083,7 @@ function coSaveDraft(){
     phone:(($('f-phone')||{}).value||'').trim()||null,
     companyName:(($('f-legalName')||{}).value||'').trim()||null,
     entityType:(($('f-entityType')||{}).value||'').trim()||null,
-    country:'US', lang:coLang, snapshot:snapshot,
+    country:'US', lang:coLang, snapshot:snapshot, manual:!!manual,
   };
   fetch('/api/orders/services-draft', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) })
     .then(function(r){ return r.json(); })
@@ -1094,7 +1100,7 @@ function coSaveDraftManual(){
   var isEs=coIsEs();
   var email=(($('f-email')||{}).value||'').trim();
   if(!email){ alert(isEs?'Ingrese su correo antes de guardar.':'Enter your email before saving.'); return; }
-  coSaveDraft();
+  coSaveDraft(true);
   var t=document.createElement('div');
   t.textContent=isEs?'✓ Guardado — le enviamos un correo con el link para continuar.':'✓ Saved — we sent you an email with the link to continue.';
   t.style.cssText='position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#1C2E44;color:#fff;padding:12px 22px;border-radius:8px;font-size:.85rem;font-weight:600;z-index:5000;box-shadow:0 8px 24px rgba(0,0,0,.25)';

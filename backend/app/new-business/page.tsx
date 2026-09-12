@@ -1307,7 +1307,14 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
   // en adelante) porque es lo único que tenemos para avisar/autenticar la
   // recuperación. El SSN/ITIN nunca se incluye en el snapshot.
   const [draftSaved, setDraftSaved] = useState(false)
-  function saveDraft(atStep?: number) {
+  // `manual` solo va en true desde saveDraftManual() (clic explícito en
+  // "Guardar") — el email "tu progreso está guardado" del servidor está
+  // gateado a ese flag. El guardado automático de cada cambio de paso sigue
+  // escribiendo la fila igual (protege contra un refresh a mitad de camino),
+  // pero ya NO dispara ningún email por sí solo (bug real 2026-09-12: el
+  // cliente recibía el correo con solo avanzar de paso, sin haber tocado
+  // "Guardar").
+  function saveDraft(atStep?: number, manual?: boolean) {
     if (!form.email) return
     const snapshot = {
       source: 'new-business',
@@ -1325,7 +1332,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
       body: JSON.stringify({
         orderId, email: form.email, firstName: form.firstName || null, lastName: form.lastName || null,
         phone: form.phone || null, companyName: form.companyName || null, entityType: 'llc',
-        lang, source: 'new-business', snapshot,
+        lang, source: 'new-business', snapshot, manual: !!manual,
       }),
     })
       .then(r => r.json())
@@ -1338,7 +1345,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
   }
   function saveDraftManual() {
     if (!form.email) return
-    saveDraft()
+    saveDraft(undefined, true)
     setDraftSaved(true)
     setTimeout(() => setDraftSaved(false), 4000)
   }
