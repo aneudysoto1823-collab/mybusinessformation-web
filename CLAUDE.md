@@ -1482,6 +1482,71 @@ Inspirado en un email real de un competidor (US Filing Services) que el founder 
 
 ---
 
+## Sesión 2026-09-12/13 — Enformion (búsqueda de email), reorganización del panel de Marketing, fixes de tooltips y checkout
+
+Sesión larga. El founder creó la cuenta de **EnformionGO** (free trial, "100 Monthly Matches" gratis/mes — solo cuenta contra el cupo cuando SÍ encuentra un match, un intento sin resultado no cuesta nada ni cuenta como request en su dashboard, confirmado en vivo). Credenciales en Vercel: `ENFORMION_KEY_NAME` / `ENFORMION_KEY_PASS` (Access Profile Name/Password del dashboard EnformionGO).
+
+**Nueva capacidad descubierta esta sesión:** el CLI de Turso se instaló y logueó localmente (`turso auth login` → "Logged in as opabiz") — desde entonces se puede correr `turso db shell opabiz-marketing "SQL..."` directo para inspeccionar/corregir datos de la Base B sin pasar por la UI web. Útil para diagnósticos futuros de Marketing Saliente.
+
+### Enformion — Bloque 3.5 del sistema de Marketing Saliente (doc 31)
+
+- **`lib/enformion.ts`** (nuevo) — conector `POST https://devapi.enformion.com/Contact/Enrich`, headers `galaxy-ap-name`/`galaxy-ap-password`/`galaxy-search-type`. Busca a partir del primer officer tipo persona (`firstPersonOfficer()`, compartida) + la target address ya validada por el Bloque 3. Prioriza email personal sobre uno de empresa; `identityScore` como filtro de confianza (no usado como gate todavía).
+- **`POST`/`GET /api/marketing/enrich-email`** (nuevo) — mismo patrón que el Bloque 3 de dirección: N + score, log en `block_runs` (`block='enrich_email'`), filtro de fecha (`date_from`/`date_to`) opcional.
+- **3 bugs reales encontrados y corregidos en la misma sesión:**
+  1. **Cobro doble** — el WHERE solo chequeaba `email IS NULL`, no `email_enriched_at IS NULL`. Un lead sin match volvía a ofrecerse en la próxima corrida y se re-cobraba a Enformion por la misma búsqueda. Fix: se agrega el chequeo en POST y GET.
+  2. **`target_addr1` en NULL** — 27 de 36 leads en un batch real reventaban con "faltan datos minimos" porque tenían `address_validated=1` pero `target_addr1` NULL (datos inconsistentes de la primerísima prueba del sistema en julio). Fix: se agrega el mismo guard `target_addr1 IS NOT NULL` que ya usa el Bloque 3, y se resetearon a mano (`email_enriched_at=NULL`) las 27 filas afectadas — nunca se les llamó de verdad a Enformion, no correspondía marcarlas como intentadas.
+  3. **`descartada` nunca se revisa retroactivamente** — 30 de 42 leads "validadas" tenían `descartada=1` con el motivo `'sin dirección de la LLC (privacy)'`, un string que **ya no existe en el código actual** (era de la prueba de julio, de antes de que se afinara la lógica de target address). Se liberaron a mano vía `turso db shell` (`UPDATE ... SET descartada=0, descarte_razon=NULL WHERE descarte_razon LIKE 'sin direccion%' AND address_validated=1`).
+- **Auto-sync a Campaigns & Letters** — si Enformion encuentra el email de un lead que YA se había mandado a Campaigns & Letters (carta sin email, las cartas no lo necesitan), el email se sincroniza solo a `prospective_companies` (Supabase) sin que el staff tenga que reenviar nada. Nunca crea una fila nueva, nunca pisa un email ya cargado.
+- **"Preparar leads listos" ahora también busca email** — nuevo paso (e) en el loop de `/api/marketing/prepare`: después de validar dirección, corre `enrichEmailPending()` (nueva, en `lib/marketing-pipeline.ts`, mismo patrón que `enrichPending()` de dirección) sobre los scores activos. No es requisito para "listo" — una LLC sin email igual se manda a Campaigns & Letters, solo sin ese canal extra.
+
+### ⚠️ Hallazgo de la auditoría del sistema (pedida por el founder), pendiente de decisión
+
+**`descartada` nunca se revierte cuando cambiás un toggle de score/vertical.** El propio código ya lo documenta (`verticals/route.ts`): *"Cambiar el toggle NO afecta retroactivamente los leads ya clasificados — para eso ver /api/marketing/verticals/apply-retroactive (por implementar)"*. Si hoy tenés un vertical apagado y clasificás leads, quedan descartadas para siempre — si el mes que viene lo prendés, esas leads no vuelven solas. Mismo patrón de bug que el de `descartada` arriba, pero de forma continua/estructural, no un artefacto puntual de julio. **Pendiente construir un botón "Reaplicar configuración"** (UPDATE acotado por motivo de descarte + settings actuales). También encontrado: `/api/campaigns/send` no tiene `maxDuration` declarado (los otros endpoints pesados sí) — con un lote grande en "Send to All New" podría cortarse a mitad de camino en Vercel.
+
+### Reorganización de copy y layout en `/admin/marketing`
+
+- **"Base B" → "guardadas"**, **"Bloque N" → "Paso 1 — Clasificar leads" / "Paso 2 — Validar dirección" / "Paso 3 — Buscar email" / "Enviar campañas (cartas + emails)"**, **"N" → cantidad explícita** en vez de la letra suelta — pedido founder: menos jerga interna, más claro qué hace cada cosa.
+- **"Preparar leads listos (recomendado)" → "Preparar leads listos — Proceso automático"**; **"Modo avanzado" → "Proceso manual, paso a paso"** — el founder notó que "recomendado" no comunicaba que el botón hace TODO el proceso en el momento (traer nuevas de Sunbiz, clasificar, validar dirección, buscar email), no que ya estén listas de antes.
+- **Nuevo bloque "📋 Leads"** — explorador filtrable de `marketing_leads` (`GET /api/marketing/leads`, nuevo): `view=new/classified/validated/sent/all` + score + rango de fecha, paginado. Antes no había forma de ver la LISTA real de leads, solo contadores agregados por bloque.
+- **Botón "Enviar a Campañas y Cartas" repetido en el proceso manual** — probado primero como un bloque grande duplicado al final (descartado, "ocupaba mucho espacio"), terminó como botón compacto al lado de "Buscar emails ahora" en el Paso 3. Mismo handler (`runSendToLetters`) en los 2 lugares — cuenta TODAS las leads listas sin importar si llegaron por el proceso automático o el manual. Texto sin número ("Enviar leads a Campañas y Cartas", no "Enviar 12 a...") — mismo criterio de "sin abreviaciones/números crudos" del resto de la limpieza de copy.
+
+### Campaigns & Letters (`/admin/campaigns`) — checkboxes, borrado en lote, separar enviadas
+
+- Checkbox por fila + "seleccionar todas" + **`DELETE /api/campaigns/companies`** (bulk, por ids) + botón "🗑 Delete".
+- **`letter_sent_at`** (Supabase, migración `supabase_migration_prospective_companies_letter_sent.sql` ya corrida) + **`POST /api/campaigns/companies/mark-sent`** (bulk) + botón "✅ Mark as Sent" — nunca automático al descargar/previsualizar el PDF (eso no confirma que la carta salió de verdad), es una acción explícita del staff.
+- **Filtro único "Contact status"** (New / Email sent / Letter sent / All) reemplaza los 2 dropdowns viejos que se solapaban ("All Status" con 4 valores de email + "Letter status" aparte). `status='contacted'` es un valor especial en el endpoint (no un status real de la tabla) que significa "cualquier status que no sea 'new'". Se evaluaron también variantes exclusivas ("Email sent, no letter" / "Letter sent, no email") pero el founder las descartó al confirmar que "New" (ni carta ni email) ya alcanza como cola real de envío sin duplicados — un lead deja de aparecer ahí en cuanto se lo contacta por cualquier canal.
+
+### Fixes de tooltips en `/servicios` (opabiz) y `/new-business/servicios` (mybiz)
+
+- **Bug real en opabiz.com/servicios:** mientras un tip box (popup de descripción) estaba abierto, se bloqueaba el hover (`pointer-events:none`) en TODAS las demás tarjetas — como esas tarjetas no podían recibir su propio `mouseenter`, mover el mouse hacia otro servicio no abría su tip box; el anterior quedaba pegado hasta que el mouse saliera del todo. Se sacó ese bloqueo (mybiz nunca lo tuvo, ya funcionaba bien).
+- **Segundo bug, más sutil, en ambas marcas:** el tip box flota al lado de su propia tarjeta y puede tapar visualmente a la vecina — el mouse "entraba" al tip box (que gana el hit-test nativo por estar arriba en z-index) en vez de a la tarjeta real de abajo. Fix: listener de `mousemove` que, mientras el cursor está dentro del tip box activo, revisa por posición real (`getBoundingClientRect`) si hay otra tarjeta debajo de ese punto y, si la hay, la activa — sin depender de qué elemento gana el hit-test nativo. Aplicado igual en `servicios/page.tsx` y `new-business/servicios/page.tsx`.
+- **Regresión encontrada por el founder tras el fix anterior (mybiz):** el botón "Add" que vivía DENTRO del tip box quedó inalcanzable en desktop (el fix geométrico reasigna el hover a la tarjeta vecina antes de que el clic llegue). Se oculta ese botón interno solo en `min-width:1101px` (donde el tip box flota) — el botón del header (`.svc-head-add`, visible siempre arriba de 560px) lo reemplaza ahí. Se mantiene intacto abajo de 1100px: ahí es el ÚNICO botón que existe por debajo de 560px, donde el del header se oculta — sacarlo del todo hubiera dejado el celular sin forma de agregar el servicio.
+
+### Home (opabiz, `page.tsx`) — varios fixes de UX/copy
+
+- **Resumen del pedido se auto-abre en mobile al elegir un paquete** (`openFormFromPkg`) — antes quedaba colapsado por default (menos desorden), pero nadie veía qué incluía el paquete recién elegido sin saber que hay que tocar "Ver detalle". Se abre solo en ese momento puntual; el resto del form sigue colapsado por default.
+- **"Exclusive prices for new businesses" resaltado en azul** en el Paso 6 (las 4 variantes: HTML default + 3 subtítulos dinámicos según paquete + el mapa de traducción EN/ES).
+- **"Describe your specific product or service" (Línea 17 del SS-4) pasa a opcional** — bloqueaba el avance igual que la Línea 16 (obligatoria), pero el generador del PDF (`lib/pdf-generator.ts`) ya la trata como opcional (`if (order.einActivityDesc)`). Se saca el asterisco y la validación bloqueante en los 2 bloques (paso 2 Standard/Premium, paso 7 Basic+EIN).
+- **Tarjetas `.selected` con azul más sutil** (`#F7FAFF` en vez de `#EFF6FF`) en todos los patrones de "elegir entre varias opciones" (entidad, dirección, agente registrado, velocidad, paquete, addons) — se mantiene el borde + un tinte leve, no se sacó el fondo del todo (opinión dada: dos señales visuales juntas se detectan más rápido que solo el borde, especialmente en mobile).
+- **`.fm-choices` se apila en 1 columna en mobile** (`≤600px`, mismo breakpoint que `.form-row`/`.form-row-3`) — el paso de Agente Registrado se veía asimétrico porque la tarjeta "Use Our Registered Agent Service" tiene una etiqueta de precio a la derecha que le resta ancho al texto, y la otra tarjeta no la tiene, así que el texto se envolvía distinto entre las dos. Fix 100% CSS, sin tocar ningún mensaje (pedido explícito del founder).
+
+### Checkout compartido (`/servicios/checkout`)
+
+- **Cotejo "Igual a la dirección del negocio"** en el repetidor de dueños/oficiales (Declaración Anual) — genérico, aparece automáticamente en cualquier repetidor con columna `street` (también miembros de LLC, directores de Corp, mismos `cols` reusados). Al tildarlo copia `f-street/apt/city/state/zip` (Paso 1, "Su empresa") a esa fila y bloquea los campos; al destildar quedan editables sin borrar lo ya escrito. Mismo patrón que `coToggleSameAddress` (Información personal).
+
+### Emails — sin guiones ni flechas (refuerzo de `[[feedback_writing_style]]`)
+
+- `buildGuideBonusHtml()` (`lib/guides.ts`): se saca la flecha "→" al final del link de cada guía, y los títulos pasan de guion largo a dos puntos ("Guide I — Form..." → "Guide I: Form...").
+- Memoria `feedback_writing_style` actualizada: además del guion largo, ahora también evitar flechas (→) en cualquier copy de cliente — sitio, emails, títulos de documentos/guías.
+
+### Pendientes para otra sesión
+
+- Construir el "reaplicar configuración" de scores/verticales (ver hallazgo de auditoría arriba) — requiere confirmar con el founder si se hace ahora o se posterga.
+- Agregar `maxDuration` a `/api/campaigns/send`.
+- Confirmar el precio real del plan pago de Enformion cuando se acabe el free tier de 100 matches/mes (hoy `ENFORMION_COST_PER_LEAD_USD=0.10` es un placeholder).
+
+---
+
 ## Deploy
 
 - `git push origin main` — Vercel detecta cambios en `backend/` y hace deploy automático
