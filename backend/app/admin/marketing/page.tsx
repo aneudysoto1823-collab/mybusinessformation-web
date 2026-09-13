@@ -520,7 +520,7 @@ export default function MarketingPage() {
                     🎯 Scores activos ({scores.filter(s => s.active).length}/3)
                   </div>
                   <div style={S.blockDesc}>
-                    Elegí qué scores procesar en Bloque 3 (enriquecimiento) y Bloque 4 (campañas).
+                    Elegí qué scores procesar en Validar dirección, Buscar email y Enviar campañas.
                     Los desactivados quedan como <b>descartada=1</b> al clasificar y no salen en las corridas siguientes.
                   </div>
                 </div>
@@ -577,7 +577,7 @@ export default function MarketingPage() {
                     ⚙️ Verticales activos ({verticals.filter(v => v.active).length}/{verticals.length})
                   </div>
                   <div style={S.blockDesc}>
-                    Los desactivados NO se procesarán: al clasificar quedan marcados <b>descartada=1</b> (fuera del Bloque 3 en adelante).
+                    Los desactivados NO se procesarán: al clasificar quedan marcados <b>descartada=1</b> (fuera de Validar dirección en adelante).
                     <b> Click para {verticalsOpen ? 'ocultar' : 'ver y configurar'}.</b>
                   </div>
                 </div>
@@ -749,7 +749,7 @@ export default function MarketingPage() {
             <div style={S.block}>
               <div style={S.blockHeader}>
                 <div>
-                  <div style={S.blockTitle}>Bloque 2 — Clasificacion</div>
+                  <div style={S.blockTitle}>Paso 1 — Clasificar leads</div>
                   <div style={S.blockDesc}>
                     Trae las más nuevas de Sunbiz que todavía no estén guardadas (sync), y clasifica la cantidad indicada con Haiku (score + vertical + perfil dueño + tipo dirección).
                     Costo: ~${HAIKU_COST_PER_LEAD_USD.toFixed(4)}/lead. Techo por corrida: {maxN}.
@@ -833,7 +833,7 @@ export default function MarketingPage() {
             <div style={S.block}>
               <div style={S.blockHeader}>
                 <div>
-                  <div style={S.blockTitle}>Bloque 3 — Enriquecimiento (dirección)</div>
+                  <div style={S.blockTitle}>Paso 2 — Validar dirección</div>
                   <div style={S.blockDesc}>
                     Sobre las clasificadas del score elegido, valida la <b>target address</b> con Google Address Validation.
                     La target address se elige automáticamente al clasificar con esta prioridad (respeta privacidad del dueño):
@@ -954,9 +954,9 @@ export default function MarketingPage() {
             <div style={S.block}>
               <div style={S.blockHeader}>
                 <div>
-                  <div style={S.blockTitle}>Bloque 3.5 — Enriquecimiento (email)</div>
+                  <div style={S.blockTitle}>Paso 3 — Buscar email</div>
                   <div style={S.blockDesc}>
-                    Sobre las leads con <b>dirección ya validada</b> (Bloque 3), busca email/teléfono con Enformion (EnformionGO —
+                    Sobre las leads con <b>dirección ya validada</b> (Paso 2), busca email/teléfono con Enformion (EnformionGO —
                     Contact Enrichment API) a partir del nombre del primer officer tipo persona + la target address.
                     Nunca se busca email de una dirección ya descartada (mismo principio: barato antes que caro).
                     Prioriza un email personal sobre uno de empresa; <code>identity_score</code> mide la confianza del match.
@@ -1173,7 +1173,7 @@ export default function MarketingPage() {
             <div style={{...S.block, opacity: 0.6}}>
               <div style={S.blockHeader}>
                 <div>
-                  <div style={S.blockTitle}>Bloque 4 — Campanas (cartas + emails)</div>
+                  <div style={S.blockTitle}>Enviar campañas (cartas + emails)</div>
                   <div style={S.blockDesc}>
                     Filtro por vertical/score/fecha y disparo cartas fisicas o emails con Resend. Requiere dominio de marketing separado.
                   </div>
