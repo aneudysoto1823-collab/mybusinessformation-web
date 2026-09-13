@@ -2188,6 +2188,33 @@ if(!_isTouch){
     item.addEventListener('mouseenter',function(){activateSvc(item);});
     item.addEventListener('mouseleave',function(){deactivateSvc();});
   });
+  // El popup activo flota hacia la derecha de su propia tarjeta y puede
+  // tapar visualmente a una tarjeta vecina (izquierda o derecha, según el
+  // layout) — el mouse "entra" al popup en vez de a la tarjeta de abajo,
+  // y esa vecina nunca recibe su propio mouseenter (bug real 2026-09-13,
+  // ver feedback founder: "andando bien desde la derecha, no desde la
+  // columna de la izquierda"). Este listener corrige eso por posición real
+  // del cursor: mientras el mouse esté dentro del popup activo, revisa si
+  // hay OTRA tarjeta cuyo rect real contenga ese punto y, si la hay,
+  // activa esa en su lugar — sin importar qué elemento gana el hit-test
+  // nativo por estar más arriba en el z-index.
+  document.addEventListener('mousemove',function(e){
+    if(!_activeItem) return;
+    var popup=_activeItem.querySelector('.svc-popup');
+    if(!popup) return;
+    var pr=popup.getBoundingClientRect();
+    if(e.clientX<pr.left||e.clientX>pr.right||e.clientY<pr.top||e.clientY>pr.bottom) return;
+    var items=document.querySelectorAll('.svc-acc-item');
+    for(var i=0;i<items.length;i++){
+      var it=items[i];
+      if(it===_activeItem) continue;
+      var r=it.getBoundingClientRect();
+      if(e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom){
+        activateSvc(it);
+        break;
+      }
+    }
+  });
 }
 
 function toggleNav(){
