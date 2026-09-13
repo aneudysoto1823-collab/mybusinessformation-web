@@ -2125,11 +2125,16 @@ function activateSvc(item){
   }
   _activeItem=item;
   item.classList.add('active');
-  if(!_isTouch){
-    document.querySelectorAll('.svc-acc-item').forEach(function(a){
-      if(a!==item)a.style.pointerEvents='none';
-    });
-  }
+  // Antes se bloqueaba el hover (pointer-events:none) en TODAS las demás
+  // tarjetas mientras esta estaba activa — la intención era que el tip box
+  // no "peleara" con la tarjeta que tapa al flotar encima, pero como efecto
+  // secundario real (feedback founder 2026-09-13) también bloqueaba mover el
+  // mouse directo hacia OTRO servicio: ese otro item nunca recibía su propio
+  // mouseenter, así que su tip box nunca abría y el anterior quedaba
+  // pegado hasta que el mouse saliera del todo. Sin este bloqueo, mover el
+  // mouse a otra tarjeta dispara su mouseenter normalmente, que ya cierra
+  // esta (arriba) y abre la nueva en el mismo evento — sin bloqueo no hace
+  // falta.
   var popup=item.querySelector('.svc-popup');
   if(popup){
     popup.style.maxWidth='';
@@ -2154,7 +2159,6 @@ function closeSvcPopup(btn){
     item.classList.remove('active');
     if(_activeItem===item)_activeItem=null;
   }
-  if(!_isTouch)document.querySelectorAll('.svc-acc-item').forEach(function(a){a.style.pointerEvents='';});
 }
 
 function deactivateSvc(){
@@ -2165,7 +2169,6 @@ function deactivateSvc(){
       _activeItem.classList.remove('active');
       _activeItem=null;
     }
-    if(!_isTouch)document.querySelectorAll('.svc-acc-item').forEach(function(a){a.style.pointerEvents='';});
   },300);
 }
 
