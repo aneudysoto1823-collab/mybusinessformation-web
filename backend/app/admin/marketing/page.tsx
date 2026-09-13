@@ -1167,6 +1167,47 @@ export default function MarketingPage() {
               )}
             </div>
 
+            {/* ── Enviar a Campaigns & Letters, repetido acá abajo — antes solo
+                 estaba arriba (proceso automático) y quedaba fuera de vista
+                 para quien sigue el proceso manual paso a paso hasta el
+                 final. Mismo botón, mismo estado (runSendToLetters ya cuenta
+                 TODAS las leads listas, sin importar si llegaron por el
+                 proceso automático o el manual). Feedback founder 2026-09-13. ── */}
+            <div style={{...S.block, background: '#f0fdf4', border: '2px solid #16a34a'}}>
+              <div style={S.blockHeader}>
+                <div style={{flex: 1}}>
+                  <div style={{...S.blockTitle, color: '#15803d'}}>
+                    📬 Enviar a Campaigns &amp; Letters
+                  </div>
+                  <div style={S.blockDesc}>
+                    Copia los <b>{prepareStats?.ready ?? 0} leads listos</b> (los de arriba en este proceso manual, y
+                    cualquier otro que ya estuviera listo de antes) al panel{' '}
+                    <Link href="/admin/campaigns" style={S.link}>Campaigns &amp; Letters</Link>.
+                  </div>
+                </div>
+              </div>
+              <div style={S.controlRow}>
+                <button
+                  onClick={runSendToLetters}
+                  disabled={sendToLettersRunning || (prepareStats?.ready ?? 0) === 0}
+                  style={sendToLettersRunning || (prepareStats?.ready ?? 0) === 0 ? S.btnDisabled : {...S.btnPrimary, background: '#16a34a'}}
+                >
+                  {sendToLettersRunning ? 'Enviando…' : `Enviar ${prepareStats?.ready ?? 0} a Campaigns & Letters →`}
+                </button>
+              </div>
+              {sendToLettersError && <div style={S.errBox}>Error: {sendToLettersError}</div>}
+              {sendToLettersResult && (
+                <div style={{...S.resultBox, background: '#f0fdf4', border: '1px solid #bbf7d0'}}>
+                  <div style={S.resultTitle}>✅ {sendToLettersResult.inserted} copiados a Campaigns &amp; Letters</div>
+                  <div style={S.resultGrid}>
+                    <div><b>{sendToLettersResult.attempted}</b> intentados</div>
+                    <div><b>{sendToLettersResult.inserted}</b> nuevos</div>
+                    <div><b>{sendToLettersResult.duplicates}</b> ya existían</div>
+                  </div>
+                </div>
+              )}
+            </div>
+
             </>}
 
             {/* ── Bloque 4: Campanas (proximamente) ───────────────── */}
