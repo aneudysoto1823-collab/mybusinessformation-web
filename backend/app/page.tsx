@@ -6083,6 +6083,15 @@ function openFormFromPkg(pkg) {
   fmGoToStep(1);
   _fmRestoring = false;
   fmUpdateSummary();
+  // Abre el resumen (con el detalle de qué incluye el paquete) apenas se
+  // elige uno desde las tarjetas de precio — en mobile el resumen arranca
+  // colapsado por defecto (menos desorden en el resto del form), y nadie
+  // veía qué incluía su paquete recién elegido sin saber que hay que tocar
+  // "Ver detalle". Solo se fuerza abierto acá, en este momento puntual —
+  // el resto del form sigue colapsado por default como siempre (el cliente
+  // puede cerrarlo con el mismo botón si quiere). Feedback founder 2026-09-13.
+  var _sumEl = document.querySelector('.fm-summary');
+  if(_sumEl && !_sumEl.classList.contains('fm-sum-open')) fmToggleSummary();
 }
 
 /* ── IP-BASED COUNTRY DETECTION ── */
