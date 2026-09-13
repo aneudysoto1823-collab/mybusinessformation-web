@@ -488,6 +488,13 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
 @media(max-width:600px){.form-row,.form-row-3{grid-template-columns:1fr}}
+/* .fm-choices (entidad LLC/Corp, tipo de dirección, Agente Registrado, etc.)
+   quedaba en 2 columnas fijas incluso en mobile — cuando una tarjeta tiene
+   una etiqueta de precio (ej. Agente Registrado: "$99 → Incluido") y la otra
+   no, el ancho disponible para el texto es distinto entre las dos y quedan
+   visualmente distintas (se envuelven diferente). Apiladas en 1 columna,
+   ambas tienen el mismo ancho completo. Feedback founder 2026-09-13. */
+@media(max-width:600px){.fm-choices{grid-template-columns:1fr}}
 
 /* Section divider */
 .section-divider{display:flex;align-items:center;gap:10px;font-size:.7rem;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.7px;margin:20px 0 14px}
