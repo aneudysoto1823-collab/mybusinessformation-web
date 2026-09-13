@@ -686,6 +686,35 @@ button{font-family:inherit}
     }, 250);
   };
 
+  // Mismo fix que opabiz.com/servicios (2026-09-13): .svc-card-body flota al
+  // lado de su propia tarjeta (derecha en columna impar, izquierda en columna
+  // par — ver CSS arriba) y puede tapar visualmente a la tarjeta vecina. El
+  // mouse "entra" al popup (que gana el hit-test nativo por estar arriba en
+  // z-index) en vez de a la tarjeta real de abajo, que nunca recibe su propio
+  // mouseenter y se queda pegada la anterior. Corrige por posición real del
+  // cursor contra el rect de cada tarjeta, sin depender de qué elemento gana
+  // el hit-test.
+  document.addEventListener('mousemove', function(e){
+    if (!_svcActiveId) return;
+    var activeCard = document.getElementById('card-' + _svcActiveId);
+    if (!activeCard) return;
+    var popup = activeCard.querySelector('.svc-card-body');
+    if (!popup) return;
+    var pr = popup.getBoundingClientRect();
+    if (e.clientX < pr.left || e.clientX > pr.right || e.clientY < pr.top || e.clientY > pr.bottom) return;
+    var cards = document.querySelectorAll('.svc-card');
+    for (var i = 0; i < cards.length; i++) {
+      var c = cards[i];
+      if (c === activeCard) continue;
+      var r = c.getBoundingClientRect();
+      if (e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom) {
+        var id = c.id.replace('card-', '');
+        window.svcHoverOpen(id);
+        break;
+      }
+    }
+  });
+
   window.clearCart = function(){
     if (cart.length === 0) return;
     var c = document.getElementById('os-clear-confirm'); if (c) c.style.display = '';
