@@ -627,7 +627,7 @@ export default function MarketingPage() {
               <div style={S.blockHeader}>
                 <div style={{flex: 1}}>
                   <div style={{...S.blockTitle, color: '#1d4ed8'}}>
-                    🚀 Preparar leads listos (recomendado)
+                    🚀 Preparar leads listos — Proceso automático
                   </div>
                   <div style={S.blockDesc}>
                     Un solo botón. Elegís cuántas cartas querés mandar y el sistema repite, en orden, hasta llegar a esa cantidad (o hasta {prepareStats?.max_iterations ?? 6} vueltas): traer LLC nuevas de Sunbiz → clasificar (Haiku) → validar dirección (Google) → buscar email (Enformion).
@@ -736,10 +736,10 @@ export default function MarketingPage() {
               )}
             </div>
 
-            {/* ── Modo avanzado: Bloques 2 y 3 individuales ─────── */}
+            {/* ── Proceso manual, paso a paso: Bloques 2, 3 y 3.5 individuales ─────── */}
             <div style={{marginTop: 8, marginBottom: 12}}>
               <button onClick={() => setShowAdvanced(v => !v)} style={S.btnGhost}>
-                {showAdvanced ? '▼ Ocultar modo avanzado' : '▶ Modo avanzado (Bloques 2 y 3 por separado)'}
+                {showAdvanced ? '▼ Ocultar proceso manual' : '▶ Proceso manual, paso a paso (clasificar, dirección y email por separado)'}
               </button>
             </div>
 
