@@ -351,7 +351,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 .choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:8px}
 .choice-card{border:2px solid var(--gray200);border-radius:var(--radius);padding:18px 16px;cursor:pointer;transition:all 0.2s;text-align:center}
 .choice-card:hover{border-color:var(--blue);background:var(--blue-light)}
-.choice-card.selected{border-color:var(--blue);background:var(--blue-light)}
+.choice-card.selected{border-color:var(--blue);background:#F7FAFF}
 .choice-card .choice-icon{font-size:2rem;margin-bottom:8px}
 .choice-card strong{display:block;font-size:0.9rem;color:var(--navy);font-weight:600;margin-bottom:4px}
 .choice-card p{font-size:0.75rem;color:var(--gray600);line-height:1.4}
@@ -359,7 +359,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 @media(max-width:580px){.pkg-choice-grid{grid-template-columns:1fr}}
 .pkg-choice{border:2px solid var(--gray200);border-radius:var(--radius);padding:16px 14px;cursor:pointer;transition:all 0.2s;text-align:center}
 .pkg-choice:hover{border-color:var(--blue)}
-.pkg-choice.selected{border-color:var(--blue);background:var(--blue-light)}
+.pkg-choice.selected{border-color:var(--blue);background:#F7FAFF}
 .pkg-choice.pop{border-color:var(--green)}
 .pkg-choice.pop.selected{background:var(--green-light)}
 .pkg-choice .pc-name{font-family:var(--font-serif);font-size:1rem;font-weight:700;color:var(--navy);margin-bottom:4px}
@@ -507,7 +507,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 .delivery-opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .delivery-card{border:1.5px solid #e5e7eb;border-radius:10px;padding:12px 14px;cursor:pointer;transition:all .2s}
 .delivery-card:hover{border-color:var(--blue)}
-.delivery-card.selected{border-color:var(--blue);background:#eff6ff}
+.delivery-card.selected{border-color:var(--blue);background:#F7FAFF}
 .delivery-card strong{display:block;font-size:.82rem;color:var(--navy);font-weight:700}
 .delivery-card span{display:block;font-size:.73rem;color:#6b7280;margin-top:2px}
 .d-price{font-size:.72rem;color:var(--blue);font-weight:600;margin-top:3px}
@@ -647,7 +647,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 .fm-choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
 .fm-choice{border:1.5px solid #e5e7eb;border-radius:10px;padding:14px 16px;cursor:pointer;transition:all .2s;display:flex;align-items:flex-start;gap:10px;background:#fff}
 .fm-choice:hover{border-color:#93c5fd}
-.fm-choice.selected{border-color:#2563eb;background:#eff6ff}
+.fm-choice.selected{border-color:#2563eb;background:#F7FAFF}
 .fm-choice-radio{width:16px;height:16px;border-radius:50%;border:2px solid #d1d5db;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;transition:all .2s}
 .fm-choice.selected .fm-choice-radio{border-color:#2563eb;background:#2563eb}
 .fm-choice.selected .fm-choice-radio::after{content:'';width:6px;height:6px;border-radius:50%;background:#fff}
@@ -659,7 +659,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 .fm-speed-cards{display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:10px}
 .fm-speed-card{border:1.5px solid #e5e7eb;border-radius:10px;padding:16px;cursor:pointer;transition:all .2s;position:relative}
 .fm-speed-card:hover{border-color:#93c5fd}
-.fm-speed-card.selected{border-color:#2563eb;background:#eff6ff}
+.fm-speed-card.selected{border-color:#2563eb;background:#F7FAFF}
 .fm-speed-intro{font-size:.85rem;color:#6b7280;line-height:1.6;margin:-6px 0 16px}
 .fm-speed-bullets{margin-top:10px;display:flex;flex-direction:column;gap:6px}
 .fm-speed-bullet-item{display:flex;align-items:flex-start;gap:7px;font-size:.78rem;color:#6b7280;line-height:1.45}
@@ -676,7 +676,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 @media(max-width:580px){.fm-pkg-cards{grid-template-columns:1fr}}
 .fm-pkg-card{border:1.5px solid #e5e7eb;border-radius:10px;padding:16px;cursor:pointer;transition:all .2s;text-align:center;position:relative}
 .fm-pkg-card:hover{border-color:#93c5fd}
-.fm-pkg-card.selected{border-color:#2563eb;background:#eff6ff}
+.fm-pkg-card.selected{border-color:#2563eb;background:#F7FAFF}
 .fm-pkg-card .pop-badge{position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#059669;color:#fff;font-size:.62rem;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap}
 .fm-pkg-name{font-size:.95rem;font-weight:700;color:#1e293b;margin-bottom:4px}
 .fm-pkg-price{font-size:1.1rem;font-weight:900;color:#2563eb;font-family:var(--font-serif);margin-bottom:8px}
@@ -697,7 +697,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 /* Add-on toggles */
 .fm-addon{position:relative;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border:1.5px solid #e5e7eb;border-radius:10px;margin-bottom:10px;cursor:pointer;transition:all .2s}
 .fm-addon:hover{border-color:#93c5fd}
-.fm-addon.selected{border-color:#2563eb;background:#eff6ff}
+.fm-addon.selected{border-color:#2563eb;background:#F7FAFF}
 .fm-addon-left{display:flex;align-items:center;gap:12px}
 .fm-addon-icon{width:40px;height:40px;border-radius:10px;background:var(--blue-light);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--blue)}
 .fm-addon-icon svg{width:19px;height:19px}
@@ -1628,7 +1628,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
                 </div>
               </div>
               <div class="fm-group" style="margin-top:10px">
-                <label class="fm-label" id="pkg-lbl-ein-activity-desc">Describe your specific product or service *</label>
+                <label class="fm-label" id="pkg-lbl-ein-activity-desc">Describe your specific product or service (optional)</label>
                 <input type="text" class="fm-input" id="pkg-inp-ein-activity-desc" placeholder="e.g. &quot;Online retail clothing store&quot; or &quot;Graphic design services&quot;"/>
               </div>
             </div>
@@ -2089,7 +2089,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 
             <!-- Specific description -->
             <div class="fm-group" id="ein-activity-desc-wrap" style="margin-top:10px;display:none">
-              <label class="fm-label" id="lbl-ein-activity-desc">Describe your specific product or service *</label>
+              <label class="fm-label" id="lbl-ein-activity-desc">Describe your specific product or service (optional)</label>
               <input type="text" class="fm-input" id="inp-ein-activity-desc" placeholder='e.g. "Online retail clothing store" or "Graphic design services"'/>
               <div style="font-size:.72rem;color:#9ca3af;margin-top:4px" id="ein-desc-hint">Be specific — a few words describing exactly what you sell or do.</div>
             </div>
@@ -4735,7 +4735,7 @@ function fmRenderPkgEinSection() {
     "pkg-ein-warn-title":   isEs ? "Anotado — le daremos seguimiento sobre la mejor vía para obtener su EIN como solicitante extranjero." : "Noted — we'll follow up on the best path to get your EIN as a foreign applicant.",
     "pkg-lbl-ein-activity": isEs ? "Actividad Principal del Negocio *" : "Principal Business Activity *",
     "pkg-tt-ein-activity":  isEs ? "El IRS usa esto para clasificar su negocio con fines fiscales." : "The IRS uses this to classify your business for tax purposes.",
-    "pkg-lbl-ein-activity-desc": isEs ? "Describa su producto o servicio específico *" : "Describe your specific product or service *"
+    "pkg-lbl-ein-activity-desc": isEs ? "Describa su producto o servicio específico (opcional)" : "Describe your specific product or service (optional)"
   };
   Object.keys(t).forEach(function(id){ var e=document.getElementById(id); if(e) e.innerHTML=t[id]; });
   var descInp = document.getElementById('pkg-inp-ein-activity-desc');
@@ -4951,8 +4951,11 @@ function fmNext() {
       var pActEl=document.getElementById('pkg-ein-activity-val');
       if(!pActEl||!pActEl.value){var pActSrch=document.getElementById('pkg-ein-activity-search');if(pActSrch){pActSrch.style.borderColor='#ef4444';pActSrch.focus();}alert(isEs?'Por favor seleccione la actividad principal de su negocio.':'Please select your business principal activity.');return;}
       var pActSrch2=document.getElementById('pkg-ein-activity-search');if(pActSrch2)pActSrch2.style.borderColor='';
+      // "Describe your specific product or service" (Línea 17 del SS-4) es
+      // opcional a propósito — el generador del PDF ya la trata como tal
+      // (lib/pdf-generator.ts solo la imprime si viene). Antes bloqueaba el
+      // avance igual que la Línea 16 (obligatoria), sin necesidad real.
       var pDescEl=document.getElementById('pkg-inp-ein-activity-desc');
-      if(!pDescEl||!pDescEl.value.trim()){if(pDescEl){pDescEl.style.borderColor='#ef4444';pDescEl.focus();}alert(isEs?'Por favor describa su producto o servicio específico.':'Please describe your specific product or service.');return;}
       if(pDescEl)pDescEl.style.borderColor='';
     }
     if(!fmData.bizAddrType||fmData.bizAddrType==='own'){
@@ -5300,9 +5303,10 @@ function fmNext() {
         alert(isEs7?'Por favor seleccione la actividad principal de su negocio.':'Please select your business principal activity.'); return;
       }
       if(actVal) { var srch2=document.getElementById('ein-activity-search'); if(srch2) srch2.style.borderColor=''; }
-      // Check description
+      // "Describe your specific product or service" (Línea 17 del SS-4) es
+      // opcional a propósito — ver mismo comentario en el bloque pkg- de
+      // arriba. Ya no bloquea el avance.
       var descEl = document.getElementById('inp-ein-activity-desc');
-      if(!descEl||!descEl.value.trim()) { if(descEl){descEl.style.borderColor='#ef4444';descEl.focus();} alert(isEs7?'Por favor describa su producto o servicio específico.':'Please describe your specific product or service.'); return; }
       if(descEl) descEl.style.borderColor='';
     }
     if(fmData.addons.oa) {
@@ -6497,7 +6501,7 @@ function fmTranslate(lang) {
 'ein-warn-itin-cta':isEs?'Su información personal está protegida.':'Your personal information is protected.',
 'ein-warn-itin-body':isEs?'Puede eliminar el servicio de ITIN en cualquier momento antes de enviar su orden.':'You can remove the ITIN service at any time before submitting your order.',
 'lbl-ein-activity':isEs?'Actividad Principal del Negocio *':'Principal Business Activity *',
-'lbl-ein-activity-desc':isEs?'Describa su producto o servicio específico *':'Describe your specific product or service *',
+'lbl-ein-activity-desc':isEs?'Describa su producto o servicio específico (opcional)':'Describe your specific product or service (optional)',
 'ein-desc-hint':isEs?'Sea específico — unas pocas palabras que describan exactamente qué vende o hace.':'Be specific — a few words describing exactly what you sell or do.',
 'lbl-ein-fiscal':isEs?'Mes de Cierre del Año Fiscal *':'Closing Month of Fiscal Year *',
 'oa-extra-header':isEs?'Necesitamos un dato para completar su Acuerdo Operativo':'We need one detail to complete your Operating Agreement','oa-extra-sub':isEs?'Solo tomará un momento':'This will only take a moment',
