@@ -31,8 +31,8 @@ const GUIDE_FILES: Record<GuideKey, Record<GuideBrand, string>> = {
 }
 
 const GUIDE_TITLES: Record<GuideKey, { en: string; es: string }> = {
-  guide1: { en: 'Guide I — Form Your LLC or Corporation in Florida', es: 'Guía I — Formar su LLC o Corporación en Florida' },
-  guide2: { en: 'Guide II — Keep Your Company in Good Standing in Florida', es: 'Guía II — Mantenga su Empresa al Día en Florida' },
+  guide1: { en: 'Guide I: Form Your LLC or Corporation in Florida', es: 'Guía I: Formar su LLC o Corporación en Florida' },
+  guide2: { en: 'Guide II: Keep Your Company in Good Standing in Florida', es: 'Guía II: Mantenga su Empresa al Día en Florida' },
 }
 
 // Mismo subtítulo que trae la portada de cada PDF (ver GUIAS_PDF/*.md) — así
@@ -107,7 +107,7 @@ export function buildGuideBonusHtml(guides: GuideKey[], lang: Lang, brand: Guide
   const items = guides
     .map(g => `
       <div style="margin:0 0 12px 0;">
-        <a href="${getGuideUrl(g, brand)}" style="color:#2563EB;text-decoration:none;font-weight:600;">${isEs ? GUIDE_TITLES[g].es : GUIDE_TITLES[g].en} →</a>
+        <a href="${getGuideUrl(g, brand)}" style="color:#2563EB;text-decoration:none;font-weight:600;">${isEs ? GUIDE_TITLES[g].es : GUIDE_TITLES[g].en}</a>
         <p style="margin:4px 0 0;color:#64748b;font-size:13px;line-height:1.55;">${isEs ? GUIDE_DESCRIPTIONS[g].es : GUIDE_DESCRIPTIONS[g].en}</p>
       </div>`)
     .join('')
