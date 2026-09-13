@@ -1975,7 +1975,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
         <div class="fm-card">
           <div class="fm-card-body">
             <h2 class="fm-title" id="s7-title">Boost Your Formation</h2>
-            <p class="fm-sub" id="s7-sub">Exclusive prices for new businesses: add these services now, keep your company compliant and avoid setbacks with the State.</p>
+            <p class="fm-sub" id="s7-sub"><strong style="color:#2563EB">Exclusive prices for new businesses:</strong> add these services now, keep your company compliant and avoid setbacks with the State.</p>
             <!-- EIN -->
           <div class="fm-addon" id="addon-ein" onclick="fmToggleAddon('ein',this)">
             <div class="fm-addon-left">
@@ -3233,15 +3233,17 @@ function fmFilterAddons() {
   });
   var titleEl = document.getElementById('s7-title');
   var subEl = document.getElementById('s7-sub');
+  var pkgOfferSpanEs = '<strong style="color:#2563EB">Precios exclusivos para nuevos negocios:</strong>';
+  var pkgOfferSpanEn = '<strong style="color:#2563EB">Exclusive prices for new businesses:</strong>';
   if(pkg === 'premium') {
     if(titleEl) titleEl.textContent = isEs ? 'Complete Su Paquete' : 'Complete Your Package';
-    if(subEl) subEl.textContent = isEs ? 'Su paquete Premium ya incluye EIN y Acuerdo Operativo. Precios exclusivos para nuevos negocios: mantenga su empresa en regla y evite contratiempos con el Estado.' : 'Your Premium package already includes EIN and Operating Agreement. Exclusive prices for new businesses: keep your company compliant and avoid setbacks with the State.';
+    if(subEl) subEl.innerHTML = isEs ? ('Su paquete Premium ya incluye EIN y Acuerdo Operativo. '+pkgOfferSpanEs+' mantenga su empresa en regla y evite contratiempos con el Estado.') : ('Your Premium package already includes EIN and Operating Agreement. '+pkgOfferSpanEn+' keep your company compliant and avoid setbacks with the State.');
   } else if(pkg === 'standard') {
     if(titleEl) titleEl.textContent = isEs ? 'Mejore Su Formación' : 'Boost Your Formation';
-    if(subEl) subEl.textContent = isEs ? 'Su paquete Standard ya incluye EIN. Precios exclusivos para nuevos negocios: mantenga su empresa en regla y evite contratiempos con el Estado.' : 'Your Standard package already includes EIN. Exclusive prices for new businesses: keep your company compliant and avoid setbacks with the State.';
+    if(subEl) subEl.innerHTML = isEs ? ('Su paquete Standard ya incluye EIN. '+pkgOfferSpanEs+' mantenga su empresa en regla y evite contratiempos con el Estado.') : ('Your Standard package already includes EIN. '+pkgOfferSpanEn+' keep your company compliant and avoid setbacks with the State.');
   } else {
     if(titleEl) titleEl.textContent = isEs ? 'Mejore Su Formación' : 'Boost Your Formation';
-    if(subEl) subEl.textContent = isEs ? 'Precios exclusivos para nuevos negocios: agregue estos servicios ahora, mantenga su empresa en regla y evite contratiempos con el Estado.' : 'Exclusive prices for new businesses: add these services now, keep your company compliant and avoid setbacks with the State.';
+    if(subEl) subEl.innerHTML = isEs ? (pkgOfferSpanEs+' agregue estos servicios ahora, mantenga su empresa en regla y evite contratiempos con el Estado.') : (pkgOfferSpanEn+' add these services now, keep your company compliant and avoid setbacks with the State.');
   }
 }
 
@@ -6511,7 +6513,7 @@ function fmTranslate(lang) {
     's4-sub':isEs?'Cada nivel incluye todo lo del nivel anterior.':'Each tier includes everything from the one below it.',
     's5-sub':isEs?'Cu\\u00e9ntenos qui\\u00e9n es due\\u00f1o y dirige este negocio.':'Tell us who owns and runs this business.',
     's6-sub':isEs?'La ley de Florida requiere que cada negocio tenga un Agente Registrado.':'Florida law requires every business to have a Registered Agent on file.',
-    's7-sub':isEs?'Precios exclusivos para nuevos negocios: agregue estos servicios ahora, mantenga su empresa en regla y evite contratiempos con el Estado.':'Exclusive prices for new businesses: add these services now, keep your company compliant and avoid setbacks with the State.',
+    's7-sub':isEs?'<strong style="color:#2563EB">Precios exclusivos para nuevos negocios:</strong> agregue estos servicios ahora, mantenga su empresa en regla y evite contratiempos con el Estado.':'<strong style="color:#2563EB">Exclusive prices for new businesses:</strong> add these services now, keep your company compliant and avoid setbacks with the State.',
     's8-sub':isEs?'Confirme sus datos antes del pago.':'Confirm your details before payment.',
     's9-submit':isEs?'Procesar Mi Orden':'Process My Order',
     // Step 9 - Payment translations
