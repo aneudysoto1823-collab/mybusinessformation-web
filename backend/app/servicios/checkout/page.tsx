@@ -765,6 +765,15 @@ function repRowHtml(svcId, f){
   // rol, %, dirección por partes. Cada input conserva .rep-cell[data-col] para
   // que el colector genérico lo lea igual.
   if(f.block){
+    // Cotejo "Igual a la dirección del negocio" — genérico, aparece justo
+    // antes del campo "street" en cualquier repetidor que pida dirección
+    // (dueños/oficiales de Declaración Anual, miembros de LLC, directores
+    // de Corp — mismos cols reusados). Al tildarlo copia f-street/apt/city/
+    // state/zip (Paso 1, "Su empresa") a esta fila y bloquea los campos;
+    // al destildarlo los deja editables de nuevo. Mismo patrón que
+    // coToggleSameAddress (Información personal). Feedback founder 2026-09-13.
+    var hasAddr=(f.cols||[]).some(function(c){return c.k==='street';});
+    var sameAddrCb=hasAddr?('<label class="co-field full" style="display:flex;align-items:center;gap:9px;cursor:pointer;flex-direction:row"><input type="checkbox" onchange="coToggleRepSameAddress(this)" style="width:17px;height:17px;cursor:pointer;accent-color:var(--blue);flex-shrink:0"/><span style="font-size:.85rem;color:#374151;font-weight:500">'+(isEs?'Igual a la dirección del negocio':'Same as business address')+'</span></label>'):'';
     var fields=(f.cols||[]).map(function(col){
       var lbl=isEs?col.es:col.en;
       var pctHook=(col.k==='pct');
@@ -775,7 +784,8 @@ function repRowHtml(svcId, f){
       var inp = (col.type==='select')
         ? '<select class="co-select rep-cell" data-col="'+col.k+'"'+(pctHook?' onchange="coOwnTotal()"':'')+'>'+ph+(col.opts||[]).map(function(o){return '<option>'+o+'</option>';}).join('')+'</select>'
         : '<input class="co-input rep-cell" data-col="'+col.k+'"'+oninput+' placeholder="'+lbl+'"/>';
-      return '<div class="co-field'+(isFull?' full':'')+'"><label class="co-label">'+lbl+'</label>'+inp+'</div>';
+      var prefix=(col.k==='street')?sameAddrCb:'';
+      return prefix+'<div class="co-field'+(isFull?' full':'')+'"><label class="co-label">'+lbl+'</label>'+inp+'</div>';
     }).join('');
     return '<div class="rep-row rep-block"><button type="button" class="rep-del rep-block-del" title="Quitar" onclick="coDelRepRow(this)">&#215;</button><div class="rep-grid">'+fields+'</div></div>';
   }
@@ -814,6 +824,24 @@ function coMaybeFillOwnerAddr(el){
   var set=function(col,src){ var c=g(col), s=$(src); if(c&&s&&!c.value) c.value=s.value||''; };
   set('street','p-street'); set('apt','p-apt'); set('city','p-city'); set('state','p-state'); set('zip','p-zip');
   var cc=g('country'); if(cc&&!cc.value) cc.value='United States';
+}
+// Cotejo "Igual a la dirección del negocio" en una fila del repetidor
+// (dueños/oficiales, miembros, directores) — copia la dirección de la
+// empresa (Paso 1) y bloquea los campos; al destildar los deja editables
+// (sin borrar lo que haya, por si el cliente ya había escrito algo distinto).
+function coToggleRepSameAddress(cb){
+  var row=cb.closest('.rep-row'); if(!row) return;
+  var g=function(col){ return row.querySelector('.rep-cell[data-col="'+col+'"]'); };
+  ['street','apt','city','state','zip'].forEach(function(col){
+    var c=g(col); if(!c) return;
+    if(cb.checked){
+      var src=$('f-'+col);
+      c.value=src?(src.value||''):'';
+      c.disabled=true;
+    } else {
+      c.disabled=false;
+    }
+  });
 }
 function coRepField(svcId, fk){ return coFieldDef(svcId, fk); }
 function coSyncRepCount(host){
