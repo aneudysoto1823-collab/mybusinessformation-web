@@ -720,7 +720,7 @@ export default function MarketingPage() {
                   disabled={sendToLettersRunning || (prepareStats?.ready ?? 0) === 0}
                   style={sendToLettersRunning || (prepareStats?.ready ?? 0) === 0 ? S.btnDisabled : {...S.btnPrimary, background: '#16a34a'}}
                 >
-                  {sendToLettersRunning ? 'Enviando…' : `Enviar ${prepareStats?.ready ?? 0} a Campaigns & Letters →`}
+                  {sendToLettersRunning ? 'Enviando…' : 'Enviar leads a Campañas y Cartas →'}
                 </button>
               </div>
               {sendToLettersError && <div style={S.errBox}>Error: {sendToLettersError}</div>}
@@ -1032,7 +1032,7 @@ export default function MarketingPage() {
                   style={sendToLettersRunning || (prepareStats?.ready ?? 0) === 0 ? S.btnDisabled : {...S.btnPrimary, background: '#16a34a'}}
                   title="Copia las leads listas (dirección validada) a Campaigns & Letters"
                 >
-                  {sendToLettersRunning ? 'Enviando…' : `📬 Enviar ${prepareStats?.ready ?? 0} a Campañas`}
+                  {sendToLettersRunning ? 'Enviando…' : '📬 Enviar leads a Campañas y Cartas'}
                 </button>
               </div>
               {sendToLettersError && <div style={S.errBox}>Error: {sendToLettersError}</div>}
