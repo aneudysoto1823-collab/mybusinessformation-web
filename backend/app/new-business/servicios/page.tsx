@@ -323,6 +323,18 @@ button{font-family:inherit}
    de mobile, ver media query abajo, y refuerzo visual al expandir). */
 .svc-head-add{flex-shrink:0;width:auto;min-height:auto;padding:7px 13px;font-size:.78rem;margin-top:0;white-space:nowrap}
 @media(max-width:560px){.svc-head-add{display:none}}
+/* >1100px el tip box (.svc-card-body) flota position:absolute al lado de
+   la tarjeta (ver @media(min-width:1101px) más abajo) y puede tapar
+   visualmente a la tarjeta vecina — el fix geométrico de mousemove
+   (2026-09-13, arriba en el script) reasigna el hover a esa vecina apenas
+   el cursor entra a esa zona, así que el botón "Add" de ACÁ ADENTRO nunca
+   llega a recibir el clic en desktop (el hover salta antes de que el mouse
+   llegue). Se oculta solo en ese rango — el botón del header (.svc-head-add,
+   visible siempre arriba de 560px) es el único que hace falta ahí. Abajo de
+   1100px el tip box es estático (no flota, no hay hover en juego — es tap),
+   así que este botón interno sigue siendo necesario: es el único que existe
+   por debajo de 560px, donde .svc-head-add se oculta. */
+@media(min-width:1101px){.svc-card-body .svc-add{display:none}}
 /* Barra móvil + panel de detalle desplegable — mismo patrón que
    opabiz.com/servicios (.svc-cart-wrap). Azul de marca en vez de navy: al
    hacer scroll hasta el final se perdía contra el navy del footer. */
