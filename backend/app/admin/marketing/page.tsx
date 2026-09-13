@@ -64,6 +64,8 @@ type PrepareResult = {
     score_dist: Record<string, number>
     discarded_by_settings: number
     enriched_by_score: Record<string, { enriched: number; validated: number; invalid: number; api_errors: number }>
+    // Búsqueda de email (Enformion) — agregada 2026-09-13 al loop de Preparar.
+    email_by_score: Record<string, { enriched: number; found: number; not_found: number; api_errors: number }>
     ready_after: number
     gained: number
   }>
@@ -277,7 +279,7 @@ export default function MarketingPage() {
   const runPrepare = async () => {
     if (prepareRunning) return
     if (!Number.isInteger(prepareTarget) || prepareTarget < 1) { setPrepareError('Target debe ser entero >= 1'); return }
-    if (!confirm(`Preparar ${prepareTarget} leads listos para carta?\n\nEl sistema hará sync + clasificar + enriquecer en loop hasta llegar (o hasta 6 iteraciones). Puede tardar 3-5 min.\n\nConfirmar?`)) return
+    if (!confirm(`Preparar ${prepareTarget} leads listos para carta?\n\nEl sistema repite estos pasos hasta llegar a esa cantidad (o hasta 6 vueltas): traer LLC nuevas → clasificar → validar dirección → buscar email (Enformion). Puede tardar 3-5 min.\n\nBuscar email tiene un costo real por cada uno que SÍ se encuentra (Enformion) — un lead sin email igual queda listo para carta, solo que sin ese canal extra.\n\nConfirmar?`)) return
     setPrepareRunning(true); setPrepareError(null); setPrepareResult(null)
     try {
       const res = await fetch('/api/marketing/prepare', {
@@ -303,7 +305,7 @@ export default function MarketingPage() {
   const runSendToLetters = async () => {
     if (sendToLettersRunning) return
     const ready = prepareStats?.ready ?? 0
-    if (ready === 0) { setSendToLettersError('No hay leads listos todavía — usá "Preparar N leads listos" primero.'); return }
+    if (ready === 0) { setSendToLettersError('No hay leads listos todavía — usá "Preparar leads listos" primero.'); return }
     if (!confirm(`Enviar ${ready} leads listos a Campaigns & Letters?\n\nSe van a poder ver y descargar sus cartas desde ese panel. No se envía nada todavía — eso lo hacés manualmente ahí, igual que hoy.\n\nConfirmar?`)) return
     setSendToLettersRunning(true); setSendToLettersError(null); setSendToLettersResult(null)
     try {
@@ -481,7 +483,7 @@ export default function MarketingPage() {
             {/* ── Stats cards ─────────────────────────────────────── */}
             <div style={S.statsRow}>
               <div style={S.statCard}>
-                <div style={S.statLabel}>Total en Base B</div>
+                <div style={S.statLabel}>Total de leads guardadas</div>
                 <div style={S.statValue}>{stats?.totals.total?.toLocaleString() ?? 0}</div>
                 <div style={S.statSub}>{stats?.totals.classified?.toLocaleString() ?? 0} ya clasificadas</div>
               </div>
@@ -620,16 +622,16 @@ export default function MarketingPage() {
               )}
             </div>
 
-            {/* ── Preparacion loop-until-N (nuevo, flujo recomendado) ── */}
+            {/* ── Preparacion loop-until-N (flujo recomendado, ahora incluye email) ── */}
             <div style={{...S.block, background: '#eff6ff', border: '2px solid #2563EB'}}>
               <div style={S.blockHeader}>
                 <div style={{flex: 1}}>
                   <div style={{...S.blockTitle, color: '#1d4ed8'}}>
-                    🚀 Preparar N leads listos (recomendado)
+                    🚀 Preparar leads listos (recomendado)
                   </div>
                   <div style={S.blockDesc}>
-                    Un solo botón. Escribís cuántas cartas querés mandar y el sistema hace loop de sync → clasificar → enriquecer hasta llegar (o hasta {prepareStats?.max_iterations ?? 6} iteraciones).
-                    <b> Cuando ves el resultado, tenés <span style={{color: '#1d4ed8'}}>N leads listos</span> con dirección validada, dueño identificado y NO contactados todavía.</b>
+                    Un solo botón. Elegís cuántas cartas querés mandar y el sistema repite, en orden, hasta llegar a esa cantidad (o hasta {prepareStats?.max_iterations ?? 6} vueltas): traer LLC nuevas de Sunbiz → clasificar (Haiku) → validar dirección (Google) → buscar email (Enformion).
+                    <b> Cuando ves el resultado, tenés la cantidad de leads que pediste, listas, con dirección validada, dueño identificado y NO contactadas todavía — con email cuando se pudo conseguir, y sin él cuando no (igual quedan listas para carta).</b>
                   </div>
                 </div>
                 <div style={{textAlign: 'center', padding: '8px 16px', background: '#dbeafe', borderRadius: 8, minWidth: 130}}>
@@ -683,9 +685,10 @@ export default function MarketingPage() {
                       <div style={{marginTop: 8, fontFamily: 'monospace', fontSize: 11}}>
                         {prepareResult.iterations.map(it => (
                           <div key={it.iteration} style={{padding: '4px 0', borderTop: '1px dashed #e5e7eb'}}>
-                            <b>Iter {it.iteration}:</b> expiró {it.expired}, sync {it.synced}, clasificó {it.classified} ({Object.entries(it.score_dist).map(([k,v])=>`${k}:${v}`).join(' ')}), descartó {it.discarded_by_settings}.
-                            Enriqueció: {Object.entries(it.enriched_by_score).map(([sc, e]) => `${sc}:${e.enriched}(✓${e.validated}/✗${e.invalid})`).join(', ')}.
-                            <span style={{color: it.gained > 0 ? '#059669' : '#dc2626'}}> Ganó +{it.gained} listos (total: {it.ready_after})</span>
+                            <b>Vuelta {it.iteration}:</b> expiró {it.expired}, sync {it.synced}, clasificó {it.classified} ({Object.entries(it.score_dist).map(([k,v])=>`${k}:${v}`).join(' ')}), descartó {it.discarded_by_settings}.
+                            Dirección: {Object.entries(it.enriched_by_score).map(([sc, e]) => `${sc}:${e.enriched}(✓${e.validated}/✗${e.invalid})`).join(', ') || '—'}.
+                            {Object.keys(it.email_by_score ?? {}).length > 0 && <> Email: {Object.entries(it.email_by_score).map(([sc, e]) => `${sc}:${e.enriched}(✓${e.found}/✗${e.not_found})`).join(', ')}.</>}
+                            <span style={{color: it.gained > 0 ? '#059669' : '#dc2626'}}> Ganó +{it.gained} listas (total: {it.ready_after})</span>
                           </div>
                         ))}
                       </div>
@@ -748,7 +751,7 @@ export default function MarketingPage() {
                 <div>
                   <div style={S.blockTitle}>Bloque 2 — Clasificacion</div>
                   <div style={S.blockDesc}>
-                    Trae las mas nuevas de Sunbiz que no esten en Base B (sync), y clasifica N con Haiku (score + vertical + perfil dueño + tipo direccion).
+                    Trae las más nuevas de Sunbiz que todavía no estén guardadas (sync), y clasifica la cantidad indicada con Haiku (score + vertical + perfil dueño + tipo dirección).
                     Costo: ~${HAIKU_COST_PER_LEAD_USD.toFixed(4)}/lead. Techo por corrida: {maxN}.
                   </div>
                 </div>
@@ -1068,7 +1071,7 @@ export default function MarketingPage() {
                 <div>
                   <div style={S.blockTitle}>📋 Leads</div>
                   <div style={S.blockDesc}>
-                    Explorá las leads reales de la Base B por estado, score y rango de fecha — separá las que ya se
+                    Explorá las leads reales guardadas por estado, score y rango de fecha — separá las que ya se
                     clasificaron y enviaron a Campaigns &amp; Letters de las que ya tienen dirección validada, o filtrá
                     las más nuevas por fecha de registro (<code>filing_date</code>).
                   </div>

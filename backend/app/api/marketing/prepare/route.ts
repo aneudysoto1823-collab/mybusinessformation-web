@@ -13,7 +13,7 @@ import { verifyAdminToken } from '@/lib/session'
 import { getMarketingClient } from '@/lib/turso-marketing'
 import { getTurso } from '@/lib/turso'
 import {
-  expireOldPending, syncFromSunbiz, classifyPending, enrichPending,
+  expireOldPending, syncFromSunbiz, classifyPending, enrichPending, enrichEmailPending,
   countReadyLeads, getActiveScores,
 } from '@/lib/marketing-pipeline'
 
@@ -23,6 +23,11 @@ export const maxDuration = 300 // Vercel Pro tope
 const BATCH_SIZE_SYNC     = 100
 const BATCH_SIZE_CLASSIFY = 100
 const BATCH_SIZE_ENRICH   = 200
+// Techo del paso de email por iteracion — mas chico que el de direccion a
+// proposito: buscar email SI cuesta (Enformion), a diferencia de validar
+// direccion (casi gratis). No tiene sentido gastar de mas solo porque el
+// loop de "Preparar" pidio un target grande.
+const BATCH_SIZE_EMAIL    = 100
 const MAX_ITERATIONS      = 6
 const TARGET_MAX          = 500
 
@@ -34,6 +39,11 @@ interface IterationLog {
   score_dist: Record<string, number>
   discarded_by_settings: number
   enriched_by_score: Record<string, { enriched: number; validated: number; invalid: number; api_errors: number }>
+  // Busqueda de email (Enformion) — agregada 2026-09-13, corre despues de
+  // validar direccion dentro del mismo loop (antes "Preparar" nunca
+  // buscaba email). No es requisito para "listo" (ver countReadyLeads) —
+  // las cartas se mandan igual sin email.
+  email_by_score: Record<string, { enriched: number; found: number; not_found: number; api_errors: number }>
   ready_after: number
   gained: number
 }
@@ -107,7 +117,28 @@ export async function POST(req: Request) {
         }
       }
 
-      // (e) Recontar
+      // (e) Buscar email (Enformion) sobre las que ya quedaron con dirección
+      // validada — mismo principio "barato antes que caro". No es requisito
+      // para "listo" (una LLC sin email igual se manda a Campaigns & Letters,
+      // solo para carta) — por eso corre DESPUÉS de recalcular ready, nunca
+      // bloquea el conteo de "listos".
+      const emailByScore: Record<string, { enriched: number; found: number; not_found: number; api_errors: number }> = {}
+      for (const sc of activeScores) {
+        const emailRes = await enrichEmailPending(marketing, sc, BATCH_SIZE_EMAIL)
+        if (emailRes.enriched > 0) {
+          emailByScore[sc] = {
+            enriched: emailRes.enriched,
+            found: emailRes.found,
+            not_found: emailRes.notFound,
+            api_errors: emailRes.apiErrors,
+          }
+        }
+        // Guard de tiempo — el paso de email es el último de la iteración,
+        // así que si ya estamos cerca del límite, no arranquemos otro score.
+        if (Date.now() - started > 270_000) break
+      }
+
+      // (f) Recontar
       const readyAfter = await countReadyLeads(marketing)
       const gained = readyAfter - ready
 
@@ -119,6 +150,7 @@ export async function POST(req: Request) {
         score_dist: clsRes.dist,
         discarded_by_settings: clsRes.discarded,
         enriched_by_score: enrichedByScore,
+        email_by_score: emailByScore,
         ready_after: readyAfter,
         gained,
       })

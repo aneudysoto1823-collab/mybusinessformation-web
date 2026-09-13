@@ -32,29 +32,12 @@ import { cookies } from 'next/headers'
 import { verifyAdminToken } from '@/lib/session'
 import { getMarketingClient } from '@/lib/turso-marketing'
 import { getSupabaseAdmin } from '@/lib/supabase'
-import { enrichContact, ENFORMION_COST_PER_LEAD_USD } from '@/lib/enformion'
+import { enrichContact, firstPersonOfficer, ENFORMION_COST_PER_LEAD_USD } from '@/lib/enformion'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 300
 
 const MAX_N = 500
-
-type OfficerRecord = { first_name?: string; last_name?: string; type?: string }
-
-// Primer officer tipo persona (P) — mismo criterio que firstPersonOfficerName()
-// en send-to-letters/route.ts, pero acá necesitamos first_name/last_name
-// separados (Enformion los pide como campos distintos, no un nombre combinado).
-function firstPersonOfficer(officersJson: string | null): { firstName: string; lastName: string } | null {
-  if (!officersJson) return null
-  try {
-    const officers = JSON.parse(officersJson) as OfficerRecord[]
-    const p = officers.find(o => o.type === 'P' && o.first_name && o.last_name)
-    if (!p || !p.first_name || !p.last_name) return null
-    return { firstName: p.first_name, lastName: p.last_name }
-  } catch {
-    return null
-  }
-}
 
 function jsonError(status: number, error: string) {
   return NextResponse.json({ error }, { status })

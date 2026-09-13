@@ -13,6 +13,25 @@
 const ENDPOINT = 'https://devapi.enformion.com/Contact/Enrich'
 const SEARCH_TYPE = 'DevAPIContactEnrich'
 
+export type OfficerRecord = { first_name?: string; last_name?: string; type?: string }
+
+// Primer officer tipo persona (P) — mismo criterio que firstPersonOfficerName()
+// en send-to-letters/route.ts, pero acá necesitamos first_name/last_name
+// separados (Enformion los pide como campos distintos, no un nombre combinado).
+// Compartido entre /api/marketing/enrich-email y lib/marketing-pipeline.ts
+// (loop-until-N de "Preparar") para no duplicar la misma lógica dos veces.
+export function firstPersonOfficer(officersJson: string | null): { firstName: string; lastName: string } | null {
+  if (!officersJson) return null
+  try {
+    const officers = JSON.parse(officersJson) as OfficerRecord[]
+    const p = officers.find(o => o.type === 'P' && o.first_name && o.last_name)
+    if (!p || !p.first_name || !p.last_name) return null
+    return { firstName: p.first_name, lastName: p.last_name }
+  } catch {
+    return null
+  }
+}
+
 export interface ContactEnrichInput {
   firstName: string | null
   lastName: string | null

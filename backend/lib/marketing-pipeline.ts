@@ -6,6 +6,8 @@ import type { Client } from '@libsql/client'
 import { classifyLeadsWithHaiku, type LeadInput } from './marketing-classify'
 import { pickTargetAddress } from './marketing-target-address'
 import { validateAddress, GOOGLE_ADDR_COST_PER_LEAD_USD, type ValidationResult } from './google-address'
+import { enrichContact, firstPersonOfficer, ENFORMION_COST_PER_LEAD_USD } from './enformion'
+import { getSupabaseAdmin } from './supabase'
 
 export const MAX_STALE_DAYS = 3
 
@@ -224,6 +226,89 @@ export async function enrichPending(marketing: Client, score: string, n: number)
     })
   }
   return { enriched, validated, invalid, apiErrors }
+}
+
+/** Busca email/telefono con Enformion para hasta N leads del score dado que
+ *  YA tienen direccion validada (mismo principio "barato antes que caro" que
+ *  enrichPending) y todavia no se les intento el email (email_enriched_at
+ *  IS NULL — evita pagarle a Enformion dos veces por el mismo lead, ver
+ *  fix real 2026-09-12). Usada tanto por /api/marketing/enrich-email (manual)
+ *  como por el loop de "Preparar N leads listos" (automatico, agregado
+ *  2026-09-13 — antes "Preparar" nunca buscaba email, quedaba desactualizado
+ *  desde que se agregó Enformion).
+ *  NO es un requisito para que un lead este "listo para carta" — una LLC sin
+ *  email igual se manda a Campaigns & Letters, solo que sin ese canal extra
+ *  (decision founder: "las cartas no necesitan email").
+ *  Devuelve {enriched, found, notFound, apiErrors}.
+ */
+export async function enrichEmailPending(marketing: Client, score: string, n: number): Promise<{
+  enriched: number; found: number; notFound: number; apiErrors: number
+}> {
+  const candRes = await marketing.execute({
+    sql: `SELECT document_number, officers_json, target_addr1, target_city, target_state
+          FROM marketing_leads
+          WHERE score = ?
+            AND descartada = 0
+            AND address_validated = 1
+            AND email IS NULL
+            AND email_enriched_at IS NULL
+            AND officers_json IS NOT NULL
+            AND target_addr1 IS NOT NULL AND TRIM(target_addr1) != ''
+          ORDER BY filing_date DESC
+          LIMIT ?`,
+    args: [score, n],
+  })
+
+  let enriched = 0, found = 0, notFound = 0, apiErrors = 0
+  for (const row of candRes.rows) {
+    const officer = firstPersonOfficer(row.officers_json as string | null)
+    if (!officer) continue // sin officer tipo persona — no cuenta como intento, no se cobra
+
+    const result = await enrichContact({
+      firstName: officer.firstName,
+      lastName: officer.lastName,
+      addr1: row.target_addr1 as string | null,
+      addr2: [row.target_city, row.target_state].filter(Boolean).join(', ') || null,
+    })
+
+    if (result.error) apiErrors += 1
+    if (result.found) found += 1; else notFound += 1
+    enriched += 1
+
+    await marketing.execute({
+      sql: `UPDATE marketing_leads
+            SET email = ?, email_is_business = ?, email_validated = ?,
+                email_validation_source = ?, phone = ?, identity_score = ?,
+                email_enriched_at = datetime('now'), enrichment_email_cost_usd = ?
+            WHERE document_number = ?`,
+      args: [
+        result.email,
+        result.email_is_business === null ? null : (result.email_is_business ? 1 : 0),
+        result.email_validated === null ? null : (result.email_validated ? 1 : 0),
+        result.email ? 'enformion' : null,
+        result.phone,
+        result.identity_score,
+        ENFORMION_COST_PER_LEAD_USD,
+        row.document_number as string,
+      ],
+    })
+
+    // Mismo sync best-effort que /api/marketing/enrich-email: si esta LLC ya
+    // estaba en Campaigns & Letters (carta mandada antes sin email), el email
+    // le llega solo, sin que el staff tenga que reenviar nada.
+    if (result.email) {
+      try {
+        await getSupabaseAdmin()
+          .from('prospective_companies')
+          .update({ email: result.email })
+          .eq('document_id', (row.document_number as string).toUpperCase())
+          .is('email', null)
+      } catch (e) {
+        console.error('[enrichEmailPending] sync a prospective_companies fallo (no fatal):', e)
+      }
+    }
+  }
+  return { enriched, found, notFound, apiErrors }
 }
 
 /** Cuenta cuantos leads estan LISTOS para carta:
