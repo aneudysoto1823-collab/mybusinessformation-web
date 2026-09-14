@@ -21,6 +21,27 @@ export function normalizeEmail(email: string): string {
   return email.trim().toLowerCase()
 }
 
+/** Marca unsubscribed=true en Order y prospective_companies para este email.
+ *  Única fuente de esta lógica — usada por POST /api/unsubscribe (baja manual
+ *  con confirmación humana) y por POST /api/unsubscribe/one-click (RFC 8058,
+ *  llamado automáticamente por Gmail/Yahoo sin interacción del usuario). */
+export async function markUnsubscribed(email: string): Promise<{ ok: boolean }> {
+  const normalized = normalizeEmail(email)
+  const supabase = getSupabaseAdmin()
+
+  // @brand-unified — baja global por email: aplica a todas las órdenes de
+  // esa persona sin importar la marca (opabiz o FBFC), mismo criterio que ya
+  // usaba POST /api/unsubscribe antes de este refactor.
+  const [orderRes, prospectRes] = await Promise.all([
+    supabase.from('Order').update({ unsubscribed: true }).eq('email', normalized),
+    supabase.from('prospective_companies').update({ unsubscribed: true }).eq('email', normalized),
+  ])
+  if (orderRes.error) console.error('[email-suppression] markUnsubscribed Order fallo:', orderRes.error)
+  if (prospectRes.error) console.error('[email-suppression] markUnsubscribed prospective_companies fallo:', prospectRes.error)
+
+  return { ok: !(orderRes.error && prospectRes.error) }
+}
+
 /** true si esta dirección tuvo un rebote permanente o una queja de spam
  *  registrada. Fail-open ante un error de lectura (no bloquea el envío por
  *  un problema transitorio de la base) — mismo criterio que el resto del

@@ -9,6 +9,14 @@
 // si cambia un remitente o un fallback.
 // ─────────────────────────────────────────────────────────────────────────────
 
+// Dirección postal física de la compañía — requisito literal de CAN-SPAM en
+// todo email comercial (auditoría 2026-09-13/14, hallazgo bloqueante: el
+// email de /guia-gratis no la tenía). Única fuente — antes estaba
+// hardcodeada por separado en campaign-email.ts y vip-reminder-email.ts.
+// Solo la dirección (sin el nombre de la compañía) para que cada template
+// decida su propio estilo/negrita alrededor del nombre.
+export const PHYSICAL_MAILING_ADDRESS = '3700 SW 27th St, Suite D104, Gainesville, FL 32608'
+
 export const FROM_TRANSACTIONAL = process.env.CONTACT_FROM_EMAIL || process.env.RESEND_FROM_TRANSACTIONAL || 'onboarding@resend.dev'
 export const FROM_MARKETING = process.env.RESEND_FROM_MARKETING || 'marketing@opabiz.com'
 export const FROM_SUPPORT = process.env.RESEND_FROM_SUPPORT || 'support@opabiz.com'
@@ -41,6 +49,22 @@ export const FROM_OPABIZ_INTERNAL = `OpaBiz Connect <${FROM_TRANSACTIONAL}>`
 // Resend el 2026-08-21) para que la direccion tecnica del remitente coincida
 // con la marca visible — antes reusaba FROM_TRANSACTIONAL de opabiz.com.
 export const FROM_FBFC = `Florida Business Formation Center <${FROM_TRANSACTIONAL_FBFC}>`
+
+// Dominio de envío dedicado para correo FRÍO (auditoría 2026-09-13/14,
+// punto "aislar el correo de mayor riesgo"): Carta Nuevas Empresas y Oferta
+// VIP van a contactos que nunca pidieron recibirnos (Sunbiz + Enformion), a
+// diferencia del resto del correo (transaccional + guía gratis, que sí es
+// opt-in). Si ese correo frío daña su reputación de envío, hoy arrastraría
+// con él a mybusinessformation.com/opabiz.com — incluyendo confirmaciones de
+// pago reales. Un dominio aparte, dedicado solo a esto, contiene el daño.
+//
+// Mientras no se registre ese dominio, cae al mismo FROM_FBFC de siempre —
+// cero cambio de comportamiento hasta que se configure
+// RESEND_FROM_COLD_OUTREACH en Vercel (requiere: comprar el dominio,
+// verificar SPF/DKIM/DMARC en Resend, y calentarlo gradualmente antes de
+// mandarle volumen real — ver LOGICA_DE_NEGOCIO o memoria del proyecto).
+export const FROM_COLD_OUTREACH = process.env.RESEND_FROM_COLD_OUTREACH || FROM_FBFC
+export const REPLY_TO_COLD_OUTREACH = process.env.RESEND_REPLY_TO_COLD_OUTREACH || REPLY_TO_FBFC
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Branding por marca para el HTML de los emails — un solo lugar para el
@@ -138,6 +162,29 @@ export function brandFooterLine(brand: EmailBrand): string {
  * "mybusinessformation is a trade name of..." — porque son dos marcas
  * distintas al cliente pese a compartir la misma LLC legal.
  */
+/**
+ * Headers `List-Unsubscribe` + `List-Unsubscribe-Post` (RFC 8058) — desde
+ * 2024 Gmail y Yahoo los exigen a cualquier remitente de volumen para
+ * mostrar el botón nativo de "Cancelar suscripción" en su UI, sin que el
+ * destinatario tenga que abrir el email (auditoría 2026-09-13/14).
+ *
+ * `oneClickUrl` debe apuntar a POST /api/unsubscribe/one-click?email=... —
+ * NO al link visible "Cancelar suscripción" del cuerpo del email (ese sigue
+ * yendo a la página /unsubscribe con confirmación humana). El proveedor de
+ * correo llama a esta URL automáticamente vía POST sin interacción del
+ * usuario, así que la ruta detrás no debe requerir ni esperar un body JSON.
+ *
+ * Usar siempre el host con `www` para dominios que redirigen apex→www con
+ * 308 (opabiz.com) — un cliente automatizado no sigue redirects, mismo
+ * gotcha ya documentado para los webhooks de Stripe/Resend.
+ */
+export function buildListUnsubscribeHeaders(oneClickUrl: string): Record<string, string> {
+  return {
+    'List-Unsubscribe': `<${oneClickUrl}>`,
+    'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+  }
+}
+
 export function brandDisclosureHtml(brand: EmailBrand, lang: 'en' | 'es' = 'en'): string {
   const isFbfc = isFbfcBrand(brand)
   const tradeName = isFbfc ? 'mybusinessformation' : 'OpaBiz'

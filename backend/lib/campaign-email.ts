@@ -4,6 +4,8 @@
 // vivía inline en send/route.ts; se extrajo el 2026-09-11 para que el preview
 // no pueda quedar desincronizado del email que de verdad se manda.
 
+import { PHYSICAL_MAILING_ADDRESS } from './email-constants'
+
 export const CAMPAIGN_EMAIL_BASE_URL = 'https://mybusinessformation.com'
 
 export type CampaignCompany = {
@@ -229,7 +231,7 @@ export function buildComplianceEmail(company: CampaignCompany, trackUrl: string,
         <!-- Footer -->
         <tr>
           <td style="background:#F8FAFC;border-top:1px solid #E2E8F0;border-radius:0 0 14px 14px;padding:18px 36px;text-align:center">
-            <p style="color:#94A3B8;font-size:11px;line-height:1.6;margin:0 0 6px"><strong>Florida Business Formation Center</strong> · mybusinessformation.com<br/>3700 SW 27th St, Suite D104, Gainesville, FL 32608<br/>info@mybusinessformation.com</p>
+            <p style="color:#94A3B8;font-size:11px;line-height:1.6;margin:0 0 6px"><strong>Florida Business Formation Center</strong> · mybusinessformation.com<br/>${PHYSICAL_MAILING_ADDRESS}<br/>info@mybusinessformation.com</p>
             <p style="color:#CBD5E1;font-size:10px;line-height:1.6;margin:0">${isEs ? 'Recibió este correo porque su empresa figura en los registros públicos de Florida. ' : 'You received this email because your company appears in Florida public records. '}<a href="${unsubscribeUrl}" style="color:#94A3B8;text-decoration:underline">${isEs ? 'Cancelar suscripción' : 'Unsubscribe'}</a></p>
           </td>
         </tr>

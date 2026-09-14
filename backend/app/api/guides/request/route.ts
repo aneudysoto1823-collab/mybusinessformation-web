@@ -9,7 +9,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { checkGuideRequestRateLimit, getClientIp } from '@/lib/rate-limit'
 import { GuideRequestInputSchema, parseOr400 } from '@/lib/schemas'
-import { FROM_OPABIZ_MARKETING, REPLY_TO } from '@/lib/email-constants'
+import { FROM_OPABIZ_MARKETING, REPLY_TO, PHYSICAL_MAILING_ADDRESS, buildListUnsubscribeHeaders } from '@/lib/email-constants'
 import { hasReceivedGuide, recordGuideSent, getGuideAttachments, getGuideUrl } from '@/lib/guides'
 import { isSuppressed } from '@/lib/email-suppression'
 
@@ -73,12 +73,18 @@ export async function POST(req: NextRequest) {
   try {
     const attachments = await getGuideAttachments(['guide1'])
     const guideUrl = getGuideUrl('guide1')
+    // www obligatorio acá: opabiz.com (apex) redirige 308 a www, y un cliente
+    // automatizado (Gmail/Yahoo llamando a este link solos, sin que el
+    // destinatario haga nada) no sigue ese redirect — mismo gotcha ya
+    // documentado para los webhooks de Stripe/Resend.
+    const oneClickUrl = `https://www.opabiz.com/api/unsubscribe/one-click?email=${encodeURIComponent(email)}`
 
     const result = await getResend().emails.send({
       from: FROM_OPABIZ_MARKETING,
       replyTo: REPLY_TO,
       to: email,
       subject: isEs ? 'OpaBiz: 🎁 Su Guía gratuita — Formar su LLC o Corporación en Florida' : 'OpaBiz: 🎁 Your free Guide — Form Your LLC or Corporation in Florida',
+      headers: buildListUnsubscribeHeaders(oneClickUrl),
       attachments,
       html: `
         <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#1e293b">
@@ -108,7 +114,8 @@ export async function POST(req: NextRequest) {
             </p>
             <p style="margin-top:32px;color:#94a3b8;font-size:12px">
               OpaBiz · opabiz.com<br/>
-              Florida Business Formation Center. ${isEs ? 'Somos un servicio de preparación de documentos, no un bufete de abogados.' : 'We are a document preparation service, not a law firm.'}
+              Florida Business Formation Center · ${PHYSICAL_MAILING_ADDRESS}<br/>
+              ${isEs ? 'Somos un servicio de preparación de documentos, no un bufete de abogados.' : 'We are a document preparation service, not a law firm.'}
             </p>
             <p style="margin-top:8px;color:#94a3b8;font-size:11px">
               ${isEs ? 'Recibió este correo porque lo solicitó en opabiz.com/guia-gratis. ' : 'You received this email because you requested it at opabiz.com/guia-gratis. '}

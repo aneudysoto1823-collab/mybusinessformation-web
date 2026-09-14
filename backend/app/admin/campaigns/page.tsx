@@ -21,6 +21,11 @@ type Company = {
   note: string | null
   created_at: string
   letter_sent_at: string | null
+  // Tracking separado por campaña (auditoría 2026-09-13/14) — antes ambas
+  // dependían del mismo `status`, sin forma de saber a quién le faltaba
+  // cuál de las dos.
+  carta_sent_at: string | null
+  vip_reminder_sent_at: string | null
 }
 
 type Stats = {
@@ -253,6 +258,10 @@ export default function CampaignsPage() {
 
   async function sendEmail(company: Company) {
     if (paused || !company.email) return
+    // Guard contra reenvío accidental (auditoría 2026-09-13/14, el botón
+    // individual no chequeaba nada) — no bloquea un reenvío intencional, solo
+    // pide confirmar cuando ya se ve una fecha de envío previa.
+    if (company.carta_sent_at && !confirm(`Carta Nuevas Empresas ya se le mandó a esta empresa el ${new Date(company.carta_sent_at).toLocaleString()}.\n\n¿Reenviar de todos modos?`)) return
     setSendingId(company.id)
     setSendMsg('')
     const res = await fetch('/api/campaigns/send', {
@@ -268,6 +277,7 @@ export default function CampaignsPage() {
 
   async function sendVipReminder(company: Company) {
     if (paused || !company.email) return
+    if (company.vip_reminder_sent_at && !confirm(`Oferta VIP ya se le mandó a esta empresa el ${new Date(company.vip_reminder_sent_at).toLocaleString()}.\n\n¿Reenviar de todos modos?`)) return
     setSendingVipId(company.id)
     setVipMsg('')
     const res = await fetch('/api/campaigns/send-vip-reminder', {
@@ -281,6 +291,12 @@ export default function CampaignsPage() {
     fetchCompanies(); fetchStats()
   }
 
+  // Mismo tope que MAX_BATCH en app/api/campaigns/send/route.ts — el server
+  // rechaza un solo request más grande que esto (auditoría 2026-09-13/14),
+  // así que acá se manda en tandas secuenciales en vez de un solo POST
+  // gigante que se cortaría a mitad de camino.
+  const SEND_BATCH_SIZE = 300
+
   async function sendToAllNew() {
     if (paused) return
     const newOnes = companies.filter(c => c.status === 'new' && c.email)
@@ -288,14 +304,30 @@ export default function CampaignsPage() {
     if (!confirm(`Send emails to ${newOnes.length} new companies?`)) return
     setSendingAll(true)
     setSendMsg('')
-    const res = await fetch('/api/campaigns/send', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ company_ids: newOnes.map(c => c.id), lang: 'en' }),
-    })
-    const data = await res.json()
+    let sent = 0, skipped = 0, errors = 0
+    for (let i = 0; i < newOnes.length; i += SEND_BATCH_SIZE) {
+      const batch = newOnes.slice(i, i + SEND_BATCH_SIZE)
+      setSendMsg(`Sending batch ${Math.floor(i / SEND_BATCH_SIZE) + 1}/${Math.ceil(newOnes.length / SEND_BATCH_SIZE)}…`)
+      try {
+        const res = await fetch('/api/campaigns/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ company_ids: batch.map(c => c.id), lang: 'en' }),
+        })
+        const data = await res.json()
+        if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`)
+        sent += data.sent ?? 0
+        skipped += data.skipped ?? 0
+        errors += data.errors ?? 0
+      } catch (e) {
+        setSendingAll(false)
+        setSendMsg(`✗ Stopped after batch error: ${e instanceof Error ? e.message : String(e)}  ·  So far — Sent: ${sent}  ·  Skipped: ${skipped}  ·  Errors: ${errors}`)
+        fetchCompanies(); fetchStats()
+        return
+      }
+    }
     setSendingAll(false)
-    setSendMsg(`✓ Sent: ${data.sent}  ·  Skipped: ${data.skipped}  ·  Errors: ${data.errors}`)
+    setSendMsg(`✓ Sent: ${sent}  ·  Skipped: ${skipped}  ·  Errors: ${errors}`)
     fetchCompanies(); fetchStats()
   }
 
@@ -634,7 +666,12 @@ export default function CampaignsPage() {
                           {c.company_name}
                           {c.owner_name && <div style={{ fontSize: '.72rem', color: '#94A3B8', fontWeight: 400, marginTop: 2 }}>{c.owner_name}</div>}
                           {c.note && <div title={c.note} style={{ fontSize: '.72rem', color: '#b45309', fontWeight: 400, marginTop: 2, maxWidth: 210, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>📝 {c.note}</div>}
-                          {c.letter_sent_at && <div style={{ fontSize: '.7rem', color: '#059669', fontWeight: 600, marginTop: 2 }}>✅ Sent {new Date(c.letter_sent_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>}
+                          {c.letter_sent_at && <div style={{ fontSize: '.7rem', color: '#059669', fontWeight: 600, marginTop: 2 }}>✅ Letter sent {new Date(c.letter_sent_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>}
+                          {/* Tracking separado por campaña (auditoría 2026-09-13/14) — antes
+                              solo existía el genérico "Status" de la columna de al lado, sin
+                              distinguir cuál de las dos campañas ya recibió. */}
+                          {c.carta_sent_at && <div style={{ fontSize: '.7rem', color: '#2563EB', fontWeight: 600, marginTop: 2 }}>✅ Carta sent {new Date(c.carta_sent_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>}
+                          {c.vip_reminder_sent_at && <div style={{ fontSize: '.7rem', color: '#059669', fontWeight: 600, marginTop: 2 }}>✅ VIP sent {new Date(c.vip_reminder_sent_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>}
                         </td>
                         <td><span style={{ fontFamily: 'monospace', fontSize: '.8rem', color: '#475569', background: '#F8FAFC', padding: '2px 7px', borderRadius: 5 }}>{c.document_id}</span></td>
                         <td style={{ color: c.email ? '#374151' : '#CBD5E1', fontSize: '.8rem' }}>{c.email || '—'}</td>

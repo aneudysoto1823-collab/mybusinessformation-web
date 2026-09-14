@@ -2,10 +2,19 @@ import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { verifyAdminToken } from '@/lib/session'
-import { FROM_FBFC, REPLY_TO_FBFC } from '@/lib/email-constants'
+import { FROM_COLD_OUTREACH, REPLY_TO_COLD_OUTREACH, buildListUnsubscribeHeaders } from '@/lib/email-constants'
 import { hasReceivedGuide, recordGuideSent, getGuideAttachments, buildGuideBonusHtml, type GuideKey } from '@/lib/guides'
 import { buildComplianceEmail as buildEmail, CAMPAIGN_EMAIL_BASE_URL as BASE_URL } from '@/lib/campaign-email'
 import { isSuppressed } from '@/lib/email-suppression'
+
+// Un envío real (loop secuencial de Resend.emails.send + Supabase por cada
+// company_id) sin tope de tamaño ni tiempo máximo declarado podía cortarse a
+// mitad de camino por el timeout de la función serverless, dejando un envío
+// parcial sin saber a quién sí le llegó (auditoría 2026-09-13/14). Mismo
+// patrón que ya usan marketing/prepare y marketing/enrich-email.
+export const dynamic = 'force-dynamic'
+export const maxDuration = 300
+const MAX_BATCH = 300
 
 async function verifyAdmin(request: NextRequest): Promise<boolean> {
   const session = request.cookies.get('admin_session')
@@ -27,12 +36,15 @@ export async function POST(req: NextRequest) {
     if (!Array.isArray(company_ids) || company_ids.length === 0) {
       return NextResponse.json({ error: 'company_ids array is required' }, { status: 400 })
     }
+    if (company_ids.length > MAX_BATCH) {
+      return NextResponse.json({ error: `Máximo ${MAX_BATCH} por corrida — mandá en tandas más chicas.` }, { status: 400 })
+    }
 
     const supabase = getSupabaseAdmin()
 
     const { data: companies, error: fetchErr } = await supabase
       .from('prospective_companies')
-      .select('id,document_id,company_name,company_type,owner_name,city,state,email,status,registration_date,unsubscribed')
+      .select('id,document_id,company_name,company_type,owner_name,city,state,email,status,registration_date,unsubscribed,carta_sent_at')
       .in('id', company_ids)
 
     if (fetchErr) throw fetchErr
@@ -87,14 +99,22 @@ export async function POST(req: NextRequest) {
           : baseHtml
         const attachments = guideKeys.length > 0 ? await getGuideAttachments(guideKeys, 'fbfc') : undefined
 
-        // Send via Resend — marca FBFC (remitente y reply-to deben coincidir
-        // con el contenido 100% mybusinessformation.com del template; antes
-        // decían "OpaBiz"/opabiz.com, auditoría 2026-09-11).
+        // mybusinessformation.com (apex) no redirige a www (a diferencia de
+        // opabiz.com) — confirmado en next.config.ts, ambos hosts se sirven
+        // directo — así que acá no hace falta forzar www para el link de
+        // one-click.
+        const oneClickUrl = `https://mybusinessformation.com/api/unsubscribe/one-click?email=${encodeURIComponent(company.email)}`
+
+        // FROM_COLD_OUTREACH: mismo remitente FBFC hasta que se registre un
+        // dominio dedicado para correo frío (ver comentario en
+        // lib/email-constants.ts) — el contenido del template sigue siendo
+        // 100% mybusinessformation.com sin importar cuál sea el remitente.
         await getResend().emails.send({
-          from:    FROM_FBFC,
-          replyTo: REPLY_TO_FBFC,
+          from:    FROM_COLD_OUTREACH,
+          replyTo: REPLY_TO_COLD_OUTREACH,
           to:      company.email,
           subject,
+          headers: buildListUnsubscribeHeaders(oneClickUrl),
           html,
           ...(attachments ? { attachments } : {}),
         })
@@ -110,10 +130,14 @@ export async function POST(req: NextRequest) {
           qr_code_url: trackUrl,
         })
 
-        // Update company status → email_sent
+        // status → email_sent sigue siendo el "contact status" general (lo
+        // usa el filtro New/Email sent/Letter sent del panel). carta_sent_at
+        // es el tracking específico de ESTA campaña — antes no existía
+        // ninguno, y se confundía con el de Oferta VIP al compartir status
+        // (auditoría 2026-09-13/14).
         await supabase
           .from('prospective_companies')
-          .update({ status: 'email_sent' })
+          .update({ status: 'email_sent', carta_sent_at: new Date().toISOString() })
           .eq('id', company.id)
 
         results.push({ company_id: company.id, document_id: company.document_id, status: 'sent' })
