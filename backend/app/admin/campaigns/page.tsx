@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
+import HowItWorksModal from '../HowItWorksModal'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -173,10 +174,14 @@ export default function CampaignsPage() {
     }
   }
 
-  // Idioma de la carta PDF (preview/descarga)
-  const [letterLang,  setLetterLang]  = useState<'en' | 'es'>('en')
+  // Idioma de la carta PDF (preview/descarga/impresión) Y del email (envío +
+  // preview) — antes el toggle "Letter format" solo cambiaba la carta y el
+  // envío de email quedaba fijo en inglés sin importar lo que eligieras acá
+  // (pedido founder 2026-09-15: unificar, un solo control para todo).
+  const [contentLang, setContentLang] = useState<'en' | 'es'>('en')
 
   // Add company form
+  const [showHowItWorks, setShowHowItWorks] = useState(false)
   const [showForm,      setShowForm]      = useState(false)
   const [lookingUp,     setLookingUp]     = useState(false)
   const [formData,      setFormData]      = useState({ document_id: '', company_name: '', owner_name: '', address: '', city: '', zip: '', email: '', company_type: 'LLC', registration_date: '' })
@@ -319,7 +324,7 @@ export default function CampaignsPage() {
           registrationDate: company.registration_date || '',
           companyType:      company.company_type,
           payUrl,
-          lang:             letterLang,
+          lang:             contentLang,
         }),
       })
     } catch {
@@ -338,7 +343,7 @@ export default function CampaignsPage() {
     } else {
       const a    = document.createElement('a')
       a.href     = url
-      a.download = `notice-${company.document_id}-${letterLang}.pdf`
+      a.download = `notice-${company.document_id}-${contentLang}.pdf`
       a.click()
       URL.revokeObjectURL(url)
     }
@@ -347,6 +352,16 @@ export default function CampaignsPage() {
   // Genérica para cualquier template del registro — reemplaza a los antiguos
   // sendEmail()/sendVipReminder() (uno por campaña, duplicados). Agregar un
   // 3er template no requiere una 3ra función acá.
+  // Aviso extra SOLO en español (pedido founder 2026-09-15) — inglés es el
+  // default esperado, así que no hace falta confirmarlo; español es la
+  // elección deliberada que vale la pena que confirmes antes de disparar el
+  // envío real, para no mandar en el idioma equivocado por dejar el toggle
+  // como había quedado de una corrida anterior.
+  function confirmSpanishSend(extra = ''): boolean {
+    if (contentLang !== 'es') return true
+    return confirm(`El idioma está en ESPAÑOL — se va a enviar en español.${extra}\n\n¿Confirmás?`)
+  }
+
   async function sendTemplate(company: Company, template: CampaignTemplate) {
     if (paused || !company.email) return
     // Guard contra reenvío accidental (auditoría 2026-09-13/14, el botón
@@ -354,12 +369,13 @@ export default function CampaignsPage() {
     // pide confirmar cuando ya se ve una fecha de envío previa de ESTE template.
     const alreadySentAt = company[template.sentAtField]
     if (alreadySentAt && !confirm(`${template.label} ya se le mandó a esta empresa el ${new Date(alreadySentAt).toLocaleString()}.\n\n¿Reenviar de todos modos?`)) return
+    if (!confirmSpanishSend()) return
     setSendingId(company.id)
     setSendMsg('')
     const res = await fetch(template.sendEndpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ company_ids: [company.id], lang: 'en' }),
+      body: JSON.stringify({ company_ids: [company.id], lang: contentLang }),
     })
     const data = await res.json()
     setSendingId(null)
@@ -386,7 +402,7 @@ export default function CampaignsPage() {
         const res = await fetch(template.sendEndpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ company_ids: batch.map(c => c.id), lang: 'en' }),
+          body: JSON.stringify({ company_ids: batch.map(c => c.id), lang: contentLang }),
         })
         const data = await res.json()
         if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`)
@@ -413,6 +429,7 @@ export default function CampaignsPage() {
     const eligible = companies.filter(c => emailEligible(c) && !c[selectedTemplate.sentAtField])
     if (eligible.length === 0) { setSendMsg(`No companies eligible for ${selectedTemplate.label}.`); return }
     if (!confirm(`Send ${selectedTemplate.label} to ${eligible.length} companies?`)) return
+    if (!confirmSpanishSend(` (${eligible.length} empresas)`)) return
     await sendTemplateBatch(eligible, selectedTemplate)
   }
 
@@ -424,6 +441,7 @@ export default function CampaignsPage() {
     const targets = companies.filter(c => selectedIds.has(c.id) && c.email)
     if (targets.length === 0) { setSendMsg('Selected companies have no email.'); return }
     if (!confirm(`Send ${selectedTemplate.label} to ${targets.length} selected companies?`)) return
+    if (!confirmSpanishSend(` (${targets.length} empresas)`)) return
     await sendTemplateBatch(targets, selectedTemplate)
   }
 
@@ -437,7 +455,7 @@ export default function CampaignsPage() {
       const res = await fetch('/api/campaigns/print-letters', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ids, lang: letterLang }),
+        body: JSON.stringify({ ids, lang: contentLang }),
       })
       if (!res.ok) {
         const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }))
@@ -573,6 +591,9 @@ export default function CampaignsPage() {
             <p style={{ fontSize: '.8rem', color: '#94A3B8', marginTop: 2 }}>Physical compliance letters, outreach emails, and QR code tracking</p>
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
+            <button type="button" onClick={() => setShowHowItWorks(true)} className="btn" style={{ background: '#fff', color: '#1C2E44', border: '1.5px solid #1C2E44' }}>
+              ℹ️ Cómo funciona
+            </button>
             <button className={`btn ${paused ? 'btn-green' : 'btn-red'}`} onClick={() => setPaused(v => !v)}>
               {paused ? '▶ Resume System' : '⏸ Pause System'}
             </button>
@@ -581,6 +602,54 @@ export default function CampaignsPage() {
             </button>
           </div>
         </div>
+
+        {showHowItWorks && (
+          <HowItWorksModal title="📬 Cómo funciona Campaigns & Letters" onClose={() => setShowHowItWorks(false)}>
+            <p>Panel para contactar empresas de Florida recién formadas — por carta física, por email, o ambos — y llevar registro de a quién ya se le mandó qué.</p>
+
+            <h3>1. De dónde salen las empresas</h3>
+            <ul>
+              <li><strong>+ Add Company:</strong> cargás el Document ID de Sunbiz a mano y el sistema autocompleta el resto.</li>
+              <li><strong>Marketing Saliente:</strong> el flujo automático (clasifica LLCs nuevas, valida dirección, busca email con Enformion) las manda para acá con el botón &quot;Enviar a Campañas y Cartas&quot; de ese otro panel — llegan ya listas, con o sin email según lo que haya encontrado.</li>
+            </ul>
+
+            <h3>2. Las dos campañas</h3>
+            <ul>
+              <li><strong>Carta Nuevas Empresas</strong> — tiene versión en carta física (con QR) y en email. Ofrece Labor Law Posters, EIN y Certificate of Status.</li>
+              <li><strong>Oferta VIP</strong> — solo por email, sin versión en papel. Ofrece la Declaración Anual sola, y como upsell el combo Agente Registrado + Declaración Anual.</li>
+              <li>El selector <strong>&quot;✉️ [Template]&quot;</strong> arriba de la tabla decide cuál de las dos vas a mandar/previsualizar en cada momento — los botones de cada fila y los de envío masivo siempre usan el que esté elegido ahí.</li>
+            </ul>
+
+            <h3>3. Organizar antes de enviar</h3>
+            <ul>
+              <li><strong>Contact status</strong> (New / Email sent / Letter sent / All): filtra por si ya se le mandó algo a esa empresa o no.</li>
+              <li>Dentro de <strong>New</strong>, dos pestañas: <strong>Con Email</strong> y <strong>Sin Email</strong> — para separar a quién le mandás correo de a quién le imprimís la carta.</li>
+              <li><strong>% Precisión mínima:</strong> cuando Enformion encontró un email pero con poca confianza, esa empresa cae a &quot;Sin Email&quot; aunque el dato exista, así se le imprime la carta en vez de arriesgarse a un email malo. Subiendo o bajando este número decidís vos el corte, en cualquier momento — es independiente del filtro que se usa al buscar en Marketing Saliente.</li>
+              <li><strong>Seleccionar paquete de N:</strong> tilda automáticamente las primeras N empresas de la pestaña &quot;Con Email&quot; — útil para mandar de a tandas chicas en vez de todo el volumen de una vez (importante mientras un dominio de envío nuevo está &quot;calentando&quot; su reputación).</li>
+            </ul>
+
+            <h3>4. Enviar o imprimir</h3>
+            <ul>
+              <li><strong>Send to All Eligible / Send to Selected:</strong> manda el template elegido a todas las que corresponden, o solo a las que tildaste — en tandas automáticas si son muchas.</li>
+              <li><strong>🖨 Print Selected:</strong> combina las cartas de las empresas tildadas en un solo PDF, listo para Cmd/Ctrl+P — todavía no hay impresora conectada automáticamente, así que este es el paso manual mientras tanto. <em>Imprimir no marca nada como enviado</em> — es solo el PDF.</li>
+              <li><strong>✅ Mark as Sent:</strong> paso separado, a propósito — recién acá la empresa pasa a &quot;Letter sent&quot; y sale de la lista. Evita que el sistema asuma que se mandó por correo postal solo porque se generó el PDF.</li>
+            </ul>
+
+            <h3>Protecciones automáticas</h3>
+            <ul>
+              <li>Si alguien se da de baja (link de unsubscribe), nunca más se le vuelve a mandar nada.</li>
+              <li>Si un email rebota o alguien lo marca como spam, Resend avisa solo y esa dirección queda excluida de futuros envíos automáticamente.</li>
+              <li>Todos los emails incluyen el botón nativo de &quot;Cancelar suscripción&quot; que exigen Gmail/Yahoo (RFC 8058) — no hace falta que el cliente abra el email para darse de baja.</li>
+            </ul>
+
+            <h3>Reglas clave</h3>
+            <ul>
+              <li><strong>⏸ Pause System</strong> frena cualquier envío real (no borra nada, solo bloquea el botón de enviar) — útil si algo se ve raro y querés parar antes de seguir.</li>
+              <li>Reenviar algo que ya se mandó antes pide confirmación explícita — nunca duplica sin avisar.</li>
+              <li>El idioma de la carta (EN/ES) se elige aparte, arriba de la tabla — afecta tanto el preview como la descarga/impresión.</li>
+            </ul>
+          </HowItWorksModal>
+        )}
 
         {/* Pause banner */}
         {paused && (
@@ -811,19 +880,22 @@ export default function CampaignsPage() {
             {sendMsg && <span className={sendMsg.startsWith('✓') ? 'msg-ok' : 'msg-err'} style={{ fontSize: '.78rem' }}>{sendMsg}</span>}
             {bulkMsg && <span className={bulkMsg.startsWith('✓') ? 'msg-ok' : 'msg-err'} style={{ fontSize: '.78rem' }}>{bulkMsg}</span>}
 
-            {/* Selector de idioma de la carta PDF (afecta preview 👁 y descarga 📄) */}
+            {/* Selector de idioma — antes solo afectaba la carta PDF (preview/
+                descarga/impresión); ahora también decide en qué idioma se
+                manda y se previsualiza el email (pedido founder 2026-09-15,
+                antes quedaba fijo en inglés sin importar esto). */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginLeft: 'auto' }}>
-              <span style={{ fontSize: '.72rem', color: '#64748b', fontWeight: 600 }}>Letter format:</span>
+              <span style={{ fontSize: '.72rem', color: '#64748b', fontWeight: 600 }}>Language:</span>
               <div style={{ display: 'flex', border: '1.5px solid #E2E8F0', borderRadius: 7, overflow: 'hidden' }}>
                 {(['en', 'es'] as const).map(lng => (
                   <button
                     key={lng}
-                    onClick={() => setLetterLang(lng)}
+                    onClick={() => setContentLang(lng)}
                     style={{
                       padding: '5px 13px', fontSize: '.72rem', fontWeight: 700, border: 'none', cursor: 'pointer',
                       fontFamily: 'inherit',
-                      background: letterLang === lng ? '#2563EB' : '#fff',
-                      color:      letterLang === lng ? '#fff'    : '#475569',
+                      background: contentLang === lng ? '#2563EB' : '#fff',
+                      color:      contentLang === lng ? '#fff'    : '#475569',
                     }}
                   >
                     {lng.toUpperCase()}
@@ -915,7 +987,7 @@ export default function CampaignsPage() {
                             </button>
                             <button
                               className="btn btn-ghost btn-sm"
-                              onClick={() => window.open(`${selectedTemplate.previewEndpoint}?company_id=${c.id}&lang=en`, '_blank')}
+                              onClick={() => window.open(`${selectedTemplate.previewEndpoint}?company_id=${c.id}&lang=${contentLang}`, '_blank')}
                               title={`Preview ${selectedTemplate.label} (does not send)`}
                               style={{ color: selectedTemplate.color }}
                             >

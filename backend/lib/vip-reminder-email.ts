@@ -37,6 +37,20 @@ const GREEN_DARK = '#4C7A38'
 export function buildVipReminderEmail(company: CampaignCompany, lang: 'en' | 'es') {
   const isEs = lang === 'es'
 
+  // Mismo formateo que campaign-email.ts (Carta Nuevas Empresas) — para que
+  // el recuadro de registro de abajo se vea idéntico entre las dos campañas.
+  // Parseo seguro de año/mes/día (bug real 2026-09-15: new Date(d) directo
+  // sobre un date-only string se corre un día para atrás en zonas horarias
+  // detrás de UTC) — ver mismo fix en campaign-email.ts.
+  const fmtDate = (d?: string | null) => {
+    if (!d) return '—'
+    const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(d)
+    const dt = m ? new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])) : new Date(d)
+    return isNaN(dt.getTime()) ? d : dt.toLocaleDateString(isEs ? 'es-ES' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+  }
+  const registrationDateFormatted = fmtDate(company.registration_date)
+  const noticeDate = new Date().toLocaleDateString(isEs ? 'es-ES' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+
   const unsubscribeUrl = `${BASE_URL}/unsubscribe?email=${encodeURIComponent(company.email)}`
   const idParam = `id=${encodeURIComponent(company.document_id)}${isEs ? '&lang=es' : ''}`
   const arUrl = `${BASE_URL}/annual-report?${idParam}`
@@ -47,7 +61,11 @@ export function buildVipReminderEmail(company: CampaignCompany, lang: 'en' | 'es
   // solo se manda a empresas con registration_date real — el fallback acá es
   // solo defensivo (la columna es nullable en la DB), no un contenido
   // pensado a propósito.
-  const regYear = company.registration_date ? new Date(company.registration_date).getFullYear() : null
+  // Mismo parseo seguro que fmtDate arriba — sin esto, una empresa
+  // registrada el 1 de enero podía calcularse un año atrás (31 de
+  // diciembre en UTC) y mostrar el año de Declaración Anual equivocado.
+  const regYearMatch = company.registration_date ? /^(\d{4})-(\d{2})-(\d{2})/.exec(company.registration_date) : null
+  const regYear = regYearMatch ? Number(regYearMatch[1]) : (company.registration_date ? new Date(company.registration_date).getFullYear() : null)
   const firstArYear = regYear && !isNaN(regYear) ? regYear + 1 : null
   const filingYearLabel = firstArYear ? String(firstArYear) : (isEs ? 'próxima' : 'upcoming')
 
@@ -129,15 +147,54 @@ export function buildVipReminderEmail(company: CampaignCompany, lang: 'en' | 'es
           </td>
         </tr>
 
+        <!-- Recuadro de registro — mismo diseño que Carta Nuevas Empresas
+             (pedido founder 2026-09-15: "con los datos le inspira mucho más
+             confianza al cliente" que solo el saludo con nombre). Reemplaza
+             el texto plano "LLC / documentId" que tenía este email antes. -->
+        <tr>
+          <td style="background:#fff;padding:26px 36px 6px">
+            <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px">
+              <tr>
+                <td style="padding:16px 18px 8px">
+                  <div style="color:#94A3B8;font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;margin-bottom:3px">${isEs ? 'Empresa Registrada en Florida' : 'Florida Registered Company'}</div>
+                  <div style="color:#1C2E44;font-size:18px;font-weight:800;font-family:Georgia,serif">${company.company_name}</div>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:0 18px 16px">
+                  <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-top:1px solid #E2E8F0">
+                    <tr>
+                      <td width="50%" style="padding:10px 0 0;vertical-align:top">
+                        <div style="color:#94A3B8;font-size:9.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase">${isEs ? 'Número de Documento' : 'Document Number'}</div>
+                        <div style="color:#1C2E44;font-size:13px;font-weight:600">${company.document_id}</div>
+                      </td>
+                      <td width="50%" style="padding:10px 0 0;vertical-align:top">
+                        <div style="color:#94A3B8;font-size:9.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase">${isEs ? 'Fecha de Registro' : 'Registration Date'}</div>
+                        <div style="color:#1C2E44;font-size:13px;font-weight:600">${registrationDateFormatted}</div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td width="50%" style="padding:10px 0 0;vertical-align:top">
+                        <div style="color:#94A3B8;font-size:9.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase">${isEs ? 'Fecha del Aviso' : 'Notice Date'}</div>
+                        <div style="color:#1C2E44;font-size:13px;font-weight:600">${noticeDate}</div>
+                      </td>
+                      <td width="50%" style="padding:10px 0 0;vertical-align:top">
+                        <div style="color:#94A3B8;font-size:9.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase">${isEs ? 'Tipo de Entidad' : 'Entity Type'}</div>
+                        <div style="color:#1C2E44;font-size:13px;font-weight:600">${company.company_type}</div>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
         <!-- Cuerpo -->
         <tr>
-          <td style="background:#fff;padding:32px 36px 8px">
-            <p style="color:#1C2E44;font-size:15px;font-weight:700;margin:0 0 4px">
+          <td style="background:#fff;padding:20px 36px 8px">
+            <p style="color:#1C2E44;font-size:15px;font-weight:700;margin:0 0 14px">
               ${isEs ? `Hola${company.owner_name ? ' ' + company.owner_name : ''},` : `Hello${company.owner_name ? ' ' + company.owner_name : ''},`}
-            </p>
-            <p style="color:#64748b;font-size:12px;line-height:1.6;margin:0 0 14px">
-              ${company.company_type}<br/>
-              ${company.document_id}
             </p>
             ${introHtml}
           </td>

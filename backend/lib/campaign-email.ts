@@ -8,6 +8,14 @@ import { PHYSICAL_MAILING_ADDRESS } from './email-constants'
 
 export const CAMPAIGN_EMAIL_BASE_URL = 'https://mybusinessformation.com'
 
+// Mismo verde que usa Oferta VIP (#7BBB5D, "el verde que ellos usan" —
+// pedido founder 2026-09-11 en ese template) — extendido acá 2026-09-15
+// para el botón principal y el precio de cada servicio: "el verde da mejor
+// sensación" que el azul de marca en estos dos puntos puntuales. La franja
+// navy "Available Services" y el resto del membrete se dejan sin tocar a
+// propósito — mantiene el tono de aviso oficial de este email en particular.
+const GREEN = '#7BBB5D'
+
 export type CampaignCompany = {
   id: string
   document_id: string
@@ -23,9 +31,18 @@ export type CampaignCompany = {
 export function buildComplianceEmail(company: CampaignCompany, trackUrl: string, lang: 'en' | 'es') {
   const isEs = lang === 'es'
 
+  // Bug real encontrado 2026-09-15 (probando el recuadro nuevo de VIP, que
+  // copiaba esta misma función): un date-only string como "2026-01-15" se
+  // parsea con new Date(d) como medianoche UTC, y en una zona horaria
+  // detrás de UTC (ej. US Eastern) el toLocaleDateString posterior lo
+  // corre un día para atrás ("January 14" en vez de "January 15"). Mismo
+  // fix que ya usa formatLongDateForLetter() en lib/new-business-letter.ts
+  // para el PDF: parsear año/mes/día y construir la fecha en hora LOCAL,
+  // no vía el string crudo.
   const fmtDate = (d?: string | null) => {
     if (!d) return '—'
-    const dt = new Date(d)
+    const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(d)
+    const dt = m ? new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])) : new Date(d)
     return isNaN(dt.getTime()) ? d : dt.toLocaleDateString(isEs ? 'es-ES' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' })
   }
   const registrationDate = fmtDate(company.registration_date)
@@ -94,7 +111,7 @@ export function buildComplianceEmail(company: CampaignCompany, trackUrl: string,
               <div style="color:#64748b;font-size:13px;line-height:1.6">${s.desc}</div>
             </td>
             <td width="64" style="text-align:right;vertical-align:top">
-              <span style="font-weight:800;color:#1C2E44;font-size:17px;white-space:nowrap">${s.price}</span>
+              <span style="font-weight:800;color:${GREEN};font-size:17px;white-space:nowrap">${s.price}</span>
             </td>
           </tr>
         </table>
@@ -212,7 +229,7 @@ export function buildComplianceEmail(company: CampaignCompany, trackUrl: string,
         <!-- CTA -->
         <tr>
           <td style="background:#fff;padding:24px 36px 6px;text-align:center">
-            <a href="${trackUrl}" style="display:inline-block;background:#2563EB;color:#fff;text-decoration:none;padding:15px 44px;border-radius:9px;font-weight:700;font-size:15px">${isEs ? 'Solicitar Estos Servicios' : 'Request These Services'} &#8594;</a>
+            <a href="${trackUrl}" style="display:inline-block;background:${GREEN};color:#fff;text-decoration:none;padding:15px 44px;border-radius:9px;font-weight:700;font-size:15px">${isEs ? 'Solicitar Estos Servicios' : 'Request These Services'}</a>
             <div style="color:#94A3B8;font-size:12px;margin-top:12px">${isEs ? 'Su información ya está pre-cargada — solo seleccione y confirme.' : 'Your information is pre-filled — just select and confirm.'}</div>
             <!-- PENDIENTE (2026-09-11): reemplazar por el link de WhatsApp cuando mybiz
                  tenga uno activo propio — hoy usa https://wa.me/13528377755, que es el
