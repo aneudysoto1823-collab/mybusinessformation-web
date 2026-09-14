@@ -51,7 +51,7 @@ export async function POST(req: Request) {
   const ok = token ? await verifyAdminToken(token) : false
   if (!ok) return jsonError(401, 'unauthorized')
 
-  let body: { n?: number; score?: string; date_from?: string; date_to?: string }
+  let body: { n?: number; score?: string; date_from?: string; date_to?: string; min_score?: number }
   try { body = await req.json() } catch { return jsonError(400, 'body no es JSON valido') }
 
   const n = Number(body.n)
@@ -59,6 +59,15 @@ export async function POST(req: Request) {
     return jsonError(400, `n debe ser un entero entre 1 y ${MAX_N}`)
   }
   const score = ['A', 'B', 'C'].includes(String(body.score)) ? String(body.score) : 'A'
+
+  // % Precisión — obligatorio, sin default a propósito (decisión founder
+  // 2026-09-14): Enformion no permite pedir esto de antemano en el request
+  // (confirmado contra su documentación), así que el gate es nuestro y debe
+  // estar siempre presente antes de gastar en una búsqueda real.
+  const minScore = Number(body.min_score)
+  if (!Number.isFinite(minScore) || minScore < 0 || minScore > 100) {
+    return jsonError(400, 'min_score (% Precisión) es requerido: un número entre 0 y 100')
+  }
   const dateFrom = typeof body.date_from === 'string' && body.date_from ? body.date_from : null
   const dateTo   = typeof body.date_to === 'string' && body.date_to ? body.date_to : null
 
@@ -123,6 +132,7 @@ export async function POST(req: Request) {
 
   let found = 0
   let notFound = 0
+  let belowThreshold = 0
   let apiErrorCount = 0
   let lastApiError: string | null = null
   let skippedNoOfficer = 0
@@ -145,7 +155,15 @@ export async function POST(req: Request) {
       apiErrorCount += 1
       lastApiError = result.error
     }
-    if (result.found) found += 1; else notFound += 1
+
+    // Gate de % Precisión: Enformion siempre cobra/cuenta el match ya
+    // encontrado sin importar su identity_score (no hay forma de pedirle de
+    // antemano un umbral, ver comentario en lib/marketing-pipeline.ts) — el
+    // filtro es nuestro, después de la respuesta. Un match débil no se usa
+    // para marketing pero sí queda marcado como intentado (no se re-cobra).
+    const passesThreshold = result.found && typeof result.identity_score === 'number' && result.identity_score >= minScore
+    if (result.found && !passesThreshold) belowThreshold += 1
+    if (passesThreshold) found += 1; else if (!result.found) notFound += 1
 
     await marketing.execute({
       sql: `UPDATE marketing_leads
@@ -159,15 +177,14 @@ export async function POST(req: Request) {
                 enrichment_email_cost_usd = ?
             WHERE document_number = ?`,
       args: [
-        result.email,
-        result.email_is_business === null ? null : (result.email_is_business ? 1 : 0),
-        result.email_validated === null ? null : (result.email_validated ? 1 : 0),
+        passesThreshold ? result.email : null,
+        passesThreshold ? (result.email_is_business === null ? null : (result.email_is_business ? 1 : 0)) : null,
+        passesThreshold ? (result.email_validated === null ? null : (result.email_validated ? 1 : 0)) : null,
         // email_validation_source: columna que ya existia en el diseño original
         // de la tabla (planeada para Enformion/ZeroBounce) — solo se setea
-        // cuando de verdad se encontro un email, para no pisarla con 'enformion'
-        // en un intento fallido.
-        result.email ? 'enformion' : null,
-        result.phone,
+        // cuando de verdad se encontro un email QUE PASÓ el gate de precisión.
+        passesThreshold ? 'enformion' : null,
+        passesThreshold ? result.phone : null,
         result.identity_score,
         ENFORMION_COST_PER_LEAD_USD,
         row.document_number as string,
@@ -180,8 +197,8 @@ export async function POST(req: Request) {
     // send-to-letters cuando corresponda. Nunca pisa un email ya cargado
     // (a mano o de una corrida anterior). Best-effort: si Supabase falla,
     // no aborta el resto de la corrida (el email ya quedó guardado en
-    // Turso de todas formas).
-    if (result.email) {
+    // Turso de todas formas). Solo si pasó el gate de precisión.
+    if (passesThreshold && result.email) {
       try {
         await getSupabaseAdmin()
           .from('prospective_companies')
@@ -201,7 +218,7 @@ export async function POST(req: Request) {
     args: [
       enriched,
       apiErrorCount === enriched && enriched > 0 ? 'error' : 'ok',
-      JSON.stringify({ enriched, found, not_found: notFound, skipped_no_officer: skippedNoOfficer, score, api_errors: apiErrorCount }),
+      JSON.stringify({ enriched, found, not_found: notFound, below_threshold: belowThreshold, min_score: minScore, skipped_no_officer: skippedNoOfficer, score, api_errors: apiErrorCount }),
       lastApiError,
       runId,
     ],
@@ -211,6 +228,8 @@ export async function POST(req: Request) {
     enriched,
     found_count: found,
     not_found_count: notFound,
+    below_threshold_count: belowThreshold,
+    min_score: minScore,
     skipped_no_officer: skippedNoOfficer,
     api_error_count: apiErrorCount,
     last_api_error: lastApiError,

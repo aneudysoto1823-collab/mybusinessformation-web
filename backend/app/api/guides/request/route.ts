@@ -11,6 +11,7 @@ import { checkGuideRequestRateLimit, getClientIp } from '@/lib/rate-limit'
 import { GuideRequestInputSchema, parseOr400 } from '@/lib/schemas'
 import { FROM_OPABIZ_MARKETING, REPLY_TO } from '@/lib/email-constants'
 import { hasReceivedGuide, recordGuideSent, getGuideAttachments, getGuideUrl } from '@/lib/guides'
+import { isSuppressed } from '@/lib/email-suppression'
 
 const getResend = () => new Resend(process.env.RESEND_API_KEY)
 
@@ -46,6 +47,17 @@ export async function POST(req: NextRequest) {
       { error: isEs ? 'Demasiados intentos. Probá de nuevo en un rato.' : 'Too many attempts. Please try again later.' },
       { status: 429 }
     )
+  }
+
+  // Si esta dirección ya generó un rebote permanente o una queja de spam,
+  // no la volvemos a usar — ni siquiera en un pedido nuevo y directo como
+  // este. Mensaje neutro, sin confirmar el motivo real (auditoría 2026-09-13/14).
+  if (await isSuppressed(email)) {
+    return NextResponse.json({
+      error: isEs
+        ? 'No pudimos enviar la guía a esa dirección. Verificá que esté bien escrita, o escribinos a info@opabiz.com.'
+        : "We couldn't deliver the guide to that address. Please double-check it, or email us at info@opabiz.com.",
+    }, { status: 422 })
   }
 
   const alreadySent = await hasReceivedGuide(email, 'guide1')

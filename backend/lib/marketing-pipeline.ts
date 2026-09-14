@@ -239,10 +239,20 @@ export async function enrichPending(marketing: Client, score: string, n: number)
  *  NO es un requisito para que un lead este "listo para carta" — una LLC sin
  *  email igual se manda a Campaigns & Letters, solo que sin ese canal extra
  *  (decision founder: "las cartas no necesitan email").
- *  Devuelve {enriched, found, notFound, apiErrors}.
+ *
+ *  minScore (% Precisión, 0-100, obligatorio — sin default a propósito):
+ *  Enformion no tiene forma de pedirle de antemano solo matches por encima
+ *  de cierta confianza (confirmado contra su documentación 2026-09-14) — el
+ *  identity_score se calcula siempre DESPUÉS del match y se cobra igual sin
+ *  importar qué tan débil sea. Por eso el filtro es nuestro, posterior a la
+ *  respuesta: un match con identity_score < minScore se descarta (no se usa
+ *  para marketing ni se sincroniza a Campaigns & Letters) pero igual se
+ *  marca como intentado (email_enriched_at) para no volver a pagarlo, y su
+ *  identity_score queda guardado para referencia.
+ *  Devuelve {enriched, found, notFound, belowThreshold, apiErrors}.
  */
-export async function enrichEmailPending(marketing: Client, score: string, n: number): Promise<{
-  enriched: number; found: number; notFound: number; apiErrors: number
+export async function enrichEmailPending(marketing: Client, score: string, n: number, minScore: number): Promise<{
+  enriched: number; found: number; notFound: number; belowThreshold: number; apiErrors: number
 }> {
   const candRes = await marketing.execute({
     sql: `SELECT document_number, officers_json, target_addr1, target_city, target_state
@@ -259,7 +269,7 @@ export async function enrichEmailPending(marketing: Client, score: string, n: nu
     args: [score, n],
   })
 
-  let enriched = 0, found = 0, notFound = 0, apiErrors = 0
+  let enriched = 0, found = 0, notFound = 0, belowThreshold = 0, apiErrors = 0
   for (const row of candRes.rows) {
     const officer = firstPersonOfficer(row.officers_json as string | null)
     if (!officer) continue // sin officer tipo persona — no cuenta como intento, no se cobra
@@ -272,8 +282,13 @@ export async function enrichEmailPending(marketing: Client, score: string, n: nu
     })
 
     if (result.error) apiErrors += 1
-    if (result.found) found += 1; else notFound += 1
     enriched += 1
+
+    // Gate de precisión: Enformion no ofrece forma de pedir esto de antemano
+    // (ver comentario del export) — se aplica acá, sobre el match ya devuelto.
+    const passesThreshold = result.found && typeof result.identity_score === 'number' && result.identity_score >= minScore
+    if (result.found && !passesThreshold) belowThreshold += 1
+    if (passesThreshold) found += 1; else if (!result.found) notFound += 1
 
     await marketing.execute({
       sql: `UPDATE marketing_leads
@@ -282,11 +297,11 @@ export async function enrichEmailPending(marketing: Client, score: string, n: nu
                 email_enriched_at = datetime('now'), enrichment_email_cost_usd = ?
             WHERE document_number = ?`,
       args: [
-        result.email,
-        result.email_is_business === null ? null : (result.email_is_business ? 1 : 0),
-        result.email_validated === null ? null : (result.email_validated ? 1 : 0),
-        result.email ? 'enformion' : null,
-        result.phone,
+        passesThreshold ? result.email : null,
+        passesThreshold ? (result.email_is_business === null ? null : (result.email_is_business ? 1 : 0)) : null,
+        passesThreshold ? (result.email_validated === null ? null : (result.email_validated ? 1 : 0)) : null,
+        passesThreshold ? 'enformion' : null,
+        passesThreshold ? result.phone : null,
         result.identity_score,
         ENFORMION_COST_PER_LEAD_USD,
         row.document_number as string,
@@ -295,8 +310,9 @@ export async function enrichEmailPending(marketing: Client, score: string, n: nu
 
     // Mismo sync best-effort que /api/marketing/enrich-email: si esta LLC ya
     // estaba en Campaigns & Letters (carta mandada antes sin email), el email
-    // le llega solo, sin que el staff tenga que reenviar nada.
-    if (result.email) {
+    // le llega solo, sin que el staff tenga que reenviar nada. Solo si pasó
+    // el gate de precisión — un match débil no se propaga a marketing.
+    if (passesThreshold && result.email) {
       try {
         await getSupabaseAdmin()
           .from('prospective_companies')
@@ -308,7 +324,7 @@ export async function enrichEmailPending(marketing: Client, score: string, n: nu
       }
     }
   }
-  return { enriched, found, notFound, apiErrors }
+  return { enriched, found, notFound, belowThreshold, apiErrors }
 }
 
 /** Cuenta cuantos leads estan LISTOS para carta:

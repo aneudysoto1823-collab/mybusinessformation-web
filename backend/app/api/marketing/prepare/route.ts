@@ -43,7 +43,7 @@ interface IterationLog {
   // validar direccion dentro del mismo loop (antes "Preparar" nunca
   // buscaba email). No es requisito para "listo" (ver countReadyLeads) —
   // las cartas se mandan igual sin email.
-  email_by_score: Record<string, { enriched: number; found: number; not_found: number; api_errors: number }>
+  email_by_score: Record<string, { enriched: number; found: number; not_found: number; below_threshold: number; api_errors: number }>
   ready_after: number
   gained: number
 }
@@ -60,12 +60,20 @@ export async function POST(req: Request) {
   const ok = token ? await verifyAdminToken(token) : false
   if (!ok) return jsonError(401, 'unauthorized')
 
-  let body: { target?: number }
+  let body: { target?: number; min_score?: number }
   try { body = await req.json() } catch { return jsonError(400, 'body no es JSON valido') }
 
   const target = Number(body.target)
   if (!Number.isInteger(target) || target < 1 || target > TARGET_MAX) {
     return jsonError(400, `target debe ser un entero entre 1 y ${TARGET_MAX}`)
+  }
+
+  // % Precisión — obligatorio, sin default. Este loop también busca email
+  // (paso "e" más abajo), así que necesita el mismo gate que
+  // /api/marketing/enrich-email antes de poder llamar a Enformion.
+  const minScore = Number(body.min_score)
+  if (!Number.isFinite(minScore) || minScore < 0 || minScore > 100) {
+    return jsonError(400, 'min_score (% Precisión) es requerido: un número entre 0 y 100')
   }
 
   let marketing, sunbiz
@@ -122,14 +130,15 @@ export async function POST(req: Request) {
       // para "listo" (una LLC sin email igual se manda a Campaigns & Letters,
       // solo para carta) — por eso corre DESPUÉS de recalcular ready, nunca
       // bloquea el conteo de "listos".
-      const emailByScore: Record<string, { enriched: number; found: number; not_found: number; api_errors: number }> = {}
+      const emailByScore: Record<string, { enriched: number; found: number; not_found: number; below_threshold: number; api_errors: number }> = {}
       for (const sc of activeScores) {
-        const emailRes = await enrichEmailPending(marketing, sc, BATCH_SIZE_EMAIL)
+        const emailRes = await enrichEmailPending(marketing, sc, BATCH_SIZE_EMAIL, minScore)
         if (emailRes.enriched > 0) {
           emailByScore[sc] = {
             enriched: emailRes.enriched,
             found: emailRes.found,
             not_found: emailRes.notFound,
+            below_threshold: emailRes.belowThreshold,
             api_errors: emailRes.apiErrors,
           }
         }
@@ -166,6 +175,7 @@ export async function POST(req: Request) {
 
     const summary = {
       target,
+      min_score: minScore,
       ready_start: readyStart,
       ready_end: ready,
       gained: ready - readyStart,

@@ -10,6 +10,7 @@ import { verifyAdminToken } from '@/lib/session'
 import { FROM_FBFC, REPLY_TO_FBFC } from '@/lib/email-constants'
 import { buildVipReminderEmail } from '@/lib/vip-reminder-email'
 import { CAMPAIGN_EMAIL_BASE_URL as BASE_URL } from '@/lib/campaign-email'
+import { isSuppressed } from '@/lib/email-suppression'
 
 async function verifyAdmin(request: NextRequest): Promise<boolean> {
   const session = request.cookies.get('admin_session')
@@ -51,6 +52,12 @@ export async function POST(req: NextRequest) {
       }
       if (company.unsubscribed) {
         results.push({ company_id: company.id, document_id: company.document_id, status: 'skipped', reason: 'unsubscribed' })
+        continue
+      }
+
+      // Ver mismo chequeo en campaigns/send/route.ts — auditoría 2026-09-13/14.
+      if (await isSuppressed(company.email)) {
+        results.push({ company_id: company.id, document_id: company.document_id, status: 'skipped', reason: 'suppressed (bounce/complaint)' })
         continue
       }
 

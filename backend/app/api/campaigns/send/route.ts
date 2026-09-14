@@ -5,6 +5,7 @@ import { verifyAdminToken } from '@/lib/session'
 import { FROM_FBFC, REPLY_TO_FBFC } from '@/lib/email-constants'
 import { hasReceivedGuide, recordGuideSent, getGuideAttachments, buildGuideBonusHtml, type GuideKey } from '@/lib/guides'
 import { buildComplianceEmail as buildEmail, CAMPAIGN_EMAIL_BASE_URL as BASE_URL } from '@/lib/campaign-email'
+import { isSuppressed } from '@/lib/email-suppression'
 
 async function verifyAdmin(request: NextRequest): Promise<boolean> {
   const session = request.cookies.get('admin_session')
@@ -53,6 +54,15 @@ export async function POST(req: NextRequest) {
       // (auditoría 2026-09-11).
       if (company.unsubscribed) {
         results.push({ company_id: company.id, document_id: company.document_id, status: 'skipped', reason: 'unsubscribed' })
+        continue
+      }
+
+      // Chequeo directo contra la lista de supresión (rebotes/quejas de
+      // Resend) — protege incluso una fila que nunca haya sido marcada
+      // unsubscribed (ej. una fila nueva creada para el mismo email después
+      // del rebote). Auditoría 2026-09-13/14.
+      if (await isSuppressed(company.email)) {
+        results.push({ company_id: company.id, document_id: company.document_id, status: 'skipped', reason: 'suppressed (bounce/complaint)' })
         continue
       }
 

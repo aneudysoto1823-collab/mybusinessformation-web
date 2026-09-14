@@ -65,7 +65,7 @@ type PrepareResult = {
     discarded_by_settings: number
     enriched_by_score: Record<string, { enriched: number; validated: number; invalid: number; api_errors: number }>
     // Búsqueda de email (Enformion) — agregada 2026-09-13 al loop de Preparar.
-    email_by_score: Record<string, { enriched: number; found: number; not_found: number; api_errors: number }>
+    email_by_score: Record<string, { enriched: number; found: number; not_found: number; below_threshold: number; api_errors: number }>
     ready_after: number
     gained: number
   }>
@@ -131,6 +131,8 @@ type EmailEnrichRunResult = {
   enriched: number
   found_count: number
   not_found_count: number
+  below_threshold_count: number
+  min_score: number
   skipped_no_officer: number
   api_error_count: number
   last_api_error: string | null
@@ -175,6 +177,19 @@ export default function MarketingPage() {
   const [enrichRunning, setEnrichRunning] = useState(false)
   const [enrichResult, setEnrichResult]   = useState<EnrichRunResult | null>(null)
   const [enrichError, setEnrichError]     = useState<string | null>(null)
+
+  // % Precisión (identity_score mínimo de Enformion) — compartido entre
+  // "Preparar leads listos" y "Buscar emails ahora" (ambos disparan la misma
+  // búsqueda contra Enformion internamente). Vacío por defecto A PROPÓSITO
+  // (decisión founder 2026-09-14): mientras se construye el historial del
+  // dominio nuevo, no debe haber un valor por defecto que deje pasar matches
+  // débiles sin que alguien lo haya decidido a propósito. minMatchScoreTouched
+  // solo se prende cuando se intenta disparar sin valor, para no mostrar el
+  // campo en rojo en el primer render.
+  const [minMatchScore, setMinMatchScore] = useState('')
+  const [minMatchScoreTouched, setMinMatchScoreTouched] = useState(false)
+  const minMatchScoreNum = minMatchScore === '' ? NaN : Number(minMatchScore)
+  const minMatchScoreValid = Number.isFinite(minMatchScoreNum) && minMatchScoreNum >= 0 && minMatchScoreNum <= 100
 
   // Bloque 3.5 state — email (Enformion)
   const [emailEnrichStats, setEmailEnrichStats] = useState<EmailEnrichStats | null>(null)
@@ -279,13 +294,16 @@ export default function MarketingPage() {
   const runPrepare = async () => {
     if (prepareRunning) return
     if (!Number.isInteger(prepareTarget) || prepareTarget < 1) { setPrepareError('Target debe ser entero >= 1'); return }
-    if (!confirm(`Preparar ${prepareTarget} leads listos para carta?\n\nEl sistema repite estos pasos hasta llegar a esa cantidad (o hasta 6 vueltas): traer LLC nuevas → clasificar → validar dirección → buscar email (Enformion). Puede tardar 3-5 min.\n\nBuscar email tiene un costo real por cada uno que SÍ se encuentra (Enformion) — un lead sin email igual queda listo para carta, solo que sin ese canal extra.\n\nConfirmar?`)) return
+    // Este flujo también busca email (Enformion) internamente — mismo gate
+    // obligatorio que "Buscar emails ahora". Sin valor, no dispara nada.
+    if (!minMatchScoreValid) { setMinMatchScoreTouched(true); return }
+    if (!confirm(`Preparar ${prepareTarget} leads listos para carta?\n\nEl sistema repite estos pasos hasta llegar a esa cantidad (o hasta 6 vueltas): traer LLC nuevas → clasificar → validar dirección → buscar email (Enformion, solo usa matches con ${minMatchScoreNum}% de precisión o más). Puede tardar 3-5 min.\n\nBuscar email tiene un costo real por cada uno que SÍ se encuentra (Enformion) — un lead sin email igual queda listo para carta, solo que sin ese canal extra.\n\nConfirmar?`)) return
     setPrepareRunning(true); setPrepareError(null); setPrepareResult(null)
     try {
       const res = await fetch('/api/marketing/prepare', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ target: prepareTarget }),
+        body: JSON.stringify({ target: prepareTarget, min_score: minMatchScoreNum }),
       })
       const text = await res.text()
       let data: PrepareResult & { error?: string } = {} as PrepareResult & { error?: string }
@@ -423,9 +441,10 @@ export default function MarketingPage() {
   const runEnrichEmail = async () => {
     if (emailEnrichRunning) return
     if (!Number.isInteger(emailEnrichN) || emailEnrichN < 1) { setEmailEnrichError('N debe ser entero >= 1'); return }
+    if (!minMatchScoreValid) { setMinMatchScoreTouched(true); return }
     const estCost = (emailEnrichN * (emailEnrichStats?.cost_per_lead_usd ?? 0.10)).toFixed(2)
     const dateNote = (emailEnrichFrom || emailEnrichTo) ? `\n\nFiling date: ${emailEnrichFrom || '(sin límite)'} → ${emailEnrichTo || '(sin límite)'}` : ''
-    if (!confirm(`Buscar email de ${emailEnrichN} leads score ${emailEnrichScore}?${dateNote}\n\nCosto MÁXIMO estimado: $${estCost} USD (Enformion solo cobra los que sí encuentran match — placeholder hasta confirmar precio real del plan pago).\n\nConfirmar?`)) return
+    if (!confirm(`Buscar email de ${emailEnrichN} leads score ${emailEnrichScore}, usando solo matches con ${minMatchScoreNum}% de precisión o más?${dateNote}\n\nCosto MÁXIMO estimado: $${estCost} USD (Enformion cobra por cada match encontrado, incluso los que después descartemos por baja precisión — placeholder hasta confirmar precio real del plan pago).\n\nConfirmar?`)) return
     setEmailEnrichRunning(true); setEmailEnrichError(null); setEmailEnrichResult(null)
     try {
       const res = await fetch('/api/marketing/enrich-email', {
@@ -434,6 +453,7 @@ export default function MarketingPage() {
         body: JSON.stringify({
           n: emailEnrichN, score: emailEnrichScore,
           date_from: emailEnrichFrom || undefined, date_to: emailEnrichTo || undefined,
+          min_score: minMatchScoreNum,
         }),
       })
       const text = await res.text()
@@ -654,10 +674,27 @@ export default function MarketingPage() {
                   />
                   <span style={S.inputHint}>leads</span>
                 </div>
+                <div style={S.controlGroup}>
+                  <label style={S.inputLabel}>% Precisión mínima (Enformion)</label>
+                  <input
+                    type="number"
+                    min={0}
+                    max={100}
+                    placeholder="ej. 70"
+                    value={minMatchScore}
+                    onChange={e => { setMinMatchScore(e.target.value); setMinMatchScoreTouched(false) }}
+                    disabled={prepareRunning || emailEnrichRunning}
+                    style={minMatchScoreTouched && !minMatchScoreValid ? S.numInputError : S.numInput}
+                  />
+                  <span style={S.inputHint}>%</span>
+                </div>
                 <button onClick={runPrepare} disabled={prepareRunning} style={prepareRunning ? S.btnDisabled : {...S.btnPrimary, background: '#1d4ed8'}}>
                   {prepareRunning ? 'Preparando… (puede tardar 3-5 min)' : 'Preparar ahora'}
                 </button>
               </div>
+              {minMatchScoreTouched && !minMatchScoreValid && (
+                <div style={S.errBox}>Ingresá el % de precisión mínima (0-100) antes de buscar email — se usa para no aceptar matches débiles de Enformion.</div>
+              )}
 
               {prepareError && <div style={S.errBox}>Error: {prepareError}</div>}
 
@@ -687,7 +724,7 @@ export default function MarketingPage() {
                           <div key={it.iteration} style={{padding: '4px 0', borderTop: '1px dashed #e5e7eb'}}>
                             <b>Vuelta {it.iteration}:</b> expiró {it.expired}, sync {it.synced}, clasificó {it.classified} ({Object.entries(it.score_dist).map(([k,v])=>`${k}:${v}`).join(' ')}), descartó {it.discarded_by_settings}.
                             Dirección: {Object.entries(it.enriched_by_score).map(([sc, e]) => `${sc}:${e.enriched}(✓${e.validated}/✗${e.invalid})`).join(', ') || '—'}.
-                            {Object.keys(it.email_by_score ?? {}).length > 0 && <> Email: {Object.entries(it.email_by_score).map(([sc, e]) => `${sc}:${e.enriched}(✓${e.found}/✗${e.not_found})`).join(', ')}.</>}
+                            {Object.keys(it.email_by_score ?? {}).length > 0 && <> Email: {Object.entries(it.email_by_score).map(([sc, e]) => `${sc}:${e.enriched}(✓${e.found}/✗${e.not_found}${e.below_threshold > 0 ? `/⚠${e.below_threshold} baja precisión` : ''})`).join(', ')}.</>}
                             <span style={{color: it.gained > 0 ? '#059669' : '#dc2626'}}> Ganó +{it.gained} listas (total: {it.ready_after})</span>
                           </div>
                         ))}
@@ -1019,6 +1056,20 @@ export default function MarketingPage() {
                     <button style={S.btnGhost} onClick={() => { setEmailEnrichFrom(''); setEmailEnrichTo('') }} disabled={emailEnrichRunning}>✕</button>
                   )}
                 </div>
+                <div style={S.controlGroup}>
+                  <label style={S.inputLabel}>% Precisión mínima</label>
+                  <input
+                    type="number"
+                    min={0}
+                    max={100}
+                    placeholder="ej. 70"
+                    value={minMatchScore}
+                    onChange={e => { setMinMatchScore(e.target.value); setMinMatchScoreTouched(false) }}
+                    disabled={emailEnrichRunning || prepareRunning}
+                    style={minMatchScoreTouched && !minMatchScoreValid ? S.numInputError : S.numInput}
+                  />
+                  <span style={S.inputHint}>%</span>
+                </div>
                 <button onClick={runEnrichEmail} disabled={emailEnrichRunning || emailEnrichPending === 0} style={emailEnrichRunning || emailEnrichPending === 0 ? S.btnDisabled : S.btnPrimary}>
                   {emailEnrichRunning ? 'Buscando...' : `Buscar emails ${emailEnrichPending === 0 ? '(no hay pendientes)' : 'ahora'}`}
                 </button>
@@ -1035,6 +1086,9 @@ export default function MarketingPage() {
                   {sendToLettersRunning ? 'Enviando…' : '📬 Enviar leads a Campañas y Cartas'}
                 </button>
               </div>
+              {minMatchScoreTouched && !minMatchScoreValid && (
+                <div style={S.errBox}>Ingresá el % de precisión mínima (0-100) antes de buscar email — se usa para no aceptar matches débiles de Enformion.</div>
+              )}
               {sendToLettersError && <div style={S.errBox}>Error: {sendToLettersError}</div>}
               {sendToLettersResult && (
                 <div style={{...S.resultBox, background: '#f0fdf4', border: '1px solid #bbf7d0'}}>
@@ -1051,13 +1105,18 @@ export default function MarketingPage() {
 
               {emailEnrichResult && (
                 <div style={S.resultBox}>
-                  <div style={S.resultTitle}>Última corrida</div>
+                  <div style={S.resultTitle}>Última corrida — precisión mínima usada: {emailEnrichResult.min_score}%</div>
                   <div style={S.resultGrid}>
                     <div><b>{emailEnrichResult.enriched}</b> procesadas</div>
                     <div style={{color:'#059669'}}><b>{emailEnrichResult.found_count}</b> con email</div>
                     <div style={{color:'#6b7280'}}><b>{emailEnrichResult.not_found_count}</b> sin match</div>
                     <div><b>{(emailEnrichResult.elapsed_ms / 1000).toFixed(1)}s</b> total</div>
                   </div>
+                  {emailEnrichResult.below_threshold_count > 0 && (
+                    <div style={{...S.lastRun, marginTop: 8, color: '#b45309'}}>
+                      {emailEnrichResult.below_threshold_count} matches encontrados pero descartados por quedar por debajo del {emailEnrichResult.min_score}% de precisión (ya se le pagó a Enformion por ellos, no se re-cobrarán).
+                    </div>
+                  )}
                   {emailEnrichResult.skipped_no_officer > 0 && (
                     <div style={{...S.lastRun, marginTop: 8}}>
                       {emailEnrichResult.skipped_no_officer} leads sin officer tipo persona (se saltearon, no se les cobró).
@@ -1248,6 +1307,7 @@ const S = {
   inputLabel:  { fontSize: 14, color: '#374151', fontWeight: 500 } as const,
   inputHint:   { fontSize: 13, color: '#6b7280' } as const,
   numInput:    { width: 100, padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: 16, textAlign: 'center' as const } as const,
+  numInputError: { width: 100, padding: '8px 12px', border: '2px solid #dc2626', background: '#fef2f2', borderRadius: 6, fontSize: 16, textAlign: 'center' as const } as const,
   select:      { padding: '7px 10px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: 14 } as const,
   cost:        { fontSize: 13, color: '#6b7280' } as const,
   btnPrimary:  { padding: '10px 20px', background: '#2563EB', color: '#fff', border: 'none', borderRadius: 6, fontSize: 14, fontWeight: 600, cursor: 'pointer' } as const,
