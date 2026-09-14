@@ -26,6 +26,13 @@ type Company = {
   // cuál de las dos.
   carta_sent_at: string | null
   vip_reminder_sent_at: string | null
+  // % Precisión de Enformion para este email, si vino de ahí — null para
+  // emails cargados a mano o de otra fuente (se tratan siempre como
+  // confiables, ver filtro de precisión más abajo). Pedido founder
+  // 2026-09-14: un match débil ya no se descarta al buscarlo en Marketing
+  // Saliente, se guarda igual — este filtro decide acá, en Campaigns &
+  // Letters, a quién de verdad emailear vs a quién imprimirle la carta.
+  identity_score: number | null
 }
 
 // Registro de templates disponibles (pedido founder 2026-09-14): antes había
@@ -118,6 +125,16 @@ export default function CampaignsPage() {
   // distinguirlas antes de decidir a quién mandarle email vs a quién
   // imprimirle la carta. Solo aplica visualmente cuando filterContact==='new'.
   const [emailTab, setEmailTab] = useState<'with_email' | 'without_email'>('with_email')
+  // Filtro de % Precisión propio de Campaigns & Letters (pedido founder
+  // 2026-09-14) — INDEPENDIENTE del que se usa en Marketing Saliente al
+  // buscar con Enformion. 0 = sin filtro, muestra todos los que tienen
+  // email. Una empresa con email pero identity_score por debajo de esto cae
+  // al tab "Sin Email" (imprimible), aunque el dato exista — decisión
+  // founder: "no importa que tengan email, si el rating es bajo quiero
+  // poder mandarles la carta igual". Emails sin identity_score (cargados a
+  // mano, o de otra fuente distinta a Enformion) siempre pasan el filtro —
+  // no hay score que juzgar, se asumen confiables.
+  const [minRatingFilter, setMinRatingFilter] = useState<number>(0)
   // "Enviar/seleccionar en paquetes" — atajo para preseleccionar las primeras
   // N empresas del tab activo, pensado para el calentamiento gradual del
   // dominio nuevo (mandar de a tandas chicas, no todo el volumen de una vez).
@@ -203,11 +220,17 @@ export default function CampaignsPage() {
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { fetchStats(); fetchCompanies() }, [fetchStats, fetchCompanies])
 
+  // "Apto para email" = tiene email Y (sin identity_score, o identity_score
+  // >= el filtro de precisión propio de este panel). Todo lo que no cumple
+  // esto cae al tab "Sin Email" para imprimir, aunque tenga un email
+  // guardado — es exactamente el pedido founder 2026-09-14.
+  const emailEligible = (c: Company) => !!c.email && (c.identity_score === null || c.identity_score >= minRatingFilter)
+
   // Lista realmente mostrada en la tabla — igual a `companies` salvo dentro
   // de "New", donde además se filtra por el tab con/sin email activo. Todo
   // lo que selecciona/cuenta/renderiza usa esto, no `companies` directo.
   const visibleCompanies = filterContact === 'new'
-    ? companies.filter(c => (emailTab === 'with_email' ? !!c.email : !c.email))
+    ? companies.filter(c => (emailTab === 'with_email' ? emailEligible(c) : !emailEligible(c)))
     : companies
 
   // ─── Selección (checkboxes) ─────────────────────────────────────────────────
@@ -229,7 +252,7 @@ export default function CampaignsPage() {
   // tener que tildar una por una.
   function selectPackage() {
     if (packageSize < 1) return
-    const pool = visibleCompanies.filter(c => !!c.email)
+    const pool = visibleCompanies.filter(emailEligible)
     setSelectedIds(new Set(pool.slice(0, packageSize).map(c => c.id)))
   }
 
@@ -387,7 +410,7 @@ export default function CampaignsPage() {
   // antes, que solo miraba `status==='new'` sin distinguir cuál campaña.
   async function sendToAllNew() {
     if (paused) return
-    const eligible = companies.filter(c => c.email && !c[selectedTemplate.sentAtField])
+    const eligible = companies.filter(c => emailEligible(c) && !c[selectedTemplate.sentAtField])
     if (eligible.length === 0) { setSendMsg(`No companies eligible for ${selectedTemplate.label}.`); return }
     if (!confirm(`Send ${selectedTemplate.label} to ${eligible.length} companies?`)) return
     await sendTemplateBatch(eligible, selectedTemplate)
@@ -711,7 +734,7 @@ export default function CampaignsPage() {
                   border: '1.5px solid ' + (emailTab === 'with_email' ? '#2563EB' : '#E2E8F0'),
                 }}
               >
-                📧 Con Email ({companies.filter(c => !!c.email).length})
+                📧 Con Email ({companies.filter(emailEligible).length})
               </button>
               <button
                 onClick={() => { setEmailTab('without_email'); setSelectedIds(new Set()) }}
@@ -722,8 +745,23 @@ export default function CampaignsPage() {
                   border: '1.5px solid ' + (emailTab === 'without_email' ? '#2563EB' : '#E2E8F0'),
                 }}
               >
-                📄 Sin Email ({companies.filter(c => !c.email).length})
+                📄 Sin Email ({companies.filter(c => !emailEligible(c)).length})
               </button>
+              {/* Filtro de % Precisión propio de este panel (pedido founder
+                  2026-09-14) — independiente del que se usa en Marketing
+                  Saliente al buscar con Enformion. Una empresa con email pero
+                  identity_score por debajo de esto cae a "Sin Email" para
+                  poder imprimirle la carta en su lugar. */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginLeft: 8 }}>
+                <span style={{ fontSize: '.78rem', color: '#475569' }}>% Precisión mínima:</span>
+                <input
+                  type="number" min={0} max={100}
+                  value={minRatingFilter}
+                  onChange={e => setMinRatingFilter(Number(e.target.value))}
+                  title="Empresas con email pero por debajo de este % caen a Sin Email, para imprimirles la carta"
+                  style={{ width: 60, padding: '4px 8px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: '.8rem', textAlign: 'center' }}
+                />
+              </div>
             </div>
           )}
 
@@ -744,7 +782,7 @@ export default function CampaignsPage() {
                 </div>
                 <span style={{ width: 1, background: '#E2E8F0', margin: '2px 4px', alignSelf: 'stretch' }} />
                 <button className="btn btn-green btn-sm" onClick={sendToAllNew} disabled={sendingAll || paused}>
-                  {sendingAll ? 'Sending...' : `📨 Send ${selectedTemplate.label} to All Eligible (${companies.filter(c => c.email && !c[selectedTemplate.sentAtField]).length})`}
+                  {sendingAll ? 'Sending...' : `📨 Send ${selectedTemplate.label} to All Eligible (${companies.filter(c => emailEligible(c) && !c[selectedTemplate.sentAtField]).length})`}
                 </button>
               </>
             )}
@@ -841,7 +879,17 @@ export default function CampaignsPage() {
                           {c.vip_reminder_sent_at && <div style={{ fontSize: '.7rem', color: '#059669', fontWeight: 600, marginTop: 2 }}>✅ VIP sent {new Date(c.vip_reminder_sent_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>}
                         </td>
                         <td><span style={{ fontFamily: 'monospace', fontSize: '.8rem', color: '#475569', background: '#F8FAFC', padding: '2px 7px', borderRadius: 5 }}>{c.document_id}</span></td>
-                        <td style={{ color: c.email ? '#374151' : '#CBD5E1', fontSize: '.8rem' }}>{c.email || '—'}</td>
+                        <td style={{ color: c.email ? '#374151' : '#CBD5E1', fontSize: '.8rem' }}>
+                          {c.email || '—'}
+                          {/* % Precisión visible cuando viene de Enformion — así se ve
+                              a simple vista por qué una empresa con email cayó en "Sin
+                              Email" (pedido founder 2026-09-14). */}
+                          {c.email && c.identity_score !== null && (
+                            <div style={{ fontSize: '.68rem', fontWeight: 600, marginTop: 2, color: c.identity_score >= minRatingFilter ? '#059669' : '#dc2626' }}>
+                              {c.identity_score}% precisión
+                            </div>
+                          )}
+                        </td>
                         <td style={{ color: '#64748b', fontSize: '.78rem' }}>{c.registration_date ? new Date(c.registration_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '—'}</td>
                         <td><span style={{ background: '#F1F5F9', color: '#475569', padding: '2px 8px', borderRadius: 5, fontSize: '.72rem', fontWeight: 700 }}>{c.company_type}</span></td>
                         <td>

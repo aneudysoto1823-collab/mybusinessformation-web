@@ -77,7 +77,7 @@ export async function POST(req: NextRequest) {
     // contactado todavía.
     const readyRes = await marketing.execute({
       sql: `SELECT document_number, entity_name, entity_type, filing_date, officers_json,
-                   target_addr1, target_addr2, target_city, target_state, target_zip, email
+                   target_addr1, target_addr2, target_city, target_state, target_zip, email, identity_score
             FROM marketing_leads
             WHERE procesada = 1 AND descartada = 0
               AND address_validated = 1
@@ -105,7 +105,12 @@ export async function POST(req: NextRequest) {
       // Enformion (Bloque 3.5) ya pudo haber conseguido el email antes de que
       // este puente corra — si lo tiene, viaja con el lead. Si no, sigue en
       // null (mismo comportamiento de siempre, solo funciona el flujo de carta).
+      // identity_score viaja junto al email (2026-09-14) — ya no se descarta
+      // un match débil, se guarda igual para que Campaigns & Letters decida
+      // con su propio filtro de precisión a quién emailear vs a quién
+      // imprimirle la carta.
       email:              (r.email as string | null) || null,
+      identity_score:     (r.identity_score as number | null) ?? null,
       registration_date:  (r.filing_date as string | null) || null,
       status:             'new' as const,
       note:               'Importado de Marketing Saliente',

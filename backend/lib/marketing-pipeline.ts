@@ -244,11 +244,19 @@ export async function enrichPending(marketing: Client, score: string, n: number)
  *  Enformion no tiene forma de pedirle de antemano solo matches por encima
  *  de cierta confianza (confirmado contra su documentación 2026-09-14) — el
  *  identity_score se calcula siempre DESPUÉS del match y se cobra igual sin
- *  importar qué tan débil sea. Por eso el filtro es nuestro, posterior a la
- *  respuesta: un match con identity_score < minScore se descarta (no se usa
- *  para marketing ni se sincroniza a Campaigns & Letters) pero igual se
- *  marca como intentado (email_enriched_at) para no volver a pagarlo, y su
- *  identity_score queda guardado para referencia.
+ *  importar qué tan débil sea.
+ *
+ *  Cambio 2026-09-14 (mismo día, sesión de la noche): un match por debajo de
+ *  minScore YA NO se descarta — se guarda igual (email + identity_score),
+ *  incluyendo la sincronización a Campaigns & Letters. `minScore` pasó de
+ *  ser un gate de descarte a ser solo el corte de reporte (found vs
+ *  belowThreshold) que se muestra en el panel de Marketing Saliente. La
+ *  decisión real de "a quién le mando email vs a quién le imprimo la carta"
+ *  ahora vive en Campaigns & Letters, con su propio filtro de precisión
+ *  independiente — así el founder puede subir o bajar ese corte sin
+ *  depender de con qué % buscó originalmente ni volver a pagarle a
+ *  Enformion. Decisión founder: "no importa que tengan email, si el rating
+ *  es bajo quiero poder mandarles la carta igual".
  *  Devuelve {enriched, found, notFound, belowThreshold, apiErrors}.
  */
 export async function enrichEmailPending(marketing: Client, score: string, n: number, minScore: number): Promise<{
@@ -284,11 +292,11 @@ export async function enrichEmailPending(marketing: Client, score: string, n: nu
     if (result.error) apiErrors += 1
     enriched += 1
 
-    // Gate de precisión: Enformion no ofrece forma de pedir esto de antemano
-    // (ver comentario del export) — se aplica acá, sobre el match ya devuelto.
-    const passesThreshold = result.found && typeof result.identity_score === 'number' && result.identity_score >= minScore
-    if (result.found && !passesThreshold) belowThreshold += 1
-    if (passesThreshold) found += 1; else if (!result.found) notFound += 1
+    // Ya no gatea el guardado — solo el conteo de reporte. Ver comentario
+    // del export para el porqué del cambio 2026-09-14.
+    const meetsReportThreshold = result.found && typeof result.identity_score === 'number' && result.identity_score >= minScore
+    if (result.found && !meetsReportThreshold) belowThreshold += 1
+    if (meetsReportThreshold) found += 1; else if (!result.found) notFound += 1
 
     await marketing.execute({
       sql: `UPDATE marketing_leads
@@ -297,11 +305,11 @@ export async function enrichEmailPending(marketing: Client, score: string, n: nu
                 email_enriched_at = datetime('now'), enrichment_email_cost_usd = ?
             WHERE document_number = ?`,
       args: [
-        passesThreshold ? result.email : null,
-        passesThreshold ? (result.email_is_business === null ? null : (result.email_is_business ? 1 : 0)) : null,
-        passesThreshold ? (result.email_validated === null ? null : (result.email_validated ? 1 : 0)) : null,
-        passesThreshold ? 'enformion' : null,
-        passesThreshold ? result.phone : null,
+        result.email,
+        result.email_is_business === null ? null : (result.email_is_business ? 1 : 0),
+        result.email_validated === null ? null : (result.email_validated ? 1 : 0),
+        result.email ? 'enformion' : null,
+        result.phone,
         result.identity_score,
         ENFORMION_COST_PER_LEAD_USD,
         row.document_number as string,
@@ -310,13 +318,15 @@ export async function enrichEmailPending(marketing: Client, score: string, n: nu
 
     // Mismo sync best-effort que /api/marketing/enrich-email: si esta LLC ya
     // estaba en Campaigns & Letters (carta mandada antes sin email), el email
-    // le llega solo, sin que el staff tenga que reenviar nada. Solo si pasó
-    // el gate de precisión — un match débil no se propaga a marketing.
-    if (passesThreshold && result.email) {
+    // Y su identity_score le llegan solos, sin que el staff tenga que
+    // reenviar nada — siempre, sin importar el % de precisión (el filtro de
+    // a quién emailear vs a quién imprimirle la carta vive en Campaigns &
+    // Letters, no acá).
+    if (result.email) {
       try {
         await getSupabaseAdmin()
           .from('prospective_companies')
-          .update({ email: result.email })
+          .update({ email: result.email, identity_score: result.identity_score })
           .eq('document_id', (row.document_number as string).toUpperCase())
           .is('email', null)
       } catch (e) {

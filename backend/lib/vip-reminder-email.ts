@@ -81,6 +81,20 @@ export function buildVipReminderEmail(company: CampaignCompany, lang: 'en' | 'es
 
   const introHtml = introParas.map(p => `<p style="color:#475569;font-size:13.5px;line-height:1.7;margin:0 0 12px">${p}</p>`).join('')
 
+  // Bug real encontrado 2026-09-14 probando el envío desde el celular: el
+  // dominio y "Compliance Reminder" del membrete usaban
+  // rgba(255,255,255,.55-.6) (blanco semi-transparente) — varios clientes de
+  // correo en mobile (Gmail app, Outlook mobile, modo oscuro) no soportan
+  // bien el canal alpha en color de texto y lo renderizan invisible/oscuro,
+  // aunque en desktop se viera perfecto. Reemplazado por un color sólido
+  // (#B9C6DA) que se ve igual a simple vista pero renderiza consistente en
+  // todos los clientes. De paso, "mybusinessformation.com" nunca fue un link
+  // de verdad (era un <div> con texto) — ahora es <a href> real.
+  //
+  // Debajo del saludo se agregó tipo de entidad + Número de Documento, uno
+  // debajo del otro (pedido founder 2026-09-14) — mismos datos que ya
+  // muestra el recuadro de registro de Carta Nuevas Empresas, acá en
+  // formato simple porque este email no tiene ese recuadro.
   const html = `<!DOCTYPE html>
 <html lang="${lang}">
 <head>
@@ -104,11 +118,11 @@ export function buildVipReminderEmail(company: CampaignCompany, lang: 'en' | 'es
                   </td>
                   <td style="padding-left:12px">
                     <div style="color:#fff;font-size:15px;font-weight:700;font-family:Georgia,serif">Florida Business Formation Center</div>
-                    <div style="color:rgba(255,255,255,.6);font-size:11px;letter-spacing:.5px">mybusinessformation.com</div>
+                    <a href="https://mybusinessformation.com" style="color:#B9C6DA;font-size:11px;letter-spacing:.5px;text-decoration:none">mybusinessformation.com</a>
                   </td>
                 </tr></table>
               </td>
-              <td align="right" style="color:rgba(255,255,255,.55);font-size:11px;text-transform:uppercase;letter-spacing:.5px">
+              <td align="right" style="color:#B9C6DA;font-size:11px;text-transform:uppercase;letter-spacing:.5px">
                 ${isEs ? 'Recordatorio de Cumplimiento' : 'Compliance Reminder'}
               </td>
             </tr></table>
@@ -118,8 +132,12 @@ export function buildVipReminderEmail(company: CampaignCompany, lang: 'en' | 'es
         <!-- Cuerpo -->
         <tr>
           <td style="background:#fff;padding:32px 36px 8px">
-            <p style="color:#1C2E44;font-size:15px;font-weight:700;margin:0 0 14px">
+            <p style="color:#1C2E44;font-size:15px;font-weight:700;margin:0 0 4px">
               ${isEs ? `Hola${company.owner_name ? ' ' + company.owner_name : ''},` : `Hello${company.owner_name ? ' ' + company.owner_name : ''},`}
+            </p>
+            <p style="color:#64748b;font-size:12px;line-height:1.6;margin:0 0 14px">
+              ${company.company_type}<br/>
+              ${company.document_id}
             </p>
             ${introHtml}
           </td>

@@ -101,6 +101,13 @@ export function buildComplianceEmail(company: CampaignCompany, trackUrl: string,
       </td>
     </tr>`).join('')
 
+  // Mismo bug/fix real que vip-reminder-email.ts (encontrado 2026-09-14
+  // probando el envío desde el celular): rgba(255,255,255,.55-.6) en texto
+  // sobre navy se ve invisible/oscuro en varios clientes de correo mobile
+  // (no soportan bien el canal alpha en color de texto), aunque en desktop
+  // se viera perfecto — reemplazado por un color sólido (#B9C6DA). De paso,
+  // "mybusinessformation.com" pasa a ser un <a href> real, antes era un
+  // <div> con texto sin link.
   const html = `<!DOCTYPE html>
 <html lang="${lang}">
 <head>
@@ -124,11 +131,11 @@ export function buildComplianceEmail(company: CampaignCompany, trackUrl: string,
                   </td>
                   <td style="padding-left:12px">
                     <div style="color:#fff;font-size:15px;font-weight:700;font-family:Georgia,serif">Florida Business Formation Center</div>
-                    <div style="color:rgba(255,255,255,.6);font-size:11px;letter-spacing:.5px">mybusinessformation.com</div>
+                    <a href="https://mybusinessformation.com" style="color:#B9C6DA;font-size:11px;letter-spacing:.5px;text-decoration:none">mybusinessformation.com</a>
                   </td>
                 </tr></table>
               </td>
-              <td align="right" style="color:rgba(255,255,255,.55);font-size:11px;text-transform:uppercase;letter-spacing:.5px">
+              <td align="right" style="color:#B9C6DA;font-size:11px;text-transform:uppercase;letter-spacing:.5px">
                 ${isEs ? 'Aviso Informativo' : 'Information Notice'}
               </td>
             </tr></table>
