@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { generateNewBusinessLetter, type Lang } from '@/lib/new-business-letter'
+import { generateNewBusinessLetter, entityLabelForLetter, formatLongDateForLetter, type Lang } from '@/lib/new-business-letter'
 import { verifyAdminToken } from '@/lib/session'
 
 export const dynamic = 'force-dynamic'
@@ -8,26 +8,6 @@ async function verifyAdmin(req: NextRequest): Promise<boolean> {
   const session = req.cookies.get('admin_session')
   if (!session?.value) return false
   return verifyAdminToken(session.value)
-}
-
-// Florida entity type label a partir del company_type de Sunbiz, localizado por idioma
-function entityLabel(companyType: string | undefined, lang: Lang): string {
-  const maps: Record<Lang, Record<string, string>> = {
-    en: { LLC: 'Florida LLC', CORP: 'Florida Corporation', PA: 'Florida P.A.', LTD: 'Florida Limited Partnership' },
-    es: { LLC: 'LLC de Florida', CORP: 'Corporación de Florida', PA: 'P.A. de Florida', LTD: 'Sociedad Limitada de Florida' },
-  }
-  const key = (companyType || '').toUpperCase()
-  const fallback = lang === 'es' ? (key ? `${key} de Florida` : 'LLC de Florida') : (key ? `Florida ${key}` : 'Florida LLC')
-  return maps[lang][key] || fallback
-}
-
-// Fecha en formato largo localizado. Date-only se parsea sin shift de timezone.
-function formatLong(input: string | undefined, lang: Lang): string {
-  if (!input) return ''
-  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(input)
-  const d = m ? new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])) : new Date(input)
-  if (isNaN(d.getTime())) return input
-  return d.toLocaleDateString(lang === 'es' ? 'es-ES' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' })
 }
 
 // POST /api/campaigns/generate-letter
@@ -60,9 +40,9 @@ export async function POST(req: NextRequest) {
       address,
       city,
       zip,
-      registrationDate: formatLong(registrationDate, lang),
+      registrationDate: formatLongDateForLetter(registrationDate, lang),
       noticeDate,
-      entityType: entityLabel(companyType, lang),
+      entityType: entityLabelForLetter(companyType, lang),
       payUrl,
       lang,
     })

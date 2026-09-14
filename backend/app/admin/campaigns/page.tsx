@@ -28,6 +28,42 @@ type Company = {
   vip_reminder_sent_at: string | null
 }
 
+// Registro de templates disponibles (pedido founder 2026-09-14): antes había
+// un botón fijo por cada campaña (Carta Nuevas Empresas, Oferta VIP),
+// duplicando toda la lógica de envío/preview/reenvío dos veces. Agregar un
+// template NUEVO en el futuro es: construir su ruta de envío + preview (como
+// ya existen para estas 2) y sumar UNA entrada acá — el selector y todos los
+// botones de la UI lo levantan solos, sin tocar el resto del panel. NO es un
+// editor de contenido sin código (eso sería un proyecto aparte) — el
+// contenido de cada template lo sigue programando un developer.
+type CampaignTemplate = {
+  id: string
+  label: string
+  sendEndpoint: string
+  previewEndpoint: string
+  sentAtField: 'carta_sent_at' | 'vip_reminder_sent_at'
+  color: string
+}
+
+const TEMPLATES: CampaignTemplate[] = [
+  {
+    id: 'carta_nuevas_empresas',
+    label: 'Carta Nuevas Empresas',
+    sendEndpoint: '/api/campaigns/send',
+    previewEndpoint: '/api/campaigns/preview-email',
+    sentAtField: 'carta_sent_at',
+    color: '#2563EB',
+  },
+  {
+    id: 'oferta_vip',
+    label: 'Oferta VIP',
+    sendEndpoint: '/api/campaigns/send-vip-reminder',
+    previewEndpoint: '/api/campaigns/preview-vip-reminder',
+    sentAtField: 'vip_reminder_sent_at',
+    color: '#059669',
+  },
+]
+
 type Stats = {
   totalCompanies: number
   emailsToday: number
@@ -70,6 +106,23 @@ export default function CampaignsPage() {
 
   // Selección con checkboxes — borrado en lote y "marcar como enviada" en lote.
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+
+  // Template actualmente elegido para enviar/previsualizar/contar elegibles
+  // — un solo selector maneja los botones por-fila y las acciones masivas,
+  // en vez de un botón fijo duplicado por cada campaña.
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string>(TEMPLATES[0].id)
+  const selectedTemplate = TEMPLATES.find(tpl => tpl.id === selectedTemplateId) ?? TEMPLATES[0]
+
+  // Separación con-email / sin-email dentro de la lista "New" (pedido
+  // founder 2026-09-14): antes se mezclaban en la misma tabla sin forma de
+  // distinguirlas antes de decidir a quién mandarle email vs a quién
+  // imprimirle la carta. Solo aplica visualmente cuando filterContact==='new'.
+  const [emailTab, setEmailTab] = useState<'with_email' | 'without_email'>('with_email')
+  // "Enviar/seleccionar en paquetes" — atajo para preseleccionar las primeras
+  // N empresas del tab activo, pensado para el calentamiento gradual del
+  // dominio nuevo (mandar de a tandas chicas, no todo el volumen de una vez).
+  const [packageSize, setPackageSize] = useState<number>(50)
+  const [printing, setPrinting] = useState(false)
   const [bulkDeleting, setBulkDeleting] = useState(false)
   const [bulkMarking,  setBulkMarking]  = useState(false)
   const [bulkMsg,      setBulkMsg]      = useState('')
@@ -78,10 +131,6 @@ export default function CampaignsPage() {
   const [sendingId,   setSendingId]   = useState<string | null>(null)
   const [sendingAll,  setSendingAll]  = useState(false)
   const [sendMsg,     setSendMsg]     = useState('')
-
-  // Sending state — VIP Compliance Reminder (segunda campaña, AR solo + combo)
-  const [sendingVipId, setSendingVipId] = useState<string | null>(null)
-  const [vipMsg,        setVipMsg]       = useState('')
 
   // Notes editor
   const [noteEdit,   setNoteEdit]   = useState<{ id: string; name: string; text: string } | null>(null)
@@ -154,6 +203,13 @@ export default function CampaignsPage() {
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { fetchStats(); fetchCompanies() }, [fetchStats, fetchCompanies])
 
+  // Lista realmente mostrada en la tabla — igual a `companies` salvo dentro
+  // de "New", donde además se filtra por el tab con/sin email activo. Todo
+  // lo que selecciona/cuenta/renderiza usa esto, no `companies` directo.
+  const visibleCompanies = filterContact === 'new'
+    ? companies.filter(c => (emailTab === 'with_email' ? !!c.email : !c.email))
+    : companies
+
   // ─── Selección (checkboxes) ─────────────────────────────────────────────────
 
   function toggleSelect(id: string) {
@@ -165,7 +221,16 @@ export default function CampaignsPage() {
   }
 
   function toggleSelectAll() {
-    setSelectedIds(prev => (prev.size === companies.length ? new Set() : new Set(companies.map(c => c.id))))
+    setSelectedIds(prev => (prev.size === visibleCompanies.length ? new Set() : new Set(visibleCompanies.map(c => c.id))))
+  }
+
+  // Preselecciona las primeras N (orden en que ya vienen — más nuevas
+  // primero) del tab "con email" activo, para armar un paquete de envío sin
+  // tener que tildar una por una.
+  function selectPackage() {
+    if (packageSize < 1) return
+    const pool = visibleCompanies.filter(c => !!c.email)
+    setSelectedIds(new Set(pool.slice(0, packageSize).map(c => c.id)))
   }
 
   async function bulkMarkSent() {
@@ -256,60 +321,46 @@ export default function CampaignsPage() {
     }
   }
 
-  async function sendEmail(company: Company) {
+  // Genérica para cualquier template del registro — reemplaza a los antiguos
+  // sendEmail()/sendVipReminder() (uno por campaña, duplicados). Agregar un
+  // 3er template no requiere una 3ra función acá.
+  async function sendTemplate(company: Company, template: CampaignTemplate) {
     if (paused || !company.email) return
     // Guard contra reenvío accidental (auditoría 2026-09-13/14, el botón
     // individual no chequeaba nada) — no bloquea un reenvío intencional, solo
-    // pide confirmar cuando ya se ve una fecha de envío previa.
-    if (company.carta_sent_at && !confirm(`Carta Nuevas Empresas ya se le mandó a esta empresa el ${new Date(company.carta_sent_at).toLocaleString()}.\n\n¿Reenviar de todos modos?`)) return
+    // pide confirmar cuando ya se ve una fecha de envío previa de ESTE template.
+    const alreadySentAt = company[template.sentAtField]
+    if (alreadySentAt && !confirm(`${template.label} ya se le mandó a esta empresa el ${new Date(alreadySentAt).toLocaleString()}.\n\n¿Reenviar de todos modos?`)) return
     setSendingId(company.id)
     setSendMsg('')
-    const res = await fetch('/api/campaigns/send', {
+    const res = await fetch(template.sendEndpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ company_ids: [company.id], lang: 'en' }),
     })
     const data = await res.json()
     setSendingId(null)
-    setSendMsg(data.sent === 1 ? `✓ Email sent to ${company.email}` : `✗ Error: ${data.results?.[0]?.reason || 'unknown'}`)
+    setSendMsg(data.sent === 1 ? `✓ ${template.label} sent to ${company.email}` : `✗ Error: ${data.results?.[0]?.reason || 'unknown'}`)
     fetchCompanies(); fetchStats()
   }
 
-  async function sendVipReminder(company: Company) {
-    if (paused || !company.email) return
-    if (company.vip_reminder_sent_at && !confirm(`Oferta VIP ya se le mandó a esta empresa el ${new Date(company.vip_reminder_sent_at).toLocaleString()}.\n\n¿Reenviar de todos modos?`)) return
-    setSendingVipId(company.id)
-    setVipMsg('')
-    const res = await fetch('/api/campaigns/send-vip-reminder', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ company_ids: [company.id], lang: 'en' }),
-    })
-    const data = await res.json()
-    setSendingVipId(null)
-    setVipMsg(data.sent === 1 ? `✓ VIP reminder sent to ${company.email}` : `✗ Error: ${data.results?.[0]?.reason || 'unknown'}`)
-    fetchCompanies(); fetchStats()
-  }
-
-  // Mismo tope que MAX_BATCH en app/api/campaigns/send/route.ts — el server
-  // rechaza un solo request más grande que esto (auditoría 2026-09-13/14),
-  // así que acá se manda en tandas secuenciales en vez de un solo POST
-  // gigante que se cortaría a mitad de camino.
+  // Mismo tope que MAX_BATCH en app/api/campaigns/send(-vip-reminder)/route.ts
+  // — el server rechaza un solo request más grande que esto (auditoría
+  // 2026-09-13/14), así que acá se manda en tandas secuenciales en vez de un
+  // solo POST gigante que se cortaría a mitad de camino.
   const SEND_BATCH_SIZE = 300
 
-  async function sendToAllNew() {
-    if (paused) return
-    const newOnes = companies.filter(c => c.status === 'new' && c.email)
-    if (newOnes.length === 0) { setSendMsg('No new companies with email to send to.'); return }
-    if (!confirm(`Send emails to ${newOnes.length} new companies?`)) return
+  // Compartida entre "Send to All New" y "Send to Selected", para cualquier
+  // template — se extrajo para no duplicar el loop de tandas secuenciales.
+  async function sendTemplateBatch(targets: Company[], template: CampaignTemplate) {
     setSendingAll(true)
     setSendMsg('')
     let sent = 0, skipped = 0, errors = 0
-    for (let i = 0; i < newOnes.length; i += SEND_BATCH_SIZE) {
-      const batch = newOnes.slice(i, i + SEND_BATCH_SIZE)
-      setSendMsg(`Sending batch ${Math.floor(i / SEND_BATCH_SIZE) + 1}/${Math.ceil(newOnes.length / SEND_BATCH_SIZE)}…`)
+    for (let i = 0; i < targets.length; i += SEND_BATCH_SIZE) {
+      const batch = targets.slice(i, i + SEND_BATCH_SIZE)
+      setSendMsg(`Sending batch ${Math.floor(i / SEND_BATCH_SIZE) + 1}/${Math.ceil(targets.length / SEND_BATCH_SIZE)}…`)
       try {
-        const res = await fetch('/api/campaigns/send', {
+        const res = await fetch(template.sendEndpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ company_ids: batch.map(c => c.id), lang: 'en' }),
@@ -329,6 +380,55 @@ export default function CampaignsPage() {
     setSendingAll(false)
     setSendMsg(`✓ Sent: ${sent}  ·  Skipped: ${skipped}  ·  Errors: ${errors}`)
     fetchCompanies(); fetchStats()
+  }
+
+  // "Eligible" ahora es específico del template elegido (¿ya se le mandó
+  // ESTE template? no el `status` genérico compartido) — más preciso que
+  // antes, que solo miraba `status==='new'` sin distinguir cuál campaña.
+  async function sendToAllNew() {
+    if (paused) return
+    const eligible = companies.filter(c => c.email && !c[selectedTemplate.sentAtField])
+    if (eligible.length === 0) { setSendMsg(`No companies eligible for ${selectedTemplate.label}.`); return }
+    if (!confirm(`Send ${selectedTemplate.label} to ${eligible.length} companies?`)) return
+    await sendTemplateBatch(eligible, selectedTemplate)
+  }
+
+  // "Send to Selected" — pedido founder 2026-09-14: poder armar un paquete
+  // (manual o con "Seleccionar paquete de N") y mandarle solo a esos, en vez
+  // de forzosamente todos los elegibles de una.
+  async function sendToSelected() {
+    if (paused) return
+    const targets = companies.filter(c => selectedIds.has(c.id) && c.email)
+    if (targets.length === 0) { setSendMsg('Selected companies have no email.'); return }
+    if (!confirm(`Send ${selectedTemplate.label} to ${targets.length} selected companies?`)) return
+    await sendTemplateBatch(targets, selectedTemplate)
+  }
+
+  async function printSelected() {
+    if (printing || selectedIds.size === 0) return
+    const ids = [...selectedIds]
+    if (ids.length > 100) { setSendMsg('✗ Máximo 100 cartas por combo — seleccioná menos.'); return }
+    setPrinting(true)
+    setSendMsg('')
+    try {
+      const res = await fetch('/api/campaigns/print-letters', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids, lang: letterLang }),
+      })
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }))
+        setSendMsg(`✗ Print error: ${err.error || res.status}`)
+        return
+      }
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      window.open(url, '_blank')
+    } catch {
+      setSendMsg('✗ Error generating combined PDF. Check your connection.')
+    } finally {
+      setPrinting(false)
+    }
   }
 
   // ─── Sunbiz lookup for manual add ──────────────────────────────────────────
@@ -564,8 +664,21 @@ export default function CampaignsPage() {
         {/* Companies table */}
         <div className="card">
           <div className="card-head">
-            <span className="card-title">Companies ({companies.length})</span>
+            <span className="card-title">Companies ({visibleCompanies.length})</span>
             <div className="filters">
+              {/* Selector de template — pedido founder 2026-09-14: reemplaza los
+                  botones fijos por-campaña. Maneja envío individual, masivo,
+                  paquetes y preview para lo que sea que se elija acá. */}
+              <select
+                value={selectedTemplateId}
+                onChange={e => setSelectedTemplateId(e.target.value)}
+                title="Email/carta a enviar"
+                style={{ fontWeight: 700, color: selectedTemplate.color, borderColor: selectedTemplate.color }}
+              >
+                {TEMPLATES.map(tpl => (
+                  <option key={tpl.id} value={tpl.id}>✉️ {tpl.label}</option>
+                ))}
+              </select>
               <select value={filterContact} onChange={e => setFilterContact(e.target.value as 'new' | 'email_sent' | 'letter_sent' | 'all')} title="Contact status">
                 <option value="new">🆕 New (no letter, no email)</option>
                 <option value="email_sent">📧 Email sent</option>
@@ -584,16 +697,71 @@ export default function CampaignsPage() {
             </div>
           </div>
 
+          {/* Tabs Con Email / Sin Email — solo dentro de "New" (pedido founder
+              2026-09-14): antes se mezclaban sin poder distinguir a quién
+              mandarle email vs a quién solo se le puede imprimir la carta. */}
+          {filterContact === 'new' && (
+            <div style={{ display: 'flex', gap: 8, padding: '12px 22px 0' }}>
+              <button
+                onClick={() => { setEmailTab('with_email'); setSelectedIds(new Set()) }}
+                className="btn btn-sm"
+                style={{
+                  background: emailTab === 'with_email' ? '#2563EB' : '#fff',
+                  color:      emailTab === 'with_email' ? '#fff'    : '#475569',
+                  border: '1.5px solid ' + (emailTab === 'with_email' ? '#2563EB' : '#E2E8F0'),
+                }}
+              >
+                📧 Con Email ({companies.filter(c => !!c.email).length})
+              </button>
+              <button
+                onClick={() => { setEmailTab('without_email'); setSelectedIds(new Set()) }}
+                className="btn btn-sm"
+                style={{
+                  background: emailTab === 'without_email' ? '#2563EB' : '#fff',
+                  color:      emailTab === 'without_email' ? '#fff'    : '#475569',
+                  border: '1.5px solid ' + (emailTab === 'without_email' ? '#2563EB' : '#E2E8F0'),
+                }}
+              >
+                📄 Sin Email ({companies.filter(c => !c.email).length})
+              </button>
+            </div>
+          )}
+
           {/* Bulk actions bar */}
           <div style={{ padding: '10px 22px', background: '#F8FAFC', borderBottom: '1px solid #F1F5F9', display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-            <button className="btn btn-green btn-sm" onClick={sendToAllNew} disabled={sendingAll || paused}>
-              {sendingAll ? 'Sending...' : `📨 Send to All New (${companies.filter(c => c.status === 'new' && c.email).length})`}
-            </button>
+            {/* Paquete + Send to All New: solo tienen sentido en New → Con Email */}
+            {filterContact === 'new' && emailTab === 'with_email' && (
+              <>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ fontSize: '.78rem', color: '#475569' }}>Seleccionar paquete de</span>
+                  <input
+                    type="number" min={1}
+                    value={packageSize}
+                    onChange={e => setPackageSize(Number(e.target.value))}
+                    style={{ width: 64, padding: '4px 8px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: '.8rem', textAlign: 'center' }}
+                  />
+                  <button className="btn btn-ghost btn-sm" onClick={selectPackage}>Seleccionar</button>
+                </div>
+                <span style={{ width: 1, background: '#E2E8F0', margin: '2px 4px', alignSelf: 'stretch' }} />
+                <button className="btn btn-green btn-sm" onClick={sendToAllNew} disabled={sendingAll || paused}>
+                  {sendingAll ? 'Sending...' : `📨 Send ${selectedTemplate.label} to All Eligible (${companies.filter(c => c.email && !c[selectedTemplate.sentAtField]).length})`}
+                </button>
+              </>
+            )}
 
             {selectedIds.size > 0 && (
               <>
                 <span style={{ width: 1, background: '#E2E8F0', margin: '2px 4px', alignSelf: 'stretch' }} />
                 <span style={{ fontSize: '.78rem', color: '#475569', fontWeight: 600 }}>{selectedIds.size} selected</span>
+                {/* Enviar solo tiene sentido para el tab con email; Print funciona para cualquiera de las dos. */}
+                {emailTab === 'with_email' && (
+                  <button className="btn btn-sm" style={{ background: selectedTemplate.color, color: '#fff', border: 'none' }} onClick={sendToSelected} disabled={sendingAll || paused}>
+                    {sendingAll ? 'Sending...' : `📨 Send ${selectedTemplate.label} to Selected`}
+                  </button>
+                )}
+                <button className="btn btn-sm" style={{ background: '#1C2E44', color: '#fff', border: 'none' }} onClick={printSelected} disabled={printing}>
+                  {printing ? 'Preparing...' : '🖨 Print Selected'}
+                </button>
                 <button className="btn btn-sm" style={{ background: '#059669', color: '#fff', border: 'none' }} onClick={bulkMarkSent} disabled={bulkMarking || bulkDeleting}>
                   {bulkMarking ? 'Marking...' : '✅ Mark as Sent'}
                 </button>
@@ -603,7 +771,6 @@ export default function CampaignsPage() {
               </>
             )}
             {sendMsg && <span className={sendMsg.startsWith('✓') ? 'msg-ok' : 'msg-err'} style={{ fontSize: '.78rem' }}>{sendMsg}</span>}
-            {vipMsg && <span className={vipMsg.startsWith('✓') ? 'msg-ok' : 'msg-err'} style={{ fontSize: '.78rem' }}>{vipMsg}</span>}
             {bulkMsg && <span className={bulkMsg.startsWith('✓') ? 'msg-ok' : 'msg-err'} style={{ fontSize: '.78rem' }}>{bulkMsg}</span>}
 
             {/* Selector de idioma de la carta PDF (afecta preview 👁 y descarga 📄) */}
@@ -630,7 +797,7 @@ export default function CampaignsPage() {
 
           {loading ? (
             <div style={{ padding: 40, textAlign: 'center', color: '#94A3B8', fontSize: '.85rem' }}>Loading companies...</div>
-          ) : companies.length === 0 ? (
+          ) : visibleCompanies.length === 0 ? (
             <div style={{ padding: 40, textAlign: 'center', color: '#94A3B8', fontSize: '.85rem' }}>No companies found.</div>
           ) : (
             <div style={{ overflowX: 'auto' }}>
@@ -640,7 +807,7 @@ export default function CampaignsPage() {
                     <th style={{ width: 32 }}>
                       <input
                         type="checkbox"
-                        checked={companies.length > 0 && selectedIds.size === companies.length}
+                        checked={visibleCompanies.length > 0 && selectedIds.size === visibleCompanies.length}
                         onChange={toggleSelectAll}
                         title="Select all"
                       />
@@ -655,7 +822,7 @@ export default function CampaignsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {companies.map(c => {
+                  {visibleCompanies.map(c => {
                     const meta = STATUS_META[c.status] ?? STATUS_META.new
                     return (
                       <tr key={c.id}>
@@ -685,11 +852,14 @@ export default function CampaignsPage() {
                         </td>
                         <td>
                           <div style={{ display: 'flex', gap: 6 }}>
+                            {/* Botones de envío/preview genéricos — usan el template elegido en
+                                el selector de arriba, en vez de un botón fijo por campaña. */}
                             <button
-                              className="btn btn-primary btn-sm"
-                              onClick={() => sendEmail(c)}
+                              className="btn btn-sm"
+                              onClick={() => sendTemplate(c, selectedTemplate)}
                               disabled={!!sendingId || paused || !c.email}
-                              title={!c.email ? 'No email address' : paused ? 'System paused' : 'Send campaign email'}
+                              title={!c.email ? 'No email address' : paused ? 'System paused' : `Send ${selectedTemplate.label}`}
+                              style={{ background: selectedTemplate.color, color: '#fff', border: 'none' }}
                             >
                               {sendingId === c.id ? '...' : (
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
@@ -697,31 +867,13 @@ export default function CampaignsPage() {
                             </button>
                             <button
                               className="btn btn-ghost btn-sm"
-                              onClick={() => window.open(`/api/campaigns/preview-email?company_id=${c.id}&lang=en`, '_blank')}
-                              title="Preview campaign email (does not send)"
+                              onClick={() => window.open(`${selectedTemplate.previewEndpoint}?company_id=${c.id}&lang=en`, '_blank')}
+                              title={`Preview ${selectedTemplate.label} (does not send)`}
+                              style={{ color: selectedTemplate.color }}
                             >
                               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 8h20"/><path d="M6 6h.01"/><path d="M9 6h.01"/></svg>
                             </button>
                             <span style={{ width: 1, background: '#E2E8F0', margin: '2px 2px' }} />
-                            <button
-                              className="btn btn-sm"
-                              onClick={() => sendVipReminder(c)}
-                              disabled={!!sendingVipId || paused || !c.email}
-                              title={!c.email ? 'No email address' : paused ? 'System paused' : 'Send VIP Compliance Reminder (Annual Report + VIP combo)'}
-                              style={{ background: '#059669', color: '#fff', border: 'none' }}
-                            >
-                              {sendingVipId === c.id ? '...' : (
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-                              )}
-                            </button>
-                            <button
-                              className="btn btn-ghost btn-sm"
-                              onClick={() => window.open(`/api/campaigns/preview-vip-reminder?company_id=${c.id}&lang=en`, '_blank')}
-                              title="Preview VIP Compliance Reminder email (does not send)"
-                              style={{ color: '#059669' }}
-                            >
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 8h20"/><path d="M6 6h.01"/><path d="M9 6h.01"/></svg>
-                            </button>
                             <button className="btn btn-ghost btn-sm" onClick={() => generateLetter(c, true)} title="Preview letter">
                               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                             </button>

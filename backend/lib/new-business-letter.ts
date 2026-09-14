@@ -22,6 +22,43 @@ const BOTTOM = 56    // bottom margin — trigger page break below this
 // y las rayas — – SÍ están soportados (CP1252 cubre todo Latin-1 + español).
 export type Lang = 'en' | 'es'
 
+// Florida entity type label a partir del company_type de Sunbiz, localizado
+// por idioma — compartido por generate-letter/route.ts (una carta) y
+// print-letters/route.ts (combo de varias, para "Print Selected" del panel).
+export function entityLabelForLetter(companyType: string | undefined, lang: Lang): string {
+  const maps: Record<Lang, Record<string, string>> = {
+    en: { LLC: 'Florida LLC', CORP: 'Florida Corporation', PA: 'Florida P.A.', LTD: 'Florida Limited Partnership' },
+    es: { LLC: 'LLC de Florida', CORP: 'Corporación de Florida', PA: 'P.A. de Florida', LTD: 'Sociedad Limitada de Florida' },
+  }
+  const key = (companyType || '').toUpperCase()
+  const fallback = lang === 'es' ? (key ? `${key} de Florida` : 'LLC de Florida') : (key ? `Florida ${key}` : 'Florida LLC')
+  return maps[lang][key] || fallback
+}
+
+// Fecha en formato largo localizado. Date-only se parsea sin shift de timezone.
+export function formatLongDateForLetter(input: string | undefined, lang: Lang): string {
+  if (!input) return ''
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(input)
+  const d = m ? new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])) : new Date(input)
+  if (isNaN(d.getTime())) return input
+  return d.toLocaleDateString(lang === 'es' ? 'es-ES' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+}
+
+// Combina varios PDFs (cada uno con 1 o más páginas — la versión en español
+// a veces ocupa 2 por texto más largo, ver getPageIndices() abajo) en un
+// solo PDF — usado por "Print Selected" del panel de Campaigns & Letters
+// para que el admin pueda mandar Cmd/Ctrl+P una sola vez en vez de abrir un
+// PDF por empresa.
+export async function mergeLetterPdfs(pdfs: Uint8Array[]): Promise<Uint8Array> {
+  const merged = await PDFDocument.create()
+  for (const bytes of pdfs) {
+    const src = await PDFDocument.load(bytes)
+    const pages = await merged.copyPages(src, src.getPageIndices())
+    pages.forEach(p => merged.addPage(p))
+  }
+  return merged.save()
+}
+
 export type NewBusinessLetterData = {
   documentId: string        // "L26000075446"
   companyName: string       // "GARLICBAKED LLC"
@@ -188,9 +225,24 @@ function wrapLines(text: string, font: PDFFont, size: number, maxWidth: number):
 }
 
 // ── Main generator ────────────────────────────────────────────────────────────
-export async function generateNewBusinessLetter(data: NewBusinessLetterData): Promise<Uint8Array> {
-  const C = data.lang === 'es' ? ES : EN
+// La carta SIEMPRE debe caber en 1 sola página (decisión de negocio, no una
+// preferencia estética) — pero el texto en español ocupa más espacio que en
+// inglés en varios bloques (párrafos del cuerpo, descripciones de servicios,
+// aviso legal), y con tamaños fijos eso a veces desbordaba a una 2da página
+// (bug real encontrado 2026-09-14 probando el combo de "Print Selected").
+//
+// Fix: `renderInto(scale)` dibuja la carta completa aplicando `scale` SOLO a
+// los bloques de texto largo/variable (párrafos del cuerpo, descripción de
+// servicios, aviso legal) y a los espacios chicos entre ellos — nunca al
+// título, el QR, los precios, ni el recuadro de registro, que deben verse
+// siempre igual de legibles sin importar el idioma. Se intenta primero a
+// escala 1.0 (el caso común, ej. inglés); si el resultado da más de 1
+// página, se reintenta con una escala un poco menor hasta que entre, con un
+// piso para nunca volver el texto ilegible.
+export async function generateNewBusinessLetter(input: NewBusinessLetterData): Promise<Uint8Array> {
+  const C = input.lang === 'es' ? ES : EN
 
+  async function renderInto(scale: number): Promise<PDFDocument> {
   const doc     = await PDFDocument.create()
   const bold    = await doc.embedFont(StandardFonts.HelveticaBold)
   const regular = await doc.embedFont(StandardFonts.Helvetica)
@@ -198,12 +250,17 @@ export async function generateNewBusinessLetter(data: NewBusinessLetterData): Pr
   // Sanitiza los campos de texto libre (tipeados a mano por el admin, a
   // diferencia de entityType/registrationDate/etc. que ya vienen localizados
   // y controlados por el código) contra caracteres no soportados por WinAnsi.
-  data = {
-    ...data,
-    companyName: sanitizeForWinAnsi(data.companyName, regular),
-    ownerName: data.ownerName ? sanitizeForWinAnsi(data.ownerName, regular) : data.ownerName,
-    address: data.address ? sanitizeForWinAnsi(data.address, regular) : data.address,
-    city: data.city ? sanitizeForWinAnsi(data.city, regular) : data.city,
+  // Se recalcula en cada intento a partir de `input` (nunca mutado) —
+  // sanitizar dos veces el mismo texto da el mismo resultado, sin riesgo de
+  // ir "sobre-limpiando" en escalas sucesivas. `data` acá adentro sombrea a
+  // propósito el `input` de la función exportada — el resto del cuerpo de
+  // renderInto no necesita tocarse, ya lee `data` como siempre.
+  const data: NewBusinessLetterData = {
+    ...input,
+    companyName: sanitizeForWinAnsi(input.companyName, regular),
+    ownerName: input.ownerName ? sanitizeForWinAnsi(input.ownerName, regular) : input.ownerName,
+    address: input.address ? sanitizeForWinAnsi(input.address, regular) : input.address,
+    city: input.city ? sanitizeForWinAnsi(input.city, regular) : input.city,
   }
 
   // Mutable page cursor — los helpers leen `page`/`y` actuales vía closure.
@@ -322,21 +379,25 @@ export async function generateNewBusinessLetter(data: NewBusinessLetterData): Pr
   y = topY - Math.max(leftH, boxH) - 30
 
   // ── 4. BODY ───────────────────────────────────────────────────────────────
+  // Tamaño/interlineado escalados — este es el bloque de texto más largo y
+  // el que más varía entre inglés y español (ver comentario de scale arriba
+  // del export). El saludo se deja fijo (una sola línea corta, no aporta al
+  // desborde).
   para(C.greeting(data.companyName), bold, 9.5, 14, NAVY)
-  y -= 4
-  para(C.body[0], regular, 8.5, 12.5, BLACK)
-  y -= 6
-  para(C.body[1], regular, 8.5, 12.5, BLACK)
-  y -= 6
-  para(C.body[2], regular, 8.5, 12.5, BLACK)
-  y -= 12
+  y -= 4 * scale
+  para(C.body[0], regular, 8.5 * scale, 12.5 * scale, BLACK)
+  y -= 6 * scale
+  para(C.body[1], regular, 8.5 * scale, 12.5 * scale, BLACK)
+  y -= 6 * scale
+  para(C.body[2], regular, 8.5 * scale, 12.5 * scale, BLACK)
+  y -= 12 * scale
 
   // ── 5. SERVICES GRID (3 columnas con precio + resumen) ────────────────────
   const services = C.services
   const colGap   = 10
   const colW     = (CW - colGap * 2) / 3
-  const descSize = 6.5
-  const descLh   = 8.5
+  const descSize = 6.5 * scale
+  const descLh   = 8.5 * scale
   const headerH  = 18
   const priceGap = 24
   const descPad  = 8
@@ -358,9 +419,11 @@ export async function generateNewBusinessLetter(data: NewBusinessLetterData): Pr
     let dy = y - headerH - priceGap - 2
     descLinesArr[i].forEach(line => { t(line, cx + 7, dy, regular, descSize, GRAY); dy -= descLh })
   })
-  y -= gridH + 16
+  y -= gridH + 16 * scale
 
   // ── 6. CTA (discreto) + QR ────────────────────────────────────────────────
+  // El QR y su texto se dejan siempre a tamaño fijo — nunca debe volverse
+  // menos escaneable ni menos legible por un ajuste de espacio.
   const fullPayUrl = data.payUrl.startsWith('http') ? data.payUrl : `https://${data.payUrl}`
   let qrImage = null
   try {
@@ -370,7 +433,7 @@ export async function generateNewBusinessLetter(data: NewBusinessLetterData): Pr
 
   const qrDim = 76
   ensure(40 + qrDim + 30)
-  y -= 6
+  y -= 6 * scale
   centered(C.cta[0], MX, CW, y, bold, 9.5, NAVY)
   y -= 13
   centered(C.cta[1], MX, CW, y, bold, 9.5, NAVY)
@@ -381,14 +444,35 @@ export async function generateNewBusinessLetter(data: NewBusinessLetterData): Pr
     y -= qrDim + 6
   }
   centered('mybusinessformation.com', MX, CW, y, bold, 10, BLUE)
-  y -= 18
+  y -= 18 * scale
 
   // ── 7. IMPORTANT DISCLOSURE ───────────────────────────────────────────────
+  // El texto legal es el otro bloque largo que varía por idioma — se escala
+  // igual que el cuerpo. El encabezado ("IMPORTANT DISCLOSURE"/"AVISO
+  // IMPORTANTE") se deja fijo, es corto y no aporta al desborde.
   ensure(24)
-  y -= 6
+  y -= 6 * scale
   t(C.disclosureHeading, MX, y, bold, 8.5, NAVY)
-  y -= 12
-  para(C.disclosure, regular, 6.8, 9, GRAY)
+  y -= 12 * scale
+  para(C.disclosure, regular, 6.8 * scale, 9 * scale, GRAY)
+
+  return doc
+  }
+
+  // Escala 1.0 primero (cubre el caso común, ej. inglés, sin ningún costo
+  // extra) — si el resultado da más de 1 página, se reintenta con una
+  // escala un poco menor hasta que entre. Piso en 0.8 para nunca dejar el
+  // texto ilegiblemente chico; si ni al piso entra (caso extremo, ej. un
+  // nombre de empresa larguísimo sumado a todo lo demás), se acepta el
+  // resultado igual antes que romper o generar un PDF corrupto.
+  const SCALE_FLOOR = 0.8
+  const SCALE_STEP = 0.05
+  let scale = 1.0
+  let doc = await renderInto(scale)
+  while (doc.getPageCount() > 1 && scale > SCALE_FLOOR) {
+    scale = Math.max(SCALE_FLOOR, scale - SCALE_STEP)
+    doc = await renderInto(scale)
+  }
 
   return doc.save()
 }
