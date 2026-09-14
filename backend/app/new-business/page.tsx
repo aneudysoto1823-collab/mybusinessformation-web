@@ -2110,8 +2110,8 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                   <div className="form-heading">
                     <h2>
                       {lang === 'es'
-                        ? `Completa tu información en ${einSelected ? '3' : '2'} simples pasos`
-                        : `Complete your information in ${einSelected ? '3' : '2'} simple steps`}
+                        ? 'Completa tu información en simples pasos'
+                        : 'Complete your information in simple steps'}
                     </h2>
                   </div>
                   )}
