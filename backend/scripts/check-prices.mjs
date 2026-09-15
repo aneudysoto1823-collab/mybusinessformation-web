@@ -149,8 +149,9 @@ assertContains('home ITIN paso 7', homeSrc, [
 //   Reposicionado debajo de Banking Resolution (Standard) y de Articles of
 //   Amendment (Premium), ya no al final de la lista.
 assertContains('home tabla RA Basic', homeSrc, [
-  // Fila de Basic: mantiene la promesa de "+ $${RA_FEE}/year"
-  `<span class="svc-status s-add" data-en="+ $${CENTRAL.ra_fee}/year" data-es="+ $${CENTRAL.ra_fee}/año">+ $${CENTRAL.ra_fee}/year</span>`,
+  // Fila de Basic: precio formateado igual que el resto de addons ("+ $99",
+  // sin "/year") + nota "(Annual Subscription)" en el nombre (2026-09-15).
+  `data-en="Registered Agent (Annual Subscription)" data-es="Agente Registrado (Suscripción Anual)">Registered Agent (Annual Subscription)</span><span class="svc-status s-add">+ $${CENTRAL.ra_fee}</span>`,
 ])
 assertContains('home tabla RA Std/Prem', homeSrc, [
   // Standard y Premium: checkmark + nota "1st year free" en el nombre
