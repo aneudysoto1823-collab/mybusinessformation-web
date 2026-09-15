@@ -77,7 +77,7 @@ export interface RecurringServiceToCreate {
 // cobrando más caro RA/VA/AR, como ya se anticipó) esto lo recoge automático
 // — sin este chequeo, la Subscription se crearía siempre al precio de OpaBiz
 // sin importar la marca real de la orden.
-export function getRecurringServicesFromOrder(pkg: string | null | undefined, addons: unknown, brand?: 'opabiz' | 'fbfc' | null): RecurringServiceToCreate[] {
+export function getRecurringServicesFromOrder(pkg: string | null | undefined, addons: unknown, brand?: 'opabiz' | 'fbfc' | null, registeredAgent?: string | null): RecurringServiceToCreate[] {
   const pkgKey = (pkg ?? '').toLowerCase().trim()
   const out: RecurringServiceToCreate[] = []
 
@@ -118,12 +118,25 @@ export function getRecurringServicesFromOrder(pkg: string | null | undefined, ad
     return out
   }
 
-  // Formación (basic/standard/premium): único addon recurrente posible es
-  // Annual Report (addons.ar === true).
+  // Formación (basic/standard/premium): Annual Report como addon
+  // (addons.ar === true) + Registered Agent cuando el cliente eligió que
+  // OpaBiz/FBFC sea su agente (Order.registeredAgent === 'us') — ese campo
+  // vive aparte de `addons` (columna dedicada, ver lib/pricing.ts), nunca
+  // como booleano dentro de addons, así que se recibe por parámetro en vez
+  // de leerse de `a`. Bug real corregido 2026-09-15: antes esta función
+  // nunca revisaba `registeredAgent`, así que elegir "Use Our Registered
+  // Agent Service" en el home nunca creaba ninguna Subscription — el
+  // cliente jamás era cobrado a partir del año 2 pese a que el form
+  // promete "se renueva automáticamente a $99/año". `pushIfRecurring` ya
+  // cubre el año 1 gratis (Basic sí cobra $99 de una vez en el checkout,
+  // Standard/Premium lo incluyen gratis) vía el mismo `trial_end` de
+  // siempre — no importa si el período 1 costó $99 o $0, la Subscription
+  // igual arranca a cobrar sola recién en el período 2.
   const a = (addons && typeof addons === 'object' && !Array.isArray(addons))
     ? addons as Record<string, boolean>
     : {}
   if (a.ar === true) pushIfRecurring('annual-report')
+  if (registeredAgent === 'us') pushIfRecurring('registered-agent')
   return out
 }
 

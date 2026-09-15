@@ -587,13 +587,15 @@ async function handleFormationPaid(orderId: string, session: Stripe.Checkout.Ses
     }
   })
 
-  // Suscripciones reales de servicios recurrentes (hoy solo Annual Report
-  // puede venir como addon de formación) — no-op si no hay nada recurrente
-  // en el carrito. La tarjeta ya quedó guardada en el Customer vía
+  // Suscripciones reales de servicios recurrentes (Annual Report como addon
+  // de formación, o Registered Agent cuando order.registeredAgent==='us' —
+  // este segundo caso faltaba hasta 2026-09-15, ver comentario en
+  // lib/order-subscriptions.ts) — no-op si no hay nada recurrente en el
+  // carrito. La tarjeta ya quedó guardada en el Customer vía
   // setup_future_usage (ver /api/checkout/embedded), ver lib/stripe-subscriptions.ts.
   after(async () => {
     try {
-      await createRecurringSubscriptionsForOrder(getStripe(), order.id, (session.customer as string) ?? null, order.package, order.addons, order.sourceBrand)
+      await createRecurringSubscriptionsForOrder(getStripe(), order.id, (session.customer as string) ?? null, order.package, order.addons, order.sourceBrand, order.registeredAgent)
     } catch (err) {
       console.error('[stripe-webhook] recurring-subscriptions error (non-fatal):', err)
     }

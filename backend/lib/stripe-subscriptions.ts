@@ -67,8 +67,12 @@ export async function createRecurringSubscriptionsForOrder(
   pkg: string | null | undefined,
   addons: unknown,
   sourceBrand?: string | null,
+  // Solo relevante para formación (Order.registeredAgent, columna dedicada
+  // fuera de `addons` — ver lib/pricing.ts). Órdenes de servicios (package:
+  // 'services') resuelven Registered Agent vía addons.services, sin esto.
+  registeredAgent?: string | null,
 ): Promise<void> {
-  const recurring = getRecurringServicesFromOrder(pkg, addons, sourceBrand as 'opabiz' | 'fbfc' | null)
+  const recurring = getRecurringServicesFromOrder(pkg, addons, sourceBrand as 'opabiz' | 'fbfc' | null, registeredAgent)
   if (recurring.length === 0) return
 
   if (!stripeCustomerId) {
