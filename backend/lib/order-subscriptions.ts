@@ -35,6 +35,13 @@ export interface OrderSubscriptionEntry {
   // cancelación ("Don't cancel subscription"), para poder avisar de nuevo si
   // cancela otra vez más adelante.
   cancelNoticeSent?: boolean
+  // ISO date (= el currentPeriodEnd vigente cuando se mandó) del último aviso
+  // de "renovación en 30 días" enviado para este servicio — evita reenviarlo
+  // cada vez que corre el cron diario mientras siga faltando ≤30 días para la
+  // misma renovación. Se resetea solo naturalmente: al renovar, currentPeriodEnd
+  // avanza al período siguiente y este valor queda desactualizado (no matchea),
+  // así que el próximo aviso de esa nueva fecha sí puede mandarse.
+  renewalReminderSentForPeriodEnd?: string
 }
 
 // epoch seconds — ahora + 1 período según la cadencia. Se usa como `trial_end`
@@ -184,6 +191,50 @@ export async function findOrderBySubscriptionId(stripeSubscriptionId: string): P
     // 2026-09-07 no lo tienen (undefined) y caen a inglés como fallback seguro.
     isEs: addons.lang === 'es',
   }
+}
+
+// Trae todas las Orders con al menos una Subscription registrada — usado por
+// el cron de aviso de renovación (30 días antes), que necesita recorrerlas
+// todas para evaluar cada `currentPeriodEnd` en código (Supabase REST no
+// tiene forma directa de filtrar "largo de array JSONB > 0" del lado server).
+export interface OrderWithSubscriptions {
+  id: string
+  subscriptions: OrderSubscriptionEntry[]
+  sourceBrand: string | null
+  email: string
+  firstName: string | null
+  lastName: string | null
+  companyName: string | null
+  phone: string | null
+  isEs: boolean
+}
+
+export async function listOrdersWithSubscriptions(): Promise<OrderWithSubscriptions[]> {
+  const supabase = getSupabaseAdmin()
+  // @brand-unified — el cron recorre Subscriptions de ambas marcas; cada fila
+  // devuelve su propio sourceBrand para que el email de aviso/confirmación
+  // salga con el branding correcto (mismo criterio que findOrderBySubscriptionId).
+  const { data, error } = await supabase
+    .from('Order')
+    .select('id, subscriptions, sourceBrand, email, firstName, lastName, companyName, phone, addons')
+    .not('subscriptions', 'is', null)
+  if (error) throw error
+  return (data ?? [])
+    .filter(row => Array.isArray(row.subscriptions) && row.subscriptions.length > 0)
+    .map(row => {
+      const addons = (row.addons && typeof row.addons === 'object' && !Array.isArray(row.addons)) ? row.addons as { lang?: string } : {}
+      return {
+        id: row.id,
+        subscriptions: row.subscriptions as OrderSubscriptionEntry[],
+        sourceBrand: row.sourceBrand ?? null,
+        email: row.email,
+        firstName: row.firstName ?? null,
+        lastName: row.lastName ?? null,
+        companyName: row.companyName ?? null,
+        phone: row.phone ?? null,
+        isEs: addons.lang === 'es',
+      }
+    })
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -12,6 +12,7 @@ import { REPLY_TO, REPLY_TO_FBFC, INTERNAL_ALERT_EMAIL as ADMIN_EMAIL, FROM_OPAB
 import { provisionRaForOrder } from '@/lib/ra-provisioning'
 import { createRecurringSubscriptionsForOrder } from '@/lib/stripe-subscriptions'
 import { findOrderBySubscriptionId, upsertOrderSubscription, recordSubscriptionRenewalIncome } from '@/lib/order-subscriptions'
+import { sendSubscriptionRenewalConfirmation } from '@/lib/subscription-renewal-emails'
 
 export const dynamic = 'force-dynamic'
 
@@ -987,8 +988,10 @@ function getInvoiceSubscriptionId(invoice: Stripe.Invoice): string | null {
 }
 
 // `invoice.paid` — renovación exitosa (o la primera factura real tras el
-// trial_end). Solo actualiza currentPeriodEnd; no manda email — una renovación
-// exitosa no necesita avisarse, a diferencia de un fallo de pago.
+// trial_end). Actualiza currentPeriodEnd, registra el ingreso en Contabilidad
+// y (2026-09-15) avisa al cliente con un email de confirmación — decisión
+// founder: el cliente debe enterarse de cada cobro recurrente, no solo de un
+// fallo de pago.
 async function handleInvoicePaid(invoice: Stripe.Invoice) {
   const subscriptionId = getInvoiceSubscriptionId(invoice)
   if (!subscriptionId) return NextResponse.json({ received: true, skipped: 'no_subscription' })
@@ -1021,6 +1024,26 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
         firstName: order.firstName,
         lastName: order.lastName,
         phone: order.phone,
+      })
+
+      // Aviso al cliente de renovación exitosa — decisión founder 2026-09-15:
+      // mismo diseño visual que el aviso de 30 días antes (ver
+      // lib/subscription-renewal-emails.ts). Fire-and-forget, no bloquea la
+      // respuesta 200 a Stripe.
+      const brand = order.sourceBrand as EmailBrand
+      const nextRenewalDate = invoice.period_end ? new Date(invoice.period_end * 1000) : null
+      after(async () => {
+        try {
+          await sendSubscriptionRenewalConfirmation({
+            to: order.email,
+            brand,
+            isEs: order.isEs,
+            serviceId: entry.service,
+            companyName: order.companyName,
+            amount: invoice.amount_paid / 100,
+            nextRenewalDate,
+          })
+        } catch (e) { console.error('[stripe-webhook] renewal confirmation email error (non-fatal):', e) }
       })
     }
   } catch (err) {
