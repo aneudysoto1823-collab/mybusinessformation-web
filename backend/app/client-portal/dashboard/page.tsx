@@ -2,6 +2,7 @@ import { cookies, headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { getOrderItemKeys, getOrderItemLabel, hasFormationOrder } from '@/lib/order-items'
+import { getClientDocumentsForOrder } from '@/lib/client-documents'
 import DashboardContent from './DashboardContent'
 
 interface Order {
@@ -20,15 +21,7 @@ interface Order {
   addons: unknown
   subscriptions?: unknown
   isDraft?: boolean
-}
-
-function parseAddonServices(raw: unknown): string[] {
-  if (!raw) return []
-  if (Array.isArray(raw)) return raw as string[]
-  if (typeof raw === 'string') {
-    try { const p = JSON.parse(raw); if (Array.isArray(p)) return p } catch { /* noop */ }
-  }
-  return []
+  deliveredItems?: Record<string, boolean> | null
 }
 
 const ADDON_STEPS = [
@@ -54,122 +47,59 @@ function parseAddons(raw: unknown): Record<string, unknown> {
   return {}
 }
 
+interface DocumentFile {
+  filename: string
+  url: string
+}
+
 interface DocumentItem {
   key: string
   label: string
   labelEs: string
-  url: string | null
+  files: DocumentFile[]
+  delivered: boolean
   pending: string
   pendingEs: string
 }
 
-async function getDocuments(orderId: string, order: Order): Promise<DocumentItem[]> {
-  const supabase = getSupabaseAdmin()
-  const bucket = 'certificates'
-  const addons = parseAddons(order.addons)
-  const pkgKey = (order.package ?? '').toLowerCase()
-
-  async function signedUrl(path: string): Promise<string | null> {
-    const { data, error } = await supabase.storage
-      .from(bucket)
-      .createSignedUrl(path, 3600)
-    if (error || !data?.signedUrl) return null
-    return data.signedUrl
-  }
-
-  const docs: DocumentItem[] = []
-
-  // Addon orders — documents based on purchased services array
-  if (pkgKey === 'addon') {
-    const services = parseAddonServices(order.addons)
-    const hasEin  = services.includes('ein') || services.includes('bundle')
-    const hasCert = services.includes('certificate_of_status') || services.includes('bundle')
-    const hasLabor = services.includes('labor_law_poster') || services.includes('bundle')
-
-    if (hasEin) docs.push({
-      key: 'ein-letter',
-      label: 'EIN / Tax ID Letter', labelEs: 'Carta EIN / ID Fiscal',
-      url: await signedUrl(`orders/${orderId}/ein-letter.pdf`),
-      pending: 'Pending — will be issued by the IRS', pendingEs: 'Pendiente — será emitido por el IRS',
-    })
-    if (hasCert) docs.push({
-      key: 'certificate-of-status',
-      label: getOrderItemLabel('mkt:certificate_of_status', { lang: 'en' }),
-      labelEs: getOrderItemLabel('mkt:certificate_of_status', { lang: 'es' }),
-      url: await signedUrl(`orders/${orderId}/certificate-of-status.pdf`),
-      pending: 'Pending — being processed', pendingEs: 'Pendiente — en proceso',
-    })
-    if (hasLabor) docs.push({
-      key: 'labor-poster',
-      label: getOrderItemLabel('mkt:labor_law_poster', { lang: 'en' }),
-      labelEs: getOrderItemLabel('mkt:labor_law_poster', { lang: 'es' }),
-      url: await signedUrl(`orders/${orderId}/labor-poster.pdf`),
-      pending: 'Pending — being prepared', pendingEs: 'Pendiente — siendo preparado',
-    })
-    return docs
-  }
-
-  // Formation orders (basic/standard/premium) Y también órdenes de servicios
-  // (package:'services') que incluyeron una formación à la carte — antes esta
-  // sección solo entendía el shape de booleanos de formación (addons.ein===true)
-  // y por eso: (a) mostraba "Articles of Organization" SIEMPRE, incluso en
-  // órdenes de servicios que nunca compraron una formación, y (b) nunca
-  // mostraba Operating Agreement/EIN/ITIN comprados sueltos en /servicios/checkout,
-  // porque ahí addons.oa/addons.ein/addons.itin no existen (shape distinto:
-  // {services:[...],...}). Mismo fix shape-agnóstico que ya usa el checklist
-  // admin y los emails — ver lib/order-items.ts.
+// Reescrito 2026-09-15 (Item 5 de la auditoría FTC/UPL) — la versión anterior
+// ADIVINABA rutas fijas de archivo (orders/{id}/certificate.pdf, etc.) que
+// ningún flujo real de subida genera (send-approval-update usa nombres
+// dinámicos con timestamp) — confirmado con grep, cero callers escriben a
+// esas rutas. En la práctica esta sección SIEMPRE mostraba "Pending", incluso
+// después de que el staff ya hubiera entregado el documento real. Ahora lee
+// de la tabla `client_documents` (registro real de cada archivo entregado,
+// ver lib/client-documents.ts) cruzada con Order.deliveredItems (mismo
+// vocabulario de claves que lib/order-items.ts, ya usado por el checklist
+// admin) — sin adivinar nada, y unificado para formación/servicios/marketing
+// (getOrderItemKeys ya es shape-agnóstico para los 3).
+async function getDocuments(order: Order): Promise<DocumentItem[]> {
   const itemKeys = getOrderItemKeys(order.package, order.addons)
-  const hasFormation = hasFormationOrder(order.package, order.addons)
-  const hasOA = addons.oa === true || pkgKey === 'premium' || itemKeys.includes('svc:operating-agreement')
-  const hasEin = addons.ein === true || pkgKey === 'standard' || pkgKey === 'premium' || itemKeys.includes('svc:ein')
-  const hasItin = addons.itin === true || pkgKey === 'premium' || itemKeys.includes('svc:itin')
+  const delivered = order.deliveredItems ?? {}
+  const deliveredDocs = await getClientDocumentsForOrder(order.id)
+  const entityType = order.entityType
 
-  if (hasFormation) {
-    docs.push({
-      key: 'certificate',
-      label: 'Articles of Organization / Incorporation', labelEs: 'Artículos de Organización / Incorporación',
-      url: order.status === 'completed'
-        ? await signedUrl(`orders/${orderId}/certificate.pdf`)
-        : null,
-      pending: 'Pending — will be available once your business is approved',
-      pendingEs: 'Pendiente — estará disponible cuando tu negocio sea aprobado',
-    })
-  }
-
-  if (hasOA) {
-    docs.push({
-      key: 'operating-agreement',
-      label: 'Operating Agreement', labelEs: 'Acuerdo Operativo',
-      url: await signedUrl(`orders/${orderId}/operating-agreement.pdf`),
-      pending: 'Pending — being prepared by our team', pendingEs: 'Pendiente — siendo preparado por nuestro equipo',
-    })
-  }
-
-  if (hasEin) {
-    docs.push({
-      key: 'ein-letter',
-      label: 'EIN / Tax ID Letter', labelEs: 'Carta EIN / ID Fiscal',
-      url: await signedUrl(`orders/${orderId}/ein-letter.pdf`),
-      pending: 'Pending — will be sent by IRS after formation', pendingEs: 'Pendiente — será enviado por el IRS tras la formación',
-    })
-  }
-
-  if (hasItin) {
-    docs.push({
-      key: 'itin-application',
-      label: 'ITIN Application', labelEs: 'Solicitud de ITIN',
-      url: await signedUrl(`orders/${orderId}/itin-application.pdf`),
-      pending: 'Pending', pendingEs: 'Pendiente',
-    })
-  }
-
-  return docs
+  return itemKeys.map(key => {
+    const isDelivered = delivered[key] === true
+    const files = deliveredDocs
+      .filter(d => d.itemKeys.includes(key))
+      .map(d => ({ filename: d.filename, url: d.url }))
+    return {
+      key,
+      label: getOrderItemLabel(key, { entityType, lang: 'en' }),
+      labelEs: getOrderItemLabel(key, { entityType, lang: 'es' }),
+      files,
+      delivered: isDelivered,
+      pending: 'Pending — being prepared by our team',
+      pendingEs: 'Pendiente — siendo preparado por nuestro equipo',
+    }
+  })
 }
 
 async function getOrder(id: string): Promise<Order | null> {
   const { data } = await getSupabaseAdmin()
     .from('Order')
-    .select('id, createdAt, firstName, lastName, email, companyName, entityType, package, speed, amount, paymentStatus, status, addons, subscriptions, client_password_hash, isDraft')
+    .select('id, createdAt, firstName, lastName, email, companyName, entityType, package, speed, amount, paymentStatus, status, addons, subscriptions, client_password_hash, isDraft, deliveredItems')
     .eq('id', id)
     .single()
   return (data as (Order & { client_password_hash?: string | null }) | null)
@@ -180,7 +110,7 @@ async function getOrdersByEmail(email: string): Promise<Order[]> {
   // muestra todas las órdenes del cliente cruzando OpaBiz y FBFC).
   const { data } = await getSupabaseAdmin()
     .from('Order')
-    .select('id, createdAt, firstName, lastName, email, companyName, entityType, package, speed, amount, paymentStatus, status, addons, subscriptions, isDraft')
+    .select('id, createdAt, firstName, lastName, email, companyName, entityType, package, speed, amount, paymentStatus, status, addons, subscriptions, isDraft, deliveredItems')
     .eq('email', email.toLowerCase().trim())
     .order('createdAt', { ascending: false })
   return (data ?? []) as Order[]
@@ -275,7 +205,7 @@ export default async function ClientDashboardPage({
     : (order.package === 'services' && !hasFormationOrder(order.package, order.addons))
       ? STEPS.map(s => s.key === 'name_check' ? { key: 'processing', label: 'Processing Your Order', labelEs: 'Procesando tu Orden' } : s)
       : STEPS
-  const documents = await getDocuments(order.id, order)
+  const documents = await getDocuments(order)
   // initialLang: ?lang del home (override explícito, ej. toggle manual) →
   // idioma con el que el cliente hizo ESTA orden (addons.lang, automático,
   // 2026-09-07) → cookie portal_lang (memoria del navegador, más débil que

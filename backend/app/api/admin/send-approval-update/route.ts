@@ -4,6 +4,7 @@ import { sendOrderApprovalUpdate } from '@/lib/notifications'
 import { logAdminAction } from '@/lib/audit-log'
 import { verifyAdminToken } from '@/lib/session'
 import { getOrderItemKeys, getOrderLang } from '@/lib/order-items'
+import { recordClientDocuments } from '@/lib/client-documents'
 
 async function verifyAdmin(request: NextRequest): Promise<boolean> {
   const session = request.cookies.get('admin_session')
@@ -133,6 +134,17 @@ export async function POST(request: NextRequest) {
 
     if (updateError) {
       console.error('[send-approval-update] update error:', updateError.message)
+    }
+
+    // Registro paralelo en client_documents (Item 5, 2026-09-15) — best-effort,
+    // nunca bloquea la respuesta: la entrega real (email + Order.deliveredFiles)
+    // ya se completó con éxito para cuando llegamos acá.
+    if (uploadedFiles.length > 0) {
+      try {
+        await recordClientDocuments(orderId, uploadedFiles, approvedItems)
+      } catch (e) {
+        console.error('[send-approval-update] client_documents insert error (non-fatal):', e)
+      }
     }
 
     await logAdminAction({

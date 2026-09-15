@@ -69,11 +69,17 @@ interface Order {
   subscriptions?: unknown
 }
 
+interface DocumentFile {
+  filename: string
+  url: string
+}
+
 interface DocumentItem {
   key: string
   label: string
   labelEs: string
-  url: string | null
+  files: DocumentFile[]
+  delivered: boolean
   pending: string
   pendingEs: string
 }
@@ -789,15 +795,25 @@ export default function DashboardContent({
             <div className="doc-icon">📄</div>
             <div className="doc-info">
               <div className="doc-name">{es ? doc.labelEs : doc.label}</div>
-              {!doc.url && <div className="doc-status">{es ? doc.pendingEs : doc.pending}</div>}
+              {doc.files.length === 0 && (
+                <div className="doc-status">
+                  {doc.delivered
+                    ? (es ? 'Entregado' : 'Delivered')
+                    : (es ? doc.pendingEs : doc.pending)}
+                </div>
+              )}
             </div>
-            {doc.url ? (
-              <a href={doc.url} className="btn-download" target="_blank" rel="noopener noreferrer">
-                {es ? 'Descargar PDF' : 'Download PDF'}
-              </a>
+            {doc.files.length > 0 ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'flex-end' }}>
+                {doc.files.map((f, i) => (
+                  <a key={i} href={f.url} className="btn-download" target="_blank" rel="noopener noreferrer">
+                    {es ? 'Descargar PDF' : 'Download PDF'}
+                  </a>
+                ))}
+              </div>
             ) : (
-              <span style={{ fontSize: '12px', color: '#d1d5db', fontWeight: 500, flexShrink: 0 }}>
-                {es ? 'Pendiente' : 'Pending'}
+              <span style={{ fontSize: '12px', color: doc.delivered ? '#16a34a' : '#d1d5db', fontWeight: 500, flexShrink: 0 }}>
+                {doc.delivered ? '✓' : (es ? 'Pendiente' : 'Pending')}
               </span>
             )}
           </div>
