@@ -1044,12 +1044,12 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           <div class="svc-row"><span class="svc-name">BOI Filing (FinCEN)</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name" data-en="EIN / Tax ID Number" data-es="EIN / Número de ID Fiscal">EIN / Tax ID Number</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Banking Resolution" data-es="Resolución Bancaria">Banking Resolution</span><span class="svc-status s-check">✓</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="Registered Agent (1st year free)" data-es="Agente Registrado (1er año gratis)">Registered Agent (1st year free)</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name" data-en="DBA / Fictitious Name" data-es="DBA / Nombre Ficticio">DBA / Fictitious Name</span><span class="svc-status s-add">+ $49</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Local Business Tax Receipt" data-es="Licencia Comercial Local">Local Business Tax Receipt</span><span class="svc-status s-add">+ $79</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Sales Tax Registration" data-es="Registro de Impuesto sobre Ventas">Sales Tax Registration</span><span class="svc-status s-add">+ $79</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Operating Agreement" data-es="Acuerdo Operativo">Operating Agreement</span><span class="svc-status s-add">+ $79</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Articles of Amendment" data-es="Artículos de Enmienda">Articles of Amendment</span><span class="svc-status s-add">+ $59</span></div>
-          <div class="svc-row"><span class="svc-name" data-en="Registered Agent" data-es="Agente Registrado">Registered Agent</span><span class="svc-status s-check" data-en="Included (1st year free)" data-es="Incluido (1er año gratis)">Included (1st year free)</span></div>
         </div>
       </div>
 
@@ -1072,10 +1072,10 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           <div class="svc-row"><span class="svc-name" data-en="Banking Resolution" data-es="Resolución Bancaria">Banking Resolution</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Operating Agreement" data-es="Acuerdo Operativo">Operating Agreement</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Articles of Amendment" data-es="Artículos de Enmienda">Articles of Amendment</span><span class="svc-status s-check">✓</span></div>
+          <div class="svc-row"><span class="svc-name" data-en="Registered Agent (1st year free)" data-es="Agente Registrado (1er año gratis)">Registered Agent (1st year free)</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name" data-en="DBA / Fictitious Name" data-es="DBA / Nombre Ficticio">DBA / Fictitious Name</span><span class="svc-status s-add">+ $49</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Local Business Tax Receipt" data-es="Licencia Comercial Local">Local Business Tax Receipt</span><span class="svc-status s-add">+ $79</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Sales Tax Registration" data-es="Registro de Impuesto sobre Ventas">Sales Tax Registration</span><span class="svc-status s-add">+ $79</span></div>
-          <div class="svc-row"><span class="svc-name" data-en="Registered Agent" data-es="Agente Registrado">Registered Agent</span><span class="svc-status s-check" data-en="Included (1st year free)" data-es="Incluido (1er año gratis)">Included (1st year free)</span></div>
         </div>
       </div>
     </div>
@@ -5682,6 +5682,35 @@ function fmUpdateSummary() {
   formData.package = pkg;
   formData.entity  = fmData.entity;
   selectedEntity   = fmData.entity;
+  fmUpdateTermsConsentText();
+}
+
+// Consentimiento explícito de renovación automática (auditoría compliance
+// 2026-09-15): el checkbox de Términos (#chk-terms-agree, nunca pre-marcado)
+// ahora menciona por nombre cada servicio recurrente real que la orden vaya
+// a suscribir (Registered Agent y/o Annual Report) antes de que el cliente
+// pueda pagar — no alcanza con el texto informativo suelto de sus tarjetas,
+// tiene que estar en el mismo consentimiento que se marca antes de cobrar.
+// Se recalcula en cada fmUpdateSummary() (toggle de addon/paquete/RA/idioma).
+function fmUpdateTermsConsentText() {
+  var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
+  var raIsUs = (fmData.ra || 'us') === 'us';
+  var hasAr = !!fmData.addons.ar;
+  var recBits = [];
+  if(raIsUs) recBits.push(isEs ? 'el Agente Registrado ($99/año a partir del segundo año)' : 'Registered Agent ($99/yr starting year two)');
+  if(hasAr) recBits.push(isEs ? 'la Declaración Anual ($99/año + tarifa estatal)' : 'Annual Report Filing ($99/yr + state fee)');
+  var recTxt = '';
+  if(recBits.length) {
+    var joined = recBits.join(isEs ? ' y ' : ' and ');
+    recTxt = isEs
+      ? (' Entiendo que ' + joined + ' se renueva automáticamente cada año con el método de pago que use ahora, hasta que lo cancele desde mi portal de cliente.')
+      : (' I understand that ' + joined + ' renews automatically each year using the payment method I use now, until I cancel it from my client portal.');
+  }
+  var base = isEs
+    ? 'He leído y acepto el <a href="/legal" target="_blank">Aviso Legal</a> y los <a href="/terms" target="_blank">Términos de Servicio</a>, y entiendo que este es un servicio de preparación de documentos, no asesoría legal ni fiscal.'
+    : 'I have read and agree to the <a href="/legal" target="_blank">Legal Statement</a> and <a href="/terms" target="_blank">Terms of Service</a>, and understand this is a document preparation service, not legal or tax advice.';
+  var el = document.getElementById('terms-agree-text');
+  if(el) el.innerHTML = base + recTxt;
 }
 
 // ═══════════════════════════════════════════════════════

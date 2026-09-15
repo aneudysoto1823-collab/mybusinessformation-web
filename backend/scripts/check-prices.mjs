@@ -140,17 +140,21 @@ assertContains('home ITIN paso 7', homeSrc, [
   `addon-itin-price"><span class="fm-addon-was">$135</span>$${CENTRAL.itin_addon}</div>`,
 ])
 
-// Registered Agent condicional (2026-09-03):
+// Registered Agent condicional (2026-09-03, reordenado en la tabla 2026-09-15):
 // - Basic mantiene "+ $99/year" en la tabla y cobra $99 real en el summary/payload
-// - Standard/Premium cambian a "Included (1st year free)" en la tabla — se pagan
-//   como "Incluido" (primer año gratis, renueva a $99/año) via fmRenderRaPricing
+// - Standard/Premium muestran "Registered Agent (1st year free)" con checkmark ✓
+//   (mismo trato visual que el resto de ítems incluidos, en vez del texto
+//   "Included (1st year free)" en la columna de estado) — se pagan como
+//   "Incluido" (primer año gratis, renueva a $99/año) via fmRenderRaPricing.
+//   Reposicionado debajo de Banking Resolution (Standard) y de Articles of
+//   Amendment (Premium), ya no al final de la lista.
 assertContains('home tabla RA Basic', homeSrc, [
   // Fila de Basic: mantiene la promesa de "+ $${RA_FEE}/year"
   `<span class="svc-status s-add" data-en="+ $${CENTRAL.ra_fee}/year" data-es="+ $${CENTRAL.ra_fee}/año">+ $${CENTRAL.ra_fee}/year</span>`,
 ])
 assertContains('home tabla RA Std/Prem', homeSrc, [
-  // Standard y Premium ya no prometen "+ $99/year" — pasan a "Included (1st year free)"
-  `<span class="svc-status s-check" data-en="Included (1st year free)" data-es="Incluido (1er año gratis)">Included (1st year free)</span>`,
+  // Standard y Premium: checkmark + nota "1st year free" en el nombre
+  `data-en="Registered Agent (1st year free)" data-es="Agente Registrado (1er año gratis)">Registered Agent (1st year free)</span><span class="svc-status s-check">✓</span>`,
 ])
 assertContains('home fmUpdateSummary RA', homeSrc, [
   // Suma condicional del RA en Basic con ra='us' (espeja RA_FIRST_YEAR_FEE server-side)
