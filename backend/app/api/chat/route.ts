@@ -422,7 +422,7 @@ TERMS & REFUND POLICY:
 - Florida state filing fees (LLC $125, Corp $70) are paid directly to the State — separate from our fees.
 - Refunds may be requested within 24 hours of order placement and BEFORE any filing has been initiated. Once documents have been prepared or submitted, no refund will be issued.
 - Refund requests must be submitted in writing to info@opabiz.com.
-- Processing times are estimates only — Standard 7–14 business days, Expedited 1–3 business days. These depend on the Florida Division of Corporations and are outside our control.
+- Processing times are estimates only — Standard 7–14 business days, Expedited 1–3 business days. These depend on the Florida Division of Corporations and are outside our control. If a filing takes longer than the estimate, once it has already been submitted to the State our service fee is non-refundable (same rule as above) — the estimate reflects the State's typical turnaround, not ours.
 
 PRIVACY POLICY (key points):
 - We collect: full name, address, email, phone, business info, SSN/ITIN (for EIN/ITIN applications only), and payment info (we do NOT store card numbers).

@@ -263,7 +263,9 @@ ${isFBFC ? `
 .co-amd-opt{display:flex;align-items:center;gap:10px;cursor:pointer;padding:11px 14px;background:#fff;border:1.5px solid var(--gray200);border-radius:9px;margin-bottom:10px;font-size:.88rem;font-weight:600;color:var(--gray800)}
 .co-amd-opt input{width:17px;height:17px;cursor:pointer;accent-color:var(--blue)}
 .co-amd-sec{padding:0 2px 8px;margin:-2px 0 12px}
-.co-pay-disclosure{font-size:.72rem;color:var(--gray500);margin-top:16px;padding-top:14px;border-top:1px solid var(--gray100);line-height:1.55}
+.co-pay-disclosure-wrap{margin-top:16px;padding-top:14px;border-top:1px solid var(--gray100);display:flex;align-items:flex-start;gap:8px;cursor:pointer}
+.co-pay-disclosure-wrap input[type=checkbox]{margin-top:2px;flex-shrink:0;width:15px;height:15px;cursor:pointer;accent-color:var(--blue)}
+.co-pay-disclosure{font-size:.72rem;color:var(--gray500);line-height:1.55}
 .co-pay-disclosure a{color:var(--blue);text-decoration:underline}
 .co-review-row.co-row-state{color:var(--gray400)}
 .co-review-row.co-row-state span:last-child{color:var(--gray400);font-weight:500}
@@ -459,7 +461,10 @@ html.co-wide .co-tier{padding:20px 18px}
           <div class="co-ir-sub" data-en="Order summary" data-es="Resumen del pedido">Resumen del pedido</div>
           <div id="co-review-lines"></div>
           <div class="co-review-total"><span data-en="Total" data-es="Total">Total</span><strong id="co-review-total">$0</strong></div>
-          <div class="co-pay-disclosure" id="co-pay-disclosure"></div>
+          <label class="co-pay-disclosure-wrap" for="co-chk-terms">
+            <input type="checkbox" id="co-chk-terms" onchange="coOnTermsToggle()">
+            <span class="co-pay-disclosure" id="co-pay-disclosure"></span>
+          </label>
         </div>
         <div class="co-embed" id="embedded-checkout"><div style="text-align:center;padding:60px 0"><div class="co-spinner"></div></div></div>
       </div>
@@ -2446,8 +2451,25 @@ function coPrefetchPayment(){
   p.catch(function(){}); // evita "unhandled rejection"; el error real se maneja al consumir
   coPrefetch={ key:key, promise:p };
 }
+// Placeholder que reemplaza al form de Stripe mientras el checkbox de
+// términos no esté marcado (auditoría compliance 2026-09-15) — antes el
+// pago se montaba sin ningún consentimiento activo del cliente, solo un
+// texto pasivo. Nunca se monta el iframe de Stripe sin esto marcado.
+function coShowTermsGate(){
+  var isEs=coIsEs();
+  var ec=$('embedded-checkout');
+  if(ec) ec.innerHTML='<div style="text-align:center;padding:44px 20px;color:var(--gray500);font-size:.82rem;line-height:1.6">'+(isEs?'Marque la casilla de arriba para continuar con el pago.':'Please check the box above to continue to payment.')+'</div>';
+}
+// onchange del checkbox — marcarlo dispara el flujo normal de pago;
+// desmarcarlo (si ya estaba montado) destruye Stripe y vuelve al placeholder.
+function coOnTermsToggle(){
+  var chk=$('co-chk-terms');
+  if(chk && chk.checked){ coStartPayment(); } else { coDestroyStripe(); coShowTermsGate(); }
+}
 function coStartPayment(){
   var isEs=coIsEs();
+  var chkTerms=$('co-chk-terms');
+  if(!chkTerms || !chkTerms.checked){ coShowTermsGate(); return; }
   try{ coRenderReviewNames(); }catch(e){}
   try{ coRenderIntakeReview(); }catch(e){}
   // Guarda: si por algún estado raro del carrito el total es 0, no cuelgues el

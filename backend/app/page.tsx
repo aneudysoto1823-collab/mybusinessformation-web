@@ -597,7 +597,8 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 .fm-skel{border-radius:8px;background:#eef2f7;background-image:linear-gradient(90deg,#eef2f7 0px,#f6f8fb 200px,#eef2f7 400px);background-size:800px 100%;animation:fmSkelShimmer 1.2s linear infinite}
 .fm-sum-pay-notice{margin-top:12px;font-size:.72rem;line-height:1.5;color:#92400e;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:9px 11px}
 .fm-sum-pay-notice strong{color:#b45309}
-.fm-sum-pay-consent{margin-top:10px;font-size:.7rem;line-height:1.5;color:#6b7280}
+.fm-sum-pay-consent{margin-top:10px;font-size:.7rem;line-height:1.5;color:#6b7280;display:flex;align-items:flex-start;gap:8px;cursor:pointer}
+.fm-sum-pay-consent input[type=checkbox]{margin-top:2px;flex-shrink:0;width:15px;height:15px;cursor:pointer;accent-color:#2563eb}
 .fm-sum-pay-consent a{color:#2563eb;text-decoration:none}
 .fm-sum-head{padding:16px 20px;border-bottom:1px solid #f3f4f6}
 .fm-sum-head-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
@@ -1306,7 +1307,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
       </div>
       <div class="faq-item">
         <button class="faq-q" onclick="toggleFaq(this)"><span data-en="How long does it take to form my business in Florida?" data-es="¿Cuánto tiempo tarda en formarse mi negocio en Florida?">How long does it take to form my business in Florida?</span><span class="faq-icon">+</span></button>
-        <div class="faq-a" data-en="Standard processing typically takes 7-14 business days. With Expedited Filing, it can be reduced to 1-3 business days." data-es="El procesamiento estándar normalmente tarda 7-14 días hábiles. Con tramitación acelerada puede reducirse a 1-3 días hábiles.">Standard processing typically takes 7-14 business days. With Expedited Filing, it can be reduced to 1-3 business days.</div>
+        <div class="faq-a" data-en="Standard processing typically takes 7-14 business days. With Expedited Filing, it can be reduced to 1-3 business days. These are estimates only, based on the Florida Division of Corporations' current workload — if your filing takes longer, note that once we've submitted it to the State, our service fee is non-refundable, since our work is already done." data-es="El procesamiento estándar normalmente tarda 7-14 días hábiles. Con tramitación acelerada puede reducirse a 1-3 días hábiles. Estos son estimados basados en la carga actual de la División de Corporaciones de Florida — si su trámite tarda más, tenga en cuenta que una vez presentado ante el Estado, nuestra tarifa de servicio no es reembolsable, ya que nuestro trabajo ya está hecho.">Standard processing typically takes 7-14 business days. With Expedited Filing, it can be reduced to 1-3 business days. These are estimates only, based on the Florida Division of Corporations' current workload — if your filing takes longer, note that once we've submitted it to the State, our service fee is non-refundable, since our work is already done.</div>
       </div>
       <div class="faq-item">
         <button class="faq-q" onclick="toggleFaq(this)"><span data-en="What is a Registered Agent and do I really need one?" data-es="¿Qué es un Agente Registrado y realmente lo necesito?">What is a Registered Agent and do I really need one?</span><span class="faq-icon">+</span></button>
@@ -2462,7 +2463,10 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
              Stripe — ver fmDetectAgentMode()/fmGoToStep(). El botón
              #s8-agent-save-btn (footer del Review) reemplaza a Save. -->
         <div class="fm-sum-pay-notice" id="sum-pay-notice"><strong>&#9888; Non-Refundable:</strong> State fees cannot be refunded once processing begins. Our service fee is refundable within 24 hours if filing has not started.</div>
-        <div class="fm-sum-pay-consent" id="sum-pay-consent">By completing payment you agree to our <a href="/legal" target="_blank">Legal Statement</a> and <a href="/terms" target="_blank">Terms of Service</a>.</div>
+        <label class="fm-sum-pay-consent" id="sum-pay-consent" for="chk-terms-agree">
+          <input type="checkbox" id="chk-terms-agree" onchange="fmOnTermsToggle()">
+          <span id="terms-agree-text">I have read and agree to the <a href="/legal" target="_blank">Legal Statement</a> and <a href="/terms" target="_blank">Terms of Service</a>, and understand this is a document preparation service, not legal or tax advice.</span>
+        </label>
       </div>
     </div>
     <!-- Columna derecha del paso de pago: aquí fmGoToStep mueve #fm-pay-area (Stripe). -->
@@ -3734,9 +3738,9 @@ function setLang(lang) {
      'What is the difference between an LLC and a Corporation?',
      'An LLC offers flexible management and pass-through taxation — ideal for small businesses. A Corporation is a more formal structure suited for businesses seeking investors or planning to issue stock. Both protect your personal assets from business liabilities.'],
     ['¿Cuánto tiempo tarda la formación de mi negocio en Florida?',
-     'El procesamiento estándar con la División de Corporaciones de Florida toma 7–14 días hábiles. Con nuestro servicio Acelerado (incluido gratis en Premium, o disponible como add-on), el proceso puede reducirse a 1–3 días hábiles.',
+     'El procesamiento estándar con la División de Corporaciones de Florida toma 7–14 días hábiles. Con nuestro servicio Acelerado (incluido gratis en Premium, o disponible como add-on), el proceso puede reducirse a 1–3 días hábiles. Son estimados, no garantías — si su trámite tarda más, una vez presentado ante el Estado nuestra tarifa de servicio no es reembolsable, ya que nuestro trabajo ya está hecho.',
      'How long does it take to form my business in Florida?',
-     'Standard processing typically takes 7–14 business days. With our Expedited Filing service (included free in Premium, or available as an add-on), processing can be reduced to 1–3 business days.'],
+     'Standard processing typically takes 7–14 business days. With our Expedited Filing service (included free in Premium, or available as an add-on), processing can be reduced to 1–3 business days. These are estimates, not guarantees — if your filing takes longer, once it has been submitted to the State our service fee is non-refundable, since our work is already done.'],
     ['¿Qué es un Agente Registrado y realmente lo necesito?',
      'Sí — toda LLC y Corporación en Florida está legalmente obligada a tener un Agente Registrado con dirección física en el estado. El Agente Registrado recibe documentos legales oficiales y avisos fiscales en nombre de su negocio.',
      'What is a Registered Agent and do I really need one?',
@@ -4847,7 +4851,12 @@ function fmGoToStep(n) {
       var _agentSaveBtn = document.getElementById('s8-agent-save-btn'); if(_agentSaveBtn) _agentSaveBtn.style.display = '';
       var _payTitle = document.getElementById('sum-pay-title'); if(_payTitle) _payTitle.textContent = 'Agent Mode';
     } else {
-      fmMountPayment();
+      // Checkbox real de términos (auditoría compliance 2026-09-15): antes
+      // el pago se montaba directo, sin ningún consentimiento activo del
+      // cliente (solo un texto pasivo "al pagar aceptas..."). Ahora Stripe
+      // NO se monta hasta que el checkbox esté marcado.
+      var _chkTerms = document.getElementById('chk-terms-agree');
+      if(_chkTerms && _chkTerms.checked) { fmMountPayment(); } else { fmShowTermsGate(); }
     }
   } else {
     // Restaurar: Stripe vuelve dentro del summary y el summary vuelve a la derecha.
@@ -6026,6 +6035,23 @@ function fmPrefetchPayment() {
 // Summary. Se llama al entrar al Review (fmGoToStep n===8). Los emails los manda
 // el webhook al confirmarse el pago (deferEmails). El precio se recalcula
 // server-side desde la orden \u2014 el navegador no decide el monto.
+// Placeholder que reemplaza al form de Stripe mientras el checkbox de
+// términos no esté marcado (auditoría compliance 2026-09-15) — nunca se
+// monta el iframe de Stripe sin consentimiento activo primero.
+function fmShowTermsGate() {
+  fmDestroyPayment();
+  var isEsS = !!(document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active'));
+  var ec = document.getElementById('embedded-checkout');
+  if(ec) ec.innerHTML = '<div style="padding:22px 10px;text-align:center;color:#64748b;font-size:.82rem;line-height:1.6">' + (isEsS ? 'Marque la casilla de arriba para continuar con el pago.' : 'Please check the box above to continue to payment.') + '</div>';
+}
+
+// onchange del checkbox de términos — marcarlo monta Stripe recién ahí;
+// desmarcarlo (si ya estaba montado) lo destruye y vuelve al placeholder.
+function fmOnTermsToggle() {
+  var _chk = document.getElementById('chk-terms-agree');
+  if(_chk && _chk.checked) { fmMountPayment(); } else { fmShowTermsGate(); }
+}
+
 async function fmMountPayment() {
   if(_fmMounting) return;
   _fmMounting = true;
@@ -6615,7 +6641,7 @@ function fmTranslate(lang) {
     'sum-sec-ssl':isEs?'&#128274; Cifrado SSL':'&#128274; SSL Encrypted',
     'sum-pay-title':isEs?'Pago Seguro':'Secure Payment',
     'sum-pay-notice':isEs?'<strong>&#9888; No reembolsable:</strong> Los cargos estatales no son reembolsables una vez iniciado el proceso. Nuestra tarifa de servicio es reembolsable dentro de las 24 horas si el tr\\u00e1mite no ha comenzado.':'<strong>&#9888; Non-Refundable:</strong> State fees cannot be refunded once processing begins. Our service fee is refundable within 24 hours if filing has not started.',
-    'sum-pay-consent':isEs?'Al completar el pago aceptas nuestro <a href="/legal" target="_blank">Aviso Legal</a> y los <a href="/terms" target="_blank">T\\u00e9rminos de Servicio</a>.':'By completing payment you agree to our <a href="/legal" target="_blank">Legal Statement</a> and <a href="/terms" target="_blank">Terms of Service</a>.',
+    'terms-agree-text':isEs?'He le\\u00eddo y acepto el <a href="/legal" target="_blank">Aviso Legal</a> y los <a href="/terms" target="_blank">T\\u00e9rminos de Servicio</a>, y entiendo que este es un servicio de preparaci\\u00f3n de documentos, no asesor\\u00eda legal ni fiscal.':'I have read and agree to the <a href="/legal" target="_blank">Legal Statement</a> and <a href="/terms" target="_blank">Terms of Service</a>, and understand this is a document preparation service, not legal or tax advice.',
     'sum-sec-nofees':isEs?'&#10003; Sin Cargos Ocultos':'&#10003; No Hidden Fees',
     'sum-sec-email':isEs?'&#128196; Recibo por Correo':'&#128196; Receipt by Email',
     's2-sub':isEs?'Cuéntenos cómo contactarlo y dónde estará ubicado su negocio.':'Tell us how to reach you and where your business will be located.',
