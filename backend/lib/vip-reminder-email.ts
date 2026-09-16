@@ -73,6 +73,13 @@ export function buildVipReminderEmail(company: CampaignCompany, lang: 'en' | 'es
     ? `Su Declaración Anual ${filingYearLabel} · ${company.company_name}`
     : `Your ${filingYearLabel} Annual Report · ${company.company_name}`
 
+  // Disclaimer superior — hallazgo #2 auditoría FTC/UPL 2026-09-15: antes el
+  // aviso de "no somos gobierno" solo vivía al final del email, después de
+  // mostrar ambas ofertas con precio.
+  const topDisclaimer = isEs
+    ? 'Florida Business Formation Center es un servicio privado de preparación de documentos. No somos una agencia gubernamental, no estamos afiliados con el Estado de Florida ni con el IRS, y usted no está obligado a utilizar nuestros servicios.'
+    : 'Florida Business Formation Center is a private document preparation service. We are not a government agency, we are not affiliated with the State of Florida or the IRS, and you are not required to use our services.'
+
   const introParas = firstArYear
     ? (isEs
         ? [
@@ -147,12 +154,21 @@ export function buildVipReminderEmail(company: CampaignCompany, lang: 'en' | 'es
           </td>
         </tr>
 
+        <!-- Disclaimer superior (antes de cualquier precio) -->
+        <tr>
+          <td style="background:#fff;padding:22px 36px 0">
+            <div style="background:#EEF7E9;border:1px solid #CFE8C3;border-radius:10px;padding:12px 16px">
+              <p style="color:#3F5E32;font-size:12px;line-height:1.6;margin:0">${topDisclaimer}</p>
+            </div>
+          </td>
+        </tr>
+
         <!-- Recuadro de registro — mismo diseño que Carta Nuevas Empresas
              (pedido founder 2026-09-15: "con los datos le inspira mucho más
              confianza al cliente" que solo el saludo con nombre). Reemplaza
              el texto plano "LLC / documentId" que tenía este email antes. -->
         <tr>
-          <td style="background:#fff;padding:26px 36px 6px">
+          <td style="background:#fff;padding:14px 36px 6px">
             <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px">
               <tr>
                 <td style="padding:16px 18px 8px">
@@ -218,13 +234,17 @@ export function buildVipReminderEmail(company: CampaignCompany, lang: 'en' | 'es
                       ? 'Si prefiere simplemente resolverlo, podemos presentarla por usted como un servicio único. Es rápido de completar, y queda resuelto con tiempo de sobra antes del plazo límite del 1 de mayo.'
                       : "If you'd simply like to get it out of the way, we can file it for you as a one-time service. It's quick to set up, and it's taken care of well before the May 1 deadline."}
                   </p>
-                  <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:18px">
+                  <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:6px;border-top:1px solid #EEF2F7;padding-top:10px">
                     <tr>
-                      <td style="font-size:24px;font-weight:800;color:#1C2E44;font-family:Georgia,serif">$99</td>
-                      <td align="right" style="font-size:11.5px;color:#94A3B8;vertical-align:bottom;padding-bottom:4px">${isEs ? '+ $139 tarifa estatal de Florida' : '+ $139 Florida state fee'}</td>
+                      <td style="font-size:11px;color:#94A3B8;font-weight:700;text-transform:uppercase;letter-spacing:.03em;padding:3px 0">Filing Services Fee</td>
+                      <td align="right" style="font-size:16px;font-weight:800;color:#1C2E44;font-family:Georgia,serif;padding:3px 0">$99</td>
+                    </tr>
+                    <tr>
+                      <td style="font-size:10.5px;color:#A8B4C4;font-weight:600;padding:3px 0">Florida State Fee</td>
+                      <td align="right" style="font-size:13px;font-weight:700;color:#64748B;padding:3px 0">$139</td>
                     </tr>
                   </table>
-                  <a href="${arUrl}" style="display:block;text-align:center;background:${GREEN};color:#fff;text-decoration:none;padding:13px 24px;border-radius:9px;font-weight:700;font-size:14.5px">${isEs ? 'Presentar mi Declaración Anual' : 'File My Annual Report'}</a>
+                  <a href="${arUrl}" style="display:block;text-align:center;background:${GREEN};color:#fff;text-decoration:none;padding:13px 24px;border-radius:9px;font-weight:700;font-size:14.5px;margin-top:12px">${isEs ? 'Presentar mi Declaración Anual' : 'File My Annual Report'}</a>
                 </td>
               </tr>
             </table>
@@ -261,13 +281,17 @@ export function buildVipReminderEmail(company: CampaignCompany, lang: 'en' | 'es
                     <tr><td style="padding:0 0 6px;width:20px;vertical-align:top;color:${GREEN};font-weight:800;font-size:12.5px">&#10003;</td><td style="padding:0 0 6px;font-size:12.5px;color:#475569;line-height:1.6">${isEs ? '<strong style="color:#1C2E44">Declaración Anual:</strong> presentada cada año antes del plazo, sin que usted tenga que recordarlo.' : '<strong style="color:#1C2E44">Annual Report:</strong> filed every year before the deadline, without you having to remember.'}</td></tr>
                     <tr><td style="width:20px;vertical-align:top;color:${GREEN};font-weight:800;font-size:12.5px">&#10003;</td><td style="font-size:12.5px;color:#475569;line-height:1.6">${isEs ? 'Confirmación por email cada vez que se presenta.' : "Email confirmation every time it's filed."}</td></tr>
                   </table>
-                  <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:18px">
+                  <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:6px;border-top:1px solid #EEF2F7;padding-top:10px">
                     <tr>
-                      <td style="font-size:24px;font-weight:800;color:#1C2E44;font-family:Georgia,serif">$179<span style="font-size:13px;font-weight:600;color:#64748b">${isEs ? '/año' : '/year'}</span></td>
-                      <td align="right" style="font-size:11.5px;color:#94A3B8;vertical-align:bottom;padding-bottom:4px">${isEs ? '+ $139 tarifa estatal de Florida' : '+ $139 Florida state fee'}</td>
+                      <td style="font-size:11px;color:#94A3B8;font-weight:700;text-transform:uppercase;letter-spacing:.03em;padding:3px 0">Filing Services Fee</td>
+                      <td align="right" style="font-size:16px;font-weight:800;color:#1C2E44;font-family:Georgia,serif;padding:3px 0">$179<span style="font-size:11px;font-weight:600;color:#64748b">${isEs ? '/año' : '/year'}</span></td>
+                    </tr>
+                    <tr>
+                      <td style="font-size:10.5px;color:#A8B4C4;font-weight:600;padding:3px 0">Florida State Fee</td>
+                      <td align="right" style="font-size:13px;font-weight:700;color:#64748B;padding:3px 0">$139</td>
                     </tr>
                   </table>
-                  <a href="${vipUrl}" style="display:block;text-align:center;background:${GREEN};color:#fff;text-decoration:none;padding:13px 24px;border-radius:9px;font-weight:700;font-size:14.5px">${isEs ? 'Obtener Paquete VIP' : 'Get VIP Compliance Package'}</a>
+                  <a href="${vipUrl}" style="display:block;text-align:center;background:${GREEN};color:#fff;text-decoration:none;padding:13px 24px;border-radius:9px;font-weight:700;font-size:14.5px;margin-top:12px">${isEs ? 'Obtener Paquete VIP' : 'Get VIP Compliance Package'}</a>
                   <p style="text-align:center;font-size:11px;color:#94A3B8;margin:10px 0 0">${isEs ? 'Cancele cuando quiera. Sin contrato a largo plazo.' : 'Cancel anytime. No long-term contract.'}</p>
                 </td>
               </tr>

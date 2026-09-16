@@ -10,6 +10,12 @@ const BLACK     = rgb(0.10, 0.10, 0.10)
 const GRAY      = rgb(0.40, 0.40, 0.40)
 const LIGHT     = rgb(0.85, 0.85, 0.85)
 const OFF_WHITE = rgb(0.97, 0.97, 0.97)
+// Disclaimer superior (auditoría FTC/UPL 2026-09-15) — mismo verde que ya usa
+// vip-reminder-email.ts, para que se lea como "aviso" y no como parte del
+// recuadro de registro (gris/navy).
+const GREEN_TINT   = rgb(0.933, 0.969, 0.910)  // #EEF7E9
+const GREEN_BORDER = rgb(0.812, 0.910, 0.765)  // #CFE8C3
+const GREEN_TEXT   = rgb(0.247, 0.369, 0.196)  // #3F5E32
 
 const PAGE_W = 612
 const PAGE_H = 792
@@ -76,10 +82,19 @@ export type NewBusinessLetterData = {
 // ── Contenido bilingüe (solo el texto FIJO; los datos variables vienen en data) ──
 type LetterContent = {
   title: string
+  // Disclaimer privado/no-gobierno, agregado ANTES del recuadro de registro
+  // y de cualquier precio — hallazgo #2 de la auditoría FTC/UPL 2026-09-15
+  // (antes el disclosure legal solo aparecía al final, después de los precios).
+  topDisclaimer: string
   labels: { doc: string; reg: string; notice: string; entity: string }
   greeting: (company: string) => string
   body: [string, string, string]
-  services: { name: string; price: string; desc: string }[]
+  // govFeeLabel/govFeeAmount: línea opcional bajo el precio para el servicio
+  // que sí tiene una tarifa gubernamental real que desglosar (hoy solo EIN,
+  // "IRS Fee $0.00" — hallazgo #3 de la misma auditoría). Labor Law Posters
+  // y Certificate of Status no tienen una tarifa de gobierno separada, así
+  // que quedan sin esas 2 propiedades.
+  services: { name: string; price: string; desc: string; govFeeLabel?: string; govFeeAmount?: string }[]
   cta: [string, string]
   disclosureHeading: string
   disclosure: string
@@ -87,6 +102,10 @@ type LetterContent = {
 
 const EN: LetterContent = {
   title: 'BUSINESS COMPLIANCE INFORMATION NOTICE',
+  topDisclaimer:
+    'Florida Business Formation Center is a private document preparation service. We are not a ' +
+    'government agency, we are not affiliated with the State of Florida or the IRS, and you are not ' +
+    'required to use our services.',
   labels: { doc: 'Document Number', reg: 'Registration Date', notice: 'Notice Date', entity: 'Entity Type' },
   greeting: c => `Congratulations on the recent registration of ${c}.`,
   body: [
@@ -108,7 +127,7 @@ const EN: LetterContent = {
             'employment rights. Displaying outdated posters can result in fines during an inspection.',
     },
     {
-      name: 'EIN (Tax ID)', price: '$161',
+      name: 'EIN (Tax ID)', price: '$161', govFeeLabel: 'IRS Fee', govFeeAmount: '$0.00',
       desc: 'A nine-digit number issued by the IRS to identify your business for federal tax purposes. By law, ' +
             'any business with at least one employee must obtain an EIN for payroll and employment tax reporting. ' +
             'Also commonly required to open a business bank account, file taxes, and apply for licenses.',
@@ -135,6 +154,10 @@ const EN: LetterContent = {
 
 const ES: LetterContent = {
   title: 'AVISO INFORMATIVO DE CUMPLIMIENTO EMPRESARIAL',
+  topDisclaimer:
+    'Florida Business Formation Center es un servicio privado de preparación de documentos. No somos una ' +
+    'agencia gubernamental, no estamos afiliados con el Estado de Florida ni con el IRS, y usted no está ' +
+    'obligado a utilizar nuestros servicios.',
   labels: { doc: 'Número de Documento', reg: 'Fecha de Registro', notice: 'Fecha del Aviso', entity: 'Tipo de Entidad' },
   greeting: c => `Felicitaciones por el registro reciente de ${c}.`,
   body: [
@@ -158,7 +181,7 @@ const ES: LetterContent = {
             'laboral e igualdad de oportunidades. Exhibir carteles desactualizados puede generar multas en una inspección.',
     },
     {
-      name: 'EIN (Número Fiscal)', price: '$161',
+      name: 'EIN (Número Fiscal)', price: '$161', govFeeLabel: 'IRS Fee', govFeeAmount: '$0.00',
       desc: 'Número de nueve dígitos emitido por el IRS para identificar su negocio ante el fisco federal. Por ley, ' +
             'toda empresa con al menos un empleado debe obtener un EIN para la nómina y la declaración de impuestos ' +
             'laborales. También suele requerirse para abrir una cuenta bancaria comercial, declarar impuestos y obtener licencias.',
@@ -321,6 +344,25 @@ export async function generateNewBusinessLetter(input: NewBusinessLetterData): P
   t('GAINESVILLE FL 32608', txtX, y - 36, regular, 8, GRAY)
   y -= 78
 
+  // ── 2.5 DISCLAIMER SUPERIOR (antes de cualquier precio) ───────────────────
+  // Hallazgo #2 de la auditoría FTC/UPL 2026-09-15: antes el aviso de "no
+  // somos gobierno" solo vivía al final de la carta, después de los precios.
+  // Este bloque va justo después del membrete, antes del recuadro de
+  // registro — nunca escalado por `scale` (es corto y fijo en los 2 idiomas,
+  // a diferencia del cuerpo/servicios/disclosure final que sí varían).
+  {
+    const discSize = 7.3
+    const discLh = 9.5
+    const discLines = wrapLines(C.topDisclaimer, regular, discSize, CW - 20)
+    const discPad = 7
+    const discH = discPad * 2 + discLines.length * discLh
+    ensure(discH + 10)
+    rect(MX, y - discH, CW, discH, GREEN_TINT, { color: GREEN_BORDER, width: 0.75 })
+    let dly = y - discPad - 6.5
+    discLines.forEach(line => { t(line, MX + 10, dly, regular, discSize, GREEN_TEXT); dly -= discLh })
+    y -= discH + 16
+  }
+
   // ── 3. DESTINATARIO (izq) + RECUADRO DE REGISTRO (der) ────────────────────
   const topY = y
 
@@ -392,18 +434,28 @@ export async function generateNewBusinessLetter(input: NewBusinessLetterData): P
   para(C.body[2], regular, 8.5 * scale, 12.5 * scale, BLACK)
   y -= 12 * scale
 
-  // ── 5. SERVICES GRID (3 columnas con precio + resumen) ────────────────────
+  // ── 5. SERVICES GRID (3 columnas, precio en formato de factura) ───────────
+  // Hallazgo #3 auditoría FTC/UPL: el precio ya no es un número suelto —
+  // ahora lleva la etiqueta "FILING SERVICES FEE" arriba (deja claro que es
+  // NUESTRO honorario, no un cargo de gobierno), y el servicio que sí tiene
+  // una tarifa gubernamental real (EIN → IRS Fee $0.00) la muestra en una
+  // segunda línea chica debajo. El espacio de esa 2da línea se reserva por
+  // igual en las 3 columnas (aunque solo EIN la usa) para que la grilla
+  // quede pareja — ver mismo criterio en campaign-email.ts.
   const services = C.services
   const colGap   = 10
   const colW     = (CW - colGap * 2) / 3
   const descSize = 6.5 * scale
   const descLh   = 8.5 * scale
   const headerH  = 18
-  const priceGap = 24
+  const feeLabelOffset  = 9    // "FILING SERVICES FEE" — debajo del header
+  const priceOffset     = 21   // precio principal
+  const govFeeOffset    = 30   // 2da línea opcional (ej. "IRS Fee: $0.00")
+  const descStartOffset = 42   // inicio de la descripción — fijo en las 3 columnas
   const descPad  = 8
   const descLinesArr = services.map(s => wrapLines(s.desc, regular, descSize, colW - 14))
   const maxLines = Math.max(...descLinesArr.map(a => a.length))
-  const gridH = headerH + priceGap + maxLines * descLh + descPad
+  const gridH = headerH + descStartOffset + maxLines * descLh + descPad
 
   ensure(gridH + 4)   // mantener la grilla íntegra (no partirla entre páginas)
   services.forEach((s, i) => {
@@ -412,11 +464,20 @@ export async function generateNewBusinessLetter(input: NewBusinessLetterData): P
     // Header navy
     rect(cx, y - headerH, colW, headerH, NAVY)
     centered(s.name, cx, colW, y - headerH + 5.5, bold, 7.5, WHITE)
-    // Price
+    // "FILING SERVICES FEE" + precio
+    const feeLabel = 'FILING SERVICES FEE'
+    const flw = regular.widthOfTextAtSize(feeLabel, 5.2)
+    t(feeLabel, cx + (colW - flw) / 2, y - headerH - feeLabelOffset, regular, 5.2, GRAY)
     const pw = bold.widthOfTextAtSize(s.price, 15)
-    t(s.price, cx + (colW - pw) / 2, y - headerH - priceGap + 7, bold, 15, BLACK)
+    t(s.price, cx + (colW - pw) / 2, y - headerH - priceOffset, bold, 15, BLACK)
+    // Línea opcional de tarifa gubernamental (solo EIN hoy)
+    if (s.govFeeLabel && s.govFeeAmount) {
+      const gline = `${s.govFeeLabel}: ${s.govFeeAmount}`
+      const gw = regular.widthOfTextAtSize(gline, 6)
+      t(gline, cx + (colW - gw) / 2, y - headerH - govFeeOffset, regular, 6, GRAY)
+    }
     // Description
-    let dy = y - headerH - priceGap - 2
+    let dy = y - headerH - descStartOffset
     descLinesArr[i].forEach(line => { t(line, cx + 7, dy, regular, descSize, GRAY); dy -= descLh })
   })
   y -= gridH + 16 * scale

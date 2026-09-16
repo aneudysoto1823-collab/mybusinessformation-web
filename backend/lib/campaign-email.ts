@@ -73,6 +73,14 @@ export function buildComplianceEmail(company: CampaignCompany, trackUrl: string,
     ? `Como ${company.company_name} es un negocio recién registrado, le ofrecemos los siguientes servicios que contribuirán a la organización y el buen funcionamiento de su empresa.`
     : `As a newly registered business, we offer ${company.company_name} the following services, which will help organize and strengthen your operation.`
 
+  // Disclaimer superior — hallazgo #2 auditoría FTC/UPL 2026-09-15: antes el
+  // aviso de "no somos gobierno" solo vivía al final del email, después de
+  // mostrar los 3 precios. Este va justo debajo del recuadro de registro,
+  // antes de la grilla de servicios.
+  const topDisclaimer = isEs
+    ? 'Florida Business Formation Center es un servicio privado de preparación de documentos. No somos una agencia gubernamental, no estamos afiliados con el Estado de Florida ni con el IRS, y usted no está obligado a utilizar nuestros servicios.'
+    : 'Florida Business Formation Center is a private document preparation service. We are not a government agency, we are not affiliated with the State of Florida or the IRS, and you are not required to use our services.'
+
   const disclosure = isEs
     ? 'Florida Business Formation Center es un servicio profesional de preparación y presentación de documentos. No somos un bufete de abogados y no brindamos asesoría legal, fiscal ni financiera. Nuestros servicios no constituyen el ejercicio de la abogacía ni crean una relación abogado-cliente. Todas las presentaciones están sujetas a la aprobación de la División de Corporaciones de Florida y del IRS. Para orientación legal o fiscal específica a su situación, le recomendamos consultar a un abogado de Florida con licencia o a un contador público certificado. Florida Business Formation Center no está afiliado, respaldado ni aprobado por ninguna agencia gubernamental federal, estatal o local, incluidos el IRS, el Departamento de Trabajo de EE. UU. o la División de Corporaciones de Florida. Este aviso no es una factura ni una solicitud de pago. Los servicios descritos son opcionales.'
     : 'Florida Business Formation Center is a professional document preparation and filing service. We are not a law firm and do not provide legal, tax, or financial advice. Our services do not constitute the practice of law and do not create an attorney-client relationship. All filings are subject to approval by the Florida Division of Corporations and the IRS. For legal or tax guidance specific to your situation, we encourage you to consult a licensed Florida attorney or certified public accountant. Florida Business Formation Center is not affiliated with, endorsed by, or approved by any federal, state, or local government agency, including the IRS, the U.S. Department of Labor, or the Florida Division of Corporations. This notice is not a bill, invoice, or demand for payment. The services described are optional.'
@@ -88,6 +96,7 @@ export function buildComplianceEmail(company: CampaignCompany, trackUrl: string,
     {
       name: isEs ? 'EIN (Número Fiscal)' : 'EIN (Tax ID)',
       price: '$161',
+      govFeeLabel: 'IRS Fee', govFeeAmount: '$0.00',
       desc: isEs
         ? 'Número de nueve dígitos emitido por el IRS para identificar su negocio ante el fisco federal. Suele requerirse para abrir una cuenta bancaria comercial, declarar impuestos y obtener licencias.'
         : 'A nine-digit number issued by the IRS to identify your business for federal tax purposes. Commonly required to open a business bank account, file taxes, and apply for licenses.',
@@ -101,6 +110,10 @@ export function buildComplianceEmail(company: CampaignCompany, trackUrl: string,
     },
   ]
 
+  // Precio en formato de factura (hallazgo #3 auditoría FTC/UPL 2026-09-15):
+  // "FILING SERVICES FEE" arriba del monto deja claro que es NUESTRO
+  // honorario, no un cargo de gobierno. El servicio que sí tiene una tarifa
+  // gubernamental real (EIN → IRS Fee $0.00) la muestra en una 2da línea chica.
   const servicesHtml = services.map(s => `
     <tr>
       <td style="padding:16px 20px;border-bottom:1px solid #f1f5f9">
@@ -110,8 +123,10 @@ export function buildComplianceEmail(company: CampaignCompany, trackUrl: string,
               <div style="font-weight:700;color:#1C2E44;font-size:15px;margin-bottom:4px">${s.name}</div>
               <div style="color:#64748b;font-size:13px;line-height:1.6">${s.desc}</div>
             </td>
-            <td width="64" style="text-align:right;vertical-align:top">
+            <td width="110" style="text-align:right;vertical-align:top">
+              <div style="color:#94A3B8;font-size:9px;font-weight:700;letter-spacing:.03em;text-transform:uppercase">Filing Services Fee</div>
               <span style="font-weight:800;color:${GREEN};font-size:17px;white-space:nowrap">${s.price}</span>
+              ${s.govFeeLabel && s.govFeeAmount ? `<div style="color:#94A3B8;font-size:10.5px;font-weight:600;margin-top:2px">${s.govFeeLabel}: ${s.govFeeAmount}</div>` : ''}
             </td>
           </tr>
         </table>
@@ -203,6 +218,15 @@ export function buildComplianceEmail(company: CampaignCompany, trackUrl: string,
                 </td>
               </tr>
             </table>
+          </td>
+        </tr>
+
+        <!-- Disclaimer superior (antes de cualquier precio) -->
+        <tr>
+          <td style="background:#fff;padding:14px 36px 0">
+            <div style="background:#EEF7E9;border:1px solid #CFE8C3;border-radius:10px;padding:12px 16px">
+              <p style="color:#3F5E32;font-size:12px;line-height:1.6;margin:0">${topDisclaimer}</p>
+            </div>
           </td>
         </tr>
 
