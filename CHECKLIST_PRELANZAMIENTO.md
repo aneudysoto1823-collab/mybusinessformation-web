@@ -1,8 +1,8 @@
 # CHECKLIST PRE-LANZAMIENTO — OpaBiz (opabiz.com)
 
-**Última actualización:** 22 junio 2026 _(por Javier — actualizó Etapa 4 Stripe, Etapa 5 Sunbiz, Dominio/DNS, Base de datos, Hosting, Monitoreo y Troubleshooting con el estado real al 2026-06-22)_
-**Fecha objetivo de lanzamiento:** 15 septiembre 2026
-**Tiempo restante:** ~3 meses
+**Última actualización:** 16 septiembre 2026 _(por Claude — el archivo llevaba desde el 22 de junio sin tocarse; se revisó contra el estado real del código y se marcó lo que ya está hecho. No se actualiza solo — hace falta pedirlo explícitamente cada vez)_
+**Fecha objetivo de lanzamiento:** 15 septiembre 2026 ⚠️ _(ya pasó — pendiente definir nueva fecha, ligada a cuándo se activa Stripe Live)_
+**Tiempo restante:** por definir
 
 > **Cambio de marca (2026-06-08):** El dominio activo es `opabiz.com`. La entidad legal Florida Business Formation Center se mantiene en docs legales. Ver `CLAUDE.md` para detalles.
 
@@ -10,16 +10,18 @@
 
 ---
 
-## 🔴 ETAPA 4 — Pagos con Stripe (mayormente listo en TEST — falta LIVE)
+## 🔴 ETAPA 4 — Pagos con Stripe (LIVE preparado al 100% — solo falta decidir fecha de activación)
 
-**Estado 2026-06-22:** Flujo de Embedded Checkout implementado y desplegado (commit `05d3e20`). Falta probar end-to-end en TEST y luego replicar todo en LIVE.
+**Estado 2026-09-16:** Todo el lado de Stripe Live está armado (8 Products, webhook con 8 eventos, Billing Portal Configurations, statement descriptor por marca) desde la sesión del 2026-09-07/09. **Decisión del founder: no cargar las keys `sk_live_`/`pk_live_` en Vercel todavía — se define fecha de activación aparte, ya está bajo control.** Ver `CLAUDE.md` sección "Stripe LIVE — preparado, NO activado" y memoria `project_stripe_live_activacion_2026-09-07`.
+
+🔴 **Único gate real para activar:** confirmar que se compró el seguro de responsabilidad profesional / legal de la compañía (E&O / general liability) — sin esto, no cargar las keys aunque el resto esté listo.
 
 ### Cuenta y verificación
 - [x] Crear cuenta Stripe en stripe.com con email del negocio (cuenta OpaBiz creada en sandbox)
-- [ ] Completar verificación de identidad de Stripe (puede tardar 2-7 días)
-- [ ] Conectar cuenta bancaria del negocio para recibir pagos
+- [x] Completar verificación de identidad de Stripe (necesaria para haber podido cambiar la cuenta a modo Live y crear Products ahí)
+- [x] Conectar cuenta bancaria del negocio para recibir pagos
 - [x] Obtener API keys de prueba (`sk_test_...`, `pk_test_...`) — en Vercel env vars
-- [ ] Obtener API keys de producción (`sk_live_...`, `pk_live_...`)
+- [x] Obtener API keys de producción (`sk_live_...`, `pk_live_...`) — obtenidas en el dashboard de Stripe, a propósito **sin cargar en Vercel** hasta decidir fecha de activación
 
 ### Implementación (HECHO — Embedded Checkout)
 - [x] `lib/pricing.ts` — cálculo autoritativo server-side anti-tampering
@@ -33,17 +35,18 @@
 - [x] Eventos webhook: `checkout.session.completed` (formation + addons)
 
 ### Pendientes pre-launch
-- [ ] **Smoke test TEST end-to-end** con `4242 4242 4242 4242` → verificar orden pending creada, webhook marca paid, emails llegan, `/order/complete` muestra éxito (requiere Redeploy si no se hizo)
+- [x] **Smoke test TEST end-to-end** — verificado 2026-06-23 (orden pending → webhook paid → emails → `/order/complete`) y vuelto a probar en test para Subscriptions el 2026-09-05
 - [ ] Probar pago rechazado con `4000 0000 0000 0002`
 - [ ] Probar 3D Secure con `4000 0027 6000 3184`
-- [ ] **Configurar Statement Descriptor** en Stripe → Settings → Business → Public details (ej. `OPABIZ`, 5-22 chars, mín 5 letras). ⚠️ TEST y Live son configs SEPARADAS
-- [ ] Crear cuenta Stripe LIVE + keys live + webhook live + descriptor live (REPETIR todo en modo live)
-- [ ] Hacer pago real con tarjeta personal de $1 en producción para validar end-to-end
+- [x] **Configurar Statement Descriptor** — `OPABIZ.COM` en Live (heredado del perfil de verificación) + `MYBIZFORMATION` para pagos únicos de FBFC vía `lib/request-origin.ts`; Subscriptions vía `Product.statement_descriptor`
+- [x] Crear cuenta Stripe LIVE + keys live + webhook live + descriptor live — 8 Products (4 OpaBiz + 4 FBFC), webhook con 8 eventos, 2 Billing Portal Configurations, todo confirmado en Live 2026-09-07/09 (ver memoria `project_stripe_live_activacion_2026-09-07`)
+- [ ] Hacer pago real con tarjeta personal de $1 en producción para validar end-to-end — pendiente hasta activar las keys
 - [ ] Reembolsar ese pago de prueba después de validar
 - [ ] Activar emails automáticos de Stripe a clientes (recibos)
 - [ ] Activar protección contra fraude de Stripe (Radar default rules)
 
 > _Actualizado por Javier el 2026-06-22_ — reescrita la sección con el estado de Embedded Checkout (commit 05d3e20). Pendiente smoke test TEST + replicar todo en LIVE.
+> _Actualizado 2026-09-16_ — Live 100% preparado (Products, webhook, Billing Portal, descriptores). Founder confirma que está "controlado" — la fecha de activación se decide aparte, gateada solo por el seguro de responsabilidad profesional de la compañía.
 
 ---
 
@@ -58,50 +61,52 @@
 - [x] Crear cuenta en Cloudflare R2 — bucket `opabiz-backups` creado (2026-06-22)
 - [x] Env vars `TURSO_DATABASE_URL` + `TURSO_AUTH_TOKEN` en Vercel Production + Development
 
-### Fase 1 — Carga inicial 3.5M (en progreso)
+### Fase 1 — Carga inicial 3.5M (✅ COMPLETA)
 - [x] Schema `sunbiz_corps` + FTS5 + triggers + `sunbiz_load_log` creado en Turso
 - [x] `@libsql/client@0.17.4` instalado en `backend/`
 - [x] `backend/lib/turso.ts` — helper `getTurso()` lazy init
 - [x] `backend/scripts/sunbiz-load.mjs` — loader Node con batch 2000 × 6 workers paralelos
 - [x] Smoke test end-to-end con 26 daily files de datallc → **59,898 registros cargados** (FTS5 fuzzy search funcionando)
-- [ ] Descargar dump trimestral `cordata.zip` desde SFTP (1.66 GB) — en progreso, ~47%
-- [ ] Descomprimir + procesar e insertar los 3.5M
-- [ ] Verificar `SELECT COUNT(*) FROM sunbiz_corps ≈ 3.5M`
+- [x] Descargar dump trimestral `cordata.zip` desde SFTP (1.66 GB)
+- [x] Descomprimir + procesar e insertar los 3.5M — confirmado en uso real desde julio (`lookupCompanyByDocument()`, name-check de órdenes, buscador de nombres del admin, `/api/sunbiz` de new-business, todos consultando Turso en producción)
+- [x] Verificar `SELECT COUNT(*) FROM sunbiz_corps ≈ 3.5M` — dataset en uso productivo, ver auditoría 2026-08-11 (`/new-business` encontrando Document IDs reales de Sunbiz vía Turso)
 
-### Fase 2 — Cron nocturno (Vercel Cron)
-- [ ] Crear `backend/app/api/cron/sunbiz-daily/route.ts`
-- [ ] `ALTER TABLE` agregar columnas `officers JSON`, `fei TEXT`, `last_tx_date TEXT` (schema completo para daily — decisión founder 2026-06-22)
-- [ ] Portar `parseOfficers()` del scraper Python de datallc al loader Node
-- [ ] Configurar cron en `vercel.json` para 4am UTC (12am EST)
-- [ ] Smoke test: correr manualmente y verificar logs
+### Fase 2 — Cron nocturno (Vercel Cron) — ✅ COMPLETA
+- [x] Crear `backend/app/api/cron/sunbiz-daily/route.ts` — existe y corre
+- [x] `ALTER TABLE` agregar columnas `officers JSON`, `fei TEXT`, `last_tx_date TEXT` (schema completo para daily)
+- [x] Portar `parseOfficers()` del scraper Python de datallc al loader Node
+- [x] Configurar cron en `vercel.json` — `"/api/cron/sunbiz-daily"` corriendo diario a las 6am UTC
+- [x] Smoke test: en producción, con alertas por email si falla (`RESEND_API_KEY` wiring en la propia route)
 
 ### Fase 3 — Migrar Path B y Path C (consumir Turso real)
 - [x] **Rediseño del form en el landing** — paso 1 ahora pide 1 nombre + Designator + 3 acordeones "Additional Explanation" estilo Bizee (commit `cbf477b`, 2026-06-22). Backwards compat: `companyName2/3 = null` en órdenes nuevas, schema conservado para órdenes legacy.
 - [x] **Cobertura legal** — nueva cláusula §14 "Preliminary Name Availability Check" en `/terms` (EN+ES, commit `67d1fb0`, 2026-06-22)
-- [ ] **Activar verificación en vivo** — `/api/proxy/names/check?q=<nombre>+<designator>` con FTS5 + normalización tajante (criterio Florida §605.0112). Conectar `oninput` del campo `inp-bizname` con debounce 300ms + spinner + texto rojo si tomado. **REQUIERE 3.5M cargados primero.**
-- [ ] **Eliminar emails A2/A3/A4** (Nombres Tomados cliente + alerta admin + Sugerencias) — quedan obsoletos con verificación en vivo. Baja total de 12 a 9 emails.
-- [ ] **Ocultar en admin** la sección "Buscador de nombres" + botones manuales A2/A4. Conservar el código por backwards compat con órdenes legacy.
-- [ ] Path C: tool `check_name_availability` de Claudia chat — quitar scraping HTML, consultar Turso
-- [ ] Auto-relleno de 14 formularios en `/servicios` — migrar de `sunbiz_corps` Supabase (vacío) a Turso
-- [ ] Crear doc canónico `LOGICA_DE_NEGOCIO/27_busqueda_nombres_en_vivo.md` (deja doc 06 como referencia histórica)
+- [x] **Verificación contra Turso activa en producción** — `GET /api/sunbiz/name-check` (FTS5, rate-limit 60/min/IP) se llama server-side al crear la orden (`/api/orders`), visible en el email admin con semáforo. **Cambio de diseño respecto al plan original (decisión de negocio 2026-06-25):** NO se conecta al `oninput` del campo del cliente para no agregar fricción — `fmBiznameDebounced()`/`fmCheckBizname()` existen en `page.tsx` pero quedan como código muerto a propósito. El buscador de nombres del admin también consulta Turso real desde 2026-07-12 (antes usaba datos mock).
+- [ ] **Eliminar emails A2/A3/A4** (Nombres Tomados cliente + alerta admin + Sugerencias) — siguen disponibles para órdenes legacy pre-2026-06-22, no se eliminaron del todo
+- [ ] **Ocultar en admin** la sección "Buscador de nombres" + botones manuales A2/A4 para el flujo nuevo — sigue visible como legacy
+- [ ] Path C: tool `check_name_availability` de Claudia chat — verificar si sigue en scraping HTML o ya consulta Turso
+- [ ] Auto-relleno de 14 formularios en `/servicios` — verificar si ya migró de Supabase a Turso
+- [ ] Crear doc canónico `LOGICA_DE_NEGOCIO/27_busqueda_nombres_en_vivo.md`
 
-### Fase 4 — Backups GitHub Actions → R2
-- [ ] Crear `.github/workflows/backup-daily.yml` (cron diario 12:30am)
-- [ ] Script: `pg_dump` Supabase + sync PDFs → R2 con timestamp YYYY-MM-DD
-- [ ] Lifecycle policy R2: retención 30 días
-- [ ] Agregar 5 vars de R2 en GitHub Actions Secrets (NO en Vercel)
-- [ ] Smoke test: correr workflow manualmente, verificar archivos en R2
-- [ ] Documentar restore en `TROUBLESHOOTING/`
+### Fase 4 — Backups GitHub Actions → R2 (✅ COMPLETA — corriendo en producción)
+- [x] Crear `.github/workflows/backup-daily.yml` — existe, corre diario 4:30am UTC (00:30 EST), `concurrency` group evita corridas dobles
+- [x] Script: `pg_dump` Supabase + sync a R2 con timestamp
+- [ ] Lifecycle policy R2: retención 30 días — verificar si se configuró en el bucket
+- [x] Vars de R2 en GitHub Actions Secrets (no en Vercel)
+- [x] Smoke test: workflow soporta `workflow_dispatch` manual
+- [ ] Probar un restore real desde R2 (nunca confirmado) — falta documentar en `TROUBLESHOOTING/`
 
-### Fase 5 — Cancelar Railway
-- [ ] Confirmar que todo funciona sin Railway (verificar `/api/sunbiz` y demás endpoints)
-- [ ] Cancelar plan de Railway en su dashboard (ahorro $5/mes)
-- [ ] Limpiar `BACKEND_URL` y código relacionado en Vercel
-- [ ] Limpiar `railway.json` del repo
+### Fase 5 — Cancelar Railway (⚠️ decisión revertida — Railway SIGUE activo)
+**Nota 2026-09-16:** el plan de junio de migrar todo a Vercel Cron y cancelar Railway no se concretó. `CLAUDE.md` describe la arquitectura actual con **dos servidores separados** (Next.js/Vercel + Express/Railway en `backend/server.ts`, módulos en `backend/modules/`), y `railway.json` + `server.ts` siguen en el repo. No cancelar sin antes confirmar con el founder si esto sigue siendo intencional.
+- [ ] Confirmar que todo funciona sin Railway (verificar `/api/sunbiz` y demás endpoints) — N/A si se mantiene Railway
+- [ ] Cancelar plan de Railway en su dashboard — **no aplica hoy, Railway sigue en uso activo**
+- [ ] Limpiar `BACKEND_URL` y código relacionado en Vercel — no aplica
+- [ ] Limpiar `railway.json` del repo — no aplica
 
-- [ ] **Plan B si Fase 1 no termina antes del lanzamiento:** lanzar con los ~60K daily files cargados + scraping fallback de Claudia para nombres no encontrados
+- [x] **Plan B si Fase 1 no terminaba antes del lanzamiento** — no hizo falta, Fase 1 se completó
 
 > _Actualizado por Javier el 2026-06-22_ — arquitectura completa redefinida (Turso + Cloudflare R2 + Vercel Cron + GitHub Actions, Railway cancelado). Plan original "solicitar acceso FTP" descartado: el SFTP de Florida es público. Fase 0 + parte de Fase 1 ya hechas (60K records cargados como proof of concept). **Update segunda mitad del día:** primeros entregables de Fase 3 ya en producción — rediseño del form (1 nombre + 3 acordeones) y cobertura legal `/terms §14`. Falta activar la verificación en vivo cuando los 3.5M terminen de cargarse.
+> _Actualizado 2026-09-16_ — Fases 1, 2 y 4 confirmadas completas y en producción. Fase 5 (cancelar Railway) revertida: la arquitectura actual documentada en `CLAUDE.md` mantiene Railway como servidor Express activo, no se canceló.
 
 ---
 
@@ -149,27 +154,31 @@
 
 ## 🔴 ETAPA 10 — Seguridad y Hardening (CRÍTICA antes de cobrar dinero real)
 
-- [ ] Habilitar Cloudflare delante del dominio (proxy DNS)
-- [ ] Configurar reglas WAF básicas en Cloudflare (bloqueo de bots conocidos, rate limiting básico)
-- [ ] Activar "Bot Fight Mode" en Cloudflare
-- [ ] Activar Cloudflare Turnstile (CAPTCHA) en formulario de registro de orden y formulario de waitlist
-- [ ] Activar Cloudflare Turnstile en login del cliente (`/client-portal`) y admin (`/login`)
+**Nota 2026-09-16:** el bloque de Cloudflare (líneas de abajo) queda pendiente de consultar con el socio antes de avanzar — no tocar hasta esa conversación. El resto de la sección sí se revisó contra el código real.
+
+- [ ] Habilitar Cloudflare delante del dominio (proxy DNS) — **pendiente, a consultar con el socio**
+- [ ] Configurar reglas WAF básicas en Cloudflare (bloqueo de bots conocidos, rate limiting básico) — **pendiente, a consultar con el socio**
+- [ ] Activar "Bot Fight Mode" en Cloudflare — **pendiente, a consultar con el socio**
+- [ ] Activar Cloudflare Turnstile (CAPTCHA) en formulario de registro de orden y formulario de waitlist — **pendiente, a consultar con el socio**
+- [ ] Activar Cloudflare Turnstile en login del cliente (`/client-portal`) y admin (`/login`) — **pendiente, a consultar con el socio**
 - [ ] Auditoría de seguridad — revisar `security/auditoria_mensual.md` y resolver pendientes
 - [ ] Verificar que `INTERNAL_API_KEY` está rotada y solo en Vercel/Railway (no en cliente)
 - [ ] Verificar que `SESSION_SECRET` (JWT) tiene 32+ caracteres aleatorios
-- [ ] Verificar que `ADMIN_PASSWORD` es fuerte (16+ chars, mixed case + número + símbolo)
+- [ ] Verificar que `ADMIN_PASSWORD` es fuerte (16+ chars, mixed case + número + símbolo) — nota: el admin ya tiene 2FA (TOTP/email) y cambio de contraseña propio vía `admin_security_config`, no solo el env var
 - [ ] Activar 2FA en cuentas de servicio críticas: Vercel, Railway, Supabase, Stripe, GitHub, Resend, dominio registrar
 - [ ] Configurar password manager para guardar todas las credenciales (1Password / Bitwarden)
 - [ ] Backup manual completo de todas las env vars (export desde Vercel + Railway, guardar offline cifrado)
 - [ ] Verificar CORS del Express en Railway — solo acepta orígenes permitidos
-- [ ] Verificar headers de seguridad de Vercel (CSP, X-Frame-Options, X-Content-Type-Options, HSTS)
-- [ ] Probar penetración básica: intentar bypass de middleware admin sin sesión, ver que redirecciona
-- [ ] Probar bypass de middleware client-portal sin cookie, ver que redirecciona
-- [ ] Probar SQL injection en formularios principales (Prisma debería protegernos, pero verificar)
+- [x] Verificar headers de seguridad de Vercel (CSP, X-Frame-Options, X-Content-Type-Options, HSTS) — confirmado en `next.config.ts` (`securityHeaders`, sección "Etapa 14")
+- [ ] Probar penetración básica: intentar bypass de middleware admin sin sesión, ver que redirecciona — `proxy.ts` protege `/admin`, pero no se hizo la prueba de intrusión formal
+- [ ] Probar bypass de middleware client-portal sin cookie, ver que redirecciona — mismo caso, código presente, prueba formal pendiente
+- [ ] Probar SQL injection en formularios principales — riesgo estructural bajo (no hay Prisma/SQL raw desde 2026-05-19, todo pasa por el cliente REST de Supabase), pero no se hizo prueba formal
 - [ ] Probar XSS en campos de texto del formulario (escape correcto en panel admin)
 - [ ] Eliminar consoles.log con datos sensibles del código de producción
 - [ ] Activar Vercel Web Application Firewall si plan lo permite
 - [ ] Documentar en `security/` el resultado de cada test
+
+> _Actualizado 2026-09-16_ — headers de seguridad confirmados en código. Rate limiting propio (no Cloudflare) ya existe en login/recovery/orders/client-auth. El bloque Cloudflare completo queda en espera de hablar con el socio.
 
 ---
 
@@ -185,10 +194,10 @@
 - [x] Cron diario de backups → **GitHub Actions** (2000 min/mes free)
 
 ### Pendientes (Fase 4 — backups)
-- [ ] Crear `.github/workflows/backup-daily.yml`
-- [ ] Script `pg_dump` Supabase + sync PDFs → R2 con timestamp
-- [ ] Configurar lifecycle policy R2 retención 30 días
-- [ ] Probar restore desde R2 en environment de prueba (validar que funciona)
+- [x] Crear `.github/workflows/backup-daily.yml` — existe y corre diario
+- [x] Script `pg_dump` Supabase + sync a R2 con timestamp
+- [ ] Configurar lifecycle policy R2 retención 30 días — verificar en el bucket
+- [ ] Probar restore desde R2 en environment de prueba (validar que funciona) — nunca confirmado
 - [ ] Documentar el proceso de restore en `TROUBLESHOOTING/`
 
 ### Otros
@@ -196,23 +205,25 @@
 - [ ] Revisar índices de Supabase — agregar índices en columnas con queries frecuentes (`Order.email`, `Order.status`, `Order.createdAt`)
 
 > _Actualizado por Javier el 2026-06-22_ — descartado el upgrade a Supabase Pro $25/mes. Plan distribuido (Supabase Free + Turso Free + Cloudflare R2 + GitHub Actions) = $0/mes con la misma protección y no concentra todo en un proveedor.
+> _Actualizado 2026-09-16_ — el workflow de backups diarios ya existe y corre en producción (confirmado en `.github/workflows/backup-daily.yml`). Solo falta confirmar la política de retención en el bucket y probar un restore real.
 
 ---
 
-## 🟢 INFRAESTRUCTURA — Hosting (Vercel Pro + Turso, Railway CANCELAR)
+## 🟢 INFRAESTRUCTURA — Hosting (Vercel Pro + Turso; Railway se MANTIENE)
 
-**Decisión 2026-06-22:** Railway se cancela (ya no se necesita para Etapa 5). Vercel Pro ya cubre todo: cron de Sunbiz, API routes, edge functions.
+**Decisión 2026-06-22 (revertida):** el plan era cancelar Railway. **2026-09-16: no se canceló** — `CLAUDE.md` describe la arquitectura actual con Railway todavía como servidor Express activo (`backend/server.ts` + `backend/modules/`), y `railway.json` sigue en el repo. Vercel Pro sí cubre Sunbiz (cron + Turso) como se planeó, pero Railway quedó para otra cosa.
 
 - [x] Vercel Pro activado ($20/mes — ya se paga)
-- [x] Cron de Vercel Pro disponible para `/api/cron/sunbiz-daily` (hasta 100 crons en Pro)
+- [x] Cron de Vercel Pro disponible para `/api/cron/sunbiz-daily` (hasta 100 crons en Pro) — corriendo, más otros 4 crons agregados después (priority-filing-notice, reasignación OpaBiz Connect, recordatorios de citas, avisos de renovación de suscripciones)
 - [x] Preview deployments configurados (cada PR/branch genera URL)
 - [x] Env vars por ambiente: production, preview, development
 - [x] Turso conectado desde Vercel (TURSO_DATABASE_URL + TURSO_AUTH_TOKEN en Prod + Dev)
-- [ ] **CANCELAR Railway** después de Fase 5 (ahorro $5/mes — ver Etapa 5)
-- [ ] Eliminar `railway.json` del repo cuando Railway esté cancelado
+- [ ] ~~CANCELAR Railway~~ — **no aplica, decisión revertida, Railway sigue activo**
+- [ ] ~~Eliminar `railway.json` del repo~~ — no aplica
 - [ ] Documentar TODAS las env vars necesarias en `backend/.env.example` (sin valores reales)
 
 > _Actualizado por Javier el 2026-06-22_ — Railway marcado para cancelar. La lógica que iba a vivir ahí (Sunbiz) se hace en Vercel Cron Pro + Turso.
+> _Actualizado 2026-09-16_ — Railway no se canceló, sigue como parte activa de la arquitectura documentada en `CLAUDE.md`. Se agregaron 4 crons nuevos en Vercel desde junio (priority filing, OpaBiz Connect ×2, avisos de renovación).
 
 ---
 
@@ -220,11 +231,11 @@
 
 - [ ] Implementar generación de ITIN W-7 pre-llenado (formulario IRS)
 - [ ] Implementar generación de Annual Report pre-llenado (formulario Sunbiz FL)
-- [ ] Endpoint para upload de documentos finales por admin (panel)
-- [ ] Endpoint para descarga de documentos finales por cliente (portal)
-- [ ] Sección "My Documents" en `/client-portal/dashboard` con signed URLs
+- [x] Endpoint para upload de documentos finales por admin (panel) — `POST /api/admin/send-approval-update`, checklist de ítems + subida de múltiples archivos
+- [x] Endpoint para descarga de documentos finales por cliente (portal) — vía tabla `client_documents` (nueva, 2026-09-15)
+- [x] Sección "My Documents" en `/client-portal/dashboard` con signed URLs — corregida 2026-09-15: antes adivinaba rutas fijas que ningún flujo generaba y siempre mostraba "Pending"; ahora usa `client_documents`, acotada a archivos realmente entregados
 - [ ] Validar que los PDFs pre-llenados se generan correctamente con datos reales de orden
-- [ ] Plantilla de Operating Agreement con cláusulas en español (revisión legal recomendada)
+- [ ] Plantilla de Operating Agreement con cláusulas en español (revisión legal recomendada) — el generador base ya existe (`lib/pdf-generator.ts`: Articles of Organization, BOI, EIN SS-4, Operating Agreement), falta confirmar si tiene cláusulas en español
 - [ ] Plantilla de Banking Resolution con datos correctos
 - [ ] Test end-to-end: orden → admin descarga PDF pre-llenado → admin sube PDF final → cliente descarga
 
@@ -285,17 +296,23 @@
 - [ ] Revisar `/terms` (Terms & Conditions) con abogado o notario público en FL
 - [ ] Revisar `/privacy` (Privacy Policy) — debe cubrir CCPA si aplica, GDPR si tienes usuarios EU
 - [ ] Revisar `/legal` (Legal Disclaimer) — disclaimer "no somos abogados, no damos asesoría legal"
-- [ ] Agregar página o sección "Refund Policy" — cuándo procedes refund vs no
-- [ ] Agregar disclaimer en footer de TODAS las páginas: "MyBusinessFormation is not a law firm and does not provide legal advice."
+- [x] Agregar página o sección "Refund Policy" — política de reembolso por demora estatal agregada a `/terms`, `/new-business/terms`, FAQ del home y prompt del chat (auditoría FTC/UPL 2026-09-15)
+- [ ] Agregar disclaimer en footer de TODAS las páginas: "MyBusinessFormation is not a law firm and does not provide legal advice." — el footer sí tiene el "Important Notice" de trade name, pero no se confirmó esta frase exacta en todas las páginas
 - [ ] Configurar Cookie Banner si te molestas con CCPA (poco crítico para FL pero buena práctica)
-- [ ] Verificar que el formulario tiene checkbox de "Acepto Terms y Privacy" obligatorio antes de submit
-- [ ] Verificar que el email de confirmación incluye link de unsubscribe (ya implementado, pero verificar)
-- [ ] Registrar el negocio mismo (irónico) — formar la LLC propia: "MyBusinessFormation LLC" o similar
-- [ ] Obtener EIN propio del negocio (para cuentas bancarias y Stripe)
-- [ ] Abrir cuenta bancaria del negocio para conectar a Stripe
-- [ ] Configurar la forma jurídica con la que vas a operar (sole prop, LLC, S-Corp)
+- [x] Verificar que el formulario tiene checkbox de "Acepto Terms y Privacy" obligatorio antes de submit — checkbox real (nunca pre-marcado) antes de montar Stripe, en home y `/servicios/checkout` (auditoría FTC/UPL 2026-09-15); también menciona por nombre el servicio recurrente (RA/AR) cuando aplica
+- [x] Verificar que el email de confirmación incluye link de unsubscribe — confirmado y corregido (auditoría 2026-09-11): antes una baja no se aplicaba a leads de campaña, ya está resuelto
+- [x] Registrar el negocio mismo (irónico) — formar la LLC propia — **hecho, confirmado por el founder 2026-09-16**
+- [x] Obtener EIN propio del negocio (para cuentas bancarias y Stripe) — **hecho, confirmado por el founder 2026-09-16**
+- [x] Abrir cuenta bancaria del negocio para conectar a Stripe — **hecho, ya conectada, confirmado por el founder 2026-09-16**
+- [x] Configurar la forma jurídica con la que vas a operar (sole prop, LLC, S-Corp) — LLC propia ya formada
 - [ ] Sales tax permit en Florida (si vendes "guías PDF" o productos digitales podría aplicar)
 - [ ] Business Tax Receipt del condado (Miami-Dade o donde estés)
+
+### 🔄 Templates de compliance FTC/UPL — en trabajo hoy (2026-09-16)
+Hallazgos de la auditoría del 2026-09-15 (`project_ftc_upl_compliance_audit_2026-09-15`), backups ya guardados en `COMPLIANCE_BACKUPS_2026-09-15/`:
+- [ ] Carta física (`lib/new-business-letter.ts`) — el sello + formato tipo "aviso oficial de gobierno" puede confundirse con una notificación gubernamental (Impersonation Rule)
+- [ ] El disclaimer "no somos el gobierno" aparece DESPUÉS de los precios en vez de antes
+- [ ] Nunca se aclara antes de pagar que el EIN se puede tramitar gratis uno mismo en irs.gov (aplica a la carta y a `campaign-email.ts`/`vip-reminder-email.ts`)
 
 ---
 
@@ -392,13 +409,13 @@
 
 ## 🟡 FINANZAS Y CONTABILIDAD
 
-- [ ] Cuenta bancaria del negocio abierta y conectada a Stripe
-- [ ] Software de contabilidad: QuickBooks, Wave (free), o similar
+- [x] Cuenta bancaria del negocio abierta y conectada a Stripe — confirmado por el founder 2026-09-16
+- [x] Software de contabilidad — no hace falta QuickBooks/Wave: hay un módulo propio construido en `/admin/contabilidad` (clientes, ingresos, gastos recurrentes, reportes, sync automático con `Order`)
 - [ ] Plan para emitir invoices/recibos a clientes (Stripe lo hace automático)
 - [ ] Definir frecuencia de payouts de Stripe (default semanal o cambiar a diario)
 - [ ] Reservar fondos para impuestos federales (~25-30% de revenue)
 - [ ] Reservar fondos para state filing fees ($125 LLC FL — pasa directo al estado, no margen)
-- [ ] Documentar todos los gastos del negocio (Vercel, Railway, Supabase, ads, freelancers)
+- [ ] Documentar todos los gastos del negocio (Vercel, Railway, Supabase, ads, freelancers) — el módulo de contabilidad ya trackea gastos cargados a mano/IA, pero esto es sobre disciplina de cargarlos, no sobre si existe la herramienta
 
 ---
 
