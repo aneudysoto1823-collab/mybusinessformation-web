@@ -78,8 +78,8 @@ export function buildComplianceEmail(company: CampaignCompany, trackUrl: string,
   // mostrar los 3 precios. Este va justo debajo del recuadro de registro,
   // antes de la grilla de servicios.
   const topDisclaimer = isEs
-    ? 'Florida Business Formation Center es un servicio privado de preparación de documentos. No somos una agencia gubernamental, no estamos afiliados con el Estado de Florida ni con el IRS, y usted no está obligado a utilizar nuestros servicios.'
-    : 'Florida Business Formation Center is a private document preparation service. We are not a government agency, we are not affiliated with the State of Florida or the IRS, and you are not required to use our services.'
+    ? 'Florida Business Formation Center es un servicio privado y opcional de preparación de documentos. No somos una agencia gubernamental ni estamos afiliados con el Estado de Florida ni con el IRS.'
+    : 'Florida Business Formation Center is a private, optional document preparation service. We are not a government agency, and we are not affiliated with the State of Florida or the IRS.'
 
   const disclosure = isEs
     ? 'Florida Business Formation Center es un servicio profesional de preparación y presentación de documentos. No somos un bufete de abogados y no brindamos asesoría legal, fiscal ni financiera. Nuestros servicios no constituyen el ejercicio de la abogacía ni crean una relación abogado-cliente. Todas las presentaciones están sujetas a la aprobación de la División de Corporaciones de Florida y del IRS. Para orientación legal o fiscal específica a su situación, le recomendamos consultar a un abogado de Florida con licencia o a un contador público certificado. Florida Business Formation Center no está afiliado, respaldado ni aprobado por ninguna agencia gubernamental federal, estatal o local, incluidos el IRS, el Departamento de Trabajo de EE. UU. o la División de Corporaciones de Florida. Este aviso no es una factura ni una solicitud de pago. Los servicios descritos son opcionales.'
@@ -89,6 +89,7 @@ export function buildComplianceEmail(company: CampaignCompany, trackUrl: string,
     {
       name: isEs ? 'Carteles de Ley Laboral' : 'Labor Law Posters',
       price: '$120',
+      feeLabel: 'Service Fee', // no es un trámite ante ninguna agencia — "Filing" sería inexacto
       desc: isEs
         ? 'Las leyes federales y de Florida exigen que toda empresa con al menos un empleado exhiba los carteles vigentes de ley laboral en un lugar visible. Exhibir carteles desactualizados puede generar multas en una inspección.'
         : 'Federal and Florida law require every business with at least one employee to display current labor law notices where employees can see them. Displaying outdated posters can result in fines during an inspection.',
@@ -124,7 +125,7 @@ export function buildComplianceEmail(company: CampaignCompany, trackUrl: string,
               <div style="color:#64748b;font-size:13px;line-height:1.6">${s.desc}</div>
             </td>
             <td width="110" style="text-align:right;vertical-align:top">
-              <div style="color:#94A3B8;font-size:9px;font-weight:700;letter-spacing:.03em;text-transform:uppercase">Filing Services Fee</div>
+              <div style="color:#94A3B8;font-size:9px;font-weight:700;letter-spacing:.03em;text-transform:uppercase">${s.feeLabel ?? 'Filing Services Fee'}</div>
               <span style="font-weight:800;color:${GREEN};font-size:17px;white-space:nowrap">${s.price}</span>
               ${s.govFeeLabel && s.govFeeAmount ? `<div style="color:#94A3B8;font-size:10.5px;font-weight:600;margin-top:2px">${s.govFeeLabel}: ${s.govFeeAmount}</div>` : ''}
             </td>

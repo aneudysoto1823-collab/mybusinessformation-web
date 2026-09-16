@@ -77,8 +77,8 @@ export function buildVipReminderEmail(company: CampaignCompany, lang: 'en' | 'es
   // aviso de "no somos gobierno" solo vivía al final del email, después de
   // mostrar ambas ofertas con precio.
   const topDisclaimer = isEs
-    ? 'Florida Business Formation Center es un servicio privado de preparación de documentos. No somos una agencia gubernamental, no estamos afiliados con el Estado de Florida ni con el IRS, y usted no está obligado a utilizar nuestros servicios.'
-    : 'Florida Business Formation Center is a private document preparation service. We are not a government agency, we are not affiliated with the State of Florida or the IRS, and you are not required to use our services.'
+    ? 'Florida Business Formation Center es un servicio privado y opcional de preparación de documentos. No somos una agencia gubernamental ni estamos afiliados con el Estado de Florida ni con el IRS.'
+    : 'Florida Business Formation Center is a private, optional document preparation service. We are not a government agency, and we are not affiliated with the State of Florida or the IRS.'
 
   const introParas = firstArYear
     ? (isEs

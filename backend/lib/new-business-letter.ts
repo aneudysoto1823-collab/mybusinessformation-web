@@ -94,7 +94,10 @@ type LetterContent = {
   // "IRS Fee $0.00" — hallazgo #3 de la misma auditoría). Labor Law Posters
   // y Certificate of Status no tienen una tarifa de gobierno separada, así
   // que quedan sin esas 2 propiedades.
-  services: { name: string; price: string; desc: string; govFeeLabel?: string; govFeeAmount?: string }[]
+  // feeLabel: override de la etiqueta "FILING SERVICES FEE" para servicios
+  // que no son un trámite ante ninguna agencia (ej. Labor Law Posters, un
+  // producto físico) — ahí "Filing" sería inexacto, usa "SERVICE FEE" en su lugar.
+  services: { name: string; price: string; desc: string; feeLabel?: string; govFeeLabel?: string; govFeeAmount?: string }[]
   cta: [string, string]
   disclosureHeading: string
   disclosure: string
@@ -103,9 +106,8 @@ type LetterContent = {
 const EN: LetterContent = {
   title: 'BUSINESS COMPLIANCE INFORMATION NOTICE',
   topDisclaimer:
-    'Florida Business Formation Center is a private document preparation service. We are not a ' +
-    'government agency, we are not affiliated with the State of Florida or the IRS, and you are not ' +
-    'required to use our services.',
+    'Florida Business Formation Center is a private, optional document preparation service. We are not a ' +
+    'government agency, and we are not affiliated with the State of Florida or the IRS.',
   labels: { doc: 'Document Number', reg: 'Registration Date', notice: 'Notice Date', entity: 'Entity Type' },
   greeting: c => `Congratulations on the recent registration of ${c}.`,
   body: [
@@ -121,7 +123,7 @@ const EN: LetterContent = {
   ],
   services: [
     {
-      name: 'Labor Law Posters', price: '$120',
+      name: 'Labor Law Posters', price: '$120', feeLabel: 'SERVICE FEE',
       desc: 'Federal and Florida law require every business with at least one employee to display current labor ' +
             'law notices where employees can see them. These notices cover wages, workplace safety, and equal ' +
             'employment rights. Displaying outdated posters can result in fines during an inspection.',
@@ -157,9 +159,8 @@ const EN: LetterContent = {
 const ES: LetterContent = {
   title: 'AVISO INFORMATIVO DE CUMPLIMIENTO EMPRESARIAL',
   topDisclaimer:
-    'Florida Business Formation Center es un servicio privado de preparación de documentos. No somos una ' +
-    'agencia gubernamental, no estamos afiliados con el Estado de Florida ni con el IRS, y usted no está ' +
-    'obligado a utilizar nuestros servicios.',
+    'Florida Business Formation Center es un servicio privado y opcional de preparación de documentos. No ' +
+    'somos una agencia gubernamental ni estamos afiliados con el Estado de Florida ni con el IRS.',
   labels: { doc: 'Número de Documento', reg: 'Fecha de Registro', notice: 'Fecha del Aviso', entity: 'Tipo de Entidad' },
   greeting: c => `Felicitaciones por el registro reciente de ${c}.`,
   body: [
@@ -177,7 +178,7 @@ const ES: LetterContent = {
   ],
   services: [
     {
-      name: 'Carteles de Ley Laboral', price: '$120',
+      name: 'Carteles de Ley Laboral', price: '$120', feeLabel: 'SERVICE FEE',
       desc: 'Las leyes federales y de Florida exigen que toda empresa con al menos un empleado exhiba los carteles ' +
             'vigentes de ley laboral en un lugar visible para los empleados. Informan sobre salarios, seguridad ' +
             'laboral e igualdad de oportunidades. Exhibir carteles desactualizados puede generar multas en una inspección.',
@@ -467,8 +468,8 @@ export async function generateNewBusinessLetter(input: NewBusinessLetterData): P
     // Header navy
     rect(cx, y - headerH, colW, headerH, NAVY)
     centered(s.name, cx, colW, y - headerH + 5.5, bold, 7.5, WHITE)
-    // "FILING SERVICES FEE" + precio
-    const feeLabel = 'FILING SERVICES FEE'
+    // "FILING SERVICES FEE" + precio (o el override de s.feeLabel)
+    const feeLabel = s.feeLabel ?? 'FILING SERVICES FEE'
     const flw = regular.widthOfTextAtSize(feeLabel, 5.2)
     t(feeLabel, cx + (colW - flw) / 2, y - headerH - feeLabelOffset, regular, 5.2, GRAY)
     const pw = bold.widthOfTextAtSize(s.price, 15)
