@@ -85,23 +85,23 @@ export function buildVipReminderEmail(company: CampaignCompany, lang: 'en' | 'es
         ? [
             `Felicitaciones por haber formado <strong>${company.company_name}</strong> en Florida en ${regYear}. A medida que su negocio crece, mantenerse en regla ante el Estado importa tanto como lo fue empezar.`,
             `Toda LLC y Corporación de Florida debe presentar una Declaración Anual cada año para seguir activa en los registros del Estado. No presentarla puede generar cargos por atraso, y si se deja de presentar por suficiente tiempo, el Estado puede disolver la empresa administrativamente. ${filingYearLabel} es cuando esto le aplica por primera vez a ${company.company_name}.`,
-            `Puede presentar su Declaración Anual por separado, o aprovechar nuestra oferta VIP, que incluye tanto el Agente Registrado como la Declaración Anual:`,
+            `Puede presentar su Declaración Anual por separado, o aprovechar nuestra oferta VIP, que incluye tanto el Agente Registrado como la Declaración Anual. Presentarla con nuestro equipo especializado ayuda a evitar errores y demoras en la aprobación:`,
           ]
         : [
             `Congratulations on forming <strong>${company.company_name}</strong> in Florida in ${regYear}. As your business grows, staying in good standing with the State matters just as much as getting started did.`,
             `Every Florida LLC and Corporation is required to file an Annual Report each year to remain active on the State's records. Missing it can lead to late fees, and if it goes unfiled long enough, the State can administratively dissolve the company. ${filingYearLabel} is when this first applies to ${company.company_name}.`,
-            `You can file your Annual Report on its own, or take advantage of our VIP offer, which includes both the Registered Agent and the Annual Report:`,
+            `You can file your Annual Report on its own, or take advantage of our VIP offer, which includes both the Registered Agent and the Annual Report. Filing it with our specialized team helps avoid errors and delays in approval:`,
           ])
     : (isEs
         ? [
             `Felicitaciones por haber formado <strong>${company.company_name}</strong> en Florida.`,
             `Toda LLC y Corporación de Florida debe presentar una Declaración Anual cada año para seguir activa en los registros del Estado.`,
-            `Puede presentar su Declaración Anual por separado, o aprovechar nuestra oferta VIP, que incluye tanto el Agente Registrado como la Declaración Anual:`,
+            `Puede presentar su Declaración Anual por separado, o aprovechar nuestra oferta VIP, que incluye tanto el Agente Registrado como la Declaración Anual. Presentarla con nuestro equipo especializado ayuda a evitar errores y demoras en la aprobación:`,
           ]
         : [
             `Congratulations on forming <strong>${company.company_name}</strong> in Florida.`,
             `Every Florida LLC and Corporation is required to file an Annual Report each year to remain active on the State's records.`,
-            `You can file your Annual Report on its own, or take advantage of our VIP offer, which includes both the Registered Agent and the Annual Report:`,
+            `You can file your Annual Report on its own, or take advantage of our VIP offer, which includes both the Registered Agent and the Annual Report. Filing it with our specialized team helps avoid errors and delays in approval:`,
           ])
 
   const introHtml = introParas.map(p => `<p style="color:#475569;font-size:13.5px;line-height:1.7;margin:0 0 12px">${p}</p>`).join('')
