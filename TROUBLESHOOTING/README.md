@@ -46,6 +46,15 @@ Si después de aplicar la solución el problema persiste, escala: contacta al eq
 | 08 | [08_portal_cliente.md](08_portal_cliente.md) | `/client-portal` — login cliente, descargas, datos incorrectos |
 | 09 | [09_dominio_dns.md](09_dominio_dns.md) | Dominio opabiz.com — DNS, SSL, propagación |
 | 10 | [10_otros.md](10_otros.md) | Problemas no categorizados — DDoS, sobrecostos, accesos revocados |
+| 11 | [11_claudia_asistente_virtual.md](11_claudia_asistente_virtual.md) | Claudia (chat) — respuestas incorrectas, tool calls que fallan, precios desactualizados |
+| 12 | [12_marketing_automation_campanas.md](12_marketing_automation_campanas.md) | Marketing Automation — emails de campaña que no salen, QR roto, tracking |
+| 13 | [13_responsive_design.md](13_responsive_design.md) | Responsive (Etapa 17) — layout roto en mobile, hamburger, breakpoints |
+| 14 | [14_opabiz.md](14_opabiz.md) | OpaBiz Connect — ENUMs/FKs de `ordenes_opabiz`, asignación de empleados |
+| 15 | [15_sentry_alerts.md](15_sentry_alerts.md) | Qué hacer cuando llega un email `[Sentry]` con un error nuevo |
+| 16 | [16_betterstack_down.md](16_betterstack_down.md) | Qué hacer cuando llega un email `[BetterStack]` con `DOWN` |
+| 17 | [17_ga4_smoke_test.md](17_ga4_smoke_test.md) | GA4 — validar tracking después de un deploy, eventos que no aparecen |
+| 18 | [18_sunbiz_turso_cron_falla.md](18_sunbiz_turso_cron_falla.md) | Cron diario de Sunbiz (Turso) — no corrió, se cayó a mitad, datos desactualizados |
+| 19 | [19_backups_r2_no_corren.md](19_backups_r2_no_corren.md) | Backup diario a Cloudflare R2 (GitHub Actions) — no corrió, falló, restore |
 
 ---
 
@@ -74,4 +83,4 @@ Si después de aplicar la solución el problema persiste, escala: contacta al eq
 ---
 
 **Responsable principal del manual:** Ethan (founder)
-**Última actualización:** 20 abril 2026
+**Última actualización:** 16 septiembre 2026 — índice completado (11-19), 03 y 06 corregidos contra la arquitectura real (Turso reemplazó a Prisma+Supabase para Sunbiz; backups vía GitHub Actions + R2, no Supabase Pro), agregados 18 y 19

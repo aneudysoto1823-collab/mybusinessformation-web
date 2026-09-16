@@ -1547,6 +1547,36 @@ Sesión larga. El founder creó la cuenta de **EnformionGO** (free trial, "100 M
 
 ---
 
+## Sesión 2026-09-16 — templates FTC/UPL, Annual Report siempre como suscripción, checklist actualizado, auditoría de TROUBLESHOOTING/
+
+### `CHECKLIST_PRELANZAMIENTO.md` puesto al día
+
+El archivo llevaba desde el 22 de junio sin tocarse (firmado "Javier") mientras el proyecto avanzaba muchísimo — se revisó sección por sección contra el código real y se marcó lo que ya está hecho. Hallazgos notables: **Sunbiz/Turso (Fases 1-3) y los backups a R2 (Fase 4) ya están completos y corriendo en producción** pese a que el checklist los mostraba sin marcar; **Railway nunca se canceló** (el plan de junio de migrar todo a Vercel Cron se revirtió — sigue como servidor Express activo, contradice la nota vieja de "Railway CANCELAR"); Stripe Live sigue 100% preparado pero sin activar (gate: seguro de responsabilidad profesional de la compañía). La fecha objetivo (15 sept) ya pasó sin definir una nueva.
+
+### Templates FTC/UPL — se retoma y cierra el pendiente del 2026-09-15
+
+La auditoría de compliance del día anterior había dejado la parte de "templates" para después (los 5 puntos de código ya estaban resueltos ese mismo día). Se aplicó a los 3 lugares donde se vende EIN/Declaración Anual/Agente Registrado antes de pagar:
+
+- **Disclaimer "servicio privado y opcional"** agregado ANTES de cualquier precio en `lib/new-business-letter.ts`, `lib/campaign-email.ts` (B1) y `lib/vip-reminder-email.ts` — antes el único disclosure legal vivía al final, después de mostrar las tarifas. Iterado varias rondas de copy con el founder: la primera versión ("...y usted no está obligado a utilizar nuestros servicios") sonaba a reprimenda dirigida al lector — se reescribió como descripción de la empresa ("servicio privado y opcional") en vez de un mandato en segunda persona.
+- **Precio reformateado tipo factura**: "Filing Services Fee $X" + una segunda línea solo donde hay una tarifa gubernamental real que desglosar (Declaración Anual y combo VIP → "Florida State Fee $139"; EIN → "IRS Fee $0.00", ya que el trámite es gratis en irs.gov y no hay tarifa estatal de por medio). Labor Law Posters usa la etiqueta "Service Fee" en vez de "Filing Services Fee" — no es un trámite presentado ante ninguna agencia, es un producto físico.
+- **Nueva sección 4.4 "Service Fees vs. Government Fees"** en `new-business/terms/page.tsx`, bilingüe.
+- Frase de beneficio agregada (texto propio, no parte del hallazgo original) en EIN, Certificate of Status, y el intro del VIP reminder: presentarlo con el equipo especializado ayuda a evitar errores y demoras en la aprobación.
+- **Decisión de negocio consciente, no solo compliance**: se evaluó el desglose "Service Filing Fee $X + Florida State Fee $Y" en detalle con el founder (¿perjudica ventas mostrar el markup tan claro?) — conclusión: no, ya se había probado el mismo patrón en `/servicios` el 2026-09-08 sin impacto negativo, y de hecho protege más porque deja clarísimo qué cobra la empresa vs. qué cobra el gobierno.
+- Verificado con `tsc` + generando PDFs y HTML reales desde el código (no solo mockups) antes de cada commit — la carta sigue cabiendo en 1 página en EN/ES pese al texto nuevo.
+- **Pendiente de la auditoría original, fuera de alcance de esta sesión:** el punto #1 sobre el sello/formato "tipo aviso oficial" del membrete de la carta (navy + sello, sin cambios).
+
+### 🐛 Bug real encontrado: Annual Report "Presentación Única" nunca fue de verdad "sin suscripción"
+
+Investigando una pregunta del founder sobre el email VIP reminder: `/new-business/annual-report` (el link de la opción "Presentación Única") prometía en su propio metadata *"a one-time filing with no subscription"*, pero `getRecurringServicesFromOrder()` (`lib/order-subscriptions.ts`) siempre convierte cualquier compra de `'annual-report'` en una Stripe Subscription real — no existía ninguna bandera que distinguiera "AR comprado solo, intención de una sola vez" de "AR comprado como parte de un combo recurrente". **Cualquier cliente que usara ese link quedaba suscrito sin saberlo.**
+
+**Decisión de negocio (no fix de código):** en vez de construir una excepción de "una sola vez" de verdad (bandera nueva + paso de upsell para convertir después), se decidió que la Declaración Anual **siempre se ofrece como suscripción** — Florida la exige todos los años sin excepción, así que un one-time real solo pospone la conversión a un momento futuro con menos urgencia que el actual (pedir la suscripción en el momento en que el cliente ya está decidiendo pagar convierte mejor que pedírselo de nuevo el año siguiente). `getRecurringServicesFromOrder()` no se tocó — lo que hacía pasó a ser el comportamiento correcto en vez de un bug, una vez que el copy dejó de prometer algo distinto. Se corrigió: el label "Presentación Única" → "Declaración Anual, cada año", el precio ahora dice "$99/año" (antes solo "$99"), se agregó "Cancele cuando quiera. Sin contrato a largo plazo." (mismo texto que ya tenía la caja VIP), y se sacó la promesa falsa del metadata de `annual-report/page.tsx`.
+
+### Auditoría de `TROUBLESHOOTING/` — 2 archivos describían una arquitectura que ya no existe
+
+Revisando la carpeta a pedido del founder, se encontró que `03_base_de_datos.md` y `06_busqueda_nombres.md` seguían describiendo Prisma (removido 2026-05-19), la tabla de Sunbiz viviendo en Supabase (en realidad vive en Turso desde la Etapa 5), y "upgrade a Supabase Pro" como única vía de backups (la decisión real fue explícitamente NO hacerlo, ver arquitectura distribuida más abajo) — instrucciones que, seguidas literalmente durante una emergencia real, harían perder tiempo en pasos que ya no aplican. Se reescribieron ambos archivos contra el código y la arquitectura real. De paso: el índice del `README.md` de esa carpeta solo listaba hasta el archivo 10 pese a que 11-17 ya existían en disco — se completó — y se crearon los 2 runbooks que `CHECKLIST_PRELANZAMIENTO.md` tenía anotados como pendientes "cuando Fase 2/4 estén listas" (ya lo están): `18_sunbiz_turso_cron_falla.md` y `19_backups_r2_no_corren.md`.
+
+---
+
 ## Deploy
 
 - `git push origin main` — Vercel detecta cambios en `backend/` y hace deploy automático

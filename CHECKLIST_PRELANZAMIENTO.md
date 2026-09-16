@@ -263,9 +263,9 @@
 
 ---
 
-## 🟢 CARPETA TROUBLESHOOTING — (DONE — 18 runbooks)
+## 🟢 CARPETA TROUBLESHOOTING — (DONE — 19 runbooks)
 
-**Estado 2026-06-22:** Carpeta `TROUBLESHOOTING/` activa con 18 runbooks. Ver `TROUBLESHOOTING/README.md`.
+**Estado 2026-09-16:** Carpeta `TROUBLESHOOTING/` con 19 runbooks. Se hizo una auditoría completa: `03_base_de_datos.md` y `06_busqueda_nombres.md` describían una arquitectura que ya no existe (Prisma, tabla Sunbiz en Supabase, backups vía Supabase Pro) — corregidos contra el código real (Turso, sin Prisma, GitHub Actions + R2). El índice del README no listaba los archivos 11-17 pese a existir — corregido.
 
 - [x] `01_sitio_caido.md`
 - [x] `02_backend_no_responde.md`
@@ -284,10 +284,11 @@
 - [x] `15_sentry_alerts.md`
 - [x] `16_betterstack_down.md`
 - [x] `17_ga4_smoke_test.md`
-- [ ] Nuevo runbook: `18_sunbiz_turso_cron_falla.md` (cuando Fase 2 esté lista)
-- [ ] Nuevo runbook: `19_backups_r2_no_corren.md` (cuando Fase 4 esté lista)
+- [x] `18_sunbiz_turso_cron_falla.md` — creado 2026-09-16, ahora que Fase 2 está lista
+- [x] `19_backups_r2_no_corren.md` — creado 2026-09-16, ahora que Fase 4 está lista
 
 > _Actualizado por Javier el 2026-06-22_ — sección bajada de 🔴 a 🟢. 18 runbooks activos en `TROUBLESHOOTING/`.
+> _Actualizado 2026-09-16_ — 19 runbooks. Corregidos 03 y 06 (contenido activamente incorrecto: Prisma removido, Sunbiz nunca vivió en Supabase, backups no son de Supabase Pro), completado el índice del README, y creados los 2 runbooks pendientes.
 
 ---
 

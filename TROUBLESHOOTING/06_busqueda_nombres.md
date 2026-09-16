@@ -1,73 +1,74 @@
 # 06 — Búsqueda de nombres (Sunbiz Florida)
 
-Problemas con la verificación automatizada de disponibilidad de nombres contra la base de datos local de Sunbiz (Etapa 5). Mientras Etapa 5 no esté lista, la verificación es manual desde sunbiz.org.
+Problemas con la verificación de disponibilidad de nombres contra la base local de Sunbiz. **Arquitectura real (corregido 2026-09-16 — este archivo describía Prisma + una tabla en Supabase que nunca se usó en producción):** los 3.5M+ registros de Florida viven en **Turso** (`lib/turso.ts`, `getTurso()`), no en Supabase. La tabla `sunbiz_corps` de Supabase existe pero está vacía — es un nombre homónimo heredado de un intento anterior, no la fuente real. Un cron diario en Vercel (`/api/cron/sunbiz-daily`) mantiene Turso al día descargando el archivo `YYYYMMDDc.txt` del SFTP público de Florida (`sftp.floridados.gov`, user `Public`) cada noche.
+
+El chequeo de disponibilidad (`GET /api/sunbiz/name-check`) se llama **server-side al crear la orden** (`/api/orders`), nunca desde el `oninput` del campo del cliente (decisión de negocio 2026-06-25, para no agregar fricción al checkout) — el resultado se ve en el email de alerta interna con semáforo verde/rojo/ámbar. El buscador de nombres del admin (`/admin/orders/[id]`) también consulta Turso real desde 2026-07-12.
 
 ---
 
 ### 1. Búsqueda de nombre devuelve "no disponible" cuando SÍ está disponible
 **Status:** 🟡 Medio
-**Síntoma visible:** Cliente envía un nombre que verificas manualmente en sunbiz.org y NO existe, pero nuestro buscador local del panel admin lo marca como "Taken". Inconsistencia entre nuestra DB y la oficial de Florida.
-**Solución posible:** Causa #1: nuestra base local está desactualizada. Ir a Supabase → tabla `sunbiz_corps` → ver `last_updated` o cuándo fue el último import. Si pasó más de 90 días desde el último update, descargar el dump trimestral nuevo de Florida vía FTP y re-importar. Como mitigación: confiar siempre en sunbiz.org oficial cuando hay duda — nuestra DB es ayuda, NO autoridad. Para esa orden específica, marcar manualmente como nombre disponible y proceder.
+**Síntoma visible:** Un nombre que verificas manualmente en sunbiz.org y NO existe, pero el chequeo interno (admin o email de alerta) lo marca como tomado.
+**Solución posible:** Causa #1: Turso desactualizado. Revisar cuándo corrió por última vez el cron — ver logs de `/api/cron/sunbiz-daily` en Vercel Dashboard → Cron Jobs, o consultar directo con el CLI de Turso: `turso db shell <nombre-db> "SELECT MAX(fecha_actualizado) FROM sunbiz_load_log"` (o el nombre real de la tabla de log). Si pasaron varios días sin correr, revisar el runbook 18. Como mitigación inmediata: confiar siempre en sunbiz.org oficial cuando hay duda — nuestra base es ayuda, NO autoridad. Causa #2: normalización distinta a la de Florida (criterio §605.0112 — designadores, mayúsculas, puntuación). Revisar `lib/sunbiz-normalize.ts` si el nombre tiene caracteres especiales o un designador poco común.
 
 ---
 
 ### 2. Búsqueda de nombre devuelve "disponible" pero al filing en Sunbiz lo rechaza
 **Status:** 🔴 Crítico
-**Síntoma visible:** Sistema marcó nombre como disponible, admin envió Articles of Organization a Sunbiz, Florida rechaza el filing diciendo "name not available — too similar to existing entity".
-**Solución posible:** Causa: nuestra búsqueda hace match exacto, pero Sunbiz aplica reglas de "similaridad fonética" más estrictas. Acción: comunicarse con cliente inmediatamente, explicar el rechazo, pedir nombre alternativo. Verificar el alternativo MANUALMENTE en sunbiz.org incluyendo similitudes (ej: "Tech Solutions LLC" vs "Tech Solutions Co.") antes de re-enviar. Documentar el caso para mejorar la búsqueda futura — agregar regla de fuzzy matching usando trigram similarity.
+**Síntoma visible:** El chequeo interno marcó el nombre como disponible, se envió el filing a Sunbiz, y Florida lo rechaza por "name not available — too similar to existing entity".
+**Solución posible:** Causa: nuestra búsqueda usa FTS5 (full-text search) con normalización propia, pero Sunbiz aplica sus propias reglas de similaridad al momento de radicar, que pueden ser más estrictas en casos límite. Acción: comunicarse con el cliente inmediatamente, explicar el rechazo, pedir nombre alternativo. Verificar el alternativo MANUALMENTE en sunbiz.org antes de re-enviar, incluyendo variantes cercanas (ej. "Tech Solutions LLC" vs "Tech Solutions Co."). Documentar el caso — si se repite seguido, revisar si la normalización de `lib/sunbiz-normalize.ts` necesita un ajuste.
 
 ---
 
-### 3. La descarga FTP del dump trimestral de Florida falla
+### 3. El cron diario no logra descargar o procesar el archivo de Sunbiz
 **Status:** 🟡 Medio
-**Síntoma visible:** Cron job nocturno o trimestral que descarga el dump de Sunbiz falla. Logs muestran "FTP connection refused" o "Authentication failed" al intentar conectar al servidor de Florida.
-**Solución posible:** Verificar credenciales FTP en variables de entorno Railway: `SUNBIZ_FTP_HOST`, `SUNBIZ_FTP_USER`, `SUNBIZ_FTP_PASS`. Florida puede haber rotado credenciales — buscar email reciente de Sunbiz con nuevas credenciales. Probar conexión manual desde local con FileZilla o `ftp` command. Si Florida cambió el path del archivo, actualizar el script con el path nuevo. Mientras se arregla: descargar manualmente y subir a Supabase como import puntual.
+**Síntoma visible:** El cron `/api/cron/sunbiz-daily` corre pero falla o no encuentra el archivo del día. El endpoint tiene alertas por email integradas (vía `RESEND_API_KEY`) — si algo falla, debería llegar un aviso.
+**Solución posible:** Las credenciales del SFTP son **públicas y fijas** (`sftp.floridados.gov` / user `Public` / password `PubAccess1845!`, documentadas en `CLAUDE.md`) — no hay nada que rotar ni ningún env var secreto que revisar por ese lado. Causas reales más probables: (1) Florida no publicó el archivo ese día (fin de semana o feriado — el código ya detecta esto y lo loguea como skip, no como error); (2) Florida cambió el path (`doc/cor`) o el formato del nombre del archivo — revisar el código de la ruta contra lo que hay hoy en el SFTP; (3) timeout — el `maxDuration` de esta función está en 300s en `backend/vercel.json`, verificar que el plan de Vercel lo sigue permitiendo. Ver logs completos en Vercel Dashboard → Deployments → Functions → `/api/cron/sunbiz-daily`.
 
 ---
 
-### 4. Import del dump (3.5M registros) tarda demasiado o falla
-**Status:** 🟡 Medio
-**Síntoma visible:** Script de import de Sunbiz a Supabase corre por horas y eventualmente falla por timeout o memoria. La base local queda parcialmente actualizada o vacía.
-**Solución posible:** Verificar que el import usa batches (1000-5000 registros por batch, no todos a la vez). Si se hace fila por fila, será lento. En Supabase Dashboard → Reports verificar uso de DB durante import — si CPU al 100% es esperado pero memoria saturada significa batches muy grandes. Reducir batch size. Si Supabase free tier es el cuello de botella (250MB RAM límite), upgrade a Pro temporalmente. Como mitigación: hacer import en horario nocturno (3am EST) cuando hay menos tráfico operativo.
+### 4. Import inicial de 3.5M registros (evento histórico, ya completado)
+**Status:** 🟢 Bajo (informativo)
+**Síntoma visible:** N/A — la carga masiva inicial (Fase 1 de Etapa 5) ya se completó y no debería volver a correr. Se incluye acá solo por si en el futuro hace falta re-cargar todo desde cero (ej. corrupción de datos, migración a otra cuenta de Turso).
+**Solución posible:** El loader (`backend/scripts/sunbiz-load.mjs`) procesa en batches de 2000 registros × 6 workers paralelos — a esa velocidad, la carga completa toma minutos, no horas (el founder reportó 57,000 registros en 10 minutos en el proyecto hermano `datallc` con el mismo approach). Si hiciera falta re-correr: descargar el dump trimestral (`cordata.zip`, ~1.66 GB) del path `doc/Quarterly/Cor` del mismo SFTP, descomprimir, y correr el script apuntando a la DB de Turso correcta. Verificar al final con `SELECT COUNT(*) FROM sunbiz_corps` ≈ 3.5M.
 
 ---
 
-### 5. Búsqueda local muy lenta (>5 segundos)
+### 5. Búsqueda local muy lenta (>3 segundos)
 **Status:** 🟡 Medio
-**Síntoma visible:** En `/admin/orders/[id]` al usar el buscador de nombres alternativos, cada búsqueda tarda más de 5 segundos. Admin no puede trabajar con eficiencia.
-**Solución posible:** Ir a Supabase Dashboard → Database → Indexes → tabla `sunbiz_corps`. Verificar que existe índice GIN trigram sobre la columna del nombre: `CREATE INDEX corps_name_trgm_idx ON sunbiz_corps USING gin (corp_name gin_trgm_ops);`. Si no existe, crearlo. Si existe pero sigue lento, en Supabase → Query Performance ver el `EXPLAIN ANALYZE` de la query lenta — verificar que usa el índice (debe decir "Bitmap Heap Scan"). Si no usa el índice, ajustar la query.
+**Síntoma visible:** En `/admin/orders/[id]` o en el chequeo de nombre al crear una orden, la respuesta tarda demasiado.
+**Solución posible:** Turso es SQLite (libSQL), no Postgres — no aplica GIN trigram. Verificar que la tabla tiene su índice **FTS5** (virtual table) creado y sus triggers de sincronización intactos: `turso db shell <db> ".schema sunbiz_corps"` debe mostrar la tabla FTS5 asociada. Si el índice FTS5 existe pero la query sigue lenta, revisar que la query en `lib/sunbiz-namecheck.ts`/`lib/turso.ts` esté usando `MATCH` contra la tabla virtual y no un `LIKE` sobre la tabla base (un `LIKE` sin índice escanea las 3.5M filas). Como mitigación puntual: revisar el plan de Turso (Free tier = 5GB + límite de filas leídas/mes) — si se acercó al límite mensual, las queries pueden degradarse.
 
 ---
 
 ### 6. Sunbiz oficial (sunbiz.org) está caído
-**Status:** 🔴 Crítico (durante este tiempo no se pueden hacer filings)
-**Síntoma visible:** sunbiz.org no carga, devuelve error o está en mantenimiento. Admin no puede enviar Articles of Organization para nuevas órdenes ni verificar nombres manualmente.
-**Solución posible:** Verificar status oficial en https://dos.fl.gov o redes sociales de Florida Department of State. Si confirmado downtime: no hay solución upstream. Acciones: (1) Acumular órdenes en estado `ready_to_file` mientras se resuelve. (2) Comunicar a clientes activos con expectativa realista de delay. (3) Una vez restaurado, procesar órdenes acumuladas en orden de antigüedad. (4) Documentar el incidente para tener métricas de uptime de Sunbiz histórico.
+**Status:** 🔴 Crítico (durante este tiempo no se pueden radicar filings nuevos)
+**Síntoma visible:** sunbiz.org no carga o está en mantenimiento. El admin no puede enviar Articles of Organization ni verificar nombres manualmente contra la fuente oficial (nuestro chequeo interno con Turso sigue funcionando igual, es independiente de que sunbiz.org esté arriba o no).
+**Solución posible:** Verificar status en https://dos.fl.gov o redes de Florida Department of State. Sin solución de nuestro lado: (1) acumular órdenes en `ready_to_file` mientras se resuelve; (2) comunicar a clientes activos con expectativa realista de delay; (3) al restaurarse, procesar en orden de antigüedad.
 
 ---
 
-### 7. Cliente envía 3 nombres y los 3 están tomados
+### 7. Cliente necesita cambiar el nombre de su empresa después de que Florida lo rechazó
 **Status:** 🟡 Medio (operativo, no técnico)
-**Síntoma visible:** Después de búsqueda en Sunbiz, los 3 nombres propuestos por el cliente ya están registrados. La orden queda bloqueada en `in_review`. Cliente debe enviar nuevos nombres.
-**Solución posible:** Esto es flujo normal de negocio, no bug. Acción: en `/admin/orders/[id]` usar el botón "Send 'Names Taken' Email" — esto dispara automáticamente el email al cliente pidiendo nuevas opciones, y alerta al admin. Cuando cliente responda con nuevos nombres por email/WhatsApp, actualizar manualmente los 3 campos `companyName`, `companyName2`, `companyName3` en la orden desde el panel. Volver a verificar.
+**Síntoma visible:** Una orden queda en `names_taken` pidiendo un nombre nuevo.
+**Solución posible:** **Aplica solo a órdenes legacy pre-2026-06-22** — el form actual pide un solo nombre y ya lo valida contra Turso al crear la orden, así que las órdenes nuevas casi nunca deberían llegar a este estado. Si es una orden vieja (3 nombres, `companyName2`/`companyName3`): en `/admin/orders/[id]` usar el botón "Send 'Names Taken' Email" (dispara A2/A3 automático). Cuando el cliente responda con un nombre nuevo por email/WhatsApp, actualizarlo manualmente en la orden y volver a verificar contra Turso o sunbiz.org antes de radicar.
 
 ---
 
-### 8. Cron de actualización nocturna no se ejecuta
+### 8. El cron diario no corrió en absoluto (sin datos nuevos hace días)
+**Status:** 🟢 Bajo → 🟡 si pasan varios días
+Ver **runbook 18 ([18_sunbiz_turso_cron_falla.md](18_sunbiz_turso_cron_falla.md))** — se separó a un archivo propio por la cantidad de causas distintas que puede tener (Vercel Cron pausado, env vars de Turso faltantes, error silencioso).
+
+---
+
+### 9. Búsqueda devuelve resultados con encoding raro (caracteres extraños)
 **Status:** 🟢 Bajo
-**Síntoma visible:** Pasaron varios días y la tabla `sunbiz_corps` no tiene registros nuevos. El cron debería correr cada noche pero el `last_updated` no avanza.
-**Solución posible:** Si usamos Vercel Cron Jobs: ir a Vercel Dashboard → Cron Jobs → verificar que el job está activo y revisar últimas ejecuciones. Si dice "Failed", click sobre la ejecución para ver error. Si usamos Railway Cron: Railway Dashboard → Cron → mismo proceso. Causa frecuente: timeout (Vercel Cron tiene límite 10s en Hobby, 60s en Pro). Si el job es muy largo, dividir en pasos o pasar a un worker separado. Como workaround: ejecutar manualmente el script desde local.
+**Síntoma visible:** Nombres como "Café SoluciÃ³n LLC" en vez de "Café Solución LLC".
+**Solución posible:** Turso/SQLite espera UTF-8. Si el archivo diario de Florida vino en otro encoding (Latin-1 es lo más común en archivos de agencias gubernamentales de EE.UU.), el parser del cron (`/api/cron/sunbiz-daily`) necesita convertir explícitamente antes de insertar. Revisar el parseo de bytes del archivo `.txt` descargado del SFTP — si hay bytes fuera de rango ASCII sin decodificar bien, ahí está el bug. Como mitigación puntual: identificar y corregir las filas afectadas a mano vía `turso db shell`.
 
 ---
 
-### 9. Búsqueda devuelve resultados extraños (caracteres raros, encoding)
-**Status:** 🟢 Bajo
-**Síntoma visible:** Resultados de búsqueda muestran nombres con caracteres extraños tipo "Café SoluciÃ³n LLC" en lugar de "Café Solución LLC". Encoding UTF-8 mal interpretado.
-**Solución posible:** Ir a Supabase → SQL Editor → query muestra: `SELECT corp_name FROM sunbiz_corps WHERE corp_name LIKE '%Caf%' LIMIT 5`. Si los datos en DB están mal encoded, el problema es del import (Florida envía LATIN1 o similar, hay que convertir a UTF-8 al importar). Re-importar el dump con encoding correcto. Como workaround inmediato: limpiar registros afectados con script de migración encoding.
-
----
-
-### 10. Etapa 5 NO está lista al lanzamiento — verificación 100% manual
-**Status:** 🟡 Medio (escalado a 🔴 si no hay capacidad operativa)
-**Síntoma visible:** Sistema en producción procesando órdenes, pero como Etapa 5 (búsqueda automatizada) no está implementada, cada nombre debe verificarse manualmente en sunbiz.org. Esto consume tiempo del admin y limita escalabilidad.
-**Solución posible:** Plan de operación manual: (1) En `/admin` → orden con status `in_review`, abrir nueva pestaña con sunbiz.org → buscar `companyName`, luego `companyName2`, luego `companyName3`. (2) Marcar manualmente en notas internas qué nombre está disponible. (3) Si ninguno disponible, click botón "Send Names Taken Email". (4) Si alguno disponible, cambiar status a `ready_to_file` y proceder con filing. Capacidad estimada manual: ~10 órdenes/día por admin sin saturación. Si volumen excede, contratar VA con training específico O priorizar Etapa 5 inmediatamente.
+### 10. El buscador de nombres del admin dice "disponible" para todo, o parece no consultar Turso de verdad
+**Status:** 🟡 Medio
+**Síntoma visible:** El admin sabe que un nombre está tomado (lo vio en sunbiz.org) pero el buscador interno siempre devuelve "disponible" — sin importar qué se busque.
+**Solución posible:** `checkNameAvailability()` (`lib/sunbiz-namecheck.ts`) está escrita para **degradar en silencio a `available:true`** si no puede conectarse a Turso (evita romper el flujo de creación de orden por un problema de infraestructura) — esto significa que un `TURSO_DATABASE_URL`/`TURSO_AUTH_TOKEN` faltante o mal cargado no tira error visible, solo hace que TODO parezca disponible. Verificar que ambas variables estén cargadas en **Vercel Y en Railway** (el módulo de Express en Railway también las necesita para el buscador de nombres del admin — confirmado como pendiente de verificar en la auditoría de código de 2026-07-12, revisar si ya se hizo). Sin esas variables, el sistema no rompe, pero deja de proteger contra nombres duplicados — es el modo de fallo más peligroso de este archivo porque es silencioso.
