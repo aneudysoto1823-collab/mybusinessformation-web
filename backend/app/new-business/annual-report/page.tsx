@@ -2,7 +2,13 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'File Your Annual Report | Florida Business Formation Center',
-  description: 'File this year\'s Florida Annual Report, a one-time filing with no subscription.',
+  // 2026-09-16: ya NO promete "no subscription" — se descartó ofrecer la
+  // Declaración Anual como pago único (Florida la exige todos los años sin
+  // excepción, así que un one-time real solo pospone la venta recurrente a
+  // un momento futuro con menos urgencia). Ambas opciones del email VIP
+  // reminder (AR sola / AR+RA combinado) son suscripción, decisión de
+  // negocio confirmada en esa sesión — ver lib/vip-reminder-email.ts.
+  description: 'File this year\'s Florida Annual Report, handled automatically every year.',
   robots: { index: false, follow: false },
 }
 

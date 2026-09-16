@@ -130,13 +130,15 @@ const EN: LetterContent = {
       name: 'EIN (Tax ID)', price: '$161', govFeeLabel: 'IRS Fee', govFeeAmount: '$0.00',
       desc: 'A nine-digit number issued by the IRS to identify your business for federal tax purposes. By law, ' +
             'any business with at least one employee must obtain an EIN for payroll and employment tax reporting. ' +
-            'Also commonly required to open a business bank account, file taxes, and apply for licenses.',
+            'Also commonly required to open a business bank account, file taxes, and apply for licenses. Filing it ' +
+            'with our specialized team helps avoid errors and approval delays.',
     },
     {
       name: 'Certificate of Status', price: '$79',
       desc: 'An official document from the State of Florida confirming your business is active and in good ' +
             'standing. Frequently requested by banks, lenders, vendors, and partners when opening accounts, ' +
-            'applying for financing, or entering into contracts.',
+            'applying for financing, or entering into contracts. Our specialized team handles the request correctly, ' +
+            'helping avoid delays.',
     },
   ],
   cta: ['To request these services, scan the code', 'below or visit mybusinessformation.com'],
@@ -184,13 +186,14 @@ const ES: LetterContent = {
       name: 'EIN (Número Fiscal)', price: '$161', govFeeLabel: 'IRS Fee', govFeeAmount: '$0.00',
       desc: 'Número de nueve dígitos emitido por el IRS para identificar su negocio ante el fisco federal. Por ley, ' +
             'toda empresa con al menos un empleado debe obtener un EIN para la nómina y la declaración de impuestos ' +
-            'laborales. También suele requerirse para abrir una cuenta bancaria comercial, declarar impuestos y obtener licencias.',
+            'laborales. También suele requerirse para abrir una cuenta bancaria comercial, declarar impuestos y ' +
+            'obtener licencias. Presentarlo con nuestro equipo especializado ayuda a evitar errores y demoras.',
     },
     {
       name: 'Certificado de Estatus', price: '$79',
       desc: 'Documento oficial del Estado de Florida que confirma que su negocio está activo y en buen estado. ' +
             'Suele ser solicitado por bancos, prestamistas, proveedores y socios al abrir cuentas, solicitar ' +
-            'financiamiento o firmar contratos.',
+            'financiamiento o firmar contratos. Nuestro equipo especializado se encarga de tramitarlo correctamente.',
     },
   ],
   cta: ['Para solicitar estos servicios, escanee el código', 'o visite mybusinessformation.com'],

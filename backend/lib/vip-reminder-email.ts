@@ -216,28 +216,37 @@ export function buildVipReminderEmail(company: CampaignCompany, lang: 'en' | 'es
           </td>
         </tr>
 
-        <!-- Sección 1 — AR solo (presentación única) -->
+        <!-- Sección 1 — AR solo, renovado cada año (2026-09-16: se descartó
+             ofrecerla como "presentación única" — Florida la exige TODOS los
+             años sin excepción, así que un one-time real solo pospone la
+             conversión a un segundo momento con menos urgencia que ahora.
+             Ver memoria de la sesión: decisión de negocio, ambas opciones de
+             este email quedan como suscripción, solo cambia el alcance
+             (AR sola vs. AR+RA combinados). getRecurringServicesFromOrder
+             ya crea la Subscription para 'annual-report' sin cambios de
+             código — lo único que hacía falta era que el copy dejara de
+             prometer algo distinto.) -->
         <tr>
           <td style="background:#fff;padding:8px 36px 6px">
             <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border:1.5px solid #E2E8F0;border-radius:12px">
               <tr>
                 <td style="padding:24px 26px">
-                  <div style="font-size:11px;font-weight:700;color:${GREEN_DARK};text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">${isEs ? 'Presentación Única' : 'One-Time Filing'}</div>
+                  <div style="font-size:11px;font-weight:700;color:${GREEN_DARK};text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">${isEs ? 'Declaración Anual, cada año' : 'Annual Report, every year'}</div>
                   <div style="font-size:17px;font-weight:800;color:#1C2E44;font-family:Georgia,serif;margin-bottom:10px">${isEs ? `Presente ahora su Declaración Anual ${filingYearLabel}` : `File your ${filingYearLabel} Annual Report now`}</div>
                   <p style="color:#94A3B8;font-size:12px;line-height:1.6;margin:0 0 12px">
                     ${isEs
-                      ? 'La Declaración Anual es una presentación breve ante el Estado de Florida que confirma que la información de su negocio sigue siendo correcta y mantiene su empresa activa.'
-                      : 'The Annual Report is a short filing with the State of Florida confirming your business information is still accurate and keeping your company active.'}
+                      ? 'La Declaración Anual es una presentación breve ante el Estado de Florida que confirma que la información de su negocio sigue siendo correcta y mantiene su empresa activa. Es obligatoria todos los años.'
+                      : 'The Annual Report is a short filing with the State of Florida confirming your business information is still accurate and keeping your company active. It is required every year.'}
                   </p>
                   <p style="color:#64748b;font-size:13px;line-height:1.65;margin:0 0 18px">
                     ${isEs
-                      ? 'Si prefiere simplemente resolverlo, podemos presentarla por usted como un servicio único. Es rápido de completar, y queda resuelto con tiempo de sobra antes del plazo límite del 1 de mayo.'
-                      : "If you'd simply like to get it out of the way, we can file it for you as a one-time service. It's quick to set up, and it's taken care of well before the May 1 deadline."}
+                      ? 'Si prefiere simplemente resolverlo, podemos presentarla por usted cada año automáticamente, con tiempo de sobra antes del plazo límite del 1 de mayo.'
+                      : "If you'd simply like to get it out of the way, we can file it for you automatically every year, well before the May 1 deadline."}
                   </p>
                   <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:6px;border-top:1px solid #EEF2F7;padding-top:10px">
                     <tr>
                       <td style="font-size:11px;color:#94A3B8;font-weight:700;text-transform:uppercase;letter-spacing:.03em;padding:3px 0">Filing Services Fee</td>
-                      <td align="right" style="font-size:16px;font-weight:800;color:#1C2E44;font-family:Georgia,serif;padding:3px 0">$99</td>
+                      <td align="right" style="font-size:16px;font-weight:800;color:#1C2E44;font-family:Georgia,serif;padding:3px 0">$99<span style="font-size:11px;font-weight:600;color:#64748b">${isEs ? '/año' : '/year'}</span></td>
                     </tr>
                     <tr>
                       <td style="font-size:10.5px;color:#A8B4C4;font-weight:600;padding:3px 0">Florida State Fee</td>
@@ -245,6 +254,7 @@ export function buildVipReminderEmail(company: CampaignCompany, lang: 'en' | 'es
                     </tr>
                   </table>
                   <a href="${arUrl}" style="display:block;text-align:center;background:${GREEN};color:#fff;text-decoration:none;padding:13px 24px;border-radius:9px;font-weight:700;font-size:14.5px;margin-top:12px">${isEs ? 'Presentar mi Declaración Anual' : 'File My Annual Report'}</a>
+                  <p style="text-align:center;font-size:11px;color:#94A3B8;margin:10px 0 0">${isEs ? 'Cancele cuando quiera. Sin contrato a largo plazo.' : 'Cancel anytime. No long-term contract.'}</p>
                 </td>
               </tr>
             </table>

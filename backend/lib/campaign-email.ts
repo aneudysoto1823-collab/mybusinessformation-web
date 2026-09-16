@@ -98,15 +98,15 @@ export function buildComplianceEmail(company: CampaignCompany, trackUrl: string,
       price: '$161',
       govFeeLabel: 'IRS Fee', govFeeAmount: '$0.00',
       desc: isEs
-        ? 'Número de nueve dígitos emitido por el IRS para identificar su negocio ante el fisco federal. Suele requerirse para abrir una cuenta bancaria comercial, declarar impuestos y obtener licencias.'
-        : 'A nine-digit number issued by the IRS to identify your business for federal tax purposes. Commonly required to open a business bank account, file taxes, and apply for licenses.',
+        ? 'Número de nueve dígitos emitido por el IRS para identificar su negocio ante el fisco federal. Suele requerirse para abrir una cuenta bancaria comercial, declarar impuestos y obtener licencias. Presentarlo con nuestro equipo especializado ayuda a evitar errores en la solicitud y demoras en la aprobación.'
+        : 'A nine-digit number issued by the IRS to identify your business for federal tax purposes. Commonly required to open a business bank account, file taxes, and apply for licenses. Filing it with our specialized team helps avoid application errors and delays in approval.',
     },
     {
       name: isEs ? 'Certificado de Estatus' : 'Certificate of Status',
       price: '$79',
       desc: isEs
-        ? 'Documento oficial del Estado de Florida que confirma que su negocio está activo y en buen estado. Solicitado por bancos, prestamistas, proveedores y socios.'
-        : 'An official document from the State of Florida confirming your business is active and in good standing. Frequently requested by banks, lenders, vendors, and partners.',
+        ? 'Documento oficial del Estado de Florida que confirma que su negocio está activo y en buen estado. Solicitado por bancos, prestamistas, proveedores y socios. Nuestro equipo especializado se encarga de tramitarlo correctamente, evitando errores que puedan retrasar su aprobación.'
+        : 'An official document from the State of Florida confirming your business is active and in good standing. Frequently requested by banks, lenders, vendors, and partners. Our specialized team handles the request correctly, helping avoid errors that could delay approval.',
     },
   ]
 
@@ -174,9 +174,18 @@ export function buildComplianceEmail(company: CampaignCompany, trackUrl: string,
           </td>
         </tr>
 
+        <!-- Disclaimer superior (antes del título y de cualquier precio) -->
+        <tr>
+          <td style="background:#fff;padding:22px 36px 0">
+            <div style="background:#EEF7E9;border:1px solid #CFE8C3;border-radius:10px;padding:12px 16px">
+              <p style="color:#3F5E32;font-size:12px;line-height:1.6;margin:0">${topDisclaimer}</p>
+            </div>
+          </td>
+        </tr>
+
         <!-- Título -->
         <tr>
-          <td style="background:#fff;padding:26px 36px 6px;text-align:center">
+          <td style="background:#fff;padding:18px 36px 6px;text-align:center">
             <div style="color:#1C2E44;font-size:16px;font-weight:800;letter-spacing:.7px;font-family:Georgia,serif">${title}</div>
           </td>
         </tr>
@@ -218,15 +227,6 @@ export function buildComplianceEmail(company: CampaignCompany, trackUrl: string,
                 </td>
               </tr>
             </table>
-          </td>
-        </tr>
-
-        <!-- Disclaimer superior (antes de cualquier precio) -->
-        <tr>
-          <td style="background:#fff;padding:14px 36px 0">
-            <div style="background:#EEF7E9;border:1px solid #CFE8C3;border-radius:10px;padding:12px 16px">
-              <p style="color:#3F5E32;font-size:12px;line-height:1.6;margin:0">${topDisclaimer}</p>
-            </div>
           </td>
         </tr>
 
