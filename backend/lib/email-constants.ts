@@ -122,9 +122,15 @@ export function brandSubjectPrefix(brand: EmailBrand): string {
 /** Header HTML (logo + nombre) — reemplaza el bloque "OB / Opa+Biz" fijo. */
 export function brandHeaderHtml(brand: EmailBrand): string {
   if (isFbfcBrand(brand)) {
+    // Sello en chip chico (fondo #EEF2F7, esquinas redondeadas) en vez de
+    // flotar directo sobre blanco — mismo tratamiento "opción C" aplicado
+    // en fbfcLetterHeaderHtml() más abajo, para que el sello se vea igual
+    // en cualquier email FBFC (auditoría FTC/UPL 2026-09-17).
     return `
-              <td style="width:42px;padding-right:12px">
-                <img src="https://mybusinessformation.com/fbfc-seal.png" width="42" height="42" alt="Florida Business Formation Center" style="display:block"/>
+              <td style="width:46px;padding-right:12px">
+                <table cellpadding="0" cellspacing="0" border="0" width="46" height="46" style="background:#EEF2F7;border-radius:10px"><tr><td align="center" valign="middle">
+                  <img src="https://mybusinessformation.com/fbfc-seal.png" width="34" height="34" alt="Florida Business Formation Center" style="display:block"/>
+                </td></tr></table>
               </td>
               <td style="vertical-align:middle">
                 <div style="font-family:Georgia,serif;font-size:16px;font-weight:700;line-height:1.25;color:#1C2E44">Florida Business<br/>Formation Center</div>
@@ -144,6 +150,37 @@ export function brandHeaderHtml(brand: EmailBrand): string {
                 <div style="font-family:Georgia,serif;font-size:21px;font-weight:700;line-height:1.2"><span style="color:#1C2E44">Opa</span><span style="color:#2563EB">Biz</span></div>
                 <div style="font-size:11px;color:#94A3B8;letter-spacing:.3px;margin-top:2px">Florida Business Formation Center</div>
               </td>`
+}
+
+/**
+ * Membrete de fondo blanco (sello en chip + nombre + dominio) para los
+ * emails "estilo carta" de FBFC — B1 (Aviso de Cumplimiento) y el
+ * recordatorio VIP. Reemplaza la franja navy de ancho completo que tenían
+ * antes: auditoría FTC/UPL 2026-09-17, el founder señaló que sello + banda
+ * navy completa se parece demasiado a una notificación de agencia de
+ * gobierno. El sello se conserva (es un asset real, no un ícono genérico)
+ * pero pasa a un chip chico sobre blanco en vez de ocupar todo el ancho del
+ * header — misma idea que la corrección del sello en `brandHeaderHtml()`
+ * de arriba. Se saca también la etiqueta de la esquina derecha
+ * ("Information Notice"/"Compliance Reminder") — ese rótulo en mayúsculas
+ * era, junto con la franja, lo que más leía como encabezado oficial.
+ * Solo FBFC — OpaBiz nunca usó este patrón en sus emails.
+ */
+export function fbfcLetterHeaderHtml(): string {
+  return `
+          <td style="background:#fff;border-radius:14px 14px 0 0;padding:22px 36px;border-bottom:1px solid #E2E8F0">
+            <table cellpadding="0" cellspacing="0" border="0"><tr>
+              <td style="width:46px">
+                <table cellpadding="0" cellspacing="0" border="0" width="46" height="46" style="background:#EEF2F7;border-radius:10px"><tr><td align="center" valign="middle">
+                  <img src="https://mybusinessformation.com/fbfc-seal.png" width="34" height="34" alt="Florida Business Formation Center" style="display:block"/>
+                </td></tr></table>
+              </td>
+              <td style="padding-left:12px;vertical-align:middle">
+                <div style="color:#1C2E44;font-size:15px;font-weight:700;font-family:Georgia,serif">Florida Business Formation Center</div>
+                <a href="https://mybusinessformation.com" style="color:#94A3B8;font-size:11px;letter-spacing:.5px;text-decoration:none">mybusinessformation.com</a>
+              </td>
+            </tr></table>
+          </td>`
 }
 
 /** Línea de pie de página ("OpaBiz · opabiz.com" / "Florida Business Formation Center · mybusinessformation.com"). */

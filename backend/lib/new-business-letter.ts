@@ -16,6 +16,10 @@ const OFF_WHITE = rgb(0.97, 0.97, 0.97)
 const GREEN_TINT   = rgb(0.933, 0.969, 0.910)  // #EEF7E9
 const GREEN_BORDER = rgb(0.812, 0.910, 0.765)  // #CFE8C3
 const GREEN_TEXT   = rgb(0.247, 0.369, 0.196)  // #3F5E32
+// Chip suave detrás del sello (auditoría FTC/UPL 2026-09-17) — mismo tinte
+// que ya usa el chip del sello en los emails FBFC (fbfcLetterHeaderHtml()),
+// para que el sello se vea igual en la carta y en el correo.
+const SEAL_CHIP_TINT = rgb(0.933, 0.949, 0.969)  // #EEF2F7
 
 const PAGE_W = 612
 const PAGE_H = 792
@@ -330,6 +334,7 @@ export async function generateNewBusinessLetter(input: NewBusinessLetterData): P
   const logoCx = MX + logoR
   const logoCy = y - 22
   const logoD  = logoR * 2
+  page.drawCircle({ x: logoCx, y: logoCy, size: logoR + 4, color: SEAL_CHIP_TINT })
   try {
     const sealImg = await doc.embedPng(Buffer.from(FBFC_SEAL_PNG_BASE64, 'base64'))
     page.drawImage(sealImg, { x: MX, y: logoCy - logoR, width: logoD, height: logoD })

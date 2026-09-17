@@ -4,7 +4,7 @@
 // vivía inline en send/route.ts; se extrajo el 2026-09-11 para que el preview
 // no pueda quedar desincronizado del email que de verdad se manda.
 
-import { PHYSICAL_MAILING_ADDRESS } from './email-constants'
+import { PHYSICAL_MAILING_ADDRESS, fbfcLetterHeaderHtml } from './email-constants'
 
 export const CAMPAIGN_EMAIL_BASE_URL = 'https://mybusinessformation.com'
 
@@ -12,8 +12,10 @@ export const CAMPAIGN_EMAIL_BASE_URL = 'https://mybusinessformation.com'
 // pedido founder 2026-09-11 en ese template) — extendido acá 2026-09-15
 // para el botón principal y el precio de cada servicio: "el verde da mejor
 // sensación" que el azul de marca en estos dos puntos puntuales. La franja
-// navy "Available Services" y el resto del membrete se dejan sin tocar a
-// propósito — mantiene el tono de aviso oficial de este email en particular.
+// navy "Available Services" (más abajo en el cuerpo) se deja sin tocar a
+// propósito — es un rótulo de sección, no parte del membrete. El membrete
+// en sí perdió su franja navy de ancho completo el 2026-09-17 (auditoría
+// FTC/UPL, ver fbfcLetterHeaderHtml() en email-constants.ts).
 const GREEN = '#7BBB5D'
 
 export type CampaignCompany = {
@@ -154,26 +156,7 @@ export function buildComplianceEmail(company: CampaignCompany, trackUrl: string,
       <table cellpadding="0" cellspacing="0" border="0" width="600" style="max-width:600px;width:100%">
 
         <!-- Membrete -->
-        <tr>
-          <td style="background:#1C2E44;border-radius:14px 14px 0 0;padding:22px 36px">
-            <table cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
-              <td>
-                <table cellpadding="0" cellspacing="0" border="0"><tr>
-                  <td style="width:42px">
-                    <img src="https://mybusinessformation.com/fbfc-seal.png" width="42" height="42" alt="Florida Business Formation Center" style="display:block"/>
-                  </td>
-                  <td style="padding-left:12px">
-                    <div style="color:#fff;font-size:15px;font-weight:700;font-family:Georgia,serif">Florida Business Formation Center</div>
-                    <a href="https://mybusinessformation.com" style="color:#B9C6DA;font-size:11px;letter-spacing:.5px;text-decoration:none">mybusinessformation.com</a>
-                  </td>
-                </tr></table>
-              </td>
-              <td align="right" style="color:#B9C6DA;font-size:11px;text-transform:uppercase;letter-spacing:.5px">
-                ${isEs ? 'Aviso Informativo' : 'Information Notice'}
-              </td>
-            </tr></table>
-          </td>
-        </tr>
+        <tr>${fbfcLetterHeaderHtml()}</tr>
 
         <!-- Disclaimer superior (antes del título y de cualquier precio) -->
         <tr>

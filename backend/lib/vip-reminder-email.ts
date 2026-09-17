@@ -25,7 +25,7 @@
 // diferenciar esta campaña de la carta B1 (que sigue azul/navy) — el header
 // se mantiene navy, igual que el resto del sitio.
 import { CAMPAIGN_EMAIL_BASE_URL as BASE_URL, type CampaignCompany } from './campaign-email'
-import { PHYSICAL_MAILING_ADDRESS } from './email-constants'
+import { PHYSICAL_MAILING_ADDRESS, fbfcLetterHeaderHtml } from './email-constants'
 
 // #7BBB5D pedido por el founder (2026-09-11, "el verde que ellos usan") para
 // botones/bordes/checkmarks. GREEN_DARK es una variante más oscura del mismo
@@ -132,27 +132,8 @@ export function buildVipReminderEmail(company: CampaignCompany, lang: 'en' | 'es
     <tr><td align="center">
       <table cellpadding="0" cellspacing="0" border="0" width="600" style="max-width:600px;width:100%">
 
-        <!-- Membrete (navy, igual que B1 y el resto del sitio) -->
-        <tr>
-          <td style="background:#1C2E44;border-radius:14px 14px 0 0;padding:22px 36px">
-            <table cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
-              <td>
-                <table cellpadding="0" cellspacing="0" border="0"><tr>
-                  <td style="width:42px">
-                    <img src="https://mybusinessformation.com/fbfc-seal.png" width="42" height="42" alt="Florida Business Formation Center" style="display:block"/>
-                  </td>
-                  <td style="padding-left:12px">
-                    <div style="color:#fff;font-size:15px;font-weight:700;font-family:Georgia,serif">Florida Business Formation Center</div>
-                    <a href="https://mybusinessformation.com" style="color:#B9C6DA;font-size:11px;letter-spacing:.5px;text-decoration:none">mybusinessformation.com</a>
-                  </td>
-                </tr></table>
-              </td>
-              <td align="right" style="color:#B9C6DA;font-size:11px;text-transform:uppercase;letter-spacing:.5px">
-                ${isEs ? 'Recordatorio de Cumplimiento' : 'Compliance Reminder'}
-              </td>
-            </tr></table>
-          </td>
-        </tr>
+        <!-- Membrete (fondo blanco, igual que B1 — ver fbfcLetterHeaderHtml, auditoría FTC/UPL 2026-09-17) -->
+        <tr>${fbfcLetterHeaderHtml()}</tr>
 
         <!-- Disclaimer superior (antes de cualquier precio) -->
         <tr>
