@@ -1643,22 +1643,17 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
                  contratado todavía — decisión founder, se retoma más
                  adelante). Antes había 2 tarjetas acá (Use Virtual Address /
                  I will use my own address) + una nota "biz-virtual-note" que
-                 solo se mostraba con type==='virtual'. Se sacó la tarjeta
-                 virtual y la nota entera; "own" queda como única opción,
-                 pre-seleccionada. fmSetBizAddr/fmData.bizAddrType/
-                 fmSyncStep2 quedan intactos — el default ahora es 'own' (ver
-                 fmData arriba) así que todo el flujo sigue funcionando igual,
-                 solo sin la opción virtual en la UI. -->
-            <div class="fm-choices">
-              <div class="fm-choice selected" id="biz-addr-own" onclick="fmSetBizAddr('own',this)">
-                <div class="fm-choice-radio"></div>
-                <div class="fm-choice-content">
-                  <strong id="biz-own-lbl">&#127968; I will use my own address</strong>
-                  <p id="biz-own-desc" style="margin:4px 0 0;font-size:.75rem;color:#64748b;line-height:1.5">Your address will be on the Florida public record.</p>
-                </div>
-              </div>
-            </div>
-            <div id="biz-own-form" style="display:none;margin-top:10px">
+                 solo se mostraba con type==='virtual'. 2026-09-17: se sacó
+                 también la tarjeta "own" (con "own" como única opción, la
+                 tarjeta/radio de un solo ítem daba a entender que había otra
+                 alternativa) — ahora los campos de dirección se muestran
+                 directo, sin ningún paso de elección. fmSetBizAddr/
+                 fmData.bizAddrType/fmSyncStep2 quedan intactos (siguen
+                 usando el id "biz-own-form" de abajo) — el default es 'own'
+                 (ver fmData arriba), así que el flujo sigue funcionando
+                 igual, solo sin ningún control de elección visible. -->
+            <p style="font-size:.75rem;color:#64748b;line-height:1.5;margin:0 0 10px" id="biz-own-desc">Your address will be on the Florida public record.</p>
+            <div id="biz-own-form">
               <div class="fm-group"><label class="fm-label" id="lbl-biz-country">Country *</label>
                 <select class="fm-select" id="inp-biz-country" onchange="fmBizCountryChange(this)"><option value="US">United States</option><option value="AR">Argentina</option><option value="BR">Brazil</option><option value="CL">Chile</option><option value="CO">Colombia</option><option value="CR">Costa Rica</option><option value="CU">Cuba</option><option value="DO">Dominican Republic</option><option value="EC">Ecuador</option><option value="ES">Spain</option><option value="GB">United Kingdom</option><option value="GT">Guatemala</option><option value="HN">Honduras</option><option value="MX">Mexico</option><option value="NI">Nicaragua</option><option value="PE">Peru</option><option value="VE">Venezuela</option><option value="other">Other</option></select>
               </div>
