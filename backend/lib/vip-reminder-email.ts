@@ -229,8 +229,8 @@ export function buildVipReminderEmail(company: CampaignCompany, lang: 'en' | 'es
                   </p>
                   <p style="color:#64748b;font-size:13px;line-height:1.65;margin:0 0 18px">
                     ${isEs
-                      ? 'Si prefiere simplemente resolverlo, podemos presentarla por usted cada año automáticamente, con tiempo de sobra antes del plazo límite del 1 de mayo.'
-                      : "If you'd simply like to get it out of the way, we can file it for you automatically every year, well before the May 1 deadline."}
+                      ? 'Si prefiere simplemente resolverlo, podemos presentarla por usted automáticamente cada año, con tiempo de sobra antes del plazo límite establecido.'
+                      : "If you'd simply like to get it out of the way, we can file it for you automatically every year, well before the established deadline."}
                   </p>
                   <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:6px;border-top:1px solid #EEF2F7;padding-top:10px">
                     <tr>
