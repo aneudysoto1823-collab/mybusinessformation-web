@@ -1212,12 +1212,6 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
         <div class="mini-svc-sub" data-en="+ FL state fee" data-es="+ tarifa estatal FL">+ FL state fee</div>
         <div class="mini-svc-arrow">Ver servicio &#8594;</div>
       </a>
-      <a class="mini-svc-card" href="/servicios?lang=${defaultLang}#virtual-address">
-        <div class="mini-svc-top"><span class="mini-svc-icon">&#128205;</span><span class="mini-svc-name" data-en="Virtual Mailing Address" data-es="Dirección Postal Virtual">Virtual Mailing Address</span></div>
-        <div class="mini-svc-price">$30<span style="font-size:.75rem;font-weight:400">/mo</span></div>
-        <div class="mini-svc-sub" data-en="Cancel anytime" data-es="Cancela cuando quieras">Cancel anytime</div>
-        <div class="mini-svc-arrow">Ver servicio &#8594;</div>
-      </a>
       <a class="mini-svc-card" href="/servicios?lang=${defaultLang}#annual-report">
         <div class="mini-svc-top"><span class="mini-svc-icon">&#128197;</span><span class="mini-svc-name" data-en="Annual Report Filing" data-es="Declaración Anual">Annual Report Filing</span></div>
         <div class="mini-svc-price" data-en="Annual Service" data-es="Servicio Anual">Annual Service</div>
@@ -1358,7 +1352,6 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           <a href="/servicios?lang=${defaultLang}#itin" data-en="ITIN Application" data-es="Solicitud de ITIN">ITIN Application</a>
           <a href="/servicios?lang=${defaultLang}#dba" data-en="DBA / Fictitious Name" data-es="DBA / Nombre Ficticio">DBA / Fictitious Name</a>
           <a href="/servicios?lang=${defaultLang}#amendment" data-en="Articles of Amendment" data-es="Artículos de Enmienda">Articles of Amendment</a>
-          <a href="/servicios?lang=${defaultLang}#virtual-address" data-en="Virtual Mailing Address" data-es="Dirección Postal Virtual">Virtual Mailing Address</a>
           <a href="/servicios?lang=${defaultLang}#banking-resolution" data-en="Banking Resolution" data-es="Resolución Bancaria">Banking Resolution</a>
           <a href="/servicios?lang=${defaultLang}#business-tax-receipt" data-en="Local Business Tax Receipt" data-es="Licencia Comercial Local">Local Business Tax Receipt</a>
           <a href="/servicios?lang=${defaultLang}#sales-tax-registration" data-en="Sales Tax Registration" data-es="Registro de Impuesto sobre Ventas">Sales Tax Registration</a>
@@ -1646,24 +1639,24 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
               &#128204; <strong id="s2-biz-addr-info-title">What is the Business Address?</strong><br/>
               <span id="s2-biz-addr-info-text">This is the official address of your LLC or Corporation filed with the State of Florida.</span>
             </div>
+            <!-- Virtual Address sacado 2026-09-17 (no hay proveedor wholesale
+                 contratado todavía — decisión founder, se retoma más
+                 adelante). Antes había 2 tarjetas acá (Use Virtual Address /
+                 I will use my own address) + una nota "biz-virtual-note" que
+                 solo se mostraba con type==='virtual'. Se sacó la tarjeta
+                 virtual y la nota entera; "own" queda como única opción,
+                 pre-seleccionada. fmSetBizAddr/fmData.bizAddrType/
+                 fmSyncStep2 quedan intactos — el default ahora es 'own' (ver
+                 fmData arriba) así que todo el flujo sigue funcionando igual,
+                 solo sin la opción virtual en la UI. -->
             <div class="fm-choices">
-              <div class="fm-choice selected" id="biz-addr-virtual" onclick="fmSetBizAddr('virtual',this)">
-                <div class="fm-choice-radio"></div>
-                <div class="fm-choice-content">
-                  <strong id="biz-virtual-lbl">&#128205; Use Virtual Address <span style="font-size:.68rem;background:#059669;color:#fff;padding:2px 7px;border-radius:10px;margin-left:4px" id="biz-virtual-badge">1st Month FREE</span></strong>
-                  <p id="biz-virtual-desc">We assign you a professional Florida address. Your personal address stays completely private.</p>
-                </div>
-              </div>
-              <div class="fm-choice" id="biz-addr-own" onclick="fmSetBizAddr('own',this)">
+              <div class="fm-choice selected" id="biz-addr-own" onclick="fmSetBizAddr('own',this)">
                 <div class="fm-choice-radio"></div>
                 <div class="fm-choice-content">
                   <strong id="biz-own-lbl">&#127968; I will use my own address</strong>
-                  <p id="biz-own-desc" style="margin:4px 0 0;font-size:.75rem;color:#64748b;line-height:1.5">Your address will be on the Florida public record. If you prefer privacy, our virtual address keeps your personal information protected.</p>
+                  <p id="biz-own-desc" style="margin:4px 0 0;font-size:.75rem;color:#64748b;line-height:1.5">Your address will be on the Florida public record.</p>
                 </div>
               </div>
-            </div>
-            <div id="biz-virtual-note" style="margin-top:10px;background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;padding:14px 16px">
-              <p style="font-size:.78rem;color:#475569;line-height:1.65;margin:0" id="biz-virtual-confirm-text">Once your dedicated Florida virtual address is assigned, we will deliver it to your email. Your business will have a professional address from day one.</p>
             </div>
             <div id="biz-own-form" style="display:none;margin-top:10px">
               <div class="fm-group"><label class="fm-label" id="lbl-biz-country">Country *</label>
@@ -4655,13 +4648,16 @@ var fmTotalSteps  = 7;
 // viene pre-seleccionado en 'expedited' por defecto.
 var _fmSpeedSeen = false;
 var fmData = {
-  entity: 'llc', bizAddrType: 'virtual', agentType: 'ours',
+  entity: 'llc', bizAddrType: 'own', agentType: 'ours',
   bizName: '',
   designator: 'LLC',
   speed: 'expedited',
   contact: { fname:'', lname:'', email:'', phone:'' },
   address: { street:'', street2:'', city:'', state:'', zip:'', country:'US' },
-  vma: true,
+  // Virtual Address sacado 2026-09-17 (no hay proveedor wholesale contratado
+  // todavía — decisión founder, se retoma más adelante). vma en false
+  // mantiene oculta .sum-vma-line (ver fmUpdateSummary) sin tocar esa lógica.
+  vma: false,
   package: 'standard',
   members: [{ type:'individual', fname:'', lname:'', own:100, title:'', useCompanyAddr:true }],
   ra: 'us',
@@ -4699,7 +4695,7 @@ function fmVisualStep(step) {
 // ═══════════════════════════════════════════════════════
 function fmSyncStep2() {
   // Re-apply address type UI from fmData (handles back-nav)
-  var type = fmData.bizAddrType || 'virtual';
+  var type = fmData.bizAddrType || 'own';
   var virtBtn = document.getElementById('biz-addr-virtual');
   var ownBtn  = document.getElementById('biz-addr-own');
   var note    = document.getElementById('biz-virtual-note');
@@ -6680,7 +6676,7 @@ function fmTranslate(lang) {
     'biz-virtual-lbl':isEs?'Usar Dirección Virtual':'Use Virtual Address',
     'biz-virtual-desc':isEs?'Le asignamos una dirección profesional en Florida. Su dirección personal se mantiene completamente privada.':'We assign you a professional Florida address. Your personal address stays completely private.',
     'biz-own-lbl':isEs?'Usaré mi propia dirección':'I will use my own address',
-    'biz-own-desc':isEs?'Su dirección quedará en el registro público de Florida. Si prefiere mantener su privacidad, nuestra dirección virtual protege sus datos personales.':'Your address will be on the Florida public record. If you prefer privacy, our virtual address keeps your personal information protected.',
+    'biz-own-desc':isEs?'Su dirección quedará en el registro público de Florida.':'Your address will be on the Florida public record.',
     'biz-virtual-confirm-text':isEs?'Una vez que le asignemos su dirección virtual de Florida, se la enviaremos por correo. Su negocio tendrá una dirección profesional desde el primer día.':'Once your dedicated Florida virtual address is assigned, we will deliver it to your email. Your business will have a professional address from day one.',
     'biz-virtual-badge':isEs?'1er Mes GRATIS':'1st Month FREE',
     's3-agent-info-title':isEs?'¿Qué es un Agente Registrado? <span class="tt-wrap" style="vertical-align:middle"><span class="tt-icon">?<span class="tt-box" id="tt-ra" style="left:0;transform:none">Un Agente Registrado es el punto de contacto oficial entre su negocio y el Estado de Florida. Recibe notificaciones legales, demandas y correspondencia gubernamental en su nombre. Toda LLC y Corporación de Florida está obligada por ley a tener uno en todo momento.</span></span></span>':'What is a Registered Agent? <span class="tt-wrap" style="vertical-align:middle"><span class="tt-icon">?<span class="tt-box" id="tt-ra" style="left:0;transform:none">A Registered Agent is the official point of contact between your business and the State of Florida. They receive legal notices, lawsuits, and government mail on your behalf. Every Florida LLC and Corporation is required by law to have one at all times.</span></span></span>',
@@ -7473,11 +7469,14 @@ function claudiaPrefill(d){
     if(raEl&&typeof fmSetAgentChoice==='function') fmSetAgentChoice(raChoice,raEl);
   }
 
-  // Business address (step 2)
+  // Business address (step 2) — borradores viejos (pre-2026-09-17) pueden
+  // traer bizAddrType:'virtual', ya sin tarjeta en el DOM (ver arriba). Se
+  // fuerza a 'own' para que el restore no quede sin ninguna tarjeta seleccionada.
   if(d.bizAddrType&&typeof fmSetBizAddr==='function'){
-    var addrEl=document.getElementById('biz-addr-'+d.bizAddrType);
-    fmSetBizAddr(d.bizAddrType,addrEl);
-    if(d.bizAddrType==='own'&&d.address){
+    var restoredBizType = d.bizAddrType==='virtual' ? 'own' : d.bizAddrType;
+    var addrEl=document.getElementById('biz-addr-'+restoredBizType);
+    fmSetBizAddr(restoredBizType,addrEl);
+    if(restoredBizType==='own'&&d.address){
       setVal('inp-addr',d.address.street);
       setVal('inp-street2',d.address.street2);
       setVal('inp-city',d.address.city);

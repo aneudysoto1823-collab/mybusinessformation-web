@@ -17,7 +17,6 @@ const SERVICIOS_FOR_SCHEMA: SchemaService[] = [
   { id: 'operating-agreement', name: 'Operating Agreement', description: 'Internal LLC document defining ownership, management structure, and member responsibilities. Required by most banks.', priceUsd: 79 },
   { id: 'itin', name: 'ITIN Application', description: 'IRS Individual Taxpayer Identification Number for non-US founders without a Social Security Number.', priceUsd: 99 },
   { id: 'dba', name: 'DBA / Fictitious Name Registration', description: 'Florida Fictitious Name registration so your business can operate under a name different from the legal entity name.', priceUsd: 49 },
-  { id: 'virtual-address', name: 'Virtual Mailing Address', description: 'Professional Florida mailing address with mail receipt, scanning, and digital forwarding.' },
   { id: 'annual-report', name: 'Annual Report Filing', description: 'Yearly required filing with the Florida Division of Corporations to keep the entity active.' },
   { id: 'amendment', name: 'Articles of Amendment', description: 'Filing to change company name, registered agent, address, or member structure with the State of Florida.', priceUsd: 59 },
   { id: 'banking-resolution', name: 'Banking Resolution', description: 'Corporate document authorizing signers and account openings, commonly required by banks.', priceUsd: 49 },
@@ -195,15 +194,11 @@ export default function ServiciosPage() {
       time_en: '&#9889; Processing: 3–7 business days',
       time_es: '&#9889; Procesamiento: 3-7 días hábiles',
       btn_en: 'Order DBA Filing — $49 &#8594;', btn_es: 'Ordenar registro de DBA — $49 &#8594;' },
-    { id: 'virtual-address', icon: 'map-pin', name: 'Virtual Mailing Address', name_es: 'Dirección Virtual de Correo', price: '$30',
-      sub_en: 'Monthly charge · cancel anytime', sub_es: 'Cargo mensual · cancela cuando quieras',
-      desc_en: 'Get a professional Florida business address. Your home address stays private on all public Florida Division of Corporations records.',
-      desc_es: 'Obtén una dirección profesional de negocios en Florida. Tu dirección personal se mantiene privada en los registros públicos de la División de Corporaciones.',
-      includes_en: ['Professional FL mailing address','Mail receiving &amp; digital forwarding','Home address stays private on public records','Available immediately after sign-up'],
-      includes_es: ['Dirección postal profesional en Florida','Recepción de correo y reenvío digital','Tu dirección personal no aparece en registros públicos','Activo inmediatamente al inscribirte'],
-      time_en: '&#9889; Activation: Same business day',
-      time_es: '&#9889; Activación: El mismo día hábil',
-      btn_en: 'Order Virtual Address — $30/mo &#8594;', btn_es: 'Ordenar Dirección Virtual — $30/mes &#8594;' },
+    // Virtual Address sacada del catálogo 2026-09-17 (no hay proveedor
+    // wholesale contratado todavía — decisión founder, se retoma más
+    // adelante). El objeto completo (precios, bullets, copy EN/ES) queda
+    // documentado en el historial de git de este archivo — no se dejó un
+    // placeholder acá para no confundir con una tarjeta real.
     { id: 'annual-report', icon: 'calendar', name: 'Annual Report Filing', name_es: 'Presentación de Reporte Anual', price: '$99', stateFee: 139,
       sub_en: '+ $139 FL state fee · renews annually', sub_es: '+ $139 de tarifa estatal de FL · se renueva anualmente',
       desc_en: 'Every Florida LLC and Corporation must file an Annual Report between January 1 and May 1. Missing this deadline results in a $400 late fee and potential administrative dissolution.',

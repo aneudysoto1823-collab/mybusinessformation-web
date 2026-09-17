@@ -1577,6 +1577,25 @@ Revisando la carpeta a pedido del founder, se encontró que `03_base_de_datos.md
 
 ---
 
+## Sesión 2026-09-17 — Virtual Address sacada de opabiz.com (sin proveedor wholesale)
+
+Decisión founder: todavía no se consiguió proveedor de Virtual Address, así que se saca del sitio para avanzar — **solo de la UI, nunca del algoritmo de precios/Subscriptions**, para poder reactivarla más adelante sin rearmar nada.
+
+**Hallazgo al auditar:** mybusinessformation.com ya había pasado por esto el 2026-09-10 (mismo motivo, nunca quedó documentado acá, solo en comentarios de código) — sirvió de plantilla exacta para hacerlo en opabiz.com esta sesión:
+- `new-business/page.tsx` — panel "Recomendado para ti": tiers basados en VA reemplazados por tiers basados en Agente Registrado (`bundle-compliance-ra`/`-ra-ar`, reusando combos ya existentes).
+- `new-business/servicios/page.tsx` — tarjeta de catálogo oculta vía `EXCLUDED_IDS` (metadata/copy se dejó sin borrar).
+- `servicios/checkout/page.tsx` — para FBFC, `coProtectConfig()`/`coHubApplicable` ya ocultaban el hub "Presencia y operación" en à la carte.
+
+**Qué se hizo esta sesión (opabiz.com, extendiendo el mismo patrón):**
+- `app/page.tsx` (formulario de formación, paso 2 "Physical Business Address"): se sacó la tarjeta "Use Virtual Address" — queda solo "I will use my own address", pre-seleccionada y por defecto (`fmData.bizAddrType: 'own'`, antes `'virtual'`). Se sacaron también los 2 links de cross-sell a `/servicios#virtual-address` (grilla de la home + footer) y se neutralizó `fmData.vma` (→`false`) para que la línea del resumen "Virtual Address — 1st Month Free" (que por un bug preexistente se mostraba siempre, sin importar la elección real del cliente) deje de aparecer. `fmSetBizAddr()`, `fmData.bizAddrType` y `fmSyncStep2()` NO se tocaron — solo dejaron de poder recibir `'virtual'` desde la UI (ya eran defensivos con elementos ausentes). Un borrador viejo guardado con `bizAddrType:'virtual'` se corrige a `'own'` al restaurarse.
+- `app/servicios/page.tsx`: se sacó la tarjeta suelta "Virtual Mailing Address" del catálogo (y su entrada gemela en el JSON-LD de schema.org, para que la data estructurada no prometa un servicio que ya no se vende). Los mapas legacy del formulario embebido (`serviceForms`, `prEn/prEs/bgEn/bgEs/tmEn/tmEs/icEn/icEs`) se dejaron intactos — ya eran código muerto desde antes (`openServiceForm()` no tiene ningún caller en el archivo, superado por `highlightCard()` desde 2026-07-31) y sirven de plantilla lista para cuando se reactive.
+- `app/servicios/checkout/page.tsx`: `coProtectConfig()` y `coHubApplicable('protect')` (antes gateados solo a FBFC) ahora aplican a **ambas marcas y a ambos casos** (à la carte y combo con formación) — el hub "Presencia y operación" queda oculto por completo en opabiz.com también. Business Tax Receipt y Annual Report siguen comprables sueltos desde `/servicios` (ya eran tarjetas de catálogo independientes del hub).
+- **`lib/services-pricing.ts` NO se tocó** — `SERVICES_CATALOG['virtual-address']`, `NO_DISCOUNT_SERVICE_IDS`, y los bundles `bundle-protect-va*`/`bundle-extras-va*` siguen ahí, sin usarse (data muerta a propósito, documentada). El motor de precios/Stripe Subscriptions (`lib/order-subscriptions.ts`, `lib/stripe-subscriptions.ts`, los webhooks) es 100% genérico y reactivo — nunca cobra ni suscribe nada que la UI no deje seleccionar, así que no requirió ningún cambio.
+- **Confirmado en la auditoría: Virtual Address nunca tuvo fulfillment real** (a diferencia de Registered Agent con su integración RAI) — no existe flujo de asignación de dirección ni email de "ya está lista" para VA en ningún lado del código, así que no hay riesgo de dejar a algún cliente pagando por algo que ya no se entrega.
+- **Para reactivarla más adelante:** el catálogo/precio/combos en `lib/services-pricing.ts` está intacto; solo hace falta restaurar la tarjeta de catálogo en `servicios/page.tsx`, la tarjeta "Use Virtual Address" + defaults en `app/page.tsx`, y en `servicios/checkout/page.tsx` sacar el `if(hub==='protect') return false;` de `coHubApplicable` y devolver `coProtectConfig()` a su versión con `HUBS.protect`/bundles reales (ver `git log` de esta fecha, commit de este cambio, para el código exacto que se sacó en los 3 archivos).
+
+---
+
 ## Deploy
 
 - `git push origin main` — Vercel detecta cambios en `backend/` y hace deploy automático
