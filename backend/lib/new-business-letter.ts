@@ -10,12 +10,12 @@ const BLACK     = rgb(0.10, 0.10, 0.10)
 const GRAY      = rgb(0.40, 0.40, 0.40)
 const LIGHT     = rgb(0.85, 0.85, 0.85)
 const OFF_WHITE = rgb(0.97, 0.97, 0.97)
-// Disclaimer superior (auditoría FTC/UPL 2026-09-15) — mismo verde que ya usa
-// vip-reminder-email.ts, para que se lea como "aviso" y no como parte del
-// recuadro de registro (gris/navy).
-const GREEN_TINT   = rgb(0.933, 0.969, 0.910)  // #EEF7E9
-const GREEN_BORDER = rgb(0.812, 0.910, 0.765)  // #CFE8C3
-const GREEN_TEXT   = rgb(0.247, 0.369, 0.196)  // #3F5E32
+// Disclaimer superior (auditoría FTC/UPL 2026-09-15) — mismo tinte azul que
+// ya usa vip-reminder-email.ts y campaign-email.ts (2026-09-17, pedido
+// founder: "suavizarlo, que no asuste tanto"; antes era verde).
+const DISC_TINT   = rgb(0.937, 0.965, 1.0)    // #EFF6FF
+const DISC_BORDER = rgb(0.749, 0.859, 0.996)  // #BFDBFE
+const DISC_TEXT   = rgb(0.118, 0.251, 0.686)  // #1E40AF
 // Chip suave detrás del sello (auditoría FTC/UPL 2026-09-17) — mismo tinte
 // que ya usa el chip del sello en los emails FBFC (fbfcLetterHeaderHtml()),
 // para que el sello se vea igual en la carta y en el correo.
@@ -110,8 +110,8 @@ type LetterContent = {
 const EN: LetterContent = {
   title: 'BUSINESS COMPLIANCE INFORMATION NOTICE',
   topDisclaimer:
-    'Florida Business Formation Center is a private, optional document preparation service. We are not a ' +
-    'government agency, and we are not affiliated with the State of Florida or the IRS.',
+    'Running a business means plenty of paperwork, and we handle it for you. We are a private, optional ' +
+    'document preparation service, not affiliated with the State of Florida or the IRS.',
   labels: { doc: 'Document Number', reg: 'Registration Date', notice: 'Notice Date', entity: 'Entity Type' },
   greeting: c => `Congratulations on the recent registration of ${c}.`,
   body: [
@@ -163,8 +163,8 @@ const EN: LetterContent = {
 const ES: LetterContent = {
   title: 'AVISO INFORMATIVO DE CUMPLIMIENTO EMPRESARIAL',
   topDisclaimer:
-    'Florida Business Formation Center es un servicio privado y opcional de preparación de documentos. No ' +
-    'somos una agencia gubernamental ni estamos afiliados con el Estado de Florida ni con el IRS.',
+    'Formar y mantener una empresa implica mucho papeleo, y nosotros nos encargamos por usted. Somos un ' +
+    'servicio privado y opcional de preparación de documentos, sin afiliación con el Estado de Florida ni el IRS.',
   labels: { doc: 'Número de Documento', reg: 'Fecha de Registro', notice: 'Fecha del Aviso', entity: 'Tipo de Entidad' },
   greeting: c => `Felicitaciones por el registro reciente de ${c}.`,
   body: [
@@ -366,9 +366,9 @@ export async function generateNewBusinessLetter(input: NewBusinessLetterData): P
     const discPad = 7
     const discH = discPad * 2 + discLines.length * discLh
     ensure(discH + 10)
-    rect(MX, y - discH, CW, discH, GREEN_TINT, { color: GREEN_BORDER, width: 0.75 })
+    rect(MX, y - discH, CW, discH, DISC_TINT, { color: DISC_BORDER, width: 0.75 })
     let dly = y - discPad - 6.5
-    discLines.forEach(line => { t(line, MX + 10, dly, regular, discSize, GREEN_TEXT); dly -= discLh })
+    discLines.forEach(line => { t(line, MX + 10, dly, regular, discSize, DISC_TEXT); dly -= discLh })
     y -= discH + 16
   }
 

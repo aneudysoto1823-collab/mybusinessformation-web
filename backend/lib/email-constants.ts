@@ -165,8 +165,15 @@ export function brandHeaderHtml(brand: EmailBrand): string {
  * ("Information Notice"/"Compliance Reminder") — ese rótulo en mayúsculas
  * era, junto con la franja, lo que más leía como encabezado oficial.
  * Solo FBFC — OpaBiz nunca usó este patrón en sus emails.
+ *
+ * `domainHref` (opcional): a dónde lleva el link "mybusinessformation.com".
+ * Default = homepage. El recordatorio VIP lo pisa con la URL del combo
+ * Agente+Declaración Anual (2026-09-17, pedido founder) — así alguien que
+ * hace clic ahí arriba, antes de leer el cuerpo, ya cae con el carrito
+ * precargado en vez de a una homepage genérica sin contexto.
  */
-export function fbfcLetterHeaderHtml(): string {
+export function fbfcLetterHeaderHtml(opts?: { domainHref?: string }): string {
+  const domainHref = opts?.domainHref || 'https://mybusinessformation.com'
   return `
           <td style="background:#fff;border-radius:14px 14px 0 0;padding:22px 36px;border-bottom:1px solid #E2E8F0">
             <table cellpadding="0" cellspacing="0" border="0"><tr>
@@ -177,7 +184,7 @@ export function fbfcLetterHeaderHtml(): string {
               </td>
               <td style="padding-left:12px;vertical-align:middle">
                 <div style="color:#1C2E44;font-size:15px;font-weight:700;font-family:Georgia,serif">Florida Business Formation Center</div>
-                <a href="https://mybusinessformation.com" style="color:#94A3B8;font-size:11px;letter-spacing:.5px;text-decoration:none">mybusinessformation.com</a>
+                <a href="${domainHref}" style="color:#94A3B8;font-size:11px;letter-spacing:.5px;text-decoration:none">mybusinessformation.com</a>
               </td>
             </tr></table>
           </td>`

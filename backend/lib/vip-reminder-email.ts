@@ -75,10 +75,14 @@ export function buildVipReminderEmail(company: CampaignCompany, lang: 'en' | 'es
 
   // Disclaimer superior — hallazgo #2 auditoría FTC/UPL 2026-09-15: antes el
   // aviso de "no somos gobierno" solo vivía al final del email, después de
-  // mostrar ambas ofertas con precio.
+  // mostrar ambas ofertas con precio. Copy suavizado 2026-09-17 (pedido
+  // founder: "que no asuste tanto a la gente") — abre con el beneficio
+  // ("nosotros nos encargamos del papeleo") antes del disclosure legal, en
+  // vez de arrancar con la aclaración. Los 3 hechos obligatorios siguen
+  // ahí: privado, opcional, sin afiliación de gobierno.
   const topDisclaimer = isEs
-    ? 'Florida Business Formation Center es un servicio privado y opcional de preparación de documentos. No somos una agencia gubernamental ni estamos afiliados con el Estado de Florida ni con el IRS.'
-    : 'Florida Business Formation Center is a private, optional document preparation service. We are not a government agency, and we are not affiliated with the State of Florida or the IRS.'
+    ? 'Formar y mantener una empresa implica mucho papeleo, y nosotros nos encargamos por usted. Somos un servicio privado y opcional de preparación de documentos, sin afiliación con el Estado de Florida ni el IRS.'
+    : "Running a business means plenty of paperwork, and we handle it for you. We're a private, optional document preparation service, not affiliated with the State of Florida or the IRS."
 
   const introParas = firstArYear
     ? (isEs
@@ -132,14 +136,18 @@ export function buildVipReminderEmail(company: CampaignCompany, lang: 'en' | 'es
     <tr><td align="center">
       <table cellpadding="0" cellspacing="0" border="0" width="600" style="max-width:600px;width:100%">
 
-        <!-- Membrete (fondo blanco, igual que B1 — ver fbfcLetterHeaderHtml, auditoría FTC/UPL 2026-09-17) -->
-        <tr>${fbfcLetterHeaderHtml()}</tr>
+        <!-- Membrete (fondo blanco, igual que B1 — ver fbfcLetterHeaderHtml, auditoría FTC/UPL 2026-09-17).
+             El link del dominio va directo al combo VIP (pedido founder 2026-09-17) en vez de a la
+             homepage genérica, para que alguien que hace clic ahí arriba ya caiga con el carrito
+             precargado, no solo quien llega hasta el botón verde de abajo. -->
+        <tr>${fbfcLetterHeaderHtml({ domainHref: vipUrl })}</tr>
 
-        <!-- Disclaimer superior (antes de cualquier precio) -->
+        <!-- Disclaimer superior (antes de cualquier precio) — tinte azul en vez de verde
+             (pedido founder 2026-09-17: "suavizarlo, que no asuste tanto") -->
         <tr>
           <td style="background:#fff;padding:22px 36px 0">
-            <div style="background:#EEF7E9;border:1px solid #CFE8C3;border-radius:10px;padding:12px 16px">
-              <p style="color:#3F5E32;font-size:12px;line-height:1.6;margin:0">${topDisclaimer}</p>
+            <div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:10px;padding:12px 16px">
+              <p style="color:#1E40AF;font-size:12px;line-height:1.6;margin:0">${topDisclaimer}</p>
             </div>
           </td>
         </tr>

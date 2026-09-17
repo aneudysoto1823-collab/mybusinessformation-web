@@ -78,10 +78,12 @@ export function buildComplianceEmail(company: CampaignCompany, trackUrl: string,
   // Disclaimer superior — hallazgo #2 auditoría FTC/UPL 2026-09-15: antes el
   // aviso de "no somos gobierno" solo vivía al final del email, después de
   // mostrar los 3 precios. Este va justo debajo del recuadro de registro,
-  // antes de la grilla de servicios.
+  // antes de la grilla de servicios. Copy suavizado 2026-09-17 (pedido
+  // founder: "que no asuste tanto a la gente") — abre con el beneficio
+  // antes del disclosure legal. Mismo cambio aplicado en vip-reminder-email.ts.
   const topDisclaimer = isEs
-    ? 'Florida Business Formation Center es un servicio privado y opcional de preparación de documentos. No somos una agencia gubernamental ni estamos afiliados con el Estado de Florida ni con el IRS.'
-    : 'Florida Business Formation Center is a private, optional document preparation service. We are not a government agency, and we are not affiliated with the State of Florida or the IRS.'
+    ? 'Formar y mantener una empresa implica mucho papeleo, y nosotros nos encargamos por usted. Somos un servicio privado y opcional de preparación de documentos, sin afiliación con el Estado de Florida ni el IRS.'
+    : "Running a business means plenty of paperwork, and we handle it for you. We're a private, optional document preparation service, not affiliated with the State of Florida or the IRS."
 
   const disclosure = isEs
     ? 'Florida Business Formation Center es un servicio profesional de preparación y presentación de documentos. No somos un bufete de abogados y no brindamos asesoría legal, fiscal ni financiera. Nuestros servicios no constituyen el ejercicio de la abogacía ni crean una relación abogado-cliente. Todas las presentaciones están sujetas a la aprobación de la División de Corporaciones de Florida y del IRS. Para orientación legal o fiscal específica a su situación, le recomendamos consultar a un abogado de Florida con licencia o a un contador público certificado. Florida Business Formation Center no está afiliado, respaldado ni aprobado por ninguna agencia gubernamental federal, estatal o local, incluidos el IRS, el Departamento de Trabajo de EE. UU. o la División de Corporaciones de Florida. Este aviso no es una factura ni una solicitud de pago. Los servicios descritos son opcionales.'
@@ -158,11 +160,12 @@ export function buildComplianceEmail(company: CampaignCompany, trackUrl: string,
         <!-- Membrete -->
         <tr>${fbfcLetterHeaderHtml()}</tr>
 
-        <!-- Disclaimer superior (antes del título y de cualquier precio) -->
+        <!-- Disclaimer superior (antes del título y de cualquier precio) — tinte azul en vez de
+             verde (pedido founder 2026-09-17: "suavizarlo, que no asuste tanto") -->
         <tr>
           <td style="background:#fff;padding:22px 36px 0">
-            <div style="background:#EEF7E9;border:1px solid #CFE8C3;border-radius:10px;padding:12px 16px">
-              <p style="color:#3F5E32;font-size:12px;line-height:1.6;margin:0">${topDisclaimer}</p>
+            <div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:10px;padding:12px 16px">
+              <p style="color:#1E40AF;font-size:12px;line-height:1.6;margin:0">${topDisclaimer}</p>
             </div>
           </td>
         </tr>
