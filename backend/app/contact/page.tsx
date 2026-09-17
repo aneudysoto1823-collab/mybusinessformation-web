@@ -4,7 +4,7 @@ import ChatWidget from '@/components/ChatWidget'
 export const metadata: Metadata = {
   title: 'Contact OpaBiz — Florida LLC & Corporation Formation Help',
   description:
-    'Get in touch with OpaBiz. Send us a message, schedule a free 30-minute appointment, or reach us by WhatsApp. We reply within 24 business hours.',
+    'Get in touch with OpaBiz. Send us a message or schedule a free 30-minute appointment. We reply within 24 business hours.',
   alternates: {
     canonical: 'https://opabiz.com/contact',
     languages: {
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     url: 'https://opabiz.com/contact',
     title: 'Contact OpaBiz — Florida LLC & Corporation Formation Help',
     description:
-      'Send us a message, schedule a free 30-minute appointment, or reach us by WhatsApp. We reply within 24 business hours.',
+      'Send us a message or schedule a free 30-minute appointment. We reply within 24 business hours.',
   },
 }
 
@@ -31,7 +31,7 @@ const contactSchema = {
       url: 'https://opabiz.com/contact',
       name: 'Contact OpaBiz',
       description:
-        'Get in touch with OpaBiz. Send us a message, schedule an appointment, or reach us by WhatsApp. We reply within 24 hours.',
+        'Get in touch with OpaBiz. Send us a message or schedule an appointment. We reply within 24 hours.',
       inLanguage: 'en-US',
       isPartOf: { '@id': 'https://opabiz.com/#website' },
       mainEntity: { '@id': 'https://opabiz.com/#organization' },
@@ -101,7 +101,6 @@ nav a:hover{color:var(--navy);background:var(--gray100)}
 .left-action:hover{background:rgba(255,255,255,.13);border-color:rgba(255,255,255,.3);transform:translateX(3px)}
 .left-action-icon{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .left-action-icon svg{width:22px;height:22px;fill:#fff}
-.left-action.wa .left-action-icon{background:#25D366}
 .left-action.cal .left-action-icon{background:var(--blue)}
 .left-action-text{flex:1;display:flex;flex-direction:column}
 .left-action-text strong{font-size:.95rem;color:#fff;font-weight:700;line-height:1.2}
@@ -152,9 +151,6 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
 .footer-links a{font-size:.75rem;color:rgba(255,255,255,.4);transition:color .2s}
 .footer-links a:hover{color:#fff}
 .footer-disclaimer{font-size:.7rem;color:rgba(255,255,255,.28);max-width:540px;line-height:1.6}
-.wa-float{position:fixed;bottom:26px;right:26px;z-index:500;background:#25D366;width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(37,211,102,.5);cursor:pointer;transition:all .25s}
-.wa-float:hover{transform:scale(1.1)}
-.wa-float svg{width:24px;height:24px;fill:#fff}
 @media(max-width:900px){.split-card{grid-template-columns:1fr;min-height:0}.split-left{padding:36px 28px 32px}.split-right{padding:32px 28px 36px}}
 @media(max-width:768px){nav{display:none}nav.open{display:flex;flex-direction:column;position:absolute;top:62px;left:-16px;right:-16px;background:#fff;padding:10px 16px 14px;border-bottom:1px solid var(--gray200);box-shadow:0 8px 24px rgba(0,0,0,.08);z-index:200;gap:2px}nav.open a{padding:11px 12px;font-size:.92rem;border-radius:8px;font-weight:500;margin-left:0}nav.open a:hover{background:var(--gray100)}.hamburger{display:flex}header{padding:0 16px}.logo-text{font-size:1rem}.logo-text span{display:none}.contact-page{padding:28px 16px 50px}.form-row{grid-template-columns:1fr;gap:12px}.form-input,.form-textarea{font-size:16px}.contact-mini-head{margin-bottom:22px}}
 `
@@ -209,21 +205,13 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
 
       <div class="left-promise">
         <span class="left-promise-icon">&#9989;</span>
-        <span class="left-promise-text en">We reply within <strong>24 business hours</strong>. Need it faster? Use WhatsApp.</span>
-        <span class="left-promise-text es" style="display:none">Respondemos en menos de <strong>24 horas h&aacute;biles</strong>. &iquest;Lo necesitas m&aacute;s r&aacute;pido? Usa WhatsApp.</span>
+        <span class="left-promise-text en">We reply within <strong>24 business hours</strong>.</span>
+        <span class="left-promise-text es" style="display:none">Respondemos en menos de <strong>24 horas h&aacute;biles</strong>.</span>
       </div>
 
+      <!-- WhatsApp eliminado 2026-09-17 (decisión founder: solo email + la
+           asistente virtual Claudia quedan como canales de soporte). -->
       <div class="left-actions">
-        <a href="https://wa.me/13528377755" target="_blank" rel="noopener" class="left-action wa">
-          <div class="left-action-icon">
-            <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-          </div>
-          <div class="left-action-text">
-            <strong class="en-inline">WhatsApp Consultation</strong><strong class="es-inline" style="display:none">Consulta por WhatsApp</strong>
-            <span class="en-inline">Chat now &mdash; bilingual EN / ES</span><span class="es-inline" style="display:none">Habla ya &mdash; ingl&eacute;s o espa&ntilde;ol</span>
-          </div>
-          <span class="left-action-arrow">&rarr;</span>
-        </a>
         <a href="/booking?lang=en" id="cal-link" class="left-action cal">
           <div class="left-action-icon">
             <svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2zM7 12h5v5H7v-5z"/></svg>
@@ -299,15 +287,11 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
     <div class="success-icon">&#127881;</div>
     <h3 class="en">Got it &mdash; thank you!</h3>
     <h3 class="es" style="display:none">&iexcl;Recibido &mdash; gracias!</h3>
-    <p class="en">Your message landed in our inbox. We'll reply to your email within <strong>24 business hours</strong>. Need it sooner? <a href="https://wa.me/13528377755" target="_blank" rel="noopener" style="color:var(--green-dark);font-weight:700;text-decoration:underline">Message us on WhatsApp</a>.</p>
-    <p class="es" style="display:none">Tu mensaje lleg&oacute; a nuestra bandeja. Te responderemos por correo en menos de <strong>24 horas h&aacute;biles</strong>. &iquest;Lo necesitas antes? <a href="https://wa.me/13528377755" target="_blank" rel="noopener" style="color:var(--green-dark);font-weight:700;text-decoration:underline">Escr&iacute;benos por WhatsApp</a>.</p>
+    <p class="en">Your message landed in our inbox. We'll reply to your email within <strong>24 business hours</strong>.</p>
+    <p class="es" style="display:none">Tu mensaje lleg&oacute; a nuestra bandeja. Te responderemos por correo en menos de <strong>24 horas h&aacute;biles</strong>.</p>
   </div>
 
 </div>
-
-<a class="wa-float" href="https://wa.me/13528377755" target="_blank" rel="noopener" aria-label="WhatsApp">
-  <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-</a>
 
 <footer>
   <div class="footer-inner">
