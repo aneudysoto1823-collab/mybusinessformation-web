@@ -1596,6 +1596,86 @@ Decisión founder: todavía no se consiguió proveedor de Virtual Address, así 
 
 ---
 
+## Sesión 2026-09-22 — Programa de Afiliados + Agentes (nuevo, construido de punta a punta)
+
+Función completamente nueva, no existía nada de esto antes de hoy. Landing pública `/afiliados`
+(opabiz.com) y `/new-business/afiliados` (mybusinessformation.com, vía rewrite) con **un solo
+formulario y dos botones de modo** — "Aplicar como Afiliado" / "Aplicar como Agente" — que
+comparten la tabla `affiliates` (`application_type: 'affiliate'|'agent'`) pero llevan a
+resultados distintos al aprobar. Panel admin en `/admin/afiliados`. Núcleo de lógica en
+`backend/lib/affiliates.ts`. Migración completa (corrida en Supabase) en
+`supabase_migration_affiliates.sql`.
+
+**Afiliado:** requiere PTIN (validado `P\d{8}`, IRS). Al aprobar se genera un Promotion Code
+real de Stripe sobre un Coupon compartido (`STRIPE_AFFILIATE_COUPON_ID`, 10% off para el
+cliente que lo usa, creado a mano en el Dashboard — mismo patrón que `STRIPE_BASIC_COUPON_ID`).
+Comisión 15% por defecto (editable por afiliado) sobre tarifas de servicio de cada orden
+pagada con ese código — **nunca sobre state fees**, ni se calcula leyendo el desglose de
+descuento de Stripe (frágil con line items ad-hoc): se recalcula con el mismo motor de
+precios del checkout (`computeFormationTotal`/`computeServicesTotal`), aplicando los
+porcentajes fijos que el sistema ya conoce. El webhook de Stripe (`handleFormationPaid`/
+`handleServicesPaid` en `app/api/webhooks/stripe/route.ts`) expande `discounts.promotion_code`
+de la sesión pagada para identificar al afiliado y registra la comisión en
+`affiliate_commissions` (idempotente).
+
+**Agente:** también requiere PTIN ahora (decisión del founder, cambiada durante la sesión —
+al principio no se pedía). Además pide dirección de residencia (calle/ciudad/estado/zip),
+situación laboral (independiente o empleado, con nombre de empresa si aplica), y experiencia
+relevante (texto libre, opcional) — campos de depuración del solicitante, visibles en
+`/admin/afiliados` vía botón "Ver detalle". **NO recibe cupón de Stripe** — esas órdenes no
+llevan descuento al cliente. Gana 25% por defecto (editable) por orden que asiste EN PERSONA
+O DE FORMA REMOTA, vía la intake asistida ya existente de OpaBiz Connect (`opabiz.com/?agent=1`,
+`trackAgentAssistedIntake()` en `/api/orders/draft`). **El registro/cálculo real de esa
+comisión de agente NO está construido** — pendiente real para otra sesión, ver detalle abajo.
+Al aprobar un agente hoy solo se marca `status:'approved'` y se manda un email explicando que
+el siguiente paso es crear la cuenta de OpaBiz Connect (vía un link que todavía no se genera
+automáticamente) y que el primer paso adentro va a ser completar el training — la alta real
+en OpaBiz Connect sigue siendo 100% manual desde `/admin/opabiz`, decisión explícita de no
+automatizarla en esta sesión ("solo el formulario, no la integración automática").
+
+Pago de comisión (afiliados, hoy — no aplica a agentes sin ledger todavía): vencido cuando se
+acumulan $200 o pasan 2 meses (bajado de 3 durante la sesión, "para no desanimar a que entren
+las personas") desde la primera orden, lo que ocurra primero. El pago real sigue siendo manual
+(Zelle/etc.) — "Marcar como pagado" en el admin solo mueve el registro.
+
+**Diseño de la landing:** fondo gris claro (`--gray50`) + banner con `photonewbusiness.jpg`
+(la foto de dos personas revisando un documento, ya usada en `/new-business`) arriba del
+formulario, tarjeta blanca con sombra para el form y el mensaje de éxito.
+
+**Otras decisiones de copy/UX cerradas en la sesión:**
+- Código de cupón es puramente aleatorio (charset sin 0/O/1/I/L) — a propósito NO se deriva
+  del nombre del afiliado (la primera versión sí lo hacía, el founder pidió que no).
+- Emails van en el idioma con que se llenó la solicitud (`affiliates.lang`), nunca bilingües.
+- Dirección postal física va DESPUÉS del disclaimer legal en los emails, no antes.
+- Sin guion largo ni flechas en el copy nuevo de cliente (ver `[[feedback_writing_style]]`).
+
+**⏳ Pendiente real, documentado para retomar — NO construido a propósito:**
+1. **Registro/cálculo de la comisión del agente (25%)** — necesita un enganche distinto al de
+   afiliados: no hay código de cupón que detectar en Stripe. Hay que leer la atribución que ya
+   existe en `ordenes_opabiz` (tabla de OpaBiz Connect que vincula una orden con el empleado
+   que hizo la intake asistida) en el webhook de pago, y conectar ese `empleado_id` con la fila
+   de `affiliates` del agente aprobado — hoy no existe ningún vínculo entre ambos sistemas.
+2. **Alta automática en OpaBiz Connect al aprobar un agente** — el mecanismo ya existe y es
+   reusable (`POST /api/opabiz/employees` crea `usuarios`+`EMPLEADOS`+`empleado_perfil` y manda
+   el invite vía `lib/opabiz-invite.ts`); cuando se retome, extraer esa lógica a una función
+   compartida en vez de duplicarla o hacer un self-call HTTP entre rutas.
+
+**Nota técnica:** el SDK de Stripe instalado (`stripe@^20.4.1`) cambió la forma del parámetro
+de `promotionCodes.create` — ya no es `{coupon: id}`, es `{promotion: {type:'coupon', coupon:
+id}}`. Si se actualiza el SDK de nuevo, revisar que esto no vuelva a cambiar.
+
+Verificado con `npx tsc --noEmit`, `eslint` y `npx next build` completo (exit 0) tras cada
+ronda de cambios de la sesión. Todo commiteado y pusheado (6 commits, `d211dc8`..`876cad5`).
+
+**Agenda de la próxima sesión (pedido explícito del founder, no solo afiliados):**
+1. Seguir con el Programa de Afiliados/Agentes — los 2 pendientes de arriba.
+2. **Terminar Marketing Saliente / emails** — ver memoria `project_auditoria_email_marketing_2026-09-13`
+   (índice de memoria), que ya tiene su propia sección "Cómo continuar mañana": el founder iba
+   a hablar primero con el socio sobre prioridades antes de tocar más código de ese sistema —
+   confirmar con él qué se aprobó antes de asumir que se sigue con todo.
+
+---
+
 ## Deploy
 
 - `git push origin main` — Vercel detecta cambios en `backend/` y hace deploy automático
