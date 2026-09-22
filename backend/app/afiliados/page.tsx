@@ -118,15 +118,15 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
     </div>
     <div id="af-bullets-agent" style="display:none">
       <ul class="af-bullets en">
-        <li>You help the client complete their application in person and guide them through the process</li>
-        <li>You send them a secure link to review and pay their order online</li>
+        <li>In person or remotely, you fill out the application with the client and guide them through the process</li>
+        <li>You then send them their order, ready to review and pay securely by email</li>
         <li>25% commission on the service fees of every order you assist. These orders don't include a coupon discount for the client</li>
         <li>Full training and ongoing support from our team, always</li>
         <li>Applications are reviewed manually, usually within a few days</li>
       </ul>
       <ul class="af-bullets es" style="display:none">
-        <li>Ayuda al cliente a completar su solicitud en persona y lo gu&iacute;a durante el proceso</li>
-        <li>Le env&iacute;a un link seguro para que revise y pague su orden en l&iacute;nea</li>
+        <li>En persona o de forma remota, completa la solicitud junto al cliente y lo gu&iacute;a durante el proceso</li>
+        <li>Luego le env&iacute;a la orden lista para revisar y pagar de forma segura por correo</li>
         <li>25% de comisi&oacute;n sobre las tarifas de servicio de cada orden que asiste. Estas &oacute;rdenes no incluyen descuento de cup&oacute;n para el cliente</li>
         <li>Training completo y soporte continuo de nuestro equipo, siempre</li>
         <li>Las aplicaciones se revisan manualmente, usualmente en pocos d&iacute;as</li>
@@ -214,15 +214,6 @@ function afSetMode(mode){
   afSyncModeButtons();
   document.getElementById('af-bullets-affiliate').style.display = mode==='affiliate' ? 'block' : 'none';
   document.getElementById('af-bullets-agent').style.display = mode==='agent' ? 'block' : 'none';
-  var ptinField = document.getElementById('af-ptin');
-  if(mode==='affiliate'){
-    ptinField.style.display = 'block';
-    ptinField.required = true;
-  } else {
-    ptinField.style.display = 'none';
-    ptinField.required = false;
-    ptinField.value = '';
-  }
 }
 
 async function afSubmit(ev){
@@ -235,12 +226,12 @@ async function afSubmit(ev){
   var phone = document.getElementById('af-phone').value.trim();
   var ptin = document.getElementById('af-ptin').value.trim().toUpperCase();
   errBox.classList.remove('show'); errBox.textContent = '';
-  if(!name || !email || !phone || (afMode==='affiliate' && !ptin)){
+  if(!name || !email || !phone || !ptin){
     errBox.textContent = isEs ? 'Por favor complete todos los campos.' : 'Please fill in all fields.';
     errBox.classList.add('show');
     return false;
   }
-  if(afMode==='affiliate' && !/^P\\d{8}$/.test(ptin)){
+  if(!/^P\\d{8}$/.test(ptin)){
     errBox.textContent = isEs ? 'El PTIN no es v\\u00e1lido. Debe ser la letra P seguida de 8 d\\u00edgitos (ej. P12345678).' : 'That PTIN is not valid. It should be the letter P followed by 8 digits (e.g. P12345678).';
     errBox.classList.add('show');
     return false;
@@ -252,7 +243,7 @@ async function afSubmit(ev){
     var res = await fetch('/api/affiliates/apply', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ name: name, email: email, phone: phone, ptin: afMode==='affiliate' ? ptin : undefined, type: afMode, brand: 'opabiz', lang: isEs ? 'es' : 'en' })
+      body: JSON.stringify({ name: name, email: email, phone: phone, ptin: ptin, type: afMode, brand: 'opabiz', lang: isEs ? 'es' : 'en' })
     });
     var json = await res.json().catch(function(){ return {}; });
     if(!res.ok || !json.success){
