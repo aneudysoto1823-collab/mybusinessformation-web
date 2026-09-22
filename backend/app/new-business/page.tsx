@@ -3107,6 +3107,10 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
                 {lang === 'es' ? 'Aviso Legal' : 'Legal Disclaimer'}
               </a>
               <span>•</span>
+              <a href="/afiliados">
+                {lang === 'es' ? 'Programa de Afiliados' : 'Affiliate Program'}
+              </a>
+              <span>•</span>
               <a href="mailto:info@mybusinessformation.com">info@mybusinessformation.com</a>
             </div>
             Florida Business Formation Center is a privately owned third-party document preparation service and is not affiliated with or endorsed by any government agency,

@@ -13,6 +13,7 @@ import { provisionRaForOrder } from '@/lib/ra-provisioning'
 import { createRecurringSubscriptionsForOrder } from '@/lib/stripe-subscriptions'
 import { findOrderBySubscriptionId, upsertOrderSubscription, recordSubscriptionRenewalIncome } from '@/lib/order-subscriptions'
 import { sendSubscriptionRenewalConfirmation } from '@/lib/subscription-renewal-emails'
+import { recordAffiliateCommissionForOrder } from '@/lib/affiliates'
 
 export const dynamic = 'force-dynamic'
 
@@ -601,6 +602,16 @@ async function handleFormationPaid(orderId: string, session: Stripe.Checkout.Ses
     }
   })
 
+  // Comisión de afiliado — no-op si no se usó ningún código de afiliado en el
+  // checkout. Ver lib/affiliates.ts.
+  after(async () => {
+    try {
+      await recordAffiliateCommissionForOrder(order.id, session, 'formation', order)
+    } catch (err) {
+      console.error('[stripe-webhook] affiliate-commission error (non-fatal):', err)
+    }
+  })
+
   return NextResponse.json({ received: true, orderId, fbfc })
 }
 
@@ -822,6 +833,16 @@ async function handleServicesPaid(orderId: string, session: Stripe.Checkout.Sess
       await createRecurringSubscriptionsForOrder(getStripe(), order.id, (session.customer as string) ?? null, order.package, order.addons, order.sourceBrand)
     } catch (err) {
       console.error('[stripe-webhook] recurring-subscriptions error (non-fatal):', err)
+    }
+  })
+
+  // Comisión de afiliado — no-op si no se usó ningún código de afiliado en el
+  // checkout. Ver lib/affiliates.ts.
+  after(async () => {
+    try {
+      await recordAffiliateCommissionForOrder(order.id, session, 'services', order)
+    } catch (err) {
+      console.error('[stripe-webhook] affiliate-commission error (non-fatal):', err)
     }
   })
 

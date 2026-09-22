@@ -1370,6 +1370,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
         <a href="#how" data-en="How It Works" data-es="Cómo Funciona">How It Works</a>
         <a href="#faq" data-en="FAQ" data-es="Preguntas">FAQ</a>
         <a href="/contact?lang=${defaultLang}" class="lang-link" data-href="/contact" data-en="Contact Us" data-es="Contáctenos">Contact Us</a>
+        <a href="/afiliados?lang=${defaultLang}" class="lang-link" data-href="/afiliados" data-en="Affiliate Program" data-es="Programa de Afiliados">Affiliate Program</a>
         <a href="/terms?lang=${defaultLang}" class="lang-link" data-href="/terms" style="margin-top:12px" data-en="Terms &amp; Conditions" data-es="Términos y Condiciones">Terms &amp; Conditions</a>
         <a href="/privacy?lang=${defaultLang}" class="lang-link" data-href="/privacy" data-en="Privacy Policy" data-es="Política de Privacidad">Privacy Policy</a>
         <a href="/legal?lang=${defaultLang}" class="lang-link" data-href="/legal" data-en="Legal Disclaimer" data-es="Aviso Legal">Legal Disclaimer</a>

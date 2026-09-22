@@ -202,6 +202,25 @@ export const GuideRequestInputSchema = z.object({
   lang: z.enum(['en', 'es']).optional(),
 })
 
+// ── 7. POST /api/affiliates/apply — landing pública "programa de afiliados" ──
+export const AffiliateApplicationInputSchema = z.object({
+  name: ShortText.min(1),
+  email: Email,
+  phone: z.string().trim().min(1).max(50),
+  ptin: z.string().trim().min(1).max(50),
+  brand: z.enum(['opabiz', 'fbfc']).optional(),
+})
+
+// ── 8. POST /api/affiliates/agent-interest — mini-form "convertite en agente" ──
+// Programa separado del de afiliados (referido a OpaBiz Connect, empleados de
+// campo) — comparte solo la página pública, nada de lógica de cupón/comisión.
+export const AffiliateAgentInterestInputSchema = z.object({
+  name: ShortText.min(1),
+  email: Email,
+  phone: z.string().trim().min(1).max(50),
+  brand: z.enum(['opabiz', 'fbfc']).optional(),
+})
+
 // ── Helper: parsea y devuelve un error 400 estructurado si falla ────────────
 export function parseOr400<T>(
   schema: z.ZodType<T>,
