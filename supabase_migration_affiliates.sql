@@ -99,3 +99,12 @@ CREATE TABLE IF NOT EXISTS affiliate_agent_leads (
 -- después, a veces) respeten ese idioma en vez de ir siempre bilingüe.
 -- Si ya corriste el bloque de arriba, correr SOLO esta línea.
 ALTER TABLE affiliates ADD COLUMN IF NOT EXISTS lang text NOT NULL DEFAULT 'en';
+
+-- Seguimiento 2026-09-22 (2): unifica la aplicación de afiliado y de agente
+-- de campo en un solo formulario/endpoint (dos botones en /afiliados) — el
+-- tipo decide si al aprobar se genera un cupón de Stripe (solo 'affiliate')
+-- o no (los 'agent' ganan comisión por orden asistida vía OpaBiz Connect,
+-- sin cupón de descuento). Reemplaza la tabla affiliate_agent_leads, que
+-- queda sin uso (no se borra automáticamente — se puede hacer
+-- "DROP TABLE affiliate_agent_leads;" a mano si se quiere limpiar).
+ALTER TABLE affiliates ADD COLUMN IF NOT EXISTS application_type text NOT NULL DEFAULT 'affiliate' CHECK (application_type IN ('affiliate', 'agent'));

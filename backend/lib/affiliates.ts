@@ -25,7 +25,15 @@ const getStripe = () => new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion:
 export const AFFILIATE_COMMISSION_DEFAULT_PERCENT = 15
 export const AFFILIATE_COUPON_DISCOUNT_PERCENT = 10
 export const AFFILIATE_PAYOUT_THRESHOLD_USD = 200
-export const AFFILIATE_PAYOUT_MONTHS = 3
+export const AFFILIATE_PAYOUT_MONTHS = 2
+
+// Comisión por defecto de un "agente" aprobado — distinto del afiliado: gana
+// por orden que asiste en persona (vía la intake asistida de OpaBiz Connect),
+// no por un cupón de descuento. Esas órdenes NO llevan descuento al cliente.
+// El cálculo/registro real de esta comisión (enganchado a `ordenes_opabiz`,
+// no a un promotion code de Stripe) queda pendiente de otra sesión — por
+// ahora solo se guarda el % en `affiliates.commission_percent` al aprobar.
+export const AGENT_COMMISSION_DEFAULT_PERCENT = 25
 
 // Cubre tanto "Florida State Filing Fee (LLC)" (formación) como "<servicio> —
 // Florida State Fee" / "— Tarifa Estatal de Florida" (à la carte) — mismos
@@ -173,7 +181,7 @@ export async function recordAffiliateCommissionForOrder(
     .eq('id', affiliate.id)
 }
 
-/** true si el afiliado ya debería cobrar (>= $200 acumulados, o >= 3 meses
+/** true si el afiliado ya debería cobrar (>= $200 acumulados, o >= 2 meses
  *  desde su primera orden con saldo pendiente) — usado solo para mostrar el
  *  badge en el admin, no dispara ningún pago real. */
 export function isPayoutDue(affiliate: { total_commission_owed: number; first_order_at: string | null }): boolean {

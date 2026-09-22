@@ -215,17 +215,6 @@ export async function checkAffiliateApplyRateLimit(ip: string): Promise<RateLimi
   return check(limiter, ip, 5)
 }
 
-// ── POST /api/affiliates/agent-interest: 5 requests / hora / IP ─────────────
-export async function checkAffiliateAgentInterestRateLimit(ip: string): Promise<RateLimitResult> {
-  const limiter = getLimiter({
-    cacheKey: 'affiliate-agent-interest',
-    prefix: 'rl:affiliate-agent-interest',
-    limit: 5,
-    window: '1 h',
-  })
-  return check(limiter, ip, 5)
-}
-
 // ── Cambio de contraseña admin: 5 intentos / 15 min / IP ─────────────────────
 // Protege tanto la verificación de la contraseña actual como el código 2FA
 // de confirmación del cambio.

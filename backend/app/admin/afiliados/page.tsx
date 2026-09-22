@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 
 type AffiliateStatus = 'pending' | 'approved' | 'rejected' | 'suspended'
+type ApplicationType = 'affiliate' | 'agent'
 
 type Affiliate = {
   id: string
@@ -12,6 +13,7 @@ type Affiliate = {
   email: string
   phone: string | null
   ptin: string | null
+  application_type: ApplicationType
   status: AffiliateStatus
   commission_percent: number
   coupon_code: string | null
@@ -34,19 +36,8 @@ type Commission = {
   paid: boolean
 }
 
-type AgentLead = {
-  id: string
-  name: string
-  email: string
-  phone: string | null
-  brand: string
-  created_at: string
-  contacted: boolean
-  notes: string | null
-}
-
 const PAYOUT_THRESHOLD_USD = 200
-const PAYOUT_MONTHS = 3
+const PAYOUT_MONTHS = 2
 
 function isPayoutDue(a: Affiliate): boolean {
   if (a.total_commission_owed <= 0) return false
@@ -64,10 +55,12 @@ const STATUS_LABEL: Record<AffiliateStatus, string> = {
 const STATUS_COLOR: Record<AffiliateStatus, string> = {
   pending: '#b45309', approved: '#047857', rejected: '#991B1B', suspended: '#64748b',
 }
+const TYPE_LABEL: Record<ApplicationType, string> = { affiliate: 'Afiliado', agent: 'Agente' }
+const TYPE_COLOR: Record<ApplicationType, string> = { affiliate: '#2563EB', agent: '#7c3aed' }
 
 export default function AfiliadosAdminPage() {
-  const [tab, setTab] = useState<'affiliates' | 'agents'>('affiliates')
   const [statusFilter, setStatusFilter] = useState<AffiliateStatus | 'all'>('pending')
+  const [typeFilter, setTypeFilter] = useState<ApplicationType | 'all'>('all')
   const [affiliates, setAffiliates] = useState<Affiliate[]>([])
   const [loading, setLoading] = useState(true)
   const [busyId, setBusyId] = useState<string | null>(null)
@@ -82,9 +75,6 @@ export default function AfiliadosAdminPage() {
   const [ledger, setLedger] = useState<Commission[]>([])
   const [ledgerLoading, setLedgerLoading] = useState(false)
 
-  const [agentLeads, setAgentLeads] = useState<AgentLead[]>([])
-  const [agentLoading, setAgentLoading] = useState(true)
-
   const fetchAffiliates = useCallback(async () => {
     setLoading(true)
     const res = await fetch(`/api/admin/affiliates?status=${statusFilter}`)
@@ -95,22 +85,13 @@ export default function AfiliadosAdminPage() {
     setLoading(false)
   }, [statusFilter])
 
-  const fetchAgentLeads = useCallback(async () => {
-    setAgentLoading(true)
-    const res = await fetch('/api/admin/affiliates/agent-leads')
-    if (res.ok) {
-      const data = await res.json()
-      setAgentLeads(data.leads)
-    }
-    setAgentLoading(false)
-  }, [])
-
   useEffect(() => { fetchAffiliates() }, [fetchAffiliates])
-  useEffect(() => { if (tab === 'agents') fetchAgentLeads() }, [tab, fetchAgentLeads])
+
+  const visibleAffiliates = affiliates.filter(a => typeFilter === 'all' || a.application_type === typeFilter)
 
   const runAction = async (id: string, action: 'approve' | 'reject' | 'suspend') => {
     if (action === 'reject' && !confirm('¿Rechazar esta aplicación?')) return
-    if (action === 'suspend' && !confirm('¿Suspender este afiliado? Su código deja de generar comisión.')) return
+    if (action === 'suspend' && !confirm('¿Suspender esta cuenta? Deja de poder generar comisión.')) return
     setBusyId(id)
     try {
       const res = await fetch(`/api/admin/affiliates/${id}`, {
@@ -188,17 +169,6 @@ export default function AfiliadosAdminPage() {
     setLedgerLoading(false)
   }
 
-  const toggleAgentContacted = async (lead: AgentLead) => {
-    const res = await fetch('/api/admin/affiliates/agent-leads', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: lead.id, contacted: !lead.contacted }),
-    })
-    if (res.ok) {
-      setAgentLeads(prev => prev.map(l => (l.id === lead.id ? { ...l, contacted: !l.contacted } : l)))
-    }
-  }
-
   return (
     <>
       <style>{`
@@ -219,9 +189,6 @@ export default function AfiliadosAdminPage() {
         .btn-red{background:#FEE2E2;color:#991B1B;border:1px solid #FCA5A5}
         .btn-red:hover:not(:disabled){background:#FCA5A5}
         .btn-sm{padding:5px 11px;font-size:.72rem}
-        .tabs{display:flex;gap:6px;margin-bottom:18px}
-        .tab-btn{padding:8px 16px;border-radius:8px;font-size:.82rem;font-weight:700;border:1px solid #E2E8F0;background:#fff;color:#64748b;cursor:pointer;font-family:inherit}
-        .tab-btn.active{background:#1C2E44;color:#fff;border-color:#1C2E44}
         .status-tabs{display:flex;gap:4px;flex-wrap:wrap}
         .status-tab{padding:6px 12px;border-radius:16px;font-size:.75rem;font-weight:700;border:1px solid #E2E8F0;background:#F8FAFC;color:#64748b;cursor:pointer;font-family:inherit}
         .status-tab.active{background:#EFF6FF;color:#2563EB;border-color:#2563EB}
@@ -247,20 +214,22 @@ export default function AfiliadosAdminPage() {
               <span style={{ color: '#CBD5E1' }}>/</span>
               <span style={{ color: '#1C2E44', fontSize: '.8rem', fontWeight: 600 }}>Afiliados</span>
             </div>
-            <h1 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#1C2E44' }}>Programa de Afiliados</h1>
-            <p style={{ fontSize: '.8rem', color: '#94A3B8', marginTop: 2 }}>Aplicaciones, cupones y comisiones — ver también interesados en ser agente</p>
+            <h1 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#1C2E44' }}>Afiliados y Agentes</h1>
+            <p style={{ fontSize: '.8rem', color: '#94A3B8', marginTop: 2 }}>Aplicaciones de referidos (cupón + comisión) y de agentes de campo (OpaBiz Connect)</p>
           </div>
         </div>
 
-        <div className="tabs">
-          <button className={`tab-btn ${tab === 'affiliates' ? 'active' : ''}`} onClick={() => setTab('affiliates')}>Afiliados</button>
-          <button className={`tab-btn ${tab === 'agents' ? 'active' : ''}`} onClick={() => setTab('agents')}>Interesados en ser agente ({agentLeads.length || ''})</button>
-        </div>
-
-        {tab === 'affiliates' && (
-          <div className="card">
-            <div className="card-head">
-              <span className="card-title">Afiliados ({affiliates.length})</span>
+        <div className="card">
+          <div className="card-head">
+            <span className="card-title">Aplicaciones ({visibleAffiliates.length})</span>
+            <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', alignItems: 'center' }}>
+              <div className="status-tabs">
+                {(['affiliate', 'agent', 'all'] as const).map(t => (
+                  <button key={t} className={`status-tab ${typeFilter === t ? 'active' : ''}`} onClick={() => setTypeFilter(t)}>
+                    {t === 'all' ? 'Todos los tipos' : TYPE_LABEL[t]}
+                  </button>
+                ))}
+              </div>
               <div className="status-tabs">
                 {(['pending', 'approved', 'rejected', 'suspended', 'all'] as const).map(s => (
                   <button key={s} className={`status-tab ${statusFilter === s ? 'active' : ''}`} onClick={() => setStatusFilter(s)}>
@@ -269,126 +238,90 @@ export default function AfiliadosAdminPage() {
                 ))}
               </div>
             </div>
-
-            {loading ? (
-              <div style={{ padding: 40, textAlign: 'center', color: '#94A3B8', fontSize: '.85rem' }}>Cargando...</div>
-            ) : affiliates.length === 0 ? (
-              <div style={{ padding: 40, textAlign: 'center', color: '#94A3B8', fontSize: '.85rem' }}>No hay afiliados en este estado.</div>
-            ) : (
-              <div style={{ overflowX: 'auto' }}>
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Nombre</th>
-                      <th>Contacto</th>
-                      <th>Estado</th>
-                      <th>Código</th>
-                      <th>Comisión</th>
-                      <th>Deuda</th>
-                      <th>Pagado</th>
-                      <th>Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {affiliates.map(a => (
-                      <tr key={a.id}>
-                        <td style={{ fontWeight: 600, color: '#1C2E44' }}>
-                          {a.name}
-                          <div style={{ fontSize: '.7rem', color: '#94A3B8', fontWeight: 400 }}>{a.brand} · PTIN {a.ptin || '—'}</div>
-                        </td>
-                        <td>
-                          {a.email}
-                          <div style={{ fontSize: '.72rem', color: '#64748b' }}>{a.phone}</div>
-                        </td>
-                        <td><span className="pill" style={{ background: '#F1F5F9', color: STATUS_COLOR[a.status] }}>{STATUS_LABEL[a.status]}</span></td>
-                        <td style={{ fontWeight: 700, color: '#1C2E44' }}>{a.coupon_code || '—'}</td>
-                        <td>
-                          {a.commission_percent}%
-                          <button className="btn btn-ghost btn-sm" style={{ marginLeft: 6 }} onClick={() => openEdit(a)}>Editar</button>
-                        </td>
-                        <td>
-                          {money(a.total_commission_owed)}
-                          {isPayoutDue(a) && <span className="payout-badge">Vencido</span>}
-                        </td>
-                        <td>{money(a.total_commission_paid)}</td>
-                        <td>
-                          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                            {a.status === 'pending' && (
-                              <>
-                                <button className="btn btn-green btn-sm" disabled={busyId === a.id} onClick={() => runAction(a.id, 'approve')}>Aprobar</button>
-                                <button className="btn btn-red btn-sm" disabled={busyId === a.id} onClick={() => runAction(a.id, 'reject')}>Rechazar</button>
-                              </>
-                            )}
-                            {a.status === 'approved' && (
-                              <>
-                                <button className="btn btn-ghost btn-sm" onClick={() => openLedger(a)}>Historial</button>
-                                {a.total_commission_owed > 0 && (
-                                  <button className="btn btn-primary btn-sm" disabled={busyId === a.id} onClick={() => markPaid(a.id)}>Marcar pagado</button>
-                                )}
-                                <button className="btn btn-red btn-sm" disabled={busyId === a.id} onClick={() => runAction(a.id, 'suspend')}>Suspender</button>
-                              </>
-                            )}
-                            {a.status === 'suspended' && (
-                              <button className="btn btn-ghost btn-sm" onClick={() => openLedger(a)}>Historial</button>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
           </div>
-        )}
 
-        {tab === 'agents' && (
-          <div className="card">
-            <div className="card-head">
-              <span className="card-title">Interesados en ser agente ({agentLeads.length})</span>
+          {loading ? (
+            <div style={{ padding: 40, textAlign: 'center', color: '#94A3B8', fontSize: '.85rem' }}>Cargando...</div>
+          ) : visibleAffiliates.length === 0 ? (
+            <div style={{ padding: 40, textAlign: 'center', color: '#94A3B8', fontSize: '.85rem' }}>No hay aplicaciones en este filtro.</div>
+          ) : (
+            <div style={{ overflowX: 'auto' }}>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>Contacto</th>
+                    <th>Tipo</th>
+                    <th>Estado</th>
+                    <th>Código</th>
+                    <th>Comisión</th>
+                    <th>Deuda</th>
+                    <th>Pagado</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {visibleAffiliates.map(a => (
+                    <tr key={a.id}>
+                      <td style={{ fontWeight: 600, color: '#1C2E44' }}>
+                        {a.name}
+                        <div style={{ fontSize: '.7rem', color: '#94A3B8', fontWeight: 400 }}>{a.brand}{a.ptin ? ` · PTIN ${a.ptin}` : ''}</div>
+                      </td>
+                      <td>
+                        {a.email}
+                        <div style={{ fontSize: '.72rem', color: '#64748b' }}>{a.phone}</div>
+                      </td>
+                      <td><span className="pill" style={{ background: '#F1F5F9', color: TYPE_COLOR[a.application_type] }}>{TYPE_LABEL[a.application_type]}</span></td>
+                      <td><span className="pill" style={{ background: '#F1F5F9', color: STATUS_COLOR[a.status] }}>{STATUS_LABEL[a.status]}</span></td>
+                      <td style={{ fontWeight: 700, color: '#1C2E44' }}>{a.coupon_code || (a.application_type === 'agent' ? 'N/A' : '—')}</td>
+                      <td>
+                        {a.commission_percent}%
+                        <button className="btn btn-ghost btn-sm" style={{ marginLeft: 6 }} onClick={() => openEdit(a)}>Editar</button>
+                      </td>
+                      <td>
+                        {money(a.total_commission_owed)}
+                        {isPayoutDue(a) && <span className="payout-badge">Vencido</span>}
+                      </td>
+                      <td>{money(a.total_commission_paid)}</td>
+                      <td>
+                        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                          {a.status === 'pending' && (
+                            <>
+                              <button className="btn btn-green btn-sm" disabled={busyId === a.id} onClick={() => runAction(a.id, 'approve')}>Aprobar</button>
+                              <button className="btn btn-red btn-sm" disabled={busyId === a.id} onClick={() => runAction(a.id, 'reject')}>Rechazar</button>
+                            </>
+                          )}
+                          {a.status === 'approved' && (
+                            <>
+                              {a.application_type === 'affiliate' && (
+                                <>
+                                  <button className="btn btn-ghost btn-sm" onClick={() => openLedger(a)}>Historial</button>
+                                  {a.total_commission_owed > 0 && (
+                                    <button className="btn btn-primary btn-sm" disabled={busyId === a.id} onClick={() => markPaid(a.id)}>Marcar pagado</button>
+                                  )}
+                                </>
+                              )}
+                              <button className="btn btn-red btn-sm" disabled={busyId === a.id} onClick={() => runAction(a.id, 'suspend')}>Suspender</button>
+                            </>
+                          )}
+                          {a.status === 'suspended' && a.application_type === 'affiliate' && (
+                            <button className="btn btn-ghost btn-sm" onClick={() => openLedger(a)}>Historial</button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-            {agentLoading ? (
-              <div style={{ padding: 40, textAlign: 'center', color: '#94A3B8', fontSize: '.85rem' }}>Cargando...</div>
-            ) : agentLeads.length === 0 ? (
-              <div style={{ padding: 40, textAlign: 'center', color: '#94A3B8', fontSize: '.85rem' }}>Todavía no hay nadie interesado.</div>
-            ) : (
-              <div style={{ overflowX: 'auto' }}>
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Nombre</th>
-                      <th>Contacto</th>
-                      <th>Marca</th>
-                      <th>Fecha</th>
-                      <th>Contactado</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {agentLeads.map(l => (
-                      <tr key={l.id}>
-                        <td style={{ fontWeight: 600, color: '#1C2E44' }}>{l.name}</td>
-                        <td>{l.email}<div style={{ fontSize: '.72rem', color: '#64748b' }}>{l.phone}</div></td>
-                        <td>{l.brand}</td>
-                        <td style={{ color: '#64748b', fontSize: '.78rem' }}>{new Date(l.created_at).toLocaleDateString('es-ES', { year: 'numeric', month: 'short', day: 'numeric' })}</td>
-                        <td>
-                          <button className={`btn btn-sm ${l.contacted ? 'btn-green' : 'btn-ghost'}`} onClick={() => toggleAgentContacted(l)}>
-                            {l.contacted ? '✓ Contactado' : 'Marcar contactado'}
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {editAffiliate && (
         <div className="modal-overlay" onClick={() => !saving && setEditAffiliate(null)}>
           <div className="modal" onClick={e => e.stopPropagation()}>
-            <div style={{ fontWeight: 700, color: '#1C2E44', fontSize: '.95rem', marginBottom: 4 }}>Editar afiliado</div>
+            <div style={{ fontWeight: 700, color: '#1C2E44', fontSize: '.95rem', marginBottom: 4 }}>Editar {TYPE_LABEL[editAffiliate.application_type].toLowerCase()}</div>
             <div style={{ fontSize: '.78rem', color: '#64748b', marginBottom: 16 }}>{editAffiliate.name} · {editAffiliate.email}</div>
             <label className="field-label">% de comisión</label>
             <input className="field-input" type="number" min={0} max={100} step={0.5} value={editCommission} onChange={e => setEditCommission(e.target.value)} />

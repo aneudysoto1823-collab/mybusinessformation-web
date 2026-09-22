@@ -202,27 +202,35 @@ export const GuideRequestInputSchema = z.object({
   lang: z.enum(['en', 'es']).optional(),
 })
 
+// PTIN del IRS: siempre "P" + 8 dígitos (9 caracteres). Se normaliza a
+// mayúsculas antes de validar el formato.
+const Ptin = z.string().trim()
+  .transform(v => v.toUpperCase())
+  .refine(v => /^P\d{8}$/.test(v), { message: 'PTIN inválido — debe ser P seguido de 8 dígitos (ej. P12345678)' })
+
 // ── 7. POST /api/affiliates/apply — landing pública "programa de afiliados" ──
+// Un solo formulario para dos tipos de solicitud (botones "Aplicar como
+// afiliado" / "Aplicar como agente" en /afiliados) — mismos campos base,
+// mismo flujo de aprobación manual desde /admin/afiliados. El PTIN solo es
+// obligatorio para 'affiliate' (un agente de campo no necesariamente lo
+// tiene). 'agent' no recibe cupón de Stripe al aprobar (gana comisión por
+// orden asistida vía OpaBiz Connect, no por referido con descuento) — ver
+// app/api/admin/affiliates/[id]/route.ts.
 export const AffiliateApplicationInputSchema = z.object({
   name: ShortText.min(1),
   email: Email,
   phone: z.string().trim().min(1).max(50),
-  ptin: z.string().trim().min(1).max(50),
+  ptin: Ptin.optional(),
+  type: z.enum(['affiliate', 'agent']).default('affiliate'),
   brand: z.enum(['opabiz', 'fbfc']).optional(),
   // Idioma en el que llenó la solicitud — se guarda en `affiliates.lang` para
   // que los emails posteriores (aprobado/rechazado, mandados días después)
   // respeten ese idioma en vez de ir siempre bilingüe.
   lang: z.enum(['en', 'es']).optional(),
-})
-
-// ── 8. POST /api/affiliates/agent-interest — mini-form "convertite en agente" ──
-// Programa separado del de afiliados (referido a OpaBiz Connect, empleados de
-// campo) — comparte solo la página pública, nada de lógica de cupón/comisión.
-export const AffiliateAgentInterestInputSchema = z.object({
-  name: ShortText.min(1),
-  email: Email,
-  phone: z.string().trim().min(1).max(50),
-  brand: z.enum(['opabiz', 'fbfc']).optional(),
+}).superRefine((data, ctx) => {
+  if (data.type === 'affiliate' && !data.ptin) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['ptin'], message: 'PTIN es requerido para aplicaciones de afiliado' })
+  }
 })
 
 // ── Helper: parsea y devuelve un error 400 estructurado si falla ────────────

@@ -2,9 +2,9 @@ import type { Metadata } from 'next'
 import ChatWidget from '@/components/ChatWidget'
 
 export const metadata: Metadata = {
-  title: 'Affiliate Program | OpaBiz',
+  title: 'Affiliate & Agent Program | OpaBiz',
   description:
-    'Refer clients to OpaBiz with your own coupon code, give them a discount, and earn commission on every order.',
+    'Partner with OpaBiz: refer clients with your own coupon code, or join our team as a field agent and earn commission on every order you assist.',
   alternates: {
     canonical: 'https://opabiz.com/afiliados',
     languages: {
@@ -40,6 +40,9 @@ header{position:sticky;top:0;z-index:200;background:rgba(255,255,255,.97);backdr
 .af-card{text-align:center}
 .af-card h1{font-size:clamp(1.8rem,4vw,2.4rem);color:var(--navy);font-weight:800;letter-spacing:-.5px;margin-bottom:14px}
 .af-card p.lead{font-size:1.02rem;color:var(--gray600);line-height:1.65;max-width:520px;margin:0 auto 26px}
+.af-mode-toggle{display:flex;gap:8px;max-width:440px;margin:0 auto 28px;background:var(--gray100);border-radius:12px;padding:4px}
+.af-mode-btn{flex:1;padding:11px 12px;border-radius:9px;border:none;cursor:pointer;font-family:inherit;font-size:.85rem;font-weight:700;color:var(--gray500);background:transparent;transition:all .15s}
+.af-mode-btn.active{background:#fff;color:var(--navy);box-shadow:0 1px 4px rgba(28,46,68,.12)}
 .af-bullets{list-style:none;text-align:left;max-width:440px;margin:0 auto 30px;display:flex;flex-direction:column;gap:10px}
 .af-bullets li{display:flex;align-items:flex-start;gap:10px;font-size:.92rem;color:var(--gray600)}
 .af-bullets li::before{content:'✓';color:var(--blue);font-weight:700;flex-shrink:0}
@@ -57,13 +60,6 @@ header{position:sticky;top:0;z-index:200;background:rgba(255,255,255,.97);backdr
 .af-success .icon{font-size:3rem;margin-bottom:10px}
 .af-success h2{font-size:1.5rem;color:var(--navy);font-weight:800;margin-bottom:10px}
 .af-success p{font-size:.95rem;color:var(--gray600);line-height:1.65;max-width:420px}
-.af-agent-section{margin-top:56px;padding-top:40px;border-top:1px solid var(--gray200);text-align:center}
-.af-agent-toggle{background:var(--gray50);border:1.5px solid var(--gray200);color:var(--navy);padding:12px 24px;border-radius:9px;font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit}
-.af-agent-toggle:hover{background:var(--gray100)}
-.af-agent-form{display:none;max-width:380px;margin:22px auto 0;flex-direction:column;gap:10px}
-.af-agent-form.show{display:flex}
-.af-agent-success{display:none;padding:16px;color:var(--gray600);font-size:.9rem}
-.af-agent-success.show{display:block}
 .en{display:block}.es{display:none}
 .en-inline{display:inline}.es-inline{display:none}
 footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px;margin-top:auto}
@@ -76,7 +72,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
 .footer-links a{font-size:.75rem;color:rgba(255,255,255,.4);transition:color .2s}
 .footer-links a:hover{color:#fff}
 .footer-disclaimer{font-size:.7rem;color:rgba(255,255,255,.28);max-width:540px;line-height:1.6}
-@media(max-width:600px){.af-page{padding:40px 18px 60px}.af-input,.af-submit{font-size:16px}}
+@media(max-width:600px){.af-page{padding:40px 18px 60px}.af-input,.af-submit{font-size:16px}.af-mode-btn{font-size:.78rem;padding:10px 8px}}
 `
   const body = `
 <div class="topbar"><span class="en-inline">Florida's trusted business formation experts &mdash; <strong>LLC &amp; Corporation</strong> filing made simple.</span><span class="es-inline" style="display:none">Expertos de confianza en formaci&oacute;n de empresas en Florida &mdash; <strong>LLC y Corporaci&oacute;n</strong> de manera sencilla.</span></div>
@@ -95,39 +91,62 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
 
 <div class="af-page">
   <div class="af-card" id="af-card">
-    <div class="af-badge en-inline">Affiliate Program</div><div class="af-badge es-inline" style="display:none">Programa de Afiliados</div>
-    <h1 class="en">Refer clients. Give them a discount. Earn commission.</h1>
-    <h1 class="es" style="display:none">Refier&aacute; clientes. D&eacute;les un descuento. Gane comisi&oacute;n.</h1>
-    <p class="lead en">If you have a PTIN, apply to get your own coupon code. Your referrals get 10% off, and you earn commission on every order that uses it.</p>
-    <p class="lead es" style="display:none">Si tiene un PTIN, aplique para obtener su propio c&oacute;digo de cup&oacute;n. Sus referidos reciben 10% de descuento, y usted gana comisi&oacute;n en cada orden que lo use.</p>
+    <div class="af-badge en-inline" id="af-badge-en">Affiliate Program</div><div class="af-badge es-inline" id="af-badge-es" style="display:none">Programa de Afiliados</div>
+    <h1 class="en">Partner with OpaBiz.</h1>
+    <h1 class="es" style="display:none">Sea socio de OpaBiz.</h1>
+    <p class="lead en">Choose how you'd like to work with us: refer clients as an affiliate, or join our team as a field agent.</p>
+    <p class="lead es" style="display:none">Elija c&oacute;mo quiere trabajar con nosotros: refiera clientes como afiliado, o &uacute;nase a nuestro equipo como agente de campo.</p>
 
-    <ul class="af-bullets en">
-      <li>Your own coupon code: 10% off for your referrals</li>
-      <li>15% commission on the service fees of every order that uses it</li>
-      <li>Applications are reviewed manually, usually within a few days</li>
-      <li>Want to go further? <a href="#af-agent-section" style="color:var(--blue);font-weight:700">Apply to join our team as a field agent</a> too. Approval is required, and you can keep earning as an affiliate while it's reviewed</li>
-    </ul>
-    <ul class="af-bullets es" style="display:none">
-      <li>Su propio c&oacute;digo de cup&oacute;n: 10% de descuento para sus referidos</li>
-      <li>15% de comisi&oacute;n sobre las tarifas de servicio de cada orden que lo use</li>
-      <li>Las aplicaciones se revisan manualmente, usualmente en pocos d&iacute;as</li>
-      <li>&iquest;Quiere ir m&aacute;s lejos? <a href="#af-agent-section" style="color:var(--blue);font-weight:700">Aplique para unirse a nuestro equipo como agente</a> tambi&eacute;n. Requiere aprobaci&oacute;n, y puede seguir ganando como afiliado mientras se revisa</li>
-    </ul>
+    <div class="af-mode-toggle">
+      <button class="af-mode-btn active en-inline" id="af-mode-btn-affiliate" onclick="afSetMode('affiliate')">Apply as Affiliate</button>
+      <button class="af-mode-btn active es-inline" id="af-mode-btn-affiliate-es" style="display:none" onclick="afSetMode('affiliate')">Aplicar como Afiliado</button>
+      <button class="af-mode-btn en-inline" id="af-mode-btn-agent" onclick="afSetMode('agent')">Apply as Field Agent</button>
+      <button class="af-mode-btn es-inline" id="af-mode-btn-agent-es" style="display:none" onclick="afSetMode('agent')">Aplicar como Agente</button>
+    </div>
+
+    <div id="af-bullets-affiliate">
+      <ul class="af-bullets en">
+        <li>Your own coupon code: 10% off for your referrals</li>
+        <li>15% commission on the service fees of every order that uses it</li>
+        <li>Applications are reviewed manually, usually within a few days</li>
+      </ul>
+      <ul class="af-bullets es" style="display:none">
+        <li>Su propio c&oacute;digo de cup&oacute;n: 10% de descuento para sus referidos</li>
+        <li>15% de comisi&oacute;n sobre las tarifas de servicio de cada orden que lo use</li>
+        <li>Las aplicaciones se revisan manualmente, usualmente en pocos d&iacute;as</li>
+      </ul>
+    </div>
+    <div id="af-bullets-agent" style="display:none">
+      <ul class="af-bullets en">
+        <li>You help the client complete their application in person and guide them through the process</li>
+        <li>You send them a secure link to review and pay their order online</li>
+        <li>25% commission on the service fees of every order you assist. These orders don't include a coupon discount for the client</li>
+        <li>Full training and ongoing support from our team, always</li>
+        <li>Applications are reviewed manually, usually within a few days</li>
+      </ul>
+      <ul class="af-bullets es" style="display:none">
+        <li>Ayuda al cliente a completar su solicitud en persona y lo gu&iacute;a durante el proceso</li>
+        <li>Le env&iacute;a un link seguro para que revise y pague su orden en l&iacute;nea</li>
+        <li>25% de comisi&oacute;n sobre las tarifas de servicio de cada orden que asiste. Estas &oacute;rdenes no incluyen descuento de cup&oacute;n para el cliente</li>
+        <li>Training completo y soporte continuo de nuestro equipo, siempre</li>
+        <li>Las aplicaciones se revisan manualmente, usualmente en pocos d&iacute;as</li>
+      </ul>
+    </div>
 
     <form id="af-form" onsubmit="return afSubmit(event)" novalidate>
       <div class="af-form">
         <input class="af-input" id="af-name" type="text" required maxlength="100" autocomplete="name" placeholder="Full Name"/>
         <input class="af-input" id="af-email" type="email" required maxlength="200" autocomplete="email" name="username" placeholder="you@email.com"/>
         <input class="af-input" id="af-phone" type="tel" required maxlength="50" autocomplete="tel" placeholder="Phone Number"/>
-        <input class="af-input" id="af-ptin" type="text" required maxlength="50" placeholder="PTIN"/>
+        <input class="af-input" id="af-ptin" type="text" required maxlength="9" placeholder="PTIN (ej. P12345678)"/>
         <button class="af-submit" id="af-submit" type="submit">
           <span class="en-inline">Apply now</span><span class="es-inline" style="display:none">Aplicar ahora</span>
         </button>
       </div>
       <div class="af-error" id="af-error"></div>
     </form>
-    <div class="af-payout-note en">Payouts are issued once you reach $200 in accumulated commission, or 3 months after your first referred order, whichever comes first.</div>
-    <div class="af-payout-note es" style="display:none">Los pagos se realizan al alcanzar $200 en comisiones acumuladas, o a los 3 meses de colocada la primera orden referida, lo que ocurra primero.</div>
+    <div class="af-payout-note en">Payouts are issued once you reach $200 in accumulated commission, or 2 months after your first order, whichever comes first.</div>
+    <div class="af-payout-note es" style="display:none">Los pagos se realizan al alcanzar $200 en comisiones acumuladas, o a los 2 meses de colocada la primera orden, lo que ocurra primero.</div>
   </div>
 
   <div class="af-success" id="af-success">
@@ -136,24 +155,6 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
     <h2 class="es" style="display:none">&iexcl;Aplicaci&oacute;n recibida!</h2>
     <p class="en">We'll review your application and get back to you by email in the next few days.</p>
     <p class="es" style="display:none">Vamos a revisar su aplicaci&oacute;n y le responderemos por correo en los pr&oacute;ximos d&iacute;as.</p>
-  </div>
-
-  <div class="af-agent-section" id="af-agent-section">
-    <button class="af-agent-toggle en-inline" onclick="afShowAgentForm()">Apply to become a field agent</button>
-    <button class="af-agent-toggle es-inline" style="display:none" onclick="afShowAgentForm()">Aplicar para convertirse en agente</button>
-    <form id="af-agent-form" class="af-agent-form" onsubmit="return afAgentSubmit(event)" novalidate>
-      <input class="af-input" id="ai-name" type="text" required maxlength="100" autocomplete="name" placeholder="Full Name"/>
-      <input class="af-input" id="ai-email" type="email" required maxlength="200" autocomplete="email" placeholder="you@email.com"/>
-      <input class="af-input" id="ai-phone" type="tel" required maxlength="50" autocomplete="tel" placeholder="Phone Number"/>
-      <button class="af-submit" id="ai-submit" type="submit">
-        <span class="en-inline">Send my info</span><span class="es-inline" style="display:none">Enviar mis datos</span>
-      </button>
-      <div class="af-error" id="ai-error"></div>
-    </form>
-    <div class="af-agent-success" id="af-agent-success">
-      <span class="en">Thanks! Our team will reach out to you soon.</span>
-      <span class="es" style="display:none">&iexcl;Gracias! Nuestro equipo se pondr&aacute; en contacto pronto.</span>
-    </div>
   </div>
 </div>
 
@@ -178,6 +179,8 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
 </footer>
 
 <script>
+var afMode = 'affiliate';
+
 function setLang(lang){
   localStorage.setItem('flbc_lang', lang);
   var isEs = lang === 'es';
@@ -190,8 +193,6 @@ function setLang(lang){
   var placeholders = {
     'af-name': isEs ? 'Nombre Completo' : 'Full Name',
     'af-phone': isEs ? 'N\\u00famero de Tel\\u00e9fono' : 'Phone Number',
-    'ai-name': isEs ? 'Nombre Completo' : 'Full Name',
-    'ai-phone': isEs ? 'N\\u00famero de Tel\\u00e9fono' : 'Phone Number',
   };
   Object.keys(placeholders).forEach(function(id){
     var el = document.getElementById(id);
@@ -200,11 +201,28 @@ function setLang(lang){
   document.querySelectorAll('[data-en][data-es]').forEach(function(el){
     el.innerHTML = isEs ? el.getAttribute('data-es') : el.getAttribute('data-en');
   });
+  afSyncModeButtons();
 }
 
-function afShowAgentForm(){
-  document.getElementById('af-agent-form').classList.add('show');
-  document.querySelectorAll('.af-agent-toggle').forEach(function(el){ el.style.display = 'none'; });
+function afSyncModeButtons(){
+  document.querySelectorAll('#af-mode-btn-affiliate, #af-mode-btn-affiliate-es').forEach(function(el){ el.classList.toggle('active', afMode==='affiliate'); });
+  document.querySelectorAll('#af-mode-btn-agent, #af-mode-btn-agent-es').forEach(function(el){ el.classList.toggle('active', afMode==='agent'); });
+}
+
+function afSetMode(mode){
+  afMode = mode;
+  afSyncModeButtons();
+  document.getElementById('af-bullets-affiliate').style.display = mode==='affiliate' ? 'block' : 'none';
+  document.getElementById('af-bullets-agent').style.display = mode==='agent' ? 'block' : 'none';
+  var ptinField = document.getElementById('af-ptin');
+  if(mode==='affiliate'){
+    ptinField.style.display = 'block';
+    ptinField.required = true;
+  } else {
+    ptinField.style.display = 'none';
+    ptinField.required = false;
+    ptinField.value = '';
+  }
 }
 
 async function afSubmit(ev){
@@ -215,10 +233,15 @@ async function afSubmit(ev){
   var name = document.getElementById('af-name').value.trim();
   var email = document.getElementById('af-email').value.trim();
   var phone = document.getElementById('af-phone').value.trim();
-  var ptin = document.getElementById('af-ptin').value.trim();
+  var ptin = document.getElementById('af-ptin').value.trim().toUpperCase();
   errBox.classList.remove('show'); errBox.textContent = '';
-  if(!name || !email || !phone || !ptin){
+  if(!name || !email || !phone || (afMode==='affiliate' && !ptin)){
     errBox.textContent = isEs ? 'Por favor complete todos los campos.' : 'Please fill in all fields.';
+    errBox.classList.add('show');
+    return false;
+  }
+  if(afMode==='affiliate' && !/^P\\d{8}$/.test(ptin)){
+    errBox.textContent = isEs ? 'El PTIN no es v\\u00e1lido. Debe ser la letra P seguida de 8 d\\u00edgitos (ej. P12345678).' : 'That PTIN is not valid. It should be the letter P followed by 8 digits (e.g. P12345678).';
     errBox.classList.add('show');
     return false;
   }
@@ -229,7 +252,7 @@ async function afSubmit(ev){
     var res = await fetch('/api/affiliates/apply', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ name: name, email: email, phone: phone, ptin: ptin, brand: 'opabiz', lang: isEs ? 'es' : 'en' })
+      body: JSON.stringify({ name: name, email: email, phone: phone, ptin: afMode==='affiliate' ? ptin : undefined, type: afMode, brand: 'opabiz', lang: isEs ? 'es' : 'en' })
     });
     var json = await res.json().catch(function(){ return {}; });
     if(!res.ok || !json.success){
@@ -240,46 +263,6 @@ async function afSubmit(ev){
     document.getElementById('af-card').style.display = 'none';
     document.getElementById('af-success').classList.add('show');
     window.scrollTo({top:0,behavior:'smooth'});
-  } catch(err){
-    errBox.textContent = err.message || (isEs ? 'Error de red. Verifica tu conexi\\u00f3n.' : 'Network error. Check your connection.');
-    errBox.classList.add('show');
-    btn.disabled = false;
-    btn.innerHTML = origLabel;
-  }
-  return false;
-}
-
-async function afAgentSubmit(ev){
-  ev.preventDefault();
-  var isEs = document.getElementById('btn-es').classList.contains('active');
-  var btn = document.getElementById('ai-submit');
-  var errBox = document.getElementById('ai-error');
-  var name = document.getElementById('ai-name').value.trim();
-  var email = document.getElementById('ai-email').value.trim();
-  var phone = document.getElementById('ai-phone').value.trim();
-  errBox.classList.remove('show'); errBox.textContent = '';
-  if(!name || !email || !phone){
-    errBox.textContent = isEs ? 'Por favor complete todos los campos.' : 'Please fill in all fields.';
-    errBox.classList.add('show');
-    return false;
-  }
-  btn.disabled = true;
-  var origLabel = btn.innerHTML;
-  btn.innerHTML = isEs ? 'Enviando...' : 'Sending...';
-  try {
-    var res = await fetch('/api/affiliates/agent-interest' + (isEs ? '?lang=es' : ''), {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ name: name, email: email, phone: phone, brand: 'opabiz' })
-    });
-    var json = await res.json().catch(function(){ return {}; });
-    if(!res.ok || !json.success){
-      var msg = json.error || (isEs ? 'No pudimos enviar tus datos. Intent\\u00e1 de nuevo.' : 'We could not submit your info. Please try again.');
-      if(res.status === 429) msg = isEs ? 'Demasiados intentos. Prob\\u00e1 de nuevo en un rato.' : 'Too many attempts. Please try again later.';
-      throw new Error(msg);
-    }
-    document.getElementById('af-agent-form').classList.remove('show');
-    document.getElementById('af-agent-success').classList.add('show');
   } catch(err){
     errBox.textContent = err.message || (isEs ? 'Error de red. Verifica tu conexi\\u00f3n.' : 'Network error. Check your connection.');
     errBox.classList.add('show');
