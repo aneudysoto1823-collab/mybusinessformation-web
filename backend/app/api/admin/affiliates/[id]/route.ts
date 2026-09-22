@@ -105,11 +105,11 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       ? `
               <h2 style="color:#1C2E44;font-size:20px;margin-top:0">${isEs ? `¡Bienvenido/a al equipo, ${escapeHtml(affiliate.name)}!` : `Welcome to the team, ${escapeHtml(affiliate.name)}!`}</h2>
               <p style="color:#475569;line-height:1.7">${isEs
-                ? `Tu solicitud como agente fue aprobada. Ganás ${commissionPercent}% de comisión sobre las tarifas de servicio de cada orden que asistís en persona.`
-                : `Your field agent application was approved. You earn ${commissionPercent}% commission on the service fees of every order you assist in person.`}</p>
+                ? `Tu solicitud como agente fue aprobada. Ganás ${commissionPercent}% de comisión sobre las tarifas de servicio de cada orden que asistís, en persona o de forma remota.`
+                : `Your field agent application was approved. You earn ${commissionPercent}% commission on the service fees of every order you assist, in person or remotely.`}</p>
               <p style="color:#475569;line-height:1.7">${isEs
-                ? 'Nuestro equipo se va a poner en contacto en los próximos días con tu training y los datos de acceso a OpaBiz Connect, el sistema que vas a usar para llenar las solicitudes de tus clientes.'
-                : "Our team will reach out in the next few days with your training and your OpaBiz Connect access — the system you'll use to fill out applications for your clients."}</p>
+                ? 'Tu siguiente paso es crear tu cuenta de OpaBiz Connect — te vamos a enviar un link por correo en breve. Apenas ingreses, tu primer paso va a ser completar nuestro training de agentes.'
+                : "Your next step is to create your OpaBiz Connect account — we'll send you a link by email shortly. Once you log in, your first step will be to complete our agent training."}</p>
       `
       : `
               <h2 style="color:#1C2E44;font-size:20px;margin-top:0">${isEs ? `¡Bienvenido/a al Programa de Afiliados, ${escapeHtml(affiliate.name)}!` : `Welcome to the Affiliate Program, ${escapeHtml(affiliate.name)}!`}</h2>

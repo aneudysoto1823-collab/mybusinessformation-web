@@ -100,12 +100,10 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
       <ul class="af-bullets en">
         <li>Your own coupon code: 10% off for your referrals</li>
         <li>15% commission on the service fees of every order that uses it</li>
-        <li>Applications are reviewed manually, usually within a few days</li>
       </ul>
       <ul class="af-bullets es" style="display:none">
         <li>Su propio c&oacute;digo de cup&oacute;n: 10% de descuento para sus referidos</li>
         <li>15% de comisi&oacute;n sobre las tarifas de servicio de cada orden que lo use</li>
-        <li>Las aplicaciones se revisan manualmente, usualmente en pocos d&iacute;as</li>
       </ul>
     </div>
     <div id="af-bullets-agent" style="display:none">
@@ -114,14 +112,12 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
         <li>You then send them their order, ready to review and pay securely by email</li>
         <li>25% commission on the service fees of every order you assist. These orders don't include a coupon discount for the client</li>
         <li>Full training and ongoing support from our team, always</li>
-        <li>Applications are reviewed manually, usually within a few days</li>
       </ul>
       <ul class="af-bullets es" style="display:none">
         <li>En persona o de forma remota, completa la solicitud junto al cliente y lo gu&iacute;a durante el proceso</li>
         <li>Luego le env&iacute;a la orden lista para revisar y pagar de forma segura por correo</li>
         <li>25% de comisi&oacute;n sobre las tarifas de servicio de cada orden que asiste. Estas &oacute;rdenes no incluyen descuento de cup&oacute;n para el cliente</li>
         <li>Training completo y soporte continuo de nuestro equipo, siempre</li>
-        <li>Las aplicaciones se revisan manualmente, usualmente en pocos d&iacute;as</li>
       </ul>
     </div>
 
@@ -145,8 +141,8 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
     <div class="icon">&#127881;</div>
     <h2 class="en">Application received!</h2>
     <h2 class="es" style="display:none">&iexcl;Aplicaci&oacute;n recibida!</h2>
-    <p class="en">We'll review your application and get back to you by email in the next few days.</p>
-    <p class="es" style="display:none">Vamos a revisar su aplicaci&oacute;n y le responderemos por correo en los pr&oacute;ximos d&iacute;as.</p>
+    <p class="en">Your application is being reviewed by our team of specialists. We'll be in touch by email with the next steps.</p>
+    <p class="es" style="display:none">Su aplicaci&oacute;n est&aacute; siendo revisada por nuestro equipo de especialistas. Nos vamos a comunicar por correo con los pr&oacute;ximos pasos.</p>
   </div>
 </div>
 
