@@ -20,7 +20,7 @@ export default function AfiliadosPage() {
 :root{--navy:#1C2E44;--blue:#2563EB;--blue-dark:#1D4ED8;--blue-light:#EFF6FF;--gold:#F59E0B;--white:#fff;--gray50:#F8FAFC;--gray100:#F1F5F9;--gray200:#E2E8F0;--gray300:#CBD5E1;--gray400:#94A3B8;--gray500:#64748B;--gray600:#475569;--gray800:#1E293B;}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{font-family:var(--font-sans);color:var(--gray800);background:var(--white);line-height:1.6;overflow-x:hidden;min-height:100vh;display:flex;flex-direction:column}
+body{font-family:var(--font-sans);color:var(--gray800);background:var(--gray50);line-height:1.6;overflow-x:hidden;min-height:100vh;display:flex;flex-direction:column}
 h1,h2,h3,h4{font-family:var(--font-serif);line-height:1.2}
 a{text-decoration:none;color:inherit}
 .topbar{background:var(--navy);color:#fff;font-size:.77rem;padding:9px 24px;text-align:center}
@@ -35,9 +35,11 @@ header{position:sticky;top:0;z-index:200;background:rgba(255,255,255,.97);backdr
 .lang-toggle{display:flex;background:var(--gray100);border-radius:20px;padding:3px;gap:2px}
 .lang-btn{padding:5px 12px;border-radius:16px;border:none;cursor:pointer;font-size:.77rem;font-weight:600;font-family:inherit;transition:all .2s;color:var(--gray400);background:transparent}
 .lang-btn.active{background:var(--navy);color:#fff}
-.af-page{max-width:640px;margin:0 auto;padding:56px 24px 80px;flex:1;width:100%}
+.af-page{max-width:600px;margin:0 auto;padding:44px 24px 80px;flex:1;width:100%}
+.af-banner{width:100%;border-radius:16px;overflow:hidden;margin-bottom:28px;box-shadow:0 10px 30px rgba(28,46,68,.12)}
+.af-banner img{width:100%;height:220px;object-fit:cover;object-position:center 20%;display:block}
 .af-badge{display:inline-block;background:var(--blue-light);color:var(--blue);font-size:.7rem;font-weight:700;padding:5px 14px;border-radius:20px;letter-spacing:1px;text-transform:uppercase;margin-bottom:14px}
-.af-card{text-align:center}
+.af-card{text-align:center;background:#fff;border:1px solid var(--gray200);border-radius:18px;padding:40px 32px;box-shadow:0 1px 4px rgba(28,46,68,.05)}
 .af-card h1{font-size:clamp(1.8rem,4vw,2.4rem);color:var(--navy);font-weight:800;letter-spacing:-.5px;margin-bottom:14px}
 .af-card p.lead{font-size:1.02rem;color:var(--gray600);line-height:1.65;max-width:520px;margin:0 auto 26px}
 .af-mode-toggle{display:flex;gap:8px;max-width:440px;margin:0 auto 28px;background:var(--gray100);border-radius:12px;padding:4px}
@@ -49,13 +51,21 @@ header{position:sticky;top:0;z-index:200;background:rgba(255,255,255,.97);backdr
 .af-form{display:flex;flex-direction:column;gap:10px;max-width:380px;margin:0 auto}
 .af-input{width:100%;font-family:inherit;font-size:.95rem;color:var(--gray800);border:1.5px solid var(--gray200);border-radius:9px;padding:13px 16px;background:var(--gray50);transition:all .15s}
 .af-input:focus{outline:none;border-color:var(--blue);background:#fff;box-shadow:0 0 0 3px rgba(37,99,235,.10)}
+.af-textarea{width:100%;font-family:inherit;font-size:.95rem;color:var(--gray800);border:1.5px solid var(--gray200);border-radius:9px;padding:13px 16px;background:var(--gray50);transition:all .15s;resize:vertical;min-height:80px}
+.af-textarea:focus{outline:none;border-color:var(--blue);background:#fff;box-shadow:0 0 0 3px rgba(37,99,235,.10)}
+.af-row-2{display:flex;gap:8px}
+.af-row-2 .af-input{flex:1;min-width:0}
+.af-section-label{font-size:.76rem;font-weight:700;color:var(--gray500);text-align:left;text-transform:uppercase;letter-spacing:.4px;margin:6px 0 -2px}
+.af-radio-group{display:flex;flex-direction:column;gap:8px;text-align:left;margin:2px 0}
+.af-radio-label{display:flex;align-items:center;gap:9px;font-size:.9rem;color:var(--gray600);cursor:pointer}
+.af-radio-label input{width:16px;height:16px;accent-color:var(--blue);flex-shrink:0}
 .af-submit{width:100%;background:#fff;color:var(--blue);border:1.5px solid var(--blue);padding:13px 24px;border-radius:9px;font-size:.92rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap}
 .af-submit:hover:not(:disabled){background:var(--blue-light)}
 .af-submit:disabled{opacity:.6;cursor:not-allowed}
 .af-error{margin-top:14px;background:#FEE2E2;border:1px solid #FCA5A5;color:#991B1B;border-radius:9px;padding:10px 14px;font-size:.85rem;display:none;max-width:380px;margin-left:auto;margin-right:auto}
 .af-error.show{display:block}
 .af-payout-note{margin-top:20px;background:var(--gray50);border:1px solid var(--gray200);border-radius:9px;padding:12px 16px;font-size:.8rem;color:var(--gray600);max-width:420px;margin-left:auto;margin-right:auto;text-align:left}
-.af-success{display:none;flex-direction:column;align-items:center;text-align:center;padding:30px 20px}
+.af-success{display:none;flex-direction:column;align-items:center;text-align:center;padding:40px 32px;background:#fff;border:1px solid var(--gray200);border-radius:18px}
 .af-success.show{display:flex}
 .af-success .icon{font-size:3rem;margin-bottom:10px}
 .af-success h2{font-size:1.5rem;color:var(--navy);font-weight:800;margin-bottom:10px}
@@ -72,7 +82,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
 .footer-links a{font-size:.75rem;color:rgba(255,255,255,.4);transition:color .2s}
 .footer-links a:hover{color:#fff}
 .footer-disclaimer{font-size:.7rem;color:rgba(255,255,255,.28);max-width:540px;line-height:1.6}
-@media(max-width:600px){.af-page{padding:40px 18px 60px}.af-input,.af-submit{font-size:16px}.af-mode-btn{font-size:.78rem;padding:10px 8px}}
+@media(max-width:600px){.af-page{padding:32px 16px 60px}.af-card{padding:30px 22px}.af-input,.af-textarea,.af-submit{font-size:16px}.af-mode-btn{font-size:.78rem;padding:10px 8px}.af-banner img{height:170px}}
 `
   const body = `
 <div class="topbar"><span class="en-inline">Florida's trusted business formation experts &mdash; <strong>LLC &amp; Corporation</strong> filing made simple.</span><span class="es-inline" style="display:none">Expertos de confianza en formaci&oacute;n de empresas en Florida &mdash; <strong>LLC y Corporaci&oacute;n</strong> de manera sencilla.</span></div>
@@ -90,6 +100,8 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
 </header>
 
 <div class="af-page">
+  <div class="af-banner"><img src="/photonewbusiness.jpg" alt=""/></div>
+
   <div class="af-card" id="af-card">
     <div class="af-badge en-inline" id="af-badge-en">Affiliate Program</div><div class="af-badge es-inline" id="af-badge-es" style="display:none">Programa de Afiliados</div>
     <h1 class="en">Partner with OpaBiz.</h1>
@@ -135,6 +147,30 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
         <input class="af-input" id="af-email" type="email" required maxlength="200" autocomplete="email" name="username" placeholder="you@email.com"/>
         <input class="af-input" id="af-phone" type="tel" required maxlength="50" autocomplete="tel" placeholder="Phone Number"/>
         <input class="af-input" id="af-ptin" type="text" required maxlength="9" placeholder="PTIN (ej. P12345678)"/>
+
+        <div id="af-agent-fields" style="display:none">
+          <div class="af-section-label en-inline">Residential address</div>
+          <div class="af-section-label es-inline" style="display:none">Direcci&oacute;n de residencia</div>
+          <input class="af-input" id="af-addr-street" type="text" maxlength="200" autocomplete="address-line1" placeholder="Street Address"/>
+          <div class="af-row-2">
+            <input class="af-input" id="af-addr-city" type="text" maxlength="100" autocomplete="address-level2" placeholder="City"/>
+            <input class="af-input" id="af-addr-state" type="text" maxlength="50" autocomplete="address-level1" placeholder="State" style="max-width:110px"/>
+            <input class="af-input" id="af-addr-zip" type="text" maxlength="20" autocomplete="postal-code" placeholder="ZIP" style="max-width:110px"/>
+          </div>
+
+          <div class="af-section-label en-inline">Employment status</div>
+          <div class="af-section-label es-inline" style="display:none">Situaci&oacute;n laboral</div>
+          <div class="af-radio-group">
+            <label class="af-radio-label"><input type="radio" name="af-employment" value="independent" checked onchange="afToggleEmployer()"/><span class="en-inline">I work independently</span><span class="es-inline" style="display:none">Trabajo de forma independiente</span></label>
+            <label class="af-radio-label"><input type="radio" name="af-employment" value="employed" onchange="afToggleEmployer()"/><span class="en-inline">I currently work for a company</span><span class="es-inline" style="display:none">Actualmente trabajo para una empresa</span></label>
+          </div>
+          <input class="af-input" id="af-employer-name" type="text" maxlength="200" placeholder="Company name" style="display:none"/>
+
+          <div class="af-section-label en-inline">Relevant experience (optional)</div>
+          <div class="af-section-label es-inline" style="display:none">Experiencia relevante (opcional)</div>
+          <textarea class="af-textarea" id="af-experience" maxlength="500" placeholder="Tell us a bit about your relevant experience..."></textarea>
+        </div>
+
         <button class="af-submit" id="af-submit" type="submit">
           <span class="en-inline">Apply now</span><span class="es-inline" style="display:none">Aplicar ahora</span>
         </button>
@@ -189,6 +225,12 @@ function setLang(lang){
   var placeholders = {
     'af-name': isEs ? 'Nombre Completo' : 'Full Name',
     'af-phone': isEs ? 'N\\u00famero de Tel\\u00e9fono' : 'Phone Number',
+    'af-addr-street': isEs ? 'Direcci\\u00f3n' : 'Street Address',
+    'af-addr-city': isEs ? 'Ciudad' : 'City',
+    'af-addr-state': isEs ? 'Estado' : 'State',
+    'af-addr-zip': isEs ? 'C\\u00f3digo Postal' : 'ZIP',
+    'af-employer-name': isEs ? 'Nombre de la empresa' : 'Company name',
+    'af-experience': isEs ? 'Cu\\u00e9ntenos un poco sobre su experiencia relevante...' : 'Tell us a bit about your relevant experience...',
   };
   Object.keys(placeholders).forEach(function(id){
     var el = document.getElementById(id);
@@ -210,6 +252,13 @@ function afSetMode(mode){
   afSyncModeButtons();
   document.getElementById('af-bullets-affiliate').style.display = mode==='affiliate' ? 'block' : 'none';
   document.getElementById('af-bullets-agent').style.display = mode==='agent' ? 'block' : 'none';
+  document.getElementById('af-agent-fields').style.display = mode==='agent' ? 'block' : 'none';
+}
+
+function afToggleEmployer(){
+  var employed = document.querySelector('input[name="af-employment"]:checked').value === 'employed';
+  document.getElementById('af-employer-name').style.display = employed ? 'block' : 'none';
+  if(!employed) document.getElementById('af-employer-name').value = '';
 }
 
 async function afSubmit(ev){
@@ -232,6 +281,36 @@ async function afSubmit(ev){
     errBox.classList.add('show');
     return false;
   }
+
+  var payload = { name: name, email: email, phone: phone, ptin: ptin, type: afMode, brand: 'opabiz', lang: isEs ? 'es' : 'en' };
+
+  if(afMode==='agent'){
+    var addrStreet = document.getElementById('af-addr-street').value.trim();
+    var addrCity = document.getElementById('af-addr-city').value.trim();
+    var addrState = document.getElementById('af-addr-state').value.trim();
+    var addrZip = document.getElementById('af-addr-zip').value.trim();
+    var employment = document.querySelector('input[name="af-employment"]:checked').value;
+    var employerName = document.getElementById('af-employer-name').value.trim();
+    var experience = document.getElementById('af-experience').value.trim();
+    if(!addrStreet || !addrCity || !addrState || !addrZip){
+      errBox.textContent = isEs ? 'Por favor complete su dirección de residencia.' : 'Please fill in your residential address.';
+      errBox.classList.add('show');
+      return false;
+    }
+    if(employment==='employed' && !employerName){
+      errBox.textContent = isEs ? 'Por favor indique el nombre de la empresa.' : 'Please provide your company name.';
+      errBox.classList.add('show');
+      return false;
+    }
+    payload.addressStreet = addrStreet;
+    payload.addressCity = addrCity;
+    payload.addressState = addrState;
+    payload.addressZip = addrZip;
+    payload.employmentStatus = employment;
+    if(employerName) payload.employerName = employerName;
+    if(experience) payload.experienceNotes = experience;
+  }
+
   btn.disabled = true;
   var origLabel = btn.innerHTML;
   btn.innerHTML = isEs ? 'Enviando...' : 'Sending...';
@@ -239,7 +318,7 @@ async function afSubmit(ev){
     var res = await fetch('/api/affiliates/apply', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ name: name, email: email, phone: phone, ptin: ptin, type: afMode, brand: 'opabiz', lang: isEs ? 'es' : 'en' })
+      body: JSON.stringify(payload)
     });
     var json = await res.json().catch(function(){ return {}; });
     if(!res.ok || !json.success){

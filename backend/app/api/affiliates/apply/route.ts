@@ -42,7 +42,10 @@ export async function POST(req: NextRequest) {
   if (!parsed.ok) {
     return NextResponse.json({ error: parsed.error }, { status: 400 })
   }
-  const { name, email, phone, ptin, type, brand, lang } = parsed.data
+  const {
+    name, email, phone, ptin, type, brand, lang,
+    addressStreet, addressCity, addressState, addressZip, employmentStatus, employerName, experienceNotes,
+  } = parsed.data
   const emailBrand: EmailBrand = brand === 'fbfc' ? 'fbfc' : 'opabiz'
   const isEs = lang === 'es'
   const isAgent = type === 'agent'
@@ -67,6 +70,14 @@ export async function POST(req: NextRequest) {
     brand: emailBrand,
     lang: isEs ? 'es' : 'en',
     status: 'pending',
+    // Solo 'agent' los pide en el form — quedan null para 'affiliate'.
+    address_street: addressStreet ?? null,
+    address_city: addressCity ?? null,
+    address_state: addressState ?? null,
+    address_zip: addressZip ?? null,
+    employment_status: employmentStatus ?? null,
+    employer_name: employerName ?? null,
+    experience_notes: experienceNotes ?? null,
   })
 
   if (insertError) {
@@ -132,6 +143,11 @@ export async function POST(req: NextRequest) {
             <tr style="background:#f8fafc"><td style="padding:6px 4px;color:#64748b">Teléfono</td><td style="padding:6px 4px">${escape(phone)}</td></tr>
             ${ptin ? `<tr><td style="padding:6px 0;color:#64748b">PTIN</td><td style="padding:6px 0">${escape(ptin)}</td></tr>` : ''}
             <tr style="background:#f8fafc"><td style="padding:6px 4px;color:#64748b">Marca</td><td style="padding:6px 4px">${emailBrand}</td></tr>
+            ${isAgent ? `
+            <tr><td style="padding:6px 0;color:#64748b">Dirección</td><td style="padding:6px 0">${escape([addressStreet, addressCity, addressState, addressZip].filter(Boolean).join(', '))}</td></tr>
+            <tr style="background:#f8fafc"><td style="padding:6px 4px;color:#64748b">Situación laboral</td><td style="padding:6px 4px">${employmentStatus === 'employed' ? `Empleado${employerName ? ` — ${escape(employerName)}` : ''}` : 'Independiente'}</td></tr>
+            ${experienceNotes ? `<tr><td style="padding:6px 0;color:#64748b">Experiencia</td><td style="padding:6px 0">${escape(experienceNotes)}</td></tr>` : ''}
+            ` : ''}
           </table>
           <div style="text-align:center;margin:18px 0 4px">
             <a href="https://opabiz.com/admin/afiliados" style="display:inline-block;background:#1d4ed8;color:#fff;text-decoration:none;padding:11px 22px;border-radius:8px;font-size:14px;font-weight:700">Revisar en el panel admin →</a>

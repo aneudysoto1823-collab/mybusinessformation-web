@@ -23,6 +23,13 @@ type Affiliate = {
   total_commission_owed: number
   total_commission_paid: number
   last_paid_at: string | null
+  address_street: string | null
+  address_city: string | null
+  address_state: string | null
+  address_zip: string | null
+  employment_status: 'independent' | 'employed' | null
+  employer_name: string | null
+  experience_notes: string | null
 }
 
 type Commission = {
@@ -74,6 +81,8 @@ export default function AfiliadosAdminPage() {
   const [ledgerAffiliate, setLedgerAffiliate] = useState<Affiliate | null>(null)
   const [ledger, setLedger] = useState<Commission[]>([])
   const [ledgerLoading, setLedgerLoading] = useState(false)
+
+  const [detailAffiliate, setDetailAffiliate] = useState<Affiliate | null>(null)
 
   const fetchAffiliates = useCallback(async () => {
     setLoading(true)
@@ -285,6 +294,9 @@ export default function AfiliadosAdminPage() {
                       <td>{money(a.total_commission_paid)}</td>
                       <td>
                         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                          {a.application_type === 'agent' && (
+                            <button className="btn btn-ghost btn-sm" onClick={() => setDetailAffiliate(a)}>Ver detalle</button>
+                          )}
                           {a.status === 'pending' && (
                             <>
                               <button className="btn btn-green btn-sm" disabled={busyId === a.id} onClick={() => runAction(a.id, 'approve')}>Aprobar</button>
@@ -373,6 +385,33 @@ export default function AfiliadosAdminPage() {
             )}
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 14 }}>
               <button className="btn btn-ghost btn-sm" onClick={() => setLedgerAffiliate(null)}>Cerrar</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {detailAffiliate && (
+        <div className="modal-overlay" onClick={() => setDetailAffiliate(null)}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <div style={{ fontWeight: 700, color: '#1C2E44', fontSize: '.95rem', marginBottom: 4 }}>Detalle del agente</div>
+            <div style={{ fontSize: '.78rem', color: '#64748b', marginBottom: 16 }}>{detailAffiliate.name} · {detailAffiliate.email}</div>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '.82rem' }}>
+              <tbody>
+                <tr><td style={{ padding: '6px 0', color: '#64748b', width: '38%' }}>Dirección</td><td style={{ padding: '6px 0', color: '#374151' }}>
+                  {[detailAffiliate.address_street, detailAffiliate.address_city, detailAffiliate.address_state, detailAffiliate.address_zip].filter(Boolean).join(', ') || '—'}
+                </td></tr>
+                <tr><td style={{ padding: '6px 0', color: '#64748b' }}>Situación laboral</td><td style={{ padding: '6px 0', color: '#374151' }}>
+                  {detailAffiliate.employment_status === 'employed'
+                    ? `Empleado${detailAffiliate.employer_name ? ` — ${detailAffiliate.employer_name}` : ''}`
+                    : detailAffiliate.employment_status === 'independent' ? 'Independiente' : '—'}
+                </td></tr>
+                <tr><td style={{ padding: '6px 0', color: '#64748b', verticalAlign: 'top' }}>Experiencia</td><td style={{ padding: '6px 0', color: '#374151', whiteSpace: 'pre-wrap' }}>
+                  {detailAffiliate.experience_notes || '—'}
+                </td></tr>
+              </tbody>
+            </table>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 14 }}>
+              <button className="btn btn-ghost btn-sm" onClick={() => setDetailAffiliate(null)}>Cerrar</button>
             </div>
           </div>
         </div>

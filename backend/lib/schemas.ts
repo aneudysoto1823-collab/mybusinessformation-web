@@ -215,6 +215,11 @@ const Ptin = z.string().trim()
 // /admin/afiliados. 'agent' no recibe cupón de Stripe al aprobar (gana
 // comisión por orden asistida vía OpaBiz Connect, no por referido con
 // descuento) — ver app/api/admin/affiliates/[id]/route.ts.
+//
+// Campos extra SOLO para 'agent' (depuración del solicitante, 2026-09-22):
+// dirección de residencia, situación laboral (independiente/empleado — con
+// nombre de empresa si aplica) y experiencia relevante (opcional). El
+// affiliate no los pide — no aplica a un referido con PTIN.
 export const AffiliateApplicationInputSchema = z.object({
   name: ShortText.min(1),
   email: Email,
@@ -226,6 +231,29 @@ export const AffiliateApplicationInputSchema = z.object({
   // que los emails posteriores (aprobado/rechazado, mandados días después)
   // respeten ese idioma en vez de ir siempre bilingüe.
   lang: z.enum(['en', 'es']).optional(),
+
+  addressStreet: MedText.optional(),
+  addressCity: ShortText.optional(),
+  addressState: z.string().trim().max(50).optional(),
+  addressZip: z.string().trim().max(20).optional(),
+  employmentStatus: z.enum(['independent', 'employed']).optional(),
+  employerName: MedText.optional(),
+  experienceNotes: LongText.optional(),
+}).superRefine((data, ctx) => {
+  if (data.type !== 'agent') return
+  const required: Array<[keyof typeof data, string]> = [
+    ['addressStreet', 'Dirección requerida'],
+    ['addressCity', 'Ciudad requerida'],
+    ['addressState', 'Estado requerido'],
+    ['addressZip', 'Código postal requerido'],
+    ['employmentStatus', 'Seleccioná una opción'],
+  ]
+  for (const [field, message] of required) {
+    if (!data[field]) ctx.addIssue({ code: z.ZodIssueCode.custom, path: [field], message })
+  }
+  if (data.employmentStatus === 'employed' && !data.employerName) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['employerName'], message: 'Nombre de la empresa requerido' })
+  }
 })
 
 // ── Helper: parsea y devuelve un error 400 estructurado si falla ────────────

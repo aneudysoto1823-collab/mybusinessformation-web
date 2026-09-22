@@ -108,3 +108,14 @@ ALTER TABLE affiliates ADD COLUMN IF NOT EXISTS lang text NOT NULL DEFAULT 'en';
 -- queda sin uso (no se borra automáticamente — se puede hacer
 -- "DROP TABLE affiliate_agent_leads;" a mano si se quiere limpiar).
 ALTER TABLE affiliates ADD COLUMN IF NOT EXISTS application_type text NOT NULL DEFAULT 'affiliate' CHECK (application_type IN ('affiliate', 'agent'));
+
+-- Seguimiento 2026-09-22 (3): campos extra para depurar solicitudes de
+-- agente (dirección + situación laboral + experiencia) — solo se piden/
+-- validan en el modo 'agent' del formulario, quedan NULL para afiliados.
+ALTER TABLE affiliates ADD COLUMN IF NOT EXISTS address_street text;
+ALTER TABLE affiliates ADD COLUMN IF NOT EXISTS address_city text;
+ALTER TABLE affiliates ADD COLUMN IF NOT EXISTS address_state text;
+ALTER TABLE affiliates ADD COLUMN IF NOT EXISTS address_zip text;
+ALTER TABLE affiliates ADD COLUMN IF NOT EXISTS employment_status text CHECK (employment_status IN ('independent', 'employed'));
+ALTER TABLE affiliates ADD COLUMN IF NOT EXISTS employer_name text;
+ALTER TABLE affiliates ADD COLUMN IF NOT EXISTS experience_notes text;
