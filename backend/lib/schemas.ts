@@ -209,6 +209,10 @@ export const AffiliateApplicationInputSchema = z.object({
   phone: z.string().trim().min(1).max(50),
   ptin: z.string().trim().min(1).max(50),
   brand: z.enum(['opabiz', 'fbfc']).optional(),
+  // Idioma en el que llenó la solicitud — se guarda en `affiliates.lang` para
+  // que los emails posteriores (aprobado/rechazado, mandados días después)
+  // respeten ese idioma en vez de ir siempre bilingüe.
+  lang: z.enum(['en', 'es']).optional(),
 })
 
 // ── 8. POST /api/affiliates/agent-interest — mini-form "convertite en agente" ──

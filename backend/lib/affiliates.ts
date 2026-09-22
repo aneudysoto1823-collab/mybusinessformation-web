@@ -16,6 +16,7 @@
 // recordAffiliateCommissionForOrder() más abajo.
 
 import Stripe from 'stripe'
+import { randomBytes } from 'node:crypto'
 import { getSupabaseAdmin } from './supabase'
 import { computeFormationTotal } from './pricing'
 
@@ -39,18 +40,18 @@ export function serviceFeeSubtotal(lines: { label: string; amount: number }[]): 
   return lines.filter(l => !isStateFeeLine(l.label)).reduce((sum, l) => sum + (l.amount || 0), 0)
 }
 
-// Código legible a partir del nombre — ej. "Maria Lopez" -> "MARIA482". No
-// garantiza unicidad por sí solo (ver createPromotionCodeForAffiliate, que
-// reintenta si Stripe ya tiene ese code).
-export function generateCouponCodeCandidate(name: string, salt = 0): string {
-  const base = (name || 'AFFILIATE')
-    .normalize('NFKD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-zA-Z]/g, '')
-    .toUpperCase()
-    .slice(0, 8) || 'AFFILIATE'
-  const suffix = Math.floor(100 + Math.random() * 900)
-  return salt === 0 ? `${base}${suffix}` : `${base}${suffix}${salt}`
+// Código puramente aleatorio — a propósito NO se deriva del nombre del
+// afiliado (antes sí, ej. "Maria Lopez" -> "MARIA482"; decisión revertida
+// 2026-09-22, el founder no quiere que el código revele quién es el
+// afiliado). Charset sin 0/O/1/I/L — evita confusión al leer/tipear el
+// código en voz alta. No garantiza unicidad por sí solo — ver
+// createPromotionCodeForAffiliate, que reintenta si Stripe ya tiene ese code.
+const CODE_CHARSET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'
+export function generateCouponCodeCandidate(salt = 0): string {
+  const bytes = randomBytes(8)
+  let code = ''
+  for (let i = 0; i < 8; i++) code += CODE_CHARSET[bytes[i] % CODE_CHARSET.length]
+  return salt === 0 ? code : `${code}${salt}`
 }
 
 /**
@@ -59,14 +60,14 @@ export function generateCouponCodeCandidate(name: string, salt = 0): string {
  * un código nuevo si el elegido ya existe en Stripe. No toca la DB — el caller
  * (ruta de aprobación) guarda el resultado en `affiliates`.
  */
-export async function createPromotionCodeForAffiliate(name: string): Promise<{ id: string; code: string }> {
+export async function createPromotionCodeForAffiliate(): Promise<{ id: string; code: string }> {
   const couponId = process.env.STRIPE_AFFILIATE_COUPON_ID
   if (!couponId) throw new Error('STRIPE_AFFILIATE_COUPON_ID no está configurado')
 
   const stripe = getStripe()
   let lastErr: unknown
   for (let attempt = 0; attempt < 5; attempt++) {
-    const code = generateCouponCodeCandidate(name, attempt)
+    const code = generateCouponCodeCandidate(attempt)
     try {
       const promo = await stripe.promotionCodes.create({ promotion: { type: 'coupon', coupon: couponId }, code, active: true })
       return { id: promo.id, code: promo.code }

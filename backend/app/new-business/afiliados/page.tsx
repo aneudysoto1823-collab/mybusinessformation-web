@@ -94,14 +94,16 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
     <p class="lead es" style="display:none">Si tiene un PTIN, aplique para obtener su propio c&oacute;digo de cup&oacute;n. Sus referidos reciben 10% de descuento, y usted gana comisi&oacute;n en cada orden que lo use.</p>
 
     <ul class="af-bullets en">
-      <li>Your own coupon code — 10% off for your referrals</li>
+      <li>Your own coupon code: 10% off for your referrals</li>
       <li>15% commission on the service fees of every order that uses it</li>
       <li>Applications are reviewed manually, usually within a few days</li>
+      <li>Want to go further? <a href="#af-agent-section" style="color:var(--blue);font-weight:700">Apply to join our team as a field agent</a> too. Approval is required, and you can keep earning as an affiliate while it's reviewed</li>
     </ul>
     <ul class="af-bullets es" style="display:none">
-      <li>Su propio c&oacute;digo de cup&oacute;n &mdash; 10% de descuento para sus referidos</li>
+      <li>Su propio c&oacute;digo de cup&oacute;n: 10% de descuento para sus referidos</li>
       <li>15% de comisi&oacute;n sobre las tarifas de servicio de cada orden que lo use</li>
       <li>Las aplicaciones se revisan manualmente, usualmente en pocos d&iacute;as</li>
+      <li>&iquest;Quiere ir m&aacute;s lejos? <a href="#af-agent-section" style="color:var(--blue);font-weight:700">Aplique para unirse a nuestro equipo como agente</a> tambi&eacute;n. Requiere aprobaci&oacute;n, y puede seguir ganando como afiliado mientras se revisa</li>
     </ul>
 
     <form id="af-form" onsubmit="return afSubmit(event)" novalidate>
@@ -129,8 +131,8 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
   </div>
 
   <div class="af-agent-section" id="af-agent-section">
-    <button class="af-agent-toggle en-inline" onclick="afShowAgentForm()">Want to become a field agent instead?</button>
-    <button class="af-agent-toggle es-inline" style="display:none" onclick="afShowAgentForm()">&iquest;Quiere convertirse en agente en su lugar?</button>
+    <button class="af-agent-toggle en-inline" onclick="afShowAgentForm()">Apply to become a field agent</button>
+    <button class="af-agent-toggle es-inline" style="display:none" onclick="afShowAgentForm()">Aplicar para convertirse en agente</button>
     <form id="af-agent-form" class="af-agent-form" onsubmit="return afAgentSubmit(event)" novalidate>
       <input class="af-input" id="ai-name" type="text" required maxlength="100" autocomplete="name" placeholder="Full Name"/>
       <input class="af-input" id="ai-email" type="email" required maxlength="200" autocomplete="email" placeholder="you@email.com"/>
@@ -217,10 +219,10 @@ async function afSubmit(ev){
   var origLabel = btn.innerHTML;
   btn.innerHTML = isEs ? 'Enviando...' : 'Sending...';
   try {
-    var res = await fetch('/api/affiliates/apply' + (isEs ? '?lang=es' : ''), {
+    var res = await fetch('/api/affiliates/apply', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ name: name, email: email, phone: phone, ptin: ptin, brand: 'fbfc' })
+      body: JSON.stringify({ name: name, email: email, phone: phone, ptin: ptin, brand: 'fbfc', lang: isEs ? 'es' : 'en' })
     });
     var json = await res.json().catch(function(){ return {}; });
     if(!res.ok || !json.success){

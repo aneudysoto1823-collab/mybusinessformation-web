@@ -38,9 +38,9 @@ export async function POST(req: NextRequest) {
   if (!parsed.ok) {
     return NextResponse.json({ error: parsed.error }, { status: 400 })
   }
-  const { name, email, phone, ptin, brand } = parsed.data
+  const { name, email, phone, ptin, brand, lang } = parsed.data
   const emailBrand: EmailBrand = brand === 'fbfc' ? 'fbfc' : 'opabiz'
-  const isEs = req.nextUrl.searchParams.get('lang') === 'es'
+  const isEs = lang === 'es'
 
   const ip = getClientIp(req)
   const rate = await checkAffiliateApplyRateLimit(ip)
@@ -58,6 +58,7 @@ export async function POST(req: NextRequest) {
     phone,
     ptin,
     brand: emailBrand,
+    lang: isEs ? 'es' : 'en',
     status: 'pending',
   })
 

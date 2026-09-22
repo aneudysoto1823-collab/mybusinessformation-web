@@ -93,3 +93,9 @@ CREATE TABLE IF NOT EXISTS affiliate_agent_leads (
   contacted              boolean NOT NULL DEFAULT false,
   notes                  text
 );
+
+-- Seguimiento 2026-09-22: guarda el idioma en que el afiliado llenó la
+-- solicitud, para que los emails de aprobación/rechazo (mandados días
+-- después, a veces) respeten ese idioma en vez de ir siempre bilingüe.
+-- Si ya corriste el bloque de arriba, correr SOLO esta línea.
+ALTER TABLE affiliates ADD COLUMN IF NOT EXISTS lang text NOT NULL DEFAULT 'en';
