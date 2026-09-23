@@ -73,7 +73,12 @@ const STATUS_COLOR: Record<AffiliateStatus, string> = {
 const TYPE_LABEL: Record<ApplicationType, string> = { affiliate: 'Afiliado', agent: 'Agente' }
 const TYPE_COLOR: Record<ApplicationType, string> = { affiliate: '#2563EB', agent: '#7c3aed' }
 
-export default function AfiliadosAdminPage() {
+// embedded=true: se usa desde /admin/opabiz (pestaña "Afiliados y Agentes",
+// fusión 2026-09-23 de los 2 accesos del nav admin en uno solo) — oculta el
+// breadcrumb/título propios, que quedarían redundantes dentro de esa
+// página. Mismo patrón que /new-business (componente exportado con un prop,
+// ver CLAUDE.md "URLs bilingües dedicadas").
+export function AfiliadosPanel({ embedded = false }: { embedded?: boolean } = {}) {
   const [statusFilter, setStatusFilter] = useState<AffiliateStatus | 'all'>('all')
   const [typeFilter, setTypeFilter] = useState<ApplicationType | 'all'>('all')
   const [affiliates, setAffiliates] = useState<Affiliate[]>([])
@@ -279,18 +284,20 @@ export default function AfiliadosAdminPage() {
         @media(max-width:768px){.wrap{padding:18px 14px}.card-head{padding:14px 16px}th,td{padding:8px 10px}}
       `}</style>
 
-      <div className="wrap">
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
-              <Link href="/admin" style={{ color: '#94A3B8', fontSize: '.8rem', textDecoration: 'none' }}>← Admin</Link>
-              <span style={{ color: '#CBD5E1' }}>/</span>
-              <span style={{ color: '#1C2E44', fontSize: '.8rem', fontWeight: 600 }}>Afiliados</span>
+      <div className={embedded ? '' : 'wrap'}>
+        {!embedded && (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
+                <Link href="/admin" style={{ color: '#94A3B8', fontSize: '.8rem', textDecoration: 'none' }}>← Admin</Link>
+                <span style={{ color: '#CBD5E1' }}>/</span>
+                <span style={{ color: '#1C2E44', fontSize: '.8rem', fontWeight: 600 }}>Afiliados</span>
+              </div>
+              <h1 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#1C2E44' }}>Afiliados y Agentes</h1>
+              <p style={{ fontSize: '.8rem', color: '#94A3B8', marginTop: 2 }}>Aplicaciones de referidos (cupón + comisión) y de agentes de campo (OpaBiz Connect)</p>
             </div>
-            <h1 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#1C2E44' }}>Afiliados y Agentes</h1>
-            <p style={{ fontSize: '.8rem', color: '#94A3B8', marginTop: 2 }}>Aplicaciones de referidos (cupón + comisión) y de agentes de campo (OpaBiz Connect)</p>
           </div>
-        </div>
+        )}
 
         <div className="card">
           <div className="card-head">
@@ -505,4 +512,8 @@ export default function AfiliadosAdminPage() {
       )}
     </>
   )
+}
+
+export default function AfiliadosAdminPage() {
+  return <AfiliadosPanel />
 }

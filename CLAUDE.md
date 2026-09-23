@@ -1841,6 +1841,30 @@ tocados) tras cada ronda.
 memoria `project_programa_afiliados.md`) — sin más pendientes conocidos de esta ronda de
 feedback.
 
+### `/admin/afiliados` fusionado dentro de `/admin/opabiz` (mismo día)
+
+El nav superior de `/admin` tenía 2 accesos separados ("OpaBiz Connect" y "Afiliados") que en la
+práctica eran el mismo mundo desde que un agente se vincula a su cuenta de OpaBiz Connect. Se
+fusionaron en un solo punto de entrada: `/admin/opabiz` ahora tiene 3 pestañas internas
+(`activeTab` state) — **Empleados**, **Órdenes**, **Afiliados y Agentes** — y el pill "Afiliados"
+se sacó del nav de `/admin` (queda solo "OpaBiz Connect").
+
+- `app/admin/afiliados/page.tsx` — el componente pasó a exportarse como `AfiliadosPanel({
+  embedded }: { embedded?: boolean })` (named export), con un `export default` delgado que lo
+  envuelve sin el prop (mismo patrón que `/new-business` con `defaultLang`, ver "URLs bilingües
+  dedicadas" más arriba). `embedded=true` oculta el breadcrumb/título propios (quedarían
+  redundantes dentro de la pestaña) y el `<div className="wrap">` exterior (deja que el `.wrap`
+  del padre maneje el ancho/padding).
+- `app/admin/opabiz/page.tsx` — `import { AfiliadosPanel } from '../afiliados/page'`, la renderiza
+  con `<AfiliadosPanel embedded />` en la pestaña "Afiliados y Agentes". El botón "+ Crear
+  Empleado" del header solo se muestra en la pestaña Empleados. El modal "Cómo funciona" ganó un
+  bullet mencionando la pestaña nueva.
+- **La ruta `/admin/afiliados` sigue funcionando standalone** (por si hay algún link/bookmark
+  viejo) — no se borró, solo dejó de estar en el nav principal.
+- Verificado con `next build` completo (limpio) — no se pudo verificar visualmente con
+  Playwright esta vez porque `/admin/opabiz` requiere sesión de admin real, que esta sesión no
+  tiene. Revisar visualmente las 3 pestañas la próxima vez que se entre al panel.
+
 ---
 
 ## Deploy

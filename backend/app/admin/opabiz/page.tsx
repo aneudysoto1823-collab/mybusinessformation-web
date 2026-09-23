@@ -3,6 +3,9 @@
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import HowItWorksModal from '../HowItWorksModal'
+import { AfiliadosPanel } from '../afiliados/page'
+
+type Tab = 'empleados' | 'ordenes' | 'afiliados'
 
 type EmpleadoDetalle = {
   nivel: string
@@ -77,6 +80,7 @@ function usuarioIdEmpleadoDe(o: Orden): string {
 }
 
 export default function OpabizAdminPage() {
+  const [activeTab, setActiveTab] = useState<Tab>('empleados')
   const [empleados, setEmpleados] = useState<Empleado[]>([])
   const [loading, setLoading]     = useState(true)
   const [showForm, setShowForm]   = useState(false)
@@ -256,6 +260,10 @@ export default function OpabizAdminPage() {
         .msg-ok{color:#059669;font-size:.78rem;font-weight:600}
         .msg-err{color:#ef4444;font-size:.78rem;font-weight:600}
         .empty{padding:40px 22px;text-align:center;color:#94A3B8;font-size:.85rem}
+        .op-tabs{display:flex;gap:6px;margin-bottom:20px;border-bottom:1px solid #E2E8F0}
+        .op-tab{padding:10px 16px;border:none;background:none;cursor:pointer;font-family:inherit;font-size:.85rem;font-weight:700;color:#94A3B8;border-bottom:2px solid transparent;margin-bottom:-1px}
+        .op-tab.active{color:#2563EB;border-bottom-color:#2563EB}
+        .op-tab:hover:not(.active){color:#1C2E44}
         @media(max-width:768px){
           .wrap{padding:18px 14px}
           .card-head{padding:14px 16px}
@@ -272,17 +280,25 @@ export default function OpabizAdminPage() {
               <span style={{ color: '#CBD5E1' }}>/</span>
               <span style={{ color: '#1C2E44', fontSize: '.8rem', fontWeight: 600 }}>OpaBiz Connect</span>
             </div>
-            <h1 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#1C2E44' }}>OpaBiz Connect — Empleados</h1>
-            <p style={{ fontSize: '.8rem', color: '#94A3B8', marginTop: 2 }}>Gestión de empleados internos y su estado de asignación</p>
+            <h1 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#1C2E44' }}>OpaBiz Connect</h1>
+            <p style={{ fontSize: '.8rem', color: '#94A3B8', marginTop: 2 }}>Empleados internos, órdenes asignadas, y el Programa de Afiliados/Agentes</p>
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
             <button className="btn" style={{ background: '#fff', color: '#1C2E44', border: '1.5px solid #1C2E44' }} onClick={() => setShowHowItWorks(true)}>
               ℹ️ Cómo funciona
             </button>
-            <button className="btn btn-primary" onClick={() => setShowForm(v => !v)}>
-              {showForm ? '✕ Cancelar' : '+ Crear Empleado'}
-            </button>
+            {activeTab === 'empleados' && (
+              <button className="btn btn-primary" onClick={() => setShowForm(v => !v)}>
+                {showForm ? '✕ Cancelar' : '+ Crear Empleado'}
+              </button>
+            )}
           </div>
+        </div>
+
+        <div className="op-tabs">
+          <button className={`op-tab ${activeTab === 'empleados' ? 'active' : ''}`} onClick={() => setActiveTab('empleados')}>Empleados</button>
+          <button className={`op-tab ${activeTab === 'ordenes' ? 'active' : ''}`} onClick={() => setActiveTab('ordenes')}>Órdenes</button>
+          <button className={`op-tab ${activeTab === 'afiliados' ? 'active' : ''}`} onClick={() => setActiveTab('afiliados')}>Afiliados y Agentes</button>
         </div>
 
         {showHowItWorks && (
@@ -313,10 +329,12 @@ export default function OpabizAdminPage() {
             <ul>
               <li><strong>Empleados:</strong> alta de nuevos (manda invitación por email para que se cree su contraseña), nivel, puntaje, disponibilidad, reenviar invitación si no la usó.</li>
               <li><strong>Órdenes:</strong> lista de todo lo asignado — cliente, empleado, estado, si es urgente, notas.</li>
+              <li><strong>Afiliados y Agentes:</strong> aplicaciones al Programa de Afiliados/Agentes, aprobación, comisiones, y el vínculo de un agente a su cuenta de OpaBiz Connect.</li>
             </ul>
           </HowItWorksModal>
         )}
 
+        {activeTab === 'empleados' && <>
         {showForm && (
           <div className="card">
             <div className="card-head"><span className="card-title">Nuevo empleado</span></div>
@@ -426,7 +444,9 @@ export default function OpabizAdminPage() {
             </table>
           )}
         </div>
+        </>}
 
+        {activeTab === 'ordenes' && <>
         <div className="card">
           <div className="card-head"><span className="card-title">Órdenes ({ordenes.length})</span></div>
           {loadingOrdenes ? (
@@ -490,6 +510,9 @@ export default function OpabizAdminPage() {
             </table>
           )}
         </div>
+        </>}
+
+        {activeTab === 'afiliados' && <AfiliadosPanel embedded />}
 
         {reasignando && (
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: 20 }}>
