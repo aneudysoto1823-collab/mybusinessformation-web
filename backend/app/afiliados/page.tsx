@@ -42,13 +42,17 @@ header{position:sticky;top:0;z-index:200;background:rgba(255,255,255,.97);backdr
 .af-card{text-align:center;background:#fff;border:1px solid var(--gray200);border-radius:18px;padding:40px 32px;box-shadow:0 1px 4px rgba(28,46,68,.05)}
 .af-card h1{font-size:clamp(1.8rem,4vw,2.4rem);color:var(--navy);font-weight:800;letter-spacing:-.5px;margin-bottom:14px}
 .af-card p.lead{font-size:1.02rem;color:var(--gray600);line-height:1.65;max-width:520px;margin:0 auto 26px}
-.af-mode-toggle{display:flex;gap:8px;max-width:440px;margin:0 auto 28px;background:var(--gray100);border-radius:12px;padding:4px}
+.af-value-strip{display:flex;justify-content:center;gap:22px;flex-wrap:wrap;max-width:480px;margin:0 auto 26px}
+.af-value-item{display:flex;align-items:center;gap:6px;font-size:.82rem;font-weight:600;color:var(--gray600)}
+.af-value-check{color:var(--blue);font-weight:700}
+.af-mode-toggle{display:flex;gap:8px;max-width:480px;margin:0 auto 28px;background:var(--gray100);border-radius:12px;padding:4px}
 .af-mode-btn{flex:1;padding:11px 12px;border-radius:9px;border:none;cursor:pointer;font-family:inherit;font-size:.85rem;font-weight:700;color:var(--gray500);background:transparent;transition:all .15s}
 .af-mode-btn.active{background:#fff;color:var(--navy);box-shadow:0 1px 4px rgba(28,46,68,.12)}
-.af-bullets{list-style:none;text-align:left;max-width:440px;margin:0 auto 30px;display:flex;flex-direction:column;gap:10px}
+.af-bullets{list-style:none;text-align:left;max-width:480px;margin:0 auto 30px;display:flex;flex-direction:column;gap:10px}
 .af-bullets li{display:flex;align-items:flex-start;gap:10px;font-size:.92rem;color:var(--gray600)}
 .af-bullets li::before{content:'✓';color:var(--blue);font-weight:700;flex-shrink:0}
-.af-form{display:flex;flex-direction:column;gap:10px;max-width:380px;margin:0 auto}
+.af-form{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;max-width:480px;margin:0 auto}
+.af-full{grid-column:1/-1}
 .af-input{width:100%;font-family:inherit;font-size:.95rem;color:var(--gray800);border:1.5px solid var(--gray200);border-radius:9px;padding:13px 16px;background:var(--gray50);transition:all .15s}
 .af-input:focus{outline:none;border-color:var(--blue);background:#fff;box-shadow:0 0 0 3px rgba(37,99,235,.10)}
 .af-textarea{width:100%;font-family:inherit;font-size:.95rem;color:var(--gray800);border:1.5px solid var(--gray200);border-radius:9px;padding:13px 16px;background:var(--gray50);transition:all .15s;resize:vertical;min-height:80px}
@@ -62,12 +66,12 @@ header{position:sticky;top:0;z-index:200;background:rgba(255,255,255,.97);backdr
 .af-submit{width:100%;background:#fff;color:var(--blue);border:1.5px solid var(--blue);padding:13px 24px;border-radius:9px;font-size:.92rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap}
 .af-submit:hover:not(:disabled){background:var(--blue-light)}
 .af-submit:disabled{opacity:.6;cursor:not-allowed}
-.af-error{margin-top:14px;background:#FEE2E2;border:1px solid #FCA5A5;color:#991B1B;border-radius:9px;padding:10px 14px;font-size:.85rem;display:none;max-width:380px;margin-left:auto;margin-right:auto}
+.af-error{margin-top:14px;background:#FEE2E2;border:1px solid #FCA5A5;color:#991B1B;border-radius:9px;padding:10px 14px;font-size:.85rem;display:none;max-width:480px;margin-left:auto;margin-right:auto}
 .af-error.show{display:block}
-.af-payout-note{margin-top:20px;background:var(--gray50);border:1px solid var(--gray200);border-radius:9px;padding:12px 16px;font-size:.8rem;color:var(--gray600);max-width:420px;margin-left:auto;margin-right:auto;text-align:left}
+.af-payout-note{margin-top:20px;background:var(--gray50);border:1px solid var(--gray200);border-radius:9px;padding:12px 16px;font-size:.8rem;color:var(--gray600);max-width:480px;margin-left:auto;margin-right:auto;text-align:left}
 .af-success{display:none;flex-direction:column;align-items:center;text-align:center;padding:40px 32px;background:#fff;border:1px solid var(--gray200);border-radius:18px}
 .af-success.show{display:flex}
-.af-success .icon{font-size:3rem;margin-bottom:10px}
+.af-success-mark{width:56px;height:56px;background:linear-gradient(135deg,var(--navy),var(--blue));border-radius:14px;display:flex;align-items:center;justify-content:center;color:#fff;font-family:var(--font-serif);font-size:1.35rem;font-weight:700;margin-bottom:16px;flex-shrink:0}
 .af-success h2{font-size:1.5rem;color:var(--navy);font-weight:800;margin-bottom:10px}
 .af-success p{font-size:.95rem;color:var(--gray600);line-height:1.65;max-width:420px}
 .en{display:block}.es{display:none}
@@ -82,10 +86,10 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
 .footer-links a{font-size:.75rem;color:rgba(255,255,255,.4);transition:color .2s}
 .footer-links a:hover{color:#fff}
 .footer-disclaimer{font-size:.7rem;color:rgba(255,255,255,.28);max-width:540px;line-height:1.6}
-@media(max-width:600px){.af-page{padding:32px 16px 60px}.af-card{padding:30px 22px}.af-input,.af-textarea,.af-submit{font-size:16px}.af-mode-btn{font-size:.78rem;padding:10px 8px}.af-banner img{height:170px}}
+@media(max-width:600px){.af-page{padding:32px 16px 60px}.af-card{padding:30px 22px}.af-input,.af-textarea,.af-submit{font-size:16px}.af-mode-btn{font-size:.78rem;padding:10px 8px}.af-banner img{height:170px}.af-form{grid-template-columns:1fr}.af-value-strip{flex-direction:column;align-items:flex-start;gap:8px;padding-left:8px}}
 `
   const body = `
-<div class="topbar"><span class="en-inline">Florida's trusted business formation experts &mdash; <strong>LLC &amp; Corporation</strong> filing made simple.</span><span class="es-inline" style="display:none">Expertos de confianza en formaci&oacute;n de empresas en Florida &mdash; <strong>LLC y Corporaci&oacute;n</strong> de manera sencilla.</span></div>
+<div class="topbar"><span class="en-inline">Florida's trusted business formation experts. <strong>LLC &amp; Corporation</strong> filing made simple.</span><span class="es-inline" style="display:none">Expertos de confianza en formaci&oacute;n de empresas en Florida. <strong>LLC y Corporaci&oacute;n</strong> de manera sencilla.</span></div>
 <header>
   <div class="header-inner">
     <a href="/" class="logo">
@@ -108,6 +112,17 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
     <h1 class="es" style="display:none">Sea socio de OpaBiz.</h1>
     <p class="lead en">Choose how you'd like to work with us: refer clients as an affiliate, or join our team as a field agent.</p>
     <p class="lead es" style="display:none">Elija c&oacute;mo quiere trabajar con nosotros: refiera clientes como afiliado, o &uacute;nase a nuestro equipo como agente de campo.</p>
+
+    <div class="af-value-strip en">
+      <div class="af-value-item"><span class="af-value-check">&#10003;</span>No cost to apply</div>
+      <div class="af-value-item"><span class="af-value-check">&#10003;</span>Real commission on every order</div>
+      <div class="af-value-item"><span class="af-value-check">&#10003;</span>Paid every 2 months or at $200 owed</div>
+    </div>
+    <div class="af-value-strip es" style="display:none">
+      <div class="af-value-item"><span class="af-value-check">&#10003;</span>Sin costo por aplicar</div>
+      <div class="af-value-item"><span class="af-value-check">&#10003;</span>Comisi&oacute;n real por cada orden</div>
+      <div class="af-value-item"><span class="af-value-check">&#10003;</span>Pagos cada 2 meses o al llegar a $200</div>
+    </div>
 
     <div class="af-mode-toggle">
       <button class="af-mode-btn active en-inline" id="af-mode-btn-affiliate" onclick="afSetMode('affiliate')">Apply as Affiliate</button>
@@ -148,7 +163,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
         <input class="af-input" id="af-phone" type="tel" required maxlength="50" autocomplete="tel" placeholder="Phone Number"/>
         <input class="af-input" id="af-ptin" type="text" required maxlength="9" placeholder="PTIN (ej. P12345678)"/>
 
-        <div id="af-agent-fields" style="display:none">
+        <div id="af-agent-fields" class="af-full" style="display:none">
           <div class="af-section-label en-inline">Residential address</div>
           <div class="af-section-label es-inline" style="display:none">Direcci&oacute;n de residencia</div>
           <input class="af-input" id="af-addr-street" type="text" maxlength="200" autocomplete="address-line1" placeholder="Street Address"/>
@@ -171,7 +186,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
           <textarea class="af-textarea" id="af-experience" maxlength="500" placeholder="Tell us a bit about your relevant experience..."></textarea>
         </div>
 
-        <button class="af-submit" id="af-submit" type="submit">
+        <button class="af-submit af-full" id="af-submit" type="submit">
           <span class="en-inline">Apply now</span><span class="es-inline" style="display:none">Aplicar ahora</span>
         </button>
       </div>
@@ -182,11 +197,11 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
   </div>
 
   <div class="af-success" id="af-success">
-    <div class="icon">&#127881;</div>
-    <h2 class="en">Application received!</h2>
-    <h2 class="es" style="display:none">&iexcl;Aplicaci&oacute;n recibida!</h2>
-    <p class="en">Your application is being reviewed by our team of specialists. We'll be in touch by email with the next steps.</p>
-    <p class="es" style="display:none">Su aplicaci&oacute;n est&aacute; siendo revisada por nuestro equipo de especialistas. Nos vamos a comunicar por correo con los pr&oacute;ximos pasos.</p>
+    <div class="af-success-mark">OB</div>
+    <h2 class="en">Application received</h2>
+    <h2 class="es" style="display:none">Aplicaci&oacute;n recibida</h2>
+    <p class="en">Our team reviews every application personally. We'll follow up by email once a decision is made. No need to do anything else for now.</p>
+    <p class="es" style="display:none">Nuestro equipo revisa cada aplicaci&oacute;n personalmente. Nos vamos a comunicar por correo apenas haya una decisi&oacute;n. No hace falta hacer nada m&aacute;s por ahora.</p>
   </div>
 </div>
 
@@ -204,7 +219,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
       </div>
       <div class="footer-disclaimer">
         <strong style="color:rgba(255,255,255,0.5);display:block;margin-bottom:4px">Important Notice</strong>
-        OpaBiz is a trade name of Florida Business Formation Center &mdash; a professional document preparation and filing service. We are not a law firm and do not provide legal, tax, or financial advice.
+        OpaBiz is a trade name of Florida Business Formation Center, a professional document preparation and filing service. We are not a law firm and do not provide legal, tax, or financial advice.
       </div>
     </div>
   </div>
@@ -253,6 +268,8 @@ function afSetMode(mode){
   document.getElementById('af-bullets-affiliate').style.display = mode==='affiliate' ? 'block' : 'none';
   document.getElementById('af-bullets-agent').style.display = mode==='agent' ? 'block' : 'none';
   document.getElementById('af-agent-fields').style.display = mode==='agent' ? 'block' : 'none';
+  document.getElementById('af-badge-en').textContent = mode==='affiliate' ? 'Affiliate Program' : 'Field Agent Program';
+  document.getElementById('af-badge-es').textContent = mode==='affiliate' ? 'Programa de Afiliados' : 'Programa de Agentes';
 }
 
 function afToggleEmployer(){

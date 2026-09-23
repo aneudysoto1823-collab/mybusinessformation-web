@@ -1803,14 +1803,43 @@ tabla `affiliates` porque la migración de la sesión anterior no se había corr
   `brandHeaderHtml()` en `lib/email-constants.ts` ahora usa `<img>` con esa imagen en base64 en
   vez del `<div style="background:...">`.
 
-**Pendientes que quedaron para otra sesión, a propósito no implementados todavía** (el founder
-pidió mi opinión, respondí con una recomendación, pero no confirmó que se construya ya):
-- Rediseño del landing `/afiliados` (layout en columnas, franja de valor arriba del form,
-  pantalla de éxito más sólida).
-- Enganchar los pagos de comisión ("Marcar como pagado" en `/admin/afiliados`) a Contabilidad —
-  sugerido: crear automáticamente una fila en `accounting_expenses` (categoría "Nómina", mismo
-  patrón que `sync-orders` para ingresos) al marcar un pago, sin rehacer el esquema (hoy
-  `accounting_expenses` no tiene ninguna columna de vínculo a persona/entidad).
+### Rediseño del landing `/afiliados` + comisiones enganchadas a Contabilidad (mismo día, confirmado)
+
+- **`/afiliados`** — el form pasó de una sola columna (`.af-form` flex, max-width 380px) a un
+  grid de 2 columnas (`display:grid;grid-template-columns:1fr 1fr`, max-width 480px, colapsa a
+  1 columna en mobile vía el media query de 600px ya existente): Nombre+Email en una fila,
+  Teléfono+PTIN en la siguiente. Los campos de agente (`#af-agent-fields`) y el botón submit usan
+  una clase `.af-full{grid-column:1/-1}` para ocupar el ancho completo dentro del grid. Nueva
+  franja `.af-value-strip` (3 bullets: sin costo por aplicar, comisión real, pagos cada 2 meses o
+  $200) entre el lead paragraph y el toggle de modo. Pantalla de éxito rediseñada: el emoji 🎉
+  (`&#127881;`) se reemplazó por el mark real "OB" (`.af-success-mark`, mismo gradiente que el
+  logo del sitio) y el copy ya no promete "próximos pasos" vagos, explica que el equipo revisa
+  cada aplicación personalmente. De paso: el badge superior ("Affiliate Program"/"Programa de
+  Afiliados") ahora cambia de verdad a "Field Agent Program"/"Programa de Agentes" al togglear el
+  modo (`afSetMode()`) — antes quedaba fijo en "Affiliate Program" sin importar el modo elegido,
+  un detalle que pasaba desapercibido. Se sacaron también 2 guiones largos preexistentes en esta
+  misma página (topbar + disclaimer del footer) ya que se estaba tocando el archivo de todas
+  formas. Verificado visualmente con Playwright (desktop 1280px y mobile 390px, ambos modos,
+  cero errores de consola) — capturas no se guardan en el repo, solo se usaron para QA de esta
+  sesión.
+- **Comisiones enganchadas a Contabilidad** — `POST /api/admin/affiliates/[id]/mark-paid` ahora
+  también inserta una fila en `accounting_expenses` (categoría `payroll`, `expense_type:
+  'variable'`, descripción `"Comisión pagada a {nombre} ({afiliado|agente})"`, monto = lo que se
+  marcó como pagado) — no bloqueante, si falla el pago del afiliado ya quedó registrado igual. No
+  hay vínculo estructurado de vuelta a `affiliates` (esa tabla no tiene columna de payee) — es
+  una fila descriptiva más, visible en `/admin/contabilidad/gastos` sin tener que cargarla a
+  mano. El confirm() del botón "Marcar como pagado" ahora lo menciona.
+- **Fix de paso:** `String(postgrestError)` daba `"[object Object]"` también en `mark-paid` (no
+  solo en el PATCH de aprobar/rechazar) — se extrajo `pgErrorMessage()` de
+  `app/api/admin/affiliates/[id]/route.ts` a `lib/supabase.ts` (export compartido) para no
+  duplicarlo, y `mark-paid/route.ts` también lo usa ahora.
+
+Verificado con `npx tsc --noEmit`/`next build` (limpio) y `eslint` (cero errores en los archivos
+tocados) tras cada ronda.
+
+**Con esto, el Programa de Afiliados/Agentes queda cerrado salvo el training del agente** (ver
+memoria `project_programa_afiliados.md`) — sin más pendientes conocidos de esta ronda de
+feedback.
 
 ---
 

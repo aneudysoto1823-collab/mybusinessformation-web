@@ -145,7 +145,7 @@ export default function AfiliadosAdminPage() {
   }
 
   const markPaid = async (id: string) => {
-    if (!confirm('¿Confirmás que ya le pagaste a este afiliado por fuera del sistema (Zelle, etc.)? Esto solo actualiza el registro, no transfiere plata.')) return
+    if (!confirm('¿Confirmás que ya le pagaste a este afiliado por fuera del sistema (Zelle, etc.)? Esto solo actualiza el registro (y crea el gasto en Contabilidad), no transfiere plata.')) return
     setBusyId(id)
     try {
       const res = await fetch(`/api/admin/affiliates/${id}/mark-paid`, { method: 'POST' })

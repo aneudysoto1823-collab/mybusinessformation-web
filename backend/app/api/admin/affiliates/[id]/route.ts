@@ -12,7 +12,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
-import { getSupabaseAdmin } from '@/lib/supabase'
+import { getSupabaseAdmin, pgErrorMessage } from '@/lib/supabase'
 import { verifyAdminToken } from '@/lib/session'
 import { createPromotionCodeForAffiliate, AFFILIATE_COUPON_DISCOUNT_PERCENT } from '@/lib/affiliates'
 import { createEmployeeAccount } from '@/lib/opabiz-empleados'
@@ -30,17 +30,6 @@ async function verifyAdmin(request: NextRequest): Promise<boolean> {
   const session = request.cookies.get('admin_session')
   if (!session?.value) return false
   return verifyAdminToken(session.value)
-}
-
-// Un PostgrestError de Supabase es un objeto plano sin toString propio —
-// String(err) da literalmente "[object Object]", que es lo que el admin veía
-// en el alert() del panel. Esto extrae el mensaje real (o cae a JSON si no
-// hay .message).
-function pgErrorMessage(err: unknown): string {
-  if (err && typeof err === 'object' && 'message' in err && typeof (err as { message?: unknown }).message === 'string') {
-    return (err as { message: string }).message
-  }
-  return JSON.stringify(err)
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
