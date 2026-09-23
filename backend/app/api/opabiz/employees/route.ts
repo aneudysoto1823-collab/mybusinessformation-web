@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
   const supabase = getSupabaseAdmin()
   const { data, error } = await supabase
     .from('usuarios')
-    .select('id, email, nombre, telefono, estado, fecha_creacion, password_hash, EMPLEADOS(nivel, puntaje_actual, estado_disponibilidad, inactividades_totales)')
+    .select('id, email, nombre, telefono, estado, fecha_creacion, password_hash, EMPLEADOS(id, nivel, puntaje_actual, estado_disponibilidad, inactividades_totales)')
     .eq('rol', 'empleado')
     .order('fecha_creacion', { ascending: false })
 

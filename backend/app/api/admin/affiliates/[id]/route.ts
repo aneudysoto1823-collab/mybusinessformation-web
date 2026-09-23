@@ -36,7 +36,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   }
   const { id } = await params
 
-  let body: { action?: string; commission_percent?: number; notes?: string }
+  let body: { action?: string; commission_percent?: number; notes?: string; empleados_id?: string | null }
   try {
     body = await req.json()
   } catch {
@@ -203,6 +203,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     const patch: Record<string, unknown> = { updated_at: new Date().toISOString() }
     if (typeof body.commission_percent === 'number') patch.commission_percent = body.commission_percent
     if (typeof body.notes === 'string') patch.notes = body.notes.trim() || null
+    // Vincula un agente aprobado a su cuenta de OpaBiz Connect (EMPLEADOS.id,
+    // creada a mano por el admin después de aprobar) — sin esto,
+    // recordAgentCommissionForOrder no puede atribuirle ninguna comisión.
+    if ('empleados_id' in body) patch.empleados_id = body.empleados_id || null
 
     const { data: updated, error: updateError } = await supabase
       .from('affiliates')

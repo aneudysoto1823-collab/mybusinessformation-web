@@ -119,3 +119,11 @@ ALTER TABLE affiliates ADD COLUMN IF NOT EXISTS address_zip text;
 ALTER TABLE affiliates ADD COLUMN IF NOT EXISTS employment_status text CHECK (employment_status IN ('independent', 'employed'));
 ALTER TABLE affiliates ADD COLUMN IF NOT EXISTS employer_name text;
 ALTER TABLE affiliates ADD COLUMN IF NOT EXISTS experience_notes text;
+
+-- Seguimiento 2026-09-23: vincula una fila 'agent' aprobada a la cuenta de
+-- OpaBiz Connect que el admin le crea a mano después de aprobar (no hay alta
+-- automática, ver CLAUDE.md). Sin este vínculo, recordAgentCommissionForOrder
+-- (lib/affiliates.ts) no tiene forma de saber a qué afiliado pertenece un
+-- EMPLEADOS.id, así que la comisión del agente no se registra hasta que el
+-- admin lo enlaza desde /admin/afiliados (modal "Ver detalle").
+ALTER TABLE affiliates ADD COLUMN IF NOT EXISTS empleados_id uuid REFERENCES "EMPLEADOS"(id);

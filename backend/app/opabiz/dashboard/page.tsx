@@ -158,6 +158,7 @@ export default function OpabizDashboardPage() {
         .op-nota{color:#92400e;background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:6px 8px;font-size:.78rem;margin-top:6px}
         .op-empty{text-align:center;color:#94A3B8;font-size:.85rem;padding:40px 20px}
         .op-intake-link{display:block;text-align:center;background:#EFF6FF;color:#1d4ed8;border:1.5px solid #bfdbfe;border-radius:10px;padding:13px;font-weight:700;font-size:.85rem;text-decoration:none;margin-bottom:16px;min-height:44px}
+        .op-intake-link-secondary{background:#F8FAFC;color:#475569;border-color:#E2E8F0}
         .op-push-banner{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#ECFDF5;border:1.5px solid #a7f3d0;border-radius:10px;padding:12px 14px;margin-bottom:16px}
         .op-push-text{font-size:.8rem;color:#065f46;font-weight:600;line-height:1.4}
         .op-push-btn{background:#059669;color:#fff;border:none;border-radius:8px;padding:9px 14px;font-size:.78rem;font-weight:700;cursor:pointer;white-space:nowrap;min-height:36px}
@@ -178,6 +179,7 @@ export default function OpabizDashboardPage() {
                 propio — ver LOGICA_DE_NEGOCIO/17. ?agent=1 activa el modo agente
                 (oculta el pago; al Guardar le llega el link al cliente). */}
             <a href="/?agent=1" target="_blank" rel="noopener noreferrer" className="op-intake-link">Crear orden asistida</a>
+            <Link href="/opabiz/dashboard/created-orders" className="op-intake-link op-intake-link-secondary">📋 Mis solicitudes enviadas</Link>
 
             {showPushBanner && (
               <div className="op-push-banner">

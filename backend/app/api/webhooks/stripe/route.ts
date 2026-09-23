@@ -13,7 +13,7 @@ import { provisionRaForOrder } from '@/lib/ra-provisioning'
 import { createRecurringSubscriptionsForOrder } from '@/lib/stripe-subscriptions'
 import { findOrderBySubscriptionId, upsertOrderSubscription, recordSubscriptionRenewalIncome } from '@/lib/order-subscriptions'
 import { sendSubscriptionRenewalConfirmation } from '@/lib/subscription-renewal-emails'
-import { recordAffiliateCommissionForOrder } from '@/lib/affiliates'
+import { recordAffiliateCommissionForOrder, recordAgentCommissionForOrder } from '@/lib/affiliates'
 
 export const dynamic = 'force-dynamic'
 
@@ -612,6 +612,17 @@ async function handleFormationPaid(orderId: string, session: Stripe.Checkout.Ses
     }
   })
 
+  // Comisión de agente de campo — no-op si la orden no vino de una intake
+  // asistida (Order.assistedByEmpleadosId), o si ese agente todavía no está
+  // vinculado a una fila affiliates aprobada. Ver lib/affiliates.ts.
+  after(async () => {
+    try {
+      await recordAgentCommissionForOrder(order.id, 'formation', order)
+    } catch (err) {
+      console.error('[stripe-webhook] agent-commission error (non-fatal):', err)
+    }
+  })
+
   return NextResponse.json({ received: true, orderId, fbfc })
 }
 
@@ -843,6 +854,15 @@ async function handleServicesPaid(orderId: string, session: Stripe.Checkout.Sess
       await recordAffiliateCommissionForOrder(order.id, session, 'services', order)
     } catch (err) {
       console.error('[stripe-webhook] affiliate-commission error (non-fatal):', err)
+    }
+  })
+
+  // Comisión de agente de campo — mismo criterio que en handleFormationPaid.
+  after(async () => {
+    try {
+      await recordAgentCommissionForOrder(order.id, 'services', order)
+    } catch (err) {
+      console.error('[stripe-webhook] agent-commission error (non-fatal):', err)
     }
   })
 

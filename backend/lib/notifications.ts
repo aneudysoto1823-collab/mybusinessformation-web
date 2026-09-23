@@ -756,3 +756,55 @@ export const sendRaAddressReady = async (order: {
     `,
   })
 }
+
+// ── "Continue My Application" — recuperación de borrador ─────────────────────
+//    Se manda una sola vez, al crear el borrador (POST /api/orders/draft) —
+//    ver el comentario junto a SITE_URL en app/api/orders/draft/route.ts para
+//    el porqué. Movida a este módulo 2026-09-23 (antes vivía privada en ese
+//    mismo route.ts) para poder reenviarla a pedido desde
+//    /api/opabiz/me/created-orders/[id]/resend — un agente de OpaBiz Connect
+//    que armó la intake de un cliente y encuentra un error antes de que pague
+//    puede corregirlo y volver a mandarle el link.
+const DRAFT_SITE_URL = process.env.NEXT_PUBLIC_URL || 'https://opabiz.com'
+
+export function sendContinueApplicationEmail(order: { id: string; email: string; firstName: string; lastName: string; companyName: string }) {
+  const fbfcNumber = `FBFC-${order.id.replace(/-/g, '').substring(0, 8).toUpperCase()}`
+  // El link auto-loguea con el número (ver ?continue= en app/page.tsx) y
+  // reabre el formulario ya restaurado — el cliente no tiene que tipear nada.
+  const continueUrl = `${DRAFT_SITE_URL}/?continue=${fbfcNumber}`
+  getResend().emails.send({
+    from: FROM_OPABIZ,
+    replyTo: REPLY_TO,
+    to: order.email,
+    subject: `OpaBiz: Save your application number — ${fbfcNumber}`,
+    html: `
+      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#1e293b">
+        <div style="background:#1C2E44;padding:24px 32px;border-radius:10px 10px 0 0">
+          <h1 style="color:#fff;font-size:22px;margin:0">Florida Business Formation Center</h1>
+        </div>
+        <div style="background:#fff;padding:32px;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 10px 10px">
+          <h2 style="color:#1C2E44;font-size:20px">Hi ${order.firstName} ${order.lastName}, your application is saved</h2>
+          <p style="color:#475569;line-height:1.7">
+            You started forming <strong>${order.companyName}</strong> with us. Whenever you're ready to continue,
+            just click the button below — it'll take you right back to where you left off.
+          </p>
+          <div style="text-align:center;margin:26px 0">
+            <a href="${continueUrl}" style="display:inline-block;background:#2563eb;color:#fff;text-decoration:none;padding:13px 28px;border-radius:8px;font-size:15px;font-weight:700">
+              Continue My Application →
+            </a>
+          </div>
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px 20px;margin:20px 0;text-align:center">
+            <p style="margin:0 0 4px;font-size:12px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px">Or enter this number at opabiz.com</p>
+            <p style="margin:0;font-size:20px;font-weight:700;color:#1e40af;letter-spacing:1px">${fbfcNumber}</p>
+          </div>
+          <p style="color:#94a3b8;font-size:13px;line-height:1.6">
+            This isn't a confirmed order yet — it's just your progress so far. No payment has been made.
+          </p>
+          <p style="margin-top:32px;color:#94a3b8;font-size:12px">
+            Florida Business Formation Center · opabiz.com
+          </p>
+        </div>
+      </div>
+    `
+  }).catch(err => console.error('[sendContinueApplicationEmail] error (non-fatal):', err))
+}

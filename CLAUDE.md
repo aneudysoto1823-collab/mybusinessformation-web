@@ -1667,12 +1667,83 @@ id}}`. Si se actualiza el SDK de nuevo, revisar que esto no vuelva a cambiar.
 Verificado con `npx tsc --noEmit`, `eslint` y `npx next build` completo (exit 0) tras cada
 ronda de cambios de la sesión. Todo commiteado y pusheado (6 commits, `d211dc8`..`876cad5`).
 
-**Agenda de la próxima sesión (pedido explícito del founder, no solo afiliados):**
-1. Seguir con el Programa de Afiliados/Agentes — los 2 pendientes de arriba.
+**Agenda que quedó pendiente de esta sesión (pedido explícito del founder, no solo afiliados):**
+1. ~~Seguir con el Programa de Afiliados/Agentes~~ — la comisión del agente (25%) y el
+   listado/edición de órdenes creadas se resolvieron el 2026-09-23 (ver sección de abajo). Quedan
+   el training del agente y la alta automática en OpaBiz Connect (ver esa misma sección).
 2. **Terminar Marketing Saliente / emails** — ver memoria `project_auditoria_email_marketing_2026-09-13`
    (índice de memoria), que ya tiene su propia sección "Cómo continuar mañana": el founder iba
    a hablar primero con el socio sobre prioridades antes de tocar más código de ese sistema —
    confirmar con él qué se aprobó antes de asumir que se sigue con todo.
+
+---
+
+## Sesión 2026-09-23 — comisión de agente (25%) + listado/edición de órdenes creadas por un agente
+
+Cierra 2 de los 4 pendientes del Programa de Afiliados/Agentes (sesión 2026-09-22, ver arriba).
+Ambos comparten la misma pieza de datos: `Order.assistedByEmpleadosId`, el FK que ya escribe
+`trackAgentAssistedIntake()` (`app/api/orders/draft/route.ts`) cuando un agente logueado completa
+el paso final (Review) del formulario público en nombre de un cliente.
+
+**1. Comisión del agente.** A diferencia de un afiliado (identificable por el
+`stripe_promotion_code_id` usado en el checkout), no existía ningún vínculo entre una fila
+`affiliates` (`application_type:'agent'`) y el `EMPLEADOS.id` que representa — la cuenta de
+OpaBiz Connect se crea a mano después de aprobar (sin alta automática, decisión ya tomada), así
+que ese vínculo no puede completarse al aprobar. Se agregó `affiliates.empleados_id` (nullable,
+migración en `supabase_migration_affiliates.sql`) que el admin completa después, desde el modal
+"Ver detalle" de `/admin/afiliados` (nuevo selector "Cuenta de OpaBiz Connect", poblado desde
+`GET /api/opabiz/employees` — se le agregó `EMPLEADOS.id` al select anidado, que antes solo traía
+nivel/puntaje/disponibilidad). `lib/affiliates.ts` gana `recordAgentCommissionForOrder()` (gemela
+de `recordAffiliateCommissionForOrder`, factorizado el armado de `lines` a un helper compartido
+`buildOrderServiceLines()`) — sin cupón de por medio, comisión sobre el subtotal completo de
+tarifas de servicio (no neteada contra ningún descuento), enganchada en el webhook de Stripe
+(`handleFormationPaid`/`handleServicesPaid`) junto al `after()` de comisión de afiliado. Reusa la
+misma tabla `affiliate_commissions` — `affiliates.application_type` ya distingue el origen al
+listar, no hizo falta columna nueva ahí. En `/admin/afiliados`, "Historial" y "Marcar pagado"
+(antes gateados a `application_type==='affiliate'`) ahora se ven para ambos tipos, ya que los
+agentes también acumulan `total_commission_owed`.
+
+**Limitación conocida:** si un agente asiste una orden ANTES de que el admin lo vincule a su
+`empleados_id`, esa orden no genera comisión retroactiva — el admin debe vincular la cuenta apenas
+la crea.
+
+**2. Listado + edición/reenvío de órdenes creadas por un agente.** Si un agente arma la intake de
+un cliente y aparece un error antes de que pague, ahora puede verla y corregirla —
+`/opabiz/dashboard/created-orders` (nuevo, link "📋 Mis solicitudes enviadas" en el dashboard
+principal) lista las órdenes con `assistedByEmpleadosId` del agente (consultadas directo de
+`Order` — no hay FK de `ordenes_opabiz` de vuelta a `Order`, así que no se usa esa tabla acá).
+Alcance a propósito: solo acciones para órdenes que siguen `isDraft:true` (el cliente todavía no
+inició el pago) — una vez que `isDraft:false`, se muestra en la lista pero de solo lectura
+(corregir una orden que el cliente ya está pagando o pagó es un caso distinto, fuera de alcance).
+
+Para "editar" se reusa el form público real en vez de construir uno propio (mismo criterio que ya
+se usó para la intake asistida, `LOGICA_DE_NEGOCIO/17` — el wizard de `page.tsx` tiene ~6800
+líneas, duplicarlo sería exactamente lo que esa decisión ya evitó): `POST
+/api/opabiz/me/created-orders/[id]/resume` verifica pertenencia + `isDraft:true` y setea la cookie
+`client_session` (mismas opciones que `setSession()` en `client-auth/route.ts`) apuntando a esa
+orden; el frontend abre `/?resume=1` en pestaña nueva y `fmFetchAndRestoreDraft()` restaura el
+formulario exacto donde quedó — sin `?agent=1`, así que se comporta como el form normal del
+cliente, no como modo intake. El botón "Save" que ya existe en el form hace el resto (mismo `POST
+/api/orders/draft` de siempre; el guard de idempotencia de `trackAgentAssistedIntake` evita
+repuntuar). Para "reenviar al cliente", `POST /api/opabiz/me/created-orders/[id]/resend` vuelve a
+disparar el mismo email — que antes solo se mandaba una vez, al crear el borrador. Se extrajo
+`sendDraftSavedEmail()` (privada en `draft/route.ts`) a `lib/notifications.ts` como
+`sendContinueApplicationEmail()`, exportada, para poder reusarla desde la ruta de reenvío.
+
+Ninguna de las 2 acciones usa `historial_actividad` para auditoría — esa tabla exige un `order_id`
+que apunta a `ordenes_opabiz.id` (no a `Order.id`, sin FK entre ambas para la intake asistida).
+En su lugar, cada acción agrega una nota a `Order.notes` (mismo patrón que ya usa el webhook de
+reembolsos/disputas) — visible para el staff en `/admin/orders/[id]`, que es donde de verdad
+importa que quede constancia.
+
+**Pendiente real, documentado para retomar** (ver memoria `project_programa_afiliados.md`):
+training del agente (contenido/formato sin definir todavía) y alta automática en OpaBiz Connect
+al aprobar un agente (el mecanismo ya existe — `POST /api/opabiz/employees` — falta extraerlo a
+función compartida).
+
+Verificado con `npx tsc --noEmit` (limpio salvo 2 errores preexistentes de `lib/lob.ts`, no
+tocado esta sesión), `eslint` (cero errores en los archivos tocados) y `npx next build` completo
+(exit 0, sin warnings).
 
 ---
 

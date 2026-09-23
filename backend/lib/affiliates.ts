@@ -90,6 +90,33 @@ export async function createPromotionCodeForAffiliate(): Promise<{ id: string; c
   throw lastErr instanceof Error ? lastErr : new Error('No se pudo generar un código de cupón único')
 }
 
+// Arma el desglose de líneas de precio de una orden ya pagada, sin importar
+// si es formación o servicios à la carte — compartido por
+// recordAffiliateCommissionForOrder y recordAgentCommissionForOrder (ambas
+// necesitan el mismo subtotal de tarifas de servicio, solo cambia de dónde
+// sale la atribución del afiliado/agente).
+function buildOrderServiceLines(
+  kind: 'formation' | 'services',
+  order: Record<string, unknown>
+): { label: string; amount: number }[] {
+  if (kind === 'formation') {
+    const addons = (order.addons ?? {}) as Record<string, boolean>
+    const computed = computeFormationTotal({
+      package: order.package as string,
+      entityType: order.entityType as string,
+      speed: order.speed as string,
+      addons,
+      registeredAgent: order.registeredAgent as string,
+    })
+    return computed.lines
+  }
+  // Órdenes de servicios à la carte ya guardan su desglose localizado en
+  // addons.lines (mismo output de computeServicesTotal) — se reusa
+  // directamente en vez de reconstruir bundleIds/newServicesByBundle acá.
+  const addons = (order.addons ?? {}) as { lines?: { label: string; amount: number }[] }
+  return Array.isArray(addons.lines) ? addons.lines : []
+}
+
 /**
  * Punto de enganche llamado desde el webhook de Stripe (handleFormationPaid /
  * handleServicesPaid), tras marcar la orden como pagada — ver ambos `after()`
@@ -132,25 +159,7 @@ export async function recordAffiliateCommissionForOrder(
     .maybeSingle()
   if (existingCommission) return
 
-  let lines: { label: string; amount: number }[] = []
-  if (kind === 'formation') {
-    const addons = (order.addons ?? {}) as Record<string, boolean>
-    const computed = computeFormationTotal({
-      package: order.package as string,
-      entityType: order.entityType as string,
-      speed: order.speed as string,
-      addons,
-      registeredAgent: order.registeredAgent as string,
-    })
-    lines = computed.lines
-  } else {
-    // Órdenes de servicios à la carte ya guardan su desglose localizado en
-    // addons.lines (mismo output de computeServicesTotal) — se reusa
-    // directamente en vez de reconstruir bundleIds/newServicesByBundle acá.
-    const addons = (order.addons ?? {}) as { lines?: { label: string; amount: number }[] }
-    lines = Array.isArray(addons.lines) ? addons.lines : []
-  }
-
+  const lines = buildOrderServiceLines(kind, order)
   const subtotal = serviceFeeSubtotal(lines)
   if (subtotal <= 0) return // nada que comisionar (ej. orden 100% state fee)
 
@@ -179,6 +188,78 @@ export async function recordAffiliateCommissionForOrder(
       updated_at: now,
     })
     .eq('id', affiliate.id)
+}
+
+/**
+ * Punto de enganche gemelo a recordAffiliateCommissionForOrder, pero para
+ * agentes de campo (OpaBiz Connect) — no hay cupón de por medio, la
+ * atribución viene de Order.assistedByEmpleadosId (seteado por
+ * trackAgentAssistedIntake en app/api/orders/draft/route.ts cuando el agente
+ * completa la intake asistida). No-op si la orden no fue asistida, o si el
+ * empleado que la asistió todavía no está vinculado a una fila `affiliates`
+ * aprobada (ver empleados_id — el admin lo enlaza a mano desde
+ * /admin/afiliados una vez que le crea la cuenta de OpaBiz Connect). Mismo
+ * contrato que la función de afiliados: puede lanzar, el caller la invoca
+ * dentro de su propio try/catch.
+ */
+export async function recordAgentCommissionForOrder(
+  orderId: string,
+  kind: 'formation' | 'services',
+  order: Record<string, unknown>
+): Promise<void> {
+  const assistedBy = order.assistedByEmpleadosId as string | null
+  if (!assistedBy) return
+
+  const supabase = getSupabaseAdmin()
+  const { data: agent } = await supabase
+    .from('affiliates')
+    .select('id, commission_percent, first_order_at, total_commission_owed')
+    .eq('empleados_id', assistedBy)
+    .eq('application_type', 'agent')
+    .eq('status', 'approved')
+    .maybeSingle()
+  if (!agent) return // agente sin vincular todavía, o no aprobado
+
+  // Idempotencia — también cubre el caso raro de que la misma orden ya haya
+  // generado una comisión de afiliado (cupón) además de venir asistida: gana
+  // la que se registró primero, sin duplicar ni romper el UNIQUE(order_id).
+  const { data: existingCommission } = await supabase
+    .from('affiliate_commissions')
+    .select('id')
+    .eq('order_id', orderId)
+    .maybeSingle()
+  if (existingCommission) return
+
+  const lines = buildOrderServiceLines(kind, order)
+  const subtotal = serviceFeeSubtotal(lines)
+  if (subtotal <= 0) return // nada que comisionar
+
+  const commissionPercent = Number(agent.commission_percent) || AGENT_COMMISSION_DEFAULT_PERCENT
+  // Sin cupón de por medio — a diferencia del afiliado, la comisión del
+  // agente es sobre el subtotal completo, no neteada contra ningún descuento.
+  const commissionAmount = Math.round(subtotal * (commissionPercent / 100) * 100) / 100
+
+  const orderNumber = `FBFC-${orderId.replace(/-/g, '').substring(0, 8).toUpperCase()}`
+  const now = new Date().toISOString()
+
+  await supabase.from('affiliate_commissions').insert({
+    affiliate_id: agent.id,
+    order_id: orderId,
+    order_number: orderNumber,
+    service_fee_subtotal: subtotal,
+    discount_percent: 0,
+    commission_percent: commissionPercent,
+    commission_amount: commissionAmount,
+  })
+
+  await supabase
+    .from('affiliates')
+    .update({
+      total_commission_owed: Number(agent.total_commission_owed || 0) + commissionAmount,
+      first_order_at: agent.first_order_at ?? now,
+      updated_at: now,
+    })
+    .eq('id', agent.id)
 }
 
 /** true si el afiliado ya debería cobrar (>= $200 acumulados, o >= 2 meses

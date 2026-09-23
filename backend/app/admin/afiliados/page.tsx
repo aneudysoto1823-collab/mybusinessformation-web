@@ -30,6 +30,14 @@ type Affiliate = {
   employment_status: 'independent' | 'employed' | null
   employer_name: string | null
   experience_notes: string | null
+  empleados_id: string | null
+}
+
+type Empleado = {
+  id: string // usuarios.id
+  nombre: string
+  estado: string
+  EMPLEADOS: { id: string } | { id: string }[] | null
 }
 
 type Commission = {
@@ -83,6 +91,10 @@ export default function AfiliadosAdminPage() {
   const [ledgerLoading, setLedgerLoading] = useState(false)
 
   const [detailAffiliate, setDetailAffiliate] = useState<Affiliate | null>(null)
+  const [empleados, setEmpleados] = useState<Empleado[]>([])
+  const [linkEmpleadoId, setLinkEmpleadoId] = useState('')
+  const [linkSaving, setLinkSaving] = useState(false)
+  const [linkError, setLinkError] = useState('')
 
   const fetchAffiliates = useCallback(async () => {
     setLoading(true)
@@ -162,6 +174,43 @@ export default function AfiliadosAdminPage() {
       setEditError(e instanceof Error ? e.message : String(e))
     } finally {
       setSaving(false)
+    }
+  }
+
+  const empleadosIdOf = (e: Empleado): string | null => {
+    const emp = Array.isArray(e.EMPLEADOS) ? e.EMPLEADOS[0] ?? null : e.EMPLEADOS
+    return emp?.id ?? null
+  }
+
+  const openDetail = async (a: Affiliate) => {
+    setDetailAffiliate(a)
+    setLinkEmpleadoId(a.empleados_id || '')
+    setLinkError('')
+    const res = await fetch('/api/opabiz/employees')
+    if (res.ok) {
+      const data = await res.json()
+      setEmpleados(data.empleados ?? [])
+    }
+  }
+
+  const saveEmpleadoLink = async () => {
+    if (!detailAffiliate) return
+    setLinkSaving(true)
+    setLinkError('')
+    try {
+      const res = await fetch(`/api/admin/affiliates/${detailAffiliate.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'update', empleados_id: linkEmpleadoId || null }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`)
+      setDetailAffiliate(data.affiliate)
+      await fetchAffiliates()
+    } catch (e) {
+      setLinkError(e instanceof Error ? e.message : String(e))
+    } finally {
+      setLinkSaving(false)
     }
   }
 
@@ -295,7 +344,7 @@ export default function AfiliadosAdminPage() {
                       <td>
                         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                           {a.application_type === 'agent' && (
-                            <button className="btn btn-ghost btn-sm" onClick={() => setDetailAffiliate(a)}>Ver detalle</button>
+                            <button className="btn btn-ghost btn-sm" onClick={() => openDetail(a)}>Ver detalle</button>
                           )}
                           {a.status === 'pending' && (
                             <>
@@ -305,18 +354,14 @@ export default function AfiliadosAdminPage() {
                           )}
                           {a.status === 'approved' && (
                             <>
-                              {a.application_type === 'affiliate' && (
-                                <>
-                                  <button className="btn btn-ghost btn-sm" onClick={() => openLedger(a)}>Historial</button>
-                                  {a.total_commission_owed > 0 && (
-                                    <button className="btn btn-primary btn-sm" disabled={busyId === a.id} onClick={() => markPaid(a.id)}>Marcar pagado</button>
-                                  )}
-                                </>
+                              <button className="btn btn-ghost btn-sm" onClick={() => openLedger(a)}>Historial</button>
+                              {a.total_commission_owed > 0 && (
+                                <button className="btn btn-primary btn-sm" disabled={busyId === a.id} onClick={() => markPaid(a.id)}>Marcar pagado</button>
                               )}
                               <button className="btn btn-red btn-sm" disabled={busyId === a.id} onClick={() => runAction(a.id, 'suspend')}>Suspender</button>
                             </>
                           )}
-                          {a.status === 'suspended' && a.application_type === 'affiliate' && (
+                          {a.status === 'suspended' && (
                             <button className="btn btn-ghost btn-sm" onClick={() => openLedger(a)}>Historial</button>
                           )}
                         </div>
@@ -352,11 +397,13 @@ export default function AfiliadosAdminPage() {
         <div className="modal-overlay" onClick={() => setLedgerAffiliate(null)}>
           <div className="modal" style={{ maxWidth: 640 }} onClick={e => e.stopPropagation()}>
             <div style={{ fontWeight: 700, color: '#1C2E44', fontSize: '.95rem', marginBottom: 4 }}>Historial de comisiones</div>
-            <div style={{ fontSize: '.78rem', color: '#64748b', marginBottom: 16 }}>{ledgerAffiliate.name} · código {ledgerAffiliate.coupon_code}</div>
+            <div style={{ fontSize: '.78rem', color: '#64748b', marginBottom: 16 }}>
+              {ledgerAffiliate.name} · {ledgerAffiliate.application_type === 'agent' ? 'órdenes asistidas' : `código ${ledgerAffiliate.coupon_code}`}
+            </div>
             {ledgerLoading ? (
               <div style={{ padding: 20, textAlign: 'center', color: '#94A3B8', fontSize: '.85rem' }}>Cargando...</div>
             ) : ledger.length === 0 ? (
-              <div style={{ padding: 20, textAlign: 'center', color: '#94A3B8', fontSize: '.85rem' }}>Todavía no hay órdenes con este código.</div>
+              <div style={{ padding: 20, textAlign: 'center', color: '#94A3B8', fontSize: '.85rem' }}>Todavía no hay órdenes registradas.</div>
             ) : (
               <div style={{ overflowX: 'auto' }}>
                 <table>
@@ -410,6 +457,24 @@ export default function AfiliadosAdminPage() {
                 </td></tr>
               </tbody>
             </table>
+
+            <div style={{ marginTop: 16, paddingTop: 14, borderTop: '1px solid #F1F5F9' }}>
+              <label className="field-label">Cuenta de OpaBiz Connect</label>
+              <div style={{ fontSize: '.72rem', color: '#94A3B8', marginBottom: 8 }}>
+                Sin vincular, este agente no genera comisión aunque asista órdenes — el sistema no sabe a qué empleado pertenece.
+              </div>
+              <select className="field-input" value={linkEmpleadoId} onChange={e => setLinkEmpleadoId(e.target.value)}>
+                <option value="">— Sin vincular —</option>
+                {empleados.filter(e => e.estado === 'activo' && empleadosIdOf(e)).map(e => (
+                  <option key={e.id} value={empleadosIdOf(e)!}>{e.nombre}</option>
+                ))}
+              </select>
+              {linkError && <div style={{ color: '#991B1B', fontSize: '.8rem', marginBottom: 10 }}>{linkError}</div>}
+              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <button className="btn btn-primary btn-sm" onClick={saveEmpleadoLink} disabled={linkSaving}>{linkSaving ? 'Guardando...' : 'Guardar vínculo'}</button>
+              </div>
+            </div>
+
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 14 }}>
               <button className="btn btn-ghost btn-sm" onClick={() => setDetailAffiliate(null)}>Cerrar</button>
             </div>

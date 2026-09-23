@@ -1,64 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { Resend } from 'resend'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { checkOrdersDraftRateLimit, getClientIp } from '@/lib/rate-limit'
 import { OrderDraftInputSchema, parseOr400 } from '@/lib/schemas'
-import { REPLY_TO, FROM_OPABIZ } from '@/lib/email-constants'
 import { getEmployeeSession } from '@/lib/opabiz-session'
 import { findOrCreateClienteUsuario } from '@/lib/opabiz-clientes'
 import { registrarPuntaje } from '@/lib/opabiz-empleados'
 import { encryptEinTaxId } from '@/lib/ein-tax-id'
-
-const getResend = () => new Resend(process.env.RESEND_API_KEY)
-
-// Se manda una sola vez, al crear el borrador (no en cada sync de progreso) —
-// es la única forma que tiene el cliente de recuperar el código si cierra la
-// pestaña sin anotarlo, ya que la recuperación es solo por número de orden
-// (sin email de respaldo, decisión negocio 2026-07-02). No es la confirmación
-// de orden (A1) — esa sigue disparando solo cuando paga.
-const SITE_URL = process.env.NEXT_PUBLIC_URL || 'https://opabiz.com'
-
-function sendDraftSavedEmail(order: { id: string; email: string; firstName: string; lastName: string; companyName: string }) {
-  const fbfcNumber = `FBFC-${order.id.replace(/-/g, '').substring(0, 8).toUpperCase()}`
-  // El link auto-loguea con el número (ver ?continue= en app/page.tsx) y
-  // reabre el formulario ya restaurado — el cliente no tiene que tipear nada.
-  const continueUrl = `${SITE_URL}/?continue=${fbfcNumber}`
-  getResend().emails.send({
-    from: FROM_OPABIZ,
-    replyTo: REPLY_TO,
-    to: order.email,
-    subject: `OpaBiz: Save your application number — ${fbfcNumber}`,
-    html: `
-      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#1e293b">
-        <div style="background:#1C2E44;padding:24px 32px;border-radius:10px 10px 0 0">
-          <h1 style="color:#fff;font-size:22px;margin:0">Florida Business Formation Center</h1>
-        </div>
-        <div style="background:#fff;padding:32px;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 10px 10px">
-          <h2 style="color:#1C2E44;font-size:20px">Hi ${order.firstName} ${order.lastName}, your application is saved</h2>
-          <p style="color:#475569;line-height:1.7">
-            You started forming <strong>${order.companyName}</strong> with us. Whenever you're ready to continue,
-            just click the button below — it'll take you right back to where you left off.
-          </p>
-          <div style="text-align:center;margin:26px 0">
-            <a href="${continueUrl}" style="display:inline-block;background:#2563eb;color:#fff;text-decoration:none;padding:13px 28px;border-radius:8px;font-size:15px;font-weight:700">
-              Continue My Application →
-            </a>
-          </div>
-          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px 20px;margin:20px 0;text-align:center">
-            <p style="margin:0 0 4px;font-size:12px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px">Or enter this number at opabiz.com</p>
-            <p style="margin:0;font-size:20px;font-weight:700;color:#1e40af;letter-spacing:1px">${fbfcNumber}</p>
-          </div>
-          <p style="color:#94a3b8;font-size:13px;line-height:1.6">
-            This isn't a confirmed order yet — it's just your progress so far. No payment has been made.
-          </p>
-          <p style="margin-top:32px;color:#94a3b8;font-size:12px">
-            Florida Business Formation Center · opabiz.com
-          </p>
-        </div>
-      </div>
-    `
-  }).catch(err => console.error('[/api/orders/draft] draft-saved email error (non-fatal):', err))
-}
+import { sendContinueApplicationEmail } from '@/lib/notifications'
 
 const PUNTOS_INTAKE_ASISTIDA = 10
 
@@ -126,8 +74,11 @@ async function trackAgentAssistedIntake(
 // número FBFC, no solo desde el navegador donde se empezó. Nunca envía la
 // confirmación de orden (A1) ni alerta al equipo — eso sigue pasando solo
 // cuando la orden se promueve a real (ver draftOrderId en POST /api/orders)
-// y se confirma el pago. El único email de este endpoint es sendDraftSavedEmail,
-// y solo se dispara la primera vez (camino insert), nunca en los updates.
+// y se confirma el pago. El único email de este endpoint es
+// sendContinueApplicationEmail (lib/notifications.ts), y solo se dispara la
+// primera vez (camino insert), nunca en los updates — un agente de OpaBiz
+// Connect puede reenviarlo manualmente después desde
+// /api/opabiz/me/created-orders/[id]/resend si el cliente lo necesita de nuevo.
 export async function POST(request: NextRequest) {
   try {
     const ip = getClientIp(request)
@@ -211,7 +162,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Error saving draft' }, { status: 500 })
     }
 
-    sendDraftSavedEmail({ id: created.id, email: fields.email, firstName: fields.firstName, lastName: fields.lastName, companyName: fields.companyName })
+    sendContinueApplicationEmail({ id: created.id, email: fields.email, firstName: fields.firstName, lastName: fields.lastName, companyName: fields.companyName })
     await trackAgentAssistedIntake(request, created.id, body)
 
     return NextResponse.json({ success: true, orderId: created.id }, { status: 201 })
