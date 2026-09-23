@@ -14,6 +14,11 @@ export async function GET(req: NextRequest) {
   const session = await getEmployeeSession(req)
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
+  // @brand-unified — un agente de OpaBiz Connect puede asistir intakes tanto
+  // en opabiz.com como en mybusinessformation.com (mismo form público, mismo
+  // ?agent=1); esta lista es "lo que ese agente generó", no un listado
+  // dirigido a un cliente de una marca puntual, así que no corresponde
+  // filtrar por sourceBrand.
   const { data, error } = await getSupabaseAdmin()
     .from('Order')
     .select('id, createdAt, updatedAt, isDraft, paymentStatus, status, companyName, firstName, lastName, email, entityType')
