@@ -235,6 +235,7 @@ export default function OpabizAdminPage() {
     <>
       <style>{`
         *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        html{scrollbar-gutter:stable}
         body{background:#f4f6f9;font-family:var(--font-sans)}
         .wrap{max-width:1280px;margin:0 auto;padding:28px 24px}
         .card{background:#fff;border:1px solid #E2E8F0;border-radius:12px;box-shadow:0 1px 4px rgba(28,46,68,.05);overflow:hidden;margin-bottom:24px}
