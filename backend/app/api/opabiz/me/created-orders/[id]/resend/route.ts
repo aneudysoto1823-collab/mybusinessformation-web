@@ -26,7 +26,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: 'Esta orden no te pertenece' }, { status: 403 })
   }
   if (!order.isDraft) {
-    return NextResponse.json({ error: 'El cliente ya inició o completó el pago — no se puede reenviar desde acá.' }, { status: 409 })
+    return NextResponse.json({ error: 'El cliente ya inició o completó el pago. No se puede reenviar desde acá.' }, { status: 409 })
   }
 
   sendContinueApplicationEmail({
@@ -34,7 +34,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   })
 
   const { data: usuario } = await supabase.from('usuarios').select('nombre').eq('id', session.usuarioId).maybeSingle()
-  const nota = `[Agente] Reenviado el link "Continue My Application" al cliente por ${usuario?.nombre ?? session.usuarioId} — ${new Date().toLocaleString('es-ES')}`
+  const nota = `[Agente] Reenviado el link "Continue My Application" al cliente por ${usuario?.nombre ?? session.usuarioId} (${new Date().toLocaleString('es-ES')})`
   await supabase.from('Order').update({
     notes: order.notes ? `${order.notes}\n${nota}` : nota,
     updatedAt: new Date().toISOString(),

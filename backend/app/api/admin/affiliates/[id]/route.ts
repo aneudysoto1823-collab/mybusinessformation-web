@@ -15,6 +15,8 @@ import { Resend } from 'resend'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { verifyAdminToken } from '@/lib/session'
 import { createPromotionCodeForAffiliate, AFFILIATE_COUPON_DISCOUNT_PERCENT } from '@/lib/affiliates'
+import { createEmployeeAccount } from '@/lib/opabiz-empleados'
+import { createInviteToken } from '@/lib/opabiz-invite'
 import {
   brandFrom, brandReplyTo, brandSubjectPrefix, brandHeaderHtml, brandFooterLine, brandDisclosureHtml,
   PHYSICAL_MAILING_ADDRESS, type EmailBrand,
@@ -65,11 +67,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     const commissionPercent = typeof body.commission_percent === 'number' ? body.commission_percent : affiliate.commission_percent
 
     // Los agentes NO reciben cupón de Stripe — ganan comisión por orden
-    // asistida en persona (vía OpaBiz Connect), no por un código de
-    // descuento. El registro/cálculo de esa comisión queda pendiente de otra
-    // sesión (ver AGENT_COMMISSION_DEFAULT_PERCENT en lib/affiliates.ts); por
-    // ahora aprobar un agente solo marca el estado y avisa que el equipo va
-    // a dar de alta su cuenta de OpaBiz Connect a mano, como siempre.
+    // asistida en persona o remota (vía OpaBiz Connect), no por un código de
+    // descuento. Ver recordAgentCommissionForOrder en lib/affiliates.ts.
     let promo: { id: string; code: string } | null = null
     if (!isAgent) {
       try {
@@ -80,12 +79,37 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       }
     }
 
+    // Alta automática de la cuenta de OpaBiz Connect (2026-09-23) — antes
+    // aprobar un agente solo avisaba "te vamos a enviar un link por correo en
+    // breve" y la cuenta se creaba a mano después desde /admin/opabiz, dejando
+    // el email de aprobación sin ningún link real. Ahora se crea la cuenta acá
+    // mismo (createEmployeeAccount, reusa la lógica de POST
+    // /api/opabiz/employees) y el link de invitación va directo en este email
+    // — no hace falta un segundo email. No-fatal: si falla (ej. el email ya
+    // tiene una cuenta de OTRO rol), la aprobación sigue igual y el body del
+    // email cae al texto anterior explicando que el equipo va a dar de alta
+    // la cuenta a mano.
+    let inviteUrl: string | null = null
+    let empleadosId: string | null = null
+    if (isAgent) {
+      try {
+        const account = await createEmployeeAccount(supabase, { nombre: affiliate.name, email: affiliate.email, telefono: affiliate.phone })
+        empleadosId = account.empleadosId
+        const token = await createInviteToken(account.usuarioId)
+        const baseUrl = process.env.NEXT_PUBLIC_URL || 'https://opabiz.com'
+        inviteUrl = `${baseUrl}/opabiz/invite/${token}`
+      } catch (err) {
+        console.error('[/api/admin/affiliates/[id]] createEmployeeAccount error (non-fatal):', err)
+      }
+    }
+
     const { data: updated, error: updateError } = await supabase
       .from('affiliates')
       .update({
         status: 'approved',
         approved_at: new Date().toISOString(),
         ...(promo ? { coupon_code: promo.code, stripe_promotion_code_id: promo.id } : {}),
+        ...(empleadosId ? { empleados_id: empleadosId } : {}),
         commission_percent: commissionPercent,
         updated_at: new Date().toISOString(),
       })
@@ -107,15 +131,29 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
               <p style="color:#475569;line-height:1.7">${isEs
                 ? `Tu solicitud como agente fue aprobada. Ganás ${commissionPercent}% de comisión sobre las tarifas de servicio de cada orden que asistís, en persona o de forma remota.`
                 : `Your field agent application was approved. You earn ${commissionPercent}% commission on the service fees of every order you assist, in person or remotely.`}</p>
+              ${inviteUrl ? `
               <p style="color:#475569;line-height:1.7">${isEs
-                ? 'Tu siguiente paso es crear tu cuenta de OpaBiz Connect — te vamos a enviar un link por correo en breve. Apenas ingreses, tu primer paso va a ser completar nuestro training de agentes.'
-                : "Your next step is to create your OpaBiz Connect account — we'll send you a link by email shortly. Once you log in, your first step will be to complete our agent training."}</p>
+                ? 'Ya creamos tu cuenta de OpaBiz Connect. Hacé clic en el botón para elegir tu contraseña y entrar. Tu primer paso ahí va a ser completar nuestro training de agentes.'
+                : "We already created your OpaBiz Connect account. Click the button to choose your password and log in. Your first step there will be completing our agent training."}</p>
+              <div style="text-align:center;margin:24px 0">
+                <a href="${inviteUrl}" style="background:#2563EB;color:#fff;text-decoration:none;padding:13px 32px;border-radius:8px;font-weight:700;font-size:15px;display:inline-block">
+                  ${isEs ? 'Crear mi contraseña' : 'Create my password'}
+                </a>
+              </div>
+              <p style="color:#94a3b8;font-size:12px;line-height:1.6">${isEs
+                ? 'Este link expira en 72 horas. Si no esperabas este correo, podés ignorarlo.'
+                : 'This link expires in 72 hours. If you were not expecting this email, you can ignore it.'}</p>
+              ` : `
+              <p style="color:#475569;line-height:1.7">${isEs
+                ? 'Nuestro equipo va a crear tu cuenta de OpaBiz Connect en breve y te va a llegar un correo aparte con el link de acceso. Tu primer paso ahí va a ser completar nuestro training de agentes.'
+                : "Our team will create your OpaBiz Connect account shortly and you'll receive a separate email with the login link. Your first step there will be completing our agent training."}</p>
+              `}
       `
       : `
               <h2 style="color:#1C2E44;font-size:20px;margin-top:0">${isEs ? `¡Bienvenido/a al Programa de Afiliados, ${escapeHtml(affiliate.name)}!` : `Welcome to the Affiliate Program, ${escapeHtml(affiliate.name)}!`}</h2>
               <p style="color:#475569;line-height:1.7">${isEs
-                ? `Tu solicitud fue aprobada. Este es tu código para compartir — tus referidos obtienen ${AFFILIATE_COUPON_DISCOUNT_PERCENT}% de descuento, y vos ganás ${commissionPercent}% de comisión sobre las tarifas de servicio de cada orden que lo use.`
-                : `Your application was approved. Here is your code to share — your referrals get ${AFFILIATE_COUPON_DISCOUNT_PERCENT}% off, and you earn ${commissionPercent}% commission on the service fees of every order that uses it.`}</p>
+                ? `Tu solicitud fue aprobada. Este es tu código para compartir: tus referidos obtienen ${AFFILIATE_COUPON_DISCOUNT_PERCENT}% de descuento, y vos ganás ${commissionPercent}% de comisión sobre las tarifas de servicio de cada orden que lo use.`
+                : `Your application was approved. Here is your code to share: your referrals get ${AFFILIATE_COUPON_DISCOUNT_PERCENT}% off, and you earn ${commissionPercent}% commission on the service fees of every order that uses it.`}</p>
               <div style="background:#EFF6FF;border-radius:8px;padding:16px 20px;margin:22px 0;text-align:center">
                 <div style="font-size:11px;color:#2563EB;text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:4px">${isEs ? 'Tu código' : 'Your code'}</div>
                 <div style="font-size:24px;font-weight:800;color:#1C2E44;letter-spacing:1px">${promo?.code}</div>

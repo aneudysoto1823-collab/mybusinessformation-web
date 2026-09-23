@@ -179,7 +179,7 @@ export default function OpabizDashboardPage() {
                 propio — ver LOGICA_DE_NEGOCIO/17. ?agent=1 activa el modo agente
                 (oculta el pago; al Guardar le llega el link al cliente). */}
             <a href="/?agent=1" target="_blank" rel="noopener noreferrer" className="op-intake-link">Crear orden asistida</a>
-            <Link href="/opabiz/dashboard/created-orders" className="op-intake-link op-intake-link-secondary">📋 Mis solicitudes enviadas</Link>
+            <Link href="/opabiz/dashboard/created-orders" className="op-intake-link op-intake-link-secondary">Mis solicitudes enviadas</Link>
 
             {showPushBanner && (
               <div className="op-push-banner">

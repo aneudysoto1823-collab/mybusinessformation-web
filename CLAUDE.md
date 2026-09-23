@@ -1736,14 +1736,39 @@ En su lugar, cada acción agrega una nota a `Order.notes` (mismo patrón que ya 
 reembolsos/disputas) — visible para el staff en `/admin/orders/[id]`, que es donde de verdad
 importa que quede constancia.
 
-**Pendiente real, documentado para retomar** (ver memoria `project_programa_afiliados.md`):
-training del agente (contenido/formato sin definir todavía) y alta automática en OpaBiz Connect
-al aprobar un agente (el mecanismo ya existe — `POST /api/opabiz/employees` — falta extraerlo a
-función compartida).
-
 Verificado con `npx tsc --noEmit` (limpio salvo 2 errores preexistentes de `lib/lob.ts`, no
 tocado esta sesión), `eslint` (cero errores en los archivos tocados) y `npx next build` completo
 (exit 0, sin warnings).
+
+**Fix post-deploy (mismo día):** el primer push falló el `prebuild` de Vercel
+(`check-brand-boundaries.mjs`) — el query a `Order` en
+`/api/opabiz/me/created-orders` no filtra por `sourceBrand` a propósito (un agente puede asistir
+intakes de ambas marcas), pero le faltaba el comentario de opt-in `// @brand-unified` que el guard
+exige. Agregado, build limpio, deploy OK.
+
+**Alta automática en OpaBiz Connect al aprobar un agente — resuelto el mismo día (feedback en
+vivo del founder probando el flujo):** antes, el email de aprobación de un agente decía "te vamos
+a enviar un link por correo en breve" y la cuenta se creaba a mano después desde `/admin/opabiz`
+— el link nunca llegaba en el momento. Ahora `PATCH /api/admin/affiliates/[id]` (`action:'approve'`
++ `isAgent`) crea la cuenta de OpaBiz Connect en el momento (`createEmployeeAccount()`, nueva en
+`lib/opabiz-empleados.ts`, extraída de la lógica que ya usaba `POST /api/opabiz/employees` — ese
+endpoint ahora también la reusa) y genera el link de invitación (`createInviteToken`,
+`lib/opabiz-invite.ts`) directo en el MISMO email de aprobación, con copy explicando que el
+primer paso al entrar es el training. `affiliates.empleados_id` se completa solo (ya no hace
+falta el vínculo manual desde "Ver detalle" para agentes nuevos — ese selector queda como
+fallback si la creación automática falla o para vincular agentes aprobados antes de este fix).
+No bloqueante: si `createEmployeeAccount()` falla (ej. el email ya tiene cuenta con otro rol), la
+aprobación sigue igual y el email cae al texto anterior avisando que el equipo la va a crear a
+mano.
+
+**Pendiente real, documentado para retomar** (ver memoria `project_programa_afiliados.md`):
+solo queda el training del agente (contenido/formato sin definir todavía).
+
+**Regla de estilo reforzada el mismo día:** sin emojis en NINGUNA parte del sitio (ni interna ni
+de cliente) — se sacaron los que se habían agregado en `/opabiz/dashboard/created-orders` y
+`/opabiz/dashboard` en esta misma sesión. Ver `[[feedback_writing_style]]` en memoria (ya
+actualizada) — aplica hacia adelante en código nuevo/tocado, no es un barrido retroactivo del
+sitio completo.
 
 ---
 

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdminToken } from '@/lib/session'
 import { getSupabaseAdmin } from '@/lib/supabase'
-import { NIVEL_ORDEN, type NivelEmpleado } from '@/lib/opabiz-empleados'
+import { NIVEL_ORDEN, type NivelEmpleado, createEmployeeAccount } from '@/lib/opabiz-empleados'
 import { createInviteToken, sendInviteEmail } from '@/lib/opabiz-invite'
 
 export const dynamic = 'force-dynamic'
@@ -52,51 +52,18 @@ export async function POST(req: NextRequest) {
 
   const supabase = getSupabaseAdmin()
 
-  const { data: existente } = await supabase
-    .from('usuarios')
-    .select('id')
-    .eq('email', email)
-    .maybeSingle()
-
-  if (existente) {
+  let account: { usuarioId: string; empleadosId: string; isNew: boolean }
+  try {
+    account = await createEmployeeAccount(supabase, { nombre, email, telefono, nivel: nivelFinal })
+  } catch (err) {
+    return NextResponse.json({ error: err instanceof Error ? err.message : 'No se pudo crear el empleado' }, { status: 409 })
+  }
+  if (!account.isNew) {
     return NextResponse.json({ error: 'Ya existe un usuario con ese email' }, { status: 409 })
   }
 
-  const { data: usuario, error: usuarioErr } = await supabase
-    .from('usuarios')
-    .insert({ nombre, email, telefono, rol: 'empleado', estado: 'activo' })
-    .select('id')
-    .single()
-
-  if (usuarioErr || !usuario) {
-    return NextResponse.json({ error: usuarioErr?.message ?? 'No se pudo crear el usuario' }, { status: 500 })
-  }
-
-  // EMPLEADOS.id (no usuarios.id) es la clave que usan empleado_perfil,
-  // ordenes_opabiz, puntajes e inactividades — hay que crear esta fila antes
-  // y usar el id que devuelve, no el de usuarios.
-  const { data: empleadoRow, error: empleadosErr } = await supabase
-    .from('EMPLEADOS')
-    .insert({
-      usuario_id: usuario.id,
-      nivel: nivelFinal,
-      puntaje_actual: 0,
-      tiempo_respuesta_promedio: 0,
-      inactividades_totales: 0,
-      estado_disponibilidad: 'no_disponible',
-      fecha_ultimo_cambio: new Date().toISOString(),
-    })
-    .select('id')
-    .single()
-
-  if (empleadosErr || !empleadoRow) {
-    return NextResponse.json({ error: empleadosErr?.message ?? 'No se pudo crear el registro de EMPLEADOS' }, { status: 500 })
-  }
-
-  await supabase.from('empleado_perfil').insert({ empleado_id: empleadoRow.id })
-
   try {
-    const token = await createInviteToken(usuario.id)
+    const token = await createInviteToken(account.usuarioId)
     await sendInviteEmail({ email, nombre, token })
   } catch (err) {
     // No falla la creación del empleado por un error de email — el admin
@@ -104,5 +71,5 @@ export async function POST(req: NextRequest) {
     console.error('[opabiz/employees] invite email error:', err)
   }
 
-  return NextResponse.json({ usuarioId: usuario.id, empleadosId: empleadoRow.id }, { status: 201 })
+  return NextResponse.json({ usuarioId: account.usuarioId, empleadosId: account.empleadosId }, { status: 201 })
 }

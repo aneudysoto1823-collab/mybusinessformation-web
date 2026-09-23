@@ -77,6 +77,64 @@ export async function registrarInactividad(
     .eq('id', empleadosId)
 }
 
+/**
+ * Crea las 3 filas relacionadas de un empleado nuevo (usuarios + EMPLEADOS +
+ * empleado_perfil) — extraído de POST /api/opabiz/employees para reusarlo
+ * también en el alta automática al aprobar un agente
+ * (app/api/admin/affiliates/[id]/route.ts). Si ya existe un usuario con ese
+ * email y rol 'empleado', reusa esa cuenta en vez de duplicarla (`isNew:false`)
+ * — cubre el caso de un agente cuyo email ya tenía cuenta de OpaBiz Connect
+ * por otro motivo. Si el email existe con OTRO rol, lanza — nunca pisa una
+ * cuenta de admin/cliente existente.
+ */
+export async function createEmployeeAccount(
+  supabase: Supabase,
+  data: { nombre: string; email: string; telefono?: string | null; nivel?: NivelEmpleado },
+): Promise<{ usuarioId: string; empleadosId: string; isNew: boolean }> {
+  const email = data.email.toLowerCase().trim()
+
+  const { data: existente } = await supabase.from('usuarios').select('id, rol').eq('email', email).maybeSingle()
+  if (existente) {
+    if (existente.rol !== 'empleado') {
+      throw new Error(`Ya existe un usuario con ese email (rol: ${existente.rol})`)
+    }
+    const { data: empleadoRow } = await supabase.from('EMPLEADOS').select('id').eq('usuario_id', existente.id).maybeSingle()
+    if (!empleadoRow) throw new Error('Usuario empleado sin fila EMPLEADOS asociada (revisar a mano en Supabase)')
+    return { usuarioId: existente.id, empleadosId: empleadoRow.id, isNew: false }
+  }
+
+  const nivelFinal: NivelEmpleado = data.nivel && NIVEL_ORDEN.includes(data.nivel) ? data.nivel : 'basico'
+
+  const { data: usuario, error: usuarioErr } = await supabase
+    .from('usuarios')
+    .insert({ nombre: data.nombre, email, telefono: data.telefono || 'N/A', rol: 'empleado', estado: 'activo' })
+    .select('id')
+    .single()
+  if (usuarioErr || !usuario) throw new Error(usuarioErr?.message ?? 'No se pudo crear el usuario')
+
+  // EMPLEADOS.id (no usuarios.id) es la clave que usan empleado_perfil,
+  // ordenes_opabiz, puntajes e inactividades — hay que crear esta fila antes
+  // y usar el id que devuelve, no el de usuarios.
+  const { data: empleadoRow, error: empleadosErr } = await supabase
+    .from('EMPLEADOS')
+    .insert({
+      usuario_id: usuario.id,
+      nivel: nivelFinal,
+      puntaje_actual: 0,
+      tiempo_respuesta_promedio: 0,
+      inactividades_totales: 0,
+      estado_disponibilidad: 'no_disponible',
+      fecha_ultimo_cambio: new Date().toISOString(),
+    })
+    .select('id')
+    .single()
+  if (empleadosErr || !empleadoRow) throw new Error(empleadosErr?.message ?? 'No se pudo crear el registro de EMPLEADOS')
+
+  await supabase.from('empleado_perfil').insert({ empleado_id: empleadoRow.id })
+
+  return { usuarioId: usuario.id, empleadosId: empleadoRow.id, isNew: true }
+}
+
 /** Nombre del tier de desempeño (Oro/Plata/Bronce/Riesgo) para un puntaje dado. */
 export async function getTierForScore(supabase: Supabase, puntaje: number): Promise<string | null> {
   const { data } = await supabase

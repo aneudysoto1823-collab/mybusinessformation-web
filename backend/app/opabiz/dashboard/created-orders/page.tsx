@@ -128,12 +128,12 @@ export default function OpabizCreatedOrdersPage() {
                 <div className="op-fecha">Creada: {new Date(o.createdAt).toLocaleString()}</div>
                 {o.isDraft && (
                   <div className="op-actions">
-                    <button className="op-btn op-btn-edit" disabled={busyId === o.id} onClick={() => editar(o.id)}>✏️ Editar</button>
-                    <button className="op-btn op-btn-resend" disabled={busyId === o.id} onClick={() => reenviar(o.id)}>📧 Reenviar link</button>
+                    <button className="op-btn op-btn-edit" disabled={busyId === o.id} onClick={() => editar(o.id)}>Editar</button>
+                    <button className="op-btn op-btn-resend" disabled={busyId === o.id} onClick={() => reenviar(o.id)}>Reenviar link</button>
                     {resentId === o.id && <span className="op-ok">Reenviado ✓</span>}
                   </div>
                 )}
-                {errorId === o.id && <div className="op-err">Algo salió mal — probá de nuevo.</div>}
+                {errorId === o.id && <div className="op-err">Algo salió mal, probá de nuevo.</div>}
               </div>
             )
           })
