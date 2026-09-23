@@ -32,6 +32,17 @@ async function verifyAdmin(request: NextRequest): Promise<boolean> {
   return verifyAdminToken(session.value)
 }
 
+// Un PostgrestError de Supabase es un objeto plano sin toString propio —
+// String(err) da literalmente "[object Object]", que es lo que el admin veía
+// en el alert() del panel. Esto extrae el mensaje real (o cae a JSON si no
+// hay .message).
+function pgErrorMessage(err: unknown): string {
+  if (err && typeof err === 'object' && 'message' in err && typeof (err as { message?: unknown }).message === 'string') {
+    return (err as { message: string }).message
+  }
+  return JSON.stringify(err)
+}
+
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   if (!(await verifyAdmin(req))) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -117,7 +128,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       .select()
       .single()
     if (updateError) {
-      return NextResponse.json({ error: String(updateError) }, { status: 500 })
+      return NextResponse.json({ error: pgErrorMessage(updateError) }, { status: 500 })
     }
 
     const subjectPrefix = brandSubjectPrefix(emailBrand)
@@ -197,7 +208,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       .eq('id', id)
       .select()
       .single()
-    if (updateError) return NextResponse.json({ error: String(updateError) }, { status: 500 })
+    if (updateError) return NextResponse.json({ error: pgErrorMessage(updateError) }, { status: 500 })
 
     const subjectPrefix = brandSubjectPrefix(emailBrand)
     const programLabel = isAgent ? (isEs ? 'Programa de Agentes' : 'Field Agent Program') : (isEs ? 'Programa de Afiliados' : 'Affiliate Program')
@@ -233,7 +244,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       .eq('id', id)
       .select()
       .single()
-    if (updateError) return NextResponse.json({ error: String(updateError) }, { status: 500 })
+    if (updateError) return NextResponse.json({ error: pgErrorMessage(updateError) }, { status: 500 })
     return NextResponse.json({ affiliate: updated })
   }
 
@@ -252,7 +263,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       .eq('id', id)
       .select()
       .single()
-    if (updateError) return NextResponse.json({ error: String(updateError) }, { status: 500 })
+    if (updateError) return NextResponse.json({ error: pgErrorMessage(updateError) }, { status: 500 })
     return NextResponse.json({ affiliate: updated })
   }
 
