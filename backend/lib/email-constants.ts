@@ -9,6 +9,8 @@
 // si cambia un remitente o un fallback.
 // ─────────────────────────────────────────────────────────────────────────────
 
+import { OPABIZ_LOGO_PNG_BASE64 } from './opabiz-logo'
+
 // Dirección postal física de la compañía — requisito literal de CAN-SPAM en
 // todo email comercial (auditoría 2026-09-13/14, hallazgo bloqueante: el
 // email de /guia-gratis no la tenía). Única fuente — antes estaba
@@ -136,15 +138,16 @@ export function brandHeaderHtml(brand: EmailBrand): string {
                 <div style="font-family:Georgia,serif;font-size:16px;font-weight:700;line-height:1.25;color:#1C2E44">Florida Business<br/>Formation Center</div>
               </td>`
   }
-  // Sólido, no degradado (2026-09-07): linear-gradient renderiza distinto
-  // entre la app de Gmail (mobile, sí lo soporta) y Gmail en navegador de
-  // escritorio (más estricto con el CSS que acepta) — confirmado por el
-  // founder viendo el mismo email bien en el celular y mal en Safari/Gmail
-  // web. Un color sólido se ve casi igual (mismo navy de marca) y funciona
-  // garantizado en cualquier cliente de correo, sin depender de soporte CSS.
+  // Imagen PNG con el gradiente horneado (2026-09-23), no CSS — el
+  // <div style="background:#22364E"> sólido que se usaba antes (fix
+  // 2026-09-07: linear-gradient renderizaba distinto entre Gmail mobile y
+  // Gmail web/Safari) resolvía el bug pero dejaba el logo del email
+  // desalineado del mark real del sitio (gradiente navy→azul). Una imagen no
+  // depende de soporte CSS del cliente de correo, así que da el gradiente
+  // real sin reintroducir la inconsistencia. Ver lib/opabiz-logo.ts.
   return `
               <td style="width:42px;padding-right:12px">
-                <div style="width:42px;height:42px;background:#22364E;border-radius:10px;text-align:center;line-height:42px;color:#fff;font-family:Georgia,serif;font-size:16px;font-weight:700">OB</div>
+                <img src="data:image/png;base64,${OPABIZ_LOGO_PNG_BASE64}" width="42" height="42" alt="OpaBiz" style="display:block;border-radius:10px"/>
               </td>
               <td style="vertical-align:middle">
                 <div style="font-family:Georgia,serif;font-size:21px;font-weight:700;line-height:1.2"><span style="color:#1C2E44">Opa</span><span style="color:#2563EB">Biz</span></div>

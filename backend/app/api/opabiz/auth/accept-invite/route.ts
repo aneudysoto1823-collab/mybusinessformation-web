@@ -19,11 +19,11 @@ export async function GET(req: NextRequest) {
 
   const { data: usuario } = await getSupabaseAdmin()
     .from('usuarios')
-    .select('nombre')
+    .select('nombre, email')
     .eq('id', usuarioId)
     .maybeSingle()
 
-  return NextResponse.json({ valid: true, nombre: usuario?.nombre ?? null })
+  return NextResponse.json({ valid: true, nombre: usuario?.nombre ?? null, email: usuario?.email ?? null })
 }
 
 // POST /api/opabiz/auth/accept-invite — consume el token, setea la contraseña

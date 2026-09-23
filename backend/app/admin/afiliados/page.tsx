@@ -74,7 +74,7 @@ const TYPE_LABEL: Record<ApplicationType, string> = { affiliate: 'Afiliado', age
 const TYPE_COLOR: Record<ApplicationType, string> = { affiliate: '#2563EB', agent: '#7c3aed' }
 
 export default function AfiliadosAdminPage() {
-  const [statusFilter, setStatusFilter] = useState<AffiliateStatus | 'all'>('pending')
+  const [statusFilter, setStatusFilter] = useState<AffiliateStatus | 'all'>('all')
   const [typeFilter, setTypeFilter] = useState<ApplicationType | 'all'>('all')
   const [affiliates, setAffiliates] = useState<Affiliate[]>([])
   const [loading, setLoading] = useState(true)
@@ -123,6 +123,20 @@ export default function AfiliadosAdminPage() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`)
       await fetchAffiliates()
+    } catch (e) {
+      alert('Error: ' + (e instanceof Error ? e.message : String(e)))
+    } finally {
+      setBusyId(null)
+    }
+  }
+
+  const resendInvite = async (id: string) => {
+    setBusyId(id)
+    try {
+      const res = await fetch(`/api/admin/affiliates/${id}/resend-invite`, { method: 'POST' })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`)
+      alert('Link reenviado.')
     } catch (e) {
       alert('Error: ' + (e instanceof Error ? e.message : String(e)))
     } finally {
@@ -247,9 +261,10 @@ export default function AfiliadosAdminPage() {
         .btn-red{background:#FEE2E2;color:#991B1B;border:1px solid #FCA5A5}
         .btn-red:hover:not(:disabled){background:#FCA5A5}
         .btn-sm{padding:5px 11px;font-size:.72rem}
-        .status-tabs{display:flex;gap:4px;flex-wrap:wrap}
-        .status-tab{padding:6px 12px;border-radius:16px;font-size:.75rem;font-weight:700;border:1px solid #E2E8F0;background:#F8FAFC;color:#64748b;cursor:pointer;font-family:inherit}
-        .status-tab.active{background:#EFF6FF;color:#2563EB;border-color:#2563EB}
+        .filters{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+        .filter-group{display:flex;align-items:center;gap:6px}
+        .filter-label{font-size:.72rem;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.4px}
+        .filter-select{padding:7px 10px;border-radius:8px;font-size:.8rem;font-weight:600;border:1px solid #E2E8F0;background:#F8FAFC;color:#1C2E44;font-family:inherit;cursor:pointer}
         table{width:100%;border-collapse:collapse}
         th{padding:10px 14px;font-size:.7rem;font-weight:700;color:#94A3B8;text-align:left;text-transform:uppercase;letter-spacing:.5px;background:#F8FAFC;border-bottom:1px solid #E2E8F0}
         td{padding:11px 14px;font-size:.8rem;color:#374151;border-bottom:1px solid #F1F5F9;vertical-align:middle}
@@ -280,20 +295,24 @@ export default function AfiliadosAdminPage() {
         <div className="card">
           <div className="card-head">
             <span className="card-title">Aplicaciones ({visibleAffiliates.length})</span>
-            <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', alignItems: 'center' }}>
-              <div className="status-tabs">
-                {(['affiliate', 'agent', 'all'] as const).map(t => (
-                  <button key={t} className={`status-tab ${typeFilter === t ? 'active' : ''}`} onClick={() => setTypeFilter(t)}>
-                    {t === 'all' ? 'Todos los tipos' : TYPE_LABEL[t]}
-                  </button>
-                ))}
+            <div className="filters">
+              <div className="filter-group">
+                <span className="filter-label">Estado</span>
+                <select className="filter-select" value={statusFilter} onChange={e => setStatusFilter(e.target.value as AffiliateStatus | 'all')}>
+                  <option value="all">Todos</option>
+                  <option value="pending">{STATUS_LABEL.pending}</option>
+                  <option value="approved">{STATUS_LABEL.approved}</option>
+                  <option value="rejected">{STATUS_LABEL.rejected}</option>
+                  <option value="suspended">{STATUS_LABEL.suspended}</option>
+                </select>
               </div>
-              <div className="status-tabs">
-                {(['pending', 'approved', 'rejected', 'suspended', 'all'] as const).map(s => (
-                  <button key={s} className={`status-tab ${statusFilter === s ? 'active' : ''}`} onClick={() => setStatusFilter(s)}>
-                    {s === 'all' ? 'Todos' : STATUS_LABEL[s]}
-                  </button>
-                ))}
+              <div className="filter-group">
+                <span className="filter-label">Tipo</span>
+                <select className="filter-select" value={typeFilter} onChange={e => setTypeFilter(e.target.value as ApplicationType | 'all')}>
+                  <option value="all">Todos</option>
+                  <option value="affiliate">{TYPE_LABEL.affiliate}</option>
+                  <option value="agent">{TYPE_LABEL.agent}</option>
+                </select>
               </div>
             </div>
           </div>
@@ -345,6 +364,9 @@ export default function AfiliadosAdminPage() {
                         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                           {a.application_type === 'agent' && (
                             <button className="btn btn-ghost btn-sm" onClick={() => openDetail(a)}>Ver detalle</button>
+                          )}
+                          {a.application_type === 'agent' && a.status === 'approved' && a.empleados_id && (
+                            <button className="btn btn-ghost btn-sm" disabled={busyId === a.id} onClick={() => resendInvite(a.id)}>Reenviar link</button>
                           )}
                           {a.status === 'pending' && (
                             <>

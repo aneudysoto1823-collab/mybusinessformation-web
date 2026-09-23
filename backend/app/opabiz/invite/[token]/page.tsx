@@ -12,6 +12,7 @@ export default function OpabizInvitePage() {
 
   const [check, setCheck] = useState<CheckState>('loading')
   const [nombre, setNombre] = useState<string | null>(null)
+  const [email, setEmail] = useState<string | null>(null)
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [error, setError] = useState('')
@@ -23,6 +24,7 @@ export default function OpabizInvitePage() {
       .then(data => {
         setCheck(data.valid ? 'valid' : 'invalid')
         setNombre(data.nombre ?? null)
+        setEmail(data.email ?? null)
       })
       .catch(() => setCheck('invalid'))
   }, [token])
@@ -77,6 +79,9 @@ export default function OpabizInvitePage() {
         .op-btn:disabled{opacity:.6;cursor:not-allowed}
         .op-error{color:#ef4444;font-size:.8rem;margin-top:10px;text-align:center}
         .op-msg{font-size:.85rem;color:#374151;text-align:center}
+        .op-username{background:#F8FAFC;border:1px solid #E2E8F0;border-radius:8px;padding:10px 12px;margin-bottom:16px}
+        .op-username-label{font-size:.68rem;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px}
+        .op-username-value{font-size:.88rem;font-weight:700;color:#1C2E44;word-break:break-all}
       `}</style>
       <div className="op-wrap">
         <div className="op-brand">OpaBiz <span>Connect</span></div>
@@ -87,6 +92,12 @@ export default function OpabizInvitePage() {
             <>
               <div className="op-title">Creá tu contraseña</div>
               <div className="op-sub">{nombre ? `Hola, ${nombre}` : 'Bienvenido a OpaBiz Connect'}</div>
+              {email && (
+                <div className="op-username">
+                  <div className="op-username-label">Tu usuario para ingresar es</div>
+                  <div className="op-username-value">{email}</div>
+                </div>
+              )}
               <form onSubmit={handleSubmit}>
                 <div className="op-field">
                   <label>Contraseña</label>

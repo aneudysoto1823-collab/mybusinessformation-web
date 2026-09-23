@@ -1770,6 +1770,48 @@ de cliente) — se sacaron los que se habían agregado en `/opabiz/dashboard/cre
 actualizada) — aplica hacia adelante en código nuevo/tocado, no es un barrido retroactivo del
 sitio completo.
 
+**Fix del mismo día — "[object Object]" al aprobar/rechazar/actualizar un afiliado:** el panel
+mostraba literalmente `Error: [object Object]` en el `alert()` porque el código hacía
+`String(postgrestError)` — un `PostgrestError` de Supabase es un objeto plano sin `toString`
+propio, así que `String()` da `"[object Object]"` en vez del mensaje real. Nuevo helper
+`pgErrorMessage()` en `app/api/admin/affiliates/[id]/route.ts` extrae `.message` (o cae a
+`JSON.stringify` si no hay). El caso real que lo disparó: `empleados_id` no existía todavía en la
+tabla `affiliates` porque la migración de la sesión anterior no se había corrido.
+
+### Ronda de mejoras al Programa de Afiliados/Agentes (mismo día, feedback en vivo)
+
+- **Filtros de `/admin/afiliados` rediseñados** — las 2 filas de pastillas (Tipo + Estado) se
+  reemplazaron por 2 `<select>` simples ("Estado"/"Tipo"), ambos con "Todos" por defecto (antes
+  Estado defaulteaba a "Pendiente", lo que hacía parecer "vacío/trabado" el panel si no había
+  nada pendiente en ese momento — confirmado que no era un bug de los botones, solo un estado
+  vacío confuso).
+- **Botón "Reenviar link"** — nuevo, visible en la fila de un agente aprobado y vinculado a una
+  cuenta de OpaBiz Connect. `POST /api/admin/affiliates/[id]/resend-invite` resuelve
+  `affiliates.empleados_id → EMPLEADOS.usuario_id → usuarios`, y reusa `createInviteToken`/
+  `sendInviteEmail` (`lib/opabiz-invite.ts`) — mismo guard que el endpoint análogo de empleados:
+  bloquea (409) si el agente ya creó su contraseña.
+- **`/opabiz/invite/[token]` ya no oculta el usuario** — antes solo pedía elegir una contraseña
+  sin decir con qué email hay que loguearse después en `/opabiz/login`. `GET
+  /api/opabiz/auth/accept-invite` ahora también devuelve `email`, mostrado en una caja "Tu usuario
+  para ingresar es {email}" arriba del formulario.
+- **Logo consistente en emails** — el header de emails OpaBiz usaba un navy sólido `#22364E` sin
+  gradiente (fix 2026-09-07, el `linear-gradient` CSS rendía distinto entre Gmail mobile y Gmail
+  web/Safari). Se generó una imagen PNG real con el gradiente navy→azul horneado adentro
+  (`scripts/gen-opabiz-logo.mjs` + `lib/opabiz-logo.ts`, mismo patrón que `fbfc-seal.ts`) —
+  una imagen no depende de que el cliente de correo soporte CSS gradient, así que iguala el mark
+  del sitio (`.logo-mark`, gradiente `#1C2E44`→`#2563EB`) sin reintroducir el bug de Gmail.
+  `brandHeaderHtml()` en `lib/email-constants.ts` ahora usa `<img>` con esa imagen en base64 en
+  vez del `<div style="background:...">`.
+
+**Pendientes que quedaron para otra sesión, a propósito no implementados todavía** (el founder
+pidió mi opinión, respondí con una recomendación, pero no confirmó que se construya ya):
+- Rediseño del landing `/afiliados` (layout en columnas, franja de valor arriba del form,
+  pantalla de éxito más sólida).
+- Enganchar los pagos de comisión ("Marcar como pagado" en `/admin/afiliados`) a Contabilidad —
+  sugerido: crear automáticamente una fila en `accounting_expenses` (categoría "Nómina", mismo
+  patrón que `sync-orders` para ingresos) al marcar un pago, sin rehacer el esquema (hoy
+  `accounting_expenses` no tiene ninguna columna de vínculo a persona/entidad).
+
 ---
 
 ## Deploy
