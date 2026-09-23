@@ -1856,14 +1856,28 @@ se sacó del nav de `/admin` (queda solo "OpaBiz Connect").
   redundantes dentro de la pestaña) y el `<div className="wrap">` exterior (deja que el `.wrap`
   del padre maneje el ancho/padding).
 - `app/admin/opabiz/page.tsx` — `import { AfiliadosPanel } from '../afiliados/page'`, la renderiza
-  con `<AfiliadosPanel embedded />` en la pestaña "Afiliados y Agentes". El botón "+ Crear
-  Empleado" del header solo se muestra en la pestaña Empleados. El modal "Cómo funciona" ganó un
-  bullet mencionando la pestaña nueva.
+  con `<AfiliadosPanel embedded />` en la pestaña "Afiliados y Agentes". El modal "Cómo funciona"
+  ganó un bullet mencionando la pestaña nueva.
 - **La ruta `/admin/afiliados` sigue funcionando standalone** (por si hay algún link/bookmark
   viejo) — no se borró, solo dejó de estar en el nav principal.
-- Verificado con `next build` completo (limpio) — no se pudo verificar visualmente con
-  Playwright esta vez porque `/admin/opabiz` requiere sesión de admin real, que esta sesión no
-  tiene. Revisar visualmente las 3 pestañas la próxima vez que se entre al panel.
+
+**2 bugs reales encontrados por el founder probando en vivo, ambos corregidos el mismo día:**
+1. **El botón "+ Crear Empleado" hacía saltar el header al cambiar de pestaña** — vivía en el
+   header compartido, condicionado a `activeTab==='empleados'`; al desaparecer/aparecer corría de
+   lugar al botón "Cómo funciona" (el header usa `justify-content:space-between`, así que el
+   ancho del grupo de botones cambia el punto donde queda ese grupo). Se movió al `card-head` de
+   la tabla Empleados — mismo lugar donde vive ese tipo de acción en el resto del panel admin.
+2. **Toda la página saltaba a la izquierda al entrar a "Afiliados y Agentes"** — esa pestaña tiene
+   más contenido (4 filas + fila de filtros) que Empleados (2 filas), así que en ciertas alturas
+   de viewport activa la barra de scroll vertical del navegador donde Empleados no la necesita.
+   Eso cambia el ancho visible, y como `.wrap` está centrado con `margin:0 auto`, todo el bloque
+   se recentra de golpe. Fix: `html{scrollbar-gutter:stable}` en el `<style>` de la página — el
+   espacio de la barra queda siempre reservado, así el ancho disponible no cambia entre pestañas.
+
+Verificado con `next build` completo (limpio) en las 3 rondas. Las capturas de pantalla que
+mandó el founder confirmaron visualmente que la pestaña "Afiliados y Agentes" muestra los datos
+reales correctamente (4 aplicaciones, filtros, acciones) — el merge en sí funciona bien, solo
+tenía estos 2 problemas de layout.
 
 ---
 
