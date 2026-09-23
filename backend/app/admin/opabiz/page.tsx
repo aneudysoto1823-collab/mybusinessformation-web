@@ -287,11 +287,6 @@ export default function OpabizAdminPage() {
             <button className="btn" style={{ background: '#fff', color: '#1C2E44', border: '1.5px solid #1C2E44' }} onClick={() => setShowHowItWorks(true)}>
               ℹ️ Cómo funciona
             </button>
-            {activeTab === 'empleados' && (
-              <button className="btn btn-primary" onClick={() => setShowForm(v => !v)}>
-                {showForm ? '✕ Cancelar' : '+ Crear Empleado'}
-              </button>
-            )}
           </div>
         </div>
 
@@ -370,7 +365,12 @@ export default function OpabizAdminPage() {
         )}
 
         <div className="card">
-          <div className="card-head"><span className="card-title">Empleados ({empleados.length})</span></div>
+          <div className="card-head">
+            <span className="card-title">Empleados ({empleados.length})</span>
+            <button className="btn btn-primary" style={{ padding: '6px 14px', fontSize: '.78rem' }} onClick={() => setShowForm(v => !v)}>
+              {showForm ? '✕ Cancelar' : '+ Crear Empleado'}
+            </button>
+          </div>
           {loading ? (
             <div className="empty">Cargando…</div>
           ) : empleados.length === 0 ? (
