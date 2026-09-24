@@ -153,6 +153,17 @@ export default function MarketingPage() {
   const [verticalsOpen, setVerticalsOpen] = useState(false)
   const [togglingVertical, setTogglingVertical] = useState<string | null>(null)
 
+  // Reaplicar configuración (recuperar leads descartados por vertical/score
+  // apagado, a demanda) — auditoría 2026-09-13/14, diseño founder 2026-09-24:
+  // acotado por vertical + rango de fechas, nunca automático. Solo una fila
+  // puede tener el mini-form abierto a la vez (reapplyVertical).
+  const [reapplyVertical, setReapplyVertical] = useState<string | null>(null)
+  const [reapplyFrom, setReapplyFrom] = useState('')
+  const [reapplyTo, setReapplyTo] = useState('')
+  const [reapplyLoading, setReapplyLoading] = useState(false)
+  const [reapplyDry, setReapplyDry] = useState<{ candidates: number; recovered: number; still_discarded: number } | null>(null)
+  const [reapplyError, setReapplyError] = useState<string | null>(null)
+
   // Scores activos (mismo patron que verticals)
   const [scores, setScores] = useState<ScoreSetting[]>([])
   const [togglingScore, setTogglingScore] = useState<string | null>(null)
@@ -383,6 +394,46 @@ export default function MarketingPage() {
     }
   }
 
+  const openReapply = (vertical: string) => {
+    setReapplyVertical(prev => prev === vertical ? null : vertical)
+    setReapplyDry(null)
+    setReapplyError(null)
+    // Default: últimos 30 días hasta hoy — rango razonable para "leads
+    // recientes", el admin lo puede ampliar si quiere ir más atrás.
+    const today = new Date()
+    const from = new Date(today)
+    from.setDate(from.getDate() - 30)
+    setReapplyFrom(from.toISOString().slice(0, 10))
+    setReapplyTo(today.toISOString().slice(0, 10))
+  }
+
+  const runReapply = async (vertical: string, dryRun: boolean) => {
+    setReapplyLoading(true)
+    setReapplyError(null)
+    try {
+      const res = await fetch('/api/marketing/verticals/apply-retroactive', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ vertical, date_from: reapplyFrom, date_to: reapplyTo, dry_run: dryRun }),
+      })
+      const text = await res.text()
+      let data: { error?: string; candidates?: number; recovered?: number; still_discarded?: number } = {}
+      try { data = text ? JSON.parse(text) : {} } catch {}
+      if (!res.ok) throw new Error(data.error || text.slice(0, 200) || `HTTP ${res.status}`)
+      if (dryRun) {
+        setReapplyDry({ candidates: data.candidates ?? 0, recovered: data.recovered ?? 0, still_discarded: data.still_discarded ?? 0 })
+      } else {
+        setReapplyVertical(null)
+        setReapplyDry(null)
+        await loadStats()
+      }
+    } catch (e) {
+      setReapplyError(e instanceof Error ? e.message : String(e))
+    } finally {
+      setReapplyLoading(false)
+    }
+  }
+
   useEffect(() => { loadStats() }, [loadStats])
 
   const runClassify = async () => {
@@ -609,34 +660,108 @@ export default function MarketingPage() {
               {verticalsOpen && (
                 <div style={{display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8}}>
                   {verticals.map(v => (
-                    <label key={v.vertical} style={{
-                      display: 'flex', alignItems: 'center', gap: 12,
-                      padding: '10px 12px', background: '#fff',
+                    <div key={v.vertical} style={{
+                      gridColumn: reapplyVertical === v.vertical ? '1 / -1' : undefined,
+                      background: '#fff',
                       border: `1px solid ${v.active ? '#86efac' : '#fecaca'}`,
-                      borderRadius: 6, cursor: 'pointer',
-                      opacity: togglingVertical === v.vertical ? 0.5 : 1,
+                      borderRadius: 6,
                     }}>
-                      <input
-                        type="checkbox"
-                        checked={v.active}
-                        onChange={e => toggleVertical(v.vertical, e.target.checked)}
-                        disabled={togglingVertical === v.vertical}
-                        style={{width: 18, height: 18, cursor: 'pointer'}}
-                      />
-                      <div style={{flex: 1}}>
-                        <div style={{fontWeight: 600, fontSize: 14, color: '#111827'}}>
-                          <span style={{color: '#9ca3af', marginRight: 6}}>#{v.priority}</span>
-                          {v.label}
+                      <label style={{
+                        display: 'flex', alignItems: 'center', gap: 12,
+                        padding: '10px 12px', cursor: 'pointer',
+                        opacity: togglingVertical === v.vertical ? 0.5 : 1,
+                      }}>
+                        <input
+                          type="checkbox"
+                          checked={v.active}
+                          onChange={e => toggleVertical(v.vertical, e.target.checked)}
+                          disabled={togglingVertical === v.vertical}
+                          style={{width: 18, height: 18, cursor: 'pointer'}}
+                        />
+                        <div style={{flex: 1}}>
+                          <div style={{fontWeight: 600, fontSize: 14, color: '#111827'}}>
+                            <span style={{color: '#9ca3af', marginRight: 6}}>#{v.priority}</span>
+                            {v.label}
+                          </div>
+                          <div style={{fontSize: 11, color: '#6b7280', marginTop: 2, fontFamily: 'monospace'}}>
+                            {v.vertical}
+                          </div>
                         </div>
-                        <div style={{fontSize: 11, color: '#6b7280', marginTop: 2, fontFamily: 'monospace'}}>
-                          {v.vertical}
+                        <div style={{fontSize: 11, color: '#6b7280', textAlign: 'right', whiteSpace: 'nowrap'}}>
+                          <div>{v.lead_count} clasif.</div>
+                          {v.descartadas > 0 && <div style={{color: '#dc2626'}}>{v.descartadas} desc.</div>}
                         </div>
-                      </div>
-                      <div style={{fontSize: 11, color: '#6b7280', textAlign: 'right', whiteSpace: 'nowrap'}}>
-                        <div>{v.lead_count} clasif.</div>
-                        {v.descartadas > 0 && <div style={{color: '#dc2626'}}>{v.descartadas} desc.</div>}
-                      </div>
-                    </label>
+                      </label>
+
+                      {/* Recuperar leads descartados por vertical/score apagado —
+                          solo tiene sentido mostrarlo si el vertical está activo
+                          ahora Y hay descartados que podrían calificar. */}
+                      {v.active && v.descartadas > 0 && (
+                        <div style={{padding: '0 12px 10px', borderTop: reapplyVertical === v.vertical ? '1px solid #f3f4f6' : undefined}}>
+                          <button
+                            onClick={(e) => { e.preventDefault(); openReapply(v.vertical) }}
+                            style={{...S.btnGhost, fontSize: 12, padding: '4px 10px', marginTop: reapplyVertical === v.vertical ? 10 : 0}}
+                          >
+                            {reapplyVertical === v.vertical ? 'Cancelar' : `↻ Recuperar descartados (${v.descartadas})`}
+                          </button>
+
+                          {reapplyVertical === v.vertical && (
+                            <div style={{marginTop: 10, display: 'flex', flexDirection: 'column', gap: 8}}>
+                              <div style={{fontSize: 12, color: '#6b7280'}}>
+                                Elegí el rango de fechas de registro (<code>filing_date</code>) de los leads de <b>{v.label}</b> que querés reconsiderar. Solo revisa los que quedaron descartados exactamente por tener este vertical o su score apagados — nunca toca descartes por otro motivo.
+                              </div>
+                              <div style={{display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap'}}>
+                                <label style={{display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#374151'}}>
+                                  Desde
+                                  <input type="date" value={reapplyFrom} onChange={e => { setReapplyFrom(e.target.value); setReapplyDry(null) }} style={S.select} />
+                                </label>
+                                <label style={{display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#374151'}}>
+                                  Hasta
+                                  <input type="date" value={reapplyTo} onChange={e => { setReapplyTo(e.target.value); setReapplyDry(null) }} style={S.select} />
+                                </label>
+                                <button
+                                  onClick={() => runReapply(v.vertical, true)}
+                                  disabled={reapplyLoading || !reapplyFrom || !reapplyTo}
+                                  style={{...S.btnGhost, opacity: reapplyLoading ? 0.6 : 1}}
+                                >
+                                  {reapplyLoading ? 'Buscando...' : 'Ver cuántos'}
+                                </button>
+                              </div>
+
+                              {reapplyError && <div style={{fontSize: 12, color: '#dc2626'}}>{reapplyError}</div>}
+
+                              {reapplyDry && (
+                                <div style={{fontSize: 12, color: '#374151', background: '#f9fafb', borderRadius: 6, padding: '8px 10px'}}>
+                                  {reapplyDry.candidates === 0 ? (
+                                    <>No hay leads descartados de este vertical en ese rango de fechas.</>
+                                  ) : (
+                                    <>
+                                      Encontrados: <b>{reapplyDry.candidates}</b>. Se recuperarían <b style={{color: '#059669'}}>{reapplyDry.recovered}</b>
+                                      {reapplyDry.still_discarded > 0 && <> · <b style={{color: '#dc2626'}}>{reapplyDry.still_discarded}</b> seguirían descartados (su score sigue apagado)</>}.
+                                      {reapplyDry.recovered > 0 && (
+                                        <div style={{marginTop: 8}}>
+                                          <button
+                                            onClick={() => {
+                                              if (confirm(`Recuperar ${reapplyDry.recovered} leads de ${v.label} (${reapplyFrom} a ${reapplyTo})?\n\nVuelven al pool disponible para dirección/email/carta, como si se hubieran clasificado hoy.`)) {
+                                                runReapply(v.vertical, false)
+                                              }
+                                            }}
+                                            disabled={reapplyLoading}
+                                            style={{...S.btnPrimary, padding: '7px 14px', fontSize: 13, opacity: reapplyLoading ? 0.6 : 1}}
+                                          >
+                                            {reapplyLoading ? 'Recuperando...' : `Recuperar ${reapplyDry.recovered} leads`}
+                                          </button>
+                                        </div>
+                                      )}
+                                    </>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   ))}
                 </div>
               )}

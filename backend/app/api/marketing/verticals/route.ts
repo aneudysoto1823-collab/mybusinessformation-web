@@ -7,7 +7,9 @@
 // vertical como descartada=1 (excluidos del Bloque 3 y siguientes).
 //
 // Cambiar el toggle NO afecta retroactivamente los leads ya clasificados —
-// para eso ver /api/marketing/verticals/apply-retroactive (por implementar).
+// para eso ver POST /api/marketing/verticals/apply-retroactive (implementado
+// 2026-09-24, a demanda del admin con vertical + rango de fechas, nunca
+// automático — ver comentario del archivo para el porqué).
 
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
