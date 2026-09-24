@@ -77,7 +77,8 @@ export async function POST(req: NextRequest) {
     // contactado todavía.
     const readyRes = await marketing.execute({
       sql: `SELECT document_number, entity_name, entity_type, filing_date, officers_json,
-                   target_addr1, target_addr2, target_city, target_state, target_zip, email, identity_score
+                   target_addr1, target_addr2, target_city, target_state, target_zip, email, identity_score,
+                   email_validated, email_validation_source
             FROM marketing_leads
             WHERE procesada = 1 AND descartada = 0
               AND address_validated = 1
@@ -111,6 +112,14 @@ export async function POST(req: NextRequest) {
       // imprimirle la carta.
       email:              (r.email as string | null) || null,
       identity_score:     (r.identity_score as number | null) ?? null,
+      // email_deliverable solo viaja cuando hubo una prueba real de
+      // ZeroBounce (auditoría 2026-09-13/14, punto 2) — si la fuente quedó
+      // en 'enformion' (ZeroBounce dormido) o no hay email, queda null
+      // ("sin dato, tratar como ok", mismo criterio que identity_score sin
+      // valor en emailEligible() del panel).
+      email_deliverable:  r.email_validation_source === 'zerobounce'
+        ? (r.email_validated === null ? null : Number(r.email_validated) === 1)
+        : null,
       registration_date:  (r.filing_date as string | null) || null,
       status:             'new' as const,
       note:               'Importado de Marketing Saliente',

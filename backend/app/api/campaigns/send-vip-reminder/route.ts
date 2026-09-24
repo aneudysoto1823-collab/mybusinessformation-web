@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
 
     const { data: companies, error: fetchErr } = await supabase
       .from('prospective_companies')
-      .select('id,document_id,company_name,company_type,owner_name,city,state,email,registration_date,unsubscribed,vip_reminder_sent_at')
+      .select('id,document_id,company_name,company_type,owner_name,city,state,email,registration_date,unsubscribed,vip_reminder_sent_at,email_deliverable')
       .in('id', company_ids)
 
     if (fetchErr) throw fetchErr
@@ -66,6 +66,12 @@ export async function POST(req: NextRequest) {
       // Ver mismo chequeo en campaigns/send/route.ts — auditoría 2026-09-13/14.
       if (await isSuppressed(company.email)) {
         results.push({ company_id: company.id, document_id: company.document_id, status: 'skipped', reason: 'suppressed (bounce/complaint)' })
+        continue
+      }
+
+      // Ver mismo chequeo en campaigns/send/route.ts (punto 2, ZeroBounce).
+      if (company.email_deliverable === false) {
+        results.push({ company_id: company.id, document_id: company.document_id, status: 'skipped', reason: 'email inválido (ZeroBounce)' })
         continue
       }
 

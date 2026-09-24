@@ -7,6 +7,7 @@ import { classifyLeadsWithHaiku, type LeadInput } from './marketing-classify'
 import { pickTargetAddress } from './marketing-target-address'
 import { validateAddress, GOOGLE_ADDR_COST_PER_LEAD_USD, type ValidationResult } from './google-address'
 import { enrichContact, firstPersonOfficer, ENFORMION_COST_PER_LEAD_USD } from './enformion'
+import { validateEnformionEmail } from './zerobounce'
 import { getSupabaseAdmin } from './supabase'
 
 export const MAX_STALE_DAYS = 3
@@ -298,6 +299,17 @@ export async function enrichEmailPending(marketing: Client, score: string, n: nu
     if (result.found && !meetsReportThreshold) belowThreshold += 1
     if (meetsReportThreshold) found += 1; else if (!result.found) notFound += 1
 
+    // ZeroBounce — mismo criterio que /api/marketing/enrich-email (auditoría
+    // 2026-09-13/14, punto 2): si está dormido, cae al isValidated propio de
+    // Enformion (cero cambio de comportamiento).
+    let emailValidated = result.email_validated
+    let emailValidationSource: 'zerobounce' | 'enformion' | null = result.email ? 'enformion' : null
+    if (result.email) {
+      const zb = await validateEnformionEmail(result.email, result.email_validated)
+      emailValidated = zb.validated
+      emailValidationSource = zb.source
+    }
+
     await marketing.execute({
       sql: `UPDATE marketing_leads
             SET email = ?, email_is_business = ?, email_validated = ?,
@@ -307,8 +319,8 @@ export async function enrichEmailPending(marketing: Client, score: string, n: nu
       args: [
         result.email,
         result.email_is_business === null ? null : (result.email_is_business ? 1 : 0),
-        result.email_validated === null ? null : (result.email_validated ? 1 : 0),
-        result.email ? 'enformion' : null,
+        emailValidated === null ? null : (emailValidated ? 1 : 0),
+        emailValidationSource,
         result.phone,
         result.identity_score,
         ENFORMION_COST_PER_LEAD_USD,
@@ -321,12 +333,15 @@ export async function enrichEmailPending(marketing: Client, score: string, n: nu
     // Y su identity_score le llegan solos, sin que el staff tenga que
     // reenviar nada — siempre, sin importar el % de precisión (el filtro de
     // a quién emailear vs a quién imprimirle la carta vive en Campaigns &
-    // Letters, no acá).
+    // Letters, no acá). email_deliverable solo viaja cuando hubo una prueba
+    // real de ZeroBounce (source==='zerobounce').
     if (result.email) {
       try {
+        const payload: Record<string, unknown> = { email: result.email, identity_score: result.identity_score }
+        if (emailValidationSource === 'zerobounce') payload.email_deliverable = emailValidated
         await getSupabaseAdmin()
           .from('prospective_companies')
-          .update({ email: result.email, identity_score: result.identity_score })
+          .update(payload)
           .eq('document_id', (row.document_number as string).toUpperCase())
           .is('email', null)
       } catch (e) {

@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
 
     const { data: companies, error: fetchErr } = await supabase
       .from('prospective_companies')
-      .select('id,document_id,company_name,company_type,owner_name,city,state,email,status,registration_date,unsubscribed,carta_sent_at')
+      .select('id,document_id,company_name,company_type,owner_name,city,state,email,status,registration_date,unsubscribed,carta_sent_at,email_deliverable')
       .in('id', company_ids)
 
     if (fetchErr) throw fetchErr
@@ -75,6 +75,16 @@ export async function POST(req: NextRequest) {
       // del rebote). Auditoría 2026-09-13/14.
       if (await isSuppressed(company.email)) {
         results.push({ company_id: company.id, document_id: company.document_id, status: 'skipped', reason: 'suppressed (bounce/complaint)' })
+        continue
+      }
+
+      // ZeroBounce ya lo marcó como no entregable (auditoría 2026-09-13/14,
+      // punto 2) — a diferencia de isSuppressed (rebote/queja YA ocurrido),
+      // esto evita mandarlo la primera vez. Solo bloquea cuando el dato es
+      // explícitamente false (una prueba real que falló) — null/true no
+      // bloquean (sin dato o validado, mismo criterio que % Precisión).
+      if (company.email_deliverable === false) {
+        results.push({ company_id: company.id, document_id: company.document_id, status: 'skipped', reason: 'email inválido (ZeroBounce)' })
         continue
       }
 

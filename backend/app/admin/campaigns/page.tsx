@@ -34,6 +34,12 @@ type Company = {
   // Saliente, se guarda igual — este filtro decide acá, en Campaigns &
   // Letters, a quién de verdad emailear vs a quién imprimirle la carta.
   identity_score: number | null
+  // ZeroBounce (auditoría 2026-09-13/14, punto 2): true/false solo cuando
+  // hubo una prueba real de bandeja (MX+SMTP) — null cuando no se validó
+  // todavía (ZeroBounce estaba dormido cuando se buscó el email, o el email
+  // se cargó a mano). null se trata como "ok" — mismo criterio permisivo que
+  // identity_score sin valor.
+  email_deliverable: boolean | null
 }
 
 // Registro de templates disponibles (pedido founder 2026-09-14): antes había
@@ -226,10 +232,15 @@ export default function CampaignsPage() {
   useEffect(() => { fetchStats(); fetchCompanies() }, [fetchStats, fetchCompanies])
 
   // "Apto para email" = tiene email Y (sin identity_score, o identity_score
-  // >= el filtro de precisión propio de este panel). Todo lo que no cumple
-  // esto cae al tab "Sin Email" para imprimir, aunque tenga un email
-  // guardado — es exactamente el pedido founder 2026-09-14.
-  const emailEligible = (c: Company) => !!c.email && (c.identity_score === null || c.identity_score >= minRatingFilter)
+  // >= el filtro de precisión propio de este panel) Y ZeroBounce no lo marcó
+  // explícitamente como no entregable. Todo lo que no cumple esto cae al tab
+  // "Sin Email" para imprimir, aunque tenga un email guardado — mismo
+  // criterio pedido founder 2026-09-14 para identity_score, extendido acá a
+  // email_deliverable (auditoría 2026-09-13/14, punto 2). email_deliverable
+  // === false es el único valor que excluye — null (sin validar todavía) se
+  // trata como ok, igual que identity_score sin valor.
+  const emailEligible = (c: Company) =>
+    !!c.email && c.email_deliverable !== false && (c.identity_score === null || c.identity_score >= minRatingFilter)
 
   // Lista realmente mostrada en la tabla — igual a `companies` salvo dentro
   // de "New", donde además se filtra por el tab con/sin email activo. Todo
@@ -640,6 +651,7 @@ export default function CampaignsPage() {
               <li>Si alguien se da de baja (link de unsubscribe), nunca más se le vuelve a mandar nada.</li>
               <li>Si un email rebota o alguien lo marca como spam, Resend avisa solo y esa dirección queda excluida de futuros envíos automáticamente.</li>
               <li>Todos los emails incluyen el botón nativo de &quot;Cancelar suscripción&quot; que exigen Gmail/Yahoo (RFC 8058) — no hace falta que el cliente abra el email para darse de baja.</li>
+              <li>Cuando ZeroBounce está activo, valida de verdad el buzón que trajo Enformion (no solo si el nombre parece real) — si lo marca como inválido, esa empresa nunca recibe email (cae a &quot;Sin Email&quot; automáticamente) aunque tenga buen % de precisión.</li>
             </ul>
 
             <h3>Reglas clave</h3>
@@ -959,6 +971,15 @@ export default function CampaignsPage() {
                           {c.email && c.identity_score !== null && (
                             <div style={{ fontSize: '.68rem', fontWeight: 600, marginTop: 2, color: c.identity_score >= minRatingFilter ? '#059669' : '#dc2626' }}>
                               {c.identity_score}% precisión
+                            </div>
+                          )}
+                          {/* ZeroBounce (auditoría 2026-09-13/14, punto 2) — solo se
+                              muestra cuando SÍ hubo una prueba real y falló, para
+                              que se vea por qué cayó a "Sin Email" aunque tenga
+                              buen % de precisión de Enformion. */}
+                          {c.email && c.email_deliverable === false && (
+                            <div style={{ fontSize: '.68rem', fontWeight: 600, marginTop: 2, color: '#dc2626' }}>
+                              ✗ inválido (ZeroBounce)
                             </div>
                           )}
                         </td>

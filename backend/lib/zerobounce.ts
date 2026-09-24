@@ -85,3 +85,27 @@ export async function validateEmail(email: string): Promise<EmailValidationResul
     return { ...r, source: 'regex' }
   }
 }
+
+/**
+ * Conecta ZeroBounce a los emails que trae Enformion (auditoría de marketing
+ * 2026-09-13/14, punto 2 — nunca se había hecho). Enformion solo reporta si
+ * SU búsqueda encontró un email "razonable" (isValidated propio, ver
+ * lib/enformion.ts) — no es una prueba real de que el buzón exista y acepte
+ * correo. ZeroBounce sí lo es (MX + SMTP probe).
+ *
+ * Si ZEROBOUNCE_ENABLED no está activo, `validateEmail()` cae a un chequeo
+ * de formato (source 'dormant'/'regex') que NO es una prueba real de
+ * entregabilidad — en ese caso no reemplazamos el dato de Enformion, dejamos
+ * el `isValidated` que ya traía (comportamiento idéntico al de antes de
+ * conectar esto). Solo cuando `source==='zerobounce'` hubo una prueba real.
+ */
+export async function validateEnformionEmail(
+  email: string,
+  enformionValidated: boolean | null
+): Promise<{ validated: boolean | null; source: 'zerobounce' | 'enformion' }> {
+  const result = await validateEmail(email)
+  if (result.source === 'zerobounce') {
+    return { validated: result.valid, source: 'zerobounce' }
+  }
+  return { validated: enformionValidated, source: 'enformion' }
+}

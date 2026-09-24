@@ -33,6 +33,7 @@ import { verifyAdminToken } from '@/lib/session'
 import { getMarketingClient } from '@/lib/turso-marketing'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { enrichContact, firstPersonOfficer, ENFORMION_COST_PER_LEAD_USD } from '@/lib/enformion'
+import { validateEnformionEmail } from '@/lib/zerobounce'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 300
@@ -168,6 +169,18 @@ export async function POST(req: Request) {
     if (result.found && !meetsReportThreshold) belowThreshold += 1
     if (meetsReportThreshold) found += 1; else if (!result.found) notFound += 1
 
+    // ZeroBounce (auditoría 2026-09-13/14, punto 2): valida de verdad el
+    // buzón que Enformion encontró (MX+SMTP probe) — no es lo mismo que el
+    // isValidated que Enformion reporta sobre sí mismo. Si ZeroBounce está
+    // dormido, cae al dato de Enformion (cero cambio de comportamiento).
+    let emailValidated = result.email_validated
+    let emailValidationSource: 'zerobounce' | 'enformion' | null = result.email ? 'enformion' : null
+    if (result.email) {
+      const zb = await validateEnformionEmail(result.email, result.email_validated)
+      emailValidated = zb.validated
+      emailValidationSource = zb.source
+    }
+
     await marketing.execute({
       sql: `UPDATE marketing_leads
             SET email = ?,
@@ -182,8 +195,8 @@ export async function POST(req: Request) {
       args: [
         result.email,
         result.email_is_business === null ? null : (result.email_is_business ? 1 : 0),
-        result.email_validated === null ? null : (result.email_validated ? 1 : 0),
-        result.email ? 'enformion' : null,
+        emailValidated === null ? null : (emailValidated ? 1 : 0),
+        emailValidationSource,
         result.phone,
         result.identity_score,
         ENFORMION_COST_PER_LEAD_USD,
@@ -198,11 +211,18 @@ export async function POST(req: Request) {
     // cargado (a mano o de una corrida anterior). Best-effort: si Supabase
     // falla, no aborta el resto de la corrida (el email ya quedó guardado en
     // Turso de todas formas). Siempre, sin importar el % de precisión.
+    //
+    // email_deliverable solo se manda cuando la fuente es 'zerobounce' de
+    // verdad (una prueba real) — si quedó en 'enformion' (ZeroBounce
+    // dormido), no escribimos nada acá, para no hacerle creer a Campaigns &
+    // Letters que hubo una validación real cuando no la hubo.
     if (result.email) {
       try {
+        const payload: Record<string, unknown> = { email: result.email, identity_score: result.identity_score }
+        if (emailValidationSource === 'zerobounce') payload.email_deliverable = emailValidated
         await getSupabaseAdmin()
           .from('prospective_companies')
-          .update({ email: result.email, identity_score: result.identity_score })
+          .update(payload)
           .eq('document_id', (row.document_number as string).toUpperCase())
           .is('email', null)
       } catch (e) {
