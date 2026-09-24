@@ -1883,6 +1883,30 @@ tenía estos 2 problemas de layout.
 
 ---
 
+## Sesión 2026-09-24 — Labor Law Poster (producto $120 de OpaBiz), diseño desde cero
+
+Pedido founder: máxima cobertura legal real para el cliente. Decisión clave: usar el **arte oficial real de cada agencia tal cual** (documentos de dominio público — es el mismo modelo "white-label" que usan los vendedores reales del rubro, confirmado con investigación), no resumir el contenido con palabras propias. Archivos en `LABOR_LAW_POSTER/` (ver `README.md` ahí para el detalle completo).
+
+**Estructura decidida — 2 pósters separados de una sola cara, no 1 combinado a doble cara** (un póster de pared no muestra el dorso, así que un aviso "atrás" no estaría legalmente visible):
+- **Federal** (6 avisos: OSHA, EEOC "Know Your Rights", FMLA, EPPA, USERRA, FLSA) — 26"×26" / 24"×24".
+- **Florida** (7 avisos: Salario Mínimo, Workers' Comp a color, RT-83, Trabajo Infantil, No Discriminación, E-Verify Participation + Right to Work) — 26"×42" / 24"×38".
+- Excluidos a propósito: NLRA (anulado para privados en general, solo aplica a contratistas federales), Trata de Personas (específico por industria — hoteles, salud, transporte — no universal).
+
+**Tamaños mínimos legales reales encontrados y respetados** (el resto de los avisos no tiene número exacto, solo "legible y visible"):
+- OSHA: 8.5"×14", 10pt cuerpo / 36pt título.
+- Salario Mínimo FL: 8.5"×11", 16pt mínimo.
+- Workers' Comp FL: 11"×17", debe imprimirse a color (Fla. Admin. Code 69L-6.007).
+
+**Marca:** el logo de OpaBiz NO va arriba (decisión founder) — arriba solo título + QR a opabiz.com (sin "www", igual que el resto del sitio). Logo + dominio + disclosure van abajo a la derecha, en su propio bloque de crédito — la marca nunca toca el contenido oficial de las agencias, solo el margen (mismo criterio "white-label").
+
+**El verdadero desafío fue de layout, no de contenido** — encajar documentos reales de proporciones muy distintas (algunos angostos-y-altos como OSHA/Trabajo Infantil, otros panorámicos como Workers' Comp) sin dejar espacio en blanco ni pasarse del tamaño físico (más grande = más caro de imprimir/laminar, feedback explícito del founder). Se resolvió con matemática real (no a ojo): en el Federal, OSHA quedó como columna alta a la izquierda con los otros 5 apilados a la derecha en proporciones calculadas para que las alturas coincidan exacto. En el Florida, el hallazgo más útil fue que el aviso de Right to Work (11"×8.5") es matemáticamente **la mitad exacta** de alto que Trabajo Infantil (11"×17") a cualquier ancho compartido — emparejarlos da cero espacio en blanco, no aproximado. El par de E-Verify se terminó separando entre las 2 filas (uno con Workers' Comp arriba, el otro con Trabajo Infantil abajo) en vez de mantenerlos juntos, que fue lo que realmente resolvió el problema.
+
+**Técnica:** container queries (`container-type:inline-size` + unidades `cqw`) en el `.poster` para que el mismo HTML sirva para las 2 variantes de tamaño (toggle en pantalla) sin mantener 2 diseños separados — todo el texto/espaciado escala proporcional. QR real generado con `qrcodejs` (cdnjs). Selector de tamaño inyecta `@page{size:...}` dinámicamente antes de imprimir.
+
+**⏰ Mantenimiento recurrente:** revisar ~cada 30 de septiembre (coincide con la actualización anual del salario mínimo de Florida) si alguno de los 13 PDFs oficiales cambió de versión — lista completa de URLs + notas de qué dominios bloquean `curl` sin headers de navegador real (dol.gov en particular, con rate-limiting real) en memoria `project_labor_law_poster.md` y en `LABOR_LAW_POSTER/README.md`.
+
+**Pendiente:** versión en español de ambos pósters (2 de los 13 PDFs oficiales — FCHR No Discriminación y E-Verify Right to Work — ya vienen bilingües EN/ES de fábrica, esas imágenes ya están renderizadas en `LABOR_LAW_POSTER/img/`), versión MyBiz de los 4 (logo FBFC real en vez de OB, dominio mybusinessformation.com), y el aviso NLRA quedó ofrecido pero no construido (solo aplica a contratistas federales, evaluar si se agrega como aviso condicional aparte).
+
 ## Deploy
 
 - `git push origin main` — Vercel detecta cambios en `backend/` y hace deploy automático

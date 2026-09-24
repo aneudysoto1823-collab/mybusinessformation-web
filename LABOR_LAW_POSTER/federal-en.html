@@ -1,0 +1,203 @@
+<title>Federal Labor Law Poster</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap">
+<style>
+  /* Fixed print artifact (physical wall poster) — colors painted explicitly,
+     no dark/light theming; see opabiz-en.html for the same rationale. */
+  :root{
+    --navy:#152436; --navy-2:#1C2E44; --blue:#2563EB; --blue-deep:#1D4ED8;
+    --paper:#FBFAF7; --paper-2:#F2F0EA; --ink:#1A2230; --ink-soft:#4B5668;
+    --line:#D9D4C7; --card:#F4F2EC;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:var(--paper-2);color:var(--ink);font-family:'Plus Jakarta Sans',system-ui,sans-serif;padding-block:28px}
+
+  .controls{max-width:960px;margin:0 auto 22px;padding:0 16px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--ink-soft)}
+  .controls .group{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:6px 8px}
+  .controls label{font-weight:600;color:var(--ink)}
+  .controls select{font:inherit;font-size:13px;padding:5px 8px;border-radius:6px;border:1px solid var(--line);background:var(--paper);color:var(--ink)}
+  .controls button{font:inherit;font-weight:700;font-size:13px;padding:8px 16px;border-radius:8px;border:none;background:var(--blue);color:#fff;cursor:pointer}
+  .controls button:hover{background:var(--blue-deep)}
+  @media print{ .controls{display:none} body{background:#fff;padding:0} }
+
+  .poster-wrap{display:flex;justify-content:center;padding:0 16px}
+  .poster{
+    container-type:inline-size;
+    width:min(100%,760px);
+    aspect-ratio:var(--ar,26/26);
+    background:var(--paper);
+    box-shadow:0 30px 60px -20px rgba(21,36,54,.35),0 0 0 1px var(--line);
+    position:relative;overflow:hidden;display:flex;flex-direction:column;
+  }
+  html[data-size="std"] .poster{--ar:24/24}
+  @media print{
+    .poster{width:var(--print-w,26in);height:var(--print-h,26in);aspect-ratio:auto;box-shadow:none;margin:0}
+    .poster-wrap{padding:0}
+  }
+
+  /* Header — title + QR only, no brand mark (founder call 2026-09-24) */
+  .p-header{
+    background:linear-gradient(135deg,var(--navy) 0%,var(--navy-2) 62%,#22406B 100%);
+    color:#fff;padding:2cqw 3cqw;display:flex;align-items:center;justify-content:space-between;gap:2cqw;
+    flex:0 0 auto;position:relative;
+  }
+  .p-header::after{content:"";position:absolute;left:0;right:0;bottom:0;height:.35cqw;background:linear-gradient(90deg,var(--blue),#7FA6F2 45%,var(--blue))}
+  .p-header .titles .eyebrow{font-family:'JetBrains Mono',monospace;font-weight:600;letter-spacing:.16em;text-transform:uppercase;font-size:.68cqw;color:#AFC3EE;margin:0 0 .4cqw}
+  .p-header .titles h1{font-family:'Fraunces',serif;font-weight:600;font-size:2.35cqw;line-height:1.05;margin:0 0 .4cqw;text-wrap:balance}
+  .p-header .titles p{font-size:.85cqw;color:#D7E1F5;margin:0;max-width:42cqw}
+  .p-header .qr-cluster{display:flex;flex-direction:column;align-items:center;gap:.4cqw;flex:0 0 auto}
+  .qr-box{width:5.4cqw;height:5.4cqw;background:#fff;border-radius:.5cqw;padding:.4cqw}
+  .qr-box img,.qr-box canvas{width:100%;height:100%}
+  .p-header .qr-cluster .cap{font-family:'JetBrains Mono',monospace;font-size:.56cqw;color:#AFC3EE;text-align:center}
+
+  .p-body{flex:1 1 auto;padding:3.4cqw 2.4cqw 1.6cqw;display:flex;flex-direction:column;min-height:0}
+
+  /* OSHA anchors a tall left column; the other 5 stack as 2 rows on the
+     right. The 5.2fr/6.8fr split is solved (not guessed) so OSHA's real
+     8.5x14 aspect ratio comes out the same height as the two stacked rows
+     combined — no leftover gap from forcing a tall document to share a
+     single row with square ones (2026-09-24 fix). */
+  .fed-grid{display:grid;grid-template-columns:5.2fr 6.8fr;gap:1.3cqw;align-items:stretch}
+  .fed-stack{display:flex;flex-direction:column;justify-content:space-between;gap:1.3cqw;min-width:0}
+  .sub-duo{display:grid;grid-template-columns:1fr 1fr;gap:1.3cqw}
+  .sub-trio{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.3cqw}
+
+  .doc-card{display:flex;flex-direction:column;gap:.55cqw}
+  .doc-card.tall{height:100%}
+  .doc-card.tall .doc-frame{flex:1;min-height:0}
+  .doc-card.tall .doc-frame img{width:auto;height:100%;max-width:100%;margin:0 auto}
+  .doc-frame{
+    border:1px solid var(--line);border-radius:.4cqw;overflow:hidden;background:#fff;
+    box-shadow:0 .3cqw .9cqw -.5cqw rgba(21,36,54,.25);
+  }
+  .doc-frame img{display:block;width:100%;height:auto}
+  .doc-cap{display:flex;align-items:baseline;justify-content:space-between;gap:.5cqw;padding:0 .1cqw}
+  .doc-cap .name{font-family:'Fraunces',serif;font-weight:600;font-size:.78cqw;color:var(--navy-2)}
+  .doc-cap .agency{font-family:'JetBrains Mono',monospace;font-size:.5cqw;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.03em}
+  .doc-cap .badge{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:.5cqw;padding:.16cqw .5cqw;border-radius:99px;background:#EEF2FB;color:var(--blue-deep);border:1px solid #C7D6F5;white-space:nowrap}
+  .doc-cap .badge.all{background:#E7F3EA;color:#1E7A3D;border-color:#C7E6CE}
+
+  .p-footer{
+    flex:0 0 auto;background:var(--navy);color:#C9D3E4;
+    padding:1.2cqw 2.4cqw;display:flex;justify-content:space-between;align-items:flex-end;gap:2cqw;
+  }
+  .p-footer .legal{font-size:.52cqw;line-height:1.5;max-width:56cqw;color:#B3C0D6}
+  .p-footer .legal strong{color:#fff}
+  .credit{display:flex;align-items:center;gap:.7cqw;flex:0 0 auto}
+  .credit .mark{width:2.6cqw;height:2.6cqw;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+  .credit .mark img{width:100%;height:100%;object-fit:contain;border-radius:.35cqw}
+  .credit .text{text-align:right}
+  .credit .domain{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:.68cqw;color:#fff}
+  .credit .sub{font-size:.52cqw;color:#8FA0BE}
+</style>
+
+<div class="controls">
+  <div class="group"><label for="sizeSel">Print size</label>
+    <select id="sizeSel">
+      <option value="wide" selected>26&quot; &times; 26&quot;</option>
+      <option value="std">24&quot; &times; 24&quot;</option>
+    </select>
+  </div>
+  <span>All 6 federal notices reproduced from their official government artwork, unaltered.</span>
+  <button id="printBtn">Print / Save as PDF</button>
+</div>
+
+<div class="poster-wrap">
+  <div class="poster" id="poster">
+
+    <header class="p-header">
+      <div class="titles">
+        <p class="eyebrow">Workplace Compliance &middot; Side 1 of 2</p>
+        <h1>Federal Labor Law Poster</h1>
+        <p>All 6 mandatory U.S. Department of Labor and EEOC workplace postings, reproduced from official government artwork. Display alongside the Florida State poster where employees can readily see both.</p>
+      </div>
+      <div class="qr-cluster">
+        <div class="qr-box"><div id="qr"></div></div>
+        <div class="cap">opabiz.com</div>
+      </div>
+    </header>
+
+    <div class="p-body">
+
+      <div class="fed-grid">
+        <div class="doc-card tall">
+          <div class="doc-frame"><img src="osha.png" alt="OSHA Job Safety and Health poster"></div>
+          <div class="doc-cap"><span class="name">Job Safety &amp; Health</span><span class="badge all">All employers</span></div>
+          <div class="doc-cap"><span class="agency">OSHA &middot; 8.5&Prime;&times;14&Prime; min. &middot; 10pt min.</span></div>
+        </div>
+        <div class="fed-stack">
+          <div class="sub-duo">
+            <div class="doc-card">
+              <div class="doc-frame"><img src="eeoc.png" alt="EEOC Know Your Rights poster"></div>
+              <div class="doc-cap"><span class="name">Know Your Rights: Discrimination Is Illegal</span><span class="badge">15+ employees</span></div>
+              <div class="doc-cap"><span class="agency">EEOC</span></div>
+            </div>
+            <div class="doc-card">
+              <div class="doc-frame"><img src="userra.png" alt="USERRA poster"></div>
+              <div class="doc-cap"><span class="name">USERRA</span><span class="badge all">All employers</span></div>
+              <div class="doc-cap"><span class="agency">U.S. DOL &middot; VETS</span></div>
+            </div>
+          </div>
+          <div class="sub-trio">
+            <div class="doc-card">
+              <div class="doc-frame"><img src="fmla.png" alt="FMLA poster"></div>
+              <div class="doc-cap"><span class="name">Family &amp; Medical Leave Act</span><span class="badge">50+ employees</span></div>
+              <div class="doc-cap"><span class="agency">U.S. DOL &middot; WHD</span></div>
+            </div>
+            <div class="doc-card">
+              <div class="doc-frame"><img src="eppa.png" alt="EPPA poster"></div>
+              <div class="doc-cap"><span class="name">Employee Polygraph Protection Act</span><span class="badge all">Most employers</span></div>
+              <div class="doc-cap"><span class="agency">U.S. DOL &middot; WHD</span></div>
+            </div>
+            <div class="doc-card">
+              <div class="doc-frame"><img src="flsa.png" alt="FLSA Federal Minimum Wage poster"></div>
+              <div class="doc-cap"><span class="name">Federal Minimum Wage</span><span class="badge all">All employers</span></div>
+              <div class="doc-cap"><span class="agency">FLSA &middot; U.S. DOL</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <footer class="p-footer">
+      <p class="legal">This poster reproduces official, unaltered artwork published by the U.S. Department of Labor and the EEOC. <strong>OpaBiz</strong> is a trade name of Florida Business Formation Center &mdash; a professional document preparation service, not a law firm; this is not legal advice. Verify current requirements at dol.gov and eeoc.gov before printing for compliance use.</p>
+      <div class="credit">
+        <div class="mark"><img src="opabiz-logo.png" alt="OpaBiz"></div>
+        <div class="text">
+          <div class="domain">opabiz.com</div>
+          <div class="sub">Provided by OpaBiz &middot; compiled Sept 2026</div>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+  (function(){
+    try{
+      if(window.QRCode){
+        new QRCode(document.getElementById('qr'), {
+          text:'https://opabiz.com', width:256, height:256,
+          colorDark:'#152436', colorLight:'#ffffff', correctLevel:QRCode.CorrectLevel.M
+        });
+      }
+    }catch(e){ console.error('QR render failed', e); }
+
+    var sel = document.getElementById('sizeSel');
+    var root = document.documentElement;
+    var PRINT_SIZES = { std:{w:'24in',h:'24in'}, wide:{w:'26in',h:'26in'} };
+    var styleTag = document.createElement('style');
+    document.head.appendChild(styleTag);
+    function applySize(v){
+      root.setAttribute('data-size', v === 'std' ? 'std' : 'wide');
+      var s = PRINT_SIZES[v] || PRINT_SIZES.wide;
+      styleTag.textContent = '@page{size:'+s.w+' '+s.h+';margin:0}@media print{.poster{width:'+s.w+';height:'+s.h+'}}';
+    }
+    sel.addEventListener('change', function(){ applySize(sel.value); });
+    applySize(sel.value);
+    document.getElementById('printBtn').addEventListener('click', function(){ window.print(); });
+  })();
+</script>

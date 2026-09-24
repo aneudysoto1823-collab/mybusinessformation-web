@@ -1,0 +1,216 @@
+<title>Florida Labor Law Poster</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap">
+<style>
+  :root{
+    --navy:#152436; --navy-2:#1C2E44; --blue:#2563EB; --blue-deep:#1D4ED8;
+    --fl:#B4650E; --fl-deep:#8A4B08;
+    --paper:#FBFAF7; --paper-2:#F2F0EA; --ink:#1A2230; --ink-soft:#4B5668;
+    --line:#D9D4C7;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:var(--paper-2);color:var(--ink);font-family:'Plus Jakarta Sans',system-ui,sans-serif;padding-block:28px}
+
+  .controls{max-width:960px;margin:0 auto 22px;padding:0 16px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--ink-soft)}
+  .controls .group{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:6px 8px}
+  .controls label{font-weight:600;color:var(--ink)}
+  .controls select{font:inherit;font-size:13px;padding:5px 8px;border-radius:6px;border:1px solid var(--line);background:var(--paper);color:var(--ink)}
+  .controls button{font:inherit;font-weight:700;font-size:13px;padding:8px 16px;border-radius:8px;border:none;background:var(--fl);color:#fff;cursor:pointer}
+  .controls button:hover{background:var(--fl-deep)}
+  @media print{ .controls{display:none} body{background:#fff;padding:0} }
+
+  .poster-wrap{display:flex;justify-content:center;padding:0 16px}
+  .poster{
+    container-type:inline-size;
+    width:min(100%,760px);
+    aspect-ratio:var(--ar,26/42);
+    background:var(--paper);
+    box-shadow:0 30px 60px -20px rgba(21,36,54,.35),0 0 0 1px var(--line);
+    position:relative;overflow:hidden;display:flex;flex-direction:column;
+  }
+  html[data-size="std"] .poster{--ar:24/38}
+  @media print{
+    .poster{width:var(--print-w,26in);height:var(--print-h,42in);aspect-ratio:auto;box-shadow:none;margin:0}
+    .poster-wrap{padding:0}
+  }
+
+  .p-header{
+    background:linear-gradient(135deg,var(--navy) 0%,var(--navy-2) 62%,#22406B 100%);
+    color:#fff;padding:2cqw 3cqw;display:flex;align-items:center;justify-content:space-between;gap:2cqw;
+    flex:0 0 auto;position:relative;
+  }
+  .p-header::after{content:"";position:absolute;left:0;right:0;bottom:0;height:.35cqw;background:linear-gradient(90deg,var(--fl),#E0A857 45%,var(--fl))}
+  .p-header .titles .eyebrow{font-family:'JetBrains Mono',monospace;font-weight:600;letter-spacing:.16em;text-transform:uppercase;font-size:.68cqw;color:#E9C892;margin:0 0 .4cqw}
+  .p-header .titles h1{font-family:'Fraunces',serif;font-weight:600;font-size:2.35cqw;line-height:1.05;margin:0 0 .4cqw;text-wrap:balance}
+  .p-header .titles p{font-size:.85cqw;color:#D7E1F5;margin:0;max-width:42cqw}
+  .p-header .qr-cluster{display:flex;flex-direction:column;align-items:center;gap:.4cqw;flex:0 0 auto}
+  .qr-box{width:5.4cqw;height:5.4cqw;background:#fff;border-radius:.5cqw;padding:.4cqw}
+  .qr-box img,.qr-box canvas{width:100%;height:100%}
+  .p-header .qr-cluster .cap{font-family:'JetBrains Mono',monospace;font-size:.56cqw;color:#E9C892;text-align:center}
+
+  .p-body{flex:1 1 auto;padding:2.2cqw 2.4cqw 1cqw;display:flex;flex-direction:column;gap:1.4cqw;min-height:0}
+
+  .doc-card{display:flex;flex-direction:column;gap:.55cqw}
+  .doc-frame{border:1px solid var(--line);border-radius:.4cqw;overflow:hidden;background:#fff;box-shadow:0 .3cqw .9cqw -.5cqw rgba(21,36,54,.25)}
+  .doc-frame img{display:block;width:100%;height:auto}
+  .doc-cap{display:flex;align-items:baseline;justify-content:space-between;gap:.5cqw;padding:0 .1cqw}
+  .doc-cap .name{font-family:'Fraunces',serif;font-weight:600;font-size:.78cqw;color:var(--navy-2)}
+  .doc-cap .agency{font-family:'JetBrains Mono',monospace;font-size:.5cqw;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.03em}
+  .doc-cap .badge{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:.5cqw;padding:.16cqw .5cqw;border-radius:99px;background:#FBF1E4;color:var(--fl-deep);border:1px solid #EAD3A5;white-space:nowrap}
+  .doc-cap .badge.all{background:#E7F3EA;color:#1E7A3D;border-color:#C7E6CE}
+
+  .hero .doc-cap .name{font-size:1.05cqw}
+  .hero .doc-cap .badge{font-size:.58cqw;padding:.2cqw .65cqw}
+
+  /* Founder feedback 2026-09-24: bigger poster = more expensive to print,
+     and the first pass left generous buffers everywhere, not just the
+     legal minimums — tightened toward "real minimum + small safety margin"
+     everywhere below. Workers' Comp's true minimum is 17"x11" (landscape) —
+     sized right at that, paired with E-Verify Participation alone (not
+     both E-Verify docs — see row-childlabor below for why). */
+  .row-hero{display:grid;grid-template-columns:7.1fr 2.9fr;gap:1.1cqw}
+  .hero .doc-frame{max-width:none}
+
+  /* Min Wage needs a real 8.5in-wide minimum — an equal 3-way split
+     dropped it just under that. Weighted so it always clears the floor. */
+  .row-trio{display:grid;grid-template-columns:1.08fr 1fr 1fr;gap:1.1cqw}
+
+  /* Child Labor paired with E-Verify's Right to Work notice, not
+     Participation — found by comparing the two E-Verify images' real
+     pixel dimensions that Right to Work (11"x8.5") is EXACTLY half the
+     height of Child Labor (11"x17") at any shared width, so a 1:2 column
+     split lands them at the identical height with zero gap, not an
+     approximation. Solves the "Child Labor alone with dead margins" look
+     from the previous pass, and is shorter overall than the version that
+     stacked both E-Verify docs together instead (2026-09-24). */
+  .row-childlabor{display:grid;grid-template-columns:1fr 2fr;gap:1.1cqw}
+
+  .p-footer{
+    flex:0 0 auto;background:var(--navy);color:#C9D3E4;
+    padding:1.2cqw 2.4cqw;display:flex;justify-content:space-between;align-items:flex-end;gap:2cqw;
+  }
+  .p-footer .legal{font-size:.52cqw;line-height:1.5;max-width:56cqw;color:#B3C0D6}
+  .p-footer .legal strong{color:#fff}
+  .credit{display:flex;align-items:center;gap:.7cqw;flex:0 0 auto}
+  .credit .mark{width:2.6cqw;height:2.6cqw;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+  .credit .mark img{width:100%;height:100%;object-fit:contain;border-radius:.35cqw}
+  .credit .text{text-align:right}
+  .credit .domain{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:.68cqw;color:#fff}
+  .credit .sub{font-size:.52cqw;color:#8FA0BE}
+</style>
+
+<div class="controls">
+  <div class="group"><label for="sizeSel">Print size</label>
+    <select id="sizeSel">
+      <option value="wide" selected>26&quot; &times; 42&quot;</option>
+      <option value="std">24&quot; &times; 38&quot;</option>
+    </select>
+  </div>
+  <span>All 7 Florida notices reproduced from official state agency artwork, unaltered.</span>
+  <button id="printBtn">Print / Save as PDF</button>
+</div>
+
+<div class="poster-wrap">
+  <div class="poster" id="poster">
+
+    <header class="p-header">
+      <div class="titles">
+        <p class="eyebrow">Workplace Compliance &middot; Side 2 of 2</p>
+        <h1>Florida Labor Law Poster</h1>
+        <p>All 7 mandatory Florida state workplace postings, reproduced from official state agency artwork. Display alongside the Federal poster where employees can readily see both.</p>
+      </div>
+      <div class="qr-cluster">
+        <div class="qr-box"><div id="qr"></div></div>
+        <div class="cap">opabiz.com</div>
+      </div>
+    </header>
+
+    <div class="p-body">
+
+      <div class="row-hero">
+        <div class="doc-card hero">
+          <div class="doc-frame"><img src="fl-workerscomp.png" alt="Florida Workers Compensation notice"></div>
+          <div class="doc-cap"><span class="name">Workers&rsquo; Compensation &mdash; &ldquo;Workers&rsquo; Comp Works For You&rdquo;</span><span class="badge">4+ employees&sup1;</span></div>
+          <div class="doc-cap"><span class="agency">FL Division of Workers&rsquo; Compensation &middot; 11&Prime;&times;17&Prime; min. &middot; color required</span></div>
+        </div>
+        <div class="doc-card">
+          <div class="doc-frame"><img src="everify-participation.png" alt="E-Verify Participation poster"></div>
+          <div class="doc-cap"><span class="name">E-Verify Participation</span><span class="badge">25+ employees&sup2;</span></div>
+          <div class="doc-cap"><span class="agency">DHS &middot; e-verify.gov</span></div>
+        </div>
+      </div>
+
+      <div class="row-trio">
+        <div class="doc-card">
+          <div class="doc-frame"><img src="fl-minwage.png" alt="Florida Minimum Wage notice"></div>
+          <div class="doc-cap"><span class="name">Florida Minimum Wage</span><span class="badge all">All FL employers</span></div>
+          <div class="doc-cap"><span class="agency">FL Dept. of Commerce &middot; 8.5&Prime;&times;11&Prime; min. &middot; 16pt min.</span></div>
+        </div>
+        <div class="doc-card">
+          <div class="doc-frame"><img src="rt83.png" alt="RT-83 Reemployment Assistance notice"></div>
+          <div class="doc-cap"><span class="name">Reemployment Assistance</span><span class="badge all">All liable employers</span></div>
+          <div class="doc-cap"><span class="agency">FL Dept. of Revenue &middot; RT-83</span></div>
+        </div>
+        <div class="doc-card">
+          <div class="doc-frame"><img src="fchr-en.png" alt="Florida non-discrimination notice"></div>
+          <div class="doc-cap"><span class="name">Non-Discrimination</span><span class="badge">15+ employees</span></div>
+          <div class="doc-cap"><span class="agency">FL Commission on Human Relations</span></div>
+        </div>
+      </div>
+
+      <div class="row-childlabor">
+        <div class="doc-card">
+          <div class="doc-frame"><img src="fl-childlabor.png" alt="Florida Child Labor Laws poster"></div>
+          <div class="doc-cap"><span class="name">Child Labor Law</span><span class="badge">Employers of minors</span></div>
+          <div class="doc-cap"><span class="agency">FL Department of Commerce</span></div>
+        </div>
+        <div class="doc-card">
+          <div class="doc-frame"><img src="everify-rtw-en.png" alt="Right to Work poster"></div>
+          <div class="doc-cap"><span class="name">Right to Work</span><span class="badge all">All employers&sup2;</span></div>
+          <div class="doc-cap"><span class="agency">DHS &middot; e-verify.gov</span></div>
+        </div>
+      </div>
+
+    </div>
+
+    <footer class="p-footer">
+      <p class="legal">This poster reproduces official, unaltered artwork published by Florida state agencies and DHS/E-Verify. <strong>OpaBiz</strong> is a trade name of Florida Business Formation Center &mdash; a professional document preparation service, not a law firm; this is not legal advice. &sup1;Non-construction; 1+ for construction. &sup2;Fla. Stat. &sect;448.095. Verify current requirements before printing for compliance use.</p>
+      <div class="credit">
+        <div class="mark"><img src="opabiz-logo.png" alt="OpaBiz"></div>
+        <div class="text">
+          <div class="domain">opabiz.com</div>
+          <div class="sub">Provided by OpaBiz &middot; compiled Sept 2026</div>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+  (function(){
+    try{
+      if(window.QRCode){
+        new QRCode(document.getElementById('qr'), {
+          text:'https://opabiz.com', width:256, height:256,
+          colorDark:'#152436', colorLight:'#ffffff', correctLevel:QRCode.CorrectLevel.M
+        });
+      }
+    }catch(e){ console.error('QR render failed', e); }
+
+    var sel = document.getElementById('sizeSel');
+    var root = document.documentElement;
+    var PRINT_SIZES = { std:{w:'24in',h:'38in'}, wide:{w:'26in',h:'42in'} };
+    var styleTag = document.createElement('style');
+    document.head.appendChild(styleTag);
+    function applySize(v){
+      root.setAttribute('data-size', v === 'std' ? 'std' : 'wide');
+      var s = PRINT_SIZES[v] || PRINT_SIZES.wide;
+      styleTag.textContent = '@page{size:'+s.w+' '+s.h+';margin:0}@media print{.poster{width:'+s.w+';height:'+s.h+'}}';
+    }
+    sel.addEventListener('change', function(){ applySize(sel.value); });
+    applySize(sel.value);
+    document.getElementById('printBtn').addEventListener('click', function(){ window.print(); });
+  })();
+</script>
