@@ -387,6 +387,8 @@ El dominio redirige **`opabiz.com` (apex) → `www.opabiz.com`** con un **308**.
 
 🔴 **ALERTA — bloqueante, confirmar ANTES de cargar las keys `sk_live_`/`pk_live_` (2026-09-09):** comprar un **seguro de responsabilidad profesional / seguro legal para la compañía** (errors & omissions / general liability) antes de empezar a cobrar tarjetas reales. Sin esto, cualquier reclamo real de un cliente (una presentación rechazada, un error de procesamiento, un dato mal ingresado) deja al negocio expuesto sin cobertura. No confirmar con el founder que esto ya se hizo antes de activar Live — si no está resuelto, no cargar las llaves aunque el resto del checklist esté listo.
 
+🔴 **ALERTA — bloqueante, confirmar ANTES de cargar las keys `sk_live_`/`pk_live_` (2026-09-24):** subir el plan de **ZeroBounce** de Free (100 verificaciones/mes) a uno pago ANTES de activar Stripe Live. `ZEROBOUNCE_ENABLED` es un solo interruptor compartido por 2 usos: validar el email del cliente en el checkout del home (`/api/email/validate`) Y validar los emails que trae Enformion en Marketing Saliente (conectado 2026-09-24, ver sección de esa fecha más abajo) — los dos gastan del mismo cupo de 100/mes. Con checkout en Live (volumen real de clientes pagando) + corridas de marketing de 50-300 leads a la vez, el cupo free se agota en días, y al agotarse el SDK cae solo a un chequeo de formato sin avisar a nadie — se pierde la protección real justo cuando más importa (evitar que un cliente pague con un email mal escrito y nunca reciba su confirmación). Plan sugerido: $15/mes = 2,000 validaciones (ver `LOGICA_DE_NEGOCIO/27_verificacion_email_zerobounce.md`). No activar Live sin resolver esto, aunque el resto del checklist esté listo.
+
 Se completó toda la preparación del lado de Stripe para pasar a Live, **sin cargar todavía las llaves en Vercel** (decisión explícita — se activa en un paso aparte cuando se decida lanzar de verdad, ver checklist que se armó como artifact durante la sesión):
 - ✅ Cuenta cambiada a modo Live, webhook creado (`https://www.opabiz.com/api/webhooks/stripe`, con `www`), llaves `pk_live_.../sk_live_...` obtenidas.
 - ✅ Statement descriptor ya venía cargado (`OPABIZ.COM`, heredado del perfil de verificación de la cuenta — no hubo que configurarlo).
@@ -1328,7 +1330,7 @@ Antes de "corregir" cualquier ítem de esta lista, confirmar primero si el found
 
 Continuación del trabajo de Subscriptions reales implementado el 2026-09-05 (ver sección de Subscriptions más arriba / `lib/order-subscriptions.ts` + `lib/stripe-subscriptions.ts`) y verificado en test mode. Esta sesión preparó todo el lado de **Stripe Live**, a pedido explícito del founder de **NO cargar las keys `sk_live_`/`pk_live_` en Vercel todavía** — se cargan aparte, cuando decidan lanzar de verdad. Detalle completo en memoria `project_stripe_live_activacion_2026-09-07`.
 
-🔴 **Ver alerta bloqueante en la sección "Stripe LIVE — preparado, NO activado" más arriba (2026-07-07): confirmar que se compró el seguro legal/de responsabilidad profesional de la compañía antes de cargar las keys live — no es solo checklist técnico.**
+🔴 **Ver las 2 alertas bloqueantes en la sección "Stripe LIVE — preparado, NO activado" más arriba: (2026-07-07) seguro legal/de responsabilidad profesional de la compañía, y (2026-09-24) subir ZeroBounce de plan Free a uno pago — ninguna de las dos es solo checklist técnico.**
 
 ### ✅ 8 Products creados en Stripe Live (4 OpaBiz + 4 FBFC)
 

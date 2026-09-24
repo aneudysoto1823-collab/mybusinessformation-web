@@ -14,7 +14,9 @@
 
 **Estado 2026-09-16:** Todo el lado de Stripe Live está armado (8 Products, webhook con 8 eventos, Billing Portal Configurations, statement descriptor por marca) desde la sesión del 2026-09-07/09. **Decisión del founder: no cargar las keys `sk_live_`/`pk_live_` en Vercel todavía — se define fecha de activación aparte, ya está bajo control.** Ver `CLAUDE.md` sección "Stripe LIVE — preparado, NO activado" y memoria `project_stripe_live_activacion_2026-09-07`.
 
-🔴 **Único gate real para activar:** confirmar que se compró el seguro de responsabilidad profesional / legal de la compañía (E&O / general liability) — sin esto, no cargar las keys aunque el resto esté listo.
+🔴 **2 gates reales para activar:**
+1. Confirmar que se compró el seguro de responsabilidad profesional / legal de la compañía (E&O / general liability) — sin esto, no cargar las keys aunque el resto esté listo.
+2. Subir el plan de ZeroBounce de Free (100 verificaciones/mes) a uno pago (2026-09-24) — el mismo cupo lo comparten el checkout del home Y Marketing Saliente (conectado 2026-09-24, ver `CLAUDE.md`), así que con volumen real de clientes pagando + corridas de marketing se agota en días y la protección de emails se cae en silencio justo cuando más importa.
 
 ### Cuenta y verificación
 - [x] Crear cuenta Stripe en stripe.com con email del negocio (cuenta OpaBiz creada en sandbox)
