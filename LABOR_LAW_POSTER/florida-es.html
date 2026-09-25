@@ -34,9 +34,20 @@
     .poster-wrap{padding:0}
   }
 
+  /* Header/body/footer vertical padding + row gaps trimmed 2026-09-25:
+     at the real print size (26x42in), the 7 Florida notices' true content
+     height overflowed the fixed-height .poster box by ~73px (out of 4032px
+     at 96dpi) — since .p-body has min-height:0 + flex-shrink, the box
+     didn't grow to fit; instead the last row's content bled underneath the
+     footer bar (founder screenshot, printed PDF). The image rows
+     themselves (row-hero/row-trio/row-childlabor) are each already solved
+     for zero wasted space and row-trio's Min Wage column can't shrink
+     below its 8.5in legal-minimum width — so the fix trims only the
+     purely aesthetic chrome (header/footer padding, row gaps), which has
+     no legal-minimum tied to it. Leaves ~76px (~0.8in) of real margin. */
   .p-header{
     background:linear-gradient(135deg,var(--navy) 0%,var(--navy-2) 62%,#22406B 100%);
-    color:#fff;padding:2cqw 3cqw;display:flex;align-items:center;justify-content:space-between;gap:2cqw;
+    color:#fff;padding:1.1cqw 3cqw;display:flex;align-items:center;justify-content:space-between;gap:2cqw;
     flex:0 0 auto;position:relative;
   }
   .p-header::after{content:"";position:absolute;left:0;right:0;bottom:0;height:.35cqw;background:linear-gradient(90deg,var(--fl),#E0A857 45%,var(--fl))}
@@ -48,7 +59,7 @@
   .qr-box img,.qr-box canvas{width:100%;height:100%}
   .p-header .qr-cluster .cap{font-family:'JetBrains Mono',monospace;font-size:.56cqw;color:#E9C892;text-align:center}
 
-  .p-body{flex:1 1 auto;padding:2.2cqw 2.4cqw 1cqw;display:flex;flex-direction:column;gap:1.4cqw;min-height:0}
+  .p-body{flex:1 1 auto;padding:1.3cqw 2.4cqw 0.4cqw;display:flex;flex-direction:column;gap:0.65cqw;min-height:0}
 
   .doc-card{display:flex;flex-direction:column;gap:.55cqw}
   .doc-frame{border:1px solid var(--line);border-radius:.4cqw;overflow:hidden;background:#fff;box-shadow:0 .3cqw .9cqw -.5cqw rgba(21,36,54,.25)}
@@ -71,7 +82,7 @@
 
   .p-footer{
     flex:0 0 auto;background:var(--navy);color:#C9D3E4;
-    padding:1.2cqw 2.4cqw;display:flex;justify-content:space-between;align-items:flex-end;gap:2cqw;
+    padding:0.6cqw 2.4cqw;display:flex;justify-content:space-between;align-items:flex-end;gap:2cqw;
   }
   .p-footer .legal{font-size:.52cqw;line-height:1.5;max-width:56cqw;color:#B3C0D6}
   .p-footer .legal strong{color:#fff}
