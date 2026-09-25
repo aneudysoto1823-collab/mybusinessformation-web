@@ -26,11 +26,11 @@
     aspect-ratio:var(--ar,26/42);
     background:var(--paper);
     box-shadow:0 30px 60px -20px rgba(21,36,54,.35),0 0 0 1px var(--line);
-    position:relative;overflow:hidden;display:flex;flex-direction:column;
+    position:relative;overflow:visible;display:flex;flex-direction:column;
   }
   html[data-size="std"] .poster{--ar:24/38}
   @media print{
-    .poster{width:var(--print-w,26in);height:var(--print-h,42in);aspect-ratio:auto;box-shadow:none;margin:0}
+    .poster{width:var(--print-w,26in);height:var(--print-h,42in);aspect-ratio:auto;box-shadow:none;margin:0;overflow:hidden}
     .poster-wrap{padding:0}
   }
 
