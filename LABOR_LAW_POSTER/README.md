@@ -52,17 +52,20 @@ práctico de email) — el Federal (~7MB) sí se adjunta.
   no es el mismo documento, así que no se usó como sustituto. Queda en
   inglés dentro del póster ES, con una nota en el pie del recuadro
   ("sin edición oficial en español").
-- **⚠️ OSHA en español es una edición distinta a la inglesa** — la Spanish
-  se descargó de `osha.gov/Publications/osha3167.pdf` (Pub. OSHA 3167-02R,
-  diseño nuevo "OSHA se preocupa por su seguridad"), mientras que el inglés
-  usa `osha3165-8514.pdf` (Pub. 3165, el clásico "Job Safety and Health:
-  It's The Law"). Ambos son arte oficial vigente de OSHA, pero son
-  publicaciones distintas — el founder debería confirmar si esto es
-  aceptable o si prefiere buscar la 3165 en español (si existe) para que
-  ambos idiomas muestren la misma edición. El layout del póster Federal ES
-  (`fed-grid`, 5.7fr/6.3fr en vez de 5.2fr/6.8fr) se retocó para la
-  proporción distinta de esta imagen (0.718 vs 0.607) — verificado por
-  screenshot, sin espacio muerto.
+- **✅ OSHA — unificado a la edición vigente en ambos idiomas (resuelto
+  2026-09-25):** se verificó cuál de las 2 versiones de OSHA es la más
+  reciente. `osha.gov/publications/poster` confirma que **"OSHA Cares Job
+  Safety and Health Workplace Poster"** (Pub. 3165-02R EN / 3167-02R ES,
+  "OSHA Cares that you go home safe" / "OSHA se preocupa por su seguridad")
+  es el póster oficial vigente en 2026, con URLs propias
+  (`/sites/default/files/publications/OSHA3165.pdf` en inglés) — reemplaza
+  al clásico "Job Safety and Health: It's The Law" (`osha3165-8514.pdf`,
+  todavía hosteado pero ya no es el diseño actual). Se descargó la versión
+  en inglés de la URL correcta y se reemplazó `img/osha.png` — ahora EN y ES
+  muestran la MISMA edición (mismas proporciones, 4131×5751, AR 0.718). El
+  layout del `fed-grid` (5.7fr/6.3fr en los 4 archivos Federal) quedó
+  unificado para ambos idiomas — ya no hace falta un split distinto por
+  idioma.
 
 ⏳ **Pendiente:**
 - El aviso NLRA quedó ofrecido (solo aplica a contratistas federales) pero no construido — evaluar si se agrega como aviso condicional aparte.

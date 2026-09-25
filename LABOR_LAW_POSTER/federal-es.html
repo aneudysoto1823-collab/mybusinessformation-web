@@ -53,12 +53,12 @@
   .p-body{flex:1 1 auto;padding:3.4cqw 2.4cqw 1.6cqw;display:flex;flex-direction:column;min-height:0}
 
   /* OSHA anchors a tall left column; the other 5 stack as 2 rows on the
-     right. Split re-tuned for the ES edition (2026-09-25): the official
-     Spanish OSHA poster (Pub. 3167-02R, "OSHA se preocupa por su seguridad")
-     is a different, newer design than the EN "It's The Law" poster (Pub.
-     3165) — real aspect ratio 0.718 vs 0.607 — so the 5.2fr/6.8fr split
-     solved for the EN edition would letterbox here. Widened to 5.7fr/6.3fr
-     and verified by screenshot (no visible gap). */
+     right. 5.7fr/6.3fr solved for OSHA's current "OSHA Cares" poster
+     (Pub. 3167-02R ES / 3165-02R EN, "OSHA se preocupa por su seguridad" /
+     "OSHA Cares that you go home safe", AR 0.718) — replaced the older
+     "It's The Law" design (Pub. 3165-8514, AR 0.607) on 2026-09-25 so EN
+     and ES both show the same current edition. Verified by screenshot
+     (no visible gap). */
   .fed-grid{display:grid;grid-template-columns:5.7fr 6.3fr;gap:1.3cqw;align-items:stretch}
   .fed-stack{display:flex;flex-direction:column;justify-content:space-between;gap:1.3cqw;min-width:0}
   .sub-duo{display:grid;grid-template-columns:1fr 1fr;gap:1.3cqw}

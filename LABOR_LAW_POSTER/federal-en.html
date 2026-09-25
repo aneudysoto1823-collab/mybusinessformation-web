@@ -53,11 +53,13 @@
   .p-body{flex:1 1 auto;padding:3.4cqw 2.4cqw 1.6cqw;display:flex;flex-direction:column;min-height:0}
 
   /* OSHA anchors a tall left column; the other 5 stack as 2 rows on the
-     right. The 5.2fr/6.8fr split is solved (not guessed) so OSHA's real
-     8.5x14 aspect ratio comes out the same height as the two stacked rows
-     combined — no leftover gap from forcing a tall document to share a
-     single row with square ones (2026-09-24 fix). */
-  .fed-grid{display:grid;grid-template-columns:5.2fr 6.8fr;gap:1.3cqw;align-items:stretch}
+     right. 5.7fr/6.3fr is solved (not guessed) so OSHA's real aspect ratio
+     comes out the same height as the two stacked rows combined — no
+     leftover gap from forcing a tall document to share a single row with
+     square ones (2026-09-24 fix). Re-tuned 2026-09-25 when OSHA's poster
+     switched to the newer "OSHA Cares" design (Pub. 3165-02R 2026, AR
+     0.718) — same design/ratio now used in EN and ES for consistency. */
+  .fed-grid{display:grid;grid-template-columns:5.7fr 6.3fr;gap:1.3cqw;align-items:stretch}
   .fed-stack{display:flex;flex-direction:column;justify-content:space-between;gap:1.3cqw;min-width:0}
   .sub-duo{display:grid;grid-template-columns:1fr 1fr;gap:1.3cqw}
   .sub-trio{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.3cqw}
@@ -123,7 +125,7 @@
         <div class="doc-card tall">
           <div class="doc-frame"><img src="img/osha.png" alt="OSHA Job Safety and Health poster"></div>
           <div class="doc-cap"><span class="name">Job Safety &amp; Health</span><span class="badge all">All employers</span></div>
-          <div class="doc-cap"><span class="agency">OSHA &middot; 8.5&Prime;&times;14&Prime; min. &middot; 10pt min.</span></div>
+          <div class="doc-cap"><span class="agency">OSHA &middot; Pub. 3165-02R</span></div>
         </div>
         <div class="fed-stack">
           <div class="sub-duo">
