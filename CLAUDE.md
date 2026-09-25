@@ -1905,7 +1905,42 @@ Pedido founder: máxima cobertura legal real para el cliente. Decisión clave: u
 
 **⏰ Mantenimiento recurrente:** revisar ~cada 30 de septiembre (coincide con la actualización anual del salario mínimo de Florida) si alguno de los 13 PDFs oficiales cambió de versión — lista completa de URLs + notas de qué dominios bloquean `curl` sin headers de navegador real (dol.gov en particular, con rate-limiting real) en memoria `project_labor_law_poster.md` y en `LABOR_LAW_POSTER/README.md`.
 
-**Pendiente:** versión en español de ambos pósters (2 de los 13 PDFs oficiales — FCHR No Discriminación y E-Verify Right to Work — ya vienen bilingües EN/ES de fábrica, esas imágenes ya están renderizadas en `LABOR_LAW_POSTER/img/`), versión MyBiz de los 4 (logo FBFC real en vez de OB, dominio mybusinessformation.com), y el aviso NLRA quedó ofrecido pero no construido (solo aplica a contratistas federales, evaluar si se agrega como aviso condicional aparte).
+**Pendiente (al cierre de esta sesión):** versión en español de ambos pósters y versión MyBiz — ver sección "Sesión 2026-09-25" abajo, donde se completaron. El aviso NLRA sigue ofrecido pero no construido (solo aplica a contratistas federales, evaluar si se agrega como aviso condicional aparte).
+
+---
+
+## Sesión 2026-09-25 — Labor Law Poster: versión MyBiz + español (8/8 combos), panel admin, 2 bugs reales corregidos
+
+Cierra los pendientes de la sesión anterior y agrega la función de envío por email pedida por el founder.
+
+### Las 8 combinaciones completas
+
+`LABOR_LAW_POSTER/{federal,florida}[-mybiz][-es].html` — Federal (26"×26") + Florida (26"×42") × marca (OpaBiz/MyBiz) × idioma (EN/ES). Los PDF finales (impresos con Chrome headless, mismo enfoque que `GUIAS_PDF/generate-pdf.py`) viven como asset estático en `backend/public/labor-law-poster/*.pdf` (~115MB total, mismo patrón que las Guías — no Supabase Storage).
+
+- **MyBiz:** logo FBFC real (`LABOR_LAW_POSTER/fbfc-logo.png`, extraído de `backend/lib/fbfc-seal.ts`) en vez del "OB", dominio+QR a mybusinessformation.com, disclosure sin mencionar "OpaBiz".
+- **Español:** un agente en background consiguió 9 de los 11 avisos que faltaban con su arte oficial real (OSHA, EEOC, FMLA, EPPA, FLSA, USERRA, Salario Mínimo FL, Workers' Comp FL, RT-83) — varios recuperados de archive.org porque dol.gov bloqueaba `curl` directo con 403 (Akamai), incluso con headers de navegador real. E-Verify Participation no necesitó versión aparte — el PNG en inglés ya es el documento oficial bilingüe EN/ES de fábrica. Trabajo Infantil de Florida no tiene edición oficial en español (solo existe un folleto de formato distinto) — queda en inglés dentro del póster ES, con nota.
+- Fix de paso: `federal-en.html`/`florida-en.html` referenciaban las imágenes sin el prefijo `img/` — rotos si se abrían fuera de un Artifact con remapeo de paths.
+
+### Panel admin — `/admin/labor-law-poster`
+
+Ver/descargar/enviar por email cada set (Federal+Florida) por marca+idioma. `backend/lib/labor-law-poster.ts` (catálogo + `getPosterSetForEmail`) + `POST /api/admin/labor-law-poster/send`. El PDF de Florida (~22MB) va siempre como link de descarga, nunca adjunto — supera el límite práctico de email (Gmail ~25MB, más la expansión ~33% de base64); el Federal (~7-8MB) sí se adjunta. Nav pill nuevo en `/admin` ("Labor Law Poster").
+
+### Bug real #1 — OSHA en inglés y español eran publicaciones distintas
+
+El founder pidió confirmar cuál OSHA es más reciente antes de asumir. Verificado en `osha.gov/publications/poster`: **"OSHA Cares Job Safety and Health Workplace Poster"** (Pub. 3165-02R inglés / 3167-02R español, "OSHA Cares that you go home safe" / "OSHA se preocupa por su seguridad") es la edición 2026 vigente — reemplaza al clásico "It's The Law" (`osha3165-8514.pdf`, todavía hosteado pero superado) que el póster en inglés seguía usando. Se reemplazó `img/osha.png` por la edición correcta — ahora EN y ES muestran el mismo diseño/proporción (4131×5751, AR 0.718). `fed-grid` unificado a `5.7fr 6.3fr` en los 4 archivos Federal (antes tenía un split distinto por idioma para compensar la diferencia de AR).
+
+### Bug real #2 — contenido de Florida tapado por el footer (confirmado en el PDF real, no solo pantalla)
+
+El founder reportó la franja navy del footer tapando la última fila (Child Labor Law / Right to Work). Se verificó con un script inyectado (`getBoundingClientRect` de cada sección) a tamaño de impresión real: a 4032px de alto disponible (26x42in), el contenido real necesitaba 4105px — 73px de overflow. `.p-body` tiene `min-height:0` + flex-shrink, así que en vez de que la caja creciera, el final del body se metía debajo del footer (confirmado abriendo el PDF generado, no solo la vista de pantalla — imprimirlo a una impresora real igual sale al tamaño físico correcto, pero el contenido interno seguía cortado).
+
+Las filas de imágenes (`row-hero`/`row-trio`/`row-childlabor`) ya estaban calibradas sin espacio muerto (sesión 2026-09-24) y Salario Mínimo no puede angostarse más sin caer debajo de su mínimo legal real de 8.5"— así que el fix recorta solo el padding de header/footer y el gap entre filas (elementos puramente estéticos, sin mínimo legal), dejando ~76px (~0.8") de margen real. Aplicado a los 4 archivos de Florida — Federal no lo necesitaba (~362px de margen de sobra).
+
+De paso, un fix relacionado pero distinto: `.poster{overflow:hidden}` combinado con un `aspect-ratio` fijo podía recortar contenido **en pantalla** en silencio si el navegador rendereaba el texto un poco más alto de lo esperado (ej. diferencias de métricas de fuente entre Safari y Chrome) — normal-view ahora es `overflow:visible` (si algo mide de más, se ve más abajo en vez de desaparecer); `overflow:hidden` se mantiene solo dentro de `@media print`, donde el alto ya es fijo en pulgadas y de verdad calza con el contenido.
+
+### Pendiente
+
+- El aviso NLRA sigue ofrecido pero no construido (solo aplica a contratistas federales).
+- Revisión visual final del founder en el panel admin pendiente de confirmar tras el fix del footer.
 
 ## Deploy
 
