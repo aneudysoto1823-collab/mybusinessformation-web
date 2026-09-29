@@ -112,6 +112,18 @@ export async function DELETE(req: NextRequest) {
     if (ids.length === 0) return NextResponse.json({ error: 'ids (array no vacío) es requerido' }, { status: 400 })
 
     const supabase = getSupabaseAdmin()
+
+    // email_campaigns/qr_scans/conversions referencian prospective_companies
+    // por company_id (FK sin CASCADE) — borrar la empresa directo fallaba en
+    // silencio con "[object Object]" (bug real reportado por el founder
+    // 2026-09-29) apenas tenía algún historial de envío/scan/conversión, que
+    // es el caso normal de cualquier empresa que ya se trabajó desde este
+    // panel. "Eliminar para siempre" se toma en serio: se borra también su
+    // historial relacionado, no solo la fila de la empresa.
+    await supabase.from('email_campaigns').delete().in('company_id', ids)
+    await supabase.from('qr_scans').delete().in('company_id', ids)
+    await supabase.from('conversions').delete().in('company_id', ids)
+
     const { error, count } = await supabase
       .from('prospective_companies')
       .delete({ count: 'exact' })
