@@ -62,7 +62,7 @@ type CampaignTemplate = {
 const TEMPLATES: CampaignTemplate[] = [
   {
     id: 'carta_nuevas_empresas',
-    label: 'Carta Nuevas Empresas',
+    label: 'Carta Nuevas Empresas (Email + Correo)',
     sendEndpoint: '/api/campaigns/send',
     previewEndpoint: '/api/campaigns/preview-email',
     sentAtField: 'carta_sent_at',
@@ -70,7 +70,7 @@ const TEMPLATES: CampaignTemplate[] = [
   },
   {
     id: 'oferta_vip',
-    label: 'Oferta VIP',
+    label: 'Oferta VIP (Email)',
     sendEndpoint: '/api/campaigns/send-vip-reminder',
     previewEndpoint: '/api/campaigns/preview-vip-reminder',
     sentAtField: 'vip_reminder_sent_at',
