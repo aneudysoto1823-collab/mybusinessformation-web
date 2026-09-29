@@ -53,7 +53,7 @@ Formar la empresa fue un trámite único. Mantenerla activa es un compromiso anu
 
 ### Declaración Anual (Annual Report)
 
-**Qué es.** Es una confirmación anual ante Sunbiz (la división de corporaciones de Florida) de que su empresa sigue activa y que sus datos de registro (dirección, Agente Registrado, oficiales/miembros) siguen siendo correctos. No es un trámite opcional ni algo que se presenta "si hace falta": toda LLC y Corporación activa en Florida debe presentarlo, todos los años, exista o no haya cambiado nada.
+**Qué es.** Es una confirmación anual ante el Estado de Florida de que su empresa sigue activa y que sus datos de registro (dirección, Agente Registrado, oficiales/miembros) siguen siendo correctos. No es un trámite opcional ni algo que se presenta "si hace falta": toda LLC y Corporación activa en Florida debe presentarlo, todos los años, exista o no haya cambiado nada.
 
 **Cuándo vence.** Cada año, entre el **1 de enero y el 1 de mayo**. La primera Declaración Anual de su empresa vence el 1 de mayo del año calendario **siguiente** al de su formación (si formó su empresa en cualquier momento de 2026, su primera Declaración Anual vence el 1 de mayo de 2027).
 
@@ -199,7 +199,7 @@ En cuanto a seguros, ya cubrimos en la Guía I la diferencia entre Responsabilid
 
 ## Glosario
 
-- **Declaración Anual (Annual Report):** confirmación anual ante Sunbiz de que su empresa sigue activa; vence cada 1 de mayo.
+- **Declaración Anual (Annual Report):** confirmación anual ante el Estado de Florida de que su empresa sigue activa; vence cada 1 de mayo.
 - **Disolución administrativa:** proceso por el cual el Estado da de baja una empresa que no cumplió con sus obligaciones anuales.
 - **Foreign LLC/Corp:** registro de calificación que permite a una empresa formada en un estado operar legalmente en otro.
 - **Velo corporativo (corporate veil):** la separación legal entre usted y su empresa; se puede "perforar" (perder) si no se respeta esa separación en la práctica.

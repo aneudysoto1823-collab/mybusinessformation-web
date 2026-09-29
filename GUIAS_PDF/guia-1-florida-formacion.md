@@ -183,7 +183,6 @@ Este es el trámite central: presentar los **Articles of Organization** (LLC) o 
 **Lo que NO hace:** el EIN no le da ninguna protección legal por sí solo, es solo un número de identificación fiscal. La protección de sus bienes personales la da la LLC o Corporación, no el EIN.
 
 **Preguntas frecuentes:**
-- *¿Tiene costo?* No, solicitarlo directamente ante el IRS es gratis. (En OpaBiz.com lo incluimos dentro de la gestión del trámite completo para que no tenga que hacerlo usted mismo.)
 - *¿Necesito estar en Estados Unidos o tener seguro social para solicitarlo?* No. Puede solicitarlo sin estar físicamente en el país y sin tener número de seguro social, usando en su lugar su ITIN o el proceso alternativo del IRS para solicitantes extranjeros.
 
 **[Solicitar mi EIN](https://opabiz.com/servicios?open=ein)**
