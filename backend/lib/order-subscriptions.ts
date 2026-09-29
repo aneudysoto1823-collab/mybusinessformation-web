@@ -22,6 +22,11 @@ export interface OrderSubscriptionEntry {
   status: SubscriptionStatus
   currentPeriodEnd: string | null // ISO date
   createdAt: string // ISO date
+  // ISO date en que status pasó a 'canceled' de verdad (customer.subscription.deleted) —
+  // usado para el cálculo de churn por período. Ausente en cancelaciones anteriores a que
+  // se agregó este campo (2026-09-30): esas cuentan para churn histórico total, pero no
+  // se pueden ubicar en un mes específico.
+  canceledAt?: string
   // true una vez que le mandamos al cliente el email de "tu suscripción fue
   // cancelada" (programada o inmediata) — persistido acá en vez de detectar
   // el flanco comparando previous_attributes evento a evento: confirmado

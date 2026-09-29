@@ -83,6 +83,16 @@ export function getServiceFee(id: string, brand?: 'opabiz' | 'fbfc'): number {
   return svc.serviceFee
 }
 
+// Precio con el que un servicio recurrente SIGUE cobrando en cada renovación
+// (no el de la primera venta, que puede ser distinto — ej. gratis por
+// freeWithOther). Usado para calcular MRR a partir de Order.subscriptions.
+export function getRecurringServiceFee(id: string, brand?: 'opabiz' | 'fbfc'): number {
+  if (brand === 'fbfc' && FBFC_PRICE_OVERRIDES[id] !== undefined) return FBFC_PRICE_OVERRIDES[id]
+  const svc = SERVICES_CATALOG[id]
+  if (!svc) return 0
+  return svc.renewalFee ?? svc.serviceFee
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Bundles (combos estilo LegalZoom) — se ofrecen en los "hubs" de 3 tiers del
 // checkout. Cada bundle agrupa servicios a un precio con descuento. Si se elige

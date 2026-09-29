@@ -9,6 +9,13 @@ interface ReportData {
   income: { id: string; invoice_date: string; invoice_number: string; service_type: string; description: string | null; amount: number; payment_status: string; accounting_clients: { name: string } | null }[]
   expenses: { id: string; expense_date: string; category: string; description: string; amount: number; expense_type: string }[]
 }
+interface KpiData {
+  cac: number | null; newClients: number; marketingSpend: number
+  aov: number | null; ordersCount: number
+  roi: number | null; netProfit: number; totalExpenses: number
+  runwayMonths: number | null; profitable: boolean; cashOnHand: number | null; avgMonthlyBurn: number
+  churnRate: number | null; activeAtStart: number; canceledInPeriod: number; churnDataAvailable: boolean
+}
 
 const NAV = [
   { href: '/admin/contabilidad', label: 'Dashboard' },
@@ -78,15 +85,36 @@ tr:last-child td { border-bottom: none; }
 .badge-yellow { background: #fef3c7; color: #92400e; }
 .badge-blue { background: #dbeafe; color: #1e40af; }
 .badge-orange { background: #ffedd5; color: #c2410c; }
-@media (max-width: 768px) { .page { padding: 16px 12px; } .cols { grid-template-columns: 1fr; } .stats-grid { grid-template-columns: 1fr 1fr; } }
+.kpi-section-title { font-size: 13px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: .5px; margin: 28px 0 12px; }
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 16px; margin-bottom: 24px; }
+.kpi-card { background: #fff; border-radius: 10px; padding: 16px 20px; box-shadow: 0 1px 6px rgba(0,0,0,.06); }
+.kpi-acronym { font-size: 20px; font-weight: 800; color: #1a1a2e; }
+.kpi-title { font-size: 11px; color: #9ca3af; font-weight: 600; margin-top: 1px; }
+.kpi-value { font-size: 22px; font-weight: 700; margin-top: 8px; }
+.kpi-sub { font-size: 11px; color: #9ca3af; margin-top: 4px; line-height: 1.4; }
+.kpi-cash-row { display: flex; gap: 6px; align-items: center; margin-top: 8px; }
+.kpi-cash-row input { width: 100px; padding: 5px 8px; border: 1.5px solid #e5e7eb; border-radius: 6px; font-size: 12px; outline: none; font-family: inherit; }
+.kpi-cash-row input:focus { border-color: #2563eb; }
+.kpi-cash-row button { padding: 5px 10px; border: none; border-radius: 6px; background: #2563eb; color: #fff; font-size: 11px; font-weight: 600; cursor: pointer; }
+@media (max-width: 768px) { .page { padding: 16px 12px; } .cols { grid-template-columns: 1fr; } .stats-grid { grid-template-columns: 1fr 1fr; } .kpi-grid { grid-template-columns: 1fr 1fr; } }
 `
 
 export default function ReportesPage() {
   const [from, setFrom] = useState(firstOfMonth())
   const [to, setTo] = useState(today())
   const [data, setData] = useState<ReportData | null>(null)
+  const [kpis, setKpis] = useState<KpiData | null>(null)
   const [loading, setLoading] = useState(false)
   const [exporting, setExporting] = useState(false)
+  const [cashInput, setCashInput] = useState('')
+  const [savingCash, setSavingCash] = useState(false)
+
+  const loadKpis = () => {
+    fetch(`/api/contabilidad/kpis?from=${from}&to=${to}`)
+      .then(r => r.json())
+      .then(d => { setKpis(d); if (d.cashOnHand !== null) setCashInput(String(d.cashOnHand)) })
+      .catch(() => {})
+  }
 
   const load = () => {
     setLoading(true)
@@ -94,6 +122,18 @@ export default function ReportesPage() {
       .then(r => r.json())
       .then(d => { setData(d); setLoading(false) })
       .catch(() => setLoading(false))
+    loadKpis()
+  }
+
+  const saveCash = async () => {
+    const amount = parseFloat(cashInput)
+    if (!Number.isFinite(amount) || amount < 0) return
+    setSavingCash(true)
+    await fetch('/api/contabilidad/cash-on-hand', {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ amount }),
+    })
+    setSavingCash(false)
+    loadKpis()
   }
 
   useEffect(() => { load() }, [])
@@ -173,6 +213,58 @@ export default function ReportesPage() {
                 </div>
               </div>
             </div>
+
+            {kpis && (
+              <>
+                <div className="kpi-section-title">Métricas de Negocio</div>
+                <div className="kpi-grid">
+                  <div className="kpi-card">
+                    <div className="kpi-acronym">CAC</div>
+                    <div className="kpi-title">Customer Acquisition Cost</div>
+                    <div className="kpi-value">{kpis.cac !== null ? fmt(kpis.cac) : '—'}</div>
+                    <div className="kpi-sub">{fmt(kpis.marketingSpend)} en marketing / {kpis.newClients} cliente(s) nuevo(s) del período</div>
+                  </div>
+                  <div className="kpi-card">
+                    <div className="kpi-acronym">ROI</div>
+                    <div className="kpi-title">Return on Investment</div>
+                    <div className={`kpi-value ${kpis.roi !== null ? (kpis.roi >= 0 ? 'green' : 'red') : ''}`}>{kpis.roi !== null ? `${Math.round(kpis.roi)}%` : '—'}</div>
+                    <div className="kpi-sub">Beneficio neto ({fmt(kpis.netProfit)}) sobre gastos totales del período ({fmt(kpis.totalExpenses)})</div>
+                  </div>
+                  <div className="kpi-card">
+                    <div className="kpi-acronym">AOV</div>
+                    <div className="kpi-title">Average Order Value</div>
+                    <div className="kpi-value">{kpis.aov !== null ? fmt(kpis.aov) : '—'}</div>
+                    <div className="kpi-sub">Ingreso cobrado / {kpis.ordersCount} factura(s) pagada(s) en el período</div>
+                  </div>
+                  <div className="kpi-card">
+                    <div className="kpi-acronym">Runway</div>
+                    <div className="kpi-title">Cash Runway</div>
+                    <div className="kpi-value">
+                      {kpis.profitable ? 'Rentable' : kpis.runwayMonths !== null ? `${kpis.runwayMonths.toFixed(1)} meses` : '—'}
+                    </div>
+                    <div className="kpi-sub">
+                      {kpis.profitable
+                        ? 'Los últimos 3 meses generaron más de lo que gastaron — no se está consumiendo caja.'
+                        : `Consumo neto promedio: ${fmt(kpis.avgMonthlyBurn)}/mes (trailing 3 meses)`}
+                    </div>
+                    <div className="kpi-cash-row">
+                      <input type="number" step="0.01" min="0" placeholder="Efectivo disponible" value={cashInput} onChange={e => setCashInput(e.target.value)} />
+                      <button onClick={saveCash} disabled={savingCash}>{savingCash ? '...' : 'Guardar'}</button>
+                    </div>
+                  </div>
+                  <div className="kpi-card">
+                    <div className="kpi-acronym">Churn</div>
+                    <div className="kpi-title">Customer Churn Rate</div>
+                    <div className="kpi-value">{kpis.churnDataAvailable && kpis.churnRate !== null ? `${Math.round(kpis.churnRate * 10) / 10}%` : '—'}</div>
+                    <div className="kpi-sub">
+                      {kpis.churnDataAvailable
+                        ? `${kpis.canceledInPeriod} cancelación(es) / ${kpis.activeAtStart} suscripciones activas al inicio del período`
+                        : 'Aún sin datos suficientes — se empezó a registrar la fecha exacta de cancelación el 2026-09-30.'}
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
 
             <div className="cols">
               <div className="card">

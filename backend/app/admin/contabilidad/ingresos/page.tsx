@@ -9,6 +9,7 @@ interface Income {
   accounting_clients: { id: string; name: string; email: string | null } | null
 }
 interface Client { id: string; name: string }
+interface MrrBreakdown { service: string; label: string; count: number; monthly: number }
 
 const NAV = [
   { href: '/admin/contabilidad', label: 'Dashboard' },
@@ -77,7 +78,15 @@ tr:last-child td { border-bottom: none; }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .err { color: #dc2626; font-size: 12px; }
 .hint { font-size: 11px; color: #9ca3af; margin-top: 3px; }
-@media (max-width: 640px) { .page { padding: 16px 12px; } .form-row { grid-template-columns: 1fr; } .totals { display: none; } }
+.mrr-card { background: #fff; border-radius: 10px; box-shadow: 0 1px 6px rgba(0,0,0,.06); padding: 18px 22px; margin-bottom: 18px; display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+.mrr-main { display: flex; flex-direction: column; }
+.mrr-label { font-size: 12px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: .5px; }
+.mrr-value { font-size: 26px; font-weight: 800; color: #059669; }
+.mrr-hint { font-size: 11px; color: #9ca3af; margin-top: 2px; max-width: 320px; }
+.mrr-breakdown { display: flex; gap: 18px; flex-wrap: wrap; margin-left: auto; }
+.mrr-item { font-size: 12px; color: #374151; }
+.mrr-item b { display: block; font-size: 14px; color: #1a1a2e; }
+@media (max-width: 640px) { .page { padding: 16px 12px; } .form-row { grid-template-columns: 1fr; } .totals { display: none; } .mrr-card { flex-direction: column; align-items: flex-start; } .mrr-breakdown { margin-left: 0; } }
 `
 
 export default function IngresosPage() {
@@ -92,6 +101,8 @@ export default function IngresosPage() {
   const [form, setForm] = useState(EMPTY_FORM)
   const [saving, setSaving] = useState(false)
   const [err, setErr] = useState('')
+  const [mrr, setMrr] = useState<number | null>(null)
+  const [mrrBreakdown, setMrrBreakdown] = useState<MrrBreakdown[]>([])
 
   const load = () => {
     setLoading(true)
@@ -110,6 +121,12 @@ export default function IngresosPage() {
     fetch('/api/contabilidad/clientes')
       .then(r => r.json())
       .then(d => setClients(d.clients ?? []))
+  }, [])
+  useEffect(() => {
+    fetch('/api/contabilidad/mrr')
+      .then(r => r.json())
+      .then(d => { setMrr(d.mrr ?? 0); setMrrBreakdown(d.breakdown ?? []) })
+      .catch(() => {})
   }, [])
 
   const openAdd = () => { setEditItem(null); setForm(EMPTY_FORM); setErr(''); setShowModal(true) }
@@ -166,6 +183,26 @@ export default function IngresosPage() {
             <a key={n.href} href={n.href} className={`nav-tab${n.href === '/admin/contabilidad/ingresos' ? ' active' : ''}`}>{n.label}</a>
           ))}
         </div>
+
+        {mrr !== null && (
+          <div className="mrr-card">
+            <div className="mrr-main">
+              <span className="mrr-label">MRR Activo</span>
+              <span className="mrr-value">{fmt(mrr)}/mes</span>
+              <span className="mrr-hint">Ingreso de servicio (sin tarifas estatales) de suscripciones vigentes hoy — Agente Registrado, Declaración Anual, etc. — prorrateado a mensual. No es dinero ya cobrado, es el valor recurrente activo.</span>
+            </div>
+            {mrrBreakdown.length > 0 && (
+              <div className="mrr-breakdown">
+                {mrrBreakdown.map(b => (
+                  <div key={b.service} className="mrr-item">
+                    {b.label} ({b.count})
+                    <b>{fmt(b.monthly)}/mes</b>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="toolbar">
           <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}>

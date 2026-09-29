@@ -1256,7 +1256,7 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
     if (!entry) return NextResponse.json({ received: true, skipped: 'no_entry' })
 
     const alreadyNotified = entry.cancelNoticeSent === true
-    await upsertOrderSubscription(order.id, { ...entry, status: 'canceled', cancelNoticeSent: true })
+    await upsertOrderSubscription(order.id, { ...entry, status: 'canceled', cancelNoticeSent: true, canceledAt: new Date().toISOString() })
 
     const brand = order.sourceBrand as EmailBrand
     const isEs = order.isEs
