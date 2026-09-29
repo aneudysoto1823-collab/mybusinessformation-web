@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getSupabaseAdmin } from '@/lib/supabase'
+import { getSupabaseAdmin, pgErrorMessage } from '@/lib/supabase'
 import { CampaignsCompaniesInputSchema, parseOr400 } from '@/lib/schemas'
 import { verifyAdminToken } from '@/lib/session'
 
@@ -52,7 +52,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ companies: data ?? [] })
   } catch (err) {
-    return NextResponse.json({ error: String(err) }, { status: 500 })
+    return NextResponse.json({ error: pgErrorMessage(err) }, { status: 500 })
   }
 }
 
@@ -97,7 +97,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ company: data }, { status: 201 })
   } catch (err) {
-    return NextResponse.json({ error: String(err) }, { status: 500 })
+    return NextResponse.json({ error: pgErrorMessage(err) }, { status: 500 })
   }
 }
 
@@ -120,7 +120,7 @@ export async function DELETE(req: NextRequest) {
     if (error) throw error
     return NextResponse.json({ deleted: count ?? ids.length })
   } catch (err) {
-    return NextResponse.json({ error: String(err) }, { status: 500 })
+    return NextResponse.json({ error: pgErrorMessage(err) }, { status: 500 })
   }
 }
 
@@ -144,6 +144,6 @@ export async function PATCH(req: NextRequest) {
     if (error) throw error
     return NextResponse.json({ company: data })
   } catch (err) {
-    return NextResponse.json({ error: String(err) }, { status: 500 })
+    return NextResponse.json({ error: pgErrorMessage(err) }, { status: 500 })
   }
 }

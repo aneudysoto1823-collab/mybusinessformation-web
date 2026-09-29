@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getSupabaseAdmin } from '@/lib/supabase'
+import { getSupabaseAdmin, pgErrorMessage } from '@/lib/supabase'
 import { verifyAdminToken } from '@/lib/session'
 
 export const dynamic = 'force-dynamic'
@@ -52,6 +52,6 @@ export async function GET(request: NextRequest) {
       revenue,
     })
   } catch (err) {
-    return NextResponse.json({ error: String(err) }, { status: 500 })
+    return NextResponse.json({ error: pgErrorMessage(err) }, { status: 500 })
   }
 }

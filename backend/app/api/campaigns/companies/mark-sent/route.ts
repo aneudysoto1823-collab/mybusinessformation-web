@@ -5,7 +5,7 @@
 // la carta salió por correo) — es una acción explícita del staff, a
 // propósito, para no dar por enviado algo que todavía no se mandó de verdad.
 import { NextRequest, NextResponse } from 'next/server'
-import { getSupabaseAdmin } from '@/lib/supabase'
+import { getSupabaseAdmin, pgErrorMessage } from '@/lib/supabase'
 import { verifyAdminToken } from '@/lib/session'
 
 export const dynamic = 'force-dynamic'
@@ -35,6 +35,6 @@ export async function POST(req: NextRequest) {
     if (error) throw error
     return NextResponse.json({ marked: data?.length ?? 0 })
   } catch (err) {
-    return NextResponse.json({ error: String(err) }, { status: 500 })
+    return NextResponse.json({ error: pgErrorMessage(err) }, { status: 500 })
   }
 }
