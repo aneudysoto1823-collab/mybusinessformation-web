@@ -1,8 +1,22 @@
 # CHECKLIST PRE-LANZAMIENTO — OpaBiz (opabiz.com)
 
-**Última actualización:** 16 septiembre 2026 _(por Claude — el archivo llevaba desde el 22 de junio sin tocarse; se revisó contra el estado real del código y se marcó lo que ya está hecho. No se actualiza solo — hace falta pedirlo explícitamente cada vez)_
+**Última actualización:** 29 septiembre 2026 _(por Claude — auditoría pedida por el founder; se revisó contra el estado real del código y la memoria de sesiones 09-16 a 09-26. No se actualiza solo — hace falta pedirlo explícitamente cada vez)_
 **Fecha objetivo de lanzamiento:** 15 septiembre 2026 ⚠️ _(ya pasó — pendiente definir nueva fecha, ligada a cuándo se activa Stripe Live)_
 **Tiempo restante:** por definir
+
+## 🎯 Resumen ejecutivo de esta auditoría (2026-09-29)
+
+**Lo que de verdad bloquea lanzar (2 gates, sin cambios desde 09-16):**
+1. Confirmar que se compró el seguro de responsabilidad profesional/legal de la compañía (E&O / general liability) — decisión 100% del founder, no verificable en código.
+2. Subir ZeroBounce de plan Free a uno pago y activar `ZEROBOUNCE_ENABLED=true` en Vercel — el código ya está listo desde el 09-24 (conectado a Marketing Saliente + checkout), solo falta la decisión de pagar el plan.
+
+**Nuevo hallazgo de esta auditoría (no bloqueante, pero sin resolver desde julio):** confirmar que `TURSO_DATABASE_URL`/`TURSO_AUTH_TOKEN` están cargadas también en **Railway** (no solo Vercel) — si faltan, el buscador de nombres del admin degrada a "disponible" en silencio sin avisar a nadie. Ver Etapa 5 más abajo.
+
+**Avances reales desde el 09-16 que no estaban reflejados en este archivo:**
+- FTC/UPL: los 2 templates pendientes (disclaimer antes de precio, tarifa de gobierno explícita) se resolvieron el mismo 09-16 — ver sección Legal más abajo. Solo queda 1 de los 3 hallazgos originales sin resolver (el sello de la carta física, deferido a propósito).
+- Auditoría completa de email marketing (webhook de bounces/quejas de Resend, ZeroBounce conectado a Enformion, unsubscribe real, `List-Unsubscribe` RFC 8058) — cerrada y desplegada el 09-24. Protege la reputación del dominio de correo que usan TODOS los emails transaccionales, no solo marketing.
+- **2 features nuevas completas, no requeridas para lanzar pero ya generando valor:** Programa de Afiliados/Agentes (comisiones automáticas, cerrado 09-23) y Labor Law Poster (producto $120, 8/8 combinaciones + panel admin, cerrado 09-25).
+- Virtual Address se sacó de la UI de opabiz.com (sin proveedor wholesale) — no afecta el lanzamiento, el motor de precios queda intacto para reactivarla.
 
 > **Cambio de marca (2026-06-08):** El dominio activo es `opabiz.com`. La entidad legal Florida Business Formation Center se mantiene en docs legales. Ver `CLAUDE.md` para detalles.
 
@@ -89,6 +103,8 @@
 - [ ] Path C: tool `check_name_availability` de Claudia chat — verificar si sigue en scraping HTML o ya consulta Turso
 - [ ] Auto-relleno de 14 formularios en `/servicios` — verificar si ya migró de Supabase a Turso
 - [ ] Crear doc canónico `LOGICA_DE_NEGOCIO/27_busqueda_nombres_en_vivo.md`
+- [ ] **Confirmar `TURSO_DATABASE_URL`/`TURSO_AUTH_TOKEN` cargadas en Railway** (no solo Vercel) — hallazgo de la auditoría de código 2026-07-12, sin resolver a la fecha de esta auditoría (2026-09-29). Sin esto, `checkNameAvailability()` no rompe pero degrada a `available:true` en silencio para el buscador de nombres del admin — riesgo de que el staff confíe en un resultado incorrecto sin saberlo.
+- [x] **Idea "/check-name" (página pública para que el cliente valide su nombre) — descartada por decisión del founder 2026-09-26**, no es un pendiente real. El chequeo ya corre automático server-side al crear la orden, cero fricción para el cliente.
 
 ### Fase 4 — Backups GitHub Actions → R2 (✅ COMPLETA — corriendo en producción)
 - [x] Crear `.github/workflows/backup-daily.yml` — existe, corre diario 4:30am UTC (00:30 EST), `concurrency` group evita corridas dobles
@@ -127,6 +143,7 @@
 - [ ] Plantilla email "recordatorio cliente para enviar nuevos nombres" (cuando los 3 nombres están tomados y han pasado 48h sin respuesta)
 - [ ] Plantilla email "Annual Report deadline aproximándose" (recordatorio para clientes año 2+)
 - [x] Test del flujo completo de los 12 emails con órdenes simuladas en producción — A0, A1, A2, A4, B1, D1, D2 probados OK. Pendientes: A5, A6, A7, C1, C2 (probarán cuando se avance órdenes reales).
+- [x] **Webhook de bounces/quejas de Resend** (`email.bounced`, `email.complained` → `email_suppressions`) — construido y probado en producción 2026-09-14, cerrado en la auditoría de email marketing 2026-09-24. Protege la reputación del dominio de envío que comparten TODOS los emails (transaccionales + marketing) — antes nada aprendía de sus propios rebotes.
 
 ---
 
@@ -311,11 +328,11 @@
 - [ ] Sales tax permit en Florida (si vendes "guías PDF" o productos digitales podría aplicar)
 - [ ] Business Tax Receipt del condado (Miami-Dade o donde estés)
 
-### 🔄 Templates de compliance FTC/UPL — en trabajo hoy (2026-09-16)
-Hallazgos de la auditoría del 2026-09-15 (`project_ftc_upl_compliance_audit_2026-09-15`), backups ya guardados en `COMPLIANCE_BACKUPS_2026-09-15/`:
-- [ ] Carta física (`lib/new-business-letter.ts`) — el sello + formato tipo "aviso oficial de gobierno" puede confundirse con una notificación gubernamental (Impersonation Rule)
-- [ ] El disclaimer "no somos el gobierno" aparece DESPUÉS de los precios en vez de antes
-- [ ] Nunca se aclara antes de pagar que el EIN se puede tramitar gratis uno mismo en irs.gov (aplica a la carta y a `campaign-email.ts`/`vip-reminder-email.ts`)
+### ✅ Templates de compliance FTC/UPL — 2/3 resueltos el mismo 2026-09-16
+Hallazgos de la auditoría del 2026-09-15 (`project_ftc_upl_compliance_audit_2026-09-15`), backups guardados en `COMPLIANCE_BACKUPS_2026-09-15/`:
+- [ ] Carta física (`lib/new-business-letter.ts`) — el sello + formato tipo "aviso oficial de gobierno" puede confundirse con una notificación gubernamental (Impersonation Rule) — **deferido a propósito, fuera de alcance de la auditoría, sigue sin resolver**
+- [x] El disclaimer "servicio privado y opcional" ahora aparece ANTES de cualquier precio (verificado en código: `lib/new-business-letter.ts:167`) — aplicado también en `campaign-email.ts` y `vip-reminder-email.ts`
+- [x] Precio reformateado tipo factura con la tarifa de gobierno explícita (ej. "IRS Fee $0.00" para EIN, "Florida State Fee $139" para Declaración Anual) en vez de un solo precio combinado — deja clarísimo qué cobra la empresa vs. qué cobra el gobierno (verificado en código: `lib/new-business-letter.ts:136`)
 
 ---
 
@@ -419,6 +436,13 @@ Hallazgos de la auditoría del 2026-09-15 (`project_ftc_upl_compliance_audit_202
 - [ ] Reservar fondos para impuestos federales (~25-30% de revenue)
 - [ ] Reservar fondos para state filing fees ($125 LLC FL — pasa directo al estado, no margen)
 - [ ] Documentar todos los gastos del negocio (Vercel, Railway, Supabase, ads, freelancers) — el módulo de contabilidad ya trackea gastos cargados a mano/IA, pero esto es sobre disciplina de cargarlos, no sobre si existe la herramienta
+
+---
+
+## 🟢 EXTRAS construidos post-checklist (no requeridos para lanzar, ya generando valor)
+
+- [x] **Programa de Afiliados/Agentes** (`/afiliados`, `/admin/afiliados` fusionado en `/admin/opabiz`) — cerrado 2026-09-23. Comisiones automáticas por Stripe Promotion Code (afiliados) y por intake asistida de OpaBiz Connect (agentes), pago manual, integrado a Contabilidad. Único pendiente: el training del agente (contenido sin definir).
+- [x] **Labor Law Poster** (producto $120, `/admin/labor-law-poster`) — cerrado 2026-09-25. 8/8 combinaciones (Federal+Florida × OpaBiz+MyBiz × EN+ES) con arte oficial real, panel admin para ver/descargar/enviar. Pendiente menor: aviso NLRA (solo aplica a contratistas federales, evaluar si vale agregarlo).
 
 ---
 

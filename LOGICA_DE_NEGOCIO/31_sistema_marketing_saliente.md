@@ -240,7 +240,7 @@ Esta sección describe **cómo corre el sistema hoy en producción** y qué hace
 
 ### 📮 Bloque 3 — Enriquecimiento de dirección *(manual, Free Tier alcanza para casi todo)*
 
-**Estado**: ✅ implementado 2026-07-17. Solo dirección — **Enformion y ZeroBounce salieron del scope** (decisión founder 2026-07-16: Enformion muy caro para email, y sin email no tiene sentido ZeroBounce). Emails quedan pendientes para otra iteración con email finder más económico.
+**Estado**: ✅ implementado 2026-07-17. En esa fecha era solo dirección — Enformion/ZeroBounce habían salido del scope por costo. **Actualizado 2026-09-12/13/24: Enformion y ZeroBounce SÍ se integraron después, como Bloque 3.5 (ver más abajo)** — el email finder económico que en julio no existía apareció con EnformionGO (free trial 100 matches/mes).
 
 **Paso 3.1 — Vos apretás "Enriquecer N" con un score seleccionado**:
 
@@ -319,28 +319,31 @@ Por cada lead:
 
 ---
 
-### 📬 Bloque 4 — Campañas *(pendiente implementar)*
+### 🔎 Bloque 3.5 — Búsqueda + validación de email (Enformion + ZeroBounce) *(agregado 2026-09-12/13, ZeroBounce 2026-09-24)*
 
-**Estado**: pendiente. Diseño acordado.
+**Estado**: ✅ implementado. Corre sobre las leads que ya pasaron el Bloque 3 (dirección validada) — mismo patrón de encadenar barato→caro: no se busca email de una LLC cuya dirección ya se descartó.
 
-**Filosofía**: mismo patrón pull que Bloques 2 y 3. Vos filtrás en el panel + escribís cuántas mandar + costo estimado + confirmación + disparo.
+- **Conector**: `lib/enformion.ts` → `POST https://devapi.enformion.com/Contact/Enrich`. Busca a partir del primer officer tipo persona + la target address ya validada.
+- **Disparo**: manual (`POST /api/marketing/enrich-email`, botón "Buscar emails ahora" en `/admin/marketing`) o automático dentro de "Preparar leads listos" (que encadena clasificar→validar dirección→buscar email en un solo clic).
+- **Costo**: EnformionGO free trial, 100 "Monthly Matches"/mes — solo cuenta contra el cupo cuando SÍ encuentra un match (un intento sin resultado no cuesta). `ENFORMION_COST_PER_LEAD_USD=0.10` es un placeholder sin confirmar para cuando se acabe el free tier.
+- **Filtro de confianza — "% Precisión"**: usa `identityScore` que Enformion devuelve (0-100, qué tan seguro está de que el email pertenece a esa persona). Es un score independiente del score de clasificación por vertical (Bloque 2) — no lo reemplaza. Un match por debajo del umbral se guarda igual (nunca se re-cobra), pero no se sincroniza a Campaigns & Letters hasta que un filtro aparte (en `/admin/campaigns`, no acá) lo habilite.
+- **ZeroBounce**: valida (MX+SMTP real) el email que trae Enformion antes de darlo por bueno — comparte el mismo presupuesto de créditos que el validador de email del checkout del home, así que competir por cupo entre ambos usos es un problema real de volumen, no solo de costo unitario. Hoy sigue con `ZEROBOUNCE_ENABLED` en false (dormido) — pendiente decidir activarlo.
+- **Auto-sync**: un email encontrado se copia solo a la fila de Campaigns & Letters (Base Supabase, ver Bloque 4) si esa empresa ya se había mandado ahí sin email — nunca crea una fila nueva.
 
-**Filtros previstos**:
-- Score (respeta los activos)
-- Vertical (respeta los activos)
-- Fecha (últimos N días)
-- Estado: `dirección validada` (sí/no), `nunca contactado` (fecha_contactada IS NULL)
+---
 
-**Acción — cartas físicas**:
-- El filtro muestra "X coinciden" en tiempo real.
-- Input N (≤ X) + botón "Enviar N cartas".
-- Sistema toma las N más nuevas del filtro (regla de oro), genera el PDF de carta con datos personalizados (reusa `lib/new-business-letter.ts`), y encola en el proveedor de envío físico (a definir: Lob, Click2Mail, Postgrid, etc.).
-- Setea `fecha_contactada, canal_contactado='letter', campaign_id`.
-- Costo por carta: papel + franqueo (~$0.50–$0.75 según proveedor).
+### 📬 Bloque 4 — Campañas (envío real de cartas + emails)
 
-**Acción — emails** *(fuera del scope actual — depende de conseguir email finder)*:
-- Requiere: email finder + dominio de marketing separado en Resend (ej. `mkt.opabiz.com`) para no dañar reputación del dominio transaccional (`opabiz.com`).
-- Diseño pendiente.
+**Estado**: ✅ funciona de punta a punta, pero **con una arquitectura distinta a la diseñada originalmente en este documento.** El diseño de abajo (filtros + input N + botón "Enviar cartas"/"Enviar emails" dentro del propio `/admin/marketing`) nunca se construyó tal cual — en su lugar:
+
+- **`POST /api/marketing/send-to-letters`** (el "puente") copia las leads listas de la Base B de Turso (score+vertical activos, dirección validada, email si lo encontró Enformion) a Supabase (`prospective_companies`) — la tabla que ya usa un panel distinto y previo, **`/admin/campaigns`** ("Campaigns & Letters"), construido originalmente para las cartas de cumplimiento de empresas nuevas (doc de campañas físicas/QR, ver `12_marketing_automation_campanas.md`).
+- **El envío real ocurre desde `/admin/campaigns`, no desde `/admin/marketing`.** Ese panel ya tenía Resend conectado (para su propio flujo) y generación de carta PDF (`lib/new-business-letter.ts`) — se reusó tal cual en vez de construir un segundo sistema de envío. Dos campañas disponibles ahí: **"Carta Nuevas Empresas"** (carta física + email, con QR) y **"Oferta VIP"** (solo email, Agente Registrado + Declaración Anual).
+- **Emails: SÍ implementado** (contrario a lo que decía este doc) — `campaigns/send`/`campaigns/send-vip-reminder` llaman a `Resend.emails.send()` de verdad. Dominio de marketing separado del transaccional: `notices.mybusinessformation.com` (correo frío, activo y probado desde 2026-09-14), distinto de `opabiz.com`/`mybusinessformation.com` que usan las confirmaciones de clientes reales.
+- **Cartas físicas: el "proveedor de envío físico" nunca se conectó** — sigue siendo manual: el admin descarga/imprime el PDF combinado (`POST /api/campaigns/print-letters`, hasta 100 por combo) y las envía por correo postal él mismo. No hay integración con Lob/Click2Mail/Postgrid para el franqueo.
+- **Filtros reales** (en `/admin/campaigns`, no en `/admin/marketing`): tabs Con Email/Sin Email, "% Precisión mínima" de Enformion, contact status (New/Email sent/Letter sent), selector de idioma, selector de template (Carta Nuevas Empresas / Oferta VIP).
+- **Protecciones que si se construyeron**: unsubscribe (Supabase `prospective_companies.unsubscribed` + `email_suppressions` alimentada por webhook de bounces/quejas de Resend), `List-Unsubscribe`/one-click (RFC 8058), `maxDuration`+tope de lote de 300 por corrida.
+
+**Por qué se resolvió distinto al diseño original:** el founder creía que su socio iba a construir esta parte con otra plataforma — nunca sucedió, así que se armó el puente hacia el panel que ya funcionaba en vez de esperar o duplicar esfuerzo. Confirmado con el founder (2026-09-26): el socio no necesita construir nada, el flujo ya cierra solo.
 
 ---
 
@@ -351,8 +354,10 @@ Por cada lead:
 | **Sunbiz SFTP** | Bajar el daily file de LLC nuevas | Bloque 1 (cron) | Gratis (público) |
 | **Claude Haiku 4.5** | Clasificar (score, vertical, perfil, tipo dir.) | Bloque 2 | ~$0.0008/lead (tokens) |
 | **Google Address Validation API** | Validar/normalizar dirección | Bloque 3 | 1,000/mes gratis, después $0.025/lookup |
-| **Resend** | Enviar emails de campaña | Bloque 4 (pendiente) | Por envío ($20/mes plan) |
-| **Proveedor de envío físico** *(a decidir)* | Imprimir + enviar carta | Bloque 4 (pendiente) | Papel + franqueo por carta |
+| **EnformionGO** | Buscar email a partir de nombre+dirección | Bloque 3.5 | Free trial 100 matches/mes (solo cobra match encontrado) |
+| **ZeroBounce** | Validar (MX+SMTP) el email que trae Enformion | Bloque 3.5 | Comparte cupo con el checkout del home; hoy dormido (`ZEROBOUNCE_ENABLED=false`) |
+| **Resend** | Enviar emails de campaña | Bloque 4 — ✅ implementado, vía `/admin/campaigns` | Por envío ($20/mes plan) |
+| **Proveedor de envío físico** | Imprimir + enviar carta | Bloque 4 — sigue manual (PDF combinado, admin lo envía él mismo) | Papel + franqueo por carta |
 
 > **Nota sobre Resend y el envío masivo:** Resend ya manda los emails de confirmación de opabiz. Pero mandar miles de emails de **marketing** es distinto a los de confirmación: hay temas de **reputación de dominio y entregabilidad**. Si se manda una campaña grande desde el mismo dominio que usan los correos de clientes, se puede dañar la entrega de los emails importantes. Esto se maneja con un **dominio separado para marketing** y envíos escalonados. Se diseña en el Bloque 4.
 
@@ -382,8 +387,9 @@ Por cada lead:
 |---|---|
 | **Bloque 1 — Cron nocturno** | ✅ **IMPLEMENTADO 2026-06-26** — corre todas las noches a las 06 UTC sin intervención. Ver doc 26 sección "Implementación del cron Sunbiz Bloque 1" para detalle técnico. Base actual: 3,956,123 registros, integridad verificada (sunbiz_corps == sunbiz_fts, 0 duplicados). |
 | **Bloque 2 — Clasificación** | ✅ **IMPLEMENTADO 2026-07-16**. `POST /api/marketing/classify` (sync + Haiku + auto-descarte por vertical/score inactivo). Panel `/admin/marketing` con input N + botón + toggles de scores y verticales. Techo: 500/corrida. Costo real: ~$0.0008/lead. |
-| **Bloque 3 — Enriquecimiento** | ✅ **IMPLEMENTADO 2026-07-17**. `POST /api/marketing/enrich` (solo Google Address Validation — Enformion/ZeroBounce descartados 2026-07-16 por costo). Marca `address_validated`, `address_type`, `enriched_at`. Techo: 500/corrida. Costo: 1,000/mes gratis + $25/1,000 después. |
-| **Bloque 4 — Campañas (solo cartas)** | Pendiente implementar. Filtros + input N + costo estimado + confirmación + disparo. Emails fuera de scope hasta conseguir email finder económico. Requiere elegir proveedor de envío físico (Lob / Click2Mail / Postgrid). |
+| **Bloque 3 — Enriquecimiento (dirección)** | ✅ **IMPLEMENTADO 2026-07-17**. `POST /api/marketing/enrich` (Google Address Validation). Marca `address_validated`, `address_type`, `enriched_at`. Techo: 500/corrida. Costo: 1,000/mes gratis + $25/1,000 después. |
+| **Bloque 3.5 — Enriquecimiento (email)** | ✅ **IMPLEMENTADO 2026-09-12/13** (EnformionGO) **+ ZeroBounce 2026-09-24**. `POST /api/marketing/enrich-email` + integrado en "Preparar leads listos". Filtro de `identityScore` ("% Precisión") independiente del score de vertical. |
+| **Bloque 4 — Campañas (cartas + emails)** | ✅ **RESUELTO, arquitectura distinta a la diseñada**: puente (`POST /api/marketing/send-to-letters`) copia leads listas a `/admin/campaigns` (Campaigns & Letters, panel preexistente), que ya envía emails reales (Resend, dominio `notices.mybusinessformation.com`) y genera el PDF de carta. El franqueo/envío postal sigue siendo manual — no se conectó ningún proveedor de envío físico (Lob/Click2Mail/Postgrid). |
 | **Auto-expirar pendientes viejas** | ✅ **IMPLEMENTADO 2026-07-17**. Umbral: **3 días** desde `filing_date`. Se ejecuta al inicio de cada corrida de `/api/marketing/classify` antes del sync. Constante `MAX_STALE_DAYS` en el endpoint (facil de cambiar). |
 | **Target address selection (owner > mail > principal)** | ✅ **IMPLEMENTADO 2026-07-17** (Opción B). `lib/marketing-target-address.ts` elige la mejor dirección al sync y la guarda en columnas `target_addr_*` de Base B. Bloque 3 valida la target address (no la principal). Distribución observada en el primer batch: 23 owner, 1 mail, 22 sin dirección (descartadas). |
 
