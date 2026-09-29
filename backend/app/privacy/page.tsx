@@ -130,7 +130,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
     <p class="en">We take your privacy seriously. This policy explains how we collect, use, and protect your personal information. OpaBiz is a trade name of Florida Business Formation Center.</p>
     <p class="es" style="display:none">Nos tomamos su privacidad muy en serio. Esta pol&iacute;tica explica c&oacute;mo recopilamos, usamos y protegemos su informaci&oacute;n personal. OpaBiz es un nombre comercial de Florida Business Formation Center.</p>
     <div class="hero-meta">
-      <div class="hero-meta-item">&#128197; <span class="en-inline">Last Updated: January 1, 2025</span><span class="es-inline" style="display:none">&Uacute;lt. Actualiz.: 1 de enero de 2025</span></div>
+      <div class="hero-meta-item">&#128197; <span class="en-inline">Last Updated: September 29, 2026</span><span class="es-inline" style="display:none">&Uacute;lt. Actualiz.: 29 de septiembre de 2026</span></div>
     </div>
   </div>
 </section>
@@ -151,7 +151,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
 
   <div class="doc-content">
     <div class="doc-updated">
-      <span class="en">Last Updated: January 1, 2025</span><span class="es" style="display:none">&Uacute;ltima Actualizaci&oacute;n: 1 de enero de 2025</span>
+      <span class="en">Last Updated: September 29, 2026</span><span class="es" style="display:none">&Uacute;ltima Actualizaci&oacute;n: 29 de septiembre de 2026</span>
     </div>
 
     <div class="doc-section" id="collect">
@@ -167,6 +167,17 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
       </ul>
       <div class="info-box en">&#128274; We use SSL encryption on all pages. Your data is transmitted securely at all times.</div>
       <div class="info-box es" style="display:none">&#128274; Usamos cifrado SSL en todas las p&aacute;ginas. Sus datos se transmiten de forma segura en todo momento.</div>
+
+      <h3 class="en">Information We Obtain From Other Sources</h3><h3 class="es" style="display:none">Informaci&oacute;n que Obtenemos de Otras Fuentes</h3>
+      <p class="en">In addition to information you provide directly, we also obtain limited information about business owners from other sources, so that we can send them information about compliance services that may be relevant to their newly formed company:</p>
+      <p class="es" style="display:none">Adem&aacute;s de la informaci&oacute;n que usted nos proporciona directamente, tambi&eacute;n obtenemos informaci&oacute;n limitada sobre due&ntilde;os de negocio de otras fuentes, con el fin de poder enviarles informaci&oacute;n sobre servicios de cumplimiento que puedan ser relevantes para su empresa reci&eacute;n formada:</p>
+      <ul>
+        <li class="en"><strong>Public government records</strong> &mdash; such as the Florida Division of Corporations&rsquo; public Sunbiz database (company name, filing date, entity type, and registered address of newly formed Florida businesses)</li><li class="es" style="display:none"><strong>Registros p&uacute;blicos gubernamentales</strong> &mdash; como la base de datos p&uacute;blica Sunbiz de la Divisi&oacute;n de Corporaciones de Florida (nombre de la empresa, fecha de registro, tipo de entidad y direcci&oacute;n registrada de negocios reci&eacute;n formados en Florida)</li>
+        <li class="en"><strong>Third-party data enrichment / people-search services</strong> (such as Enformion) &mdash; used to identify likely contact information (email address, phone number) for the owner of a newly formed business, based on their name and the business address on file with the state</li><li class="es" style="display:none"><strong>Servicios externos de enriquecimiento de datos / b&uacute;squeda de personas</strong> (como Enformion) &mdash; utilizados para identificar posible informaci&oacute;n de contacto (correo electr&oacute;nico, tel&eacute;fono) del due&ntilde;o de un negocio reci&eacute;n formado, a partir de su nombre y la direcci&oacute;n del negocio registrada ante el estado</li>
+        <li class="en">Applicants to our <strong>Affiliate and Field Agent Program</strong> &mdash; full name, email, phone number, residential address, employment status, and Preparer Tax Identification Number (PTIN), submitted voluntarily when applying at opabiz.com/afiliados</li><li class="es" style="display:none">Solicitantes de nuestro <strong>Programa de Afiliados y Agentes de Campo</strong> &mdash; nombre completo, correo electr&oacute;nico, tel&eacute;fono, direcci&oacute;n residencial, situaci&oacute;n laboral, y N&uacute;mero de Identificaci&oacute;n de Preparador de Impuestos (PTIN), enviados voluntariamente al aplicar en opabiz.com/afiliados</li>
+      </ul>
+      <p class="en">If you received a marketing email or letter from us and did not directly provide us your information, you can opt out at any time using the unsubscribe link included in that communication, or by contacting us at <!--email_off--><a href="mailto:info@opabiz.com">info@opabiz.com</a><!--/email_off-->.</p>
+      <p class="es" style="display:none">Si usted recibi&oacute; un correo o carta de marketing de nuestra parte y no nos proporcion&oacute; su informaci&oacute;n directamente, puede darse de baja en cualquier momento usando el enlace de cancelaci&oacute;n incluido en esa comunicaci&oacute;n, o cont&aacute;ctenos en <!--email_off--><a href="mailto:info@opabiz.com">info@opabiz.com</a><!--/email_off-->.</p>
     </div>
 
     <div class="doc-section" id="use">
@@ -191,7 +202,12 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
       <ul>
         <li class="en"><strong>Florida Division of Corporations</strong> &mdash; to file your formation documents</li><li class="es" style="display:none"><strong>Divisi&oacute;n de Corporaciones de Florida</strong> &mdash; para presentar sus documentos de formaci&oacute;n</li>
         <li class="en"><strong>Internal Revenue Service (IRS)</strong> &mdash; for EIN and ITIN applications</li><li class="es" style="display:none"><strong>Servicio de Impuestos Internos (IRS)</strong> &mdash; para solicitudes de EIN e ITIN</li>
-        <li class="en"><strong>Payment processors</strong> &mdash; to securely process your payments</li><li class="es" style="display:none"><strong>Procesadores de pago</strong> &mdash; para procesar sus pagos de forma segura</li>
+        <li class="en"><strong>Payment processors</strong> (Stripe) &mdash; to securely process your payments</li><li class="es" style="display:none"><strong>Procesadores de pago</strong> (Stripe) &mdash; para procesar sus pagos de forma segura</li>
+        <li class="en"><strong>Registered Agent service partners</strong> &mdash; when you purchase our Registered Agent service, we share the necessary business information with our registered agent service provider so they can act as your agent for service of process</li><li class="es" style="display:none"><strong>Socios proveedores del servicio de Agente Registrado</strong> &mdash; cuando usted compra nuestro servicio de Agente Registrado, compartimos la informaci&oacute;n necesaria del negocio con nuestro proveedor de agente registrado para que pueda actuar como su agente ante el estado</li>
+        <li class="en"><strong>Data enrichment / people-search providers</strong> (Enformion) &mdash; to identify contact information for newly formed businesses we have not yet worked with, for outbound marketing purposes described above</li><li class="es" style="display:none"><strong>Proveedores de enriquecimiento de datos / b&uacute;squeda de personas</strong> (Enformion) &mdash; para identificar informaci&oacute;n de contacto de negocios reci&eacute;n formados con los que a&uacute;n no hemos trabajado, con fines de marketing saliente descritos arriba</li>
+        <li class="en"><strong>Email delivery &amp; validation services</strong> (Resend, ZeroBounce) &mdash; to send our communications and verify that an email address is real before we send to it</li><li class="es" style="display:none"><strong>Servicios de env&iacute;o y validaci&oacute;n de correo</strong> (Resend, ZeroBounce) &mdash; para enviar nuestras comunicaciones y verificar que una direcci&oacute;n de correo sea real antes de enviarle</li>
+        <li class="en"><strong>Address validation services</strong> (Google Address Validation, Lob.com) &mdash; to verify that a mailing or business address is deliverable</li><li class="es" style="display:none"><strong>Servicios de validaci&oacute;n de direcci&oacute;n</strong> (Google Address Validation, Lob.com) &mdash; para verificar que una direcci&oacute;n postal o de negocio sea entregable</li>
+        <li class="en"><strong>Cloud data storage &amp; hosting providers</strong> (Supabase, Turso, Vercel) &mdash; to securely store and process the information described in this policy</li><li class="es" style="display:none"><strong>Proveedores de almacenamiento y hosting en la nube</strong> (Supabase, Turso, Vercel) &mdash; para almacenar y procesar de forma segura la informaci&oacute;n descrita en esta pol&iacute;tica</li>
         <li class="en"><strong>Legal requirements</strong> &mdash; when required by law, court order, or government authority</li><li class="es" style="display:none"><strong>Requisitos legales</strong> &mdash; cuando lo exija la ley, una orden judicial o una autoridad gubernamental</li>
       </ul>
     </div>

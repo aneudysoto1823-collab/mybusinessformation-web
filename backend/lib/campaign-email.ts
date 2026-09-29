@@ -266,7 +266,7 @@ export function buildComplianceEmail(company: CampaignCompany, trackUrl: string,
         <tr>
           <td style="background:#F8FAFC;border-top:1px solid #E2E8F0;border-radius:0 0 14px 14px;padding:18px 36px;text-align:center">
             <p style="color:#94A3B8;font-size:11px;line-height:1.6;margin:0 0 6px"><strong>Florida Business Formation Center</strong> · mybusinessformation.com<br/>${PHYSICAL_MAILING_ADDRESS}<br/>info@mybusinessformation.com</p>
-            <p style="color:#CBD5E1;font-size:10px;line-height:1.6;margin:0">${isEs ? 'Recibió este correo porque su empresa figura en los registros públicos de Florida. ' : 'You received this email because your company appears in Florida public records. '}<a href="${unsubscribeUrl}" style="color:#94A3B8;text-decoration:underline">${isEs ? 'Cancelar suscripción' : 'Unsubscribe'}</a></p>
+            <p style="color:#CBD5E1;font-size:10px;line-height:1.6;margin:0">${isEs ? 'Recibió este correo porque su empresa figura en los registros públicos de Florida y su información de contacto fue obtenida a través de un proveedor externo de datos. ' : 'You received this email because your company appears in Florida public records and your contact information was obtained through a third-party data provider. '}<a href="https://mybusinessformation.com/privacy" style="color:#94A3B8;text-decoration:underline">${isEs ? 'Política de Privacidad' : 'Privacy Policy'}</a> · <a href="${unsubscribeUrl}" style="color:#94A3B8;text-decoration:underline">${isEs ? 'Cancelar suscripción' : 'Unsubscribe'}</a></p>
           </td>
         </tr>
 
