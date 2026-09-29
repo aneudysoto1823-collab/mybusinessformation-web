@@ -157,8 +157,6 @@ Hay tres direcciones distintas que suelen confundirse:
 
 **Lo que NO hace:** no reemplaza al Agente Registrado. Son dos servicios distintos, aunque a veces se contratan juntos: la dirección postal virtual es para su correspondencia general de negocio, el Agente Registrado es específicamente quien recibe notificaciones legales y demandas en su nombre.
 
-**[Obtener mi Dirección Postal Virtual](https://opabiz.com/servicios?open=virtual-address)**
-
 ### 5. Presentar los documentos de formación ante el Estado
 
 Este es el trámite central: presentar los **Articles of Organization** (LLC) o **Articles of Incorporation** (Corporación) ante la Secretaría de Estado de Florida. Es el documento que oficialmente crea su entidad.

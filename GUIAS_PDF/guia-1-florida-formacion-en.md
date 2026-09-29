@@ -157,8 +157,6 @@ There are three different addresses that tend to get confused:
 
 **What it does NOT do:** it doesn't replace the Registered Agent. These are two different services, even though they're sometimes purchased together: the virtual mailing address is for your general business correspondence, the Registered Agent is specifically who receives legal notices and lawsuits on your behalf.
 
-**[Get my Virtual Mailing Address](https://opabiz.com/servicios?open=virtual-address)**
-
 ### 5. File the formation documents with the State
 
 This is the central step: filing the **Articles of Organization** (LLC) or **Articles of Incorporation** (Corporation) with the Florida Secretary of State. This is the document that officially creates your entity.

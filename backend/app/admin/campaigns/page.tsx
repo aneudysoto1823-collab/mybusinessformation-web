@@ -959,8 +959,34 @@ export default function CampaignsPage() {
                           {/* Tracking separado por campaña (auditoría 2026-09-13/14) — antes
                               solo existía el genérico "Status" de la columna de al lado, sin
                               distinguir cuál de las dos campañas ya recibió. */}
-                          {c.carta_sent_at && <div style={{ fontSize: '.7rem', color: '#2563EB', fontWeight: 600, marginTop: 2 }}>✅ Carta sent {new Date(c.carta_sent_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>}
-                          {c.vip_reminder_sent_at && <div style={{ fontSize: '.7rem', color: '#059669', fontWeight: 600, marginTop: 2 }}>✅ VIP sent {new Date(c.vip_reminder_sent_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>}
+                          {/* Botón de reenvío explícito (pedido founder 2026-09-30): antes
+                              solo se podía reenviar adivinando que el botón de "Send" genérico
+                              de la columna Actions también sirve para reenviar (tiene un confirm()
+                              de por medio) — acá queda a la vista, junto a la fecha del envío
+                              anterior, y usa el idioma que esté activo en el toggle "Language"
+                              de arriba (útil para reenviar en el otro idioma al que ya se mandó). */}
+                          {c.carta_sent_at && (
+                            <div style={{ fontSize: '.7rem', color: '#2563EB', fontWeight: 600, marginTop: 2, display: 'flex', alignItems: 'center', gap: 5 }}>
+                              ✅ Carta sent {new Date(c.carta_sent_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                              <button
+                                onClick={() => sendTemplate(c, TEMPLATES.find(t => t.id === 'carta_nuevas_empresas')!)}
+                                disabled={!!sendingId || paused || !c.email}
+                                title={`Resend Carta Nuevas Empresas in ${contentLang.toUpperCase()}`}
+                                style={{ border: 'none', background: 'none', color: '#2563EB', cursor: 'pointer', fontSize: '.75rem', padding: 0, fontWeight: 700, lineHeight: 1 }}
+                              >↻</button>
+                            </div>
+                          )}
+                          {c.vip_reminder_sent_at && (
+                            <div style={{ fontSize: '.7rem', color: '#059669', fontWeight: 600, marginTop: 2, display: 'flex', alignItems: 'center', gap: 5 }}>
+                              ✅ VIP sent {new Date(c.vip_reminder_sent_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                              <button
+                                onClick={() => sendTemplate(c, TEMPLATES.find(t => t.id === 'oferta_vip')!)}
+                                disabled={!!sendingId || paused || !c.email}
+                                title={`Resend Oferta VIP in ${contentLang.toUpperCase()}`}
+                                style={{ border: 'none', background: 'none', color: '#059669', cursor: 'pointer', fontSize: '.75rem', padding: 0, fontWeight: 700, lineHeight: 1 }}
+                              >↻</button>
+                            </div>
+                          )}
                         </td>
                         <td><span style={{ fontFamily: 'monospace', fontSize: '.8rem', color: '#475569', background: '#F8FAFC', padding: '2px 7px', borderRadius: 5 }}>{c.document_id}</span></td>
                         <td style={{ color: c.email ? '#374151' : '#CBD5E1', fontSize: '.8rem' }}>
