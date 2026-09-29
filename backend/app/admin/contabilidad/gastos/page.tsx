@@ -578,7 +578,7 @@ export default function GastosPage() {
                     <div className="form-group">
                       <label>Próxima fecha de vencimiento</label>
                       <input type="date" value={form.renewal_date} onChange={e => setForm(f => ({ ...f, renewal_date: e.target.value }))} />
-                      <div className="hint">Se usará para la alerta de vencimiento</div>
+                      <div className="hint">Se usa para la alerta de vencimiento y para auto-renovar. Si la dejas vacía, se calcula sola (fecha del gasto + 1 período).</div>
                     </div>
                   </div>
                   <div className="toggle-row">

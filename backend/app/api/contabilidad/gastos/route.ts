@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdminToken } from '@/lib/session'
 import { getSupabaseAdmin } from '@/lib/supabase'
+import { addPeriod } from '@/lib/recurring-expense'
 
 async function verifyAdmin(req: NextRequest): Promise<boolean> {
   const session = req.cookies.get('admin_session')
@@ -45,18 +46,26 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'amount debe ser un número mayor a 0' }, { status: 400 })
   }
 
+  const finalExpenseDate = expense_date || new Date().toISOString().split('T')[0]
+  const finalRecurrence = is_recurring ? (recurrence || 'monthly') : 'none'
+  // Si es recurrente y no se especificó vencimiento, se calcula solo (expense_date + 1 período) —
+  // sin esto, process-renewals nunca sabe cuándo generar el siguiente cargo.
+  const finalRenewalDate = is_recurring
+    ? (renewal_date || addPeriod(finalExpenseDate, finalRecurrence))
+    : null
+
   const { data, error } = await getSupabaseAdmin()
     .from('accounting_expenses')
     .insert({
-      expense_date: expense_date || new Date().toISOString().split('T')[0],
+      expense_date: finalExpenseDate,
       category,
       expense_type,
       description: description.trim(),
       amount: parsedAmount,
       receipt_note: receipt_note || null,
       is_recurring: Boolean(is_recurring),
-      recurrence: is_recurring ? (recurrence || 'monthly') : 'none',
-      renewal_date: is_recurring && renewal_date ? renewal_date : null,
+      recurrence: finalRecurrence,
+      renewal_date: finalRenewalDate,
       auto_renew: Boolean(auto_renew),
     })
     .select()
