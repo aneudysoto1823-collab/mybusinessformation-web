@@ -1942,6 +1942,38 @@ De paso, un fix relacionado pero distinto: `.poster{overflow:hidden}` combinado 
 - El aviso NLRA sigue ofrecido pero no construido (solo aplica a contratistas federales).
 - Revisión visual final del founder en el panel admin pendiente de confirmar tras el fix del footer.
 
+---
+
+## Sesión 2026-09-29/30 — auditoría de lanzamiento, Privacy Policy, Guías en inglés, fixes de Campaigns
+
+### Auditoría de lanzamiento (checklist + doc 31)
+
+`CHECKLIST_PRELANZAMIENTO.md` actualizado contra el código real (no se tocaba desde el 09-16): confirma que los únicos 2 gates reales para activar Stripe Live siguen siendo el seguro de responsabilidad profesional y el plan pago de ZeroBounce; corrige 2 checkboxes de FTC/UPL que ya estaban resueltos el mismo 09-16 pero seguían sin marcar; agrega hallazgo nuevo (sin resolver desde julio): confirmar `TURSO_DATABASE_URL`/`TURSO_AUTH_TOKEN` también en **Railway**, no solo Vercel; suma Programa de Afiliados y Labor Law Poster como extras completos fuera del alcance original.
+
+`LOGICA_DE_NEGOCIO/31_sistema_marketing_saliente.md` corregido — describía una arquitectura de julio que ya no aplica (Enformion/ZeroBounce marcados "fuera de scope" pese a integrarse en 09-12/13 y 09-24; Bloque 4 descrito como "pendiente" pese a que ya envía de verdad vía el puente a `/admin/campaigns`). **Confirmado con el founder: el flujo de Marketing Saliente funciona de punta a punta sin que el socio necesite construir nada** — el pendiente de "confirmar con él" quedó obsoleto, era de antes de completar el puente.
+
+**Página `/check-name` descartada definitivamente** (no es pendiente, es decisión tomada) — el founder confirmó que el chequeo de nombre ya corre automático server-side al crear la orden, sin fricción para el cliente, así que una página aparte no aporta nada.
+
+### Privacy Policy ampliada (opabiz.com y mybusinessformation.com)
+
+Hallazgo real: la política de privacidad nunca declaraba que también se obtienen datos de dueños de negocio que **nunca interactuaron con nosotros**, vía registros públicos (Sunbiz/Florida DOC) y Enformion (people-search) para Marketing Saliente. Se agregó una nueva subsección "Information We Obtain From Other Sources" en §1 (ambos dominios) + los proveedores externos que faltaban en §3 "Sharing Your Information" (Enformion, ZeroBounce, Resend, Google Address Validation/Lob, Supabase/Turso/Vercel, socio de Registered Agent). Se agregó también un link a la Privacy Policy en el footer de los emails de Carta Nuevas Empresas y Oferta VIP (`lib/campaign-email.ts`, `lib/vip-reminder-email.ts`) — antes solo tenían unsubscribe + dirección postal, sin dónde leer de dónde salió el dato. **Esto es preparación para la revisión con abogado, no la reemplaza** — sigue pendiente en el checklist.
+
+### Guías PDF — 3 fixes de contenido + traducción completa al inglés
+
+1. **"Sunbiz" quitado de la Guía II** (ambas marcas) — reemplazado por "ante el Estado de Florida", siguiendo la regla ya existente de no nombrar el sistema interno de cara al cliente (`[[feedback_no_sunbiz_en_copy_cliente]]`).
+2. **"El EIN es gratis" quitado de la Guía I** (ambas marcas) — el founder pidió no revelarlo porque ningún competidor grande lo hace y socava la propuesta de valor; se sacó esa pregunta del FAQ, quedó solo la de SSN/ITIN.
+3. **CTA de Virtual Address quitado** de las 4 combinaciones de Guía I — el servicio se sacó de la UI el 2026-09-17 (sin proveedor wholesale) y el botón llevaba a comprar algo que ya no se vende. El artículo/explicación del servicio se dejó intacto a pedido del founder, solo se quitó el botón de compra.
+4. **✅ Traducción real al inglés (bug de fondo corregido)** — un founder probando el sistema encontró que un email de campaña en inglés seguía adjuntando la Guía gratuita en español: nunca había existido una versión en inglés del PDF, solo el texto alrededor se traducía. Se tradujeron las 4 combinaciones que faltaban (Guía I/II × OpaBiz/FBFC), sumando 8 PDFs reales en total. `lib/guides.ts` ganó la dimensión de idioma en `GUIDE_FILES` (antes `Record<GuideKey, Record<GuideBrand, string>>`, ahora con `Lang` adentro) — `getGuideUrl`/`getGuidePdfBuffer`/`getGuideAttachments` aceptan `lang` (default `'es'`). El bug concreto: `buildGuideBonusHtml` ya recibía `lang` pero nunca se lo pasaba a `getGuideUrl` internamente — el texto se traducía, el archivo adjunto no. Corregidos los 4 call sites: `campaigns/send`, `guides/request`, y los 2 de `webhooks/stripe` (formación + servicios). `GUIAS_PDF/generate-pdf.py` ganó soporte para portadas en inglés: el regex que extrae el numeral romano para el pie ahora reconoce `Guide` además de `Guía`, y se agregó `"Good Standing"` a `HIGHLIGHT_PHRASES` para el resaltado a dos tonos del título de Guía II en inglés.
+
+Doc completo en memoria `project_guias_pdf_marketing.md`.
+
+### `/admin/campaigns` (Campaigns & Letters) — 4 fixes reales
+
+1. **Labels del selector de campaña aclarados**: "Carta Nuevas Empresas" → "Carta Nuevas Empresas (Email + Correo)", "Oferta VIP" → "Oferta VIP (Email)" — el founder reportó confusión sobre cuál campaña tiene versión física y cuál es solo email.
+2. **Bug real "[object Object]" al borrar/marcar empresas** — mismo bug ya visto en `/admin/afiliados` el 2026-09-23: un `PostgrestError` de Supabase es un objeto plano sin `toString()` propio, así que `String(err)` da literalmente `"[object Object]"` en vez del motivo real. Corregido con `pgErrorMessage()` (`lib/supabase.ts`) en `companies` (GET/POST/DELETE/PATCH), `mark-sent`, `stats` — los otros 5 endpoints de `campaigns/` ya chequeaban `instanceof Error` antes de convertir, no tenían el bug.
+3. **Bug real: no se podía borrar una empresa con historial** — una vez visible el mensaje de error real (gracias al fix anterior), apareció: `email_campaigns`/`qr_scans`/`conversions` referencian `prospective_companies` por `company_id` sin `ON DELETE CASCADE`. El `DELETE` de `companies/route.ts` ahora borra primero las filas relacionadas en esas 3 tablas antes de borrar la empresa — "eliminar para siempre" (el propio `confirm()` del panel ya lo dice así) incluye su historial, no solo la fila.
+4. **Botón de reenvío explícito (↻)** junto a cada badge "Carta sent"/"VIP sent" — antes solo se podía reenviar adivinando que el botón genérico de "Send" también reenvía (tenía un `confirm()` de por medio, pero no era obvio). El founder pedía específicamente poder reenviar una campaña en un idioma distinto al que ya se mandó — el ↻ reusa `sendTemplate()` con el idioma que esté activo en el toggle "Language" de arriba.
+
 ## Deploy
 
 - `git push origin main` — Vercel detecta cambios en `backend/` y hace deploy automático
