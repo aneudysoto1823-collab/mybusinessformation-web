@@ -71,8 +71,8 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const attachments = await getGuideAttachments(['guide1'])
-    const guideUrl = getGuideUrl('guide1')
+    const attachments = await getGuideAttachments(['guide1'], 'opabiz', lang)
+    const guideUrl = getGuideUrl('guide1', 'opabiz', lang)
     // www obligatorio acá: opabiz.com (apex) redirige 308 a www, y un cliente
     // automatizado (Gmail/Yahoo llamando a este link solos, sin que el
     // destinatario haga nada) no sigue ese redirect — mismo gotcha ya

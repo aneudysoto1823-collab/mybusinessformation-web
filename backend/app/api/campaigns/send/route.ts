@@ -107,7 +107,7 @@ export async function POST(req: NextRequest) {
               `<tr><td style="background:#fff;padding:0 36px 16px">${buildGuideBonusHtml(guideKeys, lang as 'en' | 'es', 'fbfc')}</td></tr>`
             )
           : baseHtml
-        const attachments = guideKeys.length > 0 ? await getGuideAttachments(guideKeys, 'fbfc') : undefined
+        const attachments = guideKeys.length > 0 ? await getGuideAttachments(guideKeys, 'fbfc', lang as 'en' | 'es') : undefined
 
         // mybusinessformation.com (apex) no redirige a www (a diferencia de
         // opabiz.com) — confirmado en next.config.ts, ambos hosts se sirven

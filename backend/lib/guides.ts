@@ -25,9 +25,20 @@ const BASE_URL = process.env.NEXT_PUBLIC_URL ?? 'https://opabiz.com'
 // opabiz.com.
 const BASE_URL_FBFC = 'https://mybusinessformation.com'
 
-const GUIDE_FILES: Record<GuideKey, Record<GuideBrand, string>> = {
-  guide1: { opabiz: 'guia-1-florida-formacion.pdf', fbfc: 'guia-1-florida-formacion-fbfc.pdf' },
-  guide2: { opabiz: 'guia-2-despues-de-formar.pdf', fbfc: 'guia-2-despues-de-formar-fbfc.pdf' },
+// Cada guía tiene 4 archivos reales (marca × idioma) — antes solo existía la
+// versión en español y el bloque de regalo del email se ofrecía igual sin
+// importar el idioma del envío (bug real reportado 2026-09-29: un email en
+// inglés adjuntaba la guía en español). `lang` default 'es' preserva el
+// comportamiento histórico para cualquier caller que no lo pase explícito.
+const GUIDE_FILES: Record<GuideKey, Record<GuideBrand, Record<Lang, string>>> = {
+  guide1: {
+    opabiz: { es: 'guia-1-florida-formacion.pdf', en: 'guia-1-florida-formacion-en.pdf' },
+    fbfc:   { es: 'guia-1-florida-formacion-fbfc.pdf', en: 'guia-1-florida-formacion-fbfc-en.pdf' },
+  },
+  guide2: {
+    opabiz: { es: 'guia-2-despues-de-formar.pdf', en: 'guia-2-despues-de-formar-en.pdf' },
+    fbfc:   { es: 'guia-2-despues-de-formar-fbfc.pdf', en: 'guia-2-despues-de-formar-fbfc-en.pdf' },
+  },
 }
 
 const GUIDE_TITLES: Record<GuideKey, { en: string; es: string }> = {
@@ -48,14 +59,14 @@ const GUIDE_DESCRIPTIONS: Record<GuideKey, { en: string; es: string }> = {
   },
 }
 
-export function getGuideUrl(guide: GuideKey, brand: GuideBrand = 'opabiz'): string {
+export function getGuideUrl(guide: GuideKey, brand: GuideBrand = 'opabiz', lang: Lang = 'es'): string {
   const base = brand === 'fbfc' ? BASE_URL_FBFC : BASE_URL
-  return `${base}/guias/${GUIDE_FILES[guide][brand]}`
+  return `${base}/guias/${GUIDE_FILES[guide][brand][lang]}`
 }
 
-export async function getGuidePdfBuffer(guide: GuideKey, brand: GuideBrand = 'opabiz'): Promise<Buffer> {
-  const res = await fetch(getGuideUrl(guide, brand))
-  if (!res.ok) throw new Error(`[guides] no se pudo descargar ${guide} (${brand}): ${res.status}`)
+export async function getGuidePdfBuffer(guide: GuideKey, brand: GuideBrand = 'opabiz', lang: Lang = 'es'): Promise<Buffer> {
+  const res = await fetch(getGuideUrl(guide, brand, lang))
+  if (!res.ok) throw new Error(`[guides] no se pudo descargar ${guide} (${brand}/${lang}): ${res.status}`)
   return Buffer.from(await res.arrayBuffer())
 }
 
@@ -107,7 +118,7 @@ export function buildGuideBonusHtml(guides: GuideKey[], lang: Lang, brand: Guide
   const items = guides
     .map(g => `
       <div style="margin:0 0 12px 0;">
-        <a href="${getGuideUrl(g, brand)}" style="color:#2563EB;text-decoration:none;font-weight:600;">${isEs ? GUIDE_TITLES[g].es : GUIDE_TITLES[g].en}</a>
+        <a href="${getGuideUrl(g, brand, lang)}" style="color:#2563EB;text-decoration:none;font-weight:600;">${isEs ? GUIDE_TITLES[g].es : GUIDE_TITLES[g].en}</a>
         <p style="margin:4px 0 0;color:#64748b;font-size:13px;line-height:1.55;">${isEs ? GUIDE_DESCRIPTIONS[g].es : GUIDE_DESCRIPTIONS[g].en}</p>
       </div>`)
     .join('')
@@ -119,8 +130,8 @@ export function buildGuideBonusHtml(guides: GuideKey[], lang: Lang, brand: Guide
     </div>`
 }
 
-export async function getGuideAttachments(guides: GuideKey[], brand: GuideBrand = 'opabiz'): Promise<{ filename: string; content: Buffer }[]> {
+export async function getGuideAttachments(guides: GuideKey[], brand: GuideBrand = 'opabiz', lang: Lang = 'es'): Promise<{ filename: string; content: Buffer }[]> {
   return Promise.all(
-    guides.map(async g => ({ filename: GUIDE_FILES[g][brand], content: await getGuidePdfBuffer(g, brand) }))
+    guides.map(async g => ({ filename: GUIDE_FILES[g][brand][lang], content: await getGuidePdfBuffer(g, brand, lang) }))
   )
 }

@@ -440,7 +440,7 @@ async function handleFormationPaid(orderId: string, session: Stripe.Checkout.Ses
   try {
     const guide1AlreadySent = await hasReceivedGuide(order.email, 'guide1')
     guidesToSend = guide1AlreadySent ? ['guide2'] : ['guide1', 'guide2']
-    guideAttachments = await getGuideAttachments(guidesToSend)
+    guideAttachments = await getGuideAttachments(guidesToSend, 'opabiz', isEs ? 'es' : 'en')
     guideBonusHtml = buildGuideBonusHtml(guidesToSend, isEs ? 'es' : 'en')
   } catch (e) {
     console.error('[stripe-webhook] guide attachments error (non-fatal, email sent without guides):', e)
@@ -720,7 +720,7 @@ async function handleServicesPaid(orderId: string, session: Stripe.Checkout.Sess
     try {
       const already = await hasReceivedGuide(order.email, 'guide2', guideBrand)
       guidesToSend = already ? [] : ['guide2']
-      guideAttachments = await getGuideAttachments(guidesToSend, guideBrand)
+      guideAttachments = await getGuideAttachments(guidesToSend, guideBrand, isEs ? 'es' : 'en')
       guideBonusHtml = buildGuideBonusHtml(guidesToSend, isEs ? 'es' : 'en', guideBrand)
     } catch (e) {
       console.error('[stripe-webhook] guide2 attachment error (non-fatal, email sent without guide):', e)

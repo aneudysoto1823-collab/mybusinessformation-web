@@ -63,7 +63,7 @@ CHROME_CANDIDATES = [
 
 # Frase a resaltar en azul dentro del título de portada, por guía de la
 # serie (diseño aprobado: "la frase clave en azul, resto en navy").
-HIGHLIGHT_PHRASES = ["LLC o Corporación", "LLC or Corporation", "al Día"]
+HIGHLIGHT_PHRASES = ["LLC o Corporación", "LLC or Corporation", "al Día", "Good Standing"]
 
 CSS = """
 <style>
@@ -293,7 +293,7 @@ def build_cover_html(title: str, kicker: str, subtitle: str, brand: str = "opabi
     title_html = before + (f'<span class="accent">{highlight}</span>' if highlight else "") + after
 
     edition = kicker.split("·")[-1].strip() if "·" in kicker else ""
-    guide_match = re.search(r"Guía\s+([IVX]+)", kicker)
+    guide_match = re.search(r"(?:Guía|Guide)\s+([IVX]+)", kicker)
     guide_num = guide_match.group(1) if guide_match else ""
     footer_label = f"{edition} · {guide_num}" if edition and guide_num else kicker
 
