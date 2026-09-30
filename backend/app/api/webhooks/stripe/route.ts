@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse, after } from 'next/server'
 import Stripe from 'stripe'
 import { getSupabaseAdmin } from '@/lib/supabase'
-import { Resend } from 'resend'
+import { getResend } from '@/lib/resend-client'
+import { notifyOps } from '@/lib/ops-alert'
 import { nameCheckHtmlLine, NameCheckResult } from '@/lib/sunbiz-namecheck'
 import { SERVICES_CATALOG } from '@/lib/services-pricing'
 import { PACKAGE_SERVICES } from '@/lib/notifications'
@@ -18,7 +19,28 @@ import { recordAffiliateCommissionForOrder, recordAgentCommissionForOrder } from
 export const dynamic = 'force-dynamic'
 
 const getStripe = () => new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2026-02-25.clover' })
-const getResend = () => new Resend(process.env.RESEND_API_KEY)
+
+// Aviso de "orden pagada" por Telegram (lib/ops-alert.ts), independiente de
+// Resend — incidente 2026-09-30: el dominio de Resend cayó y una orden pagada
+// no generó ningún aviso. Va además de la alerta interna por email, no la
+// reemplaza. Se dispara dentro de after() para no demorar la respuesta a Stripe.
+function alertOrderPaid(p: { number: string; orderId: string; brand: string; kind: string; company: string; customer: string; amount: number }) {
+  after(() => notifyOps(
+    `Orden pagada: ${p.number}\n${p.brand} · ${p.kind}\nEmpresa: ${p.company}\nCliente: ${p.customer}\nTotal: $${p.amount.toFixed(2)}\nhttps://opabiz.com/admin/orders/${p.orderId}`,
+    'info',
+  ))
+}
+
+// Pago cobrado en Stripe pero la orden no se pudo guardar/actualizar. Es el
+// peor caso posible (el cliente pagó y no existe rastro en el panel), así que
+// avisa siempre, aunque Stripe reintente el webhook varias veces.
+function alertPaidWithoutOrder(reason: string, session: Stripe.Checkout.Session, detail?: unknown) {
+  const detailMsg = detail instanceof Error ? detail.message : detail ? JSON.stringify(detail).slice(0, 300) : ''
+  after(() => notifyOps(
+    `PAGO SIN ORDEN: ${reason}\nSesión Stripe: ${session.id}\nMonto: $${((session.amount_total ?? 0) / 100).toFixed(2)}\n${detailMsg}`,
+    'error',
+  ))
+}
 
 export async function POST(req: NextRequest) {
   const body      = await req.text()
@@ -151,8 +173,14 @@ export async function POST(req: NextRequest) {
 
   if (orderError) {
     console.error('[stripe-webhook] order insert error:', orderError)
+    alertPaidWithoutOrder('insert de orden new-business falló', session, orderError)
     return NextResponse.json({ error: 'Order insert failed' }, { status: 500 })
   }
+
+  alertOrderPaid({
+    number: fbfcNumber, orderId, brand: 'MyBusinessFormation', kind: 'New Business (addons)',
+    company: companyName, customer: `${firstName} ${lastName}`, amount: amountPaid,
+  })
 
   // Update prospective_companies → purchased
   if (companyId) {
@@ -332,6 +360,7 @@ async function handleFormationPaid(orderId: string, session: Stripe.Checkout.Ses
 
   if (!existing) {
     console.error('[stripe-webhook] formation order not found:', orderId)
+    alertPaidWithoutOrder(`orden de formación ${orderId} no existe`, session)
     return NextResponse.json({ error: 'Order not found' }, { status: 404 })
   }
   if (existing.paymentStatus === 'paid') {
@@ -363,6 +392,7 @@ async function handleFormationPaid(orderId: string, session: Stripe.Checkout.Ses
 
   if (error) {
     console.error('[stripe-webhook] formation order update failed:', orderId, error)
+    alertPaidWithoutOrder(`update de orden de formación ${orderId} falló`, session, error)
     return NextResponse.json({ error: 'Order update failed' }, { status: 500 })
   }
   if (!updated || updated.length === 0) {
@@ -373,6 +403,12 @@ async function handleFormationPaid(orderId: string, session: Stripe.Checkout.Ses
   const order = updated[0]
 
   const fbfc = `FBFC-${order.id.replace(/-/g, '').substring(0, 8).toUpperCase()}`
+
+  alertOrderPaid({
+    number: fbfc, orderId: order.id, brand: 'OpaBiz',
+    kind: `Formación ${String(order.entityType ?? '').toUpperCase()} ${order.package ?? ''}`.trim(),
+    company: order.companyName ?? '?', customer: `${order.firstName ?? ''} ${order.lastName ?? ''}`.trim(), amount: amountPaid,
+  })
 
   // Pre-computar la linea HTML del name-check (solo se usa en el email
   // del admin de mas abajo). Try/catch para que NUNCA pueda romper el
@@ -644,6 +680,7 @@ async function handleServicesPaid(orderId: string, session: Stripe.Checkout.Sess
 
   if (!existing) {
     console.error('[stripe-webhook] services order not found:', orderId)
+    alertPaidWithoutOrder(`orden de servicios ${orderId} no existe`, session)
     return NextResponse.json({ error: 'Order not found' }, { status: 404 })
   }
   if (existing.paymentStatus === 'paid') {
@@ -665,6 +702,7 @@ async function handleServicesPaid(orderId: string, session: Stripe.Checkout.Sess
 
   if (error || !order) {
     console.error('[stripe-webhook] services order update failed:', orderId, error)
+    alertPaidWithoutOrder(`update de orden de servicios ${orderId} falló`, session, error)
     return NextResponse.json({ error: 'Order update failed' }, { status: 500 })
   }
 
@@ -676,6 +714,12 @@ async function handleServicesPaid(orderId: string, session: Stripe.Checkout.Sess
   // (ver /api/checkout/embedded-services). El resto del flujo (portal,
   // alertas internas) sigue unificado en OpaBiz.
   const isFBFC = session.metadata?.sourceDomain === 'fbfc'
+
+  alertOrderPaid({
+    number: fbfc, orderId: order.id, brand: isFBFC ? 'MyBusinessFormation' : 'OpaBiz', kind: 'Servicios à la carte',
+    company: order.companyName ?? '?', customer: `${order.firstName ?? ''} ${order.lastName ?? ''}`.trim(), amount: amountPaid,
+  })
+
   const brandFrom = isFBFC ? FROM_FBFC : FROM_OPABIZ
   const brandReplyTo = isFBFC ? REPLY_TO_FBFC : REPLY_TO
   const brandLogoHtml = isFBFC
