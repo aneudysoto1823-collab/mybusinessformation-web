@@ -8,7 +8,7 @@
 // Ver lib/affiliates.ts.
 
 import { NextRequest, NextResponse } from 'next/server'
-import { Resend } from 'resend'
+import { getResend } from '@/lib/resend-client'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { checkAffiliateApplyRateLimit, getClientIp } from '@/lib/rate-limit'
 import { AffiliateApplicationInputSchema, parseOr400 } from '@/lib/schemas'
@@ -18,8 +18,6 @@ import {
   FROM_OPABIZ_ALERTS, INTERNAL_ALERT_EMAIL, REPLY_TO, PHYSICAL_MAILING_ADDRESS,
   type EmailBrand,
 } from '@/lib/email-constants'
-
-const getResend = () => new Resend(process.env.RESEND_API_KEY)
 
 function escape(s: string): string {
   return s

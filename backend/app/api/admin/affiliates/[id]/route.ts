@@ -11,7 +11,7 @@
 //         'update'     — solo edita commission_percent y/o notes, sin tocar status.
 
 import { NextRequest, NextResponse } from 'next/server'
-import { Resend } from 'resend'
+import { getResend } from '@/lib/resend-client'
 import { getSupabaseAdmin, pgErrorMessage } from '@/lib/supabase'
 import { verifyAdminToken } from '@/lib/session'
 import { createPromotionCodeForAffiliate, AFFILIATE_COUPON_DISCOUNT_PERCENT } from '@/lib/affiliates'
@@ -23,8 +23,6 @@ import {
 } from '@/lib/email-constants'
 
 export const dynamic = 'force-dynamic'
-
-const getResend = () => new Resend(process.env.RESEND_API_KEY)
 
 async function verifyAdmin(request: NextRequest): Promise<boolean> {
   const session = request.cookies.get('admin_session')

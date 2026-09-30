@@ -8,14 +8,12 @@
 // — el póster de Florida (~23MB, 7 avisos en alta resolución) siempre queda
 // como link solo, nunca adjunto.
 import { NextRequest, NextResponse } from 'next/server'
-import { Resend } from 'resend'
+import { getResend } from '@/lib/resend-client'
 import { verifyAdminToken } from '@/lib/session'
 import { getPosterSetForEmail, buildPosterEmailHtml, POSTER_TITLES, type PosterBrand, type PosterLang } from '@/lib/labor-law-poster'
 import { brandFrom, brandReplyTo, brandHeaderHtml, brandFooterLine, brandDisclosureHtml, brandSubjectPrefix, type EmailBrand } from '@/lib/email-constants'
 
 export const dynamic = 'force-dynamic'
-
-const getResend = () => new Resend(process.env.RESEND_API_KEY)
 
 async function verifyAdmin(request: NextRequest): Promise<boolean> {
   const session = request.cookies.get('admin_session')
