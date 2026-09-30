@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Redis } from '@upstash/redis'
-import { Resend } from 'resend'
+import { getResend } from '@/lib/resend-client'
 import { createAdminToken } from '@/lib/session'
 import { checkAuthRecoverRateLimit, getClientIp } from '@/lib/rate-limit'
 import crypto from 'crypto'
@@ -11,8 +11,6 @@ function getRedis() {
     token: process.env.UPSTASH_REDIS_REST_TOKEN!,
   })
 }
-function getResend() { return new Resend(process.env.RESEND_API_KEY) }
-
 // POST /api/auth/recover  — solicita link de recuperación
 export async function POST(req: NextRequest) {
   // Rate limit antes de leer body o tocar Redis/Resend — protege contra spam

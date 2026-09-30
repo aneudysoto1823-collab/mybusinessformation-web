@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { Resend } from 'resend'
+import { getResend } from '@/lib/resend-client'
 import { verifyAdminToken } from '@/lib/session'
 import { checkChangePasswordRateLimit, getClientIp } from '@/lib/rate-limit'
 import { saveEmailCode, hasPendingPasswordChange } from '@/lib/twofa'
 import { FROM_OPABIZ, REPLY_TO } from '@/lib/email-constants'
-
-const getResend = () => new Resend(process.env.RESEND_API_KEY)
 
 function generateCode(): string {
   return String(Math.floor(100000 + Math.random() * 900000))

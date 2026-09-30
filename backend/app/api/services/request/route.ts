@@ -8,11 +8,9 @@
 // al email del cliente para que el equipo responda con un click.
 
 import { NextRequest, NextResponse } from 'next/server'
-import { Resend } from 'resend'
+import { getResend } from '@/lib/resend-client'
 import { checkContactRateLimit, getClientIp } from '@/lib/rate-limit'
 import { INTERNAL_ALERT_EMAIL as TO_TEAM, REPLY_TO as REPLY_TO_DEFAULT, FROM_OPABIZ_ALERTS, FROM_OPABIZ } from '@/lib/email-constants'
-
-const getResend = () => new Resend(process.env.RESEND_API_KEY)
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 

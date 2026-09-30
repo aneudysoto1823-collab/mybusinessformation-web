@@ -1,5 +1,5 @@
 import { Redis } from '@upstash/redis'
-import { Resend } from 'resend'
+import { getResend } from './resend-client'
 import crypto from 'crypto'
 import { FROM_OPABIZ_INTERNAL } from './email-constants'
 
@@ -16,8 +16,6 @@ function getRedis() {
     token: process.env.UPSTASH_REDIS_REST_TOKEN!,
   })
 }
-function getResend() { return new Resend(process.env.RESEND_API_KEY) }
-
 function redisKey(token: string) {
   return `opabiz-invite:${token}`
 }

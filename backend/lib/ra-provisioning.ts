@@ -29,10 +29,8 @@ import {
 } from './corporate-tools'
 import { sendRaAddressReady } from './notifications'
 import { getOrderLang } from './order-items'
-import { Resend } from 'resend'
+import { getResend } from './resend-client'
 import { REPLY_TO, INTERNAL_ALERT_EMAIL, FROM_OPABIZ_ALERTS } from './email-constants'
-
-const getResend = () => new Resend(process.env.RESEND_API_KEY)
 
 type OrderRow = {
   id: string

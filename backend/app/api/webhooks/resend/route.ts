@@ -20,13 +20,11 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { Webhook } from 'svix'
-import { Resend } from 'resend'
+import { getResend } from '@/lib/resend-client'
 import { suppressEmail } from '@/lib/email-suppression'
 import { FROM_OPABIZ_ALERTS, INTERNAL_ALERT_EMAIL } from '@/lib/email-constants'
 
 export const dynamic = 'force-dynamic'
-
-const getResend = () => new Resend(process.env.RESEND_API_KEY)
 
 interface ResendWebhookEvent {
   type: string

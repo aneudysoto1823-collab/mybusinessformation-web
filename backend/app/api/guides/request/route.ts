@@ -6,14 +6,12 @@
 // no se reenvía: solo se confirma que ya la tiene. Ver backend/lib/guides.ts.
 
 import { NextRequest, NextResponse } from 'next/server'
-import { Resend } from 'resend'
+import { getResend } from '@/lib/resend-client'
 import { checkGuideRequestRateLimit, getClientIp } from '@/lib/rate-limit'
 import { GuideRequestInputSchema, parseOr400 } from '@/lib/schemas'
 import { FROM_OPABIZ_MARKETING, REPLY_TO, PHYSICAL_MAILING_ADDRESS, buildListUnsubscribeHeaders } from '@/lib/email-constants'
 import { hasReceivedGuide, recordGuideSent, getGuideAttachments, getGuideUrl } from '@/lib/guides'
 import { isSuppressed } from '@/lib/email-suppression'
-
-const getResend = () => new Resend(process.env.RESEND_API_KEY)
 
 function escape(s: string): string {
   return s

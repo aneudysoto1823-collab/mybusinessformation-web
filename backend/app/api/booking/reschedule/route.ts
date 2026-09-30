@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase'
-import { Resend } from 'resend'
+import { getResend } from '@/lib/resend-client'
 import { REPLY_TO, FROM_OPABIZ } from '@/lib/email-constants'
 
 export const dynamic = 'force-dynamic'
-
-const getResend = () => new Resend(process.env.RESEND_API_KEY)
 
 const emailHeader = `
   <div style="padding:22px 32px;border-bottom:1px solid #e2e8f0">

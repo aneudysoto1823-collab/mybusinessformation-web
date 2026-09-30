@@ -4,7 +4,7 @@
 // la de B1 a propósito — así un bug acá nunca puede afectar el envío de la
 // carta de cumplimiento que ya está probada en producción.
 import { NextRequest, NextResponse } from 'next/server'
-import { Resend } from 'resend'
+import { getResend } from '@/lib/resend-client'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { verifyAdminToken } from '@/lib/session'
 import { FROM_COLD_OUTREACH, REPLY_TO_COLD_OUTREACH, buildListUnsubscribeHeaders } from '@/lib/email-constants'
@@ -22,8 +22,6 @@ async function verifyAdmin(request: NextRequest): Promise<boolean> {
   if (!session?.value) return false
   return verifyAdminToken(session.value)
 }
-
-const getResend = () => new Resend(process.env.RESEND_API_KEY)
 
 export async function POST(req: NextRequest) {
   if (!(await verifyAdmin(req))) {

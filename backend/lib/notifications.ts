@@ -1,10 +1,7 @@
-import { Resend } from 'resend'
+import { getResend } from './resend-client'
 import { getOrderItemKeys, getOrderItemLabel } from './order-items'
 import { computeFormationTotal } from './pricing'
 import { REPLY_TO, INTERNAL_ALERT_EMAIL as INTERNAL_EMAIL, FROM_OPABIZ, FROM_OPABIZ_SUPPORT, FROM_OPABIZ_ALERTS, type EmailBrand, isFbfcBrand, brandFrom, brandReplyTo, brandPortalHome, brandSubjectPrefix, brandHeaderHtml, brandFooterLine, brandDisclosureHtml } from './email-constants'
-
-// Lazy init: se crea al primer uso, cuando dotenv ya cargó el .env
-const getResend = () => new Resend(process.env.RESEND_API_KEY)
 
 // Brand-aware desde 2026-09-11 (auditoría de emails) — antes decía siempre
 // "opabiz.com" incluso en órdenes de mybusinessformation.com (sendOrderConfirmation

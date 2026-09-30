@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
-import { Resend } from 'resend'
+import { getResend } from '@/lib/resend-client'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { ClientSignupInputSchema, parseOr400 } from '@/lib/schemas'
 import { checkClientAuthRateLimit, getClientIp } from '@/lib/rate-limit'
 import { REPLY_TO, FROM_OPABIZ } from '@/lib/email-constants'
 
-const getResend = () => new Resend(process.env.RESEND_API_KEY)
 const SITE_URL = process.env.NEXT_PUBLIC_URL || 'https://opabiz.com'
 
 function setSession(orderId: string) {

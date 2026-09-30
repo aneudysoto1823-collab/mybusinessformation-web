@@ -13,12 +13,10 @@
 // (mismo patrón que el resto de notifications.ts del proyecto).
 
 import { NextRequest, NextResponse } from 'next/server'
-import { Resend } from 'resend'
+import { getResend } from '@/lib/resend-client'
 import { checkContactRateLimit, getClientIp } from '@/lib/rate-limit'
 import { CONTACT_TO_EMAIL as TO_EMAIL_OPABIZ, REPLY_TO_FBFC, FROM_OPABIZ_CONTACT, FROM_FBFC, type EmailBrand, brandFrom, brandReplyTo, brandSubjectPrefix, brandHeaderHtml, brandFooterLine } from '@/lib/email-constants'
 import { resolveOrigin, brandFromOrigin } from '@/lib/request-origin'
-
-const getResend = () => new Resend(process.env.RESEND_API_KEY)
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 

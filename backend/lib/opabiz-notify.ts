@@ -1,13 +1,9 @@
-import { Resend } from 'resend'
+import { getResend } from './resend-client'
 import { getSupabaseAdmin } from './supabase'
 import { FROM_OPABIZ_INTERNAL } from './email-constants'
 import { sendPushToEmpleado } from './opabiz-push'
 
 type Supabase = ReturnType<typeof getSupabaseAdmin>
-
-function getResend() {
-  return new Resend(process.env.RESEND_API_KEY)
-}
 
 function unwrap<T>(v: T | T[] | null | undefined): T | null {
   if (!v) return null

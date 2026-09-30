@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase'
-import { Resend } from 'resend'
+import { getResend } from '@/lib/resend-client'
 import { CONTACT_TO_EMAIL as ADMIN_EMAIL, REPLY_TO, FROM_OPABIZ } from '@/lib/email-constants'
 
 export const dynamic = 'force-dynamic'
-
-const getResend = () => new Resend(process.env.RESEND_API_KEY)
 
 const ADMIN_WHATSAPP = '13528377755'
 const BASE_URL = process.env.NEXT_PUBLIC_URL ?? 'https://opabiz.com'

@@ -10,14 +10,12 @@
 // handleInvoicePaymentFailed (header con logo por marca + card blanca).
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { Resend } from 'resend'
+import { getResend } from './resend-client'
 import { SERVICES_CATALOG } from './services-pricing'
 import {
   brandFrom, brandReplyTo, brandHeaderHtml, brandFooterLine, brandSubjectPrefix,
   brandPortalHome, type EmailBrand,
 } from './email-constants'
-
-const getResend = () => new Resend(process.env.RESEND_API_KEY)
 
 function renewalEmailShell(brand: EmailBrand, bodyHtml: string): string {
   return `

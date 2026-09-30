@@ -1,14 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase'
-import { Resend } from 'resend'
+import { getResend } from '@/lib/resend-client'
 import { checkOrdersRateLimit, getClientIp } from '@/lib/rate-limit'
 import { OrderInputSchema, parseOr400 } from '@/lib/schemas'
 import { checkNameAvailability, nameCheckHtmlLine, NameCheckResult } from '@/lib/sunbiz-namecheck'
 import { sendOrderConfirmation } from '@/lib/notifications'
 import { REPLY_TO, INTERNAL_ALERT_EMAIL as INTERNAL_ALERT, FROM_OPABIZ_ALERTS } from '@/lib/email-constants'
 import { encryptEinTaxId } from '@/lib/ein-tax-id'
-
-const getResend = () => new Resend(process.env.RESEND_API_KEY)
 
 export async function POST(request: NextRequest) {
   try {
