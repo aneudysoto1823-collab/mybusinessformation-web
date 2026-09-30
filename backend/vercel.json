@@ -25,6 +25,10 @@
     {
       "path": "/api/cron/subscription-renewal-notice",
       "schedule": "0 14 * * *"
+    },
+    {
+      "path": "/api/cron/email-domain-health",
+      "schedule": "0 * * * *"
     }
   ]
 }
