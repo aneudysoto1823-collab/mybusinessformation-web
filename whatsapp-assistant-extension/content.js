@@ -18,8 +18,17 @@ function buildPanel() {
     <div class="ce-header">Asistente Claudia</div>
     <div class="ce-body">
       <div>
-        <label>Mensaje del cliente</label>
-        <textarea id="ce-client-msg" rows="3" placeholder="Pegá acá lo que escribió el cliente..."></textarea>
+        <div class="ce-label-row">
+          <label>Mensaje del cliente</label>
+          <select id="ce-mic-lang">
+            <option value="es-ES">Español</option>
+            <option value="en-US">English</option>
+          </select>
+        </div>
+        <div class="ce-textarea-wrap">
+          <textarea id="ce-client-msg" rows="3" placeholder="Pegá lo que escribió el cliente, o dictalo con el micrófono..."></textarea>
+          <button class="ce-mic-btn" id="ce-mic" title="Dictar por voz" type="button">🎤</button>
+        </div>
       </div>
       <button class="ce-ask-btn" id="ce-ask">Preguntarle a Claudia</button>
       <div class="ce-error" id="ce-error" style="display:none"></div>
@@ -73,6 +82,68 @@ function buildPanel() {
       errorBox.textContent = 'No encontré el cuadro de mensaje de WhatsApp. Abrí una conversación primero.'
       errorBox.style.display = 'block'
     }
+  })
+
+  setupMic(panel.querySelector('#ce-client-msg'), panel.querySelector('#ce-mic'), panel.querySelector('#ce-mic-lang'), errorBox)
+}
+
+// Dictado por voz del lado del cuadro "Mensaje del cliente" — usa el
+// reconocimiento de voz nativo de Chrome (Web Speech API), sin servicio
+// externo. El audio lo procesan los servidores de Google (así funciona
+// webkitSpeechRecognition en Chrome, no es nada propio de esta extensión).
+function setupMic(textarea, micBtn, langSelect, errorBox) {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
+  if (!SpeechRecognition) {
+    micBtn.disabled = true
+    micBtn.title = 'Tu navegador no soporta dictado por voz'
+    return
+  }
+
+  let recognition = null
+  let listening = false
+  let baseText = ''
+
+  micBtn.addEventListener('click', () => {
+    if (listening) {
+      recognition.stop()
+      return
+    }
+
+    baseText = textarea.value ? textarea.value.trim() + ' ' : ''
+    recognition = new SpeechRecognition()
+    recognition.lang = langSelect.value
+    recognition.continuous = true
+    recognition.interimResults = true
+
+    recognition.onresult = event => {
+      let finalChunk = ''
+      let interim = ''
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript
+        if (event.results[i].isFinal) finalChunk += transcript + ' '
+        else interim += transcript
+      }
+      if (finalChunk) baseText += finalChunk
+      textarea.value = baseText + interim
+    }
+
+    recognition.onerror = event => {
+      errorBox.textContent = event.error === 'not-allowed'
+        ? 'Dale permiso de micrófono a esta página para dictar.'
+        : 'Error de dictado: ' + event.error
+      errorBox.style.display = 'block'
+    }
+
+    recognition.onend = () => {
+      listening = false
+      micBtn.classList.remove('ce-mic-on')
+      micBtn.textContent = '🎤'
+    }
+
+    recognition.start()
+    listening = true
+    micBtn.classList.add('ce-mic-on')
+    micBtn.textContent = '⏹'
   })
 }
 

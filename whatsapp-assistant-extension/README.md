@@ -22,7 +22,10 @@ escribir; el envío siempre lo hace la persona, a mano.
 1. Abrí `https://web.whatsapp.com` y entrá a una conversación.
 2. Click en el botón circular "C" abajo a la derecha — abre el panel.
 3. Copiá el mensaje del cliente (click derecho → Copiar, o seleccionarlo)
-   y pegalo en "Mensaje del cliente".
+   y pegalo en "Mensaje del cliente" — o apretá el micrófono 🎤 y dictalo
+   (elegí Español/English en el selector de al lado antes de hablar; Chrome
+   lo transcribe solo, sin ningún servicio nuestro de por medio — el audio
+   lo procesan los servidores de Google, como cualquier dictado de Chrome).
 4. Click en "Preguntarle a Claudia" — tarda unos segundos.
 5. Revisá/editá la respuesta sugerida y click en "Usar esta respuesta" —
    se inserta en el cuadro de WhatsApp. Apretá Enter para mandarla, como
