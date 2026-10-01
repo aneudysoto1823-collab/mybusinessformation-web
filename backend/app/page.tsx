@@ -2395,7 +2395,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
             </div>
             <p style="font-size:.8rem;color:#6b7280;margin-bottom:24px" id="suc-note">Expect a follow-up within <strong>1 business day</strong> regarding your name availability and next steps.</p>
             <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
-              <button class="btn-next-fm" onclick="window.open('https://wa.me/13522782475','_blank')">&#x1F4AC; <span id="suc-wa-lbl">WhatsApp Consultation</span></button>
+              <button class="btn-next-fm" onclick="window.open('https://wa.me/13522782475?text=Hello%2C%20I%20have%20a%20question%20about%20OpaBiz.com','_blank')">&#x1F4AC; <span id="suc-wa-lbl">WhatsApp Consultation</span></button>
               <button class="btn-back-fm" onclick="closeForm()"><span id="suc-home-lbl">Return to Homepage</span></button>
             </div>
           </div>

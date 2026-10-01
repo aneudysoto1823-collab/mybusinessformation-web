@@ -456,10 +456,12 @@ function LoginForm({ initialIsFBFC }: { initialIsFBFC: boolean }) {
                         <span className="contact-option-icon">✉️</span>
                         Email
                       </a>
-                      <a className="contact-option" href="https://wa.me/13522782475" target="_blank" rel="noopener noreferrer">
-                        <span className="contact-option-icon">💬</span>
-                        WhatsApp
-                      </a>
+                      {!isFBFC && (
+                        <a className="contact-option" href="https://wa.me/13522782475?text=Hello%2C%20I%20have%20a%20question%20about%20OpaBiz.com" target="_blank" rel="noopener noreferrer">
+                          <span className="contact-option-icon">💬</span>
+                          WhatsApp
+                        </a>
+                      )}
                     </div>
                   )}
                 </div>
