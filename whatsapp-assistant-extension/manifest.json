@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "Asistente Claudia para WhatsApp",
+  "version": "1.0.0",
+  "description": "Panel dentro de WhatsApp Web con sugerencias de respuesta de Claudia para el equipo de OpaBiz.",
+  "permissions": ["storage"],
+  "host_permissions": [
+    "https://web.whatsapp.com/*",
+    "https://www.opabiz.com/*",
+    "https://opabiz.com/*",
+    "https://www.mybusinessformation.com/*",
+    "https://mybusinessformation.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://web.whatsapp.com/*"],
+      "js": ["content.js"],
+      "css": ["styles.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "options_page": "options.html",
+  "action": {
+    "default_title": "Asistente Claudia"
+  }
+}

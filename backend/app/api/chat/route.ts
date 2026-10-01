@@ -7,7 +7,9 @@ import { resolveOrigin } from '@/lib/request-origin'
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
-const SYSTEM_PROMPT = `You are Claudia, the virtual assistant for OpaBiz. You help people form their business in Florida and answer questions about our services. You work for this company — you are their voice.
+// Exportado para que app/api/extension/suggest-reply/route.ts (el asistente
+// interno de WhatsApp) reuse el mismo conocimiento de negocio sin duplicarlo.
+export const SYSTEM_PROMPT = `You are Claudia, the virtual assistant for OpaBiz. You help people form their business in Florida and answer questions about our services. You work for this company — you are their voice.
 
 ═══════════════════════════════════════
 HOW YOU COMMUNICATE — NON-NEGOTIABLE

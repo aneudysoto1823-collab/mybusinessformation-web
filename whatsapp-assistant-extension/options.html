@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>Asistente Claudia — Configuración</title>
+<style>
+  body { font-family: -apple-system, 'Segoe UI', sans-serif; background: #f4f6f9; margin: 0; padding: 32px; }
+  .box { max-width: 420px; margin: 0 auto; background: #fff; border-radius: 10px; padding: 24px 28px; box-shadow: 0 1px 6px rgba(0,0,0,.08); }
+  h1 { font-size: 16px; color: #1a1a2e; margin: 0 0 4px; }
+  p.hint { font-size: 12px; color: #6b7280; margin: 0 0 18px; }
+  label { display: block; font-size: 12px; font-weight: 600; color: #374151; margin-bottom: 5px; }
+  input { width: 100%; box-sizing: border-box; padding: 9px 12px; border: 1.5px solid #e5e7eb; border-radius: 8px; font-size: 13px; outline: none; margin-bottom: 16px; }
+  input:focus { border-color: #2563eb; }
+  button { background: #2563eb; color: #fff; border: none; border-radius: 8px; padding: 9px 18px; font-size: 13px; font-weight: 600; cursor: pointer; }
+  button:hover { background: #1d4ed8; }
+  #status { font-size: 12px; color: #059669; margin-top: 10px; display: none; }
+</style>
+</head>
+<body>
+  <div class="box">
+    <h1>Asistente Claudia para WhatsApp</h1>
+    <p class="hint">Pegá acá la clave que te dio el equipo (una sola vez, queda guardada en este navegador).</p>
+    <label for="key">Clave de acceso</label>
+    <input id="key" type="password" placeholder="Clave compartida" autocomplete="off" />
+    <label for="base">URL del sitio</label>
+    <input id="base" type="text" placeholder="https://www.opabiz.com" />
+    <button id="save">Guardar</button>
+    <div id="status">Guardado ✓</div>
+  </div>
+  <script src="options.js"></script>
+</body>
+</html>

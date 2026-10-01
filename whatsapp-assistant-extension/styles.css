@@ -1,0 +1,107 @@
+#claudia-ext-toggle {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 999999;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2563eb, #1c2e44);
+  color: #fff;
+  border: none;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  font-size: 22px;
+  font-weight: 700;
+  font-family: -apple-system, 'Segoe UI', sans-serif;
+}
+
+#claudia-ext-panel {
+  position: fixed;
+  bottom: 88px;
+  right: 24px;
+  z-index: 999999;
+  width: 340px;
+  max-height: 70vh;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+  font-family: -apple-system, 'Segoe UI', sans-serif;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+#claudia-ext-panel.hidden { display: none; }
+
+#claudia-ext-panel .ce-header {
+  background: #1c2e44;
+  color: #fff;
+  padding: 12px 16px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+#claudia-ext-panel .ce-body {
+  padding: 14px 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#claudia-ext-panel label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+#claudia-ext-panel textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 13px;
+  font-family: inherit;
+  resize: vertical;
+  outline: none;
+}
+
+#claudia-ext-panel textarea:focus { border-color: #2563eb; }
+
+#claudia-ext-panel .ce-ask-btn {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 9px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+#claudia-ext-panel .ce-ask-btn:disabled { opacity: 0.6; cursor: default; }
+
+#claudia-ext-panel .ce-use-btn {
+  background: #059669;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 9px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+#claudia-ext-panel .ce-error {
+  color: #dc2626;
+  font-size: 12px;
+}
+
+#claudia-ext-panel .ce-hint {
+  color: #9ca3af;
+  font-size: 11px;
+  line-height: 1.4;
+}
