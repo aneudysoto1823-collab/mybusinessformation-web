@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import ChatWidget from '@/components/ChatWidget'
+import AgentAssistWidget from '@/components/AgentAssistWidget'
 
 // TODO(performance, pendiente): este archivo tiene ~6,800 líneas de HTML inline
 // (marketing + los 9 pasos del formulario de formación, todos generados de una
@@ -7855,6 +7856,7 @@ async function fmLobValidateAddr(addrInput, enteredLabel) {
       />
       <main dangerouslySetInnerHTML={{ __html: `<style>${styles}</style>${body}` }} />
       <ChatWidget />
+      <AgentAssistWidget />
     </>
   )
 }
