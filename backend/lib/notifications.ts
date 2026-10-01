@@ -1,7 +1,7 @@
 import { getResend } from './resend-client'
 import { getOrderItemKeys, getOrderItemLabel } from './order-items'
 import { computeFormationTotal } from './pricing'
-import { REPLY_TO, INTERNAL_ALERT_EMAIL as INTERNAL_EMAIL, FROM_OPABIZ, FROM_OPABIZ_SUPPORT, FROM_OPABIZ_ALERTS, type EmailBrand, isFbfcBrand, brandFrom, brandReplyTo, brandPortalHome, brandSubjectPrefix, brandHeaderHtml, brandFooterLine, brandDisclosureHtml } from './email-constants'
+import { REPLY_TO, INTERNAL_ALERT_EMAIL as INTERNAL_EMAIL, FROM_OPABIZ, FROM_OPABIZ_SUPPORT, FROM_OPABIZ_ALERTS, type EmailBrand, isFbfcBrand, brandFrom, brandReplyTo, brandPortalHome, brandSubjectPrefix, brandHeaderHtml, brandFooterLine, brandDisclosureHtml, brandWhatsappLine } from './email-constants'
 
 // Brand-aware desde 2026-09-11 (auditoría de emails) — antes decía siempre
 // "opabiz.com" incluso en órdenes de mybusinessformation.com (sendOrderConfirmation
@@ -238,7 +238,7 @@ export const sendAllNamesTaken = async (order: {
               </p>
               <p style="color:#475569;line-height:1.7">
                 ${isEs ? '¿Necesita ayuda eligiendo un nombre?' : 'Need help choosing a name?'}
-                <a href="https://wa.me/13528377755" style="color:#059669">${isEs ? 'Escríbanos por WhatsApp' : 'Chat with us on WhatsApp'}</a>
+                <a href="https://wa.me/13522782475" style="color:#059669">${isEs ? 'Escríbanos por WhatsApp' : 'Chat with us on WhatsApp'}</a>
               </p>
               <p style="margin-top:24px;color:#94a3b8;font-size:12px;line-height:1.6">
                 OpaBiz · opabiz.com<br/>
@@ -356,7 +356,7 @@ export const sendSuggestNames = async (order: {
             </div>
             <p style="color:#475569;line-height:1.7">
               ${isEs ? '¿Tiene preguntas o necesita ayuda para elegir?' : 'Have questions or need help deciding?'}
-              <a href="https://wa.me/13528377755" style="color:#059669">${isEs ? 'Escríbanos por WhatsApp' : 'Chat with us on WhatsApp'}</a>.
+              <a href="https://wa.me/13522782475" style="color:#059669">${isEs ? 'Escríbanos por WhatsApp' : 'Chat with us on WhatsApp'}</a>.
             </p>
             ${unsubscribeFooter(order.email)}
           </div>
@@ -498,7 +498,7 @@ export const sendOrderProcessed = async (order: {
               </a>
             </div>
             <p style="color:#475569;line-height:1.7">
-              ${isEs ? '¿Preguntas? Escríbanos por' : 'Questions? Reach us on'} <a href="https://wa.me/13528377755" style="color:#059669">WhatsApp</a> ${isEs ? 'o a' : 'or at'} <a href="mailto:${brandReplyTo(brand)}" style="color:#2563eb">${brandReplyTo(brand)}</a>.
+              ${brandWhatsappLine(brand, isEs)}
             </p>
             <p style="margin-top:24px;color:#94a3b8;font-size:12px;line-height:1.6">
               ${brandFooterLine(brand)}<br/>
@@ -644,7 +644,7 @@ export const sendOrderApprovalUpdate = async (
               ${isEs ? 'Le avisaremos por separado a medida que cada uno de estos quede listo.' : "We'll notify you separately as each of these is ready."}
             </p>` : ''}
             <p style="color:#475569;line-height:1.7">
-              ${isEs ? '¿Preguntas? Escríbanos por' : 'Questions? Reach us on'} <a href="https://wa.me/13528377755" style="color:#059669">WhatsApp</a> ${isEs ? 'o a' : 'or at'} <a href="mailto:${brandReplyTo(brand)}" style="color:#2563eb">${brandReplyTo(brand)}</a>.
+              ${brandWhatsappLine(brand, isEs)}
             </p>
             <p style="margin-top:24px;color:#94a3b8;font-size:12px;line-height:1.6">
               ${brandFooterLine(brand)}<br/>
@@ -741,7 +741,7 @@ export const sendRaAddressReady = async (order: {
               </a>
             </div>
             <p style="color:#475569;line-height:1.7">
-              ${isEs ? '¿Preguntas? Escríbanos por' : 'Questions? Reach us on'} <a href="https://wa.me/13528377755" style="color:#059669">WhatsApp</a> ${isEs ? 'o a' : 'or at'} <a href="mailto:${REPLY_TO}" style="color:#2563eb">${REPLY_TO}</a>.
+              ${isEs ? '¿Preguntas? Escríbanos por' : 'Questions? Reach us on'} <a href="https://wa.me/13522782475" style="color:#059669">WhatsApp</a> ${isEs ? 'o a' : 'or at'} <a href="mailto:${REPLY_TO}" style="color:#2563eb">${REPLY_TO}</a>.
             </p>
             <p style="margin-top:24px;color:#94a3b8;font-size:12px;line-height:1.6">
               OpaBiz · opabiz.com<br/>

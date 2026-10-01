@@ -456,7 +456,7 @@ function LoginForm({ initialIsFBFC }: { initialIsFBFC: boolean }) {
                         <span className="contact-option-icon">✉️</span>
                         Email
                       </a>
-                      <a className="contact-option" href="https://wa.me/13528377755" target="_blank" rel="noopener noreferrer">
+                      <a className="contact-option" href="https://wa.me/13522782475" target="_blank" rel="noopener noreferrer">
                         <span className="contact-option-icon">💬</span>
                         WhatsApp
                       </a>

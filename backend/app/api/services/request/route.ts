@@ -159,7 +159,7 @@ export async function POST(req: NextRequest) {
             </div>
             <p style="color:#475569;line-height:1.7">
               ${isEs ? '¿Lo necesitas antes? Escríbenos por ' : 'Need it sooner? Reach us on '}
-              <a href="https://wa.me/13528377755" style="color:#059669;font-weight:600">WhatsApp</a>
+              <a href="https://wa.me/13522782475" style="color:#059669;font-weight:600">WhatsApp</a>
               ${isEs ? ' y un miembro del equipo te ayudará enseguida.' : ' and a team member will help you right away.'}
             </p>
             <p style="margin-top:32px;color:#94a3b8;font-size:12px">

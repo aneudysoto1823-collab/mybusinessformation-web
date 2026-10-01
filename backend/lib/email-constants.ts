@@ -102,6 +102,21 @@ export function brandReplyTo(brand: EmailBrand): string {
   return isFbfcBrand(brand) ? REPLY_TO_FBFC : REPLY_TO
 }
 
+const OPABIZ_WHATSAPP_URL = 'https://wa.me/13522782475'
+
+// Línea de contacto para emails compartidos entre marcas (sendOrderProcessed,
+// sendOrderApprovalUpdate). FBFC todavía no tiene WhatsApp propio — mostrar
+// acá el número de OpaBiz sería el mismo leak de marca que ya se corrigió en
+// la carta B1 (2026-09-11), así que para FBFC se omite el WhatsApp y queda
+// solo el email. Único lugar con el número hardcodeado — si cambia, acá nomás.
+export function brandWhatsappLine(brand: EmailBrand, isEs: boolean): string {
+  const email = brandReplyTo(brand)
+  if (isFbfcBrand(brand)) {
+    return `${isEs ? '¿Preguntas? Escríbanos a' : 'Questions? Reach us at'} <a href="mailto:${email}" style="color:#2563eb">${email}</a>.`
+  }
+  return `${isEs ? '¿Preguntas? Escríbanos por' : 'Questions? Reach us on'} <a href="${OPABIZ_WHATSAPP_URL}" style="color:#059669">WhatsApp</a> ${isEs ? 'o a' : 'or at'} <a href="mailto:${email}" style="color:#2563eb">${email}</a>.`
+}
+
 // `opts.email`/`opts.order` pre-llenan el login del cliente — ambas marcas
 // leen los mismos dos query params (?login=1&email=&order=) en su propio
 // popover de login del home: OpaBiz en fmCheckResumeParam() (page.tsx,

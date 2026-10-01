@@ -324,7 +324,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
           <strong class="en">WhatsApp</strong><strong class="es" style="display:none">WhatsApp</strong>
           <p class="en">Prefer to chat? Message us directly on WhatsApp for a fast, personal response from our team &mdash; no bots, no automated replies.</p>
           <p class="es" style="display:none">&iquest;Prefiere chatear? Esc&iacute;banos directamente por WhatsApp para una respuesta r&aacute;pida y personal de nuestro equipo &mdash; sin bots ni respuestas autom&aacute;ticas.</p>
-          <a href="https://wa.me/13528377755" target="_blank" class="card-btn" style="background:#25D366;color:#fff">
+          <a href="https://wa.me/13522782475" target="_blank" class="card-btn" style="background:#25D366;color:#fff">
             <span class="en-inline">WhatsApp Consultation &#8594;</span><span class="es-inline" style="display:none">Consulta por WhatsApp &#8594;</span>
           </a>
         </div>

@@ -5,7 +5,7 @@ import { CONTACT_TO_EMAIL as ADMIN_EMAIL, REPLY_TO, FROM_OPABIZ } from '@/lib/em
 
 export const dynamic = 'force-dynamic'
 
-const ADMIN_WHATSAPP = '13528377755'
+const ADMIN_WHATSAPP = '13522782475'
 const BASE_URL = process.env.NEXT_PUBLIC_URL ?? 'https://opabiz.com'
 
 // Header blanco + logo OB — mismo bloque que el resto de los templates
