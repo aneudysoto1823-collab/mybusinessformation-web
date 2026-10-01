@@ -30,7 +30,10 @@ function buildPanel() {
           <button class="ce-mic-btn" id="ce-mic" title="Dictar por voz" type="button">🎤</button>
         </div>
       </div>
-      <button class="ce-ask-btn" id="ce-ask">Preguntarle a Claudia</button>
+      <div class="ce-btn-row">
+        <button class="ce-ask-btn" id="ce-ask">Preguntarle a Claudia</button>
+        <button class="ce-clear-btn" id="ce-clear" type="button" title="Borrar pregunta y respuesta">Limpiar</button>
+      </div>
       <div class="ce-error" id="ce-error" style="display:none"></div>
       <div id="ce-reply-wrap" style="display:none">
         <label>Respuesta sugerida (editable)</label>
@@ -50,6 +53,15 @@ function buildPanel() {
   const errorBox = panel.querySelector('#ce-error')
   const replyWrap = panel.querySelector('#ce-reply-wrap')
   const replyBox = panel.querySelector('#ce-reply')
+  const clientMsgBox = panel.querySelector('#ce-client-msg')
+
+  panel.querySelector('#ce-clear').addEventListener('click', () => {
+    clientMsgBox.value = ''
+    replyBox.value = ''
+    replyWrap.style.display = 'none'
+    errorBox.style.display = 'none'
+    clientMsgBox.focus()
+  })
 
   askBtn.addEventListener('click', () => {
     const clientMessage = panel.querySelector('#ce-client-msg').value.trim()

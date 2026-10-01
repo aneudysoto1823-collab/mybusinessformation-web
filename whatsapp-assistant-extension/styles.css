@@ -121,6 +121,8 @@
   100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
 }
 
+#claudia-ext-panel .ce-btn-row { display: flex; gap: 8px; align-items: center; }
+
 #claudia-ext-panel .ce-ask-btn {
   background: #2563eb;
   color: #fff;
@@ -130,8 +132,21 @@
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
+  flex: 1;
 }
 #claudia-ext-panel .ce-ask-btn:disabled { opacity: 0.6; cursor: default; }
+
+#claudia-ext-panel .ce-clear-btn {
+  background: #f3f4f6;
+  color: #374151;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+#claudia-ext-panel .ce-clear-btn:hover { background: #e5e7eb; }
 
 #claudia-ext-panel .ce-use-btn {
   background: #059669;
