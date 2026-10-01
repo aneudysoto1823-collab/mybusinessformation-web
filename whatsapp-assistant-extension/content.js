@@ -8,8 +8,11 @@
 function buildPanel() {
   const toggle = document.createElement('button')
   toggle.id = 'claudia-ext-toggle'
-  toggle.textContent = 'C'
   toggle.title = 'Asistente Claudia'
+  const avatar = document.createElement('img')
+  avatar.src = chrome.runtime.getURL('claudia.jpg')
+  avatar.alt = 'Claudia'
+  toggle.appendChild(avatar)
 
   const panel = document.createElement('div')
   panel.id = 'claudia-ext-panel'
