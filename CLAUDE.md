@@ -1974,6 +1974,14 @@ Doc completo en memoria `project_guias_pdf_marketing.md`.
 3. **Bug real: no se podía borrar una empresa con historial** — una vez visible el mensaje de error real (gracias al fix anterior), apareció: `email_campaigns`/`qr_scans`/`conversions` referencian `prospective_companies` por `company_id` sin `ON DELETE CASCADE`. El `DELETE` de `companies/route.ts` ahora borra primero las filas relacionadas en esas 3 tablas antes de borrar la empresa — "eliminar para siempre" (el propio `confirm()` del panel ya lo dice así) incluye su historial, no solo la fila.
 4. **Botón de reenvío explícito (↻)** junto a cada badge "Carta sent"/"VIP sent" — antes solo se podía reenviar adivinando que el botón genérico de "Send" también reenvía (tenía un `confirm()` de por medio, pero no era obvio). El founder pedía específicamente poder reenviar una campaña en un idioma distinto al que ya se mandó — el ↻ reusa `sendTemplate()` con el idioma que esté activo en el toggle "Language" de arriba.
 
+## Sesión 2026-10-03 — Labor Law Poster pasa a un solo póster all-in-one 42"×39"
+
+**Reemplaza** a los 2 pósters separados de las sesiones 2026-09-24/25 (Federal 26×26 + Florida 26×42), que se borraron: el founder imprimió el Federal y FMLA/EPPA/FLSA salían a ~4" de ancho (~5pt). Ahora: 1 póster de **42" ancho × 39" alto**, 4 PDF (OpaBiz/MyBiz × EN/ES) en `backend/public/labor-law-poster/labor-law-poster[-fbfc][-es].pdf`, generados por `LABOR_LAW_POSTER/build.py` desde `combined-{en,es}.html`. `/admin/labor-law-poster` y `lib/labor-law-poster.ts` simplificados a un póster por marca+idioma (sin `PosterKey`). Detalle en `LABOR_LAW_POSTER/README.md`.
+
+- **E-Verify Participation sacado:** el PDF público es "Sample Only" y prohíbe la venta comercial — reemplazado por un recuadro explicativo.
+- **Dos avisos estaban desactualizados en producción:** salario mínimo FL ($14.00, vencido el 30-sep-2026 → $15.00) y FCHR (versión pre-2015, dirección vieja y sin "pregnancy").
+- PDF a ~13-15 MB (imágenes a 300 dpi JPEG): la imprenta limita la subida directa a 18 MB. Por email van como link, no adjunto (umbral 10 MB).
+
 ## Deploy
 
 - `git push origin main` — Vercel detecta cambios en `backend/` y hace deploy automático
