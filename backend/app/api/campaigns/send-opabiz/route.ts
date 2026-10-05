@@ -64,6 +64,11 @@ export async function POST(req: NextRequest) {
         continue
       }
 
+      // Ya compró (por MyBiz u OpaBiz): no se le vuelve a mandar la carta.
+      if (company.status === 'purchased') {
+        results.push({ company_id: company.id, document_id: company.document_id, status: 'skipped', reason: 'already purchased' })
+        continue
+      }
       // Skip si el lead pidió no recibir más comunicaciones (POST /api/unsubscribe).
       // Antes este chequeo no existía — el botón de baja no impedía nada acá
       // (auditoría 2026-09-11).

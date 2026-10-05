@@ -720,6 +720,32 @@ async function handleServicesPaid(orderId: string, session: Stripe.Checkout.Sess
     company: order.companyName ?? '?', customer: `${order.firstName ?? ''} ${order.lastName ?? ''}`.trim(), amount: amountPaid,
   })
 
+  // Si la empresa venía de una carta de campaña (MyBiz u OpaBiz), marcarla
+  // como compradora: así sale de la cola "New" de AMBOS paneles de Campaigns
+  // & Letters y nunca le llega la carta de la otra marca después de haber
+  // comprado por una (pedido founder 2026-10-05). Se empareja por Document
+  // ID. No bloqueante: un fallo acá no afecta el pago ni el email.
+  const purchaseDoc = ((order.addons as { intake?: { flDoc?: string } } | null)?.intake?.flDoc ?? '').trim().toUpperCase()
+  if (purchaseDoc) {
+    const { data: prospects, error: prospectErr } = await supabase
+      .from('prospective_companies')
+      .update({ status: 'purchased' })
+      .eq('document_id', purchaseDoc)
+      .select('id')
+    if (prospectErr) {
+      console.error('[stripe-webhook] prospective purchased update error (non-fatal):', prospectErr)
+    } else {
+      for (const p of prospects ?? []) {
+        await supabase.from('qr_scans').update({ converted: true }).eq('company_id', p.id)
+        const { error: convErr } = await supabase.from('conversions').insert({
+          company_id: p.id, order_id: order.id, email: order.email,
+          services: (order.addons as { services?: string[] } | null)?.services ?? [], total_amount: amountPaid,
+        })
+        if (convErr) console.error('[stripe-webhook] conversions insert error (non-fatal):', convErr)
+      }
+    }
+  }
+
   const brandFrom = isFBFC ? FROM_FBFC : FROM_OPABIZ
   const brandReplyTo = isFBFC ? REPLY_TO_FBFC : REPLY_TO
   const brandLogoHtml = isFBFC

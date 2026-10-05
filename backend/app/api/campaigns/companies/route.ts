@@ -48,7 +48,9 @@ export async function GET(req: NextRequest) {
     const letterField = isOpabiz ? 'letter_opabiz_sent_at' : 'letter_sent_at'
 
     if (emailField) {
-      if (status === 'new')            query = query.is(emailField, null)
+      // Una empresa que ya compró (por cualquiera de las dos marcas) sale
+      // también de la cola de OpaBiz.
+      if (status === 'new')            query = query.is(emailField, null).neq('status', 'purchased')
       else if (status === 'contacted') query = query.not(emailField, 'is', null)
     } else if (status === 'contacted') query = query.neq('status', 'new')
     else if (status && status !== 'all') query = query.eq('status', status)

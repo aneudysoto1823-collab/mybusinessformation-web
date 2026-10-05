@@ -997,7 +997,7 @@ export default function CampaignsPanel({ brand }: { brand: 'fbfc' | 'opabiz' }) 
                   {visibleCompanies.map(c => {
                     // En OpaBiz el status general de la tabla es de MyBiz; acá se deriva del
                     // seguimiento propio de OpaBiz.
-                    const rowStatus: Company['status'] = isOpabiz ? (c.carta_opabiz_sent_at ? 'email_sent' : 'new') : c.status
+                    const rowStatus: Company['status'] = isOpabiz ? (c.status === 'purchased' ? 'purchased' : c.carta_opabiz_sent_at ? 'email_sent' : 'new') : c.status
                     const meta = STATUS_META[rowStatus] ?? STATUS_META.new
                     const letterSentAt = isOpabiz ? c.letter_opabiz_sent_at : c.letter_sent_at
                     return (
