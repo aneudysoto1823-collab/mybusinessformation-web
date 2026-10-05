@@ -67,7 +67,7 @@ export const SERVICES_CATALOG: Record<string, ServiceDef> = {
   // + /servicios) sea uno solo (unificación de carrito 2026-08-13). El EIN ya
   // existe arriba; su precio diverge solo en mybusinessformation.com vía
   // FBFC_PRICE_OVERRIDES, no se duplica la entrada.
-  'labor-law-poster':      { name_en: 'Labor Law Poster 2026',            name_es: 'Póster de Leyes Laborales 2026',       desc_en: 'Mandatory federal & state poster for all Florida businesses. Avoid fines up to $17,650.', desc_es: 'Póster obligatorio federal y estatal para todos los negocios en Florida. Evita multas de hasta $17,650.', serviceFee: 120, stateFee: 0 },
+  'labor-law-poster':      { name_en: 'Labor Law Poster 2026',            name_es: 'Póster de Leyes Laborales 2026',       desc_en: 'Mandatory federal & state poster for all Florida businesses. Helps you avoid costly fines.', desc_es: 'Póster obligatorio federal y estatal para todos los negocios en Florida. Le ayuda a evitar multas costosas.', serviceFee: 120, stateFee: 0 },
   'certificate-of-status': { name_en: 'Certificate of Status (FL)',       name_es: 'Certificado de Estado (FL)',           desc_en: 'Official document proving your business is active and in good standing with Florida.', desc_es: 'Documento oficial que acredita que tu negocio está activo y al corriente con Florida.', serviceFee: 79,  stateFee: 0 },
 }
 

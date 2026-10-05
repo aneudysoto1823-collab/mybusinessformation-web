@@ -55,7 +55,7 @@ function buildJsonLd(url: string) {
           itemOffered: {
             '@type': 'Service',
             name: 'Labor Law Poster 2026',
-            description: 'Mandatory federal and state labor law poster for Florida businesses. Avoid fines up to $17,650.',
+            description: 'Mandatory federal and state labor law poster for Florida businesses. Helps you avoid costly fines.',
           },
           price: '120.00',
           priceCurrency: 'USD',

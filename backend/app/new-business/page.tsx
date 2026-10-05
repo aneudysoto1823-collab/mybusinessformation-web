@@ -81,8 +81,8 @@ const SERVICES = [
     id: 'labor_law',
     titleEn: 'Labor Law Poster 2026',
     titleEs: 'Póster de Leyes Laborales 2026',
-    descEn: 'Mandatory federal & state poster for all Florida businesses. Avoid fines up to $17,650.',
-    descEs: 'Póster obligatorio federal y estatal para todos los negocios en Florida. Evita multas de hasta $17,650.',
+    descEn: 'Mandatory federal & state poster for all Florida businesses. Helps you avoid costly fines.',
+    descEs: 'Póster obligatorio federal y estatal para todos los negocios en Florida. Le ayuda a evitar multas costosas.',
     price: 120.00,
   },
   {

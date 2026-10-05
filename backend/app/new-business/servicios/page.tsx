@@ -120,10 +120,10 @@ const DISPLAY: Record<string, Display> = {
   // Mismos 2 servicios que ofrece la landing de new-business (unificación de
   // carrito 2026-08-13) — mismo texto/copy que ya usa esa página.
   'labor-law-poster': { icon: 'clipboard-list', subEn: 'Mandatory federal & state poster', subEs: 'Póster obligatorio federal y estatal',
-    descEn: 'Mandatory federal & state poster for all Florida businesses. Avoid fines up to $17,650.',
-    descEs: 'Póster obligatorio federal y estatal para todos los negocios en Florida. Evita multas de hasta $17,650.',
-    incEn: ['2026 federal & Florida labor law poster', 'Covers minimum wage, OSHA, FMLA and more', 'Ships directly to your business address', 'Avoids fines up to $17,650 for non-compliance'],
-    incEs: ['Póster de leyes laborales 2026 federal y de Florida', 'Cubre salario mínimo, OSHA, FMLA y más', 'Se envía directo a la dirección de tu negocio', 'Evita multas de hasta $17,650 por incumplimiento'] },
+    descEn: 'Mandatory federal & state poster for all Florida businesses. Helps you avoid costly fines.',
+    descEs: 'Póster obligatorio federal y estatal para todos los negocios en Florida. Le ayuda a evitar multas costosas.',
+    incEn: ['2026 federal & Florida labor law poster', 'Covers minimum wage, OSHA, FMLA and more', 'Ships directly to your business address', 'Helps you avoid costly non-compliance fines'],
+    incEs: ['Póster de leyes laborales 2026 federal y de Florida', 'Cubre salario mínimo, OSHA, FMLA y más', 'Se envía directo a la dirección de tu negocio', 'Evita multas costosas por incumplimiento'] },
   'certificate-of-status': { icon: 'award', subEn: 'Official document from the State of Florida', subEs: 'Documento oficial del Estado de Florida',
     descEn: 'Official document proving your business is active and in good standing with Florida.',
     descEs: 'Documento oficial que acredita que tu negocio está activo y al corriente con Florida.',
