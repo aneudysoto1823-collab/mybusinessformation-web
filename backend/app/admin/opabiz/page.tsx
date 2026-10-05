@@ -345,34 +345,44 @@ export default function OpabizAdminPage() {
         </div>
 
         {showHowItWorks && (
-          <HowItWorksModal title="🧭 Cómo funciona OpaBiz Connect" onClose={() => setShowHowItWorks(false)}>
-            <p>App interna para el equipo de campo (empleados) — separada del sitio público que ve el cliente. Sirve para repartir el trabajo real (trámites, seguimientos) entre el equipo y llevar registro de quién hizo qué.</p>
+          <HowItWorksModal title="Cómo funciona OpaBiz Connect" onClose={() => setShowHowItWorks(false)}>
+            <p>App interna para el equipo de campo (empleados y agentes), separada del sitio público que ve el cliente. Sirve para repartir el trabajo real (trámites, seguimientos) y llevar registro de quién hizo qué.</p>
 
-            <h3>1. Cómo entra una orden hoy (100% manual)</h3>
+            <h3>1. Cómo entra una orden hoy (manual)</h3>
             <ul>
-              <li><strong>Desde una cita agendada:</strong> en <code>/admin/citas</code>, el botón &quot;🧭 Crear orden OpaBiz Connect&quot; en cada fila convierte esa consulta en una tarea real asignada a un empleado.</li>
-              <li><strong>Intake asistida:</strong> un empleado logueado en OpaBiz Connect puede llenar el formulario público real (opabiz.com) por teléfono con un cliente, hasta el paso de pago — ahí en vez de cobrar, guarda la solicitud y el cliente recibe el email de siempre para pagar cuando quiera. El agente nunca toca la tarjeta del cliente.</li>
-              <li>Todavía <strong>no</strong> está conectado al pago real (Stripe) — cuando un cliente paga solo en el sitio público, hoy no se crea sola una orden acá. Es un pendiente a futuro.</li>
+              <li><strong>Desde una cita agendada:</strong> en Citas, el botón &quot;Crear orden OpaBiz Connect&quot; de cada fila convierte esa consulta en una orden asignada a un empleado.</li>
+              <li><strong>Intake asistida:</strong> un agente logueado en OpaBiz Connect llena el formulario público real (opabiz.com) con el cliente, hasta el paso de pago. Ahí, en vez de cobrar, guarda la solicitud y el cliente recibe el email de siempre para pagar cuando quiera. El agente nunca toca la tarjeta del cliente.</li>
+              <li>Todavía <strong>no</strong> está conectado al pago real: cuando un cliente paga solo en el sitio, no se crea una orden acá. Es un pendiente a futuro.</li>
             </ul>
 
             <h3>2. Cómo se reparten las órdenes</h3>
             <ul>
-              <li>Existe un motor de asignación automática (por puntaje, disponibilidad y carga de cada empleado) pero <strong>hoy está apagado a propósito</strong> — se asigna todo a mano desde el panel mientras evaluamos el desempeño real del equipo.</li>
-              <li>Cada empleado tiene un nivel (básico/intermedio/avanzado/administrador), un puntaje que sube al completar trabajo, y un estado de disponibilidad.</li>
+              <li>Se asignan a mano desde la pestaña Órdenes (&quot;Asignar&quot;). Existe un motor de asignación automática (puntaje, disponibilidad y carga), pero hoy no se usa al crear órdenes.</li>
+              <li>Cada empleado tiene un nivel (básico, intermedio, avanzado, administrador), un puntaje que sube al completar trabajo y un estado de disponibilidad.</li>
+              <li>Si un empleado no acepta una orden asignada en 10 minutos, un proceso automático se la pasa al siguiente disponible y le resta puntaje.</li>
             </ul>
 
-            <h3>3. El lado del empleado</h3>
+            <h3>3. Avisos al empleado</h3>
             <ul>
-              <li>Login propio (nada que ver con el login del admin del sitio), pensado como una app en el celular (&quot;Agregar a inicio&quot;, sin necesidad de instalar nada de una tienda de apps).</li>
-              <li>Ve solo sus propias órdenes asignadas, marca Aceptar → Completar, sube documentos, y prende/apaga un toggle de &quot;Disponible / No disponible&quot;.</li>
-              <li>Si acepta una orden y no la mueve de estado en 10 minutos, un proceso automático se la reasigna a otro y lo penaliza en el puntaje.</li>
+              <li>Al asignarle una orden recibe un email y, si las activó, una notificación en el celular. El panel del empleado también se actualiza solo, sin recargar.</li>
+              <li>Si la orden viene de una cita, recibe un recordatorio 1 hora antes.</li>
+              <li>Las notificaciones las prende y apaga el propio empleado desde su panel.</li>
+            </ul>
+
+            <h3>4. El lado del empleado</h3>
+            <ul>
+              <li>Login propio (distinto del login del admin), pensado como app en el celular (&quot;Agregar a inicio&quot;, sin tienda de apps). Si olvida la contraseña, la recupera por email; también la puede cambiar desde su perfil.</li>
+              <li>Ve sus órdenes nuevas con los datos del cliente y las acepta o rechaza ahí mismo. Rechazar pide un motivo.</li>
+              <li>Marca la orden como completada, sube documentos y prende o apaga &quot;Disponible&quot;.</li>
+              <li>Perfil propio: foto, teléfono, dirección e idiomas. El email no lo puede cambiar. El panel está en español e inglés.</li>
+              <li>Los agentes ven además &quot;Mis solicitudes enviadas&quot;: las intakes que armaron, para corregirlas o reenviarle el email al cliente mientras no haya pagado.</li>
             </ul>
 
             <h3>Este panel (lo que ves acá)</h3>
             <ul>
-              <li><strong>Empleados:</strong> alta de nuevos (manda invitación por email para que se cree su contraseña), nivel, puntaje, disponibilidad, reenviar invitación si no la usó.</li>
-              <li><strong>Órdenes:</strong> lista de todo lo asignado — cliente, empleado, estado, si es urgente, notas.</li>
-              <li><strong>Afiliados y Agentes:</strong> aplicaciones al Programa de Afiliados/Agentes, aprobación, comisiones, y el vínculo de un agente a su cuenta de OpaBiz Connect.</li>
+              <li><strong>Empleados:</strong> alta de nuevos (manda invitación por email para que cree su contraseña), nivel, puntaje, disponibilidad, activar o desactivar cuenta, reenviar invitación.</li>
+              <li><strong>Órdenes:</strong> todo lo asignado, con las órdenes sin asignar siempre arriba y un filtro por estado. Cuando un empleado rechaza una orden, vuelve a quedar sin asignar, con su motivo a la vista, un aviso en rojo en la pestaña y un email al equipo. Hay que reasignarla.</li>
+              <li><strong>Afiliados y Agentes:</strong> aplicaciones al Programa de Afiliados y Agentes, aprobación (al aprobar un agente se le crea su cuenta de OpaBiz Connect), comisiones y pagos.</li>
             </ul>
           </HowItWorksModal>
         )}

@@ -334,7 +334,7 @@ export default function CitasPage() {
         </div>
 
         {showHowItWorks && (
-          <HowItWorksModal title="📅 Cómo funciona el Sistema de Citas" onClose={() => setShowHowItWorks(false)}>
+          <HowItWorksModal title="Cómo funciona el Sistema de Citas" onClose={() => setShowHowItWorks(false)}>
             <p>Sistema propio de agendamiento para consultas gratuitas — reemplazó a Cal.com para tener control total de horarios, marca y emails, y para que el cliente nunca salga de opabiz.com.</p>
 
             <h3>1. El cliente agenda en /booking</h3>
@@ -353,9 +353,9 @@ export default function CitasPage() {
 
             <h3>3. Gestión desde este panel</h3>
             <ul>
-              <li>Pestaña &quot;Citas&quot;: filtrar por estado, confirmar, cancelar, borrar, agregar una nota interna (📝), o abrir WhatsApp con el cliente.</li>
+              <li>Pestaña &quot;Citas&quot;: filtrar por estado, confirmar, cancelar, borrar, agregar una nota interna o abrir WhatsApp con el cliente.</li>
               <li>Pestaña &quot;Horarios Bloqueados&quot;: bloquear fechas puntuales, un rango de días, varios días sueltos a la vez, o un día de la semana fijo (ej. &quot;todos los lunes&quot;) que queda activo hasta que lo pausás o lo borrás — nada de esto es visible para el cliente, simplemente esos horarios dejan de aparecer disponibles en /booking.</li>
-              <li>Botón <strong>&quot;🧭 Crear orden OpaBiz Connect&quot;</strong> en cada cita: la convierte en una orden asignada a un empleado del equipo (ver el otro panel) — útil cuando la consulta termina en un trámite real.</li>
+              <li>Botón <strong>&quot;Crear orden OpaBiz Connect&quot;</strong> en cada cita: la convierte en una orden asignada a un empleado del equipo (ver OpaBiz Connect), útil cuando la consulta termina en un trámite real. El empleado recibe el aviso al momento y un recordatorio 1 hora antes de la cita.</li>
             </ul>
 
             <h3>Reglas clave</h3>

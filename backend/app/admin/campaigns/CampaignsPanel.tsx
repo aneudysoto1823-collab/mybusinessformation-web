@@ -671,12 +671,13 @@ export default function CampaignsPanel() {
               <li>El selector de plantilla decide qué mandás y por qué marca: los botones de cada fila, los de envío masivo y los de ver/descargar/imprimir carta usan la que esté elegida.</li>
               <li><strong>Cada empresa la contacta una sola marca.</strong> En cuanto una marca le manda algo, sale de &quot;New&quot; y la otra marca ya no puede mandarle su carta. Así no competimos con nuestros propios precios.</li>
               <li>Una empresa que ya compró por cualquiera de las dos marcas no vuelve a recibir la carta.</li>
-              <li>En Email sent / Letter sent / All, el filtro de marca muestra solo las que contactó MyBiz u OpaBiz.</li>
+              <li>En Email sent / Letter sent / All, el filtro &quot;Contactada por&quot; muestra solo las que contactó MyBiz u OpaBiz, y cada fila dice qué marca la contactó.</li>
+              <li>Arriba, las tarjetas MyBiz y OpaBiz muestran cuántas empresas contactó cada marca, cuántas compraron y el % de conversión, para comparar cuál vende mejor.</li>
             </ul>
 
             <h3>3. Organizar antes de enviar</h3>
             <ul>
-              <li><strong>Contact status</strong> (New / Email sent / Letter sent / All): filtra por si ya se le mandó algo a esa empresa o no.</li>
+              <li><strong>Contact status</strong> (New / Email sent / Letter sent / All): New son las que ninguna marca contactó todavía; el resto, las que ya recibieron algo.</li>
               <li>Dentro de <strong>New</strong>, dos pestañas: <strong>Con Email</strong> y <strong>Sin Email</strong> — para separar a quién le mandás correo de a quién le imprimís la carta.</li>
               <li><strong>% Precisión mínima:</strong> cuando Enformion encontró un email pero con poca confianza, esa empresa cae a &quot;Sin Email&quot; aunque el dato exista, así se le imprime la carta en vez de arriesgarse a un email malo. Subiendo o bajando este número decidís vos el corte, en cualquier momento — es independiente del filtro que se usa al buscar en Marketing Saliente.</li>
               <li><strong>Seleccionar paquete de N:</strong> tilda automáticamente las primeras N empresas de la pestaña &quot;Con Email&quot; — útil para mandar de a tandas chicas en vez de todo el volumen de una vez (importante mientras un dominio de envío nuevo está &quot;calentando&quot; su reputación).</li>
@@ -685,8 +686,8 @@ export default function CampaignsPanel() {
             <h3>4. Enviar o imprimir</h3>
             <ul>
               <li><strong>Send to All Eligible / Send to Selected:</strong> manda el template elegido a todas las que corresponden, o solo a las que tildaste — en tandas automáticas si son muchas.</li>
-              <li><strong>🖨 Print Selected:</strong> combina las cartas de las empresas tildadas en un solo PDF, listo para Cmd/Ctrl+P — todavía no hay impresora conectada automáticamente, así que este es el paso manual mientras tanto. <em>Imprimir no marca nada como enviado</em> — es solo el PDF.</li>
-              <li><strong>✅ Mark as Sent:</strong> paso separado, a propósito — recién acá la empresa pasa a &quot;Letter sent&quot; y sale de la lista. Evita que el sistema asuma que se mandó por correo postal solo porque se generó el PDF.</li>
+              <li><strong>Print Selected:</strong> combina las cartas de las empresas tildadas en un solo PDF, listo para Cmd/Ctrl+P — todavía no hay impresora conectada automáticamente, así que este es el paso manual mientras tanto. <em>Imprimir no marca nada como enviado</em> — es solo el PDF.</li>
+              <li><strong>Mark as Sent:</strong> paso separado, a propósito. Recién acá la empresa queda como carta enviada por la marca de la plantilla elegida y sale de New. Evita que el sistema asuma que se mandó por correo postal solo porque se generó el PDF.</li>
             </ul>
 
             <h3>Protecciones automáticas</h3>
@@ -699,9 +700,10 @@ export default function CampaignsPanel() {
 
             <h3>Reglas clave</h3>
             <ul>
-              <li><strong>⏸ Pause System</strong> frena cualquier envío real (no borra nada, solo bloquea el botón de enviar) — útil si algo se ve raro y querés parar antes de seguir.</li>
+              <li><strong>Pause System</strong> frena cualquier envío real (no borra nada, solo bloquea el botón de enviar) — útil si algo se ve raro y querés parar antes de seguir.</li>
               <li>Reenviar algo que ya se mandó antes pide confirmación explícita — nunca duplica sin avisar.</li>
-              <li>El idioma de la carta (EN/ES) se elige aparte, arriba de la tabla — afecta tanto el preview como la descarga/impresión.</li>
+              <li>El idioma (EN/ES) se elige aparte, arriba de la tabla, y aplica tanto al email como a la carta: envío, preview, descarga e impresión.</li>
+              <li>Una empresa que ya compró, o que contactó la otra marca, nunca recibe la carta aunque se la intente mandar a mano: el envío se salta y dice por qué.</li>
             </ul>
           </HowItWorksModal>
         )}
