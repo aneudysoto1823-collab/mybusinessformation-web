@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ConnectHeader, Avatar, NIVEL_LABELS, CONNECT_BASE_CSS, useConnectLang, locale, parseUtc, type Me, type Lang } from '../_components/ConnectShell'
+import { ConnectHeader, Avatar, NIVEL_LABELS, CONNECT_BASE_CSS, useConnectLang, locale, parseUtc, notaVisible, type Me, type Lang } from '../_components/ConnectShell'
 
 type Orden = {
   id: string
@@ -46,7 +46,7 @@ const T = {
     disponibilidad: 'Disponibilidad', notificaciones: 'Notificaciones', notifAria: 'Notificaciones en este dispositivo',
     crearOrden: 'Crear orden asistida', misSolicitudes: 'Mis solicitudes enviadas',
     kpiPorAceptar: 'Por aceptar', kpiProgreso: 'En progreso', kpiMes: 'Completadas este mes', kpiComision: 'Comisión por cobrar', kpiTotal: 'Órdenes en total',
-    proximaCita: 'Próxima cita', completadaEl: 'Completada', citaEl: 'Cita', asignadaEl: 'Asignada',
+    notaCliente: 'Nota del cliente', proximaCita: 'Próxima cita', completadaEl: 'Completada', citaEl: 'Cita', asignadaEl: 'Asignada',
   },
   en: {
     estado: { asignada: 'To accept', en_progreso: 'In progress', completada: 'Completed', pendiente: 'Unassigned' } as Record<string, string>,
@@ -66,7 +66,7 @@ const T = {
     disponibilidad: 'Availability', notificaciones: 'Notifications', notifAria: 'Notifications on this device',
     crearOrden: 'Create assisted order', misSolicitudes: 'My submitted requests',
     kpiPorAceptar: 'To accept', kpiProgreso: 'In progress', kpiMes: 'Completed this month', kpiComision: 'Commission owed', kpiTotal: 'Total orders',
-    proximaCita: 'Next appointment', completadaEl: 'Completed', citaEl: 'Appointment', asignadaEl: 'Assigned',
+    notaCliente: 'Client note', proximaCita: 'Next appointment', completadaEl: 'Completed', citaEl: 'Appointment', asignadaEl: 'Assigned',
   },
 }
 
@@ -113,9 +113,6 @@ const IconList = () => (
 )
 const IconCalendar = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
-)
-const IconNote = () => (
-  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
 )
 
 // Orden "Por aceptar" desplegada dentro del panel: datos completos del
@@ -164,8 +161,8 @@ function PendingOrderCard({ o, onDone, lang }: { o: Orden; onDone: () => void; l
             {cliente?.email && <><dt>{t.email}</dt><dd><a href={`mailto:${cliente.email}`}>{cliente.email}</a></dd></>}
             {o.fecha_hora_cita && <><dt>{t.cita}</dt><dd>{fmtFecha(o.fecha_hora_cita, lang)}</dd></>}
             <dt>{t.asignada}</dt><dd>{fmtFecha(o.fecha_asignacion, lang, true) || '—'}</dd>
+            {notaVisible(o.notas) && <><dt>{t.notaCliente}</dt><dd><div className="db-note-box">{notaVisible(o.notas)}</div></dd></>}
           </dl>
-          {o.notas && <div className="db-order-note"><IconNote />{o.notas}</div>}
         </div>
         {!rejecting && (
           <div className="db-pending-actions">
@@ -443,8 +440,10 @@ export default function OpabizDashboardPage() {
         .db-order-title{font-weight:700;color:#1C2E44;font-size:.9rem}
         .db-urgent{font-size:.66rem;font-weight:800;letter-spacing:.4px;color:#B91C1C;background:#FEF2F2;border-radius:4px;padding:2px 6px}
         .db-order-meta{font-size:.78rem;color:#64748B;margin-top:3px}
-        .db-order-note{display:flex;align-items:flex-start;gap:6px;font-size:.76rem;color:#92400E;background:#FFFBEB;border-radius:6px;padding:5px 8px;margin-top:6px}
-        .db-order-note svg{margin-top:2px;flex-shrink:0}
+        .db-note-box{border:1px solid #E2E8F0;border-radius:8px;padding:7px 10px;font-size:.8rem;font-weight:500;color:#334155;background:#fff;white-space:pre-line;line-height:1.45}
+        .db-note-row{display:flex;align-items:flex-start;gap:12px;margin-top:8px}
+        .db-note-label{font-size:.78rem;color:#94A3B8;padding-top:8px;white-space:nowrap}
+        .db-pending-grid dt{align-self:start;padding-top:1px}
         .db-pending{padding:16px 4px;border-bottom:1px solid #F1F5F9}
         .db-pending:last-child{border-bottom:none}
         .db-pending-body{display:flex;gap:16px;align-items:flex-start}
@@ -605,7 +604,9 @@ export default function OpabizDashboardPage() {
                             {o.es_urgente && <span className="db-urgent">{t.urgente}</span>}
                           </div>
                           <div className="db-order-meta">{cliente ? `${cliente.nombre} · ` : ''}{fecha}</div>
-                          {o.notas && <div className="db-order-note"><IconNote />{o.notas}</div>}
+                          {notaVisible(o.notas) && (
+                            <div className="db-note-row"><span className="db-note-label">{t.notaCliente}</span><div className="db-note-box">{notaVisible(o.notas)}</div></div>
+                          )}
                         </div>
                         <span className="db-pill" style={{ color: color.color, background: color.bg }}>{label}</span>
                         <svg className="db-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>

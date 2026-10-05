@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
-import { ConnectHeader, useConnectMe, CONNECT_BASE_CSS, useConnectLang, locale, parseUtc } from '../../_components/ConnectShell'
+import { ConnectHeader, useConnectMe, CONNECT_BASE_CSS, useConnectLang, locale, parseUtc, notaVisible } from '../../_components/ConnectShell'
 
 type Orden = {
   id: string
@@ -32,7 +32,7 @@ const T = {
     errCargar: 'No se pudo cargar la orden.', errAceptar: 'No se pudo aceptar la orden.', errRechazar: 'No se pudo rechazar la orden.',
     errCompletar: 'No se pudo completar la orden.', errSubir: 'No se pudo subir el archivo.',
     volver: 'Volver al panel', cargando: 'Cargando…', noEncontrada: 'Orden no encontrada.', urgente: 'URGENTE',
-    lEstado: 'Estado', lCliente: 'Cliente', lTelefono: 'Teléfono', lEmail: 'Email', lCita: 'Cita', lAsignada: 'Asignada',
+    notaCliente: 'Nota del cliente', lEstado: 'Estado', lCliente: 'Cliente', lTelefono: 'Teléfono', lEmail: 'Email', lCita: 'Cita', lAsignada: 'Asignada',
     aceptando: 'Aceptando…', aceptar: 'Aceptar orden', rechazar: 'Rechazar orden', motivoLabel: '¿Por qué rechazás esta orden?',
     motivoPh: 'Ej.: no tengo disponibilidad ese día, queda fuera de mi zona…', rechazando: 'Rechazando…', confirmarRechazo: 'Confirmar rechazo',
     cancelar: 'Cancelar', gone: 'Esta orden ya no está asignada a vos. El equipo la va a reasignar.',
@@ -44,7 +44,7 @@ const T = {
     errCargar: 'Could not load the order.', errAceptar: 'Could not accept the order.', errRechazar: 'Could not decline the order.',
     errCompletar: 'Could not complete the order.', errSubir: 'Could not upload the file.',
     volver: 'Back to dashboard', cargando: 'Loading…', noEncontrada: 'Order not found.', urgente: 'URGENT',
-    lEstado: 'Status', lCliente: 'Client', lTelefono: 'Phone', lEmail: 'Email', lCita: 'Appointment', lAsignada: 'Assigned',
+    notaCliente: 'Client note', lEstado: 'Status', lCliente: 'Client', lTelefono: 'Phone', lEmail: 'Email', lCita: 'Appointment', lAsignada: 'Assigned',
     aceptando: 'Accepting…', aceptar: 'Accept order', rechazar: 'Decline order', motivoLabel: 'Why are you declining this order?',
     motivoPh: 'E.g.: I am not available that day, it is outside my area…', rechazando: 'Declining…', confirmarRechazo: 'Confirm decline',
     cancelar: 'Cancel', gone: 'This order is no longer assigned to you. The team will reassign it.',
@@ -192,7 +192,9 @@ export default function OpabizOrderDetailPage() {
         .op-doc-item a{color:#2563EB;text-decoration:none}
         .op-upload-label{display:block;width:100%;text-align:center;padding:13px;border-radius:8px;border:1.5px dashed #CBD5E1;color:#374151;font-size:.85rem;font-weight:600;cursor:pointer;min-height:44px}
         .op-empty{color:#94A3B8;font-size:.82rem;padding:8px 0}
-        .op-nota{color:#92400e;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px 12px;font-size:.85rem;margin-top:12px}
+        .op-nota-row{display:flex;align-items:flex-start;gap:14px;padding-top:10px}
+        .op-nota-row .op-row-label{font-size:.85rem;padding-top:9px;white-space:nowrap}
+        .op-nota{flex:1;border:1px solid #E2E8F0;border-radius:8px;padding:8px 12px;font-size:.85rem;color:#334155;background:#fff;white-space:pre-line;line-height:1.45}
       `}</style>
 
       <ConnectHeader me={headerMe} />
@@ -220,7 +222,9 @@ export default function OpabizOrderDetailPage() {
                 <div className="op-row"><span className="op-row-label">{t.lCita}</span><span className="op-row-value">{new Date(orden.fecha_hora_cita).toLocaleString(locale(lang))}</span></div>
               )}
               <div className="op-row"><span className="op-row-label">{t.lAsignada}</span><span className="op-row-value">{orden.fecha_asignacion ? parseUtc(orden.fecha_asignacion)!.toLocaleString(locale(lang)) : '—'}</span></div>
-              {orden.notas && <div className="op-nota">{orden.notas}</div>}
+              {notaVisible(orden.notas) && (
+                <div className="op-nota-row"><span className="op-row-label">{t.notaCliente}</span><div className="op-nota">{notaVisible(orden.notas)}</div></div>
+              )}
             </div>
 
             {error && <p className="op-error">{error}</p>}

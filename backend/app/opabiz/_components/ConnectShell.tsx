@@ -66,6 +66,14 @@ export function parseUtc(value: string | null | undefined): Date | null {
   return new Date(hasZone ? value : `${value.replace(' ', 'T')}Z`)
 }
 
+// Nota que ve el agente: se sacan las líneas "Rechazada por ..." que agrega
+// el rechazo (son para el admin) para que el siguiente agente no vea por qué
+// la rechazó otro.
+export function notaVisible(notas: string | null | undefined): string {
+  if (!notas) return ''
+  return notas.split('\n').filter(l => !l.startsWith('Rechazada por ')).join('\n').trim()
+}
+
 export function locale(lang: Lang): string {
   return lang === 'en' ? 'en-US' : 'es-US'
 }
