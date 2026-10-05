@@ -6,9 +6,10 @@
 
 ## 🎯 Resumen ejecutivo de esta auditoría (2026-09-29)
 
-**Lo que de verdad bloquea lanzar (2 gates, sin cambios desde 09-16):**
+**Lo que de verdad bloquea lanzar (3 gates; el 3º agregado 2026-10-05):**
 1. Confirmar que se compró el seguro de responsabilidad profesional/legal de la compañía (E&O / general liability) — decisión 100% del founder, no verificable en código.
 2. Subir ZeroBounce de plan Free a uno pago y activar `ZEROBOUNCE_ENABLED=true` en Vercel — el código ya está listo desde el 09-24 (conectado a Marketing Saliente + checkout), solo falta la decisión de pagar el plan.
+3. Subir **Resend** de plan Free a uno pago (2026-10-05). El plan gratis ya está en el tope de dominios (opabiz.com, mybusinessformation.com, notices.mybusinessformation.com), así que no se puede agregar `notices.opabiz.com` para la carta de OpaBiz, y su cupo diario/mensual de envíos es UNO SOLO para todo: confirmaciones de pago, contraseñas, OpaBiz Connect y las dos cartas de marketing. Con Stripe Live + campañas se agota y lo primero que deja de llegar puede ser la confirmación de pago de un cliente. Al subir: agregar `notices.opabiz.com` en Resend + DNS en Namecheap + `RESEND_FROM_COLD_OUTREACH_OPABIZ` en Vercel (el código ya está listo).
 
 **Nuevo hallazgo de esta auditoría (no bloqueante, pero sin resolver desde julio):** confirmar que `TURSO_DATABASE_URL`/`TURSO_AUTH_TOKEN` están cargadas también en **Railway** (no solo Vercel) — si faltan, el buscador de nombres del admin degrada a "disponible" en silencio sin avisar a nadie. Ver Etapa 5 más abajo.
 
@@ -28,9 +29,10 @@
 
 **Estado 2026-09-16:** Todo el lado de Stripe Live está armado (8 Products, webhook con 8 eventos, Billing Portal Configurations, statement descriptor por marca) desde la sesión del 2026-09-07/09. **Decisión del founder: no cargar las keys `sk_live_`/`pk_live_` en Vercel todavía — se define fecha de activación aparte, ya está bajo control.** Ver `CLAUDE.md` sección "Stripe LIVE — preparado, NO activado" y memoria `project_stripe_live_activacion_2026-09-07`.
 
-🔴 **2 gates reales para activar:**
+🔴 **3 gates reales para activar:**
 1. Confirmar que se compró el seguro de responsabilidad profesional / legal de la compañía (E&O / general liability) — sin esto, no cargar las keys aunque el resto esté listo.
 2. Subir el plan de ZeroBounce de Free (100 verificaciones/mes) a uno pago (2026-09-24) — el mismo cupo lo comparten el checkout del home Y Marketing Saliente (conectado 2026-09-24, ver `CLAUDE.md`), así que con volumen real de clientes pagando + corridas de marketing se agota en días y la protección de emails se cae en silencio justo cuando más importa.
+3. Subir el plan de **Resend** de Free a uno pago (2026-10-05) — tope de dominios alcanzado (no entra `notices.opabiz.com`) y cupo de envíos compartido entre transaccional y marketing. Ver resumen ejecutivo arriba.
 
 ### Cuenta y verificación
 - [x] Crear cuenta Stripe en stripe.com con email del negocio (cuenta OpaBiz creada en sandbox)
