@@ -101,6 +101,22 @@ export default function OpabizDashboardPage() {
 
   useEffect(() => { cargar() }, [cargar])
 
+  // Una orden asignada mientras el panel está abierto tiene que aparecer sola:
+  // se recarga cada 20s (mismo ritmo que /admin), al volver a la pestaña, y en
+  // el momento en que llega un push (el service worker avisa con postMessage).
+  useEffect(() => {
+    const interval = setInterval(() => { if (document.visibilityState === 'visible') cargar() }, 20000)
+    const onVisible = () => { if (document.visibilityState === 'visible') cargar() }
+    const onSwMessage = (e: MessageEvent) => { if (e.data?.type === 'opabiz-refresh') cargar() }
+    document.addEventListener('visibilitychange', onVisible)
+    navigator.serviceWorker?.addEventListener('message', onSwMessage)
+    return () => {
+      clearInterval(interval)
+      document.removeEventListener('visibilitychange', onVisible)
+      navigator.serviceWorker?.removeEventListener('message', onSwMessage)
+    }
+  }, [cargar])
+
   // Estado del interruptor de notificaciones: lo que manda es si ESTE
   // dispositivo tiene una suscripción push activa, no solo el permiso. iOS
   // Safari solo soporta push si la PWA está instalada en pantalla de inicio

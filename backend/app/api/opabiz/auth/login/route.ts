@@ -51,8 +51,12 @@ export async function POST(req: NextRequest) {
   const token = await createEmployeeToken({ usuarioId: usuario.id, empleadosId: empleadoRow.id })
 
   const response = NextResponse.json({ ok: true })
+  // 'lax', no 'strict': con 'strict' el navegador no manda la cookie al
+  // llegar desde un link externo (el botón "Ver orden" del email en Gmail) y
+  // el empleado caía al login aunque tuviera la sesión abierta. 'lax' igual
+  // bloquea los POST desde otros sitios.
   response.cookies.set('opabiz_session', token, {
-    httpOnly: true, secure: true, sameSite: 'strict',
+    httpOnly: true, secure: true, sameSite: 'lax',
     maxAge: 60 * 60 * 8, path: '/',
   })
   return response

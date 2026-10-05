@@ -51,7 +51,7 @@ export async function notifyEmployeeAssignment(supabase: Supabase, empleadosId: 
 
     const baseUrl = process.env.NEXT_PUBLIC_URL || 'https://opabiz.com'
     const link = `${baseUrl}/opabiz/dashboard/${ordenId}`
-    const tituloPush = urgente ? '⚡ Nueva orden urgente asignada' : 'Nueva orden asignada'
+    const tituloPush = urgente ? 'Nueva orden URGENTE asignada' : 'Nueva orden asignada'
     const detalle = tipoServicio + (cliente?.nombre ? ` — ${cliente.nombre}` : '')
 
     await Promise.all([
@@ -59,15 +59,15 @@ export async function notifyEmployeeAssignment(supabase: Supabase, empleadosId: 
       getResend().emails.send({
         from: FROM_OPABIZ_INTERNAL,
         to: usuario.email,
-        subject: urgente ? 'OpaBiz Connect: ⚡ Nueva orden urgente asignada' : 'OpaBiz Connect: Nueva orden asignada',
+        subject: urgente ? 'OpaBiz Connect: Nueva orden URGENTE asignada' : 'OpaBiz Connect: Nueva orden asignada',
         html: emailShell(
-          `Hola ${usuario.nombre}, te asignaron una orden${urgente ? ' urgente ⚡' : ''}.`,
+          `Hola ${usuario.nombre}, te asignaron una orden${urgente ? ' URGENTE' : ''}.`,
           `
             <p style="color:#374151;font-size:.9rem;margin:0 0 4px"><strong>Servicio:</strong> ${tipoServicio}</p>
             ${cliente?.nombre ? `<p style="color:#374151;font-size:.9rem;margin:0 0 16px"><strong>Cliente:</strong> ${cliente.nombre}</p>` : ''}
             <div style="text-align:center;margin:20px 0">
               <a href="${link}" style="background:#2563EB;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:.95rem">
-                Ver orden →
+                Ver orden
               </a>
             </div>
           `,
@@ -122,7 +122,7 @@ export async function notifyAppointmentReminder(supabase: Supabase, empleadosId:
             <p style="color:#374151;font-size:.9rem;margin:0 0 16px"><strong>Hora:</strong> ${hora}</p>
             <div style="text-align:center;margin:20px 0">
               <a href="${link}" style="background:#2563EB;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:.95rem">
-                Ver orden →
+                Ver orden
               </a>
             </div>
           `,

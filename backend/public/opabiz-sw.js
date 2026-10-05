@@ -17,7 +17,14 @@ self.addEventListener('push', function (event) {
     data: { url: data.url || '/opabiz/dashboard' },
   }
 
-  event.waitUntil(self.registration.showNotification(title, options))
+  // Además de mostrar el aviso, le dice a cualquier panel abierto que recargue
+  // sus órdenes, para que la orden nueva aparezca sin tener que refrescar.
+  event.waitUntil(Promise.all([
+    self.registration.showNotification(title, options),
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (clientList) {
+      clientList.forEach(function (client) { client.postMessage({ type: 'opabiz-refresh' }) })
+    }),
+  ]))
 })
 
 self.addEventListener('notificationclick', function (event) {
