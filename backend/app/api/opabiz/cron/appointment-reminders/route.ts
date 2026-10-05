@@ -13,6 +13,20 @@ export const dynamic = 'force-dynamic'
 // fecha_hora_cita dentro de la próxima hora. `recordatorio_enviado` evita
 // mandarlo varias veces mientras la orden siga dentro de esa ventana entre
 // corridas del cron (cada 15 min, la ventana de 1h se solapa 3-4 veces).
+// fecha_hora_cita se guarda en hora de Florida sin zona (viene de la cita de
+// /booking: "2026-08-10T10:20:00"). Comparar contra toISOString() (UTC) hacía
+// que el recordatorio saliera ~4 horas tarde; hay que comparar en la misma
+// hora local.
+function floridaNaive(d: Date): string {
+  const p = Object.fromEntries(
+    new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23',
+    }).formatToParts(d).map(x => [x.type, x.value])
+  )
+  return `${p.year}-${p.month}-${p.day}T${p.hour}:${p.minute}:${p.second}`
+}
+
 export async function GET(req: NextRequest) {
   const auth = req.headers.get('authorization') || ''
   const secret = process.env.CRON_SECRET
@@ -32,8 +46,8 @@ export async function GET(req: NextRequest) {
     .select('id, empleado_id')
     .in('estado', ['asignada', 'en_progreso'])
     .eq('recordatorio_enviado', false)
-    .gte('fecha_hora_cita', now.toISOString())
-    .lte('fecha_hora_cita', enUnaHora.toISOString())
+    .gte('fecha_hora_cita', floridaNaive(now))
+    .lte('fecha_hora_cita', floridaNaive(enUnaHora))
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })

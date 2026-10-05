@@ -55,6 +55,17 @@ export function useConnectLang(): [Lang, (l: Lang) => void] {
   return [lang, setLang]
 }
 
+// Las columnas de fecha de ordenes_opabiz (fecha_asignacion, fecha_creacion,
+// fecha_completada, fecha_inicio) y Order.createdAt se guardan en UTC pero
+// SIN zona horaria. Si se pasan tal cual a new Date(), el navegador las toma
+// como hora local y salían 4 horas adelantadas. Ojo: fecha_hora_cita NO pasa
+// por acá; esa se guarda ya en hora de Florida y se lee tal cual.
+export function parseUtc(value: string | null | undefined): Date | null {
+  if (!value) return null
+  const hasZone = /[zZ]$|[+-]\d{2}:?\d{2}$/.test(value)
+  return new Date(hasZone ? value : `${value.replace(' ', 'T')}Z`)
+}
+
 export function locale(lang: Lang): string {
   return lang === 'en' ? 'en-US' : 'es-US'
 }

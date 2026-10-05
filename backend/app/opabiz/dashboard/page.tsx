@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ConnectHeader, Avatar, NIVEL_LABELS, CONNECT_BASE_CSS, useConnectLang, locale, type Me, type Lang } from '../_components/ConnectShell'
+import { ConnectHeader, Avatar, NIVEL_LABELS, CONNECT_BASE_CSS, useConnectLang, locale, parseUtc, type Me, type Lang } from '../_components/ConnectShell'
 
 type Orden = {
   id: string
@@ -81,9 +81,12 @@ function clienteDe(o: Orden) {
   return Array.isArray(o.usuarios) ? o.usuarios[0] ?? null : o.usuarios
 }
 
-function fmtFecha(iso: string | null, lang: Lang): string {
+// `utc`: columnas guardadas en UTC sin zona (asignación, completado). Sin
+// `utc`: fecha_hora_cita, que ya está en hora de Florida.
+function fmtFecha(iso: string | null, lang: Lang, utc = false): string {
   if (!iso) return ''
-  return new Date(iso).toLocaleString(locale(lang), { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })
+  const d = utc ? parseUtc(iso)! : new Date(iso)
+  return d.toLocaleString(locale(lang), { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })
 }
 
 function fmtDinero(n: number): string {
@@ -160,7 +163,7 @@ function PendingOrderCard({ o, onDone, lang }: { o: Orden; onDone: () => void; l
             {cliente?.telefono && <><dt>{t.telefono}</dt><dd><a href={`tel:${cliente.telefono}`}>{cliente.telefono}</a></dd></>}
             {cliente?.email && <><dt>{t.email}</dt><dd><a href={`mailto:${cliente.email}`}>{cliente.email}</a></dd></>}
             {o.fecha_hora_cita && <><dt>{t.cita}</dt><dd>{fmtFecha(o.fecha_hora_cita, lang)}</dd></>}
-            <dt>{t.asignada}</dt><dd>{fmtFecha(o.fecha_asignacion, lang) || '—'}</dd>
+            <dt>{t.asignada}</dt><dd>{fmtFecha(o.fecha_asignacion, lang, true) || '—'}</dd>
           </dl>
           {o.notas && <div className="db-order-note"><IconNote />{o.notas}</div>}
         </div>
@@ -362,7 +365,7 @@ export default function OpabizDashboardPage() {
     porTab.nuevas.sort(orden)
     porTab.progreso.sort(orden)
     porTab.completadas.sort((a, b) => Date.parse(b.fecha_completada ?? b.fecha_creacion) - Date.parse(a.fecha_completada ?? a.fecha_creacion))
-    const completadasMes = porTab.completadas.filter(o => o.fecha_completada && new Date(o.fecha_completada) >= inicioMes).length
+    const completadasMes = porTab.completadas.filter(o => o.fecha_completada && parseUtc(o.fecha_completada)! >= inicioMes).length
     const proximaCita = ordenes
       .filter(o => o.estado !== 'completada' && o.fecha_hora_cita && Date.parse(o.fecha_hora_cita) >= ahora.getTime())
       .sort((a, b) => Date.parse(a.fecha_hora_cita!) - Date.parse(b.fecha_hora_cita!))[0] ?? null
@@ -592,8 +595,8 @@ export default function OpabizDashboardPage() {
                     const label = t.estado[o.estado] ?? t.estado.pendiente
                     const cliente = clienteDe(o)
                     const fecha = o.estado === 'completada'
-                      ? `${t.completadaEl} ${fmtFecha(o.fecha_completada, lang)}`
-                      : o.fecha_hora_cita ? `${t.citaEl} ${fmtFecha(o.fecha_hora_cita, lang)}` : `${t.asignadaEl} ${fmtFecha(o.fecha_asignacion, lang)}`
+                      ? `${t.completadaEl} ${fmtFecha(o.fecha_completada, lang, true)}`
+                      : o.fecha_hora_cita ? `${t.citaEl} ${fmtFecha(o.fecha_hora_cita, lang)}` : `${t.asignadaEl} ${fmtFecha(o.fecha_asignacion, lang, true)}`
                     return (
                       <Link key={o.id} href={`/opabiz/dashboard/${o.id}`} className="db-order">
                         <div className="db-order-main">

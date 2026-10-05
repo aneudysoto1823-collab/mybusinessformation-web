@@ -484,7 +484,7 @@ export default function OpabizAdminPage() {
                         <span className="badge" style={{ color: meta.color, background: meta.bg }}>{meta.label}</span>
                       </td>
                       <td>{o.es_urgente ? '⚡ Sí' : '—'}</td>
-                      <td>{new Date(o.fecha_creacion).toLocaleDateString()}</td>
+                      <td>{/* UTC sin zona en la base: sin la Z se corría al día siguiente de noche */}{new Date(/[zZ]$|[+-]\d{2}:?\d{2}$/.test(o.fecha_creacion) ? o.fecha_creacion : `${o.fecha_creacion}Z`).toLocaleDateString()}</td>
                       <td>
                         <button
                           className="btn"

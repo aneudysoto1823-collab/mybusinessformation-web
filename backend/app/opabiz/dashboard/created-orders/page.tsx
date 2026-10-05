@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ConnectHeader, useConnectMe, CONNECT_BASE_CSS, useConnectLang, locale, type Lang } from '../../_components/ConnectShell'
+import { ConnectHeader, useConnectMe, CONNECT_BASE_CSS, useConnectLang, locale, parseUtc, type Lang } from '../../_components/ConnectShell'
 
 type OrdenCreada = {
   id: string
@@ -143,7 +143,7 @@ export default function OpabizCreatedOrdersPage() {
                 </div>
                 {nombre && <div className="op-cliente">{nombre} · {o.email}</div>}
                 <div className="op-fbfc">{fbfc(o.id)}</div>
-                <div className="op-fecha">{t.creada} {new Date(o.createdAt).toLocaleString(locale(lang))}</div>
+                <div className="op-fecha">{t.creada} {parseUtc(o.createdAt)!.toLocaleString(locale(lang))}</div>
                 {o.isDraft && (
                   <div className="op-actions">
                     <button className="op-btn op-btn-edit" disabled={busyId === o.id} onClick={() => editar(o.id)}>{t.editar}</button>

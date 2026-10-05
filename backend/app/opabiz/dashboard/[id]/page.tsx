@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
-import { ConnectHeader, useConnectMe, CONNECT_BASE_CSS, useConnectLang, locale } from '../../_components/ConnectShell'
+import { ConnectHeader, useConnectMe, CONNECT_BASE_CSS, useConnectLang, locale, parseUtc } from '../../_components/ConnectShell'
 
 type Orden = {
   id: string
@@ -219,7 +219,7 @@ export default function OpabizOrderDetailPage() {
               {orden.fecha_hora_cita && (
                 <div className="op-row"><span className="op-row-label">{t.lCita}</span><span className="op-row-value">{new Date(orden.fecha_hora_cita).toLocaleString(locale(lang))}</span></div>
               )}
-              <div className="op-row"><span className="op-row-label">{t.lAsignada}</span><span className="op-row-value">{orden.fecha_asignacion ? new Date(orden.fecha_asignacion).toLocaleString(locale(lang)) : '—'}</span></div>
+              <div className="op-row"><span className="op-row-label">{t.lAsignada}</span><span className="op-row-value">{orden.fecha_asignacion ? parseUtc(orden.fecha_asignacion)!.toLocaleString(locale(lang)) : '—'}</span></div>
               {orden.notas && <div className="op-nota">{orden.notas}</div>}
             </div>
 
