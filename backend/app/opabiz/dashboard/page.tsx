@@ -72,6 +72,83 @@ const IconNote = () => (
   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
 )
 
+// Orden "Por aceptar" desplegada dentro del panel: datos completos del
+// cliente y Aceptar/Rechazar ahí mismo, sin ir a la página de detalle.
+function PendingOrderCard({ o, onDone }: { o: Orden; onDone: () => void }) {
+  const cliente = clienteDe(o)
+  const [acting, setActing] = useState(false)
+  const [rejecting, setRejecting] = useState(false)
+  const [motivo, setMotivo] = useState('')
+  const [error, setError] = useState('')
+
+  async function aceptar() {
+    setActing(true); setError('')
+    const res = await fetch(`/api/opabiz/me/orders/${o.id}/accept`, { method: 'POST' })
+    setActing(false)
+    if (res.ok) { onDone(); return }
+    const d = await res.json().catch(() => ({}))
+    setError(d.error ?? 'No se pudo aceptar la orden.')
+  }
+
+  async function rechazar() {
+    setActing(true); setError('')
+    const res = await fetch(`/api/opabiz/me/orders/${o.id}/reject`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ motivo }),
+    })
+    setActing(false)
+    if (res.ok) { onDone(); return }
+    const d = await res.json().catch(() => ({}))
+    setError(d.error ?? 'No se pudo rechazar la orden.')
+  }
+
+  return (
+    <div className="db-pending">
+      <div className="db-pending-body">
+        <div className="db-pending-info">
+          <div className="db-order-top">
+            <span className="db-order-title">{o.tipo_servicio}</span>
+            {o.es_urgente && <span className="db-urgent">URGENTE</span>}
+          </div>
+          <dl className="db-pending-grid">
+            {cliente && <><dt>Cliente</dt><dd>{cliente.nombre}</dd></>}
+            {cliente?.telefono && <><dt>Teléfono</dt><dd><a href={`tel:${cliente.telefono}`}>{cliente.telefono}</a></dd></>}
+            {cliente?.email && <><dt>Email</dt><dd><a href={`mailto:${cliente.email}`}>{cliente.email}</a></dd></>}
+            {o.fecha_hora_cita && <><dt>Cita</dt><dd>{fmtFecha(o.fecha_hora_cita)}</dd></>}
+            <dt>Asignada</dt><dd>{fmtFecha(o.fecha_asignacion) || '—'}</dd>
+          </dl>
+          {o.notas && <div className="db-order-note"><IconNote />{o.notas}</div>}
+        </div>
+        {!rejecting && (
+          <div className="db-pending-actions">
+            <button type="button" className="db-act db-act-accept" onClick={aceptar} disabled={acting}>
+              {acting ? 'Aceptando…' : 'Aceptar'}
+            </button>
+            <button type="button" className="db-act db-act-reject" onClick={() => { setRejecting(true); setError('') }} disabled={acting}>
+              Rechazar
+            </button>
+          </div>
+        )}
+      </div>
+      {rejecting && (
+        <div className="db-reject">
+          <label htmlFor={`motivo-${o.id}`}>¿Por qué rechazás esta orden?</label>
+          <textarea id={`motivo-${o.id}`} value={motivo} onChange={e => setMotivo(e.target.value)} maxLength={500}
+            placeholder="Ej.: no tengo disponibilidad ese día, queda fuera de mi zona…" />
+          <div className="db-reject-actions">
+            <button type="button" className="db-act db-act-cancel" onClick={() => { setRejecting(false); setMotivo('') }} disabled={acting}>Cancelar</button>
+            <button type="button" className="db-act db-act-reject" onClick={rechazar} disabled={acting || motivo.trim().length < 3}>
+              {acting ? 'Rechazando…' : 'Confirmar rechazo'}
+            </button>
+          </div>
+        </div>
+      )}
+      {error && <div className="oc-msg-err db-pending-err">{error}</div>}
+    </div>
+  )
+}
+
 export default function OpabizDashboardPage() {
   const router = useRouter()
   const [me, setMe] = useState<Me | null>(null)
@@ -323,6 +400,28 @@ export default function OpabizDashboardPage() {
         .db-order-meta{font-size:.78rem;color:#64748B;margin-top:3px}
         .db-order-note{display:flex;align-items:flex-start;gap:6px;font-size:.76rem;color:#92400E;background:#FFFBEB;border-radius:6px;padding:5px 8px;margin-top:6px}
         .db-order-note svg{margin-top:2px;flex-shrink:0}
+        .db-pending{padding:16px 4px;border-bottom:1px solid #F1F5F9}
+        .db-pending:last-child{border-bottom:none}
+        .db-pending-body{display:flex;gap:16px;align-items:flex-start}
+        .db-pending-info{flex:1;min-width:0}
+        .db-pending-grid{display:grid;grid-template-columns:auto minmax(0,1fr);gap:5px 14px;margin-top:10px;font-size:.82rem}
+        .db-pending-grid dt{color:#94A3B8}
+        .db-pending-grid dd{color:#1E293B;font-weight:600;word-break:break-word}
+        .db-pending-grid a{color:#1D4ED8;text-decoration:none}
+        .db-pending-actions{display:flex;flex-direction:column;gap:8px;flex-shrink:0}
+        .db-act{padding:8px 16px;border-radius:8px;font-weight:700;font-size:.8rem;cursor:pointer;font-family:inherit;background:#fff;min-height:38px;min-width:110px;white-space:nowrap}
+        .db-act:disabled{opacity:.55;cursor:not-allowed}
+        .db-act-accept{color:#2563EB;border:1.5px solid #2563EB}
+        .db-act-accept:hover:not(:disabled){background:#F7FAFF}
+        .db-act-reject{color:#B91C1C;border:1.5px solid #FCA5A5}
+        .db-act-reject:hover:not(:disabled){background:#FEF2F2}
+        .db-act-cancel{color:#475569;border:1.5px solid #E2E8F0}
+        .db-reject{margin-top:12px;background:#FFFBFB;border:1px solid #FECACA;border-radius:10px;padding:12px}
+        .db-reject label{display:block;font-size:.8rem;font-weight:700;color:#374151;margin-bottom:6px}
+        .db-reject textarea{width:100%;min-height:72px;padding:9px 11px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:16px;font-family:inherit;color:#1E293B;outline:none;resize:vertical}
+        .db-reject textarea:focus{border-color:#2563EB}
+        .db-reject-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:8px}
+        .db-pending-err{margin-top:10px}
         .db-pill{font-size:.7rem;font-weight:700;padding:4px 10px;border-radius:20px;white-space:nowrap}
         .db-chevron{color:#CBD5E1;flex-shrink:0}
         @media(max-width:900px){
@@ -336,6 +435,9 @@ export default function OpabizDashboardPage() {
           /* La pestaña activa ya dice el estado: en pantalla chica la etiqueta
              solo le quita ancho al nombre del cliente. */
           .db-pill{display:none}
+          .db-pending-body{flex-direction:column}
+          .db-pending-actions{flex-direction:row;width:100%}
+          .db-pending-actions .db-act{flex:1}
         }
       `}</style>
 
@@ -443,6 +545,7 @@ export default function OpabizDashboardPage() {
                   <p className="oc-empty">{VACIO[tab]}</p>
                 ) : (
                   lista.map(o => {
+                    if (o.estado === 'asignada') return <PendingOrderCard key={o.id} o={o} onDone={cargar} />
                     const meta = ESTADO_META[o.estado] ?? ESTADO_META.pendiente
                     const cliente = clienteDe(o)
                     const fecha = o.estado === 'completada'

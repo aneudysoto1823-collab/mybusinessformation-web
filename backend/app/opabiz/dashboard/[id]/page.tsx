@@ -152,7 +152,8 @@ export default function OpabizOrderDetailPage() {
         .op-row:last-child{border-bottom:none}
         .op-row-label{color:#94A3B8}
         .op-row-value{color:#1E293B;font-weight:600;text-align:right}
-        .op-btn{width:100%;padding:13px;border-radius:8px;border:none;font-weight:700;font-size:.9rem;cursor:pointer;min-height:44px;margin-bottom:10px;font-family:inherit}
+        .op-btn{padding:9px 18px;border-radius:8px;border:none;font-weight:700;font-size:.82rem;cursor:pointer;min-height:40px;font-family:inherit;background:#fff}
+        .op-actions{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin-bottom:16px}
         .op-btn-accept{background:#fff;color:#2563EB;border:1.5px solid #2563EB}
         .op-btn-complete{background:#fff;color:#047857;border:1.5px solid #059669}
         .op-btn-reject{background:#fff;color:#B91C1C;border:1.5px solid #FCA5A5}
@@ -160,7 +161,7 @@ export default function OpabizOrderDetailPage() {
         .op-reject-box label{display:block;font-size:.8rem;font-weight:700;color:#374151;margin-bottom:6px}
         .op-reject-box textarea{width:100%;min-height:80px;padding:10px 12px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:16px;font-family:inherit;color:#1E293B;outline:none;resize:vertical;margin-bottom:10px}
         .op-reject-box textarea:focus{border-color:#2563EB}
-        .op-reject-actions{display:flex;gap:10px}
+        .op-reject-actions{display:flex;justify-content:flex-end;gap:10px}
         .op-reject-actions .op-btn{margin-bottom:0}
         .op-gone{background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;padding:16px;font-size:.85rem;color:#475569;line-height:1.5;margin-bottom:16px}
         .op-btn:disabled{opacity:.6;cursor:not-allowed}
@@ -203,14 +204,14 @@ export default function OpabizOrderDetailPage() {
             {error && <p className="op-error">{error}</p>}
 
             {orden.estado === 'asignada' && !showReject && (
-              <>
-                <button className="op-btn op-btn-accept" onClick={aceptar} disabled={acting}>
-                  {acting ? 'Aceptando…' : 'Aceptar orden'}
-                </button>
+              <div className="op-actions">
                 <button className="op-btn op-btn-reject" onClick={() => { setShowReject(true); setError('') }} disabled={acting}>
                   Rechazar orden
                 </button>
-              </>
+                <button className="op-btn op-btn-accept" onClick={aceptar} disabled={acting}>
+                  {acting ? 'Aceptando…' : 'Aceptar orden'}
+                </button>
+              </div>
             )}
 
             {orden.estado === 'asignada' && showReject && (
@@ -254,9 +255,11 @@ export default function OpabizOrderDetailPage() {
                   </label>
                 </div>
 
-                <button className="op-btn op-btn-complete" onClick={completar} disabled={acting}>
-                  {acting ? 'Completando…' : 'Marcar como completada'}
-                </button>
+                <div className="op-actions">
+                  <button className="op-btn op-btn-complete" onClick={completar} disabled={acting}>
+                    {acting ? 'Completando…' : 'Marcar como completada'}
+                  </button>
+                </div>
               </>
             )}
 
