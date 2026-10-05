@@ -15,7 +15,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getResend } from '@/lib/resend-client'
 import { checkContactRateLimit, getClientIp } from '@/lib/rate-limit'
-import { CONTACT_TO_EMAIL as TO_EMAIL_OPABIZ, REPLY_TO_FBFC, FROM_OPABIZ_CONTACT, FROM_FBFC, type EmailBrand, brandFrom, brandReplyTo, brandSubjectPrefix, brandHeaderHtml, brandFooterLine } from '@/lib/email-constants'
+import { CONTACT_TO_EMAIL as TO_EMAIL_OPABIZ, REPLY_TO_FBFC, FROM_OPABIZ_CONTACT, FROM_FBFC, type EmailBrand, brandFrom, brandReplyTo, brandSubjectPrefix, brandHeaderHtml, brandFooterLine, brandWhatsappUrl } from '@/lib/email-constants'
 import { resolveOrigin, brandFromOrigin } from '@/lib/request-origin'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -155,9 +155,7 @@ export async function POST(req: NextRequest) {
                 <div style="margin-top:8px;font-size:13px;color:#475569;line-height:1.6;white-space:pre-wrap">${safeMessage}</div>
               </div>
               <p style="color:#475569;line-height:1.7">
-                ${isFBFC
-                  ? `Need it sooner? Reply to this email and a team member will help you right away.`
-                  : `Need it sooner? Reach us on <a href="https://wa.me/13522782475?text=Hello%2C%20I%20have%20a%20question%20about%20OpaBiz.com" style="color:#059669;font-weight:600">WhatsApp</a> and a team member will help you right away.`}
+                Need it sooner? Reach us on <a href="${brandWhatsappUrl(brand)}" style="color:#059669;font-weight:600">WhatsApp</a> and a team member will help you right away.
               </p>
               <p style="margin-top:32px;color:#94a3b8;font-size:12px">
                 ${brandFooterLine(brand)}<br/>We are a document preparation service, not a law firm.

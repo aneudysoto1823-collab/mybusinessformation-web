@@ -4,7 +4,7 @@
 // vivía inline en send/route.ts; se extrajo el 2026-09-11 para que el preview
 // no pueda quedar desincronizado del email que de verdad se manda.
 
-import { PHYSICAL_MAILING_ADDRESS, fbfcLetterHeaderHtml } from './email-constants'
+import { PHYSICAL_MAILING_ADDRESS, fbfcLetterHeaderHtml, brandWhatsappUrl } from './email-constants'
 
 export const CAMPAIGN_EMAIL_BASE_URL = 'https://mybusinessformation.com'
 
@@ -241,11 +241,7 @@ export function buildComplianceEmail(company: CampaignCompany, trackUrl: string,
         <tr>
           <td style="background:#fff;padding:24px 36px 6px;text-align:center">
             <a href="${trackUrl}" style="display:inline-block;background:${GREEN};color:#fff;text-decoration:none;padding:15px 44px;border-radius:9px;font-weight:700;font-size:15px">${isEs ? 'Solicitar Estos Servicios' : 'Request These Services'}</a>
-            <!-- PENDIENTE (2026-09-11): reemplazar por el link de WhatsApp cuando mybiz
-                 tenga uno activo propio — hoy usa https://wa.me/13522782475, que es el
-                 número de OpaBiz, no el de mybusinessformation.com. Mientras tanto se
-                 muestra el email de soporte en su lugar. -->
-            <div style="color:#64748b;font-size:12px;margin-top:14px">${isEs ? '¿Preguntas? Escríbanos a ' : 'Questions? Email us at '}<a href="mailto:info@mybusinessformation.com" style="color:#2563EB;text-decoration:none;font-weight:600">info@mybusinessformation.com</a></div>
+            <div style="color:#64748b;font-size:12px;margin-top:14px">${isEs ? '¿Preguntas? Escríbanos por ' : 'Questions? Reach us on '}<a href="${brandWhatsappUrl('fbfc')}" style="color:#059669;text-decoration:none;font-weight:600">WhatsApp</a>${isEs ? ' o a ' : ' or at '}<a href="mailto:info@mybusinessformation.com" style="color:#2563EB;text-decoration:none;font-weight:600">info@mybusinessformation.com</a></div>
           </td>
         </tr>
 

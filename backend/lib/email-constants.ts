@@ -102,19 +102,21 @@ export function brandReplyTo(brand: EmailBrand): string {
   return isFbfcBrand(brand) ? REPLY_TO_FBFC : REPLY_TO
 }
 
-const OPABIZ_WHATSAPP_URL = 'https://wa.me/13522782475'
+// Un solo número de WhatsApp para ambas marcas (decisión founder 2026-10-05).
+// El texto pre-llenado es lo que le dice al staff desde qué sitio escribe el
+// cliente — por eso siempre va el dominio, nunca el link pelado.
+const WHATSAPP_NUMBER = '13522782475'
+
+export function brandWhatsappUrl(brand: EmailBrand): string {
+  const site = isFbfcBrand(brand) ? 'MyBusinessFormation.com' : 'OpaBiz.com'
+  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(`Hello, I have a question about ${site}`)}`
+}
 
 // Línea de contacto para emails compartidos entre marcas (sendOrderProcessed,
-// sendOrderApprovalUpdate). FBFC todavía no tiene WhatsApp propio — mostrar
-// acá el número de OpaBiz sería el mismo leak de marca que ya se corrigió en
-// la carta B1 (2026-09-11), así que para FBFC se omite el WhatsApp y queda
-// solo el email. Único lugar con el número hardcodeado — si cambia, acá nomás.
+// sendOrderApprovalUpdate).
 export function brandWhatsappLine(brand: EmailBrand, isEs: boolean): string {
   const email = brandReplyTo(brand)
-  if (isFbfcBrand(brand)) {
-    return `${isEs ? '¿Preguntas? Escríbanos a' : 'Questions? Reach us at'} <a href="mailto:${email}" style="color:#2563eb">${email}</a>.`
-  }
-  return `${isEs ? '¿Preguntas? Escríbanos por' : 'Questions? Reach us on'} <a href="${OPABIZ_WHATSAPP_URL}" style="color:#059669">WhatsApp</a> ${isEs ? 'o a' : 'or at'} <a href="mailto:${email}" style="color:#2563eb">${email}</a>.`
+  return `${isEs ? '¿Preguntas? Escríbanos por' : 'Questions? Reach us on'} <a href="${brandWhatsappUrl(brand)}" style="color:#059669">WhatsApp</a> ${isEs ? 'o a' : 'or at'} <a href="mailto:${email}" style="color:#2563eb">${email}</a>.`
 }
 
 // `opts.email`/`opts.order` pre-llenan el login del cliente — ambas marcas
