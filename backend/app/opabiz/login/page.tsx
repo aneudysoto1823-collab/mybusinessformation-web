@@ -12,6 +12,8 @@ export default function OpabizLoginPage() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [blockedSeconds, setBlockedSeconds] = useState<number | null>(null)
+  const [mode, setMode] = useState<'login' | 'forgot'>('login')
+  const [forgotSent, setForgotSent] = useState(false)
 
   useEffect(() => {
     if (blockedSeconds === null || blockedSeconds <= 0) return
@@ -59,6 +61,32 @@ export default function OpabizLoginPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  async function handleForgot(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    setError('')
+    setLoading(true)
+    try {
+      const res = await fetch('/api/opabiz/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+      if (res.ok) { setForgotSent(true); return }
+      const data = await res.json().catch(() => ({}))
+      setError(data.error ?? 'No se pudo enviar el email.')
+    } catch {
+      setError('Error de conexión. Intentá de nuevo.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  function switchMode(next: 'login' | 'forgot') {
+    setMode(next)
+    setError('')
+    setForgotSent(false)
   }
 
   const year = new Date().getFullYear()
@@ -192,6 +220,19 @@ export default function OpabizLoginPage() {
         .op-btn-login:active:not(:disabled) { transform: scale(0.99); }
         .op-btn-login:disabled { background: #94a3b8; cursor: not-allowed; }
 
+        .op-link-btn {
+          background: none; border: none; padding: 0; cursor: pointer;
+          color: #2563eb; font-size: 13px; font-weight: 600; font-family: inherit;
+        }
+        .op-link-btn:hover { text-decoration: underline; }
+        .op-forgot-row { text-align: right; margin: -6px 0 4px; }
+        .op-back-row { text-align: center; margin-top: 16px; }
+        .op-ok-msg {
+          background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46;
+          border-radius: 9px; padding: 11px 14px; font-size: 13px;
+          font-weight: 600; margin-bottom: 16px; line-height: 1.5;
+        }
+
         .op-error-msg {
           background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c;
           border-radius: 9px; padding: 11px 14px; font-size: 13px;
@@ -255,6 +296,7 @@ export default function OpabizLoginPage() {
             </div>
 
             <div className="op-form-body">
+              {mode === 'login' ? (<>
               <div className="op-form-eyebrow">Acceso de empleados</div>
               <div className="op-form-title">Iniciar sesión</div>
               <p className="op-form-sub">Ingresá tus credenciales para acceder a tus órdenes asignadas.</p>
@@ -313,10 +355,48 @@ export default function OpabizLoginPage() {
                   </div>
                 </div>
 
+                <div className="op-forgot-row">
+                  <button type="button" className="op-link-btn" onClick={() => switchMode('forgot')}>¿Olvidaste tu contraseña?</button>
+                </div>
+
                 <button type="submit" className="op-btn-login" disabled={loading || isBlocked}>
                   {loading ? 'Ingresando…' : isBlocked ? `Bloqueado (${formatSeconds(blockedSeconds!)})` : 'Ingresar →'}
                 </button>
               </form>
+
+              </>) : (<>
+              <div className="op-form-eyebrow">Acceso de empleados</div>
+              <div className="op-form-title">Recuperar contraseña</div>
+              <p className="op-form-sub">Ingresá el email de tu cuenta y te mandamos un link para elegir una contraseña nueva.</p>
+
+              {forgotSent ? (
+                <div className="op-ok-msg">
+                  Si ese email tiene una cuenta activa, te llegará un link en unos minutos. El link vale por 1 hora. Revisá también la carpeta de spam.
+                </div>
+              ) : (
+                <form onSubmit={handleForgot}>
+                  {error && <div className="op-error-msg">{error}</div>}
+                  <div className="op-field">
+                    <label htmlFor="op-forgot-email">Email</label>
+                    <input
+                      id="op-forgot-email" type="email" value={email}
+                      onChange={e => setEmail(e.target.value)}
+                      required autoComplete="username"
+                      disabled={loading}
+                      placeholder="tu@email.com"
+                    />
+                  </div>
+                  <button type="submit" className="op-btn-login" disabled={loading}>
+                    {loading ? 'Enviando…' : 'Enviar link'}
+                  </button>
+                </form>
+              )}
+
+              <div className="op-back-row">
+                <button type="button" className="op-link-btn" onClick={() => switchMode('login')}>Volver a iniciar sesión</button>
+              </div>
+
+              </>)}
 
               <div className="op-right-notice">
                 ⚠️ Este portal es solo para personal de campo de Florida Business Formation Center. El acceso no autorizado está prohibido.

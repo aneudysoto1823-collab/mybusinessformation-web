@@ -58,6 +58,12 @@ export default function OpabizDashboardPage() {
   const [showPushBanner, setShowPushBanner] = useState(false)
   const [subscribingPush, setSubscribingPush] = useState(false)
   const [pushStatus, setPushStatus] = useState<{ ok: boolean; msg: string } | null>(null)
+  const [showPwdForm, setShowPwdForm] = useState(false)
+  const [currentPwd, setCurrentPwd] = useState('')
+  const [newPwd, setNewPwd] = useState('')
+  const [confirmPwd, setConfirmPwd] = useState('')
+  const [savingPwd, setSavingPwd] = useState(false)
+  const [pwdStatus, setPwdStatus] = useState<{ ok: boolean; msg: string } | null>(null)
 
   const cargar = useCallback(async () => {
     const [meRes, ordersRes] = await Promise.all([
@@ -100,7 +106,7 @@ export default function OpabizDashboardPage() {
     try {
       const permiso = await Notification.requestPermission()
       if (permiso !== 'granted') {
-        setPushStatus({ ok: false, msg: 'El navegador no dio permiso para notificaciones. Puede activarlo en la configuración del navegador.' })
+        setPushStatus({ ok: false, msg: 'El navegador no dio permiso para notificaciones. Podés activarlo en la configuración del navegador.' })
         return
       }
 
@@ -150,6 +156,30 @@ export default function OpabizDashboardPage() {
     setTogglingDisp(false)
   }
 
+  async function cambiarPassword(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    setPwdStatus(null)
+    if (newPwd.length < 8) { setPwdStatus({ ok: false, msg: 'La contraseña nueva debe tener al menos 8 caracteres.' }); return }
+    if (newPwd !== confirmPwd) { setPwdStatus({ ok: false, msg: 'Las contraseñas nuevas no coinciden.' }); return }
+    setSavingPwd(true)
+    try {
+      const res = await fetch('/api/opabiz/me/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ currentPassword: currentPwd, newPassword: newPwd }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) { setPwdStatus({ ok: false, msg: data.error ?? 'No se pudo cambiar la contraseña.' }); return }
+      setCurrentPwd(''); setNewPwd(''); setConfirmPwd('')
+      setShowPwdForm(false)
+      setPwdStatus({ ok: true, msg: 'Contraseña actualizada. Usala la próxima vez que ingreses.' })
+    } catch {
+      setPwdStatus({ ok: false, msg: 'Error de conexión. Intentá de nuevo.' })
+    } finally {
+      setSavingPwd(false)
+    }
+  }
+
   async function logout() {
     await fetch('/api/opabiz/auth/logout', { method: 'POST' })
     router.push('/opabiz/login')
@@ -192,6 +222,15 @@ export default function OpabizDashboardPage() {
         .op-push-ok,.op-push-err{font-size:.8rem;font-weight:600;line-height:1.4;border-radius:10px;padding:10px 14px;margin-bottom:16px}
         .op-push-ok{background:#ECFDF5;border:1.5px solid #a7f3d0;color:#065f46}
         .op-push-err{background:#FEF2F2;border:1.5px solid #fecaca;color:#991b1b}
+        .op-pwd-toggle{width:100%;margin-top:8px;padding:10px;border-radius:8px;border:1px solid #E2E8F0;background:#fff;color:#475569;font-weight:600;font-size:.8rem;cursor:pointer;min-height:44px}
+        .op-pwd-form{margin-top:12px;border-top:1px solid #E2E8F0;padding-top:12px}
+        .op-pwd-field{margin-bottom:10px}
+        .op-pwd-field label{display:block;font-size:.74rem;font-weight:600;color:#374151;margin-bottom:4px}
+        .op-pwd-field input{width:100%;padding:10px 12px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:16px;font-family:inherit;color:#1E293B;outline:none}
+        .op-pwd-field input:focus{border-color:#2563EB}
+        .op-pwd-save{width:100%;padding:11px;border-radius:8px;border:none;background:#2563EB;color:#fff;font-weight:700;font-size:.85rem;cursor:pointer;min-height:44px}
+        .op-pwd-save:disabled{opacity:.6;cursor:not-allowed}
+        .op-pwd-status{margin-top:10px}
       `}</style>
 
       <div className="op-header">
@@ -212,7 +251,7 @@ export default function OpabizDashboardPage() {
 
             {showPushBanner && (
               <div className="op-push-banner">
-                <span className="op-push-text">Active las notificaciones para enterarse al instante cuando le asignen una orden.</span>
+                <span className="op-push-text">Activá las notificaciones para enterarte al instante cuando te asignen una orden.</span>
                 <button className="op-push-btn" onClick={activarNotificaciones} disabled={subscribingPush}>
                   {subscribingPush ? '...' : 'Activar'}
                 </button>
@@ -236,6 +275,32 @@ export default function OpabizDashboardPage() {
                 >
                   {disponible ? '🟢 Disponible — tocá para pausar' : '⚪ No disponible — tocá para activarte'}
                 </button>
+
+                <button type="button" className="op-pwd-toggle" onClick={() => { setShowPwdForm(v => !v); setPwdStatus(null) }}>
+                  {showPwdForm ? 'Cancelar' : 'Cambiar contraseña'}
+                </button>
+                {showPwdForm && (
+                  <form className="op-pwd-form" onSubmit={cambiarPassword}>
+                    <div className="op-pwd-field">
+                      <label htmlFor="op-cur-pwd">Contraseña actual</label>
+                      <input id="op-cur-pwd" type="password" autoComplete="current-password" value={currentPwd} onChange={e => setCurrentPwd(e.target.value)} required />
+                    </div>
+                    <div className="op-pwd-field">
+                      <label htmlFor="op-new-pwd">Contraseña nueva (mínimo 8 caracteres)</label>
+                      <input id="op-new-pwd" type="password" autoComplete="new-password" value={newPwd} onChange={e => setNewPwd(e.target.value)} required />
+                    </div>
+                    <div className="op-pwd-field">
+                      <label htmlFor="op-confirm-pwd">Confirmar contraseña nueva</label>
+                      <input id="op-confirm-pwd" type="password" autoComplete="new-password" value={confirmPwd} onChange={e => setConfirmPwd(e.target.value)} required />
+                    </div>
+                    <button type="submit" className="op-pwd-save" disabled={savingPwd}>
+                      {savingPwd ? 'Guardando…' : 'Guardar contraseña'}
+                    </button>
+                  </form>
+                )}
+                {pwdStatus && (
+                  <div className={`op-pwd-status ${pwdStatus.ok ? 'op-push-ok' : 'op-push-err'}`}>{pwdStatus.msg}</div>
+                )}
               </div>
             )}
 

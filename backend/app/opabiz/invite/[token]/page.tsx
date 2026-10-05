@@ -17,6 +17,13 @@ export default function OpabizInvitePage() {
   const [confirm, setConfirm] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  // ?reset=1 = link de "Olvidé mi contraseña" (mismo token y endpoint que la
+  // invitación, solo cambia el texto). Leerlo en el primer render no genera
+  // diferencia de hidratación: todo lo que depende de isReset recién se
+  // muestra cuando termina la verificación del token, nunca en el HTML inicial.
+  const [isReset] = useState(() =>
+    typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('reset') === '1'
+  )
 
   useEffect(() => {
     fetch(`/api/opabiz/auth/accept-invite?token=${encodeURIComponent(token)}`)
@@ -52,7 +59,7 @@ export default function OpabizInvitePage() {
         return
       }
       const data = await res.json().catch(() => ({}))
-      setError(data.error ?? 'No se pudo crear la contraseña.')
+      setError(data.error ?? 'No se pudo guardar la contraseña.')
     } catch {
       setError('Error de conexión. Intentá de nuevo.')
     } finally {
@@ -86,11 +93,17 @@ export default function OpabizInvitePage() {
       <div className="op-wrap">
         <div className="op-brand">OpaBiz <span>Connect</span></div>
         <div className="op-card">
-          {check === 'loading' && <p className="op-msg">Verificando invitación…</p>}
-          {check === 'invalid' && <p className="op-msg">Este link ya no es válido o expiró. Pedile al admin que te reenvíe la invitación.</p>}
+          {check === 'loading' && <p className="op-msg">Verificando link…</p>}
+          {check === 'invalid' && (
+            <p className="op-msg">
+              {isReset
+                ? <>Este link ya no es válido o expiró. Pedí uno nuevo desde <a href="/opabiz/login" style={{ color: '#2563EB', fontWeight: 600 }}>¿Olvidaste tu contraseña?</a></>
+                : 'Este link ya no es válido o expiró. Pedile al admin que te reenvíe la invitación.'}
+            </p>
+          )}
           {check === 'valid' && (
             <>
-              <div className="op-title">Creá tu contraseña</div>
+              <div className="op-title">{isReset ? 'Elegí una contraseña nueva' : 'Creá tu contraseña'}</div>
               <div className="op-sub">{nombre ? `Hola, ${nombre}` : 'Bienvenido a OpaBiz Connect'}</div>
               {email && (
                 <div className="op-username">
@@ -100,7 +113,7 @@ export default function OpabizInvitePage() {
               )}
               <form onSubmit={handleSubmit}>
                 <div className="op-field">
-                  <label>Contraseña</label>
+                  <label>{isReset ? 'Contraseña nueva' : 'Contraseña'} (mínimo 8 caracteres)</label>
                   <input type="password" autoComplete="new-password" value={password} onChange={e => setPassword(e.target.value)} required />
                 </div>
                 <div className="op-field">
@@ -108,7 +121,7 @@ export default function OpabizInvitePage() {
                   <input type="password" autoComplete="new-password" value={confirm} onChange={e => setConfirm(e.target.value)} required />
                 </div>
                 <button type="submit" className="op-btn" disabled={loading}>
-                  {loading ? 'Guardando…' : 'Crear contraseña y entrar'}
+                  {loading ? 'Guardando…' : isReset ? 'Guardar contraseña y entrar' : 'Crear contraseña y entrar'}
                 </button>
                 {error && <p className="op-error">{error}</p>}
               </form>

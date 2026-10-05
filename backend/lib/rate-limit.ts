@@ -227,3 +227,28 @@ export async function checkChangePasswordRateLimit(ip: string): Promise<RateLimi
   })
   return check(limiter, ip, 5)
 }
+
+// ── Recuperación de contraseña empleado OPABIZ: 3 requests / hora / IP ───────
+// Mismo criterio que checkAuthRecoverRateLimit: un empleado lo pide muy de vez
+// en cuando, 3/h frena a quien quiera spamear el inbox de un empleado.
+export async function checkOpabizRecoverRateLimit(ip: string): Promise<RateLimitResult> {
+  const limiter = getLimiter({
+    cacheKey: 'opabiz-recover',
+    prefix: 'rl:opabiz-recover',
+    limit: 3,
+    window: '1 h',
+  })
+  return check(limiter, ip, 3)
+}
+
+// ── Cambio de contraseña empleado OPABIZ: 5 intentos / 15 min / IP ───────────
+// Protege la verificación de la contraseña actual contra fuerza bruta.
+export async function checkOpabizChangePasswordRateLimit(ip: string): Promise<RateLimitResult> {
+  const limiter = getLimiter({
+    cacheKey: 'opabiz-change-password',
+    prefix: 'rl:opabiz-change-password',
+    limit: 5,
+    window: '15 m',
+  })
+  return check(limiter, ip, 5)
+}
