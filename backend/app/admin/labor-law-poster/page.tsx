@@ -27,8 +27,8 @@ export default function LaborLawPosterAdminPage() {
         .card-sub{font-size:.75rem;color:#94A3B8;margin-top:2px}
         .btn{padding:8px 16px;border-radius:8px;font-size:.8rem;font-weight:700;border:none;cursor:pointer;font-family:inherit;transition:all .2s;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
         .btn:disabled{opacity:.5;cursor:not-allowed}
-        .btn-primary{background:#2563EB;color:#fff}
-        .btn-primary:hover:not(:disabled){background:#1d4ed8}
+        .btn-primary{background:#fff;color:#2563EB;border:1.5px solid #2563EB}
+        .btn-primary:hover:not(:disabled){background:#F7FAFF}
         .btn-ghost{background:#F1F5F9;color:#475569;border:1px solid #E2E8F0}
         .btn-ghost:hover:not(:disabled){background:#E2E8F0}
         .btn-sm{padding:5px 11px;font-size:.72rem}

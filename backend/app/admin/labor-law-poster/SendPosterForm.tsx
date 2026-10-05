@@ -36,14 +36,14 @@ export default function SendPosterForm({ brand, lang }: { brand: 'opabiz' | 'fbf
         onChange={e => setEmail(e.target.value)}
         onKeyDown={e => { if (e.key === 'Enter') send() }}
         placeholder="email@ejemplo.com"
-        style={{ flex: '1 1 200px', minWidth: 180, padding: '8px 12px', border: '1.5px solid #E2E8F0', borderRadius: 8, fontSize: '.82rem', fontFamily: 'inherit', color: '#1e293b' }}
+        style={{ flex: '0 1 320px', width: '100%', maxWidth: 320, minWidth: 0, padding: '8px 12px', border: '1.5px solid #E2E8F0', borderRadius: 8, fontSize: '.82rem', fontFamily: 'inherit', color: '#1e293b' }}
       />
       <button
         className="btn btn-primary btn-sm"
         onClick={send}
         disabled={status === 'sending' || !email.trim()}
       >
-        {status === 'sending' ? 'Enviando...' : status === 'sent' ? 'Enviado ✓' : 'Enviar'}
+        {status === 'sending' ? 'Enviando...' : status === 'sent' ? 'Enviado' : 'Enviar'}
       </button>
       {status === 'error' && (
         <span style={{ fontSize: '.75rem', color: '#dc2626', width: '100%' }}>Error: {errorMsg}</span>
