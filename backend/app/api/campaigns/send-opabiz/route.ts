@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getResend } from '@/lib/resend-client'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { verifyAdminToken } from '@/lib/session'
-import { FROM_OPABIZ_MARKETING, REPLY_TO, buildListUnsubscribeHeaders } from '@/lib/email-constants'
+import { FROM_COLD_OUTREACH_OPABIZ, REPLY_TO_COLD_OUTREACH_OPABIZ, buildListUnsubscribeHeaders } from '@/lib/email-constants'
 import { hasReceivedGuide, recordGuideSent, getGuideAttachments, buildGuideBonusHtml, type GuideKey } from '@/lib/guides'
 import { buildOpabizComplianceEmail as buildEmail, opabizTrackUrl, OPABIZ_CAMPAIGN_BASE_URL } from '@/lib/campaign-email-opabiz'
 import { isSuppressed } from '@/lib/email-suppression'
@@ -113,12 +113,12 @@ export async function POST(req: NextRequest) {
         // one-click no sigue redirecciones.
         const oneClickUrl = `${OPABIZ_CAMPAIGN_BASE_URL}/api/unsubscribe/one-click?email=${encodeURIComponent(company.email)}`
 
-        // Remitente de OpaBiz (marketing@opabiz.com), no el de mybiz: las
-        // marcas van separadas. Ojo: es correo frío desde el dominio de
-        // OpaBiz; si se configura un dominio dedicado a correo frío, cambiar acá.
+        // Subdominio dedicado a correo frío de OpaBiz (notices.opabiz.com, ver
+        // FROM_COLD_OUTREACH_OPABIZ en lib/email-constants.ts), mismo esquema
+        // que notices.mybusinessformation.com en la carta de mybiz.
         await getResend().emails.send({
-          from:    FROM_OPABIZ_MARKETING,
-          replyTo: REPLY_TO,
+          from:    FROM_COLD_OUTREACH_OPABIZ,
+          replyTo: REPLY_TO_COLD_OUTREACH_OPABIZ,
           to:      company.email,
           subject,
           headers: buildListUnsubscribeHeaders(oneClickUrl),

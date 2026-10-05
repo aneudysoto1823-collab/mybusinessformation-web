@@ -68,6 +68,14 @@ export const FROM_FBFC = `Florida Business Formation Center <${FROM_TRANSACTIONA
 export const FROM_COLD_OUTREACH = process.env.RESEND_FROM_COLD_OUTREACH || FROM_FBFC
 export const REPLY_TO_COLD_OUTREACH = process.env.RESEND_REPLY_TO_COLD_OUTREACH || REPLY_TO_FBFC
 
+// Lo mismo para la carta de OpaBiz (2026-10-05): su propio subdominio de
+// correo frío (notices.opabiz.com), separado de opabiz.com, que manda las
+// confirmaciones de pago. Hasta que se cargue RESEND_FROM_COLD_OUTREACH_OPABIZ
+// en Vercel, cae a marketing@opabiz.com. Reply-To: info@opabiz.com salvo que
+// se configure otro.
+export const FROM_COLD_OUTREACH_OPABIZ = process.env.RESEND_FROM_COLD_OUTREACH_OPABIZ || FROM_OPABIZ_MARKETING
+export const REPLY_TO_COLD_OUTREACH_OPABIZ = process.env.RESEND_REPLY_TO_COLD_OUTREACH_OPABIZ || REPLY_TO
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Branding por marca para el HTML de los emails — un solo lugar para el
 // header (logo+nombre), el pie de página, el link "Track My Order" y el
