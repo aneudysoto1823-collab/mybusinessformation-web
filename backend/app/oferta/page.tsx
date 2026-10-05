@@ -1113,6 +1113,24 @@ body { overflow-x: clip; }
     transition: color .2s;
   }
   .disclosure-links a:hover { color: #2563EB; }
+
+  /* ── Encabezado blanco de OpaBiz (2026-10-05) ──
+     Igual que el resto de opabiz.com (home y /servicios), en vez de la
+     franja navy de mybusinessformation.com: quien toca "Servicios" sigue
+     viendo el mismo sitio. Va al final para pisar los estilos de arriba. */
+  .nb-header { background: rgba(255,255,255,.97); border-bottom: 1px solid #E2E8F0; box-shadow: none; }
+  .nb-logo-text .l1 { color: #1C2E44; font-size: 1.3rem; }
+  .nb-logo-text .l1 span { color: #2563EB; }
+  .nb-logo-mark { background: linear-gradient(135deg, #1C2E44, #2563EB); }
+  .nb-services-link { color: #1C2E44; border-color: #CBD5E1; }
+  .nb-services-link:hover { color: #2563EB; border-color: #2563EB; }
+  .nb-hamburger span { background: #1C2E44; }
+  .nb-lang { background: #F1F5F9; }
+  .nb-lang button.active { background: #1C2E44; color: #fff; }
+  .nb-lang button:not(.active) { color: #64748B; }
+  @media (max-width: 600px) {
+    .nb-header-right { background: #fff; border-bottom: 1px solid #E2E8F0; }
+  }
 `
 
 function OfertaContent({ defaultLang = 'en' }: { defaultLang?: 'en' | 'es' }) {
