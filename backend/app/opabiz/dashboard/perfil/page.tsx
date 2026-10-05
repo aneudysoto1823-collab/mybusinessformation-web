@@ -3,13 +3,43 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ConnectHeader, Avatar, NIVEL_LABEL, CONNECT_BASE_CSS, type Me } from '../../_components/ConnectShell'
+import { ConnectHeader, Avatar, NIVEL_LABELS, CONNECT_BASE_CSS, useConnectLang } from '../../_components/ConnectShell'
+import type { Me } from '../../_components/ConnectShell'
 
-const IDIOMAS: { code: string; label: string }[] = [
-  { code: 'es', label: 'Español' },
-  { code: 'en', label: 'Inglés' },
-  { code: 'pt', label: 'Portugués' },
-]
+const IDIOMA_CODES = ['es', 'en', 'pt'] as const
+
+const T = {
+  es: {
+    idiomas: { es: 'Español', en: 'Inglés', pt: 'Portugués' } as Record<string, string>,
+    errGuardar: 'No se pudieron guardar los cambios.', guardado: 'Cambios guardados.', errConexion: 'Error de conexión. Intentá de nuevo.',
+    errFoto: 'No se pudo subir la foto.', pwdCorta: 'La contraseña nueva debe tener al menos 8 caracteres.', pwdNoCoincide: 'Las contraseñas nuevas no coinciden.',
+    errPwd: 'No se pudo cambiar la contraseña.', pwdOk: 'Contraseña actualizada. Usala la próxima vez que ingreses.',
+    volver: 'Volver al panel', titulo: 'Mi perfil', sub: 'Mantené tus datos al día: así te contactamos y te asignamos órdenes en tu zona e idioma.',
+    cargando: 'Cargando…', errCargar: 'No se pudo cargar tu perfil.',
+    warn: 'La foto, la dirección y los idiomas todavía no se pueden guardar: falta correr la migración de perfil en la base de datos. Avisale al administrador.',
+    nivel: 'Nivel', puntaje: 'Puntaje', subiendo: 'Subiendo…', cambiarFoto: 'Cambiar foto', subirFoto: 'Subir foto',
+    datos: 'Datos personales', datosSub: 'Esta información la ve solo el equipo de OpaBiz.', nombre: 'Nombre completo', telefono: 'Teléfono', email: 'Email',
+    emailHelp: 'Es tu usuario para ingresar y donde te llegan los avisos. Para cambiarlo, pedíselo al administrador.',
+    direccion: 'Dirección', calle: 'Calle y número', ciudad: 'Ciudad', estado: 'Estado', zip: 'Código postal', idiomasTitulo: 'Idiomas que hablás',
+    guardando: 'Guardando…', guardar: 'Guardar cambios', contrasena: 'Contraseña', contrasenaSub: 'Por seguridad, te pedimos la contraseña actual.',
+    actual: 'Contraseña actual', nueva: 'Contraseña nueva', minimo: 'Mínimo 8 caracteres.', confirmar: 'Confirmar contraseña nueva', cambiar: 'Cambiar contraseña',
+  },
+  en: {
+    idiomas: { es: 'Spanish', en: 'English', pt: 'Portuguese' } as Record<string, string>,
+    errGuardar: 'Could not save your changes.', guardado: 'Changes saved.', errConexion: 'Connection error. Please try again.',
+    errFoto: 'Could not upload the photo.', pwdCorta: 'The new password must be at least 8 characters.', pwdNoCoincide: 'The new passwords do not match.',
+    errPwd: 'Could not change the password.', pwdOk: 'Password updated. Use it the next time you sign in.',
+    volver: 'Back to dashboard', titulo: 'My profile', sub: 'Keep your details up to date so we can reach you and assign orders in your area and language.',
+    cargando: 'Loading…', errCargar: 'Could not load your profile.',
+    warn: 'Photo, address and languages cannot be saved yet: the profile database migration has not been run. Let the administrator know.',
+    nivel: 'Level', puntaje: 'Score', subiendo: 'Uploading…', cambiarFoto: 'Change photo', subirFoto: 'Upload photo',
+    datos: 'Personal details', datosSub: 'Only the OpaBiz team can see this information.', nombre: 'Full name', telefono: 'Phone', email: 'Email',
+    emailHelp: 'This is your sign-in username and where notifications are sent. To change it, ask the administrator.',
+    direccion: 'Address', calle: 'Street address', ciudad: 'City', estado: 'State', zip: 'ZIP code', idiomasTitulo: 'Languages you speak',
+    guardando: 'Saving…', guardar: 'Save changes', contrasena: 'Password', contrasenaSub: 'For your security, we ask for your current password.',
+    actual: 'Current password', nueva: 'New password', minimo: 'At least 8 characters.', confirmar: 'Confirm new password', cambiar: 'Change password',
+  },
+}
 
 type Msg = { ok: boolean; msg: string } | null
 
@@ -29,6 +59,8 @@ async function resizeImage(file: File): Promise<Blob> {
 
 export default function OpabizPerfilPage() {
   const router = useRouter()
+  const [lang] = useConnectLang()
+  const t = T[lang]
   const [me, setMe] = useState<Me | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -96,14 +128,14 @@ export default function OpabizPerfilPage() {
         }),
       })
       const data = await res.json().catch(() => ({}))
-      if (!res.ok) { setSaveMsg({ ok: false, msg: data.error ?? 'No se pudieron guardar los cambios.' }); return }
+      if (!res.ok) { setSaveMsg({ ok: false, msg: data.error ?? t.errGuardar }); return }
       setMe(prev => prev && {
         ...prev, nombre: nombre.trim(), telefono: telefono.trim(),
         perfil: { ...prev.perfil, direccionCalle: calle, direccionCiudad: ciudad, direccionEstado: estado.toUpperCase(), direccionZip: zip, idiomas },
       })
-      setSaveMsg({ ok: true, msg: 'Cambios guardados.' })
+      setSaveMsg({ ok: true, msg: t.guardado })
     } catch {
-      setSaveMsg({ ok: false, msg: 'Error de conexión. Intentá de nuevo.' })
+      setSaveMsg({ ok: false, msg: t.errConexion })
     } finally {
       setSaving(false)
     }
@@ -121,10 +153,10 @@ export default function OpabizPerfilPage() {
       form.append('file', new File([blob], 'foto.jpg', { type: 'image/jpeg' }))
       const res = await fetch('/api/opabiz/me/profile/photo', { method: 'POST', body: form })
       const data = await res.json().catch(() => ({}))
-      if (!res.ok) { setPhotoMsg({ ok: false, msg: data.error ?? 'No se pudo subir la foto.' }); return }
+      if (!res.ok) { setPhotoMsg({ ok: false, msg: data.error ?? t.errFoto }); return }
       setMe(prev => prev && { ...prev, perfil: { ...prev.perfil, fotoUrl: data.fotoUrl } })
     } catch (err) {
-      setPhotoMsg({ ok: false, msg: err instanceof Error ? err.message : 'No se pudo subir la foto.' })
+      setPhotoMsg({ ok: false, msg: err instanceof Error ? err.message : t.errFoto })
     } finally {
       setUploading(false)
     }
@@ -133,8 +165,8 @@ export default function OpabizPerfilPage() {
   async function cambiarPassword(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setPwdMsg(null)
-    if (newPwd.length < 8) { setPwdMsg({ ok: false, msg: 'La contraseña nueva debe tener al menos 8 caracteres.' }); return }
-    if (newPwd !== confirmPwd) { setPwdMsg({ ok: false, msg: 'Las contraseñas nuevas no coinciden.' }); return }
+    if (newPwd.length < 8) { setPwdMsg({ ok: false, msg: t.pwdCorta }); return }
+    if (newPwd !== confirmPwd) { setPwdMsg({ ok: false, msg: t.pwdNoCoincide }); return }
     setSavingPwd(true)
     try {
       const res = await fetch('/api/opabiz/me/change-password', {
@@ -143,11 +175,11 @@ export default function OpabizPerfilPage() {
         body: JSON.stringify({ currentPassword: currentPwd, newPassword: newPwd }),
       })
       const data = await res.json().catch(() => ({}))
-      if (!res.ok) { setPwdMsg({ ok: false, msg: data.error ?? 'No se pudo cambiar la contraseña.' }); return }
+      if (!res.ok) { setPwdMsg({ ok: false, msg: data.error ?? t.errPwd }); return }
       setCurrentPwd(''); setNewPwd(''); setConfirmPwd('')
-      setPwdMsg({ ok: true, msg: 'Contraseña actualizada. Usala la próxima vez que ingreses.' })
+      setPwdMsg({ ok: true, msg: t.pwdOk })
     } catch {
-      setPwdMsg({ ok: false, msg: 'Error de conexión. Intentá de nuevo.' })
+      setPwdMsg({ ok: false, msg: t.errConexion })
     } finally {
       setSavingPwd(false)
     }
@@ -194,29 +226,29 @@ export default function OpabizPerfilPage() {
       <div className="oc-wrap pf-wrap">
         <Link href="/opabiz/dashboard" className="pf-back">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
-          Volver al panel
+          {t.volver}
         </Link>
-        <h1 className="pf-title">Mi perfil</h1>
-        <p className="pf-sub">Mantené tus datos al día: así te contactamos y te asignamos órdenes en tu zona e idioma.</p>
+        <h1 className="pf-title">{t.titulo}</h1>
+        <p className="pf-sub">{t.sub}</p>
 
         {loading ? (
-          <p className="oc-empty">Cargando…</p>
+          <p className="oc-empty">{t.cargando}</p>
         ) : !me ? (
-          <p className="oc-empty">No se pudo cargar tu perfil.</p>
+          <p className="oc-empty">{t.errCargar}</p>
         ) : (
           <div className="pf-stack">
             {!me.perfilDisponible && (
-              <div className="pf-warn">La foto, la dirección y los idiomas todavía no se pueden guardar: falta correr la migración de perfil en la base de datos. Avisale al administrador.</div>
+              <div className="pf-warn">{t.warn}</div>
             )}
 
             <div className="oc-card pf-photo">
               <Avatar nombre={me.nombre} fotoUrl={me.perfil.fotoUrl} size={96} />
               <div className="pf-photo-info">
                 <div className="pf-photo-name">{me.nombre}</div>
-                <div className="pf-photo-meta">Nivel {NIVEL_LABEL[me.nivel] ?? me.nivel}{me.tier ? ` · ${me.tier}` : ''} · Puntaje {me.puntajeActual}</div>
+                <div className="pf-photo-meta">{t.nivel} {NIVEL_LABELS[lang][me.nivel] ?? me.nivel}{me.tier ? ` · ${me.tier}` : ''} · {t.puntaje} {me.puntajeActual}</div>
                 <div className="pf-photo-actions">
                   <button type="button" className="oc-btn oc-btn-secondary" onClick={() => fileRef.current?.click()} disabled={uploading || !me.perfilDisponible}>
-                    {uploading ? 'Subiendo…' : me.perfil.fotoUrl ? 'Cambiar foto' : 'Subir foto'}
+                    {uploading ? t.subiendo : me.perfil.fotoUrl ? t.cambiarFoto : t.subirFoto}
                   </button>
                   <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" hidden onChange={subirFoto} />
                 </div>
@@ -225,82 +257,82 @@ export default function OpabizPerfilPage() {
             </div>
 
             <form className="oc-card" onSubmit={guardarPerfil}>
-              <div className="oc-card-title">Datos personales</div>
-              <div className="oc-card-sub">Esta información la ve solo el equipo de OpaBiz.</div>
+              <div className="oc-card-title">{t.datos}</div>
+              <div className="oc-card-sub">{t.datosSub}</div>
 
               <div className="pf-grid">
                 <div className="pf-field">
-                  <label htmlFor="pf-nombre">Nombre completo</label>
+                  <label htmlFor="pf-nombre">{t.nombre}</label>
                   <input id="pf-nombre" value={nombre} onChange={e => setNombre(e.target.value)} required autoComplete="name" />
                 </div>
                 <div className="pf-field">
-                  <label htmlFor="pf-tel">Teléfono</label>
+                  <label htmlFor="pf-tel">{t.telefono}</label>
                   <input id="pf-tel" type="tel" value={telefono} onChange={e => setTelefono(e.target.value)} autoComplete="tel" placeholder="(305) 555-0123" />
                 </div>
                 <div className="pf-field pf-full">
-                  <label htmlFor="pf-email">Email</label>
+                  <label htmlFor="pf-email">{t.email}</label>
                   <input id="pf-email" value={me.email} readOnly />
-                  <div className="pf-help">Es tu usuario para ingresar y donde te llegan los avisos. Para cambiarlo, pedíselo al administrador.</div>
+                  <div className="pf-help">{t.emailHelp}</div>
                 </div>
               </div>
 
-              <div className="pf-section">Dirección</div>
+              <div className="pf-section">{t.direccion}</div>
               <div className="pf-grid-addr">
                 <div className="pf-field pf-full">
-                  <label htmlFor="pf-calle">Calle y número</label>
+                  <label htmlFor="pf-calle">{t.calle}</label>
                   <input id="pf-calle" value={calle} onChange={e => setCalle(e.target.value)} autoComplete="address-line1" disabled={!me.perfilDisponible} />
                 </div>
                 <div className="pf-field">
-                  <label htmlFor="pf-ciudad">Ciudad</label>
+                  <label htmlFor="pf-ciudad">{t.ciudad}</label>
                   <input id="pf-ciudad" value={ciudad} onChange={e => setCiudad(e.target.value)} autoComplete="address-level2" disabled={!me.perfilDisponible} />
                 </div>
                 <div className="pf-field">
-                  <label htmlFor="pf-estado">Estado</label>
+                  <label htmlFor="pf-estado">{t.estado}</label>
                   <input id="pf-estado" value={estado} onChange={e => setEstado(e.target.value.toUpperCase().slice(0, 2))} autoComplete="address-level1" placeholder="FL" disabled={!me.perfilDisponible} />
                 </div>
                 <div className="pf-field">
-                  <label htmlFor="pf-zip">Código postal</label>
+                  <label htmlFor="pf-zip">{t.zip}</label>
                   <input id="pf-zip" value={zip} onChange={e => setZip(e.target.value.replace(/[^\d-]/g, '').slice(0, 10))} autoComplete="postal-code" inputMode="numeric" disabled={!me.perfilDisponible} />
                 </div>
               </div>
 
-              <div className="pf-section">Idiomas que hablás</div>
+              <div className="pf-section">{t.idiomasTitulo}</div>
               <div className="pf-chips">
-                {IDIOMAS.map(i => (
-                  <button key={i.code} type="button" className={`pf-chip ${idiomas.includes(i.code) ? 'on' : ''}`}
-                    aria-pressed={idiomas.includes(i.code)} onClick={() => toggleIdioma(i.code)} disabled={!me.perfilDisponible}>
-                    {i.label}
+                {IDIOMA_CODES.map(code => (
+                  <button key={code} type="button" className={`pf-chip ${idiomas.includes(code) ? 'on' : ''}`}
+                    aria-pressed={idiomas.includes(code)} onClick={() => toggleIdioma(code)} disabled={!me.perfilDisponible}>
+                    {t.idiomas[code]}
                   </button>
                 ))}
               </div>
 
               <div className="pf-footer">
                 {saveMsg && <div className={saveMsg.ok ? 'oc-msg-ok' : 'oc-msg-err'}>{saveMsg.msg}</div>}
-                <button type="submit" className="oc-btn oc-btn-primary" disabled={saving}>{saving ? 'Guardando…' : 'Guardar cambios'}</button>
+                <button type="submit" className="oc-btn oc-btn-primary" disabled={saving}>{saving ? t.guardando : t.guardar}</button>
               </div>
             </form>
 
             <form className="oc-card" id="seguridad" onSubmit={cambiarPassword}>
-              <div className="oc-card-title">Contraseña</div>
-              <div className="oc-card-sub">Por seguridad, te pedimos la contraseña actual.</div>
+              <div className="oc-card-title">{t.contrasena}</div>
+              <div className="oc-card-sub">{t.contrasenaSub}</div>
               <div className="pf-grid">
                 <div className="pf-field pf-full">
-                  <label htmlFor="pf-cur">Contraseña actual</label>
+                  <label htmlFor="pf-cur">{t.actual}</label>
                   <input id="pf-cur" type="password" autoComplete="current-password" value={currentPwd} onChange={e => setCurrentPwd(e.target.value)} required />
                 </div>
                 <div className="pf-field">
-                  <label htmlFor="pf-new">Contraseña nueva</label>
+                  <label htmlFor="pf-new">{t.nueva}</label>
                   <input id="pf-new" type="password" autoComplete="new-password" value={newPwd} onChange={e => setNewPwd(e.target.value)} required />
-                  <div className="pf-help">Mínimo 8 caracteres.</div>
+                  <div className="pf-help">{t.minimo}</div>
                 </div>
                 <div className="pf-field">
-                  <label htmlFor="pf-confirm">Confirmar contraseña nueva</label>
+                  <label htmlFor="pf-confirm">{t.confirmar}</label>
                   <input id="pf-confirm" type="password" autoComplete="new-password" value={confirmPwd} onChange={e => setConfirmPwd(e.target.value)} required />
                 </div>
               </div>
               <div className="pf-footer">
                 {pwdMsg && <div className={pwdMsg.ok ? 'oc-msg-ok' : 'oc-msg-err'}>{pwdMsg.msg}</div>}
-                <button type="submit" className="oc-btn oc-btn-primary" disabled={savingPwd}>{savingPwd ? 'Guardando…' : 'Cambiar contraseña'}</button>
+                <button type="submit" className="oc-btn oc-btn-primary" disabled={savingPwd}>{savingPwd ? t.guardando : t.cambiar}</button>
               </div>
             </form>
           </div>

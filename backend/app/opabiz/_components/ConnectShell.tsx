@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useSyncExternalStore } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
@@ -29,11 +29,54 @@ export type Me = {
   comisiones: { pendiente: number; pagado: number } | null
 }
 
-export const NIVEL_LABEL: Record<string, string> = {
-  basico: 'Básico',
-  intermedio: 'Intermedio',
-  avanzado: 'Avanzado',
-  administrador: 'Administrador',
+export type Lang = 'es' | 'en'
+
+// Idioma del panel del agente: se guarda en el navegador y cualquier
+// componente que lo use se actualiza al instante cuando cambia (evento propio,
+// porque 'storage' solo dispara en OTRAS pestañas). Español por defecto.
+const LANG_KEY = 'opabiz_connect_lang'
+const LANG_EVENT = 'opabiz-connect-lang'
+
+function readLang(): Lang {
+  try { return localStorage.getItem(LANG_KEY) === 'en' ? 'en' : 'es' } catch { return 'es' }
+}
+function subscribeLang(cb: () => void) {
+  window.addEventListener(LANG_EVENT, cb)
+  window.addEventListener('storage', cb)
+  return () => { window.removeEventListener(LANG_EVENT, cb); window.removeEventListener('storage', cb) }
+}
+
+export function useConnectLang(): [Lang, (l: Lang) => void] {
+  const lang = useSyncExternalStore(subscribeLang, readLang, () => 'es' as Lang)
+  const setLang = (l: Lang) => {
+    try { localStorage.setItem(LANG_KEY, l) } catch {}
+    window.dispatchEvent(new Event(LANG_EVENT))
+  }
+  return [lang, setLang]
+}
+
+export function locale(lang: Lang): string {
+  return lang === 'en' ? 'en-US' : 'es-US'
+}
+
+export const NIVEL_LABELS: Record<Lang, Record<string, string>> = {
+  es: { basico: 'Básico', intermedio: 'Intermedio', avanzado: 'Avanzado', administrador: 'Administrador' },
+  en: { basico: 'Basic', intermedio: 'Intermediate', avanzado: 'Advanced', administrador: 'Administrator' },
+}
+
+const HEADER_T = {
+  es: { panel: 'Panel', perfil: 'Mi perfil', password: 'Cambiar contraseña', salir: 'Salir', idioma: 'Idioma' },
+  en: { panel: 'Dashboard', perfil: 'My profile', password: 'Change password', salir: 'Sign out', idioma: 'Language' },
+}
+
+export function LangToggle() {
+  const [lang, setLang] = useConnectLang()
+  return (
+    <div className="oc-lang" role="group" aria-label={HEADER_T[lang].idioma}>
+      <button type="button" className={lang === 'en' ? 'on' : ''} aria-pressed={lang === 'en'} onClick={() => setLang('en')}>EN</button>
+      <button type="button" className={lang === 'es' ? 'on' : ''} aria-pressed={lang === 'es'} onClick={() => setLang('es')}>ES</button>
+    </div>
+  )
 }
 
 export function iniciales(nombre: string): string {
@@ -61,6 +104,8 @@ export function useConnectMe(): Me | null {
 
 export function ConnectHeader({ me }: { me: Me | null }) {
   const router = useRouter()
+  const [lang] = useConnectLang()
+  const t = HEADER_T[lang]
   const [open, setOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
@@ -84,6 +129,8 @@ export function ConnectHeader({ me }: { me: Me | null }) {
         <span className="oc-brand-mark">OB</span>
         <span className="oc-brand-name">OpaBiz <span>Connect</span></span>
       </Link>
+      <div className="oc-header-right">
+      <LangToggle />
       {me && (
         <div className="oc-menu" ref={menuRef}>
           <button type="button" className="oc-menu-btn" onClick={() => setOpen(v => !v)} aria-haspopup="menu" aria-expanded={open}>
@@ -97,14 +144,15 @@ export function ConnectHeader({ me }: { me: Me | null }) {
                 <div className="oc-menu-head-name">{me.nombre}</div>
                 <div className="oc-menu-head-email">{me.email}</div>
               </div>
-              <Link href="/opabiz/dashboard" className="oc-menu-item" role="menuitem" onClick={() => setOpen(false)}>Panel</Link>
-              <Link href="/opabiz/dashboard/perfil" className="oc-menu-item" role="menuitem" onClick={() => setOpen(false)}>Mi perfil</Link>
-              <Link href="/opabiz/dashboard/perfil#seguridad" className="oc-menu-item" role="menuitem" onClick={() => setOpen(false)}>Cambiar contraseña</Link>
-              <button type="button" className="oc-menu-item oc-menu-logout" role="menuitem" onClick={logout}>Salir</button>
+              <Link href="/opabiz/dashboard" className="oc-menu-item" role="menuitem" onClick={() => setOpen(false)}>{t.panel}</Link>
+              <Link href="/opabiz/dashboard/perfil" className="oc-menu-item" role="menuitem" onClick={() => setOpen(false)}>{t.perfil}</Link>
+              <Link href="/opabiz/dashboard/perfil#seguridad" className="oc-menu-item" role="menuitem" onClick={() => setOpen(false)}>{t.password}</Link>
+              <button type="button" className="oc-menu-item oc-menu-logout" role="menuitem" onClick={logout}>{t.salir}</button>
             </div>
           )}
         </div>
       )}
+      </div>
     </header>
   )
 }
@@ -117,6 +165,10 @@ export const CONNECT_BASE_CSS = `
   .oc-brand-mark{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#2563EB,#60A5FA);display:flex;align-items:center;justify-content:center;font-family:var(--font-serif);font-weight:700;color:#fff;font-size:13px}
   .oc-brand-name{color:#fff;font-weight:700;font-size:1.02rem;font-family:var(--font-serif)}
   .oc-brand-name span{color:#60A5FA}
+  .oc-header-right{display:flex;align-items:center;gap:12px}
+  .oc-lang{display:flex;border:1px solid rgba(255,255,255,.22);border-radius:20px;overflow:hidden}
+  .oc-lang button{background:transparent;border:none;color:rgba(255,255,255,.65);font-size:.72rem;font-weight:700;padding:6px 10px;cursor:pointer;font-family:inherit;letter-spacing:.3px}
+  .oc-lang button.on{background:rgba(255,255,255,.14);color:#fff}
   .oc-menu{position:relative}
   .oc-menu-btn{display:flex;align-items:center;gap:8px;background:transparent;border:1px solid rgba(255,255,255,.18);border-radius:24px;padding:3px 10px 3px 3px;color:#fff;cursor:pointer;font-family:inherit;font-size:.85rem;font-weight:600}
   .oc-menu-btn:hover{background:rgba(255,255,255,.06)}

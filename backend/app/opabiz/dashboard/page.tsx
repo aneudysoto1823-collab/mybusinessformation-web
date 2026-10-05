@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ConnectHeader, Avatar, NIVEL_LABEL, CONNECT_BASE_CSS, type Me } from '../_components/ConnectShell'
+import { ConnectHeader, Avatar, NIVEL_LABELS, CONNECT_BASE_CSS, useConnectLang, locale, type Me, type Lang } from '../_components/ConnectShell'
 
 type Orden = {
   id: string
@@ -20,11 +20,54 @@ type Orden = {
 
 type Tab = 'nuevas' | 'progreso' | 'completadas'
 
-const ESTADO_META: Record<string, { label: string; color: string; bg: string }> = {
-  asignada:    { label: 'Por aceptar',  color: '#B45309', bg: '#FFFBEB' },
-  en_progreso: { label: 'En progreso',  color: '#1D4ED8', bg: '#EFF6FF' },
-  completada:  { label: 'Completada',   color: '#047857', bg: '#ECFDF5' },
-  pendiente:   { label: 'Sin asignar',  color: '#64748B', bg: '#F1F5F9' },
+const ESTADO_COLOR: Record<string, { color: string; bg: string }> = {
+  asignada:    { color: '#B45309', bg: '#FFFBEB' },
+  en_progreso: { color: '#1D4ED8', bg: '#EFF6FF' },
+  completada:  { color: '#047857', bg: '#ECFDF5' },
+  pendiente:   { color: '#64748B', bg: '#F1F5F9' },
+}
+
+const T = {
+  es: {
+    estado: { asignada: 'Por aceptar', en_progreso: 'En progreso', completada: 'Completada', pendiente: 'Sin asignar' } as Record<string, string>,
+    urgente: 'URGENTE', cliente: 'Cliente', telefono: 'Teléfono', email: 'Email', cita: 'Cita', asignada: 'Asignada',
+    aceptar: 'Aceptar', aceptando: 'Aceptando…', rechazar: 'Rechazar', rechazando: 'Rechazando…', confirmarRechazo: 'Confirmar rechazo', cancelar: 'Cancelar',
+    motivoLabel: '¿Por qué rechazás esta orden?', motivoPh: 'Ej.: no tengo disponibilidad ese día, queda fuera de mi zona…',
+    errAceptar: 'No se pudo aceptar la orden.', errRechazar: 'No se pudo rechazar la orden.',
+    pushNoPermiso: 'El navegador no dio permiso para notificaciones. Podés activarlo en la configuración del navegador.',
+    pushSinClave: 'Falta configurar la clave de notificaciones en el servidor (NEXT_PUBLIC_VAPID_PUBLIC_KEY).',
+    pushNoGuardo: 'No se pudo guardar la suscripción:', pushNoActivo: 'No se pudieron activar las notificaciones:', pushNoDesactivo: 'No se pudieron desactivar las notificaciones:',
+    pushOn: 'Te avisamos al instante cuando te asignen una orden.', pushDenied: 'Bloqueadas en el navegador. Activalas desde su configuración.',
+    pushUnsupported: 'No disponibles en este navegador. En iPhone, agregá la app a la pantalla de inicio.', pushOff: 'Activalas para enterarte al instante de una orden nueva.',
+    tabs: { nuevas: 'Por aceptar', progreso: 'En progreso', completadas: 'Completadas' },
+    vacio: { nuevas: 'No tenés órdenes por aceptar. Cuando te asignen una, aparece acá.', progreso: 'No tenés órdenes en curso.', completadas: 'Todavía no completaste ninguna orden.' },
+    cargando: 'Cargando…', nivel: 'Nivel', puntaje: 'Puntaje', para: 'para', editarPerfil: 'Editar mi perfil',
+    disponible: 'Disponible', noDisponible: 'No disponible', dispHint: 'Podés recibir órdenes nuevas.', noDispHint: 'No se te asignan órdenes nuevas.',
+    disponibilidad: 'Disponibilidad', notificaciones: 'Notificaciones', notifAria: 'Notificaciones en este dispositivo',
+    crearOrden: 'Crear orden asistida', misSolicitudes: 'Mis solicitudes enviadas',
+    kpiPorAceptar: 'Por aceptar', kpiProgreso: 'En progreso', kpiMes: 'Completadas este mes', kpiComision: 'Comisión por cobrar', kpiTotal: 'Órdenes en total',
+    proximaCita: 'Próxima cita', completadaEl: 'Completada', citaEl: 'Cita', asignadaEl: 'Asignada',
+  },
+  en: {
+    estado: { asignada: 'To accept', en_progreso: 'In progress', completada: 'Completed', pendiente: 'Unassigned' } as Record<string, string>,
+    urgente: 'URGENT', cliente: 'Client', telefono: 'Phone', email: 'Email', cita: 'Appointment', asignada: 'Assigned',
+    aceptar: 'Accept', aceptando: 'Accepting…', rechazar: 'Decline', rechazando: 'Declining…', confirmarRechazo: 'Confirm decline', cancelar: 'Cancel',
+    motivoLabel: 'Why are you declining this order?', motivoPh: 'E.g.: I am not available that day, it is outside my area…',
+    errAceptar: 'Could not accept the order.', errRechazar: 'Could not decline the order.',
+    pushNoPermiso: 'The browser did not allow notifications. You can turn them on in your browser settings.',
+    pushSinClave: 'The notification key is not configured on the server (NEXT_PUBLIC_VAPID_PUBLIC_KEY).',
+    pushNoGuardo: 'Could not save the subscription:', pushNoActivo: 'Could not turn on notifications:', pushNoDesactivo: 'Could not turn off notifications:',
+    pushOn: 'We notify you right away when you get a new order.', pushDenied: 'Blocked in the browser. Turn them on in its settings.',
+    pushUnsupported: 'Not available in this browser. On iPhone, add the app to your home screen.', pushOff: 'Turn them on to hear about new orders right away.',
+    tabs: { nuevas: 'To accept', progreso: 'In progress', completadas: 'Completed' },
+    vacio: { nuevas: 'No orders waiting for you. When one is assigned, it shows up here.', progreso: 'No orders in progress.', completadas: 'You have not completed any orders yet.' },
+    cargando: 'Loading…', nivel: 'Level', puntaje: 'Score', para: 'to', editarPerfil: 'Edit my profile',
+    disponible: 'Available', noDisponible: 'Unavailable', dispHint: 'You can receive new orders.', noDispHint: 'No new orders are assigned to you.',
+    disponibilidad: 'Availability', notificaciones: 'Notifications', notifAria: 'Notifications on this device',
+    crearOrden: 'Create assisted order', misSolicitudes: 'My submitted requests',
+    kpiPorAceptar: 'To accept', kpiProgreso: 'In progress', kpiMes: 'Completed this month', kpiComision: 'Commission owed', kpiTotal: 'Total orders',
+    proximaCita: 'Next appointment', completadaEl: 'Completed', citaEl: 'Appointment', asignadaEl: 'Assigned',
+  },
 }
 
 function tabDe(estado: string): Tab {
@@ -38,9 +81,9 @@ function clienteDe(o: Orden) {
   return Array.isArray(o.usuarios) ? o.usuarios[0] ?? null : o.usuarios
 }
 
-function fmtFecha(iso: string | null): string {
+function fmtFecha(iso: string | null, lang: Lang): string {
   if (!iso) return ''
-  return new Date(iso).toLocaleString('es-US', { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })
+  return new Date(iso).toLocaleString(locale(lang), { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })
 }
 
 function fmtDinero(n: number): string {
@@ -74,7 +117,8 @@ const IconNote = () => (
 
 // Orden "Por aceptar" desplegada dentro del panel: datos completos del
 // cliente y Aceptar/Rechazar ahí mismo, sin ir a la página de detalle.
-function PendingOrderCard({ o, onDone }: { o: Orden; onDone: () => void }) {
+function PendingOrderCard({ o, onDone, lang }: { o: Orden; onDone: () => void; lang: Lang }) {
+  const t = T[lang]
   const cliente = clienteDe(o)
   const [acting, setActing] = useState(false)
   const [rejecting, setRejecting] = useState(false)
@@ -87,7 +131,7 @@ function PendingOrderCard({ o, onDone }: { o: Orden; onDone: () => void }) {
     setActing(false)
     if (res.ok) { onDone(); return }
     const d = await res.json().catch(() => ({}))
-    setError(d.error ?? 'No se pudo aceptar la orden.')
+    setError(d.error ?? t.errAceptar)
   }
 
   async function rechazar() {
@@ -100,7 +144,7 @@ function PendingOrderCard({ o, onDone }: { o: Orden; onDone: () => void }) {
     setActing(false)
     if (res.ok) { onDone(); return }
     const d = await res.json().catch(() => ({}))
-    setError(d.error ?? 'No se pudo rechazar la orden.')
+    setError(d.error ?? t.errRechazar)
   }
 
   return (
@@ -109,37 +153,37 @@ function PendingOrderCard({ o, onDone }: { o: Orden; onDone: () => void }) {
         <div className="db-pending-info">
           <div className="db-order-top">
             <span className="db-order-title">{o.tipo_servicio}</span>
-            {o.es_urgente && <span className="db-urgent">URGENTE</span>}
+            {o.es_urgente && <span className="db-urgent">{t.urgente}</span>}
           </div>
           <dl className="db-pending-grid">
-            {cliente && <><dt>Cliente</dt><dd>{cliente.nombre}</dd></>}
-            {cliente?.telefono && <><dt>Teléfono</dt><dd><a href={`tel:${cliente.telefono}`}>{cliente.telefono}</a></dd></>}
-            {cliente?.email && <><dt>Email</dt><dd><a href={`mailto:${cliente.email}`}>{cliente.email}</a></dd></>}
-            {o.fecha_hora_cita && <><dt>Cita</dt><dd>{fmtFecha(o.fecha_hora_cita)}</dd></>}
-            <dt>Asignada</dt><dd>{fmtFecha(o.fecha_asignacion) || '—'}</dd>
+            {cliente && <><dt>{t.cliente}</dt><dd>{cliente.nombre}</dd></>}
+            {cliente?.telefono && <><dt>{t.telefono}</dt><dd><a href={`tel:${cliente.telefono}`}>{cliente.telefono}</a></dd></>}
+            {cliente?.email && <><dt>{t.email}</dt><dd><a href={`mailto:${cliente.email}`}>{cliente.email}</a></dd></>}
+            {o.fecha_hora_cita && <><dt>{t.cita}</dt><dd>{fmtFecha(o.fecha_hora_cita, lang)}</dd></>}
+            <dt>{t.asignada}</dt><dd>{fmtFecha(o.fecha_asignacion, lang) || '—'}</dd>
           </dl>
           {o.notas && <div className="db-order-note"><IconNote />{o.notas}</div>}
         </div>
         {!rejecting && (
           <div className="db-pending-actions">
             <button type="button" className="db-act db-act-accept" onClick={aceptar} disabled={acting}>
-              {acting ? 'Aceptando…' : 'Aceptar'}
+              {acting ? t.aceptando : t.aceptar}
             </button>
             <button type="button" className="db-act db-act-reject" onClick={() => { setRejecting(true); setError('') }} disabled={acting}>
-              Rechazar
+              {t.rechazar}
             </button>
           </div>
         )}
       </div>
       {rejecting && (
         <div className="db-reject">
-          <label htmlFor={`motivo-${o.id}`}>¿Por qué rechazás esta orden?</label>
+          <label htmlFor={`motivo-${o.id}`}>{t.motivoLabel}</label>
           <textarea id={`motivo-${o.id}`} value={motivo} onChange={e => setMotivo(e.target.value)} maxLength={500}
-            placeholder="Ej.: no tengo disponibilidad ese día, queda fuera de mi zona…" />
+            placeholder={t.motivoPh} />
           <div className="db-reject-actions">
-            <button type="button" className="db-act db-act-cancel" onClick={() => { setRejecting(false); setMotivo('') }} disabled={acting}>Cancelar</button>
+            <button type="button" className="db-act db-act-cancel" onClick={() => { setRejecting(false); setMotivo('') }} disabled={acting}>{t.cancelar}</button>
             <button type="button" className="db-act db-act-reject" onClick={rechazar} disabled={acting || motivo.trim().length < 3}>
-              {acting ? 'Rechazando…' : 'Confirmar rechazo'}
+              {acting ? t.rechazando : t.confirmarRechazo}
             </button>
           </div>
         </div>
@@ -151,6 +195,8 @@ function PendingOrderCard({ o, onDone }: { o: Orden; onDone: () => void }) {
 
 export default function OpabizDashboardPage() {
   const router = useRouter()
+  const [lang] = useConnectLang()
+  const t = T[lang]
   const [me, setMe] = useState<Me | null>(null)
   const [ordenes, setOrdenes] = useState<Orden[]>([])
   const [loading, setLoading] = useState(true)
@@ -225,13 +271,13 @@ export default function OpabizDashboardPage() {
       const permiso = await Notification.requestPermission()
       if (permiso !== 'granted') {
         setPushState(permiso === 'denied' ? 'denied' : 'off')
-        setPushError('El navegador no dio permiso para notificaciones. Podés activarlo en la configuración del navegador.')
+        setPushError(t.pushNoPermiso)
         return
       }
 
       const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
       if (!vapidKey) {
-        setPushError('Falta configurar la clave de notificaciones en el servidor (NEXT_PUBLIC_VAPID_PUBLIC_KEY).')
+        setPushError(t.pushSinClave)
         return
       }
 
@@ -250,13 +296,13 @@ export default function OpabizDashboardPage() {
       if (!res.ok) {
         const data = await res.json().catch(() => ({}))
         await subscription.unsubscribe().catch(() => {})
-        setPushError(`No se pudo guardar la suscripción: ${data.error || res.status}`)
+        setPushError(`${t.pushNoGuardo} ${data.error || res.status}`)
         return
       }
       setPushState('on')
     } catch (err) {
       console.error('[opabiz] activarNotificaciones error:', err)
-      setPushError(`No se pudieron activar las notificaciones: ${err instanceof Error ? err.message : String(err)}`)
+      setPushError(`${t.pushNoActivo} ${err instanceof Error ? err.message : String(err)}`)
     } finally {
       setSubscribingPush(false)
     }
@@ -281,7 +327,7 @@ export default function OpabizDashboardPage() {
       setPushState('off')
     } catch (err) {
       console.error('[opabiz] desactivarNotificaciones error:', err)
-      setPushError(`No se pudieron desactivar las notificaciones: ${err instanceof Error ? err.message : String(err)}`)
+      setPushError(`${t.pushNoDesactivo} ${err instanceof Error ? err.message : String(err)}`)
     } finally {
       setSubscribingPush(false)
     }
@@ -325,10 +371,10 @@ export default function OpabizDashboardPage() {
 
   const disponible = me?.estadoDisponibilidad === 'disponible'
   const pushHint =
-    pushState === 'on' ? 'Te avisamos al instante cuando te asignen una orden.'
-    : pushState === 'denied' ? 'Bloqueadas en el navegador. Activalas desde su configuración.'
-    : pushState === 'unsupported' ? 'No disponibles en este navegador. En iPhone, agregá la app a la pantalla de inicio.'
-    : 'Activalas para enterarte al instante de una orden nueva.'
+    pushState === 'on' ? t.pushOn
+    : pushState === 'denied' ? t.pushDenied
+    : pushState === 'unsupported' ? t.pushUnsupported
+    : t.pushOff
 
   let progresoPct: number | null = null
   if (me?.siguienteTier) {
@@ -339,15 +385,11 @@ export default function OpabizDashboardPage() {
 
   const lista = stats.porTab[tab]
   const TABS: { key: Tab; label: string }[] = [
-    { key: 'nuevas', label: 'Por aceptar' },
-    { key: 'progreso', label: 'En progreso' },
-    { key: 'completadas', label: 'Completadas' },
+    { key: 'nuevas', label: t.tabs.nuevas },
+    { key: 'progreso', label: t.tabs.progreso },
+    { key: 'completadas', label: t.tabs.completadas },
   ]
-  const VACIO: Record<Tab, string> = {
-    nuevas: 'No tenés órdenes por aceptar. Cuando te asignen una, aparece acá.',
-    progreso: 'No tenés órdenes en curso.',
-    completadas: 'Todavía no completaste ninguna orden.',
-  }
+  const VACIO: Record<Tab, string> = t.vacio
 
   return (
     <>
@@ -445,7 +487,7 @@ export default function OpabizDashboardPage() {
 
       <div className="oc-wrap">
         {loading ? (
-          <p className="oc-empty">Cargando…</p>
+          <p className="oc-empty">{t.cargando}</p>
         ) : (
           <div className="db-grid">
             <aside className="db-side">
@@ -455,19 +497,19 @@ export default function OpabizDashboardPage() {
                   <div className="db-name">{me.nombre}</div>
                   <div className="db-email">{me.email}</div>
                   <div className="db-badges">
-                    <span className="db-badge">Nivel {NIVEL_LABEL[me.nivel] ?? me.nivel}</span>
+                    <span className="db-badge">{t.nivel} {NIVEL_LABELS[lang][me.nivel] ?? me.nivel}</span>
                     {me.tier && <span className="db-badge db-badge-tier">{me.tier}</span>}
                   </div>
                   <div className="db-progress">
                     <div className="db-progress-top">
-                      <span>Puntaje <strong>{me.puntajeActual}</strong></span>
-                      {me.siguienteTier && <span>{me.siguienteTier.desde - me.puntajeActual} para {me.siguienteTier.nombre}</span>}
+                      <span>{t.puntaje} <strong>{me.puntajeActual}</strong></span>
+                      {me.siguienteTier && <span>{me.siguienteTier.desde - me.puntajeActual} {t.para} {me.siguienteTier.nombre}</span>}
                     </div>
                     {progresoPct !== null && (
                       <div className="db-bar"><div className="db-bar-fill" style={{ width: `${progresoPct}%` }} /></div>
                     )}
                   </div>
-                  <Link href="/opabiz/dashboard/perfil" className="db-edit">Editar mi perfil</Link>
+                  <Link href="/opabiz/dashboard/perfil" className="db-edit">{t.editarPerfil}</Link>
                 </div>
               )}
 
@@ -475,22 +517,22 @@ export default function OpabizDashboardPage() {
                 <div className="oc-card">
                   <div className="db-setting">
                     <div>
-                      <div className="db-setting-label">{disponible ? 'Disponible' : 'No disponible'}</div>
-                      <div className="db-setting-hint">{disponible ? 'Podés recibir órdenes nuevas.' : 'No se te asignan órdenes nuevas.'}</div>
+                      <div className="db-setting-label">{disponible ? t.disponible : t.noDisponible}</div>
+                      <div className="db-setting-hint">{disponible ? t.dispHint : t.noDispHint}</div>
                     </div>
                     <button
-                      type="button" role="switch" aria-checked={disponible} aria-label="Disponibilidad"
+                      type="button" role="switch" aria-checked={disponible} aria-label={t.disponibilidad}
                       className={`oc-switch ${disponible ? 'on' : ''}`}
                       onClick={toggleDisponibilidad} disabled={togglingDisp}
                     />
                   </div>
                   <div className="db-setting">
                     <div>
-                      <div className="db-setting-label">Notificaciones</div>
+                      <div className="db-setting-label">{t.notificaciones}</div>
                       <div className="db-setting-hint">{pushHint}</div>
                     </div>
                     <button
-                      type="button" role="switch" aria-checked={pushState === 'on'} aria-label="Notificaciones en este dispositivo"
+                      type="button" role="switch" aria-checked={pushState === 'on'} aria-label={t.notifAria}
                       className={`oc-switch ${pushState === 'on' ? 'on' : ''}`}
                       onClick={pushState === 'on' ? desactivarNotificaciones : activarNotificaciones}
                       disabled={subscribingPush || pushState === 'checking' || pushState === 'unsupported' || pushState === 'denied'}
@@ -506,18 +548,18 @@ export default function OpabizDashboardPage() {
                 {/* Intake asistida usa el formulario público real (opabiz.com), no uno
                     propio — ver LOGICA_DE_NEGOCIO/17. ?agent=1 activa el modo agente
                     (oculta el pago; al Guardar le llega el link al cliente). */}
-                <a href="/?agent=1" target="_blank" rel="noopener noreferrer" className="oc-btn oc-btn-primary"><IconPlus /> Crear orden asistida</a>
-                <Link href="/opabiz/dashboard/created-orders" className="oc-btn oc-btn-secondary"><IconList /> Mis solicitudes enviadas</Link>
+                <a href="/?agent=1" target="_blank" rel="noopener noreferrer" className="oc-btn oc-btn-primary"><IconPlus /> {t.crearOrden}</a>
+                <Link href="/opabiz/dashboard/created-orders" className="oc-btn oc-btn-secondary"><IconList /> {t.misSolicitudes}</Link>
               </div>
 
               <div className="db-kpis">
-                <div className="db-kpi"><div className="db-kpi-val">{stats.porTab.nuevas.length}</div><div className="db-kpi-label">Por aceptar</div></div>
-                <div className="db-kpi"><div className="db-kpi-val">{stats.porTab.progreso.length}</div><div className="db-kpi-label">En progreso</div></div>
-                <div className="db-kpi"><div className="db-kpi-val">{stats.completadasMes}</div><div className="db-kpi-label">Completadas este mes</div></div>
+                <div className="db-kpi"><div className="db-kpi-val">{stats.porTab.nuevas.length}</div><div className="db-kpi-label">{t.kpiPorAceptar}</div></div>
+                <div className="db-kpi"><div className="db-kpi-val">{stats.porTab.progreso.length}</div><div className="db-kpi-label">{t.kpiProgreso}</div></div>
+                <div className="db-kpi"><div className="db-kpi-val">{stats.completadasMes}</div><div className="db-kpi-label">{t.kpiMes}</div></div>
                 {me?.comisiones ? (
-                  <div className="db-kpi"><div className="db-kpi-val">{fmtDinero(me.comisiones.pendiente)}</div><div className="db-kpi-label">Comisión por cobrar</div></div>
+                  <div className="db-kpi"><div className="db-kpi-val">{fmtDinero(me.comisiones.pendiente)}</div><div className="db-kpi-label">{t.kpiComision}</div></div>
                 ) : (
-                  <div className="db-kpi"><div className="db-kpi-val">{ordenes.length}</div><div className="db-kpi-label">Órdenes en total</div></div>
+                  <div className="db-kpi"><div className="db-kpi-val">{ordenes.length}</div><div className="db-kpi-label">{t.kpiTotal}</div></div>
                 )}
               </div>
 
@@ -525,8 +567,8 @@ export default function OpabizDashboardPage() {
                 <Link href={`/opabiz/dashboard/${stats.proximaCita.id}`} className="db-next">
                   <div className="db-next-icon"><IconCalendar /></div>
                   <div>
-                    <div className="db-next-eyebrow">Próxima cita</div>
-                    <div className="db-next-title">{fmtFecha(stats.proximaCita.fecha_hora_cita)}</div>
+                    <div className="db-next-eyebrow">{t.proximaCita}</div>
+                    <div className="db-next-title">{fmtFecha(stats.proximaCita.fecha_hora_cita, lang)}</div>
                     <div className="db-next-sub">{stats.proximaCita.tipo_servicio}{clienteDe(stats.proximaCita) ? ` · ${clienteDe(stats.proximaCita)!.nombre}` : ''}</div>
                   </div>
                 </Link>
@@ -545,23 +587,24 @@ export default function OpabizDashboardPage() {
                   <p className="oc-empty">{VACIO[tab]}</p>
                 ) : (
                   lista.map(o => {
-                    if (o.estado === 'asignada') return <PendingOrderCard key={o.id} o={o} onDone={cargar} />
-                    const meta = ESTADO_META[o.estado] ?? ESTADO_META.pendiente
+                    if (o.estado === 'asignada') return <PendingOrderCard key={o.id} o={o} onDone={cargar} lang={lang} />
+                    const color = ESTADO_COLOR[o.estado] ?? ESTADO_COLOR.pendiente
+                    const label = t.estado[o.estado] ?? t.estado.pendiente
                     const cliente = clienteDe(o)
                     const fecha = o.estado === 'completada'
-                      ? `Completada ${fmtFecha(o.fecha_completada)}`
-                      : o.fecha_hora_cita ? `Cita ${fmtFecha(o.fecha_hora_cita)}` : `Asignada ${fmtFecha(o.fecha_asignacion)}`
+                      ? `${t.completadaEl} ${fmtFecha(o.fecha_completada, lang)}`
+                      : o.fecha_hora_cita ? `${t.citaEl} ${fmtFecha(o.fecha_hora_cita, lang)}` : `${t.asignadaEl} ${fmtFecha(o.fecha_asignacion, lang)}`
                     return (
                       <Link key={o.id} href={`/opabiz/dashboard/${o.id}`} className="db-order">
                         <div className="db-order-main">
                           <div className="db-order-top">
                             <span className="db-order-title">{o.tipo_servicio}</span>
-                            {o.es_urgente && <span className="db-urgent">URGENTE</span>}
+                            {o.es_urgente && <span className="db-urgent">{t.urgente}</span>}
                           </div>
                           <div className="db-order-meta">{cliente ? `${cliente.nombre} · ` : ''}{fecha}</div>
                           {o.notas && <div className="db-order-note"><IconNote />{o.notas}</div>}
                         </div>
-                        <span className="db-pill" style={{ color: meta.color, background: meta.bg }}>{meta.label}</span>
+                        <span className="db-pill" style={{ color: color.color, background: color.bg }}>{label}</span>
                         <svg className="db-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
                       </Link>
                     )

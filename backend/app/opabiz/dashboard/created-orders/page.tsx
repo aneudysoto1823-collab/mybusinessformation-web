@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ConnectHeader, useConnectMe, CONNECT_BASE_CSS } from '../../_components/ConnectShell'
+import { ConnectHeader, useConnectMe, CONNECT_BASE_CSS, useConnectLang, locale, type Lang } from '../../_components/ConnectShell'
 
 type OrdenCreada = {
   id: string
@@ -23,15 +23,33 @@ function fbfc(id: string) {
   return `FBFC-${id.replace(/-/g, '').substring(0, 8).toUpperCase()}`
 }
 
-function estadoMeta(o: OrdenCreada): { label: string; color: string; bg: string } {
-  if (o.isDraft) return { label: 'Esperando al cliente', color: '#1d4ed8', bg: '#EFF6FF' }
-  if (o.paymentStatus === 'paid') return { label: 'Pagada', color: '#059669', bg: '#ECFDF5' }
-  return { label: 'El cliente ya inició el pago', color: '#64748b', bg: '#F1F5F9' }
+const T = {
+  es: {
+    esperando: 'Esperando al cliente', pagada: 'Pagada', inicioPago: 'El cliente ya inició el pago',
+    volver: 'Volver al panel', titulo: 'Mis solicitudes enviadas', cargando: 'Cargando…',
+    vacio: 'Todavía no armaste ninguna intake asistida.', sinNombre: 'Sin nombre', creada: 'Creada:',
+    editar: 'Editar', reenviar: 'Reenviar link', reenviado: 'Reenviado', error: 'Algo salió mal, probá de nuevo.',
+  },
+  en: {
+    esperando: 'Waiting for client', pagada: 'Paid', inicioPago: 'Client started payment',
+    volver: 'Back to dashboard', titulo: 'My submitted requests', cargando: 'Loading…',
+    vacio: 'You have not created any assisted intakes yet.', sinNombre: 'No name', creada: 'Created:',
+    editar: 'Edit', reenviar: 'Resend link', reenviado: 'Resent', error: 'Something went wrong, please try again.',
+  },
+}
+
+function estadoMeta(o: OrdenCreada, lang: Lang): { label: string; color: string; bg: string } {
+  const t = T[lang]
+  if (o.isDraft) return { label: t.esperando, color: '#1d4ed8', bg: '#EFF6FF' }
+  if (o.paymentStatus === 'paid') return { label: t.pagada, color: '#059669', bg: '#ECFDF5' }
+  return { label: t.inicioPago, color: '#64748b', bg: '#F1F5F9' }
 }
 
 export default function OpabizCreatedOrdersPage() {
   const router = useRouter()
   const headerMe = useConnectMe()
+  const [lang] = useConnectLang()
+  const t = T[lang]
   const [ordenes, setOrdenes] = useState<OrdenCreada[]>([])
   const [loading, setLoading] = useState(true)
   const [busyId, setBusyId] = useState<string | null>(null)
@@ -95,10 +113,10 @@ export default function OpabizCreatedOrdersPage() {
         .op-fbfc{color:#94A3B8;font-size:.74rem;margin-top:4px;font-weight:600}
         .op-fecha{color:#94A3B8;font-size:.74rem;margin-top:2px}
         .op-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
-        .op-btn{border:none;border-radius:8px;padding:9px 14px;font-size:.78rem;font-weight:700;cursor:pointer;min-height:38px}
+        .op-btn{border-radius:8px;padding:8px 14px;font-size:.78rem;font-weight:700;cursor:pointer;min-height:38px;font-family:inherit;background:#fff}
         .op-btn:disabled{opacity:.6;cursor:not-allowed}
-        .op-btn-edit{background:#EFF6FF;color:#1d4ed8}
-        .op-btn-resend{background:#F1F5F9;color:#475569}
+        .op-btn-edit{color:#2563EB;border:1.5px solid #2563EB}
+        .op-btn-resend{color:#475569;border:1.5px solid #E2E8F0}
         .op-ok{color:#059669;font-size:.78rem;font-weight:700;align-self:center}
         .op-err{color:#dc2626;font-size:.75rem;margin-top:6px}
         .op-empty{text-align:center;color:#94A3B8;font-size:.85rem;padding:40px 20px}
@@ -107,33 +125,33 @@ export default function OpabizCreatedOrdersPage() {
       <ConnectHeader me={headerMe} />
 
       <div className="op-wrap">
-        <Link href="/opabiz/dashboard" className="oc-back"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg> Volver al panel</Link>
-        <div className="op-title">Mis solicitudes enviadas ({ordenes.length})</div>
+        <Link href="/opabiz/dashboard" className="oc-back"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg> {t.volver}</Link>
+        <div className="op-title">{t.titulo} ({ordenes.length})</div>
         {loading ? (
-          <p className="op-empty">Cargando…</p>
+          <p className="op-empty">{t.cargando}</p>
         ) : ordenes.length === 0 ? (
-          <p className="op-empty">Todavía no armaste ninguna intake asistida.</p>
+          <p className="op-empty">{t.vacio}</p>
         ) : (
           ordenes.map(o => {
-            const meta = estadoMeta(o)
+            const meta = estadoMeta(o, lang)
             const nombre = [o.firstName, o.lastName].filter(Boolean).join(' ')
             return (
               <div key={o.id} className="op-card">
                 <div className="op-card-top">
-                  <span className="op-empresa">{o.companyName || 'Sin nombre'}</span>
+                  <span className="op-empresa">{o.companyName || t.sinNombre}</span>
                   <span className="op-badge" style={{ color: meta.color, background: meta.bg }}>{meta.label}</span>
                 </div>
                 {nombre && <div className="op-cliente">{nombre} · {o.email}</div>}
                 <div className="op-fbfc">{fbfc(o.id)}</div>
-                <div className="op-fecha">Creada: {new Date(o.createdAt).toLocaleString()}</div>
+                <div className="op-fecha">{t.creada} {new Date(o.createdAt).toLocaleString(locale(lang))}</div>
                 {o.isDraft && (
                   <div className="op-actions">
-                    <button className="op-btn op-btn-edit" disabled={busyId === o.id} onClick={() => editar(o.id)}>Editar</button>
-                    <button className="op-btn op-btn-resend" disabled={busyId === o.id} onClick={() => reenviar(o.id)}>Reenviar link</button>
-                    {resentId === o.id && <span className="op-ok">Reenviado</span>}
+                    <button className="op-btn op-btn-edit" disabled={busyId === o.id} onClick={() => editar(o.id)}>{t.editar}</button>
+                    <button className="op-btn op-btn-resend" disabled={busyId === o.id} onClick={() => reenviar(o.id)}>{t.reenviar}</button>
+                    {resentId === o.id && <span className="op-ok">{t.reenviado}</span>}
                   </div>
                 )}
-                {errorId === o.id && <div className="op-err">Algo salió mal, probá de nuevo.</div>}
+                {errorId === o.id && <div className="op-err">{t.error}</div>}
               </div>
             )
           })

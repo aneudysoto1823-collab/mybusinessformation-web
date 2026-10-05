@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
-import { ConnectHeader, useConnectMe, CONNECT_BASE_CSS } from '../../_components/ConnectShell'
+import { ConnectHeader, useConnectMe, CONNECT_BASE_CSS, useConnectLang, locale } from '../../_components/ConnectShell'
 
 type Orden = {
   id: string
@@ -26,11 +26,31 @@ type Documento = {
   fecha_subida: string
 }
 
-const ESTADO_LABEL: Record<string, string> = {
-  asignada: 'Por aceptar',
-  en_progreso: 'En progreso',
-  completada: 'Completada',
-  pendiente: 'Sin asignar',
+const T = {
+  es: {
+    estado: { asignada: 'Por aceptar', en_progreso: 'En progreso', completada: 'Completada', pendiente: 'Sin asignar' } as Record<string, string>,
+    errCargar: 'No se pudo cargar la orden.', errAceptar: 'No se pudo aceptar la orden.', errRechazar: 'No se pudo rechazar la orden.',
+    errCompletar: 'No se pudo completar la orden.', errSubir: 'No se pudo subir el archivo.',
+    volver: 'Volver al panel', cargando: 'Cargando…', noEncontrada: 'Orden no encontrada.', urgente: 'URGENTE',
+    lEstado: 'Estado', lCliente: 'Cliente', lTelefono: 'Teléfono', lEmail: 'Email', lCita: 'Cita', lAsignada: 'Asignada',
+    aceptando: 'Aceptando…', aceptar: 'Aceptar orden', rechazar: 'Rechazar orden', motivoLabel: '¿Por qué rechazás esta orden?',
+    motivoPh: 'Ej.: no tengo disponibilidad ese día, queda fuera de mi zona…', rechazando: 'Rechazando…', confirmarRechazo: 'Confirmar rechazo',
+    cancelar: 'Cancelar', gone: 'Esta orden ya no está asignada a vos. El equipo la va a reasignar.',
+    documentos: 'Documentos', sinDocs: 'Sin documentos subidos todavía.', ver: 'Ver', subiendo: 'Subiendo…', subir: 'Subir documento(s)',
+    completando: 'Completando…', completar: 'Marcar como completada',
+  },
+  en: {
+    estado: { asignada: 'To accept', en_progreso: 'In progress', completada: 'Completed', pendiente: 'Unassigned' } as Record<string, string>,
+    errCargar: 'Could not load the order.', errAceptar: 'Could not accept the order.', errRechazar: 'Could not decline the order.',
+    errCompletar: 'Could not complete the order.', errSubir: 'Could not upload the file.',
+    volver: 'Back to dashboard', cargando: 'Loading…', noEncontrada: 'Order not found.', urgente: 'URGENT',
+    lEstado: 'Status', lCliente: 'Client', lTelefono: 'Phone', lEmail: 'Email', lCita: 'Appointment', lAsignada: 'Assigned',
+    aceptando: 'Accepting…', aceptar: 'Accept order', rechazar: 'Decline order', motivoLabel: 'Why are you declining this order?',
+    motivoPh: 'E.g.: I am not available that day, it is outside my area…', rechazando: 'Declining…', confirmarRechazo: 'Confirm decline',
+    cancelar: 'Cancel', gone: 'This order is no longer assigned to you. The team will reassign it.',
+    documentos: 'Documents', sinDocs: 'No documents uploaded yet.', ver: 'View', subiendo: 'Uploading…', subir: 'Upload document(s)',
+    completando: 'Completing…', completar: 'Mark as completed',
+  },
 }
 
 function clienteDe(o: Orden) {
@@ -41,6 +61,8 @@ function clienteDe(o: Orden) {
 export default function OpabizOrderDetailPage() {
   const router = useRouter()
   const headerMe = useConnectMe()
+  const [lang] = useConnectLang()
+  const t = T[lang]
   const params = useParams<{ id: string }>()
   const id = params.id
 
@@ -64,10 +86,10 @@ export default function OpabizOrderDetailPage() {
       setOrden(data.orden)
       setDocumentos(data.documentos ?? [])
     } else {
-      setError('No se pudo cargar la orden.')
+      setError(T[lang].errCargar)
     }
     setLoading(false)
-  }, [id, router])
+  }, [id, router, lang])
 
   useEffect(() => { cargar() }, [cargar])
 
@@ -80,7 +102,7 @@ export default function OpabizOrderDetailPage() {
       cargar()
     } else {
       const d = await res.json().catch(() => ({}))
-      setError(d.error ?? 'No se pudo aceptar la orden.')
+      setError(d.error ?? t.errAceptar)
     }
   }
 
@@ -99,7 +121,7 @@ export default function OpabizOrderDetailPage() {
       cargar()
     } else {
       const d = await res.json().catch(() => ({}))
-      setError(d.error ?? 'No se pudo rechazar la orden.')
+      setError(d.error ?? t.errRechazar)
     }
   }
 
@@ -112,7 +134,7 @@ export default function OpabizOrderDetailPage() {
       cargar()
     } else {
       const d = await res.json().catch(() => ({}))
-      setError(d.error ?? 'No se pudo completar la orden.')
+      setError(d.error ?? t.errCompletar)
     }
   }
 
@@ -131,7 +153,7 @@ export default function OpabizOrderDetailPage() {
       cargar()
     } else {
       const d = await res.json().catch(() => ({}))
-      setError(d.error ?? 'No se pudo subir el archivo.')
+      setError(d.error ?? t.errSubir)
     }
   }
 
@@ -176,28 +198,28 @@ export default function OpabizOrderDetailPage() {
       <ConnectHeader me={headerMe} />
 
       <div className="op-wrap">
-        <Link href="/opabiz/dashboard" className="oc-back"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg> Volver al panel</Link>
+        <Link href="/opabiz/dashboard" className="oc-back"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg> {t.volver}</Link>
         {loading ? (
-          <p className="op-empty">Cargando…</p>
+          <p className="op-empty">{t.cargando}</p>
         ) : !orden ? (
-          <p className="op-empty">Orden no encontrada.</p>
+          <p className="op-empty">{t.noEncontrada}</p>
         ) : (
           <>
             <div className="op-card">
               <div className="op-servicio">{orden.tipo_servicio}</div>
-              {orden.es_urgente && <div className="op-urgente">URGENTE</div>}
-              <div className="op-row"><span className="op-row-label">Estado</span><span className="op-row-value">{ESTADO_LABEL[orden.estado] ?? orden.estado}</span></div>
+              {orden.es_urgente && <div className="op-urgente">{t.urgente}</div>}
+              <div className="op-row"><span className="op-row-label">{t.lEstado}</span><span className="op-row-value">{t.estado[orden.estado] ?? orden.estado}</span></div>
               {cliente && (
                 <>
-                  <div className="op-row"><span className="op-row-label">Cliente</span><span className="op-row-value">{cliente.nombre}</span></div>
-                  <div className="op-row"><span className="op-row-label">Teléfono</span><span className="op-row-value">{cliente.telefono}</span></div>
-                  <div className="op-row"><span className="op-row-label">Email</span><span className="op-row-value">{cliente.email}</span></div>
+                  <div className="op-row"><span className="op-row-label">{t.lCliente}</span><span className="op-row-value">{cliente.nombre}</span></div>
+                  <div className="op-row"><span className="op-row-label">{t.lTelefono}</span><span className="op-row-value">{cliente.telefono}</span></div>
+                  <div className="op-row"><span className="op-row-label">{t.lEmail}</span><span className="op-row-value">{cliente.email}</span></div>
                 </>
               )}
               {orden.fecha_hora_cita && (
-                <div className="op-row"><span className="op-row-label">Cita</span><span className="op-row-value">{new Date(orden.fecha_hora_cita).toLocaleString()}</span></div>
+                <div className="op-row"><span className="op-row-label">{t.lCita}</span><span className="op-row-value">{new Date(orden.fecha_hora_cita).toLocaleString(locale(lang))}</span></div>
               )}
-              <div className="op-row"><span className="op-row-label">Asignada</span><span className="op-row-value">{orden.fecha_asignacion ? new Date(orden.fecha_asignacion).toLocaleString() : '—'}</span></div>
+              <div className="op-row"><span className="op-row-label">{t.lAsignada}</span><span className="op-row-value">{orden.fecha_asignacion ? new Date(orden.fecha_asignacion).toLocaleString(locale(lang)) : '—'}</span></div>
               {orden.notas && <div className="op-nota">{orden.notas}</div>}
             </div>
 
@@ -206,58 +228,58 @@ export default function OpabizOrderDetailPage() {
             {orden.estado === 'asignada' && !showReject && (
               <div className="op-actions">
                 <button className="op-btn op-btn-reject" onClick={() => { setShowReject(true); setError('') }} disabled={acting}>
-                  Rechazar orden
+                  {t.rechazar}
                 </button>
                 <button className="op-btn op-btn-accept" onClick={aceptar} disabled={acting}>
-                  {acting ? 'Aceptando…' : 'Aceptar orden'}
+                  {acting ? t.aceptando : t.aceptar}
                 </button>
               </div>
             )}
 
             {orden.estado === 'asignada' && showReject && (
               <div className="op-reject-box">
-                <label htmlFor="op-motivo">¿Por qué rechazás esta orden?</label>
+                <label htmlFor="op-motivo">{t.motivoLabel}</label>
                 <textarea id="op-motivo" value={motivo} onChange={e => setMotivo(e.target.value)} maxLength={500}
-                  placeholder="Ej.: no tengo disponibilidad ese día, queda fuera de mi zona…" />
+                  placeholder={t.motivoPh} />
                 <div className="op-reject-actions">
                   <button className="op-btn op-btn-reject" onClick={rechazar} disabled={acting || motivo.trim().length < 3}>
-                    {acting ? 'Rechazando…' : 'Confirmar rechazo'}
+                    {acting ? t.rechazando : t.confirmarRechazo}
                   </button>
                   <button className="op-btn" style={{ background: '#fff', color: '#475569', border: '1.5px solid #E2E8F0' }}
                     onClick={() => { setShowReject(false); setMotivo('') }} disabled={acting}>
-                    Cancelar
+                    {t.cancelar}
                   </button>
                 </div>
               </div>
             )}
 
             {orden.estado === 'pendiente' && (
-              <div className="op-gone">Esta orden ya no está asignada a vos. El equipo la va a reasignar.</div>
+              <div className="op-gone">{t.gone}</div>
             )}
 
             {orden.estado === 'en_progreso' && (
               <>
                 <div className="op-card">
-                  <div className="op-row-label" style={{ marginBottom: 8, fontSize: '.8rem', fontWeight: 700, color: '#374151' }}>Documentos</div>
+                  <div className="op-row-label" style={{ marginBottom: 8, fontSize: '.8rem', fontWeight: 700, color: '#374151' }}>{t.documentos}</div>
                   {documentos.length === 0 ? (
-                    <p className="op-empty">Sin documentos subidos todavía.</p>
+                    <p className="op-empty">{t.sinDocs}</p>
                   ) : (
                     documentos.map(d => (
                       <div key={d.id} className="op-doc-item">
                         <span>{d.tipo_documento}</span>
-                        <a href={d.url_archivo} target="_blank" rel="noopener noreferrer">Ver</a>
+                        <a href={d.url_archivo} target="_blank" rel="noopener noreferrer">{t.ver}</a>
                       </div>
                     ))
                   )}
                   <label className="op-upload-label" style={{ marginTop: 12 }}>
-                    {uploading ? 'Subiendo…' : 'Subir documento(s)'}
+                    {uploading ? t.subiendo : t.subir}
                     <input type="file" multiple onChange={subirArchivos} disabled={uploading} style={{ display: 'none' }} />
                   </label>
                 </div>
 
                 <div className="op-actions">
                   <button className="op-btn op-btn-complete" onClick={completar} disabled={acting}>
-                    {acting ? 'Completando…' : 'Marcar como completada'}
+                    {acting ? t.completando : t.completar}
                   </button>
                 </div>
               </>
@@ -265,11 +287,11 @@ export default function OpabizOrderDetailPage() {
 
             {orden.estado === 'completada' && documentos.length > 0 && (
               <div className="op-card">
-                <div className="op-row-label" style={{ marginBottom: 8, fontSize: '.8rem', fontWeight: 700, color: '#374151' }}>Documentos</div>
+                <div className="op-row-label" style={{ marginBottom: 8, fontSize: '.8rem', fontWeight: 700, color: '#374151' }}>{t.documentos}</div>
                 {documentos.map(d => (
                   <div key={d.id} className="op-doc-item">
                     <span>{d.tipo_documento}</span>
-                    <a href={d.url_archivo} target="_blank" rel="noopener noreferrer">Ver</a>
+                    <a href={d.url_archivo} target="_blank" rel="noopener noreferrer">{t.ver}</a>
                   </div>
                 ))}
               </div>
