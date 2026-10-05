@@ -165,6 +165,16 @@ export const SERVICE_BUNDLES: Record<string, BundleDef> = {
   // price de estos 3 no sigue la fórmula genérica de NO_DISCOUNT_SERVICE_IDS
   // (que cobraría VA a precio completo) — están hardcodeados ya con VA en $0:
   // va-ra = 0 + round(99*0.9)=89, va-ra-ar = 0 + round((99+99)*0.9)=178.
+  // Combo de la carta de cumplimiento (landing de quien llega por la carta
+  // física / email / QR): los 3 servicios juntos con 10% off. Uno por marca
+  // porque cada sitio vende un certificado distinto y el EIN tiene otro precio.
+  // Antes la landing de mybiz MOSTRABA el 10% pero no mandaba ningún combo, así
+  // que el servidor cobraba los 3 a precio completo (bug real, 2026-10-05).
+  // fbfc: round((120+161+79)*0.9) = 324 (para fbfc el precio se calcula siempre
+  // con la fórmula; `price` queda igual por consistencia).
+  // opabiz: round((120+79+49)*0.9) = 223, + $9 de tarifa estatal del certificado.
+  'bundle-nb-essentials':    { name_en: 'Business Essentials Bundle', name_es: 'Combo Esencial de Negocio', services: ['labor-law-poster', 'ein', 'certificate-of-status'], price: 324 },
+  'bundle-ob-essentials':    { name_en: 'Business Essentials Bundle', name_es: 'Combo Esencial de Negocio', services: ['labor-law-poster', 'ein', 'good-standing'], price: 223 },
   'bundle-extras-va':        { name_en: 'Virtual Mailing Address',              name_es: 'Dirección Postal Virtual',                    services: ['virtual-address'], price: 0 },
   'bundle-extras-va-ra':     { name_en: 'Virtual Address + Registered Agent',   name_es: 'Dirección Virtual + Agente Registrado',       services: ['virtual-address', 'registered-agent'], price: 89 },
   'bundle-extras-va-ra-ar':  { name_en: 'Virtual Address + Registered Agent + Annual Report', name_es: 'Dirección Virtual + Agente Registrado + Declaración Anual', services: ['virtual-address', 'registered-agent', 'annual-report'], price: 178 },

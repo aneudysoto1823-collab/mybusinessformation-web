@@ -12,6 +12,8 @@ import { SERVICES_CATALOG, getServiceFee, computeBundlePrice, SERVICE_BUNDLES } 
 // que /servicios vea/agregue lo mismo sin duplicar lógica.
 const NB_TO_CATALOG_ID: Record<string, string> = { labor_law: 'labor-law-poster', ein: 'ein', certificate: 'certificate-of-status' }
 const CATALOG_TO_NB_ID: Record<string, string> = { 'labor-law-poster': 'labor_law', ein: 'ein', 'certificate-of-status': 'certificate' }
+// Combo de los 3 servicios (ver SERVICE_BUNDLES en lib/services-pricing.ts).
+const NB_ESSENTIALS_BUNDLE = 'bundle-nb-essentials'
 
 // "Recomendado para ti" — paso propio del wizard (2026-08-18, antes vivía
 // dentro del Review). Tiers acumulativos (Virtual Address, luego +Registered
@@ -1650,6 +1652,12 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
       const rawAdded = localStorage.getItem('flbc_svc_bundle_added')
       if (rawAdded) { const a = JSON.parse(rawAdded); if (a && typeof a === 'object') newServicesByBundle = a }
     } catch { /* noop */ }
+    // Los 3 servicios de la carta juntos = combo con 10% off. Sin esto la
+    // página mostraba el descuento pero el servidor cobraba precio completo.
+    if (selected.size === SERVICES.length) {
+      bundles = [...bundles.filter(b => b !== NB_ESSENTIALS_BUNDLE), NB_ESSENTIALS_BUNDLE]
+      newServicesByBundle = { ...newServicesByBundle, [NB_ESSENTIALS_BUNDLE]: SERVICES.map(s => NB_TO_CATALOG_ID[s.id]) }
+    }
     return {
       firstName: form.firstName, lastName: form.lastName, email: form.email, phone: form.phone,
       entityType: 'llc',
