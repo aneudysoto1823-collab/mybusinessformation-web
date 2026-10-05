@@ -1993,7 +1993,7 @@ A pedido del founder, la carta de cumplimiento (email + carta física PDF + land
 - **Email:** `lib/campaign-email-opabiz.ts` + `POST /api/campaigns/send-opabiz` + `GET /api/campaigns/preview-opabiz`. Remitente `marketing@opabiz.com` (⚠️ correo frío desde el dominio de OpaBiz — riesgo de reputación, ver comentario en la ruta). Seguimiento propio: `prospective_companies.carta_opabiz_sent_at` (migración `supabase_migration_carta_opabiz.sql`).
 - **Carta PDF:** `lib/new-business-letter-opabiz.ts` (logo OB, QR a `opabiz.com/oferta`). `generate-letter` y `print-letters` aceptan `brand: 'opabiz'`.
 - **Tracking:** `track-scan` con `brand=opabiz` redirige a `www.opabiz.com/oferta?id=...&lang=`.
-- **Panel `/admin/campaigns`:** plantilla nueva "Carta OpaBiz (Email + Correo)"; con esa plantilla elegida, ver/descargar/imprimir carta genera la versión OpaBiz.
+- **Panel `/admin/campaigns`:** plantilla "OpaBiz: Carta Nuevas Empresas"; con esa plantilla elegida, ver/descargar/imprimir carta genera la versión OpaBiz. Ver "Campaigns & Letters: un panel, dos marcas" más abajo para cómo se reparten las empresas entre marcas.
 - También: **Labor Law Poster agregado a opabiz.com/servicios** ($120, envío incluido) y el checkout ahora **exige dirección del negocio** si el carrito trae el póster (ambas marcas). Quitada la cifra "multas de hasta $17,650" de todo el sitio (founder: poco creíble) → "evita multas costosas".
 
 ## Campaigns & Letters: un panel, dos marcas (2026-10-05)
