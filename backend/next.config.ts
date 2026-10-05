@@ -122,6 +122,14 @@ const nextConfig: NextConfig = {
   // OpaBiz.
   async redirects() {
     return [
+      // /oferta es la landing de la carta de OpaBiz — no existe en la marca
+      // FBFC (separación de marcas). En mybusinessformation.com va a su home.
+      ...["mybusinessformation.com", "www.mybusinessformation.com"].map((host) => ({
+        source: "/oferta",
+        has: [{ type: "host" as const, value: host }],
+        destination: "/",
+        permanent: false,
+      })),
       {
         source: "/new-business/:path*",
         has: [{ type: "host", value: "opabiz.com" }],
