@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useMemo, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import HowItWorksModal from '../HowItWorksModal'
 import { AfiliadosPanel } from '../afiliados/page'
@@ -53,11 +53,26 @@ type Orden = {
   EMPLEADOS: EmpleadoRef | EmpleadoRef[] | null
 }
 
+// Orden en que aparecen en la tabla: lo que necesita acción del admin arriba.
+const ESTADO_ORDEN_PRIORIDAD: Record<string, number> = { pendiente: 0, asignada: 1, en_progreso: 2, completada: 3 }
+const ESTADO_ORDEN_FILTROS = ['pendiente', 'asignada', 'en_progreso', 'completada'] as const
+
 const ESTADO_ORDEN_META: Record<string, { label: string; color: string; bg: string }> = {
-  asignada:    { label: 'Asignada',    color: '#d97706', bg: '#fffbeb' },
+  asignada:    { label: 'Por aceptar', color: '#d97706', bg: '#fffbeb' },
   en_progreso: { label: 'En progreso', color: '#2563EB', bg: '#eff6ff' },
   completada:  { label: 'Completada',  color: '#059669', bg: '#ECFDF5' },
   pendiente:   { label: 'Sin asignar', color: '#64748b', bg: '#F1F5F9' },
+}
+
+// Cuando un agente rechaza una orden, /api/opabiz/me/orders/[id]/reject la
+// pasa a 'pendiente' y agrega a la nota la línea "Rechazada por {nombre}
+// ({fecha}): {motivo}". Así se distingue una rechazada de una que venció sin
+// respuesta, sin columnas nuevas. Toma la última línea de rechazo.
+function rechazoDe(o: { estado: string; notas: string | null }): { por: string; fecha: string; motivo: string } | null {
+  if (o.estado !== 'pendiente' || !o.notas) return null
+  const lineas = o.notas.split('\n').filter(l => l.startsWith('Rechazada por '))
+  const m = lineas[lineas.length - 1]?.match(/^Rechazada por (.+?) \((.+?)\): (.*)$/)
+  return m ? { por: m[1], fecha: m[2], motivo: m[3] } : null
 }
 
 function unwrap<T>(v: T | T[] | null): T | null {
@@ -96,6 +111,7 @@ export default function OpabizAdminPage() {
   const [togglingEstadoId, setTogglingEstadoId] = useState<string | null>(null)
   const [ordenes, setOrdenes] = useState<Orden[]>([])
   const [loadingOrdenes, setLoadingOrdenes] = useState(true)
+  const [estadoFiltro, setEstadoFiltro] = useState<string>('all')
   const [reasignando, setReasignando] = useState<Orden | null>(null)
   const [reasignEmpleadoId, setReasignEmpleadoId] = useState('')
   const [reasignSaving, setReasignSaving] = useState(false)
@@ -231,6 +247,27 @@ export default function OpabizAdminPage() {
     }
   }
 
+
+  // Sin asignar primero (necesitan acción), después por aceptar, en progreso
+  // y completadas; dentro de cada grupo, urgentes y más nuevas arriba.
+  const ordenesVista = useMemo(() => {
+    const filtradas = estadoFiltro === 'all' ? ordenes
+      : estadoFiltro === 'rechazada' ? ordenes.filter(o => rechazoDe(o))
+      : ordenes.filter(o => o.estado === estadoFiltro)
+    return [...filtradas].sort((a, b) =>
+      (ESTADO_ORDEN_PRIORIDAD[a.estado] ?? 9) - (ESTADO_ORDEN_PRIORIDAD[b.estado] ?? 9)
+      || Number(b.es_urgente) - Number(a.es_urgente)
+      || Date.parse(b.fecha_creacion) - Date.parse(a.fecha_creacion))
+  }, [ordenes, estadoFiltro])
+  const conteoEstado = useMemo(() => {
+    const c: Record<string, number> = {}
+    for (const o of ordenes) {
+      c[o.estado] = (c[o.estado] ?? 0) + 1
+      if (rechazoDe(o)) c.rechazada = (c.rechazada ?? 0) + 1
+    }
+    return c
+  }, [ordenes])
+
   return (
     <>
       <style>{`
@@ -239,6 +276,10 @@ export default function OpabizAdminPage() {
         body{background:#f4f6f9;font-family:var(--font-sans)}
         .wrap{max-width:1280px;margin:0 auto;padding:28px 24px}
         .card{background:#fff;border:1px solid #E2E8F0;border-radius:12px;box-shadow:0 1px 4px rgba(28,46,68,.05);overflow:hidden;margin-bottom:24px}
+        .filters{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+        .filter-group{display:flex;align-items:center;gap:6px}
+        .filter-label{font-size:.72rem;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.4px}
+        .filter-select{padding:7px 10px;border-radius:8px;font-size:.8rem;font-weight:600;border:1px solid #E2E8F0;background:#F8FAFC;color:#1C2E44;font-family:inherit;cursor:pointer}
         .card-head{padding:16px 22px;border-bottom:1px solid #F1F5F9;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
         .card-title{font-size:.95rem;font-weight:700;color:#1C2E44}
         .btn{padding:8px 16px;border-radius:8px;font-size:.8rem;font-weight:700;border:none;cursor:pointer;font-family:inherit;transition:all .2s;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
@@ -264,6 +305,10 @@ export default function OpabizAdminPage() {
         .op-tabs{display:flex;gap:6px;margin-bottom:20px;border-bottom:1px solid #E2E8F0}
         .op-tab{padding:10px 16px;border:none;background:none;cursor:pointer;font-family:inherit;font-size:.85rem;font-weight:700;color:#94A3B8;border-bottom:2px solid transparent;margin-bottom:-1px}
         .op-tab.active{color:#2563EB;border-bottom-color:#2563EB}
+        .op-tab-alert{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;margin-left:6px;border-radius:9px;background:#DC2626;color:#fff;font-size:.68rem;font-weight:800;vertical-align:1px}
+        .reject-alert{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:14px 22px 0;padding:11px 14px;border-radius:10px;background:#FEF2F2;border:1px solid #FECACA;color:#991B1B;font-size:.82rem;line-height:1.45}
+        .reject-alert-btn{background:#fff;color:#B91C1C;border:1.5px solid #FCA5A5;padding:6px 12px;font-size:.76rem}
+        .reject-detail{font-size:.72rem;color:#7F1D1D;margin-top:4px;line-height:1.4;max-width:240px}
         .op-tab:hover:not(.active){color:#1C2E44}
         @media(max-width:768px){
           .wrap{padding:18px 14px}
@@ -293,7 +338,9 @@ export default function OpabizAdminPage() {
 
         <div className="op-tabs">
           <button className={`op-tab ${activeTab === 'empleados' ? 'active' : ''}`} onClick={() => setActiveTab('empleados')}>Empleados</button>
-          <button className={`op-tab ${activeTab === 'ordenes' ? 'active' : ''}`} onClick={() => setActiveTab('ordenes')}>Órdenes</button>
+          <button className={`op-tab ${activeTab === 'ordenes' ? 'active' : ''}`} onClick={() => setActiveTab('ordenes')}>
+            Órdenes{(conteoEstado.rechazada ?? 0) > 0 && <span className="op-tab-alert" title="Órdenes rechazadas sin reasignar">{conteoEstado.rechazada}</span>}
+          </button>
           <button className={`op-tab ${activeTab === 'afiliados' ? 'active' : ''}`} onClick={() => setActiveTab('afiliados')}>Afiliados y Agentes</button>
         </div>
 
@@ -449,11 +496,35 @@ export default function OpabizAdminPage() {
 
         {activeTab === 'ordenes' && <>
         <div className="card">
-          <div className="card-head"><span className="card-title">Órdenes ({ordenes.length})</span></div>
+          <div className="card-head">
+            <span className="card-title">Órdenes ({ordenesVista.length}{estadoFiltro !== 'all' ? ` de ${ordenes.length}` : ''})</span>
+            <div className="filters">
+              <div className="filter-group">
+                <span className="filter-label">Estado</span>
+                <select className="filter-select" value={estadoFiltro} onChange={e => setEstadoFiltro(e.target.value)}>
+                  <option value="all">Todas ({ordenes.length})</option>
+                  <option value="rechazada">Rechazadas ({conteoEstado.rechazada ?? 0})</option>
+                  {ESTADO_ORDEN_FILTROS.map(k => (
+                    <option key={k} value={k}>{ESTADO_ORDEN_META[k].label} ({conteoEstado[k] ?? 0})</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+          {(conteoEstado.rechazada ?? 0) > 0 && estadoFiltro !== 'rechazada' && (
+            <div className="reject-alert">
+              <span>
+                <strong>{conteoEstado.rechazada === 1 ? '1 orden fue rechazada' : `${conteoEstado.rechazada} órdenes fueron rechazadas`}</strong> por el agente y espera{conteoEstado.rechazada === 1 ? '' : 'n'} que la{conteoEstado.rechazada === 1 ? '' : 's'} reasignes.
+              </span>
+              <button className="btn reject-alert-btn" onClick={() => setEstadoFiltro('rechazada')}>Ver rechazadas</button>
+            </div>
+          )}
           {loadingOrdenes ? (
             <div className="empty">Cargando…</div>
           ) : ordenes.length === 0 ? (
             <div className="empty">Todavía no hay ninguna orden creada.</div>
+          ) : ordenesVista.length === 0 ? (
+            <div className="empty">No hay órdenes con este estado.</div>
           ) : (
             <table>
               <thead>
@@ -469,8 +540,12 @@ export default function OpabizAdminPage() {
                 </tr>
               </thead>
               <tbody>
-                {ordenes.map(o => {
+                {ordenesVista.map(o => {
                   const cliente = unwrap(o.usuarios)
+                  // 'pendiente' = rechazada o vencida: empleado_id es NOT NULL y
+                  // sigue apuntando al último, pero ya no la tiene nadie.
+                  const sinAsignar = o.estado === 'pendiente'
+                  const rechazo = rechazoDe(o)
                   const meta = ESTADO_ORDEN_META[o.estado] ?? ESTADO_ORDEN_META.pendiente
                   return (
                     <tr key={o.id}>
@@ -479,11 +554,18 @@ export default function OpabizAdminPage() {
                         <div style={{ fontSize: '.75rem', color: '#94A3B8' }}>{cliente?.email ?? ''}</div>
                       </td>
                       <td>{o.tipo_servicio}</td>
-                      <td style={{ fontWeight: 600 }}>{nombreEmpleadoDe(o)}</td>
+                      <td style={{ fontWeight: 600 }}>{sinAsignar ? <span style={{ color: '#94A3B8', fontWeight: 500 }}>Nadie</span> : nombreEmpleadoDe(o)}</td>
                       <td>
-                        <span className="badge" style={{ color: meta.color, background: meta.bg }}>{meta.label}</span>
+                        {rechazo ? (
+                          <>
+                            <span className="badge" style={{ color: '#B91C1C', background: '#FEF2F2' }}>Rechazada</span>
+                            <div className="reject-detail">por {rechazo.por} · {rechazo.fecha}<br />{rechazo.motivo}</div>
+                          </>
+                        ) : (
+                          <span className="badge" style={{ color: meta.color, background: meta.bg }}>{meta.label}</span>
+                        )}
                       </td>
-                      <td>{o.es_urgente ? '⚡ Sí' : '—'}</td>
+                      <td>{o.es_urgente ? <span style={{ color: '#B91C1C', fontWeight: 700 }}>Sí</span> : '—'}</td>
                       <td>{/* UTC sin zona en la base: sin la Z se corría al día siguiente de noche */}{new Date(/[zZ]$|[+-]\d{2}:?\d{2}$/.test(o.fecha_creacion) ? o.fecha_creacion : `${o.fecha_creacion}Z`).toLocaleDateString()}</td>
                       <td>
                         <button
@@ -501,7 +583,7 @@ export default function OpabizAdminPage() {
                           style={{ padding: '5px 10px', fontSize: '.72rem', border: '1.5px solid #E2E8F0', background: '#fff', color: '#374151' }}
                           onClick={() => abrirReasignar(o)}
                         >
-                          {nombreEmpleadoDe(o) === '—' ? 'Asignar' : 'Reasignar'}
+                          {sinAsignar || nombreEmpleadoDe(o) === '—' ? 'Asignar' : 'Reasignar'}
                         </button>
                       </td>
                     </tr>
