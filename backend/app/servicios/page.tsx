@@ -24,6 +24,7 @@ const SERVICIOS_FOR_SCHEMA: SchemaService[] = [
   { id: 'sales-tax-registration', name: 'Sales Tax Registration', description: 'Florida Department of Revenue sales tax permit (Form DR-1) for businesses selling taxable goods or services.', priceUsd: 99 },
   { id: 'exclusive-guide', name: 'Exclusive Formation Guide', description: 'Curated bilingual guide covering post-formation steps to keep your Florida business compliant.', priceUsd: 49 },
   { id: 'good-standing', name: 'Certificate of Good Standing', description: 'Official Florida certificate confirming your business is active and up-to-date with state filings.', priceUsd: 49 },
+  { id: 'labor-law-poster', name: 'Labor Law Poster', description: 'All-in-one federal and Florida labor law poster every business with employees must display. Shipping included.', priceUsd: 120 },
   { id: 'scorp-election', name: 'S-Corp Election (IRS Form 2553)', description: 'Federal tax election to be treated as an S Corporation for pass-through taxation.', priceUsd: 79 },
   { id: 'foreign-llc', name: 'Foreign LLC / Corp Registration', description: 'Register an out-of-state LLC or Corporation to legally do business in Florida.', priceUsd: 99 },
   { id: 'business-license', name: 'Business License Research & Filing', description: 'Identify and file the federal, state, and local licenses your business needs to operate legally.', priceUsd: 99 },
@@ -262,6 +263,18 @@ export default function ServiciosPage() {
       time_en: '&#9889; Processing: 1–3 business days',
       time_es: '&#9889; Procesamiento: 1-3 días hábiles',
       btn_en: 'Order Certificate — $49 &#8594;', btn_es: 'Ordenar Certificado — $49 &#8594;' },
+    // Mismo producto que vende mybusinessformation.com (SERVICES_CATALOG
+    // 'labor-law-poster', $120 en ambas marcas). Se imprime y se envía a la
+    // dirección del negocio que el cliente carga en el checkout.
+    { id: 'labor-law-poster', icon: 'clipboard-list', name: 'Labor Law Poster', name_es: 'Póster de Leyes Laborales', price: '$120',
+      sub_en: 'Shipping included', sub_es: 'Envío incluido',
+      desc_en: 'Federal and Florida law require every business with at least one employee to display current labor law notices where employees can see them. Our all-in-one poster brings every required federal and Florida notice together on a single sheet.',
+      desc_es: 'Las leyes federales y de Florida exigen que todo negocio con al menos un empleado exhiba los avisos laborales vigentes donde los empleados puedan verlos. Nuestro póster todo en uno reúne en una sola hoja todos los avisos federales y de Florida requeridos.',
+      includes_en: ['All-in-one 2026 federal &amp; Florida labor law poster','Covers minimum wage, OSHA, FMLA, EEOC and more','Printed and shipped to your business address','Shipping included in the price'],
+      includes_es: ['Póster todo en uno 2026 federal y de Florida','Cubre salario mínimo, OSHA, FMLA, EEOC y más','Impreso y enviado a la dirección de tu negocio','Envío incluido en el precio'],
+      time_en: '&#9889; Ships in 3–7 business days',
+      time_es: '&#9889; Se envía en 3-7 días hábiles',
+      btn_en: 'Order Labor Law Poster — $120 &#8594;', btn_es: 'Ordenar Póster Laboral — $120 &#8594;' },
     { id: 'scorp-election', icon: 'star', name: 'S-Corp Election (Form 2553)', name_es: 'Elección de S-Corp (Formulario 2553)', price: '$79',
       sub_en: 'One-time fee', sub_es: 'Pago único',
       desc_en: 'Elect S-Corporation tax status with the IRS to save on self-employment taxes. Available for existing LLCs and C-Corps. Must be filed within 75 days of formation or by March 15.',

@@ -2309,6 +2309,16 @@ async function coValidateStep(i){
       var descEl=$('x-'+coFormId+'-activityDesc');
       if(!descEl || (descEl.value||'').trim().length<3){ err.textContent=isEs?'Describa brevemente qué hace su negocio.':'Briefly describe what your business does.'; return false; }
     }
+    // El Labor Law Poster se imprime y se envía a la dirección del negocio:
+    // sin calle, ciudad y zip no hay a dónde mandarlo.
+    if(cart.indexOf('labor-law-poster')>=0){
+      var faltaDir = ['f-street','f-city','f-zip'].some(function(id){ return !((($(id)||{}).value)||'').trim(); });
+      if(faltaDir){
+        err.textContent = isEs ? 'Para enviarle el Póster de Leyes Laborales necesitamos la dirección completa del negocio (calle, ciudad y código postal).' : 'To ship your Labor Law Poster we need the full business address (street, city and ZIP code).';
+        coRevealManual();
+        return false;
+      }
+    }
     // LOB address verification — solo si el cliente ingresó calle (a veces
     // este paso se llena con solo el nombre + Document ID desde el lookup
     // de Sunbiz, sin dirección editable en la UI); y solo si el pais es US.
