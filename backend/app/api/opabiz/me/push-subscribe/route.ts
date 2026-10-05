@@ -28,3 +28,25 @@ export async function POST(req: NextRequest) {
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ ok: true })
 }
+
+// DELETE /api/opabiz/me/push-subscribe — { endpoint }. El empleado apaga las
+// notificaciones de un dispositivo; filtrado también por empleado_id para que
+// nadie pueda borrar la suscripción de otro con solo conocer el endpoint.
+export async function DELETE(req: NextRequest) {
+  const session = await getEmployeeSession(req)
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const { endpoint } = await req.json().catch(() => ({}))
+  if (!endpoint || typeof endpoint !== 'string') {
+    return NextResponse.json({ error: 'Endpoint requerido' }, { status: 400 })
+  }
+
+  const { error } = await getSupabaseAdmin()
+    .from('opabiz_push_subscriptions')
+    .delete()
+    .eq('endpoint', endpoint)
+    .eq('empleado_id', session.empleadosId)
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json({ ok: true })
+}
