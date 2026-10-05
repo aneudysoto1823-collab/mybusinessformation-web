@@ -2002,6 +2002,8 @@ A pedido del founder, la carta de cumplimiento (email + carta física PDF + land
 
 **Compra por una marca = fuera de las dos colas.** Al pagar en `/servicios/checkout` con Document ID (`addons.intake.flDoc`), `handleServicesPaid` marca la empresa de `prospective_companies` con ese `document_id` como `status:'purchased'` (+ `qr_scans.converted` y fila en `conversions`). Antes solo lo hacía el flujo legacy de new-business. La cola New de OpaBiz excluye `purchased`, y `send` / `send-opabiz` saltan a quien ya compró. La Oferta VIP sí se le puede seguir mandando (vende otros servicios).
 
+**Orden entre marcas (`lib/campaign-brand-order.ts`):** MyBiz va primero. OpaBiz solo ve en su cola New a empresas que MyBiz no contactó o contactó hace más de `OPABIZ_WAIT_DAYS` (30). MyBiz (carta y Oferta VIP) no le escribe a quien OpaBiz ya contactó. Los mismos chequeos están en las rutas de envío (`send`, `send-vip-reminder`, `send-opabiz`), no solo en el filtro del panel.
+
 ## Deploy
 
 - `git push origin main` — Vercel detecta cambios en `backend/` y hace deploy automático

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getResend } from '@/lib/resend-client'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { verifyAdminToken } from '@/lib/session'
+import { opabizContactedAt } from '@/lib/campaign-brand-order'
 import { FROM_COLD_OUTREACH, REPLY_TO_COLD_OUTREACH, buildListUnsubscribeHeaders } from '@/lib/email-constants'
 import { hasReceivedGuide, recordGuideSent, getGuideAttachments, buildGuideBonusHtml, type GuideKey } from '@/lib/guides'
 import { buildComplianceEmail as buildEmail, CAMPAIGN_EMAIL_BASE_URL as BASE_URL } from '@/lib/campaign-email'
@@ -42,7 +43,7 @@ export async function POST(req: NextRequest) {
 
     const { data: companies, error: fetchErr } = await supabase
       .from('prospective_companies')
-      .select('id,document_id,company_name,company_type,owner_name,city,state,email,status,registration_date,unsubscribed,carta_sent_at,email_deliverable')
+      .select('id,document_id,company_name,company_type,owner_name,city,state,email,status,registration_date,unsubscribed,carta_sent_at,email_deliverable,carta_opabiz_sent_at,letter_opabiz_sent_at')
       .in('id', company_ids)
 
     if (fetchErr) throw fetchErr
@@ -62,6 +63,12 @@ export async function POST(req: NextRequest) {
       // Ya compró (por MyBiz u OpaBiz): no se le vuelve a mandar la carta.
       if (company.status === 'purchased') {
         results.push({ company_id: company.id, document_id: company.document_id, status: 'skipped', reason: 'already purchased' })
+        continue
+      }
+      // Si OpaBiz ya la contactó, MyBiz no le escribe después con precios
+      // más altos (ver lib/campaign-brand-order.ts).
+      if (opabizContactedAt(company)) {
+        results.push({ company_id: company.id, document_id: company.document_id, status: 'skipped', reason: 'already contacted by OpaBiz' })
         continue
       }
       // Skip si el lead pidió no recibir más comunicaciones (POST /api/unsubscribe).

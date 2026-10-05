@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin, pgErrorMessage } from '@/lib/supabase'
 import { CampaignsCompaniesInputSchema, parseOr400 } from '@/lib/schemas'
 import { verifyAdminToken } from '@/lib/session'
+import { MYBIZ_CONTACT_FIELDS, OPABIZ_CONTACT_FIELDS, opabizCutoffIso } from '@/lib/campaign-brand-order'
 
 export const dynamic = 'force-dynamic'
 
@@ -50,10 +51,21 @@ export async function GET(req: NextRequest) {
     if (emailField) {
       // Una empresa que ya compró (por cualquiera de las dos marcas) sale
       // también de la cola de OpaBiz.
-      if (status === 'new')            query = query.is(emailField, null).neq('status', 'purchased')
+      if (status === 'new') {
+        query = query.is(emailField, null).neq('status', 'purchased')
+        // MyBiz va primero: si MyBiz la contactó hace menos de
+        // OPABIZ_WAIT_DAYS, todavía no entra a la cola de OpaBiz.
+        const cutoff = opabizCutoffIso()
+        for (const f of MYBIZ_CONTACT_FIELDS) query = query.or(`${f}.is.null,${f}.lt.${cutoff}`)
+      }
       else if (status === 'contacted') query = query.not(emailField, 'is', null)
     } else if (status === 'contacted') query = query.neq('status', 'new')
-    else if (status && status !== 'all') query = query.eq('status', status)
+    else if (status && status !== 'all') {
+      query = query.eq('status', status)
+      // Si OpaBiz ya la contactó, MyBiz no le vuelve a escribir con precios
+      // más altos (ver lib/campaign-brand-order.ts).
+      if (status === 'new') for (const f of OPABIZ_CONTACT_FIELDS) query = query.is(f, null)
+    }
     if (type   && type   !== 'all') query = query.eq('company_type', type)
     if (dateFrom) query = query.gte('registration_date', dateFrom)
     if (dateTo)   query = query.lte('registration_date', dateTo)

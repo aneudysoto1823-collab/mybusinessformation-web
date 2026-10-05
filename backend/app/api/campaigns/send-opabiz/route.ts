@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getResend } from '@/lib/resend-client'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { verifyAdminToken } from '@/lib/session'
+import { opabizAvailableFrom } from '@/lib/campaign-brand-order'
 import { FROM_COLD_OUTREACH_OPABIZ, REPLY_TO_COLD_OUTREACH_OPABIZ, buildListUnsubscribeHeaders } from '@/lib/email-constants'
 import { hasReceivedGuide, recordGuideSent, getGuideAttachments, buildGuideBonusHtml, type GuideKey } from '@/lib/guides'
 import { buildOpabizComplianceEmail as buildEmail, opabizTrackUrl, OPABIZ_CAMPAIGN_BASE_URL } from '@/lib/campaign-email-opabiz'
@@ -47,7 +48,7 @@ export async function POST(req: NextRequest) {
 
     const { data: companies, error: fetchErr } = await supabase
       .from('prospective_companies')
-      .select('id,document_id,company_name,company_type,owner_name,city,state,email,status,registration_date,unsubscribed,email_deliverable')
+      .select('id,document_id,company_name,company_type,owner_name,city,state,email,status,registration_date,unsubscribed,email_deliverable,carta_sent_at,vip_reminder_sent_at,letter_sent_at')
       .in('id', company_ids)
 
     if (fetchErr) throw fetchErr
@@ -67,6 +68,13 @@ export async function POST(req: NextRequest) {
       // Ya compró (por MyBiz u OpaBiz): no se le vuelve a mandar la carta.
       if (company.status === 'purchased') {
         results.push({ company_id: company.id, document_id: company.document_id, status: 'skipped', reason: 'already purchased' })
+        continue
+      }
+      // MyBiz va primero: si MyBiz la contactó hace menos de OPABIZ_WAIT_DAYS,
+      // OpaBiz espera (ver lib/campaign-brand-order.ts).
+      const waitUntil = opabizAvailableFrom(company)
+      if (waitUntil) {
+        results.push({ company_id: company.id, document_id: company.document_id, status: 'skipped', reason: `MyBiz contacted it recently; OpaBiz can send from ${waitUntil.slice(0, 10)}` })
         continue
       }
       // Skip si el lead pidió no recibir más comunicaciones (POST /api/unsubscribe).

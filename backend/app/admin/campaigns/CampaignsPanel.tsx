@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import HowItWorksModal from '../HowItWorksModal'
+import { OPABIZ_WAIT_DAYS, opabizAvailableFrom, opabizContactedAt } from '@/lib/campaign-brand-order'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -666,7 +667,9 @@ export default function CampaignsPanel({ brand }: { brand: 'fbfc' | 'opabiz' }) 
                 <h3>2. La campaña de OpaBiz</h3>
                 <ul>
                   <li><strong>Carta Nuevas Empresas</strong>: carta física (con QR) y email, con marca, precios y landing de OpaBiz (opabiz.com/oferta). Ofrece Labor Law Poster, EIN y Certificate of Good Standing.</li>
-                  <li>Este panel es independiente del de MyBiz: usa las mismas empresas, pero lleva su propio registro de envíos. Mandar algo desde MyBiz no saca a una empresa de la lista &quot;New&quot; de acá, ni al revés.</li>
+                  <li>Usa las mismas empresas que el panel de MyBiz, con su propio registro de envíos.</li>
+                  <li><strong>MyBiz va primero.</strong> Si MyBiz ya le escribió a una empresa, aparece en &quot;New&quot; de acá recién {OPABIZ_WAIT_DAYS} días después de ese contacto, para no competir con nuestros propios precios.</li>
+                  <li>Una empresa que ya compró por cualquiera de las dos marcas no vuelve a recibir la carta.</li>
                 </ul>
               </>
             ) : (
@@ -676,7 +679,7 @@ export default function CampaignsPanel({ brand }: { brand: 'fbfc' | 'opabiz' }) 
                   <li><strong>Carta Nuevas Empresas</strong>: tiene versión en carta física (con QR) y en email. Ofrece Labor Law Posters, EIN y Certificate of Status.</li>
                   <li><strong>Oferta VIP</strong>: solo por email, sin versión en papel. Ofrece la Declaración Anual sola, y como upsell el combo Agente Registrado + Declaración Anual.</li>
                   <li>El selector de plantilla arriba de la tabla decide cuál de las dos vas a mandar o previsualizar; los botones de cada fila y los de envío masivo usan la que esté elegida ahí.</li>
-                  <li>La campaña de OpaBiz vive en su propio panel (Campaigns &amp; Letters OpaBiz), con su propio registro de envíos.</li>
+                  <li>La campaña de OpaBiz vive en su propio panel (Campaigns &amp; Letters OpaBiz). MyBiz va primero: OpaBiz espera {OPABIZ_WAIT_DAYS} días después de un contacto de MyBiz. Si OpaBiz ya le escribió a una empresa, MyBiz no le vuelve a escribir.</li>
                 </ul>
               </>
             )}
@@ -1010,6 +1013,19 @@ export default function CampaignsPanel({ brand }: { brand: 'fbfc' | 'opabiz' }) 
                           {c.owner_name && <div style={{ fontSize: '.72rem', color: '#94A3B8', fontWeight: 400, marginTop: 2 }}>{c.owner_name}</div>}
                           {c.note && <div title={c.note} style={{ fontSize: '.72rem', color: '#b45309', fontWeight: 400, marginTop: 2, maxWidth: 210, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>📝 {c.note}</div>}
                           {letterSentAt && <div style={{ fontSize: '.7rem', color: '#059669', fontWeight: 600, marginTop: 2 }}>✅ Letter sent {new Date(letterSentAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>}
+                          {/* Orden entre marcas (lib/campaign-brand-order.ts): MyBiz va
+                              primero; OpaBiz espera OPABIZ_WAIT_DAYS después de un contacto de
+                              MyBiz, y MyBiz no le escribe a quien OpaBiz ya contactó. */}
+                          {isOpabiz && opabizAvailableFrom(c) && (
+                            <div style={{ fontSize: '.7rem', color: '#64748B', fontWeight: 600, marginTop: 2 }}>
+                              Contactada por MyBiz. OpaBiz puede escribirle desde el {new Date(opabizAvailableFrom(c)!).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                            </div>
+                          )}
+                          {!isOpabiz && opabizContactedAt(c) && (
+                            <div style={{ fontSize: '.7rem', color: '#64748B', fontWeight: 600, marginTop: 2 }}>
+                              Ya contactada por OpaBiz. MyBiz no le escribe.
+                            </div>
+                          )}
                           {/* Tracking separado por campaña (auditoría 2026-09-13/14) — antes
                               solo existía el genérico "Status" de la columna de al lado, sin
                               distinguir cuál de las dos campañas ya recibió. */}
