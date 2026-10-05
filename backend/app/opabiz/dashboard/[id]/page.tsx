@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
+import { ConnectHeader, useConnectMe, CONNECT_BASE_CSS } from '../../_components/ConnectShell'
 
 type Orden = {
   id: string
@@ -32,6 +33,7 @@ function clienteDe(o: Orden) {
 
 export default function OpabizOrderDetailPage() {
   const router = useRouter()
+  const headerMe = useConnectMe()
   const params = useParams<{ id: string }>()
   const id = params.id
 
@@ -109,7 +111,7 @@ export default function OpabizOrderDetailPage() {
 
   return (
     <>
-      <style>{`
+      <style>{CONNECT_BASE_CSS + `
         *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
         body{background:#f4f6f9;font-family:var(--font-sans)}
         .op-header{background:#1C2E44;padding:16px 18px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:10}
@@ -134,11 +136,10 @@ export default function OpabizOrderDetailPage() {
         .op-nota{color:#92400e;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px 12px;font-size:.85rem;margin-top:12px}
       `}</style>
 
-      <div className="op-header">
-        <Link href="/opabiz/dashboard" className="op-back">← Mis órdenes</Link>
-      </div>
+      <ConnectHeader me={headerMe} />
 
       <div className="op-wrap">
+        <Link href="/opabiz/dashboard" className="oc-back"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg> Volver al panel</Link>
         {loading ? (
           <p className="op-empty">Cargando…</p>
         ) : !orden ? (
@@ -147,7 +148,7 @@ export default function OpabizOrderDetailPage() {
           <>
             <div className="op-card">
               <div className="op-servicio">{orden.tipo_servicio}</div>
-              {orden.es_urgente && <div className="op-urgente">⚡ URGENTE</div>}
+              {orden.es_urgente && <div className="op-urgente">URGENTE</div>}
               <div className="op-row"><span className="op-row-label">Estado</span><span className="op-row-value">{orden.estado}</span></div>
               {cliente && (
                 <>
@@ -160,7 +161,7 @@ export default function OpabizOrderDetailPage() {
                 <div className="op-row"><span className="op-row-label">Cita</span><span className="op-row-value">{new Date(orden.fecha_hora_cita).toLocaleString()}</span></div>
               )}
               <div className="op-row"><span className="op-row-label">Asignada</span><span className="op-row-value">{orden.fecha_asignacion ? new Date(orden.fecha_asignacion).toLocaleString() : '—'}</span></div>
-              {orden.notas && <div className="op-nota">📝 {orden.notas}</div>}
+              {orden.notas && <div className="op-nota">{orden.notas}</div>}
             </div>
 
             {error && <p className="op-error">{error}</p>}
@@ -181,12 +182,12 @@ export default function OpabizOrderDetailPage() {
                     documentos.map(d => (
                       <div key={d.id} className="op-doc-item">
                         <span>{d.tipo_documento}</span>
-                        <a href={d.url_archivo} target="_blank" rel="noopener noreferrer">Ver →</a>
+                        <a href={d.url_archivo} target="_blank" rel="noopener noreferrer">Ver</a>
                       </div>
                     ))
                   )}
                   <label className="op-upload-label" style={{ marginTop: 12 }}>
-                    {uploading ? 'Subiendo…' : '📎 Subir documento(s)'}
+                    {uploading ? 'Subiendo…' : 'Subir documento(s)'}
                     <input type="file" multiple onChange={subirArchivos} disabled={uploading} style={{ display: 'none' }} />
                   </label>
                 </div>
@@ -203,7 +204,7 @@ export default function OpabizOrderDetailPage() {
                 {documentos.map(d => (
                   <div key={d.id} className="op-doc-item">
                     <span>{d.tipo_documento}</span>
-                    <a href={d.url_archivo} target="_blank" rel="noopener noreferrer">Ver →</a>
+                    <a href={d.url_archivo} target="_blank" rel="noopener noreferrer">Ver</a>
                   </div>
                 ))}
               </div>

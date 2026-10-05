@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { ConnectHeader, useConnectMe, CONNECT_BASE_CSS } from '../../_components/ConnectShell'
 
 type OrdenCreada = {
   id: string
@@ -30,6 +31,7 @@ function estadoMeta(o: OrdenCreada): { label: string; color: string; bg: string 
 
 export default function OpabizCreatedOrdersPage() {
   const router = useRouter()
+  const headerMe = useConnectMe()
   const [ordenes, setOrdenes] = useState<OrdenCreada[]>([])
   const [loading, setLoading] = useState(true)
   const [busyId, setBusyId] = useState<string | null>(null)
@@ -76,7 +78,7 @@ export default function OpabizCreatedOrdersPage() {
 
   return (
     <>
-      <style>{`
+      <style>{CONNECT_BASE_CSS + `
         *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
         body{background:#f4f6f9;font-family:var(--font-sans)}
         .op-header{background:#1C2E44;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
@@ -102,12 +104,10 @@ export default function OpabizCreatedOrdersPage() {
         .op-empty{text-align:center;color:#94A3B8;font-size:.85rem;padding:40px 20px}
       `}</style>
 
-      <div className="op-header">
-        <div className="op-brand">OpaBiz <span>Connect</span></div>
-        <Link href="/opabiz/dashboard" className="op-back">← Volver</Link>
-      </div>
+      <ConnectHeader me={headerMe} />
 
       <div className="op-wrap">
+        <Link href="/opabiz/dashboard" className="oc-back"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg> Volver al panel</Link>
         <div className="op-title">Mis solicitudes enviadas ({ordenes.length})</div>
         {loading ? (
           <p className="op-empty">Cargando…</p>
@@ -130,7 +130,7 @@ export default function OpabizCreatedOrdersPage() {
                   <div className="op-actions">
                     <button className="op-btn op-btn-edit" disabled={busyId === o.id} onClick={() => editar(o.id)}>Editar</button>
                     <button className="op-btn op-btn-resend" disabled={busyId === o.id} onClick={() => reenviar(o.id)}>Reenviar link</button>
-                    {resentId === o.id && <span className="op-ok">Reenviado ✓</span>}
+                    {resentId === o.id && <span className="op-ok">Reenviado</span>}
                   </div>
                 )}
                 {errorId === o.id && <div className="op-err">Algo salió mal, probá de nuevo.</div>}
