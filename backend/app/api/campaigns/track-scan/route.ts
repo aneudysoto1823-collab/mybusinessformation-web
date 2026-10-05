@@ -5,14 +5,27 @@ import { getSupabaseAdmin } from '@/lib/supabase'
 // la landing de new-business vive ahí ahora.
 const BASE_URL = 'https://mybusinessformation.com'
 
+// Carta/email de OpaBiz (2026-10-05): misma ruta de tracking, pero con
+// brand=opabiz el destino es su propia landing, opabiz.com/oferta.
+const OPABIZ_LANDING = 'https://www.opabiz.com/oferta'
+
 export async function GET(req: NextRequest) {
   const doc = req.nextUrl.searchParams.get('doc')
   const cid = req.nextUrl.searchParams.get('cid')
+  const isOpabiz = req.nextUrl.searchParams.get('brand') === 'opabiz'
+  const langEs = req.nextUrl.searchParams.get('lang') === 'es'
 
   // Always redirect — even if tracking fails, the client gets to the landing page
-  const landingUrl = doc
-    ? `${BASE_URL}/?id=${encodeURIComponent(doc)}`
-    : BASE_URL
+  let landingUrl: string
+  if (isOpabiz) {
+    const qs = new URLSearchParams()
+    if (doc) qs.set('id', doc)
+    if (langEs) qs.set('lang', 'es')
+    const q = qs.toString()
+    landingUrl = q ? `${OPABIZ_LANDING}?${q}` : OPABIZ_LANDING
+  } else {
+    landingUrl = doc ? `${BASE_URL}/?id=${encodeURIComponent(doc)}` : BASE_URL
+  }
 
   if (!doc || !cid) {
     return NextResponse.redirect(landingUrl)

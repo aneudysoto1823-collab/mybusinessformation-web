@@ -27,6 +27,7 @@ type Company = {
   // cuál de las dos.
   carta_sent_at: string | null
   vip_reminder_sent_at: string | null
+  carta_opabiz_sent_at: string | null
   // % Precisión de Enformion para este email, si vino de ahí — null para
   // emails cargados a mano o de otra fuente (se tratan siempre como
   // confiables, ver filtro de precisión más abajo). Pedido founder
@@ -55,8 +56,11 @@ type CampaignTemplate = {
   label: string
   sendEndpoint: string
   previewEndpoint: string
-  sentAtField: 'carta_sent_at' | 'vip_reminder_sent_at'
+  sentAtField: 'carta_sent_at' | 'vip_reminder_sent_at' | 'carta_opabiz_sent_at'
   color: string
+  /** Marca de la carta física (PDF) asociada: los botones Ver/Descargar/Print
+   *  generan la carta de esta marca cuando esta plantilla está elegida. */
+  letterBrand?: 'fbfc' | 'opabiz'
 }
 
 const TEMPLATES: CampaignTemplate[] = [
@@ -75,6 +79,18 @@ const TEMPLATES: CampaignTemplate[] = [
     previewEndpoint: '/api/campaigns/preview-vip-reminder',
     sentAtField: 'vip_reminder_sent_at',
     color: '#059669',
+  },
+  // Carta de cumplimiento de OpaBiz (2026-10-05): misma idea que la de mybiz
+  // pero con marca, precios y landing (opabiz.com/oferta) de OpaBiz, y su
+  // propio seguimiento.
+  {
+    id: 'carta_opabiz',
+    label: 'Carta OpaBiz (Email + Correo)',
+    sendEndpoint: '/api/campaigns/send-opabiz',
+    previewEndpoint: '/api/campaigns/preview-opabiz',
+    sentAtField: 'carta_opabiz_sent_at',
+    color: '#1C2E44',
+    letterBrand: 'opabiz',
   },
 ]
 
@@ -319,7 +335,10 @@ export default function CampaignsPage() {
   // ─── Actions ────────────────────────────────────────────────────────────────
 
   async function generateLetter(company: Company, preview = false) {
-    const payUrl = `mybusinessformation.com/?id=${company.document_id}`
+    const letterBrand = selectedTemplate.letterBrand ?? 'fbfc'
+    const payUrl = letterBrand === 'opabiz'
+      ? `opabiz.com/oferta?id=${company.document_id}${contentLang === 'es' ? '&lang=es' : ''}`
+      : `mybusinessformation.com/?id=${company.document_id}`
     let res: Response
     try {
       res = await fetch('/api/campaigns/generate-letter', {
@@ -336,6 +355,7 @@ export default function CampaignsPage() {
           companyType:      company.company_type,
           payUrl,
           lang:             contentLang,
+          brand:            letterBrand,
         }),
       })
     } catch {
@@ -354,7 +374,7 @@ export default function CampaignsPage() {
     } else {
       const a    = document.createElement('a')
       a.href     = url
-      a.download = `notice-${company.document_id}-${contentLang}.pdf`
+      a.download = `notice-${letterBrand === 'opabiz' ? 'opabiz-' : ''}${company.document_id}-${contentLang}.pdf`
       a.click()
       URL.revokeObjectURL(url)
     }
@@ -466,7 +486,7 @@ export default function CampaignsPage() {
       const res = await fetch('/api/campaigns/print-letters', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ids, lang: contentLang }),
+        body: JSON.stringify({ ids, lang: contentLang, brand: selectedTemplate.letterBrand ?? 'fbfc' }),
       })
       if (!res.ok) {
         const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }))
@@ -633,6 +653,7 @@ export default function CampaignsPage() {
 
             <h3>3. Organizar antes de enviar</h3>
             <ul>
+              <li><strong>Carta OpaBiz:</strong> misma carta pero con marca, precios y landing de OpaBiz (opabiz.com/oferta). Con esa plantilla elegida, los botones de ver/descargar/imprimir carta generan la versión OpaBiz; con cualquier otra, la de MyBiz.</li>
               <li><strong>Contact status</strong> (New / Email sent / Letter sent / All): filtra por si ya se le mandó algo a esa empresa o no.</li>
               <li>Dentro de <strong>New</strong>, dos pestañas: <strong>Con Email</strong> y <strong>Sin Email</strong> — para separar a quién le mandás correo de a quién le imprimís la carta.</li>
               <li><strong>% Precisión mínima:</strong> cuando Enformion encontró un email pero con poca confianza, esa empresa cae a &quot;Sin Email&quot; aunque el dato exista, así se le imprime la carta en vez de arriesgarse a un email malo. Subiendo o bajando este número decidís vos el corte, en cualquier momento — es independiente del filtro que se usa al buscar en Marketing Saliente.</li>
@@ -976,6 +997,17 @@ export default function CampaignsPage() {
                               >↻</button>
                             </div>
                           )}
+                          {c.carta_opabiz_sent_at && (
+                            <div style={{ fontSize: '.7rem', color: '#1C2E44', fontWeight: 600, marginTop: 2, display: 'flex', alignItems: 'center', gap: 5 }}>
+                              ✅ OpaBiz sent {new Date(c.carta_opabiz_sent_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                              <button
+                                onClick={() => sendTemplate(c, TEMPLATES.find(t => t.id === 'carta_opabiz')!)}
+                                disabled={!!sendingId || paused || !c.email}
+                                title={`Resend Carta OpaBiz in ${contentLang.toUpperCase()}`}
+                                style={{ border: 'none', background: 'none', color: '#1C2E44', cursor: 'pointer', fontSize: '.75rem', padding: 0, fontWeight: 700, lineHeight: 1 }}
+                              >↻</button>
+                            </div>
+                          )}
                           {c.vip_reminder_sent_at && (
                             <div style={{ fontSize: '.7rem', color: '#059669', fontWeight: 600, marginTop: 2, display: 'flex', alignItems: 'center', gap: 5 }}>
                               ✅ VIP sent {new Date(c.vip_reminder_sent_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
@@ -1041,10 +1073,10 @@ export default function CampaignsPage() {
                               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 8h20"/><path d="M6 6h.01"/><path d="M9 6h.01"/></svg>
                             </button>
                             <span style={{ width: 1, background: '#E2E8F0', margin: '2px 2px' }} />
-                            <button className="btn btn-ghost btn-sm" onClick={() => generateLetter(c, true)} title="Preview letter">
+                            <button className="btn btn-ghost btn-sm" onClick={() => generateLetter(c, true)} title={`Preview letter (${selectedTemplate.letterBrand === 'opabiz' ? 'OpaBiz' : 'MyBiz'})`}>
                               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                             </button>
-                            <button className="btn btn-ghost btn-sm" onClick={() => generateLetter(c)} title="Download letter">
+                            <button className="btn btn-ghost btn-sm" onClick={() => generateLetter(c)} title={`Download letter (${selectedTemplate.letterBrand === 'opabiz' ? 'OpaBiz' : 'MyBiz'})`}>
                               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                             </button>
                             <a href={`https://mybusinessformation.com/?id=${c.document_id}`} target="_blank" rel="noreferrer" className="btn btn-ghost btn-sm" title="Preview landing page">

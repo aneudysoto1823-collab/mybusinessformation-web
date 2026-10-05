@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { generateNewBusinessLetter, entityLabelForLetter, formatLongDateForLetter, type Lang } from '@/lib/new-business-letter'
+import { generateOpabizLetter } from '@/lib/new-business-letter-opabiz'
 import { verifyAdminToken } from '@/lib/session'
 
 export const dynamic = 'force-dynamic'
@@ -24,6 +25,8 @@ export async function POST(req: NextRequest) {
 
   const { documentId, companyName, payUrl, registrationDate, companyType, ownerName, address, city, zip } = body
   const lang: Lang = body.lang === 'es' ? 'es' : 'en'
+  // brand 'opabiz' = carta de OpaBiz (2026-10-05); cualquier otro valor, la de mybiz.
+  const generate = body.brand === 'opabiz' ? generateOpabizLetter : generateNewBusinessLetter
 
   if (!documentId || !companyName || !payUrl) {
     return NextResponse.json({ error: 'Missing required fields: documentId, companyName, payUrl' }, { status: 400 })
@@ -33,7 +36,7 @@ export async function POST(req: NextRequest) {
 
   let pdfBytes: Uint8Array
   try {
-    pdfBytes = await generateNewBusinessLetter({
+    pdfBytes = await generate({
       documentId,
       companyName,
       ownerName,

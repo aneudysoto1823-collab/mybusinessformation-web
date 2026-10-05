@@ -1982,6 +1982,17 @@ Doc completo en memoria `project_guias_pdf_marketing.md`.
 - **Dos avisos estaban desactualizados en producción:** salario mínimo FL ($14.00, vencido el 30-sep-2026 → $15.00) y FCHR (versión pre-2015, dirección vieja y sin "pregnancy").
 - PDF a ~13-15 MB (imágenes a 300 dpi JPEG): la imprenta limita la subida directa a 18 MB. Por email van como link, no adjunto (umbral 10 MB).
 
+## Sesión 2026-10-05 — Carta de cumplimiento de OpaBiz (separada de mybiz)
+
+A pedido del founder, la carta de cumplimiento (email + carta física PDF + landing) existe ahora también para OpaBiz, **completamente separada** de la de mybusinessformation.com (nombre, colores, precios, certificado):
+- **Landing `opabiz.com/oferta`** (`app/oferta/page.tsx`): copia de la landing de mybiz (`app/new-business/page.tsx`) con encabezado blanco como el resto de opabiz.com y el mismo formulario/proceso. Precios de opabiz: Labor Law Poster $120 (envío incluido), EIN $79, **Certificate of Good Standing $49 + $9 estatal** (opabiz no vende Certificate of Status). noindex. En mybusinessformation.com `/oferta` redirige a la home. Si se corrige un bug de lógica en una landing, revisar si aplica a la otra.
+- **Combo de los 3 con 10% off:** `bundle-ob-essentials` (opabiz, $223 + $9) y `bundle-nb-essentials` (mybiz, $324) en `SERVICE_BUNDLES`. **Bug real corregido:** la landing de mybiz MOSTRABA el 10% pero no mandaba ningún combo y el servidor cobraba $360 en vez de $324.
+- **Email:** `lib/campaign-email-opabiz.ts` + `POST /api/campaigns/send-opabiz` + `GET /api/campaigns/preview-opabiz`. Remitente `marketing@opabiz.com` (⚠️ correo frío desde el dominio de OpaBiz — riesgo de reputación, ver comentario en la ruta). Seguimiento propio: `prospective_companies.carta_opabiz_sent_at` (migración `supabase_migration_carta_opabiz.sql`).
+- **Carta PDF:** `lib/new-business-letter-opabiz.ts` (logo OB, QR a `opabiz.com/oferta`). `generate-letter` y `print-letters` aceptan `brand: 'opabiz'`.
+- **Tracking:** `track-scan` con `brand=opabiz` redirige a `www.opabiz.com/oferta?id=...&lang=`.
+- **Panel `/admin/campaigns`:** plantilla nueva "Carta OpaBiz (Email + Correo)"; con esa plantilla elegida, ver/descargar/imprimir carta genera la versión OpaBiz.
+- También: **Labor Law Poster agregado a opabiz.com/servicios** ($120, envío incluido) y el checkout ahora **exige dirección del negocio** si el carrito trae el póster (ambas marcas). Quitada la cifra "multas de hasta $17,650" de todo el sitio (founder: poco creíble) → "evita multas costosas".
+
 ## Deploy
 
 - `git push origin main` — Vercel detecta cambios en `backend/` y hace deploy automático

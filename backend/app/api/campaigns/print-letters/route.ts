@@ -8,6 +8,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { verifyAdminToken } from '@/lib/session'
 import { generateNewBusinessLetter, entityLabelForLetter, formatLongDateForLetter, mergeLetterPdfs, type Lang } from '@/lib/new-business-letter'
+import { generateOpabizLetter } from '@/lib/new-business-letter-opabiz'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
@@ -28,6 +29,9 @@ export async function POST(req: NextRequest) {
   const body = await req.json()
   const ids: unknown = body.ids
   const lang: Lang = body.lang === 'es' ? 'es' : 'en'
+  // brand 'opabiz' = carta de OpaBiz (2026-10-05); cualquier otro valor, la de mybiz.
+  const isOpabiz = body.brand === 'opabiz'
+  const generate = isOpabiz ? generateOpabizLetter : generateNewBusinessLetter
 
   if (!Array.isArray(ids) || ids.length === 0) {
     return NextResponse.json({ error: 'ids array is required' }, { status: 400 })
@@ -53,7 +57,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const pdfs = await Promise.all(companies.map(c =>
-      generateNewBusinessLetter({
+      generate({
         documentId: c.document_id,
         companyName: c.company_name,
         ownerName: c.owner_name || '',
@@ -63,7 +67,9 @@ export async function POST(req: NextRequest) {
         registrationDate: formatLongDateForLetter(c.registration_date, lang),
         noticeDate,
         entityType: entityLabelForLetter(c.company_type, lang),
-        payUrl: `mybusinessformation.com/?id=${c.document_id}`,
+        payUrl: isOpabiz
+          ? `opabiz.com/oferta?id=${c.document_id}${lang === 'es' ? '&lang=es' : ''}`
+          : `mybusinessformation.com/?id=${c.document_id}`,
         lang,
       })
     ))
@@ -71,7 +77,7 @@ export async function POST(req: NextRequest) {
     return new NextResponse(Buffer.from(merged), {
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': `inline; filename="notices-combo-${companies.length}-${lang}.pdf"`,
+        'Content-Disposition': `inline; filename="notices-${isOpabiz ? 'opabiz-' : ''}combo-${companies.length}-${lang}.pdf"`,
       },
     })
   } catch (err) {
