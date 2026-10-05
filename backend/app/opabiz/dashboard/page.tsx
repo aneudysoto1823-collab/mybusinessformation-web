@@ -57,6 +57,7 @@ export default function OpabizDashboardPage() {
   const [togglingDisp, setTogglingDisp] = useState(false)
   const [showPushBanner, setShowPushBanner] = useState(false)
   const [subscribingPush, setSubscribingPush] = useState(false)
+  const [pushStatus, setPushStatus] = useState<{ ok: boolean; msg: string } | null>(null)
 
   const cargar = useCallback(async () => {
     const [meRes, ordersRes] = await Promise.all([
@@ -80,32 +81,57 @@ export default function OpabizDashboardPage() {
   useEffect(() => {
     if (typeof window === 'undefined') return
     if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) return
-    if (Notification.permission === 'default') setShowPushBanner(true)
+    if (Notification.permission === 'default') { setShowPushBanner(true); return }
+    // Permiso ya dado pero sin suscripción guardada (ej. un intento anterior
+    // que falló a mitad de camino): volver a ofrecer el botón.
+    if (Notification.permission === 'granted') {
+      navigator.serviceWorker.getRegistration('/opabiz-sw.js')
+        .then(reg => reg ? reg.pushManager.getSubscription() : null)
+        .then(sub => { if (!sub) setShowPushBanner(true) })
+        .catch(() => setShowPushBanner(true))
+    }
   }, [])
 
+  // Cada falla muestra su motivo en pantalla: antes fallaba en silencio y no
+  // había forma de saber si faltaba la clave VAPID, la migración o el permiso.
   async function activarNotificaciones() {
     setSubscribingPush(true)
+    setPushStatus(null)
     try {
       const permiso = await Notification.requestPermission()
-      if (permiso !== 'granted') { setShowPushBanner(false); return }
+      if (permiso !== 'granted') {
+        setPushStatus({ ok: false, msg: 'El navegador no dio permiso para notificaciones. Puede activarlo en la configuración del navegador.' })
+        return
+      }
+
+      const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
+      if (!vapidKey) {
+        setPushStatus({ ok: false, msg: 'Falta configurar la clave de notificaciones en el servidor (NEXT_PUBLIC_VAPID_PUBLIC_KEY).' })
+        return
+      }
 
       const registration = await navigator.serviceWorker.register('/opabiz-sw.js')
-      const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
-      if (!vapidKey) { setShowPushBanner(false); return }
-
+      await navigator.serviceWorker.ready
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(vapidKey) as BufferSource,
       })
 
-      await fetch('/api/opabiz/me/push-subscribe', {
+      const res = await fetch('/api/opabiz/me/push-subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(subscription.toJSON()),
       })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        setPushStatus({ ok: false, msg: `No se pudo guardar la suscripción: ${data.error || res.status}` })
+        return
+      }
       setShowPushBanner(false)
+      setPushStatus({ ok: true, msg: 'Notificaciones activadas en este dispositivo.' })
     } catch (err) {
       console.error('[opabiz] activarNotificaciones error:', err)
+      setPushStatus({ ok: false, msg: `No se pudieron activar las notificaciones: ${err instanceof Error ? err.message : String(err)}` })
     } finally {
       setSubscribingPush(false)
     }
@@ -163,6 +189,9 @@ export default function OpabizDashboardPage() {
         .op-push-text{font-size:.8rem;color:#065f46;font-weight:600;line-height:1.4}
         .op-push-btn{background:#059669;color:#fff;border:none;border-radius:8px;padding:9px 14px;font-size:.78rem;font-weight:700;cursor:pointer;white-space:nowrap;min-height:36px}
         .op-push-btn:disabled{opacity:.6;cursor:not-allowed}
+        .op-push-ok,.op-push-err{font-size:.8rem;font-weight:600;line-height:1.4;border-radius:10px;padding:10px 14px;margin-bottom:16px}
+        .op-push-ok{background:#ECFDF5;border:1.5px solid #a7f3d0;color:#065f46}
+        .op-push-err{background:#FEF2F2;border:1.5px solid #fecaca;color:#991b1b}
       `}</style>
 
       <div className="op-header">
@@ -183,11 +212,14 @@ export default function OpabizDashboardPage() {
 
             {showPushBanner && (
               <div className="op-push-banner">
-                <span className="op-push-text">🔔 Activá las notificaciones para enterarte al instante cuando te asignen una orden.</span>
+                <span className="op-push-text">Active las notificaciones para enterarse al instante cuando le asignen una orden.</span>
                 <button className="op-push-btn" onClick={activarNotificaciones} disabled={subscribingPush}>
                   {subscribingPush ? '...' : 'Activar'}
                 </button>
               </div>
+            )}
+            {pushStatus && (
+              <div className={pushStatus.ok ? 'op-push-ok' : 'op-push-err'}>{pushStatus.msg}</div>
             )}
 
             {me && (
