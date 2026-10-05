@@ -868,8 +868,9 @@ export default function MarketingPage() {
                     📬 Enviar a Campaigns &amp; Letters
                   </div>
                   <div style={S.blockDesc}>
-                    Copia los <b>{prepareStats?.ready ?? 0} leads listos</b> de arriba al panel{' '}
-                    <Link href="/admin/campaigns" style={S.link}>Campaigns &amp; Letters</Link>, donde ya se puede
+                    Copia los <b>{prepareStats?.ready ?? 0} leads listos</b> de arriba a los paneles{' '}
+                    <Link href="/admin/campaigns" style={S.link}>Campaigns &amp; Letters MyBiz</Link> y{' '}
+                    <Link href="/admin/campaigns-opabiz" style={S.link}>Campaigns &amp; Letters OpaBiz</Link> (comparten las mismas empresas), donde ya se puede
                     generar y descargar la carta física de cada uno. No manda nada por sí solo — el envío real
                     lo hacés desde ese panel, como hoy. Un lead copiado no se vuelve a ofrecer acá (queda marcado
                     como contactado).

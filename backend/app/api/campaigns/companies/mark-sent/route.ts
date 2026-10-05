@@ -25,10 +25,13 @@ export async function POST(req: NextRequest) {
     const ids = Array.isArray(body?.ids) ? body.ids.filter((id: unknown) => typeof id === 'string' && id) : []
     if (ids.length === 0) return NextResponse.json({ error: 'ids (array no vacío) es requerido' }, { status: 400 })
 
+    // brand=opabiz marca la carta física de OpaBiz, separada de la de MyBiz.
+    const field = body?.brand === 'opabiz' ? 'letter_opabiz_sent_at' : 'letter_sent_at'
+
     const supabase = getSupabaseAdmin()
     const { data, error } = await supabase
       .from('prospective_companies')
-      .update({ letter_sent_at: new Date().toISOString() })
+      .update({ [field]: new Date().toISOString() })
       .in('id', ids)
       .select('id')
 

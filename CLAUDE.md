@@ -1996,6 +1996,10 @@ A pedido del founder, la carta de cumplimiento (email + carta física PDF + land
 - **Panel `/admin/campaigns`:** plantilla nueva "Carta OpaBiz (Email + Correo)"; con esa plantilla elegida, ver/descargar/imprimir carta genera la versión OpaBiz.
 - También: **Labor Law Poster agregado a opabiz.com/servicios** ($120, envío incluido) y el checkout ahora **exige dirección del negocio** si el carrito trae el póster (ambas marcas). Quitada la cifra "multas de hasta $17,650" de todo el sitio (founder: poco creíble) → "evita multas costosas".
 
+## Campaigns & Letters separado por marca (2026-10-05)
+
+`/admin/campaigns` = **Campaigns & Letters MyBiz** (Carta Nuevas Empresas + Oferta VIP) y `/admin/campaigns-opabiz` = **Campaigns & Letters OpaBiz** (carta de OpaBiz). Mismo componente (`app/admin/campaigns/CampaignsPanel.tsx`, prop `brand`) y misma tabla `prospective_companies`, pero cada panel tiene su propia cola "New" y su propio seguimiento: MyBiz usa `status` + `letter_sent_at`; OpaBiz usa `carta_opabiz_sent_at` + `letter_opabiz_sent_at` (`?brand=opabiz` en `GET /api/campaigns/companies` y en `mark-sent`). `send-opabiz` y el escaneo de QR de OpaBiz ya no tocan `status`, para no sacar empresas de la cola de MyBiz. Requiere correr `supabase_migration_carta_opabiz.sql` (2 columnas). Las estadísticas de arriba siguen siendo globales.
+
 ## Deploy
 
 - `git push origin main` — Vercel detecta cambios en `backend/` y hace deploy automático

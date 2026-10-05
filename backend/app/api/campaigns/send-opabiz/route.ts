@@ -137,13 +137,12 @@ export async function POST(req: NextRequest) {
           qr_code_url: trackUrl,
         })
 
-        // status → email_sent sigue siendo el "contact status" general (lo
-        // usa el filtro New/Email sent/Letter sent del panel).
-        // carta_opabiz_sent_at es el seguimiento propio de esta campaña,
-        // separado del carta_sent_at de la carta de mybiz.
+        // Solo carta_opabiz_sent_at: el status general de la tabla es de
+        // MyBiz (lo usa la cola "New" de su panel). Tocarlo sacaría a esta
+        // empresa de la cola de MyBiz por un envío de OpaBiz.
         await supabase
           .from('prospective_companies')
-          .update({ status: 'email_sent', carta_opabiz_sent_at: new Date().toISOString() })
+          .update({ carta_opabiz_sent_at: new Date().toISOString() })
           .eq('id', company.id)
 
         results.push({ company_id: company.id, document_id: company.document_id, status: 'sent' })

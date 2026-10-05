@@ -39,13 +39,24 @@ export async function GET(req: NextRequest) {
     // (4 valores puntuales) con letter_status en un solo selector del panel
     // (feedback founder 2026-09-12: quería Nuevas / Email enviado / Cartas
     // enviadas / Todas en un solo lugar, en vez de dos dropdowns separados).
-    if (status === 'contacted') query = query.neq('status', 'new')
+    // brand=opabiz (panel Campaigns & Letters OpaBiz, 2026-10-05): la cola y
+    // los filtros salen del seguimiento propio de OpaBiz (carta_opabiz_sent_at
+    // + letter_opabiz_sent_at), no del status general ni de letter_sent_at,
+    // que son de MyBiz. Así una campaña no saca empresas de la cola de la otra.
+    const isOpabiz = searchParams.get('brand') === 'opabiz'
+    const emailField  = isOpabiz ? 'carta_opabiz_sent_at'  : null
+    const letterField = isOpabiz ? 'letter_opabiz_sent_at' : 'letter_sent_at'
+
+    if (emailField) {
+      if (status === 'new')            query = query.is(emailField, null)
+      else if (status === 'contacted') query = query.not(emailField, 'is', null)
+    } else if (status === 'contacted') query = query.neq('status', 'new')
     else if (status && status !== 'all') query = query.eq('status', status)
     if (type   && type   !== 'all') query = query.eq('company_type', type)
     if (dateFrom) query = query.gte('registration_date', dateFrom)
     if (dateTo)   query = query.lte('registration_date', dateTo)
-    if (letterStatus === 'sent')     query = query.not('letter_sent_at', 'is', null)
-    if (letterStatus === 'not_sent') query = query.is('letter_sent_at', null)
+    if (letterStatus === 'sent')     query = query.not(letterField, 'is', null)
+    if (letterStatus === 'not_sent') query = query.is(letterField, null)
 
     const { data, error } = await query
     if (error) throw error
