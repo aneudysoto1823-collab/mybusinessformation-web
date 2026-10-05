@@ -142,8 +142,8 @@ export const CONNECT_BASE_CSS = `
   .oc-msg-ok{background:#ECFDF5;border:1px solid #A7F3D0;color:#065F46}
   .oc-msg-err{background:#FEF2F2;border:1px solid #FECACA;color:#991B1B}
   .oc-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 18px;border-radius:9px;font-weight:700;font-size:.86rem;cursor:pointer;border:1px solid transparent;text-decoration:none;font-family:inherit;min-height:44px}
-  .oc-btn-primary{background:#2563EB;color:#fff}
-  .oc-btn-primary:hover{background:#1D4ED8}
+  .oc-btn-primary{background:#fff;color:#2563EB;border:1.5px solid #2563EB}
+  .oc-btn-primary:hover{background:#F7FAFF}
   .oc-btn-secondary{background:#fff;color:#334155;border-color:#E2E8F0}
   .oc-btn-secondary:hover{background:#F8FAFC}
   .oc-btn:disabled{opacity:.6;cursor:not-allowed}

@@ -4,7 +4,7 @@ import { getEmployeeSession } from '@/lib/opabiz-session'
 
 export const dynamic = 'force-dynamic'
 
-const IDIOMAS_VALIDOS = ['es', 'en', 'pt', 'fr', 'ht'] as const
+const IDIOMAS_VALIDOS = ['es', 'en', 'pt'] as const
 
 function str(v: unknown, max: number): string {
   return typeof v === 'string' ? v.trim().slice(0, max) : ''

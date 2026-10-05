@@ -9,8 +9,6 @@ const IDIOMAS: { code: string; label: string }[] = [
   { code: 'es', label: 'Español' },
   { code: 'en', label: 'Inglés' },
   { code: 'pt', label: 'Portugués' },
-  { code: 'fr', label: 'Francés' },
-  { code: 'ht', label: 'Criollo haitiano' },
 ]
 
 type Msg = { ok: boolean; msg: string } | null

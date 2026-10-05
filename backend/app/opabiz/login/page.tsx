@@ -202,7 +202,9 @@ export default function OpabizLoginPage() {
         .op-field input {
           width: 100%; padding: 11px 14px;
           border: 1.5px solid #e2e8f0; border-radius: 9px;
-          font-size: 14px; color: #0f172a; background: #ffffff;
+          /* 16px, no menos: con letra más chica el iPhone hace zoom al tocar
+             el campo y ese zoom queda puesto al entrar al panel. */
+          font-size: 16px; color: #0f172a; background: #ffffff;
           outline: none; transition: border-color 0.15s, box-shadow 0.15s;
           font-family: inherit;
         }
@@ -211,14 +213,14 @@ export default function OpabizLoginPage() {
 
         .op-btn-login {
           width: 100%; padding: 12px;
-          background: #1e2d3d; color: #ffffff; border: none;
+          background: #ffffff; color: #2563eb; border: 1.5px solid #2563eb;
           border-radius: 9px; font-size: 15px; font-weight: 700;
           cursor: pointer; margin-top: 8px; font-family: inherit;
           transition: background 0.15s, transform 0.1s; letter-spacing: -0.2px;
         }
-        .op-btn-login:hover:not(:disabled) { background: #2563eb; }
+        .op-btn-login:hover:not(:disabled) { background: #f7faff; }
         .op-btn-login:active:not(:disabled) { transform: scale(0.99); }
-        .op-btn-login:disabled { background: #94a3b8; cursor: not-allowed; }
+        .op-btn-login:disabled { color: #94a3b8; border-color: #cbd5e1; cursor: not-allowed; }
 
         .op-link-btn {
           background: none; border: none; padding: 0; cursor: pointer;

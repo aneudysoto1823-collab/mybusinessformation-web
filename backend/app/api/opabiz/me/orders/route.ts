@@ -14,6 +14,9 @@ export async function GET(req: NextRequest) {
     .from('ordenes_opabiz')
     .select('id, tipo_servicio, estado, es_urgente, notas, fecha_hora_cita, fecha_creacion, fecha_asignacion, fecha_completada, usuarios(nombre, email, telefono)')
     .eq('empleado_id', session.empleadosId)
+    // 'pendiente' = la rechazó o venció sin aceptarla: ya no es suya, aunque
+    // empleado_id siga apuntándole (es NOT NULL).
+    .neq('estado', 'pendiente')
     .order('fecha_asignacion', { ascending: false })
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })

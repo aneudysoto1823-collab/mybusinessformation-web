@@ -82,7 +82,7 @@ export default function OpabizInvitePage() {
         .op-field label{display:block;font-size:.78rem;font-weight:600;color:#374151;margin-bottom:5px}
         .op-field input{width:100%;padding:11px 12px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:16px;font-family:inherit;color:#1E293B;outline:none}
         .op-field input:focus{border-color:#2563EB}
-        .op-btn{width:100%;padding:12px;border-radius:8px;background:#2563EB;color:#fff;font-weight:700;font-size:.9rem;border:none;cursor:pointer;margin-top:6px}
+        .op-btn{width:100%;padding:12px;border-radius:8px;background:#fff;color:#2563EB;font-weight:700;font-size:.9rem;border:1.5px solid #2563EB;cursor:pointer;margin-top:6px;min-height:44px}
         .op-btn:disabled{opacity:.6;cursor:not-allowed}
         .op-error{color:#ef4444;font-size:.8rem;margin-top:10px;text-align:center}
         .op-msg{font-size:.85rem;color:#374151;text-align:center}
