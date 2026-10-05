@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import HowItWorksModal from '../HowItWorksModal'
-import { OPABIZ_WAIT_DAYS, opabizAvailableFrom, opabizContactedAt } from '@/lib/campaign-brand-order'
+import { brandContactedAt } from '@/lib/campaign-brand-order'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -65,15 +65,14 @@ type CampaignTemplate = {
   /** Marca de la carta física (PDF) asociada: los botones Ver/Descargar/Print
    *  generan la carta de esta marca cuando esta plantilla está elegida. */
   letterBrand?: 'fbfc' | 'opabiz'
-  /** Panel al que pertenece: /admin/campaigns (MyBiz) o
-   *  /admin/campaigns-opabiz (OpaBiz). Cada panel solo muestra lo suyo. */
+  /** Marca que envía esta plantilla. */
   brand: 'fbfc' | 'opabiz'
 }
 
 const TEMPLATES: CampaignTemplate[] = [
   {
     id: 'carta_nuevas_empresas',
-    label: 'Carta Nuevas Empresas (Email + Correo)',
+    label: 'MyBiz: Carta Nuevas Empresas (Email + Correo)',
     sendEndpoint: '/api/campaigns/send',
     previewEndpoint: '/api/campaigns/preview-email',
     sentAtField: 'carta_sent_at',
@@ -82,7 +81,7 @@ const TEMPLATES: CampaignTemplate[] = [
   },
   {
     id: 'oferta_vip',
-    label: 'Oferta VIP (Email)',
+    label: 'MyBiz: Oferta VIP (Email)',
     sendEndpoint: '/api/campaigns/send-vip-reminder',
     previewEndpoint: '/api/campaigns/preview-vip-reminder',
     sentAtField: 'vip_reminder_sent_at',
@@ -94,7 +93,7 @@ const TEMPLATES: CampaignTemplate[] = [
   // propio seguimiento.
   {
     id: 'carta_opabiz',
-    label: 'Carta Nuevas Empresas (Email + Correo)',
+    label: 'OpaBiz: Carta Nuevas Empresas (Email + Correo)',
     sendEndpoint: '/api/campaigns/send-opabiz',
     previewEndpoint: '/api/campaigns/preview-opabiz',
     sentAtField: 'carta_opabiz_sent_at',
@@ -104,7 +103,9 @@ const TEMPLATES: CampaignTemplate[] = [
   },
 ]
 
+type BrandStats = { contacted: number; purchased: number }
 type Stats = {
+  byBrand?: { fbfc: BrandStats; opabiz: BrandStats }
   totalCompanies: number
   emailsToday: number
   emailsMonth: number
@@ -124,14 +125,11 @@ const STATUS_META = {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-// Un panel por marca (pedido founder 2026-10-05): antes un solo panel mezclaba
-// las campañas de MyBiz y la de OpaBiz. Comparten la misma tabla de empresas
-// (prospective_companies), pero cada panel tiene su propia cola de "New" y su
-// propio seguimiento de envíos, así una campaña no saca empresas de la otra.
-export default function CampaignsPanel({ brand }: { brand: 'fbfc' | 'opabiz' }) {
-  const isOpabiz = brand === 'opabiz'
-  const brandName = isOpabiz ? 'OpaBiz' : 'MyBiz'
-  const templates = TEMPLATES.filter(tpl => tpl.brand === brand)
+// Panel único para las dos marcas (pedido founder 2026-10-05): se elige la
+// plantilla (y con ella la marca) al enviar, y cada empresa la contacta una
+// sola marca. Ver lib/campaign-brand-order.ts.
+export default function CampaignsPanel() {
+  const templates = TEMPLATES
   const [stats, setStats]             = useState<Stats | null>(null)
   const [companies, setCompanies]     = useState<Company[]>([])
   const [loading, setLoading]         = useState(true)
@@ -150,6 +148,9 @@ export default function CampaignsPanel({ brand }: { brand: 'fbfc' | 'opabiz' }) 
   // exclusivas (email_only/letter_only) — eran solo para auditar, no hacían
   // falta para evitar duplicados (founder 2026-09-12).
   const [filterContact, setFilterContact] = useState<'new' | 'email_sent' | 'letter_sent' | 'all'>('new')
+  // Marca que contactó a la empresa — aplica a todo menos "New" (en New
+  // nadie la contactó todavía).
+  const [filterBrand, setFilterBrand] = useState<'all' | 'fbfc' | 'opabiz'>('all')
 
   // Selección con checkboxes — borrado en lote y "marcar como enviada" en lote.
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
@@ -236,7 +237,6 @@ export default function CampaignsPanel({ brand }: { brand: 'fbfc' | 'opabiz' }) 
 
   const fetchCompanies = useCallback(async () => {
     const params = new URLSearchParams()
-    params.set('brand', brand)
     // Traduce el filtro único de contacto a los parámetros reales que ya
     // entiende la API (status + letter_status) — ver comentario en el
     // endpoint sobre status='contacted'.
@@ -248,6 +248,7 @@ export default function CampaignsPanel({ brand }: { brand: 'fbfc' | 'opabiz' }) 
     } else if (filterContact === 'letter_sent') {
       params.set('letter_status', 'sent')
     }
+    if (filterContact !== 'new' && filterBrand !== 'all') params.set('contact_brand', filterBrand)
     if (filterType   !== 'all') params.set('type',      filterType)
     if (filterFrom)              params.set('date_from', filterFrom)
     if (filterTo)                params.set('date_to',   filterTo)
@@ -259,7 +260,7 @@ export default function CampaignsPanel({ brand }: { brand: 'fbfc' | 'opabiz' }) 
     }
     setSelectedIds(new Set())
     setLoading(false)
-  }, [brand, filterContact, filterType, filterFrom, filterTo])
+  }, [filterContact, filterBrand, filterType, filterFrom, filterTo])
 
   // Carga inicial de datos del panel — patrón estándar de fetch en mount.
   // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -308,13 +309,13 @@ export default function CampaignsPanel({ brand }: { brand: 'fbfc' | 'opabiz' }) 
 
   async function bulkMarkSent() {
     if (bulkMarking || selectedIds.size === 0) return
-    if (!confirm(`¿Marcar ${selectedIds.size} empresa(s) como carta ya enviada? Van a salir de esta lista.`)) return
+    if (!confirm(`¿Marcar ${selectedIds.size} empresa(s) como carta de ${selectedTemplate.brand === 'opabiz' ? 'OpaBiz' : 'MyBiz'} ya enviada? Van a salir de esta lista.`)) return
     setBulkMarking(true); setBulkMsg('')
     try {
       const res = await fetch('/api/campaigns/companies/mark-sent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ids: [...selectedIds], brand }),
+        body: JSON.stringify({ ids: [...selectedIds], brand: selectedTemplate.letterBrand ?? 'fbfc' }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`)
@@ -634,9 +635,9 @@ export default function CampaignsPanel({ brand }: { brand: 'fbfc' | 'opabiz' }) 
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
               <Link href="/admin" style={{ color: '#94A3B8', fontSize: '.8rem', textDecoration: 'none' }}>← Admin</Link>
               <span style={{ color: '#CBD5E1' }}>/</span>
-              <span style={{ color: '#1C2E44', fontSize: '.8rem', fontWeight: 600 }}>Campaigns & Letters {brandName}</span>
+              <span style={{ color: '#1C2E44', fontSize: '.8rem', fontWeight: 600 }}>Campaigns & Letters</span>
             </div>
-            <h1 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#1C2E44' }}>Campaigns & Letters {brandName}</h1>
+            <h1 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#1C2E44' }}>Campaigns & Letters</h1>
             <p style={{ fontSize: '.8rem', color: '#94A3B8', marginTop: 2 }}>Physical compliance letters, outreach emails, and QR code tracking</p>
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
@@ -653,7 +654,7 @@ export default function CampaignsPanel({ brand }: { brand: 'fbfc' | 'opabiz' }) 
         </div>
 
         {showHowItWorks && (
-          <HowItWorksModal title={`Cómo funciona Campaigns & Letters ${brandName}`} onClose={() => setShowHowItWorks(false)}>
+          <HowItWorksModal title="Cómo funciona Campaigns & Letters" onClose={() => setShowHowItWorks(false)}>
             <p>Panel para contactar empresas de Florida recién formadas — por carta física, por email, o ambos — y llevar registro de a quién ya se le mandó qué.</p>
 
             <h3>1. De dónde salen las empresas</h3>
@@ -662,27 +663,16 @@ export default function CampaignsPanel({ brand }: { brand: 'fbfc' | 'opabiz' }) 
               <li><strong>Marketing Saliente:</strong> el flujo automático (clasifica LLCs nuevas, valida dirección, busca email con Enformion) las manda para acá con el botón &quot;Enviar a Campañas y Cartas&quot; de ese otro panel — llegan ya listas, con o sin email según lo que haya encontrado.</li>
             </ul>
 
-            {isOpabiz ? (
-              <>
-                <h3>2. La campaña de OpaBiz</h3>
-                <ul>
-                  <li><strong>Carta Nuevas Empresas</strong>: carta física (con QR) y email, con marca, precios y landing de OpaBiz (opabiz.com/oferta). Ofrece Labor Law Poster, EIN y Certificate of Good Standing.</li>
-                  <li>Usa las mismas empresas que el panel de MyBiz, con su propio registro de envíos.</li>
-                  <li><strong>MyBiz va primero.</strong> Si MyBiz ya le escribió a una empresa, aparece en &quot;New&quot; de acá recién {OPABIZ_WAIT_DAYS} días después de ese contacto, para no competir con nuestros propios precios.</li>
-                  <li>Una empresa que ya compró por cualquiera de las dos marcas no vuelve a recibir la carta.</li>
-                </ul>
-              </>
-            ) : (
-              <>
-                <h3>2. Las dos campañas</h3>
-                <ul>
-                  <li><strong>Carta Nuevas Empresas</strong>: tiene versión en carta física (con QR) y en email. Ofrece Labor Law Posters, EIN y Certificate of Status.</li>
-                  <li><strong>Oferta VIP</strong>: solo por email, sin versión en papel. Ofrece la Declaración Anual sola, y como upsell el combo Agente Registrado + Declaración Anual.</li>
-                  <li>El selector de plantilla arriba de la tabla decide cuál de las dos vas a mandar o previsualizar; los botones de cada fila y los de envío masivo usan la que esté elegida ahí.</li>
-                  <li>La campaña de OpaBiz vive en su propio panel (Campaigns &amp; Letters OpaBiz). MyBiz va primero: OpaBiz espera {OPABIZ_WAIT_DAYS} días después de un contacto de MyBiz. Si OpaBiz ya le escribió a una empresa, MyBiz no le vuelve a escribir.</li>
-                </ul>
-              </>
-            )}
+            <h3>2. Las campañas y las dos marcas</h3>
+            <ul>
+              <li><strong>MyBiz: Carta Nuevas Empresas</strong>: carta física (con QR) y email. Ofrece Labor Law Posters, EIN y Certificate of Status.</li>
+              <li><strong>MyBiz: Oferta VIP</strong>: solo por email. Ofrece la Declaración Anual sola, y como upsell el combo Agente Registrado + Declaración Anual.</li>
+              <li><strong>OpaBiz: Carta Nuevas Empresas</strong>: carta física y email con marca, precios y landing de OpaBiz (opabiz.com/oferta). Ofrece Labor Law Poster, EIN y Certificate of Good Standing.</li>
+              <li>El selector de plantilla decide qué mandás y por qué marca: los botones de cada fila, los de envío masivo y los de ver/descargar/imprimir carta usan la que esté elegida.</li>
+              <li><strong>Cada empresa la contacta una sola marca.</strong> En cuanto una marca le manda algo, sale de &quot;New&quot; y la otra marca ya no puede mandarle su carta. Así no competimos con nuestros propios precios.</li>
+              <li>Una empresa que ya compró por cualquiera de las dos marcas no vuelve a recibir la carta.</li>
+              <li>En Email sent / Letter sent / All, el filtro de marca muestra solo las que contactó MyBiz u OpaBiz.</li>
+            </ul>
 
             <h3>3. Organizar antes de enviar</h3>
             <ul>
@@ -746,6 +736,24 @@ export default function CampaignsPanel({ brand }: { brand: 'fbfc' | 'opabiz' }) 
             <div className="stat-sub">{stats?.conversions ?? 0} conversions</div>
           </div>
         </div>
+
+        {/* Comparación por marca: cuántas empresas contactó cada una y cuántas
+            de esas compraron, para ver cuál convierte mejor. */}
+        {stats?.byBrand && (
+          <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(2,1fr)' }}>
+            {([['fbfc', 'MyBiz'], ['opabiz', 'OpaBiz']] as const).map(([key, name]) => {
+              const b = stats.byBrand![key]
+              const rate = b.contacted > 0 ? Math.round((b.purchased / b.contacted) * 100) : 0
+              return (
+                <div className="stat-card" key={key}>
+                  <div className="stat-val">{b.purchased} / {b.contacted}</div>
+                  <div className="stat-lbl">{name}: compraron / contactadas</div>
+                  <div className="stat-sub">{rate}% de conversión</div>
+                </div>
+              )
+            })}
+          </div>
+        )}
 
         {/* Add company form */}
         {showForm && (
@@ -832,9 +840,16 @@ export default function CampaignsPanel({ brand }: { brand: 'fbfc' | 'opabiz' }) 
                 title="Email/carta a enviar"
                 style={{ fontWeight: 700, color: selectedTemplate.color, borderColor: selectedTemplate.color }}
               >
-                {templates.map(tpl => (
-                  <option key={tpl.id} value={tpl.id}>✉️ {tpl.label}</option>
-                ))}
+                <optgroup label="MyBiz">
+                  {templates.filter(tpl => tpl.brand === 'fbfc').map(tpl => (
+                    <option key={tpl.id} value={tpl.id}>{tpl.label}</option>
+                  ))}
+                </optgroup>
+                <optgroup label="OpaBiz">
+                  {templates.filter(tpl => tpl.brand === 'opabiz').map(tpl => (
+                    <option key={tpl.id} value={tpl.id}>{tpl.label}</option>
+                  ))}
+                </optgroup>
               </select>
               <select value={filterContact} onChange={e => setFilterContact(e.target.value as 'new' | 'email_sent' | 'letter_sent' | 'all')} title="Contact status">
                 <option value="new">🆕 New (no letter, no email)</option>
@@ -842,6 +857,13 @@ export default function CampaignsPanel({ brand }: { brand: 'fbfc' | 'opabiz' }) 
                 <option value="letter_sent">📬 Letter sent</option>
                 <option value="all">All</option>
               </select>
+              {filterContact !== 'new' && (
+                <select value={filterBrand} onChange={e => setFilterBrand(e.target.value as 'all' | 'fbfc' | 'opabiz')} title="Contactada por">
+                  <option value="all">Both brands</option>
+                  <option value="fbfc">MyBiz</option>
+                  <option value="opabiz">OpaBiz</option>
+                </select>
+              )}
               <select value={filterType} onChange={e => setFilterType(e.target.value)}>
                 <option value="all">All Types</option>
                 <option value="LLC">LLC</option>
@@ -850,7 +872,7 @@ export default function CampaignsPanel({ brand }: { brand: 'fbfc' | 'opabiz' }) 
               </select>
               <input type="date" value={filterFrom} onChange={e => setFilterFrom(e.target.value)} title="From date" />
               <input type="date" value={filterTo}   onChange={e => setFilterTo(e.target.value)}   title="To date" />
-              <button className="btn btn-ghost btn-sm" onClick={() => { setFilterContact('new'); setFilterType('all'); setFilterFrom(''); setFilterTo('') }}>Clear</button>
+              <button className="btn btn-ghost btn-sm" onClick={() => { setFilterContact('new'); setFilterBrand('all'); setFilterType('all'); setFilterFrom(''); setFilterTo('') }}>Clear</button>
             </div>
           </div>
 
@@ -998,11 +1020,11 @@ export default function CampaignsPanel({ brand }: { brand: 'fbfc' | 'opabiz' }) 
                 </thead>
                 <tbody>
                   {visibleCompanies.map(c => {
-                    // En OpaBiz el status general de la tabla es de MyBiz; acá se deriva del
-                    // seguimiento propio de OpaBiz.
-                    const rowStatus: Company['status'] = isOpabiz ? (c.status === 'purchased' ? 'purchased' : c.carta_opabiz_sent_at ? 'email_sent' : 'new') : c.status
+                    // El status general solo lo mueven los envíos de MyBiz; un email de
+                    // OpaBiz se refleja con su propio campo.
+                    const rowStatus: Company['status'] = c.status === 'new' && c.carta_opabiz_sent_at ? 'email_sent' : c.status
                     const meta = STATUS_META[rowStatus] ?? STATUS_META.new
-                    const letterSentAt = isOpabiz ? c.letter_opabiz_sent_at : c.letter_sent_at
+                    const contactedBy = brandContactedAt(c, 'fbfc') ? 'MyBiz' : brandContactedAt(c, 'opabiz') ? 'OpaBiz' : null
                     return (
                       <tr key={c.id}>
                         <td>
@@ -1012,20 +1034,9 @@ export default function CampaignsPanel({ brand }: { brand: 'fbfc' | 'opabiz' }) 
                           {c.company_name}
                           {c.owner_name && <div style={{ fontSize: '.72rem', color: '#94A3B8', fontWeight: 400, marginTop: 2 }}>{c.owner_name}</div>}
                           {c.note && <div title={c.note} style={{ fontSize: '.72rem', color: '#b45309', fontWeight: 400, marginTop: 2, maxWidth: 210, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>📝 {c.note}</div>}
-                          {letterSentAt && <div style={{ fontSize: '.7rem', color: '#059669', fontWeight: 600, marginTop: 2 }}>✅ Letter sent {new Date(letterSentAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>}
-                          {/* Orden entre marcas (lib/campaign-brand-order.ts): MyBiz va
-                              primero; OpaBiz espera OPABIZ_WAIT_DAYS después de un contacto de
-                              MyBiz, y MyBiz no le escribe a quien OpaBiz ya contactó. */}
-                          {isOpabiz && opabizAvailableFrom(c) && (
-                            <div style={{ fontSize: '.7rem', color: '#64748B', fontWeight: 600, marginTop: 2 }}>
-                              Contactada por MyBiz. OpaBiz puede escribirle desde el {new Date(opabizAvailableFrom(c)!).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                            </div>
-                          )}
-                          {!isOpabiz && opabizContactedAt(c) && (
-                            <div style={{ fontSize: '.7rem', color: '#64748B', fontWeight: 600, marginTop: 2 }}>
-                              Ya contactada por OpaBiz. MyBiz no le escribe.
-                            </div>
-                          )}
+                          {contactedBy && <div style={{ fontSize: '.7rem', color: '#64748B', fontWeight: 600, marginTop: 2 }}>Contactada por {contactedBy}</div>}
+                          {c.letter_sent_at && <div style={{ fontSize: '.7rem', color: '#059669', fontWeight: 600, marginTop: 2 }}>✅ MyBiz letter sent {new Date(c.letter_sent_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>}
+                          {c.letter_opabiz_sent_at && <div style={{ fontSize: '.7rem', color: '#1C2E44', fontWeight: 600, marginTop: 2 }}>✅ OpaBiz letter sent {new Date(c.letter_opabiz_sent_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>}
                           {/* Tracking separado por campaña (auditoría 2026-09-13/14) — antes
                               solo existía el genérico "Status" de la columna de al lado, sin
                               distinguir cuál de las dos campañas ya recibió. */}
@@ -1035,9 +1046,9 @@ export default function CampaignsPanel({ brand }: { brand: 'fbfc' | 'opabiz' }) 
                               de por medio) — acá queda a la vista, junto a la fecha del envío
                               anterior, y usa el idioma que esté activo en el toggle "Language"
                               de arriba (útil para reenviar en el otro idioma al que ya se mandó). */}
-                          {!isOpabiz && c.carta_sent_at && (
+                          {c.carta_sent_at && (
                             <div style={{ fontSize: '.7rem', color: '#2563EB', fontWeight: 600, marginTop: 2, display: 'flex', alignItems: 'center', gap: 5 }}>
-                              ✅ Carta sent {new Date(c.carta_sent_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                              ✅ MyBiz carta sent {new Date(c.carta_sent_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                               <button
                                 onClick={() => sendTemplate(c, TEMPLATES.find(t => t.id === 'carta_nuevas_empresas')!)}
                                 disabled={!!sendingId || paused || !c.email}
@@ -1046,9 +1057,9 @@ export default function CampaignsPanel({ brand }: { brand: 'fbfc' | 'opabiz' }) 
                               >↻</button>
                             </div>
                           )}
-                          {isOpabiz && c.carta_opabiz_sent_at && (
+                          {c.carta_opabiz_sent_at && (
                             <div style={{ fontSize: '.7rem', color: '#1C2E44', fontWeight: 600, marginTop: 2, display: 'flex', alignItems: 'center', gap: 5 }}>
-                              ✅ Carta sent {new Date(c.carta_opabiz_sent_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                              ✅ OpaBiz carta sent {new Date(c.carta_opabiz_sent_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                               <button
                                 onClick={() => sendTemplate(c, TEMPLATES.find(t => t.id === 'carta_opabiz')!)}
                                 disabled={!!sendingId || paused || !c.email}
@@ -1057,9 +1068,9 @@ export default function CampaignsPanel({ brand }: { brand: 'fbfc' | 'opabiz' }) 
                               >↻</button>
                             </div>
                           )}
-                          {!isOpabiz && c.vip_reminder_sent_at && (
+                          {c.vip_reminder_sent_at && (
                             <div style={{ fontSize: '.7rem', color: '#059669', fontWeight: 600, marginTop: 2, display: 'flex', alignItems: 'center', gap: 5 }}>
-                              ✅ VIP sent {new Date(c.vip_reminder_sent_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                              ✅ MyBiz VIP sent {new Date(c.vip_reminder_sent_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                               <button
                                 onClick={() => sendTemplate(c, TEMPLATES.find(t => t.id === 'oferta_vip')!)}
                                 disabled={!!sendingId || paused || !c.email}
@@ -1122,10 +1133,10 @@ export default function CampaignsPanel({ brand }: { brand: 'fbfc' | 'opabiz' }) 
                               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 8h20"/><path d="M6 6h.01"/><path d="M9 6h.01"/></svg>
                             </button>
                             <span style={{ width: 1, background: '#E2E8F0', margin: '2px 2px' }} />
-                            <button className="btn btn-ghost btn-sm" onClick={() => generateLetter(c, true)} title={`Preview letter (${selectedTemplate.letterBrand === 'opabiz' ? 'OpaBiz' : 'MyBiz'})`}>
+                            <button className="btn btn-ghost btn-sm" onClick={() => generateLetter(c, true)} title={`Preview letter (${selectedTemplate.brand === 'opabiz' ? 'OpaBiz' : 'MyBiz'})`}>
                               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                             </button>
-                            <button className="btn btn-ghost btn-sm" onClick={() => generateLetter(c)} title={`Download letter (${selectedTemplate.letterBrand === 'opabiz' ? 'OpaBiz' : 'MyBiz'})`}>
+                            <button className="btn btn-ghost btn-sm" onClick={() => generateLetter(c)} title={`Download letter (${selectedTemplate.brand === 'opabiz' ? 'OpaBiz' : 'MyBiz'})`}>
                               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                             </button>
                             <a href={`https://mybusinessformation.com/?id=${c.document_id}`} target="_blank" rel="noreferrer" className="btn btn-ghost btn-sm" title="Preview landing page">

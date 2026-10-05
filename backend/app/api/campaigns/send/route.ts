@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getResend } from '@/lib/resend-client'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { verifyAdminToken } from '@/lib/session'
-import { opabizContactedAt } from '@/lib/campaign-brand-order'
+import { brandContactedAt } from '@/lib/campaign-brand-order'
 import { FROM_COLD_OUTREACH, REPLY_TO_COLD_OUTREACH, buildListUnsubscribeHeaders } from '@/lib/email-constants'
 import { hasReceivedGuide, recordGuideSent, getGuideAttachments, buildGuideBonusHtml, type GuideKey } from '@/lib/guides'
 import { buildComplianceEmail as buildEmail, CAMPAIGN_EMAIL_BASE_URL as BASE_URL } from '@/lib/campaign-email'
@@ -65,9 +65,9 @@ export async function POST(req: NextRequest) {
         results.push({ company_id: company.id, document_id: company.document_id, status: 'skipped', reason: 'already purchased' })
         continue
       }
-      // Si OpaBiz ya la contactó, MyBiz no le escribe después con precios
-      // más altos (ver lib/campaign-brand-order.ts).
-      if (opabizContactedAt(company)) {
+      // Cada empresa la contacta una sola marca: si OpaBiz ya le escribió,
+      // MyBiz no le manda nada (ver lib/campaign-brand-order.ts).
+      if (brandContactedAt(company, 'opabiz')) {
         results.push({ company_id: company.id, document_id: company.document_id, status: 'skipped', reason: 'already contacted by OpaBiz' })
         continue
       }

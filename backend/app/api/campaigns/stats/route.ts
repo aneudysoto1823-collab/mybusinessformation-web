@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin, pgErrorMessage } from '@/lib/supabase'
 import { verifyAdminToken } from '@/lib/session'
+import { contactedByOrFilter, type CampaignBrand } from '@/lib/campaign-brand-order'
 
 export const dynamic = 'force-dynamic'
 
@@ -36,6 +37,19 @@ export async function GET(request: NextRequest) {
       supabase.from('conversions').select('total_amount'),
     ])
 
+    // Comparación por marca (panel único, 2026-10-05): empresas contactadas
+    // por cada marca y cuántas de esas compraron. Cada empresa la contacta una
+    // sola marca (lib/campaign-brand-order.ts), así que no se cuentan doble.
+    const brandCount = async (brand: CampaignBrand, purchasedOnly: boolean) => {
+      let q = supabase.from('prospective_companies').select('*', { count: 'exact', head: true }).or(contactedByOrFilter(brand))
+      if (purchasedOnly) q = q.eq('status', 'purchased')
+      const { count } = await q
+      return count ?? 0
+    }
+    const [fbfcContacted, fbfcPurchased, opabizContacted, opabizPurchased] = await Promise.all([
+      brandCount('fbfc', false), brandCount('fbfc', true), brandCount('opabiz', false), brandCount('opabiz', true),
+    ])
+
     const revenue = conversions?.reduce((sum, c) => sum + Number(c.total_amount), 0) ?? 0
     const scanRate = totalEmailsSent && totalEmailsSent > 0
       ? Math.round(((totalScans ?? 0) / totalEmailsSent) * 100)
@@ -50,6 +64,10 @@ export async function GET(request: NextRequest) {
       scanRate,
       conversions:     conversions?.length ?? 0,
       revenue,
+      byBrand: {
+        fbfc:   { contacted: fbfcContacted,   purchased: fbfcPurchased },
+        opabiz: { contacted: opabizContacted, purchased: opabizPurchased },
+      },
     })
   } catch (err) {
     return NextResponse.json({ error: pgErrorMessage(err) }, { status: 500 })

@@ -1,9 +1,7 @@
-'use client'
+import { redirect } from 'next/navigation'
 
-import CampaignsPanel from '../campaigns/CampaignsPanel'
-
-// Campaigns & Letters de OpaBiz: mismas empresas que el de MyBiz, pero solo
-// la campaña de OpaBiz y su propio seguimiento de envíos.
+// El panel de OpaBiz se fusionó con el de MyBiz en /admin/campaigns
+// (2026-10-05). Se conserva la ruta por si quedó algún link guardado.
 export default function CampaignsOpabizPage() {
-  return <CampaignsPanel brand="opabiz" />
+  redirect('/admin/campaigns')
 }

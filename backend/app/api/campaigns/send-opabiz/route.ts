@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getResend } from '@/lib/resend-client'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { verifyAdminToken } from '@/lib/session'
-import { opabizAvailableFrom } from '@/lib/campaign-brand-order'
+import { brandContactedAt } from '@/lib/campaign-brand-order'
 import { FROM_COLD_OUTREACH_OPABIZ, REPLY_TO_COLD_OUTREACH_OPABIZ, buildListUnsubscribeHeaders } from '@/lib/email-constants'
 import { hasReceivedGuide, recordGuideSent, getGuideAttachments, buildGuideBonusHtml, type GuideKey } from '@/lib/guides'
 import { buildOpabizComplianceEmail as buildEmail, opabizTrackUrl, OPABIZ_CAMPAIGN_BASE_URL } from '@/lib/campaign-email-opabiz'
@@ -70,11 +70,10 @@ export async function POST(req: NextRequest) {
         results.push({ company_id: company.id, document_id: company.document_id, status: 'skipped', reason: 'already purchased' })
         continue
       }
-      // MyBiz va primero: si MyBiz la contactó hace menos de OPABIZ_WAIT_DAYS,
-      // OpaBiz espera (ver lib/campaign-brand-order.ts).
-      const waitUntil = opabizAvailableFrom(company)
-      if (waitUntil) {
-        results.push({ company_id: company.id, document_id: company.document_id, status: 'skipped', reason: `MyBiz contacted it recently; OpaBiz can send from ${waitUntil.slice(0, 10)}` })
+      // Cada empresa la contacta una sola marca: si MyBiz ya le escribió,
+      // OpaBiz no le manda su carta (ver lib/campaign-brand-order.ts).
+      if (brandContactedAt(company, 'fbfc')) {
+        results.push({ company_id: company.id, document_id: company.document_id, status: 'skipped', reason: 'already contacted by MyBiz' })
         continue
       }
       // Skip si el lead pidió no recibir más comunicaciones (POST /api/unsubscribe).

@@ -2,8 +2,8 @@
 
 import CampaignsPanel from './CampaignsPanel'
 
-// Campaigns & Letters de MyBiz (mybusinessformation.com). El de OpaBiz vive
-// en /admin/campaigns-opabiz, mismo componente con brand='opabiz'.
-export default function CampaignsMyBizPage() {
-  return <CampaignsPanel brand="fbfc" />
+// Campaigns & Letters: un solo panel para MyBiz y OpaBiz (la marca se elige
+// con la plantilla al enviar, ver lib/campaign-brand-order.ts).
+export default function CampaignsPage() {
+  return <CampaignsPanel />
 }

@@ -47,17 +47,12 @@ export async function GET(req: NextRequest) {
       converted:  false,
     })
 
-    // Update company status to qr_scanned — only if not already purchased.
-    // Solo para MyBiz: el status general es de su panel, un escaneo de la
-    // carta de OpaBiz no debe sacar a la empresa de la cola de MyBiz (el
-    // escaneo igual queda registrado en qr_scans).
-    if (!isOpabiz) {
-      await supabase
-        .from('prospective_companies')
-        .update({ status: 'qr_scanned' })
-        .eq('id', cid)
-        .not('status', 'eq', 'purchased')
-    }
+    // Update company status to qr_scanned — only if not already purchased
+    await supabase
+      .from('prospective_companies')
+      .update({ status: 'qr_scanned' })
+      .eq('id', cid)
+      .not('status', 'eq', 'purchased')
   } catch (err) {
     // Non-blocking — log but don't block the redirect
     console.error('[track-scan]', err instanceof Error ? err.message : String(err))

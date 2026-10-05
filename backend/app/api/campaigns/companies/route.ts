@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin, pgErrorMessage } from '@/lib/supabase'
 import { CampaignsCompaniesInputSchema, parseOr400 } from '@/lib/schemas'
 import { verifyAdminToken } from '@/lib/session'
-import { MYBIZ_CONTACT_FIELDS, OPABIZ_CONTACT_FIELDS, opabizCutoffIso } from '@/lib/campaign-brand-order'
+import { MYBIZ_CONTACT_FIELDS, OPABIZ_CONTACT_FIELDS, contactedByOrFilter, type CampaignBrand } from '@/lib/campaign-brand-order'
 
 export const dynamic = 'force-dynamic'
 
@@ -40,37 +40,35 @@ export async function GET(req: NextRequest) {
     // (4 valores puntuales) con letter_status en un solo selector del panel
     // (feedback founder 2026-09-12: quería Nuevas / Email enviado / Cartas
     // enviadas / Todas en un solo lugar, en vez de dos dropdowns separados).
-    // brand=opabiz (panel Campaigns & Letters OpaBiz, 2026-10-05): la cola y
-    // los filtros salen del seguimiento propio de OpaBiz (carta_opabiz_sent_at
-    // + letter_opabiz_sent_at), no del status general ni de letter_sent_at,
-    // que son de MyBiz. Así una campaña no saca empresas de la cola de la otra.
-    const isOpabiz = searchParams.get('brand') === 'opabiz'
-    const emailField  = isOpabiz ? 'carta_opabiz_sent_at'  : null
-    const letterField = isOpabiz ? 'letter_opabiz_sent_at' : 'letter_sent_at'
+    // Panel único de Campaigns & Letters con dos marcas (2026-10-05, ver
+    // lib/campaign-brand-order.ts). "New" = nadie la contactó todavía, por
+    // ninguna marca. El resto de las vistas se puede filtrar por la marca que
+    // la contactó con contact_brand=fbfc|opabiz.
+    const contactBrand = searchParams.get('contact_brand')
+    const brandFilter: CampaignBrand | null = contactBrand === 'fbfc' || contactBrand === 'opabiz' ? contactBrand : null
 
-    if (emailField) {
-      // Una empresa que ya compró (por cualquiera de las dos marcas) sale
-      // también de la cola de OpaBiz.
-      if (status === 'new') {
-        query = query.is(emailField, null).neq('status', 'purchased')
-        // MyBiz va primero: si MyBiz la contactó hace menos de
-        // OPABIZ_WAIT_DAYS, todavía no entra a la cola de OpaBiz.
-        const cutoff = opabizCutoffIso()
-        for (const f of MYBIZ_CONTACT_FIELDS) query = query.or(`${f}.is.null,${f}.lt.${cutoff}`)
-      }
-      else if (status === 'contacted') query = query.not(emailField, 'is', null)
-    } else if (status === 'contacted') query = query.neq('status', 'new')
-    else if (status && status !== 'all') {
-      query = query.eq('status', status)
-      // Si OpaBiz ya la contactó, MyBiz no le vuelve a escribir con precios
-      // más altos (ver lib/campaign-brand-order.ts).
-      if (status === 'new') for (const f of OPABIZ_CONTACT_FIELDS) query = query.is(f, null)
+    if (status === 'new') {
+      query = query.eq('status', 'new')
+      for (const f of [...MYBIZ_CONTACT_FIELDS, ...OPABIZ_CONTACT_FIELDS]) query = query.is(f, null)
+    } else if (status === 'contacted') {
+      // Email enviado. MyBiz: su carta o la Oferta VIP (o el status general,
+      // que es como se registraba antes del seguimiento por campaña). OpaBiz:
+      // su carta.
+      if (brandFilter === 'opabiz') query = query.not('carta_opabiz_sent_at', 'is', null)
+      else if (brandFilter === 'fbfc') query = query.or('carta_sent_at.not.is.null,vip_reminder_sent_at.not.is.null')
+      else query = query.or('status.neq.new,carta_opabiz_sent_at.not.is.null')
+    } else {
+      if (status && status !== 'all') query = query.eq('status', status)
+      if (brandFilter) query = query.or(contactedByOrFilter(brandFilter))
     }
     if (type   && type   !== 'all') query = query.eq('company_type', type)
     if (dateFrom) query = query.gte('registration_date', dateFrom)
     if (dateTo)   query = query.lte('registration_date', dateTo)
-    if (letterStatus === 'sent')     query = query.not(letterField, 'is', null)
-    if (letterStatus === 'not_sent') query = query.is(letterField, null)
+    if (letterStatus === 'sent') {
+      if (brandFilter === 'opabiz')    query = query.not('letter_opabiz_sent_at', 'is', null)
+      else if (brandFilter === 'fbfc') query = query.not('letter_sent_at', 'is', null)
+      else query = query.or('letter_sent_at.not.is.null,letter_opabiz_sent_at.not.is.null')
+    }
 
     const { data, error } = await query
     if (error) throw error
