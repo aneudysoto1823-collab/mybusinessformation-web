@@ -60,10 +60,21 @@ export async function GET(req: NextRequest) {
 
     await registrarInactividad(supabase, empleadosIdAnterior, orden.id, 'no_acepto_a_tiempo')
 
+    // Excluir a TODOS los que ya dejaron vencer (o rechazaron) esta orden, no
+    // solo al último. Antes solo se excluía al anterior y con 2+ empleados la
+    // orden rebotaba A→B→A→B para siempre, mandando un email de "Nueva orden
+    // asignada" cada 10 min (más de 200 en un día y medio, 2026-10-06).
+    const { data: previas } = await supabase
+      .from('inactividades')
+      .select('empleado_id')
+      .eq('order_id', orden.id)
+    const excluir = new Set<string>([empleadosIdAnterior])
+    for (const p of previas ?? []) if (p.empleado_id) excluir.add(p.empleado_id as string)
+
     const siguiente = await pickBestEmployee(
       supabase,
       { tipoServicio: orden.tipo_servicio, esUrgente: orden.es_urgente ?? false },
-      { excluirEmpleadosIds: [empleadosIdAnterior] },
+      { excluirEmpleadosIds: [...excluir] },
     )
 
     const now = new Date().toISOString()
