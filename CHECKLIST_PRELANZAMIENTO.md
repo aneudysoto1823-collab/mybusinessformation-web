@@ -452,6 +452,7 @@ Hallazgos de la auditoría del 2026-09-15 (`project_ftc_upl_compliance_audit_202
 
 - [ ] Todo arriba marcado al 90%+ en críticos
 - [ ] Backup completo de DB hecho hoy
+- [ ] **Poner el sistema en cero (anotado 2026-10-06):** borrar los datos de prueba para arrancar limpio. Hacerlo DESPUÉS del backup de arriba. Incluye: órdenes de prueba (`Order`, borradores y pagadas en test), OpaBiz Connect (`ordenes_opabiz`, `inactividades`, `historial_actividad`, `puntajes`, y los empleados de prueba "Pedro Prueba" / "AGENTE TEST" con sus `usuarios`), contabilidad (botón "Poner en cero" de `/admin/contabilidad`), citas de prueba (`appointments`), afiliados de prueba (`affiliates`, `affiliate_commissions`), `guide_sends` y `prospective_companies` de prueba. Armar primero la lista exacta de qué se borra y confirmarla con ambos socios antes de ejecutar.
 - [ ] Test E2E final: orden de prueba con tarjeta real $1, refund inmediato
 - [ ] Verificar que Vercel + Railway + Supabase están en planes adecuados (no en risk de hit limit)
 - [ ] Verificar Resend domain verified
