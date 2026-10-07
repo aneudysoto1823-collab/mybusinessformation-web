@@ -2041,6 +2041,13 @@ Además: el aviso de tarjeta por vencer pasó a un email propio 5 días antes de
 ### OpaBiz Connect en tuteo (2026-10-07)
 La app del agente (login, invitación, panel, perfil, detalle de orden, mis solicitudes, Claudia Agente, emails de invitación/aviso) pasó de voseo argentino a tú, igual que el entrenamiento (pedido founder: más cercano). Cliente final sigue en "usted".
 
+### Resumen del resto del 2026-10-07
+- **Pagos fallidos de suscripciones:** aviso también por Telegram + intento/próximo reintento en los emails; contador "Pagos Fallidos" en `/admin`; aviso de tarjeta por vencer en email propio 5 días antes del cobro (`sendCardExpiryWarning`). Pendiente del founder: configurar reintentos en Stripe (test y live), recomendado 1 mes + cancelar al final + sin emails propios de Stripe.
+- **Claudia en modo agente:** en `?agent=1` con sesión de agente se oculta la Claudia pública (`ChatWidget`) y queda solo "Claudia Agente" (`AgentAssistWidget`, foto de Claudia, micrófono SVG gris → cuadro azul al dictar).
+- **Notificaciones push en iPhone (OpaBiz Connect):** restricción de Apple (solo PWA instalada). Botón "Cómo activarlas en iPhone" con 5 pasos junto al interruptor del panel.
+- **Manual `/admin/manual`:** 19 capítulos (el 19 es "Email profesional para clientes"), links automáticos, descarga PDF y envío por email.
+- **Combo dominio + teléfono + email:** el email será **ResellerClub Business Email** (marca blanca, costo renovación $0.69/buzón/mes, backend Mailhostbox). Prueba completa con buoval.com (dominio de prueba del founder en Namecheap): envía, recibe, llega a bandeja de entrada de Gmail una vez validado DKIM. **Zoho descartado por ahora**: el Partner Agreement que mandaron es comisión del 15%, sin marca blanca, con logo obligatorio en el home y cláusulas de datos de clientes (no firmado). Pendientes: ticket a soporte de ResellerClub (webmail HTTPS con dominio del cliente, widgets para todos, refund de la orden borrada de bouval.com, API para verificación/DKIM), cambiar "Juan R Fabian" por OpaBiz en la marca de ResellerClub, confirmar renovación del .com, fijar precios. Detalle en `LOGICA_DE_NEGOCIO/40` y en el capítulo 19 del manual.
+
 ### Otros
 - `CHECKLIST_PRELANZAMIENTO.md`: nuevo ítem en "T-1 semana" para poner el sistema en cero (órdenes, OpaBiz Connect, contabilidad, citas, afiliados, guide_sends, prospective_companies de prueba) después del backup y con la lista confirmada por ambos socios.
 - 4ta alerta bloqueante para Stripe Live: cambiar los logos de MyBiz y OpaBiz (ver sección "Stripe LIVE").
