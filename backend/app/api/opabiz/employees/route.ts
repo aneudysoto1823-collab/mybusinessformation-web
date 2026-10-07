@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdminToken } from '@/lib/session'
 import { getSupabaseAdmin } from '@/lib/supabase'
+import { readTrainingStatus } from '@/lib/opabiz-training'
 import { NIVEL_ORDEN, type NivelEmpleado, createEmployeeAccount } from '@/lib/opabiz-empleados'
 import { createInviteToken, sendInviteEmail } from '@/lib/opabiz-invite'
 
@@ -27,10 +28,27 @@ export async function GET(req: NextRequest) {
 
   // No exponer el hash en sí al cliente — solo si existe, para que el panel
   // sepa cuándo mostrar "Reenviar invitación".
-  const empleados = (data ?? []).map(({ password_hash, ...rest }) => ({
-    ...rest,
-    tieneClave: !!password_hash,
-  }))
+  // Estado del entrenamiento (2026-10-07): vive en empleado_perfil.datos_extra_json.
+  // Consulta aparte (no anidada) para no depender de cómo Supabase resuelve la
+  // relación EMPLEADOS↔empleado_perfil.
+  const empleadosIds = (data ?? []).flatMap(u => {
+    const e = u.EMPLEADOS as { id: string } | { id: string }[] | null
+    return (Array.isArray(e) ? e : e ? [e] : []).map(x => x.id)
+  })
+  const { data: perfiles } = empleadosIds.length
+    ? await supabase.from('empleado_perfil').select('empleado_id, datos_extra_json').in('empleado_id', empleadosIds)
+    : { data: [] as { empleado_id: string; datos_extra_json: unknown }[] }
+  const trainingBy = new Map((perfiles ?? []).map(p => [p.empleado_id as string, readTrainingStatus(p.datos_extra_json)]))
+
+  const empleados = (data ?? []).map(({ password_hash, ...rest }) => {
+    const e = rest.EMPLEADOS as { id: string } | { id: string }[] | null
+    const empId = (Array.isArray(e) ? e[0] : e)?.id
+    return {
+      ...rest,
+      tieneClave: !!password_hash,
+      entrenamiento: (empId && trainingBy.get(empId)) || { completado: false, aceptadoAt: null },
+    }
+  })
 
   return NextResponse.json({ empleados })
 }

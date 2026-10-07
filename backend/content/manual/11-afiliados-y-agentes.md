@@ -21,7 +21,7 @@ Las solicitudes se revisan en **/admin/opabiz**, pestaña **"Afiliados y Agentes
 ## Aprobar o rechazar
 
 - **Afiliado aprobado:** el sistema le crea un **código de descuento** propio en Stripe (letras y números al azar) y se lo manda por email.
-- **Agente aprobado:** se le crea la cuenta de OpaBiz Connect y le llega un email con el link para crear su contraseña. Lo primero que va a hacer adentro es el entrenamiento.
+- **Agente aprobado:** se le crea la cuenta de OpaBiz Connect y le llega un email con el link para crear su contraseña. Lo primero que hace adentro es el entrenamiento (ver el capítulo "OpaBiz Connect").
 - **Rechazado:** le llega un email avisándole.
 
 Los emails salen en el idioma en que la persona llenó la solicitud. La comisión de cada uno se puede cambiar desde el panel.
@@ -42,6 +42,3 @@ Todo se calcula y se anota solo al momento del pago. En el panel, **"Historial"*
 - El pago se hace **a mano** (Zelle u otro medio). No lo hace el sistema.
 - Después de pagar, toca **"Marcar como pagado"**. Eso deja el saldo en cero y anota el pago como gasto en Contabilidad, sin tener que cargarlo aparte.
 
-## Pendiente
-
-- El **entrenamiento** de los agentes todavía no está definido (contenido y formato).

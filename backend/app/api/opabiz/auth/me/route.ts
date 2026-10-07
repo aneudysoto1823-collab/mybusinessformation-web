@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { getEmployeeSession } from '@/lib/opabiz-session'
+import { readTrainingStatus } from '@/lib/opabiz-training'
 
 export const dynamic = 'force-dynamic'
 
@@ -18,7 +19,7 @@ export async function GET(req: NextRequest) {
 
   const supabase = getSupabaseAdmin()
 
-  const [{ data: usuario }, { data: empleado }, perfilRes, { data: niveles }, { data: afiliado }] = await Promise.all([
+  const [{ data: usuario }, { data: empleado }, perfilRes, { data: niveles }, { data: afiliado }, { data: extra }] = await Promise.all([
     supabase.from('usuarios').select('nombre, email, telefono').eq('id', session.usuarioId).maybeSingle(),
     supabase.from('EMPLEADOS')
       .select('nivel, puntaje_actual, estado_disponibilidad, tiempo_respuesta_promedio')
@@ -32,6 +33,10 @@ export async function GET(req: NextRequest) {
     supabase.from('affiliates')
       .select('total_commission_owed, total_commission_paid')
       .eq('empleados_id', session.empleadosId).eq('status', 'approved').maybeSingle(),
+    // Aparte del select de perfil de arriba a propósito: datos_extra_json
+    // existe desde siempre, así que el estado del entrenamiento se lee
+    // aunque la migración de perfil no haya corrido.
+    supabase.from('empleado_perfil').select('datos_extra_json').eq('empleado_id', session.empleadosId).maybeSingle(),
   ])
 
   if (!usuario || !empleado) {
@@ -64,6 +69,7 @@ export async function GET(req: NextRequest) {
       idiomas: perfil?.idiomas ?? [],
     },
     perfilDisponible: !perfilRes.error,
+    entrenamiento: readTrainingStatus(extra?.datos_extra_json),
     comisiones: afiliado
       ? { pendiente: Number(afiliado.total_commission_owed ?? 0), pagado: Number(afiliado.total_commission_paid ?? 0) }
       : null,

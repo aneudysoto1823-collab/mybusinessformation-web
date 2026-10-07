@@ -26,7 +26,6 @@ Stripe ya está preparado. Antes de activarlo hay que resolver todo esto:
 - **Aviso de cancelación del Agente Registrado:** averiguar con el proveedor cuánto aviso exigen para dar de baja un servicio. Si son 3 meses, el aviso de renovación tiene que salir antes.
 - **Dirección Virtual:** sacada del sitio hasta conseguir proveedor. El precio sigue guardado para reactivarla.
 - **Guía de configuración de Stripe:** tarjeta en /servicios que dice "Coming soon", a definir con el socio.
-- **Entrenamiento de los agentes:** contenido y formato sin definir.
 
 ## Arreglos pendientes encontrados
 

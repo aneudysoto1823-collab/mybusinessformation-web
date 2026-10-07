@@ -23,6 +23,7 @@ type Empleado = {
   fecha_creacion: string
   tieneClave: boolean
   EMPLEADOS: EmpleadoDetalle | EmpleadoDetalle[] | null
+  entrenamiento?: { completado: boolean; aceptadoAt: string | null }
 }
 
 const NIVELES = ['basico', 'intermedio', 'avanzado', 'administrador']
@@ -444,6 +445,7 @@ export default function OpabizAdminPage() {
                   <th>Puntaje</th>
                   <th>Disponibilidad</th>
                   <th>Inactividades</th>
+                  <th>Entrenamiento</th>
                   <th>Acceso</th>
                   <th>Cuenta</th>
                 </tr>
@@ -466,6 +468,15 @@ export default function OpabizAdminPage() {
                         </span>
                       </td>
                       <td>{det?.inactividades_totales ?? 0}</td>
+                      <td>
+                        {emp.entrenamiento?.completado ? (
+                          <span className="badge" style={{ color: '#059669', background: '#ECFDF5' }} title="Confirmó que leyó el entrenamiento">
+                            Completado {emp.entrenamiento.aceptadoAt ? new Date(emp.entrenamiento.aceptadoAt).toLocaleDateString('es-US', { day: 'numeric', month: 'short' }) : ''}
+                          </span>
+                        ) : (
+                          <span className="badge" style={{ color: '#92400E', background: '#FFFBEB' }}>Pendiente</span>
+                        )}
+                      </td>
                       <td>
                         {emp.tieneClave ? (
                           <span className="badge" style={{ color: '#059669', background: '#ECFDF5' }}>Activo</span>

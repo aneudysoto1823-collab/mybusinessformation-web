@@ -26,6 +26,7 @@ export type Me = {
     idiomas: string[]
   }
   perfilDisponible: boolean
+  entrenamiento: { completado: boolean; aceptadoAt: string | null }
   comisiones: { pendiente: number; pagado: number } | null
 }
 
@@ -84,8 +85,8 @@ export const NIVEL_LABELS: Record<Lang, Record<string, string>> = {
 }
 
 const HEADER_T = {
-  es: { panel: 'Panel', perfil: 'Mi perfil', password: 'Cambiar contraseña', salir: 'Salir', idioma: 'Idioma' },
-  en: { panel: 'Dashboard', perfil: 'My profile', password: 'Change password', salir: 'Sign out', idioma: 'Language' },
+  es: { panel: 'Panel', entrenamiento: 'Entrenamiento', perfil: 'Mi perfil', password: 'Cambiar contraseña', salir: 'Salir', idioma: 'Idioma' },
+  en: { panel: 'Dashboard', entrenamiento: 'Training', perfil: 'My profile', password: 'Change password', salir: 'Sign out', idioma: 'Language' },
 }
 
 export function LangToggle() {
@@ -164,6 +165,7 @@ export function ConnectHeader({ me }: { me: Me | null }) {
                 <div className="oc-menu-head-email">{me.email}</div>
               </div>
               <Link href="/opabiz/dashboard" className="oc-menu-item" role="menuitem" onClick={() => setOpen(false)}>{t.panel}</Link>
+              <Link href="/opabiz/dashboard/entrenamiento" className="oc-menu-item" role="menuitem" onClick={() => setOpen(false)}>{t.entrenamiento}</Link>
               <Link href="/opabiz/dashboard/perfil" className="oc-menu-item" role="menuitem" onClick={() => setOpen(false)}>{t.perfil}</Link>
               <Link href="/opabiz/dashboard/perfil#seguridad" className="oc-menu-item" role="menuitem" onClick={() => setOpen(false)}>{t.password}</Link>
               <button type="button" className="oc-menu-item oc-menu-logout" role="menuitem" onClick={logout}>{t.salir}</button>

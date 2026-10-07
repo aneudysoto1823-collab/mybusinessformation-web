@@ -22,6 +22,14 @@ El link de invitación vence a las 72 horas. Si no lo usó a tiempo, se puede **
 
 Desde la misma pestaña se puede **activar o desactivar** una cuenta. Un agente desactivado no puede entrar y no recibe órdenes.
 
+## El entrenamiento
+
+La primera vez que un agente entra, el sistema lo lleva al **Entrenamiento**: 8 pasos cortos sobre cómo trabajamos. No ve órdenes hasta que marca "Leí y entiendo" y confirma. Después queda siempre disponible en su menú.
+
+Incluye el **guion de apertura**: lo que el agente dice al empezar cada conversación, aclarando de forma amable que somos un servicio de preparación de documentos y no abogados ni el gobierno. El guion también está siempre a mano arriba en su panel y dentro de Claudia Agente, en español y en inglés, con un botón para copiarlo.
+
+En **/admin/opabiz**, pestaña Empleados, la columna **Entrenamiento** muestra quién lo completó y cuándo.
+
 ## Qué ve el agente
 
 - **Sus órdenes asignadas**, ordenadas por prioridad, con el botón para **aceptar** o **rechazar** (con un motivo).

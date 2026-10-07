@@ -2033,6 +2033,9 @@ Además: el aviso de tarjeta por vencer pasó a un email propio 5 días antes de
 - **Pre-filled Documents del admin:** separados en "Comprados en esta orden" y "Otros documentos disponibles" (antes ofrecía OA en Standard y DBA en Premium como si estuvieran incluidos).
 - **Contabilidad:** eliminados el botón "Poner en cero" y `/api/contabilidad/reset` (borraban gastos reales); queda una nota en el dashboard.
 
+### Entrenamiento de agentes en OpaBiz Connect (2026-10-07)
+`/opabiz/dashboard/entrenamiento`: 8 pasos cortos, ES/EN, tono cercano (pedido founder). Obligatorio la primera vez: `dashboard/page.tsx` redirige ahí si `me.entrenamiento.completado` es false; se confirma con checkbox + `POST /api/opabiz/me/training`. Se guarda en `empleado_perfil.datos_extra_json.entrenamiento {version, aceptadoAt}` (sin migración). `lib/opabiz-training.ts` tiene `TRAINING_VERSION` (subirla obliga a todos a releerlo) y `OPENING_SCRIPT` (guion de apertura: no somos abogados ni gobierno, sin consejo legal/fiscal). El guion se muestra también plegable arriba del panel y dentro de Claudia Agente (`app/opabiz/_components/OpeningScript.tsx`). Admin: columna "Entrenamiento" en la pestaña Empleados de `/admin/opabiz`. Sin cuestionario a propósito (pedido founder).
+
 ### Otros
 - `CHECKLIST_PRELANZAMIENTO.md`: nuevo ítem en "T-1 semana" para poner el sistema en cero (órdenes, OpaBiz Connect, contabilidad, citas, afiliados, guide_sends, prospective_companies de prueba) después del backup y con la lista confirmada por ambos socios.
 - 4ta alerta bloqueante para Stripe Live: cambiar los logos de MyBiz y OpaBiz (ver sección "Stripe LIVE").

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ConnectHeader, Avatar, NIVEL_LABELS, CONNECT_BASE_CSS, useConnectLang, locale, parseUtc, notaVisible, type Me, type Lang } from '../_components/ConnectShell'
+import OpeningScript from '../_components/OpeningScript'
 
 type Orden = {
   id: string
@@ -217,7 +218,16 @@ export default function OpabizDashboardPage() {
       router.push('/opabiz/login')
       return
     }
-    if (meRes.ok) setMe(await meRes.json())
+    if (meRes.ok) {
+      const data: Me = await meRes.json()
+      // Entrenamiento obligatorio la primera vez (2026-10-07): sin confirmarlo
+      // el agente no ve órdenes, lo mandamos a leerlo.
+      if (data.entrenamiento && !data.entrenamiento.completado) {
+        router.replace('/opabiz/dashboard/entrenamiento')
+        return
+      }
+      setMe(data)
+    }
     if (ordersRes.ok) setOrdenes((await ordersRes.json()).ordenes ?? [])
     setLoading(false)
   }, [router])
@@ -546,6 +556,7 @@ export default function OpabizDashboardPage() {
             </aside>
 
             <main className="db-main">
+              <OpeningScript lang={lang} collapsible />
               <div className="db-actions">
                 {/* Intake asistida usa el formulario público real (opabiz.com), no uno
                     propio — ver LOGICA_DE_NEGOCIO/17. ?agent=1 activa el modo agente

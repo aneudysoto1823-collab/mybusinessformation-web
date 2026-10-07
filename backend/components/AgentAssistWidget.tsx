@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import OpeningScript from '@/app/opabiz/_components/OpeningScript'
 
 // Tipos mínimos de Web Speech API — no vienen en el lib.dom.d.ts de
 // TypeScript por defecto. Mismo subset que usa el content script de la
@@ -130,6 +131,8 @@ export default function AgentAssistWidget() {
             </div>
           </div>
           <div style={{ padding: '14px 16px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {/* Guion de apertura a mano justo mientras habla con el cliente. */}
+            <OpeningScript lang={lang === 'en-US' ? 'en' : 'es'} collapsible />
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <label style={{ fontSize: '11px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '.4px' }}>Tu pregunta</label>
               <select value={lang} onChange={e => setLang(e.target.value as 'es-ES' | 'en-US')} style={{ fontSize: '11px', border: '1.5px solid #e5e7eb', borderRadius: '6px', padding: '2px 6px' }}>
