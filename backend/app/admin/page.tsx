@@ -9,14 +9,14 @@ const T = {
   en: {
     title: 'Administration Panel', sub: 'opabiz.com',
     campaigns: 'Campaigns & Letters', appointments: 'Appointments',
-    accounting: 'Accounting', security: 'Security', drafts: 'OrderDraft', opabiz: 'OpaBiz Connect', guias: 'Guides', posters: 'Labor Law Poster', logout: 'Log out',
+    accounting: 'Accounting', security: 'Security', drafts: 'OrderDraft', opabiz: 'OpaBiz Connect', guias: 'Guides', posters: 'Labor Law Poster', manual: 'Manual', logout: 'Log out',
     totalOrders: 'Total Orders', unpaid: 'Unpaid',
     inReview: 'In Review', revenue: 'Total Revenue',
   },
   es: {
     title: 'Panel de Administración', sub: 'opabiz.com',
     campaigns: 'Campañas y Cartas', appointments: 'Citas',
-    accounting: 'Contabilidad', security: 'Seguridad', drafts: 'OrderDraft', opabiz: 'OpaBiz Connect', guias: 'Guías', posters: 'Labor Law Poster', logout: 'Cerrar sesión',
+    accounting: 'Contabilidad', security: 'Seguridad', drafts: 'OrderDraft', opabiz: 'OpaBiz Connect', guias: 'Guías', posters: 'Labor Law Poster', manual: 'Manual', logout: 'Cerrar sesión',
     totalOrders: 'Total Órdenes', unpaid: 'Sin Pagar',
     inReview: 'En Revisión', revenue: 'Ingresos Totales',
   },
@@ -167,6 +167,9 @@ export default async function AdminDashboard({
             </a>
             <a href="/admin/labor-law-poster" style={{ fontSize: '13px', color: '#6b7280', textDecoration: 'none', padding: '7px 14px', border: '1.5px solid #e5e7eb', borderRadius: '8px', fontWeight: 600 }}>
               {t.posters}
+            </a>
+            <a href="/admin/manual" style={{ fontSize: '13px', color: '#6b7280', textDecoration: 'none', padding: '7px 14px', border: '1.5px solid #e5e7eb', borderRadius: '8px', fontWeight: 600 }}>
+              {t.manual}
             </a>
             <LogoutButton lang={lang} />
           </div>

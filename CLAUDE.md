@@ -489,6 +489,15 @@ Para que el form de Stripe aparezca rápido al llegar a "Revisa tu orden": al en
 
 ## Convenciones establecidas
 
+### Manual interno (`/admin/manual`) — mantenerlo al día SIEMPRE (2026-10-06)
+
+Manual del negocio en lenguaje llano (sin tecnicismos) para los socios y el equipo. Capítulos en `backend/content/manual/NN-slug.md` (frontmatter `title`, `summary`, `updated`, `pending: true` si todavía no está escrito); lo arma `lib/manual.ts`, la página es `app/admin/manual/` (índice con links, buscador, menú lateral; se genera en build).
+
+- **Regla:** cada vez que se agrega o cambia una función del negocio, actualizar el capítulo correspondiente del manual EN EL MISMO COMMIT y su fecha `updated`. Si el capítulo todavía está `pending`, no hace falta escribirlo entero, pero sí anotar el dato nuevo cuando se escriba.
+- **Precios: nunca escribirlos a mano en el manual.** Usar los marcadores `{{precios:paquetes}}`, `{{precios:servicios}}`, `{{precios:combos}}`, `{{precio:acelerado}}`, etc. (lista en `PRICE_MACROS` de `lib/manual.ts`), que leen `lib/pricing.ts`/`lib/services-pricing.ts`. Si hace falta un precio nuevo, agregar un marcador ahí.
+- Estilo: español llano, tuteo (es interno), sin guion largo, sin emojis, secciones `##` cortas (el buscador indexa por sección).
+- Fase 1 hecha (capítulos 1-4). Pendiente: capítulos 5-18 y "Pregúntale al manual" (preguntas con IA respondidas solo con el contenido del manual, con link a la sección).
+
 ### SDKs externos — NUNCA a nivel de módulo
 ```ts
 // ✅ Correcto — lazy init dentro de función
