@@ -24,11 +24,11 @@ Desde la misma pestaña se puede **activar o desactivar** una cuenta. Un agente 
 
 ## El entrenamiento
 
-La primera vez que un agente entra, el sistema lo lleva al **Entrenamiento**: 8 pasos cortos sobre cómo trabajamos. No ve órdenes hasta que marca "Leí y entiendo" y confirma. Después queda siempre disponible en su menú.
+La primera vez que un agente entra, el sistema lo lleva al **Entrenamiento**: 8 pasos cortos sobre cómo trabajamos. Al final hay un **repaso de 6 preguntas** de opción múltiple sobre lo más importante (el guion, nunca tomar la tarjeta, dónde va el Seguro Social, no dar consejos legales ni de impuestos, qué hacer si no puede atender una orden y a quién preguntar). No es un examen: al revisar, en las que falló ve la respuesta correcta con la explicación. Después marca "Leí y entiendo" y confirma; recién ahí ve sus órdenes. Después queda siempre disponible en su menú.
 
 Incluye el **guion de apertura**: lo que el agente dice al empezar cada conversación, aclarando de forma amable que somos un servicio de preparación de documentos y no abogados ni el gobierno. El guion también está siempre a mano arriba en su panel y dentro de Claudia Agente, en español y en inglés, con un botón para copiarlo.
 
-En **/admin/opabiz**, pestaña Empleados, la columna **Entrenamiento** muestra quién lo completó y cuándo.
+En **/admin/opabiz**, pestaña Empleados, la columna **Entrenamiento** muestra quién lo completó, cuándo y cuántas preguntas acertó (por ejemplo 5/6).
 
 ## Qué ve el agente
 

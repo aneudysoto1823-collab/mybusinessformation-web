@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { ConnectHeader, CONNECT_BASE_CSS, useConnectLang, locale } from '../../_components/ConnectShell'
 import type { Me } from '../../_components/ConnectShell'
 import OpeningScript from '../../_components/OpeningScript'
+import { TRAINING_QUIZ } from '@/lib/opabiz-training'
 
 type Paso = { titulo: string; parrafos: string[]; puntos?: string[]; guion?: boolean }
 
@@ -85,6 +86,15 @@ const T = {
         ],
       },
     ] as Paso[],
+    quizTitulo: 'Repaso rápido',
+    quizSub: 'Seis preguntas cortas sobre lo más importante. No es un examen: al revisar, te mostramos la respuesta correcta en las que no acertaste.',
+    revisar: 'Revisar respuestas',
+    faltan: 'Contesta todas las preguntas para revisar.',
+    bien: 'Correcto',
+    mal: 'La respuesta correcta es:',
+    resultado: (c: number, n: number) => `Acertaste ${c} de ${n}.`,
+    resultadoTodo: '¡Excelente! Acertaste todas.',
+    resultadoRepaso: 'Repasa las respuestas marcadas antes de empezar.',
     confirmarTitulo: 'Para terminar',
     check: 'Leí el entrenamiento y entiendo cómo trabajamos en OpaBiz.',
     confirmar: 'Confirmar y empezar',
@@ -164,6 +174,15 @@ const T = {
         ],
       },
     ] as Paso[],
+    quizTitulo: 'Quick review',
+    quizSub: "Six short questions about what matters most. It's not a test: when you check, we'll show you the right answer for any you missed.",
+    revisar: 'Check answers',
+    faltan: 'Answer every question to check.',
+    bien: 'Correct',
+    mal: 'The correct answer is:',
+    resultado: (c: number, n: number) => `You got ${c} of ${n} right.`,
+    resultadoTodo: 'Great job! You got them all right.',
+    resultadoRepaso: 'Review the marked answers before you start.',
     confirmarTitulo: 'To finish',
     check: 'I have read the training and understand how we work at OpaBiz.',
     confirmar: 'Confirm and get started',
@@ -181,6 +200,8 @@ export default function EntrenamientoPage() {
   const [me, setMe] = useState<Me | null>(null)
   const [loading, setLoading] = useState(true)
   const [checked, setChecked] = useState(false)
+  const [respuestas, setRespuestas] = useState<(number | null)[]>(() => TRAINING_QUIZ.es.map(() => null))
+  const [revisado, setRevisado] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
@@ -199,7 +220,7 @@ export default function EntrenamientoPage() {
       const res = await fetch('/api/opabiz/me/training', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ aceptado: true }),
+        body: JSON.stringify({ aceptado: true, respuestas }),
       })
       if (!res.ok) { setError(t.error); return }
       router.push('/opabiz/dashboard')
@@ -208,6 +229,15 @@ export default function EntrenamientoPage() {
     } finally {
       setSaving(false)
     }
+  }
+
+  const quiz = TRAINING_QUIZ[lang]
+  const todasContestadas = respuestas.every(r => r !== null)
+  const correctas = quiz.filter((q, i) => respuestas[i] === q.correcta).length
+
+  function elegir(i: number, op: number) {
+    if (revisado) return
+    setRespuestas(prev => prev.map((r, j) => (j === i ? op : r)))
   }
 
   const completado = me?.entrenamiento?.completado
@@ -231,7 +261,19 @@ export default function EntrenamientoPage() {
         .tr-body ul{padding-left:20px;margin:0 0 6px}
         .tr-body li{font-size:.9rem;color:#334155;line-height:1.6;margin-bottom:5px}
         .tr-body .os-card{margin-top:6px}
-        .tr-confirm{margin-top:22px}
+        .tr-confirm,.tr-quiz{margin-top:22px}
+        .tr-q{padding:14px 0;border-top:1px solid #F1F5F9}
+        .tr-q-title{font-size:.92rem;font-weight:700;color:#1C2E44;margin-bottom:10px;line-height:1.45;padding:0}
+        .tr-opt{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:1.5px solid #E2E8F0;border-radius:10px;margin-bottom:8px;font-size:.88rem;color:#334155;line-height:1.5;cursor:pointer;background:#fff}
+        .tr-opt input{margin-top:3px;flex-shrink:0}
+        .tr-opt.sel{border-color:#2563EB;background:#F7FAFF}
+        .tr-opt.ok{border-color:#059669;background:#ECFDF5}
+        .tr-opt.bad{border-color:#DC2626;background:#FEF2F2}
+        .tr-fb{font-size:.84rem;line-height:1.55;border-radius:10px;padding:10px 12px;margin-top:2px}
+        .tr-fb-ok{color:#065F46;background:#ECFDF5;font-weight:700}
+        .tr-fb-bad{color:#7F1D1D;background:#FEF2F2}
+        .tr-hint{font-size:.78rem;color:#94A3B8;margin-top:8px}
+        .tr-result{font-size:.84rem;font-weight:600;color:#92400E;background:#FFFBEB;border:1px solid #FDE68A;border-radius:10px;padding:10px 14px}
         .tr-check{display:flex;align-items:flex-start;gap:10px;font-size:.9rem;color:#1C2E44;line-height:1.5;cursor:pointer;margin:10px 0 16px}
         .tr-check input{width:18px;height:18px;margin-top:2px;flex-shrink:0}
         @media(max-width:768px){.tr-step{gap:10px}.tr-title{font-size:1.2rem}}
@@ -267,6 +309,51 @@ export default function EntrenamientoPage() {
             </ol>
 
             {!completado && (
+              <div className="oc-card tr-quiz">
+                <div className="oc-card-title">{t.quizTitulo}</div>
+                <div className="oc-card-sub">{t.quizSub}</div>
+                {quiz.map((q, i) => {
+                  const elegida = respuestas[i]
+                  const acerto = elegida === q.correcta
+                  return (
+                    <div key={q.pregunta} className="tr-q" role="radiogroup" aria-labelledby={`q${i}-title`}>
+                      <div id={`q${i}-title`} className="tr-q-title">{i + 1}. {q.pregunta}</div>
+                      {q.opciones.map((op, k) => {
+                        let cls = 'tr-opt'
+                        if (elegida === k) cls += ' sel'
+                        if (revisado && k === q.correcta) cls += ' ok'
+                        if (revisado && elegida === k && !acerto) cls += ' bad'
+                        return (
+                          <label key={op} className={cls}>
+                            <input type="radio" name={`q${i}`} checked={elegida === k} onChange={() => elegir(i, k)} disabled={revisado} />
+                            <span>{op}</span>
+                          </label>
+                        )
+                      })}
+                      {revisado && (
+                        acerto ? (
+                          <div className="tr-fb tr-fb-ok">{t.bien}</div>
+                        ) : (
+                          <div className="tr-fb tr-fb-bad"><strong>{t.mal}</strong> {q.opciones[q.correcta]}<br />{q.explicacion}</div>
+                        )
+                      )}
+                    </div>
+                  )
+                })}
+                {!revisado ? (
+                  <>
+                    <button type="button" className="oc-btn oc-btn-primary" onClick={() => setRevisado(true)} disabled={!todasContestadas}>{t.revisar}</button>
+                    {!todasContestadas && <div className="tr-hint">{t.faltan}</div>}
+                  </>
+                ) : (
+                  <div className={correctas === quiz.length ? 'oc-msg-ok' : 'tr-result'}>
+                    {correctas === quiz.length ? t.resultadoTodo : `${t.resultado(correctas, quiz.length)} ${t.resultadoRepaso}`}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {!completado && revisado && (
               <div className="oc-card tr-confirm">
                 <div className="oc-card-title">{t.confirmarTitulo}</div>
                 <label className="tr-check">

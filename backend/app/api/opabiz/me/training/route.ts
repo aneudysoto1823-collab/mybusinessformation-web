@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin, pgErrorMessage } from '@/lib/supabase'
 import { getEmployeeSession } from '@/lib/opabiz-session'
-import { TRAINING_VERSION, readTrainingStatus } from '@/lib/opabiz-training'
+import { TRAINING_VERSION, TRAINING_QUIZ, readTrainingStatus } from '@/lib/opabiz-training'
 
 export const dynamic = 'force-dynamic'
 
@@ -29,7 +29,15 @@ export async function POST(req: NextRequest) {
   if (readTrainingStatus(prev).completado) {
     return NextResponse.json({ ok: true, alreadyCompleted: true })
   }
-  const datos = { ...prev, entrenamiento: { version: TRAINING_VERSION, aceptadoAt: new Date().toISOString() } }
+  // Las respuestas se corrigen acá, no se confía en un puntaje calculado en
+  // el navegador. `respuestas` = índice elegido por pregunta, en orden.
+  const total = TRAINING_QUIZ.es.length
+  const respuestas: unknown[] = Array.isArray(body.respuestas) ? body.respuestas : []
+  if (respuestas.length !== total) {
+    return NextResponse.json({ error: 'Faltan respuestas' }, { status: 400 })
+  }
+  const correctas = TRAINING_QUIZ.es.filter((q, i) => Number(respuestas[i]) === q.correcta).length
+  const datos = { ...prev, entrenamiento: { version: TRAINING_VERSION, aceptadoAt: new Date().toISOString(), quiz: { correctas, total } } }
 
   const { error } = perfil
     ? await supabase.from('empleado_perfil').update({ datos_extra_json: datos }).eq('id', perfil.id)

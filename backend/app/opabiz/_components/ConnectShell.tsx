@@ -26,7 +26,7 @@ export type Me = {
     idiomas: string[]
   }
   perfilDisponible: boolean
-  entrenamiento: { completado: boolean; aceptadoAt: string | null }
+  entrenamiento: { completado: boolean; aceptadoAt: string | null; quiz: { correctas: number; total: number } | null }
   comisiones: { pendiente: number; pagado: number } | null
 }
 
