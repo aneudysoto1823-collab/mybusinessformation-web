@@ -46,24 +46,35 @@ export interface RenewalReminderParams {
   companyName: string | null
   renewalDate: Date
   amount: number // dólares, service fee + state fee ya sumados
+  // Tarjeta guardada que vence ANTES de la renovación (null si no aplica) —
+  // agrega un aviso para que la actualice y el cobro no falle.
+  expiringCard?: { brand: string; last4: string; expMonth: number; expYear: number } | null
 }
 
 export async function sendSubscriptionRenewalReminder(params: RenewalReminderParams): Promise<void> {
-  const { to, brand, isEs, serviceId, companyName, renewalDate, amount } = params
+  const { to, brand, isEs, serviceId, companyName, renewalDate, amount, expiringCard } = params
   const serviceName = serviceLabel(serviceId, isEs)
   const dateStr = formatLongDate(renewalDate, isEs)
   const portalUrl = brandPortalHome(brand)
   const company = companyName && companyName !== 'Pending' ? companyName : null
   const amountStr = amount.toFixed(2)
 
+  const cardName = expiringCard ? `${expiringCard.brand.charAt(0).toUpperCase()}${expiringCard.brand.slice(1)} ****${expiringCard.last4}` : ''
+  const cardExp = expiringCard ? `${String(expiringCard.expMonth).padStart(2, '0')}/${expiringCard.expYear}` : ''
+  const cardBox = (text: string) => `<div style="background:#FEF3C7;border:1px solid #FCD34D;border-radius:8px;padding:12px 16px;margin:14px 0;font-size:13.5px;color:#78350F">${text}</div>`
+  const cardWarningEs = expiringCard ? cardBox(`<strong>Importante:</strong> su tarjeta ${cardName} vence el ${cardExp}, antes de la fecha de renovación. Para que el cobro no falle y su servicio no se interrumpa, actualice su método de pago desde su portal de cliente.`) : ''
+  const cardWarningEn = expiringCard ? cardBox(`<strong>Important:</strong> your card ${cardName} expires ${cardExp}, before the renewal date. To make sure the charge goes through and your service is not interrupted, please update your payment method from your client portal.`) : ''
+
   const body = isEs
     ? `<p>Le escribimos para recordarle que su <strong>${serviceName}</strong>${company ? ` para <strong>${company}</strong>` : ''} se renovará automáticamente el <strong>${dateStr}</strong> por <strong>$${amountStr}</strong>.</p>
-       <p>No necesita hacer nada — el cargo se procesará automáticamente con su método de pago guardado. Si desea revisar o cancelar esta suscripción antes de esa fecha, puede hacerlo desde su portal de cliente.</p>
+       ${cardWarningEs}
+       <p>${expiringCard ? 'Una vez actualizada la tarjeta, el cargo' : 'No necesita hacer nada: el cargo'} se procesará automáticamente con su método de pago guardado. Si desea revisar o cancelar esta suscripción antes de esa fecha, puede hacerlo desde su portal de cliente.</p>
        <div style="text-align:center;margin:20px 0">
          <a href="${portalUrl}" style="display:inline-block;background:#2563EB;color:#fff;text-decoration:none;padding:12px 26px;border-radius:8px;font-size:14px;font-weight:700">Ir a Mi Portal</a>
        </div>`
     : `<p>This is a reminder that your <strong>${serviceName}</strong>${company ? ` for <strong>${company}</strong>` : ''} will automatically renew on <strong>${dateStr}</strong> for <strong>$${amountStr}</strong>.</p>
-       <p>You don't need to do anything — the charge will process automatically using your saved payment method. If you'd like to review or cancel this subscription before that date, you can do so from your client portal.</p>
+       ${cardWarningEn}
+       <p>${expiringCard ? 'Once your card is updated, the charge' : "You don't need to do anything: the charge"} will process automatically using your saved payment method. If you'd like to review or cancel this subscription before that date, you can do so from your client portal.</p>
        <div style="text-align:center;margin:20px 0">
          <a href="${portalUrl}" style="display:inline-block;background:#2563EB;color:#fff;text-decoration:none;padding:12px 26px;border-radius:8px;font-size:14px;font-weight:700">Go to My Portal</a>
        </div>`

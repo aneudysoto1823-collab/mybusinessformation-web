@@ -4,6 +4,8 @@ import OrdersTable from './OrdersTable'
 import LogoutButton from './LogoutButton'
 import AdminLangToggle from './AdminLangToggle'
 import { getSupabaseAdmin } from '@/lib/supabase'
+import { listOrdersWithSubscriptions } from '@/lib/order-subscriptions'
+import { SERVICES_CATALOG } from '@/lib/services-pricing'
 
 const T = {
   en: {
@@ -11,14 +13,16 @@ const T = {
     campaigns: 'Campaigns & Letters', appointments: 'Appointments',
     accounting: 'Accounting', security: 'Security', drafts: 'OrderDraft', opabiz: 'OpaBiz Connect', guias: 'Guides', posters: 'Labor Law Poster', manual: 'Manual', logout: 'Log out',
     totalOrders: 'Total Orders', unpaid: 'Unpaid',
-    inReview: 'In Review', revenue: 'Total Revenue',
+    inReview: 'In Review', revenue: 'Total Revenue', failedPayments: 'Failed Payments',
+    failedTitle: 'Subscriptions with a failed payment', failedHint: 'Stripe keeps retrying. The customer already got an email to update their card; follow up if it stays failed.',
   },
   es: {
     title: 'Panel de Administración', sub: 'opabiz.com',
     campaigns: 'Campañas y Cartas', appointments: 'Citas',
     accounting: 'Contabilidad', security: 'Seguridad', drafts: 'OrderDraft', opabiz: 'OpaBiz Connect', guias: 'Guías', posters: 'Labor Law Poster', manual: 'Manual', logout: 'Cerrar sesión',
     totalOrders: 'Total Órdenes', unpaid: 'Sin Pagar',
-    inReview: 'En Revisión', revenue: 'Ingresos Totales',
+    inReview: 'En Revisión', revenue: 'Ingresos Totales', failedPayments: 'Pagos Fallidos',
+    failedTitle: 'Suscripciones con pago fallido', failedHint: 'Stripe sigue reintentando. Al cliente ya le llegó un email para actualizar su tarjeta; dale seguimiento si sigue fallando.',
   },
 }
 
@@ -65,6 +69,25 @@ async function getOrders(): Promise<Order[]> {
   return (data ?? []).filter((o: Order) => !o.isDraft)
 }
 
+// Renovaciones que Stripe no pudo cobrar (status past_due, ver
+// handleInvoicePaymentFailed en webhooks/stripe). Antes solo se veían entrando
+// al detalle de cada orden; ahora el panel principal las junta (2026-10-06).
+async function getFailedSubscriptionPayments(): Promise<{ orderId: string; customer: string; service: string }[]> {
+  try {
+    const orders = await listOrdersWithSubscriptions()
+    return orders.flatMap(o => o.subscriptions
+      .filter(e => e.status === 'past_due')
+      .map(e => ({
+        orderId: o.id,
+        customer: [o.firstName, o.lastName].filter(Boolean).join(' ') || o.email,
+        service: SERVICES_CATALOG[e.service]?.name_es ?? e.service,
+      })))
+  } catch (e) {
+    console.error('[admin] getFailedSubscriptionPayments error:', e)
+    return []
+  }
+}
+
 export default async function AdminDashboard({
   searchParams,
 }: {
@@ -73,7 +96,7 @@ export default async function AdminDashboard({
   const params = await searchParams
   const lang = (params.lang === 'en' ? 'en' : 'es') as 'en' | 'es'
   const t = T[lang]
-  const orders = await getOrders()
+  const [orders, failedPayments] = await Promise.all([getOrders(), getFailedSubscriptionPayments()])
 
   const total = orders.length
   const pendingPayment = orders.filter(o => o.paymentStatus === 'pending').length
@@ -116,6 +139,15 @@ export default async function AdminDashboard({
           text-transform: uppercase; letter-spacing: 0.5px;
         }
         .stat-card .value { font-size: 30px; font-weight: 700; color: #1a1a2e; margin-top: 6px; }
+
+        .stat-card.alert { border: 1.5px solid #fecaca; }
+        .stat-card.alert .value { color: #b91c1c; }
+        .failed-box { background: #fff; border: 1.5px solid #fecaca; border-radius: 10px; padding: 16px 20px; margin-bottom: 24px; }
+        .failed-box h2 { font-size: 14px; color: #b91c1c; font-weight: 700; }
+        .failed-box p { font-size: 12.5px; color: #6b7280; margin: 4px 0 10px; }
+        .failed-box a { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 8px 0; border-top: 1px solid #f1f5f9; font-size: 13px; color: #1a1a2e; text-decoration: none; }
+        .failed-box a:hover { color: #2563EB; }
+        .failed-box a span:last-child { color: #6b7280; }
 
         .orders-card {
           background: transparent;
@@ -194,7 +226,24 @@ export default async function AdminDashboard({
               ${revenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
           </div>
+          <div className={`stat-card${failedPayments.length > 0 ? ' alert' : ''}`}>
+            <div className="label">{t.failedPayments}</div>
+            <div className="value">{failedPayments.length}</div>
+          </div>
         </div>
+
+        {failedPayments.length > 0 && (
+          <div className="failed-box">
+            <h2>{t.failedTitle}</h2>
+            <p>{t.failedHint}</p>
+            {failedPayments.map(f => (
+              <a key={`${f.orderId}-${f.service}`} href={`/admin/orders/${f.orderId}`}>
+                <span>{f.customer} · FBFC-{f.orderId.slice(0, 8).toUpperCase()}</span>
+                <span>{f.service}</span>
+              </a>
+            ))}
+          </div>
+        )}
 
         <div className="orders-card">
           <OrdersTable orders={orders} lang={lang} />

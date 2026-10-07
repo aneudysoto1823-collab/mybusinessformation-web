@@ -14,6 +14,7 @@
 // Authorization: Bearer ${CRON_SECRET}.
 
 import { NextRequest, NextResponse } from 'next/server'
+import Stripe from 'stripe'
 import { SERVICES_CATALOG, FBFC_PRICE_OVERRIDES } from '@/lib/services-pricing'
 import { listOrdersWithSubscriptions, upsertOrderSubscription, type OrderSubscriptionEntry } from '@/lib/order-subscriptions'
 import { sendSubscriptionRenewalReminder } from '@/lib/subscription-renewal-emails'
@@ -22,6 +23,36 @@ import type { EmailBrand } from '@/lib/email-constants'
 export const dynamic = 'force-dynamic'
 
 const REMINDER_WINDOW_DAYS = 30
+
+const getStripe = () => new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2026-02-25.clover' })
+
+// Tarjeta con la que se va a cobrar la renovación: la de la Subscription o,
+// si no tiene una propia, la default del Customer. Devuelve null si no se
+// puede saber (sin tarjeta, otro método de pago, error de Stripe) — el aviso
+// sale igual, solo sin la advertencia de tarjeta.
+async function getRenewalCard(subscriptionId: string): Promise<{ brand: string; last4: string; expMonth: number; expYear: number } | null> {
+  try {
+    const sub = await getStripe().subscriptions.retrieve(subscriptionId, {
+      expand: ['default_payment_method', 'customer.invoice_settings.default_payment_method'],
+    })
+    const own = typeof sub.default_payment_method === 'object' ? sub.default_payment_method : null
+    const customer = typeof sub.customer === 'object' && !('deleted' in sub.customer && sub.customer.deleted) ? sub.customer as Stripe.Customer : null
+    const fallback = customer && typeof customer.invoice_settings?.default_payment_method === 'object' ? customer.invoice_settings.default_payment_method : null
+    const pm = own ?? fallback
+    if (!pm?.card) return null
+    return { brand: pm.card.brand, last4: pm.card.last4, expMonth: pm.card.exp_month, expYear: pm.card.exp_year }
+  } catch (e) {
+    console.error('[cron/subscription-renewal-notice] could not read card for', subscriptionId, e)
+    return null
+  }
+}
+
+// Una tarjeta vence al FINAL de su mes de expiración. Si ese momento es
+// anterior a la fecha de renovación, el cobro va a fallar — avisamos antes.
+function cardExpiresBefore(card: { expMonth: number; expYear: number }, date: Date): boolean {
+  const endOfExpMonth = new Date(Date.UTC(card.expYear, card.expMonth, 1)) // primer día del mes siguiente
+  return endOfExpMonth.getTime() <= date.getTime()
+}
 
 function renewalAmount(serviceId: string, brand: EmailBrand): number {
   const svc = SERVICES_CATALOG[serviceId]
@@ -77,6 +108,10 @@ export async function GET(req: NextRequest) {
 
       try {
         const brand = order.sourceBrand as EmailBrand
+        // Prevención de pagos fallidos (2026-10-06): si la tarjeta guardada
+        // vence antes de la renovación, el mismo aviso le pide actualizarla.
+        const card = await getRenewalCard(entry.stripeSubscriptionId)
+        const expiringCard = card && cardExpiresBefore(card, renewalDate) ? card : null
         await sendSubscriptionRenewalReminder({
           to: order.email,
           brand,
@@ -85,12 +120,13 @@ export async function GET(req: NextRequest) {
           companyName: order.companyName,
           renewalDate,
           amount: renewalAmount(entry.service, brand),
+          expiringCard,
         })
         await upsertOrderSubscription(order.id, {
           ...entry,
           renewalReminderSentForPeriodEnd: entry.currentPeriodEnd,
         } as OrderSubscriptionEntry)
-        results.push({ orderId: order.id, service: entry.service, sent: true })
+        results.push({ orderId: order.id, service: entry.service, sent: true, ...(expiringCard ? { reason: 'card expires before renewal' } : {}) })
       } catch (e) {
         console.error('[cron/subscription-renewal-notice] send error for', order.id, entry.service, e)
         results.push({ orderId: order.id, service: entry.service, sent: false, reason: 'send error' })

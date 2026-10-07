@@ -35,10 +35,22 @@ Cuando el cliente paga, el sistema vuelve a calcular el total desde cero con los
 Agente Registrado y Declaración Anual se cobran cada año automáticamente, hasta que el cliente cancele:
 
 - La tarifa del estado de la Declaración Anual se cobra como línea aparte, para que el cliente vea qué es nuestro y qué es del gobierno.
-- 30 días antes de cada renovación, el cliente recibe un aviso por email.
+- 30 días antes de cada renovación, el cliente recibe un aviso por email. Si su tarjeta guardada vence antes de esa fecha, el mismo aviso se lo dice y le pide actualizarla.
 - **El cliente cancela desde su portal**, con un botón propio que le pide el motivo y una confirmación. Puede reactivar después si cambia de idea.
 - **Cambiar la tarjeta** también se hace desde el portal, sin salir del sitio.
-- Si una renovación falla (tarjeta vencida, sin fondos), Stripe reintenta y el sistema lo registra.
+
+## Si una renovación no se puede cobrar
+
+Pasa cuando la tarjeta venció, no tiene fondos o el banco la rechaza. El sistema avisa solo:
+
+- **Al equipo:** email a alert@opabiz.com y aviso por Telegram, con el cliente, el servicio, el monto, el número de intento y la fecha del próximo intento.
+- **Al cliente:** email con un botón para actualizar la tarjeta y pagar, y la fecha en que se va a reintentar el cobro, para que lo resuelva antes.
+- **En el panel:** el contador **Pagos Fallidos** del panel principal muestra cuántas hay, con la lista y un link a cada orden. Dentro de la orden, la suscripción aparece como "Pago fallido".
+- **En el portal del cliente:** la suscripción aparece como "Problema de pago".
+
+**Qué hacer:** si después de un par de días sigue en "Pago fallido", escríbele o llámalo al cliente. Si actualiza la tarjeta y el cobro pasa, todo vuelve a "activa" solo.
+
+**Reintentos:** Stripe reintenta el cobro varias veces durante algunos días. Cuántas veces y qué pasa cuando se acaban los intentos (cancelar la suscripción o dejarla impaga) se configura en el panel de Stripe: Settings, Billing, "Manage failed payments". Si se cancela, llega otra alerta de "suscripción cancelada".
 
 ## Códigos de descuento
 

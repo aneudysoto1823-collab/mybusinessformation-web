@@ -1168,7 +1168,15 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
 // `invoice.payment_failed` — la tarjeta guardada no pudo cobrarse (fondos
 // insuficientes, tarjeta vencida, o requiere reautenticación 3DS off-session).
 // Marca la entrada como past_due y avisa al cliente (con el link de Stripe
-// para reintentar/reautenticar) + alerta interna.
+// para reintentar/reautenticar) + alerta interna por email Y por Telegram.
+//
+// Stripe reintenta solo según la config de Billing → "Manage failed payments"
+// (Dashboard, no hay API para leerla). Cada intento fallido vuelve a disparar
+// este evento: `attempt_count` dice qué intento fue y `next_payment_attempt`
+// cuándo será el próximo (null = no quedan reintentos; según esa misma config
+// la suscripción se cancela o queda impaga). El email al cliente usa esos dos
+// datos para darle una fecha concreta antes de la cual actualizar la tarjeta —
+// pedido founder 2026-10-06: avisar a tiempo para evitar la cancelación.
 async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
   const subscriptionId = getInvoiceSubscriptionId(invoice)
   if (!subscriptionId) return NextResponse.json({ received: true, skipped: 'no_subscription' })
@@ -1177,6 +1185,7 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
     const order = await findOrderBySubscriptionId(subscriptionId)
     if (!order) {
       console.error('[stripe-webhook] invoice.payment_failed: no order found for subscription', subscriptionId)
+      after(() => notifyOps(`Pago de suscripción FALLIDO sin orden asociada\nSuscripción: ${subscriptionId}\nCliente: ${invoice.customer_email ?? 'desconocido'}`, 'error'))
       return NextResponse.json({ received: true, skipped: 'no_order' })
     }
     const entry = order.subscriptions.find(e => e.stripeSubscriptionId === subscriptionId)
@@ -1188,7 +1197,26 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
     const isEs = order.isEs
     const catalogEntry = SERVICES_CATALOG[entry.service]
     const serviceName = catalogEntry ? (isEs ? catalogEntry.name_es : catalogEntry.name_en) : entry.service
+    const serviceNameEs = catalogEntry ? catalogEntry.name_es : entry.service
     const hostedInvoiceUrl = invoice.hosted_invoice_url ?? brandPortalHome(brand)
+    const attempt = invoice.attempt_count ?? 1
+    const nextAttempt = invoice.next_payment_attempt ? new Date(invoice.next_payment_attempt * 1000) : null
+    const amount = (invoice.amount_due ?? 0) / 100
+    const fmtDate = (d: Date, es: boolean) => d.toLocaleDateString(es ? 'es-ES' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'America/New_York' })
+    const orderNumber = `FBFC-${order.id.slice(0, 8).toUpperCase()}`
+    const customerName = fullName(order.firstName, order.lastName)
+
+    const nextStepEs = nextAttempt
+      ? `<p>Volveremos a intentar el cobro automáticamente el <strong>${fmtDate(nextAttempt, true)}</strong>. Para evitar que su servicio se cancele, le recomendamos actualizar su método de pago antes de esa fecha.</p>`
+      : `<p>Ya no quedan reintentos automáticos para este cobro. Actualice su método de pago y complete el pago lo antes posible para evitar que su servicio se cancele.</p>`
+    const nextStepEn = nextAttempt
+      ? `<p>We will automatically try the charge again on <strong>${fmtDate(nextAttempt, false)}</strong>. To keep your service from being canceled, please update your payment method before that date.</p>`
+      : `<p>There are no automatic retries left for this charge. Please update your payment method and complete the payment as soon as possible to keep your service from being canceled.</p>`
+
+    after(() => notifyOps(
+      `Pago de suscripción FALLIDO (intento ${attempt})\n${serviceNameEs} · $${amount.toFixed(2)}\nOrden: ${orderNumber}\nCliente: ${customerName ?? order.email} (${order.email})\n${order.companyName && order.companyName !== 'Pending' ? `Empresa: ${order.companyName}\n` : ''}${nextAttempt ? `Próximo intento: ${fmtDate(nextAttempt, true)}` : 'Sin más reintentos: se cancela o queda impaga según la config de Stripe'}\nhttps://opabiz.com/admin/orders/${order.id}`,
+      'warning',
+    ))
 
     after(async () => {
       try {
@@ -1204,10 +1232,10 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
               <table style="width:100%;border-collapse:collapse;padding:20px 28px;background:#fff;border-radius:10px 10px 0 0"><tr>${brandHeaderHtml(brand)}</tr></table>
               <div style="background:#fff;padding:8px 28px 28px;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 10px 10px;font-size:14px;line-height:1.6">
                 ${isEs
-                  ? `<p>No pudimos procesar el pago de renovación de su <strong>${serviceName}</strong>.</p>
-                <p>Por favor actualice su método de pago para mantener este servicio activo sin interrupciones.</p>`
-                  : `<p>We were unable to process your renewal payment for <strong>${serviceName}</strong>.</p>
-                <p>Please update your payment method to keep this service active without interruption.</p>`}
+                  ? `<p>No pudimos procesar el pago de renovación de su <strong>${serviceName}</strong>${amount ? ` por <strong>$${amount.toFixed(2)}</strong>` : ''}.</p>
+                ${nextStepEs}`
+                  : `<p>We were unable to process your renewal payment for <strong>${serviceName}</strong>${amount ? ` of <strong>$${amount.toFixed(2)}</strong>` : ''}.</p>
+                ${nextStepEn}`}
                 <div style="text-align:center;margin:20px 0">
                   <a href="${hostedInvoiceUrl}" style="display:inline-block;background:#2563EB;color:#fff;text-decoration:none;padding:12px 26px;border-radius:8px;font-size:14px;font-weight:700">${isEs ? 'Actualizar Método de Pago' : 'Update Payment Method'}</a>
                 </div>
@@ -1225,15 +1253,20 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
           from:    FROM_OPABIZ_ALERTS,
           replyTo: REPLY_TO,
           to:      ADMIN_EMAIL,
-          subject: `OpaBiz Alerts: ⚠️ Subscription payment failed — ${serviceName}`,
+          subject: `OpaBiz Alerts: ⚠️ Subscription payment failed (attempt ${attempt}) — ${serviceName}`,
           html: `
             <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;color:#1e293b">
               <table style="width:100%;border-collapse:collapse">
-                <tr><td style="padding:6px 0;color:#64748b;width:40%">Order</td><td style="padding:6px 0;font-weight:600">${order.id}</td></tr>
+                <tr><td style="padding:6px 0;color:#64748b;width:40%">Order</td><td style="padding:6px 0;font-weight:600">${orderNumber}</td></tr>
+                <tr><td style="padding:6px 0;color:#64748b">Customer</td><td style="padding:6px 0">${customerName ?? ''} <a href="mailto:${order.email}" style="color:#2563eb">${order.email}</a></td></tr>
+                ${order.companyName && order.companyName !== 'Pending' ? `<tr><td style="padding:6px 0;color:#64748b">Company</td><td style="padding:6px 0">${order.companyName}</td></tr>` : ''}
                 <tr><td style="padding:6px 0;color:#64748b">Service</td><td style="padding:6px 0;font-weight:600">${serviceName}</td></tr>
-                <tr><td style="padding:6px 0;color:#64748b">Customer</td><td style="padding:6px 0"><a href="mailto:${order.email}" style="color:#2563eb">${order.email}</a></td></tr>
+                <tr><td style="padding:6px 0;color:#64748b">Amount</td><td style="padding:6px 0">$${amount.toFixed(2)}</td></tr>
+                <tr><td style="padding:6px 0;color:#64748b">Attempt</td><td style="padding:6px 0">${attempt}</td></tr>
+                <tr><td style="padding:6px 0;color:#64748b">Next retry</td><td style="padding:6px 0">${nextAttempt ? fmtDate(nextAttempt, false) : '<strong style="color:#b91c1c">No retries left</strong>'}</td></tr>
                 <tr><td style="padding:6px 0;color:#64748b">Subscription</td><td style="padding:6px 0">${subscriptionId}</td></tr>
               </table>
+              <div style="margin-top:18px"><a href="https://opabiz.com/admin/orders/${order.id}" style="color:#2563EB;border:1.5px solid #2563EB;border-radius:8px;padding:9px 18px;text-decoration:none;font-weight:700;font-size:13px">Abrir en el panel admin</a></div>
             </div>
           `,
         })
