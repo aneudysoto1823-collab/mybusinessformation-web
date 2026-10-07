@@ -102,12 +102,12 @@ export async function sendCardExpiryWarning(params: CardExpiryWarningParams): Pr
 
   const body = isEs
     ? `<p>El <strong>${dateStr}</strong> se renueva su <strong>${serviceName}</strong>${company ? ` para <strong>${company}</strong>` : ''}, pero la tarjeta guardada para ese cobro (${cardName}) vence el <strong>${cardExp}</strong>.</p>
-       <p>Para que el cobro no falle y su servicio no se interrumpa, actualice su método de pago desde su portal de cliente antes de esa fecha. Si su banco ya le envió una tarjeta nueva con el mismo número, es posible que se actualice sola y puede ignorar este mensaje.</p>
+       <p>Para que el cobro no falle y su servicio no se interrumpa, actualice su método de pago desde su portal de cliente antes de esa fecha.</p>
        <div style="text-align:center;margin:20px 0">
          <a href="${portalUrl}" style="display:inline-block;background:#2563EB;color:#fff;text-decoration:none;padding:12px 26px;border-radius:8px;font-size:14px;font-weight:700">Actualizar Método de Pago</a>
        </div>`
     : `<p>Your <strong>${serviceName}</strong>${company ? ` for <strong>${company}</strong>` : ''} renews on <strong>${dateStr}</strong>, but the card saved for that charge (${cardName}) expires <strong>${cardExp}</strong>.</p>
-       <p>To make sure the charge goes through and your service is not interrupted, please update your payment method from your client portal before that date. If your bank already sent you a new card with the same number, it may update automatically and you can ignore this message.</p>
+       <p>To make sure the charge goes through and your service is not interrupted, please update your payment method from your client portal before that date.</p>
        <div style="text-align:center;margin:20px 0">
          <a href="${portalUrl}" style="display:inline-block;background:#2563EB;color:#fff;text-decoration:none;padding:12px 26px;border-radius:8px;font-size:14px;font-weight:700">Update Payment Method</a>
        </div>`
