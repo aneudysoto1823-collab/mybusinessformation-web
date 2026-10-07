@@ -143,17 +143,19 @@ export default function AgentAssistWidget() {
                 value={question}
                 onChange={e => setQuestion(e.target.value)}
                 placeholder="Pregúntale a Claudia lo que necesites mientras llenas el formulario..."
-                style={{ width: '100%', boxSizing: 'border-box', padding: '8px 36px 8px 10px', border: '1.5px solid #e5e7eb', borderRadius: '8px', fontSize: '13px', fontFamily: 'inherit', resize: 'vertical', outline: 'none' }}
+                style={{ width: '100%', boxSizing: 'border-box', padding: '8px 42px 8px 10px', border: '1.5px solid #e5e7eb', borderRadius: '8px', fontSize: '13px', fontFamily: 'inherit', resize: 'vertical', outline: 'none' }}
               />
               <button
-                type="button" onClick={toggleMic} title="Dictar por voz"
+                type="button" onClick={toggleMic} title={listening ? 'Detener dictado' : 'Dictar por voz'} aria-pressed={listening}
                 style={{
-                  position: 'absolute', right: '6px', bottom: '6px', width: '26px', height: '26px', borderRadius: '50%',
-                  border: 'none', cursor: 'pointer', fontSize: '13px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  background: listening ? '#dc2626' : '#f3f4f6', color: listening ? '#fff' : '#1a1a2e',
+                  position: 'absolute', right: '7px', bottom: '7px', width: '30px', height: '30px', borderRadius: '8px',
+                  border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  // Igual que el micrófono del chat de Claude Code: en reposo solo el
+                  // ícono gris, escuchando se pone el cuadro azul con el ícono blanco.
+                  background: listening ? '#2563eb' : 'transparent', color: listening ? '#fff' : '#6b7280',
                 }}
               >
-                {listening ? '⏹' : '🎤'}
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="9" y="2.5" width="6" height="12" rx="3" /><path d="M5 11a7 7 0 0 0 14 0" /><path d="M12 18v3.5" /></svg>
               </button>
             </div>
             <button
