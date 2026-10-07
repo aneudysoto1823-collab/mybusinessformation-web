@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import ServicesFilingForm from './ServicesFilingForm'
 import { getOrderItemKeys, getOrderItemLabel } from '@/lib/order-items'
+import { SERVICE_BUNDLES } from '@/lib/services-pricing'
 
 const PROXY = '/api/proxy'
 
@@ -831,7 +832,19 @@ export default function OrderDetailPage() {
           // + Basic con addon RA. 'own' = agente propio, no aplica.
           // Bug historico: chequeabamos addons.ra pero fmBuildOrderPayload nunca
           // setea esa propiedad; el flag real siempre estuvo en registeredAgent.
-          if (order.registeredAgent !== 'us') return null
+          //
+          // Órdenes de /servicios: registeredAgent es siempre 'us' por default,
+          // así que ahí se mira si el carrito trae de verdad 'registered-agent'
+          // (suelto o dentro de un combo) — misma regla que provisionRaForOrder.
+          if ((order.package ?? '').toLowerCase() === 'services') {
+            const a = (order.addons && typeof order.addons === 'object' && !Array.isArray(order.addons))
+              ? order.addons as { services?: unknown; bundles?: unknown } : {}
+            const svcs = Array.isArray(a.services) ? a.services : []
+            const bundles = Array.isArray(a.bundles) ? a.bundles : []
+            const hasRa = svcs.includes('registered-agent')
+              || bundles.some(b => typeof b === 'string' && !!SERVICE_BUNDLES[b]?.services.includes('registered-agent'))
+            if (!hasRa) return null
+          } else if (order.registeredAgent !== 'us') return null
 
           const hasAddress = !!order.raAddress?.line1
           let statusLabel = 'Sin provisionar'
@@ -1138,80 +1151,91 @@ export default function OrderDetailPage() {
           if (order.addons && typeof order.addons === 'object' && !Array.isArray(order.addons)) {
             addons = order.addons as Record<string, unknown>
           }
+          // Qué documentos compró el cliente en esta orden (2026-10-07). Antes
+          // se listaban fijos por paquete (Operating Agreement en Standard, DBA
+          // en Premium) aunque esos paquetes no los incluyen. Ahora los
+          // comprados van arriba y el resto queda disponible aparte, por si el
+          // cliente los pide después.
           const pkg = (order.package ?? '').toLowerCase()
-          const isStandard = pkg === 'standard' || pkg === 'premium'
-          const isPremium = pkg === 'premium'
+          const hasEin = pkg === 'standard' || pkg === 'premium' || !!addons.ein
+          const hasOa = pkg === 'premium' || !!addons.oa
+          const hasDba = !!addons.dba
 
-          const docs: { label: string; endpoint: string; color: string }[] = []
+          type DocDef = { label: string; endpoint: string; color: string }
+          const DOC_EIN: DocDef = { label: 'EIN SS-4 (IRS)', endpoint: 'ein-ss4', color: '#1d4ed8' }
+          const DOC_OA: DocDef = { label: 'Operating Agreement', endpoint: 'operating-agreement', color: '#7c3aed' }
+          const DOC_DBA: DocDef = { label: 'DBA / Fictitious Name', endpoint: 'dba', color: '#b45309' }
 
-          // Todos los paquetes
-          docs.push({ label: 'Articles of Organization', endpoint: 'articles-of-organization', color: '#4f46e5' })
-          docs.push({ label: 'BOI Filing (FinCEN)', endpoint: 'boi-filing', color: '#0f766e' })
+          const docs: DocDef[] = [
+            { label: 'Articles of Organization', endpoint: 'articles-of-organization', color: '#4f46e5' },
+            { label: 'BOI Filing (FinCEN)', endpoint: 'boi-filing', color: '#0f766e' },
+          ]
+          const otherDocs: DocDef[] = []
+          ;(hasEin ? docs : otherDocs).push(DOC_EIN)
+          ;(hasOa ? docs : otherDocs).push(DOC_OA)
+          ;(hasDba ? docs : otherDocs).push(DOC_DBA)
 
-          // Standard y Premium
-          if (isStandard) {
-            docs.push({ label: 'EIN SS-4 (IRS)', endpoint: 'ein-ss4', color: '#1d4ed8' })
-            docs.push({ label: 'Operating Agreement', endpoint: 'operating-agreement', color: '#7c3aed' })
-          } else {
-            // Basic con add-ons
-            if (addons.ein) docs.push({ label: 'EIN SS-4 (IRS)', endpoint: 'ein-ss4', color: '#1d4ed8' })
-            if (addons.oa)  docs.push({ label: 'Operating Agreement', endpoint: 'operating-agreement', color: '#7c3aed' })
-          }
-
-          // Solo Premium
-          if (isPremium) {
-            docs.push({ label: 'DBA / Fictitious Name', endpoint: 'dba', color: '#b45309' })
+          const renderDoc = ({ label, endpoint, color }: DocDef, muted = false) => {
+            const baseUrl = `${PROXY}/documents/${order.id}/${endpoint}`
+            const c = muted ? '#64748b' : color
+            return (
+              <div
+                key={endpoint}
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  padding: '11px 16px', borderRadius: '8px',
+                  background: '#f8fafc', border: '1.5px solid #e5e7eb',
+                }}
+              >
+                <span style={{ color: c, fontWeight: 600, fontSize: '14px' }}>
+                  📄 {label}
+                </span>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <a
+                    href={`${baseUrl}?view=1`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      fontSize: '12px', background: '#f1f5f9', color: c,
+                      border: `1.5px solid ${c}`, padding: '4px 12px',
+                      borderRadius: '999px', textDecoration: 'none', fontWeight: 600,
+                    }}
+                  >
+                    👁 Ver PDF
+                  </a>
+                  <a
+                    href={baseUrl}
+                    download
+                    style={{
+                      fontSize: '12px', background: c, color: '#fff',
+                      padding: '4px 12px', borderRadius: '999px',
+                      textDecoration: 'none', fontWeight: 600,
+                    }}
+                  >
+                    ↓ Descargar
+                  </a>
+                </div>
+              </div>
+            )
           }
 
           return (
             <Section title="📥 Pre-filled Documents">
               <p style={{ fontSize: '13px', color: '#6b7280', marginBottom: '16px', lineHeight: 1.6 }}>
-                Documents pre-filled with client data. Download, review, and submit to the appropriate agency.
+                Documentos llenados con los datos del cliente. Descárgalos, revísalos y preséntalos ante la agencia que corresponda.
               </p>
+              <div className="sublabel">Comprados en esta orden</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {docs.map(({ label, endpoint, color }) => {
-                  const baseUrl = `${PROXY}/documents/${order.id}/${endpoint}`
-                  return (
-                    <div
-                      key={endpoint}
-                      style={{
-                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                        padding: '11px 16px', borderRadius: '8px',
-                        background: '#f8fafc', border: '1.5px solid #e5e7eb',
-                      }}
-                    >
-                      <span style={{ color: color, fontWeight: 600, fontSize: '14px' }}>
-                        📄 {label}
-                      </span>
-                      <div style={{ display: 'flex', gap: '8px' }}>
-                        <a
-                          href={`${baseUrl}?view=1`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{
-                            fontSize: '12px', background: '#f1f5f9', color: color,
-                            border: `1.5px solid ${color}`, padding: '4px 12px',
-                            borderRadius: '999px', textDecoration: 'none', fontWeight: 600,
-                          }}
-                        >
-                          👁 Ver PDF
-                        </a>
-                        <a
-                          href={baseUrl}
-                          download
-                          style={{
-                            fontSize: '12px', background: color, color: '#fff',
-                            padding: '4px 12px', borderRadius: '999px',
-                            textDecoration: 'none', fontWeight: 600,
-                          }}
-                        >
-                          ↓ Descargar
-                        </a>
-                      </div>
-                    </div>
-                  )
-                })}
+                {docs.map(d => renderDoc(d))}
               </div>
+              {otherDocs.length > 0 && (
+                <>
+                  <div className="sublabel" style={{ marginTop: '18px' }}>Otros documentos disponibles (no comprados, por si el cliente los pide)</div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {otherDocs.map(d => renderDoc(d, true))}
+                  </div>
+                </>
+              )}
             </Section>
           )
         })()}

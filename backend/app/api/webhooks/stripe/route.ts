@@ -917,6 +917,18 @@ async function handleServicesPaid(orderId: string, session: Stripe.Checkout.Sess
     }
   })
 
+  // Agente Registrado comprado suelto o en combo (2026-10-07): misma cadena de
+  // activación con el proveedor que la formación (handleFormationPaid). No-op
+  // si el carrito no trae 'registered-agent' — la guardia vive en
+  // provisionRaForOrder. Antes estas compras se cobraban sin activarse.
+  after(async () => {
+    try {
+      await provisionRaForOrder(order.id)
+    } catch (err) {
+      console.error('[stripe-webhook] services RA provisioning error (non-fatal):', err)
+    }
+  })
+
   // Comisión de afiliado — no-op si no se usó ningún código de afiliado en el
   // checkout. Ver lib/affiliates.ts.
   after(async () => {

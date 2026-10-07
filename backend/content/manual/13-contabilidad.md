@@ -65,6 +65,6 @@ Un reporte por período con los indicadores principales:
 - **Excel:** descarga la tabla con los filtros que tengas puestos.
 - **PDF:** abre la vista de impresión del navegador.
 
-## Poner en cero
+## Datos de prueba
 
-El botón **"Poner en cero"** del Dashboard borra **todos** los datos de contabilidad. Pide confirmación. Está pensado para limpiar los datos de prueba antes del lanzamiento. **Ojo:** también borra los gastos, que son reales; antes de usarlo, revisa el plan de limpieza en la lista de prelanzamiento.
+No hay botón para borrar la contabilidad. Antes de activar Stripe en modo real, los ingresos y clientes de prueba se borran una sola vez, como parte de la limpieza general de la lista de prelanzamiento. Los gastos no se borran, porque son reales.

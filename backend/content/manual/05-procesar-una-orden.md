@@ -35,7 +35,7 @@ Si todo está bien, toca **"Nombre disponible → Ready to file"**.
 
 ### 2. Presentar (Ready to file)
 
-Presenta el trámite ante el Estado de Florida. Para ayudarte, en la sección **Pre-filled Documents** de la orden puedes ver y descargar documentos ya llenados con los datos del cliente (Articles of Organization, BOI, la solicitud del EIN y el Operating Agreement, según lo que haya comprado).
+Presenta el trámite ante el Estado de Florida. Para ayudarte, en la sección **Pre-filled Documents** de la orden puedes ver y descargar documentos ya llenados con los datos del cliente. Arriba aparecen los que compró (siempre Articles of Organization y BOI, más la solicitud del EIN, el Operating Agreement o el DBA si los tiene). Abajo, en **"Otros documentos disponibles"**, están los que no compró, por si después los pide.
 
 Cuando lo presentaste, toca **"Filed"**. Eso le manda al cliente el email **"Orden Procesada"**, que le avisa que su trámite ya está presentado ante el Estado.
 

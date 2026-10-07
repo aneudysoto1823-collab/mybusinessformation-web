@@ -15,7 +15,7 @@ Stripe ya está preparado. Antes de activarlo hay que resolver todo esto:
 3. **Pasar Resend a plan pago**: el gratis tiene un solo cupo de envíos para todo y llegó al límite de dominios. Al pasarlo, agregar el dominio de envío de las cartas de OpaBiz.
 4. **Cambiar los logos** de MyBiz y OpaBiz.
 5. **Configurar los reintentos de cobro** en Stripe (prueba y real): Settings, Billing, "Manage failed payments". Lo recomendado: reintentos durante 1 mes, cancelar al final y no activar los emails propios de Stripe.
-6. **Poner el sistema en cero**: borrar los datos de prueba después de un respaldo, con una simulación previa aprobada por los dos socios. **No usar** el botón "Poner en cero" de Contabilidad, porque borra también los gastos reales.
+6. **Poner el sistema en cero**: borrar los datos de prueba después de un respaldo, con una simulación previa aprobada por los dos socios. En contabilidad se borran solo los ingresos y clientes de prueba, nunca los gastos.
 7. **Revisión de abogado** de los Términos y la Política de Privacidad.
 8. Confirmar que las claves de Turso estén cargadas también en Railway (sin ellas, el buscador de nombres del panel dice "disponible" a todo sin avisar).
 
@@ -30,10 +30,7 @@ Stripe ya está preparado. Antes de activarlo hay que resolver todo esto:
 
 ## Arreglos pendientes encontrados
 
-- **Agente Registrado comprado suelto** (en /servicios o en el combo de cumplimiento): se cobra, pero no se activa solo con el proveedor ni le llega la dirección al cliente. Hoy hay que hacerlo a mano.
 - **Notificaciones en iPhone de OpaBiz Connect:** solo funcionan con la app instalada en la pantalla de inicio. Falta una guía en la app que se lo explique al agente.
-- **Textos del portal del cliente:** prometen "3 a 5 días hábiles" para la aprobación del Estado (no controlamos ese plazo) y tutean al cliente, cuando la regla del sitio es usar "usted".
-- **Documentos prellenados del panel:** ofrecen el Operating Agreement en Standard y el DBA en Premium, aunque esos paquetes no los incluyen.
 
 ## Ideas para más adelante
 

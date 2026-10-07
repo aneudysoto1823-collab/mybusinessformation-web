@@ -149,23 +149,23 @@ const STATUS_LABELS: Record<string, { en: string; es: string }> = {
 
 function getWhatsNext(status: string, es: boolean): string {
   const T: Record<string, { en: string; es: string }> = {
-    pending:        { en: 'Your order has been received. Complete your payment to get started.', es: 'Tu orden ha sido recibida. Completa tu pago para comenzar.' },
-    in_review:      { en: 'Payment confirmed! Our team is verifying the availability of your business names with the State of Florida.', es: '¡Pago confirmado! Nuestro equipo está verificando la disponibilidad de tus nombres con el Estado de Florida.' },
-    names_taken:    { en: 'The names you selected are already registered in Florida. Our team will send you alternative name suggestions shortly — please check your email.', es: 'Los nombres que seleccionaste ya están registrados en Florida. Nuestro equipo te enviará sugerencias alternativas pronto — revisa tu correo.' },
-    ready_to_file:  { en: 'A business name is available! Our team is preparing to file your formation documents with the State of Florida.', es: '¡Un nombre está disponible! Nuestro equipo está preparando los documentos para registrar tu negocio.' },
-    filed:          { en: 'Your business formation documents have been submitted to the State of Florida. Approval typically takes 3–5 business days.', es: 'Tus documentos han sido enviados al Estado de Florida. La aprobación generalmente toma de 3 a 5 días hábiles.' },
-    approved:       { en: 'Florida has approved your business! We are preparing your Articles of Organization / Incorporation and will send them to your email shortly.', es: '¡Florida ha aprobado tu negocio! Estamos preparando tus Artículos de Organización / Incorporación y te los enviaremos pronto.' },
-    completed:      { en: 'Your business is officially formed. Check your email for the Articles of Organization / Incorporation. Welcome to the business world!', es: 'Tu negocio está oficialmente formado. Revisa tu correo para los Artículos de Organización / Incorporación. ¡Bienvenido al mundo empresarial!' },
+    pending:        { en: 'Your order has been received. Complete your payment to get started.', es: 'Su orden fue recibida. Complete su pago para comenzar.' },
+    in_review:      { en: 'Payment confirmed! Our team is reviewing your order and verifying your business name with the State of Florida.', es: '¡Pago confirmado! Nuestro equipo está revisando su orden y verificando el nombre de su empresa con el Estado de Florida.' },
+    names_taken:    { en: 'The name you selected is already registered in Florida. Our team will email you alternative name suggestions.', es: 'El nombre que eligió ya está registrado en Florida. Nuestro equipo le enviará sugerencias de nombres alternativos por correo.' },
+    ready_to_file:  { en: 'Your business name is available! Our team is preparing to file your formation documents with the State of Florida.', es: '¡El nombre está disponible! Nuestro equipo está preparando los documentos para registrar su empresa.' },
+    filed:          { en: 'Your business formation documents have been submitted to the State of Florida. We will let you know by email as soon as the State approves them.', es: 'Sus documentos fueron presentados ante el Estado de Florida. Le avisaremos por correo en cuanto el Estado los apruebe.' },
+    approved:       { en: 'Florida has approved your business! We are preparing your Articles of Organization / Incorporation and will send them to your email.', es: '¡Florida aprobó su empresa! Estamos preparando sus Artículos de Organización / Incorporación y se los enviaremos por correo.' },
+    completed:      { en: 'Your business is officially formed. Check your email for the Articles of Organization / Incorporation. Welcome to the business world!', es: 'Su empresa está oficialmente formada. Revise su correo para encontrar los Artículos de Organización / Incorporación. ¡Bienvenido al mundo empresarial!' },
   }
   const msg = T[status]
-  if (!msg) return es ? 'Tu orden está siendo procesada. Te mantendremos informado por correo.' : 'Your order is being processed. We will keep you updated by email.'
+  if (!msg) return es ? 'Su orden está siendo procesada. Le mantendremos informado por correo.' : 'Your order is being processed. We will keep you updated by email.'
   return es ? msg.es : msg.en
 }
 
 function getAddonWhatsNext(status: string, es: boolean): string {
-  if (status === 'completed') return es ? '¡Tus servicios están listos! Revisa la sección de Documentos para descargar tus archivos.' : 'Your services are ready! Check the Documents section below to download your files.'
-  if (status === 'in_review' || status === 'processing') return es ? '¡Pago confirmado! Nuestro equipo está procesando tus servicios. Te notificaremos por correo cuando todo esté listo.' : 'Payment confirmed! Our team is processing your services. We\'ll email you as soon as everything is ready.'
-  return es ? 'Tu orden ha sido recibida y está siendo revisada.' : 'Your order has been received and is being reviewed.'
+  if (status === 'completed') return es ? '¡Sus servicios están listos! Revise la sección de Documentos para descargar sus archivos.' : 'Your services are ready! Check the Documents section below to download your files.'
+  if (status === 'in_review' || status === 'processing') return es ? '¡Pago confirmado! Nuestro equipo está procesando sus servicios. Le avisaremos por correo cuando todo esté listo.' : 'Payment confirmed! Our team is processing your services. We\'ll email you as soon as everything is ready.'
+  return es ? 'Su orden fue recibida y está siendo revisada.' : 'Your order has been received and is being reviewed.'
 }
 
 function getConfirmationNumber(id: string, pkg: string): string {
@@ -505,14 +505,14 @@ export default function DashboardContent({
       {/* Welcome */}
       <div className="cp-welcome">
         <h1>{es ? `¡Bienvenido, ${order.firstName}!` : `Welcome, ${order.firstName}!`}</h1>
-        <p>{es ? `Confirmación #${confirmationNumber}` : `Confirmation #${confirmationNumber}`}</p>
+        <p>{es ? `Número de Orden: ${confirmationNumber}` : `Order Number: ${confirmationNumber}`}</p>
       </div>
 
       {/* Password success toast */}
       {pwSuccess && (
         <div style={{ background: '#f0fdf4', border: '1px solid #86efac', borderRadius: 10, padding: '12px 16px', marginBottom: 16, fontSize: '.87rem', color: '#166534', display: 'flex', alignItems: 'center', gap: 10 }}>
           <span>✓</span>
-          <span>{es ? 'Contraseña creada. Ya puedes iniciar sesión con tu email y contraseña.' : 'Password created. You can now sign in with your email and password.'}</span>
+          <span>{es ? 'Contraseña creada. Ya puede iniciar sesión con su email y contraseña.' : 'Password created. You can now sign in with your email and password.'}</span>
         </div>
       )}
 
@@ -521,10 +521,10 @@ export default function DashboardContent({
         <div style={{ background: '#eff6ff', border: '1.5px solid #bfdbfe', borderRadius: 12, padding: '14px 18px', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
           <div style={{ flex: 1, minWidth: 200 }}>
             <p style={{ fontWeight: 700, fontSize: '.9rem', color: '#1e40af', margin: '0 0 2px' }}>
-              {es ? '🔑 Crea tu contraseña' : '🔑 Set up your password'}
+              {es ? 'Cree su contraseña' : 'Set up your password'}
             </p>
             <p style={{ fontSize: '.8rem', color: '#3b82f6', margin: 0 }}>
-              {es ? 'Para acceder más rápido en el futuro sin tu número de orden.' : 'Access your portal faster next time without your order number.'}
+              {es ? 'Para entrar más rápido la próxima vez, sin su número de orden.' : 'Access your portal faster next time without your order number.'}
             </p>
           </div>
           <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
@@ -646,7 +646,7 @@ export default function DashboardContent({
 
       {/* Company Details */}
       <div className="cp-card">
-        <h2>{es ? 'Detalles de tu Empresa' : 'Your Company Details'}</h2>
+        <h2>{es ? 'Detalles de su Empresa' : 'Your Company Details'}</h2>
         <div className="details-grid">
           <div className="detail-item">
             <div className="detail-label">{es ? 'Nombre de la Empresa' : 'Company Name'}</div>
@@ -671,7 +671,7 @@ export default function DashboardContent({
 
       {/* Package & Services */}
       <div className="cp-card">
-        <h2>{isAddon ? (es ? 'Tus Servicios' : 'Your Services') : (es ? 'Tu Paquete y Servicios' : 'Your Package & Services')}</h2>
+        <h2>{isAddon ? (es ? 'Sus Servicios' : 'Your Services') : (es ? 'Su Paquete y Servicios' : 'Your Package & Services')}</h2>
         <div>
           <span className="pkg-name">
             {pkgInfo ? (es ? pkgInfo.es : pkgInfo.en) : isServicesOrder ? (es ? 'Servicios Individuales' : 'Individual Services') : order.package}

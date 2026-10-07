@@ -14,7 +14,7 @@ const T = {
     confNum: 'Order number',
     confPlaceholder: 'FBFC-00000000 or FBNB-00000000',
     confHint: 'Found in your order confirmation email',
-    btn: 'Access My Order →',
+    btn: 'Access My Order',
     btnLoading: 'Accessing…',
     noConf: "Don't have your order number?",
     contact: 'Contact us',
@@ -27,18 +27,18 @@ const T = {
   },
   es: {
     eyebrow: 'Acceso de Clientes',
-    title: 'Rastrea tu orden',
-    subtitle: 'Ingresa tu correo y número de orden de tu recibo para acceder al estado de tu trámite.',
+    title: 'Rastree su orden',
+    subtitle: 'Ingrese su correo y el número de orden de su recibo para ver el estado de su trámite.',
     email: 'Correo electrónico',
-    emailPlaceholder: 'tú@ejemplo.com',
+    emailPlaceholder: 'usted@ejemplo.com',
     confNum: 'Número de orden',
     confPlaceholder: 'FBFC-00000000 o FBNB-00000000',
-    confHint: 'Lo encuentras en el email de confirmación de tu orden',
-    btn: 'Acceder a Mi Orden →',
+    confHint: 'Lo encuentra en el email de confirmación de su orden',
+    btn: 'Acceder a Mi Orden',
     btnLoading: 'Accediendo…',
-    noConf: '¿No tienes tu número de orden?',
-    contact: 'Contáctanos',
-    terms: 'Al acceder aceptas nuestros',
+    noConf: '¿No tiene su número de orden?',
+    contact: 'Contáctenos',
+    terms: 'Al acceder acepta nuestros',
     termsLink: 'Términos de Servicio',
     and: 'y la',
     privacyLink: 'Política de Privacidad',
@@ -355,7 +355,7 @@ function LoginForm({ initialIsFBFC }: { initialIsFBFC: boolean }) {
           <p className="portal-header-tagline">
             {lang === 'en'
               ? 'Secure access to your order status and filing documents'
-              : 'Acceso seguro al estado de tu orden y documentos de trámite'}
+              : 'Acceso seguro al estado de su orden y documentos de trámite'}
           </p>
         </div>
 

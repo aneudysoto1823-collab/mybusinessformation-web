@@ -205,7 +205,6 @@ Antes la única forma de tener contraseña era loguearse primero con un número 
 /api/contabilidad/gastos/[id]    PATCH+DELETE
 /api/contabilidad/reportes       GET    — reporte consolidado por período
 /api/contabilidad/sync-orders    POST   — importa órdenes del admin como ingresos+clientes (idempotente)
-/api/contabilidad/reset          DELETE — borra todos los datos contables (requiere confirm: 'RESET_CONTABILIDAD')
 /api/contabilidad/analyze-invoice POST  — sube PDF/imagen → Claude Haiku extrae datos de la factura
 
 /api/booking/slots            GET    — slots disponibles para una fecha (lun-sáb, 9am-7pm, 40min)
@@ -613,7 +612,7 @@ Florida no tiene state income tax — solo aplica federal.
 
 `POST /api/contabilidad/sync-orders` importa órdenes de `Order` que no tengan ya un `accounting_income.order_id`. Por cada orden crea un `accounting_client` + `accounting_income`. Es idempotente — se puede correr múltiples veces sin duplicar.
 
-Para limpiar datos de prueba antes de producción: botón "Poner en cero" en el dashboard llama a `DELETE /api/contabilidad/reset` con `{ confirm: 'RESET_CONTABILIDAD' }`.
+El botón "Poner en cero" y su endpoint `/api/contabilidad/reset` se eliminaron el 2026-10-07: borraban también `accounting_expenses` (gastos reales). La limpieza de datos de prueba se hace una vez antes de Stripe Live (ver CHECKLIST_PRELANZAMIENTO), borrando solo ingresos y clientes.
 
 ### Análisis de facturas con IA
 
@@ -2027,6 +2026,12 @@ Ver la sección "Manual interno" en Convenciones. Capítulos 1-4 escritos; 5-18 
 ### 🐛 Bug real 2026-10-07: las renovaciones de suscripciones no tenían tarjeta
 Una alerta de "pago fallido" (Telegram) de la orden de prueba F4870B59 (renovación mensual de Virtual Address, test mode) destapó que `createRecurringSubscriptionsForOrder` (`lib/stripe-subscriptions.ts`) creaba las Subscriptions sin `default_payment_method`, y Stripe Checkout guarda la tarjeta en el Customer (`setup_future_usage`) pero NO la marca como default de facturas. Resultado: TODA renovación habría fallado en Live. Fix: `resolveRenewalPaymentMethod()` toma la tarjeta del PaymentIntent del checkout (o la default del Customer, o la última guardada), la fija como `invoice_settings.default_payment_method` del Customer y como `default_payment_method` de cada Subscription. Los dos callers del webhook pasan `session.payment_intent`. Las suscripciones de prueba creadas antes del fix siguen sin tarjeta (solo test mode, Live no está activo): se pueden cancelar desde el Dashboard de Stripe del sandbox.
 Además: el aviso de tarjeta por vencer pasó a un email propio 5 días antes del cobro (`sendCardExpiryWarning`, flag `cardExpiryWarningSentForPeriodEnd`); pagos fallidos avisan también por Telegram y hay contador "Pagos Fallidos" en `/admin`.
+
+### Arreglos del 2026-10-07 (encontrados al escribir el manual)
+- **Agente Registrado comprado suelto o en combo en `/servicios`** ahora se activa solo con RAI: `handleServicesPaid` llama a `provisionRaForOrder`. Para `package:'services'` la guardia NO usa `registeredAgent` (embedded-services lo inserta siempre como `'us'`), sino que mira si el carrito trae `registered-agent` suelto o en un combo (`getRecurringServicesFromOrder`). La sección RA del admin aplica la misma regla. `sendRaAddressReady` ahora acepta `sourceBrand` (antes asumía OpaBiz; las compras FBFC del combo VIP salían con la marca equivocada).
+- **Portal del cliente:** textos en español pasados a "usted" (`DashboardContent.tsx`, `LoginForm.tsx`, pasos de `dashboard/page.tsx`); sacada la promesa "3 a 5 días hábiles" del estado `filed`; "Confirmación #" → "Número de Orden".
+- **Pre-filled Documents del admin:** separados en "Comprados en esta orden" y "Otros documentos disponibles" (antes ofrecía OA en Standard y DBA en Premium como si estuvieran incluidos).
+- **Contabilidad:** eliminados el botón "Poner en cero" y `/api/contabilidad/reset` (borraban gastos reales); queda una nota en el dashboard.
 
 ### Otros
 - `CHECKLIST_PRELANZAMIENTO.md`: nuevo ítem en "T-1 semana" para poner el sistema en cero (órdenes, OpaBiz Connect, contabilidad, citas, afiliados, guide_sends, prospective_companies de prueba) después del backup y con la lista confirmada por ambos socios.

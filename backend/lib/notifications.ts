@@ -674,6 +674,10 @@ export const sendRaAddressReady = async (order: {
   id: string
   entityType?: string | null
   lang?: 'en' | 'es'
+  // Marca de la orden (Order.sourceBrand). Desde 2026-10-07 también se activa
+  // el agente para compras sueltas en /servicios, que pueden venir de
+  // mybusinessformation.com — antes este email asumía siempre OpaBiz.
+  sourceBrand?: string | null
   raAddress: {
     line1: string
     line2?: string | null
@@ -683,29 +687,24 @@ export const sendRaAddressReady = async (order: {
   }
 }) => {
   const isEs = order.lang === 'es'
+  const brand = (order.sourceBrand ?? 'opabiz') as EmailBrand
   const fbfc = `FBFC-${order.id.replace(/-/g, '').substring(0, 8).toUpperCase()}`
   const addr = order.raAddress
   const addrLine2Html = addr.line2 ? `<div>${addr.line2}</div>` : ''
 
   await getResend().emails.send({
-    from: FROM_OPABIZ,
-    replyTo: REPLY_TO,
+    from: brandFrom(brand),
+    replyTo: brandReplyTo(brand),
     to: order.email,
     subject: isEs
-      ? `OpaBiz: 📬 Su Agente Registrado está activo — ${order.companyName}`
-      : `OpaBiz: 📬 Your Registered Agent is active — ${order.companyName}`,
+      ? `${brandSubjectPrefix(brand)}Su Agente Registrado está activo: ${order.companyName}`
+      : `${brandSubjectPrefix(brand)}Your Registered Agent is active: ${order.companyName}`,
     html: `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#1e293b">
         <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden">
           <div style="padding:22px 32px;border-bottom:1px solid #e2e8f0">
             <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
-              <td style="width:42px;padding-right:12px">
-                <div style="width:42px;height:42px;background:#22364E;border-radius:10px;text-align:center;line-height:42px;color:#fff;font-family:Georgia,serif;font-size:16px;font-weight:700">OB</div>
-              </td>
-              <td style="vertical-align:middle">
-                <div style="font-family:Georgia,serif;font-size:21px;font-weight:700;line-height:1.2"><span style="color:#1C2E44">Opa</span><span style="color:#2563EB">Biz</span></div>
-                <div style="font-size:11px;color:#94A3B8;letter-spacing:.3px;margin-top:2px">Florida Business Formation Center</div>
-              </td>
+              ${brandHeaderHtml(brand)}
             </tr></table>
           </div>
           <div style="padding:32px">
@@ -736,16 +735,16 @@ export const sendRaAddressReady = async (order: {
                 : 'Any legal document that arrives at this address will be processed and forwarded to you by email the same day.'}
             </p>
             <div style="text-align:center;margin:24px 0">
-              <a href="${brandPortalHome('opabiz', { email: order.email, order: fbfc })}" style="background:#2563EB;color:#fff;text-decoration:none;padding:13px 32px;border-radius:8px;font-weight:700;font-size:15px;display:inline-block">
+              <a href="${brandPortalHome(brand, { email: order.email, order: fbfc })}" style="background:#2563EB;color:#fff;text-decoration:none;padding:13px 32px;border-radius:8px;font-weight:700;font-size:15px;display:inline-block">
                 ${isEs ? 'Rastrear Mi Orden' : 'Track My Order'}
               </a>
             </div>
             <p style="color:#475569;line-height:1.7">
-              ${isEs ? '¿Preguntas? Escríbanos por' : 'Questions? Reach us on'} <a href="https://wa.me/13522782475" style="color:#059669">WhatsApp</a> ${isEs ? 'o a' : 'or at'} <a href="mailto:${REPLY_TO}" style="color:#2563eb">${REPLY_TO}</a>.
+              ${brandWhatsappLine(brand, isEs)}
             </p>
             <p style="margin-top:24px;color:#94a3b8;font-size:12px;line-height:1.6">
-              OpaBiz · opabiz.com<br/>
-              ${brandDisclosureHtml('opabiz', isEs ? 'es' : 'en')}
+              ${brandFooterLine(brand)}<br/>
+              ${brandDisclosureHtml(brand, isEs ? 'es' : 'en')}
             </p>
           </div>
         </div>

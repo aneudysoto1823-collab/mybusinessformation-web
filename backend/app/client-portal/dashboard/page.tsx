@@ -26,7 +26,7 @@ interface Order {
 
 const ADDON_STEPS = [
   { key: 'payment',    label: 'Payment Confirmed',        labelEs: 'Pago Confirmado' },
-  { key: 'processing', label: 'Processing Your Services', labelEs: 'Procesando tus Servicios' },
+  { key: 'processing', label: 'Processing Your Services', labelEs: 'Procesando sus Servicios' },
   { key: 'completed',  label: 'Services Delivered',       labelEs: 'Servicios Entregados' },
 ]
 
@@ -203,7 +203,7 @@ export default async function ClientDashboardPage({
   const steps = isAddon
     ? ADDON_STEPS
     : (order.package === 'services' && !hasFormationOrder(order.package, order.addons))
-      ? STEPS.map(s => s.key === 'name_check' ? { key: 'processing', label: 'Processing Your Order', labelEs: 'Procesando tu Orden' } : s)
+      ? STEPS.map(s => s.key === 'name_check' ? { key: 'processing', label: 'Processing Your Order', labelEs: 'Procesando su Orden' } : s)
       : STEPS
   const documents = await getDocuments(order)
   // initialLang: ?lang del home (override explícito, ej. toggle manual) →

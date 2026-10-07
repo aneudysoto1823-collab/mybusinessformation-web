@@ -95,8 +95,7 @@ body { background: #f4f6f9; font-family: var(--font-sans); }
 .btn:disabled { opacity: .5; cursor: not-allowed; }
 .btn-sync { background: #2563eb; color: #fff; }
 .btn-sync:hover:not(:disabled) { background: #1d4ed8; }
-.btn-reset { background: transparent; color: #dc2626; border: 1.5px solid #fecaca; }
-.btn-reset:hover:not(:disabled) { background: #fef2f2; }
+.reset-note { font-size: 12px; color: #92400e; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 6px 12px; }
 .sync-msg { font-size: 13px; color: #374151; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 8px 14px; }
 .sync-msg.err { background: #fef2f2; border-color: #fecaca; color: #dc2626; }
 .renewals-banner { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 10px; padding: 12px 16px; margin-bottom: 24px; }
@@ -144,7 +143,6 @@ export default function ContabilidadDashboard() {
   const [loading, setLoading] = useState(true)
   const [syncing, setSyncing] = useState(false)
   const [syncMsg, setSyncMsg] = useState<string | null>(null)
-  const [resetting, setResetting] = useState(false)
   const [taxRate, setTaxRate] = useState(DEFAULT_TAX_RATE)
   const [editingTax, setEditingTax] = useState(false)
   const [taxInput, setTaxInput] = useState(String(DEFAULT_TAX_RATE))
@@ -180,20 +178,6 @@ export default function ContabilidadDashboard() {
       loadData()
     } else { setSyncMsg(`Error: ${json.error}`) }
     setSyncing(false)
-  }
-
-  async function handleReset() {
-    if (!window.confirm('¿Seguro que quieres borrar TODOS los datos de contabilidad? Esto no se puede deshacer.')) return
-    setResetting(true)
-    const res = await fetch('/api/contabilidad/reset', {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ confirm: 'RESET_CONTABILIDAD' }),
-    })
-    const json = await res.json()
-    if (res.ok) { setSyncMsg('Datos de prueba eliminados. Módulo en cero.'); loadData() }
-    else { setSyncMsg(`Error: ${json.error}`) }
-    setResetting(false)
   }
 
   function quarterDueClass(dueDate: Date): string {
@@ -236,9 +220,12 @@ export default function ContabilidadDashboard() {
           <button className="btn btn-sync" onClick={handleSync} disabled={syncing}>
             {syncing ? 'Importando...' : '↓ Importar órdenes del admin'}
           </button>
-          <button className="btn btn-reset" onClick={handleReset} disabled={resetting}>
-            {resetting ? 'Borrando...' : 'Poner en cero (datos de prueba)'}
-          </button>
+          {/* El botón "Poner en cero" se quitó el 2026-10-07: borraba también
+              los gastos, que son reales. La limpieza de datos de prueba se hace
+              una sola vez antes de Stripe Live (ver CHECKLIST_PRELANZAMIENTO). */}
+          <span className="reset-note">
+            Antes de activar Stripe en modo real hay que poner en cero los datos de prueba (ingresos y clientes, no los gastos). Ver la lista de prelanzamiento.
+          </span>
           {syncMsg && (
             <span className={`sync-msg${syncMsg.startsWith('Error') ? ' err' : ''}`}>{syncMsg}</span>
           )}

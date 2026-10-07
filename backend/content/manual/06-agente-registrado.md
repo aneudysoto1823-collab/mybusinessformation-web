@@ -19,14 +19,14 @@ Nosotros no somos el agente directamente: el servicio lo presta un proveedor may
 
 Si el cliente decide ser su propio agente, no se cobra nada: solo se guarda la dirección que nos da.
 
-## Cómo se activa (formación del home)
+## Cómo se activa
 
-Cuando un cliente paga una formación con nuestro agente, el sistema hace todo solo, en segundos:
+Cuando un cliente paga una orden con nuestro agente, el sistema hace todo solo, en segundos. Vale tanto para la formación del home como para el agente comprado suelto o en un combo en /servicios, en los dos sitios:
 
 1. Crea la empresa del cliente en el sistema del proveedor.
 2. Activa el servicio de agente para Florida. El proveedor asigna la dirección al instante.
 3. Busca la factura que nos cobra el proveedor por ese servicio.
-4. Le manda al cliente un email **"Su Agente Registrado está activo"** con la dirección que tiene que usar.
+4. Le manda al cliente un email **"Su Agente Registrado está activo"** con la dirección que tiene que usar, con la marca del sitio donde compró.
 
 Todo queda guardado en la orden, en la sección **"Registered Agent (RAI Provisioning)"**: el estado, los códigos del proveedor, el número de factura y la dirección.
 
@@ -34,10 +34,6 @@ Todo queda guardado en la orden, en la sección **"Registered Agent (RAI Provisi
 
 - **Pagarle la factura al proveedor.** No es automático a propósito. En la orden aparece el número de factura; se paga desde el portal del proveedor.
 - **Si la activación falla**, llega una alerta a alert@opabiz.com que dice en qué paso falló. En la orden aparece el botón **"Retry RA provisioning"**: vuelve a intentar solo los pasos que faltaron, sin crear nada duplicado ni generar facturas nuevas.
-
-## Agente Registrado comprado suelto (importante)
-
-Hoy la activación automática **solo funciona en la formación del home**. Si un cliente compra el Agente Registrado en /servicios (suelto o en un combo, como el de cumplimiento anual), el sistema le cobra y crea su renovación anual, pero **no lo activa con el proveedor ni le manda la dirección**. Esos casos hay que darlos de alta a mano en el portal del proveedor y mandarle la dirección al cliente.
 
 ## Si el cliente cancela
 

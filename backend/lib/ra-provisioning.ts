@@ -29,6 +29,7 @@ import {
 } from './corporate-tools'
 import { sendRaAddressReady } from './notifications'
 import { getOrderLang } from './order-items'
+import { getRecurringServicesFromOrder } from './order-subscriptions'
 import { getResend } from './resend-client'
 import { REPLY_TO, INTERNAL_ALERT_EMAIL, FROM_OPABIZ_ALERTS } from './email-constants'
 
@@ -47,6 +48,8 @@ type OrderRow = {
   raProvisionedAt: string | null
   raAddressEmailSentAt: string | null
   addons: unknown
+  package: string | null
+  sourceBrand: string | null
 }
 
 type RaAddress = {
@@ -64,7 +67,7 @@ export type ProvisionResult = {
   serviceId?: string
   invoiceId?: string
   address?: RaAddress
-  skipped?: 'client-uses-own-agent' | 'already-provisioned'
+  skipped?: 'client-uses-own-agent' | 'no-registered-agent-in-cart' | 'already-provisioned'
   error?: string
 }
 
@@ -145,7 +148,7 @@ export async function provisionRaForOrder(
 
   const { data: orderRaw, error: fetchErr } = await supabase
     .from('Order')
-    .select('id, firstName, lastName, email, companyName, entityType, registeredAgent, raCompanyId, raServiceId, raInvoiceId, raAddress, raProvisionedAt, raAddressEmailSentAt, addons')
+    .select('id, firstName, lastName, email, companyName, entityType, registeredAgent, raCompanyId, raServiceId, raInvoiceId, raAddress, raProvisionedAt, raAddressEmailSentAt, addons, package, sourceBrand')
     .eq('id', orderId)
     .single()
 
@@ -164,8 +167,19 @@ export async function provisionRaForOrder(
   // "queremos ser el RA" siempre estuvo en la columna registeredAgent, no en
   // el mapa de addons. Fix aplicado 2026-08-03 despues de que una orden real
   // (Standard) no disparara la cadena por este bug.
-  if (order.registeredAgent !== 'us') {
-    return { ok: true, orderId, skipped: 'client-uses-own-agent' }
+  //
+  // Compras sueltas en /servicios (package 'services', 2026-10-07): ahí
+  // registeredAgent es siempre 'us' por default (embedded-services lo inserta
+  // así sin importar el carrito), así que NO sirve como señal. Se activa solo
+  // si el carrito trae de verdad 'registered-agent', suelto o dentro de un
+  // combo (ej. Cumplimiento anual / VIP). Antes estas compras se cobraban
+  // pero nunca se activaban con el proveedor.
+  const isServicesOrder = (order.package ?? '').toLowerCase() === 'services'
+  const wantsRa = isServicesOrder
+    ? getRecurringServicesFromOrder('services', order.addons).some(s => s.service === 'registered-agent')
+    : order.registeredAgent === 'us'
+  if (!wantsRa) {
+    return { ok: true, orderId, skipped: isServicesOrder ? 'no-registered-agent-in-cart' : 'client-uses-own-agent' }
   }
 
   // Guardia 2: idempotencia (a menos que force)
@@ -269,6 +283,7 @@ export async function provisionRaForOrder(
         id: order.id,
         entityType: order.entityType,
         raAddress: address,
+        sourceBrand: order.sourceBrand,
         // addons.lang ya se persiste en Order desde 2026-09-07 — antes este
         // TODO quedaba pendiente y el email salía siempre en inglés.
         lang: getOrderLang(order.addons),
