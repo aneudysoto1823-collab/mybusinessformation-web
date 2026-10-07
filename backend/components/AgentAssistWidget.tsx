@@ -153,11 +153,7 @@ export default function AgentAssistWidget() {
                   background: listening ? '#dc2626' : '#f3f4f6', color: listening ? '#fff' : '#1a1a2e',
                 }}
               >
-                {listening ? (
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2" /></svg>
-                ) : (
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" /><path d="M5 11a7 7 0 0 0 14 0M12 18v3" /></svg>
-                )}
+                {listening ? '⏹' : '🎤'}
               </button>
             </div>
             <button
