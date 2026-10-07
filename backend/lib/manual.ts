@@ -116,8 +116,33 @@ function stripMarkdown(md: string): string {
     .trim()
 }
 
+// Convierte en link cualquier página del sitio mencionada en el texto
+// (2026-10-07, pedido founder): `/admin/citas`, **opabiz.com/booking**,
+// mybusinessformation.com/afiliados, etc. Automático para que las menciones
+// nuevas también queden con link sin acordarse de ponerlo. Las rutas sueltas
+// (/admin/...) apuntan a opabiz.com. No toca emails (info@opabiz.com) ni
+// subdominios (notices.opabiz.com), ni lo que ya está dentro de un link.
+const SITE_PATHS = '(?:admin|servicios|booking|contact|afiliados|guia-gratis|oferta|opabiz|client-portal|order|terms|privacy)'
+function autolinkPages(md: string): string {
+  const linkHost = (text: string, host: string, path: string) =>
+    `[${text}](https://${host === 'opabiz.com' ? 'www.opabiz.com' : host}${path || '/'})`
+  return md
+    .split(/(\[[^\]]*\]\([^)]*\))/g) // no tocar links que ya existen
+    .map(part => {
+      if (/^\[[^\]]*\]\([^)]*\)$/.test(part)) return part
+      return part
+        // dominio + ruta opcional
+        .replace(/`?(?<![\w@./-])(?:www\.)?(opabiz\.com|mybusinessformation\.com)((?:\/[\w\-/?=&#.]*[\w/=])?)`?/g,
+          (_m, host: string, path: string) => linkHost(`${host}${path}`, host, path))
+        // ruta suelta del sitio
+        .replace(new RegExp(`\`?(?<![\\w./\\]-])(\\/${SITE_PATHS}(?:\\/[\\w\\-/?=&#.]*[\\w/])?)\`?`, 'g'),
+          (_m, path: string) => linkHost(path, 'opabiz.com', path))
+    })
+    .join('')
+}
+
 function renderChapter(slug: string, body: string): { html: string; sections: ManualSection[] } {
-  const md = expandMacros(body)
+  const md = autolinkPages(expandMacros(body))
 
   // Secciones para el buscador: cortamos por títulos "## ".
   const sections: ManualSection[] = []
@@ -138,6 +163,8 @@ function renderChapter(slug: string, body: string): { html: string; sections: Ma
     const plain = inner.replace(/<[^>]+>/g, '')
     return `<h2 id="${slug}--${slugify(plain)}">${inner}</h2>`
   })
+  // Links al sitio: se abren en otra pestaña para no perder el lugar en el manual.
+  html = html.replace(/<a href="https:\/\//g, '<a target="_blank" rel="noopener noreferrer" href="https://')
   // Tablas anchas: envolver para que scrolleen solas en el celular.
   html = html.replace(/<table>/g, '<div class="m-table"><table>').replace(/<\/table>/g, '</table></div>')
   return { html, sections }

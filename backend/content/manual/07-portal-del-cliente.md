@@ -17,6 +17,8 @@ El botón **Login** está arriba a la derecha en el home de los dos sitios. Abre
 
 Una vez adentro, el encabezado del sitio cambia a "Hola, {nombre}", con los botones "Mis órdenes" y "Salir".
 
+**Links directos al login:** opabiz.com/?login=1 (OpaBiz) y mybusinessformation.com/?login=1 (MyBiz). Una vez adentro, el portal está en /client-portal/dashboard.
+
 **Crear cuenta sin haber comprado:** en el mismo recuadro de Login está el link "¿Nuevo aquí? Crea una cuenta". Pide nombre, email y contraseña, le manda un email de bienvenida con su número, y lo lleva directo al formulario de formación.
 
 **Si el cliente no tiene contraseña:** entra con su número de orden y, desde el portal, toca **"Crear contraseña"**. Desde ahí puede entrar con email y contraseña.

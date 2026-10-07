@@ -88,7 +88,7 @@ export default function AgentAssistWidget() {
 
   const ask = async () => {
     const q = question.trim()
-    if (!q) { setError('Escribí o dictá tu pregunta primero.'); return }
+    if (!q) { setError('Escribe o dicta tu pregunta primero.'); return }
     setError('')
     setLoading(true)
     setReply('')

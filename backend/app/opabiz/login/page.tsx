@@ -57,7 +57,7 @@ export default function OpabizLoginPage() {
       const data = await res.json().catch(() => ({}))
       setError(data.error ?? 'No se pudo iniciar sesión.')
     } catch {
-      setError('Error de conexión. Intentá de nuevo.')
+      setError('Error de conexión. Intenta de nuevo.')
     } finally {
       setLoading(false)
     }
@@ -77,7 +77,7 @@ export default function OpabizLoginPage() {
       const data = await res.json().catch(() => ({}))
       setError(data.error ?? 'No se pudo enviar el email.')
     } catch {
-      setError('Error de conexión. Intentá de nuevo.')
+      setError('Error de conexión. Intenta de nuevo.')
     } finally {
       setLoading(false)
     }
@@ -301,12 +301,12 @@ export default function OpabizLoginPage() {
               {mode === 'login' ? (<>
               <div className="op-form-eyebrow">Acceso de empleados</div>
               <div className="op-form-title">Iniciar sesión</div>
-              <p className="op-form-sub">Ingresá tus credenciales para acceder a tus órdenes asignadas.</p>
+              <p className="op-form-sub">Ingresa tus datos para ver tus órdenes asignadas.</p>
 
               <form onSubmit={handleSubmit}>
                 {isBlocked ? (
                   <div className="op-error-msg">
-                    Demasiados intentos. Esperá {formatSeconds(blockedSeconds!)} antes de volver a intentar.
+                    Demasiados intentos. Espera {formatSeconds(blockedSeconds!)} antes de volver a intentar.
                   </div>
                 ) : error ? (
                   <div className="op-error-msg">{error}</div>
@@ -331,7 +331,7 @@ export default function OpabizLoginPage() {
                       onChange={e => setPassword(e.target.value)}
                       required autoComplete="current-password"
                       disabled={isBlocked || loading}
-                      placeholder="Ingresá tu contraseña"
+                      placeholder="Escribe tu contraseña"
                       style={{ paddingRight: 44 }}
                     />
                     <button
@@ -369,11 +369,11 @@ export default function OpabizLoginPage() {
               </>) : (<>
               <div className="op-form-eyebrow">Acceso de empleados</div>
               <div className="op-form-title">Recuperar contraseña</div>
-              <p className="op-form-sub">Ingresá el email de tu cuenta y te mandamos un link para elegir una contraseña nueva.</p>
+              <p className="op-form-sub">Escribe el email de tu cuenta y te mandamos un link para elegir una contraseña nueva.</p>
 
               {forgotSent ? (
                 <div className="op-ok-msg">
-                  Si ese email tiene una cuenta activa, te llegará un link en unos minutos. El link vale por 1 hora. Revisá también la carpeta de spam.
+                  Si ese email tiene una cuenta activa, te llegará un link en unos minutos. El link vale por 1 hora. Revisa también la carpeta de spam.
                 </div>
               ) : (
                 <form onSubmit={handleForgot}>

@@ -58,7 +58,7 @@ export async function sendInviteEmail(opts: { email: string; nombre: string; tok
         </div>
         <div style="background:#f8fafc;padding:28px;border-radius:0 0 8px 8px;border:1px solid #e2e8f0">
           <p style="color:#1e293b;font-size:.95rem">Hola ${opts.nombre},</p>
-          <p style="color:#1e293b;font-size:.95rem">Se creó tu cuenta de empleado en OpaBiz Connect. Hacé clic en el botón para crear tu contraseña y acceder a tus órdenes asignadas.</p>
+          <p style="color:#1e293b;font-size:.95rem">Se creó tu cuenta de empleado en OpaBiz Connect. Haz clic en el botón para crear tu contraseña y acceder a tus órdenes asignadas.</p>
           <div style="text-align:center;margin:24px 0">
             <a href="${link}" style="background:#2563EB;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:.95rem">
               Crear mi contraseña →
@@ -86,7 +86,7 @@ export async function sendPasswordResetEmail(opts: { email: string; nombre: stri
         </div>
         <div style="background:#f8fafc;padding:28px;border-radius:0 0 8px 8px;border:1px solid #e2e8f0">
           <p style="color:#1e293b;font-size:.95rem">Hola ${opts.nombre},</p>
-          <p style="color:#1e293b;font-size:.95rem">Recibimos un pedido para restablecer la contraseña de tu cuenta de OpaBiz Connect. Hacé clic en el botón para elegir una nueva.</p>
+          <p style="color:#1e293b;font-size:.95rem">Recibimos un pedido para restablecer la contraseña de tu cuenta de OpaBiz Connect. Haz clic en el botón para elegir una nueva.</p>
           <div style="text-align:center;margin:24px 0">
             <a href="${link}" style="background:#2563EB;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:.95rem">
               Elegir nueva contraseña

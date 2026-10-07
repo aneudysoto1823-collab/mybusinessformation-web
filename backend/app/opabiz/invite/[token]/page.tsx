@@ -61,7 +61,7 @@ export default function OpabizInvitePage() {
       const data = await res.json().catch(() => ({}))
       setError(data.error ?? 'No se pudo guardar la contraseña.')
     } catch {
-      setError('Error de conexión. Intentá de nuevo.')
+      setError('Error de conexión. Intenta de nuevo.')
     } finally {
       setLoading(false)
     }
@@ -97,13 +97,13 @@ export default function OpabizInvitePage() {
           {check === 'invalid' && (
             <p className="op-msg">
               {isReset
-                ? <>Este link ya no es válido o expiró. Pedí uno nuevo desde <a href="/opabiz/login" style={{ color: '#2563EB', fontWeight: 600 }}>¿Olvidaste tu contraseña?</a></>
+                ? <>Este link ya no es válido o expiró. Pide uno nuevo desde <a href="/opabiz/login" style={{ color: '#2563EB', fontWeight: 600 }}>¿Olvidaste tu contraseña?</a></>
                 : 'Este link ya no es válido o expiró. Pedile al admin que te reenvíe la invitación.'}
             </p>
           )}
           {check === 'valid' && (
             <>
-              <div className="op-title">{isReset ? 'Elegí una contraseña nueva' : 'Creá tu contraseña'}</div>
+              <div className="op-title">{isReset ? 'Elige una contraseña nueva' : 'Crea tu contraseña'}</div>
               <div className="op-sub">{nombre ? `Hola, ${nombre}` : 'Bienvenido a OpaBiz Connect'}</div>
               {email && (
                 <div className="op-username">

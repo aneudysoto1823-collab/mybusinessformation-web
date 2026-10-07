@@ -28,7 +28,7 @@ const T = {
     esperando: 'Esperando al cliente', pagada: 'Pagada', inicioPago: 'El cliente ya inició el pago',
     volver: 'Volver al panel', titulo: 'Mis solicitudes enviadas', cargando: 'Cargando…',
     vacio: 'Todavía no armaste ninguna intake asistida.', sinNombre: 'Sin nombre', creada: 'Creada:',
-    editar: 'Editar', reenviar: 'Reenviar link', reenviado: 'Reenviado', error: 'Algo salió mal, probá de nuevo.',
+    editar: 'Editar', reenviar: 'Reenviar link', reenviado: 'Reenviado', error: 'Algo salió mal, intenta de nuevo.',
   },
   en: {
     esperando: 'Waiting for client', pagada: 'Paid', inicioPago: 'Client started payment',

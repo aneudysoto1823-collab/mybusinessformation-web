@@ -114,7 +114,7 @@ export async function notifyAppointmentReminder(supabase: Supabase, empleadosId:
         to: usuario.email,
         subject: 'OpaBiz Connect: ⏰ Recordatorio de cita en menos de 1 hora',
         html: emailShell(
-          `Hola ${usuario.nombre}, tenés una cita pronto.`,
+          `Hola ${usuario.nombre}, tienes una cita pronto.`,
           `
             <p style="color:#374151;font-size:.9rem;margin:0 0 4px"><strong>Servicio:</strong> ${orden?.tipo_servicio ?? '—'}</p>
             ${cliente?.nombre ? `<p style="color:#374151;font-size:.9rem;margin:0 0 4px"><strong>Cliente:</strong> ${cliente.nombre}</p>` : ''}

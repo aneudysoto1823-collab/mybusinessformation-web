@@ -12,6 +12,56 @@ Ayudamos a emprendedores a **formar su empresa en Florida** (LLC o Corporación)
 
 Somos un **servicio privado de preparación de documentos**. No somos una agencia del gobierno ni un despacho de abogados, y eso tiene que quedar claro en todo lo que mostramos al cliente.
 
+## Links rápidos
+
+Todos los links se abren en otra pestaña. Las páginas del panel piden el login de administrador.
+
+**Sitio público**
+
+| Página | Link |
+|---|---|
+| Home de OpaBiz (formación de empresas) | opabiz.com |
+| Servicios sueltos | /servicios |
+| Agendar una cita | /booking |
+| Contacto | /contact |
+| Programa de afiliados y agentes | /afiliados |
+| Guía gratuita | /guia-gratis |
+| Oferta de la carta de OpaBiz | /oferta |
+| Sitio de MyBiz | mybusinessformation.com |
+
+**Clientes**
+
+| Página | Link |
+|---|---|
+| Login de clientes de OpaBiz | opabiz.com/?login=1 |
+| Login de clientes de MyBiz | mybusinessformation.com/?login=1 |
+| Portal del cliente (después de entrar) | /client-portal/dashboard |
+
+**Agentes (OpaBiz Connect)**
+
+| Página | Link |
+|---|---|
+| Login de agentes | /opabiz/login |
+| Panel del agente | /opabiz/dashboard |
+| Entrenamiento | /opabiz/dashboard/entrenamiento |
+| Formulario en modo agente | opabiz.com/?agent=1 |
+
+**Panel de administración**
+
+| Página | Link |
+|---|---|
+| Panel principal y órdenes | /admin |
+| Borradores (órdenes sin terminar) | /admin/drafts |
+| OpaBiz Connect, afiliados y agentes | /admin/opabiz |
+| Citas | /admin/citas |
+| Contabilidad | /admin/contabilidad |
+| Marketing Saliente | /admin/marketing |
+| Campañas y cartas | /admin/campaigns |
+| Guías | /admin/guias |
+| Labor Law Poster | /admin/labor-law-poster |
+| Seguridad (contraseña y verificación en dos pasos) | /admin/security |
+| Este manual | /admin/manual |
+
 ## Las dos marcas
 
 Una sola empresa opera dos sitios web, cada uno con su propia marca:

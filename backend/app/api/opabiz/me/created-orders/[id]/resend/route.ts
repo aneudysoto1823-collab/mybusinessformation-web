@@ -26,7 +26,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: 'Esta orden no te pertenece' }, { status: 403 })
   }
   if (!order.isDraft) {
-    return NextResponse.json({ error: 'El cliente ya inició o completó el pago. No se puede reenviar desde acá.' }, { status: 409 })
+    return NextResponse.json({ error: 'El cliente ya inició o completó el pago. No se puede reenviar desde aquí.' }, { status: 409 })
   }
 
   sendContinueApplicationEmail({

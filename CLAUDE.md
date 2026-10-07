@@ -495,6 +495,7 @@ Manual del negocio en lenguaje llano (sin tecnicismos) para los socios y el equi
 - **Regla:** cada vez que se agrega o cambia una función del negocio, actualizar el capítulo correspondiente del manual EN EL MISMO COMMIT y su fecha `updated`. Si el capítulo todavía está `pending`, no hace falta escribirlo entero, pero sí anotar el dato nuevo cuando se escriba.
 - **Precios: nunca escribirlos a mano en el manual.** Usar los marcadores `{{precios:paquetes}}`, `{{precios:servicios}}`, `{{precios:combos}}`, `{{precio:acelerado}}`, etc. (lista en `PRICE_MACROS` de `lib/manual.ts`), que leen `lib/pricing.ts`/`lib/services-pricing.ts`. Si hace falta un precio nuevo, agregar un marcador ahí.
 - Estilo: español llano, tuteo (es interno), sin guion largo, sin emojis, secciones `##` cortas (el buscador indexa por sección).
+- **Links automáticos:** cualquier página mencionada en un capítulo (`/admin/citas`, `opabiz.com/booking`, `mybusinessformation.com/afiliados`) se convierte sola en link al renderizar (`autolinkPages` en `lib/manual.ts`; rutas sueltas apuntan a www.opabiz.com, se abren en otra pestaña). Basta con escribir la ruta. Si se agrega una sección nueva del sitio cuyo primer segmento no está en `SITE_PATHS`, agregarlo ahí. El capítulo 1 tiene la tabla "Links rápidos" con todas las páginas: actualizarla cuando se cree una página nueva.
 - Los 18 capítulos escritos (2026-10-07). Pendiente: "Pregúntale al manual" (preguntas con IA respondidas solo con el contenido del manual, con link a la sección). El capítulo 18 ("Pendientes") es una lista viva: actualizarla cuando se resuelva o aparezca un pendiente.
 
 ### SDKs externos — NUNCA a nivel de módulo
@@ -2035,6 +2036,9 @@ Además: el aviso de tarjeta por vencer pasó a un email propio 5 días antes de
 
 ### Entrenamiento de agentes en OpaBiz Connect (2026-10-07)
 `/opabiz/dashboard/entrenamiento`: 8 pasos cortos, ES/EN, tono cercano (pedido founder). Obligatorio la primera vez: `dashboard/page.tsx` redirige ahí si `me.entrenamiento.completado` es false; se confirma con checkbox + `POST /api/opabiz/me/training`. Se guarda en `empleado_perfil.datos_extra_json.entrenamiento {version, aceptadoAt}` (sin migración). `lib/opabiz-training.ts` tiene `TRAINING_VERSION` (subirla obliga a todos a releerlo) y `OPENING_SCRIPT` (guion de apertura: no somos abogados ni gobierno, sin consejo legal/fiscal). El guion se muestra también plegable arriba del panel y dentro de Claudia Agente (`app/opabiz/_components/OpeningScript.tsx`). Admin: columna "Entrenamiento" en la pestaña Empleados de `/admin/opabiz`. Al final, repaso de 6 preguntas de opción múltiple (`TRAINING_QUIZ` en `lib/opabiz-training.ts`, mismo orden ES/EN): no aprueba ni reprueba; al revisar muestra la correcta + explicación en las falladas, y recién ahí aparece el confirmar. El puntaje se corrige server-side en `POST /api/opabiz/me/training` y se guarda como `entrenamiento.quiz {correctas,total}`; el admin lo ve como "5/6".
+
+### OpaBiz Connect en tuteo (2026-10-07)
+La app del agente (login, invitación, panel, perfil, detalle de orden, mis solicitudes, Claudia Agente, emails de invitación/aviso) pasó de voseo argentino a tú, igual que el entrenamiento (pedido founder: más cercano). Cliente final sigue en "usted".
 
 ### Otros
 - `CHECKLIST_PRELANZAMIENTO.md`: nuevo ítem en "T-1 semana" para poner el sistema en cero (órdenes, OpaBiz Connect, contabilidad, citas, afiliados, guide_sends, prospective_companies de prueba) después del backup y con la lista confirmada por ambos socios.
