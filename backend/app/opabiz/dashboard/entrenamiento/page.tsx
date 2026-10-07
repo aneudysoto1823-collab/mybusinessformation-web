@@ -43,6 +43,7 @@ const T = {
           'Tienes 10 minutos para aceptar la orden desde tu panel. Si no puedes atenderla, recházala con un motivo corto para que pase enseguida a otro compañero.',
           'Si tiene cita, te avisamos 1 hora antes.',
           'Mantén tu disponibilidad al día en el panel: así solo te llegan órdenes cuando de verdad puedes atenderlas.',
+          'Activa las notificaciones en tu panel para enterarte al instante. En iPhone primero tienes que instalar la app en la pantalla de inicio: al lado de Notificaciones tienes el botón "Cómo activarlas en iPhone" con los pasos.',
         ],
       },
       {
@@ -131,6 +132,7 @@ const T = {
           "You have 10 minutes to accept the order from your dashboard. If you can't take it, decline it with a short reason so it goes right away to a teammate.",
           'If there is an appointment, we remind you 1 hour before.',
           'Keep your availability up to date on the dashboard, so you only get orders when you can really take them.',
+          'Turn on notifications on your dashboard to hear about orders right away. On iPhone you first need to add the app to your home screen: next to Notifications there is a "How to turn them on on iPhone" button with the steps.',
         ],
       },
       {

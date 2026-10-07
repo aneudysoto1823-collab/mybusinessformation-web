@@ -27,10 +27,6 @@ Stripe ya está preparado. Antes de activarlo hay que resolver todo esto:
 - **Dirección Virtual:** sacada del sitio hasta conseguir proveedor. El precio sigue guardado para reactivarla.
 - **Guía de configuración de Stripe:** tarjeta en /servicios que dice "Coming soon", a definir con el socio.
 
-## Arreglos pendientes encontrados
-
-- **Notificaciones en iPhone de OpaBiz Connect:** solo funcionan con la app instalada en la pantalla de inicio. Falta una guía en la app que se lo explique al agente.
-
 ## Ideas para más adelante
 
 - **Pregúntale al manual:** hacerle preguntas a este manual y que la IA responda con el link a la sección.

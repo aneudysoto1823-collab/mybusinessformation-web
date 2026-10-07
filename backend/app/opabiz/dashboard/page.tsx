@@ -35,11 +35,20 @@ const T = {
     aceptar: 'Aceptar', aceptando: 'Aceptando…', rechazar: 'Rechazar', rechazando: 'Rechazando…', confirmarRechazo: 'Confirmar rechazo', cancelar: 'Cancelar',
     motivoLabel: '¿Por qué rechazás esta orden?', motivoPh: 'Ej.: no tengo disponibilidad ese día, queda fuera de mi zona…',
     errAceptar: 'No se pudo aceptar la orden.', errRechazar: 'No se pudo rechazar la orden.',
-    pushNoPermiso: 'El navegador no dio permiso para notificaciones. Podés activarlo en la configuración del navegador.',
+    pushNoPermiso: 'El navegador no dio permiso para notificaciones. Puedes activarlo en la configuración del navegador.',
     pushSinClave: 'Falta configurar la clave de notificaciones en el servidor (NEXT_PUBLIC_VAPID_PUBLIC_KEY).',
     pushNoGuardo: 'No se pudo guardar la suscripción:', pushNoActivo: 'No se pudieron activar las notificaciones:', pushNoDesactivo: 'No se pudieron desactivar las notificaciones:',
-    pushOn: 'Te avisamos al instante cuando te asignen una orden.', pushDenied: 'Bloqueadas en el navegador. Activalas desde su configuración.',
-    pushUnsupported: 'No disponibles en este navegador. En iPhone, agregá la app a la pantalla de inicio.', pushOff: 'Activalas para enterarte al instante de una orden nueva.',
+    pushOn: 'Te avisamos al instante cuando te asignen una orden.', pushDenied: 'Bloqueadas en el navegador. Actívalas desde su configuración.',
+    pushUnsupported: 'No disponibles en este navegador.', pushOff: 'Actívalas para enterarte al instante de una orden nueva.',
+    pushIos: 'En iPhone, primero hay que instalar la app en la pantalla de inicio.', pushComo: 'Cómo activarlas en iPhone', pushOcultar: 'Ocultar pasos',
+    pushPasos: [
+      'Abre esta página en Safari. Si llegaste desde un link de Gmail u otra app, copia la dirección (opabiz.com/opabiz/login) y pégala en Safari.',
+      'Toca el botón Compartir: el cuadrado con una flecha hacia arriba, abajo de la pantalla.',
+      'Baja en el menú y toca "Agregar a pantalla de inicio". Después toca "Agregar".',
+      'Cierra Safari y abre OpaBiz Connect desde el ícono nuevo en tu pantalla de inicio. Inicia sesión.',
+      'Vuelve aquí, activa Notificaciones y toca "Permitir" cuando el iPhone te lo pregunte.',
+    ],
+    pushIosNota: 'Necesitas iOS 16.4 o más nuevo. Aunque no las actives, cada orden asignada te llega igual por email.',
     tabs: { nuevas: 'Por aceptar', progreso: 'En progreso', completadas: 'Completadas' },
     vacio: { nuevas: 'No tenés órdenes por aceptar. Cuando te asignen una, aparece acá.', progreso: 'No tenés órdenes en curso.', completadas: 'Todavía no completaste ninguna orden.' },
     cargando: 'Cargando…', nivel: 'Nivel', puntaje: 'Puntaje', para: 'para', editarPerfil: 'Editar mi perfil',
@@ -59,7 +68,16 @@ const T = {
     pushSinClave: 'The notification key is not configured on the server (NEXT_PUBLIC_VAPID_PUBLIC_KEY).',
     pushNoGuardo: 'Could not save the subscription:', pushNoActivo: 'Could not turn on notifications:', pushNoDesactivo: 'Could not turn off notifications:',
     pushOn: 'We notify you right away when you get a new order.', pushDenied: 'Blocked in the browser. Turn them on in its settings.',
-    pushUnsupported: 'Not available in this browser. On iPhone, add the app to your home screen.', pushOff: 'Turn them on to hear about new orders right away.',
+    pushUnsupported: 'Not available in this browser.', pushOff: 'Turn them on to hear about new orders right away.',
+    pushIos: 'On iPhone, you first need to add the app to your home screen.', pushComo: 'How to turn them on on iPhone', pushOcultar: 'Hide steps',
+    pushPasos: [
+      'Open this page in Safari. If you came from a link in Gmail or another app, copy the address (opabiz.com/opabiz/login) and paste it in Safari.',
+      'Tap the Share button: the square with an arrow pointing up, at the bottom of the screen.',
+      'Scroll down and tap "Add to Home Screen". Then tap "Add".',
+      'Close Safari and open OpaBiz Connect from the new icon on your home screen. Sign in.',
+      'Come back here, turn on Notifications and tap "Allow" when your iPhone asks.',
+    ],
+    pushIosNota: 'You need iOS 16.4 or newer. Even without them, every assigned order still reaches you by email.',
     tabs: { nuevas: 'To accept', progreso: 'In progress', completadas: 'Completed' },
     vacio: { nuevas: 'No orders waiting for you. When one is assigned, it shows up here.', progreso: 'No orders in progress.', completadas: 'You have not completed any orders yet.' },
     cargando: 'Loading…', nivel: 'Level', puntaje: 'Score', para: 'to', editarPerfil: 'Edit my profile',
@@ -208,6 +226,10 @@ export default function OpabizDashboardPage() {
   const [pushState, setPushState] = useState<'checking' | 'unsupported' | 'denied' | 'on' | 'off'>('checking')
   const [subscribingPush, setSubscribingPush] = useState(false)
   const [pushError, setPushError] = useState<string | null>(null)
+  // iPhone/iPad sin la app instalada: Safari solo permite notificaciones desde
+  // el ícono de la pantalla de inicio. Se muestran los pasos para instalarla.
+  const [esIos, setEsIos] = useState(false)
+  const [verPasosIos, setVerPasosIos] = useState(false)
 
   const cargar = useCallback(async () => {
     const [meRes, ordersRes] = await Promise.all([
@@ -257,6 +279,9 @@ export default function OpabizDashboardPage() {
   useEffect(() => {
     async function leerEstadoPush() {
       if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) {
+        // iPadOS se presenta como Mac; se distingue por la pantalla táctil.
+        const ios = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+        setEsIos(ios)
         setPushState('unsupported'); return
       }
       if (Notification.permission === 'denied') { setPushState('denied'); return }
@@ -383,7 +408,7 @@ export default function OpabizDashboardPage() {
   const pushHint =
     pushState === 'on' ? t.pushOn
     : pushState === 'denied' ? t.pushDenied
-    : pushState === 'unsupported' ? t.pushUnsupported
+    : pushState === 'unsupported' ? (esIos ? t.pushIos : t.pushUnsupported)
     : t.pushOff
 
   let progresoPct: number | null = null
@@ -425,6 +450,11 @@ export default function OpabizDashboardPage() {
         .db-setting-label{font-size:.85rem;font-weight:600;color:#1C2E44}
         .db-setting-hint{font-size:.74rem;color:#94A3B8;margin-top:2px;line-height:1.4}
         .db-settings-err{margin-top:10px}
+        .db-ios{margin-top:4px;padding-top:10px;border-top:1px solid #F1F5F9}
+        .db-ios-btn{background:#fff;border:1.5px solid #2563EB;color:#2563EB;border-radius:8px;padding:8px 12px;font-size:.8rem;font-weight:700;cursor:pointer;font-family:inherit;width:100%;min-height:40px}
+        .db-ios-steps{padding-left:20px;margin:12px 0 8px}
+        .db-ios-steps li{font-size:.8rem;color:#334155;line-height:1.5;margin-bottom:7px}
+        .db-ios-note{font-size:.74rem;color:#64748B;line-height:1.45}
         .db-main{display:flex;flex-direction:column;gap:16px;min-width:0}
         .db-actions{display:flex;gap:10px;flex-wrap:wrap}
         .db-actions .oc-btn{flex:1;min-width:200px}
@@ -550,6 +580,19 @@ export default function OpabizDashboardPage() {
                       disabled={subscribingPush || pushState === 'checking' || pushState === 'unsupported' || pushState === 'denied'}
                     />
                   </div>
+                  {pushState === 'unsupported' && esIos && (
+                    <div className="db-ios">
+                      <button type="button" className="db-ios-btn" onClick={() => setVerPasosIos(v => !v)} aria-expanded={verPasosIos}>
+                        {verPasosIos ? t.pushOcultar : t.pushComo}
+                      </button>
+                      {verPasosIos && (
+                        <>
+                          <ol className="db-ios-steps">{t.pushPasos.map(p => <li key={p}>{p}</li>)}</ol>
+                          <div className="db-ios-note">{t.pushIosNota}</div>
+                        </>
+                      )}
+                    </div>
+                  )}
                   {pushError && <div className="oc-msg-err db-settings-err">{pushError}</div>}
                 </div>
               )}

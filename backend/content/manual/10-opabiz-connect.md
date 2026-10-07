@@ -35,10 +35,24 @@ En **/admin/opabiz**, pestaña Empleados, la columna **Entrenamiento** muestra q
 - **Sus órdenes asignadas**, ordenadas por prioridad, con el botón para **aceptar** o **rechazar** (con un motivo).
 - **Su perfil**, con foto, que puede editar.
 - **"Mis solicitudes enviadas"**: las órdenes que llenó en nombre de clientes.
-- **Notificaciones**: un interruptor para recibir avisos en el celular cuando le asignan una orden. En iPhone solo funcionan si la app está instalada en la pantalla de inicio (desde Safari: Compartir, Agregar a pantalla de inicio).
+- **Notificaciones**: un interruptor para recibir avisos en el celular cuando le asignan una orden. En Android y en computadora funciona directo. En iPhone, ver abajo.
 - Botón **EN/ES** para el idioma.
 
 Puede recuperar o cambiar su contraseña él mismo desde el login.
+
+## Notificaciones en iPhone
+
+En iPhone, Apple solo permite notificaciones si la app está **instalada en la pantalla de inicio** y se abre desde ese ícono. En una pestaña de Safari, o en el navegador que abre Gmail al tocar un link, no funcionan. Por eso el interruptor aparece apagado y dice que primero hay que instalar la app.
+
+En el panel del agente, junto a Notificaciones, está el botón **"Cómo activarlas en iPhone"** con estos pasos:
+
+1. Abrir **opabiz.com/opabiz/login en Safari**. Si llegó desde un link de Gmail u otra app, copiar la dirección y pegarla en Safari.
+2. Tocar el botón **Compartir** (el cuadrado con la flecha hacia arriba).
+3. Tocar **"Agregar a pantalla de inicio"** y después **"Agregar"**.
+4. Abrir **OpaBiz Connect desde el ícono nuevo** e iniciar sesión.
+5. Activar Notificaciones y tocar **"Permitir"** cuando el iPhone lo pregunte.
+
+Hace falta iOS 16.4 o más nuevo. Aunque no las active, cada orden asignada le llega igual por email.
 
 ## Cómo se asignan las órdenes
 
