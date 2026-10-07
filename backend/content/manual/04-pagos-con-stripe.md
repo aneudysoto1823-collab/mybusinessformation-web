@@ -1,7 +1,7 @@
 ---
 title: "Pagos con Stripe"
 summary: "Cómo cobramos, cómo funcionan las renovaciones automáticas, los códigos de descuento, los reembolsos y los contracargos."
-updated: "2026-10-06"
+updated: "2026-10-07"
 ---
 
 ## Qué es Stripe
@@ -35,7 +35,8 @@ Cuando el cliente paga, el sistema vuelve a calcular el total desde cero con los
 Agente Registrado y Declaración Anual se cobran cada año automáticamente, hasta que el cliente cancele:
 
 - La tarifa del estado de la Declaración Anual se cobra como línea aparte, para que el cliente vea qué es nuestro y qué es del gobierno.
-- 30 días antes de cada renovación, el cliente recibe un aviso por email. Si su tarjeta guardada vence antes de esa fecha, el mismo aviso se lo dice y le pide actualizarla.
+- 30 días antes de cada renovación, el cliente recibe un aviso por email.
+- 5 días antes del cobro, el sistema revisa la tarjeta guardada. Si vence antes de la fecha de renovación, le manda otro email pidiéndole que la actualice. Se revisa tan cerca de la fecha a propósito: muchas veces el banco le pasa la tarjeta nueva a Stripe solo, y en ese caso no se manda nada.
 - **El cliente cancela desde su portal**, con un botón propio que le pide el motivo y una confirmación. Puede reactivar después si cambia de idea.
 - **Cambiar la tarjeta** también se hace desde el portal, sin salir del sitio.
 

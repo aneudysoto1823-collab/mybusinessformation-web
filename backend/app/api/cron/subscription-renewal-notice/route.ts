@@ -10,6 +10,10 @@
 // renovar (invoice.paid), currentPeriodEnd avanza al período siguiente y este
 // valor queda desactualizado, habilitando el próximo aviso solo.
 //
+// Segundo chequeo (2026-10-07): 5 días antes del cobro, si la tarjeta guardada
+// vence antes de la renovación, manda un email aparte pidiendo actualizarla.
+// Mismo esquema idempotente con `cardExpiryWarningSentForPeriodEnd`.
+//
 // Disparo: Vercel Cron (vercel.json), 1 vez al día. Manual: curl con header
 // Authorization: Bearer ${CRON_SECRET}.
 
@@ -17,12 +21,17 @@ import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { SERVICES_CATALOG, FBFC_PRICE_OVERRIDES } from '@/lib/services-pricing'
 import { listOrdersWithSubscriptions, upsertOrderSubscription, type OrderSubscriptionEntry } from '@/lib/order-subscriptions'
-import { sendSubscriptionRenewalReminder } from '@/lib/subscription-renewal-emails'
+import { sendSubscriptionRenewalReminder, sendCardExpiryWarning } from '@/lib/subscription-renewal-emails'
 import type { EmailBrand } from '@/lib/email-constants'
 
 export const dynamic = 'force-dynamic'
 
 const REMINDER_WINDOW_DAYS = 30
+// Chequeo de tarjeta por vencer: 5 días antes del cobro (decisión founder
+// 2026-10-07). Tan cerca a propósito: si el banco ya le pasó la tarjeta nueva
+// a Stripe (Card Account Updater), para entonces el PaymentMethod ya tiene la
+// fecha nueva y no se manda nada.
+const CARD_CHECK_WINDOW_DAYS = 5
 
 const getStripe = () => new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2026-02-25.clover' })
 
@@ -78,7 +87,8 @@ export async function GET(req: NextRequest) {
   const results: { orderId: string; service: string; sent: boolean; reason?: string }[] = []
 
   for (const order of orders) {
-    for (const entry of order.subscriptions) {
+    for (const originalEntry of order.subscriptions) {
+      let entry = originalEntry
       const svc = SERVICES_CATALOG[entry.service]
 
       if (svc?.billing !== 'annual') {
@@ -93,43 +103,61 @@ export async function GET(req: NextRequest) {
         results.push({ orderId: order.id, service: entry.service, sent: false, reason: 'no currentPeriodEnd' })
         continue
       }
-      if (entry.renewalReminderSentForPeriodEnd === entry.currentPeriodEnd) {
-        results.push({ orderId: order.id, service: entry.service, sent: false, reason: 'already sent for this period' })
-        continue
-      }
 
       const renewalDate = new Date(entry.currentPeriodEnd)
       const daysUntil = Math.floor((renewalDate.getTime() - now.getTime()) / 86400000)
+      const brand = order.sourceBrand as EmailBrand
 
-      if (daysUntil < 0 || daysUntil > REMINDER_WINDOW_DAYS) {
-        results.push({ orderId: order.id, service: entry.service, sent: false, reason: 'outside window' })
-        continue
+      // 1) Aviso de renovación, 30 días antes.
+      if (entry.renewalReminderSentForPeriodEnd === entry.currentPeriodEnd) {
+        results.push({ orderId: order.id, service: entry.service, sent: false, reason: 'reminder already sent for this period' })
+      } else if (daysUntil < 0 || daysUntil > REMINDER_WINDOW_DAYS) {
+        results.push({ orderId: order.id, service: entry.service, sent: false, reason: 'outside reminder window' })
+      } else {
+        try {
+          await sendSubscriptionRenewalReminder({
+            to: order.email,
+            brand,
+            isEs: order.isEs,
+            serviceId: entry.service,
+            companyName: order.companyName,
+            renewalDate,
+            amount: renewalAmount(entry.service, brand),
+          })
+          entry = { ...entry, renewalReminderSentForPeriodEnd: entry.currentPeriodEnd } as OrderSubscriptionEntry
+          await upsertOrderSubscription(order.id, entry)
+          results.push({ orderId: order.id, service: entry.service, sent: true, reason: 'renewal reminder' })
+        } catch (e) {
+          console.error('[cron/subscription-renewal-notice] send error for', order.id, entry.service, e)
+          results.push({ orderId: order.id, service: entry.service, sent: false, reason: 'reminder send error' })
+        }
       }
 
-      try {
-        const brand = order.sourceBrand as EmailBrand
-        // Prevención de pagos fallidos (2026-10-06): si la tarjeta guardada
-        // vence antes de la renovación, el mismo aviso le pide actualizarla.
+      // 2) Tarjeta por vencer, 5 días antes del cobro.
+      if (
+        daysUntil >= 0 && daysUntil <= CARD_CHECK_WINDOW_DAYS &&
+        entry.cardExpiryWarningSentForPeriodEnd !== entry.currentPeriodEnd
+      ) {
         const card = await getRenewalCard(entry.stripeSubscriptionId)
-        const expiringCard = card && cardExpiresBefore(card, renewalDate) ? card : null
-        await sendSubscriptionRenewalReminder({
-          to: order.email,
-          brand,
-          isEs: order.isEs,
-          serviceId: entry.service,
-          companyName: order.companyName,
-          renewalDate,
-          amount: renewalAmount(entry.service, brand),
-          expiringCard,
-        })
-        await upsertOrderSubscription(order.id, {
-          ...entry,
-          renewalReminderSentForPeriodEnd: entry.currentPeriodEnd,
-        } as OrderSubscriptionEntry)
-        results.push({ orderId: order.id, service: entry.service, sent: true, ...(expiringCard ? { reason: 'card expires before renewal' } : {}) })
-      } catch (e) {
-        console.error('[cron/subscription-renewal-notice] send error for', order.id, entry.service, e)
-        results.push({ orderId: order.id, service: entry.service, sent: false, reason: 'send error' })
+        if (card && cardExpiresBefore(card, renewalDate)) {
+          try {
+            await sendCardExpiryWarning({
+              to: order.email,
+              brand,
+              isEs: order.isEs,
+              serviceId: entry.service,
+              companyName: order.companyName,
+              renewalDate,
+              card,
+            })
+            entry = { ...entry, cardExpiryWarningSentForPeriodEnd: entry.currentPeriodEnd } as OrderSubscriptionEntry
+            await upsertOrderSubscription(order.id, entry)
+            results.push({ orderId: order.id, service: entry.service, sent: true, reason: 'card expiry warning' })
+          } catch (e) {
+            console.error('[cron/subscription-renewal-notice] card warning error for', order.id, entry.service, e)
+            results.push({ orderId: order.id, service: entry.service, sent: false, reason: 'card warning send error' })
+          }
+        }
       }
     }
   }

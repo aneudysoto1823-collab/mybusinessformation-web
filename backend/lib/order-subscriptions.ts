@@ -47,6 +47,12 @@ export interface OrderSubscriptionEntry {
   // avanza al período siguiente y este valor queda desactualizado (no matchea),
   // así que el próximo aviso de esa nueva fecha sí puede mandarse.
   renewalReminderSentForPeriodEnd?: string
+  // Igual que el anterior, pero para el aviso de "su tarjeta vence antes del
+  // cobro" que sale 5 días antes de la renovación (2026-10-07). Se chequea tan
+  // cerca de la fecha a propósito: si el banco ya le pasó la tarjeta nueva a
+  // Stripe (Card Account Updater), el PaymentMethod ya tiene la fecha nueva y
+  // no se avisa nada.
+  cardExpiryWarningSentForPeriodEnd?: string
 }
 
 // epoch seconds — ahora + 1 período según la cadencia. Se usa como `trial_end`
