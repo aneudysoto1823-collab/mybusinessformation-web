@@ -89,6 +89,7 @@ const PRICE_MACROS: Record<string, () => string> = {
     return ['| Combo | Precio (sin tarifas del estado) |', '|---|---|', ...rows].join('\n')
   },
   'precio:descuento-combo': () => `${Math.round(BUNDLE_DISCOUNT_RATE * 100)}%`,
+  'precio:poster': () => money(SERVICES_CATALOG['labor-law-poster']?.serviceFee ?? 0),
 }
 
 function expandMacros(md: string): string {
