@@ -119,7 +119,15 @@ export default function AgentAssistWidget() {
           display: 'flex', flexDirection: 'column',
         }}>
           <div style={{ background: '#1c2e44', color: '#fff', padding: '12px 16px', fontSize: '13px', fontWeight: 700 }}>
-            Asistente Claudia — Agente
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              {/* Mismo criterio que ClaudiaAvatar en ChatWidget: avatar chico, sin next/image. */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/Claudia.jpg" alt="" width={30} height={30} style={{ borderRadius: '50%', objectFit: 'cover', objectPosition: 'center top', border: '2px solid rgba(255,255,255,.4)' }} />
+              <div>
+                <div>Claudia Agente</div>
+                <div style={{ fontSize: '11px', fontWeight: 400, opacity: 0.75 }}>Te sugiere qué responderle al cliente</div>
+              </div>
+            </div>
           </div>
           <div style={{ padding: '14px 16px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '10px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -134,18 +142,22 @@ export default function AgentAssistWidget() {
                 rows={3}
                 value={question}
                 onChange={e => setQuestion(e.target.value)}
-                placeholder="Preguntale a Claudia lo que necesites mientras llenás el formulario..."
+                placeholder="Pregúntale a Claudia lo que necesites mientras llenas el formulario..."
                 style={{ width: '100%', boxSizing: 'border-box', padding: '8px 36px 8px 10px', border: '1.5px solid #e5e7eb', borderRadius: '8px', fontSize: '13px', fontFamily: 'inherit', resize: 'vertical', outline: 'none' }}
               />
               <button
                 type="button" onClick={toggleMic} title="Dictar por voz"
                 style={{
                   position: 'absolute', right: '6px', bottom: '6px', width: '26px', height: '26px', borderRadius: '50%',
-                  border: 'none', cursor: 'pointer', fontSize: '13px', padding: 0,
+                  border: 'none', cursor: 'pointer', fontSize: '13px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
                   background: listening ? '#dc2626' : '#f3f4f6', color: listening ? '#fff' : '#1a1a2e',
                 }}
               >
-                {listening ? '⏹' : '🎤'}
+                {listening ? (
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2" /></svg>
+                ) : (
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" /><path d="M5 11a7 7 0 0 0 14 0M12 18v3" /></svg>
+                )}
               </button>
             </div>
             <button
@@ -165,14 +177,17 @@ export default function AgentAssistWidget() {
       )}
       <button
         onClick={() => setOpen(o => !o)}
-        title="Asistente Claudia"
+        title="Claudia Agente"
+        aria-label="Abrir Claudia Agente"
         style={{
-          width: '52px', height: '52px', borderRadius: '50%', border: 'none', cursor: 'pointer',
-          background: 'linear-gradient(135deg,#2563eb,#1c2e44)', color: '#fff', fontSize: '20px', fontWeight: 700,
-          boxShadow: '0 4px 14px rgba(0,0,0,.3)',
+          display: 'flex', alignItems: 'center', gap: '8px', padding: '5px 14px 5px 5px', borderRadius: '30px',
+          border: '1.5px solid #2563eb', background: '#fff', color: '#1c2e44', cursor: 'pointer',
+          fontSize: '13px', fontWeight: 700, fontFamily: 'inherit', boxShadow: '0 4px 14px rgba(0,0,0,.18)',
         }}
       >
-        C
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/Claudia.jpg" alt="" width={40} height={40} style={{ borderRadius: '50%', objectFit: 'cover', objectPosition: 'center top' }} />
+        Claudia Agente
       </button>
     </div>
   )

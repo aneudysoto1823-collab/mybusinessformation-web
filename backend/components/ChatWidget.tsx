@@ -106,6 +106,17 @@ export default function ChatWidget() {
     typeof crypto !== 'undefined' ? crypto.randomUUID() : Math.random().toString(36).slice(2)
   )
   const formContextRef = useRef<string>('')
+  // Modo agente (intake asistida, ?agent=1 + sesión de OpaBiz Connect): ahí el
+  // agente usa "Claudia Agente" (AgentAssistWidget), que le sugiere respuestas.
+  // Esta Claudia le habla al cliente, así que se oculta para no confundir al
+  // agente ni guardar su conversación como si fuera la de un cliente.
+  const [hiddenForAgent, setHiddenForAgent] = useState(false)
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get('agent') !== '1') return
+    fetch('/api/opabiz/auth/me', { credentials: 'same-origin' })
+      .then(r => { if (r.ok) setHiddenForAgent(true) })
+      .catch(() => {})
+  }, [])
 
   useEffect(() => {
     if (typeof window === 'undefined' || window.innerWidth > 768) return
@@ -275,6 +286,8 @@ export default function ChatWidget() {
       send()
     }
   }
+
+  if (hiddenForAgent) return null
 
   return (
     <>
