@@ -71,6 +71,9 @@ export async function createRecurringSubscriptionsForOrder(
   // fuera de `addons` — ver lib/pricing.ts). Órdenes de servicios (package:
   // 'services') resuelven Registered Agent vía addons.services, sin esto.
   registeredAgent?: string | null,
+  // PaymentIntent del checkout que pagó la orden — de ahí sale la tarjeta
+  // exacta que el cliente usó, para cobrar las renovaciones con esa misma.
+  paymentIntentId?: string | null,
 ): Promise<void> {
   const recurring = getRecurringServicesFromOrder(pkg, addons, sourceBrand as 'opabiz' | 'fbfc' | null, registeredAgent)
   if (recurring.length === 0) return
@@ -83,6 +86,17 @@ export async function createRecurringSubscriptionsForOrder(
   await getSupabaseAdmin().from('Order').update({ stripeCustomerId }).eq('id', orderId)
 
   const brandKey: 'opabiz' | 'fbfc' = sourceBrand === 'fbfc' ? 'fbfc' : 'opabiz'
+
+  // BUG REAL corregido 2026-10-07: el checkout guarda la tarjeta en el Customer
+  // (setup_future_usage: 'off_session') pero Stripe Checkout NO la marca como
+  // tarjeta por defecto para facturas, y las Subscriptions se creaban sin
+  // default_payment_method — cada renovación fallaba por "sin método de pago"
+  // (detectado con la renovación mensual de una orden de prueba). Ahora se
+  // resuelve la tarjeta y se fija en el Customer y en cada Subscription.
+  const paymentMethodId = await resolveRenewalPaymentMethod(stripe, stripeCustomerId, paymentIntentId)
+  if (!paymentMethodId) {
+    console.error('[stripe-subscriptions] no se encontró tarjeta para las renovaciones:', orderId, stripeCustomerId)
+  }
 
   for (const svc of recurring) {
     try {
@@ -128,6 +142,7 @@ export async function createRecurringSubscriptionsForOrder(
         {
           customer: stripeCustomerId,
           items,
+          ...(paymentMethodId ? { default_payment_method: paymentMethodId } : {}),
           trial_end: computeTrialEnd(svc.billing),
           metadata: { orderId, service: svc.service },
         },
@@ -146,5 +161,37 @@ export async function createRecurringSubscriptionsForOrder(
     } catch (err) {
       console.error('[stripe-subscriptions] fallo creando subscription', orderId, svc.service, err)
     }
+  }
+}
+
+// Tarjeta para cobrar las renovaciones: la usada en el pago (PaymentIntent),
+// o la default del Customer, o la última tarjeta guardada. Si el Customer no
+// tiene tarjeta por defecto para facturas, la fija ahí también (así el
+// "Cambiar Método de Pago" del portal y cualquier factura futura la usan).
+async function resolveRenewalPaymentMethod(stripe: Stripe, customerId: string, paymentIntentId?: string | null): Promise<string | null> {
+  try {
+    let pmId: string | null = null
+    if (paymentIntentId) {
+      const pi = await stripe.paymentIntents.retrieve(paymentIntentId)
+      pmId = typeof pi.payment_method === 'string' ? pi.payment_method : pi.payment_method?.id ?? null
+    }
+    const customer = await stripe.customers.retrieve(customerId)
+    const currentDefault = !customer.deleted
+      ? (typeof customer.invoice_settings?.default_payment_method === 'string'
+          ? customer.invoice_settings.default_payment_method
+          : customer.invoice_settings?.default_payment_method?.id ?? null)
+      : null
+    if (!pmId) pmId = currentDefault
+    if (!pmId) {
+      const list = await stripe.paymentMethods.list({ customer: customerId, type: 'card', limit: 1 })
+      pmId = list.data[0]?.id ?? null
+    }
+    if (pmId && !currentDefault) {
+      await stripe.customers.update(customerId, { invoice_settings: { default_payment_method: pmId } })
+    }
+    return pmId
+  } catch (err) {
+    console.error('[stripe-subscriptions] resolveRenewalPaymentMethod error:', customerId, err)
+    return null
   }
 }

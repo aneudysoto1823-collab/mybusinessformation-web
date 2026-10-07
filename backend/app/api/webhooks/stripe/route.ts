@@ -632,7 +632,7 @@ async function handleFormationPaid(orderId: string, session: Stripe.Checkout.Ses
   // setup_future_usage (ver /api/checkout/embedded), ver lib/stripe-subscriptions.ts.
   after(async () => {
     try {
-      await createRecurringSubscriptionsForOrder(getStripe(), order.id, (session.customer as string) ?? null, order.package, order.addons, order.sourceBrand, order.registeredAgent)
+      await createRecurringSubscriptionsForOrder(getStripe(), order.id, (session.customer as string) ?? null, order.package, order.addons, order.sourceBrand, order.registeredAgent, (typeof session.payment_intent === 'string' ? session.payment_intent : session.payment_intent?.id ?? null))
     } catch (err) {
       console.error('[stripe-webhook] recurring-subscriptions error (non-fatal):', err)
     }
@@ -911,7 +911,7 @@ async function handleServicesPaid(orderId: string, session: Stripe.Checkout.Sess
   // /api/checkout/embedded-services), ver lib/stripe-subscriptions.ts.
   after(async () => {
     try {
-      await createRecurringSubscriptionsForOrder(getStripe(), order.id, (session.customer as string) ?? null, order.package, order.addons, order.sourceBrand)
+      await createRecurringSubscriptionsForOrder(getStripe(), order.id, (session.customer as string) ?? null, order.package, order.addons, order.sourceBrand, null, (typeof session.payment_intent === 'string' ? session.payment_intent : session.payment_intent?.id ?? null))
     } catch (err) {
       console.error('[stripe-webhook] recurring-subscriptions error (non-fatal):', err)
     }
