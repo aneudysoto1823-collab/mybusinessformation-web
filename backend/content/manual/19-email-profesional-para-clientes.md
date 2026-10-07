@@ -76,11 +76,12 @@ El webmail trae paneles de la frase del día, el clima y noticias que se ven poc
 ## Lo que le explicamos al cliente
 
 - **Cómo entrar:** webmail.sudominio.com, con su dirección completa y su contraseña.
-- **Recomendado: usarlo desde el celular o la computadora** (Gmail app, Mail del iPhone, Outlook). Con estos datos:
-  - Recibir (IMAP): **us2.imap.mailhostbox.com**, puerto 993, SSL.
-  - Enviar (SMTP): **us2.smtp.mailhostbox.com**, puerto 465, SSL.
+- **Recomendado: usarlo desde el celular o la computadora** (Gmail app, Mail del iPhone, Outlook). Siempre con los datos seguros (SSL):
+  - Recibir (IMAP): **us2.imap.mailhostbox.com**, puerto **993**, SSL.
+  - Enviar (SMTP): **us2.smtp.mailhostbox.com**, puerto **587**, STARTTLS.
+  - Si prefiere POP en vez de IMAP: **us2.pop.mailhostbox.com**, puerto **995**, SSL. IMAP es mejor: mantiene el correo igual en todos sus dispositivos.
   - Usuario: su dirección completa. Contraseña: la del buzón.
-  - Son los datos habituales de este proveedor: confírmalos con el email de configuración que ResellerClub manda al correo alterno al crear el buzón.
+  - Confirmado con el email "New email account has been created!" que ResellerClub manda al correo alterno al crear el buzón. Ese email también trae una versión "NON SSL" con los servidores del dominio del cliente: no se la des, no es segura.
 - **Que el correo tarda unas horas en quedar activo** después de configurarlo.
 
 ## Limitaciones conocidas
