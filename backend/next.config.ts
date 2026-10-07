@@ -66,6 +66,13 @@ const nextConfig: NextConfig = {
   // (require Node nativo) en lugar de bundlear. Usado por el cron Sunbiz
   // /api/cron/sunbiz-daily (SFTP a sftp.floridados.gov).
   serverExternalPackages: ['ssh2', 'ssh2-sftp-client'],
+  // El envío del manual por email (/api/admin/manual/send) lee los capítulos
+  // de content/manual/*.md en el servidor, en el momento. Sin esto Vercel no
+  // incluye esos archivos en la función (la ruta de la carpeta se arma en
+  // código y el trazado automático no la detecta).
+  outputFileTracingIncludes: {
+    '/api/admin/manual/send': ['./content/manual/**/*'],
+  },
   async headers() {
     return [
       {

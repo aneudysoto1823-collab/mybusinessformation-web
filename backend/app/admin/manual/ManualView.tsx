@@ -44,6 +44,32 @@ type Result = { id: string; chapter: string; number: number; heading: string; ht
 
 export default function ManualView({ chapters }: { chapters: ManualChapter[] }) {
   const [query, setQuery] = useState('')
+  const [sendOpen, setSendOpen] = useState(false)
+  const [sendEmail, setSendEmail] = useState('')
+  const [sendNota, setSendNota] = useState('')
+  const [sending, setSending] = useState(false)
+  const [sendMsg, setSendMsg] = useState<{ ok: boolean; text: string } | null>(null)
+
+  async function enviar() {
+    setSending(true)
+    setSendMsg(null)
+    try {
+      const res = await fetch('/api/admin/manual/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: sendEmail, nota: sendNota }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) { setSendMsg({ ok: false, text: data.error || 'No se pudo enviar.' }); return }
+      setSendMsg({ ok: true, text: `Enviado a ${sendEmail}.` })
+      setSendEmail('')
+      setSendNota('')
+    } catch {
+      setSendMsg({ ok: false, text: 'Error de conexión. Intenta de nuevo.' })
+    } finally {
+      setSending(false)
+    }
+  }
   const inputRef = useRef<HTMLInputElement>(null)
 
   // "/" enfoca el buscador desde cualquier parte de la página.
@@ -151,12 +177,39 @@ export default function ManualView({ chapters }: { chapters: ManualChapter[] }) 
         .m-body th{background:#F8FAFC;text-align:left;padding:9px 12px;border-bottom:1px solid #E2E8F0;color:#1C2E44;font-weight:700;white-space:nowrap}
         .m-body td{padding:9px 12px;border-bottom:1px solid #F1F5F9;vertical-align:top}
         .m-up{display:inline-block;margin-top:14px;font-size:.78rem;color:#2563EB;text-decoration:none;border:1.5px solid #2563EB;border-radius:8px;padding:5px 12px}
+        .m-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+        .m-btn{background:#fff;color:#2563EB;border:1.5px solid #2563EB;border-radius:9px;padding:9px 16px;font-size:.84rem;font-weight:700;cursor:pointer;font-family:inherit;min-height:40px}
+        .m-btn:hover:not(:disabled){background:#F7FAFF}
+        .m-btn:disabled{opacity:.5;cursor:not-allowed}
+        .m-btn-ghost{color:#475569;border-color:#E2E8F0}
+        .m-modal-bg{position:fixed;inset:0;background:rgba(15,28,46,.45);z-index:50;display:flex;align-items:center;justify-content:center;padding:16px}
+        .m-modal{background:#fff;border-radius:14px;padding:24px;width:100%;max-width:460px;box-shadow:0 20px 50px rgba(15,28,46,.25)}
+        .m-modal-title{font-size:1.05rem;font-weight:700;color:#1C2E44}
+        .m-modal-sub{font-size:.82rem;color:#64748B;line-height:1.5;margin:6px 0 14px}
+        .m-label{display:block;font-size:.78rem;font-weight:700;color:#1C2E44;margin:10px 0 5px}
+        .m-input{width:100%;padding:10px 12px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:16px;font-family:inherit;color:#1C2E44;outline:none;resize:vertical}
+        .m-input:focus{border-color:#2563EB}
+        .m-ok,.m-err{font-size:.82rem;font-weight:600;border-radius:9px;padding:9px 12px;margin-top:12px}
+        .m-ok{background:#ECFDF5;color:#065F46}
+        .m-err{background:#FEF2F2;color:#991B1B}
+        .m-modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:16px}
+        @media print{
+          body{background:#fff}
+          .m-wrap{padding:0;max-width:none}
+          .m-top,.m-side,.m-actions,.m-up,.m-modal-bg,.m-crumb{display:none !important}
+          .m-grid{display:block}
+          .m-card{border:none;padding:0;margin:0 0 12px;break-before:page}
+          #indice{break-before:auto;margin-top:18px}
+          @page{margin:16mm 14mm}
+          .m-body a{color:#2563EB}
+          .m-table{overflow:visible}
+        }
         @media(max-width:900px){.m-grid{grid-template-columns:minmax(0,1fr)}.m-side{display:none}}
         @media(max-width:768px){.m-wrap{padding:16px 16px 60px}.m-card{padding:20px 18px}.m-toc{grid-template-columns:minmax(0,1fr)}.m-kbd{display:none}}
       `}</style>
 
       <div className="m-wrap">
-        <div style={{ marginBottom: 4, display: 'flex', alignItems: 'center', gap: 10 }}>
+        <div className="m-crumb" style={{ marginBottom: 4, display: 'flex', alignItems: 'center', gap: 10 }}>
           <Link href="/admin" style={{ color: '#94A3B8', fontSize: '.8rem', textDecoration: 'none' }}>← Admin</Link>
           <span style={{ color: '#CBD5E1' }}>/</span>
           <span style={{ color: '#1C2E44', fontSize: '.8rem', fontWeight: 600 }}>Manual</span>
@@ -165,6 +218,27 @@ export default function ManualView({ chapters }: { chapters: ManualChapter[] }) 
         <p style={{ fontSize: '.85rem', color: '#64748B', margin: 0 }}>
           Cómo funciona el negocio, explicado de forma sencilla. Los precios se leen directo del sistema, siempre están al día.
         </p>
+        <div className="m-actions">
+          <button type="button" className="m-btn" onClick={() => window.print()}>Descargar PDF</button>
+          <button type="button" className="m-btn" onClick={() => { setSendOpen(true); setSendMsg(null) }}>Enviar por email</button>
+        </div>
+        {sendOpen && (
+          <div className="m-modal-bg" role="dialog" aria-modal="true" aria-labelledby="m-send-title" onClick={e => { if (e.target === e.currentTarget) setSendOpen(false) }}>
+            <div className="m-modal">
+              <div id="m-send-title" className="m-modal-title">Enviar el manual por email</div>
+              <p className="m-modal-sub">Le llega el manual completo como archivo (se abre en cualquier navegador) y un link a esta versión en línea. Es de uso interno: no lo mandes a clientes.</p>
+              <label className="m-label" htmlFor="m-send-email">Email</label>
+              <input id="m-send-email" className="m-input" type="email" value={sendEmail} onChange={e => setSendEmail(e.target.value)} placeholder="nombre@ejemplo.com" autoFocus />
+              <label className="m-label" htmlFor="m-send-nota">Mensaje (opcional)</label>
+              <textarea id="m-send-nota" className="m-input" rows={3} value={sendNota} onChange={e => setSendNota(e.target.value)} placeholder="Ej.: Aquí tienes el manual para que lo leas antes de empezar." />
+              {sendMsg && <div className={sendMsg.ok ? 'm-ok' : 'm-err'}>{sendMsg.text}</div>}
+              <div className="m-modal-actions">
+                <button type="button" className="m-btn m-btn-ghost" onClick={() => setSendOpen(false)}>Cerrar</button>
+                <button type="button" className="m-btn" onClick={enviar} disabled={sending || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(sendEmail.trim())}>{sending ? 'Enviando…' : 'Enviar'}</button>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="m-top">
           <div className="m-search">

@@ -197,3 +197,62 @@ export function getManualChapters(): ManualChapter[] {
       }
     })
 }
+
+// Versión del manual en un solo archivo HTML (estilos incluidos, sin depender
+// del sitio) para mandarlo por email como adjunto. Se abre en cualquier
+// navegador, con el índice y los links funcionando, y desde ahí se puede
+// imprimir o guardar como PDF.
+export function buildManualStandaloneHtml(chapters: ManualChapter[], generatedAt: Date = new Date()): string {
+  const escapeHtml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  const fecha = generatedAt.toLocaleDateString('es-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'America/New_York' })
+  const written = chapters.filter(c => !c.pending)
+  const toc = chapters.map(c => c.pending
+    ? `<li class="p">${c.number}. ${escapeHtml(c.title)} <em>(próximamente)</em></li>`
+    : `<li><a href="#cap-${c.slug}">${c.number}. ${escapeHtml(c.title)}</a><div class="s">${escapeHtml(c.summary)}</div></li>`
+  ).join('')
+  const body = written.map(c => `
+    <section class="ch" id="cap-${c.slug}">
+      <h1><span class="num">${c.number}.</span> ${escapeHtml(c.title)}</h1>
+      ${c.updated ? `<div class="upd">Actualizado: ${escapeHtml(c.updated)}</div>` : ''}
+      ${c.html}
+      <p class="back"><a href="#indice">Volver al índice</a></p>
+    </section>`).join('')
+  return `<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Manual de OpaBiz</title>
+<style>
+  body{margin:0;background:#f4f6f9;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:#334155;line-height:1.65}
+  .wrap{max-width:860px;margin:0 auto;padding:32px 20px 60px}
+  .cover{background:#1C2E44;color:#fff;border-radius:14px;padding:32px 30px;margin-bottom:24px}
+  .cover h1{margin:0;font-size:1.9rem;font-family:Georgia,serif}
+  .cover p{margin:6px 0 0;color:#cbd5e1;font-size:.95rem}
+  .card,.ch{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:26px 30px;margin-bottom:22px}
+  #indice h2{margin:0 0 12px;color:#1C2E44}
+  #indice ol{list-style:none;padding:0;margin:0}
+  #indice li{padding:8px 0;border-bottom:1px solid #f1f5f9}
+  #indice li a{color:#1C2E44;font-weight:700;text-decoration:none}
+  #indice li.p{color:#94a3b8}
+  #indice .s{font-size:.82rem;color:#64748b}
+  .ch h1{font-size:1.4rem;color:#1C2E44;margin:0 0 4px;border-bottom:1px solid #f1f5f9;padding-bottom:10px}
+  .ch h1 .num{color:#2563EB}
+  .upd{font-size:.75rem;color:#94a3b8;margin-bottom:8px}
+  h2{font-size:1.1rem;color:#1C2E44;margin:26px 0 8px}
+  h3{font-size:.98rem;color:#1C2E44;margin:18px 0 6px}
+  a{color:#2563EB}
+  strong{color:#1C2E44}
+  blockquote{margin:0 0 14px;padding:10px 16px;border-left:3px solid #2563EB;background:#f8fafc;border-radius:0 8px 8px 0}
+  blockquote p{margin:0}
+  .m-table{overflow-x:auto;margin:0 0 16px}
+  table{width:100%;border-collapse:collapse;font-size:.86rem}
+  th{background:#f8fafc;text-align:left;padding:8px 10px;border-bottom:1px solid #e2e8f0;color:#1C2E44}
+  td{padding:8px 10px;border-bottom:1px solid #f1f5f9;vertical-align:top}
+  code{background:#f1f5f9;border-radius:4px;padding:1px 5px;font-size:.85em}
+  .back{font-size:.8rem}
+  @media print{body{background:#fff}.wrap{padding:0}.ch{page-break-before:always;border:none;padding:0}.card{border:none;padding:0}.back{display:none}}
+</style></head>
+<body><div class="wrap">
+  <div class="cover"><h1>Manual de OpaBiz</h1><p>Cómo funciona el negocio, explicado de forma sencilla. Versión del ${escapeHtml(fecha)}.</p></div>
+  <div class="card" id="indice"><h2>Índice</h2><ol>${toc}</ol></div>
+  ${body}
+</div></body></html>`
+}

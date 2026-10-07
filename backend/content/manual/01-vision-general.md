@@ -6,6 +6,8 @@ updated: "2026-10-06"
 
 Este manual explica cómo funciona el negocio, sin tecnicismos. Si tienes una duda sobre un proceso, un precio o qué hacer en un caso puntual, búscalo arriba.
 
+Arriba tienes dos botones: **Descargar PDF** (abre la vista de impresión; elige "Guardar como PDF") y **Enviar por email** (manda el manual completo como archivo, más un link a esta versión en línea). Es de uso interno: no lo compartas con clientes.
+
 ## Qué hacemos
 
 Ayudamos a emprendedores a **formar su empresa en Florida** (LLC o Corporación) y a **mantenerla al día** con el estado: agente registrado, declaración anual, EIN, licencias y otros trámites.
