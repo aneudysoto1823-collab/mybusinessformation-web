@@ -59,8 +59,8 @@ Lista de los servicios externos de los que depende el negocio. Las contraseñas 
 
 | Proveedor | Para qué | Estado |
 |---|---|---|
-| **ResellerClub** | Revender dominios | Cuenta activa con saldo cargado |
+| **ResellerClub** | Revender dominios y email profesional (Business Email, marca blanca) | Cuenta activa con saldo cargado. Email probado con éxito. Ver el capítulo "Email profesional para clientes" |
 | **Twilio** | Números de teléfono comerciales (incluidos 1-800) | Cuenta activa con saldo y recarga automática |
-| **Zoho (revendedor)** | Revender email profesional | Solicitud enviada, esperando respuesta |
+| **Zoho (revendedor)** | Alternativa para el email | Contrato recibido; no se firma por ahora (comisión del 15%, sin marca blanca, logo obligatorio en el home) |
 
 Los precios del combo todavía no están definidos.

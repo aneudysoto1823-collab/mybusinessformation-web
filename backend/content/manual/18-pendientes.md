@@ -22,7 +22,7 @@ Stripe ya está preparado. Antes de activarlo hay que resolver todo esto:
 ## Decisiones de negocio pendientes
 
 - **Precio del procesamiento acelerado:** el sistema cobra {{precio:acelerado}}, pero documentos viejos decían $79. Confirmar cuál es el correcto.
-- **Combo de dominio, teléfono y email:** falta fijar los precios (línea sola por menos de $25 al mes, dominio, email y el combo) y decidir si se vende solo con la formación o también suelto. El email depende de la respuesta de Zoho.
+- **Combo de dominio, teléfono y email:** proveedores elegidos (ResellerClub para dominio y email, Twilio para el teléfono). Falta fijar los precios (línea sola por menos de $25 al mes, dominio, email y el combo), decidir si se vende solo con la formación o también suelto, cambiar "Juan R Fabian" por OpaBiz en ResellerClub, y la respuesta de su soporte sobre el webmail seguro.
 - **Aviso de cancelación del Agente Registrado:** averiguar con el proveedor cuánto aviso exigen para dar de baja un servicio. Si son 3 meses, el aviso de renovación tiene que salir antes.
 - **Dirección Virtual:** sacada del sitio hasta conseguir proveedor. El precio sigue guardado para reactivarla.
 - **Guía de configuración de Stripe:** tarjeta en /servicios que dice "Coming soon", a definir con el socio.
