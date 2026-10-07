@@ -2015,6 +2015,21 @@ A pedido del founder, la carta de cumplimiento (email + carta física PDF + land
 
 **Compra por una marca = no más cartas.** Al pagar en `/servicios/checkout` con Document ID (`addons.intake.flDoc`), `handleServicesPaid` marca la empresa de `prospective_companies` con ese `document_id` como `status:'purchased'` (+ `qr_scans.converted` y fila en `conversions`). Antes solo lo hacía el flujo legacy de new-business. `send` y `send-opabiz` saltan a quien ya compró. Requiere `supabase_migration_carta_opabiz.sql` (ya corrida).
 
+## Sesión 2026-10-06 — loop de emails en OpaBiz Connect, manual interno, alta en Zoho
+
+### 🐛 Bug real: más de 200 emails "Nueva orden asignada" a los agentes
+`app/api/opabiz/cron/reassign-timeouts/route.ts` (cada 5 min) reasigna una orden si el agente no la acepta en 10 min, pero solo excluía al ÚLTIMO agente: con 2+ agentes la orden rebotaba A→B→A→B para siempre y cada vuelta mandaba push + email desde `noreply@opabiz.com` (`notifyEmployeeAssignment`). Fix (commit `4f8207f`): excluye a todos los que tienen una fila en `inactividades` para esa orden; cuando no queda nadie, la orden pasa a `pendiente` y se cortan los avisos. Limpieza hecha en Supabase: 2 órdenes de prueba (`65bc723a…`, `13f809af…`) pasadas a `pendiente`, borradas 245 `inactividades` + 245 `historial_actividad` del loop, `inactividades_totales` de los 2 agentes de prueba ("Pedro Prueba", "AGENTE TEST") recalculado a 0.
+
+### Manual interno `/admin/manual` (Fase 1)
+Ver la sección "Manual interno" en Convenciones. Capítulos 1-4 escritos; 5-18 pendientes; "Pregúntale al manual" (IA) pendiente. `PACKAGE_PRICES` y `STATE_FEE` de `lib/pricing.ts` ahora se exportan (los usa el manual).
+⚠️ **Precio a confirmar con el founder:** el código cobra el procesamiento acelerado a **$49** (`EXPEDITED_FEE` en `lib/pricing.ts` y `lib/services-pricing.ts`), pero varias secciones viejas de este archivo dicen $79. Manda el código; preguntado al founder, sin respuesta todavía.
+
+### Otros
+- `CHECKLIST_PRELANZAMIENTO.md`: nuevo ítem en "T-1 semana" para poner el sistema en cero (órdenes, OpaBiz Connect, contabilidad, citas, afiliados, guide_sends, prospective_companies de prueba) después del backup y con la lista confirmada por ambos socios.
+- 4ta alerta bloqueante para Stripe Live: cambiar los logos de MyBiz y OpaBiz (ver sección "Stripe LIVE").
+- Zoho Partner (combo dominio + teléfono + email): form y respuesta enviados, ver `LOGICA_DE_NEGOCIO/40`.
+- El socio (javier soto) no subió commits desde el 2026-09-30 (alertas por Telegram, cron de salud de dominios de Resend, fallos de Resend ya no silenciosos).
+
 ## Deploy
 
 - `git push origin main` — Vercel detecta cambios en `backend/` y hace deploy automático
