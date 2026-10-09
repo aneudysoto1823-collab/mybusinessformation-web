@@ -53,8 +53,8 @@ function buildItems(): TemplateItem[] {
   }
   // Guías III y IV: solo existen en español, versión OpaBiz.
   items.push(
-    { id: 'guide3-opabiz-es', type: 'guia', brand: 'opabiz', lang: 'es', title: 'Guía III: Cuenta de banco', usedIn: 'Solo existe en español. No se envía automáticamente.', url: '/guias/guia-3-cuenta-banco.pdf', singleLang: true },
-    { id: 'guide4-opabiz-es', type: 'guia', brand: 'opabiz', lang: 'es', title: 'Guía IV: Stripe', usedIn: 'Solo existe en español. No se envía automáticamente.', url: '/guias/guia-4-stripe.pdf', singleLang: true },
+    { id: 'guide3-opabiz-es', type: 'guia', brand: 'opabiz', lang: 'es', title: 'Guía III: Cuenta de banco', usedIn: 'En preparación, todavía no terminada. Solo en español. No se envía por email.', url: '/guias/guia-3-cuenta-banco.pdf', singleLang: true },
+    { id: 'guide4-opabiz-es', type: 'guia', brand: 'opabiz', lang: 'es', title: 'Guía IV: Stripe', usedIn: 'En preparación, todavía no terminada. Solo en español. No se envía por email.', url: '/guias/guia-4-stripe.pdf', singleLang: true },
   )
 
   // Labor Law Poster

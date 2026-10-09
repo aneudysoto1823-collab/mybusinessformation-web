@@ -28,6 +28,8 @@ Stripe ya está preparado. Antes de activarlo hay que resolver todo esto:
   - Una vez pedida la **baja del servicio**, a los cuántos días dejan de recibir la correspondencia de la empresa y de cargarla al portal del cliente. Hoy el sistema le da al cliente un margen provisorio de 30 días (capítulo 20); con la respuesta se ajusta ese margen para que la fecha que ve el cliente coincida con la real.
 - **Dirección Virtual:** sacada del sitio hasta conseguir proveedor. El precio sigue guardado para reactivarla.
 - **Guía de configuración de Stripe:** tarjeta en /servicios que dice "Coming soon", a definir con el socio.
+- **Guías III (Cuenta de banco) y IV (Stripe):** en mejora, todavía no terminadas. Solo existen en español y con la marca OpaBiz. Cuando estén listas: versión en inglés, versión MyBiz y decidir si se regalan por email.
+- **Galería de plantillas, segunda etapa:** sumar a /admin/plantillas los emails automáticos (confirmación de pago, pago fallido, renovación, cancelación, documentos listos, citas).
 
 ## Ideas para más adelante
 

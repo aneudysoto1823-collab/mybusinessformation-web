@@ -1,7 +1,7 @@
 ---
 title: "Marketing"
 summary: "Marketing Saliente, Campaigns & Letters, cartas físicas, Oferta VIP y la Guía gratuita."
-updated: "2026-10-07"
+updated: "2026-10-09"
 ---
 
 ## La idea general
@@ -46,6 +46,8 @@ Un solo panel para las dos marcas. Arriba eliges la **plantilla**, agrupadas por
 - Marcar **"Mark as Sent"** cuando la carta física ya salió por correo. Hay que hacerlo a mano: descargar el PDF no cuenta como enviado.
 - Dejar una **nota** de seguimiento.
 - Borrar empresas, de a una o varias.
+
+Para revisar cómo quedan los emails y las cartas **sin elegir una empresa**, está la galería **/admin/plantillas** (capítulo 14). Muestra las tres plantillas de campaña con una empresa de ejemplo y siempre está al día con el último cambio de texto.
 
 ## Reglas para no molestar dos veces
 

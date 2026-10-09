@@ -29,6 +29,10 @@ En **/admin/guias**:
 - Botones para **ver y descargar** cada guía.
 - La lista de personas que la pidieron desde /guia-gratis, con una **nota** de seguimiento para cada una.
 
+También están las **Guías III (Cuenta de banco) y IV (Stripe)**. Todavía **no están terminadas**: se les van a hacer mejoras, solo existen en español con la marca OpaBiz y ningún email las envía. Cuando estén listas, se traducen al inglés y se hace la versión MyBiz.
+
+Las guías también se pueden ver en **/admin/plantillas**, junto con los emails y las cartas.
+
 ### Cambiar el contenido de una guía
 
 El texto de las guías está en el proyecto (carpeta `GUIAS_PDF`). Para cambiar algo, pídeselo a Claude: edita el texto y genera el PDF de nuevo con su portada.
@@ -57,3 +61,5 @@ En **/admin/plantillas** están juntos, para revisar cómo le llegan al cliente:
 Se arman con el mismo sistema que hace los envíos reales y con una empresa de ejemplo (Sunshine Coffee LLC). Por eso, cada vez que se cambia un texto, la galería ya muestra la versión nueva sin hacer nada más. Ver una plantilla ahí no envía nada ni registra nada.
 
 Las vistas previas de cada campaña en Campaigns & Letters siguen igual, con la empresa real de cada fila.
+
+Por ahora la galería tiene lo de marketing. Los emails automáticos (confirmación de pago, pago fallido, renovación, cancelación y demás) se van a sumar más adelante.

@@ -1,7 +1,7 @@
 ---
 title: "Emails automáticos"
 summary: "Qué emails salen solos, cuándo y desde qué dirección, y cómo reenviar uno."
-updated: "2026-10-07"
+updated: "2026-10-09"
 ---
 
 ## Cómo salen los emails
@@ -60,6 +60,12 @@ Todos los emails al cliente salen en su idioma y con la marca del sitio donde co
 | Rebote o queja de spam | Un email no se pudo entregar o lo marcaron como spam | Email |
 | Dominio de email caído | Revisión automática cada hora | Telegram |
 | Mensaje de contacto | Alguien escribe por el formulario de /contact | Email a info@ |
+
+## Ver cómo se ven los emails
+
+Los emails de **campaña** (Carta Nuevas Empresas de MyBiz y de OpaBiz, Oferta VIP) se pueden ver en **/admin/plantillas**, tal como le llegan al cliente, en las dos marcas y los dos idiomas (capítulo 14).
+
+Los emails **automáticos** de este capítulo (confirmación de pago, pago fallido, renovación, cancelación, documentos listos, citas) todavía no están en esa galería. Se van a ir sumando por partes.
 
 ## Reenviar un email
 
