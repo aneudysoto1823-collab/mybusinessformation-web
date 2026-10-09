@@ -63,6 +63,7 @@ interface Order {
     status: 'trialing' | 'active' | 'past_due' | 'canceled'
     currentPeriodEnd: string | null
     createdAt: string
+    cancelNoticeSent?: boolean
   }[] | null
   nameCheck?: {
     available?: boolean
@@ -217,6 +218,16 @@ export default function OrderDetailPage() {
   // Retry manual del provisioning de Registered Agent (RAI)
   const [raRetryLoading, setRaRetryLoading] = useState(false)
   const [raRetryMsg, setRaRetryMsg] = useState('')
+
+  // Cancelar suscripción (RA / VA / AR) desde el panel — ver
+  // /api/admin/orders/[id]/cancel-subscription
+  const [cancelSub, setCancelSub] = useState<{ stripeSubscriptionId: string; service: string } | null>(null)
+  const [cancelMode, setCancelMode] = useState<'immediate' | 'period_end'>('immediate')
+  const [cancelReason, setCancelReason] = useState('')
+  const [cancelComment, setCancelComment] = useState('')
+  const [cancelNotify, setCancelNotify] = useState(true)
+  const [cancelLoading, setCancelLoading] = useState(false)
+  const [cancelMsg, setCancelMsg] = useState('')
 
   // Reveal del SSN/ITIN encriptado — vacio = enmascarado. Se limpia solo tras 30s.
   const [revealedTaxId, setRevealedTaxId] = useState<string | null>(null)
@@ -461,6 +472,56 @@ export default function OrderDetailPage() {
     }
     setRaRetryLoading(false)
     setTimeout(() => setRaRetryMsg(''), 8000)
+  }
+
+  function openCancelSub(sub: { stripeSubscriptionId: string; service: string }) {
+    setCancelSub(sub)
+    setCancelMode('immediate')
+    setCancelReason('')
+    setCancelComment('')
+    setCancelNotify(true)
+    setCancelMsg('')
+  }
+
+  async function handleCancelSubscription() {
+    if (!id || !cancelSub || !cancelReason) return
+    const when = cancelMode === 'immediate' ? 'AHORA (no se puede deshacer)' : 'al final del período ya pagado'
+    if (!confirm(`¿Seguro que quieres cancelar esta suscripción ${when}?`)) return
+    setCancelLoading(true)
+    setCancelMsg('')
+    try {
+      const res = await fetch(`/api/admin/orders/${id}/cancel-subscription`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          stripeSubscriptionId: cancelSub.stripeSubscriptionId,
+          mode: cancelMode,
+          reason: cancelReason,
+          comment: cancelComment,
+          notifyClient: cancelNotify,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setCancelMsg(`Error: ${data.detail ?? data.error ?? 'desconocido'}`)
+        setCancelLoading(false)
+        return
+      }
+      setCancelSub(null)
+      // El estado real llega por webhook en unos segundos; refrescamos orden y notas.
+      setTimeout(async () => {
+        const r = await fetch(`${PROXY}/orders/${id}`)
+        if (r.ok) {
+          const d = await r.json()
+          const o = d.order ?? d.data ?? d
+          setOrder(o)
+          setNotes(o.notes ?? '')
+        }
+      }, 2500)
+    } catch (err) {
+      setCancelMsg(`Error: ${err instanceof Error ? err.message : String(err)}`)
+    }
+    setCancelLoading(false)
   }
 
   // Reveal del SSN/ITIN. Cada click escribe a admin_audit_log server-side. El
@@ -950,9 +1011,9 @@ export default function OrderDetailPage() {
         })()}
 
         {/* Suscripciones recurrentes (RA / VA / AR) — solo visible si la orden
-            tiene al menos una. Estado operacional para soporte: no permite
-            cancelar desde acá (eso es self-service del cliente vía el Billing
-            Portal, o manual desde el dashboard de Stripe). */}
+            tiene al menos una. El botón Cancelar sirve igual para cualquier
+            orden (paquete, servicio suelto, opabiz.com o mybusinessformation.com):
+            cancela por el stripeSubscriptionId. */}
         {order.subscriptions && order.subscriptions.length > 0 && (
           <Section title="🔁 Suscripciones recurrentes">
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -963,7 +1024,10 @@ export default function OrderDetailPage() {
                   past_due: { label: 'Pago fallido', bg: '#fee2e2', color: '#b91c1c' },
                   canceled: { label: 'Cancelada', bg: '#f3f4f6', color: '#6b7280' },
                 }
-                const s = statusMap[sub.status] ?? statusMap.canceled
+                const scheduled = sub.status !== 'canceled' && sub.cancelNoticeSent === true
+                const s = scheduled
+                  ? { label: 'Cancelación programada', bg: '#fef3c7', color: '#92400e' }
+                  : (statusMap[sub.status] ?? statusMap.canceled)
                 return (
                   <div key={sub.stripeSubscriptionId} style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', padding: '10px 12px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
                     <span style={{ fontWeight: 600, fontSize: '13px', minWidth: '160px' }}>{getOrderItemLabel(`svc:${sub.service}`, { lang: 'en' })}</span>
@@ -974,6 +1038,14 @@ export default function OrderDetailPage() {
                       </span>
                     )}
                     <span style={{ fontSize: '11px', color: '#9ca3af', fontFamily: 'monospace' }}>{sub.stripeSubscriptionId}</span>
+                    {sub.status !== 'canceled' && !scheduled && (
+                      <button
+                        onClick={() => openCancelSub(sub)}
+                        style={{ marginLeft: 'auto', background: '#fff', color: '#b91c1c', border: '1px solid #fca5a5', borderRadius: '6px', padding: '5px 12px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}
+                      >
+                        Cancelar
+                      </button>
+                    )}
                   </div>
                 )
               })}
@@ -1524,6 +1596,75 @@ export default function OrderDetailPage() {
           </div>
         </Section>
       </div>
+
+      {cancelSub && (
+        <div
+          onClick={() => !cancelLoading && setCancelSub(null)}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.45)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}
+        >
+          <div onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: '12px', width: '100%', maxWidth: '460px', padding: '22px', boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}>
+            <div style={{ fontSize: '17px', fontWeight: 700, marginBottom: '4px' }}>Cancelar suscripción</div>
+            <div style={{ fontSize: '13px', color: '#6b7280', marginBottom: '16px' }}>
+              {getOrderItemLabel(`svc:${cancelSub.service}`, { lang: 'en' })} · <span style={{ fontFamily: 'monospace', fontSize: '11px' }}>{cancelSub.stripeSubscriptionId}</span>
+            </div>
+
+            <div style={{ fontSize: '12px', fontWeight: 700, color: '#374151', marginBottom: '6px' }}>¿Cuándo?</div>
+            <label style={{ display: 'flex', gap: '8px', fontSize: '13px', marginBottom: '6px', cursor: 'pointer' }}>
+              <input type="radio" checked={cancelMode === 'immediate'} onChange={() => setCancelMode('immediate')} />
+              <span><strong>Inmediata.</strong> Se corta ya y Stripe deja de reintentar cobros pendientes. No se puede deshacer.</span>
+            </label>
+            <label style={{ display: 'flex', gap: '8px', fontSize: '13px', marginBottom: '14px', cursor: 'pointer' }}>
+              <input type="radio" checked={cancelMode === 'period_end'} onChange={() => setCancelMode('period_end')} />
+              <span><strong>Al final del período.</strong> El cliente conserva el servicio hasta la fecha ya pagada y no se renueva.</span>
+            </label>
+
+            <div style={{ fontSize: '12px', fontWeight: 700, color: '#374151', marginBottom: '6px' }}>Motivo</div>
+            <select
+              value={cancelReason}
+              onChange={e => setCancelReason(e.target.value)}
+              style={{ width: '100%', padding: '9px 10px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '16px', marginBottom: '10px' }}
+            >
+              <option value="">Elige un motivo…</option>
+              <option value="unused">No lo usa / no lo necesita</option>
+              <option value="too_expensive">Muy caro</option>
+              <option value="switched_service">Cambió a otro proveedor</option>
+              <option value="missing_features">Le faltan funciones</option>
+              <option value="too_complex">Muy complicado</option>
+              <option value="low_quality">Calidad no esperada</option>
+              <option value="customer_service">Problema de servicio al cliente</option>
+              <option value="other">Otro (orden de prueba, error, servicio descontinuado)</option>
+            </select>
+            <textarea
+              value={cancelComment}
+              onChange={e => setCancelComment(e.target.value)}
+              placeholder="Comentario (opcional, queda en Stripe y en las notas de la orden)"
+              rows={3}
+              maxLength={500}
+              style={{ width: '100%', padding: '9px 10px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '16px', fontFamily: 'inherit', marginBottom: '10px', boxSizing: 'border-box' }}
+            />
+
+            <label style={{ display: 'flex', gap: '8px', fontSize: '13px', marginBottom: '16px', cursor: 'pointer' }}>
+              <input type="checkbox" checked={cancelNotify} onChange={e => setCancelNotify(e.target.checked)} />
+              <span>Avisar al cliente por email</span>
+            </label>
+
+            {cancelMsg && <div style={{ color: '#b91c1c', fontSize: '13px', marginBottom: '10px' }}>{cancelMsg}</div>}
+
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+              <button onClick={() => setCancelSub(null)} disabled={cancelLoading} style={{ background: '#fff', color: '#374151', border: '1px solid #d1d5db', borderRadius: '6px', padding: '9px 16px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>
+                Volver
+              </button>
+              <button
+                onClick={handleCancelSubscription}
+                disabled={cancelLoading || !cancelReason}
+                style={{ background: cancelLoading || !cancelReason ? '#9ca3af' : '#b91c1c', color: '#fff', border: 'none', borderRadius: '6px', padding: '9px 16px', fontSize: '14px', fontWeight: 600, cursor: cancelLoading || !cancelReason ? 'not-allowed' : 'pointer' }}
+              >
+                {cancelLoading ? 'Cancelando…' : 'Cancelar suscripción'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   )
 }
