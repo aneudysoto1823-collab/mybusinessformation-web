@@ -155,6 +155,10 @@ export default function OrdersTable({ orders, lang = 'es' }: { orders: Order[]; 
   const [activeTab, setActiveTab] = useState('all')
   const [sortBy, setSortBy] = useState('newest')
   const [pkgFilter, setPkgFilter] = useState('all')
+  // Selector del encabezado de la columna PAQUETE: 'all' (default, todo
+  // mezclado), 'package' (formación Basic/Standard/Premium de opabiz.com) o
+  // 'service' (servicios sueltos de ambos dominios + New Business Letter).
+  const [kindFilter, setKindFilter] = useState<'all' | 'package' | 'service'>('all')
   const [search, setSearch] = useState('')
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
@@ -213,6 +217,12 @@ export default function OrdersTable({ orders, lang = 'es' }: { orders: Order[]; 
 
   if (pkgFilter !== 'all') {
     visible = visible.filter(o => o.package === pkgFilter)
+  }
+
+  if (kindFilter === 'package') {
+    visible = visible.filter(o => ['basic', 'standard', 'premium'].includes(o.package))
+  } else if (kindFilter === 'service') {
+    visible = visible.filter(o => o.package === 'services' || o.package === 'addon')
   }
 
   if (dateFrom) {
@@ -344,6 +354,13 @@ export default function OrdersTable({ orders, lang = 'es' }: { orders: Order[]; 
         col.col-cliente { width: 170px; }
         col.col-empresa { width: 160px; }
         col.col-paquete { width: 90px;  }
+        .th-select {
+          appearance: auto; background: transparent; border: none; padding: 0; margin: 0;
+          max-width: 100%; font: inherit; font-size: 10.5px; font-weight: 700; color: #6b7280;
+          text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer;
+        }
+        .th-select:focus { outline: 1px solid #2563eb; outline-offset: 2px; border-radius: 3px; }
+        .th-reset { background: none; border: none; color: #2563eb; font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: underline; }
         col.col-monto   { width: 74px;  }
         col.col-pago    { width: 88px;  }
         col.col-estado  { width: 148px; }
@@ -564,6 +581,15 @@ export default function OrdersTable({ orders, lang = 'es' }: { orders: Order[]; 
               ? tbl.noOrders
               : tbl.noOrdersStatus
             }
+            {/* Con la tabla vacía el encabezado (y su selector) no se ve, así
+                que se ofrece volver a "Todos" desde acá. */}
+            {kindFilter !== 'all' && (
+              <div style={{ marginTop: '10px' }}>
+                <button className="th-reset" onClick={() => setKindFilter('all')}>
+                  {lang === 'en' ? 'Show all (packages and services)' : 'Ver todas (paquetes y servicios)'}
+                </button>
+              </div>
+            )}
           </div>
         ) : (
           <div className="table-wrap">
@@ -585,7 +611,18 @@ export default function OrdersTable({ orders, lang = 'es' }: { orders: Order[]; 
                   <th>{tbl.colOrder}</th>
                   <th>{tbl.colClient}</th>
                   <th>{tbl.colCompany}</th>
-                  <th>{tbl.colPackage}</th>
+                  <th>
+                    <select
+                      className="th-select"
+                      value={kindFilter}
+                      onChange={e => setKindFilter(e.target.value as 'all' | 'package' | 'service')}
+                      title={tbl.colPackage}
+                    >
+                      <option value="all">{lang === 'en' ? 'All' : 'Todos'}</option>
+                      <option value="package">{lang === 'en' ? 'Package' : 'Paquete'}</option>
+                      <option value="service">{lang === 'en' ? 'Service' : 'Servicio'}</option>
+                    </select>
+                  </th>
                   <th>{tbl.colAmount}</th>
                   <th>{tbl.colPayment}</th>
                   <th>{tbl.colStatus}</th>
