@@ -2054,6 +2054,24 @@ La app del agente (login, invitación, panel, perfil, detalle de orden, mis soli
 - Zoho Partner (combo dominio + teléfono + email): form y respuesta enviados, ver `LOGICA_DE_NEGOCIO/40`.
 - El socio (javier soto) no subió commits desde el 2026-09-30 (alertas por Telegram, cron de salud de dominios de Resend, fallos de Resend ya no silenciosos).
 
+---
+
+## Sesión 2026-10-09 — Cancelación de suscripciones en dos tipos + selector en la tabla de órdenes
+
+**Dos tipos de cancelación, mismo flujo en el panel admin y en el portal del cliente** (decisión founder). Política en `lib/subscription-cancel-policy.ts` (puro, lo usan cliente y servidor); lógica compartida en `lib/subscription-cancel.ts` (`cancelOrderSubscription()`), llamada desde `/api/subscriptions/cancel` (cliente) y `/api/admin/orders/[id]/cancel-subscription` (admin, motivo obligatorio + `admin_audit_log`).
+- **`renewal` (cancelar la renovación):** `cancel_at_period_end:true`. Sigue recibiendo documentos hasta el último día pagado.
+- **`service` (cancelar el servicio ahora):** termina en `noticeDays` (RA 30 días, **provisorio** hasta confirmar con RAI; VA 0 = se corta en el momento), o en la fecha de renovación si cae antes (sin cobro nuevo). `cancel_at` + `proration_behavior:'none'`. Anula facturas abiertas (corta reintentos y alertas de pago fallido). Sin reembolso.
+- **Annual Report:** solo `renewal`.
+- **Email al cliente:** lo manda `cancelOrderSubscription` con el texto exacto del tipo elegido (marca + idioma de la orden). Para que el webhook no mande también el genérico, la entrada se marca `cancelNoticeSent:true` (+ `cancelType`, `serviceEndsAt`) ANTES de llamar a Stripe; si Stripe falla se restaura. El reset de `handleSubscriptionUpdated` ahora ignora subs con `status:'canceled'`.
+- **Aviso al proveedor:** para RA, alerta a alert@ + Telegram "ACCIÓN REQUERIDA: avisar a Registered Agents Inc". Es manual: `lib/corporate-tools.ts` no tiene función de baja.
+- **Reactivar** (cliente y admin, `/api/admin/orders/[id]/reactivate-subscription`): solo para `renewal`; una baja de `service` no se reactiva. Limpia `cancel_at_period_end` o `cancel_at` según lo que tenga la sub.
+- La opción "Inmediata" (corte en el momento) que se hizo temprano ese mismo día se quitó: decisión founder, las órdenes de prueba usan el flujo normal.
+- Manual: capítulo 20 "Cancelación de suscripciones" (nuevo) + capítulo 07 actualizado.
+
+**Tabla de órdenes (`/admin`):** el encabezado de la columna PAQUETE es un selector Todos / Paquete (Basic/Standard/Premium) / Servicio (`services` + `addon`), default Todos.
+
+**FBNB-:** ya no se crean órdenes nuevas con ese prefijo desde la unificación del carrito (2026-08-13). Quedan las 6 viejas. El login ignora el prefijo (busca por los 8 caracteres). Pendiente opcional (founder dijo "por ahora déjalo"): borrar `/api/sunbiz/checkout` + `handleNBLPaid` + la pestaña "New Business Letter".
+
 ## Deploy
 
 - `git push origin main` — Vercel detecta cambios en `backend/` y hace deploy automático
