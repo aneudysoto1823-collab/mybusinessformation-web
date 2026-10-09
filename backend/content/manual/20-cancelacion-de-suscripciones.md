@@ -14,14 +14,16 @@ El flujo es **igual en el panel admin y en el portal del cliente**: las mismas d
 
 ## Las dos formas de cancelar
 
-**1. Cancelar la renovación automática.** El servicio sigue funcionando normal hasta el último día ya pagado. En el Agente Registrado, eso quiere decir que el cliente sigue recibiendo sus documentos como siempre hasta esa fecha. Después no se le cobra más y el servicio termina.
+**1. Cancelar la renovación automática.** El servicio sigue funcionando normal hasta el último día ya pagado. En el Agente Registrado, eso quiere decir que hasta esa fecha seguimos recibiendo la correspondencia a nombre de su empresa y la publicamos en su portal de cliente. Después el servicio termina y no se renueva.
 
-**2. Dar de baja el servicio.** El cliente no quiere seguir con el servicio, aunque su período pagado siga vigente. No se corta en el momento: hay un **margen de 30 días** desde que lo pide. Al cliente se le explica que es para que reciba también la correspondencia oficial que ya viene en camino (por dentro, también es el tiempo para darlo de baja con el proveedor, pero **al cliente nunca se le menciona al proveedor**). Hasta ese día se le siguen enviando los documentos que lleguen; después ya no recibe nada en esa dirección. Si la renovación cae antes de esos 30 días, el servicio termina en la fecha de renovación (así nunca se le hace un cobro nuevo).
+**2. Dar de baja el servicio.** El cliente no quiere seguir con el servicio, aunque su período pagado siga vigente. No se corta en el momento: hay un **margen de 30 días** desde que lo pide. Al cliente se le explica que es para que reciba también la correspondencia oficial que ya viene en camino (por dentro, también es el tiempo para darlo de baja con el proveedor, pero **al cliente nunca se le menciona al proveedor**). Hasta ese día seguimos recibiendo la correspondencia a nombre de su empresa y la publicamos en su portal; después ya no recibimos nada a su nombre. Si la renovación cae antes de esos 30 días, el servicio termina en la fecha de renovación (así nunca se le hace un cobro nuevo).
 
 En las dos opciones:
 
 - **No hay reembolso** del período ya pagado.
 - **No se le cobra nada más.**
+
+Estos dos puntos no se le repiten al cliente en la ventana ni en el email: ya están en los Términos (sección de servicios recurrentes), decisión del founder 2026-10-09.
 
 ### Qué opciones tiene cada servicio
 
@@ -53,8 +55,8 @@ En **Mis Suscripciones** toca **Cancelar**. Le aparecen las dos opciones, las do
 
 Uno de confirmación, en su idioma y con la marca de su orden (OpaBiz o Florida Business Formation Center), que explica exactamente lo que eligió:
 
-- **Cancelar la renovación automática:** que el servicio sigue activo hasta la fecha, que hasta ese día sigue recibiendo sus documentos, y que después no se le cobra más. Si cambia de opinión, puede reactivarla desde su cuenta.
-- **Dar de baja el servicio:** la fecha exacta en que termina y el motivo de esa fecha. Si son los 30 días, que es para que reciba la correspondencia que ya viene en camino. Si la renovación cae antes, que termina el último día de su período ya pagado. Después de esa fecha ya no recibe documentos.
+- **Cancelar la renovación automática:** que el servicio sigue activo hasta la fecha, que hasta ese día seguimos recibiendo su correspondencia y la publicamos en su portal, y que después el servicio termina y no se renueva. Si cambia de opinión, puede reactivarla desde su cuenta.
+- **Dar de baja el servicio:** la fecha exacta en que termina y el motivo de esa fecha. Si son los 30 días, que es para que reciba la correspondencia que ya viene en camino. Si la renovación cae antes, que termina el último día de su período ya pagado. Después de esa fecha ya no recibimos correspondencia a nombre de su empresa.
 
 En el Agente Registrado, el email también le recuerda que su empresa tiene que designar un nuevo Agente Registrado ante Florida antes de esa fecha. En la Declaración Anual, que Florida la exige cada año.
 

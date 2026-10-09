@@ -66,6 +66,11 @@ export function formatCancelDate(d: Date | string | null, lang: 'en' | 'es'): st
   return date.toLocaleDateString(lang === 'es' ? 'es-ES' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'America/New_York' })
 }
 
+// Cómo se maneja la correspondencia del Agente Registrado: no se le reenvía
+// al cliente, se publica en su portal (decisión founder 2026-10-09).
+export const MAIL_ES = 'continuaremos recibiendo la correspondencia a nombre de su empresa y la publicaremos en su portal de cliente'
+export const MAIL_EN = 'we will continue to receive mail on behalf of your company and post it to your client portal'
+
 // Textos de cada opción, tal como los ve quien cancela (cliente o admin).
 // `endDate` = currentPeriodEnd para 'renewal', computeServiceEndDate para 'service'.
 export function cancelOptionCopy(
@@ -83,26 +88,26 @@ export function cancelOptionCopy(
   if (type === 'renewal') {
     if (isAr) {
       return es
-        ? { title: 'Cancelar la renovación automática', body: `Su suscripción sigue activa hasta el ${date}. Después no se le cobrará más y no presentaremos su próxima Declaración Anual. Recuerde que Florida la exige cada año.` }
-        : { title: 'Cancel automatic renewal', body: `Your subscription stays active through ${date}. After that you won't be charged again and we won't file your next Annual Report. Remember that Florida requires it every year.` }
+        ? { title: 'Cancelar la renovación automática', body: `Su suscripción sigue activa hasta el ${date}. Después de esa fecha no se renueva y no presentaremos su próxima Declaración Anual. Recuerde que Florida la exige cada año.` }
+        : { title: 'Cancel automatic renewal', body: `Your subscription stays active through ${date}. After that date it won't renew and we won't file your next Annual Report. Remember that Florida requires it every year.` }
     }
     return es
-      ? { title: 'Cancelar la renovación automática', body: `Su servicio sigue funcionando normalmente hasta el ${date}${isRa ? ': hasta ese día seguirá recibiendo sus documentos como siempre' : ''}. Después de esa fecha no se le cobrará más y el servicio termina.` }
-      : { title: 'Cancel automatic renewal', body: `Your service keeps working normally through ${date}${isRa ? ': until that day you will keep receiving your documents as usual' : ''}. After that date you won't be charged again and the service ends.` }
+      ? { title: 'Cancelar la renovación automática', body: `Su servicio sigue funcionando normalmente hasta el ${date}.${isRa ? ` Hasta ese día, ${MAIL_ES}.` : ''} Después de esa fecha el servicio termina y no se renueva.` }
+      : { title: 'Cancel automatic renewal', body: `Your service keeps working normally through ${date}.${isRa ? ` Until that day, ${MAIL_EN}.` : ''} After that date the service ends and does not renew.` }
   }
 
   const title = es ? 'Dar de baja el servicio' : 'Cancel the service'
   if (noticeDays > 0) {
     if (serviceEndsAtRenewal(service, endDate)) {
       return es
-        ? { title, body: `Su servicio termina el ${date}, el último día de su período ya pagado. Hasta ese día le seguiremos enviando cualquier documento que llegue para su empresa. No se le cobrará nada más y el período ya pagado no se reembolsa.` }
-        : { title, body: `Your service ends on ${date}, the last day of your paid period. Until that day we will keep forwarding any document that arrives for your company. You won't be charged again, and the period already paid is not refunded.` }
+        ? { title, body: `Su servicio termina el ${date}, el último día de su período ya pagado. Hasta esa fecha, ${MAIL_ES}.` }
+        : { title, body: `Your service ends on ${date}, the last day of your paid period. Until that date, ${MAIL_EN}.` }
     }
     return es
-      ? { title, body: `Su servicio termina el ${date}. Damos un margen de ${noticeDays} días porque puede haber correspondencia oficial en camino para su empresa; así recibe también esos documentos. Hasta ese día le seguiremos enviando todo lo que llegue. No se le cobrará nada más y el período ya pagado no se reembolsa.` }
-      : { title, body: `Your service ends on ${date}. We allow ${noticeDays} days because official mail for your company may already be on its way, so you receive those documents too. Until that day we will keep forwarding everything that arrives. You won't be charged again, and the period already paid is not refunded.` }
+      ? { title, body: `Su servicio termina el ${date}. Mantenemos un margen de ${noticeDays} días porque puede haber correspondencia oficial en camino para su empresa. Hasta esa fecha, ${MAIL_ES}.` }
+      : { title, body: `Your service ends on ${date}. We keep a ${noticeDays}-day window because official mail for your company may already be on its way. Until that date, ${MAIL_EN}.` }
   }
   return es
-    ? { title, body: 'El servicio termina hoy mismo. No se le cobrará nada más y el período ya pagado no se reembolsa.' }
-    : { title, body: "The service ends today. You won't be charged again, and the period already paid is not refunded." }
+    ? { title, body: 'El servicio termina hoy mismo.' }
+    : { title, body: 'The service ends today.' }
 }
