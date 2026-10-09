@@ -352,7 +352,7 @@ export default function OpabizAdminPage() {
             <h3>1. Cómo entra una orden hoy (manual)</h3>
             <ul>
               <li><strong>Desde una cita agendada:</strong> en Citas, el botón &quot;Crear orden OpaBiz Connect&quot; de cada fila convierte esa consulta en una orden asignada a un empleado.</li>
-              <li><strong>Intake asistida:</strong> un agente logueado en OpaBiz Connect llena el formulario público real (opabiz.com) con el cliente, hasta el paso de pago. Ahí, en vez de cobrar, guarda la solicitud y el cliente recibe el email de siempre para pagar cuando quiera. El agente nunca toca la tarjeta del cliente.</li>
+              <li><strong>Asistencia al cliente:</strong> un agente logueado en OpaBiz Connect llena el formulario público real (opabiz.com) con el cliente, hasta el paso de pago. Ahí, en vez de cobrar, guarda la solicitud y el cliente recibe el email de siempre para pagar cuando quiera. El agente nunca toca la tarjeta del cliente.</li>
               <li>Todavía <strong>no</strong> está conectado al pago real: cuando un cliente paga solo en el sitio, no se crea una orden acá. Es un pendiente a futuro.</li>
             </ul>
 

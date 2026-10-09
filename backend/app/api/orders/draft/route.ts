@@ -52,7 +52,7 @@ async function trackAgentAssistedIntake(
     await supabase.from('ordenes_opabiz').insert({
       cliente_id: clienteId,
       empleado_id: session.empleadosId,
-      tipo_servicio: 'Intake asistida',
+      tipo_servicio: 'Asistencia al cliente',
       notas: body.companyName,
       estado: 'completada',
       es_urgente: false,

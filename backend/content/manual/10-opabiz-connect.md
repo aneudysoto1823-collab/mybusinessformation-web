@@ -69,7 +69,7 @@ El agente recibe la orden con un aviso por email y, si las activó, por notifica
 ## Puntaje
 
 - **+10 puntos** por cada orden completada.
-- **+10 puntos** por cada orden que llena en nombre de un cliente (intake asistida).
+- **+10 puntos** por cada orden que llena en nombre de un cliente (asistencia al cliente).
 - Cada orden que deja vencer sin aceptar se anota como inactividad, y eso lo baja en la prioridad de asignación.
 
 Hay niveles (básico, intermedio, avanzado, administrador). Por ahora cualquier nivel puede recibir cualquier tipo de orden.
@@ -78,7 +78,7 @@ Hay niveles (básico, intermedio, avanzado, administrador). Por ahora cualquier 
 
 En **/admin/citas**, cada cita tiene un botón para convertirla en una orden de OpaBiz Connect y asignársela a un agente. El agente ve la orden con los datos del cliente y la hora de la cita, y **1 hora antes** le llega un recordatorio.
 
-## Llenar una orden en nombre del cliente (intake asistida)
+## Llenar una orden en nombre del cliente (asistencia al cliente)
 
 El agente puede hacer la orden por el cliente, usando el mismo formulario público del sitio:
 
