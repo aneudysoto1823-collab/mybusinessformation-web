@@ -1157,6 +1157,8 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
   // nada (PORTAL_HOME_FBFC, lib/email-constants.ts).
   useEffect(() => {
     if (sp.get('login') !== '1') return
+    // ?action=card (email de pago fallido): ver mismo bloque en app/page.tsx.
+    if (sp.get('action') === 'card') { try { sessionStorage.setItem('portal_action', 'card') } catch {} }
     const email = sp.get('email')
     const order = sp.get('order')
     if (email) setLoginEmail(email)
@@ -1166,6 +1168,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
     url.searchParams.delete('login')
     url.searchParams.delete('email')
     url.searchParams.delete('order')
+    url.searchParams.delete('action')
     window.history.replaceState({}, '', url.toString())
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])

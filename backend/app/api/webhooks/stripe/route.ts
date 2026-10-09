@@ -1214,7 +1214,8 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
     // El botón lleva al portal del cliente (login pre-llenado con email +
     // número de orden), no a la factura de Stripe: ahí cambia la tarjeta sin
     // salir del sitio y confirm-payment-method cobra la factura pendiente.
-    const updateCardUrl = brandPortalHome(brand, { email: order.email, order: orderNumber })
+    // &action=card hace que el dashboard abra solo la ventana de cambio de tarjeta.
+    const updateCardUrl = `${brandPortalHome(brand, { email: order.email, order: orderNumber })}&action=card`
     const attempt = invoice.attempt_count ?? 1
     const nextAttempt = invoice.next_payment_attempt ? new Date(invoice.next_payment_attempt * 1000) : null
     const amount = (invoice.amount_due ?? 0) / 100

@@ -7700,6 +7700,10 @@ function fmFetchAndRestoreDraft() {
     // lee el popover del home en vez de un formulario aparte.
     var prefillEmail = p.get('email');
     var prefillOrder = p.get('order');
+    // ?action=card (email de pago fallido): el dashboard abre solo la ventana
+    // de Cambiar Método de Pago apenas el cliente entra. sessionStorage
+    // sobrevive al redirect del login al dashboard (mismo dominio).
+    if(p.get('action') === 'card') { try { sessionStorage.setItem('portal_action', 'card'); } catch(e) {} }
     if(!continueCode && !isResume && !wantsLogin) return;
 
     var url = new URL(window.location.href);
@@ -7708,6 +7712,7 @@ function fmFetchAndRestoreDraft() {
     url.searchParams.delete('login');
     url.searchParams.delete('email');
     url.searchParams.delete('order');
+    url.searchParams.delete('action');
     history.replaceState({}, '', url.toString());
 
     // Botones "Track My Order" de los emails (?login=1) — abre el popover de

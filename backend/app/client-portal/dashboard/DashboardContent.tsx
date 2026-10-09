@@ -441,6 +441,14 @@ export default function DashboardContent({
   const orderSubscriptions = Array.isArray(order.subscriptions) ? order.subscriptions as SubscriptionEntry[] : []
   const hasActiveSubscriptions = orderSubscriptions.some(s => s.status !== 'canceled')
 
+  // Llegada desde el email de pago fallido (?action=card en el home, guardado
+  // en sessionStorage): abre directo la ventana de Cambiar Método de Pago.
+  useEffect(() => {
+    let action: string | null = null
+    try { action = sessionStorage.getItem('portal_action'); sessionStorage.removeItem('portal_action') } catch {}
+    if (action === 'card' && hasActiveSubscriptions) openPaymentMethodModal()
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
   const SUB_STATUS_LABELS: Record<string, { en: string; es: string }> = {
     trialing: { en: 'Active (first period free)', es: 'Activa (primer período gratis)' },
     active:   { en: 'Active', es: 'Activa' },
