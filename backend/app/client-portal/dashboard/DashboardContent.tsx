@@ -825,7 +825,7 @@ export default function DashboardContent({
                     </button>
                     {canCancelService && (
                       <button onClick={() => openCancelModal(sub, true)} style={{ ...btn, color: '#dc2626', borderColor: '#fca5a5' }}>
-                        {es ? 'Cancelar Servicio' : 'Cancel Service'}
+                        {es ? 'Dar de Baja' : 'Cancel Service'}
                       </button>
                     )}
                   </div>

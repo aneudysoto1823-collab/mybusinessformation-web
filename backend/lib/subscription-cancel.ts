@@ -22,7 +22,7 @@ import {
   brandFrom, brandReplyTo, brandHeaderHtml, brandFooterLine, brandSubjectPrefix, brandPortalHome,
   type EmailBrand,
 } from './email-constants'
-import { getCancelPolicy, computeServiceEndDate, formatCancelDate, type CancelType } from './subscription-cancel-policy'
+import { getCancelPolicy, computeServiceEndDate, formatCancelDate, serviceEndsAtRenewal, type CancelType } from './subscription-cancel-policy'
 
 const getStripe = () => new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2026-02-25.clover' })
 
@@ -189,7 +189,7 @@ export async function cancelOrderSubscription(opts: {
               <tr><td style="padding:6px 0;color:#64748b">Email</td><td style="padding:6px 0"><a href="mailto:${order.email}" style="color:#2563eb">${order.email}</a></td></tr>
               ${company ? `<tr><td style="padding:6px 0;color:#64748b">Empresa</td><td style="padding:6px 0;font-weight:600">${company}</td></tr>` : ''}
               <tr><td style="padding:6px 0;color:#64748b">Servicio</td><td style="padding:6px 0;font-weight:600">${serviceNameEs}</td></tr>
-              <tr><td style="padding:6px 0;color:#64748b">Tipo</td><td style="padding:6px 0;font-weight:600">${opts.type === 'renewal' ? 'Cancelar la renovación' : 'Cancelar el servicio ahora'}</td></tr>
+              <tr><td style="padding:6px 0;color:#64748b">Tipo</td><td style="padding:6px 0;font-weight:600">${opts.type === 'renewal' ? 'Cancelar la renovación automática' : 'Dar de baja el servicio'}</td></tr>
               <tr><td style="padding:6px 0;color:#64748b">Termina</td><td style="padding:6px 0;font-weight:600">${endsNow ? 'Hoy' : formatCancelDate(endsAt, 'es')}</td></tr>
               <tr><td style="padding:6px 0;color:#64748b">Pedido por</td><td style="padding:6px 0">${opts.actor === 'admin' ? 'Admin (panel)' : 'Cliente (portal)'}</td></tr>
               ${opts.reason ? `<tr><td style="padding:6px 0;color:#64748b">Motivo</td><td style="padding:6px 0">${FEEDBACK_LABELS_ES[opts.reason] ?? opts.reason}</td></tr>` : ''}
@@ -238,8 +238,8 @@ function buildClientEmailHtml(p: {
   const paras: string[] = []
   if (p.type === 'renewal') {
     paras.push(isEs
-      ? `Confirmamos que canceló la renovación de su servicio de <strong>${p.serviceName}</strong>${forCompany}.`
-      : `This confirms that you canceled the renewal of your <strong>${p.serviceName}</strong> service${forCompany}.`)
+      ? `Confirmamos que canceló la renovación automática de su servicio de <strong>${p.serviceName}</strong>${forCompany}.`
+      : `This confirms that you canceled the automatic renewal of your <strong>${p.serviceName}</strong> service${forCompany}.`)
     paras.push(isEs
       ? `Su servicio sigue activo hasta el <strong>${date}</strong>.${isRa ? ' Hasta ese día seguirá recibiendo sus documentos como siempre.' : ''} Después de esa fecha no se le cobrará más y el servicio termina.`
       : `Your service stays active through <strong>${date}</strong>.${isRa ? ' Until that day you will keep receiving your documents as usual.' : ''} After that date you won't be charged again and the service ends.`)
@@ -265,11 +265,15 @@ function buildClientEmailHtml(p: {
       : "You won't be charged again. The period already paid is not refunded.")
   } else {
     paras.push(isEs
-      ? `Confirmamos que canceló su servicio de <strong>${p.serviceName}</strong>${forCompany}.`
+      ? `Confirmamos que dio de baja su servicio de <strong>${p.serviceName}</strong>${forCompany}.`
       : `This confirms that you canceled your <strong>${p.serviceName}</strong> service${forCompany}.`)
-    paras.push(isEs
-      ? `Para darlo de baja con nuestro proveedor necesitamos un margen de ${noticeDays} días, así que su servicio termina el <strong>${date}</strong>. Hasta ese día, cualquier documento que llegue para su empresa se le seguirá enviando. Después de esa fecha ya no recibirá documentos en esta dirección.`
-      : `To cancel it with our provider we need ${noticeDays} days' notice, so your service ends on <strong>${date}</strong>. Until that day, any document that arrives for your company will still be forwarded to you. After that date you will no longer receive documents at this address.`)
+    paras.push(serviceEndsAtRenewal(p.service, p.endsAt)
+      ? (isEs
+        ? `Su servicio termina el <strong>${date}</strong>, el último día de su período ya pagado. Hasta ese día le seguiremos enviando cualquier documento que llegue para su empresa.`
+        : `Your service ends on <strong>${date}</strong>, the last day of your paid period. Until that day we will keep forwarding any document that arrives for your company.`)
+      : (isEs
+        ? `Su servicio termina el <strong>${date}</strong>. Damos un margen de ${noticeDays} días porque puede haber correspondencia oficial en camino para su empresa; así recibe también esos documentos. Hasta ese día le seguiremos enviando todo lo que llegue. Después de esa fecha ya no recibirá documentos en esta dirección.`
+        : `Your service ends on <strong>${date}</strong>. We allow ${noticeDays} days because official mail for your company may already be on its way, so you receive those documents too. Until that day we will keep forwarding everything that arrives. After that date you will no longer receive documents at this address.`))
     if (isRa) {
       paras.push(isEs
         ? 'Su empresa debe designar un nuevo Agente Registrado ante el Estado de Florida antes de esa fecha. Toda empresa de Florida está obligada a tener uno.'

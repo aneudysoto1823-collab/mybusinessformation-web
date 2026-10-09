@@ -14,9 +14,9 @@ El flujo es **igual en el panel admin y en el portal del cliente**: las mismas d
 
 ## Las dos formas de cancelar
 
-**1. Cancelar la renovación.** El servicio sigue funcionando normal hasta el último día ya pagado. En el Agente Registrado, eso quiere decir que el cliente sigue recibiendo sus documentos como siempre hasta esa fecha. Después no se le cobra más y el servicio termina.
+**1. Cancelar la renovación automática.** El servicio sigue funcionando normal hasta el último día ya pagado. En el Agente Registrado, eso quiere decir que el cliente sigue recibiendo sus documentos como siempre hasta esa fecha. Después no se le cobra más y el servicio termina.
 
-**2. Cancelar el servicio ahora.** El cliente no quiere seguir con el servicio. No se puede cortar en el momento, porque hay que darlo de baja con el proveedor y puede que un documento ya esté en camino. Por eso hay un **margen de 30 días**: el servicio termina 30 días después de pedir la baja. Hasta ese día se le siguen enviando los documentos que lleguen; después ya no recibe nada en esa dirección. Si la renovación cae antes de esos 30 días, el servicio termina en la fecha de renovación (así nunca se le hace un cobro nuevo).
+**2. Dar de baja el servicio.** El cliente no quiere seguir con el servicio, aunque su período pagado siga vigente. No se corta en el momento: hay un **margen de 30 días** desde que lo pide. Al cliente se le explica que es para que reciba también la correspondencia oficial que ya viene en camino (por dentro, también es el tiempo para darlo de baja con el proveedor, pero **al cliente nunca se le menciona al proveedor**). Hasta ese día se le siguen enviando los documentos que lleguen; después ya no recibe nada en esa dirección. Si la renovación cae antes de esos 30 días, el servicio termina en la fecha de renovación (así nunca se le hace un cobro nuevo).
 
 En las dos opciones:
 
@@ -53,8 +53,8 @@ En **Mis Suscripciones** toca **Cancelar**. Le aparecen las dos opciones, las do
 
 Uno de confirmación, en su idioma y con la marca de su orden (OpaBiz o Florida Business Formation Center), que explica exactamente lo que eligió:
 
-- **Cancelar la renovación:** que el servicio sigue activo hasta la fecha, que hasta ese día sigue recibiendo sus documentos, y que después no se le cobra más. Si cambia de opinión, puede reactivarla desde su cuenta.
-- **Cancelar el servicio:** que necesitamos 30 días para darlo de baja con el proveedor, la fecha exacta en que termina, y que después de esa fecha ya no recibe documentos.
+- **Cancelar la renovación automática:** que el servicio sigue activo hasta la fecha, que hasta ese día sigue recibiendo sus documentos, y que después no se le cobra más. Si cambia de opinión, puede reactivarla desde su cuenta.
+- **Dar de baja el servicio:** la fecha exacta en que termina y el motivo de esa fecha. Si son los 30 días, que es para que reciba la correspondencia que ya viene en camino. Si la renovación cae antes, que termina el último día de su período ya pagado. Después de esa fecha ya no recibe documentos.
 
 En el Agente Registrado, el email también le recuerda que su empresa tiene que designar un nuevo Agente Registrado ante Florida antes de esa fecha. En la Declaración Anual, que Florida la exige cada año.
 
@@ -70,11 +70,11 @@ En la sección **Suscripciones recurrentes** de la orden:
 
 - **Renovación cancelada:** dice **"Termina"** con la fecha. Tiene dos botones:
   - **Reactivar:** quita la cancelación y la suscripción vuelve a renovarse sola. Sirve si el cliente se arrepiente.
-  - **Cancelar:** para pasar a **cancelar el servicio ahora** (la opción de renovación aparece marcada como "ya elegida").
+  - **Cancelar:** para pasar a **dar de baja el servicio** (la opción de renovación aparece marcada como "ya elegida").
 - **Baja del servicio en curso:** dice **"Termina"** con la fecha, sin botones. Ya no se puede reactivar, porque la baja ya se le avisa al proveedor.
 - **Cancelada:** el servicio ya terminó. No se puede revivir: el cliente tiene que volver a comprarlo.
 
-En el portal del cliente se ve igual: "No se renueva · termina el..." (con Reactivar y Cancelar Servicio) o "En proceso de baja · termina el...".
+En el portal del cliente se ve igual: "No se renueva · termina el..." (con Reactivar y Dar de Baja) o "En proceso de baja · termina el...".
 
 ## Qué queda registrado
 

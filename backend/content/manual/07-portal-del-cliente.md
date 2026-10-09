@@ -35,7 +35,7 @@ Una vez adentro, el encabezado del sitio cambia a "Hola, {nombre}", con los boto
 
 ## Suscripciones desde el portal
 
-- **Cancelar:** le muestra dos opciones, las dos visibles y explicadas: **cancelar la renovación** (sigue con el servicio hasta el último día pagado) o **cancelar el servicio ahora** (termina en 30 días, el margen para avisarle al proveedor). El motivo es opcional. Le llega un email de confirmación y al equipo una alerta. Detalle completo en el capítulo 20, "Cancelación de suscripciones".
+- **Cancelar:** le muestra dos opciones, las dos visibles y explicadas: **cancelar la renovación automática** (sigue con el servicio hasta el último día pagado) o **dar de baja el servicio** (termina en 30 días, o antes si la renovación cae antes; el margen es para recibir la correspondencia que ya viene en camino). El motivo es opcional. Le llega un email de confirmación y al equipo una alerta. Detalle completo en el capítulo 20, "Cancelación de suscripciones".
 - **Reactivar:** solo si canceló la renovación y cambia de idea antes de que termine el período. Una baja del servicio ya no se reactiva.
 - **Cambiar método de pago:** se hace ahí mismo, sin salir del sitio.
 
