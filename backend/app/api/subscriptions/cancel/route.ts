@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
 
   const supabase = getSupabaseAdmin()
 
-  // Mismo patrón de agrupación por email que /api/billing-portal: la cookie
+  // Mismo patrón de agrupación por email que setup-payment-method: la cookie
   // da la orden de sesión, se verifica que la orden objetivo comparta el
   // mismo email antes de tocar su Subscription — nunca confiar en un orderId
   // suelto del body sin esa verificación.

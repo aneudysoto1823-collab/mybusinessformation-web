@@ -99,6 +99,13 @@ export async function GET(req: NextRequest) {
         results.push({ orderId: order.id, service: entry.service, sent: false, reason: `status ${entry.status}` })
         continue
       }
+      // Cancelación programada (renovación cancelada o baja del servicio, desde
+      // el portal, el admin o Stripe): no hay próximo cobro, así que ni el aviso
+      // de renovación ni el de tarjeta por vencer aplican.
+      if (entry.cancelNoticeSent) {
+        results.push({ orderId: order.id, service: entry.service, sent: false, reason: 'cancellation scheduled' })
+        continue
+      }
       if (!entry.currentPeriodEnd) {
         results.push({ orderId: order.id, service: entry.service, sent: false, reason: 'no currentPeriodEnd' })
         continue

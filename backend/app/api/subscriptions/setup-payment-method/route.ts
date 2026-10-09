@@ -13,7 +13,7 @@ const getStripe = () => new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion:
 // "off_session" porque el uso real es la renovación automática de la
 // Subscription, no un cobro inmediato con el cliente presente.
 //
-// Mismo patrón de auth por cookie client_session que /api/billing-portal: la
+// Mismo patrón de auth por cookie client_session que /api/subscriptions/cancel: la
 // cookie da la orden de sesión, se verifica que la orden pedida comparta el
 // mismo email antes de exponer/tocar su stripeCustomerId.
 export async function POST(req: NextRequest) {

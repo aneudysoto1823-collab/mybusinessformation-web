@@ -194,7 +194,6 @@ Antes la única forma de tener contraseña era loguearse primero con un número 
 
 /api/proxy/notifications/[type]  POST  — disparador interno del admin para reenviar emails: `order-confirmation` (A1, reenvío manual), `names-taken` (A2+A3), `suggest-names` (A4), `order-processed` (A5), `order-approved` (A6), `certificate` (A7)
 /api/admin/upload-certificate  POST — sube certificado de aprobación + dispara A7
-/api/documents/[orderId]  GET   — documentos de una orden
 
 /api/contabilidad/dashboard      GET    — métricas + alertas de vencimiento
 /api/contabilidad/clientes       GET+POST — CRUD clientes contables
@@ -1375,7 +1374,7 @@ Mismos precios para ambas marcas (confirmado con el founder). Ninguno cargado en
 | OpaBiz | Default | `bpc_1UAxVYCSqYWERc9AK7pkdgpm` |
 | FBFC | MyBusinessFormation | `bpc_1UD9G2CSqYWERc9AYz0vFp2Q` |
 
-Configuración de ambas: **Payment methods** activado (es la única acción que usa el sitio hoy vía `/api/billing-portal`), **Invoices** activado, **Cancellations y Subscriptions desactivados** (la cancelación real vive 100% en el dashboard del cliente — `POST /api/subscriptions/cancel` — dejar el portal de Stripe con esa opción abierta permitiría al cliente cancelar salteándose el modal de motivo/confirmación propio). **Business information** por marca: Portal header ("OpaBiz partners with Stripe for simplified billing." / "FBFC partners with Stripe for simplified billing.", límite ~60 caracteres) + Redirect link (`https://opabiz.com/client-portal/dashboard` / `https://mybusinessformation.com/client-portal/dashboard`). Los links de Terms/Privacy del portal son **globales de la cuenta** (no configurables por Configuration) — se dejaron sin tocar, apuntan a los de OpaBiz para ambas marcas (aceptable, misma entidad legal).
+Configuración de ambas: **Payment methods** activado (ya no la usa el sitio: `/api/billing-portal` se borró el 2026-10-09, el cambio de tarjeta es embebido), **Invoices** activado, **Cancellations y Subscriptions desactivados** (la cancelación real vive 100% en el dashboard del cliente — `POST /api/subscriptions/cancel` — dejar el portal de Stripe con esa opción abierta permitiría al cliente cancelar salteándose el modal de motivo/confirmación propio). **Business information** por marca: Portal header ("OpaBiz partners with Stripe for simplified billing." / "FBFC partners with Stripe for simplified billing.", límite ~60 caracteres) + Redirect link (`https://opabiz.com/client-portal/dashboard` / `https://mybusinessformation.com/client-portal/dashboard`). Los links de Terms/Privacy del portal son **globales de la cuenta** (no configurables por Configuration) — se dejaron sin tocar, apuntan a los de OpaBiz para ambas marcas (aceptable, misma entidad legal).
 
 ### 🔜 Pendiente de decisión de producto — reemplazar el redirect a Stripe por un flujo embebido
 
@@ -2071,6 +2070,15 @@ La app del agente (login, invitación, panel, perfil, detalle de orden, mis soli
 **Tabla de órdenes (`/admin`):** el encabezado de la columna PAQUETE es un selector Todos / Paquete (Basic/Standard/Premium) / Servicio (`services` + `addon`), default Todos.
 
 **FBNB-:** ya no se crean órdenes nuevas con ese prefijo desde la unificación del carrito (2026-08-13). Quedan las 6 viejas. El login ignora el prefijo (busca por los 8 caracteres). Pendiente opcional (founder dijo "por ahora déjalo"): borrar `/api/sunbiz/checkout` + `handleNBLPaid` + la pestaña "New Business Letter".
+
+## Auditoría 2026-10-09 (cambios del día: cancelación de suscripciones + pago fallido)
+
+- **Bug corregido:** el cron `subscription-renewal-notice` mandaba "su servicio se renueva en 30 días" y el aviso de tarjeta por vencer a clientes que ya habían cancelado la renovación o el servicio. Ahora salta toda entrada con `cancelNoticeSent`.
+- **Bug corregido (mismo día, antes de la auditoría):** cambiar la tarjeta en el portal no llegaba a las suscripciones (cada una tiene su propio `default_payment_method` desde 2026-10-07). `confirm-payment-method` ahora las actualiza y cobra en el momento las facturas de renovación abiertas. El email de pago fallido lleva al portal (`?login=1&email=&order=&action=card`) y abre solo la ventana de tarjeta.
+- **Código muerto borrado:** `/api/billing-portal` (sin llamadas desde el pago embebido del 2026-09-08) y `/api/documents/[orderId]` (rutas fijas `certificate.pdf` etc. que ya no se usan desde `send-approval-update`).
+- **Candidatos del socio, sin tocar:** `/api/marketing/investigation-ein` (marcado "temporal" 2026-07-19) y `/api/opabiz/orders/[id]/auto-assign` (sin llamadas). `/api/admin/turso-ping` se deja (smoke test útil).
+- **Detalle menor pendiente:** el texto de "cancelar el servicio" del Agente Registrado dice "margen de 30 días" aunque la fecha de fin caiga antes (si la renovación está más cerca); la fecha es correcta, solo la explicación.
+- **Ojo:** aparecen copias "X 2" dentro de `.git` y `.next` (macOS/iCloud). Ya rompieron un `git pull` el 2026-10-09; conviene sacar la carpeta del repo de la sincronización de iCloud.
 
 ## Deploy
 
