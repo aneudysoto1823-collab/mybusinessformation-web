@@ -30,7 +30,7 @@ const BASE_URL_FBFC = 'https://mybusinessformation.com'
 // importar el idioma del envío (bug real reportado 2026-09-29: un email en
 // inglés adjuntaba la guía en español). `lang` default 'es' preserva el
 // comportamiento histórico para cualquier caller que no lo pase explícito.
-const GUIDE_FILES: Record<GuideKey, Record<GuideBrand, Record<Lang, string>>> = {
+export const GUIDE_FILES: Record<GuideKey, Record<GuideBrand, Record<Lang, string>>> = {
   guide1: {
     opabiz: { es: 'guia-1-florida-formacion.pdf', en: 'guia-1-florida-formacion-en.pdf' },
     fbfc:   { es: 'guia-1-florida-formacion-fbfc.pdf', en: 'guia-1-florida-formacion-fbfc-en.pdf' },
@@ -41,7 +41,7 @@ const GUIDE_FILES: Record<GuideKey, Record<GuideBrand, Record<Lang, string>>> = 
   },
 }
 
-const GUIDE_TITLES: Record<GuideKey, { en: string; es: string }> = {
+export const GUIDE_TITLES: Record<GuideKey, { en: string; es: string }> = {
   guide1: { en: 'Guide I: Form Your LLC or Corporation in Florida', es: 'Guía I: Formar su LLC o Corporación en Florida' },
   guide2: { en: 'Guide II: Keep Your Company in Good Standing in Florida', es: 'Guía II: Mantenga su Empresa al Día en Florida' },
 }

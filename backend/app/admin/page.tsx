@@ -11,7 +11,7 @@ const T = {
   en: {
     title: 'Administration Panel', sub: 'opabiz.com',
     campaigns: 'Campaigns & Letters', appointments: 'Appointments',
-    accounting: 'Accounting', security: 'Security', drafts: 'OrderDraft', opabiz: 'OpaBiz Connect', guias: 'Guides', posters: 'Labor Law Poster', manual: 'Manual', logout: 'Log out',
+    accounting: 'Accounting', security: 'Security', drafts: 'OrderDraft', opabiz: 'OpaBiz Connect', guias: 'Guides', posters: 'Templates', manual: 'Manual', logout: 'Log out',
     totalOrders: 'Total Orders', unpaid: 'Unpaid',
     inReview: 'In Review', revenue: 'Total Revenue', failedPayments: 'Failed Payments',
     failedTitle: 'Subscriptions with a failed payment', failedHint: 'Stripe keeps retrying. The customer already got an email to update their card; follow up if it stays failed.',
@@ -19,7 +19,7 @@ const T = {
   es: {
     title: 'Panel de Administración', sub: 'opabiz.com',
     campaigns: 'Campañas y Cartas', appointments: 'Citas',
-    accounting: 'Contabilidad', security: 'Seguridad', drafts: 'OrderDraft', opabiz: 'OpaBiz Connect', guias: 'Guías', posters: 'Labor Law Poster', manual: 'Manual', logout: 'Cerrar sesión',
+    accounting: 'Contabilidad', security: 'Seguridad', drafts: 'OrderDraft', opabiz: 'OpaBiz Connect', guias: 'Guías', posters: 'Plantillas', manual: 'Manual', logout: 'Cerrar sesión',
     totalOrders: 'Total Órdenes', unpaid: 'Sin Pagar',
     inReview: 'En Revisión', revenue: 'Ingresos Totales', failedPayments: 'Pagos Fallidos',
     failedTitle: 'Suscripciones con pago fallido', failedHint: 'Stripe sigue reintentando. Al cliente ya le llegó un email para actualizar su tarjeta; dale seguimiento si sigue fallando.',
@@ -197,7 +197,7 @@ export default async function AdminDashboard({
             <a href="/admin/guias" style={{ fontSize: '13px', color: '#6b7280', textDecoration: 'none', padding: '7px 14px', border: '1.5px solid #e5e7eb', borderRadius: '8px', fontWeight: 600 }}>
               {t.guias}
             </a>
-            <a href="/admin/labor-law-poster" style={{ fontSize: '13px', color: '#6b7280', textDecoration: 'none', padding: '7px 14px', border: '1.5px solid #e5e7eb', borderRadius: '8px', fontWeight: 600 }}>
+            <a href="/admin/plantillas" style={{ fontSize: '13px', color: '#6b7280', textDecoration: 'none', padding: '7px 14px', border: '1.5px solid #e5e7eb', borderRadius: '8px', fontWeight: 600 }}>
               {t.posters}
             </a>
             <a href="/admin/manual" style={{ fontSize: '13px', color: '#6b7280', textDecoration: 'none', padding: '7px 14px', border: '1.5px solid #e5e7eb', borderRadius: '8px', fontWeight: 600 }}>

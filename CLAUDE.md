@@ -2081,6 +2081,16 @@ La app del agente (login, invitación, panel, perfil, detalle de orden, mis soli
 - **Textos de cancelación (resuelto el mismo día, pedido founder):** las opciones se llaman "Cancelar la renovación automática" y "Dar de baja el servicio". Al cliente NUNCA se le menciona al proveedor: el margen de 30 días se explica como tiempo para recibir la correspondencia que ya viene en camino. La correspondencia se recibe y se publica en el portal del cliente (no se le "envía"). Sin "no se le cobrará más" ni "no se reembolsa" en textos de cliente: ya lo cubren los Términos. Si la renovación cae antes, el texto dice que termina el último día del período pagado (`serviceEndsAtRenewal` en `lib/subscription-cancel-policy.ts`).
 - **Ojo:** aparecen copias "X 2" dentro de `.git` y `.next` (macOS/iCloud). Ya rompieron un `git pull` el 2026-10-09; conviene sacar la carpeta del repo de la sincronización de iCloud.
 
+## Galería de plantillas `/admin/plantillas` (2026-10-09)
+
+Una sola página con emails de campaña, cartas PDF, Guías y Labor Law Poster, con filtros por tipo, marca e idioma. Pedido founder: revisar cómo le llega todo al cliente y que se actualice solo.
+
+- **Se actualiza sola:** las vistas previas de emails y cartas las arma `GET /api/campaigns/template-preview?key=&lang=` (admin-only) con los MISMOS builders del envío real (`buildComplianceEmail`, `buildOpabizComplianceEmail`, `buildVipReminderEmail`, `generateNewBusinessLetter`, `generateOpabizLetter`) y una empresa ficticia (Sunshine Coffee LLC). No envía ni registra nada; los links apuntan a la landing, no a `track-scan`. Vive bajo `api/campaigns/` por la regla de fronteras de marca (`new-business-letter` solo se importa ahí).
+- **Las vistas previas de `/admin/campaigns` no se tocaron** (siguen con la empresa real de la fila).
+- **Labor Law Poster movido acá:** `/admin/labor-law-poster` ahora redirige a `/admin/plantillas?tipo=poster`; `SendPosterForm` se movió a `app/admin/plantillas/`. El botón del menú dice "Plantillas".
+- **Al agregar una plantilla nueva de marketing:** sumar su `key` en `template-preview/route.ts` y su tarjeta en `buildItems()` de `app/admin/plantillas/page.tsx`.
+- **Pendiente (etapa 2):** sumar los emails automáticos (confirmación de pago, pago fallido, renovación, cancelación, documentos listos, citas...). La mayoría tiene el HTML escrito adentro de la función que envía; hay que separarlo en un builder antes de poder mostrarlo.
+
 ## Deploy
 
 - `git push origin main` — Vercel detecta cambios en `backend/` y hace deploy automático

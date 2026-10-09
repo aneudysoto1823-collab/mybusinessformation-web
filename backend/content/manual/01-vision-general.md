@@ -1,7 +1,7 @@
 ---
 title: "Visión general"
 summary: "Qué es el negocio, las dos marcas, quién es la empresa legal y cómo encajan todas las piezas."
-updated: "2026-10-06"
+updated: "2026-10-09"
 ---
 
 Este manual explica cómo funciona el negocio, sin tecnicismos. Si tienes una duda sobre un proceso, un precio o qué hacer en un caso puntual, búscalo arriba.
@@ -60,7 +60,7 @@ Todos los links se abren en otra pestaña. Las páginas del panel piden el login
 | Marketing Saliente | /admin/marketing |
 | Campañas y cartas | /admin/campaigns |
 | Guías | /admin/guias |
-| Labor Law Poster | /admin/labor-law-poster |
+| Plantillas (emails, cartas, guías y Labor Law Poster) | /admin/plantillas |
 | Seguridad (contraseña y verificación en dos pasos) | /admin/security |
 | Este manual | /admin/manual |
 

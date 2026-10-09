@@ -1,7 +1,7 @@
 ---
 title: "Guías y Labor Law Poster"
 summary: "Las guías PDF de regalo y el póster de leyes laborales: cómo se generan y se envían."
-updated: "2026-10-07"
+updated: "2026-10-09"
 ---
 
 ## Las Guías gratuitas
@@ -42,10 +42,18 @@ Es el **póster obligatorio de leyes laborales** que todo negocio con empleados 
 - Usa el **arte oficial** de cada agencia (OSHA, EEOC, salario mínimo de Florida, compensación de trabajadores, etc.), tal cual lo publica el gobierno. Nuestra marca va solo en el margen.
 - Existe en **español e inglés**, versión OpaBiz y versión MyBiz.
 
-**En el panel**, en **/admin/labor-law-poster**: ver, descargar y **mandarlo por email**. El archivo pesa entre 13 y 15 MB, así que por email va como link de descarga, no adjunto.
+**En el panel**, en **/admin/plantillas** (filtro Póster): ver, descargar y **mandarlo por email**. El archivo pesa entre 13 y 15 MB, así que por email va como link de descarga, no adjunto.
 
 **Imprimir:** a tamaño real (100%, sin achicar) y a color. Algunos avisos tienen un tamaño mínimo por ley y el de compensación de trabajadores tiene que ir a color.
 
 ### Revisión una vez al año
 
 Alrededor del **30 de septiembre** de cada año hay que revisar si alguna agencia publicó una versión nueva de su aviso. El salario mínimo de Florida cambia justo en esa fecha. Si algo cambió, se reemplaza el aviso y se genera el póster de nuevo.
+
+## Galería de plantillas
+
+En **/admin/plantillas** están juntos, para revisar cómo le llegan al cliente: los emails de campaña (Carta Nuevas Empresas de MyBiz y de OpaBiz, Oferta VIP), las cartas físicas en PDF, las Guías y el Labor Law Poster. Se filtran por tipo, marca e idioma.
+
+Se arman con el mismo sistema que hace los envíos reales y con una empresa de ejemplo (Sunshine Coffee LLC). Por eso, cada vez que se cambia un texto, la galería ya muestra la versión nueva sin hacer nada más. Ver una plantilla ahí no envía nada ni registra nada.
+
+Las vistas previas de cada campaña en Campaigns & Letters siguen igual, con la empresa real de cada fila.
