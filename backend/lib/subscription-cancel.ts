@@ -81,10 +81,16 @@ export async function cancelOrderSubscription(opts: {
   }
 
   const now = new Date()
-  const endsAt = opts.type === 'renewal'
+  // Con el pago de la renovación fallido (past_due/unpaid), el período en curso
+  // es justamente el que no se pudo cobrar: cancelar la renovación termina el
+  // servicio hoy y anula ese cobro, en vez de dejar a Stripe reintentándolo.
+  // Mismo criterio si la fecha de fin ya pasó.
+  const unpaidRenewal = entry.status === 'past_due' || (entry.status as string) === 'unpaid'
+  const computedEnd = opts.type === 'renewal'
     ? (entry.currentPeriodEnd ? new Date(entry.currentPeriodEnd) : now)
     : computeServiceEndDate(entry.service, entry.currentPeriodEnd, now)
-  const endsNow = opts.type === 'service' && endsAt.getTime() <= now.getTime() + 60_000
+  const endsNow = computedEnd.getTime() <= now.getTime() + 60_000 || (opts.type === 'renewal' && unpaidRenewal)
+  const endsAt = endsNow ? now : computedEnd
   const endsAtPeriodEnd = !!entry.currentPeriodEnd && endsAt.getTime() >= new Date(entry.currentPeriodEnd).getTime()
 
   const markedEntry: OrderSubscriptionEntry = {
@@ -115,9 +121,10 @@ export async function cancelOrderSubscription(opts: {
         cancellation_details,
       })
     }
-    // Al cancelar el servicio, cualquier renovación que haya quedado impaga se
-    // anula: Stripe deja de reintentar el cobro (y de mandar alertas).
-    if (opts.type === 'service') {
+    // Al cancelar el servicio (o terminarlo hoy), cualquier renovación que haya
+    // quedado impaga se anula: Stripe deja de reintentar el cobro (y de mandar
+    // alertas).
+    if (opts.type === 'service' || endsNow) {
       try {
         const open = await stripe.invoices.list({ subscription: opts.stripeSubscriptionId, status: 'open', limit: 20 })
         for (const inv of open.data) {
@@ -236,7 +243,11 @@ function buildClientEmailHtml(p: {
   const forCompany = p.company ? (isEs ? ` de ${p.company}` : ` for ${p.company}`) : ''
 
   const paras: string[] = []
-  if (p.type === 'renewal') {
+  if (p.endsNow) {
+    paras.push(isEs
+      ? `Confirmamos que canceló su servicio de <strong>${p.serviceName}</strong>${forCompany}. El servicio terminó hoy.`
+      : `This confirms that you canceled your <strong>${p.serviceName}</strong> service${forCompany}. The service ended today.`)
+  } else if (p.type === 'renewal') {
     paras.push(isEs
       ? `Confirmamos que canceló la renovación automática de su servicio de <strong>${p.serviceName}</strong>${forCompany}.`
       : `This confirms that you canceled the automatic renewal of your <strong>${p.serviceName}</strong> service${forCompany}.`)
@@ -256,10 +267,6 @@ function buildClientEmailHtml(p: {
     paras.push(isEs
       ? 'Si cambia de opinión antes de esa fecha, puede reactivar la renovación desde su cuenta.'
       : 'If you change your mind before that date, you can reactivate the renewal from your account.')
-  } else if (p.endsNow) {
-    paras.push(isEs
-      ? `Confirmamos que canceló su servicio de <strong>${p.serviceName}</strong>${forCompany}. El servicio terminó hoy.`
-      : `This confirms that you canceled your <strong>${p.serviceName}</strong> service${forCompany}. The service ended today.`)
   } else {
     paras.push(isEs
       ? `Confirmamos que dio de baja su servicio de <strong>${p.serviceName}</strong>${forCompany}.`
