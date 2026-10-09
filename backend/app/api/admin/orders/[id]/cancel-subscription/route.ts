@@ -77,6 +77,12 @@ export async function POST(
   const entry = subscriptions.find(s => s.stripeSubscriptionId === stripeSubscriptionId)
   if (!entry) return NextResponse.json({ error: 'Suscripción no encontrada en esta orden' }, { status: 404 })
   if (entry.status === 'canceled') return NextResponse.json({ error: 'Esta suscripción ya está cancelada' }, { status: 409 })
+  // Ya programada para cancelarse: lo único que queda es cortarla ya. (El
+  // cliente ya fue avisado de la cancelación, así que el webhook no le manda
+  // un segundo email al terminar.)
+  if (entry.cancelNoticeSent && mode === 'period_end') {
+    return NextResponse.json({ error: 'Esta suscripción ya tiene una cancelación programada. Solo se puede cortar de inmediato.' }, { status: 409 })
+  }
 
   // Silenciar el email al cliente: ver comentario de arriba. Si Stripe falla,
   // se restaura el flag para no dejar bloqueado un aviso futuro legítimo.
