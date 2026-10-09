@@ -70,10 +70,43 @@ export async function POST(req: NextRequest) {
       invoice_settings: { default_payment_method: paymentMethodId },
     })
 
+    // Cada Subscription tiene su propio default_payment_method (lo fija
+    // createRecurringSubscriptionsForOrder desde 2026-10-07), y ese le gana al
+    // del customer. Sin actualizarlo acá, la tarjeta nueva nunca se usaba en
+    // las renovaciones.
+    const subs = await stripe.subscriptions.list({ customer: targetOrder.stripeCustomerId, status: 'all', limit: 100 })
+    const liveSubs = subs.data.filter(s => ['active', 'trialing', 'past_due', 'unpaid'].includes(s.status))
+    for (const sub of liveSubs) {
+      await stripe.subscriptions.update(sub.id, { default_payment_method: paymentMethodId })
+    }
+
+    // Si hay una renovación impaga (el cliente llega desde el email de pago
+    // fallido), la cobramos ya con la tarjeta nueva en vez de esperar al
+    // próximo reintento de Stripe. invoice.paid del webhook hace el resto.
+    // No bloqueante: si el cobro falla, la tarjeta igual quedó guardada.
+    let paidInvoices = 0
+    let failedInvoices = 0
+    const liveSubIds = new Set(liveSubs.map(s => s.id))
+    const openInvoices = await stripe.invoices.list({ customer: targetOrder.stripeCustomerId, status: 'open', limit: 100 })
+    for (const inv of openInvoices.data) {
+      const subRef = inv.parent?.subscription_details?.subscription
+      const subId = typeof subRef === 'string' ? subRef : subRef?.id
+      if (!subId || !liveSubIds.has(subId) || !inv.id) continue
+      try {
+        await stripe.invoices.pay(inv.id, { payment_method: paymentMethodId })
+        paidInvoices++
+      } catch (e) {
+        failedInvoices++
+        console.error('[subscriptions/confirm-payment-method] retry invoice failed:', inv.id, e instanceof Error ? e.message : e)
+      }
+    }
+
     const pm = await stripe.paymentMethods.retrieve(paymentMethodId)
     return NextResponse.json({
       success: true,
       card: pm.card ? { brand: pm.card.brand, last4: pm.card.last4 } : null,
+      paidInvoices,
+      failedInvoices,
     })
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)

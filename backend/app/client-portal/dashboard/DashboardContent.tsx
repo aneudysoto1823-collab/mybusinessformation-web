@@ -233,6 +233,7 @@ export default function DashboardContent({
   const [pmError, setPmError] = useState('')
   const [pmSaving, setPmSaving] = useState(false)
   const [pmSuccessCard, setPmSuccessCard] = useState<{ brand: string; last4: string } | null>(null)
+  const [pmRetry, setPmRetry] = useState<{ paid: number; failed: number }>({ paid: 0, failed: 0 })
   const pmContainerRef = useRef<HTMLDivElement>(null)
   const pmStripeRef = useRef<StripeJsInstance | null>(null)
   const pmElementsRef = useRef<StripeElementsInstance | null>(null)
@@ -378,7 +379,10 @@ export default function DashboardContent({
         body: JSON.stringify({ orderId: order.id, setupIntentId: setupIntent.id }),
       })
       const data = await res.json()
-      if (res.ok && data.success) setPmSuccessCard(data.card || null)
+      if (res.ok && data.success) {
+        setPmSuccessCard(data.card || null)
+        setPmRetry({ paid: data.paidInvoices || 0, failed: data.failedInvoices || 0 })
+      }
       else setPmError(data.error || (es ? 'No se pudo guardar la tarjeta.' : 'Could not save the card.'))
     } catch {
       setPmError(es ? 'No se pudo guardar la tarjeta.' : 'Could not save the card.')
@@ -902,8 +906,14 @@ export default function DashboardContent({
               <>
                 <p style={{ fontSize: '14px', color: '#374151', lineHeight: 1.6, marginBottom: '20px' }}>
                   {es
-                    ? `Tarjeta actualizada — ${pmSuccessCard.brand.toUpperCase()} terminada en ${pmSuccessCard.last4}. Se usará en su próxima renovación.`
-                    : `Card updated — ${pmSuccessCard.brand.toUpperCase()} ending in ${pmSuccessCard.last4}. It will be used on your next renewal.`}
+                    ? `Tarjeta actualizada: ${pmSuccessCard.brand.toUpperCase()} terminada en ${pmSuccessCard.last4}. Se usará en su próxima renovación.`
+                    : `Card updated: ${pmSuccessCard.brand.toUpperCase()} ending in ${pmSuccessCard.last4}. It will be used on your next renewal.`}
+                  {pmRetry.paid > 0 && (es
+                    ? ' Su pago pendiente se procesó con esta tarjeta.'
+                    : ' Your pending payment was processed with this card.')}
+                  {pmRetry.failed > 0 && (es
+                    ? ' No pudimos cobrar su pago pendiente con esta tarjeta. Intente con otra o contáctenos.'
+                    : ' We could not charge your pending payment to this card. Please try another card or contact us.')}
                 </p>
                 <button onClick={closePaymentMethodModal}
                   style={{ width: '100%', background: '#2563EB', color: '#fff', border: 'none', borderRadius: '8px', padding: '10px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>

@@ -1210,12 +1210,15 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
     const catalogEntry = SERVICES_CATALOG[entry.service]
     const serviceName = catalogEntry ? (isEs ? catalogEntry.name_es : catalogEntry.name_en) : entry.service
     const serviceNameEs = catalogEntry ? catalogEntry.name_es : entry.service
-    const hostedInvoiceUrl = invoice.hosted_invoice_url ?? brandPortalHome(brand)
+    const orderNumber = `FBFC-${order.id.slice(0, 8).toUpperCase()}`
+    // El botón lleva al portal del cliente (login pre-llenado con email +
+    // número de orden), no a la factura de Stripe: ahí cambia la tarjeta sin
+    // salir del sitio y confirm-payment-method cobra la factura pendiente.
+    const updateCardUrl = brandPortalHome(brand, { email: order.email, order: orderNumber })
     const attempt = invoice.attempt_count ?? 1
     const nextAttempt = invoice.next_payment_attempt ? new Date(invoice.next_payment_attempt * 1000) : null
     const amount = (invoice.amount_due ?? 0) / 100
     const fmtDate = (d: Date, es: boolean) => d.toLocaleDateString(es ? 'es-ES' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'America/New_York' })
-    const orderNumber = `FBFC-${order.id.slice(0, 8).toUpperCase()}`
     const customerName = fullName(order.firstName, order.lastName)
 
     const nextStepEs = nextAttempt
@@ -1249,7 +1252,7 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
                   : `<p>We were unable to process your renewal payment for <strong>${serviceName}</strong>${amount ? ` of <strong>$${amount.toFixed(2)}</strong>` : ''}.</p>
                 ${nextStepEn}`}
                 <div style="text-align:center;margin:20px 0">
-                  <a href="${hostedInvoiceUrl}" style="display:inline-block;background:#2563EB;color:#fff;text-decoration:none;padding:12px 26px;border-radius:8px;font-size:14px;font-weight:700">${isEs ? 'Actualizar Método de Pago' : 'Update Payment Method'}</a>
+                  <a href="${updateCardUrl}" style="display:inline-block;background:#2563EB;color:#fff;text-decoration:none;padding:12px 26px;border-radius:8px;font-size:14px;font-weight:700">${isEs ? 'Actualizar Método de Pago' : 'Update Payment Method'}</a>
                 </div>
                 <p style="color:#64748b;font-size:12.5px">${brandFooterLine(brand)}</p>
               </div>
