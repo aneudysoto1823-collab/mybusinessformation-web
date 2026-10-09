@@ -6,8 +6,17 @@ import Link from 'next/link'
 import ServicesFilingForm from './ServicesFilingForm'
 import { getOrderItemKeys, getOrderItemLabel } from '@/lib/order-items'
 import { SERVICE_BUNDLES } from '@/lib/services-pricing'
+import { getCancelPolicy, computeServiceEndDate, cancelOptionCopy, type CancelType } from '@/lib/subscription-cancel-policy'
 
 const PROXY = '/api/proxy'
+
+// Suscripción sobre la que se abre la ventana de cancelar.
+type CancelTarget = {
+  stripeSubscriptionId: string
+  service: string
+  currentPeriodEnd: string | null
+  renewalCanceled: boolean
+}
 
 interface Order {
   id: string
@@ -64,6 +73,8 @@ interface Order {
     currentPeriodEnd: string | null
     createdAt: string
     cancelNoticeSent?: boolean
+    cancelType?: 'renewal' | 'service'
+    serviceEndsAt?: string
   }[] | null
   nameCheck?: {
     available?: boolean
@@ -221,9 +232,9 @@ export default function OrderDetailPage() {
 
   // Cancelar suscripción (RA / VA / AR) desde el panel — ver
   // /api/admin/orders/[id]/cancel-subscription
-  const [cancelSub, setCancelSub] = useState<{ stripeSubscriptionId: string; service: string; scheduled: boolean } | null>(null)
+  const [cancelSub, setCancelSub] = useState<CancelTarget | null>(null)
   const [reactivatingId, setReactivatingId] = useState<string | null>(null)
-  const [cancelMode, setCancelMode] = useState<'immediate' | 'period_end'>('immediate')
+  const [cancelType, setCancelType] = useState<CancelType | ''>('')
   const [cancelReason, setCancelReason] = useState('')
   const [cancelComment, setCancelComment] = useState('')
   const [cancelNotify, setCancelNotify] = useState(true)
@@ -509,9 +520,12 @@ export default function OrderDetailPage() {
     }
   }
 
-  function openCancelSub(sub: { stripeSubscriptionId: string; service: string; scheduled: boolean }) {
+  function openCancelSub(sub: CancelTarget) {
+    const options = getCancelPolicy(sub.service).options
     setCancelSub(sub)
-    setCancelMode('immediate')
+    // Si ya canceló la renovación, lo único que queda es la baja del servicio.
+    // Si el servicio tiene una sola opción (Declaración Anual), va preelegida.
+    setCancelType(sub.renewalCanceled ? 'service' : options.length === 1 ? options[0] : '')
     setCancelReason('')
     setCancelComment('')
     setCancelNotify(true)
@@ -519,9 +533,9 @@ export default function OrderDetailPage() {
   }
 
   async function handleCancelSubscription() {
-    if (!id || !cancelSub || !cancelReason) return
-    const when = cancelMode === 'immediate' ? 'AHORA (no se puede deshacer)' : 'al final del período ya pagado'
-    if (!confirm(`¿Seguro que quieres cancelar esta suscripción ${when}?`)) return
+    if (!id || !cancelSub || !cancelReason || !cancelType) return
+    const label = cancelType === 'renewal' ? 'cancelar la RENOVACIÓN' : 'cancelar el SERVICIO (no se puede deshacer)'
+    if (!confirm(`¿Seguro que quieres ${label}?`)) return
     setCancelLoading(true)
     setCancelMsg('')
     try {
@@ -530,7 +544,7 @@ export default function OrderDetailPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           stripeSubscriptionId: cancelSub.stripeSubscriptionId,
-          mode: cancelMode,
+          type: cancelType,
           reason: cancelReason,
           comment: cancelComment,
           notifyClient: cancelNotify,
@@ -1051,23 +1065,31 @@ export default function OrderDetailPage() {
                   past_due: { label: 'Pago fallido', bg: '#fee2e2', color: '#b91c1c' },
                   canceled: { label: 'Cancelada', bg: '#f3f4f6', color: '#6b7280' },
                 }
-                const scheduled = sub.status !== 'canceled' && sub.cancelNoticeSent === true
-                const s = scheduled
-                  ? { label: 'Cancelación programada', bg: '#fef3c7', color: '#92400e' }
+                const live = sub.status !== 'canceled'
+                // Baja del servicio en curso (ya se avisa al proveedor): sin acciones.
+                const serviceEnding = live && sub.cancelType === 'service'
+                // Renovación cancelada (desde el portal, este panel o Stripe).
+                const renewalCanceled = live && !serviceEnding && sub.cancelNoticeSent === true
+                const s = serviceEnding
+                  ? { label: 'Baja del servicio en curso', bg: '#fee2e2', color: '#991b1b' }
+                  : renewalCanceled
+                  ? { label: 'Renovación cancelada', bg: '#fef3c7', color: '#92400e' }
                   : (statusMap[sub.status] ?? statusMap.canceled)
+                const endDate = serviceEnding ? (sub.serviceEndsAt ?? sub.currentPeriodEnd) : sub.currentPeriodEnd
+                const canCancel = live && !serviceEnding && (!renewalCanceled || getCancelPolicy(sub.service).options.includes('service'))
                 return (
                   <div key={sub.stripeSubscriptionId} style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', padding: '10px 12px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
                     <span style={{ fontWeight: 600, fontSize: '13px', minWidth: '160px' }}>{getOrderItemLabel(`svc:${sub.service}`, { lang: 'en' })}</span>
                     <span style={{ background: s.bg, color: s.color, padding: '3px 10px', borderRadius: '999px', fontSize: '12px', fontWeight: 600 }}>{s.label}</span>
-                    {sub.currentPeriodEnd && sub.status !== 'canceled' && (
+                    {endDate && live && (
                       <span style={{ fontSize: '12px', color: '#6b7280' }}>
-                        {scheduled ? 'Termina' : 'Próximo cobro'}: {new Date(sub.currentPeriodEnd).toLocaleDateString('es-ES')}
+                        {serviceEnding || renewalCanceled ? 'Termina' : 'Próximo cobro'}: {new Date(endDate).toLocaleDateString('es-ES')}
                       </span>
                     )}
                     <span style={{ fontSize: '11px', color: '#9ca3af', fontFamily: 'monospace' }}>{sub.stripeSubscriptionId}</span>
-                    {sub.status !== 'canceled' && (
+                    {(renewalCanceled || canCancel) && (
                       <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px' }}>
-                        {scheduled && (
+                        {renewalCanceled && (
                           <button
                             onClick={() => handleReactivateSubscription(sub)}
                             disabled={reactivatingId === sub.stripeSubscriptionId}
@@ -1076,12 +1098,14 @@ export default function OrderDetailPage() {
                             {reactivatingId === sub.stripeSubscriptionId ? 'Reactivando…' : 'Reactivar'}
                           </button>
                         )}
-                        <button
-                          onClick={() => openCancelSub({ ...sub, scheduled })}
-                          style={{ background: '#fff', color: '#b91c1c', border: '1px solid #fca5a5', borderRadius: '6px', padding: '5px 12px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}
-                        >
-                          Cancelar
-                        </button>
+                        {canCancel && (
+                          <button
+                            onClick={() => openCancelSub({ stripeSubscriptionId: sub.stripeSubscriptionId, service: sub.service, currentPeriodEnd: sub.currentPeriodEnd, renewalCanceled })}
+                            style={{ background: '#fff', color: '#b91c1c', border: '1px solid #fca5a5', borderRadius: '6px', padding: '5px 12px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}
+                          >
+                            Cancelar
+                          </button>
+                        )}
                       </div>
                     )}
                   </div>
@@ -1640,28 +1664,42 @@ export default function OrderDetailPage() {
           onClick={() => !cancelLoading && setCancelSub(null)}
           style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.45)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}
         >
-          <div onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: '12px', width: '100%', maxWidth: '460px', padding: '22px', boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: '12px', width: '100%', maxWidth: '520px', maxHeight: '92vh', overflowY: 'auto', padding: '22px', boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}>
             <div style={{ fontSize: '17px', fontWeight: 700, marginBottom: '4px' }}>Cancelar suscripción</div>
             <div style={{ fontSize: '13px', color: '#6b7280', marginBottom: '16px' }}>
               {getOrderItemLabel(`svc:${cancelSub.service}`, { lang: 'en' })} · <span style={{ fontFamily: 'monospace', fontSize: '11px' }}>{cancelSub.stripeSubscriptionId}</span>
             </div>
 
-            {cancelSub.scheduled ? (
-              <div style={{ fontSize: '13px', color: '#92400e', background: '#fef3c7', borderRadius: '6px', padding: '10px 12px', marginBottom: '14px', lineHeight: 1.5 }}>
-                Esta suscripción ya tiene una cancelación programada. Desde acá solo se puede <strong>cortar ya</strong>, sin esperar a la fecha de fin. No se puede deshacer.
+            <div style={{ fontSize: '12px', fontWeight: 700, color: '#374151', marginBottom: '8px' }}>Tipo de cancelación</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '14px' }}>
+              {getCancelPolicy(cancelSub.service).options.map(t => {
+                const disabled = t === 'renewal' && cancelSub.renewalCanceled
+                const end = t === 'renewal' ? cancelSub.currentPeriodEnd : computeServiceEndDate(cancelSub.service, cancelSub.currentPeriodEnd)
+                const copy = cancelOptionCopy(cancelSub.service, t, 'es', end)
+                const selected = cancelType === t
+                return (
+                  <label
+                    key={t}
+                    style={{
+                      display: 'flex', gap: '10px', alignItems: 'flex-start', padding: '12px',
+                      border: `1px solid ${selected ? '#2563eb' : '#e2e8f0'}`, borderRadius: '8px',
+                      background: disabled ? '#f8fafc' : '#fff', opacity: disabled ? 0.6 : 1,
+                      cursor: disabled ? 'not-allowed' : 'pointer',
+                    }}
+                  >
+                    <input type="radio" name="cancel-type" checked={selected} disabled={disabled} onChange={() => setCancelType(t)} style={{ marginTop: '3px' }} />
+                    <span style={{ fontSize: '13px', lineHeight: 1.5, color: '#374151' }}>
+                      <strong style={{ display: 'block', color: '#111827', marginBottom: '2px' }}>{copy.title}{disabled ? ' (ya elegida)' : ''}</strong>
+                      {copy.body}
+                    </span>
+                  </label>
+                )
+              })}
+            </div>
+            {cancelType === 'service' && getCancelPolicy(cancelSub.service).provider && (
+              <div style={{ fontSize: '12.5px', color: '#92400e', background: '#fef3c7', borderRadius: '6px', padding: '8px 10px', marginBottom: '14px' }}>
+                Al confirmar llega una alerta para avisarle la baja a {getCancelPolicy(cancelSub.service).provider}. Hay que hacerlo a mano. Esta opción no se puede deshacer.
               </div>
-            ) : (
-              <>
-                <div style={{ fontSize: '12px', fontWeight: 700, color: '#374151', marginBottom: '6px' }}>¿Cuándo?</div>
-                <label style={{ display: 'flex', gap: '8px', fontSize: '13px', marginBottom: '6px', cursor: 'pointer' }}>
-                  <input type="radio" checked={cancelMode === 'immediate'} onChange={() => setCancelMode('immediate')} />
-                  <span><strong>Inmediata.</strong> Se corta ya y Stripe deja de reintentar cobros pendientes. No se puede deshacer.</span>
-                </label>
-                <label style={{ display: 'flex', gap: '8px', fontSize: '13px', marginBottom: '14px', cursor: 'pointer' }}>
-                  <input type="radio" checked={cancelMode === 'period_end'} onChange={() => setCancelMode('period_end')} />
-                  <span><strong>Al final del período.</strong> El cliente conserva el servicio hasta la fecha ya pagada y no se renueva.</span>
-                </label>
-              </>
             )}
 
             <div style={{ fontSize: '12px', fontWeight: 700, color: '#374151', marginBottom: '6px' }}>Motivo</div>
@@ -1689,16 +1727,10 @@ export default function OrderDetailPage() {
               style={{ width: '100%', padding: '9px 10px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '16px', fontFamily: 'inherit', marginBottom: '10px', boxSizing: 'border-box' }}
             />
 
-            {cancelSub.scheduled ? (
-              <div style={{ fontSize: '12.5px', color: '#6b7280', marginBottom: '16px' }}>
-                No se le manda otro email al cliente: el aviso ya se manejó cuando se programó la cancelación.
-              </div>
-            ) : (
-              <label style={{ display: 'flex', gap: '8px', fontSize: '13px', marginBottom: '16px', cursor: 'pointer' }}>
-                <input type="checkbox" checked={cancelNotify} onChange={e => setCancelNotify(e.target.checked)} />
-                <span>Avisar al cliente por email</span>
-              </label>
-            )}
+            <label style={{ display: 'flex', gap: '8px', fontSize: '13px', marginBottom: '16px', cursor: 'pointer' }}>
+              <input type="checkbox" checked={cancelNotify} onChange={e => setCancelNotify(e.target.checked)} />
+              <span>Avisar al cliente por email (le explica exactamente la opción elegida y la fecha)</span>
+            </label>
 
             {cancelMsg && <div style={{ color: '#b91c1c', fontSize: '13px', marginBottom: '10px' }}>{cancelMsg}</div>}
 
@@ -1708,10 +1740,10 @@ export default function OrderDetailPage() {
               </button>
               <button
                 onClick={handleCancelSubscription}
-                disabled={cancelLoading || !cancelReason}
-                style={{ background: cancelLoading || !cancelReason ? '#9ca3af' : '#b91c1c', color: '#fff', border: 'none', borderRadius: '6px', padding: '9px 16px', fontSize: '14px', fontWeight: 600, cursor: cancelLoading || !cancelReason ? 'not-allowed' : 'pointer' }}
+                disabled={cancelLoading || !cancelReason || !cancelType}
+                style={{ background: cancelLoading || !cancelReason || !cancelType ? '#9ca3af' : '#b91c1c', color: '#fff', border: 'none', borderRadius: '6px', padding: '9px 16px', fontSize: '14px', fontWeight: 600, cursor: cancelLoading || !cancelReason || !cancelType ? 'not-allowed' : 'pointer' }}
               >
-                {cancelLoading ? 'Cancelando…' : 'Cancelar suscripción'}
+                {cancelLoading ? 'Cancelando…' : 'Confirmar cancelación'}
               </button>
             </div>
           </div>

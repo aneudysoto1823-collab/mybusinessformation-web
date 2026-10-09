@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { getOrderItemKeys, getOrderItemLabel, hasFormationOrder } from '@/lib/order-items'
 import { SERVICES_CATALOG } from '@/lib/services-pricing'
+import { getCancelPolicy, computeServiceEndDate, cancelOptionCopy, type CancelType } from '@/lib/subscription-cancel-policy'
 
 // Stripe.js se carga bajo demanda (recién al abrir el modal de "Cambiar
 // Método de Pago"), no en cada visita al dashboard — es una acción ocasional,
@@ -50,6 +51,8 @@ interface SubscriptionEntry {
   status: 'trialing' | 'active' | 'past_due' | 'canceled'
   currentPeriodEnd: string | null
   cancelNoticeSent?: boolean
+  cancelType?: CancelType
+  serviceEndsAt?: string
 }
 
 interface Order {
@@ -216,10 +219,17 @@ export default function DashboardContent({
   const [cancelError, setCancelError] = useState('')
   const [cancelReason, setCancelReason] = useState('')
   const [cancelComment, setCancelComment] = useState('')
-  // stripeSubscriptionId de las que se cancelaron/reactivaron en esta sesión
-  // — feedback inmediato sin esperar al webhook (puede tardar unos segundos)
-  // ni recargar la página.
-  const [justCanceled, setJustCanceled] = useState<Set<string>>(new Set())
+  // Tipo elegido en el modal (2026-10-09): 'renewal' = cancelar la renovación,
+  // 'service' = cancelar el servicio ahora. Ver lib/subscription-cancel-policy.ts.
+  const [cancelType, setCancelType] = useState<CancelType | ''>('')
+  // Confirmación que se muestra en el mismo modal después de cancelar.
+  const [cancelDone, setCancelDone] = useState<{ type: CancelType; endsAt: string } | null>(null)
+  // true si ya había cancelado la renovación y ahora abre el modal para dar de
+  // baja el servicio: la opción de renovación se ve, pero deshabilitada.
+  const [cancelRenewalDone, setCancelRenewalDone] = useState(false)
+  // Cancelaciones/reactivaciones hechas en esta sesión — feedback inmediato
+  // sin esperar al webhook ni recargar la página.
+  const [localCancels, setLocalCancels] = useState<Record<string, { type: CancelType; endsAt: string }>>({})
   const [justReactivated, setJustReactivated] = useState<Set<string>>(new Set())
   const [reactivatingId, setReactivatingId] = useState<string | null>(null)
 
@@ -253,15 +263,21 @@ export default function DashboardContent({
     { value: 'other',            en: 'Other',                          es: 'Otro' },
   ]
 
-  function openCancelModal(sub: SubscriptionEntry) {
+  function openCancelModal(sub: SubscriptionEntry, renewalAlreadyCanceled = false) {
+    const options = getCancelPolicy(sub.service).options
     setCancelReason('')
     setCancelComment('')
     setCancelError('')
+    setCancelDone(null)
+    // Ninguna opción viene marcada: el cliente lee las dos y elige. Solo se
+    // preelige cuando hay una sola posible.
+    setCancelType(renewalAlreadyCanceled ? 'service' : options.length === 1 ? options[0] : '')
+    setCancelRenewalDone(renewalAlreadyCanceled)
     setCancelTarget(sub)
   }
 
   async function handleConfirmCancel() {
-    if (!cancelTarget) return
+    if (!cancelTarget || !cancelType) return
     setCancelLoading(true)
     setCancelError('')
     try {
@@ -271,14 +287,17 @@ export default function DashboardContent({
         body: JSON.stringify({
           orderId: order.id,
           stripeSubscriptionId: cancelTarget.stripeSubscriptionId,
+          type: cancelType,
           reason: cancelReason || undefined,
           comment: cancelComment.trim() || undefined,
         }),
       })
       const data = await res.json()
       if (res.ok && data.success) {
-        setJustCanceled(prev => new Set(prev).add(cancelTarget.stripeSubscriptionId))
-        setCancelTarget(null)
+        const done = { type: cancelType, endsAt: data.endsAt as string }
+        setLocalCancels(prev => ({ ...prev, [cancelTarget.stripeSubscriptionId]: done }))
+        setJustReactivated(prev => { const n = new Set(prev); n.delete(cancelTarget.stripeSubscriptionId); return n })
+        setCancelDone(done)
       } else {
         setCancelError(data.error || (es ? 'No se pudo cancelar.' : 'Could not cancel.'))
       }
@@ -299,6 +318,9 @@ export default function DashboardContent({
       const data = await res.json()
       if (res.ok && data.success) {
         setJustReactivated(prev => new Set(prev).add(stripeSubscriptionId))
+        setLocalCancels(prev => { const n = { ...prev }; delete n[stripeSubscriptionId]; return n })
+      } else if (data.error) {
+        alert(data.error)
       }
     } catch { /* el botón vuelve a habilitarse, el cliente puede reintentar */ }
     setReactivatingId(null)
@@ -761,10 +783,21 @@ export default function DashboardContent({
           {orderSubscriptions.map(sub => {
             const catalogEntry = SERVICES_CATALOG[sub.service]
             const name = catalogEntry ? (es ? catalogEntry.name_es : catalogEntry.name_en) : sub.service
-            const isCanceled = sub.status === 'canceled' || justCanceled.has(sub.stripeSubscriptionId)
-            const isPendingCancel = !isCanceled && sub.cancelNoticeSent && !justReactivated.has(sub.stripeSubscriptionId)
+            const local = localCancels[sub.stripeSubscriptionId]
+            const reactivated = justReactivated.has(sub.stripeSubscriptionId)
+            // Tipo de cancelación vigente: el de esta sesión, el guardado en la
+            // orden, o 'renewal' para cancelaciones viejas (solo cancelNoticeSent).
+            const effType: CancelType | undefined = local?.type
+              ?? (reactivated ? undefined : (sub.cancelType ?? (sub.cancelNoticeSent ? 'renewal' : undefined)))
+            const endsAtIso = local?.endsAt ?? (effType === 'service' ? (sub.serviceEndsAt ?? sub.currentPeriodEnd) : sub.currentPeriodEnd)
+            const isCanceled = sub.status === 'canceled'
+              || (effType === 'service' && !!endsAtIso && new Date(endsAtIso).getTime() <= Date.now() + 60_000)
+            const serviceEnding = !isCanceled && effType === 'service'
+            const renewalCanceled = !isCanceled && effType === 'renewal'
+            const canCancelService = getCancelPolicy(sub.service).options.includes('service')
             const statusInfo = SUB_STATUS_LABELS[sub.status] ?? SUB_STATUS_LABELS.active
             const isReactivating = reactivatingId === sub.stripeSubscriptionId
+            const btn = { background: '#fff', color: '#2563EB', border: '1.5px solid #2563EB', borderRadius: '8px', padding: '7px 16px', fontSize: '0.82rem', fontWeight: 600, cursor: 'pointer', flexShrink: 0 } as const
             return (
               <div key={sub.stripeSubscriptionId} className="doc-item">
                 <div className="doc-info">
@@ -772,21 +805,30 @@ export default function DashboardContent({
                   <div className="doc-status">
                     {isCanceled
                       ? (es ? 'Cancelada' : 'Canceled')
-                      : isPendingCancel
-                        ? (es ? `Se cancela el ${formatRenewalDate(sub.currentPeriodEnd)}` : `Cancels on ${formatRenewalDate(sub.currentPeriodEnd)}`)
-                        : `${es ? statusInfo.es : statusInfo.en} · ${es ? 'Próximo cobro' : 'Next charge'}: ${formatRenewalDate(sub.currentPeriodEnd)}`}
+                      : serviceEnding
+                        ? (es ? `En proceso de baja · termina el ${formatRenewalDate(endsAtIso)}` : `Being canceled · ends on ${formatRenewalDate(endsAtIso)}`)
+                        : renewalCanceled
+                          ? (es ? `No se renueva · termina el ${formatRenewalDate(endsAtIso)}` : `Won't renew · ends on ${formatRenewalDate(endsAtIso)}`)
+                          : `${es ? statusInfo.es : statusInfo.en} · ${es ? 'Próximo cobro' : 'Next charge'}: ${formatRenewalDate(sub.currentPeriodEnd)}`}
                   </div>
                 </div>
                 {isCanceled ? (
                   <a href={es ? `/servicios?lang=es&open=${sub.service}` : `/servicios?open=${sub.service}`} target="_blank" rel="noopener noreferrer"
-                    style={{ background: '#fff', color: '#2563EB', border: '1.5px solid #2563EB', borderRadius: '8px', padding: '7px 16px', fontSize: '0.82rem', fontWeight: 600, textDecoration: 'none', flexShrink: 0 }}>
+                    style={{ ...btn, textDecoration: 'none' }}>
                     {es ? 'Ordenar de Nuevo' : 'Order Again'}
                   </a>
-                ) : isPendingCancel ? (
-                  <button onClick={() => handleReactivate(sub.stripeSubscriptionId)} disabled={isReactivating}
-                    style={{ background: '#fff', color: '#2563EB', border: '1.5px solid #2563EB', borderRadius: '8px', padding: '7px 16px', fontSize: '0.82rem', fontWeight: 600, cursor: isReactivating ? 'default' : 'pointer', opacity: isReactivating ? 0.6 : 1, flexShrink: 0 }}>
-                    {isReactivating ? (es ? 'Reactivando…' : 'Reactivating…') : (es ? 'Reactivar' : 'Reactivate')}
-                  </button>
+                ) : serviceEnding ? null : renewalCanceled ? (
+                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                    <button onClick={() => handleReactivate(sub.stripeSubscriptionId)} disabled={isReactivating}
+                      style={{ ...btn, cursor: isReactivating ? 'default' : 'pointer', opacity: isReactivating ? 0.6 : 1 }}>
+                      {isReactivating ? (es ? 'Reactivando…' : 'Reactivating…') : (es ? 'Reactivar' : 'Reactivate')}
+                    </button>
+                    {canCancelService && (
+                      <button onClick={() => openCancelModal(sub, true)} style={{ ...btn, color: '#dc2626', borderColor: '#fca5a5' }}>
+                        {es ? 'Cancelar Servicio' : 'Cancel Service'}
+                      </button>
+                    )}
+                  </div>
                 ) : (
                   <button onClick={() => openCancelModal(sub)}
                     style={{ background: '#fff', color: '#2563EB', border: '1.5px solid #2563EB', borderRadius: '8px', padding: '7px 16px', fontSize: '0.82rem', fontWeight: 600, cursor: 'pointer', flexShrink: 0 }}>
@@ -840,20 +882,59 @@ export default function DashboardContent({
           onClick={() => { if (!cancelLoading) { setCancelTarget(null); setCancelError('') } }}
           style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }}
         >
-          <div onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: '12px', padding: '28px', maxWidth: '420px', width: '100%', boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}>
-            <h3 style={{ fontSize: '17px', fontWeight: 700, color: '#1a1a2e', marginBottom: '10px' }}>
-              {es ? '¿Cancelar suscripción?' : 'Cancel subscription?'}
+          <div onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: '12px', padding: '28px', maxWidth: '520px', width: '100%', maxHeight: '92vh', overflowY: 'auto', boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}>
+            {cancelDone ? (
+              <>
+                <h3 style={{ fontSize: '17px', fontWeight: 700, color: '#1a1a2e', marginBottom: '10px' }}>
+                  {es ? 'Cancelación confirmada' : 'Cancellation confirmed'}
+                </h3>
+                <p style={{ fontSize: '14px', color: '#374151', lineHeight: 1.6, marginBottom: '20px' }}>
+                  {cancelOptionCopy(cancelTarget.service, cancelDone.type, es ? 'es' : 'en', cancelDone.endsAt).body}
+                  {' '}
+                  {es ? 'Le enviamos un email de confirmación con estos detalles.' : 'We sent you a confirmation email with these details.'}
+                </p>
+                <button onClick={() => { setCancelTarget(null); setCancelDone(null) }}
+                  style={{ width: '100%', background: '#2563EB', color: '#fff', border: 'none', borderRadius: '8px', padding: '10px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>
+                  {es ? 'Cerrar' : 'Close'}
+                </button>
+              </>
+            ) : (
+            <>
+            <h3 style={{ fontSize: '17px', fontWeight: 700, color: '#1a1a2e', marginBottom: '6px' }}>
+              {es ? 'Cancelar' : 'Cancel'} {SERVICES_CATALOG[cancelTarget.service] ? (es ? SERVICES_CATALOG[cancelTarget.service].name_es : SERVICES_CATALOG[cancelTarget.service].name_en) : cancelTarget.service}
             </h3>
             <p style={{ fontSize: '14px', color: '#6b7280', lineHeight: 1.6, marginBottom: '16px' }}>
-              {es
-                ? `Va a cancelar `
-                : `You're about to cancel `}
-              <strong style={{ color: '#1a1a2e' }}>{SERVICES_CATALOG[cancelTarget.service] ? (es ? SERVICES_CATALOG[cancelTarget.service].name_es : SERVICES_CATALOG[cancelTarget.service].name_en) : cancelTarget.service}</strong>.
-              {' '}
-              {es
-                ? `Seguirá activa hasta el ${formatRenewalDate(cancelTarget.currentPeriodEnd)}, después no se renovará. Puede volver a ordenarlo cuando quiera.`
-                : `It'll stay active through ${formatRenewalDate(cancelTarget.currentPeriodEnd)}, then it won't renew. You can order it again anytime.`}
+              {getCancelPolicy(cancelTarget.service).options.length > 1
+                ? (es ? 'Lea las dos opciones y elija la que prefiere.' : 'Please read both options and choose the one you prefer.')
+                : (es ? 'Así funciona la cancelación de este servicio:' : 'This is how canceling this service works:')}
             </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '18px' }}>
+              {getCancelPolicy(cancelTarget.service).options.map(t => {
+                const disabled = t === 'renewal' && cancelRenewalDone
+                const end = t === 'renewal' ? cancelTarget.currentPeriodEnd : computeServiceEndDate(cancelTarget.service, cancelTarget.currentPeriodEnd)
+                const copy = cancelOptionCopy(cancelTarget.service, t, es ? 'es' : 'en', end)
+                const selected = cancelType === t
+                return (
+                  <label key={t}
+                    style={{
+                      display: 'flex', gap: '12px', alignItems: 'flex-start', padding: '14px',
+                      border: `1.5px solid ${selected ? '#2563EB' : '#e5e7eb'}`, borderRadius: '10px',
+                      background: disabled ? '#f9fafb' : selected ? '#F7FAFF' : '#fff',
+                      opacity: disabled ? 0.6 : 1, cursor: disabled ? 'not-allowed' : 'pointer',
+                    }}>
+                    <input type="radio" name="cancel-type" checked={selected} disabled={disabled}
+                      onChange={() => setCancelType(t)}
+                      style={{ marginTop: '3px', width: '18px', height: '18px', accentColor: '#2563EB', flexShrink: 0 }} />
+                    <span style={{ fontSize: '14px', color: '#4b5563', lineHeight: 1.6 }}>
+                      <strong style={{ display: 'block', fontSize: '15px', color: '#1a1a2e', marginBottom: '4px' }}>
+                        {copy.title}{disabled ? (es ? ' (ya elegida)' : ' (already chosen)') : ''}
+                      </strong>
+                      {copy.body}
+                    </span>
+                  </label>
+                )
+              })}
+            </div>
             <div style={{ marginBottom: '14px' }}>
               <label style={{ display: 'block', fontSize: '12.5px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>
                 {es ? '¿Por qué cancela? (opcional)' : 'Why are you canceling? (optional)'}
@@ -890,11 +971,13 @@ export default function DashboardContent({
               </button>
               <button
                 onClick={handleConfirmCancel}
-                disabled={cancelLoading}
-                style={{ flex: 1, background: '#dc2626', color: '#fff', border: 'none', borderRadius: '8px', padding: '10px', fontSize: '14px', fontWeight: 600, cursor: cancelLoading ? 'default' : 'pointer', opacity: cancelLoading ? 0.7 : 1 }}>
-                {cancelLoading ? (es ? 'Cancelando…' : 'Canceling…') : (es ? 'Sí, Cancelar' : 'Yes, Cancel')}
+                disabled={cancelLoading || !cancelType}
+                style={{ flex: 1, background: '#dc2626', color: '#fff', border: 'none', borderRadius: '8px', padding: '10px', fontSize: '14px', fontWeight: 600, cursor: cancelLoading || !cancelType ? 'default' : 'pointer', opacity: cancelLoading || !cancelType ? 0.5 : 1 }}>
+                {cancelLoading ? (es ? 'Cancelando…' : 'Canceling…') : (es ? 'Confirmar Cancelación' : 'Confirm Cancellation')}
               </button>
             </div>
+            </>
+            )}
           </div>
         </div>
       )}
