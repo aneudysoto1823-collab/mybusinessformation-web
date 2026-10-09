@@ -1144,6 +1144,7 @@ Cuando una orden con `addons.ra === true` se paga en Stripe, el webhook dispara 
 - **Scripts de smoke test** en `backend/scripts/` (todos usan keys TEST del `.env.local`, guardias que exigen `CORPTOOLS_ENV=test` + nombre con prefijo `TEST `): `corptools-test-fase0.mjs` (3 GETs read-only, cero costo), `corptools-manual-flow.mjs` (dry-run/confirm del flujo completo), `corptools-service-info.mjs` (consulta puntual), `corptools-test-e2e.mjs` (E2E creando Order de test en Supabase + verifica idempotencia + genera preview HTML del email).
 - **Pendientes (deferidos, no bloquean):** cron de auditoría diario (endpoint TBD — hay que descubrir qué endpoint de RAI da el estado "vivo" del service, porque `GET /services/:id/info` devuelve `{}` pre-pago), rotación de keys PROD, automatización del pago de facturas al proveedor.
 - **⏳ Pendiente de averiguar (founder, 2026-10-05):** cuánto aviso exige RAI si un cliente cancela o no renueva (se cree que ~3 meses). Hoy el aviso de renovación al cliente (`app/api/cron/subscription-renewal-notice/route.ts`) sale solo 30 días antes; si RAI pide 90, hay que agregar un aviso a 90 días y mantener el de 30.
+- **⏳ Ampliado 2026-10-09:** preguntar también a RAI, una vez pedida la baja del servicio, a los cuántos días dejan de recibir y cargar correspondencia al portal del cliente. Con eso se ajusta `noticeDays` de `registered-agent` en `lib/subscription-cancel-policy.ts` (hoy 30, provisorio; los textos de cancelación lo leen solos).
 
 ---
 
