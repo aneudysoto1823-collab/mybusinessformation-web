@@ -1,6 +1,6 @@
 ---
 title: "Cancelación de suscripciones"
-summary: "Cómo cancelar desde el panel admin una suscripción (Agente Registrado, Declaración Anual o Dirección Virtual) de cualquier orden, de cualquiera de los dos sitios."
+summary: "Cómo cancelar o reactivar desde el panel admin una suscripción (Agente Registrado, Declaración Anual o Dirección Virtual) de cualquier orden, de cualquiera de los dos sitios."
 updated: "2026-10-09"
 ---
 
@@ -34,6 +34,17 @@ En unos segundos el estado cambia solo: **Cancelada** (si fue inmediata) o **Can
 - **Al final del período:** el cliente sigue teniendo el servicio hasta la fecha que ya pagó y después no se renueva. Es lo mismo que pasa cuando el cliente cancela desde su portal.
 
 Regla práctica: si el cliente ya pagó el año y solo no quiere renovar, usa **al final del período**. Si es una orden de prueba, un error, o una suscripción con pago fallido que hay que cortar ya, usa **inmediata**.
+
+## Suscripciones con "Cancelación programada"
+
+Si una suscripción dice **Cancelación programada**, ya alguien la canceló para el final del período: el cliente desde su portal, el equipo desde este panel, o directo en Stripe. En vez de "Próximo cobro" dice **"Termina"** con la fecha en que se corta, porque esa fecha ya no se cobra.
+
+Con estas suscripciones hay dos botones:
+
+- **Cancelar:** la corta **ya**, sin esperar a la fecha de fin. La ventana solo ofrece la opción inmediata y no manda otro email al cliente (el aviso ya se manejó cuando se programó). No se puede deshacer.
+- **Reactivar:** quita la cancelación programada. La suscripción vuelve a renovarse sola en su fecha, como si nunca se hubiera cancelado. Úsalo si el cliente se arrepiente y quiere seguir. No le llega ningún email al cliente; si quieres, avísale tú.
+
+Reactivar solo funciona mientras la suscripción no haya terminado. Si ya dice **Cancelada**, no se puede revivir: el cliente tiene que volver a comprar el servicio.
 
 ## Qué queda registrado
 
