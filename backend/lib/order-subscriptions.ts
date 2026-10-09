@@ -40,6 +40,13 @@ export interface OrderSubscriptionEntry {
   // cancelación ("Don't cancel subscription"), para poder avisar de nuevo si
   // cancela otra vez más adelante.
   cancelNoticeSent?: boolean
+  // Tipo de cancelación pedida desde el portal o el panel admin (ver
+  // lib/subscription-cancel-policy.ts): 'renewal' = no renueva, 'service' =
+  // baja del servicio con margen. Ausente en cancelaciones hechas directo en
+  // Stripe o antes del 2026-10-09.
+  cancelType?: 'renewal' | 'service'
+  // ISO date en que termina el servicio según esa cancelación.
+  serviceEndsAt?: string
   // ISO date (= el currentPeriodEnd vigente cuando se mandó) del último aviso
   // de "renovación en 30 días" enviado para este servicio — evita reenviarlo
   // cada vez que corre el cron diario mientras siga faltando ≤30 días para la

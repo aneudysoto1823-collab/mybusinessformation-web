@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { getSupabaseAdmin } from '@/lib/supabase'
+import { upsertOrderSubscription, type OrderSubscriptionEntry } from '@/lib/order-subscriptions'
 
 export const dynamic = 'force-dynamic'
 
@@ -52,7 +53,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Orden no encontrada' }, { status: 404 })
   }
 
-  const subscriptions = Array.isArray(targetOrder.subscriptions) ? targetOrder.subscriptions as { stripeSubscriptionId: string; status: string }[] : []
+  const subscriptions = Array.isArray(targetOrder.subscriptions) ? targetOrder.subscriptions as OrderSubscriptionEntry[] : []
   const entry = subscriptions.find(s => s.stripeSubscriptionId === stripeSubscriptionId)
   if (!entry) {
     return NextResponse.json({ error: 'Suscripción no encontrada en esta orden' }, { status: 404 })
@@ -61,8 +62,21 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Esta suscripción ya terminó — hay que ordenar el servicio de nuevo.' }, { status: 409 })
   }
 
+  // Una baja del servicio ('service') ya se le avisa al proveedor: no se
+  // reactiva. Solo se puede deshacer "cancelar la renovación".
+  if (entry.cancelType === 'service') {
+    return NextResponse.json({ error: 'El servicio ya está en proceso de baja y no se puede reactivar. Contáctenos si necesita ayuda.' }, { status: 409 })
+  }
+
   try {
-    await getStripe().subscriptions.update(stripeSubscriptionId, { cancel_at_period_end: false })
+    const stripe = getStripe()
+    const sub = await stripe.subscriptions.retrieve(stripeSubscriptionId)
+    if (sub.cancel_at_period_end) {
+      await stripe.subscriptions.update(stripeSubscriptionId, { cancel_at_period_end: false })
+    } else if (sub.cancel_at != null) {
+      await stripe.subscriptions.update(stripeSubscriptionId, { cancel_at: '' })
+    }
+    await upsertOrderSubscription(targetOrder.id, { ...entry, cancelNoticeSent: false, cancelType: undefined, serviceEndsAt: undefined })
     return NextResponse.json({ success: true })
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)

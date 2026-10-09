@@ -1341,11 +1341,13 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
         : null
 
       await sendSubscriptionCanceledEmail(order.id, order.email, brand, serviceName, endDate, subscription.id, { customerName: fullName(order.firstName, order.lastName), companyName: order.companyName, isEs, cancellationDetails: subscription.cancellation_details })
-    } else if (!isScheduledForCancellation && entry.cancelNoticeSent) {
+    } else if (!isScheduledForCancellation && entry.cancelNoticeSent && subscription.status !== 'canceled') {
       // El cliente deshizo la cancelación ("Don't cancel subscription") — se
       // resetea el flag en silencio, sin email (nadie pidió avisar de una
       // reactivación), para que una cancelación futura sí vuelva a notificar.
-      await upsertOrderSubscription(order.id, { ...entry, cancelNoticeSent: false })
+      // (status !== 'canceled': una cancelación inmediata puede mandar un
+      // `updated` sin cancel_at antes del `deleted`; ahí no hay que resetear.)
+      await upsertOrderSubscription(order.id, { ...entry, cancelNoticeSent: false, cancelType: undefined, serviceEndsAt: undefined })
     }
   } catch (err) {
     console.error('[stripe-webhook] handleSubscriptionUpdated error:', err)

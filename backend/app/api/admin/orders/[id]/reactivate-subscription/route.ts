@@ -6,15 +6,16 @@
 // Stripe puede marcar la cancelación programada con cancel_at_period_end o con
 // cancel_at según cómo se canceló (portal del cliente, Billing Portal, panel de
 // Stripe), así que se lee la Subscription y se limpia el campo que esté puesto.
-// El webhook (handleSubscriptionUpdated) resetea cancelNoticeSent solo, sin
-// mandar email al cliente.
+// Se limpia cancelNoticeSent/cancelType de la orden en el momento (sin email
+// al cliente). Solo aplica a "cancelar la renovación": una baja del servicio
+// ('service') ya se le avisa al proveedor y no se reactiva.
 
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { verifyAdminToken } from '@/lib/session'
 import { logAdminAction } from '@/lib/audit-log'
 import { getSupabaseAdmin } from '@/lib/supabase'
-import type { OrderSubscriptionEntry } from '@/lib/order-subscriptions'
+import { upsertOrderSubscription, type OrderSubscriptionEntry } from '@/lib/order-subscriptions'
 
 export const dynamic = 'force-dynamic'
 
@@ -59,6 +60,12 @@ export async function POST(
     return NextResponse.json({ error: 'Esta suscripción ya terminó. Hay que ordenar el servicio de nuevo.' }, { status: 409 })
   }
 
+  // Una baja del servicio ('service') ya se le avisó al proveedor: no se
+  // reactiva. Solo se puede deshacer "cancelar la renovación".
+  if (entry.cancelType === 'service') {
+    return NextResponse.json({ error: 'El servicio ya está en proceso de baja (se le avisa al proveedor). No se puede reactivar.' }, { status: 409 })
+  }
+
   try {
     const stripe = getStripe()
     const sub = await stripe.subscriptions.retrieve(stripeSubscriptionId)
@@ -70,8 +77,7 @@ export async function POST(
     } else if (sub.cancel_at != null) {
       await stripe.subscriptions.update(stripeSubscriptionId, { cancel_at: '' })
     }
-    // Si no tenía ninguna de las dos, no hay nada que deshacer en Stripe; el
-    // flag local se corrige igual con el próximo evento del webhook.
+    await upsertOrderSubscription(orderId, { ...entry, cancelNoticeSent: false, cancelType: undefined, serviceEndsAt: undefined })
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
     console.error('[admin/reactivate-subscription]', msg)
