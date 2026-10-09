@@ -36,6 +36,27 @@ export default function TemplatesGallery({ items, initialType }: { items: Templa
   const [brand, setBrand] = useState<'all' | 'opabiz' | 'fbfc'>('all')
   const [lang, setLang] = useState<'en' | 'es'>('es')
   const [openEmail, setOpenEmail] = useState<TemplateItem | null>(null)
+  const [emailHtml, setEmailHtml] = useState<string | null>(null)
+  const [emailError, setEmailError] = useState('')
+
+  // El CSP del sitio (next.config.ts: frame-src solo Stripe, frame-ancestors
+  // 'none') impide cargar la vista previa con <iframe src>. Se trae el HTML y
+  // se pinta con srcDoc, que no navega. Las imágenes de nuestros dominios se
+  // pasan a ruta relativa porque img-src solo permite 'self' (mismo deploy
+  // sirve /public en las dos marcas). <base target=_blank> abre los links
+  // del email en otra pestaña.
+  function showEmail(item: TemplateItem) {
+    setOpenEmail(item)
+    setEmailHtml(null)
+    setEmailError('')
+    fetch(item.url, { credentials: 'same-origin' })
+      .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.text() })
+      .then(html => {
+        const local = html.replace(/src="https:\/\/(?:www\.)?(?:mybusinessformation|opabiz)\.com\//g, 'src="/')
+        setEmailHtml(`<base target="_blank">${local}`)
+      })
+      .catch(e => setEmailError(e instanceof Error ? e.message : String(e)))
+  }
 
   const visible = items.filter(i =>
     (type === 'all' || i.type === type) &&
@@ -107,7 +128,7 @@ export default function TemplatesGallery({ items, initialType }: { items: Templa
               <div className="tg-used">{item.usedIn}</div>
               <div className="tg-actions">
                 {item.type === 'email' ? (
-                  <button className="tg-btn" onClick={() => setOpenEmail(item)}>Ver email</button>
+                  <button className="tg-btn" onClick={() => showEmail(item)}>Ver email</button>
                 ) : (
                   <a className="tg-btn" href={item.url} target="_blank" rel="noreferrer">Ver PDF</a>
                 )}
@@ -138,7 +159,13 @@ export default function TemplatesGallery({ items, initialType }: { items: Templa
                 <button className="tg-btn" onClick={() => setOpenEmail(null)}>Cerrar</button>
               </div>
             </div>
-            <iframe src={openEmail.url} title={openEmail.title} />
+            {emailError ? (
+              <div style={{ padding: 24, color: '#dc2626', fontSize: '.85rem' }}>No se pudo cargar la vista previa: {emailError}</div>
+            ) : emailHtml === null ? (
+              <div style={{ padding: 24, color: '#94A3B8', fontSize: '.85rem' }}>Cargando...</div>
+            ) : (
+              <iframe srcDoc={emailHtml} title={openEmail.title} sandbox="allow-popups allow-popups-to-escape-sandbox" />
+            )}
           </div>
         </div>
       )}
