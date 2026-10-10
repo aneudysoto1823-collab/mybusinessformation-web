@@ -438,7 +438,7 @@ button{font-family:inherit}
   </form>
   <p class="svc-login-terms">
     <span class="en">By accessing this portal you agree to our <a href="/terms">Terms of Service</a> and <a href="/privacy">Privacy Policy</a>.</span>
-    <span class="es">Al acceder aceptas nuestros <a href="/terms">Términos de Servicio</a> y la <a href="/privacy">Política de Privacidad</a>.</span>
+    <span class="es">Al acceder acepta nuestros <a href="/terms">Términos de Servicio</a> y la <a href="/privacy">Política de Privacidad</a>.</span>
   </p>
 </div>
 

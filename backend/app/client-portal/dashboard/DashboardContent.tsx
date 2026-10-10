@@ -4,51 +4,14 @@ import { useState, useEffect, useRef } from 'react'
 import { getOrderItemKeys, getOrderItemLabel, hasFormationOrder } from '@/lib/order-items'
 import { SERVICES_CATALOG } from '@/lib/services-pricing'
 import { getCancelPolicy, computeServiceEndDate, cancelOptionCopy, type CancelType } from '@/lib/subscription-cancel-policy'
-
-// Stripe.js se carga bajo demanda (recién al abrir el modal de "Cambiar
-// Método de Pago"), no en cada visita al dashboard — es una acción ocasional,
-// no vale la pena el peso del script en toda carga del portal. NEXT_PUBLIC_*
-// se inlinea en el bundle del cliente en build time igual en un componente
-// 'use client' (mismo patrón que app/opabiz/dashboard/page.tsx).
-const STRIPE_PK = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || ''
-
-type StripeJsInstance = {
-  elements: (opts: { clientSecret: string }) => StripeElementsInstance
-  confirmSetup: (opts: { elements: StripeElementsInstance; redirect: 'if_required' }) => Promise<{ error?: { message?: string }; setupIntent?: { id: string; status: string } }>
-}
-type StripeElementsInstance = {
-  create: (type: 'payment') => { mount: (el: HTMLElement) => void }
-}
-
-function ensureStripeJsLoaded(): Promise<StripeJsInstance> {
-  return new Promise((resolve, reject) => {
-    if (typeof window === 'undefined') { reject(new Error('no window')); return }
-    const w = window as unknown as { Stripe?: (pk: string) => StripeJsInstance }
-    if (w.Stripe) { resolve(w.Stripe(STRIPE_PK)); return }
-    const existing = document.getElementById('stripe-js-portal') as HTMLScriptElement | null
-    const onReady = () => {
-      const w2 = window as unknown as { Stripe?: (pk: string) => StripeJsInstance }
-      if (w2.Stripe) resolve(w2.Stripe(STRIPE_PK))
-      else reject(new Error('Stripe.js failed to load'))
-    }
-    if (existing) {
-      existing.addEventListener('load', onReady)
-      existing.addEventListener('error', () => reject(new Error('Stripe.js failed to load')))
-      return
-    }
-    const script = document.createElement('script')
-    script.id = 'stripe-js-portal'
-    script.src = 'https://js.stripe.com/v3/'
-    script.onload = onReady
-    script.onerror = () => reject(new Error('Stripe.js failed to load'))
-    document.body.appendChild(script)
-  })
-}
+import { ensureStripeJsLoaded, type StripeJsInstance, type StripeElementsInstance } from './stripe-js'
+import ReactivateServiceModal from './ReactivateServiceModal'
 
 interface SubscriptionEntry {
   service: string
   stripeSubscriptionId: string
-  status: 'trialing' | 'active' | 'past_due' | 'canceled'
+  // 'incomplete' = reactivación iniciada pero sin cobrar (se ofrece reactivar de nuevo).
+  status: 'trialing' | 'active' | 'past_due' | 'canceled' | 'incomplete'
   currentPeriodEnd: string | null
   cancelNoticeSent?: boolean
   cancelType?: CancelType
@@ -231,6 +194,9 @@ export default function DashboardContent({
   // sin esperar al webhook ni recargar la página.
   const [localCancels, setLocalCancels] = useState<Record<string, { type: CancelType; endsAt: string }>>({})
   const [justReactivated, setJustReactivated] = useState<Set<string>>(new Set())
+  // "Reactivar servicio" (2026-10-09): servicio cancelado que el cliente vuelve a contratar.
+  const [reactivateTarget, setReactivateTarget] = useState<SubscriptionEntry | null>(null)
+  const [reactivateDone, setReactivateDone] = useState(false)
   const [reactivatingId, setReactivatingId] = useState<string | null>(null)
 
   // "Cambiar Método de Pago" — flujo embebido con SetupIntent + Payment
@@ -790,7 +756,7 @@ export default function DashboardContent({
             const effType: CancelType | undefined = local?.type
               ?? (reactivated ? undefined : (sub.cancelType ?? (sub.cancelNoticeSent ? 'renewal' : undefined)))
             const endsAtIso = local?.endsAt ?? (effType === 'service' ? (sub.serviceEndsAt ?? sub.currentPeriodEnd) : sub.currentPeriodEnd)
-            const isCanceled = sub.status === 'canceled'
+            const isCanceled = sub.status === 'canceled' || sub.status === 'incomplete'
               || (effType === 'service' && !!endsAtIso && new Date(endsAtIso).getTime() <= Date.now() + 60_000)
             const serviceEnding = !isCanceled && effType === 'service'
             const renewalCanceled = !isCanceled && effType === 'renewal'
@@ -813,10 +779,18 @@ export default function DashboardContent({
                   </div>
                 </div>
                 {isCanceled ? (
-                  <a href={es ? `/servicios?lang=es&open=${sub.service}` : `/servicios?open=${sub.service}`} target="_blank" rel="noopener noreferrer"
-                    style={{ ...btn, textDecoration: 'none' }}>
-                    {es ? 'Ordenar de Nuevo' : 'Order Again'}
-                  </a>
+                  // Agente Registrado y Declaración Anual se reactivan desde acá
+                  // (cobro con la tarjeta guardada, sin pasar por el checkout).
+                  // La Dirección Virtual no se vende hoy (sin proveedor).
+                  sub.service === 'virtual-address' ? (
+                    <span style={{ fontSize: '0.82rem', color: '#6b7280', fontWeight: 600, flexShrink: 0 }}>
+                      {es ? 'Servicio finalizado' : 'Service ended'}
+                    </span>
+                  ) : (
+                    <button onClick={() => { setReactivateDone(false); setReactivateTarget(sub) }} style={btn}>
+                      {es ? 'Reactivar servicio' : 'Reactivate service'}
+                    </button>
+                  )
                 ) : serviceEnding ? null : renewalCanceled ? (
                   <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
                     <button onClick={() => handleReactivate(sub.stripeSubscriptionId)} disabled={isReactivating}
@@ -877,6 +851,16 @@ export default function DashboardContent({
       {/* Confirmación de cancelación — modal propio, el cliente nunca sale
           del sitio (a diferencia de "Cambiar Método de Pago", que sí manda
           a Stripe). */}
+      {reactivateTarget && (
+        <ReactivateServiceModal
+          orderId={order.id}
+          service={reactivateTarget.service}
+          serviceName={SERVICES_CATALOG[reactivateTarget.service] ? (es ? SERVICES_CATALOG[reactivateTarget.service].name_es : SERVICES_CATALOG[reactivateTarget.service].name_en) : reactivateTarget.service}
+          es={es}
+          onDone={() => setReactivateDone(true)}
+          onClose={() => { setReactivateTarget(null); if (reactivateDone) window.location.reload() }}
+        />
+      )}
       {cancelTarget && (
         <div
           onClick={() => { if (!cancelLoading) { setCancelTarget(null); setCancelError('') } }}

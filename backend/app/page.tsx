@@ -3663,7 +3663,7 @@ function setLang(lang) {
   el=document.getElementById('plogin-btn'); if(el) el.textContent = isEs ? 'Acceder a Mi Cuenta' : 'Access My Account';
   el=document.getElementById('plogin-acct'); if(el) el.placeholder = isEs ? 'Su correo' : 'Your email';
   el=document.getElementById('plogin-cred'); if(el) el.placeholder = isEs ? 'FBFC-00000000 o su contraseña' : 'FBFC-00000000 or your password';
-  el=document.getElementById('plogin-terms'); if(el) el.innerHTML = isEs ? 'Al acceder aceptas nuestros <a href="/terms">Términos de Servicio</a> y la <a href="/privacy">Política de Privacidad</a>.' : 'By accessing this portal you agree to our <a href="/terms">Terms of Service</a> and <a href="/privacy">Privacy Policy</a>.';
+  el=document.getElementById('plogin-terms'); if(el) el.innerHTML = isEs ? 'Al acceder acepta nuestros <a href="/terms">Términos de Servicio</a> y la <a href="/privacy">Política de Privacidad</a>.' : 'By accessing this portal you agree to our <a href="/terms">Terms of Service</a> and <a href="/privacy">Privacy Policy</a>.';
   el=document.getElementById('plogin-switch-to-signup'); if(el) el.innerHTML = isEs ? '<a href="#" onclick="ploginShowSignup(event)">¿Nuevo aquí? Crea una cuenta</a>' : '<a href="#" onclick="ploginShowSignup(event)">New here? Create an account</a>';
   el=document.getElementById('plogin-switch-to-login'); if(el) el.innerHTML = isEs ? '<a href="#" onclick="ploginShowLogin(event)">¿Ya tiene cuenta? Inicie sesión</a>' : '<a href="#" onclick="ploginShowLogin(event)">Already have an account? Log in</a>';
   el=document.getElementById('plogin-lbl-name'); if(el) el.textContent = isEs ? 'Nombre' : 'First name';
@@ -6074,6 +6074,20 @@ function fmOnTermsToggle() {
   if(_chk && _chk.checked) { fmMountPayment(); } else { fmShowTermsGate(); }
 }
 
+// Guarda en la orden que el cliente aceptó los Términos (fecha, IP y texto
+// exacto, ver lib/terms-acceptance.ts). Una vez por orden + texto.
+function fmRecordTerms(orderId) {
+  try {
+    var el = document.getElementById('terms-agree-text');
+    var txt = el ? el.innerText : '';
+    if(!orderId || !txt) return;
+    var sig = orderId + '|' + txt;
+    if(window._fmTermsSig === sig) return;
+    window._fmTermsSig = sig;
+    fetch('/api/orders/accept-terms', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ orderId: orderId, text: txt, context: 'formation' }) }).catch(function(){});
+  } catch(e) {}
+}
+
 async function fmMountPayment() {
   if(_fmMounting) return;
   _fmMounting = true;
@@ -6102,6 +6116,7 @@ async function fmMountPayment() {
     if(_fmPrefetch && _fmPrefetch.key === key) { p = _fmPrefetch.promise; }
     else { p = _fmCreateSessionReq(payload); _fmPrefetch = { key: key, promise: p }; }
     var result = await p;
+    fmRecordTerms(result.orderId);
     fmClearProgress();
     generateOrderNumber(result.orderId);
     var numEl = document.getElementById('finalOrderNum'); if(numEl) numEl.textContent = orderNumber;

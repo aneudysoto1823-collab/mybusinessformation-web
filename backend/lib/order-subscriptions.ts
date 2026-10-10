@@ -14,7 +14,10 @@ import { getSupabaseAdmin } from './supabase'
 import { SERVICES_CATALOG, SERVICE_BUNDLES, FBFC_PRICE_OVERRIDES } from './services-pricing'
 import { insertIncomeWithInvoiceNumber } from './invoice-number'
 
-export type SubscriptionStatus = 'trialing' | 'active' | 'past_due' | 'canceled'
+// 'incomplete' = reactivación desde el portal creada pero todavía sin cobrar
+// (tarjeta rechazada o verificación del banco pendiente). Ver
+// app/api/subscriptions/reactivate-service/route.ts.
+export type SubscriptionStatus = 'trialing' | 'active' | 'past_due' | 'canceled' | 'incomplete'
 
 export interface OrderSubscriptionEntry {
   service: string
@@ -60,6 +63,11 @@ export interface OrderSubscriptionEntry {
   // Stripe (Card Account Updater), el PaymentMethod ya tiene la fecha nueva y
   // no se avisa nada.
   cardExpiryWarningSentForPeriodEnd?: string
+  // Reactivación desde el portal (2026-10-09): fecha en que se completó el
+  // cobro (también evita mandar dos veces el email de confirmación) y las
+  // suscripciones anteriores del mismo servicio, ya terminadas, como historial.
+  reactivatedAt?: string
+  previousSubscriptions?: Array<Pick<OrderSubscriptionEntry, 'stripeSubscriptionId' | 'createdAt' | 'canceledAt' | 'cancelType'>>
 }
 
 // epoch seconds — ahora + 1 período según la cadencia. Se usa como `trial_end`
@@ -85,6 +93,24 @@ export interface RecurringServiceToCreate {
   stateFeeCents: number
 }
 
+// Precio vigente de UN servicio recurrente (precio actual del catálogo, con el
+// override de marca si lo hay). Lo usa getRecurringServicesFromOrder y la
+// reactivación desde el portal, para cobrar siempre lo mismo que una compra
+// nueva. stateFee va como línea aparte: la de un servicio recurrente (hoy solo
+// Annual Report, $139) se paga todos los años junto con la presentación.
+export function recurringFeeFor(service: string, brand?: 'opabiz' | 'fbfc' | null): RecurringServiceToCreate | null {
+  const svc = SERVICES_CATALOG[service]
+  if (!svc?.billing) return null
+  const override = brand === 'fbfc' ? FBFC_PRICE_OVERRIDES[service] : undefined
+  const serviceFee = override ?? svc.renewalFee ?? svc.serviceFee
+  return {
+    service,
+    billing: svc.billing,
+    serviceFeeCents: Math.round(serviceFee * 100),
+    stateFeeCents: Math.round(svc.stateFee * 100),
+  }
+}
+
 // Resuelve, a partir de Order.package + Order.addons, qué servicios
 // recurrentes hay que suscribir tras el pago — sin recalcular nada del
 // request en vivo, todo sale de lo que ya está guardado en la orden.
@@ -100,23 +126,9 @@ export function getRecurringServicesFromOrder(pkg: string | null | undefined, ad
   const out: RecurringServiceToCreate[] = []
 
   const pushIfRecurring = (id: string) => {
-    const svc = SERVICES_CATALOG[id]
-    if (!svc?.billing) return
     if (out.some(s => s.service === id)) return
-    const override = brand === 'fbfc' ? FBFC_PRICE_OVERRIDES[id] : undefined
-    const serviceFee = override ?? svc.renewalFee ?? svc.serviceFee
-    // stateFee como línea aparte: a diferencia de una tarifa estatal de
-    // formación (se paga una sola vez), la de un servicio recurrente (hoy
-    // solo Annual Report, stateFee $139) se paga TODOS los años junto con la
-    // presentación — sin esto, la Subscription cobraría de menos a partir del
-    // año 2. RA y VA tienen stateFee 0, así que no generan esta segunda línea
-    // (ver stripe-subscriptions.ts, que omite el item si stateFeeCents===0).
-    out.push({
-      service: id,
-      billing: svc.billing,
-      serviceFeeCents: Math.round(serviceFee * 100),
-      stateFeeCents: Math.round(svc.stateFee * 100),
-    })
+    const fee = recurringFeeFor(id, brand)
+    if (fee) out.push(fee)
   }
 
   if (pkgKey === 'services') {

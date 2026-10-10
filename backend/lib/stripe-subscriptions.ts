@@ -40,7 +40,7 @@
 
 import type Stripe from 'stripe'
 import { getSupabaseAdmin } from './supabase'
-import { computeTrialEnd, upsertOrderSubscription, getRecurringServicesFromOrder, type SubscriptionStatus } from './order-subscriptions'
+import { computeTrialEnd, upsertOrderSubscription, getRecurringServicesFromOrder, type SubscriptionStatus, type RecurringServiceToCreate } from './order-subscriptions'
 
 const CURRENCY = 'usd'
 
@@ -100,43 +100,12 @@ export async function createRecurringSubscriptionsForOrder(
 
   for (const svc of recurring) {
     try {
-      const envKey = SERVICE_PRODUCT_ENV[svc.service][brandKey]
-      const productId = process.env[envKey]
-      if (!productId) {
-        console.error(`[stripe-subscriptions] falta env var ${envKey} — no se puede crear la subscription de "${svc.service}"`, orderId)
+      const built = buildSubscriptionItems(svc, brandKey)
+      if ('error' in built) {
+        console.error(`[stripe-subscriptions] ${built.error}`, orderId)
         continue
       }
-
-      const interval = svc.billing === 'monthly' ? 'month' : 'year'
-      const items: Stripe.SubscriptionCreateParams.Item[] = [{
-        price_data: {
-          currency: CURRENCY,
-          product: productId,
-          unit_amount: svc.serviceFeeCents,
-          recurring: { interval },
-        },
-      }]
-
-      // Tarifa estatal itemizada aparte (misma Subscription, mismo ciclo) —
-      // solo cuando el servicio la tiene (hoy solo Annual Report). Si falta el
-      // Product genérico, no se crea la Subscription a medias (cobraría de
-      // menos cada renovación) — mismo criterio que el guard de arriba.
-      if (svc.stateFeeCents > 0) {
-        const stateFeeEnvKey = STATE_FEE_PRODUCT_ENV[brandKey]
-        const stateFeeProductId = process.env[stateFeeEnvKey]
-        if (!stateFeeProductId) {
-          console.error(`[stripe-subscriptions] falta env var ${stateFeeEnvKey} — no se puede crear la subscription de "${svc.service}" (requiere tarifa estatal itemizada)`, orderId)
-          continue
-        }
-        items.push({
-          price_data: {
-            currency: CURRENCY,
-            product: stateFeeProductId,
-            unit_amount: svc.stateFeeCents,
-            recurring: { interval },
-          },
-        })
-      }
+      const items = built.items
 
       const subscription = await stripe.subscriptions.create(
         {
@@ -162,6 +131,33 @@ export async function createRecurringSubscriptionsForOrder(
       console.error('[stripe-subscriptions] fallo creando subscription', orderId, svc.service, err)
     }
   }
+}
+
+// Líneas de la Subscription de un servicio: service fee + (si aplica) tarifa
+// estatal itemizada aparte, en la misma Subscription y ciclo. Si falta un
+// Product ID no se arma a medias (cobraría de menos cada renovación).
+// Compartido por la compra (arriba) y la reactivación desde el portal.
+export function buildSubscriptionItems(
+  svc: RecurringServiceToCreate,
+  brandKey: 'opabiz' | 'fbfc',
+): { items: Stripe.SubscriptionCreateParams.Item[] } | { error: string } {
+  const envKey = SERVICE_PRODUCT_ENV[svc.service]?.[brandKey]
+  const productId = envKey ? process.env[envKey] : undefined
+  if (!productId) return { error: `falta env var ${envKey ?? '(servicio sin Product)'}: no se puede crear la subscription de "${svc.service}"` }
+
+  const interval = svc.billing === 'monthly' ? 'month' : 'year'
+  const items: Stripe.SubscriptionCreateParams.Item[] = [{
+    price_data: { currency: CURRENCY, product: productId, unit_amount: svc.serviceFeeCents, recurring: { interval } },
+  }]
+  if (svc.stateFeeCents > 0) {
+    const stateFeeEnvKey = STATE_FEE_PRODUCT_ENV[brandKey]
+    const stateFeeProductId = process.env[stateFeeEnvKey]
+    if (!stateFeeProductId) return { error: `falta env var ${stateFeeEnvKey}: no se puede crear la subscription de "${svc.service}" (requiere tarifa estatal itemizada)` }
+    items.push({
+      price_data: { currency: CURRENCY, product: stateFeeProductId, unit_amount: svc.stateFeeCents, recurring: { interval } },
+    })
+  }
+  return { items }
 }
 
 // Tarjeta para cobrar las renovaciones: la usada en el pago (PaymentIntent),

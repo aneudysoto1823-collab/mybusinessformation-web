@@ -1130,15 +1130,22 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
     const entry = order.subscriptions.find(e => e.stripeSubscriptionId === subscriptionId)
     if (!entry) return NextResponse.json({ received: true, skipped: 'no_entry' })
 
+    // En la primera factura de una reactivación, invoice.period_end es la
+    // fecha de alta (no el fin del período): se conserva el currentPeriodEnd
+    // que ya guardó lib/subscription-reactivate.ts.
+    const isReactivationFirstInvoice = invoice.billing_reason === 'subscription_create'
     await upsertOrderSubscription(order.id, {
       ...entry,
       status: 'active',
-      currentPeriodEnd: invoice.period_end ? new Date(invoice.period_end * 1000).toISOString() : entry.currentPeriodEnd,
+      currentPeriodEnd: !isReactivationFirstInvoice && invoice.period_end ? new Date(invoice.period_end * 1000).toISOString() : entry.currentPeriodEnd,
     })
 
     // El año 1 de este servicio ya se cobró como parte del pago único del
-    // checkout (trial_end lo cubre) — cualquier invoice.paid que llegue acá
-    // es siempre una renovación real (año 2+), nunca la primera cobranza.
+    // checkout (trial_end lo cubre), así que un invoice.paid con monto es una
+    // renovación real (año 2+)... salvo la primera factura de una
+    // reactivación desde el portal (billing_reason 'subscription_create', ver
+    // lib/subscription-reactivate.ts): ese ingreso también se registra, pero
+    // el cliente ya recibe su propio email de "reactivado", no el de renovación.
     if (invoice.amount_paid > 0) {
       await recordSubscriptionRenewalIncome({
         orderId: order.id,
@@ -1157,7 +1164,7 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
       // respuesta 200 a Stripe.
       const brand = order.sourceBrand as EmailBrand
       const nextRenewalDate = invoice.period_end ? new Date(invoice.period_end * 1000) : null
-      after(async () => {
+      if (!isReactivationFirstInvoice) after(async () => {
         try {
           await sendSubscriptionRenewalConfirmation({
             to: order.email,
@@ -1192,6 +1199,10 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
 async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
   const subscriptionId = getInvoiceSubscriptionId(invoice)
   if (!subscriptionId) return NextResponse.json({ received: true, skipped: 'no_subscription' })
+  // Primera factura de una reactivación desde el portal: el cliente está en la
+  // ventana y ve el rechazo ahí mismo (puede probar otra tarjeta). No es una
+  // renovación fallida: sin past_due, sin email ni alerta.
+  if (invoice.billing_reason === 'subscription_create') return NextResponse.json({ received: true, skipped: 'reactivation_first_invoice' })
 
   try {
     const order = await findOrderBySubscriptionId(subscriptionId)

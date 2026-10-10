@@ -2091,6 +2091,21 @@ Una sola página con emails de campaña, cartas PDF, Guías y Labor Law Poster, 
 - **Al agregar una plantilla nueva de marketing:** sumar su `key` en `template-preview/route.ts` y su tarjeta en `buildItems()` de `app/admin/plantillas/page.tsx`.
 - **Pendiente (etapa 2):** sumar los emails automáticos (confirmación de pago, pago fallido, renovación, cancelación, documentos listos, citas...). La mayoría tiene el HTML escrito adentro de la función que envía; hay que separarlo en un builder antes de poder mostrarlo.
 
+## Reactivar servicio + registro de aceptación de Términos (2026-10-10)
+
+**Reactivar servicio (portal del cliente):** un Agente Registrado o Declaración Anual con suscripción `canceled` muestra "Reactivar servicio" (antes "Ordenar de nuevo", que mandaba a todo el checkout). Dirección Virtual cancelada: "Servicio finalizado", sin botón (no se vende). Decisiones founder: precio ACTUAL del catálogo, se puede reactivar siempre, textos aprobados el 2026-10-09.
+- `lib/subscription-reactivate.ts` + `app/api/subscriptions/reactivate-service/route.ts` (GET precio y tarjeta, POST cobra) + `app/client-portal/dashboard/ReactivateServiceModal.tsx`.
+- Crea una Subscription NUEVA (una cancelada no se revive) con `payment_behavior:'default_incomplete'`, la guarda en `Order.subscriptions` como `incomplete` ANTES de cobrar (así los webhooks la encuentran) y cobra con `invoices.pay`. 3D Secure: devuelve el client_secret, el navegador hace `stripe.handleNextAction` y vuelve con `confirm:true`. Rechazo: la ventana pide otra tarjeta (SetupIntent de `setup-payment-method`).
+- La entrada guarda `reactivatedAt` y `previousSubscriptions` (historial). Agente Registrado: se limpian los campos `ra*` (menos `raCompanyId`) y se llama `provisionRaForOrder` para darlo de alta otra vez y mandar la dirección.
+- Webhook: la primera factura (`billing_reason 'subscription_create'`) registra el ingreso pero NO manda el email de renovación ni usa `invoice.period_end` (es la fecha de alta); un fallo en esa factura NO marca past_due ni avisa (el cliente lo ve en la ventana).
+- Piezas compartidas extraídas: `recurringFeeFor()` (order-subscriptions.ts), `buildSubscriptionItems()` (stripe-subscriptions.ts), `app/client-portal/dashboard/stripe-js.ts` (cargador de Stripe.js del portal).
+- ⚠️ No se probó el cobro real: la `STRIPE_SECRET_KEY` de `backend/.env.local` es inválida (401). Probar en el sitio con la orden de prueba FBFC-F4870B59 (Agente Registrado cancelado).
+
+**Registro de aceptación de Términos:** `Order.termsAcceptances` (jsonb, lista `{at, context, text, ip, userAgent, service?}`) vía `lib/terms-acceptance.ts`. Se graba al marcar la casilla en el formulario de formación (`fmRecordTerms`) y en `/servicios/checkout` (`coRecordTerms`), ambos llaman `POST /api/orders/accept-terms` (solo órdenes `pending`), y al reactivar. Se ve en `/admin/orders/[id]`, sección "Aceptación de Términos". Evidencia para contracargos.
+- ⚠️ **Requiere correr `supabase_migration_terms_acceptances.sql` en Supabase.** Sin la columna no rompe nada (se loguea y sigue), pero no se guarda.
+
+También: "Al acceder aceptas" → "acepta" en los 4 logins de cliente (usted).
+
 ## Deploy
 
 - `git push origin main` — Vercel detecta cambios en `backend/` y hace deploy automático

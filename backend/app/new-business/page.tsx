@@ -2054,7 +2054,7 @@ export function NewBusinessContent({ defaultLang = 'en' }: { defaultLang?: 'en' 
           </form>
           <p className="nb-login-terms">
             {lang === 'es'
-              ? <>Al acceder aceptas nuestros <a href="/terms">Términos de Servicio</a> y la <a href="/privacy">Política de Privacidad</a>.</>
+              ? <>Al acceder acepta nuestros <a href="/terms">Términos de Servicio</a> y la <a href="/privacy">Política de Privacidad</a>.</>
               : <>By accessing this portal you agree to our <a href="/terms">Terms of Service</a> and <a href="/privacy">Privacy Policy</a>.</>}
           </p>
         </div>

@@ -2481,6 +2481,17 @@ function coOnTermsToggle(){
   var chk=$('co-chk-terms');
   if(chk && chk.checked){ coStartPayment(); } else { coDestroyStripe(); coShowTermsGate(); }
 }
+// Guarda en la orden que el cliente aceptó los Términos (fecha, IP y texto
+// exacto, ver lib/terms-acceptance.ts). Una vez por orden + texto.
+var coTermsSig=null;
+function coRecordTerms(orderId){
+  try{
+    var el=$('co-pay-disclosure'); var txt=el?el.innerText:'';
+    if(!orderId||!txt) return;
+    var sig=orderId+'|'+txt; if(coTermsSig===sig) return; coTermsSig=sig;
+    fetch('/api/orders/accept-terms',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({orderId:orderId,text:txt,context:'services'})}).catch(function(){});
+  }catch(e){}
+}
 function coStartPayment(){
   var isEs=coIsEs();
   var chkTerms=$('co-chk-terms');
@@ -2496,7 +2507,7 @@ function coStartPayment(){
 
   // Caso feliz: el iframe ya está montado (oculto) desde el paso anterior con
   // el mismo estado — nada que esperar, solo revelar.
-  if(stripeCheckout && coMountedKey===key){ coRenderReview(r.lines, r.total); return; }
+  if(stripeCheckout && coMountedKey===key){ coRecordTerms(coOrderId); coRenderReview(r.lines, r.total); return; }
 
   var ec=$('embedded-checkout'); if(ec) ec.innerHTML='<div style="text-align:center;padding:60px 0"><div class="co-spinner"></div></div>';
   // Reutiliza la sesión pre-creada si el estado no cambió; si no, créala ahora.
@@ -2510,6 +2521,7 @@ function coStartPayment(){
         return;
       }
       try{ localStorage.setItem('flbc_svc_order', res.d.fbfc||''); }catch(e){}
+      coRecordTerms(res.d.orderId||coOrderId);
       coRenderReview(res.d.lines, res.d.total);
       coMountStripe(res.d.clientSecret, key);
     })

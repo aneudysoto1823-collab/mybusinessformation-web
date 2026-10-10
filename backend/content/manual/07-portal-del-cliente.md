@@ -1,7 +1,7 @@
 ---
 title: "Portal del cliente"
 summary: "Cómo entra el cliente, qué ve, contraseñas, órdenes guardadas y suscripciones."
-updated: "2026-10-07"
+updated: "2026-10-10"
 ---
 
 ## Qué es
@@ -37,6 +37,8 @@ Una vez adentro, el encabezado del sitio cambia a "Hola, {nombre}", con los boto
 
 - **Cancelar:** le muestra dos opciones, las dos visibles y explicadas: **cancelar la renovación automática** (sigue con el servicio hasta el último día pagado) o **dar de baja el servicio** (termina en 30 días, o antes si la renovación cae antes; el margen es para recibir la correspondencia que ya viene en camino). El motivo es opcional. Le llega un email de confirmación y al equipo una alerta. Detalle completo en el capítulo 20, "Cancelación de suscripciones".
 - **Reactivar:** solo si canceló la renovación y cambia de idea antes de que termine el período. Una baja del servicio ya no se reactiva.
+- **Reactivar servicio:** cuando un Agente Registrado o una Declaración Anual ya terminó, el cliente lo vuelve a contratar desde ahí mismo, sin pasar por el checkout. Se cobra el precio actual con su tarjeta guardada (o una nueva), aceptando la renovación automática. Se puede hacer siempre, sin límite de tiempo. Detalle en el capítulo 20.
+- **Dirección Virtual terminada:** dice "Servicio finalizado", sin botón, porque hoy no se vende.
 - **Cambiar método de pago:** se hace ahí mismo, sin salir del sitio.
 
 ## Órdenes sin terminar

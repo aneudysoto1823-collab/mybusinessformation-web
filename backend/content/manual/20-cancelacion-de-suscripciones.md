@@ -1,7 +1,7 @@
 ---
 title: "Cancelación de suscripciones"
 summary: "Las dos formas de cancelar una suscripción (la renovación o el servicio), cómo se hace desde el panel admin y desde el portal del cliente, qué email recibe el cliente y qué hay que avisarle al proveedor."
-updated: "2026-10-09"
+updated: "2026-10-10"
 ---
 
 ## Qué se puede cancelar
@@ -74,9 +74,30 @@ En la sección **Suscripciones recurrentes** de la orden:
   - **Reactivar:** quita la cancelación y la suscripción vuelve a renovarse sola. Sirve si el cliente se arrepiente.
   - **Cancelar:** para pasar a **dar de baja el servicio** (la opción de renovación aparece marcada como "ya elegida").
 - **Baja del servicio en curso:** dice **"Termina"** con la fecha, sin botones. Ya no se puede reactivar, porque la baja ya se le avisa al proveedor.
-- **Cancelada:** el servicio ya terminó. No se puede revivir: el cliente tiene que volver a comprarlo.
+- **Cancelada:** el servicio ya terminó. El cliente lo puede volver a contratar desde su portal con **Reactivar servicio** (ver más abajo).
 
 En el portal del cliente se ve igual: "No se renueva · termina el..." (con Reactivar y Dar de Baja) o "En proceso de baja · termina el...".
+
+## Reactivar un servicio que ya terminó
+
+Cuando un **Agente Registrado** o una **Declaración Anual** ya terminó, en el portal del cliente aparece el botón **Reactivar servicio**. Se puede usar siempre, sin límite de tiempo: es como una orden nueva.
+
+Al tocarlo se abre una ventana con:
+- el servicio y el **precio actual** (la Declaración Anual muestra aparte la tarifa estatal de Florida y el total),
+- la tarjeta guardada ("Se cobrará a su tarjeta Visa terminada en 4242"), con la opción de usar otra,
+- en el Agente Registrado, el aviso de que la dirección puede ser distinta a la anterior,
+- la casilla obligatoria de aceptar la renovación automática y los Términos.
+
+Al pagar:
+- **Si se cobra:** el servicio vuelve a quedar activo en la misma orden, se renueva solo cada año desde esa fecha, y le llega un email de confirmación con el monto, la tarjeta y la próxima renovación. Al equipo le llega un aviso por Telegram.
+- **Si la tarjeta es rechazada:** se lo dice ahí mismo y le pide otra tarjeta.
+- **Si el banco pide verificación:** la confirma en la misma ventana y recién ahí se cobra.
+
+En el **Agente Registrado**, al reactivar se da de alta otra vez con el proveedor de forma automática, y al cliente le llega por email la dirección nueva.
+
+La **Dirección Virtual** no se puede reactivar mientras no se venda: dice "Servicio finalizado".
+
+En la orden queda una nota con la fecha, el servicio y la tarjeta, y la aceptación de Términos (ver "Qué queda registrado").
 
 ## Qué queda registrado
 
@@ -84,7 +105,10 @@ En el portal del cliente se ve igual: "No se renueva · termina el..." (con Reac
 - **Stripe:** el motivo y el comentario quedan guardados en la suscripción.
 - **Registro de auditoría** del panel, cuando lo hace el admin.
 - **Alerta interna** al pedir la cancelación, y otra cuando el servicio termina de verdad.
+- **Aceptación de Términos:** cuando el cliente reactiva, queda guardado en la orden cuándo aceptó, desde qué conexión y el texto exacto (sección "Aceptación de Términos" del detalle de la orden).
 
 ## Pagos fallidos
 
 Al **cancelar el servicio**, si había una renovación sin pagar, se anula: Stripe deja de reintentar el cobro y dejan de llegar las alertas de "Subscription payment failed".
+
+Lo mismo al **cancelar la renovación** de una suscripción que ya tiene el pago fallido: como el período en curso es justamente el que no se pudo cobrar, el servicio termina ese mismo día y se anula ese cobro.

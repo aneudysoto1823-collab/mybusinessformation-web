@@ -66,10 +66,12 @@ interface Order {
   // Suscripciones reales de Stripe (Registered Agent / Virtual Address /
   // Annual Report) — ver lib/order-subscriptions.ts / lib/stripe-subscriptions.ts.
   stripeCustomerId?: string | null
+  // Aceptación de Términos en cada checkout y reactivación (lib/terms-acceptance.ts).
+  termsAcceptances?: { at: string; context: 'formation' | 'services' | 'reactivation'; text: string; ip: string | null; userAgent: string | null; service?: string }[] | null
   subscriptions?: {
     service: string
     stripeSubscriptionId: string
-    status: 'trialing' | 'active' | 'past_due' | 'canceled'
+    status: 'trialing' | 'active' | 'past_due' | 'canceled' | 'incomplete'
     currentPeriodEnd: string | null
     createdAt: string
     cancelNoticeSent?: boolean
@@ -1637,6 +1639,25 @@ export default function OrderDetailPage() {
               {emailMsg && <span className="msg-inf">{emailMsg}</span>}
             </div>
           </div>
+        </Section>
+
+        {/* ── Aceptación de Términos (evidencia ante contracargos) ─────────── */}
+        <Section title="Aceptación de Términos">
+          {Array.isArray(order.termsAcceptances) && order.termsAcceptances.length > 0 ? (
+            order.termsAcceptances.map((t, i) => (
+              <div key={i} style={{ padding: '10px 0', borderTop: i ? '1px solid #f1f5f9' : 'none', fontSize: '13px', color: '#374151', lineHeight: 1.55 }}>
+                <div style={{ fontWeight: 600, marginBottom: '4px' }}>
+                  {new Date(t.at).toLocaleString('es-ES', { timeZone: 'America/New_York' })}
+                  {' · '}
+                  {t.context === 'formation' ? 'Checkout de formación' : t.context === 'services' ? 'Checkout de servicios' : `Reactivación${t.service ? ` (${t.service})` : ''}`}
+                  {t.ip ? ` · IP ${t.ip}` : ''}
+                </div>
+                <div style={{ color: '#4b5563', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '8px 10px' }}>{t.text}</div>
+              </div>
+            ))
+          ) : (
+            <p style={{ fontSize: '13px', color: '#9ca3af' }}>Sin registro. Las órdenes pagadas antes del 10 de octubre de 2026 no lo guardaban.</p>
+          )}
         </Section>
 
         {/* ── FUNC 6 — Notas Internas ──────────────────────────────────────── */}
