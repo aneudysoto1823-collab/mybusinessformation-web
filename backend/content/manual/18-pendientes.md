@@ -1,7 +1,7 @@
 ---
 title: "Pendientes y decisiones abiertas"
 summary: "Lo que falta para el lanzamiento y las decisiones de negocio todavía sin cerrar."
-updated: "2026-10-09"
+updated: "2026-10-12"
 ---
 
 Esta lista cambia seguido. La lista técnica completa está en `CHECKLIST_PRELANZAMIENTO.md`, dentro del proyecto.
@@ -18,6 +18,7 @@ Stripe ya está preparado. Antes de activarlo hay que resolver todo esto:
 6. **Poner el sistema en cero**: borrar los datos de prueba después de un respaldo, con una simulación previa aprobada por los dos socios. En contabilidad se borran solo los ingresos y clientes de prueba, nunca los gastos.
 7. **Revisión de abogado** de los Términos y la Política de Privacidad.
 8. Confirmar que las claves de Turso estén cargadas también en Railway (sin ellas, el buscador de nombres del panel dice "disponible" a todo sin avisar).
+9. **Cierre de sesión del panel por inactividad**: hoy la sesión del panel dura 8 horas aunque nadie la use. Antes de lanzar, que se cierre sola a los 30 minutos sin uso, con un aviso un minuto antes.
 
 ## Decisiones de negocio pendientes
 

@@ -6,10 +6,11 @@
 
 ## 🎯 Resumen ejecutivo de esta auditoría (2026-09-29)
 
-**Lo que de verdad bloquea lanzar (3 gates; el 3º agregado 2026-10-05):**
+**Lo que de verdad bloquea lanzar (4 gates; el 3º agregado 2026-10-05, el 4º 2026-10-12):**
 1. Confirmar que se compró el seguro de responsabilidad profesional/legal de la compañía (E&O / general liability) — decisión 100% del founder, no verificable en código.
 2. Subir ZeroBounce de plan Free a uno pago y activar `ZEROBOUNCE_ENABLED=true` en Vercel — el código ya está listo desde el 09-24 (conectado a Marketing Saliente + checkout), solo falta la decisión de pagar el plan.
 3. Subir **Resend** de plan Free a uno pago (2026-10-05). El plan gratis ya está en el tope de dominios (opabiz.com, mybusinessformation.com, notices.mybusinessformation.com), así que no se puede agregar `notices.opabiz.com` para la carta de OpaBiz, y su cupo diario/mensual de envíos es UNO SOLO para todo: confirmaciones de pago, contraseñas, OpaBiz Connect y las dos cartas de marketing. Con Stripe Live + campañas se agota y lo primero que deja de llegar puede ser la confirmación de pago de un cliente. Al subir: agregar `notices.opabiz.com` en Resend + DNS en Namecheap + `RESEND_FROM_COLD_OUTREACH_OPABIZ` en Vercel (el código ya está listo).
+4. Cierre de sesión del panel admin por inactividad (2026-10-12): hoy dura 8 horas fijas aunque nadie lo use. Ver Etapa 10.
 
 **Nuevo hallazgo de esta auditoría (no bloqueante, pero sin resolver desde julio):** confirmar que `TURSO_DATABASE_URL`/`TURSO_AUTH_TOKEN` están cargadas también en **Railway** (no solo Vercel) — si faltan, el buscador de nombres del admin degrada a "disponible" en silencio sin avisar a nadie. Ver Etapa 5 más abajo.
 
@@ -174,6 +175,8 @@
 ---
 
 ## 🔴 ETAPA 10 — Seguridad y Hardening (CRÍTICA antes de cobrar dinero real)
+
+- [ ] **OBLIGATORIO antes de Stripe Live (2026-10-12):** cierre de sesión del panel admin por inactividad (30 min sin uso, aviso 1 min antes con "Seguir conectado", tope de 8 h). Hoy la sesión dura 8 horas fijas aunque nadie la use. Medir la inactividad por actividad del usuario, no por requests (el panel se refresca solo cada 20 s). Ver `CLAUDE.md`, alertas de "Stripe LIVE".
 
 **Nota 2026-09-16:** el bloque de Cloudflare (líneas de abajo) queda pendiente de consultar con el socio antes de avanzar — no tocar hasta esa conversación. El resto de la sección sí se revisó contra el código real.
 
