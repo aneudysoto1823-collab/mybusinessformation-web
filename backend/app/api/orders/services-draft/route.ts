@@ -5,6 +5,7 @@ import { checkOrdersDraftRateLimit, getClientIp } from '@/lib/rate-limit'
 import { ServicesDraftInputSchema, ServicesDraftLookupSchema, parseOr400 } from '@/lib/schemas'
 import { resolveOrigin, brandFromOrigin } from '@/lib/request-origin'
 import { brandFrom, brandReplyTo, brandHeaderHtml, brandFooterLine, brandSubjectPrefix, type EmailBrand } from '@/lib/email-constants'
+import { getRequestGeo } from '@/lib/request-geo'
 
 // Guarda el progreso de /servicios/checkout (compartido opabiz.com/
 // mybusinessformation.com) como una orden real (isDraft:true, package:'services')
@@ -93,6 +94,7 @@ export async function POST(request: NextRequest) {
       .insert({
         id:              crypto.randomUUID(),
         createdAt:       now,
+        ...getRequestGeo(request),
         package:         'services',
         currency:        'USD',
         paymentStatus:   'pending',

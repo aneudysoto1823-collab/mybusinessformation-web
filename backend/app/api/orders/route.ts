@@ -7,6 +7,7 @@ import { checkNameAvailability, nameCheckHtmlLine, NameCheckResult } from '@/lib
 import { sendOrderConfirmation } from '@/lib/notifications'
 import { REPLY_TO, INTERNAL_ALERT_EMAIL as INTERNAL_ALERT, FROM_OPABIZ_ALERTS } from '@/lib/email-constants'
 import { encryptEinTaxId } from '@/lib/ein-tax-id'
+import { getRequestGeo } from '@/lib/request-geo'
 
 export async function POST(request: NextRequest) {
   try {
@@ -101,6 +102,7 @@ export async function POST(request: NextRequest) {
         .insert({
           id:        crypto.randomUUID(),
           createdAt: new Date().toISOString(),
+          ...getRequestGeo(request),
           isDraft:   false,
           ...orderFields,
         })

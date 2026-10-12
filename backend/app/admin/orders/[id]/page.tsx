@@ -27,6 +27,8 @@ interface Order {
   email: string
   phone: string
   country: string
+  ipCountry?: string | null
+  ipCity?: string | null
   companyName: string
   companyName2: string
   companyName3: string
@@ -764,6 +766,7 @@ export default function OrderDetailPage() {
             <Field label="Email" value={order.email} />
             <Field label="Teléfono" value={order.phone} />
             <Field label="País" value={order.country} />
+            <Field label="Llenada desde (IP)" value={[order.ipCity, order.ipCountry].filter(Boolean).join(", ") || "Sin dato (orden anterior)"} />
           </div>
         </Section>
 

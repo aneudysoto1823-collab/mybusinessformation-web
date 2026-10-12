@@ -5,6 +5,7 @@ import { getSupabaseAdmin } from '@/lib/supabase'
 import { ClientSignupInputSchema, parseOr400 } from '@/lib/schemas'
 import { checkClientAuthRateLimit, getClientIp } from '@/lib/rate-limit'
 import { REPLY_TO, FROM_OPABIZ } from '@/lib/email-constants'
+import { getRequestGeo } from '@/lib/request-geo'
 
 const SITE_URL = process.env.NEXT_PUBLIC_URL || 'https://opabiz.com'
 
@@ -108,6 +109,7 @@ export async function POST(request: NextRequest) {
   const { error: insertErr } = await supabase.from('Order').insert({
     id,
     createdAt: now,
+    ...getRequestGeo(request),
     updatedAt: now,
     firstName,
     lastName: '-',

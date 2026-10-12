@@ -7,6 +7,7 @@ import { findOrCreateClienteUsuario } from '@/lib/opabiz-clientes'
 import { registrarPuntaje } from '@/lib/opabiz-empleados'
 import { encryptEinTaxId } from '@/lib/ein-tax-id'
 import { sendContinueApplicationEmail } from '@/lib/notifications'
+import { getRequestGeo } from '@/lib/request-geo'
 
 const PUNTOS_INTAKE_ASISTIDA = 10
 
@@ -150,6 +151,7 @@ export async function POST(request: NextRequest) {
       .insert({
         id:            crypto.randomUUID(),
         createdAt:     now,
+        ...getRequestGeo(request),
         paymentStatus: 'pending',
         status:        'pending',
         ...fields,

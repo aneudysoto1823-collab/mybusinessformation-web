@@ -3,6 +3,7 @@ import Stripe from 'stripe'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { computeServicesTotal, SERVICES_CATALOG, SERVICE_BUNDLES } from '@/lib/services-pricing'
 import { resolveOrigin, brandFromOrigin, statementDescriptorParams } from '@/lib/request-origin'
+import { getRequestGeo } from '@/lib/request-geo'
 
 export const dynamic = 'force-dynamic'
 
@@ -134,6 +135,7 @@ export async function POST(req: NextRequest) {
       const { error: orderError } = await supabase.from('Order').insert({
         id:              orderId,
         createdAt:       now,
+        ...getRequestGeo(req),
         package:         'services',
         currency:        'USD',
         paymentStatus:   'pending',

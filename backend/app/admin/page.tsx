@@ -58,7 +58,7 @@ async function getOrders(): Promise<Order[]> {
   // mybusinessformation.com juntas por decisión del founder (2026-09-04).
   const { data, error } = await getSupabaseAdmin()
     .from('Order')
-    .select('id, createdAt, updatedAt, firstName, lastName, email, companyName, package, amount, paymentStatus, status, nameCheck, isDraft, notes')
+    .select('id, createdAt, updatedAt, firstName, lastName, email, companyName, package, amount, paymentStatus, status, nameCheck, isDraft, notes, ipCountry, ipCity')
     .order('createdAt', { ascending: false })
   if (error) {
     console.error('[admin/getOrders] Supabase error:', error.message)

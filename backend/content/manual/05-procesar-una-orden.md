@@ -1,7 +1,7 @@
 ---
 title: "Procesar una orden en el panel"
 summary: "Los estados de una orden, qué hacer en cada uno y cómo entregarle los documentos al cliente."
-updated: "2026-10-07"
+updated: "2026-10-12"
 ---
 
 Todo el trabajo sobre una orden se hace en su página de detalle: en el panel de administración, toca la orden en la lista. La página se actualiza sola cada 20 segundos, así que si entra un pago o un reembolso mientras la tienes abierta, lo ves sin recargar.
@@ -73,6 +73,7 @@ Recuerda: si Florida rechaza el nombre, el nuevo intento no lleva cargo de servi
 
 ## Otras secciones de la orden
 
+- **Llenada desde (IP):** en "Datos del Cliente", la ciudad y el país desde donde se llenó la orden, según la conexión. Es aproximado: si el cliente usa VPN, sale el país de la VPN. En la lista de órdenes aparece en gris debajo del email. Las órdenes de antes del 12 de octubre de 2026 no tienen este dato.
 - **Notas internas:** texto libre que solo ve el equipo. Úsalo para dejar constancia de llamadas, acuerdos o problemas.
 - **Agente Registrado:** si el cliente lo compró, muestra si el servicio ya se activó con el proveedor y la dirección asignada. Ver el capítulo "Agente Registrado".
 - **Suscripciones recurrentes:** qué servicios se renuevan solos y en qué estado están (activa, pago fallido, cancelada).

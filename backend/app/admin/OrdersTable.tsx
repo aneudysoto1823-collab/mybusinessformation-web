@@ -28,6 +28,14 @@ export interface Order {
   status: string
   nameCheck?: NameCheck | null
   notes?: string | null
+  ipCountry?: string | null
+  ipCity?: string | null
+}
+
+// "Miami, US" — desde dónde se llenó la orden (IP). null en órdenes anteriores a 2026-10-12.
+export function orderOrigin(o: { ipCountry?: string | null; ipCity?: string | null }): string | null {
+  if (!o.ipCountry && !o.ipCity) return null
+  return [o.ipCity, o.ipCountry].filter(Boolean).join(', ')
 }
 
 // Badge inline del chequeo Sunbiz al lado del nombre de empresa.
@@ -644,6 +652,11 @@ export default function OrdersTable({ orders, lang = 'es' }: { orders: Order[]; 
                     <td>
                       <div style={{ fontWeight: 600 }}>{order.firstName} {order.lastName}</div>
                       <div style={{ fontSize: '11px', color: '#9ca3af' }}>{order.email}</div>
+                      {orderOrigin(order) && (
+                        <div style={{ fontSize: '11px', color: '#6b7280' }} title={lang === 'en' ? 'Where the order was filled out (IP)' : 'Desde dónde se llenó la orden (IP)'}>
+                          {orderOrigin(order)}
+                        </div>
+                      )}
                     </td>
                     <td>{order.companyName}<NameCheckBadge nc={order.nameCheck} /></td>
                     <td><Badge map={PKG_LABEL} value={order.package} /></td>
