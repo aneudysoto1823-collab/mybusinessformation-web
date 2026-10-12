@@ -63,6 +63,7 @@
 - [ ] Reembolsar ese pago de prueba después de validar
 - [ ] Activar emails automáticos de Stripe a clientes (recibos)
 - [ ] Activar protección contra fraude de Stripe (Radar default rules)
+- [ ] **Cargar las llaves PROD de RegisteredAgentsInc en Vercel → Production, junto con las de Stripe Live** (`CORPTOOLS_ENV=prod`, `CORPTOOLS_ACCESS_KEY_PROD`, `CORPTOOLS_SECRET_KEY_PROD`, `CORPTOOLS_WEBSITE_URL_PROD`). Decisión founder 2026-10-12: la integración queda conectada en el código (webhook → `provisionRaForOrder`) pero **sin llaves a propósito** hasta lanzar. Hoy (verificado con `vercel env ls`) no hay ninguna `CORPTOOLS_*` en Vercel, así que ninguna prueba llega a RAI: cada orden con Agente Registrado manda una alerta de fallo a alert@, y eso es lo esperado. Si se activa Stripe Live sin cargar estas llaves, el cliente paga el Agente Registrado pero no se activa con RAI ni recibe la dirección (habría que hacerlo a mano con cada alerta). No cargar las llaves PROD mientras Stripe siga en sandbox: el sistema no distingue sandbox de live y crearía empresas y facturas reales en RAI con cada prueba.
 
 > _Actualizado por Javier el 2026-06-22_ — reescrita la sección con el estado de Embedded Checkout (commit 05d3e20). Pendiente smoke test TEST + replicar todo en LIVE.
 > _Actualizado 2026-09-16_ — Live 100% preparado (Products, webhook, Billing Portal, descriptores). Founder confirma que está "controlado" — la fecha de activación se decide aparte, gateada solo por el seguro de responsabilidad profesional de la compañía.
