@@ -88,10 +88,10 @@ export async function checkOrdersRateLimit(ip: string): Promise<RateLimitResult>
   const limiter = getLimiter({
     cacheKey: 'orders',
     prefix: 'rl:orders',
-    limit: 200, // TEMPORAL prueba de carga 2026-10-12 (normal: 10). REVERTIR al terminar.
+    limit: 10,
     window: '1 h',
   })
-  return check(limiter, ip, 200)
+  return check(limiter, ip, 10)
 }
 
 // ── POST /api/client-auth: 20 intentos / hora / IP ───────────────────────────
@@ -115,10 +115,10 @@ export async function checkOrdersDraftRateLimit(ip: string): Promise<RateLimitRe
   const limiter = getLimiter({
     cacheKey: 'orders-draft',
     prefix: 'rl:orders-draft',
-    limit: 1000, // TEMPORAL prueba de carga 2026-10-12 (normal: 60). REVERTIR al terminar.
+    limit: 60,
     window: '1 h',
   })
-  return check(limiter, ip, 1000)
+  return check(limiter, ip, 60)
 }
 
 // ── POST /api/chat: 30 requests / hora / IP ──────────────────────────────────
