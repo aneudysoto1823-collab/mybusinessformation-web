@@ -202,7 +202,8 @@
 - [ ] Eliminar consoles.log con datos sensibles del código de producción
 - [ ] **Firewall de Vercel (anotado 2026-10-12):** hasta esta fecha Bot Protection nunca estuvo encendido (estaba en "Off" desde siempre; la línea vieja "Activar Vercel WAF si plan lo permite" no tenía pasos concretos). En Vercel → proyecto → Firewall → Rules:
   - [ ] **Primero** crear una regla en "Rules → Add Rule": si el Path empieza con `/api/extension` → **Bypass**. Es la extensión de Chrome "Asistente Claudia para WhatsApp" (`app/api/extension/suggest-reply`), que llama al sitio desde la extensión y no desde una página, y quedaría bloqueada. Esa ruta ya pide su clave secreta propia (`WHATSAPP_ASSISTANT_KEY`).
-  - [ ] **Después** Bot Management → **Bot Protection: Challenge** (decisión founder: directo a Challenge, sin pasar por Log). No afecta a los bots verificados por Vercel (webhooks de Stripe, webhooks de Resend vía svix, BetterStack, Google) ni a los cron jobs del propio proyecto.
+  - [x] Bot Management → **Bot Protection: Log** (2026-10-12): queda en Log (anota, no bloquea) hasta que Fabián confirme si usa la extensión de WhatsApp.
+  - [ ] **Después** Bot Management → **Bot Protection: Challenge**, una vez creada la regla de arriba (o confirmado que nadie usa la extensión). No afecta a los bots verificados por Vercel (webhooks de Stripe, webhooks de Resend vía svix, BetterStack, Google) ni a los cron jobs del propio proyecto.
   - [ ] **AI Bots: dejar en Allow** (bloquearlos saca al sitio de las respuestas de ChatGPT, Claude, Perplexity).
   - [ ] No encender **Attack Mode** (pone la verificación a todos los visitantes, incluidos clientes; solo para un ataque en curso). BotID y OWASP Ruleset quedan fuera por ahora (BotID requiere código; OWASP es Enterprise).
   - [ ] Si se vuelve a hacer una prueba de carga con navegadores automáticos (`pruebas-carga/`), hay que bajar Bot Protection a "Off" durante la prueba y volver a encenderlo al terminar.
