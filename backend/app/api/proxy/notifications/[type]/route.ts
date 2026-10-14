@@ -133,24 +133,39 @@ export async function POST(
       // Anti-duplicado: si el cron de Priority (cron/priority-filing-notice) ya
       // mandó este email solo, el botón "Filed" del admin no debe reenviarlo —
       // solo avanza el estado. Ver campo Order.orderProcessedEmailSentAt.
-      if (order.orderProcessedEmailSentAt) {
-        return NextResponse.json({ success: true, alreadySent: true, message: `El email ya se había enviado automáticamente (${new Date(order.orderProcessedEmailSentAt as string).toLocaleString()}).` })
+      // La marca se reserva ANTES de enviar y en un solo UPDATE condicional:
+      // si el cron la tomó en el mismo instante, solo uno de los dos gana.
+      const supabase = getSupabaseAdmin()
+      const { data: claimed } = await supabase
+        .from('Order')
+        .update({ orderProcessedEmailSentAt: new Date().toISOString() })
+        .eq('id', order.id)
+        .is('orderProcessedEmailSentAt', null)
+        .select('id')
+      if (!claimed?.length) {
+        const sentAt = order.orderProcessedEmailSentAt
+        return NextResponse.json({ success: true, alreadySent: true, message: sentAt ? `El email ya se había enviado automáticamente (${new Date(sentAt as string).toLocaleString()}).` : 'El email ya se había enviado.' })
       }
-      await sendOrderProcessed({
-        id: order.id,
-        firstName: order.firstName,
-        lastName: order.lastName,
-        email: order.email,
-        companyName: order.companyName,
-        entityType: order.entityType ?? undefined,
-        package: order.package,
-        speed: order.speed ?? undefined,
-        addons: order.addons ?? null,
-        unsubscribed: order.unsubscribed ?? false,
-        lang: (body.lang === 'es' || body.lang === 'en') ? body.lang : getOrderLang(order.addons),
-        sourceBrand: order.sourceBrand,
-      })
-      await getSupabaseAdmin().from('Order').update({ orderProcessedEmailSentAt: new Date().toISOString() }).eq('id', order.id)
+      try {
+        await sendOrderProcessed({
+          id: order.id,
+          firstName: order.firstName,
+          lastName: order.lastName,
+          email: order.email,
+          companyName: order.companyName,
+          entityType: order.entityType ?? undefined,
+          package: order.package,
+          speed: order.speed ?? undefined,
+          addons: order.addons ?? null,
+          unsubscribed: order.unsubscribed ?? false,
+          lang: (body.lang === 'es' || body.lang === 'en') ? body.lang : getOrderLang(order.addons),
+          sourceBrand: order.sourceBrand,
+        })
+      } catch (sendErr) {
+        // No salió: liberar la marca para que se pueda volver a intentar.
+        await supabase.from('Order').update({ orderProcessedEmailSentAt: null }).eq('id', order.id)
+        throw sendErr
+      }
       await logAdminAction({ action: 'email.order-processed', entity: 'Order', entityId: order.id, request })
       return NextResponse.json({ success: true, message: `Notificación "procesada" enviada a ${order.email}` })
     }

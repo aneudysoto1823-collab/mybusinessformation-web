@@ -198,7 +198,7 @@ export async function GET(req: NextRequest) {
   // legacy también recibe este email si termina siendo expedited (raro pero OK).
   const { data: candidates, error } = await supabase
     .from('Order')
-    .select('id, firstName, lastName, email, companyName, entityType, package, speed, addons, paidAt, status, unsubscribed')
+    .select('id, firstName, lastName, email, companyName, entityType, package, speed, addons, paidAt, status, unsubscribed, sourceBrand')
     .eq('speed', 'expedited')
     .neq('package', 'services')
     .not('paidAt', 'is', null)
@@ -219,6 +219,16 @@ export async function GET(req: NextRequest) {
     const sendAt = computeSendTime(paidAt)
     if (now < sendAt) { results.push({ id: order.id, sent: false, reason: 'not yet due' }); continue }
 
+    // Reserva atómica de la marca ANTES de enviar: si el staff apretó "Filed"
+    // en el mismo instante, solo uno de los dos envía.
+    const { data: claimed } = await supabase
+      .from('Order')
+      .update({ orderProcessedEmailSentAt: now.toISOString() })
+      .eq('id', order.id)
+      .is('orderProcessedEmailSentAt', null)
+      .select('id')
+    if (!claimed?.length) { results.push({ id: order.id, sent: false, reason: 'already sent' }); continue }
+
     try {
       await sendOrderProcessed({
         id: order.id,
@@ -234,11 +244,13 @@ export async function GET(req: NextRequest) {
         // addons.lang ya se guarda para órdenes de formación desde 2026-09-07
         // (antes no existía, quedaba fijo en 'en' — ver getOrderLang).
         lang: getOrderLang(order.addons),
+        sourceBrand: order.sourceBrand,
       })
-      await supabase.from('Order').update({ orderProcessedEmailSentAt: now.toISOString() }).eq('id', order.id)
       results.push({ id: order.id, sent: true })
     } catch (e) {
       console.error('[cron/priority-filing-notice] send error for', order.id, e)
+      // No salió: liberar la marca para que el próximo ciclo lo reintente.
+      await supabase.from('Order').update({ orderProcessedEmailSentAt: null }).eq('id', order.id)
       results.push({ id: order.id, sent: false, reason: 'send error' })
     }
   }
