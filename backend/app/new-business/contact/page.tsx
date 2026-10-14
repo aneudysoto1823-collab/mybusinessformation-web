@@ -4,7 +4,7 @@ import { headers } from 'next/headers'
 export const metadata: Metadata = {
   title: 'Contact Florida Business Formation Center',
   description:
-    'Get in touch with Florida Business Formation Center. Send us a message and we will reply within 24 business hours.',
+    'Get in touch with Florida Business Formation Center. Send us a message, email or WhatsApp and we will reply as promptly as possible.',
   robots: { index: false, follow: false },
   alternates: { canonical: 'https://mybusinessformation.com/contact' },
 }
@@ -60,30 +60,20 @@ nav a:hover{color:var(--navy);background:var(--gray100)}
 .contact-mini-head p{font-size:.95rem;color:var(--gray500);margin-top:6px}
 /* SPLIT CARD */
 .split-card{display:grid;grid-template-columns:1fr 1fr;background:#fff;border:1px solid var(--gray200);border-radius:22px;overflow:hidden;box-shadow:0 24px 56px rgba(15,23,42,.10),0 2px 6px rgba(15,23,42,.04);min-height:580px}
-.split-left{background:linear-gradient(135deg,var(--navy) 0%,#1a3a6b 50%,#2052a8 100%);padding:48px 44px;color:#fff;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;gap:28px}
-.split-left::before{content:'';position:absolute;left:-100px;top:-100px;width:340px;height:340px;background:radial-gradient(circle,rgba(96,165,250,.35) 0%,transparent 70%);pointer-events:none;filter:blur(20px)}
-.split-left::after{content:'';position:absolute;right:-80px;bottom:-80px;width:260px;height:260px;background:radial-gradient(circle,rgba(37,99,235,.4) 0%,transparent 70%);pointer-events:none;filter:blur(20px)}
-.split-left>*{position:relative;z-index:1}
-.left-hero .left-badge{display:inline-block;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);color:#fff;font-size:.68rem;font-weight:700;padding:4px 12px;border-radius:20px;letter-spacing:1px;text-transform:uppercase;margin-bottom:14px}
-.left-hero h2{font-family:var(--font-serif);font-size:clamp(1.7rem,2.6vw,2.2rem);font-weight:800;line-height:1.1;letter-spacing:-.5px;margin-bottom:14px}
-.left-hero p.left-lead{font-size:1rem;color:rgba(255,255,255,.82);line-height:1.6}
-.left-promise{background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:12px}
-.left-promise-icon{font-size:1.2rem;flex-shrink:0}
-.left-promise-text{font-size:.86rem;color:rgba(255,255,255,.92);line-height:1.5}
-.left-promise-text strong{color:#fff}
+.split-left{background:var(--gray50);border-right:1px solid var(--gray200);padding:48px 44px;color:var(--navy);display:flex;flex-direction:column;justify-content:space-between;gap:28px}
+.left-hero .left-badge{display:inline-block;background:var(--blue-light);color:var(--blue);font-size:.68rem;font-weight:700;padding:4px 12px;border-radius:20px;letter-spacing:1px;text-transform:uppercase;margin-bottom:14px}
+.left-hero h2{font-family:var(--font-serif);font-size:clamp(1.7rem,2.6vw,2.2rem);font-weight:800;line-height:1.1;letter-spacing:-.5px;margin-bottom:14px;color:var(--navy)}
+.left-hero p.left-lead{font-size:1rem;color:var(--gray600);line-height:1.6}
 .left-actions{display:flex;flex-direction:column;gap:12px}
-.left-action{display:flex;align-items:center;gap:14px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);border-radius:14px;padding:14px 18px;cursor:pointer;transition:all .2s}
-.left-action:hover{background:rgba(255,255,255,.13);border-color:rgba(255,255,255,.3);transform:translateX(3px)}
+.left-action{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid var(--gray200);border-radius:14px;padding:14px 18px;cursor:pointer;transition:all .2s;text-decoration:none}
+.left-action:hover{border-color:var(--blue);box-shadow:0 4px 14px rgba(37,99,235,.08)}
 .left-action-icon{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .left-action-icon svg{width:22px;height:22px;fill:#fff}
 .left-action.wa .left-action-icon{background:#25D366}
+.left-action.mail .left-action-icon{background:var(--blue)}
 .left-action-text{flex:1;display:flex;flex-direction:column}
-.left-action-text strong{font-size:.95rem;color:#fff;font-weight:700;line-height:1.2}
-.left-action-text span{font-size:.78rem;color:rgba(255,255,255,.68);margin-top:2px;line-height:1.4}
-.left-action-arrow{color:rgba(255,255,255,.6);font-size:1.1rem;flex-shrink:0;transition:transform .2s}
-.left-action:hover .left-action-arrow{color:#fff;transform:translateX(2px)}
-.left-footer{font-size:.78rem;color:rgba(255,255,255,.55);line-height:1.55;border-top:1px solid rgba(255,255,255,.12);padding-top:16px}
-.left-footer a{color:#93c5fd;font-weight:600}
+.left-action-text strong{font-size:.95rem;color:var(--navy);font-weight:700;line-height:1.2}
+.left-action-text span{font-size:.78rem;color:var(--gray500);margin-top:2px;line-height:1.4}
 /* SPLIT RIGHT (FORM) */
 .split-right{padding:44px 40px;background:#fff;display:flex;flex-direction:column;justify-content:center}
 .form-title{font-size:1.35rem;color:var(--navy);font-weight:800;margin-bottom:6px;font-family:var(--font-sans)}
@@ -103,7 +93,8 @@ nav a:hover{color:var(--navy);background:var(--gray100)}
 .form-error.show{display:block}
 .form-success-panel{padding:48px 40px;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:#fff}
 .form-success-panel.show{display:flex}
-.form-success-panel .success-icon{font-size:3rem;margin-bottom:12px}
+.form-success-panel .success-icon{width:64px;height:64px;border-radius:50%;background:#D1FAE5;display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.form-success-panel .success-icon svg{width:30px;height:30px;fill:none;stroke:var(--green-dark);stroke-width:3}
 .form-success-panel h3{font-size:1.5rem;color:var(--green-dark);font-weight:800;margin-bottom:10px;font-family:var(--font-serif)}
 .form-success-panel p{font-size:.95rem;color:var(--gray600);line-height:1.65;max-width:340px}
 .form-meta{margin-top:14px;font-size:.74rem;color:var(--gray400);line-height:1.55;text-align:center}
@@ -123,7 +114,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
 .wa-float{position:fixed;bottom:26px;right:26px;z-index:500;background:#25D366;width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(37,211,102,.5);cursor:pointer;transition:all .25s}
 .wa-float:hover{transform:scale(1.1)}
 .wa-float svg{width:24px;height:24px;fill:#fff}
-@media(max-width:900px){.split-card{grid-template-columns:1fr;min-height:0}.split-left{padding:36px 28px 32px}.split-right{padding:32px 28px 36px}}
+@media(max-width:900px){.split-card{grid-template-columns:1fr;min-height:0}.split-left{padding:36px 28px 32px;border-right:none;border-bottom:1px solid var(--gray200)}.split-right{padding:32px 28px 36px}}
 @media(max-width:768px){header{padding:0 16px}.logo-text{font-size:.92rem}.contact-page{padding:28px 16px 50px}.form-row{grid-template-columns:1fr;gap:12px}.form-input,.form-textarea{font-size:16px}.contact-mini-head{margin-bottom:22px}}
 `
   const body = `
@@ -151,9 +142,9 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
   <div class="contact-mini-head">
     <div class="badge en-inline">Contact</div><div class="badge es-inline" style="display:none">Contacto</div>
     <h1 class="en">Get in touch with us.</h1>
-    <h1 class="es" style="display:none">Cont&aacute;ctanos.</h1>
+    <h1 class="es" style="display:none">Cont&aacute;ctenos.</h1>
     <p class="en">Pick the option that works best for you. We read every message.</p>
-    <p class="es" style="display:none">Elige la opci&oacute;n que m&aacute;s te convenga. Leemos cada mensaje.</p>
+    <p class="es" style="display:none">Elija la opci&oacute;n que m&aacute;s le convenga. Leemos cada mensaje.</p>
   </div>
 
   <div class="split-card" id="form-card">
@@ -161,18 +152,13 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
     <!-- LEFT: brand + promise + quick actions -->
     <div class="split-left">
       <div class="left-hero">
-        <div class="left-badge en-inline">We're here for you</div><div class="left-badge es-inline" style="display:none">Estamos para ayudarte</div>
+        <div class="left-badge en-inline">We're here for you</div><div class="left-badge es-inline" style="display:none">Estamos para ayudarle</div>
         <h2 class="en">Talk to our team.</h2>
-        <h2 class="es" style="display:none">Habla con nuestro equipo.</h2>
-        <p class="left-lead en">Have a question about your order, a service, or your account? We answer real questions from real people &mdash; bilingual, no jargon.</p>
-        <p class="left-lead es" style="display:none">&iquest;Tienes una pregunta sobre tu orden, un servicio o tu cuenta? Respondemos preguntas reales de personas reales &mdash; biling&uuml;e, sin tecnicismos.</p>
+        <h2 class="es" style="display:none">Hable con nuestro equipo.</h2>
+        <p class="left-lead en">Have a question about your order, a service, or your account? We'll get back to you as promptly as possible. Handling every inquiry professionally is our priority, which is why our specialists review each case individually.</p>
+        <p class="left-lead es" style="display:none">&iquest;Tiene una pregunta sobre su orden, un servicio o su cuenta? Le responderemos a la mayor brevedad posible. Para nosotros es prioridad atender cada consulta con profesionalismo, por eso nuestros especialistas revisan cada caso de forma individual.</p>
       </div>
 
-      <div class="left-promise">
-        <span class="left-promise-icon">&#9989;</span>
-        <span class="left-promise-text en">We reply within <strong>24 business hours</strong>. Need it faster? Use WhatsApp.</span>
-        <span class="left-promise-text es" style="display:none">Respondemos en menos de <strong>24 horas h&aacute;biles</strong>. &iquest;Lo necesitas m&aacute;s r&aacute;pido? Usa WhatsApp.</span>
-      </div>
 
       <div class="left-actions">
         <a href="${waUrl}" target="_blank" rel="noopener" class="left-action wa">
@@ -180,25 +166,28 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
             <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
           </div>
           <div class="left-action-text">
-            <strong class="en-inline">WhatsApp Consultation</strong><strong class="es-inline" style="display:none">Consulta por WhatsApp</strong>
-            <span class="en-inline">Chat now &mdash; bilingual EN / ES</span><span class="es-inline" style="display:none">Habla ya &mdash; ingl&eacute;s o espa&ntilde;ol</span>
+            <strong class="en-inline">Message us on WhatsApp</strong><strong class="es-inline" style="display:none">Escr&iacute;banos por WhatsApp</strong>
+            <span>+1 (352) 278-2475</span>
           </div>
-          <span class="left-action-arrow">&rarr;</span>
         </a>
-      </div>
-
-      <div class="left-footer">
-        <span class="en-inline">Or write us directly at <a href="mailto:info@mybusinessformation.com">info@mybusinessformation.com</a></span>
-        <span class="es-inline" style="display:none">O escr&iacute;benos directamente a <a href="mailto:info@mybusinessformation.com">info@mybusinessformation.com</a></span>
+        <a href="mailto:info@mybusinessformation.com" class="left-action mail">
+          <div class="left-action-icon">
+            <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>
+          </div>
+          <div class="left-action-text">
+            <strong class="en-inline">Email us</strong><strong class="es-inline" style="display:none">Escr&iacute;banos por email</strong>
+            <span>info@mybusinessformation.com</span>
+          </div>
+        </a>
       </div>
     </div>
 
     <!-- RIGHT: form -->
     <div class="split-right">
       <h2 class="form-title en">Send us a message</h2>
-      <h2 class="form-title es" style="display:none">Env&iacute;anos un mensaje</h2>
-      <p class="form-sub en">Fill out the form &mdash; we'll reply to your email within 24 business hours.</p>
-      <p class="form-sub es" style="display:none">Completa el formulario &mdash; te responderemos por correo en menos de 24 horas h&aacute;biles.</p>
+      <h2 class="form-title es" style="display:none">Env&iacute;enos un mensaje</h2>
+      <p class="form-sub en">Fill out the form and we'll reply as promptly as possible.</p>
+      <p class="form-sub es" style="display:none">Complete el formulario y le responderemos a la mayor brevedad posible.</p>
       <form id="contact-form" onsubmit="return contactSubmit(event)" novalidate>
         <div class="form-row">
           <div class="form-group">
@@ -218,7 +207,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
           <div class="form-group">
             <label class="form-label" for="cf-subject"><span class="en-inline">Subject</span><span class="es-inline" style="display:none">Asunto</span> <span class="req">*</span></label>
             <select class="form-input" id="cf-subject" name="subject" required>
-              <option value="">-- Select a reason --</option>
+              <option value="">Select a reason</option>
               <option value="Order status / existing order">Order status / existing order</option>
               <option value="Service question">Service question</option>
               <option value="Registered Agent question">Registered Agent question</option>
@@ -233,23 +222,23 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
           <textarea class="form-textarea" id="cf-message" name="message" required maxlength="4000" placeholder=""></textarea>
         </div>
         <button class="form-submit" id="cf-submit" type="submit">
-          <span class="en-inline">Send Message</span><span class="es-inline" style="display:none">Enviar Mensaje</span> &rarr;
+          <span class="en-inline">Send Message</span><span class="es-inline" style="display:none">Enviar Mensaje</span>
         </button>
         <div class="form-error" id="cf-error"></div>
       </form>
       <p class="form-meta en">We respect your privacy. Your info is only used to reply to you.</p>
-      <p class="form-meta es" style="display:none">Respetamos tu privacidad. Solo usaremos tus datos para responderte.</p>
+      <p class="form-meta es" style="display:none">Respetamos su privacidad. Solo usaremos sus datos para responderle.</p>
     </div>
 
   </div>
 
   <!-- SUCCESS PANEL (replaces split-card after submit) -->
   <div class="split-card form-success-panel" id="form-success">
-    <div class="success-icon">&#127881;</div>
-    <h3 class="en">Got it &mdash; thank you!</h3>
-    <h3 class="es" style="display:none">&iexcl;Recibido &mdash; gracias!</h3>
-    <p class="en">Your message landed in our inbox. We'll reply to your email within <strong>24 business hours</strong>. Need it sooner? <a href="${waUrl}" target="_blank" rel="noopener" style="color:var(--green-dark);font-weight:700;text-decoration:underline">Message us on WhatsApp</a>.</p>
-    <p class="es" style="display:none">Tu mensaje lleg&oacute; a nuestra bandeja. Te responderemos por correo en menos de <strong>24 horas h&aacute;biles</strong>. &iquest;Lo necesitas antes? <a href="${waUrl}" target="_blank" rel="noopener" style="color:var(--green-dark);font-weight:700;text-decoration:underline">Escr&iacute;benos por WhatsApp</a>.</p>
+    <div class="success-icon"><svg viewBox="0 0 24 24"><polyline points="5 12 10 17 19 7"/></svg></div>
+    <h3 class="en">Message received. Thank you!</h3>
+    <h3 class="es" style="display:none">Mensaje recibido. &iexcl;Gracias!</h3>
+    <p class="en">Your message reached our inbox. We'll handle it in the order received and reply as promptly as possible.</p>
+    <p class="es" style="display:none">Su mensaje lleg&oacute; a nuestra bandeja. Lo atenderemos en el orden recibido y le responderemos a la mayor brevedad posible.</p>
   </div>
 
 </div>
@@ -296,7 +285,7 @@ function setLang(lang){
   var sel = document.getElementById('cf-subject');
   if(sel){
     var first = sel.querySelector('option[value=""]');
-    if(first) first.textContent = isEs ? '-- Selecciona un motivo --' : '-- Select a reason --';
+    if(first) first.textContent = isEs ? 'Seleccione un motivo' : 'Select a reason';
     var labels = isEs ? {
       'Order status / existing order':'Estado de orden existente',
       'Service question':'Pregunta sobre un servicio',
@@ -314,7 +303,7 @@ function setLang(lang){
   }
   // Message placeholder
   var msg = document.getElementById('cf-message');
-  if(msg) msg.placeholder = isEs ? 'Cuéntanos en qué podemos ayudarte...' : 'Tell us how we can help you...';
+  if(msg) msg.placeholder = isEs ? 'Cuéntenos en qué podemos ayudarle...' : 'Tell us how we can help you...';
 }
 
 async function contactSubmit(ev){
@@ -331,7 +320,7 @@ async function contactSubmit(ev){
     message: document.getElementById('cf-message').value.trim()
   };
   if(!data.name || !data.email || !data.subject || !data.message){
-    errBox.textContent = isEs ? 'Por favor completa los campos obligatorios.' : 'Please fill out the required fields.';
+    errBox.textContent = isEs ? 'Por favor complete los campos obligatorios.' : 'Please fill out the required fields.';
     errBox.classList.add('show');
     return false;
   }
@@ -346,8 +335,8 @@ async function contactSubmit(ev){
     });
     var json = await res.json().catch(function(){ return {}; });
     if(!res.ok || !json.success){
-      var msg = json.error || (isEs ? 'No pudimos enviar el mensaje. Por favor intenta de nuevo.' : 'We could not send the message. Please try again.');
-      if(res.status === 429) msg = isEs ? 'Demasiados mensajes desde tu IP. Intenta de nuevo en una hora.' : 'Too many messages from this IP. Please try again in an hour.';
+      var msg = json.error || (isEs ? 'No pudimos enviar el mensaje. Por favor intente de nuevo.' : 'We could not send the message. Please try again.');
+      if(res.status === 429) msg = isEs ? 'Demasiados mensajes desde su conexión. Intente de nuevo en una hora.' : 'Too many messages from this IP. Please try again in an hour.';
       throw new Error(msg);
     }
     document.getElementById('form-card').style.display = 'none';
@@ -358,7 +347,7 @@ async function contactSubmit(ev){
     }
     window.scrollTo({top:0,behavior:'smooth'});
   } catch(err){
-    errBox.textContent = err.message || (isEs ? 'Error de red. Verifica tu conexión.' : 'Network error. Check your connection.');
+    errBox.textContent = err.message || (isEs ? 'Error de red. Verifique su conexión.' : 'Network error. Check your connection.');
     errBox.classList.add('show');
     btn.disabled = false;
     btn.innerHTML = origLabel;
