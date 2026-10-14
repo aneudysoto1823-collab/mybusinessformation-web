@@ -17,6 +17,7 @@ import { verifyAdminToken } from '@/lib/session'
 import { createPromotionCodeForAffiliate, AFFILIATE_COUPON_DISCOUNT_PERCENT } from '@/lib/affiliates'
 import { createEmployeeAccount } from '@/lib/opabiz-empleados'
 import { createInviteToken } from '@/lib/opabiz-invite'
+import { iosPushStepsEmailHtml } from '@/lib/opabiz-ios-push'
 import {
   brandFrom, brandReplyTo, brandSubjectPrefix, brandHeaderHtml, brandFooterLine, brandDisclosureHtml,
   PHYSICAL_MAILING_ADDRESS, type EmailBrand,
@@ -127,19 +128,20 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       ? `
               <h2 style="color:#1C2E44;font-size:20px;margin-top:0">${isEs ? `¡Bienvenido/a al equipo, ${escapeHtml(affiliate.name)}!` : `Welcome to the team, ${escapeHtml(affiliate.name)}!`}</h2>
               <p style="color:#475569;line-height:1.7">${isEs
-                ? `Tu solicitud como agente fue aprobada. Ganás ${commissionPercent}% de comisión sobre las tarifas de servicio de cada orden que asistís, en persona o de forma remota.`
+                ? `Tu solicitud como agente fue aprobada. Ganas ${commissionPercent}% de comisión sobre las tarifas de servicio de cada orden que asistes, en persona o de forma remota.`
                 : `Your field agent application was approved. You earn ${commissionPercent}% commission on the service fees of every order you assist, in person or remotely.`}</p>
               ${inviteUrl ? `
               <p style="color:#475569;line-height:1.7">${isEs
-                ? 'Ya creamos tu cuenta de OpaBiz Connect. Hacé clic en el botón para elegir tu contraseña y entrar. Tu primer paso ahí va a ser completar nuestro training de agentes.'
+                ? 'Ya creamos tu cuenta de OpaBiz Connect. Haz clic en el botón para elegir tu contraseña y entrar. Tu primer paso ahí va a ser completar nuestro training de agentes.'
                 : "We already created your OpaBiz Connect account. Click the button to choose your password and log in. Your first step there will be completing our agent training."}</p>
               <div style="text-align:center;margin:24px 0">
                 <a href="${inviteUrl}" style="background:#2563EB;color:#fff;text-decoration:none;padding:13px 32px;border-radius:8px;font-weight:700;font-size:15px;display:inline-block">
                   ${isEs ? 'Crear mi contraseña' : 'Create my password'}
                 </a>
               </div>
+              ${iosPushStepsEmailHtml(isEs ? 'es' : 'en')}
               <p style="color:#94a3b8;font-size:12px;line-height:1.6">${isEs
-                ? 'Este link expira en 72 horas. Si no esperabas este correo, podés ignorarlo.'
+                ? 'Este link expira en 72 horas. Si no esperabas este correo, puedes ignorarlo.'
                 : 'This link expires in 72 hours. If you were not expecting this email, you can ignore it.'}</p>
               ` : `
               <p style="color:#475569;line-height:1.7">${isEs

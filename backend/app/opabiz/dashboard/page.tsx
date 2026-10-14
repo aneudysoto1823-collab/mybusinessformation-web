@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ConnectHeader, Avatar, NIVEL_LABELS, CONNECT_BASE_CSS, useConnectLang, locale, parseUtc, notaVisible, type Me, type Lang } from '../_components/ConnectShell'
 import OpeningScript from '../_components/OpeningScript'
+import { IOS_PUSH_STEPS, IOS_PUSH_NOTE } from '@/lib/opabiz-ios-push'
 
 type Orden = {
   id: string
@@ -41,14 +42,8 @@ const T = {
     pushOn: 'Te avisamos al instante cuando te asignen una orden.', pushDenied: 'Bloqueadas en el navegador. Actívalas desde su configuración.',
     pushUnsupported: 'No disponibles en este navegador.', pushOff: 'Actívalas para enterarte al instante de una orden nueva.',
     pushIos: 'En iPhone, primero hay que instalar la app en la pantalla de inicio.', pushComo: 'Cómo activarlas en iPhone', pushOcultar: 'Ocultar pasos',
-    pushPasos: [
-      'Abre esta página en Safari. Si llegaste desde un link de Gmail u otra app, copia la dirección (opabiz.com/opabiz/login) y pégala en Safari.',
-      'Toca el botón Compartir: el cuadrado con una flecha hacia arriba, abajo de la pantalla.',
-      'Baja en el menú y toca "Agregar a pantalla de inicio". Después toca "Agregar".',
-      'Cierra Safari y abre OpaBiz Connect desde el ícono nuevo en tu pantalla de inicio. Inicia sesión.',
-      'Vuelve aquí, activa Notificaciones y toca "Permitir" cuando el iPhone te lo pregunte.',
-    ],
-    pushIosNota: 'Necesitas iOS 16.4 o más nuevo. Aunque no las actives, cada orden asignada te llega igual por email.',
+    pushPasos: IOS_PUSH_STEPS.es,
+    pushIosNota: IOS_PUSH_NOTE.es,
     tabs: { nuevas: 'Por aceptar', progreso: 'En progreso', completadas: 'Completadas' },
     vacio: { nuevas: 'No tienes órdenes por aceptar. Cuando te asignen una, aparece aquí.', progreso: 'No tienes órdenes en curso.', completadas: 'Todavía no completaste ninguna orden.' },
     cargando: 'Cargando…', nivel: 'Nivel', puntaje: 'Puntaje', para: 'para', editarPerfil: 'Editar mi perfil',
@@ -70,14 +65,8 @@ const T = {
     pushOn: 'We notify you right away when you get a new order.', pushDenied: 'Blocked in the browser. Turn them on in its settings.',
     pushUnsupported: 'Not available in this browser.', pushOff: 'Turn them on to hear about new orders right away.',
     pushIos: 'On iPhone, you first need to add the app to your home screen.', pushComo: 'How to turn them on on iPhone', pushOcultar: 'Hide steps',
-    pushPasos: [
-      'Open this page in Safari. If you came from a link in Gmail or another app, copy the address (opabiz.com/opabiz/login) and paste it in Safari.',
-      'Tap the Share button: the square with an arrow pointing up, at the bottom of the screen.',
-      'Scroll down and tap "Add to Home Screen". Then tap "Add".',
-      'Close Safari and open OpaBiz Connect from the new icon on your home screen. Sign in.',
-      'Come back here, turn on Notifications and tap "Allow" when your iPhone asks.',
-    ],
-    pushIosNota: 'You need iOS 16.4 or newer. Even without them, every assigned order still reaches you by email.',
+    pushPasos: IOS_PUSH_STEPS.en,
+    pushIosNota: IOS_PUSH_NOTE.en,
     tabs: { nuevas: 'To accept', progreso: 'In progress', completadas: 'Completed' },
     vacio: { nuevas: 'No orders waiting for you. When one is assigned, it shows up here.', progreso: 'No orders in progress.', completadas: 'You have not completed any orders yet.' },
     cargando: 'Loading…', nivel: 'Level', puntaje: 'Score', para: 'to', editarPerfil: 'Edit my profile',

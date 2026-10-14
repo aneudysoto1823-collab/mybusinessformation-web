@@ -2,6 +2,7 @@ import { Redis } from '@upstash/redis'
 import { getResend } from './resend-client'
 import crypto from 'crypto'
 import { FROM_OPABIZ_INTERNAL } from './email-constants'
+import { iosPushStepsEmailHtml } from './opabiz-ios-push'
 
 // Invitación por email para que un empleado de OpaBiz Connect (sistema interno)
 // cree su propia contraseña — mismo patrón que la recuperación de contraseña del admin
@@ -50,7 +51,7 @@ export async function sendInviteEmail(opts: { email: string; nombre: string; tok
   await getResend().emails.send({
     from: FROM_OPABIZ_INTERNAL,
     to: opts.email,
-    subject: 'OpaBiz Connect: Creá tu contraseña de acceso',
+    subject: 'OpaBiz Connect: Crea tu contraseña de acceso',
     html: `
       <div style="font-family:sans-serif;max-width:480px;margin:0 auto">
         <div style="background:#1C2E44;padding:20px;text-align:center;border-radius:8px 8px 0 0">
@@ -61,10 +62,11 @@ export async function sendInviteEmail(opts: { email: string; nombre: string; tok
           <p style="color:#1e293b;font-size:.95rem">Se creó tu cuenta de empleado en OpaBiz Connect. Haz clic en el botón para crear tu contraseña y acceder a tus órdenes asignadas.</p>
           <div style="text-align:center;margin:24px 0">
             <a href="${link}" style="background:#2563EB;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:.95rem">
-              Crear mi contraseña →
+              Crear mi contraseña
             </a>
           </div>
-          <p style="color:#94a3b8;font-size:.78rem">Este link expira en 72 horas. Si no esperabas este email, ignoralo.</p>
+          ${iosPushStepsEmailHtml('es')}
+          <p style="color:#94a3b8;font-size:.78rem">Este link expira en 72 horas. Si no esperabas este email, ignóralo.</p>
         </div>
       </div>
     `,

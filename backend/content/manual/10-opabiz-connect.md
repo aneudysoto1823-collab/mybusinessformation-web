@@ -1,7 +1,7 @@
 ---
 title: "OpaBiz Connect"
 summary: "La app de los agentes de campo: asignación de órdenes, avisos y citas."
-updated: "2026-10-07"
+updated: "2026-10-14"
 ---
 
 ## Qué es
@@ -44,7 +44,7 @@ Puede recuperar o cambiar su contraseña él mismo desde el login.
 
 En iPhone, Apple solo permite notificaciones si la app está **instalada en la pantalla de inicio** y se abre desde ese ícono. En una pestaña de Safari, o en el navegador que abre Gmail al tocar un link, no funcionan. Por eso el interruptor aparece apagado y dice que primero hay que instalar la app.
 
-En el panel del agente, junto a Notificaciones, está el botón **"Cómo activarlas en iPhone"** con estos pasos:
+En el panel del agente, junto a Notificaciones, está el botón **"Cómo activarlas en iPhone"** con estos pasos. Ese botón solo aparece cuando se abre el panel en un iPhone que todavía no tiene la app instalada; en computadora o Android no se ve porque no hace falta. Los mismos pasos van también en el email de invitación a OpaBiz Connect y en el email de aprobación como agente:
 
 1. Abrir **opabiz.com/opabiz/login en Safari**. Si llegó desde un link de Gmail u otra app, copiar la dirección y pegarla en Safari.
 2. Tocar el botón **Compartir** (el cuadrado con la flecha hacia arriba).
