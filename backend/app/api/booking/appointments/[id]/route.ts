@@ -20,7 +20,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
   const updates: Record<string, unknown> = {}
   if (status !== undefined) {
-    if (!['pending', 'confirmed', 'cancelled'].includes(status)) {
+    if (!['pending', 'confirmed', 'cancelled', 'attended'].includes(status)) {
       return NextResponse.json({ error: 'Invalid status' }, { status: 400 })
     }
     updates.status = status

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import HowItWorksModal from '../HowItWorksModal'
 
 interface Appointment {
@@ -12,7 +12,8 @@ interface Appointment {
   date: string
   time: string
   note: string | null
-  status: 'pending' | 'confirmed' | 'cancelled'
+  // 'confirmed' es legacy (el botón Confirm se quitó 2026-10-14); 'attended' = atendida a mano.
+  status: 'pending' | 'confirmed' | 'cancelled' | 'attended'
   meeting_method: 'phone' | 'whatsapp' | null
 }
 
@@ -58,17 +59,59 @@ function formatTime(time: string) {
   return `${hour}:${m.toString().padStart(2, '0')} ${ampm}`
 }
 
-const STATUS_COLORS: Record<string, string> = {
-  pending:   'background:#fef3c7;color:#92400e',
-  confirmed: 'background:#d1fae5;color:#065f46',
-  cancelled: 'background:#fee2e2;color:#991b1b',
+// Orden de OpaBiz Connect creada desde la cita (ordenes_opabiz.appointment_id).
+interface LinkedOrder {
+  estado: string // 'pendiente' | 'asignada' | 'en_progreso' | 'completada'
+  agente: string | null
+}
+
+// Estado que se muestra de la cita (2026-10-14). Sale de la cita + su orden de
+// OpaBiz Connect, sin columna nueva en la base:
+// Pendiente = nadie la tiene · Asignada = tiene agente · Atendida = el agente
+// completó la orden o se marcó a mano · Cancelada.
+type DisplayStatus = 'pending' | 'assigned' | 'attended' | 'cancelled'
+
+const DISPLAY_STATUS: Record<DisplayStatus, { label: string; style: React.CSSProperties }> = {
+  pending:   { label: 'Pendiente', style: { background: '#fef3c7', color: '#92400e' } },
+  assigned:  { label: 'Asignada',  style: { background: '#dbeafe', color: '#1e40af' } },
+  attended:  { label: 'Atendida',  style: { background: '#d1fae5', color: '#065f46' } },
+  cancelled: { label: 'Cancelada', style: { background: '#fee2e2', color: '#991b1b' } },
+}
+
+const FILTER_LABELS: Record<'all' | DisplayStatus, string> = {
+  all: 'Todas', pending: 'Pendientes', assigned: 'Asignadas', attended: 'Atendidas', cancelled: 'Canceladas',
+}
+
+function displayStatus(a: Appointment, order: LinkedOrder | undefined): DisplayStatus {
+  if (a.status === 'cancelled') return 'cancelled'
+  if (a.status === 'attended' || order?.estado === 'completada') return 'attended'
+  if (order && order.estado !== 'pendiente') return 'assigned'
+  return 'pending'
+}
+
+// El nombre del agente llega anidado (EMPLEADOS -> usuarios); según la relación
+// Supabase lo devuelve como objeto o como lista.
+function agentName(o: { EMPLEADOS?: unknown }): string | null {
+  const one = (v: unknown) => (Array.isArray(v) ? v[0] : v) as Record<string, unknown> | undefined
+  const usuario = one(one(o.EMPLEADOS)?.usuarios)
+  return (usuario?.nombre as string | undefined) ?? null
+}
+
+// La API devuelve las órdenes de la más nueva a la más vieja: si una cita
+// tiene más de una, gana la más reciente.
+function buildLinkedOrders(ordenes: Array<{ appointment_id: string | null; estado: string; EMPLEADOS?: unknown }> | undefined): Record<string, LinkedOrder> {
+  const map: Record<string, LinkedOrder> = {}
+  for (const o of ordenes ?? []) {
+    if (o.appointment_id && !map[o.appointment_id]) map[o.appointment_id] = { estado: o.estado, agente: agentName(o) }
+  }
+  return map
 }
 
 export default function CitasPage() {
   const [appointments, setAppointments] = useState<Appointment[]>([])
   const [blocked, setBlocked] = useState<BlockedSlot[]>([])
   const [loading, setLoading] = useState(true)
-  const [filter, setFilter] = useState<'all' | 'pending' | 'confirmed' | 'cancelled'>('all')
+  const [filter, setFilter] = useState<'all' | DisplayStatus>('all')
   const [blockMode, setBlockMode] = useState<'dates' | 'weekday'>('dates')
   const [blockFrom, setBlockFrom] = useState('')
   const [blockTo, setBlockTo] = useState('')
@@ -81,9 +124,9 @@ export default function CitasPage() {
   const [showHowItWorks, setShowHowItWorks] = useState(false)
 
   // Crear orden de OpaBiz Connect a partir de una cita (manual, ver
-  // LOGICA_DE_NEGOCIO/17). `linkedAppointmentIds` evita crear duplicados.
+  // LOGICA_DE_NEGOCIO/17). `linkedOrders` dice qué citas ya tienen orden (y su agente/estado).
   const [empleados, setEmpleados] = useState<EmpleadoOption[]>([])
-  const [linkedAppointmentIds, setLinkedAppointmentIds] = useState<Set<string>>(new Set())
+  const [linkedOrders, setLinkedOrders] = useState<Record<string, LinkedOrder>>({})
   const [creatingFor, setCreatingFor] = useState<Appointment | null>(null)
   const [orderTipoServicio, setOrderTipoServicio] = useState('Consulta agendada')
   const [orderNotas, setOrderNotas] = useState('')
@@ -112,14 +155,22 @@ export default function CitasPage() {
       const d = await empleadosRes.json()
       setEmpleados((d.empleados ?? []).map((e: { id: string; nombre: string }) => ({ id: e.id, nombre: e.nombre })))
     }
-    if (ordenesRes.ok) {
-      const d = await ordenesRes.json()
-      setLinkedAppointmentIds(new Set((d.ordenes ?? []).map((o: { appointment_id: string | null }) => o.appointment_id).filter(Boolean)))
-    }
+    if (ordenesRes.ok) setLinkedOrders(buildLinkedOrders((await ordenesRes.json()).ordenes))
     setLoading(false)
   }, [])
 
   useEffect(() => { load() }, [load])
+
+  // Cuando el agente acepta o completa la orden, la fila se actualiza sola
+  // (cada 20s, mismo ritmo que /admin), sin recargar toda la página.
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      if (document.visibilityState !== 'visible') return
+      const res = await fetch('/api/opabiz/orders')
+      if (res.ok) setLinkedOrders(buildLinkedOrders((await res.json()).ordenes))
+    }, 20000)
+    return () => clearInterval(interval)
+  }, [])
 
   function openCreateOrder(a: Appointment) {
     setCreatingFor(a)
@@ -151,7 +202,8 @@ export default function CitasPage() {
     })
     setCreatingOrder(false)
     if (res.ok) {
-      setLinkedAppointmentIds(prev => new Set(prev).add(creatingFor.id))
+      const agente = empleados.find(e => e.id === orderEmpleadoId)?.nombre ?? null
+      setLinkedOrders(prev => ({ ...prev, [creatingFor.id]: { estado: 'asignada', agente } }))
       setOrderMsg({ ok: true, text: 'Orden creada y asignada.' })
       setTimeout(() => setCreatingFor(null), 1200)
     } else {
@@ -251,8 +303,9 @@ export default function CitasPage() {
   const today = new Date().toLocaleDateString('en-CA')
   // Orden: primero las próximas (hoy incluido), de la más cercana a la más
   // lejana; debajo las que ya pasaron, de la más reciente a la más vieja.
+  const statusOf = (a: Appointment) => displayStatus(a, linkedOrders[a.id])
   const filtered = appointments
-    .filter(a => filter === 'all' || a.status === filter)
+    .filter(a => filter === 'all' || statusOf(a) === filter)
     .sort((a, b) => {
       const aPast = a.date < today, bPast = b.date < today
       if (aPast !== bPast) return aPast ? 1 : -1
@@ -364,9 +417,9 @@ export default function CitasPage() {
 
             <h3>3. Gestión desde este panel</h3>
             <ul>
-              <li>Pestaña &quot;Citas&quot;: filtrar por estado, confirmar, cancelar, borrar, agregar una nota interna o abrir WhatsApp con el cliente.</li>
+              <li>Pestaña &quot;Citas&quot;: próximas arriba, pasadas abajo. Estados: Pendiente (sin agente), Asignada, Atendida y Cancelada. Pasa sola a Asignada al asignar un agente y a Atendida cuando el agente completa la orden. La columna Agente muestra quién la tiene y si ya la aceptó. También se puede marcar atendida a mano, cancelar (pide confirmación), borrar, agregar una nota interna o abrir WhatsApp con el cliente.</li>
               <li>Pestaña &quot;Horarios Bloqueados&quot;: bloquear fechas puntuales, un rango de días, varios días sueltos a la vez, o un día de la semana fijo (ej. &quot;todos los lunes&quot;) que queda activo hasta que lo pausás o lo borrás — nada de esto es visible para el cliente, simplemente esos horarios dejan de aparecer disponibles en /booking.</li>
-              <li>Botón <strong>&quot;Crear orden OpaBiz Connect&quot;</strong> en cada cita: la convierte en una orden asignada a un empleado del equipo (ver OpaBiz Connect), útil cuando la consulta termina en un trámite real. El empleado recibe el aviso al momento y un recordatorio 1 hora antes de la cita.</li>
+              <li>Botón <strong>&quot;Asignar agente&quot;</strong> en cada cita: la convierte en una orden asignada a un empleado del equipo (ver OpaBiz Connect), útil cuando la consulta termina en un trámite real. El empleado recibe el aviso al momento y un recordatorio 1 hora antes de la cita.</li>
             </ul>
 
             <h3>Reglas clave</h3>
@@ -389,7 +442,7 @@ export default function CitasPage() {
             <div className="stat-label">Próximas citas</div>
           </div>
           <div className="stat-card">
-            <div className="stat-val">{appointments.filter(a => a.status === 'pending').length}</div>
+            <div className="stat-val">{appointments.filter(a => statusOf(a) === 'pending').length}</div>
             <div className="stat-label">Pendientes</div>
           </div>
         </div>
@@ -407,9 +460,9 @@ export default function CitasPage() {
         {tab === 'appointments' && (
           <>
             <div className="filters">
-              {(['all', 'pending', 'confirmed', 'cancelled'] as const).map(f => (
+              {(['all', 'pending', 'assigned', 'attended', 'cancelled'] as const).map(f => (
                 <button key={f} className={`filter-btn${filter === f ? ' active' : ''}`} onClick={() => setFilter(f)}>
-                  {f === 'all' ? 'Todas' : f === 'pending' ? 'Pendientes' : f === 'confirmed' ? 'Confirmadas' : 'Canceladas'}
+                  {FILTER_LABELS[f]}
                 </button>
               ))}
             </div>
@@ -417,7 +470,7 @@ export default function CitasPage() {
             {loading ? (
               <div className="empty-state">Cargando...</div>
             ) : filtered.length === 0 ? (
-              <div className="empty-state">No hay citas {filter !== 'all' ? `con estado "${filter}"` : ''}.</div>
+              <div className="empty-state">No hay citas{filter !== 'all' ? ` ${FILTER_LABELS[filter].toLowerCase()}` : ''}.</div>
             ) : (
               <table className="appt-table">
                 <thead>
@@ -426,6 +479,7 @@ export default function CitasPage() {
                     <th>Fecha y Hora</th>
                     <th>Reunión</th>
                     <th>Nota</th>
+                    <th>Agente</th>
                     <th>Estado</th>
                     <th>Contacto</th>
                     <th>Acciones</th>
@@ -433,6 +487,8 @@ export default function CitasPage() {
                 </thead>
                 <tbody>
                   {filtered.map(a => {
+                    const order = linkedOrders[a.id]
+                    const st = statusOf(a)
                     const waText = encodeURIComponent(`Hola ${a.name}, te contactamos de OpaBiz sobre tu consulta del ${formatDate(a.date)} a las ${formatTime(a.time)}.`)
                     const waLink = a.phone ? `https://wa.me/${a.phone.replace(/\D/g, '')}?text=${waText}` : null
                     return (
@@ -458,8 +514,20 @@ export default function CitasPage() {
                           </button>
                         </td>
                         <td>
-                          <span className="status-pill" style={{ ...Object.fromEntries(STATUS_COLORS[a.status].split(';').map(s => s.split(':').map(x => x.trim()))) }}>
-                            {a.status}
+                          {order && order.estado !== 'pendiente' ? (
+                            <>
+                              <div style={{ fontWeight: 600, color: '#1a1a2e' }}>{order.agente ?? 'Agente'}</div>
+                              {order.estado === 'asignada'
+                                ? <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#d97706' }}>Por aceptar</div>
+                                : <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#16a34a' }}>✓ Aceptada</div>}
+                            </>
+                          ) : (
+                            <span style={{ fontSize: '0.8rem', color: '#9ca3af' }}>Sin asignar</span>
+                          )}
+                        </td>
+                        <td>
+                          <span className="status-pill" style={DISPLAY_STATUS[st].style}>
+                            {DISPLAY_STATUS[st].label}
                           </span>
                         </td>
                         <td>
@@ -469,10 +537,13 @@ export default function CitasPage() {
                           </div>
                         </td>
                         <td>
-                          {a.status !== 'confirmed' && (
-                            <button className="action-btn" style={{ borderColor: '#d1fae5', color: '#065f46' }} onClick={() => updateStatus(a.id, 'confirmed')}>✓ Confirm</button>
+                          {st !== 'attended' && st !== 'cancelled' && (
+                            <button className="action-btn" style={{ borderColor: '#d1fae5', color: '#065f46' }} onClick={() => {
+                              if (!confirm(`¿Marcar como atendida la cita de ${a.name}?`)) return
+                              updateStatus(a.id, 'attended')
+                            }}>✓ Marcar atendida</button>
                           )}
-                          {a.status !== 'cancelled' && (
+                          {st !== 'cancelled' && (
                             <button className="action-btn" style={{ borderColor: '#fee2e2', color: '#991b1b' }} onClick={() => {
                               // Doble confirmación: un clic por error cancelaba la cita sin aviso.
                               if (!confirm(`¿Confirmas que quieres cancelar la cita de ${a.name} del ${formatDate(a.date)} a las ${formatTime(a.time)}?`)) return
@@ -480,14 +551,15 @@ export default function CitasPage() {
                             }}>✕ Cancel</button>
                           )}
                           <button className="action-btn" style={{ borderColor: '#e5e7eb', color: '#6b7280' }} onClick={() => deleteAppointment(a.id)}>🗑</button>
-                          <button
-                            className="action-btn"
-                            style={{ borderColor: '#bfdbfe', color: '#2563EB' }}
-                            disabled={linkedAppointmentIds.has(a.id)}
-                            onClick={() => openCreateOrder(a)}
-                          >
-                            {linkedAppointmentIds.has(a.id) ? '✓ Orden creada' : '🧭 Crear orden OpaBiz Connect'}
-                          </button>
+                          {!order && st !== 'cancelled' && st !== 'attended' && (
+                            <button
+                              className="action-btn"
+                              style={{ borderColor: '#bfdbfe', color: '#2563EB' }}
+                              onClick={() => openCreateOrder(a)}
+                            >
+                              Asignar agente
+                            </button>
+                          )}
                         </td>
                       </tr>
                     )
@@ -617,7 +689,7 @@ export default function CitasPage() {
         {creatingFor && (
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: 20 }}>
             <div style={{ background: '#fff', borderRadius: 14, padding: 24, width: '100%', maxWidth: 420, boxShadow: '0 20px 60px rgba(0,0,0,.25)' }}>
-              <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#1C2E44', marginBottom: 4 }}>Crear orden OpaBiz Connect</h3>
+              <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#1C2E44', marginBottom: 4 }}>Asignar agente</h3>
               <p style={{ fontSize: '.8rem', color: '#6b7280', marginBottom: 16 }}>{creatingFor.name} — {formatDate(creatingFor.date)} {formatTime(creatingFor.time)}</p>
 
               <label className="block-label">Tipo de servicio</label>

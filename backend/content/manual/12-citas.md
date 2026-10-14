@@ -1,7 +1,7 @@
 ---
 title: "Citas"
-summary: "Cómo agenda el cliente, cómo confirmar o cancelar y cómo bloquear horarios."
-updated: "2026-10-07"
+summary: "Cómo agenda el cliente, cómo asignar, atender o cancelar y cómo bloquear horarios."
+updated: "2026-10-14"
 ---
 
 ## Qué es
@@ -29,10 +29,20 @@ Las páginas de reprogramar y cancelar funcionan en inglés y en español.
 
 ## En el panel
 
-En **/admin/citas** ves todas las citas, con su estado (pendiente, confirmada, cancelada). Desde ahí puedes:
+En **/admin/citas** ves todas las citas. Arriba las próximas (la más cercana primero) y abajo las que ya pasaron. Cada cita tiene uno de estos estados:
 
-- **Confirmar** o **cancelar** una cita.
-- **Convertirla en una orden de OpaBiz Connect** y asignarla a un agente, que recibe un recordatorio 1 hora antes. Ver el capítulo "OpaBiz Connect".
+- **Pendiente:** nadie la tiene asignada todavía.
+- **Asignada:** ya tiene un agente.
+- **Atendida:** ya se atendió al cliente.
+- **Cancelada.**
+
+El estado cambia solo: al asignar un agente pasa a Asignada, y cuando el agente marca la orden como completada en OpaBiz Connect pasa a Atendida. La columna **Agente** muestra quién la tiene y si ya la aceptó ("Por aceptar" o "Aceptada"). La pantalla se actualiza sola cada 20 segundos.
+
+Desde ahí puedes:
+
+- **Asignar agente:** convierte la cita en una orden de OpaBiz Connect para ese agente, que recibe un recordatorio 1 hora antes. Ver el capítulo "OpaBiz Connect".
+- **Marcar atendida:** para cuando la atiendes tú, sin pasar por un agente.
+- **Cancelar** una cita. Pide confirmación antes, para evitar cancelar una por error. Cancelar desde el panel no le avisa al cliente.
 
 ## Bloquear horarios
 
