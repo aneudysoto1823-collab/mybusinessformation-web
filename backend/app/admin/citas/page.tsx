@@ -462,7 +462,11 @@ export default function CitasPage() {
                             <button className="action-btn" style={{ borderColor: '#d1fae5', color: '#065f46' }} onClick={() => updateStatus(a.id, 'confirmed')}>✓ Confirm</button>
                           )}
                           {a.status !== 'cancelled' && (
-                            <button className="action-btn" style={{ borderColor: '#fee2e2', color: '#991b1b' }} onClick={() => updateStatus(a.id, 'cancelled')}>✕ Cancel</button>
+                            <button className="action-btn" style={{ borderColor: '#fee2e2', color: '#991b1b' }} onClick={() => {
+                              // Doble confirmación: un clic por error cancelaba la cita sin aviso.
+                              if (!confirm(`¿Confirmas que quieres cancelar la cita de ${a.name} del ${formatDate(a.date)} a las ${formatTime(a.time)}?`)) return
+                              updateStatus(a.id, 'cancelled')
+                            }}>✕ Cancel</button>
                           )}
                           <button className="action-btn" style={{ borderColor: '#e5e7eb', color: '#6b7280' }} onClick={() => deleteAppointment(a.id)}>🗑</button>
                           <button
