@@ -4,7 +4,7 @@ import ChatWidget from '@/components/ChatWidget'
 export const metadata: Metadata = {
   title: 'Contact OpaBiz | Florida LLC & Corporation Formation Help',
   description:
-    'Get in touch with OpaBiz. Send us a message or schedule a free 30-minute appointment. We reply within 24 business hours.',
+    'Get in touch with OpaBiz. Send us a message or write to us on WhatsApp. Our Florida business formation specialists reply as promptly as possible.',
   alternates: {
     canonical: 'https://opabiz.com/contact',
     languages: {
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     url: 'https://opabiz.com/contact',
     title: 'Contact OpaBiz | Florida LLC & Corporation Formation Help',
     description:
-      'Send us a message or schedule a free 30-minute appointment. We reply within 24 business hours.',
+      'Send us a message or write to us on WhatsApp. Our specialists reply as promptly as possible.',
   },
 }
 
@@ -31,7 +31,7 @@ const contactSchema = {
       url: 'https://opabiz.com/contact',
       name: 'Contact OpaBiz',
       description:
-        'Get in touch with OpaBiz. Send us a message or schedule an appointment. We reply within 24 hours.',
+        'Get in touch with OpaBiz. Send us a message or write to us on WhatsApp.',
       inLanguage: 'en-US',
       isPartOf: { '@id': 'https://opabiz.com/#website' },
       mainEntity: { '@id': 'https://opabiz.com/#organization' },
@@ -89,11 +89,6 @@ nav a:hover{color:var(--navy);background:var(--gray100)}
 .left-hero .left-badge{display:inline-block;background:var(--blue-light);color:var(--blue);font-size:.68rem;font-weight:700;padding:4px 12px;border-radius:20px;letter-spacing:1px;text-transform:uppercase;margin-bottom:14px}
 .left-hero h2{font-family:var(--font-serif);font-size:clamp(1.7rem,2.6vw,2.2rem);font-weight:800;line-height:1.1;letter-spacing:-.5px;margin-bottom:14px;color:var(--navy)}
 .left-hero p.left-lead{font-size:1rem;color:var(--gray600);line-height:1.6}
-.left-promise{background:#fff;border:1px solid var(--gray200);border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:12px}
-.left-promise-icon{width:26px;height:26px;border-radius:50%;background:var(--green-light);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.left-promise-icon svg{width:14px;height:14px;fill:none;stroke:var(--green-dark);stroke-width:3}
-.left-promise-text{font-size:.86rem;color:var(--gray600);line-height:1.5}
-.left-promise-text strong{color:var(--navy)}
 .left-actions{display:flex;flex-direction:column;gap:12px}
 .left-action{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid var(--gray200);border-radius:14px;padding:14px 18px;cursor:pointer;transition:all .2s;text-decoration:none}
 .left-action:hover{border-color:var(--blue);box-shadow:0 4px 14px rgba(37,99,235,.08)}
@@ -196,15 +191,10 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
         <div class="left-badge en-inline">We're here for you</div><div class="left-badge es-inline" style="display:none">Estamos para ayudarle</div>
         <h2 class="en">Talk to a Florida formation specialist.</h2>
         <h2 class="es" style="display:none">Hable con un especialista en formaci&oacute;n de empresas en Florida.</h2>
-        <p class="left-lead en">Have a question about your LLC, pricing, EIN or your order? Our specialists review every inquiry and respond to your specific situation.</p>
-        <p class="left-lead es" style="display:none">&iquest;Tiene una pregunta sobre su LLC, precios, EIN o su orden? Nuestros especialistas revisan cada consulta y le responden seg&uacute;n su caso.</p>
+        <p class="left-lead en">Have a question about your LLC, pricing, EIN or your order? We'll get back to you as promptly as possible. Handling every inquiry professionally is our priority, which is why our specialists review each case individually.</p>
+        <p class="left-lead es" style="display:none">&iquest;Tiene una pregunta sobre su LLC, precios, EIN o su orden? Le responderemos a la mayor brevedad posible. Para nosotros es prioridad atender cada consulta con profesionalismo, por eso nuestros especialistas revisan cada caso de forma individual.</p>
       </div>
 
-      <div class="left-promise">
-        <span class="left-promise-icon"><svg viewBox="0 0 24 24"><polyline points="5 12 10 17 19 7"/></svg></span>
-        <span class="left-promise-text en">We reply within <strong>24 business hours</strong>.</span>
-        <span class="left-promise-text es" style="display:none">Respondemos en menos de <strong>24 horas h&aacute;biles</strong>.</span>
-      </div>
 
       <!-- Citas quitadas 2026-10-14 (decisión socios): la atención es por
            email y WhatsApp, para controlar tiempos y respuestas. -->
@@ -230,8 +220,8 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
     <div class="split-right">
       <h2 class="form-title en">Send us a message</h2>
       <h2 class="form-title es" style="display:none">Env&iacute;anos un mensaje</h2>
-      <p class="form-sub en">Fill out the form and we'll reply to your email within 24 business hours.</p>
-      <p class="form-sub es" style="display:none">Complete el formulario y le responderemos por correo en menos de 24 horas h&aacute;biles.</p>
+      <p class="form-sub en">Fill out the form and we'll reply as promptly as possible.</p>
+      <p class="form-sub es" style="display:none">Complete el formulario y le responderemos a la mayor brevedad posible.</p>
       <form id="contact-form" onsubmit="return contactSubmit(event)" novalidate>
         <div class="form-row">
           <div class="form-group">
@@ -283,8 +273,8 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
     <div class="success-icon"><svg viewBox="0 0 24 24"><polyline points="5 12 10 17 19 7"/></svg></div>
     <h3 class="en">Message received. Thank you!</h3>
     <h3 class="es" style="display:none">Mensaje recibido. &iexcl;Gracias!</h3>
-    <p class="en">Your message landed in our inbox. We'll reply to your email within <strong>24 business hours</strong>.</p>
-    <p class="es" style="display:none">Su mensaje lleg&oacute; a nuestra bandeja. Le responderemos por correo en menos de <strong>24 horas h&aacute;biles</strong>.</p>
+    <p class="en">Your message reached our inbox. We'll handle it in the order received and reply as promptly as possible.</p>
+    <p class="es" style="display:none">Su mensaje lleg&oacute; a nuestra bandeja. Lo atenderemos en el orden recibido y le responderemos a la mayor brevedad posible.</p>
   </div>
 
 </div>
