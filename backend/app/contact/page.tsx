@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import ChatWidget from '@/components/ChatWidget'
 
 export const metadata: Metadata = {
-  title: 'Contact OpaBiz — Florida LLC & Corporation Formation Help',
+  title: 'Contact OpaBiz | Florida LLC & Corporation Formation Help',
   description:
     'Get in touch with OpaBiz. Send us a message or schedule a free 30-minute appointment. We reply within 24 business hours.',
   alternates: {
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     url: 'https://opabiz.com/contact',
-    title: 'Contact OpaBiz — Florida LLC & Corporation Formation Help',
+    title: 'Contact OpaBiz | Florida LLC & Corporation Formation Help',
     description:
       'Send us a message or schedule a free 30-minute appointment. We reply within 24 business hours.',
   },
@@ -85,31 +85,27 @@ nav a:hover{color:var(--navy);background:var(--gray100)}
 .contact-mini-head p{font-size:.95rem;color:var(--gray500);margin-top:6px}
 /* SPLIT CARD */
 .split-card{display:grid;grid-template-columns:1fr 1fr;background:#fff;border:1px solid var(--gray200);border-radius:22px;overflow:hidden;box-shadow:0 24px 56px rgba(15,23,42,.10),0 2px 6px rgba(15,23,42,.04);min-height:620px}
-.split-left{background:linear-gradient(135deg,var(--navy) 0%,#1a3a6b 50%,#2052a8 100%);padding:48px 44px;color:#fff;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;gap:28px}
-.split-left::before{content:'';position:absolute;left:-100px;top:-100px;width:340px;height:340px;background:radial-gradient(circle,rgba(96,165,250,.35) 0%,transparent 70%);pointer-events:none;filter:blur(20px)}
-.split-left::after{content:'';position:absolute;right:-80px;bottom:-80px;width:260px;height:260px;background:radial-gradient(circle,rgba(37,99,235,.4) 0%,transparent 70%);pointer-events:none;filter:blur(20px)}
-.split-left>*{position:relative;z-index:1}
-.left-hero .left-badge{display:inline-block;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);color:#fff;font-size:.68rem;font-weight:700;padding:4px 12px;border-radius:20px;letter-spacing:1px;text-transform:uppercase;margin-bottom:14px}
-.left-hero h2{font-family:var(--font-serif);font-size:clamp(1.7rem,2.6vw,2.2rem);font-weight:800;line-height:1.1;letter-spacing:-.5px;margin-bottom:14px}
-.left-hero p.left-lead{font-size:1rem;color:rgba(255,255,255,.82);line-height:1.6}
-.left-promise{background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:12px}
-.left-promise-icon{font-size:1.2rem;flex-shrink:0}
-.left-promise-text{font-size:.86rem;color:rgba(255,255,255,.92);line-height:1.5}
-.left-promise-text strong{color:#fff}
+.split-left{background:var(--gray50);border-right:1px solid var(--gray200);padding:48px 44px;color:var(--navy);display:flex;flex-direction:column;justify-content:space-between;gap:28px}
+.left-hero .left-badge{display:inline-block;background:var(--blue-light);color:var(--blue);font-size:.68rem;font-weight:700;padding:4px 12px;border-radius:20px;letter-spacing:1px;text-transform:uppercase;margin-bottom:14px}
+.left-hero h2{font-family:var(--font-serif);font-size:clamp(1.7rem,2.6vw,2.2rem);font-weight:800;line-height:1.1;letter-spacing:-.5px;margin-bottom:14px;color:var(--navy)}
+.left-hero p.left-lead{font-size:1rem;color:var(--gray600);line-height:1.6}
+.left-promise{background:#fff;border:1px solid var(--gray200);border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:12px}
+.left-promise-icon{width:26px;height:26px;border-radius:50%;background:var(--green-light);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.left-promise-icon svg{width:14px;height:14px;fill:none;stroke:var(--green-dark);stroke-width:3}
+.left-promise-text{font-size:.86rem;color:var(--gray600);line-height:1.5}
+.left-promise-text strong{color:var(--navy)}
 .left-actions{display:flex;flex-direction:column;gap:12px}
-.left-action{display:flex;align-items:center;gap:14px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);border-radius:14px;padding:14px 18px;cursor:pointer;transition:all .2s}
-.left-action:hover{background:rgba(255,255,255,.13);border-color:rgba(255,255,255,.3);transform:translateX(3px)}
+.left-action{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid var(--gray200);border-radius:14px;padding:14px 18px;cursor:pointer;transition:all .2s;text-decoration:none}
+.left-action:hover{border-color:var(--blue);box-shadow:0 4px 14px rgba(37,99,235,.08)}
 .left-action-icon{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .left-action-icon svg{width:22px;height:22px;fill:#fff}
-.left-action.cal .left-action-icon{background:var(--blue)}
+.left-action.wa .left-action-icon{background:#25D366}
 .left-action-text{flex:1;display:flex;flex-direction:column}
-.left-action-text strong{font-size:.95rem;color:#fff;font-weight:700;line-height:1.2}
-.left-action-text span{font-size:.78rem;color:rgba(255,255,255,.68);margin-top:2px;line-height:1.4}
-.left-action-arrow{color:rgba(255,255,255,.6);font-size:1.1rem;flex-shrink:0;transition:transform .2s}
-.left-action:hover .left-action-arrow{color:#fff;transform:translateX(2px)}
-.left-footer{font-size:.78rem;color:rgba(255,255,255,.55);line-height:1.55;border-top:1px solid rgba(255,255,255,.12);padding-top:16px}
-.left-footer strong{color:rgba(255,255,255,.8)}
-.left-footer a{color:#93c5fd;font-weight:600}
+.left-action-text strong{font-size:.95rem;color:var(--navy);font-weight:700;line-height:1.2}
+.left-action-text span{font-size:.78rem;color:var(--gray500);margin-top:2px;line-height:1.4}
+.left-footer{font-size:.78rem;color:var(--gray500);line-height:1.55;border-top:1px solid var(--gray200);padding-top:16px}
+.left-footer strong{color:var(--gray800)}
+.left-footer a{color:var(--blue);font-weight:600}
 /* SPLIT RIGHT (FORM) */
 .split-right{padding:44px 40px;background:#fff;display:flex;flex-direction:column;justify-content:center}
 .form-title{font-size:1.35rem;color:var(--navy);font-weight:800;margin-bottom:6px;font-family:var(--font-sans)}
@@ -129,7 +125,8 @@ nav a:hover{color:var(--navy);background:var(--gray100)}
 .form-error.show{display:block}
 .form-success-panel{padding:48px 40px;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:#fff}
 .form-success-panel.show{display:flex}
-.form-success-panel .success-icon{font-size:3rem;margin-bottom:12px}
+.form-success-panel .success-icon{width:64px;height:64px;border-radius:50%;background:var(--green-light);display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.form-success-panel .success-icon svg{width:30px;height:30px;fill:none;stroke:var(--green-dark);stroke-width:3}
 .form-success-panel h3{font-size:1.5rem;color:var(--green-dark);font-weight:800;margin-bottom:10px;font-family:var(--font-serif)}
 .form-success-panel p{font-size:.95rem;color:var(--gray600);line-height:1.65;max-width:340px}
 .form-meta{margin-top:14px;font-size:.74rem;color:var(--gray400);line-height:1.55;text-align:center}
@@ -151,11 +148,11 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
 .footer-links a{font-size:.75rem;color:rgba(255,255,255,.4);transition:color .2s}
 .footer-links a:hover{color:#fff}
 .footer-disclaimer{font-size:.7rem;color:rgba(255,255,255,.28);max-width:540px;line-height:1.6}
-@media(max-width:900px){.split-card{grid-template-columns:1fr;min-height:0}.split-left{padding:36px 28px 32px}.split-right{padding:32px 28px 36px}}
+@media(max-width:900px){.split-card{grid-template-columns:1fr;min-height:0}.split-left{padding:36px 28px 32px;border-right:none;border-bottom:1px solid var(--gray200)}.split-right{padding:32px 28px 36px}}
 @media(max-width:768px){nav{display:none}nav.open{display:flex;flex-direction:column;position:absolute;top:62px;left:-16px;right:-16px;background:#fff;padding:10px 16px 14px;border-bottom:1px solid var(--gray200);box-shadow:0 8px 24px rgba(0,0,0,.08);z-index:200;gap:2px}nav.open a{padding:11px 12px;font-size:.92rem;border-radius:8px;font-weight:500;margin-left:0}nav.open a:hover{background:var(--gray100)}.hamburger{display:flex}header{padding:0 16px}.logo-text{font-size:1rem}.logo-text span{display:none}.contact-page{padding:28px 16px 50px}.form-row{grid-template-columns:1fr;gap:12px}.form-input,.form-textarea{font-size:16px}.contact-mini-head{margin-bottom:22px}}
 `
   const body = `
-<div class="topbar"><span class="en-inline">Florida's trusted business formation experts &mdash; <strong>LLC &amp; Corporation</strong> filing made simple.</span><span class="es-inline" style="display:none">Expertos de confianza en formaci&oacute;n de empresas en Florida &mdash; <strong>LLC y Corporaci&oacute;n</strong> de manera sencilla.</span></div>
+<div class="topbar"><span class="en-inline">Florida's trusted business formation experts. <strong>LLC &amp; Corporation</strong> filing made simple.</span><span class="es-inline" style="display:none">Expertos de confianza en formaci&oacute;n de empresas en Florida. <strong>LLC y Corporaci&oacute;n</strong> de manera sencilla.</span></div>
 <header id="mainHeader">
   <div class="header-inner">
     <a href="/" class="logo">
@@ -188,7 +185,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
     <h1 class="en">Get in touch with us.</h1>
     <h1 class="es" style="display:none">Cont&aacute;ctanos.</h1>
     <p class="en">Pick the option that works best for you. We read every message.</p>
-    <p class="es" style="display:none">Elige la opci&oacute;n que m&aacute;s te convenga. Leemos cada mensaje.</p>
+    <p class="es" style="display:none">Elija la opci&oacute;n que m&aacute;s le convenga. Leemos cada mensaje.</p>
   </div>
 
   <div class="split-card" id="form-card">
@@ -196,37 +193,36 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
     <!-- LEFT: brand + promise + quick actions -->
     <div class="split-left">
       <div class="left-hero">
-        <div class="left-badge en-inline">We're here for you</div><div class="left-badge es-inline" style="display:none">Estamos para ayudarte</div>
+        <div class="left-badge en-inline">We're here for you</div><div class="left-badge es-inline" style="display:none">Estamos para ayudarle</div>
         <h2 class="en">Talk to a Florida formation specialist.</h2>
-        <h2 class="es" style="display:none">Habla con un especialista en formaci&oacute;n de empresas en Florida.</h2>
-        <p class="left-lead en">Have a question about your LLC, pricing, EIN or your order? We answer real questions from real people &mdash; bilingual, no jargon.</p>
-        <p class="left-lead es" style="display:none">&iquest;Tienes una pregunta sobre tu LLC, precios, EIN o tu orden? Respondemos preguntas reales de personas reales &mdash; biling&uuml;e, sin tecnicismos.</p>
+        <h2 class="es" style="display:none">Hable con un especialista en formaci&oacute;n de empresas en Florida.</h2>
+        <p class="left-lead en">Have a question about your LLC, pricing, EIN or your order? We answer real questions from real people, in English or Spanish and without jargon.</p>
+        <p class="left-lead es" style="display:none">&iquest;Tiene una pregunta sobre su LLC, precios, EIN o su orden? Respondemos preguntas reales de personas reales, en espa&ntilde;ol o en ingl&eacute;s y sin tecnicismos.</p>
       </div>
 
       <div class="left-promise">
-        <span class="left-promise-icon">&#9989;</span>
+        <span class="left-promise-icon"><svg viewBox="0 0 24 24"><polyline points="5 12 10 17 19 7"/></svg></span>
         <span class="left-promise-text en">We reply within <strong>24 business hours</strong>.</span>
         <span class="left-promise-text es" style="display:none">Respondemos en menos de <strong>24 horas h&aacute;biles</strong>.</span>
       </div>
 
-      <!-- WhatsApp eliminado 2026-09-17 (decisión founder: solo email + la
-           asistente virtual Claudia quedan como canales de soporte). -->
+      <!-- Citas quitadas 2026-10-14 (decisión socios): la atención es por
+           email y WhatsApp, para controlar tiempos y respuestas. -->
       <div class="left-actions">
-        <a href="/booking?lang=en" id="cal-link" class="left-action cal">
+        <a href="https://wa.me/13522782475?text=Hello%2C%20I%20have%20a%20question%20about%20OpaBiz.com" target="_blank" rel="noopener noreferrer" id="wa-link" class="left-action wa">
           <div class="left-action-icon">
-            <svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2zM7 12h5v5H7v-5z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.17L4 17.17V4h16v12zM7 9h10v2H7zm0-3h10v2H7zm0 6h7v2H7z"/></svg>
           </div>
           <div class="left-action-text">
-            <strong class="en-inline">Schedule an Appointment</strong><strong class="es-inline" style="display:none">Agendar una Cita</strong>
-            <span class="en-inline">Free 30-min call &middot; Mon &mdash; Sat</span><span class="es-inline" style="display:none">Llamada gratis 30 min &middot; Lun &mdash; S&aacute;b</span>
+            <strong class="en-inline">Message us on WhatsApp</strong><strong class="es-inline" style="display:none">Escr&iacute;banos por WhatsApp</strong>
+            <span>+1 (352) 278-2475</span>
           </div>
-          <span class="left-action-arrow">&rarr;</span>
         </a>
       </div>
 
       <div class="left-footer">
         <span class="en-inline">Or write us directly at <a href="mailto:info@opabiz.com">info@opabiz.com</a></span>
-        <span class="es-inline" style="display:none">O escr&iacute;benos directamente a <a href="mailto:info@opabiz.com">info@opabiz.com</a></span>
+        <span class="es-inline" style="display:none">O escr&iacute;banos directamente a <a href="mailto:info@opabiz.com">info@opabiz.com</a></span>
       </div>
     </div>
 
@@ -234,8 +230,8 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
     <div class="split-right">
       <h2 class="form-title en">Send us a message</h2>
       <h2 class="form-title es" style="display:none">Env&iacute;anos un mensaje</h2>
-      <p class="form-sub en">Fill out the form &mdash; we'll reply to your email within 24 business hours.</p>
-      <p class="form-sub es" style="display:none">Completa el formulario &mdash; te responderemos por correo en menos de 24 horas h&aacute;biles.</p>
+      <p class="form-sub en">Fill out the form and we'll reply to your email within 24 business hours.</p>
+      <p class="form-sub es" style="display:none">Complete el formulario y le responderemos por correo en menos de 24 horas h&aacute;biles.</p>
       <form id="contact-form" onsubmit="return contactSubmit(event)" novalidate>
         <div class="form-row">
           <div class="form-group">
@@ -255,7 +251,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
           <div class="form-group">
             <label class="form-label" for="cf-subject"><span class="en-inline">Subject</span><span class="es-inline" style="display:none">Asunto</span> <span class="req">*</span></label>
             <select class="form-input" id="cf-subject" name="subject" required>
-              <option value="">-- Select a reason --</option>
+              <option value="">Select a reason</option>
               <option value="Pricing or package question">Pricing or package question</option>
               <option value="LLC formation question">LLC formation question</option>
               <option value="Corporation formation question">Corporation formation question</option>
@@ -272,23 +268,23 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
           <textarea class="form-textarea" id="cf-message" name="message" required maxlength="4000" placeholder=""></textarea>
         </div>
         <button class="form-submit" id="cf-submit" type="submit">
-          <span class="en-inline">Send Message</span><span class="es-inline" style="display:none">Enviar Mensaje</span> &rarr;
+          <span class="en-inline">Send Message</span><span class="es-inline" style="display:none">Enviar Mensaje</span>
         </button>
         <div class="form-error" id="cf-error"></div>
       </form>
       <p class="form-meta en">We respect your privacy. Your info is only used to reply to you.</p>
-      <p class="form-meta es" style="display:none">Respetamos tu privacidad. Solo usaremos tus datos para responderte.</p>
+      <p class="form-meta es" style="display:none">Respetamos su privacidad. Solo usaremos sus datos para responderle.</p>
     </div>
 
   </div>
 
   <!-- SUCCESS PANEL (replaces split-card after submit) -->
   <div class="split-card form-success-panel" id="form-success">
-    <div class="success-icon">&#127881;</div>
-    <h3 class="en">Got it &mdash; thank you!</h3>
-    <h3 class="es" style="display:none">&iexcl;Recibido &mdash; gracias!</h3>
+    <div class="success-icon"><svg viewBox="0 0 24 24"><polyline points="5 12 10 17 19 7"/></svg></div>
+    <h3 class="en">Message received. Thank you!</h3>
+    <h3 class="es" style="display:none">Mensaje recibido. &iexcl;Gracias!</h3>
     <p class="en">Your message landed in our inbox. We'll reply to your email within <strong>24 business hours</strong>.</p>
-    <p class="es" style="display:none">Tu mensaje lleg&oacute; a nuestra bandeja. Te responderemos por correo en menos de <strong>24 horas h&aacute;biles</strong>.</p>
+    <p class="es" style="display:none">Su mensaje lleg&oacute; a nuestra bandeja. Le responderemos por correo en menos de <strong>24 horas h&aacute;biles</strong>.</p>
   </div>
 
 </div>
@@ -309,7 +305,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
       </div>
       <div class="footer-disclaimer">
         <strong style="color:rgba(255,255,255,0.5);display:block;margin-bottom:4px">Important Notice</strong>
-        OpaBiz is a trade name of Florida Business Formation Center &mdash; a professional document preparation and filing service. We are not a law firm and do not provide legal, tax, or financial advice. Our services do not constitute the practice of law and do not create an attorney-client relationship. All filings are subject to approval by the Florida Division of Corporations and the IRS. For legal or tax guidance specific to your situation, we encourage you to consult a licensed Florida attorney or certified public accountant.
+        OpaBiz is a trade name of Florida Business Formation Center, a professional document preparation and filing service. We are not a law firm and do not provide legal, tax, or financial advice. Our services do not constitute the practice of law and do not create an attorney-client relationship. All filings are subject to approval by the Florida Division of Corporations and the IRS. For legal or tax guidance specific to your situation, we encourage you to consult a licensed Florida attorney or certified public accountant.
       </div>
     </div>
   </div>
@@ -329,12 +325,12 @@ function setLang(lang){
     el.innerHTML = isEs ? el.getAttribute('data-es') : el.getAttribute('data-en');
   });
   // Calendar link lang
-  var cal = document.getElementById('cal-link'); if(cal) cal.setAttribute('href', isEs ? '/booking?lang=es' : '/booking?lang=en');
+  var wa = document.getElementById('wa-link'); if(wa) wa.setAttribute('href', isEs ? 'https://wa.me/13522782475?text=Hola%2C%20tengo%20una%20pregunta%20sobre%20OpaBiz.com' : 'https://wa.me/13522782475?text=Hello%2C%20I%20have%20a%20question%20about%20OpaBiz.com');
   // Subject placeholder
   var sel = document.getElementById('cf-subject');
   if(sel){
     var first = sel.querySelector('option[value=""]');
-    if(first) first.textContent = isEs ? '-- Selecciona un motivo --' : '-- Select a reason --';
+    if(first) first.textContent = isEs ? 'Seleccione un motivo' : 'Select a reason';
     var labels = isEs ? {
       'Pricing or package question':'Precios o paquete',
       'LLC formation question':'Formación de LLC',
@@ -354,7 +350,7 @@ function setLang(lang){
   }
   // Message placeholder
   var msg = document.getElementById('cf-message');
-  if(msg) msg.placeholder = isEs ? 'Cuéntanos en qué podemos ayudarte...' : 'Tell us how we can help you...';
+  if(msg) msg.placeholder = isEs ? 'Cuéntenos en qué podemos ayudarle...' : 'Tell us how we can help you...';
 }
 function toggleNav(){var nav=document.querySelector('nav');var btn=document.getElementById('hamburger-btn');if(!nav||!btn)return;var open=nav.classList.toggle('open');btn.classList.toggle('open',open);if(open){document.addEventListener('click',function c(e){if(!nav.contains(e.target)&&!btn.contains(e.target)){nav.classList.remove('open');btn.classList.remove('open');document.removeEventListener('click',c);}});}}
 
@@ -388,7 +384,7 @@ async function contactSubmit(ev){
     var json = await res.json().catch(function(){ return {}; });
     if(!res.ok || !json.success){
       var msg = json.error || (isEs ? 'No pudimos enviar el mensaje. Por favor intenta de nuevo.' : 'We could not send the message. Please try again.');
-      if(res.status === 429) msg = isEs ? 'Demasiados mensajes desde tu IP. Intenta de nuevo en una hora.' : 'Too many messages from this IP. Please try again in an hour.';
+      if(res.status === 429) msg = isEs ? 'Demasiados mensajes desde su conexión. Intente de nuevo en una hora.' : 'Too many messages from this IP. Please try again in an hour.';
       throw new Error(msg);
     }
     document.getElementById('form-card').style.display = 'none';
@@ -399,7 +395,7 @@ async function contactSubmit(ev){
     }
     window.scrollTo({top:0,behavior:'smooth'});
   } catch(err){
-    errBox.textContent = err.message || (isEs ? 'Error de red. Verifica tu conexión.' : 'Network error. Check your connection.');
+    errBox.textContent = err.message || (isEs ? 'Error de red. Verifique su conexión.' : 'Network error. Check your connection.');
     errBox.classList.add('show');
     btn.disabled = false;
     btn.innerHTML = origLabel;

@@ -24,7 +24,6 @@ Todos los links se abren en otra pestaña. Las páginas del panel piden el login
 |---|---|
 | Home de OpaBiz (formación de empresas) | opabiz.com |
 | Servicios sueltos | /servicios |
-| Agendar una cita | /booking |
 | Contacto | /contact |
 | Programa de afiliados y agentes | /afiliados |
 | Guía gratuita | /guia-gratis |
@@ -92,7 +91,7 @@ Para ubicarte rápido, esto es lo que existe y para qué sirve:
 - **El sitio público:** donde el cliente compra (formación en el home de opabiz.com, servicios sueltos en /servicios).
 - **El portal del cliente:** donde el cliente entra con su número de orden para ver el estado, descargar documentos y manejar sus suscripciones.
 - **El panel de administración** (`/admin`): donde el equipo procesa órdenes, manda documentos, ve la contabilidad, las campañas y todo lo demás.
-- **OpaBiz Connect:** la app interna para los agentes de campo que atienden citas y ayudan a clientes a llenar sus órdenes.
+- **OpaBiz Connect:** la app interna para los agentes de campo que ayudan a clientes a llenar sus órdenes.
 - **Claudia:** la asistente virtual que responde preguntas en el chat del sitio y en WhatsApp.
 
 ## Proveedores principales

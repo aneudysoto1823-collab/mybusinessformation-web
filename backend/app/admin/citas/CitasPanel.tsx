@@ -384,9 +384,6 @@ export function CitasPanel() {
             <button type="button" onClick={() => setShowHowItWorks(true)} className="btn-booking" style={{ background: '#fff', color: '#1C2E44', border: '1.5px solid #1C2E44', cursor: 'pointer' }}>
               ℹ️ Cómo funcionan las citas
             </button>
-            <a href="/booking" target="_blank" rel="noopener noreferrer" className="btn-booking">
-              📅 Ver Página de Citas
-            </a>
           </div>
         </div>
 

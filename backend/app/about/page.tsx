@@ -142,7 +142,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
 .hamburger.open span:nth-child(2){opacity:0}
 .hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
 .why-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:4px}
-.contact-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:20px}
+.contact-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:20px}
 .contact-card{border:1.5px solid var(--gray200);border-radius:12px;padding:22px;background:var(--gray50);display:flex;flex-direction:column;gap:8px}
 .contact-card-icon{font-size:1.4rem}
 .contact-card strong{font-size:.92rem;color:var(--navy)}
@@ -311,15 +311,6 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
       <p class="es" style="display:none">Le facilitamos comunicarse con nosotros &mdash; sin procesos complicados ni filas de espera. Elija la opci&oacute;n que mejor le funcione:</p>
       <div class="contact-grid">
         <div class="contact-card">
-          <div class="contact-card-icon">&#128197;</div>
-          <strong class="en">Book an Appointment</strong><strong class="es" style="display:none">Reserve una Cita</strong>
-          <p class="en">Schedule a one-on-one consultation at a time that works for you. We&rsquo;ll walk you through your options and answer every question you have.</p>
-          <p class="es" style="display:none">Programe una consulta personalizada a la hora que mejor le convenga. Le guiaremos por sus opciones y responderemos cada pregunta.</p>
-          <a id="cal-book-btn" href="/booking?lang=en" class="card-btn" style="background:#fff;color:var(--blue);border:1.5px solid var(--blue)">
-            <span class="en-inline">Schedule Now &#8594;</span><span class="es-inline" style="display:none">Reservar Ahora &#8594;</span>
-          </a>
-        </div>
-        <div class="contact-card">
           <div class="contact-card-icon">&#128172;</div>
           <strong class="en">WhatsApp</strong><strong class="es" style="display:none">WhatsApp</strong>
           <p class="en">Prefer to chat? Message us directly on WhatsApp for a fast, personal response from our team &mdash; no bots, no automated replies.</p>
@@ -380,7 +371,6 @@ function setLang(lang){
     el.innerHTML = isEs ? el.getAttribute('data-es') : el.getAttribute('data-en');
   });
   // Calendar link
-  var calBtn=document.getElementById('cal-book-btn'); if(calBtn) calBtn.setAttribute('href',isEs?'/booking?lang=es':'/booking?lang=en');
   // Nav links
   var navM={'Home':isEs?'Inicio':'Home','Packages':isEs?'Paquetes':'Packages','Services':isEs?'Servicios':'Services','FAQ':isEs?'Preguntas':'FAQ','Contact':isEs?'Contacto':'Contact'};
   document.querySelectorAll('nav a').forEach(function(a){var t=a.textContent.trim();if(navM[t])a.textContent=navM[t];});

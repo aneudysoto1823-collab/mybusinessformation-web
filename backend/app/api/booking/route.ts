@@ -37,7 +37,14 @@ function formatTime(time: string) {
   return `${hour}:${m.toString().padStart(2, '0')} ${ampm}`
 }
 
+// Citas desactivadas 2026-10-14 (ver app/booking/page.tsx). Mientras esté en
+// false no se aceptan citas nuevas, aunque alguien llame la API directo.
+const BOOKING_ENABLED = false
+
 export async function POST(req: NextRequest) {
+  if (!BOOKING_ENABLED) {
+    return NextResponse.json({ error: 'Appointments are no longer available. Please contact us by email or WhatsApp.' }, { status: 410 })
+  }
   const body = await req.json()
   const { name, email, phone, meetingMethod = 'phone', date, time, note, lang = 'en' } = body
 

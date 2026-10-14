@@ -1,8 +1,10 @@
 ---
 title: "Citas"
-summary: "Cómo agenda el cliente, cómo asignar, atender o cancelar y cómo bloquear horarios."
+summary: "Desactivado desde el 2026-10-14. Cómo funcionaba el sistema de citas, por si se vuelve a activar."
 updated: "2026-10-14"
 ---
+
+> **Desactivado desde el 2026-10-14 (decisión de los socios).** La atención a clientes es por email y WhatsApp, para controlar mejor los tiempos y lo que se responde. Ya no se pueden agendar citas nuevas: la página /booking lleva a Contacto y en el sitio no queda ningún botón de citas. Las citas que ya estaban agendadas se siguen viendo en la pestaña Citas de OpaBiz Connect, y el cliente todavía puede reprogramarlas o cancelarlas desde su email. El sistema quedó guardado, no borrado: si algún día se quiere volver a usar, se prende de nuevo. Lo que sigue describe cómo funcionaba.
 
 ## Qué es
 
