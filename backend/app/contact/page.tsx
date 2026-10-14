@@ -196,8 +196,8 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
         <div class="left-badge en-inline">We're here for you</div><div class="left-badge es-inline" style="display:none">Estamos para ayudarle</div>
         <h2 class="en">Talk to a Florida formation specialist.</h2>
         <h2 class="es" style="display:none">Hable con un especialista en formaci&oacute;n de empresas en Florida.</h2>
-        <p class="left-lead en">Have a question about your LLC, pricing, EIN or your order? We answer real questions from real people, in English or Spanish and without jargon.</p>
-        <p class="left-lead es" style="display:none">&iquest;Tiene una pregunta sobre su LLC, precios, EIN o su orden? Respondemos preguntas reales de personas reales, en espa&ntilde;ol o en ingl&eacute;s y sin tecnicismos.</p>
+        <p class="left-lead en">Have a question about your LLC, pricing, EIN or your order? Our specialists review every inquiry and respond to your specific situation.</p>
+        <p class="left-lead es" style="display:none">&iquest;Tiene una pregunta sobre su LLC, precios, EIN o su orden? Nuestros especialistas revisan cada consulta y le responden seg&uacute;n su caso.</p>
       </div>
 
       <div class="left-promise">
