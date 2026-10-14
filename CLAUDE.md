@@ -875,6 +875,8 @@ Si se necesita recomprimir: `node -e "require('sharp')..."` — sharp está en d
 
 ## Sistema de Citas (`/booking`) — 2026-06-05
 
+> **DESACTIVADO desde 2026-10-14 (decisión socios):** la atención es por email y WhatsApp. `/booking` redirige a `/contact` (la página vieja quedó en `app/booking/BookingPage.tsx`), `POST /api/booking` responde 410 (`BOOKING_ENABLED=false` en `app/api/booking/route.ts`), sin botones de cita en Contacto/Nosotros/Servicios. Reprogramar/cancelar siguen funcionando para citas ya agendadas. Para reactivar: volver a exportar BookingPage como default y poner `BOOKING_ENABLED=true`. Ver sesión 2026-10-14 al final.
+
 Sistema propio de agendamiento, sin dependencias externas (no Calendly, no Cal.com).
 
 ### Configuración
@@ -2108,6 +2110,16 @@ Una sola página con emails de campaña, cartas PDF, Guías y Labor Law Poster, 
 - ⚠️ **Requiere correr `supabase_migration_terms_acceptances.sql` en Supabase.** Sin la columna no rompe nada (se loguea y sigue), pero no se guarda.
 
 También: "Al acceder aceptas" → "acepta" en los 4 logins de cliente (usted).
+
+## Sesión 2026-10-14 — anti-duplicado "Orden Procesada", iPhone en emails, Citas dentro de OpaBiz Connect, citas desactivadas, Contacto rediseñado
+
+- **"Orden Procesada" (A5) sin doble envío:** el botón "Filed" (`/api/proxy/notifications/order-processed`) y el cron `priority-filing-notice` ahora reservan `Order.orderProcessedEmailSentAt` con un UPDATE condicional (`.is(..., null)`) ANTES de enviar; solo uno gana. Si el envío falla, liberan la marca. El cron ahora pasa `sourceBrand`. Caso no resuelto (avisado al founder): si el staff pasa la orden a `filed` con "forzar estado", el cliente con acelerado nunca recibe el email.
+- **Pasos de notificaciones en iPhone** en el email de invitación a OpaBiz Connect (`lib/opabiz-invite.ts`) y en el de aprobación de agente (`api/admin/affiliates/[id]`). Única fuente: `lib/opabiz-ios-push.ts` (también la usa el panel del agente). El botón "Cómo activarlas en iPhone" del panel solo aparece en iPhone sin la app instalada (por diseño).
+- **Citas (admin):** confirmación antes de cancelar; próximas arriba (más cercana primero) y pasadas abajo; columna **Agente** (nombre + "Por aceptar"/"✓ Aceptada"); estados derivados sin migración: Pendiente (sin agente) / Asignada / Atendida (agente completó la orden o "Marcar atendida" → `status:'attended'`) / Cancelada. "Confirm" se quitó; "Crear orden OpaBiz Connect" → "Asignar agente". Refresco cada 20s.
+- **Citas es una pestaña de `/admin/opabiz`** (Empleados · Órdenes · Citas · Afiliados y Agentes). Componente `app/admin/citas/CitasPanel.tsx` (reset CSS acotado a `.citas-root`); `/admin/citas` redirige a `/admin/opabiz?tab=citas` (la página lee `?tab=`). Botón Citas sacado del menú de `/admin`.
+- **Citas públicas desactivadas** (ver nota arriba en "Sistema de Citas"). Manual cap. 12 marcado como desactivado.
+- **Contacto rediseñado (opabiz `app/contact/page.tsx` y mybiz `app/new-business/contact/page.tsx`, mismos cambios):** panel izquierdo claro (gris claro + tarjetas blancas, sin el degradé azul), botón WhatsApp con logo oficial y número visible (+1 352 278 2475), botón Email (mailto), sin "24 horas" (texto aprobado: "Le responderemos a la mayor brevedad posible. Para nosotros es prioridad atender cada consulta con profesionalismo, por eso nuestros especialistas revisan cada caso de forma individual."; mensaje de enviado: "Lo atenderemos en el orden recibido y le responderemos a la mayor brevedad posible."), sin flechas, guiones largos ni emojis, español en usted, descripciones SEO sin citas ni 24h. El botón "Send Message" sigue con relleno azul (se ofreció cambiarlo a borde, sin respuesta).
+- **Forma de trabajo (founder, 2026-10-14):** cuando pide opinión ("¿qué opinas?", "¿qué te parece?"), responder solo con opinión y esperar el OK antes de tocar código, aunque el mensaje incluya una orden.
 
 ## Deploy
 
