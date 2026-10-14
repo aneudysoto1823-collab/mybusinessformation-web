@@ -9,7 +9,7 @@ updated: "2026-10-14"
 Un sistema de citas propio (no usamos Calendly ni nada externo). El cliente agenda una llamada para hacer preguntas o recibir ayuda.
 
 - El cliente agenda en **opabiz.com/booking**.
-- El equipo las maneja en **/admin/citas**.
+- El equipo las maneja en **/admin/opabiz**, pestaña **Citas** (el link viejo /admin/citas lleva ahí).
 
 ## Horario
 
@@ -29,7 +29,7 @@ Las páginas de reprogramar y cancelar funcionan en inglés y en español.
 
 ## En el panel
 
-En **/admin/citas** ves todas las citas. Arriba las próximas (la más cercana primero) y abajo las que ya pasaron. Cada cita tiene uno de estos estados:
+En **/admin/opabiz**, pestaña **Citas**, ves todas las citas. Está dentro de OpaBiz Connect para ver citas, agentes y órdenes sin cambiar de pantalla. Arriba las próximas (la más cercana primero) y abajo las que ya pasaron. Cada cita tiene uno de estos estados:
 
 - **Pendiente:** nadie la tiene asignada todavía.
 - **Asignada:** ya tiene un agente.

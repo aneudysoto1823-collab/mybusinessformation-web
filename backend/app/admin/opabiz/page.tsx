@@ -4,8 +4,9 @@ import { useState, useMemo, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import HowItWorksModal from '../HowItWorksModal'
 import { AfiliadosPanel } from '../afiliados/page'
+import { CitasPanel } from '../citas/CitasPanel'
 
-type Tab = 'empleados' | 'ordenes' | 'afiliados'
+type Tab = 'empleados' | 'ordenes' | 'citas' | 'afiliados'
 
 type EmpleadoDetalle = {
   nivel: string
@@ -97,6 +98,14 @@ function usuarioIdEmpleadoDe(o: Orden): string {
 
 export default function OpabizAdminPage() {
   const [activeTab, setActiveTab] = useState<Tab>('empleados')
+  // ?tab=citas (o cualquier pestaña) abre directo en esa pestaña; lo usa el
+  // redirect de /admin/citas.
+  useEffect(() => {
+    const t = new URLSearchParams(window.location.search).get('tab')
+    // Leer la URL solo en el navegador (en el render del servidor no existe window).
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (t === 'empleados' || t === 'ordenes' || t === 'citas' || t === 'afiliados') setActiveTab(t)
+  }, [])
   const [empleados, setEmpleados] = useState<Empleado[]>([])
   const [loading, setLoading]     = useState(true)
   const [showForm, setShowForm]   = useState(false)
@@ -342,6 +351,7 @@ export default function OpabizAdminPage() {
           <button className={`op-tab ${activeTab === 'ordenes' ? 'active' : ''}`} onClick={() => setActiveTab('ordenes')}>
             Órdenes{(conteoEstado.rechazada ?? 0) > 0 && <span className="op-tab-alert" title="Órdenes rechazadas sin reasignar">{conteoEstado.rechazada}</span>}
           </button>
+          <button className={`op-tab ${activeTab === 'citas' ? 'active' : ''}`} onClick={() => setActiveTab('citas')}>Citas</button>
           <button className={`op-tab ${activeTab === 'afiliados' ? 'active' : ''}`} onClick={() => setActiveTab('afiliados')}>Afiliados y Agentes</button>
         </div>
 
@@ -617,6 +627,7 @@ export default function OpabizAdminPage() {
         </div>
         </>}
 
+        {activeTab === 'citas' && <CitasPanel />}
         {activeTab === 'afiliados' && <AfiliadosPanel embedded />}
 
         {reasignando && (

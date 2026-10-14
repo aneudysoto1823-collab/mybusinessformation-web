@@ -179,9 +179,6 @@ export default async function AdminDashboard({
             <a href="/admin/marketing" style={{ fontSize: '13px', color: '#6b7280', textDecoration: 'none', padding: '7px 14px', border: '1.5px solid #e5e7eb', borderRadius: '8px', fontWeight: 600 }}>
               Marketing saliente
             </a>
-            <a href={`/admin/citas?lang=${lang}`} style={{ fontSize: '13px', color: '#6b7280', textDecoration: 'none', padding: '7px 14px', border: '1.5px solid #e5e7eb', borderRadius: '8px', fontWeight: 600 }}>
-              {t.appointments}
-            </a>
             <a href={`/admin/contabilidad?lang=${lang}`} style={{ fontSize: '13px', color: '#6b7280', textDecoration: 'none', padding: '7px 14px', border: '1.5px solid #e5e7eb', borderRadius: '8px', fontWeight: 600 }}>
               {t.accounting}
             </a>

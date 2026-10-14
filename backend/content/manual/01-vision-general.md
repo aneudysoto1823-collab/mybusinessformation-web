@@ -1,7 +1,7 @@
 ---
 title: "Visión general"
 summary: "Qué es el negocio, las dos marcas, quién es la empresa legal y cómo encajan todas las piezas."
-updated: "2026-10-09"
+updated: "2026-10-14"
 ---
 
 Este manual explica cómo funciona el negocio, sin tecnicismos. Si tienes una duda sobre un proceso, un precio o qué hacer en un caso puntual, búscalo arriba.
@@ -55,7 +55,7 @@ Todos los links se abren en otra pestaña. Las páginas del panel piden el login
 | Panel principal y órdenes | /admin |
 | Borradores (órdenes sin terminar) | /admin/drafts |
 | OpaBiz Connect, afiliados y agentes | /admin/opabiz |
-| Citas | /admin/citas |
+| Citas | /admin/opabiz (pestaña Citas) |
 | Contabilidad | /admin/contabilidad |
 | Marketing Saliente | /admin/marketing |
 | Campañas y cartas | /admin/campaigns |

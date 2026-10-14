@@ -76,7 +76,7 @@ Hay niveles (básico, intermedio, avanzado, administrador). Por ahora cualquier 
 
 ## De una cita a una orden
 
-En **/admin/citas**, cada cita tiene un botón para convertirla en una orden de OpaBiz Connect y asignársela a un agente. El agente ve la orden con los datos del cliente y la hora de la cita, y **1 hora antes** le llega un recordatorio.
+En la pestaña **Citas** de este mismo panel (/admin/opabiz), cada cita tiene el botón **"Asignar agente"** para convertirla en una orden de OpaBiz Connect y asignársela a un agente. El agente ve la orden con los datos del cliente y la hora de la cita, y **1 hora antes** le llega un recordatorio.
 
 ## Llenar una orden en nombre del cliente (asistencia al cliente)
 

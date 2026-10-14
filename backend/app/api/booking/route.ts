@@ -158,7 +158,7 @@ export async function POST(req: NextRequest) {
           ${waLink ? `<a href="${waLink}" style="background:#25D366;color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.9rem">💬 WhatsApp al cliente</a>` : ''}
           <a href="mailto:${email}" style="background:#2563EB;color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.9rem">✉️ Responder por email</a>
         </div>
-        <p style="margin-top:16px;font-size:0.8rem;color:#9ca3af">Ver en panel admin: <a href="https://opabiz.com/admin/citas">opabiz.com/admin/citas</a></p>
+        <p style="margin-top:16px;font-size:0.8rem;color:#9ca3af">Ver en panel admin: <a href="https://www.opabiz.com/admin/opabiz?tab=citas">OpaBiz Connect, pestaña Citas</a></p>
       </div>
     </div>`
 
