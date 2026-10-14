@@ -95,12 +95,10 @@ nav a:hover{color:var(--navy);background:var(--gray100)}
 .left-action-icon{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .left-action-icon svg{width:22px;height:22px;fill:#fff}
 .left-action.wa .left-action-icon{background:#25D366}
+.left-action.mail .left-action-icon{background:var(--blue)}
 .left-action-text{flex:1;display:flex;flex-direction:column}
 .left-action-text strong{font-size:.95rem;color:var(--navy);font-weight:700;line-height:1.2}
 .left-action-text span{font-size:.78rem;color:var(--gray500);margin-top:2px;line-height:1.4}
-.left-footer{font-size:.78rem;color:var(--gray500);line-height:1.55;border-top:1px solid var(--gray200);padding-top:16px}
-.left-footer strong{color:var(--gray800)}
-.left-footer a{color:var(--blue);font-weight:600}
 /* SPLIT RIGHT (FORM) */
 .split-right{padding:44px 40px;background:#fff;display:flex;flex-direction:column;justify-content:center}
 .form-title{font-size:1.35rem;color:var(--navy);font-weight:800;margin-bottom:6px;font-family:var(--font-sans)}
@@ -208,11 +206,15 @@ footer{background:var(--navy);color:rgba(255,255,255,.55);padding:40px 32px 22px
             <span>+1 (352) 278-2475</span>
           </div>
         </a>
-      </div>
-
-      <div class="left-footer">
-        <span class="en-inline">Or write us directly at <a href="mailto:info@opabiz.com">info@opabiz.com</a></span>
-        <span class="es-inline" style="display:none">O escr&iacute;banos directamente a <a href="mailto:info@opabiz.com">info@opabiz.com</a></span>
+        <a href="mailto:info@opabiz.com" class="left-action mail">
+          <div class="left-action-icon">
+            <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>
+          </div>
+          <div class="left-action-text">
+            <strong class="en-inline">Email us</strong><strong class="es-inline" style="display:none">Escr&iacute;banos por email</strong>
+            <span>info@opabiz.com</span>
+          </div>
+        </a>
       </div>
     </div>
 
