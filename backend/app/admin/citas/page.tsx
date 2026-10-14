@@ -246,9 +246,20 @@ export default function CitasPage() {
     if (res.ok) setBlocked(prev => prev.map(b => (b.id === id ? { ...b, active } : b)))
   }
 
-  const filtered = appointments.filter(a => filter === 'all' || a.status === filter)
+  // Fecha de hoy en la hora local del navegador (toISOString daba la fecha UTC:
+  // de noche en Florida ya marcaba el día siguiente).
+  const today = new Date().toLocaleDateString('en-CA')
+  // Orden: primero las próximas (hoy incluido), de la más cercana a la más
+  // lejana; debajo las que ya pasaron, de la más reciente a la más vieja.
+  const filtered = appointments
+    .filter(a => filter === 'all' || a.status === filter)
+    .sort((a, b) => {
+      const aPast = a.date < today, bPast = b.date < today
+      if (aPast !== bPast) return aPast ? 1 : -1
+      const cmp = a.date === b.date ? a.time.localeCompare(b.time) : a.date.localeCompare(b.date)
+      return aPast ? -cmp : cmp
+    })
   const upcoming = appointments.filter(a => a.status !== 'cancelled' && new Date(a.date + 'T23:59:59') >= new Date())
-  const today = new Date().toISOString().split('T')[0]
   const todayAppts = appointments.filter(a => a.date === today && a.status !== 'cancelled')
 
   return (
