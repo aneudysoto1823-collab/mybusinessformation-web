@@ -116,9 +116,13 @@ export function computeFormationTotal(input: FormationPricingInput): FormationPr
   const base = PACKAGE_PRICES[pkg]
   if (base > 0) lines.push({ label: PACKAGE_LABELS[pkg], amount: base })
 
-  // Cargo estatal de Florida (siempre > 0)
+  // Cargo estatal de Florida (siempre > 0). El label dice a qué trámite
+  // corresponde (pedido founder 2026-10-15); antes "Florida State Filing Fee (CORP)".
+  const isEs = input.lang === 'es'
   lines.push({
-    label: `Florida State Filing Fee (${entity.toUpperCase()})`,
+    label: entity === 'corp'
+      ? (isEs ? 'Tarifa Estatal de Formación de Corporación' : 'Corporation Formation State Fee')
+      : (isEs ? 'Tarifa Estatal de Formación LLC' : 'LLC Formation State Fee'),
     amount: STATE_FEE[entity],
   })
 
@@ -130,7 +134,6 @@ export function computeFormationTotal(input: FormationPricingInput): FormationPr
   // Registered Agent — solo en Basic con 'us'. En Standard/Premium el primer
   // año va incluido gratis y la renovación se cobra fuera del checkout de
   // formación (ver comentario de RA_FIRST_YEAR_FEE arriba).
-  const isEs = input.lang === 'es'
   if (pkg === 'basic' && input.registeredAgent === 'us') {
     lines.push({
       label: isEs ? 'Agente Registrado — Primer Año' : 'Registered Agent — First Year',
@@ -142,7 +145,7 @@ export function computeFormationTotal(input: FormationPricingInput): FormationPr
   for (const key of Object.keys(ADDON_PRICES) as AddonKey[]) {
     if (addons[key]) lines.push({ label: ADDON_LABELS[key], amount: ADDON_PRICES[key] })
   }
-  if (addons.dba) lines.push({ label: 'DBA / Fictitious Name — Florida State Fee', amount: DBA_STATE_FEE })
+  if (addons.dba) lines.push({ label: isEs ? 'Tarifa Estatal del DBA' : 'DBA State Fee', amount: DBA_STATE_FEE })
 
   const total = lines.reduce((sum, l) => sum + l.amount, 0)
   return { total, cents: total * 100, lines }

@@ -49,12 +49,16 @@ const PACKAGE_SERVICES: Record<string, { en: string; es: string }[]> = {
 // addons posibles (bug lateral, se resuelve solo al usar `lines` como fuente).
 function isBaseLine(label: string): boolean {
   return label.endsWith('Formation Package') || label.startsWith('Florida State Filing Fee') || label === 'Expedited Processing'
+    || label.endsWith('Formation State Fee') || label.startsWith('Tarifa Estatal de Formación')
 }
 
 // Las etiquetas de las líneas vienen en inglés desde lib/pricing (fuente de
 // verdad del cobro). Se localizan aquí para el desglose en español.
 function localizeLine(label: string, es: boolean): string {
   if (!es) return label
+  if (label === 'LLC Formation State Fee') return 'Tarifa Estatal de Formación LLC'
+  if (label === 'Corporation Formation State Fee') return 'Tarifa Estatal de Formación de Corporación'
+  if (label === 'DBA State Fee') return 'Tarifa Estatal del DBA'
   if (label.startsWith('Florida State Filing Fee')) {
     return label.replace('Florida State Filing Fee', 'Cargo Estatal de Florida')
   }

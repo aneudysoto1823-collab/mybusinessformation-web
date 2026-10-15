@@ -2411,7 +2411,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
         <div class="fm-sum-line"><span class="fm-sum-lbl" id="sum-lbl-entity">Entity</span><span class="fm-sum-val sum-entity-val">LLC</span></div>
         <div class="fm-sum-line"><span class="fm-sum-lbl" id="sum-lbl-pkg">Package</span><span class="fm-sum-val sum-pkg-val">Standard &#8212; $199</span></div>
         <div class="fm-sum-pkg-incl sum-pkg-incl"></div>
-        <div class="fm-sum-line"><span class="fm-sum-lbl sum-state-lbl" id="sum-lbl-state">FL State Fee</span><span class="fm-sum-val sum-state-val">$125</span></div>
+        <div class="fm-sum-line"><span class="fm-sum-lbl sum-state-lbl" id="sum-lbl-state">LLC Formation State Fee</span><span class="fm-sum-val sum-state-val">$125</span></div>
         <div class="fm-sum-line sum-exp-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-exp">Expedited Filing</span><span class="fm-sum-val">$49</span></div>
         <div class="fm-sum-line sum-vma-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-vma">Virtual Address</span><span class="fm-sum-val free">1st Month Free</span></div>
         <div class="fm-sum-line sum-ra-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-ra">Registered Agent (First Year)</span><span class="fm-sum-val">$99</span></div>
@@ -2424,7 +2424,8 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
         <div class="fm-sum-line sum-ar-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-ar">Annual Report</span><span class="fm-sum-val">$99</span></div>
         <!-- Addons de "Ver todos los servicios" (paso 6) — antes solo sumaban
              al Total sin aparecer acá (bug real, ver fmUpdateSummary). -->
-        <div class="fm-sum-line sum-dba-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-dba">DBA / Fictitious Name</span><span class="fm-sum-val">$99</span></div>
+        <div class="fm-sum-line sum-dba-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-dba">DBA / Fictitious Name</span><span class="fm-sum-val">$49</span></div>
+        <div class="fm-sum-line sum-dba-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-dba-fee">DBA State Fee</span><span class="fm-sum-val">$50</span></div>
         <div class="fm-sum-line sum-br-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-br">Banking Resolution</span><span class="fm-sum-val">$49</span></div>
         <div class="fm-sum-line sum-gd-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-gd">Exclusive Formation Guide</span><span class="fm-sum-val">$49</span></div>
         <div class="fm-sum-line sum-gs-line" style="display:none"><span class="fm-sum-lbl" id="sum-lbl-gs">Certificate of Good Standing</span><span class="fm-sum-val">$49</span></div>
@@ -5640,6 +5641,11 @@ function fmUpdateSummary() {
     el.innerHTML = pkgIncl.map(function(it){ return '<div class="fm-sum-pkg-incl-item"><span>&#10003;</span><span>'+(isEs?it.es:it.en)+'</span></div>'; }).join('');
   });
   document.querySelectorAll('.sum-state-val').forEach(function(el){ el.textContent = '$' + state; });
+  // La tarifa estatal dice a qué trámite corresponde (pedido founder 2026-10-15).
+  var stateLblEl = document.getElementById('sum-lbl-state');
+  if(stateLblEl) stateLblEl.textContent = fmData.entity === 'corp'
+    ? (isEs?'Tarifa Estatal de Formación de Corporación':'Corporation Formation State Fee')
+    : (isEs?'Tarifa Estatal de Formación LLC':'LLC Formation State Fee');
   document.querySelectorAll('.sum-total-val').forEach(function(el){ el.textContent = '$' + total; });
   document.querySelectorAll('.sum-exp-line').forEach(function(el){ el.style.display = _fmSpeedSeen&&fmData.speed==='expedited'&&!expFree?'':'none'; });
   document.querySelectorAll('.sum-vma-line').forEach(function(el){ el.style.display = fmData.vma?'':'none'; });
@@ -5794,7 +5800,7 @@ function fmBuildReview() {
     if(fmData.addons.cc)   items.push(addonRow(isEs?'Copia Certificada de Art\u00edculos':'Certified Copy of Articles', '$49'));
     if(fmData.addons.dba) {
       items.push(addonRow(isEs?'DBA / Nombre Ficticio':'DBA / Fictitious Name', '$49'));
-      items.push(addonRow(isEs?'DBA — Tarifa Estatal de Florida':'DBA — Florida State Fee', '$50'));
+      items.push(addonRow(isEs?'Tarifa Estatal del DBA':'DBA State Fee', '$50'));
     }
     if(fmData.addons.br)   items.push(addonRow(isEs?'Resoluci\u00f3n Bancaria':'Banking Resolution', '$49'));
     if(fmData.addons.gd)   items.push(addonRow(isEs?'Gu\u00eda Exclusiva de Formaci\u00f3n':'Exclusive Formation Guide', '$49'));
@@ -6586,7 +6592,6 @@ function fmTranslate(lang) {
     // 'sum-lbl-pkg' NO va acá — fmUpdateSummary() lo genera dinámicamente con
     // el nombre real del tier ("Standard Package"/"Paquete Standard"), no un
     // "Package" genérico.
-    'sum-lbl-state':isEs?'Cargo Estatal FL':'FL State Fee',
     'sum-lbl-exp':isEs?'Tramitaci\\u00f3n Prioritaria':'Expedited Filing',
     'sum-lbl-vma':isEs?'Direcci\\u00f3n Virtual':'Virtual Address',
     'sum-lbl-ein':isEs?'EIN / ID Fiscal':'EIN / Tax ID',
@@ -6597,6 +6602,7 @@ function fmTranslate(lang) {
     'sum-lbl-cc':isEs?'Copia Certificada':'Certified Copy',
     'sum-lbl-ar':isEs?'Declaraci\\u00f3n Anual':'Annual Report',
     'sum-lbl-dba':isEs?'DBA / Nombre Ficticio':'DBA / Fictitious Name',
+    'sum-lbl-dba-fee':isEs?'Tarifa Estatal del DBA':'DBA State Fee',
     'sum-lbl-br':isEs?'Resoluci\\u00f3n Bancaria':'Banking Resolution',
     'sum-lbl-gd':isEs?'Gu\\u00eda Exclusiva de Formaci\\u00f3n':'Exclusive Formation Guide',
     'sum-lbl-gs':isEs?'Certificado de Buena Reputaci\\u00f3n':'Certificate of Good Standing',

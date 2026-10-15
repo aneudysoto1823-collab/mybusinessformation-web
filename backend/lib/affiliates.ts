@@ -35,7 +35,8 @@ export const AFFILIATE_PAYOUT_MONTHS = 2
 // ahora solo se guarda el % en `affiliates.commission_percent` al aprobar.
 export const AGENT_COMMISSION_DEFAULT_PERCENT = 25
 
-// Cubre tanto "Florida State Filing Fee (LLC)" (formación) como "<servicio> —
+// Cubre "LLC Formation State Fee"/"DBA State Fee" (formación, antes "Florida
+// State Filing Fee (LLC)") y "<servicio> —
 // Florida State Fee" / "— Tarifa Estatal de Florida" (à la carte) — mismos
 // labels ya usados por lib/pricing.ts y lib/services-pricing.ts.
 const STATE_FEE_LABEL_RE = /(state (filing )?fee|tarifa estatal)/i
