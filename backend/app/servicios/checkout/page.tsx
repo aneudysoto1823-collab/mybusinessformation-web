@@ -32,7 +32,6 @@ export default async function ServiciosCheckoutPage() {
       <div class="co-logo-text" style="font-size:.92rem">Florida Business<br/>Formation Center</div>`
     : `<div class="co-logo-mark">OB</div>
       <div class="co-logo-text"><span class="o">Opa</span><span class="b">Biz</span></div>`
-  const consentBrand = isFBFC ? 'Florida Business Formation Center' : 'OpaBiz (Florida Business Formation Center)'
 
   const styles = `
 :root{--navy:#1C2E44;--blue:#2563EB;--blue-light:#EFF6FF;--green:#059669;--green-dark:#047857;--green-light:#ECFDF5;--white:#fff;--gray50:#F8FAFC;--gray100:#F1F5F9;--gray200:#E2E8F0;--gray400:#94A3B8;--gray500:#64748B;--gray600:#475569;--gray800:#1E293B;}
@@ -263,10 +262,6 @@ ${isFBFC ? `
 .co-amd-opt{display:flex;align-items:center;gap:10px;cursor:pointer;padding:11px 14px;background:#fff;border:1.5px solid var(--gray200);border-radius:9px;margin-bottom:10px;font-size:.88rem;font-weight:600;color:var(--gray800)}
 .co-amd-opt input{width:17px;height:17px;cursor:pointer;accent-color:var(--blue)}
 .co-amd-sec{padding:0 2px 8px;margin:-2px 0 12px}
-.co-pay-disclosure-wrap{margin-top:16px;padding-top:14px;border-top:1px solid var(--gray100);display:flex;align-items:flex-start;gap:8px;cursor:pointer}
-.co-pay-disclosure-wrap input[type=checkbox]{margin-top:2px;flex-shrink:0;width:15px;height:15px;cursor:pointer;accent-color:var(--blue)}
-.co-pay-disclosure{font-size:.72rem;color:var(--gray500);line-height:1.55}
-.co-pay-disclosure a{color:var(--blue);text-decoration:underline}
 .co-review-row.co-row-state{color:var(--gray400)}
 .co-review-row.co-row-state span:last-child{color:var(--gray400);font-weight:500}
 .co-review-row.co-row-state em{font-style:normal;font-size:.72rem;text-transform:uppercase;letter-spacing:.4px;color:var(--gray400)}
@@ -461,10 +456,6 @@ html.co-wide .co-tier{padding:20px 18px}
           <div class="co-ir-sub" data-en="Order summary" data-es="Resumen del pedido">Resumen del pedido</div>
           <div id="co-review-lines"></div>
           <div class="co-review-total"><span data-en="Total" data-es="Total">Total</span><strong id="co-review-total">$0</strong></div>
-          <label class="co-pay-disclosure-wrap" for="co-chk-terms">
-            <input type="checkbox" id="co-chk-terms" onchange="coOnTermsToggle()">
-            <span class="co-pay-disclosure" id="co-pay-disclosure"></span>
-          </label>
         </div>
         <div class="co-embed" id="embedded-checkout"><div style="text-align:center;padding:60px 0"><div class="co-spinner"></div></div></div>
       </div>
@@ -540,7 +531,7 @@ html.co-wide .co-tier{padding:20px 18px}
 </div>
 
 <script src="https://js.stripe.com/v3/"></script>
-<script>window.__OPABIZ_PK__='${PK}';window.__CO_CONSENT_BRAND__='${consentBrand}';</script>
+<script>window.__OPABIZ_PK__='${PK}';</script>
 <script>
 ${scriptBody(isFBFC)}
 </script>
@@ -739,16 +730,6 @@ function coTranslateStatic(){
   $('co-en').classList.toggle('active', !isEs);
   $('co-es').classList.toggle('active', isEs);
   document.querySelectorAll('[data-en][data-es]').forEach(function(el){ el.textContent = isEs?el.getAttribute('data-es'):el.getAttribute('data-en'); });
-  // Disclosure del pago: lleva enlaces, así que se setea como HTML (no textContent).
-  var dz=$('co-pay-disclosure'); if(dz){
-    var hasRec=false; try{ hasRec=coComputeTotal().recurring; }catch(e){}
-    var recTxt=hasRec?(isEs
-      ? ' Los servicios recurrentes (marcados /mes o /año) se renuevan automáticamente al precio vigente hasta que los cancele desde su cuenta de cliente. El Agente Registrado es gratis el primer año al combinarlo con otro servicio; luego se renueva a $99/año.'
-      : ' Recurring services (marked /mo or /yr) renew automatically at the then-current rate until you cancel from your client account. Registered Agent is free the first year when combined with another service; then renews at $99/yr.'):'';
-    var brand = window.__CO_CONSENT_BRAND__ || 'OpaBiz (Florida Business Formation Center)';
-    dz.innerHTML = (isEs
-    ? 'Al completar su pago autoriza a ' + brand + ' a preparar y presentar sus trámites en su nombre, según nuestros <a href="/terms" target="_blank">Términos</a> y <a href="/privacy" target="_blank">Política de privacidad</a>. Las tarifas de servicio no son reembolsables una vez iniciado el trabajo.'
-    : 'By completing your payment you authorize ' + brand + ' to prepare and file your filings on your behalf, per our <a href="/terms" target="_blank">Terms</a> and <a href="/privacy" target="_blank">Privacy Policy</a>. Service fees are non-refundable once work begins.') + recTxt; }
 }
 
 function coSetLang(l){
@@ -2466,36 +2447,8 @@ function coPrefetchPayment(){
   p.catch(function(){}); // evita "unhandled rejection"; el error real se maneja al consumir
   coPrefetch={ key:key, promise:p };
 }
-// Placeholder que reemplaza al form de Stripe mientras el checkbox de
-// términos no esté marcado (auditoría compliance 2026-09-15) — antes el
-// pago se montaba sin ningún consentimiento activo del cliente, solo un
-// texto pasivo. Nunca se monta el iframe de Stripe sin esto marcado.
-function coShowTermsGate(){
-  var isEs=coIsEs();
-  var ec=$('embedded-checkout');
-  if(ec) ec.innerHTML='<div style="text-align:center;padding:44px 20px;color:var(--gray500);font-size:.82rem;line-height:1.6">'+(isEs?'Marque la casilla de arriba para continuar con el pago.':'Please check the box above to continue to payment.')+'</div>';
-}
-// onchange del checkbox — marcarlo dispara el flujo normal de pago;
-// desmarcarlo (si ya estaba montado) destruye Stripe y vuelve al placeholder.
-function coOnTermsToggle(){
-  var chk=$('co-chk-terms');
-  if(chk && chk.checked){ coStartPayment(); } else { coDestroyStripe(); coShowTermsGate(); }
-}
-// Guarda en la orden que el cliente aceptó los Términos (fecha, IP y texto
-// exacto, ver lib/terms-acceptance.ts). Una vez por orden + texto.
-var coTermsSig=null;
-function coRecordTerms(orderId){
-  try{
-    var el=$('co-pay-disclosure'); var txt=el?el.innerText:'';
-    if(!orderId||!txt) return;
-    var sig=orderId+'|'+txt; if(coTermsSig===sig) return; coTermsSig=sig;
-    fetch('/api/orders/accept-terms',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({orderId:orderId,text:txt,context:'services'})}).catch(function(){});
-  }catch(e){}
-}
 function coStartPayment(){
   var isEs=coIsEs();
-  var chkTerms=$('co-chk-terms');
-  if(!chkTerms || !chkTerms.checked){ coShowTermsGate(); return; }
   try{ coRenderReviewNames(); }catch(e){}
   try{ coRenderIntakeReview(); }catch(e){}
   // Guarda: si por algún estado raro del carrito el total es 0, no cuelgues el
@@ -2507,7 +2460,7 @@ function coStartPayment(){
 
   // Caso feliz: el iframe ya está montado (oculto) desde el paso anterior con
   // el mismo estado — nada que esperar, solo revelar.
-  if(stripeCheckout && coMountedKey===key){ coRecordTerms(coOrderId); coRenderReview(r.lines, r.total); return; }
+  if(stripeCheckout && coMountedKey===key){ coRenderReview(r.lines, r.total); return; }
 
   var ec=$('embedded-checkout'); if(ec) ec.innerHTML='<div style="text-align:center;padding:60px 0"><div class="co-spinner"></div></div>';
   // Reutiliza la sesión pre-creada si el estado no cambió; si no, créala ahora.
@@ -2521,7 +2474,6 @@ function coStartPayment(){
         return;
       }
       try{ localStorage.setItem('flbc_svc_order', res.d.fbfc||''); }catch(e){}
-      coRecordTerms(res.d.orderId||coOrderId);
       coRenderReview(res.d.lines, res.d.total);
       coMountStripe(res.d.clientSecret, key);
     })

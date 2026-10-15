@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse, after } from 'next/server'
 import Stripe from 'stripe'
+import { recordStripeTermsAcceptance } from '@/lib/checkout-terms'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { getResend } from '@/lib/resend-client'
 import { notifyOps } from '@/lib/ops-alert'
@@ -94,6 +95,7 @@ export async function POST(req: NextRequest) {
   // El Embedded Checkout del home crea la orden antes de pagar y pasa su id en
   // metadata. Aquí solo la marcamos como pagada y enviamos los emails.
   if (meta.kind === 'formation' && meta.orderId) {
+    await recordStripeTermsAcceptance(meta.orderId, session, 'formation')
     return handleFormationPaid(meta.orderId, session)
   }
 
@@ -101,6 +103,7 @@ export async function POST(req: NextRequest) {
   // La orden ya existe (pending, package:'services'). Al pagar la marcamos paid
   // + in_review y enviamos confirmación al cliente + alerta interna.
   if (meta.kind === 'services' && meta.orderId) {
+    await recordStripeTermsAcceptance(meta.orderId, session, 'services')
     return handleServicesPaid(meta.orderId, session)
   }
 

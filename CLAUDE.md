@@ -2122,6 +2122,10 @@ También: "Al acceder aceptas" → "acepta" en los 4 logins de cliente (usted).
 - **⏳ Pendientes para el 2026-10-15 (preguntar al founder, no ejecutar sin OK):** (1) botón "Send Message" de Contacto (ambas marcas) a fondo blanco + borde azul; (2) si se fuerza el estado a `filed` desde "Acciones manuales" en `/admin/orders/[id]`, el email "Orden Procesada" no sale y el cron tampoco lo cubre (solo mira `in_review`/`ready_to_file`): decidir si el selector dispara el email o el cron incluye `filed`.
 - **Forma de trabajo (founder, 2026-10-14):** cuando pide opinión ("¿qué opinas?", "¿qué te parece?"), responder solo con opinión y esperar el OK antes de tocar código, aunque el mensaje incluya una orden.
 
+## Casilla de Términos dentro de Stripe (2026-10-15)
+
+La casilla propia de Términos (auditoría 2026-09-15) demoraba el pago: Stripe no se montaba hasta marcarla. Ahora la casilla la pone Stripe (`consent_collection.terms_of_service:'required'` + `custom_text`, en `lib/checkout-terms.ts`) en `/api/checkout/embedded` y `/api/checkout/embedded-services`, y el form de Stripe se monta apenas se llega al Review. Mismo texto que antes (links de la marca del cliente + mención de cada servicio que se renueva). La aceptación se registra en `Order.termsAcceptances` desde el webhook (`recordStripeTermsAcceptance`, con IP y navegador guardados en la metadata al crear la sesión, sin duplicar si Stripe reintenta). Se borró `/api/orders/accept-terms` y la casilla/funciones de `page.tsx` y `servicios/checkout`. **Requiere la "Terms of service URL" en Stripe → Settings → Business → Public details** (cargada en el sandbox 2026-10-15; ⚠️ cargarla también en Live al lanzar, o Stripe rechaza la sesión de pago).
+
 ## Deploy
 
 - `git push origin main` — Vercel detecta cambios en `backend/` y hace deploy automático

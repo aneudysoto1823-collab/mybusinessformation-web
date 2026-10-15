@@ -3,6 +3,7 @@ import Stripe from 'stripe'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { computeServicesTotal, SERVICES_CATALOG, SERVICE_BUNDLES } from '@/lib/services-pricing'
 import { resolveOrigin, brandFromOrigin, statementDescriptorParams } from '@/lib/request-origin'
+import { servicesConsentParams, consentRequestMetadata } from '@/lib/checkout-terms'
 import { getRequestGeo } from '@/lib/request-geo'
 
 export const dynamic = 'force-dynamic'
@@ -78,7 +79,7 @@ export async function POST(req: NextRequest) {
     const sourceDomain = brandFromOrigin(origin)
 
     const expedited = intake.expedited === true
-    const { cents, lines, total } = computeServicesTotal(uniqueIds, bundleIds, expedited, lang, sourceDomain, newServicesByBundle)
+    const { cents, lines, total, recurring } = computeServicesTotal(uniqueIds, bundleIds, expedited, lang, sourceDomain, newServicesByBundle)
     if (cents < 50) {
       return NextResponse.json({ error: isEs ? 'Monto inválido.' : 'Invalid amount.' }, { status: 400 })
     }
@@ -225,6 +226,8 @@ export async function POST(req: NextRequest) {
       // Campo nativo de Stripe "Add promotion code" — ver mismo comentario
       // completo en /api/checkout/embedded/route.ts.
       allow_promotion_codes: true,
+      // Casilla de Términos dentro de Stripe (ver lib/checkout-terms.ts).
+      ...servicesConsentParams({ origin, isEs, brand: sourceDomain, recurring }),
       return_url: `${origin}/servicios/checkout?paid=1&session_id={CHECKOUT_SESSION_ID}`,
       payment_intent_data: {
         // Ver lib/request-origin.ts statementDescriptorParams — en FBFC pisa
@@ -234,7 +237,7 @@ export async function POST(req: NextRequest) {
         // futuros — lo usan las Subscriptions creadas después del pago.
         setup_future_usage: 'off_session',
       },
-      metadata: { kind: 'services', orderId, sourceDomain },
+      metadata: { kind: 'services', orderId, sourceDomain, ...consentRequestMetadata(req) },
     })
 
     const fbfc = `FBFC-${orderId.replace(/-/g, '').substring(0, 8).toUpperCase()}`

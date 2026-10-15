@@ -69,7 +69,7 @@ interface Order {
   // Annual Report) — ver lib/order-subscriptions.ts / lib/stripe-subscriptions.ts.
   stripeCustomerId?: string | null
   // Aceptación de Términos en cada checkout y reactivación (lib/terms-acceptance.ts).
-  termsAcceptances?: { at: string; context: 'formation' | 'services' | 'reactivation'; text: string; ip: string | null; userAgent: string | null; service?: string }[] | null
+  termsAcceptances?: { at: string; context: 'formation' | 'services' | 'reactivation'; text: string; ip: string | null; userAgent: string | null; service?: string; stripeSessionId?: string }[] | null
   subscriptions?: {
     service: string
     stripeSubscriptionId: string
@@ -1653,6 +1653,7 @@ export default function OrderDetailPage() {
                   {new Date(t.at).toLocaleString('es-ES', { timeZone: 'America/New_York' })}
                   {' · '}
                   {t.context === 'formation' ? 'Checkout de formación' : t.context === 'services' ? 'Checkout de servicios' : `Reactivación${t.service ? ` (${t.service})` : ''}`}
+                  {t.stripeSessionId ? ' · casilla de Stripe' : ''}
                   {t.ip ? ` · IP ${t.ip}` : ''}
                 </div>
                 <div style={{ color: '#4b5563', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '8px 10px' }}>{t.text}</div>

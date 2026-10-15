@@ -598,9 +598,6 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
 .fm-skel{border-radius:8px;background:#eef2f7;background-image:linear-gradient(90deg,#eef2f7 0px,#f6f8fb 200px,#eef2f7 400px);background-size:800px 100%;animation:fmSkelShimmer 1.2s linear infinite}
 .fm-sum-pay-notice{margin-top:12px;font-size:.72rem;line-height:1.5;color:#92400e;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:9px 11px}
 .fm-sum-pay-notice strong{color:#b45309}
-.fm-sum-pay-consent{margin-top:10px;font-size:.7rem;line-height:1.5;color:#6b7280;display:flex;align-items:flex-start;gap:8px;cursor:pointer}
-.fm-sum-pay-consent input[type=checkbox]{margin-top:2px;flex-shrink:0;width:15px;height:15px;cursor:pointer;accent-color:#2563eb}
-.fm-sum-pay-consent a{color:#2563eb;text-decoration:none}
 .fm-sum-head{padding:16px 20px;border-bottom:1px solid #f3f4f6}
 .fm-sum-head-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .fm-sum-toggle{display:none;font-size:.78rem;font-weight:700;color:#2563eb;line-height:1;text-decoration:underline;white-space:nowrap}
@@ -2453,10 +2450,6 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
              Stripe — ver fmDetectAgentMode()/fmGoToStep(). El botón
              #s8-agent-save-btn (footer del Review) reemplaza a Save. -->
         <div class="fm-sum-pay-notice" id="sum-pay-notice"><strong>&#9888; Non-Refundable:</strong> State fees cannot be refunded once processing begins. Our service fee is refundable within 24 hours if filing has not started.</div>
-        <label class="fm-sum-pay-consent" id="sum-pay-consent" for="chk-terms-agree">
-          <input type="checkbox" id="chk-terms-agree" onchange="fmOnTermsToggle()">
-          <span id="terms-agree-text">I have read and agree to the <a href="/legal" target="_blank">Legal Statement</a> and <a href="/terms" target="_blank">Terms of Service</a>, and understand this is a document preparation service, not legal or tax advice.</span>
-        </label>
       </div>
     </div>
     <!-- Columna derecha del paso de pago: aquí fmGoToStep mueve #fm-pay-area (Stripe). -->
@@ -4839,17 +4832,13 @@ function fmGoToStep(n) {
     if(_fmAgentMode) {
       var _ec = document.getElementById('embedded-checkout'); if(_ec) _ec.style.display = 'none';
       var _payNotice = document.getElementById('sum-pay-notice'); if(_payNotice) _payNotice.style.display = 'none';
-      var _payConsent = document.getElementById('sum-pay-consent'); if(_payConsent) _payConsent.style.display = 'none';
       var _saveBtn = document.getElementById('s8-save-btn'); if(_saveBtn) _saveBtn.style.display = 'none';
       var _agentSaveBtn = document.getElementById('s8-agent-save-btn'); if(_agentSaveBtn) _agentSaveBtn.style.display = '';
       var _payTitle = document.getElementById('sum-pay-title'); if(_payTitle) _payTitle.textContent = 'Agent Mode';
     } else {
-      // Checkbox real de términos (auditoría compliance 2026-09-15): antes
-      // el pago se montaba directo, sin ningún consentimiento activo del
-      // cliente (solo un texto pasivo "al pagar aceptas..."). Ahora Stripe
-      // NO se monta hasta que el checkbox esté marcado.
-      var _chkTerms = document.getElementById('chk-terms-agree');
-      if(_chkTerms && _chkTerms.checked) { fmMountPayment(); } else { fmShowTermsGate(); }
+      // La casilla de Términos vive dentro del form de Stripe (2026-10-15,
+      // lib/checkout-terms.ts): el pago se monta apenas se llega al Review.
+      fmMountPayment();
     }
   } else {
     // Restaurar: Stripe vuelve dentro del summary y el summary vuelve a la derecha.
@@ -5675,35 +5664,6 @@ function fmUpdateSummary() {
   formData.package = pkg;
   formData.entity  = fmData.entity;
   selectedEntity   = fmData.entity;
-  fmUpdateTermsConsentText();
-}
-
-// Consentimiento explícito de renovación automática (auditoría compliance
-// 2026-09-15): el checkbox de Términos (#chk-terms-agree, nunca pre-marcado)
-// ahora menciona por nombre cada servicio recurrente real que la orden vaya
-// a suscribir (Registered Agent y/o Annual Report) antes de que el cliente
-// pueda pagar — no alcanza con el texto informativo suelto de sus tarjetas,
-// tiene que estar en el mismo consentimiento que se marca antes de cobrar.
-// Se recalcula en cada fmUpdateSummary() (toggle de addon/paquete/RA/idioma).
-function fmUpdateTermsConsentText() {
-  var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
-  var raIsUs = (fmData.ra || 'us') === 'us';
-  var hasAr = !!fmData.addons.ar;
-  var recBits = [];
-  if(raIsUs) recBits.push(isEs ? 'el Agente Registrado ($99/año a partir del segundo año)' : 'Registered Agent ($99/yr starting year two)');
-  if(hasAr) recBits.push(isEs ? 'la Declaración Anual ($99/año + tarifa estatal)' : 'Annual Report Filing ($99/yr + state fee)');
-  var recTxt = '';
-  if(recBits.length) {
-    var joined = recBits.join(isEs ? ' y ' : ' and ');
-    recTxt = isEs
-      ? (' Entiendo que ' + joined + ' se renueva automáticamente cada año con el método de pago que use ahora, hasta que lo cancele desde mi portal de cliente.')
-      : (' I understand that ' + joined + ' renews automatically each year using the payment method I use now, until I cancel it from my client portal.');
-  }
-  var base = isEs
-    ? 'He leído y acepto el <a href="/legal" target="_blank">Aviso Legal</a> y los <a href="/terms" target="_blank">Términos de Servicio</a>, y entiendo que este es un servicio de preparación de documentos, no asesoría legal ni fiscal.'
-    : 'I have read and agree to the <a href="/legal" target="_blank">Legal Statement</a> and <a href="/terms" target="_blank">Terms of Service</a>, and understand this is a document preparation service, not legal or tax advice.';
-  var el = document.getElementById('terms-agree-text');
-  if(el) el.innerHTML = base + recTxt;
 }
 
 // ═══════════════════════════════════════════════════════
@@ -6057,37 +6017,6 @@ function fmPrefetchPayment() {
 // Summary. Se llama al entrar al Review (fmGoToStep n===8). Los emails los manda
 // el webhook al confirmarse el pago (deferEmails). El precio se recalcula
 // server-side desde la orden \u2014 el navegador no decide el monto.
-// Placeholder que reemplaza al form de Stripe mientras el checkbox de
-// términos no esté marcado (auditoría compliance 2026-09-15) — nunca se
-// monta el iframe de Stripe sin consentimiento activo primero.
-function fmShowTermsGate() {
-  fmDestroyPayment();
-  var isEsS = !!(document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active'));
-  var ec = document.getElementById('embedded-checkout');
-  if(ec) ec.innerHTML = '<div style="padding:22px 10px;text-align:center;color:#64748b;font-size:.82rem;line-height:1.6">' + (isEsS ? 'Marque la casilla de arriba para continuar con el pago.' : 'Please check the box above to continue to payment.') + '</div>';
-}
-
-// onchange del checkbox de términos — marcarlo monta Stripe recién ahí;
-// desmarcarlo (si ya estaba montado) lo destruye y vuelve al placeholder.
-function fmOnTermsToggle() {
-  var _chk = document.getElementById('chk-terms-agree');
-  if(_chk && _chk.checked) { fmMountPayment(); } else { fmShowTermsGate(); }
-}
-
-// Guarda en la orden que el cliente aceptó los Términos (fecha, IP y texto
-// exacto, ver lib/terms-acceptance.ts). Una vez por orden + texto.
-function fmRecordTerms(orderId) {
-  try {
-    var el = document.getElementById('terms-agree-text');
-    var txt = el ? el.innerText : '';
-    if(!orderId || !txt) return;
-    var sig = orderId + '|' + txt;
-    if(window._fmTermsSig === sig) return;
-    window._fmTermsSig = sig;
-    fetch('/api/orders/accept-terms', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ orderId: orderId, text: txt, context: 'formation' }) }).catch(function(){});
-  } catch(e) {}
-}
-
 async function fmMountPayment() {
   if(_fmMounting) return;
   _fmMounting = true;
@@ -6116,7 +6045,6 @@ async function fmMountPayment() {
     if(_fmPrefetch && _fmPrefetch.key === key) { p = _fmPrefetch.promise; }
     else { p = _fmCreateSessionReq(payload); _fmPrefetch = { key: key, promise: p }; }
     var result = await p;
-    fmRecordTerms(result.orderId);
     fmClearProgress();
     generateOrderNumber(result.orderId);
     var numEl = document.getElementById('finalOrderNum'); if(numEl) numEl.textContent = orderNumber;
@@ -6678,7 +6606,6 @@ function fmTranslate(lang) {
     'sum-sec-ssl':isEs?'&#128274; Cifrado SSL':'&#128274; SSL Encrypted',
     'sum-pay-title':isEs?'Pago Seguro':'Secure Payment',
     'sum-pay-notice':isEs?'<strong>&#9888; No reembolsable:</strong> Los cargos estatales no son reembolsables una vez iniciado el proceso. Nuestra tarifa de servicio es reembolsable dentro de las 24 horas si el tr\\u00e1mite no ha comenzado.':'<strong>&#9888; Non-Refundable:</strong> State fees cannot be refunded once processing begins. Our service fee is refundable within 24 hours if filing has not started.',
-    'terms-agree-text':isEs?'He le\\u00eddo y acepto el <a href="/legal" target="_blank">Aviso Legal</a> y los <a href="/terms" target="_blank">T\\u00e9rminos de Servicio</a>, y entiendo que este es un servicio de preparaci\\u00f3n de documentos, no asesor\\u00eda legal ni fiscal.':'I have read and agree to the <a href="/legal" target="_blank">Legal Statement</a> and <a href="/terms" target="_blank">Terms of Service</a>, and understand this is a document preparation service, not legal or tax advice.',
     'sum-sec-nofees':isEs?'&#10003; Sin Cargos Ocultos':'&#10003; No Hidden Fees',
     'sum-sec-email':isEs?'&#128196; Recibo por Correo':'&#128196; Receipt by Email',
     's2-sub':isEs?'Cuéntenos cómo contactarlo y dónde estará ubicado su negocio.':'Tell us how to reach you and where your business will be located.',

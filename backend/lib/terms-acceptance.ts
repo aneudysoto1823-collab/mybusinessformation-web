@@ -20,6 +20,8 @@ export interface TermsAcceptance {
   userAgent: string | null
   // Solo en reactivaciones: qué servicio se reactivó.
   service?: string
+  // Aceptada en la casilla del Embedded Checkout de Stripe (lib/checkout-terms.ts).
+  stripeSessionId?: string
 }
 
 export function requestIp(req: NextRequest): string | null {
@@ -39,6 +41,8 @@ export async function appendTermsAcceptance(
     if (error) throw error
     if (!data) return false
     const list: TermsAcceptance[] = Array.isArray(data.termsAcceptances) ? data.termsAcceptances : []
+    // Stripe reintenta webhooks: la misma sesión se registra una sola vez.
+    if (entry.stripeSessionId && list.some(a => a.stripeSessionId === entry.stripeSessionId)) return true
     list.push({ ...entry, text: entry.text.slice(0, 3000), at: new Date().toISOString() })
     const { error: upErr } = await supabase.from('Order').update({ termsAcceptances: list }).eq('id', orderId)
     if (upErr) throw upErr

@@ -3,6 +3,7 @@ import Stripe from 'stripe'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { computeFormationTotal } from '@/lib/pricing'
 import { resolveOrigin, brandFromOrigin, statementDescriptorParams } from '@/lib/request-origin'
+import { formationConsentParams, consentRequestMetadata } from '@/lib/checkout-terms'
 
 export const dynamic = 'force-dynamic'
 
@@ -132,6 +133,14 @@ export async function POST(req: NextRequest) {
       // Coupons), test y live por separado — no requieren env vars ni
       // cambios de código adicionales.
       allow_promotion_codes: true,
+      // Casilla de Términos dentro de Stripe: no deja pagar sin marcarla
+      // (ver lib/checkout-terms.ts).
+      ...formationConsentParams({
+        origin,
+        isEs,
+        hasRa: (order.registeredAgent || 'us') === 'us',
+        hasAr: !!((order.addons ?? {}) as Record<string, unknown>).ar,
+      }),
       // Embedded usa return_url (no success_url/cancel_url). El webhook es quien
       // marca la orden como pagada; esta página solo confirma visualmente.
       return_url: `${origin}/order/complete?session_id={CHECKOUT_SESSION_ID}`,
@@ -152,6 +161,7 @@ export async function POST(req: NextRequest) {
       metadata: {
         kind:    'formation',
         orderId: order.id,
+        ...consentRequestMetadata(req),
       },
     })
 

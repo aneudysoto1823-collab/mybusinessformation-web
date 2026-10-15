@@ -1,7 +1,7 @@
 ---
 title: "Pagos con Stripe"
 summary: "Cómo cobramos, cómo funcionan las renovaciones automáticas, los códigos de descuento, los reembolsos y los contracargos."
-updated: "2026-10-10"
+updated: "2026-10-15"
 ---
 
 ## Qué es Stripe
@@ -75,6 +75,7 @@ Un contracargo es cuando el cliente le dice a su banco que no reconoce el cobro 
 - La orden se marca como "en disputa" en el panel.
 - La respuesta al banco (con pruebas: confirmación del cliente, términos aceptados, documentos entregados) se hace desde el panel de Stripe, dentro del plazo que indica.
 - **Prueba de los Términos aceptados:** desde el 10 de octubre de 2026, cada vez que un cliente marca la casilla de Términos al pagar (formación, servicios o al reactivar un servicio), queda guardado en la orden: fecha y hora, dirección de conexión (IP) y el texto exacto que aceptó. Se ve en el detalle de la orden, sección **"Aceptación de Términos"**. Las órdenes anteriores a esa fecha no lo tienen.
+- **La casilla de Términos está dentro del formulario de Stripe:** desde el 15 de octubre de 2026, en el pago de formación y en el de servicios la casilla aparece arriba del botón de pagar, y Stripe no deja pagar sin marcarla. Así el formulario de pago carga apenas el cliente llega a revisar su orden. La aceptación se guarda sola en la orden cuando se confirma el pago. Para que funcione, en Stripe tiene que estar cargada la dirección de los Términos (Settings, Business, Public details, Terms of service URL); son configuraciones separadas en prueba y en Live.
 - Cuando se cierra, el sistema actualiza la orden solo.
 
 ## Si un pago no aparece
