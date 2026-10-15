@@ -394,7 +394,6 @@ Email: info@opabiz.com
 WhatsApp: +1 352 278 2475
 Contact: by email or WhatsApp. No appointments at this time.
 Services: Document preparation and filing service — NOT a law firm. No legal, tax, or financial advice.
-Track record: Over 500 Florida businesses formed — LLCs, Corporations, DBAs, and more.
 Languages: Fully bilingual English / Spanish.
 
 ABOUT US:

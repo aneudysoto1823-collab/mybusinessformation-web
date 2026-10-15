@@ -12,7 +12,7 @@ import AgentAssistWidget from '@/components/AgentAssistWidget'
 
 export const metadata: Metadata = {
   title: 'Florida LLC & Corporation Formation — Online, Bilingual',
-  description: 'Form your Florida LLC or Corporation online in minutes. Bilingual service EN/ES. Packages from $39 + state fee. EIN, Operating Agreement, BOI Filing included.',
+  description: 'Form your Florida LLC or Corporation online in minutes. Bilingual service EN/ES. Packages from $39 + state fee. EIN, Operating Agreement and Registered Agent available.',
   alternates: {
     canonical: 'https://opabiz.com',
     languages: {
@@ -49,7 +49,7 @@ const schemaOrg = {
       '@id': 'https://opabiz.com/#llc-formation',
       name: 'Florida LLC Formation',
       provider: { '@id': 'https://opabiz.com/#organization' },
-      description: 'Online Florida LLC formation service. Includes filing, Articles of Organization / Incorporation, name availability search, and BOI Filing.',
+      description: 'Online Florida LLC formation service. Includes filing, Articles of Organization / Incorporation, and name availability search.',
       areaServed: 'US-FL',
       offers: [
         { '@type': 'Offer', name: 'Basic', price: '39', priceCurrency: 'USD' },
@@ -1012,14 +1012,12 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           <div class="svc-row"><span class="svc-name" data-en="Articles of Organization / Incorporation" data-es="Artículos de Organización / Incorporación">Articles of Organization / Incorporation</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Name Availability Search" data-es="Búsqueda de Nombre Disponible">Name Availability Search</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name">Guía Exclusiva de Formación</span><span class="svc-status s-check">✓</span></div>
-          <div class="svc-row"><span class="svc-name">BOI Filing (FinCEN)</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name" data-en="EIN / Tax ID Number" data-es="EIN / Número de ID Fiscal">EIN / Tax ID Number</span><span class="svc-status s-add">+ $79</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Banking Resolution" data-es="Resolución Bancaria">Banking Resolution</span><span class="svc-status s-add">+ $49</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Local Business Tax Receipt" data-es="Licencia Comercial Local">Local Business Tax Receipt</span><span class="svc-status s-add">+ $79</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Sales Tax Registration" data-es="Registro de Impuesto sobre Ventas">Sales Tax Registration</span><span class="svc-status s-add">+ $79</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Operating Agreement" data-es="Acuerdo Operativo">Operating Agreement</span><span class="svc-status s-add">+ $79</span></div>
           <div class="svc-row"><span class="svc-name" data-en="DBA / Fictitious Name" data-es="DBA / Nombre Ficticio">DBA / Fictitious Name</span><span class="svc-status s-add">+ $49</span></div>
-          <div class="svc-row"><span class="svc-name" data-en="Articles of Amendment" data-es="Artículos de Enmienda">Articles of Amendment</span><span class="svc-status s-add">+ $59</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Registered Agent (Annual Subscription)" data-es="Agente Registrado (Suscripción Anual)">Registered Agent (Annual Subscription)</span><span class="svc-status s-add">+ $99</span></div>
         </div>
       </div>
@@ -1039,7 +1037,6 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           <div class="svc-row"><span class="svc-name" data-en="Articles of Organization / Incorporation" data-es="Artículos de Organización / Incorporación">Articles of Organization / Incorporation</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Name Availability Search" data-es="Búsqueda de Nombre Disponible">Name Availability Search</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name">Guía Exclusiva de Formación</span><span class="svc-status s-check">✓</span></div>
-          <div class="svc-row"><span class="svc-name">BOI Filing (FinCEN)</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name" data-en="EIN / Tax ID Number" data-es="EIN / Número de ID Fiscal">EIN / Tax ID Number</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Banking Resolution" data-es="Resolución Bancaria">Banking Resolution</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Registered Agent (1st year free)" data-es="Agente Registrado (1er año gratis)">Registered Agent (1st year free)</span><span class="svc-status s-check">✓</span></div>
@@ -1047,7 +1044,6 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           <div class="svc-row"><span class="svc-name" data-en="Local Business Tax Receipt" data-es="Licencia Comercial Local">Local Business Tax Receipt</span><span class="svc-status s-add">+ $79</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Sales Tax Registration" data-es="Registro de Impuesto sobre Ventas">Sales Tax Registration</span><span class="svc-status s-add">+ $79</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Operating Agreement" data-es="Acuerdo Operativo">Operating Agreement</span><span class="svc-status s-add">+ $79</span></div>
-          <div class="svc-row"><span class="svc-name" data-en="Articles of Amendment" data-es="Artículos de Enmienda">Articles of Amendment</span><span class="svc-status s-add">+ $59</span></div>
         </div>
       </div>
 
@@ -1065,11 +1061,9 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
           <div class="svc-row"><span class="svc-name" data-en="Articles of Organization / Incorporation" data-es="Artículos de Organización / Incorporación">Articles of Organization / Incorporation</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Name Availability Search" data-es="Búsqueda de Nombre Disponible">Name Availability Search</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name">Guía Exclusiva de Formación</span><span class="svc-status s-check">✓</span></div>
-          <div class="svc-row"><span class="svc-name">BOI Filing (FinCEN)</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name" data-en="EIN / Tax ID Number" data-es="EIN / Número de ID Fiscal">EIN / Tax ID Number</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Banking Resolution" data-es="Resolución Bancaria">Banking Resolution</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Operating Agreement" data-es="Acuerdo Operativo">Operating Agreement</span><span class="svc-status s-check">✓</span></div>
-          <div class="svc-row"><span class="svc-name" data-en="Articles of Amendment" data-es="Artículos de Enmienda">Articles of Amendment</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Registered Agent (1st year free)" data-es="Agente Registrado (1er año gratis)">Registered Agent (1st year free)</span><span class="svc-status s-check">✓</span></div>
           <div class="svc-row"><span class="svc-name" data-en="DBA / Fictitious Name" data-es="DBA / Nombre Ficticio">DBA / Fictitious Name</span><span class="svc-status s-add">+ $49</span></div>
           <div class="svc-row"><span class="svc-name" data-en="Local Business Tax Receipt" data-es="Licencia Comercial Local">Local Business Tax Receipt</span><span class="svc-status s-add">+ $79</span></div>
@@ -1145,7 +1139,7 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
       </div>
       <div class="testi-card">
         <div class="stars">★★★★★</div>
-        <p class="testi-text">"I chose the Premium package and it covered absolutely everything — EIN, Operating Agreement, BOI Filing and our Exclusive Formation Guide. My business was up and running faster than I expected. Highly recommend!"</p>
+        <p class="testi-text">"I chose the Premium package and it covered absolutely everything — EIN, Operating Agreement, Registered Agent. My business was up and running faster than I expected."</p>
         <div class="testi-author">
           <div class="testi-avatar" style="background:#059669">AL</div>
           <div class="testi-info"><strong>Ana Lucía Torres</strong><span>Boutique Owner · Tampa, FL</span></div>

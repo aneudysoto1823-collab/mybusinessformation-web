@@ -95,7 +95,7 @@ export async function generateMetadata(): Promise<Metadata> {
       template: "%s | OpaBiz",
     },
     description:
-      "Form your Florida LLC or Corporation online in minutes. Bilingual service (EN/ES). Packages from $39 + state fee. EIN, Operating Agreement, BOI Filing included.",
+      "Form your Florida LLC or Corporation online in minutes. Bilingual service (EN/ES). Packages from $39 + state fee. EIN, Operating Agreement and Registered Agent available.",
     keywords: [
       "Florida LLC formation",
       "form LLC Florida",

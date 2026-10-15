@@ -4,7 +4,7 @@ const BASE_URL = 'https://opabiz.com'
 
 export const metadata: Metadata = {
   title: 'Formación de LLC y Corporación en Florida — Online, Bilingüe',
-  description: 'Crea tu LLC o Corporación en Florida en minutos. Servicio bilingüe EN/ES. Paquetes desde $0 + tarifa estatal. EIN, Acuerdo Operativo, BOI Filing incluidos.',
+  description: 'Crea tu LLC o Corporación en Florida en minutos. Servicio bilingüe EN/ES. Paquetes desde $39 + tarifa estatal. EIN, Acuerdo Operativo y Agente Registrado disponibles.',
   alternates: {
     canonical: `${BASE_URL}/es`,
     languages: {
