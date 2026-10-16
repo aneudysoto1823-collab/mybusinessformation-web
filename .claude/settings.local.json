@@ -35,7 +35,8 @@
       "Bash(npm audit *)",
       "Bash(node -e \"const s=require\\('@sentry/nextjs'\\); console.log\\(Object.keys\\(s\\).filter\\(k=>k.toLowerCase\\(\\).includes\\('event'\\)\\).join\\('\\\\n'\\)\\)\")",
       "Bash(node -e \"try{ const t = require\\('@sentry/nextjs'\\); console.log\\('OK direct import works at runtime'\\); } catch\\(e\\){console.log\\(e.message\\)}\")",
-      "Bash(gh auth *)"
+      "Bash(gh auth *)",
+      "Bash(NODE_PATH=/Users/juanfabian/.npm/_npx/e41f203b7505f1fb/node_modules node -e ' *)"
     ],
     "additionalDirectories": [
       "\\tmp"
