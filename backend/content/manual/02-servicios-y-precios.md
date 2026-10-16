@@ -1,7 +1,7 @@
 ---
 title: "Servicios y precios"
 summary: "Paquetes de formación, servicios sueltos, combos y tarifas del estado. Los precios se leen directo del sistema."
-updated: "2026-10-06"
+updated: "2026-10-15"
 ---
 
 > Todos los precios de este capítulo salen directamente del sistema que cobra. Si un precio cambia, este capítulo se actualiza solo en el siguiente deploy.
@@ -15,11 +15,15 @@ Casi todo lo que vendemos tiene dos partes:
 
 Algunos trámites no tienen tarifa del gobierno (por ejemplo, el EIN es gratis en el IRS). En esos casos el cliente solo paga nuestro servicio.
 
+**Cada tarifa del estado dice a qué trámite corresponde.** En el resumen del pedido, en el formulario de pago, en la confirmación y en el email se lee, por ejemplo, "LLC Formation State Fee", "Corporation Formation State Fee" o "DBA State Fee" (en español, "Tarifa Estatal de Formación LLC", etc.). El DBA siempre sale en dos líneas: nuestro servicio y la tarifa del estado.
+
 ## Paquetes de formación (opabiz.com)
 
 Es lo que el cliente elige en el home cuando quiere formar una empresa nueva.
 
 {{precios:paquetes}}
+
+La tabla de paquetes del home no incluye el reporte BOI (desde 2025 no aplica a empresas formadas en EE.UU.) ni Articles of Amendment (se vende aparte, como servicio suelto). Ambos se sacaron el 15 de octubre de 2026.
 
 A eso se le suma siempre la **tarifa del estado de Florida**: {{precio:estatal-llc}} para una LLC o {{precio:estatal-corp}} para una Corporación.
 

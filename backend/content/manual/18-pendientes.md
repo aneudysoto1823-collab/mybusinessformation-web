@@ -1,7 +1,7 @@
 ---
 title: "Pendientes y decisiones abiertas"
 summary: "Lo que falta para el lanzamiento y las decisiones de negocio todavía sin cerrar."
-updated: "2026-10-12"
+updated: "2026-10-15"
 ---
 
 Esta lista cambia seguido. La lista técnica completa está en `CHECKLIST_PRELANZAMIENTO.md`, dentro del proyecto.
@@ -19,6 +19,8 @@ Stripe ya está preparado. Antes de activarlo hay que resolver todo esto:
 7. **Revisión de abogado** de los Términos y la Política de Privacidad.
 8. Confirmar que las claves de Turso estén cargadas también en Railway (sin ellas, el buscador de nombres del panel dice "disponible" a todo sin avisar).
 9. **Cierre de sesión del panel por inactividad**: hoy la sesión del panel dura 8 horas aunque nadie la use. Antes de lanzar, que se cierre sola a los 30 minutos sin uso, con un aviso un minuto antes.
+10. **Tres ajustes en el modo Live de Stripe** (en prueba ya están): la dirección de los Términos de servicio (sin ella Stripe no deja cobrar), la casilla de Link sin marcar y los 4 dominios para Apple Pay. Ver el capítulo "Pagos con Stripe".
+11. **Artículo "Por qué formar su empresa en Florida"**, comparando Florida con otros estados (costos, impuestos, mantenimiento anual, privacidad), en inglés y español.
 
 ## Decisiones de negocio pendientes
 
@@ -27,6 +29,7 @@ Stripe ya está preparado. Antes de activarlo hay que resolver todo esto:
 - **Plazos de cancelación del Agente Registrado:** averiguar con Registered Agents Inc dos cosas:
   - Cuánto aviso exigen para que un servicio **no se renueve**. Si son 3 meses, el aviso de renovación al cliente tiene que salir antes (hoy sale 30 días antes).
   - Una vez pedida la **baja del servicio**, a los cuántos días dejan de recibir la correspondencia de la empresa y de cargarla al portal del cliente. Hoy el sistema le da al cliente un margen provisorio de 30 días (capítulo 20); con la respuesta se ajusta ese margen para que la fecha que ve el cliente coincida con la real.
+- **Chat en vivo desde Claudia:** que el cliente pueda pedir hablar con una persona dentro del mismo chat y lo atienda un agente de OpaBiz Connect o el equipo, de lunes a viernes de 9 a 6 (hora del Este); fuera de horario, WhatsApp o email. Idea del 15 de octubre de 2026, esperando el visto bueno de los dos socios.
 - **Dirección Virtual:** sacada del sitio hasta conseguir proveedor. El precio sigue guardado para reactivarla.
 - **Guía de configuración de Stripe:** tarjeta en /servicios que dice "Coming soon", a definir con el socio.
 - **Guías III (Cuenta de banco) y IV (Stripe):** en mejora, todavía no terminadas. Solo existen en español y con la marca OpaBiz. Cuando estén listas: versión en inglés, versión MyBiz y decidir si se regalan por email.

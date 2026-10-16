@@ -361,6 +361,7 @@ Hallazgos de la auditoría del 2026-09-15 (`project_ftc_upl_compliance_audit_202
 - [ ] Sección FAQ ampliada con 15-20 preguntas reales
 - [ ] Sección "Cómo funciona" con 4-6 pasos visuales
 - [ ] Página de blog (estructura mínima) lista para publicar artículos SEO post-launch
+- [ ] **OBLIGATORIO antes de lanzar (founder, 2026-10-15): artículo "Por qué formar su empresa en Florida"** que compare Florida con otros estados (Delaware, Wyoming, Nevada, Texas y otros): costos de formación y de mantenimiento anual, impuestos (Florida no cobra impuesto estatal a la renta de personas; la Corporation sí paga impuesto estatal corporativo), Declaración Anual, privacidad, requisitos de registrarse como empresa extranjera si opera en Florida, y cuándo conviene cada uno. En EN y ES, sin consejo legal ni fiscal personal y sin nombrar "Sunbiz". Verificar cada cifra contra la fuente oficial antes de publicar. Va en el blog o como página propia, con link desde el home.
 - [ ] Imágenes optimizadas (WebP, máximo 200KB cada una)
 - [ ] Alt text descriptivo en todas las imágenes (accesibilidad + SEO)
 - [ ] Meta titles + meta descriptions optimizados en cada página

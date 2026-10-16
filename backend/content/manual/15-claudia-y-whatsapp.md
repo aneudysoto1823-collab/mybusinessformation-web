@@ -1,7 +1,7 @@
 ---
 title: "Claudia y WhatsApp"
 summary: "La asistente virtual del sitio y cómo se atiende a los clientes por WhatsApp."
-updated: "2026-10-07"
+updated: "2026-10-15"
 ---
 
 ## Claudia en el sitio
@@ -15,6 +15,10 @@ updated: "2026-10-07"
 - **Busca el estado de una orden** si el cliente le da su número.
 
 Las conversaciones quedan guardadas en el sistema.
+
+**Si el cliente pide hablar con una persona,** Claudia le ofrece WhatsApp o email. Nunca ofrece citas, porque están desactivadas.
+
+**Mantener a Claudia al día.** Claudia no lee los precios ni los servicios del sistema: los sabe porque están escritos en sus instrucciones. Cada vez que cambia un precio, se agrega o se saca un servicio, o cambia el formulario, hay que pedirle a Claude que actualice también a Claudia. Las mismas instrucciones las usan las dos versiones para el equipo (abajo), así que se corrigen las tres juntas. Última revisión completa: 15 de octubre de 2026 (sin Dirección Virtual, Agente Registrado disponible, precios y formulario de 7 pasos al día).
 
 **Si Claudia deja de responder:** lo más probable es que se haya acabado el crédito de la cuenta de Anthropic (la consola de desarrolladores, que es distinta de la suscripción de Claude). Ya tiene recarga automática, pero si pasa, se recarga desde la consola de Anthropic.
 
