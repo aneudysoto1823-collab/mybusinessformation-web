@@ -204,7 +204,7 @@ assertContains('chat prompt EIN', chatSrc, [
   `EIN / Tax ID ($${CENTRAL.ein_service})`,
 ])
 assertContains('chat prompt ITIN', chatSrc, [
-  `• ITIN Application — $${CENTRAL.itin_service} standalone.`,
+  `• ITIN Application — $${CENTRAL.itin_service}. For people without a US Social Security Number`,
   `recommend ITIN Application ($${CENTRAL.itin_service})`,
   `ITIN ($${CENTRAL.itin_service})`,
 ])
