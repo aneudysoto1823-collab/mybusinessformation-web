@@ -2716,13 +2716,24 @@ function fmInitStep5Ownership() {
     fmUpdateOwnership();
   }
 }
+// Mismo criterio que fmOaOwnershipTotal (paso 7): mientras quede alguna casilla
+// de % vacia, todo en color normal y sin aviso. Se revisa recien cuando estan
+// todas llenas (o si ya pasa de 100, que esta mal sin importar lo que falte).
 function fmUpdateOwnership() {
   var total = 0;
+  var inps = [];
+  var allFilled = true;
   // Only count fields whose parent section is visible (not hidden)
   document.querySelectorAll('[id^="s5-m"][id$="-own"],[id^="s5-m"][id$="-coown"]').forEach(function(inp) {
     if(inp.offsetParent === null) return; // skip hidden fields
+    inps.push(inp);
     var v = parseFloat(inp.value);
-    if(!isNaN(v)) total += v;
+    if(!isNaN(v)) total += v; else allFilled = false;
+  });
+  var ok = allFilled && total === 100;
+  var bad = (allFilled && total !== 100) || total > 100;
+  inps.forEach(function(inp) {
+    inp.style.borderColor = ok ? '#059669' : (bad ? '#ef4444' : '');
   });
   var el = document.getElementById('s5-own-total');
   var wrap = document.getElementById('s5-own-total-wrap');
@@ -2730,7 +2741,7 @@ function fmUpdateOwnership() {
   var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
   if(el) {
     el.textContent = total + '%';
-    el.style.color = total === 100 ? '#059669' : total > 100 ? '#ef4444' : '#1e293b';
+    el.style.color = ok ? '#059669' : bad ? '#ef4444' : '#1e293b';
   }
   // Soft tip — not blocking
   if(!tip && wrap) {
@@ -2740,16 +2751,11 @@ function fmUpdateOwnership() {
     wrap.parentNode.insertBefore(tip, wrap.nextSibling);
   }
   if(tip) {
-    if(total > 0 && total < 100) {
-      tip.style.display = 'block';
-      tip.style.background = '#fef9c3';
-      tip.style.color = '#92400e';
-      tip.textContent = isEs ? '⚠ El total de propiedad es ' + total + '%. Para el Operating Agreement debe sumar 100%.' : '⚠ Total ownership is ' + total + '%. For the Operating Agreement it should add up to 100%.';
-    } else if(total > 100) {
+    if(bad) {
       tip.style.display = 'block';
       tip.style.background = '#fee2e2';
       tip.style.color = '#991b1b';
-      tip.textContent = isEs ? '⚠ El total excede 100%. Por favor verifica los porcentajes.' : '⚠ Total exceeds 100%. Please review the percentages.';
+      tip.textContent = fmOwnSumMsg(total, isEs);
     } else {
       tip.style.display = 'none';
     }
@@ -2759,9 +2765,10 @@ function fmUpdateOwnership() {
 var fmMemberCount = 1;
 
 function fmAddMember() {
-  // When adding a new member, clear and highlight existing ownership % fields in red
+  // When adding a new member, clear existing ownership % fields so the client
+  // re-splits them (color normal: se revisa recien cuando esten todas llenas).
   document.querySelectorAll('[id$="-own"],[id$="-coown"]').forEach(function(inp) {
-    if(inp.id.startsWith('s5-')) { inp.value = ''; inp.style.borderColor = '#ef4444'; }
+    if(inp.id.startsWith('s5-')) { inp.value = ''; inp.style.borderColor = ''; }
   });
   fmUpdateOwnership();
   fmMemberCount++;
@@ -7277,7 +7284,7 @@ function fmShowOaFields(show) {
       : (isEs ? '✓ % de Propiedad' : '✓ Ownership %');
     r += '</div>';
     r += '<div style="display:flex;align-items:center;gap:10px">';
-    r += '<input type="number" class="fm-input" id="oa-m'+n+'-own" value="'+(ownVal||'')+'" placeholder="'+(isEs?'ej. 100':'e.g. 100')+'" min="0" max="100" oninput="fmOaOwnershipTotal()" style="max-width:120px;border-color:'+(ownMissing?'#f59e0b':'#059669')+'">';
+    r += '<input type="number" class="fm-input" id="oa-m'+n+'-own" value="'+(ownVal||'')+'" placeholder="'+(isEs?'ej. 100':'e.g. 100')+'" min="0" max="100" oninput="fmOaOwnershipTotal()" style="max-width:120px">';
     r += '<span style="font-size:.85rem;font-weight:600;color:var(--navy)">%</span>';
     r += '</div></div>';
 
@@ -7309,19 +7316,26 @@ function fmShowOaFields(show) {
   fmOaOwnershipTotal();
 }
 
-// showErr: true al apretar Continuar (marca en rojo aunque el cliente todavia
-// no haya escrito nada). Mientras escribe, el rojo aparece recien cuando hay
-// algun numero cargado. Antes cada casilla se ponia verde apenas tenia un
-// numero, aunque el total no sumara 100, y el cliente no sabia cual corregir.
+// Mensaje unico de "la suma debe ser 100" (pasos 5 y 7).
+function fmOwnSumMsg(total, isEs) {
+  return isEs
+    ? 'La suma de todos los porcentajes debe ser 100%. Ahora suma ' + total + '%.'
+    : 'All ownership percentages must add up to 100%. They currently add up to ' + total + '%.';
+}
+
+// Mientras quede alguna casilla vacia, todo en color normal y sin aviso: se
+// revisa recien cuando el cliente puso el ultimo porcentaje (o si ya pasa de
+// 100, que esta mal sin importar lo que falte). showErr: true al apretar
+// Continuar, ahi se marcan en rojo tambien las vacias.
 function fmOaOwnershipTotal(showErr) {
   var total = 0;
+  var allFilled = true;
   var inps = document.querySelectorAll('[id^="oa-m"][id$="-own"]');
-  inps.forEach(function(inp){ var v = parseFloat(inp.value); if(!isNaN(v)) total += v; });
-  var ok = total === 100;
-  var markErr = !ok && (showErr || total > 0);
+  inps.forEach(function(inp){ var v = parseFloat(inp.value); if(!isNaN(v)) total += v; else allFilled = false; });
+  var ok = allFilled && total === 100;
+  var markErr = !ok && (showErr || allFilled || total > 100);
   inps.forEach(function(inp){
-    if(ok) inp.style.borderColor = '#059669';
-    else if(markErr) inp.style.borderColor = '#ef4444';
+    inp.style.borderColor = ok ? '#059669' : (markErr ? '#ef4444' : '');
   });
   var el = document.getElementById('oa-own-total');
   if(el) {
@@ -7332,9 +7346,7 @@ function fmOaOwnershipTotal(showErr) {
   if(msg) {
     var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
     if(markErr) {
-      msg.textContent = isEs
-        ? 'El total de propiedad debe ser 100% para el Acuerdo Operativo. Ahora suma ' + total + '%. Corrija los porcentajes marcados en rojo.'
-        : 'Total ownership must equal 100% for the Operating Agreement. It currently adds up to ' + total + '%. Please fix the percentages marked in red.';
+      msg.textContent = fmOwnSumMsg(total, isEs);
       msg.style.display = 'block';
     } else {
       msg.style.display = 'none';
