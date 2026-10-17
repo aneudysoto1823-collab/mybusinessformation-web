@@ -5274,40 +5274,8 @@ function fmNext() {
   if(fmCurrentStep===7){
     var isEs7 = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
     if(fmData.addons.ein) {
-      // Check ID type selected
-      var idType = document.querySelector('input[name="ein-id-type"]:checked');
-      if(!idType) { alert(isEs7?'Por favor indique si tiene SSN, ITIN, o ninguno.':'Please indicate if you have an SSN, ITIN, or neither.'); return; }
-      if(idType.value === 'ssn') {
-        var ssnEl = document.getElementById('inp-ein-ssn');
-        var ssnConfEl = document.getElementById('inp-ein-ssn-confirm');
-        if(!ssnEl||ssnEl.value.replace(/[^0-9]/g,'').length < 9) { if(ssnEl){ssnEl.style.borderColor='#ef4444';ssnEl.focus();} alert(isEs7?'Por favor ingrese su SSN completo (9 dígitos).':'Please enter your complete SSN (9 digits).'); return; }
-        if(ssnEl) ssnEl.style.borderColor='';
-        if(!ssnConfEl||ssnConfEl.value.replace(/[^0-9]/g,'').length < 9) { if(ssnConfEl){ssnConfEl.style.borderColor='#ef4444';ssnConfEl.focus();} alert(isEs7?'Por favor confirme su SSN.':'Please confirm your SSN.'); return; }
-        if(ssnEl.value.replace(/[^0-9]/g,'') !== ssnConfEl.value.replace(/[^0-9]/g,'')) { ssnConfEl.style.borderColor='#ef4444'; ssnConfEl.focus(); alert(isEs7?'Los SSN no coinciden. Por favor verifica.':'SSNs do not match. Please check and try again.'); return; }
-        if(ssnConfEl) ssnConfEl.style.borderColor='';
-      }
-      if(idType.value === 'itin') {
-        var itinEl = document.getElementById('inp-ein-itin');
-        var itinConfEl = document.getElementById('inp-ein-itin-confirm');
-        if(!itinEl||itinEl.value.replace(/[^0-9]/g,'').length < 9) { if(itinEl){itinEl.style.borderColor='#ef4444';itinEl.focus();} alert(isEs7?'Por favor ingrese su ITIN completo (9 dígitos).':'Please enter your complete ITIN (9 digits).'); return; }
-        if(itinEl) itinEl.style.borderColor='';
-        if(!itinConfEl||itinConfEl.value.replace(/[^0-9]/g,'').length < 9) { if(itinConfEl){itinConfEl.style.borderColor='#ef4444';itinConfEl.focus();} alert(isEs7?'Por favor confirme su ITIN.':'Please confirm your ITIN.'); return; }
-        if(itinEl.value.replace(/[^0-9]/g,'') !== itinConfEl.value.replace(/[^0-9]/g,'')) { itinConfEl.style.borderColor='#ef4444'; itinConfEl.focus(); alert(isEs7?'Los ITIN no coinciden. Por favor verifica.':'ITINs do not match. Please check and try again.'); return; }
-        if(itinConfEl) itinConfEl.style.borderColor='';
-      }
-      // Check activity
-      var actVal = document.getElementById('ein-activity-val');
-      if(!actVal||!actVal.value) {
-        var srch = document.getElementById('ein-activity-search');
-        if(srch){srch.style.borderColor='#ef4444';srch.focus();}
-        alert(isEs7?'Por favor seleccione la actividad principal de su negocio.':'Please select your business principal activity.'); return;
-      }
-      if(actVal) { var srch2=document.getElementById('ein-activity-search'); if(srch2) srch2.style.borderColor=''; }
-      // "Describe your specific product or service" (Línea 17 del SS-4) es
-      // opcional a propósito — ver mismo comentario en el bloque pkg- de
-      // arriba. Ya no bloquea el avance.
-      var descEl = document.getElementById('inp-ein-activity-desc');
-      if(descEl) descEl.style.borderColor='';
+      var einMiss = fmEinMissing();
+      if(einMiss) { fmEinFlagMissing(einMiss); return; }
     }
     if(fmData.addons.oa) {
       var oaPanel = document.getElementById('oa-extra-fields');
@@ -5517,7 +5485,54 @@ function toggleMoreServices() {
   }
 }
 
+// Datos obligatorios del bloque EIN del paso 7 (addon EIN de Basic): tipo de
+// identificacion, SSN/ITIN con su confirmacion y actividad principal. Devuelve
+// {el, msg} del primer dato que falta, o null si esta completo. Lo usan
+// Continuar (fmNext) y fmToggleAddon: mientras falte algo no se puede elegir
+// otro servicio (pedido founder 2026-10-17, el cliente se iba a otro servicio
+// sin terminar el EIN y recien lo frenaba Continuar).
+function fmEinMissing() {
+  // Quita el rojo de una revision anterior (no toca el verde de confirmado).
+  ['inp-ein-ssn','inp-ein-ssn-confirm','inp-ein-itin','inp-ein-itin-confirm','ein-activity-search'].forEach(function(id){
+    var e = document.getElementById(id);
+    if(e && /239, 68, 68|ef4444/i.test(e.style.borderColor)) e.style.borderColor = '';
+  });
+  var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
+  var idType = document.querySelector('input[name="ein-id-type"]:checked');
+  if(!idType) return { el: document.getElementById('ein-has-ssn-lbl') || document.getElementById('ein-extra-fields'), msg: isEs?'Por favor indique si tiene SSN, ITIN, o ninguno.':'Please indicate if you have an SSN, ITIN, or neither.', noBorder: true };
+  var kinds = { ssn: ['inp-ein-ssn','SSN'], itin: ['inp-ein-itin','ITIN'] };
+  var k = kinds[idType.value];
+  if(k) {
+    var v1 = document.getElementById(k[0]);
+    var v2 = document.getElementById(k[0] + '-confirm');
+    var d1 = v1 ? v1.value.replace(/[^0-9]/g,'') : '';
+    var d2 = v2 ? v2.value.replace(/[^0-9]/g,'') : '';
+    if(d1.length < 9) return { el: v1, msg: isEs?'Por favor ingrese su ' + k[1] + ' completo (9 dígitos).':'Please enter your complete ' + k[1] + ' (9 digits).' };
+    if(d2.length < 9) return { el: v2, msg: isEs?'Por favor confirme su ' + k[1] + '.':'Please confirm your ' + k[1] + '.' };
+    if(d1 !== d2) return { el: v2, msg: isEs?'Los ' + k[1] + ' no coinciden. Por favor verifique.':k[1] + 's do not match. Please check and try again.' };
+  }
+  var actVal = document.getElementById('ein-activity-val');
+  if(!actVal || !actVal.value) return { el: document.getElementById('ein-activity-search'), msg: isEs?'Por favor seleccione la actividad principal de su negocio.':'Please select your business principal activity.' };
+  return null;
+}
+
+// Marca en rojo el dato que falta del EIN, lo muestra y avisa.
+function fmEinFlagMissing(miss) {
+  if(miss.el) {
+    if(!miss.noBorder) miss.el.style.borderColor = '#ef4444';
+    try { miss.el.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch(e) {}
+    if(miss.el.focus && !miss.noBorder) miss.el.focus({ preventScroll: true });
+  }
+  alert(miss.msg);
+}
+
 function fmToggleAddon(key, el) {
+  // Mientras el EIN (addon de Basic) tenga datos sin completar, no se puede
+  // elegir otro servicio. Quitar servicios o destildar el propio EIN sigue libre.
+  if(key !== 'ein' && !fmData.addons[key] && fmData.addons.ein && fmData.package === 'basic') {
+    var einMiss = fmEinMissing();
+    if(einMiss) { fmEinFlagMissing(einMiss); return; }
+  }
   fmData.addons[key] = !fmData.addons[key];
   if(el) el.classList.toggle('selected', fmData.addons[key]);
   var chk = document.getElementById(key + '-check');
@@ -7315,6 +7330,15 @@ function fmShowOaFields(show) {
   // Init total with existing values
   fmOaOwnershipTotal();
 }
+
+// En Mac (trackpad/rueda) desplazarse con el cursor dentro de una casilla
+// numerica cambiaba el numero sin querer (50 pasaba a 49 o 51). Si la casilla
+// tiene el foco, se le quita antes de que el navegador sume o reste: la pagina
+// se desplaza normal y el numero no cambia. Las flechitas siguen funcionando.
+document.addEventListener('wheel', function(e) {
+  var t = e.target;
+  if(t && t.tagName === 'INPUT' && t.type === 'number' && document.activeElement === t) t.blur();
+}, { passive: true });
 
 // Mensaje unico de "la suma debe ser 100" (pasos 5 y 7).
 function fmOwnSumMsg(total, isEs) {
