@@ -5305,9 +5305,14 @@ function fmNext() {
     if(fmData.addons.oa) {
       var oaPanel = document.getElementById('oa-extra-fields');
       if(oaPanel && oaPanel.style.display !== 'none') {
-        var oaTotal = 0;
-        document.querySelectorAll('[id^="oa-m"][id$="-own"]').forEach(function(inp){ var v=parseFloat(inp.value); if(!isNaN(v)) oaTotal+=v; });
-        if(oaTotal !== 100) { alert(isEs7?'El total de propiedad debe ser 100% para el Acuerdo Operativo.':'Total ownership must equal 100% for the Operating Agreement.'); return; }
+        if(!fmOaOwnershipTotal(true)) {
+          var oaFirst = document.querySelector('[id^="oa-m"][id$="-own"]');
+          var oaMsg = document.getElementById('oa-own-msg');
+          if(oaMsg) oaMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          if(oaFirst) oaFirst.focus({ preventScroll: true });
+          alert(isEs7?'El total de propiedad debe ser 100% para el Acuerdo Operativo.':'Total ownership must equal 100% for the Operating Agreement.');
+          return;
+        }
       }
     }
   }
@@ -7296,6 +7301,7 @@ function fmShowOaFields(show) {
   html += '<span style="font-size:.82rem;font-weight:600;color:var(--navy)">' + (isEs ? 'Total de Propiedad' : 'Total Ownership') + '</span>';
   html += '<span id="oa-own-total" style="font-size:.95rem;font-weight:700;color:var(--navy)">0%</span>';
   html += '</div>';
+  html += '<div id="oa-own-msg" style="display:none;font-size:.78rem;margin-top:6px;padding:7px 11px;border-radius:7px;background:#fee2e2;color:#991b1b"></div>';
 
   container.innerHTML = html;
 
@@ -7303,18 +7309,38 @@ function fmShowOaFields(show) {
   fmOaOwnershipTotal();
 }
 
-function fmOaOwnershipTotal() {
+// showErr: true al apretar Continuar (marca en rojo aunque el cliente todavia
+// no haya escrito nada). Mientras escribe, el rojo aparece recien cuando hay
+// algun numero cargado. Antes cada casilla se ponia verde apenas tenia un
+// numero, aunque el total no sumara 100, y el cliente no sabia cual corregir.
+function fmOaOwnershipTotal(showErr) {
   var total = 0;
-  document.querySelectorAll('[id^="oa-m"][id$="-own"]').forEach(function(inp){
-    var v = parseFloat(inp.value); if(!isNaN(v)) total += v;
-    // Update field border color
-    if(!isNaN(v) && v > 0) inp.style.borderColor = '#059669';
+  var inps = document.querySelectorAll('[id^="oa-m"][id$="-own"]');
+  inps.forEach(function(inp){ var v = parseFloat(inp.value); if(!isNaN(v)) total += v; });
+  var ok = total === 100;
+  var markErr = !ok && (showErr || total > 0);
+  inps.forEach(function(inp){
+    if(ok) inp.style.borderColor = '#059669';
+    else if(markErr) inp.style.borderColor = '#ef4444';
   });
   var el = document.getElementById('oa-own-total');
   if(el) {
     el.textContent = total+'%';
-    el.style.color = total===100 ? '#059669' : total>100 ? '#ef4444' : 'var(--navy)';
+    el.style.color = ok ? '#059669' : (markErr ? '#ef4444' : 'var(--navy)');
   }
+  var msg = document.getElementById('oa-own-msg');
+  if(msg) {
+    var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
+    if(markErr) {
+      msg.textContent = isEs
+        ? 'El total de propiedad debe ser 100% para el Acuerdo Operativo. Ahora suma ' + total + '%. Corrija los porcentajes marcados en rojo.'
+        : 'Total ownership must equal 100% for the Operating Agreement. It currently adds up to ' + total + '%. Please fix the percentages marked in red.';
+      msg.style.display = 'block';
+    } else {
+      msg.style.display = 'none';
+    }
+  }
+  return ok;
 }
 
 var _fmSE=fmSetEntity;
