@@ -82,16 +82,18 @@ export async function checkAdminLoginRateLimit(ip: string): Promise<RateLimitRes
   return check(limiter, ip, 5)
 }
 
-// ── POST /api/orders: 10 órdenes / hora / IP ─────────────────────────────────
-// Previene spam de envío de formularios. Una persona real no envía 11 órdenes/h.
+// ── POST /api/orders: 60 / hora / IP ─────────────────────────────────────────
+// Previene spam de envío de formularios. No es "órdenes": el form del home
+// llama acá en cada cambio de servicio/velocidad (actualiza la misma orden).
+// Con 10 un cliente real lo pasaba y Stripe no cargaba (2026-10-17).
 export async function checkOrdersRateLimit(ip: string): Promise<RateLimitResult> {
   const limiter = getLimiter({
     cacheKey: 'orders',
     prefix: 'rl:orders',
-    limit: 10,
+    limit: 60,
     window: '1 h',
   })
-  return check(limiter, ip, 10)
+  return check(limiter, ip, 60)
 }
 
 // ── POST /api/client-auth: 20 intentos / hora / IP ───────────────────────────

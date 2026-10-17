@@ -11,7 +11,11 @@ import { getRequestGeo } from '@/lib/request-geo'
 
 export async function POST(request: NextRequest) {
   try {
-    // Rate limit: 10 órdenes / hora / IP. Fail-open si Upstash cae.
+    // Rate limit: 60 / hora / IP. Fail-open si Upstash cae. Era 10: el form
+    // del home llama a esta ruta en cada cambio de servicio/velocidad (prefetch
+    // de la sesión de Stripe, actualiza la misma orden), así que un cliente o
+    // una prueba lo pasaban y Stripe no cargaba ("Could not load payment",
+    // caso real 2026-10-17).
     const ip = getClientIp(request)
     const rl = await checkOrdersRateLimit(ip)
     if (!rl.success) {
