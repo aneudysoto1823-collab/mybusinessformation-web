@@ -5972,21 +5972,40 @@ function fmDestroyPayment() {
 
 // Clave de estado del pago: si el payload cambia (addons, velocidad, datos,
 // etc.) la sesi\u00f3n pre-creada deja de servir y hay que recrearla.
-function _fmPayKey(payload) { try { return JSON.stringify(payload); } catch(e) { return 'k' + Math.random(); } }
+// draftOrderId no entra en la clave: lo completa _fmCreateSessionReq al
+// momento de enviar (ver cola _fmOrderChain), no el que llama.
+function _fmPayKey(payload) {
+  try { var c = Object.assign({}, payload); delete c.draftOrderId; return JSON.stringify(c); }
+  catch(e) { return 'k' + Math.random(); }
+}
+
+// Cola de creacion de orden: los POST a /api/orders salen de a uno. Antes, si
+// se pedian dos sesiones casi juntas (entrar al paso 7 y togglear un addon),
+// las dos salian con draftOrderId vacio y se creaban 2 ordenes. Ahora la
+// segunda espera a la primera y sale con el orderId que esta devolvio.
+var _fmOrderChain = Promise.resolve();
 
 // Los 2 fetches secuenciales de siempre: crea/actualiza la orden pending y
 // devuelve la sesi\u00f3n de Stripe. Usado tanto por el prefetch como por el mount.
 function _fmCreateSessionReq(payload) {
-  return fetch('/api/orders', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
-    .then(function(res) { return res.json().then(function(data) { return { res: res, data: data }; }); })
-    .then(function(o) {
-      if(!(o.res.ok && o.data.success)) throw new Error((o.data && o.data.error) ? o.data.error : 'Error desconocido');
-      var orderId = o.data.orderId;
-      // Recuerda el orderId aunque el cliente nunca haya usado "Save" — si no,
-      // togglear un addon despues de este punto volvia a mandar draftOrderId
-      // vacio y /api/orders insertaba una fila nueva en vez de actualizar esta.
-      _fmDraftOrderId = orderId;
-      try { localStorage.setItem(FM_DRAFT_ID_KEY, orderId); } catch(e) {}
+  var run = _fmOrderChain.then(function() {
+    payload.draftOrderId = _fmDraftOrderId;
+    return fetch('/api/orders', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+      .then(function(res) { return res.json().then(function(data) { return { res: res, data: data }; }); })
+      .then(function(o) {
+        if(!(o.res.ok && o.data.success)) throw new Error((o.data && o.data.error) ? o.data.error : 'Error desconocido');
+        // Recuerda el orderId aunque el cliente nunca haya usado "Save" — si no,
+        // togglear un addon despues de este punto volvia a mandar draftOrderId
+        // vacio y /api/orders insertaba una fila nueva en vez de actualizar esta.
+        _fmDraftOrderId = o.data.orderId;
+        try { localStorage.setItem(FM_DRAFT_ID_KEY, o.data.orderId); } catch(e) {}
+        return o.data.orderId;
+      });
+  });
+  // La cola libera al siguiente recien cuando el orderId ya quedo guardado.
+  _fmOrderChain = run.then(function(){}, function(){});
+  return run
+    .then(function(orderId) {
       return fetch('/api/checkout/embedded', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ orderId: orderId }) })
         .then(function(sres) { return sres.json().then(function(sdata) { return { sres: sres, sdata: sdata }; }); })
         .then(function(s) {
@@ -6045,7 +6064,11 @@ async function fmMountPayment() {
     if(_fmPrefetch && _fmPrefetch.key === key) { p = _fmPrefetch.promise; }
     else { p = _fmCreateSessionReq(payload); _fmPrefetch = { key: key, promise: p }; }
     var result = await p;
-    fmClearProgress();
+    // Borra el progreso guardado pero NO el orderId en memoria: si el cliente
+    // vuelve atras y cambia algo, se actualiza esta misma orden en vez de
+    // crear una nueva (antes fmClearProgress() lo ponia en null).
+    try { localStorage.removeItem(FM_STORAGE_KEY); } catch(e) {}
+    try { localStorage.removeItem(FM_DRAFT_ID_KEY); } catch(e) {}
     generateOrderNumber(result.orderId);
     var numEl = document.getElementById('finalOrderNum'); if(numEl) numEl.textContent = orderNumber;
 
