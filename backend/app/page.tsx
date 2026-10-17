@@ -7331,6 +7331,24 @@ function fmShowOaFields(show) {
   fmOaOwnershipTotal();
 }
 
+// Celulares/tablets: la validacion del formulario hace campo.focus() y
+// enseguida alert(). En iPhone el campo quedaba trabado (no recibia lo que se
+// escribia hasta cerrar el teclado) y en Android el teclado no se abria,
+// porque el foco no lo puso el dedo del cliente (reportado 2026-10-17 con la
+// actividad del EIN). En pantallas tactiles se suelta el foco antes del aviso:
+// el campo queda en rojo y a la vista, y al tocarlo se abre el teclado normal.
+(function() {
+  var touch = false;
+  try { touch = window.matchMedia('(pointer: coarse)').matches; } catch(e) {}
+  if(!touch) return;
+  var nativeAlert = window.alert.bind(window);
+  window.alert = function(msg) {
+    var a = document.activeElement;
+    if(a && a !== document.body && a.blur) a.blur();
+    nativeAlert(msg);
+  };
+})();
+
 // En Mac (trackpad/rueda) desplazarse con el cursor dentro de una casilla
 // numerica cambiaba el numero sin querer (50 pasaba a 49 o 51). Si la casilla
 // tiene el foco, se le quita antes de que el navegador sume o reste: la pagina
