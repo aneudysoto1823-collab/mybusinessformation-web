@@ -257,6 +257,9 @@ ${isFBFC ? `
 .co-sum-toggle{display:none;font-size:.78rem;font-weight:700;color:var(--blue);line-height:1;text-decoration:underline;white-space:nowrap}
 .co-ssn-wrap{position:relative;max-width:220px}
 .co-ssn-wrap .co-input{padding-right:64px}
+@font-face{font-family:'text-security-disc';src:url('/fonts/text-security-disc.woff2') format('woff2');font-display:block}
+.co-input.co-masked{font-family:'text-security-disc';letter-spacing:2px}
+.co-input.co-masked::placeholder{font-family:var(--font-sans),'Plus Jakarta Sans',system-ui,sans-serif;letter-spacing:normal}
 .co-ssn-eye{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--blue);font-size:.78rem;font-weight:600;cursor:pointer;font-family:inherit;padding:4px 6px}
 #s-ssnItin-confirm{max-width:220px}
 .co-amd-opt{display:flex;align-items:center;gap:10px;cursor:pointer;padding:11px 14px;background:#fff;border:1.5px solid var(--gray200);border-radius:9px;margin-bottom:10px;font-size:.88rem;font-weight:600;color:var(--gray800)}
@@ -1455,29 +1458,32 @@ function coSharedFieldsInner(keys){
       // contraseña guardada, que puede terminar metiéndose en el campo sin que
       // el cliente lo note (bug real: ambos campos se ven iguales a simple
       // vista pero no coinciden — password manager de por medio). El masking
-      // visual (los puntos) lo da el CSS, no el atributo type.
+      // visual (los puntos) lo da la fuente text-security-disc (clase
+      // co-masked, 2026-10-17): con -webkit-text-security Safari seguia
+      // tratandolo como contrasena y ofrecia "Use Strong Password".
       // Uno al lado del otro (2026-09-11, antes cada uno en su propia fila
       // completa) — evita scroll extra ahora que viven dentro del paso
       // "Información personal" en vez de su propio paso corto.
       return '<div class="co-field"><label class="co-label">'+lbl+tipHtml+'</label>'
-        +'<div class="co-ssn-wrap"><input class="co-input" type="text" style="-webkit-text-security:disc" autocomplete="off" data-lpignore="true" data-form-type="other" inputmode="numeric" maxlength="9" oninput="this.value=this.value.replace(/[^0-9]/g,\'\');coCheckSsnMatch()" id="s-ssnItin"/>'
+        +'<div class="co-ssn-wrap"><input class="co-input co-masked" type="text" autocomplete="off" data-lpignore="true" data-form-type="other" inputmode="numeric" maxlength="9" oninput="this.value=this.value.replace(/[^0-9]/g,\'\');coCheckSsnMatch()" id="s-ssnItin"/>'
         +'<button type="button" class="co-ssn-eye" onclick="coToggleSsn(this)">'+(isEs?'Ver':'Show')+'</button></div></div>'
         +'<div class="co-field"><label class="co-label">'+(isEs?'Confirme su SSN o ITIN':'Confirm your SSN or ITIN')+'</label>'
-        +'<input class="co-input" type="text" style="-webkit-text-security:disc" autocomplete="off" data-lpignore="true" data-form-type="other" inputmode="numeric" maxlength="9" oninput="this.value=this.value.replace(/[^0-9]/g,\'\');coCheckSsnMatch()" id="s-ssnItin-confirm"/>'
+        +'<input class="co-input co-masked" type="text" autocomplete="off" data-lpignore="true" data-form-type="other" inputmode="numeric" maxlength="9" oninput="this.value=this.value.replace(/[^0-9]/g,\'\');coCheckSsnMatch()" id="s-ssnItin-confirm"/>'
         +'<div id="s-ssn-match-msg" style="font-size:.78rem;font-weight:600;margin-top:6px;min-height:16px"></div></div>';
     }
     return '<div class="co-field full"><label class="co-label">'+lbl+tipHtml+'</label><input class="co-input" type="text" id="s-'+k+'"/></div>';
   }).join('');
 }
 // Mostrar/ocultar el SSN (afecta ambos campos: el principal y su confirmación).
-// Alterna el masking via CSS (-webkit-text-security), no el atributo type —
+// Alterna el masking via la clase co-masked (fuente de puntitos text-security-disc,
+// 2026-10-17: con -webkit-text-security Safari igual ofrecia guardar contrasena), no el atributo type —
 // ver comentario en coSharedFieldsInner sobre por qué type="password" causaba
 // interferencia del gestor de contraseñas del navegador.
 function coToggleSsn(btn){
   var isEs=coIsEs(); var a=$('s-ssnItin'), b=$('s-ssnItin-confirm');
-  var show = a && a.style.webkitTextSecurity==='disc';
-  if(a) a.style.webkitTextSecurity=show?'none':'disc';
-  if(b) b.style.webkitTextSecurity=show?'none':'disc';
+  var show = a && a.classList.contains('co-masked');
+  if(a) a.classList.toggle('co-masked',!show);
+  if(b) b.classList.toggle('co-masked',!show);
   btn.textContent = show ? (isEs?'Ocultar':'Hide') : (isEs?'Ver':'Show');
 }
 // Feedback en vivo mientras el cliente escribe/corrige el SSN o ITIN — antes
