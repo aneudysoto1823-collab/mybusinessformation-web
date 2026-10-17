@@ -3912,8 +3912,9 @@ function _saveToastShowFbfc(fbfc) {
   var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
   var titleTxt = isEs ? 'Orden guardada' : 'Order saved';
   var descTxt = isEs
-    ? 'Su numero de orden es. Copielo para volver despues:'
-    : 'Your order number is. Copy it to come back later:';
+    ? 'Este es su número de orden. Cópielo para volver después:'
+    : 'This is your order number. Copy it to come back later:';
+  var copyTxt = isEs ? 'Copiar' : 'Copy';
   t.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#fff;color:#1C2E44;padding:16px 44px 16px 22px;border-radius:12px;font-size:.92rem;font-weight:600;box-shadow:0 10px 32px rgba(15,28,46,0.18);border:1px solid #e2e8f0;z-index:99999;font-family:var(--font-sans);max-width:420px;position:fixed';
   t.innerHTML =
     '<button onclick="closeSaveToast()" aria-label="Close" style="position:absolute;top:8px;right:10px;background:transparent;border:none;color:#94a3b8;font-size:20px;line-height:1;cursor:pointer;padding:4px 8px;border-radius:6px;font-family:inherit;font-weight:700">&times;</button>' +
@@ -3922,7 +3923,35 @@ function _saveToastShowFbfc(fbfc) {
       '<div style="font-size:.98rem;font-weight:700;color:#1C2E44">' + titleTxt + '</div>' +
     '</div>' +
     '<div style="font-size:.82rem;font-weight:500;color:#64748b;line-height:1.55;margin-bottom:8px">' + descTxt + '</div>' +
-    '<div style="background:#EFF6FF;border:1px solid #bfdbfe;border-radius:8px;padding:9px 12px;font-family:var(--font-mono, monospace);font-size:1.05rem;font-weight:800;letter-spacing:1.2px;text-align:center;color:#1C2E44">' + fbfc + '</div>';
+    '<div style="display:flex;align-items:center;gap:8px">' +
+      '<div style="flex:1;background:#EFF6FF;border:1px solid #bfdbfe;border-radius:8px;padding:9px 12px;font-family:var(--font-mono, monospace);font-size:1.05rem;font-weight:800;letter-spacing:1.2px;text-align:center;color:#1C2E44">' + fbfc + '</div>' +
+      '<button type="button" data-num="' + fbfc + '" data-es="' + (isEs ? '1' : '') + '" onclick="fmCopyOrderNum(this)" title="' + copyTxt + '" aria-label="' + copyTxt + '" style="display:flex;align-items:center;gap:5px;background:#fff;border:1.5px solid #2563EB;color:#2563EB;border-radius:8px;padding:9px 11px;font-size:.8rem;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap">' +
+        '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>' +
+        '<span>' + copyTxt + '</span>' +
+      '</button>' +
+    '</div>';
+}
+
+// Boton "Copiar" del toast de orden guardada.
+function fmCopyOrderNum(btn) {
+  var num = btn.getAttribute('data-num') || '';
+  var isEs = !!btn.getAttribute('data-es');
+  function done() {
+    var lbl = btn.querySelector('span');
+    if(lbl) lbl.textContent = isEs ? 'Copiado' : 'Copied';
+    btn.style.borderColor = '#059669'; btn.style.color = '#059669';
+    setTimeout(function(){ if(lbl) lbl.textContent = isEs ? 'Copiar' : 'Copy'; btn.style.borderColor = '#2563EB'; btn.style.color = '#2563EB'; }, 2000);
+  }
+  if(navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(num).then(done, function(){ fmCopyFallback(num); done(); });
+  } else { fmCopyFallback(num); done(); }
+}
+function fmCopyFallback(txt) {
+  var ta = document.createElement('textarea');
+  ta.value = txt; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); } catch(e) {}
+  document.body.removeChild(ta);
 }
 
 // Cambia el toast a estado error (server fallo). El user lo cierra manual.
@@ -4840,7 +4869,10 @@ function fmGoToStep(n) {
     } else {
       // La casilla de Términos vive dentro del form de Stripe (2026-10-15,
       // lib/checkout-terms.ts): el pago se monta apenas se llega al Review.
-      fmMountPayment();
+      // Al recuperar una orden guardada se espera a que fmRestoreProgress
+      // termine de cargar los datos (y se rearma el Review con ellos).
+      if(_fmRestoring) setTimeout(function(){ fmBuildReview(); fmMountPayment(); }, 120);
+      else fmMountPayment();
     }
   } else {
     // Restaurar: Stripe vuelve dentro del summary y el summary vuelve a la derecha.
@@ -6387,16 +6419,35 @@ function fmRestoreProgress(progress) {
   // tienen ese gate). Si el paso guardado es posterior al 6, el cliente ya
   // pasó por esa elección en su sesión original — hay que mostrarla.
   if((progress.step || 1) > 6) _fmSpeedSeen = true;
-  fmGoToStep(progress.step || 1);
+  function applyValues() {
+    if(!progress.values) return;
+    Object.keys(progress.values).forEach(function(id) {
+      var el = document.getElementById(id);
+      if(el) el.value = progress.values[id];
+    });
+  }
+  // Los datos se cargan ANTES de ir al paso: si el paso guardado es el Review,
+  // fmGoToStep(8) arma el pago (crea la orden) y antes los datos llegaban 50ms
+  // despues -> orden sin nombre, 400 y "Could not load payment" (2026-10-17).
+  applyValues();
+  // El SSN/ITIN nunca se guarda (ni en localStorage ni en draftSnapshot). Si la
+  // orden lo necesita y el paso guardado ya lo habia pasado, se vuelve al paso
+  // donde se pide, para no llegar a pagar sin el.
+  var step = progress.step || 1;
+  var needsTaxId = false;
+  if((fmData.package === 'standard' || fmData.package === 'premium') && step > 2) { step = 2; needsTaxId = true; }
+  else if(fmData.package === 'basic' && fmData.addons && fmData.addons.ein && step > 7) { step = 7; needsTaxId = true; }
+  fmGoToStep(step);
   _fmRestoring = false;
   setTimeout(function() {
-    if(progress.values) {
-      Object.keys(progress.values).forEach(function(id) {
-        var el = document.getElementById(id);
-        if(el) el.value = progress.values[id];
-      });
-    }
+    applyValues(); // campos que se crean al entrar al paso (ej. socios extra)
     fmUpdateSummary();
+    if(needsTaxId) {
+      var isEs = document.getElementById('btn-es') && document.getElementById('btn-es').classList.contains('active');
+      alert(isEs
+        ? 'Por su seguridad no guardamos el SSN o ITIN. Por favor ingréselo de nuevo para continuar.'
+        : 'For your security we do not save your SSN or ITIN. Please enter it again to continue.');
+    }
   }, 50);
 }
 
