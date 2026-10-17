@@ -1563,14 +1563,14 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
                 <div id="pkg-ein-ssn-field" style="display:none;margin-top:10px">
                   <label class="fm-label" style="margin-bottom:5px" id="pkg-lbl-ssn-1">SSN *</label>
                   <div style="position:relative;margin-bottom:10px">
-                    <input type="password" class="fm-input" id="pkg-inp-ein-ssn" placeholder="XXX-XX-XXXX" maxlength="11" oninput="fmFormatSSN(this,'pkg');fmCheckIdMatch('ssn','pkg')" autocomplete="off" style="padding-right:42px;letter-spacing:2px"/>
+                    <input type="text" class="fm-input" data-lpignore="true" data-1p-ignore data-form-type="other" inputmode="numeric" id="pkg-inp-ein-ssn" placeholder="XXX-XX-XXXX" maxlength="11" oninput="fmFormatSSN(this,'pkg');fmCheckIdMatch('ssn','pkg')" autocomplete="off" style="-webkit-text-security:disc;padding-right:42px;letter-spacing:2px"/>
                     <button type="button" onclick="fmToggleMask('pkg-inp-ein-ssn','pkg-eye-ssn')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#9ca3af;padding:4px;display:flex;align-items:center" title="Show/Hide">
                       <svg id="pkg-eye-ssn" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                     </button>
                   </div>
                   <label class="fm-label" style="margin-bottom:5px" id="pkg-lbl-ssn-2">Confirm SSN *</label>
                   <div style="position:relative">
-                    <input type="password" class="fm-input" id="pkg-inp-ein-ssn-confirm" placeholder="Re-enter your SSN" maxlength="11" autocomplete="off" style="padding-right:42px;letter-spacing:2px"
+                    <input type="text" class="fm-input" data-lpignore="true" data-1p-ignore data-form-type="other" inputmode="numeric" id="pkg-inp-ein-ssn-confirm" placeholder="Re-enter your SSN" maxlength="11" autocomplete="off" style="-webkit-text-security:disc;padding-right:42px;letter-spacing:2px"
                       onpaste="return false" oncopy="return false" oncut="return false"
                       oninput="fmFormatSSN(this,'pkg');fmCheckIdMatch('ssn','pkg')"/>
                     <button type="button" onclick="fmToggleMask('pkg-inp-ein-ssn-confirm','pkg-eye-ssn-c')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#9ca3af;padding:4px;display:flex;align-items:center" title="Show/Hide">
@@ -1583,14 +1583,14 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
                 <div id="pkg-ein-itin-field" style="display:none;margin-top:10px">
                   <label class="fm-label" style="margin-bottom:5px" id="pkg-lbl-itin-1">ITIN *</label>
                   <div style="position:relative;margin-bottom:10px">
-                    <input type="password" class="fm-input" id="pkg-inp-ein-itin" placeholder="9XX-XX-XXXX" maxlength="11" oninput="fmFormatSSN(this,'pkg');fmCheckIdMatch('itin','pkg')" autocomplete="off" style="padding-right:42px;letter-spacing:2px"/>
+                    <input type="text" class="fm-input" data-lpignore="true" data-1p-ignore data-form-type="other" inputmode="numeric" id="pkg-inp-ein-itin" placeholder="9XX-XX-XXXX" maxlength="11" oninput="fmFormatSSN(this,'pkg');fmCheckIdMatch('itin','pkg')" autocomplete="off" style="-webkit-text-security:disc;padding-right:42px;letter-spacing:2px"/>
                     <button type="button" onclick="fmToggleMask('pkg-inp-ein-itin','pkg-eye-itin')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#9ca3af;padding:4px;display:flex;align-items:center" title="Show/Hide">
                       <svg id="pkg-eye-itin" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                     </button>
                   </div>
                   <label class="fm-label" style="margin-bottom:5px" id="pkg-lbl-itin-2">Confirm ITIN *</label>
                   <div style="position:relative">
-                    <input type="password" class="fm-input" id="pkg-inp-ein-itin-confirm" placeholder="Re-enter your ITIN" maxlength="11" autocomplete="off" style="padding-right:42px;letter-spacing:2px"
+                    <input type="text" class="fm-input" data-lpignore="true" data-1p-ignore data-form-type="other" inputmode="numeric" id="pkg-inp-ein-itin-confirm" placeholder="Re-enter your ITIN" maxlength="11" autocomplete="off" style="-webkit-text-security:disc;padding-right:42px;letter-spacing:2px"
                       onpaste="return false" oncopy="return false" oncut="return false"
                       oninput="fmFormatSSN(this,'pkg');fmCheckIdMatch('itin','pkg')"/>
                     <button type="button" onclick="fmToggleMask('pkg-inp-ein-itin-confirm','pkg-eye-itin-c')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#9ca3af;padding:4px;display:flex;align-items:center" title="Show/Hide">
@@ -2007,14 +2007,14 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
               <div id="ein-ssn-field" style="display:none;margin-top:10px">
                 <label class="fm-label" style="margin-bottom:5px" id="lbl-ssn-1">SSN *</label>
                 <div style="position:relative;margin-bottom:10px">
-                  <input type="password" class="fm-input" id="inp-ein-ssn" placeholder="XXX-XX-XXXX" maxlength="11" oninput="fmFormatSSN(this);fmCheckIdMatch('ssn')" autocomplete="off" style="padding-right:42px;letter-spacing:2px"/>
+                  <input type="text" class="fm-input" data-lpignore="true" data-1p-ignore data-form-type="other" inputmode="numeric" id="inp-ein-ssn" placeholder="XXX-XX-XXXX" maxlength="11" oninput="fmFormatSSN(this);fmCheckIdMatch('ssn')" autocomplete="off" style="-webkit-text-security:disc;padding-right:42px;letter-spacing:2px"/>
                   <button type="button" onclick="fmToggleMask('inp-ein-ssn','eye-ssn')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#9ca3af;padding:4px;display:flex;align-items:center" title="Show/Hide">
                     <svg id="eye-ssn" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                   </button>
                 </div>
                 <label class="fm-label" style="margin-bottom:5px" id="lbl-ssn-2">Confirm SSN *</label>
                 <div style="position:relative">
-                  <input type="password" class="fm-input" id="inp-ein-ssn-confirm" placeholder="Re-enter your SSN" maxlength="11" autocomplete="off" style="padding-right:42px;letter-spacing:2px"
+                  <input type="text" class="fm-input" data-lpignore="true" data-1p-ignore data-form-type="other" inputmode="numeric" id="inp-ein-ssn-confirm" placeholder="Re-enter your SSN" maxlength="11" autocomplete="off" style="-webkit-text-security:disc;padding-right:42px;letter-spacing:2px"
                     onpaste="return false" oncopy="return false" oncut="return false"
                     oninput="fmFormatSSN(this);fmCheckIdMatch('ssn')"/>
                   <button type="button" onclick="fmToggleMask('inp-ein-ssn-confirm','eye-ssn-c')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#9ca3af;padding:4px;display:flex;align-items:center" title="Show/Hide">
@@ -2027,14 +2027,14 @@ footer{background:var(--navy);color:rgba(255,255,255,0.7);padding:52px 32px 28px
               <div id="ein-itin-field" style="display:none;margin-top:10px">
                 <label class="fm-label" style="margin-bottom:5px" id="lbl-itin-1">ITIN *</label>
                 <div style="position:relative;margin-bottom:10px">
-                  <input type="password" class="fm-input" id="inp-ein-itin" placeholder="9XX-XX-XXXX" maxlength="11" oninput="fmFormatSSN(this);fmCheckIdMatch('itin')" autocomplete="off" style="padding-right:42px;letter-spacing:2px"/>
+                  <input type="text" class="fm-input" data-lpignore="true" data-1p-ignore data-form-type="other" inputmode="numeric" id="inp-ein-itin" placeholder="9XX-XX-XXXX" maxlength="11" oninput="fmFormatSSN(this);fmCheckIdMatch('itin')" autocomplete="off" style="-webkit-text-security:disc;padding-right:42px;letter-spacing:2px"/>
                   <button type="button" onclick="fmToggleMask('inp-ein-itin','eye-itin')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#9ca3af;padding:4px;display:flex;align-items:center" title="Show/Hide">
                     <svg id="eye-itin" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                   </button>
                 </div>
                 <label class="fm-label" style="margin-bottom:5px" id="lbl-itin-2">Confirm ITIN *</label>
                 <div style="position:relative">
-                  <input type="password" class="fm-input" id="inp-ein-itin-confirm" placeholder="Re-enter your ITIN" maxlength="11" autocomplete="off" style="padding-right:42px;letter-spacing:2px"
+                  <input type="text" class="fm-input" data-lpignore="true" data-1p-ignore data-form-type="other" inputmode="numeric" id="inp-ein-itin-confirm" placeholder="Re-enter your ITIN" maxlength="11" autocomplete="off" style="-webkit-text-security:disc;padding-right:42px;letter-spacing:2px"
                     onpaste="return false" oncopy="return false" oncut="return false"
                     oninput="fmFormatSSN(this);fmCheckIdMatch('itin')"/>
                   <button type="button" onclick="fmToggleMask('inp-ein-itin-confirm','eye-itin-c')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#9ca3af;padding:4px;display:flex;align-items:center" title="Show/Hide">
@@ -7155,8 +7155,11 @@ function fmToggleMask(inputId, eyeId) {
   var inp = document.getElementById(inputId);
   var eye = document.getElementById(eyeId);
   if(!inp) return;
-  var isHidden = inp.type === 'password';
-  inp.type = isHidden ? 'text' : 'password';
+  // Se tapa con -webkit-text-security (no type="password"): con password
+  // Safari/Chrome ofrecian guardar el SSN/ITIN como clave (igual que el fix
+  // de /servicios/checkout, coToggleSsnMask).
+  var isHidden = inp.style.webkitTextSecurity !== 'none';
+  inp.style.webkitTextSecurity = isHidden ? 'none' : 'disc';
   inp.style.letterSpacing = isHidden ? '0' : '2px';
   if(eye) {
     // Switch between eye-open and eye-closed SVG
